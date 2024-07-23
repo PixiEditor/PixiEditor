@@ -11,7 +11,7 @@ internal class KeyFramesStartPos_UpdateableChange : UpdateableChange
     private Dictionary<Guid, int> originalStartFrames = new();
     
     [GenerateUpdateableChangeActions]
-    public KeyFramesStartPos_UpdateableChange(List<Guid> keyFramesGuid, int delta)
+    public KeyFramesStartPos_UpdateableChange(List<Guid> keyFramesGuid, int delta) // do not delete, code generator uses this for update method
     {
         KeyFramesGuid = keyFramesGuid.ToArray();
         Delta = 0;

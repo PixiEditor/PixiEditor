@@ -1,4 +1,7 @@
-﻿namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
+
+namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 public interface IReadOnlyNodeGraph
 {
@@ -7,5 +10,5 @@ public interface IReadOnlyNodeGraph
     public void AddNode(IReadOnlyNode node);
     public void RemoveNode(IReadOnlyNode node);
     public bool TryTraverse(Action<IReadOnlyNode> action);
-    public ChunkyImage? Execute(int frame);
+    public Surface? Execute(RenderingContext context);
 }

@@ -69,6 +69,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable
     private static Paint AddingPaint { get; } = new Paint() { BlendMode = BlendMode.Plus };
     private readonly Paint blendModePaint = new Paint() { BlendMode = BlendMode.Src };
 
+    public int CommitCounter => commitCounter;
+
     public VecI CommittedSize { get; private set; }
     public VecI LatestSize { get; private set; }
 
@@ -88,6 +90,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable
     private VectorPath? clippingPath;
     private double? horizontalSymmetryAxis = null;
     private double? verticalSymmetryAxis = null;
+    private float opacity = 1;
 
     private readonly Dictionary<ChunkResolution, Dictionary<VecI, Chunk>> committedChunks;
     private readonly Dictionary<ChunkResolution, Dictionary<VecI, Chunk>> latestChunks;
@@ -339,7 +342,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable
             {
                 if (committedChunk is null)
                     return false;
-                committedChunk.DrawOnSurface(surface, pos, paint);
+                committedChunk.DrawChunkOn(surface, pos, paint);
                 return true;
             }
 
@@ -348,7 +351,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable
             {
                 if (latestChunk.IsT2)
                 {
-                    latestChunk.AsT2.DrawOnSurface(surface, pos, paint);
+                    latestChunk.AsT2.DrawChunkOn(surface, pos, paint);
                     return true;
                 }
 
@@ -364,7 +367,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable
                 blendModePaint);
             if (lockTransparency)
                 OperationHelper.ClampAlpha(tempChunk.Surface.DrawingSurface, committedChunk.Surface.DrawingSurface);
-            tempChunk.DrawOnSurface(surface, pos, paint);
+            tempChunk.DrawChunkOn(surface, pos, paint);
 
             return true;
         }
@@ -389,6 +392,22 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable
         }
     }
 
+    public bool LatestOrCommittedChunkExists()
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            var chunks = FindAllChunks();
+            foreach (var chunk in chunks)
+            {
+                if (LatestOrCommittedChunkExists(chunk))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public bool DrawCommittedChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface, VecI pos,
         Paint? paint = null)
@@ -399,7 +418,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable
             var chunk = GetCommittedChunk(chunkPos, resolution);
             if (chunk is null)
                 return false;
-            chunk.DrawOnSurface(surface, pos, paint);
+            chunk.DrawChunkOn(surface, pos, paint);
             return true;
         }
     }
@@ -757,6 +776,17 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable
             EnqueueOperation(operation, new(FindAllChunksOutsideBounds(newSize)));
         }
     }
+    
+    
+    public void EnqueueDrawPaint(Paint paint)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            PaintOperation operation = new(paint);
+            EnqueueOperation(operation);
+        }
+    }
 
     private void EnqueueOperation(IDrawOperation operation)
     {
@@ -1025,6 +1055,15 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable
         }
     }
 
+    public void SetCommitedChunk(Chunk chunk, VecI pos, ChunkResolution resolution)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            committedChunks[resolution][pos] = chunk;
+        }
+    }
+
     /// <summary>
     /// Applies all operations queued for a specific (latest) chunk. If the latest chunk doesn't exist yet, creates it. If none of the existing operations affect the chunk does nothing.
     /// </summary>
@@ -1144,14 +1183,14 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable
             var clip = combinedRasterClips.AsT2;
 
             using var tempChunk = Chunk.Create(targetChunk.Resolution);
-            targetChunk.DrawOnSurface(tempChunk.Surface.DrawingSurface, VecI.Zero, ReplacingPaint);
+            targetChunk.DrawChunkOn(tempChunk.Surface.DrawingSurface, VecI.Zero, ReplacingPaint);
 
             CallDrawWithClip(chunkOperation, operationAffectedArea.GlobalArea, tempChunk, resolution, chunkPos);
 
-            clip.DrawOnSurface(tempChunk.Surface.DrawingSurface, VecI.Zero, ClippingPaint);
-            clip.DrawOnSurface(targetChunk.Surface.DrawingSurface, VecI.Zero, InverseClippingPaint);
+            clip.DrawChunkOn(tempChunk.Surface.DrawingSurface, VecI.Zero, ClippingPaint);
+            clip.DrawChunkOn(targetChunk.Surface.DrawingSurface, VecI.Zero, InverseClippingPaint);
 
-            tempChunk.DrawOnSurface(targetChunk.Surface.DrawingSurface, VecI.Zero, AddingPaint);
+            tempChunk.DrawChunkOn(targetChunk.Surface.DrawingSurface, VecI.Zero, AddingPaint);
             return false;
         }
 

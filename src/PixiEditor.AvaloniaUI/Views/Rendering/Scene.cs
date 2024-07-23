@@ -14,6 +14,7 @@ using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
+using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.Views.Overlays;
 using PixiEditor.AvaloniaUI.Views.Overlays.Pointers;
@@ -49,6 +50,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     public static readonly StyledProperty<Cursor> DefaultCursorProperty = AvaloniaProperty.Register<Scene, Cursor>(
         nameof(DefaultCursor));
+
+    public static readonly StyledProperty<ViewportColorChannels> ChannelsProperty = AvaloniaProperty.Register<Scene, ViewportColorChannels>(
+        nameof(Channels));
 
     public Cursor DefaultCursor
     {
@@ -86,6 +90,12 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         set => SetValue(SurfaceProperty, value);
     }
 
+    public ViewportColorChannels Channels
+    {
+        get => GetValue(ChannelsProperty);
+        set => SetValue(ChannelsProperty, value);
+    }
+
     private Bitmap? checkerBitmap;
 
     private Overlay? capturedOverlay;
@@ -104,6 +114,12 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         CheckerImagePathProperty.Changed.AddClassHandler<Scene>(CheckerImagePathChanged);
         AllOverlaysProperty.Changed.AddClassHandler<Scene>(ActiveOverlaysChanged);
         DefaultCursorProperty.Changed.AddClassHandler<Scene>(DefaultCursorChanged);
+        ChannelsProperty.Changed.AddClassHandler<Scene>(ChannelsChanged);
+    }
+
+    private static void ChannelsChanged(Scene scene, AvaloniaPropertyChangedEventArgs args)
+    {
+        scene.InvalidateVisual();
     }
 
     public Scene()
@@ -130,7 +146,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         using var operation = new DrawSceneOperation(Surface, Document, CanvasPos, Scale * resolutionScale, angle, FlipX, FlipY,
             dirtyRect,
             Bounds,
-            sceneOpacity);
+            sceneOpacity,
+            Channels.GetColorMatrix());
 
         var matrix = CalculateTransformMatrix();
         context.PushTransform(matrix);
@@ -454,13 +471,14 @@ internal class DrawSceneOperation : SkiaDrawOperation
     public bool FlipX { get; set; }
     public bool FlipY { get; set; }
     public Rect ViewportBounds { get; }
+    public ColorMatrix ColorMatrix { get; }
 
     public RectI SurfaceRectToRender { get; }
 
     private SKPaint _paint = new SKPaint();
 
     public DrawSceneOperation(Surface surface, DocumentViewModel document, VecD contentPosition, double scale,
-        double angle, bool flipX, bool flipY, Rect dirtyBounds, Rect viewportBounds, double opacity) : base(dirtyBounds)
+        double angle, bool flipX, bool flipY, Rect dirtyBounds, Rect viewportBounds, double opacity, ColorMatrix colorMatrix) : base(dirtyBounds)
     {
         Surface = surface;
         Document = document;
@@ -469,6 +487,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
         Angle = angle;
         FlipX = flipX;
         FlipY = flipY;
+        ColorMatrix = colorMatrix;
         ViewportBounds = viewportBounds;
         _paint.Color = _paint.Color.WithAlpha((byte)(opacity * 255));
         SurfaceRectToRender = FindRectToRender((float)scale);
@@ -489,6 +508,11 @@ internal class DrawSceneOperation : SkiaDrawOperation
         }
         
         using Image snapshot = Surface.DrawingSurface.Snapshot(SurfaceRectToRender);
+
+        var matrixValues = new float[ColorMatrix.Width * ColorMatrix.Height];
+        ColorMatrix.TryGetMembers(matrixValues);
+        
+        _paint.ColorFilter = SKColorFilter.CreateColorMatrix(matrixValues);
         canvas.DrawImage((SKImage)snapshot.Native, SurfaceRectToRender.X, SurfaceRectToRender.Y, _paint);
 
         canvas.Restore();

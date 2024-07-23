@@ -1,6 +1,9 @@
 ﻿using System.Diagnostics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -10,42 +13,95 @@ public abstract class Node : IReadOnlyNode, IDisposable
 {
     private List<InputProperty> inputs = new();
     private List<OutputProperty> outputs = new();
-
-    private List<IReadOnlyNode> _connectedNodes = new();
+    protected List<KeyFrameData> keyFrames = new();
 
     public Guid Id { get; internal set; } = Guid.NewGuid();
 
     public IReadOnlyCollection<InputProperty> InputProperties => inputs;
     public IReadOnlyCollection<OutputProperty> OutputProperties => outputs;
-    public IReadOnlyCollection<IReadOnlyNode> ConnectedOutputNodes => _connectedNodes;
-    public IReadOnlyChunkyImage CachedResult { get; private set; }
+
+    public Surface? CachedResult
+    {
+        get
+        {
+            if(_lastCachedResult == null || _lastCachedResult.IsDisposed) return null;
+            return _lastCachedResult;
+        }
+        private set
+        {
+            _lastCachedResult = value;
+        }
+    }
+
+    public virtual string InternalName => $"PixiEditor.{NodeUniqueName}";
+    
+    protected abstract string NodeUniqueName { get; }
+
+    protected virtual bool AffectedByAnimation { get; }
+
+    protected virtual bool AffectedByChunkResolution { get; }
+
+    protected virtual bool AffectedByChunkToUpdate { get; }
+
+    protected Node()
+    {
+    }
 
     IReadOnlyCollection<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyCollection<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
     public VecD Position { get; set; }
+    public abstract string DisplayName { get; set; }
 
-    public IReadOnlyChunkyImage? Execute(KeyFrameTime frameTime)
+    private KeyFrameTime _lastFrameTime = new KeyFrameTime(-1, 0);
+    private ChunkResolution? _lastResolution;
+    private VecI? _lastChunkPos;
+    private bool _keyFramesDirty;
+    private Surface? _lastCachedResult;
+
+    public Surface? Execute(RenderingContext context)
     {
-        CachedResult = OnExecute(frameTime);
+        var result = ExecuteInternal(context);
+
+        var copy = new Surface(result);
+        return copy;
+    }
+
+    internal Surface ExecuteInternal(RenderingContext context)
+    {
+        if (!CacheChanged(context)) return CachedResult;
+
+        CachedResult = OnExecute(context);
+        if (CachedResult is { IsDisposed: true })
+        {
+            throw new ObjectDisposedException("Surface was disposed after execution.");
+        }
+
+        UpdateCache(context);
         return CachedResult;
     }
 
-    protected abstract ChunkyImage? OnExecute(KeyFrameTime frameTime);
-    public abstract bool Validate();
+    protected abstract Surface? OnExecute(RenderingContext context);
 
-    public void RemoveKeyFrame(Guid keyFrameGuid)
+    protected virtual bool CacheChanged(RenderingContext context)
     {
-        // TODO: Implement
+        return (!context.FrameTime.Equals(_lastFrameTime) && AffectedByAnimation)
+               || (AffectedByAnimation && _keyFramesDirty)
+               || (context.ChunkResolution != _lastResolution && AffectedByChunkResolution)
+               || (context.ChunkToUpdate != _lastChunkPos && AffectedByChunkToUpdate)
+               || inputs.Any(x => x.CacheChanged);
     }
 
-    public void SetKeyFrameLength(Guid keyFrameGuid, int startFrame, int duration)
+    protected virtual void UpdateCache(RenderingContext context)
     {
-        // TODO: Implement
-    }
+        foreach (var input in inputs)
+        {
+            input.UpdateCache();
+        }
 
-    public void AddFrame<T>(Guid keyFrameGuid, int startFrame, int duration, T value)
-    {
-        // TODO: Implement
+        _lastFrameTime = context.FrameTime;
+        _lastResolution = context.ChunkResolution;
+        _lastChunkPos = context.ChunkToUpdate;
+        _keyFramesDirty = false;
     }
 
     public void TraverseBackwards(Func<IReadOnlyNode, bool> action)
@@ -100,12 +156,55 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
             foreach (var outputProperty in node.OutputProperties)
             {
-                foreach (var outputNode in ConnectedOutputNodes)
+                foreach (var connection in outputProperty.Connections)
                 {
-                    queueNodes.Enqueue(outputNode);
+                    if (connection.Connection != null)
+                    {
+                        queueNodes.Enqueue(connection.Node);
+                    }
                 }
             }
         }
+    }
+
+    public void RemoveKeyFrame(Guid keyFrameId)
+    {
+        keyFrames.RemoveAll(x => x.KeyFrameGuid == keyFrameId);
+        _keyFramesDirty = true;
+    }
+
+    public void SetKeyFrameLength(Guid id, int startFrame, int duration)
+    {
+        KeyFrameData frame = keyFrames.FirstOrDefault(x => x.KeyFrameGuid == id);
+        if (frame is not null)
+        {
+            frame.StartFrame = startFrame;
+            frame.Duration = duration;
+            _keyFramesDirty = true;
+        }
+    }
+
+    public void AddFrame<T>(Guid id, T value) where T : KeyFrameData
+    {
+        if (keyFrames.Any(x => x.KeyFrameGuid == id))
+        {
+            throw new InvalidOperationException("Key frame with this id already exists.");
+        }
+        
+        keyFrames.Add(value);
+        _keyFramesDirty = true;
+    }
+
+    protected FuncInputProperty<T> CreateFuncInput<T>(string propName, string displayName, T defaultValue)
+    {
+        var property = new FuncInputProperty<T>(this, propName, displayName, defaultValue);
+        if (InputProperties.Any(x => x.InternalPropertyName == propName))
+        {
+            throw new InvalidOperationException($"Input with name {propName} already exists.");
+        }
+
+        inputs.Add(property);
+        return property;
     }
 
     protected InputProperty<T> CreateInput<T>(string propName, string displayName, T defaultValue)
@@ -120,30 +219,65 @@ public abstract class Node : IReadOnlyNode, IDisposable
         return property;
     }
 
+    protected FuncOutputProperty<T> CreateFieldOutput<T>(string propName, string displayName,
+        Func<FuncContext, T> defaultFunc)
+    {
+        var property = new FuncOutputProperty<T>(this, propName, displayName, defaultFunc);
+        outputs.Add(property);
+        return property;
+    }
+
     protected OutputProperty<T> CreateOutput<T>(string propName, string displayName, T defaultValue)
     {
         var property = new OutputProperty<T>(this, propName, displayName, defaultValue);
         outputs.Add(property);
-        property.Connected += (input, _) => _connectedNodes.Add(input.Node);
-        property.Disconnected += (input, _) => _connectedNodes.Remove(input.Node);
         return property;
     }
 
     public virtual void Dispose()
     {
+        DisconnectAll();
         foreach (var input in inputs)
         {
-            if (input is { Connection: null, Value: IDisposable disposable })
+            if (input is { Connection: null, NonOverridenValue: IDisposable disposable })
             {
                 disposable.Dispose();
+                input.NonOverridenValue = default;
             }
         }
 
         foreach (var output in outputs)
         {
-            if (output.Value is IDisposable disposable)
+            if (output.Connections.Count == 0 && output.Value is IDisposable disposable)
             {
                 disposable.Dispose();
+                output.Value = default;
+            }
+        }
+        
+        if(keyFrames is not null)
+        {
+            foreach (var keyFrame in keyFrames)
+            {
+               keyFrame.Dispose(); 
+            }
+        }
+    }
+    
+    public void DisconnectAll()
+    {
+        foreach (var input in inputs)
+        {
+            input.Connection?.DisconnectFrom(input);
+        }
+
+        foreach (var output in outputs)
+        {
+            var connections = output.Connections.ToArray();
+            for (var i = 0; i < connections.Length; i++)
+            {
+                var conn = connections[i];
+                output.DisconnectFrom(conn);
             }
         }
     }
@@ -154,19 +288,20 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
         var clone = CreateCopy();
         clone.Id = Guid.NewGuid();
-        clone.inputs = new List<InputProperty>();
-        clone.outputs = new List<OutputProperty>();
-        clone._connectedNodes = new List<IReadOnlyNode>();
-        foreach (var input in inputs)
+        clone.Position = Position;
+
+        for (var i = 0; i < clone.inputs.Count; i++)
         {
+            var input = inputs[i];
             var newInput = input.Clone(clone);
-            clone.inputs.Add(newInput);
+            input.NonOverridenValue = newInput.NonOverridenValue;
         }
 
-        foreach (var output in outputs)
+        for (var i = 0; i < clone.outputs.Count; i++)
         {
+            var output = outputs[i];
             var newOutput = output.Clone(clone);
-            clone.outputs.Add(newOutput);
+            output.Value = newOutput.Value;
         }
 
         return clone;
@@ -180,5 +315,15 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public OutputProperty? GetOutputProperty(string outputProperty)
     {
         return outputs.FirstOrDefault(x => x.InternalPropertyName == outputProperty);
+    }
+    
+    IInputProperty? IReadOnlyNode.GetInputProperty(string inputProperty)
+    {
+        return GetInputProperty(inputProperty);
+    }
+    
+    IOutputProperty? IReadOnlyNode.GetOutputProperty(string outputProperty)
+    {
+        return GetOutputProperty(outputProperty);
     }
 }

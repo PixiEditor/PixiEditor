@@ -14,6 +14,7 @@ using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Evaluators;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
+using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.AvaloniaUI.Models.Layers;
 using PixiEditor.AvaloniaUI.ViewModels.Dock;
@@ -54,7 +55,10 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         return true;
     }
 
-    [Command.Basic("PixiEditor.Layer.DeleteSelected", "LAYER_DELETE_SELECTED", "LAYER_DELETE_SELECTED_DESCRIPTIVE", CanExecute = "PixiEditor.Layer.CanDeleteSelected", 
+    [Command.Basic("PixiEditor.Layer.DeleteSelected", "LAYER_DELETE_SELECTED", 
+        "LAYER_DELETE_SELECTED_DESCRIPTIVE", 
+        CanExecute = "PixiEditor.Layer.CanDeleteSelected", Key = Key.Delete, 
+        ShortcutContext = typeof(LayersDockViewModel),
         Icon = PixiPerfectIcons.Trash)]
     public void DeleteSelected()
     {
@@ -315,19 +319,20 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
     public void MergeSelectedWith(bool above)
     {
-        /*var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         var member = doc?.SelectedStructureMember;
         if (doc is null || member is null)
             return;
-        var (child, parent) = doc.StructureHelper.FindChildAndParent(member.Id);
-        if (child is null || parent is null)
+       
+        IStructureMemberHandler? nextMergeableMember = doc.StructureHelper.GetAboveMember(member.Id, false);
+        IStructureMemberHandler? previousMergeableMember = doc.StructureHelper.GetBelowMember(member.Id, false); 
+        
+        if (!above && previousMergeableMember is null)
             return;
-        int index = parent.Children.IndexOf(child);
-        if (!above && index == 0)
+        if (above && nextMergeableMember is null)
             return;
-        if (above && index == parent.Children.Count - 1)
-            return;
-        doc.Operations.MergeStructureMembers(new List<Guid> { member.Id, above ? parent.Children[index + 1].Id : parent.Children[index - 1].GuidValue });*/
+        
+        doc.Operations.MergeStructureMembers(new List<Guid> { member.Id, above ? nextMergeableMember.Id : previousMergeableMember.Id });
     }
 
     [Command.Basic("PixiEditor.Layer.MergeWithAbove", "MERGE_WITH_ABOVE", "MERGE_WITH_ABOVE_DESCRIPTIVE", CanExecute = "PixiEditor.Layer.HasMemberAbove")]

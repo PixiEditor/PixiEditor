@@ -124,6 +124,10 @@
             <system:String x:Key="icon-youtube">&#xE975;</system:String>
             <system:String x:Key="icon-misc">&#xE968;</system:String>
             <system:String x:Key="icon-write">&#xE970;</system:String>
+            <system:String x:Key="icon-play">&#xE981;</system:String>
+            <system:String x:Key="icon-pause">&#xE980;</system:String>
+            <system:String x:Key="icon-timeline">&#xE983;</system:String>
+            <system:String x:Key="icon-swatches">&#xE982;</system:String>
         </ResourceDictionary>
     </Styles.Resources>
     

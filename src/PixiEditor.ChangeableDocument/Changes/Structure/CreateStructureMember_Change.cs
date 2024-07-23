@@ -13,21 +13,21 @@ internal class CreateStructureMember_Change : Change
 {
     private Guid newMemberGuid;
 
-    private Guid parentFolderGuid;
+    private Guid parentGuid;
     private StructureMemberType type;
 
     [GenerateMakeChangeAction]
-    public CreateStructureMember_Change(Guid parentFolder, Guid newGuid,
+    public CreateStructureMember_Change(Guid parent, Guid newGuid,
         StructureMemberType type)
     {
-        this.parentFolderGuid = parentFolder;
+        this.parentGuid = parent;
         this.type = type;
         newMemberGuid = newGuid;
     }
 
     public override bool InitializeAndValidate(Document target)
     {
-        return target.TryFindNode<Node>(parentFolderGuid, out var targetNode) && targetNode is IBackgroundInput;
+        return target.TryFindNode<Node>(parentGuid, out var targetNode) && targetNode is IBackgroundInput;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document document, bool firstApply,
@@ -41,7 +41,7 @@ internal class CreateStructureMember_Change : Change
             _ => throw new NotSupportedException(),
         };
 
-        document.TryFindNode<Node>(parentFolderGuid, out var parentNode);
+        document.TryFindNode<Node>(parentGuid, out var parentNode);
 
         List<IChangeInfo> changes = new() { CreateChangeInfo(member) };
 
@@ -70,17 +70,15 @@ internal class CreateStructureMember_Change : Change
     {
         return type switch
         {
-            StructureMemberType.Layer => CreateLayer_ChangeInfo.FromLayer(parentFolderGuid,
-                (LayerNode)member),
-            StructureMemberType.Folder => CreateFolder_ChangeInfo.FromFolder(parentFolderGuid,
-                (FolderNode)member),
+            StructureMemberType.Layer => CreateLayer_ChangeInfo.FromLayer((LayerNode)member),
+            StructureMemberType.Folder => CreateFolder_ChangeInfo.FromFolder((FolderNode)member),
             _ => throw new NotSupportedException(),
         };
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document document)
     {
-        var container = document.FindNodeOrThrow<Node>(parentFolderGuid);
+        var container = document.FindNodeOrThrow<Node>(parentGuid);
         if (container is not IBackgroundInput backgroundInput)
         {
             throw new InvalidOperationException("Parent folder is not a valid container.");

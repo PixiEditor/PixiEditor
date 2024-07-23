@@ -55,6 +55,12 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             canvas.DrawImage(_imageImpl.ManagedInstances[image.ObjectPointer], x, y);
         }
 
+        public void DrawImage(IntPtr objPtr, Image image, int x, int y, Paint paint)
+        {
+            var canvas = ManagedInstances[objPtr];
+            canvas.DrawImage(_imageImpl.ManagedInstances[image.ObjectPointer], x, y, _paintImpl.ManagedInstances[paint.ObjectPointer]);
+        }
+
         public int Save(IntPtr objPtr)
         {
             return ManagedInstances[objPtr].Save();
@@ -106,10 +112,16 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             canvas.DrawRect(x, y, width, height, skPaint);
         }
 
-        public void DrawCircle(IntPtr objPtr, int x, int y, int radius, Paint paint)
+        public void DrawCircle(IntPtr objPtr, int cx, int cy, int radius, Paint paint)
         {
             var canvas = ManagedInstances[objPtr];
-            canvas.DrawCircle(x, y, radius, _paintImpl[paint.ObjectPointer]);
+            canvas.DrawCircle(cx, cy, radius, _paintImpl[paint.ObjectPointer]);
+        }
+
+        public void DrawOval(IntPtr objPtr, int cx, int cy, int width, int height, Paint paint)
+        {
+            var canvas = ManagedInstances[objPtr];
+            canvas.DrawOval(cx, cy, width, height, _paintImpl[paint.ObjectPointer]);
         }
 
         public void ClipPath(IntPtr objPtr, VectorPath clipPath, ClipOperation clipOperation, bool antialias)
@@ -182,11 +194,20 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             ManagedInstances[objectPointer].RotateDegrees(degrees, centerX, centerY);
         }
 
-        public void DrawImage(IntPtr objPtr, Image image, RectD rect, Paint paint)
+        public void DrawImage(IntPtr objPtr, Image image, RectD destRect, Paint paint)
         {
             ManagedInstances[objPtr].DrawImage(
                 _imageImpl[image.ObjectPointer],
-                rect.ToSKRect(),
+                destRect.ToSKRect(),
+                _paintImpl[paint.ObjectPointer]);
+        }
+
+        public void DrawImage(IntPtr obj, Image image, RectD sourceRect, RectD destRect, Paint paint)
+        {
+            ManagedInstances[obj].DrawImage(
+                _imageImpl[image.ObjectPointer],
+                sourceRect.ToSKRect(),
+                destRect.ToSKRect(),
                 _paintImpl[paint.ObjectPointer]);
         }
 

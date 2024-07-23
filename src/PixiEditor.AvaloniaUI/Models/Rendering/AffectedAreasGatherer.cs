@@ -3,6 +3,8 @@ using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Models.DocumentPassthroughActions;
 using PixiEditor.ChangeableDocument;
+using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos;
@@ -25,9 +27,9 @@ internal class AffectedAreasGatherer
     public Dictionary<Guid, AffectedArea> ImagePreviewAreas { get; private set; } = new();
     public Dictionary<Guid, AffectedArea> MaskPreviewAreas { get; private set; } = new();
     
-    private int ActiveFrame { get; set; }
+    private KeyFrameTime ActiveFrame { get; set; }
 
-    public AffectedAreasGatherer(int activeFrame, DocumentChangeTracker tracker,
+    public AffectedAreasGatherer(KeyFrameTime activeFrame, DocumentChangeTracker tracker,
         IReadOnlyList<IChangeInfo> changes)
     {
         this.tracker = tracker;
@@ -131,21 +133,26 @@ internal class AffectedAreasGatherer
                     AddWholeCanvasToMainImage();
                     AddWholeCanvasToEveryImagePreview();
                     break;
+                case PropertyValueUpdated_ChangeInfo:
+                    AddWholeCanvasToMainImage();
+                    AddWholeCanvasToEveryImagePreview();
+                    break;
             }
         }
     }
 
-    private void AddAllToImagePreviews(Guid memberGuid, int frame, bool ignoreSelf = false)
+    private void AddAllToImagePreviews(Guid memberGuid, KeyFrameTime frame, bool ignoreSelf = false)
     {
         var member = tracker.Document.FindMember(memberGuid);
-        if (member is IReadOnlyLayerNode layer)
+        if (member is IReadOnlyImageNode layer)
         {
-            var result = layer.Execute(frame);
+            var result = layer.GetLayerImageAtFrame(frame.Frame);
             if (result == null)
             {
                 AddWholeCanvasToImagePreviews(memberGuid, ignoreSelf);
                 return;
             }
+            
             var chunks = result.FindAllChunks();
             AddToImagePreviews(memberGuid, new AffectedArea(chunks), ignoreSelf);
         }
@@ -157,12 +164,12 @@ internal class AffectedAreasGatherer
         }
     }
 
-    private void AddAllToMainImage(Guid memberGuid, int frame, bool useMask = true)
+    private void AddAllToMainImage(Guid memberGuid, KeyFrameTime frame, bool useMask = true)
     {
         var member = tracker.Document.FindMember(memberGuid);
-        if (member is IReadOnlyLayerNode layer)
+        if (member is IReadOnlyImageNode layer)
         {
-            var result = layer.Execute(frame);
+            var result = layer.GetLayerImageAtFrame(frame.Frame);
             if (result == null)
             {
                 AddWholeCanvasToMainImage();
@@ -249,10 +256,10 @@ internal class AffectedAreasGatherer
     private void AddWholeCanvasToImagePreviews(Guid memberGuid, bool ignoreSelf = false)
     {
         var path = tracker.Document.FindMemberPath(memberGuid);
-        if (path.Count < 2)
+        if (path.Count < 1 || path.Count == 1 && ignoreSelf)
             return;
         // skip root folder
-        for (int i = ignoreSelf ? 1 : 0; i < path.Count - 1; i++)
+        for (int i = ignoreSelf ? 1 : 0; i < path.Count; i++)
         {
             var member = path[i];
             if (!ImagePreviewAreas.ContainsKey(member.Id))

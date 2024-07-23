@@ -55,7 +55,8 @@ internal class ShortcutBox : ContentControl
 
         if (e != KeyCombination.None)
         {
-            if (controller.Commands[e].SkipWhile(x => x == Command).FirstOrDefault() is { } oldCommand)
+            if (controller.Commands[e].Where(x => x.ShortcutContext == null || x.ShortcutContext == Command.ShortcutContext)
+                    .SkipWhile(x => x == Command).FirstOrDefault() is { } oldCommand)
             {
                 var oldShortcut = Command.Shortcut;
                 bool enableSwap = oldShortcut is not { Key: Key.None, Modifiers: KeyModifiers.None };

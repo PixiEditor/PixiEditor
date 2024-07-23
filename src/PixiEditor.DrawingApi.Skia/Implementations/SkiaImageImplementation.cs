@@ -12,13 +12,14 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
     public class SkiaImageImplementation : SkObjectImplementation<SKImage>, IImageImplementation
     {
         private readonly SkObjectImplementation<SKData> _imgImplementation;
+        private readonly SkiaPixmapImplementation _pixmapImplementation;
         private SkObjectImplementation<SKSurface>? _surfaceImplementation;
-        private SkiaPixmapImplementation pixmapImpl;
+        private SkiaColorSpaceImplementation colorSpaceImpl;
         
         public SkiaImageImplementation(SkObjectImplementation<SKData> imgDataImplementation, SkiaPixmapImplementation pixmapImplementation)
         {
             _imgImplementation = imgDataImplementation;
-            pixmapImpl = pixmapImplementation;
+            _pixmapImplementation = pixmapImplementation;
         }
         
         public void SetSurfaceImplementation(SkObjectImplementation<SKSurface> surfaceImplementation)
@@ -77,6 +78,13 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             ManagedInstances[nativeImg.Handle] = nativeImg;
             return new Image(nativeImg.Handle);
         }
+        
+        public Pixmap PeekPixels(Image image)
+        {
+            var native = ManagedInstances[image.ObjectPointer];
+            var pixmap = native.PeekPixels();
+            return _pixmapImplementation.CreateFrom(pixmap);
+        }
 
         public void GetColorShifts(ref int platformColorAlphaShift, ref int platformColorRedShift, ref int platformColorGreenShift,
             ref int platformColorBlueShift)
@@ -113,19 +121,20 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             return ManagedInstances[objectPointer].Height;
         }
         
-        public Pixmap PeekPixels(Image image)
+        public Image Clone(Image image)
         {
             var native = ManagedInstances[image.ObjectPointer];
-            var pixmap = native.PeekPixels();
-            if (pixmap is null)
-            {
-                ImageInfo info = new ImageInfo(image.Width, image.Height);
-                SKBitmap skBitmap = new SKBitmap(info.ToSkImageInfo());
-                pixmap = skBitmap.PeekPixels();
-                native.ReadPixels(skBitmap.PeekPixels());
-            }
-            
-            return pixmapImpl.CreateFrom(pixmap);
+            var encoded = native.Encode();
+            var clone = SKImage.FromEncodedData(encoded);
+            ManagedInstances[clone.Handle] = clone;
+            return new Image(clone.Handle);
+        }
+
+        public Pixmap PeekPixels(IntPtr objectPointer)
+        {
+            var nativePixmap = ManagedInstances[objectPointer].PeekPixels();
+
+            return _pixmapImplementation.CreateFrom(nativePixmap);
         }
 
         public object GetNativeImage(IntPtr objectPointer)

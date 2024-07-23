@@ -77,6 +77,9 @@ internal class DocumentStructureHelper
             Guid guid = Guid.NewGuid();
             //put member above the layer
             INodeHandler parent = doc.StructureHelper.GetFirstForwardNode(layer);
+            if(parent is null)
+                parent = doc.NodeGraphHandler.OutputNode;
+            
             internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(parent.Id, guid, type));
             name ??= GetUniqueName(
                 type == StructureMemberType.Layer

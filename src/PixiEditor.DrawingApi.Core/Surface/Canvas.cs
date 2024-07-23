@@ -43,9 +43,15 @@ namespace PixiEditor.DrawingApi.Core.Surface
 
         public void DrawImage(Image image, int x, int y) =>
             DrawingBackendApi.Current.CanvasImplementation.DrawImage(ObjectPointer, image, x, y);
+        
+        public void DrawImage(Image image, int x, int y, Paint paint) =>
+            DrawingBackendApi.Current.CanvasImplementation.DrawImage(ObjectPointer, image, x, y, paint);
 
-        public void DrawImage(Image image, RectD rect, Paint paint) =>
-            DrawingBackendApi.Current.CanvasImplementation.DrawImage(ObjectPointer, image, rect, paint);
+        public void DrawImage(Image image, RectD destRect, Paint paint) =>
+            DrawingBackendApi.Current.CanvasImplementation.DrawImage(ObjectPointer, image, destRect, paint);
+        
+        public void DrawImage(Image image, RectD sourceRect, RectD destRect, Paint paint) =>
+            DrawingBackendApi.Current.CanvasImplementation.DrawImage(ObjectPointer, image, sourceRect, destRect, paint);
 
         public int Save()
         {
@@ -114,11 +120,23 @@ namespace PixiEditor.DrawingApi.Core.Surface
             Changed?.Invoke(new RectD(x, y, width, height));
         }
 
-        public void DrawCircle(int x, int y, int radius, Paint paint)
+        public void DrawCircle(int centerX, int centerY, int radius, Paint paint)
         {
-            DrawingBackendApi.Current.CanvasImplementation.DrawCircle(ObjectPointer, x, y, radius, paint);
-            Changed?.Invoke(new RectD(x - radius, y - radius, radius * 2, radius * 2));
+            DrawingBackendApi.Current.CanvasImplementation.DrawCircle(ObjectPointer, centerX, centerY, radius, paint);
+            Changed?.Invoke(new RectD(centerX - radius, centerY - radius, radius * 2, radius * 2));
         }
+
+        public void DrawCircle(VecI center, int radius, Paint paint) =>
+            DrawCircle(center.X, center.Y, radius, paint);
+
+        public void DrawOval(int centerX, int centerY, int radiusX, int radiusY, Paint paint)
+        {
+            DrawingBackendApi.Current.CanvasImplementation.DrawOval(ObjectPointer, centerX, centerY, radiusX, radiusY, paint);
+            Changed?.Invoke(new RectD(centerX - radiusX, centerY - radiusY, radiusX * 2, radiusY * 2));
+        }
+
+        public void DrawOval(VecI center, VecI radius, Paint paint) =>
+            DrawOval(center.X, center.Y, radius.X, radius.Y, paint);
 
         public void DrawRect(RectI rect, Paint paint) => DrawRect(rect.X, rect.Y, rect.Width, rect.Height, paint);
 

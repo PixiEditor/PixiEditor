@@ -26,6 +26,7 @@ public interface IOutputProperty : INodeProperty
 {
     public void ConnectTo(IInputProperty property);
     public void DisconnectFrom(IInputProperty property);
+    IReadOnlyCollection<IInputProperty> Connections { get; }
 }
 
 public interface IInputProperty<T> : IInputProperty, INodeProperty<T>

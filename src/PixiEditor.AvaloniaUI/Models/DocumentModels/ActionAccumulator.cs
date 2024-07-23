@@ -90,7 +90,7 @@ internal class ActionAccumulator
                 internals.Updater.AfterUndoBoundaryPassed();
 
             // update the contents of the bitmaps
-            var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameBindable, internals.Tracker, optimizedChanges);
+            var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime, internals.Tracker, optimizedChanges);
             List<IRenderInfo> renderResult = new();
             renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed || viewportRefreshRequest));
             renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
@@ -161,6 +161,14 @@ internal class ActionAccumulator
                 case CanvasPreviewDirty_RenderInfo:
                     {
                         document.PreviewSurface.AddDirtyRect(new RectI(0, 0, document.PreviewSurface.Size.X, document.PreviewSurface.Size.Y));
+                    }
+                    break;
+                case NodePreviewDirty_RenderInfo info:
+                    {
+                        var node = document.StructureHelper.Find(info.NodeId);
+                        if (node is null || node.PreviewSurface is null)
+                            continue;
+                        node.PreviewSurface.AddDirtyRect(new RectI(0, 0, node.PreviewSurface.Size.X, node.PreviewSurface.Size.Y));
                     }
                     break;
             }

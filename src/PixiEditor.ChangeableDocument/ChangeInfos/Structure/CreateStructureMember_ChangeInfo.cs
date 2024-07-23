@@ -7,7 +7,7 @@ using PixiEditor.Numerics;
 namespace PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 
 public abstract record class CreateStructureMember_ChangeInfo(
-    Guid ParentGuid,
+    string InternalName,
     float Opacity,
     bool IsVisible,
     bool ClipToMemberBelow,
@@ -18,7 +18,7 @@ public abstract record class CreateStructureMember_ChangeInfo(
     bool MaskIsVisible,
     ImmutableArray<NodePropertyInfo> InputProperties,
     ImmutableArray<NodePropertyInfo> OutputProperties
-) : CreateNode_ChangeInfo(Name, new VecD(0, 0), Id, InputProperties, OutputProperties)
+) : CreateNode_ChangeInfo(InternalName, Name, new VecD(0, 0), Id, InputProperties, OutputProperties)
 {
     public ImmutableArray<NodePropertyInfo> InputProperties { get; init; } = InputProperties;
     public ImmutableArray<NodePropertyInfo> OutputProperties { get; init; } = OutputProperties;

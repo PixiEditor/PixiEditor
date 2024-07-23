@@ -10,7 +10,7 @@ using PixiEditor.Numerics;
 
 namespace ChunkyImageLib;
 
-public class Surface : IDisposable, ICloneable
+public class Surface : IDisposable, ICloneable, IPixelsMap
 {
     private bool disposed;
     public IntPtr PixelBuffer { get; }
@@ -231,6 +231,11 @@ public class Surface : IDisposable, ICloneable
     ~Surface()
     {
         Marshal.FreeHGlobal(PixelBuffer);
+    }
+
+    public Pixmap PeekPixels()
+    {
+        return DrawingSurface.PeekPixels(); 
     }
 
     public object Clone()

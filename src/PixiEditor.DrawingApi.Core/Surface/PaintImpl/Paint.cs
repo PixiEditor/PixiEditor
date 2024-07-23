@@ -9,6 +9,7 @@ namespace PixiEditor.DrawingApi.Core.Surface.PaintImpl
     /// </summary>
     public class Paint : NativeObject
     {
+        private ImageFilter? imageFilter;
         private ColorFilter? colorFilter;
         private Shader? shader;
         
@@ -63,6 +64,16 @@ namespace PixiEditor.DrawingApi.Core.Surface.PaintImpl
             {
                 DrawingBackendApi.Current.PaintImplementation.SetColorFilter(this, value);
                 colorFilter = value;
+            }
+        }
+
+        public ImageFilter ImageFilter
+        {
+            get => imageFilter ??= DrawingBackendApi.Current.PaintImplementation.GetImageFilter(this);
+            set
+            {
+                DrawingBackendApi.Current.PaintImplementation.SetImageFilter(this, value);
+                imageFilter = value;
             }
         }
 

@@ -8,7 +8,7 @@ namespace PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 public record class CreateFolder_ChangeInfo : CreateStructureMember_ChangeInfo
 {
     public CreateFolder_ChangeInfo(
-        Guid parentGuid,
+        string internalName,
         float opacity,
         bool isVisible,
         bool clipToMemberBelow,
@@ -19,18 +19,18 @@ public record class CreateFolder_ChangeInfo : CreateStructureMember_ChangeInfo
         bool maskIsVisible,
         ImmutableArray<NodePropertyInfo> Inputs,
         ImmutableArray<NodePropertyInfo> Outputs
-    ) : base(parentGuid, opacity, isVisible, clipToMemberBelow, name, blendMode, guidValue, hasMask,
+    ) : base(internalName, opacity, isVisible, clipToMemberBelow, name, blendMode, guidValue, hasMask,
         maskIsVisible, Inputs, Outputs)
     {
     }
 
-    internal static CreateFolder_ChangeInfo FromFolder(Guid parentGuid, FolderNode folder)
+    internal static CreateFolder_ChangeInfo FromFolder(FolderNode folder)
     {
         return new CreateFolder_ChangeInfo(
-            parentGuid,
+            folder.InternalName,
             folder.Opacity.Value,
             folder.IsVisible.Value,
-            folder.ClipToMemberBelow.Value,
+            folder.ClipToPreviousMember.Value,
             folder.MemberName,
             folder.BlendMode.Value,
             folder.Id,

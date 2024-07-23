@@ -30,12 +30,12 @@
     </Style>
 
     <Style Selector="CheckBox.ImageCheckBox">
-        <Setter Property="Content" Value="{DynamicResource icon-eye-off}"/>
+        <Setter Property="Content" Value="{DynamicResource icon-eye-off}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
                     <Border Cursor="Hand" Background="{TemplateBinding Background}">
-                        <TextBlock Text="{TemplateBinding Content}" FontSize="16" Classes="pixi-icon"/>
+                        <TextBlock Text="{TemplateBinding Content}" FontSize="16" Classes="pixi-icon" />
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
@@ -43,9 +43,25 @@
     </Style>
 
     <Style Selector="CheckBox.ImageCheckBox:checked">
-        <Setter Property="Content" Value="{DynamicResource icon-eye}"/>
+        <Setter Property="Content" Value="{DynamicResource icon-eye}" />
+    </Style>
+    
+    <Style Selector="ToggleButton.PlayButton">
+        <Setter Property="Content" Value="{DynamicResource icon-play}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border Cursor="Hand" Background="{TemplateBinding Background}">
+                        <TextBlock Text="{TemplateBinding Content}" FontSize="{TemplateBinding Width}" Classes="pixi-icon" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
+    <Style Selector="ToggleButton.PlayButton:checked">
+        <Setter Property="Content" Value="{DynamicResource icon-pause}" />
+    </Style>
     <Style Selector="ToggleButton.ExpandCollapseToggleStyle">
 
     </Style>
@@ -94,7 +110,7 @@
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
                         <Border.Background>
-                            <ImageBrush Source="/Images/AnchorDot.png"/>
+                            <ImageBrush Source="/Images/AnchorDot.png" />
                         </Border.Background>
                         <Border.Transitions>
                             <Transitions>
@@ -117,17 +133,17 @@
     <Style Selector="ToggleButton.AnchorPointToggleButtonStyle:checked">
         <Setter Property="BorderBrush" Value="{DynamicResource ThemeHighlightForegroundBrush}" />
     </Style>
-    
+
     <Style Selector="Border.KeyBorder">
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}"/>
-        <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
-        <Setter Property="Padding" Value="7, 0"/>
-        <Setter Property="Margin" Value="0,3,5,3"/>
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
+        <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+        <Setter Property="Padding" Value="7, 0" />
+        <Setter Property="Margin" Value="0,3,5,3" />
     </Style>
 
     <Style Selector="Border.KeyBorderLast">
-        <Setter Property="Margin" Value="0, 3"/>
+        <Setter Property="Margin" Value="0, 3" />
     </Style>
 </Styles>

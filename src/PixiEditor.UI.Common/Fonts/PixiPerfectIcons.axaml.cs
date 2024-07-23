@@ -59,7 +59,6 @@ public static class PixiPerfectIcons
     public const string FolderPlus = "\ue92c";
     public const string Folder = "\ue92d";
     public const string Globe = "\ue92e";
-    public const string Swatches = "\ue92f";
     public const string Grid = "\uE941";
     public const string Home = "\ue930";
     public const string RotateImageMinus90 = "\ue931";
@@ -119,7 +118,11 @@ public static class PixiPerfectIcons
     public const string YouTube = "\uE975";
     public const string Write = "\uE968";
     public const string Misc = "\uE970";
-    
+    public const string Play = "\uE981";
+    public const string Pause = "\uE980";
+    public const string Swatches = "\uE982";
+    public const string Timeline = "\uE983";
+        
     public const string Reset = "R"; // TODO: Create a reset icon
     public const string ToggleLayerVisible = "\u25a1;"; // TODO: Create a toggle layer visible icon
     public const string ToggleMask = "\u25a1;"; // TODO: Create a toggle mask icon

@@ -24,7 +24,6 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public Shader? CreateFromSksl(string sksl, bool isOpaque, out string errors)
         {
             SKRuntimeEffect effect = SKRuntimeEffect.Create(sksl, out errors);
-            
             if (string.IsNullOrEmpty(errors))
             {
                 SKShader shader = effect.ToShader(isOpaque);
@@ -43,6 +42,33 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
                 CastUtility.UnsafeArrayCast<Color, SKColor>(colors),
                 null, 
                 SKShaderTileMode.Clamp);
+            ManagedInstances[shader.Handle] = shader;
+            return new Shader(shader.Handle);
+        }
+
+        public Shader CreatePerlinNoiseTurbulence(float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed)
+        {
+            SKShader shader = SKShader.CreatePerlinNoiseTurbulence(
+                baseFrequencyX,
+                baseFrequencyY,
+                numOctaves,
+                seed);
+
+            ManagedInstances[shader.Handle] = shader;
+            return new Shader(shader.Handle);
+        }
+        
+        public Shader CreatePerlinFractalNoise(float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed)
+        {
+            if(baseFrequencyX <= 0 || baseFrequencyY <= 0)
+                throw new ArgumentException("Base frequency must be greater than 0");
+            
+            SKShader shader = SKShader.CreatePerlinNoiseFractalNoise(
+                baseFrequencyX,
+                baseFrequencyY,
+                numOctaves,
+                seed);
+
             ManagedInstances[shader.Handle] = shader;
             return new Shader(shader.Handle);
         }

@@ -7,7 +7,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.DrawingApi.Core.Surface
 {
-    public class DrawingSurface : NativeObject
+    public class DrawingSurface : NativeObject, IPixelsMap
     {
         public override object Native => DrawingBackendApi.Current.SurfaceImplementation.GetNativeSurface(ObjectPointer);
         public Canvas Canvas { get; private set; }

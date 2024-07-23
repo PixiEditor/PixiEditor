@@ -112,7 +112,7 @@ internal partial class DocumentViewModel
             BlendMode = (BlendMode)(int)folder.BlendMode.Value,
             Enabled = folder.IsVisible.Value,
             Opacity = folder.Opacity.Value,
-            ClipToMemberBelow = folder.ClipToMemberBelow.Value,
+            ClipToMemberBelow = folder.ClipToPreviousMember.Value,
             Mask = GetMask(folder.Mask.Value, folder.MaskIsVisible.Value)
         };
     }
@@ -122,13 +122,13 @@ internal partial class DocumentViewModel
         var result = document.GetLayerRasterizedImage(layer.Id, 0);
 
         var tightBounds = document.GetChunkAlignedLayerBounds(layer.Id, 0);
-        using var data = result?.DrawingSurface.Snapshot().Encode();
+        using var data = result?.Encode();
         byte[] bytes = data?.AsSpan().ToArray();
         var serializable = new ImageLayer
         {
-            Width = result?.Size.X ?? 0, Height = result?.Size.Y ?? 0, OffsetX = tightBounds?.X ?? 0, OffsetY = tightBounds?.Y ?? 0,
+            Width = result?.Width ?? 0, Height = result?.Height ?? 0, OffsetX = tightBounds?.X ?? 0, OffsetY = tightBounds?.Y ?? 0,
             Enabled = layer.IsVisible.Value, BlendMode = (BlendMode)(int)layer.BlendMode.Value, ImageBytes = bytes,
-            ClipToMemberBelow = layer.ClipToMemberBelow.Value, Name = layer.MemberName,
+            ClipToMemberBelow = layer.ClipToPreviousMember.Value, Name = layer.MemberName,
             Guid = layer.Id,
             LockAlpha = layer is ITransparencyLockable { LockTransparency: true },
             Opacity = layer.Opacity.Value, Mask = GetMask(layer.Mask.Value, layer.MaskIsVisible.Value)

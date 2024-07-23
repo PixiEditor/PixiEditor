@@ -6,9 +6,9 @@ using PixiEditor.AvaloniaUI;
 
 [assembly: SupportedOSPlatform("browser")]
 
-internal partial class Program
+internal sealed partial class Program
 {
-    private static async Task Main(string[] args) => await BuildAvaloniaApp()
+    private static Task Main(string[] args) => BuildAvaloniaApp()
         .StartBrowserAppAsync("out");
 
     public static AppBuilder BuildAvaloniaApp()

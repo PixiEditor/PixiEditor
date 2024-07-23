@@ -33,6 +33,7 @@
         UseTouchGestures="{Binding StylusSubViewModel.UseTouchGestures, Source={viewModels1:MainVM}}"
         FlipX="{Binding FlipX, Mode=TwoWay}"
         FlipY="{Binding FlipY, Mode=TwoWay}"
+        Channels="{Binding Channels, Mode=TwoWay}"
         ContextRequested="Viewport_OnContextMenuOpening"
         Document="{Binding Document}">
         <viewportControls:Viewport.ContextFlyout>

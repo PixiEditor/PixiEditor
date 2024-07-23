@@ -43,14 +43,19 @@ internal class CombineStructureMembersOnto_Change : Change
 
     private void AddChildren(FolderNode folder, HashSet<Guid> collection)
     {
-        //TODO: Implement
-        /*foreach (var child in folder.Children)
+        if (folder.Content.Connection != null)
         {
-            if (child is LayerNode layer)
-                collection.Add(layer.Id);
-            else if (child is FolderNode innerFolder)
-                AddChildren(innerFolder, collection);
-        }*/
+            folder.Content.Connection.Node.TraverseBackwards(node =>
+            {
+                if (node is LayerNode layer)
+                {
+                    collection.Add(layer.Id);
+                    return true;
+                }
+
+                return true;
+            });
+        }
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
@@ -68,15 +73,18 @@ internal class CombineStructureMembersOnto_Change : Change
 
         var toDrawOnImage = toDrawOn.GetLayerImageAtFrame(frame);
         toDrawOnImage.EnqueueClear();
-        /*foreach (var chunk in chunksToCombine)
+        
+        DocumentRenderer renderer = new(target);
+        
+        foreach (var chunk in chunksToCombine)
         {
-            OneOf<Chunk, EmptyChunk> combined = ChunkRenderer.MergeChosenMembers(chunk, ChunkResolution.Full, target.NodeGraph, frame, layersToCombine);
+            OneOf<Chunk, EmptyChunk> combined = renderer.RenderLayersChunk(chunk, ChunkResolution.Full, frame, layersToCombine);
             if (combined.IsT0)
             {
                 toDrawOnImage.EnqueueDrawImage(chunk * ChunkyImage.FullChunkSize, combined.AsT0.Surface);
                 combined.AsT0.Dispose();
             }
-        }*/
+        }
         var affArea = toDrawOnImage.FindAffectedArea();
         originalChunks = new CommittedChunkStorage(toDrawOnImage, affArea.Chunks);
         toDrawOnImage.CommitChanges();

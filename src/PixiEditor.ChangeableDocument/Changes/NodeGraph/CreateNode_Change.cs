@@ -1,9 +1,11 @@
 ﻿using System.Collections.Immutable;
 using System.Reflection;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Numerics;
 using Type = System.Type;
 
@@ -13,29 +15,17 @@ internal class CreateNode_Change : Change
 {
     private Type nodeType;
     private Guid id;
-    private static Dictionary<Type, NodeFactory> allFactories;
     
     [GenerateMakeChangeAction]
     public CreateNode_Change(Type nodeType, Guid id)
     {
         this.id = id;
         this.nodeType = nodeType;
-
-        if (allFactories == null)
-        {
-            allFactories = new Dictionary<Type, NodeFactory>();
-            var factoryTypes = Assembly.GetExecutingAssembly().GetTypes().Where(x => x.IsSubclassOf(typeof(NodeFactory)) && !x.IsAbstract && !x.IsInterface).ToImmutableArray();
-            foreach (var factoryType in factoryTypes)
-            {
-                NodeFactory factory = (NodeFactory)Activator.CreateInstance(factoryType);
-                allFactories.Add(factory.NodeType, factory);
-            }
-        }
     }
     
     public override bool InitializeAndValidate(Document target)
     {
-        return nodeType.IsSubclassOf(typeof(Node));
+        return nodeType.IsSubclassOf(typeof(Node)) && nodeType is { IsAbstract: false, IsInterface: false };
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
@@ -43,20 +33,16 @@ internal class CreateNode_Change : Change
         if(id == Guid.Empty)
             id = Guid.NewGuid();
 
-        Node node = null;
-        if (allFactories.TryGetValue(nodeType, out NodeFactory factory))
-        {
-            node = factory.CreateNode(target);
-        }
-        else
-        {
-            node = (Node)Activator.CreateInstance(nodeType);
-        }
+        Node node = NodeOperations.CreateNode(nodeType, target);
         
         node.Position = new VecD(0, 0);
         node.Id = id;
+        
         target.NodeGraph.AddNode(node);
         ignoreInUndo = false;
+       
+        using RenderingContext context = new RenderingContext(new KeyFrameTime(0, 0), VecI.Zero, ChunkResolution.Full, target.Size);
+        node.ExecuteInternal(context);
         
         return CreateNode_ChangeInfo.CreateFromNode(node); 
     }

@@ -16,6 +16,7 @@
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
                         CornerRadius="{TemplateBinding CornerRadius}"
+                        MinWidth="200"
                         Margin="{TemplateBinding Margin}"
                         Name="RootBorder">
                     <Border.Effect>
@@ -34,20 +35,8 @@
                                            FontWeight="Bold" />
                             </Border>
                             <Border Grid.Row="1" Background="{DynamicResource ThemeControlMidBrush}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="0.5*" />
-                                        <ColumnDefinition Width="0.5*" />
-                                    </Grid.ColumnDefinitions>
-
-                                    <ItemsControl ItemsSource="{TemplateBinding Inputs}" ClipToBounds="False">
-                                        <ItemsControl.ItemContainerTheme>
-                                            <ControlTheme TargetType="ContentPresenter">
-                                                <Setter Property="DataContext" Value="." />
-                                            </ControlTheme>
-                                        </ItemsControl.ItemContainerTheme>
-                                    </ItemsControl>
-                                    <ItemsControl Grid.Column="1" ItemsSource="{TemplateBinding Outputs}"
+                                <StackPanel>
+                                    <ItemsControl ItemsSource="{TemplateBinding Outputs}"
                                                   ClipToBounds="False">
                                         <ItemsControl.ItemContainerTheme>
                                             <ControlTheme TargetType="ContentPresenter">
@@ -55,9 +44,17 @@
                                             </ControlTheme>
                                         </ItemsControl.ItemContainerTheme>
                                     </ItemsControl>
-                                </Grid>
+                                    <ItemsControl ItemsSource="{TemplateBinding Inputs}" ClipToBounds="False">
+                                        <ItemsControl.ItemContainerTheme>
+                                            <ControlTheme TargetType="ContentPresenter">
+                                                <Setter Property="DataContext" Value="." />
+                                            </ControlTheme>
+                                        </ItemsControl.ItemContainerTheme>
+                                    </ItemsControl>
+                                </StackPanel>
                             </Border>
-                            <Border CornerRadius="0, 0, 4.5, 4.5" Grid.Row="2" ClipToBounds="True">
+                            <Border IsVisible="{Binding !!ResultPreview, RelativeSource={RelativeSource TemplatedParent}}"
+                                CornerRadius="0, 0, 4.5, 4.5" Grid.Row="2" ClipToBounds="True">
                                 <visuals:SurfaceControl Width="200" Height="200"
                                                         Surface="{TemplateBinding ResultPreview}"
                                                         RenderOptions.BitmapInterpolationMode="None">
@@ -74,7 +71,6 @@
 
         <Style Selector="^:selected /template/ Border#RootBorder">
             <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent2Brush}" />
-            <Setter Property="BorderThickness" Value="1" />
         </Style>
     </ControlTheme>
 </ResourceDictionary>

@@ -6,14 +6,16 @@ namespace PixiEditor.AvaloniaUI.Views.Nodes;
 
 public class ConnectionLine : Control
 {
-    public static readonly StyledProperty<SolidColorBrush> ColorProperty = AvaloniaProperty.Register<ConnectionLine, SolidColorBrush>("Color");
+    private Pen pen = new() { LineCap = PenLineCap.Round };
+    
+    public static readonly StyledProperty<LinearGradientBrush> ColorProperty = AvaloniaProperty.Register<ConnectionLine, LinearGradientBrush>("Color");
     public static readonly StyledProperty<double> ThicknessProperty = AvaloniaProperty.Register<ConnectionLine, double>("Thickness");
     public static readonly StyledProperty<Point> StartPointProperty = AvaloniaProperty.Register<ConnectionLine, Point>("StartPoint");
     public static readonly StyledProperty<Point> EndPointProperty = AvaloniaProperty.Register<ConnectionLine, Point>("EndPoint");
 
-    public SolidColorBrush Color
+    public LinearGradientBrush LineBrush
     {
-        get { return (SolidColorBrush)GetValue(ColorProperty); }
+        get { return GetValue(ColorProperty); }
         set { SetValue(ColorProperty, value); }
     }
 
@@ -63,6 +65,12 @@ public class ConnectionLine : Control
         ctx.BeginFigure(p1, false);
         ctx.CubicBezierTo(controlPoint, controlPoint2, p2);
         
-        context.DrawGeometry(Color, new Pen(Color, Thickness) { LineCap = PenLineCap.Round }, geometry);
+        LineBrush.StartPoint = new RelativePoint(p1.X, p1.Y, RelativeUnit.Absolute);
+        LineBrush.EndPoint = new RelativePoint(p2.X, p2.Y, RelativeUnit.Absolute);
+
+        pen.Brush = LineBrush;
+        pen.Thickness = Thickness;
+        
+        context.DrawGeometry(LineBrush, pen, geometry);
     }
 }

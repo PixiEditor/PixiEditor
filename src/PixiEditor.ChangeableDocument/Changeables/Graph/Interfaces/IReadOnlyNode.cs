@@ -1,4 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
@@ -8,12 +10,20 @@ public interface IReadOnlyNode
     public Guid Id { get; }
     public IReadOnlyCollection<IInputProperty> InputProperties { get; }
     public IReadOnlyCollection<IOutputProperty> OutputProperties { get; }
-    public IReadOnlyCollection<IReadOnlyNode> ConnectedOutputNodes { get; }
     public VecD Position { get; }
-    public IReadOnlyChunkyImage? CachedResult { get; }
+    public Surface? CachedResult { get; }
+    
+    public string InternalName { get; }
+    string DisplayName { get; }
 
-    public IReadOnlyChunkyImage? Execute(KeyFrameTime frame);
-    public bool Validate();
+    public Surface? Execute(RenderingContext context);
+    
+    /// <summary>
+    ///     Checks if the inputs are legal. If they are not, the node should not be executed.
+    /// Note that all nodes connected to any output of this node won't be executed either.
+    /// </summary>
+    /// <example>Divide node has two inputs, if the second input is 0, the node should not be executed. Since division by 0 is illegal</example>
+    /// <returns>True if the inputs are legal, false otherwise.</returns>
     
     /// <summary>
     ///     Traverses the graph backwards from this node. Backwards means towards the input nodes.
@@ -26,4 +36,7 @@ public interface IReadOnlyNode
     /// </summary>
     /// <param name="action">The action to perform on each node.</param>
     public void TraverseForwards(Func<IReadOnlyNode, bool> action);
+    
+    public IInputProperty? GetInputProperty(string internalName);
+    public IOutputProperty? GetOutputProperty(string internalName);
 }

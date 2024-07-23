@@ -1,12 +1,14 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
-public interface IReadOnlyDocument
+public interface IReadOnlyDocument : IDisposable
 {    
     /// <summary>
     /// The root folder of the document
@@ -44,15 +46,17 @@ public interface IReadOnlyDocument
     /// The position of the vertical symmetry axis (Mirrors left and right)
     /// </summary>
     double VerticalSymmetryAxisX { get; }
-
+    
     /// <summary>
     /// Performs the specified action on each readonly member of the document
     /// </summary>
     void ForEveryReadonlyMember(Action<IReadOnlyStructureNode> action);
     
-    public Surface? GetLayerRasterizedImage(Guid layerGuid, int frame);
+    public Image? GetLayerRasterizedImage(Guid layerGuid, int frame);
     public RectI? GetChunkAlignedLayerBounds(Guid layerGuid, int frame);
 
+    IReadOnlyNode FindNode(Guid guid);
+    
     /// <summary>
     /// Finds the member with the <paramref name="guid"/> or returns null if not found
     /// </summary>

@@ -3,6 +3,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
@@ -14,8 +15,7 @@ internal class MoveStructureMember_Change : Change
 
     private Guid originalFolderGuid;
 
-    private List<IInputProperty> originalOutputConnections = new();
-    private List<(IInputProperty, IOutputProperty?)> originalInputConnections = new();
+    private ConnectionsData originalConnections; 
     
     private bool putInsideFolder;
 
@@ -35,8 +35,8 @@ internal class MoveStructureMember_Change : Change
         if (member is null || targetFolder is null)
             return false;
 
-        originalOutputConnections = member.Output.Connections.ToList();
-        originalInputConnections = member.InputProperties.Select(x => ((IInputProperty)x, x.Connection)).ToList();
+        originalConnections = NodeOperations.CreateConnectionsData(member); 
+          
         return true;
     }
 
@@ -48,18 +48,24 @@ internal class MoveStructureMember_Change : Change
             return [];
 
         List<IChangeInfo> changes = new();
+        
+        Guid oldBackgroundId = sourceNode.Background.Node.Id;
 
-        InputProperty<ChunkyImage?> inputProperty = backgroundInput.Background;
+        InputProperty<Surface?> inputProperty = backgroundInput.Background;
 
         if (targetNode is FolderNode folder && putInsideFolder)
         {
             inputProperty = folder.Content;
         }
 
+        MoveStructureMember_ChangeInfo changeInfo = new(sourceNodeGuid, oldBackgroundId, targetNodeGuid);
+        
         changes.AddRange(NodeOperations.DetachStructureNode(sourceNode));
         changes.AddRange(NodeOperations.AppendMember(inputProperty, sourceNode.Output,
             sourceNode.Background,
             sourceNode.Id));
+        
+        changes.Add(changeInfo);
 
         return changes;
     }
@@ -78,9 +84,13 @@ internal class MoveStructureMember_Change : Change
 
         List<IChangeInfo> changes = new List<IChangeInfo>();
         
+        MoveStructureMember_ChangeInfo changeInfo = new(memberGuid, targetNodeGuid, originalFolderGuid);
+        
         changes.AddRange(NodeOperations.DetachStructureNode(member));
-        changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalOutputConnections,
-            originalInputConnections, member));
+        changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, member, target.NodeGraph));
+        
+        changes.Add(changeInfo);
+        
         return changes;
     }
 }

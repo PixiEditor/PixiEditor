@@ -4,12 +4,15 @@ using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 
-internal class Document : IChangeable, IReadOnlyDocument, IDisposable
+internal class Document : IChangeable, IReadOnlyDocument
 {
     IReadOnlyNodeGraph IReadOnlyDocument.NodeGraph => NodeGraph;
     IReadOnlySelection IReadOnlyDocument.Selection => Selection;
@@ -62,7 +65,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     /// <remarks>So yeah, welcome folks to the multithreaded world, where possibilities are endless! (and chances of objects getting
     /// edited, in between of processing you want to make exist). You might encounter ObjectDisposedException and other mighty creatures here if
     /// you are lucky enough. Have fun!</remarks>
-    public Surface? GetLayerRasterizedImage(Guid layerGuid, int frame)
+    public Image? GetLayerRasterizedImage(Guid layerGuid, int frame)
     {
         var layer = (IReadOnlyLayerNode?)FindMember(layerGuid);
 
@@ -79,12 +82,37 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
 
         Surface surface = new Surface(tightBounds.Value.Size);
 
-        layer.Execute(frame).DrawMostUpToDateRegionOn(
-            tightBounds.Value,
-            ChunkResolution.Full,
-            surface.DrawingSurface, VecI.Zero);
+        using var paint = new Paint();
 
-        return surface;
+        Surface image;
+        
+        if (layer is IReadOnlyImageNode imageNode)
+        {
+            var chunkyImage = imageNode.GetLayerImageAtFrame(frame);
+            using Surface chunkSurface = new Surface(chunkyImage.CommittedSize);
+            chunkyImage.DrawCommittedRegionOn(
+                new RectI(0, 0, chunkyImage.CommittedSize.X, chunkyImage.CommittedSize.Y), 
+                ChunkResolution.Full,
+                chunkSurface.DrawingSurface,
+                VecI.Zero);
+
+            image = chunkSurface;
+        }
+        else
+        {
+            return null;
+            /*TODO: this*/
+            // image = new Surface(layer.Execute(new RenderingContext(frame, Size)));
+        }
+        
+        //todo: idk if it's correct
+        surface.DrawingSurface.Canvas.DrawSurface(image.DrawingSurface, 0, 0, paint);
+
+        var snapshot = surface.DrawingSurface.Snapshot();
+        surface.Dispose();
+        image.Dispose();
+
+        return snapshot;
     }
 
     public RectI? GetChunkAlignedLayerBounds(Guid layerGuid, int frame)
@@ -215,6 +243,8 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     {
         return NodeGraph.Nodes.FirstOrDefault(x => x.Id == guid);
     }
+    
+    IReadOnlyNode IReadOnlyDocument.FindNode(Guid guid) => FindNodeOrThrow<Node>(guid);
 
     public T? FindNode<T>(Guid guid) where T : Node
     {

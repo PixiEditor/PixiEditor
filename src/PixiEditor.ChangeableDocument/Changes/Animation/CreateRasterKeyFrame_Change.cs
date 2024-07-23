@@ -39,8 +39,12 @@ internal class CreateRasterKeyFrame_Change : Change
         
         ImageLayerNode targetNode = target.FindMemberOrThrow<ImageLayerNode>(_targetLayerGuid);
         
+        ChunkyImage img = cloneFromImage?.CloneFromCommitted() ?? new ChunkyImage(target.Size);
+        
         var keyFrame =
-            new RasterKeyFrame(createdKeyFrameId, targetNode, _frame, target, cloneFromImage);
+            new RasterKeyFrame(createdKeyFrameId, targetNode, _frame, target, img);
+        
+        targetNode.AddFrame(createdKeyFrameId, new ImageFrame(createdKeyFrameId, _frame, 1, img));
         target.AnimationData.AddKeyFrame(keyFrame);
         ignoreInUndo = false;
         return new CreateRasterKeyFrame_ChangeInfo(_targetLayerGuid, _frame, createdKeyFrameId, cloneFrom.HasValue);

@@ -189,13 +189,16 @@ internal class CanvasUpdater
 
     private void RenderChunk(VecI chunkPos, Surface screenSurface, ChunkResolution resolution, RectI? globalClippingRectangle, RectI? globalScaledClippingRectangle)
     {
+        if(screenSurface is null || screenSurface.IsDisposed)
+            return;
+        
         if (globalScaledClippingRectangle is not null)
         {
             screenSurface.DrawingSurface.Canvas.Save();
             screenSurface.DrawingSurface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
         }
 
-        DocumentEvaluator.RenderChunk(chunkPos, resolution, internals.Tracker.Document.NodeGraph, doc.AnimationHandler.ActiveFrameBindable, globalClippingRectangle).Switch(
+        doc.Renderer.RenderChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameTime, globalClippingRectangle).Switch(
             (Chunk chunk) =>
             {
                 screenSurface.DrawingSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface, chunkPos.Multiply(chunk.PixelSize), ReplacingPaint);

@@ -40,6 +40,8 @@ internal abstract partial class Command : PixiObservableObject
             }
         }
     }
+    
+    public Type? ShortcutContext { get; init; }
 
     public string? MenuItemPath { get; init; }
 

@@ -27,4 +27,14 @@ public class Shader : NativeObject
     {
         return DrawingBackendApi.Current.ShaderImplementation.CreateLinearGradient(p1, p2, colors);
     }
+
+    public static Shader CreatePerlinNoiseTurbulence(float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed)
+    {
+        return DrawingBackendApi.Current.ShaderImplementation.CreatePerlinNoiseTurbulence(baseFrequencyX, baseFrequencyY, numOctaves, seed);
+    }
+
+    public static Shader CreatePerlinFractalNoise(float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed)
+    {
+        return DrawingBackendApi.Current.ShaderImplementation.CreatePerlinFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves, seed);
+    }
 }

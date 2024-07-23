@@ -1,10 +1,16 @@
 ﻿using System.Collections.ObjectModel;
+using System.Reflection;
+using Avalonia.Input;
+using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.ViewModels.Nodes;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document;
@@ -14,6 +20,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
     public DocumentViewModel DocumentViewModel { get; }
     public ObservableCollection<INodeHandler> AllNodes { get; } = new();
     public ObservableCollection<NodeConnectionViewModel> Connections { get; } = new();
+    public ObservableCollection<NodeFrameViewModelBase> Frames { get; } = new();
     public StructureTree StructureTree { get; } = new();
     public INodeHandler? OutputNode { get; private set; }
 
@@ -46,6 +53,32 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
         }
 
         StructureTree.Update(this);
+    }
+
+    public void AddFrame(Guid frameId, IEnumerable<Guid> nodes)
+    {
+        var frame = new NodeFrameViewModel(frameId, AllNodes.Where(x => nodes.Contains(x.Id)));
+
+        Frames.Add(frame);
+    }
+
+    public void AddZone(Guid frameId, string internalName, Guid startId, Guid endId)
+    {
+        var start = AllNodes.First(x => x.Id == startId);
+        var end = AllNodes.First(x => x.Id == endId);
+
+        var zone = new NodeZoneViewModel(frameId, internalName, start, end);
+
+        Frames.Add(zone);
+    }
+
+    public void RemoveFrame(Guid guid)
+    {
+        var frame = Frames.FirstOrDefault(x => x.Id == guid);
+
+        if (frame == null) return;
+
+        Frames.Remove(frame);
     }
 
     public void SetConnection(NodeConnectionViewModel connection)
@@ -147,6 +180,11 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
         Internals.ActionAccumulator.AddActions(new NodePosition_Action(node.Id, newPos));
     }
 
+    public void UpdatePropertyValue(INodeHandler node, string property, object? value)
+    {
+        Internals.ActionAccumulator.AddFinishedActions(new UpdatePropertyValue_Action(node.Id, property, value));
+    }
+
     public void EndChangeNodePosition()
     {
         Internals.ActionAccumulator.AddFinishedActions(new EndNodePosition_Action());
@@ -154,7 +192,43 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
 
     public void CreateNode(Type nodeType)
     {
-        Internals.ActionAccumulator.AddFinishedActions(new CreateNode_Action(nodeType, Guid.NewGuid()));
+        IAction change;
+
+        PairNodeAttribute? pairAttribute = nodeType.GetCustomAttribute<PairNodeAttribute>(true);
+        if (pairAttribute != null)
+        {
+            change = new CreateNodePair_Action(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), nodeType);
+        }
+        else
+        {
+            change = new CreateNode_Action(nodeType, Guid.NewGuid());
+        }
+
+        Internals.ActionAccumulator.AddFinishedActions(change);
+    }
+
+    public void RemoveNodes(Guid[] selectedNodes)
+    {
+        IAction[] actions = new IAction[selectedNodes.Length];
+        
+        for (int i = 0; i < selectedNodes.Length; i++)
+        {
+            actions[i] = new DeleteNode_Action(selectedNodes[i]);
+        }
+        
+        Internals.ActionAccumulator.AddFinishedActions(actions);
+    }
+
+    // TODO: Remove this
+    public void CreateNodeFrameAroundEverything()
+    {
+        CreateNodeFrame(AllNodes);
+    }
+
+    public void CreateNodeFrame(IEnumerable<INodeHandler> nodes)
+    {
+        Internals.ActionAccumulator.AddFinishedActions(new CreateNodeFrame_Action(Guid.NewGuid(),
+            nodes.Select(x => x.Id)));
     }
 
     public void ConnectProperties(INodePropertyHandler? start, INodePropertyHandler? end)
@@ -166,7 +240,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
 
         var input = start?.IsInput == true ? start : end;
         var output = start?.IsInput == false ? start : end;
-        
+
         if (input == null && output != null)
         {
             input = output.ConnectedInputs.FirstOrDefault();
@@ -187,10 +261,10 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
 
         if (input == null) return;
 
-        IAction action = input != null && output != null ?
-            new ConnectProperties_Action(inputNode.Id, outputNode.Id, inputProperty, outputProperty) :
-            new DisconnectProperty_Action(inputNode.Id, inputProperty);
-        
+        IAction action = input != null && output != null
+            ? new ConnectProperties_Action(inputNode.Id, outputNode.Id, inputProperty, outputProperty)
+            : new DisconnectProperty_Action(inputNode.Id, inputProperty);
+
         Internals.ActionAccumulator.AddFinishedActions(action);
     }
 }

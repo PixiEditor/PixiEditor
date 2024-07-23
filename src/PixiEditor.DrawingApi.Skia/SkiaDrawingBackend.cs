@@ -38,7 +38,8 @@ namespace PixiEditor.DrawingApi.Skia
         public ISurfaceImplementation SurfaceImplementation => _surfaceImplementation;
         public IColorSpaceImplementation ColorSpaceImplementation { get; }
         public IBitmapImplementation BitmapImplementation { get; }
-        public IColorFilterImplementation ColorFilterImplementation { get; set; }
+        public IColorFilterImplementation ColorFilterImplementation { get; }
+        public IImageFilterImplementation ImageFilterImplementation { get; }
         public IShaderImplementation ShaderImplementation { get; set; }
 
         private SkiaSurfaceImplementation _surfaceImplementation;
@@ -51,6 +52,23 @@ namespace PixiEditor.DrawingApi.Skia
             SkiaImgDataImplementation dataImpl = new SkiaImgDataImplementation();
             ImgDataImplementation = dataImpl;
             
+            SkiaColorFilterImplementation colorFilterImpl = new SkiaColorFilterImplementation();
+            ColorFilterImplementation = colorFilterImpl;
+
+            SkiaImageFilterImplementation imageFilterImpl = new SkiaImageFilterImplementation();
+            ImageFilterImplementation = imageFilterImpl;
+            
+            SkiaShaderImplementation shader = new SkiaShaderImplementation();
+            ShaderImplementation = shader;
+            
+            SkiaPaintImplementation paintImpl = new SkiaPaintImplementation(colorFilterImpl, imageFilterImpl, shader);
+            PaintImplementation = paintImpl;
+            
+            SkiaPathImplementation pathImpl = new SkiaPathImplementation();
+            PathImplementation = pathImpl;
+            
+            MatrixImplementation = new SkiaMatrixImplementation();
+            
             SkiaColorSpaceImplementation colorSpaceImpl = new SkiaColorSpaceImplementation();
             ColorSpaceImplementation = colorSpaceImpl;
 
@@ -59,21 +77,6 @@ namespace PixiEditor.DrawingApi.Skia
             
             SkiaImageImplementation imgImpl = new SkiaImageImplementation(dataImpl, pixmapImpl);
             ImageImplementation = imgImpl;
-            
-            SkiaColorFilterImplementation colorFilterImpl = new SkiaColorFilterImplementation();
-            ColorFilterImplementation = colorFilterImpl;
-            
-            SkiaShaderImplementation shaderImpl = new SkiaShaderImplementation();
-            ShaderImplementation = shaderImpl;
-            
-            SkiaPaintImplementation paintImpl = new SkiaPaintImplementation(colorFilterImpl, shaderImpl);
-            PaintImplementation = paintImpl;
-            
-            SkiaPathImplementation pathImpl = new SkiaPathImplementation();
-            PathImplementation = pathImpl;
-            
-            MatrixImplementation = new SkiaMatrixImplementation();
-            
             SkiaBitmapImplementation bitmapImpl = new SkiaBitmapImplementation(imgImpl);
             BitmapImplementation = bitmapImpl;
             

@@ -82,6 +82,15 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     public static readonly StyledProperty<ICommand> ChangeKeyFramesLengthCommandProperty = AvaloniaProperty.Register<Timeline, ICommand>(
         nameof(ChangeKeyFramesLengthCommand));
 
+    public static readonly StyledProperty<int> DefaultEndFrameProperty = AvaloniaProperty.Register<Timeline, int>(
+        nameof(DefaultEndFrame));
+
+    public int DefaultEndFrame
+    {
+        get => GetValue(DefaultEndFrameProperty);
+        set => SetValue(DefaultEndFrameProperty, value);
+    }
+
     public ICommand ChangeKeyFramesLengthCommand
     {
         get => GetValue(ChangeKeyFramesLengthCommandProperty);
@@ -188,7 +197,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
     public bool DragAllSelectedKeyFrames(int delta)
     {
-        bool canDrag = SelectedKeyFrames.All(x => x.StartFrameBindable + delta >= 0);
+        bool canDrag = SelectedKeyFrames.All(x => x.StartFrameBindable + delta > 0);
         if (!canDrag)
         {
             return false;
@@ -323,7 +332,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
     private void PlayTimerOnTick(object? sender, EventArgs e)
     {
-        if (ActiveFrame >= KeyFrames.FrameCount)
+        if (ActiveFrame >= (KeyFrames.Count > 0 ? KeyFrames.FrameCount : DefaultEndFrame))
         {
             ActiveFrame = 1;
         }

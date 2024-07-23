@@ -1,0 +1,49 @@
+﻿<properties:NodePropertyView xmlns="https://github.com/avaloniaui"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                             xmlns:properties="clr-namespace:PixiEditor.AvaloniaUI.Views.Nodes.Properties"
+                             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                             xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input"
+                             xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
+                             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:Class="PixiEditor.AvaloniaUI.Views.Nodes.Properties.ColorMatrixPropertyView">
+    <StackPanel HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
+        <TextBlock ui:Translator.Key="{Binding DisplayName}" />
+        <Grid IsVisible="{Binding ShowInputField}" ColumnDefinitions="Auto,*,*,*,*,*" RowDefinitions="Auto, Auto, Auto, Auto, Auto">
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="T\F" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"  />
+            
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="R" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="1,0" TextAlignment="Center" />
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="G" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="1,0" TextAlignment="Center" />
+            <TextBlock Grid.Row="3" Grid.Column="0" Text="B" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="1,0" TextAlignment="Center" />
+            <TextBlock Grid.Row="4" Grid.Column="0" Text="A" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="1,0" TextAlignment="Center" />
+            
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="R" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="1,0" TextAlignment="Center" />
+            <TextBlock Grid.Row="0" Grid.Column="2" Text="G" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="1,0" TextAlignment="Center" />
+            <TextBlock Grid.Row="0" Grid.Column="3" Text="B" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="1,0" TextAlignment="Center" />
+            <TextBlock Grid.Row="0" Grid.Column="4" Text="A" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="1,0" TextAlignment="Center" />
+            <TextBlock Grid.Row="0" Grid.Column="5" Text="+" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="1,0" TextAlignment="Center" />
+            
+            <input:NumberInput EnableScrollChange="False" Grid.Row="1" Grid.Column="1" IsVisible="{Binding IsInput}" Value="{Binding M11, Mode=TwoWay}" />
+            <input:NumberInput EnableScrollChange="False" Grid.Row="1" Grid.Column="2" IsVisible="{Binding IsInput}" Value="{Binding M12, Mode=TwoWay}" />
+            <input:NumberInput EnableScrollChange="False" Grid.Row="1" Grid.Column="3" IsVisible="{Binding IsInput}" Value="{Binding M13, Mode=TwoWay}" />
+            <input:NumberInput EnableScrollChange="False" Grid.Row="1" Grid.Column="4" IsVisible="{Binding IsInput}" Value="{Binding M14, Mode=TwoWay}" />
+            <input:NumberInput EnableScrollChange="False" Grid.Row="1" Grid.Column="5" IsVisible="{Binding IsInput}" Value="{Binding M15, Mode=TwoWay}" />
+            <input:NumberInput EnableScrollChange="False" Grid.Row="2" Grid.Column="1" IsVisible="{Binding IsInput}" Value="{Binding M21, Mode=TwoWay}" />
+            <input:NumberInput EnableScrollChange="False" Grid.Row="2" Grid.Column="2" IsVisible="{Binding IsInput}" Value="{Binding M22, Mode=TwoWay}" />
+            <input:NumberInput EnableScrollChange="False" Grid.Row="2" Grid.Column="3" IsVisible="{Binding IsInput}" Value="{Binding M23, Mode=TwoWay}" />
+            <input:NumberInput EnableScrollChange="False" Grid.Row="2" Grid.Column="4" IsVisible="{Binding IsInput}" Value="{Binding M24, Mode=TwoWay}" />
+            <input:NumberInput EnableScrollChange="False" Grid.Row="2" Grid.Column="5" IsVisible="{Binding IsInput}" Value="{Binding M25, Mode=TwoWay}" />
+            <input:NumberInput EnableScrollChange="False" Grid.Row="3" Grid.Column="1" IsVisible="{Binding IsInput}" Value="{Binding M31, Mode=TwoWay}" />
+            <input:NumberInput EnableScrollChange="False" Grid.Row="3" Grid.Column="2" IsVisible="{Binding IsInput}" Value="{Binding M32, Mode=TwoWay}" />
+            <input:NumberInput EnableScrollChange="False" Grid.Row="3" Grid.Column="3" IsVisible="{Binding IsInput}" Value="{Binding M33, Mode=TwoWay}" />
+            <input:NumberInput EnableScrollChange="False" Grid.Row="3" Grid.Column="4" IsVisible="{Binding IsInput}" Value="{Binding M34, Mode=TwoWay}" />
+            <input:NumberInput EnableScrollChange="False" Grid.Row="3" Grid.Column="5" IsVisible="{Binding IsInput}" Value="{Binding M35, Mode=TwoWay}" />
+            <input:NumberInput EnableScrollChange="False" Grid.Row="4" Grid.Column="1" IsVisible="{Binding IsInput}" Value="{Binding M41, Mode=TwoWay}" />
+            <input:NumberInput EnableScrollChange="False" Grid.Row="4" Grid.Column="2" IsVisible="{Binding IsInput}" Value="{Binding M42, Mode=TwoWay}" />
+            <input:NumberInput EnableScrollChange="False" Grid.Row="4" Grid.Column="3" IsVisible="{Binding IsInput}" Value="{Binding M43, Mode=TwoWay}" />
+            <input:NumberInput EnableScrollChange="False" Grid.Row="4" Grid.Column="4" IsVisible="{Binding IsInput}" Value="{Binding M44, Mode=TwoWay}" />
+            <input:NumberInput EnableScrollChange="False" Grid.Row="4" Grid.Column="5" IsVisible="{Binding IsInput}" Value="{Binding M45, Mode=TwoWay}" />
+        </Grid>
+    </StackPanel>
+</properties:NodePropertyView>

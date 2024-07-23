@@ -6,6 +6,7 @@ using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.DocumentPassthroughActions;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document;
@@ -17,8 +18,11 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     public DocumentViewModel Document { get; }
     protected DocumentInternalParts Internals { get; }
     public IReadOnlyCollection<IKeyFrameHandler> KeyFrames => keyFrames;
+    
+    public IReadOnlyCollection<IKeyFrameHandler> AllKeyFrames => allKeyFrames;
 
     private KeyFrameCollection keyFrames = new KeyFrameCollection();
+    private List<IKeyFrameHandler> allKeyFrames = new List<IKeyFrameHandler>();
 
     public int ActiveFrameBindable
     {
@@ -41,18 +45,26 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         {
             _frameRate = value;
             OnPropertyChanged(nameof(FrameRate));
+            OnPropertyChanged(nameof(DefaultEndFrame));
         }
     }
 
     public int FirstFrame => keyFrames.Count > 0 ? keyFrames.Min(x => x.StartFrameBindable) : 0;
-    public int LastFrame => keyFrames.Count > 0 ? keyFrames.Max(x => x.StartFrameBindable + x.DurationBindable) : 0;
-    public int FramesCount => LastFrame - FirstFrame + 1; 
+    public int LastFrame => keyFrames.Count > 0 ? keyFrames.Max(x => x.StartFrameBindable + x.DurationBindable) 
+        : DefaultEndFrame;
+    public int FramesCount => LastFrame - FirstFrame + 1;
+    
+    private double ActiveNormalizedTime => (double)(ActiveFrameBindable - FirstFrame) / FramesCount;
+
+    private int DefaultEndFrame => FrameRate; // 1 second
 
     public AnimationDataViewModel(DocumentViewModel document, DocumentInternalParts internals)
     {
         Document = document;
         Internals = internals;
     }
+
+    public KeyFrameTime ActiveFrameTime => new KeyFrameTime(ActiveFrameBindable, ActiveNormalizedTime);
 
     public void CreateRasterKeyFrame(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null, int? frameToCopyFrom = null)
     {
@@ -139,6 +151,11 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         }
 
         keyFrames.NotifyCollectionChanged(NotifyCollectionChangedAction.Add, (KeyFrameViewModel)keyFrame);
+
+        if (!allKeyFrames.Contains(keyFrame))
+        {
+            allKeyFrames.Add(keyFrame);
+        }
     }
 
     public void RemoveKeyFrame(Guid keyFrameId)
@@ -148,6 +165,8 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             parent.Children.Remove(frame);
             keyFrames.NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, (KeyFrameViewModel)frame);
         });
+        
+        allKeyFrames.RemoveAll(x => x.Id == keyFrameId);
     }
 
     public void AddSelectedKeyFrame(Guid keyFrameId)
@@ -185,6 +204,8 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
                 parent.Children.Remove(frame);
                 framesToRemove.Add((KeyFrameViewModel)frame);
             });
+            
+            allKeyFrames.RemoveAll(x => x.Id == keyFrame);
         }
         
         keyFrames.NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, framesToRemove);

@@ -26,6 +26,7 @@ using PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -151,6 +152,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public DocumentStructureModule StructureHelper { get; }
     public DocumentToolsModule Tools { get; }
     public DocumentOperationsModule Operations { get; }
+    public DocumentRenderer Renderer { get; }
     public DocumentEventsModule EventInlet { get; }
 
     public ActionDisplayList ActionDisplays { get; } =
@@ -231,6 +233,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         PreviewSurface = new Surface(new VecI(previewSize.X, previewSize.Y));
 
         ReferenceLayerViewModel = new(this, Internals);
+
+        Renderer = new DocumentRenderer(Internals.Tracker.Document);
     }
 
     /// <summary>
@@ -261,16 +265,16 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         if (builderInstance.ReferenceLayer is { } refLayer)
         {
             acc.AddActions(new SetReferenceLayer_Action(refLayer.Shape, refLayer.ImageBgra8888Bytes.ToImmutableArray(),
-                    refLayer.ImageSize));
+                refLayer.ImageSize));
         }
 
         viewModel.Swatches = new ObservableCollection<PaletteColor>(builderInstance.Swatches);
         viewModel.Palette = new ObservableRangeCollection<PaletteColor>(builderInstance.Palette);
-        
+
         Guid outputNodeGuid = Guid.NewGuid();
-        
+
         acc.AddActions(new CreateNode_Action(typeof(OutputNode), outputNodeGuid));
-        
+
         AddMembers(outputNodeGuid, builderInstance.Children);
         AddAnimationData(builderInstance.AnimationData);
 
@@ -363,21 +367,24 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                     {
                         rasterKeyFrameBuilder.Id = Guid.NewGuid();
                     }
-                    
+
                     acc.AddActions(
                         new CreateRasterKeyFrame_Action(
                             rasterKeyFrameBuilder.LayerGuid,
                             rasterKeyFrameBuilder.Id,
                             rasterKeyFrameBuilder.StartFrame, -1, default),
-                        new KeyFrameLength_Action(rasterKeyFrameBuilder.Id, rasterKeyFrameBuilder.StartFrame, rasterKeyFrameBuilder.Duration),
+                        new KeyFrameLength_Action(rasterKeyFrameBuilder.Id, rasterKeyFrameBuilder.StartFrame,
+                            rasterKeyFrameBuilder.Duration),
                         new EndKeyFrameLength_Action());
-                    
-                    PasteImage(rasterKeyFrameBuilder.LayerGuid, rasterKeyFrameBuilder.Surface, rasterKeyFrameBuilder.Surface.Surface.Size.X,
-                        rasterKeyFrameBuilder.Surface.Surface.Size.Y, 0, 0, false, rasterKeyFrameBuilder.StartFrame, rasterKeyFrameBuilder.Id);
-                    
+
+                    PasteImage(rasterKeyFrameBuilder.LayerGuid, rasterKeyFrameBuilder.Surface,
+                        rasterKeyFrameBuilder.Surface.Surface.Size.X,
+                        rasterKeyFrameBuilder.Surface.Surface.Size.Y, 0, 0, false, rasterKeyFrameBuilder.StartFrame,
+                        rasterKeyFrameBuilder.Id);
+
                     acc.AddFinishedActions();
                 }
-                else if(keyFrame is GroupKeyFrameBuilder groupKeyFrameBuilder)
+                else if (keyFrame is GroupKeyFrameBuilder groupKeyFrameBuilder)
                 {
                     AddAnimationData(groupKeyFrameBuilder.Children);
                 }
@@ -402,7 +409,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     /// Tries rendering the whole document
     /// </summary>
     /// <returns><see cref="Error"/> if the ChunkyImage was disposed, otherwise a <see cref="Surface"/> of the rendered document</returns>
-    public OneOf<Error, Surface> TryRenderWholeImage(int frame)
+    public OneOf<Error, Surface> TryRenderWholeImage(KeyFrameTime frameTime)
     {
         try
         {
@@ -413,13 +420,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 for (int j = 0; j < sizeInChunks.Y; j++)
                 {
                     // TODO: Implement this
-                    /*var maybeChunk = ChunkRenderer.MergeWholeStructure(new(i, j), ChunkResolution.Full,
-                        Internals.Tracker.Document.StructureRoot, frame);
+                    var maybeChunk = Renderer.RenderChunk(new(i, j), ChunkResolution.Full, frameTime);
                     if (maybeChunk.IsT1)
                         continue;
                     using Chunk chunk = maybeChunk.AsT0;
-                    finalSurface.DrawingSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface,
-                        i * ChunkyImage.FullChunkSize, j * ChunkyImage.FullChunkSize);*/
+                    finalSurface.DrawingSurface.Canvas.DrawSurface(
+                        chunk.Surface.DrawingSurface,
+                        i * ChunkyImage.FullChunkSize, j * ChunkyImage.FullChunkSize);
                 }
             }
 
@@ -454,7 +461,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         try
         {
             // TODO: Make sure it must be GetLayerImageAtFrame rather than Rasterize()
-            memberImageBounds = layer.GetLayerImageAtFrame(AnimationDataViewModel.ActiveFrameBindable).FindChunkAlignedMostUpToDateBounds();
+            memberImageBounds = layer.GetLayerImageAtFrame(AnimationDataViewModel.ActiveFrameBindable)
+                .FindChunkAlignedMostUpToDateBounds();
         }
         catch (ObjectDisposedException)
         {
@@ -476,7 +484,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         output.DrawingSurface.Canvas.ClipPath(clipPath);
         try
         {
-            layer.GetLayerImageAtFrame(AnimationDataViewModel.ActiveFrameBindable).DrawMostUpToDateRegionOn(bounds, ChunkResolution.Full, output.DrawingSurface, VecI.Zero);
+            layer.GetLayerImageAtFrame(AnimationDataViewModel.ActiveFrameBindable)
+                .DrawMostUpToDateRegionOn(bounds, ChunkResolution.Full, output.DrawingSurface, VecI.Zero);
         }
         catch (ObjectDisposedException)
         {
@@ -544,7 +553,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         return bitmap.GetSRGBPixel(new VecI((int)transformed.X, (int)transformed.Y));
     }
 
-    public Color PickColorFromCanvas(VecI pos, DocumentScope scope, int frame)
+    public Color PickColorFromCanvas(VecI pos, DocumentScope scope, KeyFrameTime frameTime)
     {
         // there is a tiny chance that the image might get disposed by another thread
         try
@@ -554,28 +563,25 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             if (scope == DocumentScope.AllLayers)
             {
                 VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize);
-                /*return ChunkRenderer.MergeWholeStructure(chunkPos, ChunkResolution.Full,
-                        Internals.Tracker.Document.StructureRoot, frame, new RectI(pos, VecI.One))
-                    .Match<Color>(
-                        (Chunk chunk) =>
+                return Renderer.RenderChunk(chunkPos, ChunkResolution.Full,
+                        frameTime)
+                    .Match(
+                        chunk =>
                         {
                             VecI posOnChunk = pos - chunkPos * ChunkyImage.FullChunkSize;
                             var color = chunk.Surface.GetSRGBPixel(posOnChunk);
                             chunk.Dispose();
                             return color;
                         },
-                        _ => Colors.Transparent
-                    );*/
-                // TODO: Implement this
-                return Colors.Transparent;
+                        _ => Colors.Transparent);
             }
 
             if (SelectedStructureMember is not LayerViewModel layerVm)
                 return Colors.Transparent;
             IReadOnlyStructureNode? maybeMember = Internals.Tracker.Document.FindMember(layerVm.Id);
-            if (maybeMember is not IReadOnlyLayerNode layer)
+            if (maybeMember is not IReadOnlyImageNode layer)
                 return Colors.Transparent;
-            return layer.Execute(frame).GetMostUpToDatePixel(pos);
+            return layer.GetLayerImageAtFrame(frameTime.Frame).GetMostUpToDatePixel(pos);
         }
         catch (ObjectDisposedException)
         {
@@ -746,7 +752,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         Image[] images = new Image[framesCount];
         for (int i = firstFrame; i < lastFrame; i++)
         {
-            var surface = TryRenderWholeImage(i);
+            double normalizedTime = (double)(i - firstFrame) / framesCount;
+            KeyFrameTime frameTime = new KeyFrameTime(i, normalizedTime);
+            var surface = TryRenderWholeImage(frameTime);
             if (surface.IsT0)
             {
                 continue;
@@ -839,5 +847,17 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             var file = files[i];
             File.Delete(file);
         }
+    }
+
+    public void Dispose()
+    {
+        foreach (var (_, surface) in Surfaces)
+        {
+            surface.Dispose();
+        }
+
+        PreviewSurface.Dispose();
+        Internals.Tracker.Dispose();
+        Internals.Tracker.Document.Dispose();
     }
 }

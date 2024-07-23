@@ -65,9 +65,9 @@ internal static class DrawingChangeHelper
 
         if (drawOnMask)
         {
-            if (member.Mask is null)
+            if (member.Mask.NonOverridenValue is null)
                 throw new InvalidOperationException("Trying to draw on a mask that doesn't exist");
-            return member.Mask.Value;
+            return member.Mask.NonOverridenValue;
         }
 
         if (member is FolderNode)

@@ -10,11 +10,13 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
     public class SkiaPaintImplementation : SkObjectImplementation<SKPaint>, IPaintImplementation
     {
         private readonly SkiaColorFilterImplementation colorFilterImplementation;
+        private readonly SkiaImageFilterImplementation imageFilterImplementation;
         private readonly SkiaShaderImplementation shaderImplementation;
  
-        public SkiaPaintImplementation(SkiaColorFilterImplementation colorFilterImpl, SkiaShaderImplementation shaderImpl)
+        public SkiaPaintImplementation(SkiaColorFilterImplementation colorFilterImpl, SkiaImageFilterImplementation imageFilterImpl, SkiaShaderImplementation shaderImpl)
         {
             colorFilterImplementation = colorFilterImpl;
+            imageFilterImplementation = imageFilterImpl;
             shaderImplementation = shaderImpl;
         }
 
@@ -143,22 +145,34 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             return new ColorFilter(skPaint.ColorFilter.Handle);
         }
 
-        public void SetColorFilter(Paint paint, ColorFilter value)
+        public void SetColorFilter(Paint paint, ColorFilter? value)
         {
             SKPaint skPaint = ManagedInstances[paint.ObjectPointer];
-            skPaint.ColorFilter = colorFilterImplementation[value.ObjectPointer];
+            skPaint.ColorFilter = value == null ? null : colorFilterImplementation[value.ObjectPointer];
         }
-        
+
+        public ImageFilter GetImageFilter(Paint paint)
+        {
+            SKPaint skPaint = ManagedInstances[paint.ObjectPointer];
+            return new ImageFilter(skPaint.ColorFilter.Handle);
+        }
+
+        public void SetImageFilter(Paint paint, ImageFilter? value)
+        {
+            SKPaint skPaint = ManagedInstances[paint.ObjectPointer];
+            skPaint.ImageFilter = value == null ? null : imageFilterImplementation[value.ObjectPointer];
+        }
+
         public Shader GetShader(Paint paint)
         {
             SKPaint skPaint = ManagedInstances[paint.ObjectPointer];
             return new Shader(skPaint.Shader.Handle);
         }
         
-        public void SetShader(Paint paint, Shader shader)
+        public void SetShader(Paint paint, Shader? shader)
         {
             SKPaint skPaint = ManagedInstances[paint.ObjectPointer];
-            skPaint.Shader = shaderImplementation[shader.ObjectPointer];
+            skPaint.Shader = shader == null ? null : shaderImplementation[shader.ObjectPointer];
         }
 
         public object GetNativePaint(IntPtr objectPointer)

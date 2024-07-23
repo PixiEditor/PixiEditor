@@ -1,6 +1,9 @@
 ﻿using System.Collections;
+using System.Diagnostics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
@@ -33,7 +36,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         _nodes.Remove(node);
     }
 
-    private Queue<IReadOnlyNode> CalculateExecutionQueue(OutputNode outputNode, bool validate = true)
+    private Queue<IReadOnlyNode> CalculateExecutionQueue(OutputNode outputNode)
     {
         // backwards breadth-first search
         var visited = new HashSet<IReadOnlyNode>();
@@ -44,7 +47,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         while (queueNodes.Count > 0)
         {
             var node = queueNodes.Dequeue();
-            if (!visited.Add(node) || (validate && !node.Validate()))
+            if (!visited.Add(node))
             {
                 continue;
             }
@@ -82,7 +85,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
     {
         if(OutputNode == null) return false;
         
-        var queue = CalculateExecutionQueue(OutputNode, false);
+        var queue = CalculateExecutionQueue(OutputNode);
         
         while (queue.Count > 0)
         {
@@ -93,7 +96,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         return true;
     }
 
-    public ChunkyImage? Execute(int frame)
+    public Surface? Execute(RenderingContext context)
     {
         if (OutputNode == null) return null;
 
@@ -102,8 +105,15 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         while (queue.Count > 0)
         {
             var node = queue.Dequeue();
-
-            node.Execute(frame);
+            
+            if (node is Node typedNode)
+            {
+                typedNode.ExecuteInternal(context);
+            }
+            else
+            {
+                node.Execute(context);
+            }
         }
 
         return OutputNode.Input.Value;

@@ -10,7 +10,7 @@ namespace PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
 {
     public CreateLayer_ChangeInfo(
-        Guid parentGuid,
+        string internalName,
         float opacity,
         bool isVisible,
         bool clipToMemberBelow,
@@ -22,7 +22,7 @@ public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
         bool lockTransparency,
         ImmutableArray<NodePropertyInfo> inputs,
         ImmutableArray<NodePropertyInfo> outputs) :
-        base(parentGuid, opacity, isVisible, clipToMemberBelow, name, blendMode, guidValue, hasMask,
+        base(internalName, opacity, isVisible, clipToMemberBelow, name, blendMode, guidValue, hasMask,
             maskIsVisible, inputs, outputs)
     {
         LockTransparency = lockTransparency;
@@ -30,13 +30,13 @@ public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
 
     public bool LockTransparency { get; }
 
-    internal static CreateLayer_ChangeInfo FromLayer(Guid parentGuid, LayerNode layer)
+    internal static CreateLayer_ChangeInfo FromLayer(LayerNode layer)
     {
         return new CreateLayer_ChangeInfo(
-            parentGuid,
+            layer.InternalName,
             layer.Opacity.Value,
             layer.IsVisible.Value,
-            layer.ClipToMemberBelow.Value,
+            layer.ClipToPreviousMember.Value,
             layer.MemberName,
             layer.BlendMode.Value,
             layer.Id,

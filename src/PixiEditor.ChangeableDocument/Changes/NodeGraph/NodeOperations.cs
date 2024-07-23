@@ -1,15 +1,50 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
+﻿using System.Collections.Immutable;
+using System.Reflection;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
+using PixiEditor.ChangeableDocument.Changes.Structure;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
 public static class NodeOperations
 {
-    public static List<ConnectProperty_ChangeInfo> AppendMember(InputProperty<ChunkyImage?> parentInput,
-        OutputProperty<ChunkyImage> toAddOutput,
-        InputProperty<ChunkyImage> toAddInput, Guid memberId)
+    private static Dictionary<Type, INodeFactory> allFactories;
+
+    static NodeOperations()
+    {
+        allFactories = new Dictionary<Type, INodeFactory>();
+        var factoryTypes = typeof(Node).Assembly.GetTypes().Where(x =>
+                x.IsAssignableTo(typeof(INodeFactory)) && x is { IsAbstract: false, IsInterface: false })
+            .ToImmutableArray();
+        foreach (var factoryType in factoryTypes)
+        {
+            INodeFactory factory = (INodeFactory)Activator.CreateInstance(factoryType);
+            allFactories.Add(factory.NodeType, factory);
+        }
+    }
+
+    public static Node CreateNode(Type nodeType, IReadOnlyDocument target, params object[] optionalParameters)
+    {
+        Node node = null;
+        if (allFactories.TryGetValue(nodeType, out INodeFactory factory))
+        {
+            node = factory.CreateNode(target);
+        }
+        else
+        {
+            node = (Node)Activator.CreateInstance(nodeType, optionalParameters);
+        }
+
+        return node;
+    }
+
+    public static List<ConnectProperty_ChangeInfo> AppendMember(InputProperty<Surface?> parentInput,
+        OutputProperty<Surface> toAddOutput,
+        InputProperty<Surface> toAddInput, Guid memberId)
     {
         List<ConnectProperty_ChangeInfo> changes = new();
         IOutputProperty? previouslyConnected = null;
@@ -51,7 +86,7 @@ public static class NodeOperations
                 changes.Add(new ConnectProperty_ChangeInfo(output.Node.Id, input.Node.Id,
                     output.InternalPropertyName, input.InternalPropertyName));
             }
-            
+
             structureNode.Background.Connection.DisconnectFrom(structureNode.Background);
             changes.Add(new ConnectProperty_ChangeInfo(null, structureNode.Id, null,
                 structureNode.Background.InternalPropertyName));
@@ -68,35 +103,104 @@ public static class NodeOperations
         return changes;
     }
 
-    public static List<IChangeInfo> ConnectStructureNodeProperties(List<IInputProperty> originalOutputConnections,
-        List<(IInputProperty, IOutputProperty?)> originalInputConnections, StructureNode node)
+    public static ConnectionsData CreateConnectionsData(Node node)
     {
-        List<IChangeInfo> changes = new();
-        foreach (var connection in originalOutputConnections)
+        var originalOutputConnections = new Dictionary<PropertyConnection, List<PropertyConnection>>();
+
+        foreach (var outputProp in node.OutputProperties)
         {
-            node.Output.ConnectTo(connection);
-            changes.Add(new ConnectProperty_ChangeInfo(node.Id, connection.Node.Id, node.Output.InternalPropertyName,
-                connection.InternalPropertyName));
+            PropertyConnection outputConnection = new(outputProp.Node.Id, outputProp.InternalPropertyName);
+            originalOutputConnections.Add(outputConnection, new List<PropertyConnection>());
+            foreach (var conn in outputProp.Connections)
+            {
+                originalOutputConnections[outputConnection]
+                    .Add(new PropertyConnection(conn.Node.Id, conn.InternalPropertyName));
+            }
         }
 
-        foreach (var connection in originalInputConnections)
+        var originalInputConnections = node.InputProperties.Select(x =>
+                (new PropertyConnection(x.Node.Id, x.InternalPropertyName),
+                    new PropertyConnection(x.Connection?.Node.Id, x.Connection?.InternalPropertyName)))
+            .ToList();
+        
+        return new ConnectionsData(originalOutputConnections, originalInputConnections);
+    }
+
+    public static List<IChangeInfo> ConnectStructureNodeProperties(ConnectionsData originalConnections, Node node,
+        IReadOnlyNodeGraph graph)
+    {
+        List<IChangeInfo> changes = new();
+        foreach (var connections in originalConnections.originalOutputConnections)
         {
-            if (connection.Item2 is null)
+            PropertyConnection outputConnection = connections.Key;
+            IOutputProperty outputProp = node.GetOutputProperty(outputConnection.PropertyName);
+            foreach (var connection in connections.Value)
+            {
+                var inputNode = graph.AllNodes.FirstOrDefault(x => x.Id == connection.NodeId);
+                IInputProperty property = inputNode.GetInputProperty(connection.PropertyName);
+                outputProp.ConnectTo(property);
+                changes.Add(new ConnectProperty_ChangeInfo(node.Id, property.Node.Id, outputProp.InternalPropertyName,
+                    property.InternalPropertyName));
+            }
+        }
+
+        foreach (var connection in originalConnections.originalInputConnections)
+        {
+            var outputNode = graph.AllNodes.FirstOrDefault(x => x.Id == connection.Item2?.NodeId);
+
+            if (outputNode is null)
+                continue;
+
+            IOutputProperty output = outputNode.GetOutputProperty(connection.Item2.PropertyName);
+
+            if (output is null)
                 continue;
 
             IInputProperty? input =
-                node.InputProperties.FirstOrDefault(
-                    x => x.InternalPropertyName == connection.Item1.InternalPropertyName);
+                node.GetInputProperty(connection.Item1.PropertyName);
 
             if (input != null)
             {
-                connection.Item2.ConnectTo(input);
-                changes.Add(new ConnectProperty_ChangeInfo(connection.Item2.Node.Id, node.Id,
-                    connection.Item2.InternalPropertyName,
+                output.ConnectTo(input);
+                changes.Add(new ConnectProperty_ChangeInfo(output.Node.Id, node.Id,
+                    output.InternalPropertyName,
                     input.InternalPropertyName));
             }
         }
 
         return changes;
     }
+
+    public static List<IChangeInfo> DetachNode(Changeables.Graph.NodeGraph target, Node? node)
+    {
+        List<IChangeInfo> changes = new();
+        if (node == null)
+        {
+            return changes;
+        }
+
+        foreach (var input in node.InputProperties)
+        {
+            if (input.Connection == null)
+            {
+                continue;
+            }
+
+            input.Connection.DisconnectFrom(input);
+            changes.Add(new ConnectProperty_ChangeInfo(null, node.Id, null, input.InternalPropertyName));
+        }
+
+        foreach (var output in node.OutputProperties)
+        {
+            foreach (var input in output.Connections.ToArray())
+            {
+                output.DisconnectFrom(input);
+                changes.Add(new ConnectProperty_ChangeInfo(null, input.Node.Id, null, input.InternalPropertyName));
+            }
+        }
+
+        return changes;
+    }
 }
+
+public record PropertyConnection(Guid? NodeId, string? PropertyName);

@@ -11,7 +11,7 @@ namespace PixiEditor.AvaloniaUI.Views.Input;
 internal partial class SizeInput : UserControl
 {
     public static readonly StyledProperty<int> SizeProperty =
-        AvaloniaProperty.Register<SizeInput, int>(nameof(Size), defaultValue: 1);
+        AvaloniaProperty.Register<SizeInput, int>(nameof(Size), defaultValue: 1, coerce: Coerce);
 
     public static readonly StyledProperty<int> MaxSizeProperty =
         AvaloniaProperty.Register<SizeInput, int>(nameof(MaxSize), defaultValue: int.MaxValue);
@@ -30,6 +30,7 @@ internal partial class SizeInput : UserControl
         get => GetValue(FocusNextProperty);
         set => SetValue(FocusNextProperty, value);
     }
+
     public Action OnScrollAction
     {
         get { return GetValue(OnScrollActionProperty); }
@@ -102,6 +103,24 @@ internal partial class SizeInput : UserControl
         set => SetValue(UnitProperty, value);
     }
 
+
+    private static int Coerce(AvaloniaObject sender, int value)
+    {
+        if (value <= 0)
+        {
+            return 1;
+        }
+
+        int maxSize = sender.GetValue(MaxSizeProperty);
+        
+        if (value > maxSize)
+        {
+            return maxSize;
+        }
+        
+        return value;
+    }
+
     private static void InputSizeChanged(AvaloniaPropertyChangedEventArgs<int> e)
     {
         int newValue = e.NewValue.Value;
@@ -116,8 +135,6 @@ internal partial class SizeInput : UserControl
         else if (newValue <= 0)
         {
             e.Sender.SetValue(SizeProperty, 1);
-
-            return;
         }
     }
 

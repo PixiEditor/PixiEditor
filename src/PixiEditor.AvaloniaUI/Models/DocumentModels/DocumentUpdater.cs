@@ -7,6 +7,7 @@ using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Layers;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.ViewModels.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Exceptions;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
@@ -65,8 +66,8 @@ internal class DocumentUpdater
                 ProcessCreateStructureMember(info);
                 break;
             case DeleteStructureMember_ChangeInfo info:
-                ProcessDeleteNode(info);
                 ProcessDeleteStructureMember(info);
+                ProcessDeleteNode(info);
                 break;
             case StructureMemberName_ChangeInfo info:
                 ProcessUpdateStructureMemberName(info);
@@ -170,11 +171,23 @@ internal class DocumentUpdater
             case DeleteNode_ChangeInfo info:
                 ProcessDeleteNode(info);
                 break;
+            case CreateNodeFrame_ChangeInfo info:
+                ProcessCreateNodeFrame(info);
+                break;
+            case CreateNodeZone_ChangeInfo info:
+                ProcessCreateNodeZone(info);
+                break;
+            case DeleteNodeFrame_ChangeInfo info:
+                ProcessDeleteNodeFrame(info);
+                break;
             case ConnectProperty_ChangeInfo info:
                 ProcessConnectProperty(info);
                 break;
             case NodePosition_ChangeInfo info:
                 ProcessNodePosition(info);
+                break;
+            case PropertyValueUpdated_ChangeInfo info:
+                ProcessNodePropertyValueUpdated(info);
                 break;
         }
     }
@@ -477,9 +490,14 @@ internal class DocumentUpdater
     
     private void ProcessCreateNode<T>(CreateNode_ChangeInfo info) where T : NodeViewModel, new()
     {
-        T node = new T() { 
-            NodeName = info.NodeName, Id = info.Id, 
-            Document = (DocumentViewModel)doc, Internals = helper };
+        T node = new T()
+        {
+            NodeName = info.NodeName,
+            InternalName = info.InternalName,
+            Id = info.Id,
+            Document = (DocumentViewModel)doc,
+            Internals = helper
+        };
 
         node.SetPosition(info.Position);
         
@@ -499,6 +517,8 @@ internal class DocumentUpdater
             prop.DisplayName = input.DisplayName;
             prop.PropertyName = input.PropertyName;
             prop.IsInput = isInput;
+            prop.IsFunc = input.ValueType.IsAssignableTo(typeof(Delegate));
+            prop.InternalSetValue(input.InputValue);
             inputs.Add(prop);
         }
         
@@ -511,6 +531,21 @@ internal class DocumentUpdater
         doc.NodeGraphHandler.RemoveNode(info.Id);
     }
     
+    private void ProcessCreateNodeFrame(CreateNodeFrame_ChangeInfo info)
+    {
+        doc.NodeGraphHandler.AddFrame(info.Id, info.NodeIds);
+    }
+
+    private void ProcessCreateNodeZone(CreateNodeZone_ChangeInfo info)
+    {
+        doc.NodeGraphHandler.AddZone(info.Id, info.internalName, info.StartId, info.EndId);
+    }
+
+    private void ProcessDeleteNodeFrame(DeleteNodeFrame_ChangeInfo info)
+    {
+        doc.NodeGraphHandler.RemoveFrame(info.Id);
+    }
+
     private void ProcessConnectProperty(ConnectProperty_ChangeInfo info)
     {
         NodeViewModel outputNode = info.OutputNodeId.HasValue ? doc.StructureHelper.FindNode<NodeViewModel>(info.OutputNodeId.Value) : null;
@@ -528,9 +563,15 @@ internal class DocumentUpdater
             
             doc.NodeGraphHandler.SetConnection(connection);
         }
-        else
+        else if(info.OutputProperty == null)
         {
             doc.NodeGraphHandler.RemoveConnection(info.InputNodeId, info.InputProperty);
+        }
+        else
+        {
+#if DEBUG
+            throw new MissingNodeException("Connection requested for a node that doesn't exist");
+#endif
         }
     }
     
@@ -538,5 +579,13 @@ internal class DocumentUpdater
     {
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
         node.SetPosition(info.NewPosition);
+    }
+    
+    private void ProcessNodePropertyValueUpdated(PropertyValueUpdated_ChangeInfo info)
+    {
+        NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
+        var property = node.FindInputProperty(info.Property);
+        
+        property.InternalSetValue(info.Value);
     }
 }

@@ -40,6 +40,13 @@ internal class ConnectProperties_Change : Change
         {
             return false;
         }
+        
+        bool canConnect = CheckTypeCompatibility(inputProp, outputProp);
+        
+        if (!canConnect)
+        {
+            return false;
+        }
 
         originalConnection = inputProp.Connection;
 
@@ -89,5 +96,20 @@ internal class ConnectProperties_Change : Change
 
 
         return changes;
+    }
+    
+    private static bool CheckTypeCompatibility(InputProperty input, OutputProperty output)
+    {
+        if (input.ValueType != output.ValueType)
+        {
+            if(ConversionTable.TryConvert(output.Value, input.ValueType, out _))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        return true;
     }
 }

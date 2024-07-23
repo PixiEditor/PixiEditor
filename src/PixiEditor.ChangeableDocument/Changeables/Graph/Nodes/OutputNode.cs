@@ -1,19 +1,17 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class OutputNode : Node, IBackgroundInput
 {
-    public InputProperty<ChunkyImage?> Input { get; } 
+    public override string DisplayName { get; set; } = "OUTPUT_NODE";
+    public InputProperty<Surface?> Input { get; } 
     public OutputNode()
     {
-        Input = CreateInput<ChunkyImage>("Background", "INPUT", null);
-    }
-    
-    public override bool Validate()
-    {
-        return Input.Connection != null;
+        Input = CreateInput<Surface>("Background", "INPUT", null);
     }
 
     public override Node CreateCopy()
@@ -21,10 +19,12 @@ public class OutputNode : Node, IBackgroundInput
         return new OutputNode();
     }
 
-    protected override ChunkyImage? OnExecute(KeyFrameTime frame)
+    protected override string NodeUniqueName => "Output";
+
+    protected override Surface? OnExecute(RenderingContext context)
     {
         return Input.Value;
     }
 
-    InputProperty<ChunkyImage?> IBackgroundInput.Background => Input;
+    InputProperty<Surface?> IBackgroundInput.Background => Input;
 }

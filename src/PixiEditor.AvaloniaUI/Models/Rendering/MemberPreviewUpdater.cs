@@ -73,7 +73,7 @@ internal class MemberPreviewUpdater
         }).ConfigureAwait(true);
 
         RecreatePreviewBitmaps(changedMainPreviewBounds!, changedMaskPreviewBounds!);
-        
+
         var renderInfos = await Task.Run(() => Render(changedMainPreviewBounds!, changedMaskPreviewBounds))
             .ConfigureAwait(true);
 
@@ -190,7 +190,7 @@ internal class MemberPreviewUpdater
             if (member is null)
                 continue;
 
-            if (forMasks && member.Mask is null)
+            if (forMasks && member.Mask.Value is null)
             {
                 newPreviewBitmapSizes.Add(guid, null);
                 continue;
@@ -277,7 +277,7 @@ internal class MemberPreviewUpdater
     private RectI? GetOrFindMemberTightBounds(IReadOnlyStructureNode member, int atFrame,
         AffectedArea currentlyAffectedArea, bool forMask)
     {
-        if (forMask && member.Mask is null)
+        if (forMask && member.Mask.Value is null)
             throw new InvalidOperationException();
 
         RectI? prevTightBounds = null;
@@ -307,10 +307,10 @@ internal class MemberPreviewUpdater
     /// </summary>
     private RectI? FindLayerTightBounds(IReadOnlyLayerNode layer, int frame, bool forMask)
     {
-        if (layer.Mask is null && forMask)
+        if (layer.Mask.Value is null && forMask)
             throw new InvalidOperationException();
 
-        if (layer.Mask is not null && forMask)
+        if (layer.Mask.Value is not null && forMask)
             return FindImageTightBoundsFast(layer.Mask.Value);
 
         if (layer is IReadOnlyImageNode raster)
@@ -328,7 +328,7 @@ internal class MemberPreviewUpdater
     {
         if (forMask)
         {
-            if (folder.Mask is null)
+            if (folder.Mask.Value is null)
                 throw new InvalidOperationException();
             return FindImageTightBoundsFast(folder.Mask.Value);
         }
@@ -388,7 +388,7 @@ internal class MemberPreviewUpdater
         RenderWholeCanvasPreview(mainPreviewChunksToRerender, maskPreviewChunksToRerender, infos);
         RenderMainPreviews(mainPreviewChunksToRerender, recreatedMainPreviewSizes, infos);
         RenderMaskPreviews(maskPreviewChunksToRerender, recreatedMaskPreviewSizes, infos);
-        RenderNodePreviews();
+        RenderNodePreviews(infos);
 
         return infos;
 
@@ -438,8 +438,7 @@ internal class MemberPreviewUpdater
                 _ => ChunkResolution.Eighth,
             };
             var pos = chunkPos * resolution.PixelSize();
-            var rendered = DocumentEvaluator.RenderChunk(chunkPos, resolution,
-                internals.Tracker.Document.NodeGraph, doc.AnimationHandler.ActiveFrameBindable);
+            var rendered = doc.Renderer.RenderChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameTime);
             doc.PreviewSurface.DrawingSurface.Canvas.Save();
             doc.PreviewSurface.DrawingSurface.Canvas.Scale(scaling);
             doc.PreviewSurface.DrawingSurface.Canvas.ClipRect((RectD)cumulative.GlobalArea);
@@ -452,7 +451,7 @@ internal class MemberPreviewUpdater
             else if (rendered.IsT0)
             {
                 using var renderedChunk = rendered.AsT0;
-                renderedChunk.DrawOnSurface(doc.PreviewSurface.DrawingSurface, pos, SmoothReplacingPaint);
+                renderedChunk.DrawChunkOn(doc.PreviewSurface.DrawingSurface, pos, SmoothReplacingPaint);
             }
 
             doc.PreviewSurface.DrawingSurface.Canvas.Restore();
@@ -514,7 +513,7 @@ internal class MemberPreviewUpdater
                     {
                         foreach (var child in group.Children)
                         {
-                            if (member is IReadOnlyImageNode rasterLayer) 
+                            if (member is IReadOnlyImageNode rasterLayer)
                             {
                                 RenderAnimationFramePreview(rasterLayer, child, affArea.Value);
                             }
@@ -539,7 +538,8 @@ internal class MemberPreviewUpdater
     /// <summary>
     /// Re-render the <paramref name="area"/> of the main preview of the <paramref name="memberVM"/> folder
     /// </summary>
-    private void RenderFolderMainPreview(IReadOnlyFolderNode folder, IStructureMemberHandler memberVM, AffectedArea area,
+    private void RenderFolderMainPreview(IReadOnlyFolderNode folder, IStructureMemberHandler memberVM,
+        AffectedArea area,
         VecI position, float scaling)
     {
         memberVM.PreviewSurface.DrawingSurface.Canvas.Save();
@@ -551,8 +551,19 @@ internal class MemberPreviewUpdater
             var pos = chunk * ChunkResolution.Full.PixelSize();
             // drawing in full res here is kinda slow
             // we could switch to a lower resolution based on (canvas size / preview size) to make it run faster
-            OneOf<Chunk, EmptyChunk> rendered = DocumentEvaluator.RenderChunk(chunk, ChunkResolution.Full, folder,
-                doc.AnimationHandler.ActiveFrameBindable);
+            var contentNode = folder.Content.Connection?.Node;
+
+            OneOf<Chunk, EmptyChunk> rendered;
+
+            if (contentNode is null)
+            {
+                rendered = new EmptyChunk();
+            }
+            else
+            {
+                rendered = doc.Renderer.RenderChunk(chunk, ChunkResolution.Full, contentNode, doc.AnimationHandler.ActiveFrameBindable);
+            }
+            
             if (rendered.IsT0)
             {
                 memberVM.PreviewSurface.DrawingSurface.Canvas.DrawSurface(rendered.AsT0.Surface.DrawingSurface, pos,
@@ -583,10 +594,9 @@ internal class MemberPreviewUpdater
         foreach (var chunk in area.Chunks)
         {
             var pos = chunk * ChunkResolution.Full.PixelSize();
-            IReadOnlyChunkyImage? result = layer is IReadOnlyImageNode raster
-                ? raster.GetLayerImageAtFrame(doc.AnimationHandler.ActiveFrameBindable)
-                : layer.Execute(doc.AnimationHandler.ActiveFrameBindable);
-            
+            if (layer is not IReadOnlyImageNode raster) return;
+            IReadOnlyChunkyImage? result = raster.GetLayerImageAtFrame(doc.AnimationHandler.ActiveFrameBindable);
+
             if (!result.DrawCommittedChunkOn(
                     chunk,
                     ChunkResolution.Full, memberVM.PreviewSurface.DrawingSurface, pos,
@@ -604,9 +614,10 @@ internal class MemberPreviewUpdater
     {
         if (keyFrameVM.PreviewSurface is null)
         {
-            keyFrameVM.PreviewSurface = new Surface(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size));
+            keyFrameVM.PreviewSurface =
+                new Surface(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size));
         }
-        
+
         keyFrameVM.PreviewSurface!.DrawingSurface.Canvas.Save();
         float scaling = (float)keyFrameVM.PreviewSurface.Size.X / internals.Tracker.Document.Size.X;
         keyFrameVM.PreviewSurface.DrawingSurface.Canvas.Scale(scaling);
@@ -683,35 +694,43 @@ internal class MemberPreviewUpdater
             infos.Add(new MaskPreviewDirty_RenderInfo(guid));
         }
     }
-    
-    private void RenderNodePreviews()
-    {
-        // TODO: recreate only changed previews
-        internals.Tracker.Document.NodeGraph.TryTraverse(node =>
-        {
-            if (node.CachedResult != null)
-            {
-               var nodeVm = doc.StructureHelper.FindNode<INodeHandler>(node.Id);
 
-               // TODO: do it in recreate preview bitmaps
-               if (nodeVm.ResultPreview == null)
-               {
-                     nodeVm.ResultPreview = new Surface(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size));
-               }
-               
-               float scalingX = (float)nodeVm.ResultPreview.Size.X / node.CachedResult.CommittedSize.X;
-               float scalingY = (float)nodeVm.ResultPreview.Size.Y / node.CachedResult.CommittedSize.Y;
-               
-               nodeVm.ResultPreview.DrawingSurface.Canvas.Save();
-               nodeVm.ResultPreview.DrawingSurface.Canvas.Scale(scalingX, scalingY);
-               
-               nodeVm.ResultPreview.DrawingSurface.Canvas.Clear();
-               node.CachedResult.DrawCommittedRegionOn(
-                   new RectI(0, 0, node.CachedResult.CommittedSize.X, node.CachedResult.CommittedSize.Y), ChunkResolution.Full,
-                   nodeVm.ResultPreview.DrawingSurface, new VecI(0, 0), ReplacingPaint);
-               
-               nodeVm.ResultPreview.DrawingSurface.Canvas.Restore();
+    private void RenderNodePreviews(List<IRenderInfo> infos)
+    {
+        foreach(var node in internals.Tracker.Document.NodeGraph.AllNodes)
+        {
+            if (node is null)
+                return;
+
+            if (node.CachedResult == null)
+            {
+                return;
             }
-        });
+
+            var nodeVm = doc.StructureHelper.FindNode<INodeHandler>(node.Id);
+            if (nodeVm == null)
+            {
+                return;
+            }
+            
+            if (nodeVm.ResultPreview == null)
+            {
+                nodeVm.ResultPreview =
+                    new Surface(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size));
+            }
+
+            float scalingX = (float)nodeVm.ResultPreview.Size.X / node.CachedResult.Size.X;
+            float scalingY = (float)nodeVm.ResultPreview.Size.Y / node.CachedResult.Size.Y;
+
+            nodeVm.ResultPreview.DrawingSurface.Canvas.Save();
+            nodeVm.ResultPreview.DrawingSurface.Canvas.Scale(scalingX, scalingY);
+
+            RectI region = new RectI(0, 0, node.CachedResult.Size.X, node.CachedResult.Size.Y);
+           
+            nodeVm.ResultPreview.DrawingSurface.Canvas.DrawSurface(node.CachedResult.DrawingSurface, 0, 0, ReplacingPaint);
+
+            nodeVm.ResultPreview.DrawingSurface.Canvas.Restore();
+            infos.Add(new NodePreviewDirty_RenderInfo(node.Id));
+        }
     }
 }

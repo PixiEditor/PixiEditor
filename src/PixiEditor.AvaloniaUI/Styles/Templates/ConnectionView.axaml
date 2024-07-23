@@ -7,9 +7,20 @@
         <Setter Property="IsHitTestVisible" Value="False"/>
         <Setter Property="Template">
             <ControlTemplate>
-                    <nodes:ConnectionLine Color="{DynamicResource ThemeForegroundBrush}" Thickness="2"
+                    <nodes:ConnectionLine Thickness="2"
                           StartPoint="{Binding StartPoint, RelativeSource={RelativeSource TemplatedParent}}"
-                          EndPoint="{Binding EndPoint, RelativeSource={RelativeSource TemplatedParent}}" />
+                          EndPoint="{Binding EndPoint, RelativeSource={RelativeSource TemplatedParent}}">
+                        <nodes:ConnectionLine.LineBrush>
+                            <LinearGradientBrush>
+                                <LinearGradientBrush.GradientStops>
+                                    <GradientStop Offset="0" Color="#555" />
+                                    <GradientStop Offset=".05" Color="{Binding InputProperty.SocketBrush.Color, RelativeSource={RelativeSource TemplatedParent}}" />
+                                    <GradientStop Offset="0.95" Color="{Binding OutputProperty.SocketBrush.Color, RelativeSource={RelativeSource TemplatedParent}}" />
+                                    <GradientStop Offset="1" Color="#555" />
+                                </LinearGradientBrush.GradientStops>
+                            </LinearGradientBrush>
+                        </nodes:ConnectionLine.LineBrush>
+                    </nodes:ConnectionLine>
             </ControlTemplate>
         </Setter>
     </ControlTheme>

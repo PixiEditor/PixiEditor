@@ -16,6 +16,8 @@ internal partial class Command
         public LocalizedString Description { get; }
 
         public string CanExecute { get; set; }
+        
+        public Type? ShortcutContext { get; set; }
 
         /// <summary>
         /// Gets or sets the default shortcut key for this command

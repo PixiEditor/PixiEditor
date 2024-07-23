@@ -110,7 +110,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
         set => SetValue(SaveFormatProperty, value);
     }
 
-    public Surface ExportPreview
+    public Surface? ExportPreview
     {
         get => GetValue(ExportPreviewProperty);
         set => SetValue(ExportPreviewProperty, value);
@@ -141,7 +141,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
     public string SizeHint => new LocalizedString("EXPORT_SIZE_HINT", GetBestPercentage());
 
     private DocumentViewModel document;
-    private Image[] videoPreviewFrames = [];
+    private Image[]? videoPreviewFrames = [];
     private DispatcherTimer videoPreviewTimer = new DispatcherTimer();
     private int activeFrame = 0;
     private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
