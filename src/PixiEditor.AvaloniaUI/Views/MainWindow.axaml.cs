@@ -59,13 +59,13 @@ internal partial class MainWindow : Window
 
         AsyncImageLoader.ImageLoader.AsyncImageLoader = new DiskCachedWebImageLoader();
         
-        //GRContext recordingContext = GetGrRecordingContext();
+        GRContext recordingContext = GetGrRecordingContext();
 
-        /*SkiaDrawingBackend skiaDrawingBackend = new SkiaDrawingBackend(recordingContext);
-        DrawingBackendApi.SetupBackend(skiaDrawingBackend);*/
+        SkiaDrawingBackend skiaDrawingBackend = new SkiaDrawingBackend { GraphicsContext = recordingContext };
+        DrawingBackendApi.SetupBackend(skiaDrawingBackend);
         
-        SkiaPixiEngine engine = SkiaPixiEngine.Create();
-        engine.SetupBackendWindowLess();
+        /*SkiaPixiEngine engine = SkiaPixiEngine.Create();
+        engine.SetupBackendWindowLess();*/
 
         preferences = services.GetRequiredService<IPreferences>();
         platform = services.GetRequiredService<IPlatform>();
@@ -75,7 +75,7 @@ internal partial class MainWindow : Window
         InitializeComponent();
     }
 
-    /*private static GRContext GetGrRecordingContext()
+    private static GRContext GetGrRecordingContext()
     {
         Compositor compositor = Compositor.TryGetDefaultCompositor();
         var interop = compositor.TryGetCompositionGpuInterop();
@@ -90,13 +90,16 @@ internal partial class MainWindow : Window
             return GRContext.CreateGl(GRGlInterface.Create(glContext.GlInterface.GetProcAddress));
         }
 
+        return null;
+
+        /*
         var contextFactory = AvaloniaLocator.Current.GetRequiredService<IPlatformGraphicsOpenGlContextFactory>();
         var ctx = contextFactory.CreateContext(null);
         ctx.MakeCurrent();
         var ctxInterface = GRGlInterface.Create(ctx.GlInterface.GetProcAddress);
         var grContext = GRContext.CreateGl(ctxInterface);
-        return grContext;
-    }*/
+        return grContext;*/
+    }
 
     public static MainWindow CreateWithRecoveredDocuments(CrashReport report, out bool showMissingFilesDialog)
     {

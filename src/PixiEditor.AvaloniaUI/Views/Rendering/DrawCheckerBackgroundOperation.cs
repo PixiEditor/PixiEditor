@@ -32,8 +32,8 @@ internal class DrawCheckerBackgroundOperation : SkiaDrawOperation
 
     public override void Render(ISkiaSharpApiLease lease)
     {
-        var canvas = lease.SkCanvas;
-        canvas.DrawRect(SurfaceRectToRender, _checkerPaint);
+        /*var canvas = lease.SkCanvas;
+        canvas.DrawRect(SurfaceRectToRender, _checkerPaint);*/
     }
 
     public override bool Equals(ICustomDrawOperation? other)

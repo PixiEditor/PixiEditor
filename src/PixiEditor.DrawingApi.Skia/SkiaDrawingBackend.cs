@@ -45,7 +45,7 @@ namespace PixiEditor.DrawingApi.Skia
         private SkiaSurfaceImplementation _surfaceImplementation;
         private GRContext _grContext;
 
-        public SkiaDrawingBackend(Func<VecI, SKSurface> createSurface)
+        public SkiaDrawingBackend()
         {
             ColorImplementation = new SkiaColorImplementation();
             
@@ -82,7 +82,7 @@ namespace PixiEditor.DrawingApi.Skia
             
             SkiaCanvasImplementation canvasImpl = new SkiaCanvasImplementation(paintImpl, imgImpl, bitmapImpl, pathImpl);
             
-            _surfaceImplementation = new SkiaSurfaceImplementation(createSurface, pixmapImpl, canvasImpl, paintImpl);
+            _surfaceImplementation = new SkiaSurfaceImplementation(GraphicsContext, pixmapImpl, canvasImpl, paintImpl);
 
             canvasImpl.SetSurfaceImplementation(_surfaceImplementation);
             imgImpl.SetSurfaceImplementation(_surfaceImplementation);
@@ -92,7 +92,7 @@ namespace PixiEditor.DrawingApi.Skia
         
         public void Setup()
         {
-            
+            _surfaceImplementation.GrContext = GraphicsContext;
         }
     }
 }

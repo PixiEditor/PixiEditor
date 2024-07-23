@@ -507,6 +507,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
             return;
         }
         
+        ((SKSurface)Surface.DrawingSurface.Native).Flush(true);
         using Image snapshot = Surface.DrawingSurface.Snapshot(SurfaceRectToRender);
 
         var matrixValues = new float[ColorMatrix.Width * ColorMatrix.Height];

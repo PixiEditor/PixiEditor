@@ -1,13 +1,14 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class ShaderNode : Node
 {
-    public InputProperty<ChunkyImage?> Input { get; set; }
+    public InputProperty<Surface> Input { get; set; }
     public InputProperty<string> Shader { get; set; }
-    public OutputProperty<ChunkyImage?> Output { get; set; }
+    public OutputProperty<Surface> Output { get; set; }
     
     private string _shaderCode = """
                                  half4 main(float2 coord) {
@@ -20,12 +21,16 @@ public class ShaderNode : Node
     
     public ShaderNode()
     {
-        Input = CreateInput<ChunkyImage?>("Input", "INPUT", null);
+        Input = CreateInput<Surface>("Input", "INPUT", null);
         Shader = CreateInput<string>("Shader", "SHADER", "");
-        Output = CreateOutput<ChunkyImage?>("Output", "OUTPUT", null);
+        Output = CreateOutput<Surface>("Output", "OUTPUT", null);
     }
-    
-    protected override ChunkyImage? OnExecute(KeyFrameTime frameTime)
+
+    protected override string NodeUniqueName { get; }
+
+    public override string DisplayName { get; set; }
+
+    protected override Surface? OnExecute(RenderingContext context)
     {
         if (Input.Value == null)
         {
@@ -40,17 +45,8 @@ public class ShaderNode : Node
             return null;
         }
 
-        ChunkyImage output = Input.Value.CloneFromCommitted();
-        output.EnqueueDrawShader(shader);
-        output.CommitChanges();
-        
-        Output.Value = output;
-        return output;
-    }
-
-    public override bool Validate()
-    {
-        return true;
+        Input.Value.DrawingSurface.Canvas.DrawPaint(new Paint {Shader = shader});
+        return Input.Value;
     }
 
     public override Node CreateCopy()
