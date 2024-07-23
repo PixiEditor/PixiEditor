@@ -17,7 +17,6 @@ public class PixiEngineSkiaGpu : ISkiaGpu
 
     public PixiEngineSkiaGpu(SkiaPixiEngine engine)
     {
-        engine.SetupBackendWindowLess();
         context = engine.GrContext;
         glContext = engine.GlContext;
     }
@@ -43,9 +42,14 @@ public class PixiEngineSkiaGpu : ISkiaGpu
         if(size.Width <= 0 || size.Height <= 0)
             return null;
         
-        return new PixiEngineSkiaSurface(DrawingSurface.Create(new ImageInfo(size.Width, size.Height)), session?.ScaleFactor ?? 1);
+        return new PixiEngineSkiaSurface(CreateSurface(size.Width, size.Height), session?.ScaleFactor ?? 1);
     }
 
+    public DrawingSurface CreateSurface(int sizeX, int sizeY)
+    {
+        return DrawingSurface.Create(new ImageInfo(sizeX, sizeY));
+    }
+    
     public void Dispose()
     {
         context.Dispose();

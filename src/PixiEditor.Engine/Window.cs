@@ -38,9 +38,11 @@ public class Window
     }
 
     public SKSurface FramebufferSurface => frontBufferSurface;
+    public event Action<double> Update;
 
     public event Action<SKSurface, double> Render;
     public event Action Init;
+    public event Action<VecI> Resize;
     internal event Action<GRContext> InitWithGrContext;
 
     private bool ran = false;
@@ -52,24 +54,34 @@ public class Window
             Title = title, Size = size == default ? new Vector2D<int>(600, 600) : size.ToVector2D()
         };
 
-        if (PixiEngine.ActiveEngine == null)
-            throw new InvalidOperationException("PixiEngine is not initialized.");
-
-        _window = PixiEngine.ActiveEngine.GetWindow(options);
+        _window = Silk.NET.Windowing.Window.Create(options);
         
         if (!_window.IsInitialized)
         {
             _window.Load += () =>
             {
                 gl = GL.GetApi(_window);
+                
+                _grContext = PixiEngine.ActiveEngine.GrContext;
+
+                if (_grContext == null)
+                {
+                    GRGlGetProcedureAddressDelegate proc = Glfw.GetApi().GetProcAddress;
+                    _grContext = GRContext.CreateGl(GRGlInterface.Create(proc));
+
+                    InitWithGrContext?.Invoke(_grContext);
+                }
+
                 frontBufferSurface = SKSurface.Create(new SKImageInfo(1200, 600));
-
                 InitSkiaSurface(_window.FramebufferSize);
-
-                InitWithGrContext?.Invoke(_grContext);
                 Init?.Invoke();
             };
         }
+        
+        _window.Update += (deltaTime) =>
+        {
+            Update?.Invoke(deltaTime);
+        };
 
         _window.FramebufferResize += (newSize) =>
         {
@@ -78,6 +90,7 @@ public class Window
         };
 
         _window.Render += OnRender;
+        _window.Resize += (newSize) => Resize?.Invoke(newSize.ToVecI());
     }
 
     public void Run()
@@ -103,17 +116,16 @@ public class Window
 
     private void OnRender(double deltaTime)
     {
-        frontBufferSurface.Canvas.Clear(SKColors.White);
+        frontBufferSurface.Canvas.Clear(SKColors.Transparent);
         Render?.Invoke(frontBufferSurface, deltaTime);
-        frontBufferSurface.Canvas.Flush();
+        frontBufferSurface.Flush(true);
     }
 
     private void InitSkiaSurface(Vector2D<int> size)
-    {
-        _grContext = PixiEngine.ActiveEngine.GrContext;
-        var frameBuffer = new GRGlFramebufferInfo(0, SKColorType.RgbaF16.ToGlSizedFormat());
+    { ;
+        var frameBuffer = new GRGlFramebufferInfo(0, SKColorType.Rgba8888.ToGlSizedFormat());
         GRBackendRenderTarget target = new GRBackendRenderTarget(size.X, size.Y, 4, 0, frameBuffer);
-        frontBufferSurface = SKSurface.Create(_grContext, target, GRSurfaceOrigin.BottomLeft, SKColorType.RgbaF16);
+        frontBufferSurface = SKSurface.Create(_grContext, target, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
     }
 
     public void Show()

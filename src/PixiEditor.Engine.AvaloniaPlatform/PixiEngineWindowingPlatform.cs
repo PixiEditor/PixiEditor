@@ -3,13 +3,14 @@ using PixiEditor.Engine.AvaloniaPlatform.Windowing;
 
 namespace PixiEditor.Engine.AvaloniaPlatform;
 
-public class PixiEngineWindowingPlatform() : IWindowingPlatform
+public class PixiEngineWindowingPlatform(PixiEngineGraphics graphics) : IWindowingPlatform
 {
+    private PixiEngineGraphics _graphics = graphics;
+    
     public IWindowImpl CreateWindow()
     {
-        PixiEngineTopLevel topLevel = new PixiEngineTopLevel(new PixiEngineTopLevelImpl(PixiEnginePlatform.Compositor));
         Window window = new Window();
-        return new PixiEngineWindowImpl(window, topLevel);
+        return new PixiEngineWindowImpl(window);
     }
 
     public IWindowImpl CreateEmbeddableWindow()

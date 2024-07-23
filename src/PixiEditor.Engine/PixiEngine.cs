@@ -12,6 +12,8 @@ public abstract class PixiEngine
     
     public GRContext GrContext { get; protected set; }
     public IGLContext GlContext { get; protected set; }
+    public ulong Ticks { get; private set; }
+
     private IDrawingBackend _drawingBackend;
     
     internal PixiEngine(IDrawingBackend drawingBackend)
@@ -20,13 +22,13 @@ public abstract class PixiEngine
         ActiveEngine = this;
     }
 
-    public virtual IWindow GetWindow(WindowOptions options)
-    {
-        return Silk.NET.Windowing.Window.Create(options);   
-    }
-
     protected void SetBackendActive()
     {
         DrawingBackendApi.SetupBackend(_drawingBackend);
+    }
+    
+    protected void Tick(double deltaTime)
+    {
+        Ticks += (ulong)deltaTime;
     }
 }

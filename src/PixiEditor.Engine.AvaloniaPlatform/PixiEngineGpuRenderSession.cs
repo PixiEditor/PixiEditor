@@ -20,6 +20,6 @@ public class PixiEngineGpuRenderSession : ISkiaGpuRenderSession
     
     public void Dispose()
     {
-        //Surface.Surface?.Flush(true);
+        Surface.Surface?.Flush(true);
     }
 }

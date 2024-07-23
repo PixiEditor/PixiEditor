@@ -64,19 +64,24 @@ public class PixiEngineWindowImpl : IWindowImpl
     private WindowTransparencyLevel _transparencyLevel;
     private Window _underlyingWindow;
 
-    public PixiEngineWindowImpl(Window underlyingWindow, PixiEngineTopLevel topLevel)
+    public PixiEngineWindowImpl(Window underlyingWindow)
     {
         _underlyingWindow = underlyingWindow;
         Compositor = PixiEnginePlatform.Compositor;
-        
-        topLevel.Impl.Surface = new PixiEngineSkiaSurface(underlyingWindow.FramebufferSurface, topLevel.RenderScaling);
-        topLevel.Impl.SetRenderSize(new Size(underlyingWindow.Size.X, underlyingWindow.Size.Y));
+
+        //topLevel.Impl.Surface = new PixiEngineSkiaSurface(topLevel.Impl.Graphics.GetSharedContext().CreateSurface(underlyingWindow.Size.X, underlyingWindow.Size.Y, RenderScaling), RenderScaling);
+        /*topLevel.Impl.SetRenderSize(new Size(underlyingWindow.Size.X, underlyingWindow.Size.Y));
         ClientSize = new Size(underlyingWindow.Size.X, underlyingWindow.Size.Y);
         
         topLevel.Prepare();
         topLevel.StartRendering();
         
-        topLevel.Content = underlyingWindow;
+        _underlyingWindow.Render += (surface, d) =>
+        {
+            //Paint?.Invoke(new Rect(0, 0, underlyingWindow.Size.X, underlyingWindow.Size.Y));  
+        };
+        
+        topLevel.Content = underlyingWindow;*/
     }
 
     object? IOptionalFeatureProvider.TryGetFeature(Type featureType) { return null; }

@@ -36,6 +36,8 @@ public sealed class SkiaPixiEngine : PixiEngine
             GlContext = _mainWindow.GLContext;
             Setup(GrContext);
         };
+        
+        _mainWindow.Update += Tick;
 
         _mainWindow.Initialize();
     }
@@ -51,6 +53,7 @@ public sealed class SkiaPixiEngine : PixiEngine
     public void RunWithWindow(Window window)
     {
         window.InitWithGrContext += Setup;
+        window.Update += Tick;
         window.Run();
     }
     
