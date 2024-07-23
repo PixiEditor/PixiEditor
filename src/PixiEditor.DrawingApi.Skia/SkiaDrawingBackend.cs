@@ -1,8 +1,10 @@
-﻿using PixiEditor.DrawingApi.Core.Bridge;
+﻿using System;
+using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
 using PixiEditor.DrawingApi.Core.Bridge.Operations;
 using PixiEditor.DrawingApi.Skia.Exceptions;
 using PixiEditor.DrawingApi.Skia.Implementations;
+using PixiEditor.Numerics;
 using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Skia
@@ -38,11 +40,11 @@ namespace PixiEditor.DrawingApi.Skia
         public IBitmapImplementation BitmapImplementation { get; }
         public IColorFilterImplementation ColorFilterImplementation { get; set; }
         public IShaderImplementation ShaderImplementation { get; set; }
-        
+
         private SkiaSurfaceImplementation _surfaceImplementation;
         private GRContext _grContext;
 
-        public SkiaDrawingBackend()
+        public SkiaDrawingBackend(Func<VecI, SKSurface> createSurface)
         {
             ColorImplementation = new SkiaColorImplementation();
             
@@ -77,7 +79,7 @@ namespace PixiEditor.DrawingApi.Skia
             
             SkiaCanvasImplementation canvasImpl = new SkiaCanvasImplementation(paintImpl, imgImpl, bitmapImpl, pathImpl);
             
-            _surfaceImplementation = new SkiaSurfaceImplementation(GraphicsContext, pixmapImpl, canvasImpl, paintImpl);
+            _surfaceImplementation = new SkiaSurfaceImplementation(createSurface, pixmapImpl, canvasImpl, paintImpl);
 
             canvasImpl.SetSurfaceImplementation(_surfaceImplementation);
             imgImpl.SetSurfaceImplementation(_surfaceImplementation);
@@ -87,7 +89,7 @@ namespace PixiEditor.DrawingApi.Skia
         
         public void Setup()
         {
-            _surfaceImplementation.GraphicsContext = GraphicsContext;
+            
         }
     }
 }

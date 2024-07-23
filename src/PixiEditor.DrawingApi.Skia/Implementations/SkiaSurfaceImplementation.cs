@@ -15,14 +15,14 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         private readonly SkiaCanvasImplementation _canvasImplementation;
         private readonly SkiaPaintImplementation _paintImplementation;
 
-        public GRContext GraphicsContext { get; set; }
+        public Func<VecI, SKSurface> CreateGpuSurface { get; set; }
 
-        public SkiaSurfaceImplementation(GRContext context, SkiaPixmapImplementation pixmapImplementation, SkiaCanvasImplementation canvasImplementation, SkiaPaintImplementation paintImplementation)
+        public SkiaSurfaceImplementation(Func<VecI, SKSurface> context, SkiaPixmapImplementation pixmapImplementation, SkiaCanvasImplementation canvasImplementation, SkiaPaintImplementation paintImplementation)
         {
             _pixmapImplementation = pixmapImplementation;
             _canvasImplementation = canvasImplementation;
             _paintImplementation = paintImplementation;
-            GraphicsContext = context;
+            CreateGpuSurface = context;
         }
         
         public Pixmap PeekPixels(DrawingSurface drawingSurface)
@@ -91,7 +91,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         private SKSurface CreateSkiaSurface(VecI size)
         {
-            return SKSurface.Create(GraphicsContext, false, new SKImageInfo(size.X, size.Y));
+            return CreateGpuSurface(size);
         }
 
         public void Dispose(DrawingSurface drawingSurface)
