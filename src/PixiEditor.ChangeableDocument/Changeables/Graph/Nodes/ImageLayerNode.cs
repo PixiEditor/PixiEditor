@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
@@ -98,6 +99,9 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     private void DrawLayer(ChunkyImage frameImage, RenderingContext context, Surface workingSurface, bool shouldClear)
     {
         blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255)); 
+        
+        blendPaint.SetFilters(Filters.Value);
+        
         if (!frameImage.DrawMostUpToDateChunkOn(
                 context.ChunkToUpdate,
                 context.ChunkResolution,

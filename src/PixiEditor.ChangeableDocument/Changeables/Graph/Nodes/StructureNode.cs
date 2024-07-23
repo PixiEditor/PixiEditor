@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
@@ -18,6 +19,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     public InputProperty<BlendMode> BlendMode { get; }
     public InputProperty<ChunkyImage?> Mask { get; }
     public InputProperty<bool> MaskIsVisible { get; }
+    public InputProperty<Filter> Filters { get; }
 
     public OutputProperty<Surface?> Output { get; }
 
@@ -42,6 +44,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         BlendMode = CreateInput<BlendMode>("BlendMode", "BLEND_MODE", Enums.BlendMode.Normal);
         Mask = CreateInput<ChunkyImage?>("Mask", "MASK", null);
         MaskIsVisible = CreateInput<bool>("MaskIsVisible", "MASK_IS_VISIBLE", true);
+        Filters = CreateInput<Filter>(nameof(Filters), "FILTERS", null);
 
         Output = CreateOutput<Surface?>("Output", "OUTPUT", null);
     }
@@ -102,16 +105,17 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
     protected void DrawBackground(Surface workingSurface, RenderingContext context)
     {
-        DrawSurface(workingSurface, Background.Value, context); 
+        DrawSurface(workingSurface, Background.Value, context, null); 
     }
 
-    protected void DrawSurface(Surface workingSurface, Surface source, RenderingContext context)
+    protected void DrawSurface(Surface workingSurface, Surface source, RenderingContext context, Filter? filter)
     {
         // Maybe clip rect will allow to avoid snapshotting? Idk if it will be faster
         RectI sourceRect = CalculateSourceRect(source, workingSurface.Size, context);
         RectI targetRect = CalculateDestinationRect(context);
         using var snapshot = source.DrawingSurface.Snapshot(sourceRect);
 
+        blendPaint.SetFilters(filter);
         workingSurface.DrawingSurface.Canvas.DrawImage(snapshot, targetRect.X, targetRect.Y, blendPaint);
     }
 

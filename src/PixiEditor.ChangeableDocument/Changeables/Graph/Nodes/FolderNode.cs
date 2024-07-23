@@ -52,7 +52,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
             if (Content.Value != null)
             {
                 blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255)); 
-                DrawSurface(workingSurface, Content.Value, context);
+                DrawSurface(workingSurface, Content.Value, context, Filters.Value);
             }
             
             Output.Value = workingSurface;
@@ -61,7 +61,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
         
         if (Content.Value != null)
         {
-            DrawSurface(workingSurface, Content.Value, context);
+            DrawSurface(workingSurface, Content.Value, context, Filters.Value);
             
             ApplyMaskIfPresent(workingSurface, context);
             ApplyRasterClip(workingSurface, context);
