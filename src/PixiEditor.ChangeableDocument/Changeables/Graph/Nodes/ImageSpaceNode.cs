@@ -1,11 +1,12 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
+[NodeInfo("ImageSpace")]
 public class ImageSpaceNode : Node
 {
     public FuncOutputProperty<VecD> SpacePosition { get; }
@@ -19,7 +20,6 @@ public class ImageSpaceNode : Node
         Size = CreateFieldOutput(nameof(Size), "SIZE", ctx => ctx.Size);
     }
 
-    protected override string NodeUniqueName => "ImageSpace";
 
     protected override Surface? OnExecute(RenderingContext context)
     {

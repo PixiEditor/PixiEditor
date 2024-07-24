@@ -1,12 +1,13 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
+[NodeInfo("Folder")]
 public class FolderNode : StructureNode, IReadOnlyFolderNode
 {
     public InputProperty<Surface?> Content { get; }
@@ -18,7 +19,6 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
 
     public override Node CreateCopy() => new FolderNode { MemberName = MemberName };
 
-    protected override string NodeUniqueName => "Folder";
 
     protected override Surface? OnExecute(RenderingContext context)
     {
@@ -35,7 +35,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
         }
         
         blendPaint.Color = new Color(255, 255, 255, 255);
-        blendPaint.BlendMode = DrawingApi.Core.Surface.BlendMode.Src;
+        blendPaint.BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src;
 
         VecI size = Content.Value?.Size ?? Background.Value?.Size ?? VecI.Zero;
         

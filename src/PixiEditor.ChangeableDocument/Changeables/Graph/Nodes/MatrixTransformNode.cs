@@ -1,9 +1,11 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
+[NodeInfo("MatrixTransform")]
 public class MatrixTransformNode : Node
 {
     private ColorMatrix previousMatrix = new(
@@ -31,7 +33,6 @@ public class MatrixTransformNode : Node
         paint = new Paint { ColorFilter = ColorFilter.CreateColorMatrix(previousMatrix) };
     }
 
-    protected override string NodeUniqueName => "MatrixTransform";
 
     protected override Surface? OnExecute(RenderingContext context)
     {

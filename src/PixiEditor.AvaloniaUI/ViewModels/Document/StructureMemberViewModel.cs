@@ -9,8 +9,8 @@ using PixiEditor.AvaloniaUI.Models.Layers;
 using PixiEditor.AvaloniaUI.ViewModels.Nodes;
 using PixiEditor.AvaloniaUI.Views.Nodes;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.Numerics;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
@@ -18,28 +18,9 @@ namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 #nullable enable
 internal abstract class StructureMemberViewModel : NodeViewModel, IStructureMemberHandler
 {
-    private string name = "";
-
     public StructureMemberViewModel()
     {
         
-    }
-
-    public virtual void SetName(string name)
-    {
-        this.name = name;
-        OnPropertyChanged(nameof(NameBindable));
-        NodeName = NameBindable;
-    }
-
-    public string NameBindable
-    {
-        get => name;
-        set
-        {
-            if (!Document.UpdateableChangeActive)
-                Internals.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(Id, value));
-        }
     }
 
     private bool isVisible;

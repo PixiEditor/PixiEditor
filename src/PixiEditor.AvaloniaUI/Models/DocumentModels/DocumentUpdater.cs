@@ -18,6 +18,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root.ReferenceLayerChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Models.DocumentModels;
@@ -188,6 +189,9 @@ internal class DocumentUpdater
                 break;
             case PropertyValueUpdated_ChangeInfo info:
                 ProcessNodePropertyValueUpdated(info);
+                break;
+            case NodeName_ChangeInfo info:
+                ProcessNodeName(info);
                 break;
         }
     }
@@ -492,13 +496,13 @@ internal class DocumentUpdater
     {
         T node = new T()
         {
-            NodeName = info.NodeName,
             InternalName = info.InternalName,
             Id = info.Id,
             Document = (DocumentViewModel)doc,
             Internals = helper
         };
-
+        
+        node.SetName(info.NodeName);
         node.SetPosition(info.Position);
         
         List<INodePropertyHandler> inputs = CreateProperties(info.Inputs, node, true);
@@ -587,5 +591,11 @@ internal class DocumentUpdater
         var property = node.FindInputProperty(info.Property);
         
         property.InternalSetValue(info.Value);
+    }
+    
+    private void ProcessNodeName(NodeName_ChangeInfo info)
+    {
+        NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
+        node.SetName(info.NewName);
     }
 }

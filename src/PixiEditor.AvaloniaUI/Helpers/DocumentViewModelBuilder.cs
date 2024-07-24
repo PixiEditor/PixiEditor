@@ -1,16 +1,22 @@
-﻿using ChunkyImageLib;
+﻿using System.Collections;
+using System.Reflection;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Numerics;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Graph;
 using PixiEditor.Parser.Skia;
+using NodeGraph = PixiEditor.Parser.Graph.NodeGraph;
 
 namespace PixiEditor.AvaloniaUI.Helpers;
 
-internal class DocumentViewModelBuilder : PixiParserV3DocumentEx.ChildrenBuilder
+internal class DocumentViewModelBuilder
 {
     public int Width { get; set; }
     public int Height { get; set; }
@@ -20,7 +26,7 @@ internal class DocumentViewModelBuilder : PixiParserV3DocumentEx.ChildrenBuilder
 
     public ReferenceLayerBuilder ReferenceLayer { get; set; }
     public List<KeyFrameBuilder> AnimationData { get; set; } = new List<KeyFrameBuilder>();
-    
+
     public NodeGraphBuilder Graph { get; set; }
 
     public DocumentViewModelBuilder WithSize(int width, int height)
@@ -51,7 +57,8 @@ internal class DocumentViewModelBuilder : PixiParserV3DocumentEx.ChildrenBuilder
     public DocumentViewModelBuilder WithPalette<T>(IEnumerable<T> pallet, Func<T, PaletteColor> toColor) =>
         WithPalette(pallet.Select(toColor));
 
-    public DocumentViewModelBuilder WithReferenceLayer<T>(T reference, Action<T, ReferenceLayerBuilder, ImageEncoder?> builder,
+    public DocumentViewModelBuilder WithReferenceLayer<T>(T reference,
+        Action<T, ReferenceLayerBuilder, ImageEncoder?> builder,
         ImageEncoder? encoder)
     {
         if (reference != null)
@@ -72,7 +79,7 @@ internal class DocumentViewModelBuilder : PixiParserV3DocumentEx.ChildrenBuilder
 
         return this;
     }
-    
+
     public DocumentViewModelBuilder WithAnimationData(AnimationData? animationData)
     {
         AnimationData = new List<KeyFrameBuilder>();
@@ -84,24 +91,35 @@ internal class DocumentViewModelBuilder : PixiParserV3DocumentEx.ChildrenBuilder
 
         return this;
     }
-    
-    public DocumentViewModelBuilder WithGraph(NodeGraph graph)
+
+    public DocumentViewModelBuilder WithGraph(NodeGraph graph, ImageEncoder encoder, Action<NodeGraph, NodeGraphBuilder, ImageEncoder> builder)
     {
-        Graph = new NodeGraphBuilder();
-        
-        if (graph.AllNodes != null)
+        if (graph != null)
         {
-            foreach (var node in graph.AllNodes)
-            {
-                Graph.WithNode(new NodeBuilder()
-                    .WithId(node.Id)
-                    .WithPosition(node.Position)
-                    .WithName(node.Name)
-                    .WithUniqueNodeName(node.UniqueNodeName));
-            }
+            WithGraph(x => builder(graph, x, encoder));
         }
-        
+
         return this;
+    }
+
+    public DocumentViewModelBuilder WithGraph(Action<NodeGraphBuilder> builder)
+    {
+        var graph = new NodeGraphBuilder();
+        builder(graph);
+        Graph = graph;
+        return this;
+    }
+
+    private static Dictionary<string, object> ToDictionary(NodePropertyValue[] values)
+    {
+        Dictionary<string, object> dictionary = new();
+
+        foreach (var value in values)
+        {
+            dictionary.Add(value.PropertyName, value.Value);
+        }
+
+        return dictionary;
     }
 
     private static void BuildKeyFrames(List<IKeyFrame> root, List<KeyFrameBuilder> data)
@@ -112,30 +130,27 @@ internal class DocumentViewModelBuilder : PixiParserV3DocumentEx.ChildrenBuilder
             {
                 GroupKeyFrameBuilder builder = new GroupKeyFrameBuilder()
                     .WithVisibility(group.Enabled)
-                    .WithId(group.LayerGuid)
-                    .WithLayerGuid(group.LayerGuid);
+                    .WithNodeId(group.NodeId);
 
                 foreach (var child in group.Children)
                 {
-                    if(child is KeyFrameGroup childGroup)
+                    if (child is KeyFrameGroup childGroup)
                     {
-                        builder.WithChild<GroupKeyFrameBuilder>(x => BuildKeyFrames(childGroup.Children, null, documentRootFolder));
+                        builder.WithChild<GroupKeyFrameBuilder>(x =>
+                            BuildKeyFrames(childGroup.Children, null));
                     }
                     else if (child is RasterKeyFrame rasterKeyFrame)
                     {
                         builder.WithChild<RasterKeyFrameBuilder>(x => x
                             .WithVisibility(builder.IsVisible)
-                            .WithId(rasterKeyFrame.Guid)
-                            .WithLayerGuid(rasterKeyFrame.LayerGuid)
+                            .WithLayerGuid(rasterKeyFrame.NodeId)
                             .WithStartFrame(rasterKeyFrame.StartFrame)
-                            .WithDuration(rasterKeyFrame.Duration)
-                            .WithSurface(Surface.Load(rasterKeyFrame.ImageBytes)));
+                            .WithDuration(rasterKeyFrame.Duration));
                     }
                 }
 
                 data?.Add(builder);
             }
-
         }
     }
 
@@ -198,8 +213,7 @@ internal class KeyFrameBuilder()
     public int StartFrame { get; set; }
     public int Duration { get; set; }
     public bool IsVisible { get; set; }
-    public Guid LayerGuid { get; set; }
-    public Guid Id { get; set; }
+    public int LayerId { get; set; }
 
     public KeyFrameBuilder WithStartFrame(int startFrame)
     {
@@ -219,15 +233,9 @@ internal class KeyFrameBuilder()
         return this;
     }
 
-    public KeyFrameBuilder WithLayerGuid(Guid layerGuid)
+    public KeyFrameBuilder WithLayerGuid(int layerGuid)
     {
-        LayerGuid = layerGuid;
-        return this;
-    }
-
-    public KeyFrameBuilder WithId(Guid id)
-    {
-        Id = id;
+        LayerId = layerGuid;
         return this;
     }
 }
@@ -243,20 +251,30 @@ internal class GroupKeyFrameBuilder : KeyFrameBuilder
         Children.Add(childBuilder);
         return this;
     }
-    
-    public new GroupKeyFrameBuilder WithVisibility(bool isVisible) => base.WithVisibility(isVisible) as GroupKeyFrameBuilder;
-    public new GroupKeyFrameBuilder WithLayerGuid(Guid layerGuid) => base.WithLayerGuid(layerGuid) as GroupKeyFrameBuilder;
-    public new GroupKeyFrameBuilder WithId(Guid id) => base.WithId(id) as GroupKeyFrameBuilder;
-    public new GroupKeyFrameBuilder WithStartFrame(int startFrame) => base.WithStartFrame(startFrame) as GroupKeyFrameBuilder;
+
+    public new GroupKeyFrameBuilder WithVisibility(bool isVisible) =>
+        base.WithVisibility(isVisible) as GroupKeyFrameBuilder;
+
+    public new GroupKeyFrameBuilder WithNodeId(int layerGuid) =>
+        base.WithLayerGuid(layerGuid) as GroupKeyFrameBuilder;
+
+    public new GroupKeyFrameBuilder WithStartFrame(int startFrame) =>
+        base.WithStartFrame(startFrame) as GroupKeyFrameBuilder;
+
     public new GroupKeyFrameBuilder WithDuration(int duration) => base.WithDuration(duration) as GroupKeyFrameBuilder;
 }
 
 internal class RasterKeyFrameBuilder : KeyFrameBuilder
 {
-    public new RasterKeyFrameBuilder WithVisibility(bool isVisible) => base.WithVisibility(isVisible) as RasterKeyFrameBuilder;
-    public new RasterKeyFrameBuilder WithLayerGuid(Guid layerGuid) => base.WithLayerGuid(layerGuid) as RasterKeyFrameBuilder;
-    public new RasterKeyFrameBuilder WithId(Guid id) => base.WithId(id) as RasterKeyFrameBuilder;
-    public new RasterKeyFrameBuilder WithStartFrame(int startFrame) => base.WithStartFrame(startFrame) as RasterKeyFrameBuilder;
+    public new RasterKeyFrameBuilder WithVisibility(bool isVisible) =>
+        base.WithVisibility(isVisible) as RasterKeyFrameBuilder;
+
+    public new RasterKeyFrameBuilder WithLayerGuid(int layerId) =>
+        base.WithLayerGuid(layerId) as RasterKeyFrameBuilder;
+
+    public new RasterKeyFrameBuilder WithStartFrame(int startFrame) =>
+        base.WithStartFrame(startFrame) as RasterKeyFrameBuilder;
+
     public new RasterKeyFrameBuilder WithDuration(int duration) => base.WithDuration(duration) as RasterKeyFrameBuilder;
 }
 
@@ -264,41 +282,117 @@ internal class NodeGraphBuilder
 {
     public List<NodeBuilder> AllNodes { get; set; } = new List<NodeBuilder>();
 
-    public NodeGraphBuilder WithNode(NodeBuilder node)
+
+    public NodeGraphBuilder WithNode(Action<NodeBuilder> nodeBuilder)
     {
+        var node = new NodeBuilder();
+        nodeBuilder(node);
+
+        AllNodes.Add(node);
+
+        return this;
+    }
+
+    public NodeGraphBuilder WithOutputNode(int? toConnectNodeId, string? toConnectPropName)
+    {
+        var node = this.WithNodeOfType(typeof(OutputNode))
+            .WithId(AllNodes.Count + 1);
+
+        if (toConnectNodeId != null && toConnectPropName != null)
+        {
+            node.WithConnections(new[]
+            {
+                new PropertyConnection
+                {
+                    OutputNodeId = toConnectNodeId.Value,
+                    OutputPropertyName = toConnectPropName,
+                    InputPropertyName = OutputNode.InputPropertyName
+                }
+            });
+        }
+
         AllNodes.Add(node);
         return this;
     }
-}
 
-internal class NodeBuilder
-{
-    public int Id { get; set; }
-    public Vector2 Position { get; set; }
-    public string Name { get; set; }
-    public string UniqueNodeName { get; set; }
-
-    public NodeBuilder WithId(int id)
+    public NodeGraphBuilder WithImageLayerNode(string name, Surface image, out int id)
     {
-        Id = id;
+        AllNodes.Add(
+            this.WithNodeOfType(typeof(ImageLayerNode))
+                .WithName(name)
+                .WithId(AllNodes.Count + 1)
+                .WithAdditionalData(
+                    new Dictionary<string, object> { { ImageLayerNode.ImageFramesKey, new List<Surface> { image } } }));
+
+        id = AllNodes.Count;
         return this;
     }
 
-    public NodeBuilder WithPosition(Vector2 position)
+    public NodeBuilder WithNodeOfType(Type nodeType)
     {
-        Position = position;
-        return this;
+        var node = new NodeBuilder();
+        node.WithUniqueNodeName(nodeType.GetCustomAttribute<NodeInfoAttribute>().UniqueName);
+
+        return node;
     }
 
-    public NodeBuilder WithName(string name)
+    internal class NodeBuilder
     {
-        Name = name;
-        return this;
-    }
+        public int Id { get; set; }
+        public Vector2 Position { get; set; }
+        public string Name { get; set; }
+        public string UniqueNodeName { get; set; }
+        public Dictionary<string, object> InputValues { get; set; }
+        public Dictionary<string, object> AdditionalData { get; set; }
+        public Dictionary<int, (string inputPropName, string outputPropName)> InputConnections { get; set; }
 
-    public NodeBuilder WithUniqueNodeName(string uniqueNodeName)
-    {
-        UniqueNodeName = uniqueNodeName;
-        return this;
+        public NodeBuilder WithId(int id)
+        {
+            Id = id;
+            return this;
+        }
+
+        public NodeBuilder WithPosition(Vector2 position)
+        {
+            Position = position;
+            return this;
+        }
+
+        public NodeBuilder WithName(string name)
+        {
+            Name = name;
+            return this;
+        }
+
+        public NodeBuilder WithUniqueNodeName(string uniqueNodeName)
+        {
+            UniqueNodeName = uniqueNodeName;
+            return this;
+        }
+
+        public NodeBuilder WithInputValues(Dictionary<string, object> values)
+        {
+            InputValues = values;
+            return this;
+        }
+
+        public NodeBuilder WithAdditionalData(Dictionary<string, object> data)
+        {
+            AdditionalData = data;
+            return this;
+        }
+
+        public NodeBuilder WithConnections(PropertyConnection[] nodeInputConnections)
+        {
+            InputConnections = new Dictionary<int, (string, string)>();
+
+            foreach (var connection in nodeInputConnections)
+            {
+                InputConnections.Add(connection.OutputNodeId,
+                    (connection.InputPropertyName, connection.OutputPropertyName));
+            }
+
+            return this;
+        }
     }
 }

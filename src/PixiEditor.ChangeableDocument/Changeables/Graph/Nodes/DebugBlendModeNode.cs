@@ -1,13 +1,14 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
-using DrawingApiBlendMode = PixiEditor.DrawingApi.Core.Surface.BlendMode;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
+using DrawingApiBlendMode = PixiEditor.DrawingApi.Core.Surfaces.BlendMode;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 // TODO: Add based on debug mode, not debug build.
 #if DEBUG
+[NodeInfo("DebugBlendMode")]
 public class DebugBlendModeNode : Node
 {
     private Paint _paint = new();
@@ -29,8 +30,6 @@ public class DebugBlendModeNode : Node
 
         Result = CreateOutput<Surface>(nameof(Result), "Result", null);
     }
-
-    protected override string NodeUniqueName => "DebugBlendMode";
 
     protected override Surface? OnExecute(RenderingContext context)
     {

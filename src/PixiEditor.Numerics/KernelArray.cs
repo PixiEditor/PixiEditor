@@ -23,6 +23,16 @@ public class KernelArray
         Height = height;
         _buffer = new float[width * height];
     }
+    
+    public KernelArray(int width, int height, float[] buffer)
+    {
+        if (width % 2 == 0)
+            throw new ArgumentException($"{width} must be odd", nameof(width));
+        
+        Width = width;
+        Height = height;
+        _buffer = buffer;
+    }
 
     public float this[int x, int y]
     {

@@ -3,6 +3,7 @@ using System.ComponentModel;
 using ChunkyImageLib;
 using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Models.Handlers;
@@ -10,7 +11,7 @@ namespace PixiEditor.AvaloniaUI.Models.Handlers;
 public interface INodeHandler : INotifyPropertyChanged
 {
     public Guid Id { get; }
-    public string NodeName { get; set; }
+    public string NodeNameBindable { get; set; }
     public string InternalName { get; }
     public ObservableRangeCollection<INodePropertyHandler> Inputs { get; }
     public ObservableRangeCollection<INodePropertyHandler> Outputs { get; }

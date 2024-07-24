@@ -20,11 +20,11 @@
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\PixiEditor.AvaloniaUI\PixiEditor.AvaloniaUI.csproj" />
-    </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PixiEditor.AvaloniaUI\PixiEditor.AvaloniaUI.csproj" />
   </ItemGroup>
 </Project>

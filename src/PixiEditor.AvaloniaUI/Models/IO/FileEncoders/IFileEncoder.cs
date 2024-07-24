@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using ChunkyImageLib;
+using PixiEditor.DrawingApi.Core;
 
 namespace PixiEditor.AvaloniaUI.Models.IO.FileEncoders;
 

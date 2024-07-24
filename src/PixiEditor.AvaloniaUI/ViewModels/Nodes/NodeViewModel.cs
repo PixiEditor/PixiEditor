@@ -9,12 +9,13 @@ using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Nodes;
 internal class NodeViewModel : ObservableObject, INodeHandler
 {
-    private string nodeName;
+    private string nodeNameBindable;
     private VecD position;
     private ObservableRangeCollection<INodePropertyHandler> inputs = new();
     private ObservableRangeCollection<INodePropertyHandler> outputs = new();
@@ -29,10 +30,17 @@ internal class NodeViewModel : ObservableObject, INodeHandler
         init => id = value;
     }
 
-    public string NodeName
+    public string NodeNameBindable
     {
-        get => nodeName;
-        set => SetProperty(ref nodeName, value);
+        get => nodeNameBindable;
+        set
+        {
+            if (!Document.UpdateableChangeActive)
+            {
+                Internals.ActionAccumulator.AddFinishedActions(
+                    new SetNodeName_Action(Id, value));
+            }
+        } 
     }
 
     public string InternalName { get; init; }
@@ -84,9 +92,9 @@ internal class NodeViewModel : ObservableObject, INodeHandler
         
     }
 
-    public NodeViewModel(string nodeName, Guid id, VecD position, DocumentViewModel document, DocumentInternalParts internals)
+    public NodeViewModel(string nodeNameBindable, Guid id, VecD position, DocumentViewModel document, DocumentInternalParts internals)
     {
-        this.nodeName = nodeName;
+        this.nodeNameBindable = nodeNameBindable;
         this.id = id;
         this.position = position;
         Document = document;
@@ -97,6 +105,12 @@ internal class NodeViewModel : ObservableObject, INodeHandler
     {
         position = newPosition;
         OnPropertyChanged(nameof(PositionBindable));
+    }
+    
+    public void SetName(string newName)
+    {
+        nodeNameBindable = newName;
+        OnPropertyChanged(nameof(NodeNameBindable));
     }
 
     public void TraverseBackwards(Func<INodeHandler, bool> func)

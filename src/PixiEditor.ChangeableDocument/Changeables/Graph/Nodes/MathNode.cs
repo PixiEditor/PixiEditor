@@ -3,10 +3,11 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
+[NodeInfo("Math")]
 public class MathNode : Node
 {
     public FuncOutputProperty<double> Result { get; }
@@ -53,7 +54,6 @@ public class MathNode : Node
 
     private (double x, double y) GetValues(FuncContext context) => (X.Value(context), Y.Value(context));
 
-    protected override string NodeUniqueName => "Math";
 
     protected override Surface? OnExecute(RenderingContext context)
     {

@@ -101,7 +101,7 @@
                                 x:Name="editableTextBlock"
                                 d:Text="New Folder" FontSize="14"
                                 VerticalAlignment="Center"
-                                Text="{Binding Folder.NameBindable, ElementName=folderControl, Mode=TwoWay}" />
+                                Text="{Binding Folder.NodeNameBindable, ElementName=folderControl, Mode=TwoWay}" />
                             
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock d:Text="100" Foreground="White" FontSize="11">

@@ -1,23 +1,30 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
+[NodeInfo("ImageLayer")]
 public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 {
+    public const string ImageFramesKey = "Frames";
+
     public InputProperty<bool> LockTransparency { get; }
 
     private VecI size;
 
-    private static readonly Paint clearPaint = new() { BlendMode = DrawingApi.Core.Surface.BlendMode.Src, 
-        Color = PixiEditor.DrawingApi.Core.ColorsImpl.Colors.Transparent };
-    
+    private static readonly Paint clearPaint = new()
+    {
+        BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src,
+        Color = PixiEditor.DrawingApi.Core.ColorsImpl.Colors.Transparent
+    };
+
     // Handled by overriden CacheChanged
-    protected override string NodeUniqueName => "ImageLayer";
     protected override bool AffectedByAnimation => true;
 
     protected override bool AffectedByChunkResolution => true;
@@ -47,7 +54,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         var frameImage = GetFrameImage(context.FrameTime).Data;
 
         blendPaint.Color = new Color(255, 255, 255, 255);
-        blendPaint.BlendMode = DrawingApi.Core.Surface.BlendMode.Src;
+        blendPaint.BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src;
 
         var renderedSurface = RenderImage(frameImage, context);
 
@@ -97,7 +104,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     private void DrawLayer(ChunkyImage frameImage, RenderingContext context, Surface workingSurface, bool shouldClear)
     {
-        blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255)); 
+        blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255));
         if (!frameImage.DrawMostUpToDateChunkOn(
                 context.ChunkToUpdate,
                 context.ChunkResolution,
@@ -116,7 +123,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         {
             return keyFrames[0] as ImageFrame;
         }
-        
+
         var frameImage = imageFrame ?? keyFrames[0];
         return frameImage as ImageFrame;
     }
@@ -150,6 +157,43 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         };
     }
 
+    public override void SerializeAdditionalData(Dictionary<string, object> additionalData)
+    {
+        if (keyFrames is not null)
+        {
+            List<object> serializedFrames = new();
+            foreach (var frame in keyFrames)
+            {
+                serializedFrames.Add(frame.ToSerializable());
+            }
+
+            additionalData.Add(ImageFramesKey, serializedFrames);
+        }
+    }
+
+    internal override void DeserializeData(IReadOnlyDictionary<string, object> data)
+    {
+        if (data.TryGetValue(ImageFramesKey, out var frames))
+        {
+            using Paint paint = new Paint();
+            if (frames is not IEnumerable<Surface> list)
+            {
+                throw new InvalidOperationException("Key frames data is not in correct format.");
+            }
+
+            keyFrames.Clear();
+            foreach (var frame in list)
+            {
+                ChunkyImage image = new ChunkyImage(size);
+                image.EnqueueDrawImage(VecI.Zero, frame, paint);
+                image.CommitChanges();
+                
+                frame.Dispose();
+                keyFrames.Add(new ImageFrame(Guid.NewGuid(), 0, 0, image));
+            }
+        }
+    }
+
     IReadOnlyChunkyImage IReadOnlyImageNode.GetLayerImageAtFrame(int frame) => GetLayerImageAtFrame(frame);
 
     IReadOnlyChunkyImage IReadOnlyImageNode.GetLayerImageByKeyFrameGuid(Guid keyFrameGuid) =>
@@ -165,6 +209,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         get => LockTransparency.Value; // TODO: I wonder if it should be NonOverridenValue
         set => LockTransparency.NonOverridenValue = value;
     }
+
 
     public void ForEveryFrame(Action<ChunkyImage> action)
     {
@@ -192,7 +237,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             }
         }
 
-        return (keyFrames[0] as ImageFrame).Data;        
+        return (keyFrames[0] as ImageFrame).Data;
     }
 
     public void SetLayerImageAtFrame(int frame, ChunkyImage newLayerImage)
@@ -223,9 +268,20 @@ class ImageFrame : KeyFrameData<ChunkyImage>
         }
     }
 
+    public override object ToSerializable()
+    {
+        Surface surface = new Surface(Data.LatestSize);
+        Data.DrawMostUpToDateRegionOn(
+            new RectI(0, 0, Data.LatestSize.X,
+                Data.LatestSize.Y), ChunkResolution.Full, surface.DrawingSurface, new VecI(0, 0), new Paint());
+
+        return surface;
+    }
+
     private int lastQueueLength = 0;
 
-    public ImageFrame(Guid keyFrameGuid, int startFrame, int duration, ChunkyImage image) : base(keyFrameGuid, image, startFrame, duration)
+    public ImageFrame(Guid keyFrameGuid, int startFrame, int duration, ChunkyImage image) : base(keyFrameGuid, image,
+        startFrame, duration)
     {
     }
 }

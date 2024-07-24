@@ -1,8 +1,10 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
+[NodeInfo("SeparateColor")]
 public class SeparateColorNode : Node
 {
     public FuncInputProperty<Color> Color { get; }
@@ -25,8 +27,6 @@ public class SeparateColorNode : Node
         B = CreateFieldOutput(nameof(B), "B", ctx => Color.Value(ctx).B / 255d);
         A = CreateFieldOutput(nameof(A), "A", ctx => Color.Value(ctx).A / 255d);
     }
-
-    protected override string NodeUniqueName => "SeparateColor";
 
     protected override Surface? OnExecute(RenderingContext context)
     {

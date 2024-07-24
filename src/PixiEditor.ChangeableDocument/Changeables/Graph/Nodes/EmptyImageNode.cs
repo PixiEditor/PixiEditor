@@ -1,12 +1,13 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
+[NodeInfo("CreateImage")]
 public class CreateImageNode : Node
 {
     private Paint _paint = new();
@@ -23,8 +24,6 @@ public class CreateImageNode : Node
         Size = CreateInput(nameof(Size), "SIZE", new VecI(32, 32));
         Fill = CreateInput(nameof(Fill), "FILL", new Color(0, 0, 0, 255));
     }
-
-    protected override string NodeUniqueName => "EmptyImage";
 
     protected override Surface? OnExecute(RenderingContext context)
     {

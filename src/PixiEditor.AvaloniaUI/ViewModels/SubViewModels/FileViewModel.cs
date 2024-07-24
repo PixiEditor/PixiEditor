@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -19,6 +20,9 @@ using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.Views;
 using PixiEditor.AvaloniaUI.Views.Dialogs;
 using PixiEditor.AvaloniaUI.Views.Windows;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
@@ -26,6 +30,7 @@ using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Numerics;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Parser;
+using PixiEditor.Parser.Graph;
 using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
@@ -243,10 +248,12 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         var doc = NewDocument(b => b
             .WithSize(image.Size)
-            .WithLayer(l => l
-                .WithName("Image")
-                .WithSize(image.Size)
-                .WithSurface(image)));
+            .WithGraph(x => x
+                .WithImageLayerNode(
+                    new LocalizedString("PASTED_IMAGE_NAME"),
+                    image, out int id)
+                .WithOutputNode(id, "Output")
+            ));
 
         if (associatePath)
         {
@@ -256,6 +263,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         AddRecentlyOpened(path);
     }
 
+
     /// <summary>
     /// Opens a regular image file from path, creates a document from it, and adds it to the system.
     /// </summary>
@@ -263,10 +271,12 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     {
         DocumentViewModel doc = NewDocument(b => b
             .WithSize(surface.Size)
-            .WithLayer(l => l
-                .WithName("Image")
-                .WithSize(surface.Size)
-                .WithSurface(surface)));
+            .WithGraph(x => x
+                .WithImageLayerNode(
+                    new LocalizedString("PASTED_IMAGE_NAME"),
+                    surface, out int id)
+                .WithOutputNode(id, "Output")
+            ));
 
         if (path == null)
         {
@@ -289,9 +299,12 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             NewDocument(b => b
                 .WithSize(newFile.Width, newFile.Height)
-                .WithLayer(l => l
-                    .WithName(new LocalizedString("BASE_LAYER_NAME"))
-                    .WithSurface(new Surface(new VecI(newFile.Width, newFile.Height)))));
+                .WithGraph(x => x
+                    .WithImageLayerNode(
+                        new LocalizedString("BASE_LAYER_NAME"),
+                        new Surface(new VecI(newFile.Width, newFile.Height)), out int id)
+                    .WithOutputNode(id, "Output")
+                ));
         }
     }
 
@@ -378,7 +391,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             };
             if (await info.ShowDialog())
             {
-                var result = await Exporter.TrySaveUsingDataFromDialog(doc, info.FilePath, info.ChosenFormat, info.ExportConfig);
+                var result =
+                    await Exporter.TrySaveUsingDataFromDialog(doc, info.FilePath, info.ChosenFormat, info.ExportConfig);
                 if (result.result == SaveResult.Success)
                     IOperatingSystem.Current.OpenFolder(result.finalPath);
                 else

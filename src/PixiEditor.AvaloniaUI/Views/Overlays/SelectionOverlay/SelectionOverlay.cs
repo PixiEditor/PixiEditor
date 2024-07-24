@@ -6,7 +6,7 @@ using Avalonia.Media;
 using Avalonia.Styling;
 using PixiEditor.AvaloniaUI.Animation;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.DrawingApi.Core.Surfaces.Vector;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays.SelectionOverlay;

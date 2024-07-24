@@ -1,5 +1,5 @@
 ﻿using System.Windows.Media;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 
 namespace PixiEditor.Helpers.Extensions;
 

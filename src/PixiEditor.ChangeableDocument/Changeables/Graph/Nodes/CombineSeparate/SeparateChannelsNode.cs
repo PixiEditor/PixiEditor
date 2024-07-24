@@ -1,9 +1,11 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
+[NodeInfo("SeparateChannels")]
 public class SeparateChannelsNode : Node
 {
     private readonly Paint _paint = new();
@@ -41,7 +43,6 @@ public class SeparateChannelsNode : Node
         Grayscale = CreateInput(nameof(Grayscale), "GRAYSCALE", false);
     }
 
-    protected override string NodeUniqueName => "SeparateChannels";
 
     public override string DisplayName { get; set; } = "SEPARATE_CHANNELS_NODE";
     

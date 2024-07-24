@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -33,13 +34,15 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.Vector;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Numerics;
+using PixiEditor.Parser;
+using PixiEditor.Parser.Skia;
 using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
 using Node = PixiEditor.Parser.Graph.Node;
@@ -246,7 +249,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         var builderInstance = new DocumentViewModelBuilder();
         builder(builderInstance);
-        
+
         Dictionary<int, Guid> mappedIds = new();
 
         var viewModel = new DocumentViewModel();
@@ -281,22 +284,65 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             Guid outputNodeGuid = Guid.NewGuid();
             acc.AddActions(new CreateNode_Action(typeof(OutputNode), outputNodeGuid));
         }
-        
+
         AddAnimationData(builderInstance.AnimationData);
 
         acc.AddFinishedActions(new DeleteRecordedChanges_Action());
         viewModel.MarkAsSaved();
 
         return viewModel;
+        
+        
+        void AddNodes(NodeGraphBuilder graph)
+        {
+            foreach (var node in graph.AllNodes)
+            {
+                AddNode(node.Id, node);
+            }
 
-        void AddNode(int id, Node serializedNode)
+            foreach (var node in graph.AllNodes)
+            {
+                Guid nodeGuid = mappedIds[node.Id];
+                if (node.InputConnections != null)
+                {
+                    foreach (var connection in node.InputConnections)
+                    {
+                        if (mappedIds.TryGetValue(connection.Key, out Guid outputNodeId))
+                        {
+                            acc.AddActions(new ConnectProperties_Action(nodeGuid, outputNodeId,
+                                connection.Value.inputPropName, connection.Value.outputPropName));
+                        }
+                    }
+                }
+            }
+        }
+
+        void AddNode(int id, NodeGraphBuilder.NodeBuilder serializedNode)
         {
             Guid guid = Guid.NewGuid();
             mappedIds.Add(id, guid);
-            acc.AddActions(new CreateNode_Action(serializedNode.UniqueNodeName, guid)); 
+            acc.AddActions(new CreateNodeFromName_Action(serializedNode.UniqueNodeName, guid));
+
+            if (serializedNode.InputValues != null)
+            {
+                foreach (var propertyValue in serializedNode.InputValues)
+                {
+                    acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, propertyValue.Value));
+                }
+            }
+
+            if (serializedNode.AdditionalData != null && serializedNode.AdditionalData.Count > 0)
+            {
+                acc.AddActions(new DeserializeNodeAdditionalData_Action(guid, serializedNode.AdditionalData));
+            }
+
+            if (!string.IsNullOrEmpty(serializedNode.Name))
+            {
+                acc.AddActions(new SetNodeName_Action(guid, serializedNode.Name));
+            }
         }
 
-        void AddMember(Guid parentGuid, DocumentViewModelBuilder.StructureMemberBuilder member)
+        /*void AddMember(Guid parentGuid, DocumentViewModelBuilder.StructureMemberBuilder member)
         {
             acc.AddActions(
                 new CreateStructureMember_Action(parentGuid, member.Id,
@@ -346,18 +392,18 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 AddMembers(member.Id, folder.Children);
             }
-        }
+        }*/
 
-        void PasteImage(Guid guid, DocumentViewModelBuilder.SurfaceBuilder surface, int width, int height, int offsetX,
+        /*void PasteImage(Guid guid, DocumentViewModelBuilder.SurfaceBuilder surface, int width, int height, int offsetX,
             int offsetY, bool onMask, int frame, Guid? keyFrameGuid = default)
         {
             acc.AddActions(
                 new PasteImage_Action(surface.Surface, new(new RectD(new VecD(offsetX, offsetY), new(width, height))),
                     guid, true, onMask, frame, keyFrameGuid ?? default),
                 new EndPasteImage_Action());
-        }
+        }*/
 
-        void AddMembers(Guid parentGuid, IEnumerable<DocumentViewModelBuilder.StructureMemberBuilder> builders)
+        /*void AddMembers(Guid parentGuid, IEnumerable<DocumentViewModelBuilder.StructureMemberBuilder> builders)
         {
             foreach (var child in builders.Reverse())
             {
@@ -368,7 +414,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
                 AddMember(parentGuid, child);
             }
-        }
+        }*/
 
         void AddAnimationData(List<KeyFrameBuilder> data)
         {
@@ -376,24 +422,20 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 if (keyFrame is RasterKeyFrameBuilder rasterKeyFrameBuilder)
                 {
-                    if (rasterKeyFrameBuilder.Id == default)
-                    {
-                        rasterKeyFrameBuilder.Id = Guid.NewGuid();
-                    }
-
+                    Guid keyFrameGuid = Guid.NewGuid();
                     acc.AddActions(
                         new CreateRasterKeyFrame_Action(
-                            rasterKeyFrameBuilder.LayerGuid,
-                            rasterKeyFrameBuilder.Id,
+                            mappedIds[rasterKeyFrameBuilder.LayerId],
+                            keyFrameGuid,
                             rasterKeyFrameBuilder.StartFrame, -1, default),
-                        new KeyFrameLength_Action(rasterKeyFrameBuilder.Id, rasterKeyFrameBuilder.StartFrame,
+                        new KeyFrameLength_Action(keyFrameGuid, rasterKeyFrameBuilder.StartFrame,
                             rasterKeyFrameBuilder.Duration),
                         new EndKeyFrameLength_Action());
 
-                    PasteImage(rasterKeyFrameBuilder.LayerGuid, rasterKeyFrameBuilder.Surface,
+                    /*PasteImage(rasterKeyFrameBuilder.LayerGuid, rasterKeyFrameBuilder.Surface,
                         rasterKeyFrameBuilder.Surface.Surface.Size.X,
                         rasterKeyFrameBuilder.Surface.Surface.Size.Y, 0, 0, false, rasterKeyFrameBuilder.StartFrame,
-                        rasterKeyFrameBuilder.Id);
+                        rasterKeyFrameBuilder.Id);*/
 
                     acc.AddFinishedActions();
                 }

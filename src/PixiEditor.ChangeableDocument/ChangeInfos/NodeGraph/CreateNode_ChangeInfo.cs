@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
+using System.Reflection;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -36,8 +37,15 @@ public record CreateNode_ChangeInfo(
                     return CreateFolder_ChangeInfo.FromFolder(folderNode);
             }
         }
+
+        string internalName = node.GetType().GetCustomAttribute<NodeInfoAttribute>()?.UniqueName;
+
+        if (string.IsNullOrEmpty(internalName))
+        {
+            throw new ArgumentException("Node does not have a unique name attribute. Please add [NodeInfo(\"UNIQUE_NAME\")] to the node class.");
+        }
         
-        return new CreateNode_ChangeInfo(node.InternalName, node.DisplayName, node.Position,
+        return new CreateNode_ChangeInfo(internalName, node.DisplayName, node.Position,
             node.Id,
             CreatePropertyInfos(node.InputProperties, true, node.Id), CreatePropertyInfos(node.OutputProperties, false, node.Id));
     }

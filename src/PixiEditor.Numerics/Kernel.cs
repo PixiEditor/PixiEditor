@@ -1,6 +1,8 @@
-﻿namespace PixiEditor.Numerics;
+﻿using System.Runtime.InteropServices;
 
-public class Kernel
+namespace PixiEditor.Numerics;
+
+public class Kernel : ISerializable
 {
     private KernelArray _buffer;
 
@@ -19,6 +21,13 @@ public class Kernel
     }
 
     public float Sum => _buffer.Sum;
+
+    public Kernel()
+    {
+        Width = 3;
+        Height = 3;
+        _buffer = new KernelArray(3, 3);
+    }
     
     public Kernel(int width, int height)
     {
@@ -58,4 +67,23 @@ public class Kernel
     }
 
     public ReadOnlySpan<float> AsSpan() => _buffer.AsSpan();
+    public byte[] Serialize()
+    {
+        Span<byte> data = stackalloc byte[Width * Height * sizeof(float) + sizeof(int) * 2];
+        BitConverter.GetBytes(Width).CopyTo(data);
+        BitConverter.GetBytes(Height).CopyTo(data[sizeof(int)..]); 
+        var span = AsSpan();
+        MemoryMarshal.Cast<float, byte>(span).CopyTo(data);
+        return data.ToArray();
+    }
+
+    public void Deserialize(byte[] data)
+    {
+        if (data.Length < sizeof(int) * 2)
+            throw new ArgumentException("Data is too short.", nameof(data));
+        
+        Width = BitConverter.ToInt32(data);
+        Height = BitConverter.ToInt32(data[sizeof(int)..]);
+        _buffer = new KernelArray(Width, Height, MemoryMarshal.Cast<byte, float>(data.AsSpan(sizeof(int) * 2)).ToArray());
+    }
 }

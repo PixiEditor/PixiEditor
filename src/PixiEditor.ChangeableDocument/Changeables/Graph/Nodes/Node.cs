@@ -1,9 +1,10 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -17,14 +18,14 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     public Guid Id { get; internal set; } = Guid.NewGuid();
 
-    public IReadOnlyCollection<InputProperty> InputProperties => inputs;
-    public IReadOnlyCollection<OutputProperty> OutputProperties => outputs;
+    public IReadOnlyList<InputProperty> InputProperties => inputs;
+    public IReadOnlyList<OutputProperty> OutputProperties => outputs;
 
     public Surface? CachedResult
     {
         get
         {
-            if(_lastCachedResult == null || _lastCachedResult.IsDisposed) return null;
+            if (_lastCachedResult == null || _lastCachedResult.IsDisposed) return null;
             return _lastCachedResult;
         }
         private set
@@ -32,10 +33,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
             _lastCachedResult = value;
         }
     }
-
-    public virtual string InternalName => $"PixiEditor.{NodeUniqueName}";
-    
-    protected abstract string NodeUniqueName { get; }
 
     protected virtual bool AffectedByAnimation { get; }
 
@@ -47,8 +44,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
     }
 
-    IReadOnlyCollection<IInputProperty> IReadOnlyNode.InputProperties => inputs;
-    IReadOnlyCollection<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
+    IReadOnlyList<IInputProperty> IReadOnlyNode.InputProperties => inputs;
+    IReadOnlyList<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
     public VecD Position { get; set; }
     public abstract string DisplayName { get; set; }
 
@@ -190,7 +187,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
         {
             throw new InvalidOperationException("Key frame with this id already exists.");
         }
-        
+
         keyFrames.Add(value);
         _keyFramesDirty = true;
     }
@@ -254,16 +251,16 @@ public abstract class Node : IReadOnlyNode, IDisposable
                 output.Value = default;
             }
         }
-        
-        if(keyFrames is not null)
+
+        if (keyFrames is not null)
         {
             foreach (var keyFrame in keyFrames)
             {
-               keyFrame.Dispose(); 
+                keyFrame.Dispose();
             }
         }
     }
-    
+
     public void DisconnectAll()
     {
         foreach (var input in inputs)
@@ -280,6 +277,17 @@ public abstract class Node : IReadOnlyNode, IDisposable
                 output.DisconnectFrom(conn);
             }
         }
+    }
+
+    public string GetNodeTypeUniqueName()
+    {
+        NodeInfoAttribute? attribute = GetType().GetCustomAttribute<NodeInfoAttribute>();
+        if (attribute is null)
+        {
+            throw new InvalidOperationException("Node does not have NodeInfo attribute.");
+        }
+
+        return attribute.UniqueName;
     }
 
     public abstract Node CreateCopy();
@@ -316,14 +324,24 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
         return outputs.FirstOrDefault(x => x.InternalPropertyName == outputProperty);
     }
-    
+
     IInputProperty? IReadOnlyNode.GetInputProperty(string inputProperty)
     {
         return GetInputProperty(inputProperty);
     }
-    
+
     IOutputProperty? IReadOnlyNode.GetOutputProperty(string outputProperty)
     {
         return GetOutputProperty(outputProperty);
+    }
+
+    public virtual void SerializeAdditionalData(Dictionary<string, object> additionalData)
+    {
+      
+    }
+
+    internal virtual void DeserializeData(IReadOnlyDictionary<string, object> data)
+    {
+      
     }
 }

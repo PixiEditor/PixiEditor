@@ -1,10 +1,12 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
+[NodeInfo("CombineChannels")]
 public class CombineChannelsNode : Node
 {
     private readonly Paint _screenPaint = new() { BlendMode = BlendMode.Screen };
@@ -37,8 +39,6 @@ public class CombineChannelsNode : Node
         Image = CreateOutput<Surface>(nameof(Image), "IMAGE", null);
         Grayscale = CreateInput(nameof(Grayscale), "GRAYSCALE", false);
     }
-
-    protected override string NodeUniqueName => "CombineChannels";
 
     protected override Surface? OnExecute(RenderingContext context)
     {

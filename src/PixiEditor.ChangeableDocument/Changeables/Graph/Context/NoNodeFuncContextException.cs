@@ -1,4 +1,4 @@
-﻿namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿namespace PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 
 public class NoNodeFuncContextException : Exception
 {

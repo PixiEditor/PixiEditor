@@ -5,7 +5,7 @@ public abstract class KeyFrameData : IDisposable
     public int StartFrame { get; set; }
     public int Duration { get; set; }
     public Guid KeyFrameGuid { get; }
-
+    
     public abstract bool RequiresUpdate { get; set; }
 
     public KeyFrameData(Guid keyFrameGuid, int startFrame, int duration)
@@ -21,6 +21,8 @@ public abstract class KeyFrameData : IDisposable
     }
 
     public abstract void Dispose();
+
+    public abstract object ToSerializable();
 }
 
 public abstract class KeyFrameData<T> : KeyFrameData

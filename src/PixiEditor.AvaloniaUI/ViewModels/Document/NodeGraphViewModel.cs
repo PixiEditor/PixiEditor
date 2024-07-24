@@ -34,9 +34,9 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
 
     public void AddNode(INodeHandler node)
     {
-        if (OutputNode == null)
+        if (OutputNode == null && node.InternalName == typeof(OutputNode).GetCustomAttribute<NodeInfoAttribute>().UniqueName)
         {
-            OutputNode = node; // TODO: this is not really correct yet, a way to check what node type is added is needed
+            OutputNode = node; 
         }
 
         AllNodes.Add(node);

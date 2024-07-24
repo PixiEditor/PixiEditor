@@ -2,9 +2,9 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
@@ -80,7 +80,7 @@ internal sealed class RotateImage_Change : Change
         VecI oldSize = new VecI(originalWidth, originalHeight);
         VecI newSize = new VecI(newWidth, newHeight);
 
-        using Paint paint = new() { BlendMode = DrawingApi.Core.Surface.BlendMode.Src };
+        using Paint paint = new() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src };
 
         using Surface originalSurface = new(oldSize);
         img.DrawMostUpToDateRegionOn(

@@ -1,25 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
 using System.Drawing;
-using System.IO;
-using System.Linq;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers;
-using PixiEditor.AvaloniaUI.Models.Handlers;
+using PixiEditor.AvaloniaUI.Helpers.Extensions;
+using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.AvaloniaUI.Models.IO.FileEncoders;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Bridge;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Numerics;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Collections;
-using BlendMode = PixiEditor.Parser.BlendMode;
+using PixiEditor.Parser.Graph;
+using PixiEditor.Parser.Skia;
+using PixiEditor.Parser.Skia.Encoders;
 using IKeyFrameChildrenContainer = PixiEditor.ChangeableDocument.Changeables.Interfaces.IKeyFrameChildrenContainer;
 using PixiDocument = PixiEditor.Parser.Document;
+using ReferenceLayer = PixiEditor.Parser.ReferenceLayer;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 
@@ -27,22 +30,115 @@ internal partial class DocumentViewModel
 {
     public PixiDocument ToSerializable()
     {
-        var root = new Folder();
-        
+        Parser.Graph.NodeGraph graph = new();
+        ImageEncoder encoder = new QoiEncoder();
         var doc = Internals.Tracker.Document;
 
-        //AddMembers(doc.StructureRoot.Children, doc, root);
+        Dictionary<Guid, int> idMap = new();
+
+        AddNodes(doc.NodeGraph, graph, idMap, encoder);
 
         var document = new PixiDocument
         {
-            Width = Width, Height = Height,
-            Swatches = ToCollection(Swatches), Palette = ToCollection(Palette),
-            RootFolder = root, PreviewImage = (TryRenderWholeImage(0).Value as Surface)?.DrawingSurface.Snapshot().Encode().AsSpan().ToArray(),
+            Width = Width,
+            Height = Height,
+            Swatches = ToCollection(Swatches),
+            Palette = ToCollection(Palette),
+            Graph = graph,
+            PreviewImage =
+                (TryRenderWholeImage(0).Value as Surface)?.DrawingSurface.Snapshot().Encode().AsSpan().ToArray(),
             ReferenceLayer = GetReferenceLayer(doc),
-            AnimationData = ToAnimationData(doc.AnimationData)
+            AnimationData = ToAnimationData(doc.AnimationData, idMap),
+            ImageEncoderUsed = encoder.EncodedFormatName
         };
 
         return document;
+    }
+
+    private static void AddNodes(IReadOnlyNodeGraph graph, NodeGraph targetGraph, Dictionary<Guid, int> idMap,
+        ImageEncoder encoder)
+    {
+        targetGraph.AllNodes = new List<Node>();
+
+        int id = 0;
+        foreach (var node in graph.AllNodes)
+        {
+            idMap[node.Id] = id + 1;
+            id++;
+        }
+        
+        foreach (var node in graph.AllNodes)
+        {
+            NodePropertyValue[] properties = new NodePropertyValue[node.InputProperties.Count];
+
+            for (int i = 0; i < node.InputProperties.Count(); i++)
+            {
+                properties[i] = new NodePropertyValue()
+                {
+                    PropertyName = node.InputProperties[i].InternalPropertyName,
+                    Value = SerializationUtil.SerializeObject(node.InputProperties[i].NonOverridenValue, encoder)
+                };
+            }
+
+            Dictionary<string, object> additionalData = new();
+            node.SerializeAdditionalData(additionalData);
+
+            Dictionary<string, object> converted = ConvertToSerializable(additionalData, encoder);
+
+            List<PropertyConnection> connections = new();
+
+            foreach (var inputProp in node.InputProperties)
+            {
+                if (inputProp.Connection != null)
+                {
+                    connections.Add(new PropertyConnection()
+                    {
+                        OutputNodeId = idMap[inputProp.Connection.Node.Id],
+                        OutputPropertyName = inputProp.Connection.InternalPropertyName,
+                        InputPropertyName = inputProp.InternalPropertyName
+                    });
+                }
+            }
+
+            Node parserNode = new Node()
+            {
+                Id = idMap[node.Id],
+                Name = node.DisplayName,
+                UniqueNodeName = node.GetNodeTypeUniqueName(),
+                Position = node.Position.ToVector2(),
+                InputPropertyValues = properties,
+                AdditionalData = converted,
+                InputConnections = connections.ToArray()
+            };
+
+            targetGraph.AllNodes.Add(parserNode);
+        }
+    }
+
+    private static Dictionary<string, object> ConvertToSerializable(
+        Dictionary<string, object> additionalData,
+        ImageEncoder encoder)
+    {
+        Dictionary<string, object> converted = new();
+        foreach (var (key, value) in additionalData)
+        {
+            if (value is IEnumerable enumerable)
+            {
+                List<object> list = new();
+                foreach (var item in enumerable)
+                {
+                    list.Add(SerializationUtil.SerializeObject(item, encoder));
+                }
+
+                converted[key] = list;
+            }
+            else
+            {
+                converted[key] = SerializationUtil.SerializeObject(value, encoder);
+            }
+        }
+
+        return converted;
     }
 
     private static ReferenceLayer? GetReferenceLayer(IReadOnlyDocument document)
@@ -55,13 +151,13 @@ internal partial class DocumentViewModel
         var layer = document.ReferenceLayer!;
 
         var surface = new Surface(new VecI(layer.ImageSize.X, layer.ImageSize.Y));
-        
+
         surface.DrawBytes(surface.Size, layer.ImageBgra8888Bytes.ToArray(), ColorType.Bgra8888, AlphaType.Premul);
 
         var encoder = new UniversalFileEncoder(EncodedImageFormat.Png);
 
         using var stream = new MemoryStream();
-        
+
         encoder.Save(stream, surface);
 
         stream.Position = 0;
@@ -75,9 +171,9 @@ internal partial class DocumentViewModel
             OffsetY = (float)layer.Shape.TopLeft.Y,
             Corners = new Corners
             {
-                TopLeft = layer.Shape.TopLeft.ToVector2(), 
-                TopRight = layer.Shape.TopRight.ToVector2(), 
-                BottomLeft = layer.Shape.BottomLeft.ToVector2(), 
+                TopLeft = layer.Shape.TopLeft.ToVector2(),
+                TopRight = layer.Shape.TopRight.ToVector2(),
+                BottomLeft = layer.Shape.BottomLeft.ToVector2(),
                 BottomRight = layer.Shape.BottomRight.ToVector2()
             },
             Opacity = 1,
@@ -85,129 +181,53 @@ internal partial class DocumentViewModel
         };
     }
 
-    private static void AddMembers(IEnumerable<IReadOnlyStructureNode> members, IReadOnlyDocument document, Folder parent)
-    {
-        foreach (var member in members)
-        {
-            if (member is IReadOnlyFolderNode readOnlyFolder)
-            {
-                var folder = ToSerializable(readOnlyFolder);
-
-                //AddMembers(readOnlyFolder.Children, document, folder);
-
-                parent.Children.Add(folder);
-            }
-            else if (member is IReadOnlyLayerNode readOnlyLayer)
-            {
-                parent.Children.Add(ToSerializable(readOnlyLayer, document));
-            }
-        }
-    }
-    
-    private static Folder ToSerializable(IReadOnlyFolderNode folder)
-    {
-        return new Folder
-        {
-            Name = folder.MemberName,
-            BlendMode = (BlendMode)(int)folder.BlendMode.Value,
-            Enabled = folder.IsVisible.Value,
-            Opacity = folder.Opacity.Value,
-            ClipToMemberBelow = folder.ClipToPreviousMember.Value,
-            Mask = GetMask(folder.Mask.Value, folder.MaskIsVisible.Value)
-        };
-    }
-    
-    private static ImageLayer ToSerializable(IReadOnlyLayerNode layer, IReadOnlyDocument document)
-    {
-        var result = document.GetLayerRasterizedImage(layer.Id, 0);
-
-        var tightBounds = document.GetChunkAlignedLayerBounds(layer.Id, 0);
-        using var data = result?.Encode();
-        byte[] bytes = data?.AsSpan().ToArray();
-        var serializable = new ImageLayer
-        {
-            Width = result?.Width ?? 0, Height = result?.Height ?? 0, OffsetX = tightBounds?.X ?? 0, OffsetY = tightBounds?.Y ?? 0,
-            Enabled = layer.IsVisible.Value, BlendMode = (BlendMode)(int)layer.BlendMode.Value, ImageBytes = bytes,
-            ClipToMemberBelow = layer.ClipToPreviousMember.Value, Name = layer.MemberName,
-            Guid = layer.Id,
-            LockAlpha = layer is ITransparencyLockable { LockTransparency: true },
-            Opacity = layer.Opacity.Value, Mask = GetMask(layer.Mask.Value, layer.MaskIsVisible.Value)
-        };
-
-        return serializable;
-    }
-
-    private static Mask GetMask(IReadOnlyChunkyImage mask, bool maskVisible)
-    {
-        if (mask == null) 
-            return null;
-        
-        var maskBound = mask.FindChunkAlignedMostUpToDateBounds();
-
-        if (maskBound == null)
-        {
-            return new Mask();
-        }
-        
-        var surface = DrawingBackendApi.Current.SurfaceImplementation.Create(new ImageInfo(
-            maskBound.Value.Width,
-            maskBound.Value.Height));
-                
-        mask.DrawMostUpToDateRegionOn(new RectI(0, 0, maskBound.Value.Width, maskBound.Value.Height), ChunkResolution.Full, surface, new VecI(0, 0));
-
-        return new Mask
-        {
-            Width = maskBound.Value.Width, Height = maskBound.Value.Height,
-            OffsetX = maskBound.Value.X, OffsetY = maskBound.Value.Y,
-            Enabled = maskVisible, ImageBytes = surface.Snapshot().Encode().AsSpan().ToArray()
-        };
-    }
-
     private ColorCollection ToCollection(IList<PaletteColor> collection) =>
         new(collection.Select(x => Color.FromArgb(255, x.R, x.G, x.B)));
 
-    private AnimationData ToAnimationData(IReadOnlyAnimationData animationData)
+    private AnimationData ToAnimationData(IReadOnlyAnimationData animationData, Dictionary<Guid, int> idMap)
     {
         var animData = new AnimationData();
         animData.KeyFrameGroups = new List<KeyFrameGroup>();
-        BuildKeyFrames(animationData.KeyFrames, animData);
-        
+        BuildKeyFrames(animationData.KeyFrames, animData, idMap);
+
         return animData;
     }
 
-    private static void BuildKeyFrames(IReadOnlyList<IReadOnlyKeyFrame> root, AnimationData animationData)
+    private static void BuildKeyFrames(IReadOnlyList<IReadOnlyKeyFrame> root, AnimationData animationData,
+        Dictionary<Guid, int> idMap)
     {
         foreach (var keyFrame in root)
         {
-            if(keyFrame is IKeyFrameChildrenContainer container)
+            if (keyFrame is IKeyFrameChildrenContainer container)
             {
                 KeyFrameGroup group = new();
-                group.LayerGuid = keyFrame.LayerGuid;
+                group.NodeId = idMap[keyFrame.NodeId];
                 group.Enabled = keyFrame.IsVisible;
-                
+
                 foreach (var child in container.Children)
                 {
                     if (child is IKeyFrameChildrenContainer groupKeyFrame)
                     {
-                        BuildKeyFrames(groupKeyFrame.Children, null);
+                        BuildKeyFrames(groupKeyFrame.Children, null, idMap);
                     }
                     else if (child is IReadOnlyRasterKeyFrame rasterKeyFrame)
                     {
-                        BuildRasterKeyFrame(rasterKeyFrame, group);
+                        BuildRasterKeyFrame(rasterKeyFrame, group, idMap);
                     }
                 }
-                
+
                 animationData?.KeyFrameGroups.Add(group);
             }
         }
     }
 
-    private static void BuildRasterKeyFrame(IReadOnlyRasterKeyFrame rasterKeyFrame, KeyFrameGroup group)
+    private static void BuildRasterKeyFrame(IReadOnlyRasterKeyFrame rasterKeyFrame, KeyFrameGroup group,
+        Dictionary<Guid, int> idMap)
     {
         var bounds = rasterKeyFrame.Image.FindChunkAlignedMostUpToDateBounds();
 
         DrawingSurface surface = null;
-                        
+
         if (bounds != null)
         {
             surface = DrawingBackendApi.Current.SurfaceImplementation.Create(
@@ -220,10 +240,9 @@ internal partial class DocumentViewModel
 
         group.Children.Add(new RasterKeyFrame()
         {
-            LayerGuid = rasterKeyFrame.LayerGuid,
+            NodeId = idMap[rasterKeyFrame.NodeId],
             StartFrame = rasterKeyFrame.StartFrame,
             Duration = rasterKeyFrame.Duration,
-            ImageBytes = surface?.Snapshot().Encode().AsSpan().ToArray(),
         });
     }
 }

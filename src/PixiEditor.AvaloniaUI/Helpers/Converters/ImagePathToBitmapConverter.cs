@@ -36,7 +36,7 @@ internal class ImagePathToBitmapConverter : SingleInstanceConverter<ImagePathToB
         return new Bitmap(AssetLoader.Open(uri));
     }
 
-    public static DrawingApi.Core.Surface.Bitmap LoadDrawingApiBitmapFromRelativePath(string path)
+    public static DrawingApi.Core.Surfaces.Bitmap LoadDrawingApiBitmapFromRelativePath(string path)
     {
         Uri uri = new($"avares://{Assembly.GetExecutingAssembly().FullName}{path}");
         if (!AssetLoader.Exists(uri))

@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.Parser.Deprecated;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;

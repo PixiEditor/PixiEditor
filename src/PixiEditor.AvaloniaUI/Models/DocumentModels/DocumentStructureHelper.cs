@@ -27,7 +27,7 @@ internal class DocumentStructureHelper
         {
             if (newNode is IStructureMemberHandler structureMemberHandler)
             {
-                string childName = structureMemberHandler.NameBindable;
+                string childName = structureMemberHandler.NodeNameBindable;
                 if (childName.StartsWith(name))
                     count++;
             }

@@ -2,8 +2,8 @@
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Enums;
 using PixiEditor.Numerics;

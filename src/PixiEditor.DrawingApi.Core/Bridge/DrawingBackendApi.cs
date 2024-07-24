@@ -18,6 +18,8 @@ namespace PixiEditor.DrawingApi.Core.Bridge
             }
         }
         
+        public static bool HasBackend => _current != null;
+        
         public static void SetupBackend(IDrawingBackend backend)
         {
             if (_current != null)

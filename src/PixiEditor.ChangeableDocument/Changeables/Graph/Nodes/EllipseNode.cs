@@ -1,11 +1,13 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
+[NodeInfo("Ellipse")]
 public class EllipseNode : Node
 {
     public InputProperty<VecI> Radius { get; }
@@ -31,8 +33,6 @@ public class EllipseNode : Node
         StrokeWidth = CreateInput<int>("StrokeWidth", "STROKE_WIDTH", 1);
         Output = CreateOutput<Surface?>("Output", "OUTPUT", null);
     }
-
-    protected override string NodeUniqueName => "Ellipse";
 
     protected override Surface? OnExecute(RenderingContext context)
     {

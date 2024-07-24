@@ -2,13 +2,14 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
+[NodeInfo("ModifyImageLeft")]
 [PairNode(typeof(ModifyImageRightNode), "ModifyImageZone", true)]
 public class ModifyImageLeftNode : Node
 {
@@ -46,8 +47,6 @@ public class ModifyImageLeftNode : Node
     {
         pixmap = Image.Value?.PeekPixels();
     }
-
-    protected override string NodeUniqueName => "ModifyImageLeft";
 
     protected override Surface? OnExecute(RenderingContext context)
     {

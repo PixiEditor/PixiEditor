@@ -1,7 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using ChunkyImageLib;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
-using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Numerics;
 using PixiEditor.Parser;
@@ -12,16 +13,11 @@ namespace PixiEditor.AvaloniaUI.Helpers.Extensions;
 
 internal static class PixiParserV3DocumentEx
 {
-    public static VecD ToVecD(this Vector2 vec)
-    {
-        return new VecD(vec.X, vec.Y);
-    }
-
     public static DocumentViewModel ToDocument(this DeprecatedDocument document)
     {
         return DocumentViewModel.Build(b =>
         {
-            b.WithSize(document.Width, document.Height)
+            /*b.WithSize(document.Width, document.Height)
                 .WithPalette(document.Palette, x => new PaletteColor(x.R, x.G, x.B))
                 .WithSwatches(document.Swatches, x => new(x.R, x.G, x.B))
                 .WithReferenceLayer(document.ReferenceLayer, (r, builder) => builder
@@ -30,7 +26,7 @@ internal static class PixiParserV3DocumentEx
                     .WithIsTopmost(r.Topmost)
                     .WithSurface(Surface.Load(r.ImageBytes)));
 
-            BuildChildren(b, document.RootFolder.Children);
+            BuildChildren(b, document.RootFolder.Children);*/
         });
 
         void BuildChildren(ChildrenBuilder builder, IEnumerable<IStructureMember> members)

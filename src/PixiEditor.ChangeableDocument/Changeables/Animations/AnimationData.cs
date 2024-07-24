@@ -17,7 +17,7 @@ internal class AnimationData : IReadOnlyAnimationData
 
     public void AddKeyFrame(KeyFrame keyFrame)
     {
-        Guid id = keyFrame.LayerGuid;
+        Guid id = keyFrame.NodeId;
         if (TryFindKeyFrameCallback(id, out GroupKeyFrame group))
         {
             group.Children.Add(keyFrame);
@@ -35,7 +35,7 @@ internal class AnimationData : IReadOnlyAnimationData
     {
         TryFindKeyFrameCallback<KeyFrame>(createdKeyFrameId, out _, (frame, parent) =>
         {
-            if (document.TryFindNode<Node>(frame.LayerGuid, out Node? node))
+            if (document.TryFindNode<Node>(frame.NodeId, out Node? node))
             {
                 node.RemoveKeyFrame(frame.Id);
             }
