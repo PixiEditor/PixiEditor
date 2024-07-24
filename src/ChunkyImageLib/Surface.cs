@@ -176,7 +176,7 @@ public class Surface : IDisposable, ICloneable, IPixelsMap
 #if DEBUG
     public void SaveToDesktop(string filename = "savedSurface.png")
     {
-        using var final = DrawingSurface.Create(new ImageInfo(Size.X, Size.Y, ColorType.Rgba8888, AlphaType.Premul, ColorSpace.CreateSrgb()));
+        using var final = DrawingSurface.Create(new ImageInfo(Size.X, Size.Y, ColorType.Rgba8888, AlphaType.Premul, ColorSpace.CreateSrgb()) { ForceCpu = true});
         final.Canvas.DrawSurface(DrawingSurface, 0, 0);
         using (var snapshot = final.Snapshot())
         {

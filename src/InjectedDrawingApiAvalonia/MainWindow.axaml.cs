@@ -1,40 +1,43 @@
+using System;
+using System.IO;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.DrawingApi.Skia;
+using SkiaSharp;
+using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
 
 namespace InjectedDrawingApiAvalonia;
 
 public partial class MainWindow : Window
 {
-    public static readonly StyledProperty<DrawingSurface> SurfaceProperty = AvaloniaProperty.Register<MainWindow, DrawingSurface>(
-        "Surface");
-
-    public DrawingSurface Surface
-    {
-        get => GetValue(SurfaceProperty);
-        set => SetValue(SurfaceProperty, value);
-    }
-    
+    CommandBuffer CommandBuffer = new CommandBuffer();
     public MainWindow()
     {
         InitializeComponent();
+        SurfaceControl.Draw += SurfaceControlOnDraw;
+
+        Task.Run(() =>
+        {
+            CommandBuffer.DrawRect(10, 10, 100, 100, new Paint { Color = Colors.Red });
+        });
     }
 
-    protected override void OnLoaded(RoutedEventArgs e)
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
-        base.OnLoaded(e);
-        
-        Surface = DrawingSurface.Create(new ImageInfo(128, 128));
-        
-        Surface.Canvas.Clear(Colors.Brown);
-        Surface.Canvas.DrawRect(0, 0, 128, 128, new Paint(){ Color = Colors.Green });
-        Surface.Canvas.Flush();
         SurfaceControl.InvalidateVisual();
+    }
+
+    private void SurfaceControlOnDraw(SKCanvas draw)
+    {
+        CommandBuffer.Dispatch(draw);
     }
 }

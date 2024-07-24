@@ -24,22 +24,14 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             var grContext = App.GetGrContext();
-            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend(CreateGpuSurface));
+            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend());
             
             desktop.MainWindow = new MainWindow();
         }
 
         base.OnFrameworkInitializationCompleted();
     }
-
-    private SKSurface CreateGpuSurface(VecI size)
-    {
-        WriteableBitmap bitmap = new WriteableBitmap(new PixelSize(size.X, size.Y), new Vector(96, 96), PixelFormat.Bgra8888);
-        using var fb = bitmap.Lock();
-        SKImageInfo info = new(size.X, size.Y, SKColorType.Bgra8888, SKAlphaType.Premul);
-        return SKSurface.Create(info, fb.Address, fb.RowBytes);
-    }
-
+    
     public static GRContext GetGrContext()
     {
         Compositor compositor = Compositor.TryGetDefaultCompositor();

@@ -8,7 +8,6 @@
         Name="window" Background="CornflowerBlue"
         Title="InjectedDrawingApiAvalonia">
     
-    <visuals:SurfaceControl Width="128" Height="128" Name="SurfaceControl" VerticalAlignment="Top" HorizontalAlignment="Left"
-        Surface="{Binding Surface, ElementName=window}"/>
+    <visuals:SurfaceControl Width="128" Height="128" Name="SurfaceControl" VerticalAlignment="Top" HorizontalAlignment="Left"/>
     
 </Window>

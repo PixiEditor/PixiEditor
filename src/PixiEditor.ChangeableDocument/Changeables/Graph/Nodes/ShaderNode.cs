@@ -46,6 +46,7 @@ public class ShaderNode : Node
         }
 
         Input.Value.DrawingSurface.Canvas.DrawPaint(new Paint {Shader = shader});
+        Output.Value = Input.Value;
         return Input.Value;
     }
 

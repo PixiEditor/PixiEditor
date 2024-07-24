@@ -198,11 +198,9 @@ internal class DrawSurfaceOperation : SkiaDrawOperation
         }*/
 
         _paint.Color = _paint.Color.WithAlpha((byte)(Opacity * 255));
-        ((SKSurface)Surface.DrawingSurface.Native).Flush(true);
-        canvas.DrawSurface(((SKSurface)Surface.DrawingSurface.Native), new SKPoint(0, 0), _paint);
+        //((SKSurface)Surface.DrawingSurface.Native).Flush(true);
+        //canvas.DrawSurface(((SKSurface)Surface.DrawingSurface.Native), new SKPoint(0, 0), _paint);
         canvas.Restore();
-        
-        canvas.Flush();
     }
 
 

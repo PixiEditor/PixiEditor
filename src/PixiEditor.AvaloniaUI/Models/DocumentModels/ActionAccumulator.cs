@@ -92,8 +92,8 @@ internal class ActionAccumulator
             // update the contents of the bitmaps
             var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime, internals.Tracker, optimizedChanges);
             List<IRenderInfo> renderResult = new();
-            renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed || viewportRefreshRequest));
-            renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
+            renderResult.AddRange(canvasUpdater.UpdateGatheredChunksSync(affectedAreas, undoBoundaryPassed || viewportRefreshRequest));
+            renderResult.AddRange(previewUpdater.UpdateGatheredChunksSync(affectedAreas, undoBoundaryPassed));
 
             if (undoBoundaryPassed)
             {

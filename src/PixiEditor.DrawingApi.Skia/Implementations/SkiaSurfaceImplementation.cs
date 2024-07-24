@@ -53,7 +53,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         
         public DrawingSurface Create(ImageInfo imageInfo, IntPtr pixels, int rowBytes)
         {
-            SKSurface skSurface = CreateSkiaSurface(imageInfo.Size);
+            SKSurface skSurface = CreateSkiaSurface(imageInfo.Size, !imageInfo.ForceCpu);
             
             var canvas = skSurface.Canvas;
             canvas.DrawImage(SKImage.FromPixelCopy(imageInfo.ToSkImageInfo(), pixels, rowBytes), new SKPoint(0, 0));
@@ -63,7 +63,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public DrawingSurface Create(ImageInfo imageInfo, IntPtr pixelBuffer)
         {
-            SKSurface skSurface = CreateSkiaSurface(imageInfo.Size);
+            SKSurface skSurface = CreateSkiaSurface(imageInfo.Size, !imageInfo.ForceCpu);
             
             var canvas = skSurface.Canvas;
             canvas.DrawImage(SKImage.FromPixelCopy(imageInfo.ToSkImageInfo(), pixelBuffer), new SKPoint(0, 0));
@@ -75,7 +75,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             SKPixmap skPixmap = _pixmapImplementation[pixmap.ObjectPointer];
             SKImageInfo info = skPixmap.Info;
-            SKSurface skSurface = CreateSkiaSurface(new VecI(info.Width, info.Height));
+            SKSurface skSurface = CreateSkiaSurface(new VecI(info.Width, info.Height), true);
             
             var canvas = skSurface.Canvas;
             canvas.DrawImage(SKImage.FromPixels(skPixmap), new SKPoint(0, 0));
@@ -85,12 +85,17 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public DrawingSurface Create(ImageInfo imageInfo)
         {
-            SKSurface skSurface = CreateSkiaSurface(imageInfo.Size);
+            SKSurface skSurface = CreateSkiaSurface(imageInfo.Size, !imageInfo.ForceCpu);
             return CreateDrawingSurface(skSurface);
         }
 
-        private SKSurface CreateSkiaSurface(VecI size)
+        private SKSurface CreateSkiaSurface(VecI size, bool gpu)
         {
+            if (!gpu)
+            {
+                return SKSurface.Create(new SKImageInfo(size.X, size.Y));
+            }
+            
             return SKSurface.Create(GrContext, false, new SKImageInfo(size.X, size.Y));
         }
 

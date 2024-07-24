@@ -507,14 +507,13 @@ internal class DrawSceneOperation : SkiaDrawOperation
             return;
         }
         
-        ((SKSurface)Surface.DrawingSurface.Native).Flush(true);
-        using Image snapshot = Surface.DrawingSurface.Snapshot(SurfaceRectToRender);
+        //using Image snapshot = Surface.DrawingSurface.Snapshot(SurfaceRectToRender);
 
         var matrixValues = new float[ColorMatrix.Width * ColorMatrix.Height];
         ColorMatrix.TryGetMembers(matrixValues);
         
         _paint.ColorFilter = SKColorFilter.CreateColorMatrix(matrixValues);
-        canvas.DrawImage((SKImage)snapshot.Native, SurfaceRectToRender.X, SurfaceRectToRender.Y, _paint);
+        //canvas.DrawImage((SKImage)snapshot.Native, SurfaceRectToRender.X, SurfaceRectToRender.Y, _paint);
 
         canvas.Restore();
     }

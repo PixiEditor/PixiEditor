@@ -6,7 +6,9 @@ using Avalonia.Media.Imaging;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using Avalonia.Threading;
+using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Skia.Implementations;
 using PixiEditor.Numerics;
 using SkiaSharp;
 
@@ -42,6 +44,8 @@ internal class SurfaceControl : Control
         get => GetValue(SurfaceProperty);
         set => SetValue(SurfaceProperty, value);
     }
+
+    public Action<SKCanvas> Draw { get; set; }
 
     private RectI? nextDirtyRect;
 
@@ -82,18 +86,8 @@ internal class SurfaceControl : Control
 
     public override void Render(DrawingContext context)
     {
-        if (Background != null)
-        {
-            context.FillRectangle(Background, new Rect(0, 0, Bounds.Width, Bounds.Height));
-        }
-
-        if (Surface == null || Surface.IsDisposed)
-        {
-            return;
-        }
-
         var bounds = new Rect(Bounds.Size);
-        var operation = new DrawSurfaceOperation(bounds, Surface, Stretch, Opacity);
+        var operation = new DrawSurfaceOperation(Draw, bounds, Stretch, Opacity);
         context.Custom(operation);
         
         Dispatcher.UIThread.InvokeAsync(InvalidateVisual, DispatcherPriority.Background);
@@ -138,42 +132,38 @@ internal class SurfaceControl : Control
 
 internal class DrawSurfaceOperation : SkiaDrawOperation
 {
-    public DrawingSurface Surface { get; }
     public Stretch Stretch { get; }
 
     public double Opacity { get; set; } = 1.0;
+    
+    public Action<SKCanvas> Draw;
 
     private SKPaint _paint = new SKPaint();
-    
-    private WriteableBitmap targetBitmap;
 
-    public DrawSurfaceOperation(Rect dirtyBounds, DrawingSurface surface, Stretch stretch, double opacity = 1) :
+    public DrawSurfaceOperation(Action<SKCanvas> drawEvent, Rect dirtyBounds, Stretch stretch, double opacity = 1) :
         base(dirtyBounds)
     {
-        Surface = surface;
         Stretch = stretch;
         Opacity = opacity;
+        Draw = drawEvent;
     }
 
     public override void Render(ISkiaSharpApiLease lease)
     {
         SKCanvas canvas = lease.SkCanvas;
 
-        if (Surface == null || Surface.IsDisposed)
-        {
-            return;
-        }
+        (DrawingBackendApi.Current.SurfaceImplementation as SkiaSurfaceImplementation).GrContext = lease.GrContext;
             
         canvas.Save();
         _paint.Color = _paint.Color.WithAlpha((byte)(Opacity * 255));
-        canvas.DrawSurface((SKSurface)Surface.Native, new SKPoint(0, 0), _paint);
+        Draw?.Invoke(canvas);
         canvas.Restore();
     }
 
 
     public override bool Equals(ICustomDrawOperation? other)
     {
-        return other is DrawSurfaceOperation otherOp && otherOp.Surface == Surface && otherOp.Stretch == Stretch;
+        return other is DrawSurfaceOperation otherOp && otherOp.Stretch == Stretch;
     }
 
     public override void Dispose()
