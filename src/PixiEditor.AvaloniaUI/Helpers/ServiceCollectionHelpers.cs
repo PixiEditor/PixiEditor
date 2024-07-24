@@ -14,6 +14,7 @@ using PixiEditor.AvaloniaUI.Models.IO.PaletteParsers.JascPalFile;
 using PixiEditor.AvaloniaUI.Models.Localization;
 using PixiEditor.AvaloniaUI.Models.Palettes;
 using PixiEditor.AvaloniaUI.Models.Preferences;
+using PixiEditor.AvaloniaUI.Models.Serialization.Factories;
 using PixiEditor.AvaloniaUI.ViewModels.Dock;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.ViewModels.Menu;
@@ -111,6 +112,9 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IoFileType, BmpFileType>()
             .AddSingleton<IoFileType, GifFileType>()
             .AddSingleton<IoFileType, Mp4FileType>()
+            // Serialization Factories
+            .AddSingleton<SerializationFactory, SurfaceSerializationFactory>()
+            .AddSingleton<SerializationFactory, KernelSerializationFactory>()
             // Palette Parsers
             .AddSingleton<IPalettesProvider, PaletteProvider>()
             .AddSingleton<PaletteFileParser, JascFileParser>()

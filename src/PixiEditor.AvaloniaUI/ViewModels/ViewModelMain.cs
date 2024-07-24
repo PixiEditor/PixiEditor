@@ -106,7 +106,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public ActionDisplayList ActionDisplays { get; }
     public bool UserWantsToClose { get; private set; }
 
-    public ViewModelMain(IServiceProvider serviceProvider)
+    public ViewModelMain()
     {
         Current = this;
         ActionDisplays = new ActionDisplayList(() => OnPropertyChanged(nameof(ActiveActionDisplay)));

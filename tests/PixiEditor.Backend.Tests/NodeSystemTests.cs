@@ -3,6 +3,8 @@ using System.Reflection;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers;
+using PixiEditor.AvaloniaUI.Models.Serialization;
+using PixiEditor.AvaloniaUI.Models.Serialization.Factories;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -114,9 +116,22 @@ public class NodeSystemTests
     }
 
     [Fact]
-    private void TestThatAllInputsAreSerializable()
+    private void TestThatAllInputsAreSerializableOrHaveFactories()
     {
         var allNodeTypes = GetNodeTypesWithoutPairs();
+        var allFoundFactories = typeof(SerializationFactory).Assembly.GetTypes()
+            .Where(x => x.IsAssignableTo(typeof(SerializationFactory))
+                        && x is { IsAbstract: false, IsInterface: false }).ToList();
+        
+        List<SerializationFactory> factories = new();
+        QoiEncoder encoder = new QoiEncoder();
+        SerializationConfig config = new SerializationConfig(encoder);
+        
+        foreach (var factoryType in allFoundFactories)
+        {
+            var factory = (SerializationFactory)Activator.CreateInstance(factoryType, config);
+            factories.Add(factory);
+        }
 
         IReadOnlyDocument target = new MockDocument();
 
@@ -125,13 +140,12 @@ public class NodeSystemTests
             var node = NodeOperations.CreateNode(type, target);
             Assert.NotNull(node);
 
-            QoiEncoder encoder = new QoiEncoder();
-
             foreach (var input in node.InputProperties)
             {
-                object? defaultOfType = Activator.CreateInstance(input.ValueType);
-                object serialized = SerializationUtil.SerializeObject(defaultOfType, encoder);
-                Assert.NotNull(serialized);
+                bool hasFactory = factories.Any(x => x.OriginalType == input.ValueType);
+                Assert.True(
+                    input.ValueType.IsValueType || input.ValueType == typeof(string) || hasFactory, 
+                    $"{input.ValueType} doesn't have a factory and is not serializable. Property: {input.InternalPropertyName}, NodeType: {node.GetType().Name}");
             }
         }
     }

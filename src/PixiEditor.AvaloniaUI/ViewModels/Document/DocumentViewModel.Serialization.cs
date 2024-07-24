@@ -2,10 +2,13 @@
 using System.Drawing;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.AvaloniaUI.Models.IO.FileEncoders;
+using PixiEditor.AvaloniaUI.Models.Serialization;
+using PixiEditor.AvaloniaUI.Models.Serialization.Factories;
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -33,10 +36,13 @@ internal partial class DocumentViewModel
         Parser.Graph.NodeGraph graph = new();
         ImageEncoder encoder = new QoiEncoder();
         var doc = Internals.Tracker.Document;
-
+        
         Dictionary<Guid, int> idMap = new();
 
-        AddNodes(doc.NodeGraph, graph, idMap, encoder);
+        List<SerializationFactory> factories =
+            ViewModelMain.Current.Services.GetServices<SerializationFactory>().ToList(); // a bit ugly, sorry
+
+        AddNodes(doc.NodeGraph, graph, idMap, new SerializationConfig(encoder), factories);
 
         var document = new PixiDocument
         {
@@ -56,7 +62,7 @@ internal partial class DocumentViewModel
     }
 
     private static void AddNodes(IReadOnlyNodeGraph graph, NodeGraph targetGraph, Dictionary<Guid, int> idMap,
-        ImageEncoder encoder)
+        SerializationConfig config, IReadOnlyList<SerializationFactory> allFactories)
     {
         targetGraph.AllNodes = new List<Node>();
 
@@ -66,7 +72,7 @@ internal partial class DocumentViewModel
             idMap[node.Id] = id + 1;
             id++;
         }
-        
+
         foreach (var node in graph.AllNodes)
         {
             NodePropertyValue[] properties = new NodePropertyValue[node.InputProperties.Count];
@@ -76,14 +82,14 @@ internal partial class DocumentViewModel
                 properties[i] = new NodePropertyValue()
                 {
                     PropertyName = node.InputProperties[i].InternalPropertyName,
-                    Value = SerializationUtil.SerializeObject(node.InputProperties[i].NonOverridenValue, encoder)
+                    Value = SerializationUtil.SerializeObject(node.InputProperties[i].NonOverridenValue, config, allFactories)
                 };
             }
 
             Dictionary<string, object> additionalData = new();
             node.SerializeAdditionalData(additionalData);
 
-            Dictionary<string, object> converted = ConvertToSerializable(additionalData, encoder);
+            Dictionary<string, object> converted = ConvertToSerializable(additionalData, config, allFactories);
 
             List<PropertyConnection> connections = new();
 
@@ -117,7 +123,8 @@ internal partial class DocumentViewModel
 
     private static Dictionary<string, object> ConvertToSerializable(
         Dictionary<string, object> additionalData,
-        ImageEncoder encoder)
+        SerializationConfig config,
+        IReadOnlyList<SerializationFactory> allFactories)
     {
         Dictionary<string, object> converted = new();
         foreach (var (key, value) in additionalData)
@@ -127,14 +134,14 @@ internal partial class DocumentViewModel
                 List<object> list = new();
                 foreach (var item in enumerable)
                 {
-                    list.Add(SerializationUtil.SerializeObject(item, encoder));
+                    list.Add(SerializationUtil.SerializeObject(item, config, allFactories));
                 }
 
                 converted[key] = list;
             }
             else
             {
-                converted[key] = SerializationUtil.SerializeObject(value, encoder);
+                converted[key] = SerializationUtil.SerializeObject(value, config, allFactories);
             }
         }
 

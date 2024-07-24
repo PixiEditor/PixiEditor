@@ -3,10 +3,11 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Skia;
 using PixiEditor.Numerics;
 using Xunit;
+using static PixiEditor.DrawingApi.Core.Surface;
 
 namespace ChunkyImageLibTest;
 public class ChunkyImageTests

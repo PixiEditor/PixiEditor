@@ -2,7 +2,7 @@
 
 namespace PixiEditor.Numerics;
 
-public class Kernel : ISerializable
+public class Kernel
 {
     private KernelArray _buffer;
 
@@ -38,6 +38,16 @@ public class Kernel : ISerializable
         Height = height;
         _buffer = new KernelArray(width, height);
     }
+    
+    public Kernel(int width, int height, float[] values)
+    {
+        if (width % 2 == 0)
+            throw new ArgumentException($"{width} must be odd", nameof(width));
+        
+        Width = width;
+        Height = height;
+        _buffer = new KernelArray(width, height, values);
+    }
 
     public static Kernel Identity(int width, int height) =>
         new(width, height) { [0, 0] = 1 };
@@ -67,23 +77,4 @@ public class Kernel : ISerializable
     }
 
     public ReadOnlySpan<float> AsSpan() => _buffer.AsSpan();
-    public byte[] Serialize()
-    {
-        Span<byte> data = stackalloc byte[Width * Height * sizeof(float) + sizeof(int) * 2];
-        BitConverter.GetBytes(Width).CopyTo(data);
-        BitConverter.GetBytes(Height).CopyTo(data[sizeof(int)..]); 
-        var span = AsSpan();
-        MemoryMarshal.Cast<float, byte>(span).CopyTo(data);
-        return data.ToArray();
-    }
-
-    public void Deserialize(byte[] data)
-    {
-        if (data.Length < sizeof(int) * 2)
-            throw new ArgumentException("Data is too short.", nameof(data));
-        
-        Width = BitConverter.ToInt32(data);
-        Height = BitConverter.ToInt32(data[sizeof(int)..]);
-        _buffer = new KernelArray(Width, Height, MemoryMarshal.Cast<byte, float>(data.AsSpan(sizeof(int) * 2)).ToArray());
-    }
 }
