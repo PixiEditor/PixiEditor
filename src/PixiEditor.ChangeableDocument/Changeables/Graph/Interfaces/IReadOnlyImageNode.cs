@@ -1,6 +1,6 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
-namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
+namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 public interface IReadOnlyImageNode : IReadOnlyLayerNode, ITransparencyLockable
 {

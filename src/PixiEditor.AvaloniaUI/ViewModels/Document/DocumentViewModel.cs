@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -9,6 +10,7 @@ using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Collections;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
@@ -18,6 +20,8 @@ using PixiEditor.AvaloniaUI.Models.DocumentModels.Public;
 using PixiEditor.AvaloniaUI.Models.DocumentPassthroughActions;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Position;
+using PixiEditor.AvaloniaUI.Models.Serialization;
+using PixiEditor.AvaloniaUI.Models.Serialization.Factories;
 using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.AvaloniaUI.Models.Tools;
 using PixiEditor.AvaloniaUI.ViewModels.Document.TransformOverlays;
@@ -31,17 +35,21 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos;
+using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.Vector;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Numerics;
+using PixiEditor.Parser;
+using PixiEditor.Parser.Skia;
 using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
+using Node = PixiEditor.Parser.Graph.Node;
 using Point = Avalonia.Point;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document;
@@ -246,6 +254,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         var builderInstance = new DocumentViewModelBuilder();
         builder(builderInstance);
 
+        Dictionary<int, Guid> mappedNodeIds = new();
+        Dictionary<int, Guid> mappedKeyFrameIds = new();
+
         var viewModel = new DocumentViewModel();
         viewModel.Operations.ResizeCanvas(new VecI(builderInstance.Width, builderInstance.Height), ResizeAnchor.Center);
 
@@ -271,19 +282,96 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         viewModel.Swatches = new ObservableCollection<PaletteColor>(builderInstance.Swatches);
         viewModel.Palette = new ObservableRangeCollection<PaletteColor>(builderInstance.Palette);
 
-        Guid outputNodeGuid = Guid.NewGuid();
+        SerializationConfig config =
+            new SerializationConfig(BuiltInEncoders.Encoders[builderInstance.ImageEncoderUsed]);
 
-        acc.AddActions(new CreateNode_Action(typeof(OutputNode), outputNodeGuid));
+        List<SerializationFactory> allFactories =
+            ViewModelMain.Current.Services.GetServices<SerializationFactory>().ToList();
 
-        AddMembers(outputNodeGuid, builderInstance.Children);
-        AddAnimationData(builderInstance.AnimationData);
+        AddNodes(builderInstance.Graph);
+
+        if (builderInstance.Graph.AllNodes.Count == 0)
+        {
+            Guid outputNodeGuid = Guid.NewGuid();
+            acc.AddActions(new CreateNode_Action(typeof(OutputNode), outputNodeGuid));
+        }
+
+        AddAnimationData(builderInstance.AnimationData, mappedNodeIds, mappedKeyFrameIds);
 
         acc.AddFinishedActions(new DeleteRecordedChanges_Action());
         viewModel.MarkAsSaved();
 
         return viewModel;
 
-        void AddMember(Guid parentGuid, DocumentViewModelBuilder.StructureMemberBuilder member)
+
+        void AddNodes(NodeGraphBuilder graph)
+        {
+            foreach (var node in graph.AllNodes)
+            {
+                AddNode(node.Id, node);
+            }
+
+            foreach (var node in graph.AllNodes)
+            {
+                Guid nodeGuid = mappedNodeIds[node.Id];
+                if (node.InputConnections != null)
+                {
+                    foreach (var connection in node.InputConnections)
+                    {
+                        if (mappedNodeIds.TryGetValue(connection.Key, out Guid outputNodeId))
+                        {
+                            acc.AddActions(new ConnectProperties_Action(nodeGuid, outputNodeId,
+                                connection.Value.inputPropName, connection.Value.outputPropName));
+                        }
+                    }
+                }
+            }
+        }
+
+        void AddNode(int id, NodeGraphBuilder.NodeBuilder serializedNode)
+        {
+            Guid guid = Guid.NewGuid();
+            mappedNodeIds.Add(id, guid);
+            acc.AddActions(new CreateNodeFromName_Action(serializedNode.UniqueNodeName, guid));
+
+            if (serializedNode.InputValues != null)
+            {
+                foreach (var propertyValue in serializedNode.InputValues)
+                {
+                    object value = SerializationUtil.Deserialize(propertyValue.Value, config, allFactories);
+                    acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, value));
+                }
+            }
+
+            if (serializedNode.KeyFrames != null)
+            {
+                foreach (var keyFrame in serializedNode.KeyFrames)
+                {
+                    Guid keyFrameGuid = Guid.NewGuid();
+                    mappedKeyFrameIds.Add(keyFrame.Id, keyFrameGuid);
+                    acc.AddActions(
+                        new SetKeyFrameData_Action(
+                            guid,
+                            keyFrameGuid,
+                            SerializationUtil.Deserialize(keyFrame.Data, config, allFactories),
+                            keyFrame.StartFrame,
+                            keyFrame.Duration, keyFrame.AffectedElement, keyFrame.IsVisible));
+                }
+            }
+
+            if (serializedNode.AdditionalData != null && serializedNode.AdditionalData.Count > 0)
+            {
+                acc.AddActions(new DeserializeNodeAdditionalData_Action(guid,
+                    SerializationUtil.DeserializeDict(serializedNode.AdditionalData, config, allFactories)));
+            }
+
+            if (!string.IsNullOrEmpty(serializedNode.Name))
+            {
+                acc.AddActions(new SetNodeName_Action(guid, serializedNode.Name));
+            }
+        }
+
+        /*void AddMember(Guid parentGuid, DocumentViewModelBuilder.StructureMemberBuilder member)
         {
             acc.AddActions(
                 new CreateStructureMember_Action(parentGuid, member.Id,
@@ -333,18 +421,18 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 AddMembers(member.Id, folder.Children);
             }
-        }
+        }*/
 
-        void PasteImage(Guid guid, DocumentViewModelBuilder.SurfaceBuilder surface, int width, int height, int offsetX,
+        /*void PasteImage(Guid guid, DocumentViewModelBuilder.SurfaceBuilder surface, int width, int height, int offsetX,
             int offsetY, bool onMask, int frame, Guid? keyFrameGuid = default)
         {
             acc.AddActions(
                 new PasteImage_Action(surface.Surface, new(new RectD(new VecD(offsetX, offsetY), new(width, height))),
                     guid, true, onMask, frame, keyFrameGuid ?? default),
                 new EndPasteImage_Action());
-        }
+        }*/
 
-        void AddMembers(Guid parentGuid, IEnumerable<DocumentViewModelBuilder.StructureMemberBuilder> builders)
+        /*void AddMembers(Guid parentGuid, IEnumerable<DocumentViewModelBuilder.StructureMemberBuilder> builders)
         {
             foreach (var child in builders.Reverse())
             {
@@ -355,38 +443,26 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
                 AddMember(parentGuid, child);
             }
-        }
+        }*/
 
-        void AddAnimationData(List<KeyFrameBuilder> data)
+        void AddAnimationData(List<KeyFrameBuilder> data, Dictionary<int, Guid> mappedIds,
+            Dictionary<int, Guid> mappedKeyFrameIds)
         {
             foreach (var keyFrame in data)
             {
-                if (keyFrame is RasterKeyFrameBuilder rasterKeyFrameBuilder)
+                if (keyFrame is GroupKeyFrameBuilder groupKeyFrameBuilder)
                 {
-                    if (rasterKeyFrameBuilder.Id == default)
-                    {
-                        rasterKeyFrameBuilder.Id = Guid.NewGuid();
-                    }
-
+                    AddAnimationData(groupKeyFrameBuilder.Children, mappedIds, mappedKeyFrameIds);
+                }
+                else
+                {
                     acc.AddActions(
                         new CreateRasterKeyFrame_Action(
-                            rasterKeyFrameBuilder.LayerGuid,
-                            rasterKeyFrameBuilder.Id,
-                            rasterKeyFrameBuilder.StartFrame, -1, default),
-                        new KeyFrameLength_Action(rasterKeyFrameBuilder.Id, rasterKeyFrameBuilder.StartFrame,
-                            rasterKeyFrameBuilder.Duration),
-                        new EndKeyFrameLength_Action());
-
-                    PasteImage(rasterKeyFrameBuilder.LayerGuid, rasterKeyFrameBuilder.Surface,
-                        rasterKeyFrameBuilder.Surface.Surface.Size.X,
-                        rasterKeyFrameBuilder.Surface.Surface.Size.Y, 0, 0, false, rasterKeyFrameBuilder.StartFrame,
-                        rasterKeyFrameBuilder.Id);
+                            mappedIds[keyFrame.NodeId],
+                            mappedKeyFrameIds[keyFrame.KeyFrameId],
+                            -1, -1, default));
 
                     acc.AddFinishedActions();
-                }
-                else if (keyFrame is GroupKeyFrameBuilder groupKeyFrameBuilder)
-                {
-                    AddAnimationData(groupKeyFrameBuilder.Children);
                 }
             }
         }

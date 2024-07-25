@@ -1,9 +1,11 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
+[NodeInfo("CombineVecI")]
 public class CombineVecI : Node
 {
     public FuncOutputProperty<VecI> Vector { get; }
@@ -30,7 +32,6 @@ public class CombineVecI : Node
         return new VecI(r, g);
     }
 
-    protected override string NodeUniqueName => "CombineVecI";
 
     protected override Surface? OnExecute(RenderingContext context)
     {

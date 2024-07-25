@@ -1,22 +1,22 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Runtime.InteropServices;
+﻿using System.Collections;
+using System.Reflection;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
-using PixiEditor.AvaloniaUI.Views.Animations;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Numerics;
 using PixiEditor.Parser;
-using PixiEditor.Parser.Helpers;
-using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
+using PixiEditor.Parser.Graph;
+using PixiEditor.Parser.Skia;
+using NodeGraph = PixiEditor.Parser.Graph.NodeGraph;
 
 namespace PixiEditor.AvaloniaUI.Helpers;
 
-internal class DocumentViewModelBuilder : ChildrenBuilder
+internal class DocumentViewModelBuilder
 {
     public int Width { get; set; }
     public int Height { get; set; }
@@ -26,6 +26,9 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
 
     public ReferenceLayerBuilder ReferenceLayer { get; set; }
     public List<KeyFrameBuilder> AnimationData { get; set; } = new List<KeyFrameBuilder>();
+
+    public NodeGraphBuilder Graph { get; set; }
+    public string ImageEncoderUsed { get; set; } = "QOI";
 
     public DocumentViewModelBuilder WithSize(int width, int height)
     {
@@ -55,11 +58,13 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
     public DocumentViewModelBuilder WithPalette<T>(IEnumerable<T> pallet, Func<T, PaletteColor> toColor) =>
         WithPalette(pallet.Select(toColor));
 
-    public DocumentViewModelBuilder WithReferenceLayer<T>(T reference, Action<T, ReferenceLayerBuilder> builder)
+    public DocumentViewModelBuilder WithReferenceLayer<T>(T reference,
+        Action<T, ReferenceLayerBuilder, ImageEncoder?> builder,
+        ImageEncoder? encoder)
     {
         if (reference != null)
         {
-            WithReferenceLayer(x => builder(reference, x));
+            WithReferenceLayer(x => builder(reference, x, encoder));
         }
 
         return this;
@@ -75,296 +80,58 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
 
         return this;
     }
-    
-    public DocumentViewModelBuilder WithAnimationData(AnimationData? animationData, Folder documentRootFolder)
+
+    public DocumentViewModelBuilder WithAnimationData(AnimationData? animationData)
     {
         AnimationData = new List<KeyFrameBuilder>();
 
         if (animationData != null && animationData.KeyFrameGroups.Count > 0)
         {
-            BuildKeyFrames(animationData.KeyFrameGroups.Cast<IKeyFrame>().ToList(), AnimationData, documentRootFolder);
+            BuildKeyFrames(animationData.KeyFrameGroups.ToList(), AnimationData);
         }
 
         return this;
     }
 
-    private static void BuildKeyFrames(List<IKeyFrame> root, List<KeyFrameBuilder> data, Folder documentRootFolder)
+    public DocumentViewModelBuilder WithGraph(NodeGraph graph, Action<NodeGraph, NodeGraphBuilder> builder)
     {
-        foreach (var keyFrame in root)
+        if (graph != null)
         {
-            if (keyFrame is KeyFrameGroup group)
+            WithGraph(x => builder(graph, x));
+        }
+
+        return this;
+    }
+
+    public DocumentViewModelBuilder WithGraph(Action<NodeGraphBuilder> builder)
+    {
+        var graph = new NodeGraphBuilder();
+        builder(graph);
+        Graph = graph;
+        return this;
+    }
+
+    public DocumentViewModelBuilder WithImageEncoder(string encoder)
+    {
+        ImageEncoderUsed = encoder;
+        return this;
+    }
+
+    private static void BuildKeyFrames(List<KeyFrameGroup> root, List<KeyFrameBuilder> data)
+    {
+        foreach (KeyFrameGroup group in root)
+        {
+            GroupKeyFrameBuilder builder = new GroupKeyFrameBuilder()
+                .WithNodeId(group.NodeId);
+
+            foreach (var child in group.Children)
             {
-                GroupKeyFrameBuilder builder = new GroupKeyFrameBuilder()
-                    .WithVisibility(group.Enabled)
-                    .WithId(group.LayerGuid)
-                    .WithLayerGuid(group.LayerGuid);
-
-                foreach (var child in group.Children)
-                {
-                    if(child is KeyFrameGroup childGroup)
-                    {
-                        builder.WithChild<GroupKeyFrameBuilder>(x => BuildKeyFrames(childGroup.Children, null, documentRootFolder));
-                    }
-                    else if (child is RasterKeyFrame rasterKeyFrame)
-                    {
-                        builder.WithChild<RasterKeyFrameBuilder>(x => x
-                            .WithVisibility(builder.IsVisible)
-                            .WithId(rasterKeyFrame.Guid)
-                            .WithLayerGuid(rasterKeyFrame.LayerGuid)
-                            .WithStartFrame(rasterKeyFrame.StartFrame)
-                            .WithDuration(rasterKeyFrame.Duration)
-                            .WithSurface(Surface.Load(rasterKeyFrame.ImageBytes)));
-                    }
-                }
-
-                data?.Add(builder);
+                builder.WithChild<KeyFrameBuilder>(x => x
+                    .WithKeyFrameId(child.KeyFrameId)
+                    .WithNodeId(child.NodeId));
             }
 
-        }
-    }
-
-    public abstract class StructureMemberBuilder
-    {
-        private MaskBuilder maskBuilder;
-
-        public int OrderInStructure { get; set; }
-
-        public string Name { get; set; }
-
-        public bool IsVisible { get; set; }
-
-        public float Opacity { get; set; }
-
-        public BlendMode BlendMode { get; set; }
-
-        public bool ClipToMemberBelow { get; set; }
-
-        public bool HasMask => maskBuilder is not null;
-
-        [NotNull] public MaskBuilder Mask => maskBuilder ??= new MaskBuilder();
-
-        public Guid Id { get; set; }
-
-        public StructureMemberBuilder()
-        {
-            IsVisible = true;
-            Opacity = 1;
-        }
-
-        public StructureMemberBuilder WithOrderInStructure(int order)
-        {
-            OrderInStructure = order;
-            return this;
-        }
-
-        public StructureMemberBuilder WithName(string name)
-        {
-            Name = name;
-            return this;
-        }
-
-        public StructureMemberBuilder WithVisibility(bool visibility)
-        {
-            IsVisible = visibility;
-            return this;
-        }
-
-        public StructureMemberBuilder WithOpacity(float opacity)
-        {
-            Opacity = opacity;
-            return this;
-        }
-
-        public StructureMemberBuilder WithBlendMode(BlendMode blendMode)
-        {
-            BlendMode = blendMode;
-            return this;
-        }
-
-        public StructureMemberBuilder WithMask(Action<MaskBuilder> mask)
-        {
-            mask(Mask);
-            return this;
-        }
-
-        public StructureMemberBuilder WithMask<T>(T reference, Action<MaskBuilder, T> mask)
-        {
-            return reference != null ? WithMask(x => mask(x, reference)) : this;
-        }
-
-        public StructureMemberBuilder WithGuid(Guid guid)
-        {
-            Id = guid;
-            return this;
-        }
-
-        public StructureMemberBuilder WithClipToBelow(bool value)
-        {
-            ClipToMemberBelow = value;
-            return this;
-        }
-    }
-
-    public class LayerBuilder : StructureMemberBuilder
-    {
-        private int? width;
-        private int? height;
-
-        public SurfaceBuilder? Surface { get; set; }
-
-        public int Width
-        {
-            get => width ?? default;
-            set => width = value;
-        }
-
-        public int Height
-        {
-            get => height ?? default;
-            set => height = value;
-        }
-
-        public int OffsetX { get; set; }
-
-        public int OffsetY { get; set; }
-
-        public bool LockAlpha { get; set; }
-
-        public new LayerBuilder WithName(string name) => base.WithName(name) as LayerBuilder;
-
-        public new LayerBuilder WithVisibility(bool visibility) => base.WithVisibility(visibility) as LayerBuilder;
-
-        public new LayerBuilder WithOpacity(float opacity) => base.WithOpacity(opacity) as LayerBuilder;
-
-        public new LayerBuilder WithBlendMode(BlendMode blendMode) => base.WithBlendMode(blendMode) as LayerBuilder;
-
-        public new LayerBuilder WithClipToBelow(bool value) => base.WithClipToBelow(value) as LayerBuilder;
-
-        public LayerBuilder WithLockAlpha(bool layerLockAlpha)
-        {
-            LockAlpha = layerLockAlpha;
-            return this;
-        }
-
-        public new LayerBuilder WithMask(Action<MaskBuilder> mask) => base.WithMask(mask) as LayerBuilder;
-
-        public new LayerBuilder WithGuid(Guid guid) => base.WithGuid(guid) as LayerBuilder;
-
-        public LayerBuilder WithSurface(Surface surface)
-        {
-            Surface = new(surface);
-            return this;
-        }
-
-        public LayerBuilder WithSize(int width, int height)
-        {
-            Width = width;
-            Height = height;
-            return this;
-        }
-
-        public LayerBuilder WithSize(VecI size) => WithSize(size.X, size.Y);
-
-        public LayerBuilder WithRect(int width, int height, int offsetX, int offsetY)
-        {
-            Width = width;
-            Height = height;
-            OffsetX = offsetX;
-            OffsetY = offsetY;
-            return this;
-        }
-
-        public LayerBuilder WithSurface(Action<SurfaceBuilder> surface)
-        {
-            if (width is null || height is null)
-            {
-                throw new InvalidOperationException(
-                    "You must first set the width and height of the layer. You can do this by calling WithRect() or setting the Width and Height properties.");
-            }
-
-            var surfaceBuilder = new SurfaceBuilder(new Surface(new VecI(Width, Height)));
-            surface(surfaceBuilder);
-            Surface = surfaceBuilder;
-            return this;
-        }
-    }
-
-    public class FolderBuilder : StructureMemberBuilder
-    {
-        public List<StructureMemberBuilder> Children { get; set; } = new List<StructureMemberBuilder>();
-
-        public new FolderBuilder WithName(string name) => base.WithName(name) as FolderBuilder;
-
-        public new FolderBuilder WithVisibility(bool visibility) => base.WithVisibility(visibility) as FolderBuilder;
-
-        public new FolderBuilder WithOpacity(float opacity) => base.WithOpacity(opacity) as FolderBuilder;
-
-        public new FolderBuilder WithBlendMode(BlendMode blendMode) => base.WithBlendMode(blendMode) as FolderBuilder;
-
-        public new FolderBuilder WithMask(Action<MaskBuilder> mask) => base.WithMask(mask) as FolderBuilder;
-
-        public new FolderBuilder WithGuid(Guid guid) => base.WithGuid(guid) as FolderBuilder;
-
-        public FolderBuilder WithClipToBelow(bool value) => base.WithClipToBelow(value) as FolderBuilder;
-
-        public FolderBuilder WithChildren(Action<ChildrenBuilder> children)
-        {
-            ChildrenBuilder childrenBuilder = new();
-            children(childrenBuilder);
-            Children = childrenBuilder.Children;
-            return this;
-        }
-    }
-
-    public class SurfaceBuilder
-    {
-        public Surface Surface { get; set; }
-
-        public SurfaceBuilder(Surface surface)
-        {
-            Surface = surface;
-        }
-
-        public SurfaceBuilder WithImage(ReadOnlySpan<byte> buffer) => WithImage(buffer, 0, 0);
-
-        public SurfaceBuilder WithImage(ReadOnlySpan<byte> buffer, int x, int y)
-        {
-            if (buffer.IsEmpty) return this;
-
-            Surface.DrawingSurface.Canvas.DrawBitmap(Bitmap.Decode(buffer), x, y);
-            return this;
-        }
-    }
-
-    public class MaskBuilder
-    {
-        public bool IsVisible { get; set; }
-
-        public SurfaceBuilder Surface { get; set; }
-
-        public MaskBuilder()
-        {
-            IsVisible = true;
-        }
-
-        public MaskBuilder WithVisibility(bool isVisible)
-        {
-            IsVisible = isVisible;
-            return this;
-        }
-
-        public MaskBuilder WithSurface(Surface surface)
-        {
-            Surface = new SurfaceBuilder(surface);
-            return this;
-        }
-
-        public MaskBuilder WithSurface(int width, int height, Action<SurfaceBuilder> surface)
-        {
-            var surfaceBuilder = new SurfaceBuilder(new Surface(new VecI(Math.Max(width, 1), Math.Max(height, 1))));
-            surface(surfaceBuilder);
-            Surface = surfaceBuilder;
-            return this;
+            data?.Add(builder);
         }
     }
 
@@ -422,63 +189,20 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
     }
 }
 
-internal class ChildrenBuilder
-{
-    public List<DocumentViewModelBuilder.StructureMemberBuilder> Children { get; set; } =
-        new List<DocumentViewModelBuilder.StructureMemberBuilder>();
-
-    public ChildrenBuilder WithLayer(Action<DocumentViewModelBuilder.LayerBuilder> layer)
-    {
-        var layerBuilder = new DocumentViewModelBuilder.LayerBuilder();
-        layer(layerBuilder);
-        Children.Add(layerBuilder);
-        return this;
-    }
-
-    public ChildrenBuilder WithFolder(Action<DocumentViewModelBuilder.FolderBuilder> folder)
-    {
-        var folderBuilder = new DocumentViewModelBuilder.FolderBuilder();
-        folder(folderBuilder);
-        Children.Add(folderBuilder);
-        return this;
-    }
-}
-
 internal class KeyFrameBuilder()
 {
-    public int StartFrame { get; set; }
-    public int Duration { get; set; }
-    public bool IsVisible { get; set; }
-    public Guid LayerGuid { get; set; }
-    public Guid Id { get; set; }
+    public int NodeId { get; set; }
+    public int KeyFrameId { get; set; }
 
-    public KeyFrameBuilder WithStartFrame(int startFrame)
+    public KeyFrameBuilder WithKeyFrameId(int layerId)
     {
-        StartFrame = startFrame;
+        KeyFrameId = layerId;
         return this;
     }
 
-    public KeyFrameBuilder WithDuration(int duration)
+    public KeyFrameBuilder WithNodeId(int nodeId)
     {
-        Duration = duration;
-        return this;
-    }
-
-    public KeyFrameBuilder WithVisibility(bool isVisible)
-    {
-        IsVisible = isVisible;
-        return this;
-    }
-
-    public KeyFrameBuilder WithLayerGuid(Guid layerGuid)
-    {
-        LayerGuid = layerGuid;
-        return this;
-    }
-
-    public KeyFrameBuilder WithId(Guid id)
-    {
-        Id = id;
+        NodeId = nodeId;
         return this;
     }
 }
@@ -494,27 +218,133 @@ internal class GroupKeyFrameBuilder : KeyFrameBuilder
         Children.Add(childBuilder);
         return this;
     }
-    
-    public new GroupKeyFrameBuilder WithVisibility(bool isVisible) => base.WithVisibility(isVisible) as GroupKeyFrameBuilder;
-    public new GroupKeyFrameBuilder WithLayerGuid(Guid layerGuid) => base.WithLayerGuid(layerGuid) as GroupKeyFrameBuilder;
-    public new GroupKeyFrameBuilder WithId(Guid id) => base.WithId(id) as GroupKeyFrameBuilder;
-    public new GroupKeyFrameBuilder WithStartFrame(int startFrame) => base.WithStartFrame(startFrame) as GroupKeyFrameBuilder;
-    public new GroupKeyFrameBuilder WithDuration(int duration) => base.WithDuration(duration) as GroupKeyFrameBuilder;
+
+    public new GroupKeyFrameBuilder WithNodeId(int layerGuid) =>
+        base.WithKeyFrameId(layerGuid) as GroupKeyFrameBuilder;
 }
 
-internal class RasterKeyFrameBuilder : KeyFrameBuilder
+internal class NodeGraphBuilder
 {
-    public DocumentViewModelBuilder.SurfaceBuilder Surface { get; set; }
+    public List<NodeBuilder> AllNodes { get; set; } = new List<NodeBuilder>();
 
-    public RasterKeyFrameBuilder WithSurface(Surface surface)
+
+    public NodeGraphBuilder WithNode(Action<NodeBuilder> nodeBuilder)
     {
-        Surface = new DocumentViewModelBuilder.SurfaceBuilder(new Surface(surface));
+        var node = new NodeBuilder();
+        nodeBuilder(node);
+
+        AllNodes.Add(node);
+
         return this;
     }
 
-    public new RasterKeyFrameBuilder WithVisibility(bool isVisible) => base.WithVisibility(isVisible) as RasterKeyFrameBuilder;
-    public new RasterKeyFrameBuilder WithLayerGuid(Guid layerGuid) => base.WithLayerGuid(layerGuid) as RasterKeyFrameBuilder;
-    public new RasterKeyFrameBuilder WithId(Guid id) => base.WithId(id) as RasterKeyFrameBuilder;
-    public new RasterKeyFrameBuilder WithStartFrame(int startFrame) => base.WithStartFrame(startFrame) as RasterKeyFrameBuilder;
-    public new RasterKeyFrameBuilder WithDuration(int duration) => base.WithDuration(duration) as RasterKeyFrameBuilder;
+    public NodeGraphBuilder WithOutputNode(int? toConnectNodeId, string? toConnectPropName)
+    {
+        var node = this.WithNodeOfType(typeof(OutputNode))
+            .WithId(AllNodes.Count + 1);
+
+        if (toConnectNodeId != null && toConnectPropName != null)
+        {
+            node.WithConnections(new[]
+            {
+                new PropertyConnection
+                {
+                    OutputNodeId = toConnectNodeId.Value,
+                    OutputPropertyName = toConnectPropName,
+                    InputPropertyName = OutputNode.InputPropertyName
+                }
+            });
+        }
+
+        AllNodes.Add(node);
+        return this;
+    }
+
+    public NodeGraphBuilder WithImageLayerNode(string name, Surface image, out int id)
+    {
+        AllNodes.Add(
+            this.WithNodeOfType(typeof(ImageLayerNode))
+                .WithName(name)
+                .WithId(AllNodes.Count + 1)
+                .WithAdditionalData(
+                    new Dictionary<string, object> { { ImageLayerNode.ImageFramesKey, new List<Surface> { image } } }));
+
+        id = AllNodes.Count;
+        return this;
+    }
+
+    public NodeBuilder WithNodeOfType(Type nodeType)
+    {
+        var node = new NodeBuilder();
+        node.WithUniqueNodeName(nodeType.GetCustomAttribute<NodeInfoAttribute>().UniqueName);
+
+        return node;
+    }
+
+    internal class NodeBuilder
+    {
+        public int Id { get; set; }
+        public Vector2 Position { get; set; }
+        public string Name { get; set; }
+        public string UniqueNodeName { get; set; }
+        public Dictionary<string, object> InputValues { get; set; }
+        public KeyFrameData[] KeyFrames { get; set; }
+        public Dictionary<string, object> AdditionalData { get; set; }
+        public Dictionary<int, (string inputPropName, string outputPropName)> InputConnections { get; set; }
+
+        public NodeBuilder WithId(int id)
+        {
+            Id = id;
+            return this;
+        }
+
+        public NodeBuilder WithPosition(Vector2 position)
+        {
+            Position = position;
+            return this;
+        }
+
+        public NodeBuilder WithName(string name)
+        {
+            Name = name;
+            return this;
+        }
+
+        public NodeBuilder WithUniqueNodeName(string uniqueNodeName)
+        {
+            UniqueNodeName = uniqueNodeName;
+            return this;
+        }
+
+        public NodeBuilder WithInputValues(Dictionary<string, object> values)
+        {
+            InputValues = values;
+            return this;
+        }
+
+        public NodeBuilder WithAdditionalData(Dictionary<string, object> data)
+        {
+            AdditionalData = data;
+            return this;
+        }
+
+        public NodeBuilder WithConnections(PropertyConnection[] nodeInputConnections)
+        {
+            InputConnections = new Dictionary<int, (string, string)>();
+
+            foreach (var connection in nodeInputConnections)
+            {
+                InputConnections.Add(connection.OutputNodeId,
+                    (connection.InputPropertyName, connection.OutputPropertyName));
+            }
+
+            return this;
+        }
+
+        public NodeBuilder WithKeyFrames(KeyFrameData[] keyFrames)
+        {
+            KeyFrames = keyFrames;
+            return this;
+        }
+    }
 }

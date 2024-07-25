@@ -1,6 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
@@ -8,12 +9,11 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 public interface IReadOnlyNode
 {
     public Guid Id { get; }
-    public IReadOnlyCollection<IInputProperty> InputProperties { get; }
-    public IReadOnlyCollection<IOutputProperty> OutputProperties { get; }
+    public IReadOnlyList<IInputProperty> InputProperties { get; }
+    public IReadOnlyList<IOutputProperty> OutputProperties { get; }
+    public IReadOnlyList<IReadOnlyKeyFrameData> KeyFrames { get; }
     public VecD Position { get; }
     public Surface? CachedResult { get; }
-    
-    public string InternalName { get; }
     string DisplayName { get; }
 
     public Surface? Execute(RenderingContext context);
@@ -39,4 +39,6 @@ public interface IReadOnlyNode
     
     public IInputProperty? GetInputProperty(string internalName);
     public IOutputProperty? GetOutputProperty(string internalName);
+    public void SerializeAdditionalData(Dictionary<string,object> additionalData);
+    public string GetNodeTypeUniqueName();
 }

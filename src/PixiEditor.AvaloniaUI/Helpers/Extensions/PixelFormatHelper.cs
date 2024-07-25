@@ -1,5 +1,5 @@
 ﻿using Avalonia.Platform;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Extensions;
 
@@ -13,6 +13,16 @@ internal static class PixelFormatHelper
         }
 
         throw new NotImplementedException($"Skia does not support the '{format}' format");
+    }
+    
+    public static ColorType ToColorType(this SKColorType colorType)
+    { 
+        return (ColorType)colorType;
+    }
+    
+    public static AlphaType ToAlphaType(this SKAlphaType alphaType)
+    {
+        return (AlphaType)alphaType;
     }
 
     public static bool TryConvertToColorType(this PixelFormat format, out ColorType colorType, out AlphaType alphaType)

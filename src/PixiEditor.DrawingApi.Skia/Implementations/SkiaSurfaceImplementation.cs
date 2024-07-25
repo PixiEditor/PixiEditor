@@ -1,9 +1,9 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge.Operations;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Skia.Implementations

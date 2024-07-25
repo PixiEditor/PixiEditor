@@ -2,11 +2,10 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
-using DrawingApiBlendMode = PixiEditor.DrawingApi.Core.Surface.BlendMode;
+using DrawingApiBlendMode = PixiEditor.DrawingApi.Core.Surfaces.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
 

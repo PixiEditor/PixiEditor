@@ -7,7 +7,7 @@ internal class UpdatePropertyValue_Change : Change
 {
     private readonly Guid _nodeId;
     private readonly string _propertyName;
-    private readonly object? _value;
+    private object? _value;
     private object? previousValue;
     
     [GenerateMakeChangeAction]
@@ -26,7 +26,7 @@ internal class UpdatePropertyValue_Change : Change
         var property = node.GetInputProperty(_propertyName);
 
         previousValue = GetValue(property);
-        SetValue(property, _value);
+        _value = SetValue(property, _value);
 
         ignoreInUndo = false;
         
@@ -42,7 +42,7 @@ internal class UpdatePropertyValue_Change : Change
         return new PropertyValueUpdated_ChangeInfo(_nodeId, _propertyName, previousValue);
     }
 
-    private static void SetValue(InputProperty property, object? value)
+    private static object SetValue(InputProperty property, object? value)
     {
         if (property is IFuncInputProperty fieldInput)
         {
@@ -50,8 +50,15 @@ internal class UpdatePropertyValue_Change : Change
         }
         else
         {
+            if (value is int && property.ValueType.IsEnum)
+            {
+                value = Enum.ToObject(property.ValueType, value);
+            }
+            
             property.NonOverridenValue = value;
         }
+        
+        return value;
     }
     
 

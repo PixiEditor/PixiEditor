@@ -42,15 +42,16 @@ public abstract class KeyFrame : IReadOnlyKeyFrame
     
     public int EndFrame => StartFrame + Duration;
     
-    public Guid LayerGuid { get; }
+    public Guid NodeId { get; }
     public Guid Id { get; set; }
 
-    public bool IsVisible
+    public virtual bool IsVisible
     {
         get => isVisible;
         set
         {
             isVisible = value;
+            TargetNode.SetKeyFrameVisibility(Id, isVisible);
         }
     }
 
@@ -61,7 +62,7 @@ public abstract class KeyFrame : IReadOnlyKeyFrame
     protected KeyFrame(Node node, int startFrame)
     {
         TargetNode = node;
-        LayerGuid = node.Id;
+        NodeId = node.Id;
         this.startFrame = startFrame;
         duration = 1;
         Id = Guid.NewGuid();

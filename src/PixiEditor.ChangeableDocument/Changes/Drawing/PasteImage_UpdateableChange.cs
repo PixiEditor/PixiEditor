@@ -1,6 +1,7 @@
-﻿using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+﻿using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class PasteImage_UpdateableChange : UpdateableChange

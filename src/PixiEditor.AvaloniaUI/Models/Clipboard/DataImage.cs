@@ -1,4 +1,5 @@
 ﻿using ChunkyImageLib;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Numerics;
 

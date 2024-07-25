@@ -8,8 +8,6 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
-using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Rendering.RenderInfos;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -17,6 +15,8 @@ using System.Diagnostics;
 using System.Drawing.Text;
 using System.Printing;
 using ChunkyImageLib.Operations;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
 #nullable enable

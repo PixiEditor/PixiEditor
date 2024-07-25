@@ -33,7 +33,7 @@ public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
     internal static CreateLayer_ChangeInfo FromLayer(LayerNode layer)
     {
         return new CreateLayer_ChangeInfo(
-            layer.InternalName,
+            layer.GetNodeTypeUniqueName(),
             layer.Opacity.Value,
             layer.IsVisible.Value,
             layer.ClipToPreviousMember.Value,

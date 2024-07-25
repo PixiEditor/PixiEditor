@@ -1,4 +1,5 @@
-﻿using PixiEditor.Numerics;
+﻿using PixiEditor.DrawingApi.Core;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 

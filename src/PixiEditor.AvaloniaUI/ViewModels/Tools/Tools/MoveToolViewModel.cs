@@ -7,7 +7,7 @@ using PixiEditor.AvaloniaUI.Models.Handlers.Tools;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.DrawingApi.Core.Surfaces.Vector;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Numerics;
 using PixiEditor.UI.Common.Fonts;

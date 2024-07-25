@@ -2,8 +2,8 @@
 using Avalonia.Media.Imaging;
 using ChunkyImageLib;
 using PixiEditor.AvaloniaUI.Models.Layers;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.Numerics;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
@@ -12,7 +12,6 @@ namespace PixiEditor.AvaloniaUI.Models.Handlers;
 internal interface IStructureMemberHandler : INodeHandler
 {
     public bool HasMaskBindable { get; }
-    public string NameBindable { get; set; }
     public Surface? MaskPreviewSurface { get; set; }
     public Surface? PreviewSurface { get; set; }
     public bool MaskIsVisibleBindable { get; set; }

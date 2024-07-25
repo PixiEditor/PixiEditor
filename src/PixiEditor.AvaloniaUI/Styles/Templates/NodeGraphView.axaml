@@ -38,7 +38,7 @@
                                 <DataTemplate>
                                     <nodes:NodeView
                                         Node="{Binding}"
-                                        DisplayName="{Binding NodeName}"
+                                        DisplayName="{Binding NodeNameBindable}"
                                         Inputs="{Binding Inputs}"
                                         BorderBrush="{Binding InternalName, Converter={converters:NodeInternalNameToStyleConverter}, ConverterParameter='BorderBrush'}"
                                         BorderThickness="2"

@@ -4,6 +4,7 @@ using System.Linq;
 using ChunkyImageLib;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.AvaloniaUI.Helpers;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Numerics;
@@ -88,8 +89,6 @@ internal class RecentlyOpenedDocument : ObservableObject
 
         if (FileExtension == ".pixi")
         {
-            SerializableDocument serializableDocument;
-
             try
             {
                 var document = PixiParser.Deserialize(filePath);
@@ -106,7 +105,14 @@ internal class RecentlyOpenedDocument : ObservableObject
 
                 try
                 {
-                    serializableDocument = DepractedPixiParser.Deserialize(filePath);
+                    var deprecatedDocument = DeprecatedPixiParser.Deserialize(filePath);
+                    
+                    if (deprecatedDocument.PreviewImage == null || deprecatedDocument.PreviewImage.Length == 0)
+                    {
+                        return null;
+                    }
+                    
+                    return Surface.Load(deprecatedDocument.PreviewImage);
                 }
                 catch
                 {
@@ -115,12 +121,6 @@ internal class RecentlyOpenedDocument : ObservableObject
                 }
             }
 
-            Surface surface = Surface.Combine(serializableDocument.Width, serializableDocument.Height,
-                serializableDocument.Layers
-                    .Where(x => x.Opacity > 0.8)
-                    .Select(x => (x.ToImage(), new VecI(x.OffsetX, x.OffsetY))).ToList());
-
-            return DownscaleToMaxSize(surface);
         }
 
         if (SupportedFilesHelper.IsExtensionSupported(FileExtension))

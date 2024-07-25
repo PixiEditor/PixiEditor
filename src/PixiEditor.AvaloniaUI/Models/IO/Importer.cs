@@ -8,17 +8,18 @@ using PixiEditor.AvaloniaUI.Exceptions;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Numerics;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Deprecated;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
-using BlendMode = PixiEditor.DrawingApi.Core.Surface.BlendMode;
+using BlendMode = PixiEditor.DrawingApi.Core.Surfaces.BlendMode;
 
 namespace PixiEditor.AvaloniaUI.Models.IO;
 
@@ -102,7 +103,7 @@ internal class Importer : ObservableObject
         {
             try
             {
-                var doc = DepractedPixiParser.Deserialize(path).ToDocument();
+                var doc = DeprecatedPixiParser.Deserialize(path).ToDocument();
                 
                 if (associatePath)
                 {
@@ -130,7 +131,7 @@ internal class Importer : ObservableObject
         {
             try
             {
-                var doc = DepractedPixiParser.Deserialize(file).ToDocument();
+                var doc = DeprecatedPixiParser.Deserialize(file).ToDocument();
                 doc.FullFilePath = originalFilePath;
                 return doc;
             }

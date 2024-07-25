@@ -6,13 +6,14 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.Changes.Structure;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
 public static class NodeOperations
 {
     private static Dictionary<Type, INodeFactory> allFactories;
+    private static Dictionary<string, Type> nodeMap;
 
     static NodeOperations()
     {
@@ -25,8 +26,33 @@ public static class NodeOperations
             INodeFactory factory = (INodeFactory)Activator.CreateInstance(factoryType);
             allFactories.Add(factory.NodeType, factory);
         }
+        
+        nodeMap = new Dictionary<string, Type>();
+        var nodeTypes = typeof(Node).Assembly.GetTypes().Where(x =>
+                x.IsSubclassOf(typeof(Node)) && x is { IsAbstract: false, IsInterface: false })
+            .ToImmutableArray();
+
+        foreach (var nodeType in nodeTypes)
+        {
+            NodeInfoAttribute? attribute = nodeType.GetCustomAttribute<NodeInfoAttribute>();
+            if (attribute != null)
+            {
+                nodeMap.Add(attribute.UniqueName, nodeType);
+            }
+            else
+            {
+#if DEBUG
+                throw new InvalidOperationException($"Node {nodeType.Name} does not have NodeInfoAttribute");
+#endif
+            }
+        }
     }
 
+    public static bool TryGetNodeType(string nodeUniqueName, out Type nodeType)
+    {
+        return nodeMap.TryGetValue(nodeUniqueName, out nodeType);
+    }
+    
     public static Node CreateNode(Type nodeType, IReadOnlyDocument target, params object[] optionalParameters)
     {
         Node node = null;

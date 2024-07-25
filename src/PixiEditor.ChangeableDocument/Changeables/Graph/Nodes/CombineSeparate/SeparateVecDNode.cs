@@ -1,8 +1,10 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
+[NodeInfo("SeparateVecD")]
 public class SeparateVecDNode : Node
 {
     public FuncInputProperty<VecD> Vector { get; }
@@ -20,7 +22,6 @@ public class SeparateVecDNode : Node
         Vector = CreateFuncInput("Vector", "VECTOR", new VecD(0, 0));
     }
 
-    protected override string NodeUniqueName => "SeparateVecD";
 
     protected override Surface? OnExecute(RenderingContext context)
     {

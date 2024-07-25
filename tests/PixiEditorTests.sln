@@ -21,6 +21,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChunkyImageLibTest", "Chunk
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChunkyImageLib", "..\src\ChunkyImageLib\ChunkyImageLib.csproj", "{493B3F23-DB1B-4633-8C6D-BAD18C59A239}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.Zoombox", "..\src\PixiEditor.Zoombox\PixiEditor.Zoombox.csproj", "{69DD5830-C682-49FB-B1A5-D2A506EEA06B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.Platform.Steam", "..\src\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj", "{9BCD0764-9C16-4A2A-B153-C676FEF38887}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.Platform", "..\src\PixiEditor.Platform\PixiEditor.Platform.csproj", "{2BDEB8C6-F22D-43EA-A309-B3387A803689}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.Extensions", "..\src\PixiEditor.Extensions\PixiEditor.Extensions.csproj", "{1249EE2B-EB0D-411C-B311-53A7A22B7743}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.Platform.MSStore", "..\src\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj", "{8EF48E6C-8219-4EE2-87C6-5176D8D092E6}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.DrawingApi.Skia", "..\src\PixiEditor.DrawingApi.Skia\PixiEditor.DrawingApi.Skia.csproj", "{DCFF0D46-C19C-4E6D-984C-56A95781AE0B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.DrawingApi.Core", "..\src\PixiEditor.DrawingApi.Core\PixiEditor.DrawingApi.Core.csproj", "{61403ACE-FEA3-49E5-A916-68C0FADCFBE6}"
@@ -44,6 +54,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.Backend.Tests", "PixiEditor.Backend.Tests\PixiEditor.Backend.Tests.csproj", "{744D7ACF-9C09-4A29-A950-910934D90BFD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.ChangeableDocument", "..\src\PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj", "{26B5BF58-A3B7-4966-A34C-9E7AF2994165}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.AvaloniaUI", "..\src\PixiEditor.AvaloniaUI\PixiEditor.AvaloniaUI.csproj", "{CEC1685D-7318-4563-B507-3340D43BFBB1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.Extensions.Gen", "..\src\PixiEditor.Extensions.Gen\PixiEditor.Extensions.Gen.csproj", "{63A2C494-E9D9-486E-B709-39A10DD8B415}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -126,6 +140,14 @@ Global
 		{26B5BF58-A3B7-4966-A34C-9E7AF2994165}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26B5BF58-A3B7-4966-A34C-9E7AF2994165}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{26B5BF58-A3B7-4966-A34C-9E7AF2994165}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEC1685D-7318-4563-B507-3340D43BFBB1}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{CEC1685D-7318-4563-B507-3340D43BFBB1}.Debug|Any CPU.Build.0 = Debug|x64
+		{CEC1685D-7318-4563-B507-3340D43BFBB1}.Release|Any CPU.ActiveCfg = Release|x64
+		{CEC1685D-7318-4563-B507-3340D43BFBB1}.Release|Any CPU.Build.0 = Release|x64
+		{63A2C494-E9D9-486E-B709-39A10DD8B415}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63A2C494-E9D9-486E-B709-39A10DD8B415}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63A2C494-E9D9-486E-B709-39A10DD8B415}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63A2C494-E9D9-486E-B709-39A10DD8B415}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{7F2DBBFC-FBDB-4772-806F-3B0829032DC0} = {E118E6FE-67E7-4472-A8D7-E7F470E66131}
@@ -145,5 +167,13 @@ Global
 		{AE174C40-F7CB-4A17-A87A-F1CDCE218B78} = {E118E6FE-67E7-4472-A8D7-E7F470E66131}
 		{744D7ACF-9C09-4A29-A950-910934D90BFD} = {D914C08C-5F1A-4E13-AAA6-F25E8C9748E2}
 		{26B5BF58-A3B7-4966-A34C-9E7AF2994165} = {E118E6FE-67E7-4472-A8D7-E7F470E66131}
+		{6D965165-3B4D-4C70-A559-6AD093879D5A} = {E118E6FE-67E7-4472-A8D7-E7F470E66131}
+		{CEC1685D-7318-4563-B507-3340D43BFBB1} = {E118E6FE-67E7-4472-A8D7-E7F470E66131}
+		{63A2C494-E9D9-486E-B709-39A10DD8B415} = {E118E6FE-67E7-4472-A8D7-E7F470E66131}
+		{69DD5830-C682-49FB-B1A5-D2A506EEA06B} = {E118E6FE-67E7-4472-A8D7-E7F470E66131}
+		{1249EE2B-EB0D-411C-B311-53A7A22B7743} = {E118E6FE-67E7-4472-A8D7-E7F470E66131}
+		{2BDEB8C6-F22D-43EA-A309-B3387A803689} = {E118E6FE-67E7-4472-A8D7-E7F470E66131}
+		{8EF48E6C-8219-4EE2-87C6-5176D8D092E6} = {E118E6FE-67E7-4472-A8D7-E7F470E66131}
+		{9BCD0764-9C16-4A2A-B153-C676FEF38887} = {E118E6FE-67E7-4472-A8D7-E7F470E66131}
 	EndGlobalSection
 EndGlobal

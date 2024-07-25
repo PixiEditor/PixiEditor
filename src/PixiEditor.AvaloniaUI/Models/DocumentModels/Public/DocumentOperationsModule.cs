@@ -15,8 +15,9 @@ using PixiEditor.AvaloniaUI.Models.Tools;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.DrawingApi.Core.Surfaces.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Numerics;
 
@@ -408,7 +409,7 @@ internal class DocumentOperationsModule : IDocumentOperations
         //make a new layer, put combined image onto it, delete layers that were merged
         Internals.ActionAccumulator.AddActions(
             new CreateStructureMember_Action(parent.Id, newGuid, StructureMemberType.Layer),
-            new StructureMemberName_Action(newGuid, node.NameBindable),
+            new StructureMemberName_Action(newGuid, node.NodeNameBindable),
             new CombineStructureMembersOnto_Action(members.ToHashSet(), newGuid, Document.AnimationHandler.ActiveFrameBindable));
         foreach (var member in members)
             Internals.ActionAccumulator.AddActions(new DeleteStructureMember_Action(member));

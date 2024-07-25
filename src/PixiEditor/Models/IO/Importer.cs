@@ -4,10 +4,11 @@ using System.Runtime.InteropServices;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Exceptions;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
@@ -17,7 +18,7 @@ using PixiEditor.Numerics;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Deprecated;
 using PixiEditor.ViewModels.SubViewModels.Document;
-using BlendMode = PixiEditor.DrawingApi.Core.Surface.BlendMode;
+using BlendMode = PixiEditor.DrawingApi.Core.Surfaces.BlendMode;
 
 namespace PixiEditor.Models.IO;
 

@@ -8,6 +8,7 @@ using ChunkyImageLib.DataHolders;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Exceptions;
 using PixiEditor.Extensions.Common.Localization;

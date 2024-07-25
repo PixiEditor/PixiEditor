@@ -1,4 +1,5 @@
 ﻿using ChunkyImageLib;
+using PixiEditor.DrawingApi.Core;
 
 namespace PixiEditor.AvaloniaUI.Models.Handlers;
 

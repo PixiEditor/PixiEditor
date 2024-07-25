@@ -1,25 +1,26 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
+[NodeInfo("Output")]
 public class OutputNode : Node, IBackgroundInput
 {
+    public const string InputPropertyName = "Background";
+
     public override string DisplayName { get; set; } = "OUTPUT_NODE";
     public InputProperty<Surface?> Input { get; } 
     public OutputNode()
     {
-        Input = CreateInput<Surface>("Background", "INPUT", null);
+        Input = CreateInput<Surface>(InputPropertyName, "INPUT", null);
     }
 
     public override Node CreateCopy()
     {
         return new OutputNode();
     }
-
-    protected override string NodeUniqueName => "Output";
 
     protected override Surface? OnExecute(RenderingContext context)
     {

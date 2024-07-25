@@ -12,7 +12,7 @@ internal class KeyFrameGroupViewModel : KeyFrameViewModel, IKeyFrameGroupHandler
     public override int StartFrameBindable => Children.Count > 0 ? Children.Min(x => x.StartFrameBindable) : 0;
     public override int DurationBindable => Children.Count > 0 ? Children.Max(x => x.StartFrameBindable + x.DurationBindable) - StartFrameBindable : 0;
 
-    public string LayerName => Document.StructureHelper.Find(LayerGuid).NameBindable;
+    public string LayerName => Document.StructureHelper.Find(LayerGuid).NodeNameBindable;
 
     public override void SetVisibility(bool isVisible)
     {
@@ -32,7 +32,7 @@ internal class KeyFrameGroupViewModel : KeyFrameViewModel, IKeyFrameGroupHandler
     {
         Document.StructureHelper.Find(LayerGuid).PropertyChanged += (sender, args) =>
         {
-            if (args.PropertyName == nameof(StructureMemberViewModel.NameBindable))
+            if (args.PropertyName == nameof(StructureMemberViewModel.NodeNameBindable))
             {
                 OnPropertyChanged(nameof(LayerName));
             }

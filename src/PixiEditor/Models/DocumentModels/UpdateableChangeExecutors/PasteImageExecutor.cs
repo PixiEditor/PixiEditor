@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Enums;
 using PixiEditor.Numerics;

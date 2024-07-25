@@ -19,8 +19,9 @@ using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using PixiEditor.Numerics;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Deprecated;
@@ -220,12 +221,9 @@ internal static class ClipboardController
                         }
 
                         stream.Position = 0;
-                        using var bitmap = DepractedPixiParser.Deserialize(stream).RenderOldDocument();
-                        var size = new VecI(bitmap.Width, bitmap.Height);
-                        imported = new Surface(size);
-                        imported.DrawBytes(size, bitmap.Bytes, ColorType.RgbaF32, AlphaType.Premul);
+                        var document = DeprecatedPixiParser.Deserialize(stream);
 
-                        System.Diagnostics.Debug.Write(imported.ToString());
+                        imported = Surface.Load(document.PreviewImage);
                     }
                 }
                 else

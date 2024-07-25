@@ -112,7 +112,7 @@
                             x:Name="editableTextBlock"
                             VerticalAlignment="Center"
                             d:Text="New Layer" FontSize="14"
-                            Text="{Binding Layer.NameBindable, ElementName=uc, Mode=TwoWay}" />
+                            Text="{Binding Layer.NodeNameBindable, ElementName=uc, Mode=TwoWay}" />
 
                         <StackPanel Orientation="Horizontal">
                             <TextBlock d:Text="100" Foreground="White" FontSize="11">

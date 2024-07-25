@@ -1,10 +1,11 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Animable;
 
+[NodeInfo("Time")]
 public class TimeNode : Node
 {
-    protected override string NodeUniqueName { get; } = "Time";
     public override string DisplayName { get; set; } = "TIME_NODE";
     
     public OutputProperty<int> ActiveFrame { get; set; }

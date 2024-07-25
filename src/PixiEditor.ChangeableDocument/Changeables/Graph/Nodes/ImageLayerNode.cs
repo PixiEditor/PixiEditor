@@ -1,24 +1,33 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
+[NodeInfo("ImageLayer")]
 public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 {
+    public const string ImageFramesKey = "Frames";
+    public const string ImageLayerKey = "LayerImage";
+
     public InputProperty<bool> LockTransparency { get; }
 
     private VecI size;
+    private ChunkyImage layerImage => keyFrames[0]?.Data as ChunkyImage;
 
-    private static readonly Paint clearPaint = new() { BlendMode = DrawingApi.Core.Surface.BlendMode.Src, 
-        Color = PixiEditor.DrawingApi.Core.ColorsImpl.Colors.Transparent };
-    
+    private static readonly Paint clearPaint = new()
+    {
+        BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src,
+        Color = PixiEditor.DrawingApi.Core.ColorsImpl.Colors.Transparent
+    };
+
     // Handled by overriden CacheChanged
-    protected override string NodeUniqueName => "ImageLayer";
     protected override bool AffectedByAnimation => true;
 
     protected override bool AffectedByChunkResolution => true;
@@ -28,7 +37,12 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     public ImageLayerNode(VecI size)
     {
         LockTransparency = CreateInput<bool>("LockTransparency", "LOCK_TRANSPARENCY", false);
-        keyFrames.Add(new ImageFrame(Guid.NewGuid(), 0, 0, new(size)));
+
+        if (keyFrames.Count == 0)
+        {
+            keyFrames.Add(new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = new ChunkyImage(size) });
+        }
+
         this.size = size;
     }
 
@@ -45,12 +59,12 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             return Output.Value;
         }
 
-        var frameImage = GetFrameImage(context.FrameTime).Data;
+        var frameImage = GetFrameWithImage(context.FrameTime);
 
         blendPaint.Color = new Color(255, 255, 255, 255);
-        blendPaint.BlendMode = DrawingApi.Core.Surface.BlendMode.Src;
+        blendPaint.BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src;
 
-        var renderedSurface = RenderImage(frameImage, context);
+        var renderedSurface = RenderImage(frameImage.Data as ChunkyImage, context);
 
         Output.Value = renderedSurface;
 
@@ -113,28 +127,28 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
     }
 
-    private ImageFrame GetFrameImage(KeyFrameTime frame)
+    private KeyFrameData GetFrameWithImage(KeyFrameTime frame)
     {
         var imageFrame = keyFrames.LastOrDefault(x => x.IsInFrame(frame.Frame));
-        if (imageFrame is not ImageFrame)
+        if (imageFrame?.Data is not ChunkyImage)
         {
-            return keyFrames[0] as ImageFrame;
+            return keyFrames[0];
         }
-        
-        var frameImage = imageFrame ?? keyFrames[0];
-        return frameImage as ImageFrame;
+
+        var frameImage = imageFrame;
+        return frameImage;
     }
 
     protected override bool CacheChanged(RenderingContext context)
     {
-        var frame = GetFrameImage(context.FrameTime);
+        var frame = GetFrameWithImage(context.FrameTime);
         return base.CacheChanged(context) || frame?.RequiresUpdate == true;
     }
 
     protected override void UpdateCache(RenderingContext context)
     {
         base.UpdateCache(context);
-        var imageFrame = GetFrameImage(context.FrameTime);
+        var imageFrame = GetFrameWithImage(context.FrameTime);
         if (imageFrame is not null && imageFrame.RequiresUpdate)
         {
             imageFrame.RequiresUpdate = false;
@@ -149,10 +163,11 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             keyFrames = new List<KeyFrameData>()
             {
                 // we are only copying the layer image, keyframes probably shouldn't be copied since they are controlled by AnimationData
-                new ImageFrame(Guid.NewGuid(), 0, 0, ((ImageFrame)keyFrames[0]).Data.CloneFromCommitted())
+                new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = layerImage.CloneFromCommitted() }
             }
         };
     }
+
 
     IReadOnlyChunkyImage IReadOnlyImageNode.GetLayerImageAtFrame(int frame) => GetLayerImageAtFrame(frame);
 
@@ -170,20 +185,21 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         set => LockTransparency.NonOverridenValue = value;
     }
 
+
     public void ForEveryFrame(Action<ChunkyImage> action)
     {
         foreach (var frame in keyFrames)
         {
-            if (frame is ImageFrame imageFrame)
+            if (frame.Data is ChunkyImage imageFrame)
             {
-                action(imageFrame.Data);
+                action(imageFrame);
             }
         }
     }
 
     public ChunkyImage GetLayerImageAtFrame(int frame)
     {
-        return GetFrameImage(frame).Data;
+        return GetFrameWithImage(frame).Data as ChunkyImage;
     }
 
     public ChunkyImage GetLayerImageByKeyFrameGuid(Guid keyFrameGuid)
@@ -192,44 +208,20 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         {
             if (keyFrame.KeyFrameGuid == keyFrameGuid)
             {
-                return (keyFrame as ImageFrame).Data;
+                return keyFrame.Data as ChunkyImage;
             }
         }
 
-        return (keyFrames[0] as ImageFrame).Data;        
+        return layerImage;
     }
 
     public void SetLayerImageAtFrame(int frame, ChunkyImage newLayerImage)
     {
         var existingFrame = keyFrames.FirstOrDefault(x => x.IsInFrame(frame));
-        if (existingFrame is not null && existingFrame is ImageFrame imgFrame)
+        if (existingFrame is not null && existingFrame.Data is ChunkyImage)
         {
             existingFrame.Dispose();
-            imgFrame.Data = newLayerImage;
+            existingFrame.Data = newLayerImage;
         }
-    }
-}
-
-class ImageFrame : KeyFrameData<ChunkyImage>
-{
-    private int lastCommitCounter = 0;
-
-    public override bool RequiresUpdate
-    {
-        get
-        {
-            return Data.QueueLength != lastQueueLength || Data.CommitCounter != lastCommitCounter;
-        }
-        set
-        {
-            lastQueueLength = Data.QueueLength;
-            lastCommitCounter = Data.CommitCounter;
-        }
-    }
-
-    private int lastQueueLength = 0;
-
-    public ImageFrame(Guid keyFrameGuid, int startFrame, int duration, ChunkyImage image) : base(keyFrameGuid, image, startFrame, duration)
-    {
     }
 }

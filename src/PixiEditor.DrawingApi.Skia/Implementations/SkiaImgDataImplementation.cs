@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Skia.Implementations
@@ -34,6 +34,13 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             SKData data = ManagedInstances[imgData.ObjectPointer];
             return data.AsSpan();
+        }
+        
+        public ImgData Create(ReadOnlySpan<byte> buffer)
+        {
+            SKData data = SKData.CreateCopy(buffer.ToArray());
+            ManagedInstances.TryAdd(data.Handle, data);
+            return new ImgData(data.Handle);
         }
 
         public object GetNativeImgData(IntPtr objectPointer)

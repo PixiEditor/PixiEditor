@@ -27,7 +27,7 @@ public record class CreateFolder_ChangeInfo : CreateStructureMember_ChangeInfo
     internal static CreateFolder_ChangeInfo FromFolder(FolderNode folder)
     {
         return new CreateFolder_ChangeInfo(
-            folder.InternalName,
+            folder.GetNodeTypeUniqueName(),
             folder.Opacity.Value,
             folder.IsVisible.Value,
             folder.ClipToPreviousMember.Value,

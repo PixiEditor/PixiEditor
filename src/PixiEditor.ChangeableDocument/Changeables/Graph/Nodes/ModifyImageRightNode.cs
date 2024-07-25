@@ -2,14 +2,15 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
+[NodeInfo("ModifyImageRight")]
 [PairNode(typeof(ModifyImageLeftNode), "ModifyImageZone")]
 public class ModifyImageRightNode : Node
 {
@@ -29,8 +30,6 @@ public class ModifyImageRightNode : Node
         Color = CreateFuncInput(nameof(Color), "COLOR", new Color());
         Output = CreateOutput<Surface>(nameof(Output), "OUTPUT", null);
     }
-
-    protected override string NodeUniqueName => "ModifyImageRight";
 
     protected override Surface? OnExecute(RenderingContext renderingContext)
     {

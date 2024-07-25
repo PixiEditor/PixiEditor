@@ -14,6 +14,22 @@ internal class GroupKeyFrame : KeyFrame, IKeyFrameChildrenContainer
     public override int Duration => Children.Count > 0 ? Children.Max(x => x.StartFrame + x.Duration) - StartFrame : 0;
     public override int StartFrame => Children.Count > 0 ? Children.Min(x => x.StartFrame) : 0;
 
+    public override bool IsVisible
+    {
+        get
+        {
+            return isVisible;
+        }
+        set
+        {
+            isVisible = value;
+            foreach (var child in Children)
+            {
+                child.IsVisible = value;
+            }
+        }
+    }
+
     IReadOnlyList<IReadOnlyKeyFrame> IKeyFrameChildrenContainer.Children => Children;
 
     public GroupKeyFrame(Node node, int startFrame, Document document) : base(node, startFrame)

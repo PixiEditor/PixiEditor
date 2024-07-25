@@ -1,13 +1,13 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
+[NodeInfo("Noise")]
 public class NoiseNode : Node
 {
     private double previousScale = double.NaN;
@@ -40,8 +40,6 @@ public class NoiseNode : Node
         Octaves = CreateInput(nameof(Octaves), "OCTAVES", 1);
         Seed = CreateInput(nameof(Seed), "SEED", 0d);
     }
-
-    protected override string NodeUniqueName => "Noise";
 
     protected override Surface OnExecute(RenderingContext context)
     {

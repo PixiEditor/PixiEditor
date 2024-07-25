@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.Numerics;
+﻿using System.Runtime.InteropServices;
+
+namespace PixiEditor.Numerics;
 
 public class Kernel
 {
@@ -19,6 +21,13 @@ public class Kernel
     }
 
     public float Sum => _buffer.Sum;
+
+    public Kernel()
+    {
+        Width = 3;
+        Height = 3;
+        _buffer = new KernelArray(3, 3);
+    }
     
     public Kernel(int width, int height)
     {
@@ -28,6 +37,16 @@ public class Kernel
         Width = width;
         Height = height;
         _buffer = new KernelArray(width, height);
+    }
+    
+    public Kernel(int width, int height, float[] values)
+    {
+        if (width % 2 == 0)
+            throw new ArgumentException($"{width} must be odd", nameof(width));
+        
+        Width = width;
+        Height = height;
+        _buffer = new KernelArray(width, height, values);
     }
 
     public static Kernel Identity(int width, int height) =>
