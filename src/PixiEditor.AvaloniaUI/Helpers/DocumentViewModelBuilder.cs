@@ -87,7 +87,7 @@ internal class DocumentViewModelBuilder
 
         if (animationData != null && animationData.KeyFrameGroups.Count > 0)
         {
-            BuildKeyFrames(animationData.KeyFrameGroups.Cast<IKeyFrame>().ToList(), AnimationData);
+            BuildKeyFrames(animationData.KeyFrameGroups.ToList(), AnimationData);
         }
 
         return this;
@@ -110,42 +110,39 @@ internal class DocumentViewModelBuilder
         Graph = graph;
         return this;
     }
-    
+
     public DocumentViewModelBuilder WithImageEncoder(string encoder)
     {
         ImageEncoderUsed = encoder;
         return this;
     }
 
-    private static void BuildKeyFrames(List<IKeyFrame> root, List<KeyFrameBuilder> data)
+    private static void BuildKeyFrames(List<KeyFrameGroup> root, List<KeyFrameBuilder> data)
     {
-        foreach (var keyFrame in root)
+        foreach (KeyFrameGroup group in root)
         {
-            if (keyFrame is KeyFrameGroup group)
+            GroupKeyFrameBuilder builder = new GroupKeyFrameBuilder()
+                .WithVisibility(group.Enabled)
+                .WithNodeId(group.NodeId);
+
+            foreach (var child in group.ChildrenIds)
             {
-                GroupKeyFrameBuilder builder = new GroupKeyFrameBuilder()
-                    .WithVisibility(group.Enabled)
-                    .WithNodeId(group.NodeId);
-
-                foreach (var child in group.Children)
+                /*if (child is KeyFrameGroup childGroup)
                 {
-                    if (child is KeyFrameGroup childGroup)
-                    {
-                        builder.WithChild<GroupKeyFrameBuilder>(x =>
-                            BuildKeyFrames(childGroup.Children, null));
-                    }
-                    else if (child is RasterKeyFrame rasterKeyFrame)
-                    {
-                        builder.WithChild<RasterKeyFrameBuilder>(x => x
-                            .WithVisibility(builder.IsVisible)
-                            .WithLayerGuid(rasterKeyFrame.NodeId)
-                            .WithStartFrame(rasterKeyFrame.StartFrame)
-                            .WithDuration(rasterKeyFrame.Duration));
-                    }
-                }
-
-                data?.Add(builder);
+                    builder.WithChild<GroupKeyFrameBuilder>(x =>
+                        BuildKeyFrames(childGroup.Children, null));
+                }*/
+                /*else if (child is RasterKeyFrame rasterKeyFrame)
+                {
+                    builder.WithChild<RasterKeyFrameBuilder>(x => x
+                        .WithVisibility(builder.IsVisible)
+                        .WithLayerGuid(rasterKeyFrame.NodeId)
+                        .WithStartFrame(rasterKeyFrame.StartFrame)
+                        .WithDuration(rasterKeyFrame.Duration));
+                }*/
             }
+
+            data?.Add(builder);
         }
     }
 
@@ -259,20 +256,6 @@ internal class GroupKeyFrameBuilder : KeyFrameBuilder
     public new GroupKeyFrameBuilder WithDuration(int duration) => base.WithDuration(duration) as GroupKeyFrameBuilder;
 }
 
-internal class RasterKeyFrameBuilder : KeyFrameBuilder
-{
-    public new RasterKeyFrameBuilder WithVisibility(bool isVisible) =>
-        base.WithVisibility(isVisible) as RasterKeyFrameBuilder;
-
-    public new RasterKeyFrameBuilder WithLayerGuid(int layerId) =>
-        base.WithLayerGuid(layerId) as RasterKeyFrameBuilder;
-
-    public new RasterKeyFrameBuilder WithStartFrame(int startFrame) =>
-        base.WithStartFrame(startFrame) as RasterKeyFrameBuilder;
-
-    public new RasterKeyFrameBuilder WithDuration(int duration) => base.WithDuration(duration) as RasterKeyFrameBuilder;
-}
-
 internal class NodeGraphBuilder
 {
     public List<NodeBuilder> AllNodes { get; set; } = new List<NodeBuilder>();
@@ -338,6 +321,7 @@ internal class NodeGraphBuilder
         public string Name { get; set; }
         public string UniqueNodeName { get; set; }
         public Dictionary<string, object> InputValues { get; set; }
+        public KeyFrameData[] KeyFrames { get; set; }
         public Dictionary<string, object> AdditionalData { get; set; }
         public Dictionary<int, (string inputPropName, string outputPropName)> InputConnections { get; set; }
 
@@ -388,6 +372,12 @@ internal class NodeGraphBuilder
             }
 
             return this;
+        }
+
+        public NodeBuilder WithKeyFrames(KeyFrameData[] keyFrames)
+        {
+            KeyFrames = keyFrames;
+            return this;   
         }
     }
 }

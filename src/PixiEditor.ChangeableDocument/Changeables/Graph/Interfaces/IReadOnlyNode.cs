@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.Numerics;
@@ -10,6 +11,7 @@ public interface IReadOnlyNode
     public Guid Id { get; }
     public IReadOnlyList<IInputProperty> InputProperties { get; }
     public IReadOnlyList<IOutputProperty> OutputProperties { get; }
+    public IReadOnlyList<IReadOnlyKeyFrameData> KeyFrames { get; }
     public VecD Position { get; }
     public Surface? CachedResult { get; }
     string DisplayName { get; }

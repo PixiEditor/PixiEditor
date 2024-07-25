@@ -114,6 +114,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IoFileType, Mp4FileType>()
             // Serialization Factories
             .AddSingleton<SerializationFactory, SurfaceSerializationFactory>()
+            .AddSingleton<SerializationFactory, ChunkyImageSerializationFactory>()
             .AddSingleton<SerializationFactory, KernelSerializationFactory>()
             // Palette Parsers
             .AddSingleton<IPalettesProvider, PaletteProvider>()

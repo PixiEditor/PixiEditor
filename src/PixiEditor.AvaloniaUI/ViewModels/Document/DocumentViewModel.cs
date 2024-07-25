@@ -254,7 +254,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         var builderInstance = new DocumentViewModelBuilder();
         builder(builderInstance);
 
-        Dictionary<int, Guid> mappedIds = new();
+        Dictionary<int, Guid> mappedNodeIds = new();
+        Dictionary<int, Guid> mappedKeyFrameIds = new();
 
         var viewModel = new DocumentViewModel();
         viewModel.Operations.ResizeCanvas(new VecI(builderInstance.Width, builderInstance.Height), ResizeAnchor.Center);
@@ -281,10 +282,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         viewModel.Swatches = new ObservableCollection<PaletteColor>(builderInstance.Swatches);
         viewModel.Palette = new ObservableRangeCollection<PaletteColor>(builderInstance.Palette);
 
-        SerializationConfig config = new SerializationConfig(BuiltInEncoders.Encoders[builderInstance.ImageEncoderUsed]);
-        
-        List<SerializationFactory> allFactories = ViewModelMain.Current.Services.GetServices<SerializationFactory>().ToList();
-        
+        SerializationConfig config =
+            new SerializationConfig(BuiltInEncoders.Encoders[builderInstance.ImageEncoderUsed]);
+
+        List<SerializationFactory> allFactories =
+            ViewModelMain.Current.Services.GetServices<SerializationFactory>().ToList();
+
         AddNodes(builderInstance.Graph);
 
         if (builderInstance.Graph.AllNodes.Count == 0)
@@ -299,8 +302,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         viewModel.MarkAsSaved();
 
         return viewModel;
-        
-        
+
+
         void AddNodes(NodeGraphBuilder graph)
         {
             foreach (var node in graph.AllNodes)
@@ -310,12 +313,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
             foreach (var node in graph.AllNodes)
             {
-                Guid nodeGuid = mappedIds[node.Id];
+                Guid nodeGuid = mappedNodeIds[node.Id];
                 if (node.InputConnections != null)
                 {
                     foreach (var connection in node.InputConnections)
                     {
-                        if (mappedIds.TryGetValue(connection.Key, out Guid outputNodeId))
+                        if (mappedNodeIds.TryGetValue(connection.Key, out Guid outputNodeId))
                         {
                             acc.AddActions(new ConnectProperties_Action(nodeGuid, outputNodeId,
                                 connection.Value.inputPropName, connection.Value.outputPropName));
@@ -328,7 +331,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         void AddNode(int id, NodeGraphBuilder.NodeBuilder serializedNode)
         {
             Guid guid = Guid.NewGuid();
-            mappedIds.Add(id, guid);
+            mappedNodeIds.Add(id, guid);
             acc.AddActions(new CreateNodeFromName_Action(serializedNode.UniqueNodeName, guid));
 
             if (serializedNode.InputValues != null)
@@ -340,9 +343,22 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 }
             }
 
+            if (serializedNode.KeyFrames != null)
+            {
+                foreach (var keyFrame in serializedNode.KeyFrames)
+                {
+                    Guid keyFrameGuid = Guid.NewGuid();
+                    mappedKeyFrameIds.Add(keyFrame.Id, keyFrameGuid);
+                    acc.AddActions(new SetKeyFrameData_Action(guid, keyFrameGuid,
+                        SerializationUtil.Deserialize(keyFrame.Data, config, allFactories), keyFrame.StartFrame,
+                        keyFrame.Duration, keyFrame.AffectedElement));
+                }
+            }
+
             if (serializedNode.AdditionalData != null && serializedNode.AdditionalData.Count > 0)
             {
-                acc.AddActions(new DeserializeNodeAdditionalData_Action(guid, SerializationUtil.DeserializeDict(serializedNode.AdditionalData, config, allFactories)));
+                acc.AddActions(new DeserializeNodeAdditionalData_Action(guid,
+                    SerializationUtil.DeserializeDict(serializedNode.AdditionalData, config, allFactories)));
             }
 
             if (!string.IsNullOrEmpty(serializedNode.Name))
@@ -429,7 +445,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             foreach (var keyFrame in data)
             {
-                if (keyFrame is RasterKeyFrameBuilder rasterKeyFrameBuilder)
+                /*if (keyFrame is RasterKeyFrameBuilder rasterKeyFrameBuilder)
                 {
                     Guid keyFrameGuid = Guid.NewGuid();
                     acc.AddActions(
@@ -441,14 +457,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                             rasterKeyFrameBuilder.Duration),
                         new EndKeyFrameLength_Action());
 
-                    /*PasteImage(rasterKeyFrameBuilder.LayerGuid, rasterKeyFrameBuilder.Surface,
-                        rasterKeyFrameBuilder.Surface.Surface.Size.X,
-                        rasterKeyFrameBuilder.Surface.Surface.Size.Y, 0, 0, false, rasterKeyFrameBuilder.StartFrame,
-                        rasterKeyFrameBuilder.Id);*/
-
                     acc.AddFinishedActions();
                 }
-                else if (keyFrame is GroupKeyFrameBuilder groupKeyFrameBuilder)
+                else */
+                if (keyFrame is GroupKeyFrameBuilder groupKeyFrameBuilder)
                 {
                     AddAnimationData(groupKeyFrameBuilder.Children);
                 }

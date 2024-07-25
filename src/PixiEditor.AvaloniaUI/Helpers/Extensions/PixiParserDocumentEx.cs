@@ -53,6 +53,7 @@ internal static class PixiParserDocumentEx
                     .WithPosition(node.Position)
                     .WithName(node.Name)
                     .WithUniqueNodeName(node.UniqueNodeName)
+                    .WithKeyFrames(node.KeyFrames)
                     .WithInputValues(ToDictionary(node.InputPropertyValues))
                     .WithAdditionalData(node.AdditionalData)
                     .WithConnections(node.InputConnections));

@@ -4,6 +4,7 @@ using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using OneOf;
 using OneOf.Types;
+using PixiEditor.Common;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -41,7 +42,7 @@ namespace ChunkyImageLib;
 ///     - Any other blend mode: the latest chunks contain only the things drawn by the queued operations.
 ///         They need to be drawn over the committed chunks to obtain the final image. In this case, operations won't have access to the existing pixels. 
 /// </summary>
-public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable
+public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICacheable
 {
     private struct LatestChunkData
     {
@@ -767,8 +768,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable
             EnqueueOperation(operation, new(FindAllChunksOutsideBounds(newSize)));
         }
     }
-    
-    
+
+
     public void EnqueueDrawPaint(Paint paint)
     {
         lock (lockObject)
@@ -1408,5 +1409,10 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable
             ChunkyImage clone = CloneFromCommitted();
             return clone;
         }
+    }
+
+    public int GetCacheHash()
+    {
+        return commitCounter + queuedOperations.Count;
     }
 }

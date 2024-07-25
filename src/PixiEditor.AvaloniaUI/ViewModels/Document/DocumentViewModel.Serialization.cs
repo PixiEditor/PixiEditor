@@ -33,16 +33,17 @@ internal partial class DocumentViewModel
 {
     public PixiDocument ToSerializable()
     {
-        Parser.Graph.NodeGraph graph = new();
+        NodeGraph graph = new();
         ImageEncoder encoder = new QoiEncoder();
         var doc = Internals.Tracker.Document;
         
-        Dictionary<Guid, int> idMap = new();
+        Dictionary<Guid, int> nodeIdMap = new();
+        Dictionary<Guid, int> keyFrameIdMap = new();
 
         List<SerializationFactory> factories =
             ViewModelMain.Current.Services.GetServices<SerializationFactory>().ToList(); // a bit ugly, sorry
 
-        AddNodes(doc.NodeGraph, graph, idMap, new SerializationConfig(encoder), factories);
+        AddNodes(doc.NodeGraph, graph, nodeIdMap, keyFrameIdMap, new SerializationConfig(encoder), factories);
 
         var document = new PixiDocument
         {
@@ -54,14 +55,16 @@ internal partial class DocumentViewModel
             PreviewImage =
                 (TryRenderWholeImage(0).Value as Surface)?.DrawingSurface.Snapshot().Encode().AsSpan().ToArray(),
             ReferenceLayer = GetReferenceLayer(doc),
-            AnimationData = ToAnimationData(doc.AnimationData, idMap),
+            AnimationData = ToAnimationData(doc.AnimationData, nodeIdMap),
             ImageEncoderUsed = encoder.EncodedFormatName
         };
 
         return document;
     }
 
-    private static void AddNodes(IReadOnlyNodeGraph graph, NodeGraph targetGraph, Dictionary<Guid, int> idMap,
+    private static void AddNodes(IReadOnlyNodeGraph graph, NodeGraph targetGraph, 
+        Dictionary<Guid, int> nodeIdMap,
+        Dictionary<Guid, int> keyFrameIdMap,
         SerializationConfig config, IReadOnlyList<SerializationFactory> allFactories)
     {
         targetGraph.AllNodes = new List<Node>();
@@ -69,7 +72,7 @@ internal partial class DocumentViewModel
         int id = 0;
         foreach (var node in graph.AllNodes)
         {
-            idMap[node.Id] = id + 1;
+            nodeIdMap[node.Id] = id + 1;
             id++;
         }
 
@@ -89,6 +92,21 @@ internal partial class DocumentViewModel
             Dictionary<string, object> additionalData = new();
             node.SerializeAdditionalData(additionalData);
 
+            KeyFrameData[] keyFrames = new KeyFrameData[node.KeyFrames.Count];
+            
+            for (int i = 0; i < node.KeyFrames.Count; i++)
+            {
+                keyFrameIdMap[node.KeyFrames[i].KeyFrameGuid] = i + 1;
+                keyFrames[i] = new KeyFrameData
+                {
+                    Id = i + 1, 
+                    Data = SerializationUtil.SerializeObject(node.KeyFrames[i].Data, config, allFactories), 
+                    AffectedElement = node.KeyFrames[i].AffectedElement,
+                    StartFrame = node.KeyFrames[i].StartFrame, 
+                    Duration = node.KeyFrames[i].Duration
+                };
+            }
+                
             Dictionary<string, object> converted = ConvertToSerializable(additionalData, config, allFactories);
 
             List<PropertyConnection> connections = new();
@@ -99,7 +117,7 @@ internal partial class DocumentViewModel
                 {
                     connections.Add(new PropertyConnection()
                     {
-                        OutputNodeId = idMap[inputProp.Connection.Node.Id],
+                        OutputNodeId = nodeIdMap[inputProp.Connection.Node.Id],
                         OutputPropertyName = inputProp.Connection.InternalPropertyName,
                         InputPropertyName = inputProp.InternalPropertyName
                     });
@@ -108,12 +126,13 @@ internal partial class DocumentViewModel
 
             Node parserNode = new Node()
             {
-                Id = idMap[node.Id],
+                Id = nodeIdMap[node.Id],
                 Name = node.DisplayName,
                 UniqueNodeName = node.GetNodeTypeUniqueName(),
                 Position = node.Position.ToVector2(),
                 InputPropertyValues = properties,
                 AdditionalData = converted,
+                KeyFrames = keyFrames,
                 InputConnections = connections.ToArray()
             };
 
@@ -245,11 +264,11 @@ internal partial class DocumentViewModel
                 new VecI(0, 0));
         }
 
-        group.Children.Add(new RasterKeyFrame()
+        /*group.Children.Add(new RasterKeyFrame()
         {
             NodeId = idMap[rasterKeyFrame.NodeId],
             StartFrame = rasterKeyFrame.StartFrame,
             Duration = rasterKeyFrame.Duration,
-        });
+        });*/
     }
 }

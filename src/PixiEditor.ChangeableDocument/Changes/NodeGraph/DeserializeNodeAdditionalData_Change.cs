@@ -1,6 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-namespace PixiEditor.ChangeableDocument.Changes;
+namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
 internal class DeserializeNodeAdditionalData_Change : Change
 {

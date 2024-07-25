@@ -3,6 +3,7 @@ using System.Reflection;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.Numerics;
@@ -20,6 +21,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     public IReadOnlyList<InputProperty> InputProperties => inputs;
     public IReadOnlyList<OutputProperty> OutputProperties => outputs;
+    public IReadOnlyList<KeyFrameData> KeyFrames => keyFrames; 
 
     public Surface? CachedResult
     {
@@ -46,6 +48,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     IReadOnlyList<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyList<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
+    IReadOnlyList<IReadOnlyKeyFrameData> IReadOnlyNode.KeyFrames => keyFrames;
     public VecD Position { get; set; }
     public abstract string DisplayName { get; set; }
 
@@ -181,7 +184,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
     }
 
-    public void AddFrame<T>(Guid id, T value) where T : KeyFrameData
+    public void AddFrame(Guid id, KeyFrameData value) 
     {
         if (keyFrames.Any(x => x.KeyFrameGuid == id))
         {

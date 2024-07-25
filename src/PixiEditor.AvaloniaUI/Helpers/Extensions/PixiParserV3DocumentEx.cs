@@ -350,4 +350,19 @@ internal static class PixiParserV3DocumentEx
             return this;
         }
     }
+
+    internal class RasterKeyFrameBuilder : KeyFrameBuilder
+    {
+        public new RasterKeyFrameBuilder WithVisibility(bool isVisible) =>
+            base.WithVisibility(isVisible) as RasterKeyFrameBuilder;
+
+        public new RasterKeyFrameBuilder WithLayerGuid(int layerId) =>
+            base.WithLayerGuid(layerId) as RasterKeyFrameBuilder;
+
+        public new RasterKeyFrameBuilder WithStartFrame(int startFrame) =>
+            base.WithStartFrame(startFrame) as RasterKeyFrameBuilder;
+
+        public new RasterKeyFrameBuilder WithDuration(int duration) =>
+            base.WithDuration(duration) as RasterKeyFrameBuilder;
+    }
 }
