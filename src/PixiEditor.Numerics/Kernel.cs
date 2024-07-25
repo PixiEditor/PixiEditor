@@ -2,7 +2,7 @@
 
 namespace PixiEditor.Numerics;
 
-public class Kernel
+public class Kernel : ICloneable
 {
     private KernelArray _buffer;
 
@@ -77,4 +77,10 @@ public class Kernel
     }
 
     public ReadOnlySpan<float> AsSpan() => _buffer.AsSpan();
+    public object Clone()
+    {
+        float[] values = new float[Width * Height];
+        AsSpan().CopyTo(values);
+        return new Kernel(Width, Height, values);
+    }
 }

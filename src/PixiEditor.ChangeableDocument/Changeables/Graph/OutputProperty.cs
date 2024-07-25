@@ -81,8 +81,8 @@ public class OutputProperty : IOutputProperty
             return new OutputProperty(clone, InternalPropertyName, DisplayName, enumVal, ValueType);
         }
 
-        if (Value is not ICloneable && !Value.GetType().IsPrimitive && Value.GetType() != typeof(string))
-            throw new InvalidOperationException("Value is not cloneable and not a primitive type");
+        /*if (Value is not ICloneable && !Value.GetType().IsPrimitive && Value.GetType() != typeof(string))
+            throw new InvalidOperationException("Value is not cloneable and not a primitive type");*/
      
         object value = Value is ICloneable cloneableValue ? cloneableValue.Clone() : Value;
         

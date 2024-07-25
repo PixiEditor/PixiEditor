@@ -657,10 +657,13 @@
   "MODIFY_IMAGE_RIGHT_NODE": "End Modify Image",
   "COMBINE_CHANNELS_NODE": "Combine Channels",
   "COMBINE_COLOR_NODE": "Combine Color",
-  "COMBINE_VECD_NODE": "Combine Vector (float)",
-  "COMBINE_VECI_NODE": "Combine Vector (int)",
+  "COMBINE_VECD_NODE": "Combine Vector",
+  "COMBINE_VECI_NODE": "Combine Integer Vector",
   "SEPARATE_CHANNELS_NODE": "Separate Channels",
-  "SEPARATE_VECD_NODE": "Separate Vector (float)",
-  "SEPARATE_VECI_NODE": "Separate Vector (int)",
-  "TIME_NODE": "Time"
+  "SEPARATE_VECD_NODE": "Separate Vector",
+  "SEPARATE_VECI_NODE": "Separate Integer Vector",
+  "TIME_NODE": "Time",
+  "FILTERS": "Filters",
+  "PREVIOUS": "Previous",
+  "FILL": "Fill",
 }

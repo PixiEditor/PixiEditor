@@ -313,16 +313,16 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         for (var i = 0; i < clone.inputs.Count; i++)
         {
-            var input = inputs[i];
-            var newInput = input.Clone(clone);
-            input.NonOverridenValue = newInput.NonOverridenValue;
+            var cloneInput = inputs[i];
+            var newInput = cloneInput.Clone(clone);
+            clone.inputs[i].NonOverridenValue = newInput.NonOverridenValue;
         }
 
         for (var i = 0; i < clone.outputs.Count; i++)
         {
-            var output = outputs[i];
-            var newOutput = output.Clone(clone);
-            output.Value = newOutput.Value;
+            var cloneOutput = outputs[i];
+            var newOutput = cloneOutput.Clone(clone);
+            clone.outputs[i].Value = newOutput.Value; 
         }
 
         return clone;
