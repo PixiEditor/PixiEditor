@@ -46,19 +46,30 @@ internal class CreateRasterKeyFrame_Change : Change
 
         var existingData = targetNode.KeyFrames.FirstOrDefault(x => x.KeyFrameGuid == createdKeyFrameId);
 
+        bool isVisible = true;
+
         if (existingData is null)
         {
             targetNode.AddFrame(createdKeyFrameId,
-                new KeyFrameData(createdKeyFrameId, _frame, 1, ImageLayerNode.ImageLayerKey) { Data = img });
+                new KeyFrameData(createdKeyFrameId, _frame, 1, ImageLayerNode.ImageLayerKey) { Data = img, });
         }
         else
         {
             _frame = existingData.StartFrame;
+
+            isVisible = existingData.IsVisible;
         }
 
         target.AnimationData.AddKeyFrame(keyFrame);
         ignoreInUndo = false;
-        return new CreateRasterKeyFrame_ChangeInfo(_targetLayerGuid, _frame, createdKeyFrameId, cloneFrom.HasValue);
+
+        List<IChangeInfo> infos = new()
+        {
+            new CreateRasterKeyFrame_ChangeInfo(_targetLayerGuid, _frame, createdKeyFrameId, cloneFrom.HasValue),
+            new KeyFrameVisibility_ChangeInfo(_targetLayerGuid, isVisible)
+        };
+
+        return infos;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)

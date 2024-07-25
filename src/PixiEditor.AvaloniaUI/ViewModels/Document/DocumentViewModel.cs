@@ -349,9 +349,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 {
                     Guid keyFrameGuid = Guid.NewGuid();
                     mappedKeyFrameIds.Add(keyFrame.Id, keyFrameGuid);
-                    acc.AddActions(new SetKeyFrameData_Action(guid, keyFrameGuid,
-                        SerializationUtil.Deserialize(keyFrame.Data, config, allFactories), keyFrame.StartFrame,
-                        keyFrame.Duration, keyFrame.AffectedElement));
+                    acc.AddActions(
+                        new SetKeyFrameData_Action(
+                            guid,
+                            keyFrameGuid,
+                            SerializationUtil.Deserialize(keyFrame.Data, config, allFactories),
+                            keyFrame.StartFrame,
+                            keyFrame.Duration, keyFrame.AffectedElement, keyFrame.IsVisible));
                 }
             }
 
@@ -441,7 +445,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             }
         }*/
 
-        void AddAnimationData(List<KeyFrameBuilder> data, Dictionary<int, Guid> mappedIds, 
+        void AddAnimationData(List<KeyFrameBuilder> data, Dictionary<int, Guid> mappedIds,
             Dictionary<int, Guid> mappedKeyFrameIds)
         {
             foreach (var keyFrame in data)
@@ -457,7 +461,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                             mappedIds[keyFrame.NodeId],
                             mappedKeyFrameIds[keyFrame.KeyFrameId],
                             -1, -1, default));
-                    
+
                     acc.AddFinishedActions();
                 }
             }

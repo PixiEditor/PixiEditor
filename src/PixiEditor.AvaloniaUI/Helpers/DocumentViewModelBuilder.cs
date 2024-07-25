@@ -122,13 +122,11 @@ internal class DocumentViewModelBuilder
         foreach (KeyFrameGroup group in root)
         {
             GroupKeyFrameBuilder builder = new GroupKeyFrameBuilder()
-                .WithVisibility(group.Enabled)
                 .WithNodeId(group.NodeId);
 
             foreach (var child in group.Children)
             {
                 builder.WithChild<KeyFrameBuilder>(x => x
-                    .WithVisibility(child.IsEnabled)
                     .WithKeyFrameId(child.KeyFrameId)
                     .WithNodeId(child.NodeId));
             }
@@ -193,15 +191,8 @@ internal class DocumentViewModelBuilder
 
 internal class KeyFrameBuilder()
 {
-    public bool IsVisible { get; set; }
     public int NodeId { get; set; }
     public int KeyFrameId { get; set; }
-
-    public KeyFrameBuilder WithVisibility(bool isVisible)
-    {
-        IsVisible = isVisible;
-        return this;
-    }
 
     public KeyFrameBuilder WithKeyFrameId(int layerId)
     {
@@ -227,9 +218,6 @@ internal class GroupKeyFrameBuilder : KeyFrameBuilder
         Children.Add(childBuilder);
         return this;
     }
-
-    public new GroupKeyFrameBuilder WithVisibility(bool isVisible) =>
-        base.WithVisibility(isVisible) as GroupKeyFrameBuilder;
 
     public new GroupKeyFrameBuilder WithNodeId(int layerGuid) =>
         base.WithKeyFrameId(layerGuid) as GroupKeyFrameBuilder;

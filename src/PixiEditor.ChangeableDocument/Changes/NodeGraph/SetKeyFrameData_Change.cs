@@ -11,10 +11,11 @@ internal class SetKeyFrameData_Change : Change
     private int startFrame;
     private int duration;
     private string affectedElement;
+    private bool isVisible;
 
     [GenerateMakeChangeAction]
     public SetKeyFrameData_Change(Guid nodeId, Guid keyFrameId, object data, int startFrame, int duration,
-        string affectedElement)
+        string affectedElement, bool isVisible)
     {
         this.nodeId = nodeId;
         this.keyFrameId = keyFrameId;
@@ -22,6 +23,7 @@ internal class SetKeyFrameData_Change : Change
         this.startFrame = startFrame;
         this.duration = duration;
         this.affectedElement = affectedElement;
+        this.isVisible = isVisible;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -39,7 +41,11 @@ internal class SetKeyFrameData_Change : Change
                  || IsSpecialRootKeyFrame(x));
 
 
-        var newKeyFrame = new KeyFrameData(keyFrameId, startFrame, duration, affectedElement) { Data = data };
+        var newKeyFrame = new KeyFrameData(keyFrameId, startFrame, duration, affectedElement)
+        {
+            Data = data,
+            IsVisible = isVisible
+        };
 
         if (keyFrame != null)
         {

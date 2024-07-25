@@ -11,18 +11,19 @@ public class KeyFrameData : IDisposable, IReadOnlyKeyFrameData
     public Guid KeyFrameGuid { get; }
     public string AffectedElement { get; set; }
     public object Data { get; set; }
-    
+    public bool IsVisible { get; set; } = true;
+
     private int _lastCacheHash;
 
     public bool RequiresUpdate
     {
         get
         {
-            if(Data is ICacheable cacheable)
+            if (Data is ICacheable cacheable)
             {
                 return cacheable.GetCacheHash() != _lastCacheHash;
             }
-            
+
             return false;
         }
         set
@@ -34,6 +35,7 @@ public class KeyFrameData : IDisposable, IReadOnlyKeyFrameData
         }
     }
 
+
     public KeyFrameData(Guid keyFrameGuid, int startFrame, int duration, string affectedElement)
     {
         KeyFrameGuid = keyFrameGuid;
@@ -44,7 +46,7 @@ public class KeyFrameData : IDisposable, IReadOnlyKeyFrameData
 
     public bool IsInFrame(int frame)
     {
-        return frame >= StartFrame && frame <= StartFrame + Duration;
+        return IsVisible && frame >= StartFrame && frame <= StartFrame + Duration;
     }
 
     public void Dispose()

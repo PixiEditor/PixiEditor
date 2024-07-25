@@ -21,7 +21,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     public IReadOnlyList<InputProperty> InputProperties => inputs;
     public IReadOnlyList<OutputProperty> OutputProperties => outputs;
-    public IReadOnlyList<KeyFrameData> KeyFrames => keyFrames; 
+    public IReadOnlyList<KeyFrameData> KeyFrames => keyFrames;
 
     public Surface? CachedResult
     {
@@ -184,7 +184,17 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
     }
 
-    public void AddFrame(Guid id, KeyFrameData value) 
+    public void SetKeyFrameVisibility(Guid id, bool isVisible)
+    {
+        KeyFrameData frame = keyFrames.FirstOrDefault(x => x.KeyFrameGuid == id);
+        if (frame is not null)
+        {
+            frame.IsVisible = isVisible;
+            _keyFramesDirty = true;
+        }
+    }
+
+    public void AddFrame(Guid id, KeyFrameData value)
     {
         if (keyFrames.Any(x => x.KeyFrameGuid == id))
         {
@@ -340,11 +350,9 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     public virtual void SerializeAdditionalData(Dictionary<string, object> additionalData)
     {
-      
     }
 
     internal virtual void DeserializeData(IReadOnlyDictionary<string, object> data)
     {
-        
     }
 }

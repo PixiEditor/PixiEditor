@@ -45,12 +45,13 @@ public abstract class KeyFrame : IReadOnlyKeyFrame
     public Guid NodeId { get; }
     public Guid Id { get; set; }
 
-    public bool IsVisible
+    public virtual bool IsVisible
     {
         get => isVisible;
         set
         {
             isVisible = value;
+            TargetNode.SetKeyFrameVisibility(Id, isVisible);
         }
     }
 

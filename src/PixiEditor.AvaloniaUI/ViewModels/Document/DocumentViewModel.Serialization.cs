@@ -103,7 +103,8 @@ internal partial class DocumentViewModel
                     Data = SerializationUtil.SerializeObject(node.KeyFrames[i].Data, config, allFactories), 
                     AffectedElement = node.KeyFrames[i].AffectedElement,
                     StartFrame = node.KeyFrames[i].StartFrame, 
-                    Duration = node.KeyFrames[i].Duration
+                    Duration = node.KeyFrames[i].Duration,
+                    IsVisible = node.KeyFrames[i].IsVisible
                 };
             }
                 
@@ -264,7 +265,6 @@ internal partial class DocumentViewModel
         {
             NodeId = idMap[rasterKeyFrame.NodeId],
             KeyFrameId = keyFrameIds[rasterKeyFrame.Id],
-            IsEnabled = rasterKeyFrame.IsVisible
         });
     }
 }

@@ -353,8 +353,8 @@ internal static class PixiParserV3DocumentEx
 
     internal class RasterKeyFrameBuilder : KeyFrameBuilder
     {
-        public new RasterKeyFrameBuilder WithVisibility(bool isVisible) =>
-            base.WithVisibility(isVisible) as RasterKeyFrameBuilder;
+        /*public new RasterKeyFrameBuilder WithVisibility(bool isVisible) =>
+            base.WithVisibility(isVisible) as RasterKeyFrameBuilder;*/
 
         public new RasterKeyFrameBuilder WithLayerGuid(int layerId) =>
             base.WithKeyFrameId(layerId) as RasterKeyFrameBuilder;

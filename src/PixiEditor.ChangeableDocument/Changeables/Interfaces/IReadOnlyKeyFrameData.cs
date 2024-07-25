@@ -7,4 +7,5 @@ public interface IReadOnlyKeyFrameData
     Guid KeyFrameGuid { get; }
     object Data { get; }
     string AffectedElement { get; }
+    bool IsVisible { get; }
 }
