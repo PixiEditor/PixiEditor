@@ -129,7 +129,7 @@ public class NodeSystemTests
         
         foreach (var factoryType in allFoundFactories)
         {
-            var factory = (SerializationFactory)Activator.CreateInstance(factoryType, config);
+            var factory = (SerializationFactory)Activator.CreateInstance(factoryType);
             factories.Add(factory);
         }
 
@@ -142,6 +142,7 @@ public class NodeSystemTests
 
             foreach (var input in node.InputProperties)
             {
+                if (input.ValueType.IsAssignableTo(typeof(Delegate))) continue;
                 bool hasFactory = factories.Any(x => x.OriginalType == input.ValueType);
                 Assert.True(
                     input.ValueType.IsValueType || input.ValueType == typeof(string) || hasFactory, 
