@@ -7,7 +7,7 @@ namespace PixiEditor.ChangeableDocument.Changes.Animation;
 internal class CreateRasterKeyFrame_Change : Change
 {
     private readonly Guid _targetLayerGuid;
-    private readonly int _frame;
+    private int _frame;
     private readonly Guid? cloneFrom;
     private int? cloneFromFrame;
     private ImageLayerNode? _layer;
@@ -36,15 +36,26 @@ internal class CreateRasterKeyFrame_Change : Change
         var cloneFromImage = cloneFrom.HasValue
             ? target.FindMemberOrThrow<ImageLayerNode>(cloneFrom.Value).GetLayerImageAtFrame(cloneFromFrame ?? 0)
             : null;
-        
+
         ImageLayerNode targetNode = target.FindMemberOrThrow<ImageLayerNode>(_targetLayerGuid);
-        
+
         ChunkyImage img = cloneFromImage?.CloneFromCommitted() ?? new ChunkyImage(target.Size);
-        
+
         var keyFrame =
             new RasterKeyFrame(createdKeyFrameId, targetNode, _frame, target, img);
-        
-        targetNode.AddFrame(createdKeyFrameId, new KeyFrameData(createdKeyFrameId, _frame, 1, ImageLayerNode.ImageLayerKey) { Data = img });
+
+        var existingData = targetNode.KeyFrames.FirstOrDefault(x => x.KeyFrameGuid == createdKeyFrameId);
+
+        if (existingData is null)
+        {
+            targetNode.AddFrame(createdKeyFrameId,
+                new KeyFrameData(createdKeyFrameId, _frame, 1, ImageLayerNode.ImageLayerKey) { Data = img });
+        }
+        else
+        {
+            _frame = existingData.StartFrame;
+        }
+
         target.AnimationData.AddKeyFrame(keyFrame);
         ignoreInUndo = false;
         return new CreateRasterKeyFrame_ChangeInfo(_targetLayerGuid, _frame, createdKeyFrameId, cloneFrom.HasValue);

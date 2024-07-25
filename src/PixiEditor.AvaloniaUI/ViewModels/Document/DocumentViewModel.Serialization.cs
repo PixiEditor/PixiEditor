@@ -55,7 +55,7 @@ internal partial class DocumentViewModel
             PreviewImage =
                 (TryRenderWholeImage(0).Value as Surface)?.DrawingSurface.Snapshot().Encode().AsSpan().ToArray(),
             ReferenceLayer = GetReferenceLayer(doc),
-            AnimationData = ToAnimationData(doc.AnimationData, nodeIdMap),
+            AnimationData = ToAnimationData(doc.AnimationData, nodeIdMap, keyFrameIdMap),
             ImageEncoderUsed = encoder.EncodedFormatName
         };
 
@@ -210,35 +210,31 @@ internal partial class DocumentViewModel
     private ColorCollection ToCollection(IList<PaletteColor> collection) =>
         new(collection.Select(x => Color.FromArgb(255, x.R, x.G, x.B)));
 
-    private AnimationData ToAnimationData(IReadOnlyAnimationData animationData, Dictionary<Guid, int> idMap)
+    private AnimationData ToAnimationData(IReadOnlyAnimationData animationData, Dictionary<Guid, int> nodeIdMap, Dictionary<Guid, int> keyFrameIds)
     {
         var animData = new AnimationData();
         animData.KeyFrameGroups = new List<KeyFrameGroup>();
-        BuildKeyFrames(animationData.KeyFrames, animData, idMap);
+        BuildKeyFrames(animationData.KeyFrames, animData, nodeIdMap, keyFrameIds);
 
         return animData;
     }
 
     private static void BuildKeyFrames(IReadOnlyList<IReadOnlyKeyFrame> root, AnimationData animationData,
-        Dictionary<Guid, int> idMap)
+        Dictionary<Guid, int> nodeIdMap, Dictionary<Guid, int> keyFrameIds)
     {
         foreach (var keyFrame in root)
         {
             if (keyFrame is IKeyFrameChildrenContainer container)
             {
                 KeyFrameGroup group = new();
-                group.NodeId = idMap[keyFrame.NodeId];
+                group.NodeId = nodeIdMap[keyFrame.NodeId];
                 group.Enabled = keyFrame.IsVisible;
 
                 foreach (var child in container.Children)
                 {
-                    if (child is IKeyFrameChildrenContainer groupKeyFrame)
+                    if (child is IReadOnlyRasterKeyFrame rasterKeyFrame)
                     {
-                        BuildKeyFrames(groupKeyFrame.Children, null, idMap);
-                    }
-                    else if (child is IReadOnlyRasterKeyFrame rasterKeyFrame)
-                    {
-                        BuildRasterKeyFrame(rasterKeyFrame, group, idMap);
+                        BuildRasterKeyFrame(rasterKeyFrame, group, nodeIdMap, keyFrameIds);
                     }
                 }
 
@@ -248,7 +244,7 @@ internal partial class DocumentViewModel
     }
 
     private static void BuildRasterKeyFrame(IReadOnlyRasterKeyFrame rasterKeyFrame, KeyFrameGroup group,
-        Dictionary<Guid, int> idMap)
+        Dictionary<Guid, int> idMap, Dictionary<Guid, int> keyFrameIds)
     {
         var bounds = rasterKeyFrame.Image.FindChunkAlignedMostUpToDateBounds();
 
@@ -264,11 +260,11 @@ internal partial class DocumentViewModel
                 new VecI(0, 0));
         }
 
-        /*group.Children.Add(new RasterKeyFrame()
+        group.Children.Add(new ElementKeyFrame()
         {
             NodeId = idMap[rasterKeyFrame.NodeId],
-            StartFrame = rasterKeyFrame.StartFrame,
-            Duration = rasterKeyFrame.Duration,
-        });*/
+            KeyFrameId = keyFrameIds[rasterKeyFrame.Id],
+            IsEnabled = rasterKeyFrame.IsVisible
+        });
     }
 }

@@ -296,7 +296,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             acc.AddActions(new CreateNode_Action(typeof(OutputNode), outputNodeGuid));
         }
 
-        AddAnimationData(builderInstance.AnimationData);
+        AddAnimationData(builderInstance.AnimationData, mappedNodeIds, mappedKeyFrameIds);
 
         acc.AddFinishedActions(new DeleteRecordedChanges_Action());
         viewModel.MarkAsSaved();
@@ -441,28 +441,24 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             }
         }*/
 
-        void AddAnimationData(List<KeyFrameBuilder> data)
+        void AddAnimationData(List<KeyFrameBuilder> data, Dictionary<int, Guid> mappedIds, 
+            Dictionary<int, Guid> mappedKeyFrameIds)
         {
             foreach (var keyFrame in data)
             {
-                /*if (keyFrame is RasterKeyFrameBuilder rasterKeyFrameBuilder)
-                {
-                    Guid keyFrameGuid = Guid.NewGuid();
-                    acc.AddActions(
-                        new CreateRasterKeyFrame_Action(
-                            mappedIds[rasterKeyFrameBuilder.LayerId],
-                            keyFrameGuid,
-                            rasterKeyFrameBuilder.StartFrame, -1, default),
-                        new KeyFrameLength_Action(keyFrameGuid, rasterKeyFrameBuilder.StartFrame,
-                            rasterKeyFrameBuilder.Duration),
-                        new EndKeyFrameLength_Action());
-
-                    acc.AddFinishedActions();
-                }
-                else */
                 if (keyFrame is GroupKeyFrameBuilder groupKeyFrameBuilder)
                 {
-                    AddAnimationData(groupKeyFrameBuilder.Children);
+                    AddAnimationData(groupKeyFrameBuilder.Children, mappedIds, mappedKeyFrameIds);
+                }
+                else
+                {
+                    acc.AddActions(
+                        new CreateRasterKeyFrame_Action(
+                            mappedIds[keyFrame.NodeId],
+                            mappedKeyFrameIds[keyFrame.KeyFrameId],
+                            -1, -1, default));
+                    
+                    acc.AddFinishedActions();
                 }
             }
         }

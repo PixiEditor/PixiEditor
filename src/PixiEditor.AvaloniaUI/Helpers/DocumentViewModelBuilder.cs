@@ -125,21 +125,12 @@ internal class DocumentViewModelBuilder
                 .WithVisibility(group.Enabled)
                 .WithNodeId(group.NodeId);
 
-            foreach (var child in group.ChildrenIds)
+            foreach (var child in group.Children)
             {
-                /*if (child is KeyFrameGroup childGroup)
-                {
-                    builder.WithChild<GroupKeyFrameBuilder>(x =>
-                        BuildKeyFrames(childGroup.Children, null));
-                }*/
-                /*else if (child is RasterKeyFrame rasterKeyFrame)
-                {
-                    builder.WithChild<RasterKeyFrameBuilder>(x => x
-                        .WithVisibility(builder.IsVisible)
-                        .WithLayerGuid(rasterKeyFrame.NodeId)
-                        .WithStartFrame(rasterKeyFrame.StartFrame)
-                        .WithDuration(rasterKeyFrame.Duration));
-                }*/
+                builder.WithChild<KeyFrameBuilder>(x => x
+                    .WithVisibility(child.IsEnabled)
+                    .WithKeyFrameId(child.KeyFrameId)
+                    .WithNodeId(child.NodeId));
             }
 
             data?.Add(builder);
@@ -202,22 +193,9 @@ internal class DocumentViewModelBuilder
 
 internal class KeyFrameBuilder()
 {
-    public int StartFrame { get; set; }
-    public int Duration { get; set; }
     public bool IsVisible { get; set; }
-    public int LayerId { get; set; }
-
-    public KeyFrameBuilder WithStartFrame(int startFrame)
-    {
-        StartFrame = startFrame;
-        return this;
-    }
-
-    public KeyFrameBuilder WithDuration(int duration)
-    {
-        Duration = duration;
-        return this;
-    }
+    public int NodeId { get; set; }
+    public int KeyFrameId { get; set; }
 
     public KeyFrameBuilder WithVisibility(bool isVisible)
     {
@@ -225,9 +203,15 @@ internal class KeyFrameBuilder()
         return this;
     }
 
-    public KeyFrameBuilder WithLayerGuid(int layerGuid)
+    public KeyFrameBuilder WithKeyFrameId(int layerId)
     {
-        LayerId = layerGuid;
+        KeyFrameId = layerId;
+        return this;
+    }
+
+    public KeyFrameBuilder WithNodeId(int nodeId)
+    {
+        NodeId = nodeId;
         return this;
     }
 }
@@ -248,12 +232,7 @@ internal class GroupKeyFrameBuilder : KeyFrameBuilder
         base.WithVisibility(isVisible) as GroupKeyFrameBuilder;
 
     public new GroupKeyFrameBuilder WithNodeId(int layerGuid) =>
-        base.WithLayerGuid(layerGuid) as GroupKeyFrameBuilder;
-
-    public new GroupKeyFrameBuilder WithStartFrame(int startFrame) =>
-        base.WithStartFrame(startFrame) as GroupKeyFrameBuilder;
-
-    public new GroupKeyFrameBuilder WithDuration(int duration) => base.WithDuration(duration) as GroupKeyFrameBuilder;
+        base.WithKeyFrameId(layerGuid) as GroupKeyFrameBuilder;
 }
 
 internal class NodeGraphBuilder
@@ -377,7 +356,7 @@ internal class NodeGraphBuilder
         public NodeBuilder WithKeyFrames(KeyFrameData[] keyFrames)
         {
             KeyFrames = keyFrames;
-            return this;   
+            return this;
         }
     }
 }
