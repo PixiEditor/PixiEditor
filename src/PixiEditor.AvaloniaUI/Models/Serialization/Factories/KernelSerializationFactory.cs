@@ -4,10 +4,6 @@ namespace PixiEditor.AvaloniaUI.Models.Serialization.Factories;
 
 public class KernelSerializationFactory : SerializationFactory<SerializableKernel, Kernel>
 {
-    public KernelSerializationFactory(SerializationConfig config) : base(config)
-    {
-    }
-
     public override SerializableKernel Serialize(Kernel original)
     {
         return new SerializableKernel
@@ -18,9 +14,26 @@ public class KernelSerializationFactory : SerializationFactory<SerializableKerne
         };    
     }
 
-    public override Kernel Deserialize(SerializableKernel serialized)
+    public override bool TryDeserialize(object raw, out Kernel original)
     {
-        Kernel kernel = new(serialized.Width, serialized.Height, serialized.Values);
-        return kernel;
+        if (raw is not Dictionary<string, object> serialized)
+        {
+            original = null;
+            return false;
+        }
+        
+        if (serialized.ContainsKey("Width") && serialized.ContainsKey("Height") && serialized.ContainsKey("Values"))
+        {
+            int width = ExtractInt(serialized["Width"]);
+            int height = ExtractInt(serialized["Height"]);
+            float[] values = ExtractArray<float>(serialized["Values"]);
+            original = new Kernel(width, height, values);
+            return true;
+        }
+
+        original = null;
+        return false; 
     }
+
+    public override string DeserializationId { get; } = "PixiEditor.Kernel";
 }

@@ -342,6 +342,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     internal virtual void DeserializeData(IReadOnlyDictionary<string, object> data)
     {
-      
+        
     }
 }

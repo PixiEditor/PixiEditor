@@ -10,6 +10,7 @@ using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Collections;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
@@ -19,6 +20,8 @@ using PixiEditor.AvaloniaUI.Models.DocumentModels.Public;
 using PixiEditor.AvaloniaUI.Models.DocumentPassthroughActions;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Position;
+using PixiEditor.AvaloniaUI.Models.Serialization;
+using PixiEditor.AvaloniaUI.Models.Serialization.Factories;
 using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.AvaloniaUI.Models.Tools;
 using PixiEditor.AvaloniaUI.ViewModels.Document.TransformOverlays;
@@ -32,6 +35,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos;
+using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
@@ -277,6 +281,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         viewModel.Swatches = new ObservableCollection<PaletteColor>(builderInstance.Swatches);
         viewModel.Palette = new ObservableRangeCollection<PaletteColor>(builderInstance.Palette);
 
+        SerializationConfig config = new SerializationConfig(BuiltInEncoders.Encoders[builderInstance.ImageEncoderUsed]);
+        
+        List<SerializationFactory> allFactories = ViewModelMain.Current.Services.GetServices<SerializationFactory>().ToList();
+        
         AddNodes(builderInstance.Graph);
 
         if (builderInstance.Graph.AllNodes.Count == 0)
@@ -327,13 +335,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 foreach (var propertyValue in serializedNode.InputValues)
                 {
-                    acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, propertyValue.Value));
+                    object value = SerializationUtil.Deserialize(propertyValue.Value, config, allFactories);
+                    acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, value));
                 }
             }
 
             if (serializedNode.AdditionalData != null && serializedNode.AdditionalData.Count > 0)
             {
-                acc.AddActions(new DeserializeNodeAdditionalData_Action(guid, serializedNode.AdditionalData));
+                acc.AddActions(new DeserializeNodeAdditionalData_Action(guid, SerializationUtil.DeserializeDict(serializedNode.AdditionalData, config, allFactories)));
             }
 
             if (!string.IsNullOrEmpty(serializedNode.Name))

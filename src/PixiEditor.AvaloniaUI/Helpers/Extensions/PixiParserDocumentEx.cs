@@ -34,14 +34,15 @@ internal static class PixiParserDocumentEx
 
         return DocumentViewModel.Build(b => b
             .WithSize(document.Width, document.Height)
+            .WithImageEncoder(document.ImageEncoderUsed)
             .WithPalette(document.Palette, color => new PaletteColor(color.R, color.G, color.B))
             .WithSwatches(document.Swatches, x => new(x.R, x.G, x.B))
             .WithReferenceLayer(document.ReferenceLayer, BuildReferenceLayer, encoder)
-            .WithGraph(document.Graph, encoder, BuildGraph)
+            .WithGraph(document.Graph, BuildGraph)
             .WithAnimationData(document.AnimationData));
     }
 
-    private static void BuildGraph(NodeGraph graph, NodeGraphBuilder graphBuilder, ImageEncoder encoder)
+    private static void BuildGraph(NodeGraph graph, NodeGraphBuilder graphBuilder)
     {
         if (graph.AllNodes != null)
         {
@@ -52,82 +53,11 @@ internal static class PixiParserDocumentEx
                     .WithPosition(node.Position)
                     .WithName(node.Name)
                     .WithUniqueNodeName(node.UniqueNodeName)
-                    .WithInputValues(ParseArbitraryData(ToDictionary(node.InputPropertyValues), encoder))
-                    .WithAdditionalData(ParseArbitraryData(node.AdditionalData, encoder))
+                    .WithInputValues(ToDictionary(node.InputPropertyValues))
+                    .WithAdditionalData(node.AdditionalData)
                     .WithConnections(node.InputConnections));
             }
         }
-    }
-
-    private static Dictionary<string, object> ParseArbitraryData(Dictionary<string, object> data, ImageEncoder encoder)
-    {
-        Dictionary<string, object> parsedData = new();
-
-        foreach (var item in data)
-        {
-            if (item.Value is IEnumerable enumerable)
-            {
-                List<object> parsedList = new();
-                foreach (var listElement in enumerable)
-                {
-                    if (TryParseSurface(listElement, encoder, out object parsed))
-                    {
-                        parsedList.Add(parsed);
-                    }
-                }
-
-                if (parsedList.Count > 0)
-                {
-                    // if all children are the same type
-                    if (parsedList.All(x => x is Surface))
-                    {
-                        parsedData.Add(item.Key, parsedList.Cast<Surface>());
-                    }
-                    else
-                    {
-                        parsedData.Add(item.Key, parsedList);
-                    }
-                }
-                else
-                {
-                    parsedData.Add(item.Key, item.Value);
-                }
-            }
-            else if (TryParseSurface(item, encoder, out object parsed))
-            {
-                parsedData.Add(item.Key, parsed);
-            }
-            else
-            {
-                parsedData.Add(item.Key, item.Value);
-            }
-        }
-
-        return parsedData;
-    }
-
-    private static bool TryParseSurface(object item, ImageEncoder encoder, out object parsed)
-    {
-        parsed = null;
-        if (item is IEnumerable<object> objEnumerable)
-        {
-            var array = objEnumerable.ToArray();
-            if (array.Count() == 3 && array.First() is IEnumerable<byte> bytes)
-            {
-                try
-                {
-                    parsed = DecodeSurface(bytes.ToArray(), encoder);
-                    return true;
-                }
-                catch
-                {
-                    parsed = item;
-                    return false;
-                }
-            }
-        }
-
-        return false;
     }
 
     private static Dictionary<string, object> ToDictionary(IEnumerable<NodePropertyValue> properties)
@@ -162,17 +92,6 @@ internal static class PixiParserDocumentEx
         byte[] decoded =
             encoder.Decode(imgBytes, out SKImageInfo info);
         surface.DrawBytes(surface.Size, decoded, info.ColorType.ToColorType(), info.AlphaType.ToAlphaType());
-
-        return surface;
-    }
-    
-    private static Surface DecodeSurface(byte[] imgBytes, ImageEncoder encoder)
-    {
-        byte[] decoded =
-            encoder.Decode(imgBytes, out SKImageInfo info);
-        using Image img = Image.FromPixels(info.ToImageInfo(), decoded);
-        Surface surface = new Surface(img.Size);
-        surface.DrawingSurface.Canvas.DrawImage(img, 0, 0);
 
         return surface;
     }

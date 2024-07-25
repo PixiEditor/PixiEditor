@@ -28,6 +28,7 @@ internal class DocumentViewModelBuilder
     public List<KeyFrameBuilder> AnimationData { get; set; } = new List<KeyFrameBuilder>();
 
     public NodeGraphBuilder Graph { get; set; }
+    public string ImageEncoderUsed { get; set; } = "QOI";
 
     public DocumentViewModelBuilder WithSize(int width, int height)
     {
@@ -92,11 +93,11 @@ internal class DocumentViewModelBuilder
         return this;
     }
 
-    public DocumentViewModelBuilder WithGraph(NodeGraph graph, ImageEncoder encoder, Action<NodeGraph, NodeGraphBuilder, ImageEncoder> builder)
+    public DocumentViewModelBuilder WithGraph(NodeGraph graph, Action<NodeGraph, NodeGraphBuilder> builder)
     {
         if (graph != null)
         {
-            WithGraph(x => builder(graph, x, encoder));
+            WithGraph(x => builder(graph, x));
         }
 
         return this;
@@ -109,17 +110,11 @@ internal class DocumentViewModelBuilder
         Graph = graph;
         return this;
     }
-
-    private static Dictionary<string, object> ToDictionary(NodePropertyValue[] values)
+    
+    public DocumentViewModelBuilder WithImageEncoder(string encoder)
     {
-        Dictionary<string, object> dictionary = new();
-
-        foreach (var value in values)
-        {
-            dictionary.Add(value.PropertyName, value.Value);
-        }
-
-        return dictionary;
+        ImageEncoderUsed = encoder;
+        return this;
     }
 
     private static void BuildKeyFrames(List<IKeyFrame> root, List<KeyFrameBuilder> data)

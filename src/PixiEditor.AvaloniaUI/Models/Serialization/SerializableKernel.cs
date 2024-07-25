@@ -5,12 +5,12 @@ namespace PixiEditor.AvaloniaUI.Models.Serialization;
 [MessagePackObject]
 public class SerializableKernel
 {
-    [Key(0)]
+    [Key("Width")]
     public int Width { get; set; }
     
-    [Key(1)]
+    [Key("Height")]
     public int Height { get; set; }
     
-    [Key(2)]
+    [Key("Values")]
     public float[] Values { get; set; }
 }

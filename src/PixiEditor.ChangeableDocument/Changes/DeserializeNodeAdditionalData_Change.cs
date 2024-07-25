@@ -22,6 +22,7 @@ internal class DeserializeNodeAdditionalData_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         Node node = target.FindNode<Node>(nodeId);
+        
         node.DeserializeData(data);
         ignoreInUndo = false;
         return new None();
