@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
@@ -17,8 +18,16 @@ internal class UpdatePropertyValue_Change : Change
         _propertyName = property;
         _value = value;
     }
-    
-    public override bool InitializeAndValidate(Document target) => true;
+
+    public override bool InitializeAndValidate(Document target)
+    {
+        if(target.TryFindNode<Node>(_nodeId, out var node))
+        {
+            return node.HasInputProperty(_propertyName);
+        }
+        
+        return false;
+    }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {

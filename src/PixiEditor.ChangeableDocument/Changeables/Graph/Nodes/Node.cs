@@ -338,6 +338,17 @@ public abstract class Node : IReadOnlyNode, IDisposable
         return outputs.FirstOrDefault(x => x.InternalPropertyName == outputProperty);
     }
 
+
+    public bool HasInputProperty(string propertyName)
+    {
+        return inputs.Any(x => x.InternalPropertyName == propertyName);
+    }
+
+    public bool HasOutputProperty(string propertyName)
+    {
+        return outputs.Any(x => x.InternalPropertyName == propertyName);
+    }
+
     IInputProperty? IReadOnlyNode.GetInputProperty(string inputProperty)
     {
         return GetInputProperty(inputProperty);

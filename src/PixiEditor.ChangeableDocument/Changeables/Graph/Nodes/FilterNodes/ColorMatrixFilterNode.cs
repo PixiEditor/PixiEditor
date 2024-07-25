@@ -1,8 +1,9 @@
-﻿using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+﻿using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
+[NodeInfo("ColorMatrixFilter")]
 public class ColorMatrixFilterNode : FilterNode
 {
     public InputProperty<ColorMatrix> Matrix { get; }
@@ -13,8 +14,6 @@ public class ColorMatrixFilterNode : FilterNode
     {
         Matrix = CreateInput(nameof(Matrix), "MATRIX", ColorMatrix.Identity);
     }
-
-    protected override string NodeUniqueName => "ColorMatrixFilter";
 
     protected override ColorFilter? GetColorFilter() => ColorFilter.CreateColorMatrix(Matrix.Value);
 

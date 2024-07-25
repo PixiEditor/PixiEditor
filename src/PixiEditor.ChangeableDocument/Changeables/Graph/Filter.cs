@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.Contracts;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 

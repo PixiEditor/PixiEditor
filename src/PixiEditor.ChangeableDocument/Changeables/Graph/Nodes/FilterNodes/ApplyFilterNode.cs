@@ -1,15 +1,15 @@
 ﻿using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
+[NodeInfo("ApplyFilter")]
 public class ApplyFilterNode : Node
 {
     private Paint _paint = new();
     
-    protected override string NodeUniqueName { get; } = "ApplyFilter";
-
     public override string DisplayName { get; set; } = "APPLY_FILTER_NODE";
     
     public OutputProperty<Surface?> Output { get; }

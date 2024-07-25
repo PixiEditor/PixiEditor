@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 

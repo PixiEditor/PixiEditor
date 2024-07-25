@@ -1,9 +1,10 @@
-﻿using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+﻿using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
+[NodeInfo("KernelFilter")]
 public class KernelFilterNode : FilterNode
 {
     private readonly Paint _paint = new();
@@ -27,8 +28,6 @@ public class KernelFilterNode : FilterNode
         Tile = CreateInput(nameof(Tile), "TILE_MODE", TileMode.Clamp);
         OnAlpha = CreateInput(nameof(OnAlpha), "ON_ALPHA", false);
     }
-
-    protected override string NodeUniqueName => "KernelFilter";
 
     protected override ImageFilter? GetImageFilter()
     {
