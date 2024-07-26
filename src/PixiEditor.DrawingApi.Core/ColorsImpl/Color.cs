@@ -218,12 +218,12 @@ namespace PixiEditor.DrawingApi.Core.ColorsImpl
         return this == Empty ? null : $"{this._colorValue:X8}";
     }
 
-    public static Color Lerp(Color from, Color to, double time)
+    public static Color Lerp(Color from, Color to, double t)
     {
-        byte r = (byte)(from.R + (to.R - from.R) * time);
-        byte g = (byte)(from.G + (to.G - from.G) * time);
-        byte b = (byte)(from.B + (to.B - from.B) * time);
-        byte a = (byte)(from.A + (to.A - from.A) * time);
+        byte r = (byte)(from.R + (to.R - from.R) * t);
+        byte g = (byte)(from.G + (to.G - from.G) * t);
+        byte b = (byte)(from.B + (to.B - from.B) * t);
+        byte a = (byte)(from.A + (to.A - from.A) * t);
         return new Color(r, g, b, a);
     }
   }

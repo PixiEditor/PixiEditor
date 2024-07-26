@@ -168,7 +168,10 @@ internal abstract class NodePropertyViewModel<T> : NodePropertyViewModel
             if (base.Value == null)
                 return default;
 
-            return (T)base.Value;
+            if (base.Value is T value)
+                return value;
+            
+            return default;
         }
         set => base.Value = value;
     }

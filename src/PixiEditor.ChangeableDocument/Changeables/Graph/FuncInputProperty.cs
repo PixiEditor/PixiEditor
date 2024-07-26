@@ -26,7 +26,7 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
         Func<FuncContext, T> func = f =>
         {
             ConversionTable.TryConvert(delegateToCast.DynamicInvoke(f), typeof(T), out var result);
-            return (T)result;
+            return result == null ? default : (T)result; 
         };
         return func;
     }
@@ -35,6 +35,18 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
 
     void IFuncInputProperty.SetFuncConstantValue(object? value)
     {
-        constantNonOverrideValue = value == null ? default : (T)value;
+        if (value is T)
+        {
+            constantNonOverrideValue = (T)value;
+            return;
+        }
+        
+        if(ConversionTable.TryConvert(value, typeof(T), out var result))
+        {
+            constantNonOverrideValue = (T)result;
+            return;
+        }
+
+        constantNonOverrideValue = default;
     }
 }

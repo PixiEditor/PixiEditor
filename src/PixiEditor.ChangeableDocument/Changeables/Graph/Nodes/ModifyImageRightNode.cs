@@ -64,13 +64,13 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
             for (int x = 0; x < width; x++)
             {
                 context.UpdateContext(new VecD((double)x / width, (double)y / height), new VecI(width, height));
-                var color = Color.Value(context);
                 var uv = Coordinate.Value(context);
-                var position = new VecD(uv.X * width, uv.Y * height);
+                context.UpdateContext(uv, new VecI(width, height));
+                var color = Color.Value(context);
                 
                 drawingPaint.Color = color;
 
-                surface.DrawingSurface.Canvas.DrawPixel((int)position.X, (int)position.Y, drawingPaint);
+                surface.DrawingSurface.Canvas.DrawPixel(x, y, drawingPaint);
             }
         }
 
