@@ -58,6 +58,12 @@ public static class ConversionTable
                 return false;
             }
         }
+
+        if (targetType.IsAssignableTo(typeof(Delegate)))
+        {
+            result = arg;
+            return true;
+        }
         
         if (_conversionTable.TryGetValue(arg.GetType(), out var converters))
         {

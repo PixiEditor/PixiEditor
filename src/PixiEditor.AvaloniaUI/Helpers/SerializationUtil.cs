@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using PixiEditor.AvaloniaUI.Models.Serialization;
 using PixiEditor.AvaloniaUI.Models.Serialization.Factories;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 
 namespace PixiEditor.AvaloniaUI.Helpers;
 
@@ -12,6 +13,11 @@ public static class SerializationUtil
         if (value is null)
         {
             return null;
+        }
+
+        if (value is Delegate del)
+        {
+            value = del.DynamicInvoke(FuncContext.NoContext);
         }
 
         var factory = allFactories.FirstOrDefault(x => x.OriginalType == value.GetType());

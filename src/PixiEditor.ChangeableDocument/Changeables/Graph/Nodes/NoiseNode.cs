@@ -43,12 +43,18 @@ public class NoiseNode : Node
 
     protected override Surface OnExecute(RenderingContext context)
     {
-        if (Math.Abs(previousScale - Scale.Value) > 0.000001 
+        if (Math.Abs(previousScale - Scale.Value) > 0.000001
             || previousSeed != Seed.Value
             || previousOctaves != Octaves.Value
             || previousNoiseType != NoiseType.Value
             || double.IsNaN(previousScale))
         {
+            if(Scale.Value < 0.000001)
+            {
+                Noise.Value = null;
+                return null;
+            }
+            
             var shader = SelectShader();
             if (shader == null)
             {
@@ -68,6 +74,12 @@ public class NoiseNode : Node
         }
         
         var size = Size.Value;
+        
+        if (size.X < 1 || size.Y < 1)
+        {
+            Noise.Value = null;
+            return null;
+        }
         
         var workingSurface = new Surface(size);
        

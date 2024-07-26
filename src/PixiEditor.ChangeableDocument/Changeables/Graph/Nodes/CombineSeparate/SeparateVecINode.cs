@@ -17,8 +17,8 @@ public class SeparateVecINode : Node
 
     public SeparateVecINode()
     {
-        X = CreateFieldOutput("X", "X", ctx => Vector.Value(ctx).X);
-        Y = CreateFieldOutput("Y", "Y", ctx => Vector.Value(ctx).Y);
+        X = CreateFuncOutput("X", "X", ctx => Vector.Value(ctx).X);
+        Y = CreateFuncOutput("Y", "Y", ctx => Vector.Value(ctx).Y);
         Vector = CreateFuncInput("Vector", "VECTOR", new VecI(0, 0));
     }
 

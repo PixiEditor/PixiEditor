@@ -314,14 +314,26 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             foreach (var node in graph.AllNodes)
             {
                 Guid nodeGuid = mappedNodeIds[node.Id];
+
+                var serializedNode = graph.AllNodes.First(x => x.Id == node.Id);
+
+                if (serializedNode.AdditionalData != null && serializedNode.AdditionalData.Count > 0)
+                {
+                    acc.AddActions(new DeserializeNodeAdditionalData_Action(nodeGuid,
+                        SerializationUtil.DeserializeDict(serializedNode.AdditionalData, config, allFactories)));
+                }
+
                 if (node.InputConnections != null)
                 {
-                    foreach (var connection in node.InputConnections)
+                    foreach (var connections in node.InputConnections)
                     {
-                        if (mappedNodeIds.TryGetValue(connection.Key, out Guid outputNodeId))
+                        if (mappedNodeIds.TryGetValue(connections.Key, out Guid outputNodeId))
                         {
-                            acc.AddActions(new ConnectProperties_Action(nodeGuid, outputNodeId,
-                                connection.Value.inputPropName, connection.Value.outputPropName));
+                            foreach (var connection in connections.Value)
+                            {
+                                acc.AddActions(new ConnectProperties_Action(nodeGuid, outputNodeId,
+                                    connection.inputPropName, connection.outputPropName));
+                            }
                         }
                     }
                 }
@@ -333,6 +345,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             Guid guid = Guid.NewGuid();
             mappedNodeIds.Add(id, guid);
             acc.AddActions(new CreateNodeFromName_Action(serializedNode.UniqueNodeName, guid));
+            acc.AddFinishedActions(new NodePosition_Action(guid, serializedNode.Position.ToVecD()), new EndNodePosition_Action());
 
             if (serializedNode.InputValues != null)
             {
@@ -348,7 +361,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 foreach (var keyFrame in serializedNode.KeyFrames)
                 {
                     Guid keyFrameGuid = Guid.NewGuid();
-                    mappedKeyFrameIds.Add(keyFrame.Id, keyFrameGuid);
+                    /*Add should be here I think, but it crashes while deserializing multiple layers with no frames*/
+                    mappedKeyFrameIds[keyFrame.Id] = keyFrameGuid;
                     acc.AddActions(
                         new SetKeyFrameData_Action(
                             guid,
@@ -357,12 +371,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                             keyFrame.StartFrame,
                             keyFrame.Duration, keyFrame.AffectedElement, keyFrame.IsVisible));
                 }
-            }
-
-            if (serializedNode.AdditionalData != null && serializedNode.AdditionalData.Count > 0)
-            {
-                acc.AddActions(new DeserializeNodeAdditionalData_Action(guid,
-                    SerializationUtil.DeserializeDict(serializedNode.AdditionalData, config, allFactories)));
             }
 
             if (!string.IsNullOrEmpty(serializedNode.Name))

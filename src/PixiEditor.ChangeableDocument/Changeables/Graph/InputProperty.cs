@@ -53,6 +53,15 @@ public class InputProperty : IInputProperty
         return func;
     }
 
+    protected virtual object FuncFactoryDelegate(Delegate delegateToCast)
+    {
+        Func<FuncContext, object> func = f =>
+        {
+            return ConversionTable.TryConvert(delegateToCast.DynamicInvoke(f), ValueType, out object result) ? result : null;
+        };
+        return func;
+    }
+
     public Node Node { get; }
     public Type ValueType { get; } 
     internal bool CacheChanged
@@ -147,6 +156,11 @@ public class InputProperty<T> : InputProperty, IInputProperty<T>
             
             if(value is T tValue)
                 return tValue;
+
+            if (value is Delegate func && typeof(T).IsAssignableTo(typeof(Delegate)))
+            {
+                return (T)FuncFactoryDelegate(func); 
+            }
 
             return ConversionTable.TryConvert(value, typeof(T), out object result) ? (T)result : default;
         }

@@ -16,8 +16,8 @@ public class ImageSpaceNode : Node
     public override string DisplayName { get; set; } = "IMAGE_SPACE_NODE";
     public ImageSpaceNode()
     {
-        SpacePosition = CreateFieldOutput(nameof(SpacePosition), "PIXEL_COORDINATE", ctx => ctx.Position);
-        Size = CreateFieldOutput(nameof(Size), "SIZE", ctx => ctx.Size);
+        SpacePosition = CreateFuncOutput(nameof(SpacePosition), "UV", ctx => ctx.Position);
+        Size = CreateFuncOutput(nameof(Size), "SIZE", ctx => ctx.Size);
     }
 
 

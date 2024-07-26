@@ -40,7 +40,10 @@ internal class CreateNodePair_Change : Change
         Type endingType = attribute.IsStartingType ? attribute.OtherType : nodeType;
         
         var start = NodeOperations.CreateNode(startingType, target);
-        var end = NodeOperations.CreateNode(endingType, target, start);
+        var end = NodeOperations.CreateNode(endingType, target);
+        
+        if(end is IPairNodeEnd pairEnd)
+            pairEnd.StartNode = start;
 
         start.Id = startId;
         end.Id = endId;

@@ -128,7 +128,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
             {
                 if (inputProperty.Connection != null)
                 {
-                    queueNodes.Enqueue(inputProperty.Node);
+                    queueNodes.Enqueue(inputProperty.Connection.Node);
                 }
             }
         }
@@ -229,7 +229,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
         return property;
     }
 
-    protected FuncOutputProperty<T> CreateFieldOutput<T>(string propName, string displayName,
+    protected FuncOutputProperty<T> CreateFuncOutput<T>(string propName, string displayName,
         Func<FuncContext, T> defaultFunc)
     {
         var property = new FuncOutputProperty<T>(this, propName, displayName, defaultFunc);
@@ -363,7 +363,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
     }
 
-    internal virtual void DeserializeData(IReadOnlyDictionary<string, object> data)
+    internal virtual void DeserializeData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data)
     {
     }
 }

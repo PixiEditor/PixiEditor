@@ -290,7 +290,7 @@ internal class NodeGraphBuilder
         public Dictionary<string, object> InputValues { get; set; }
         public KeyFrameData[] KeyFrames { get; set; }
         public Dictionary<string, object> AdditionalData { get; set; }
-        public Dictionary<int, (string inputPropName, string outputPropName)> InputConnections { get; set; }
+        public Dictionary<int, List<(string inputPropName, string outputPropName)>> InputConnections { get; set; }
 
         public NodeBuilder WithId(int id)
         {
@@ -330,12 +330,16 @@ internal class NodeGraphBuilder
 
         public NodeBuilder WithConnections(PropertyConnection[] nodeInputConnections)
         {
-            InputConnections = new Dictionary<int, (string, string)>();
+            InputConnections = new Dictionary<int, List<(string, string)>>();
 
             foreach (var connection in nodeInputConnections)
             {
-                InputConnections.Add(connection.OutputNodeId,
-                    (connection.InputPropertyName, connection.OutputPropertyName));
+                if (!InputConnections.ContainsKey(connection.OutputNodeId))
+                {
+                    InputConnections.Add(connection.OutputNodeId, new List<(string, string)>());
+                }
+                
+                InputConnections[connection.OutputNodeId].Add((connection.InputPropertyName, connection.OutputPropertyName)); 
             }
 
             return this;

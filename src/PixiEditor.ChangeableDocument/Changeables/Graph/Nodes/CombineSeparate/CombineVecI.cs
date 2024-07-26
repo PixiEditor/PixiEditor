@@ -18,7 +18,7 @@ public class CombineVecI : Node
 
     public CombineVecI()
     {
-        Vector = CreateFieldOutput(nameof(Vector), "VECTOR", GetVector);
+        Vector = CreateFuncOutput(nameof(Vector), "VECTOR", GetVector);
 
         X = CreateFuncInput(nameof(X), "X", 0);
         Y = CreateFuncInput(nameof(Y), "Y", 0);

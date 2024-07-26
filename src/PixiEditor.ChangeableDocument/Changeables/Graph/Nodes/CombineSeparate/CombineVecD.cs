@@ -20,7 +20,7 @@ public class CombineVecD : Node
 
     public CombineVecD()
     {
-        Vector = CreateFieldOutput(nameof(Vector), "VECTOR", GetVector);
+        Vector = CreateFuncOutput(nameof(Vector), "VECTOR", GetVector);
 
         X = CreateFuncInput(nameof(X), "X", 0d);
         Y = CreateFuncInput(nameof(Y), "Y", 0d);

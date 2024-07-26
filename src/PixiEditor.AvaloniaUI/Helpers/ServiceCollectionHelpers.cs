@@ -116,6 +116,9 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<SerializationFactory, SurfaceSerializationFactory>()
             .AddSingleton<SerializationFactory, ChunkyImageSerializationFactory>()
             .AddSingleton<SerializationFactory, KernelSerializationFactory>()
+            .AddSingleton<SerializationFactory, VecDSerializationFactory>()
+            .AddSingleton<SerializationFactory, VecISerializationFactory>()
+            .AddSingleton<SerializationFactory, ColorSerializationFactory>()
             // Palette Parsers
             .AddSingleton<IPalettesProvider, PaletteProvider>()
             .AddSingleton<PaletteFileParser, JascFileParser>()

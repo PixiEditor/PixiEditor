@@ -23,5 +23,6 @@ public class FuncContext
     {
         Position = position;
         Size = size;
+        HasContext = true;
     }
 }

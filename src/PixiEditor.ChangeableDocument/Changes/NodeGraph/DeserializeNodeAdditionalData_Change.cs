@@ -23,7 +23,7 @@ internal class DeserializeNodeAdditionalData_Change : Change
     {
         Node node = target.FindNode<Node>(nodeId);
         
-        node.DeserializeData(data);
+        node.DeserializeData(target, data);
         ignoreInUndo = false;
         return new None();
     }

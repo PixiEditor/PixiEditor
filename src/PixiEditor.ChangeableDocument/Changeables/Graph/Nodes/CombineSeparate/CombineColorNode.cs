@@ -22,7 +22,7 @@ public class CombineColorNode : Node
 
     public CombineColorNode()
     {
-        Color = CreateFieldOutput(nameof(Color), "COLOR", GetColor);
+        Color = CreateFuncOutput(nameof(Color), "COLOR", GetColor);
 
         R = CreateFuncInput("R", "R", 0d);
         G = CreateFuncInput("G", "G", 0d);

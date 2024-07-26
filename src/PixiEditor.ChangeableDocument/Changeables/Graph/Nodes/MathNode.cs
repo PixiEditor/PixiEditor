@@ -25,7 +25,7 @@ public class MathNode : Node
     
     public MathNode()
     {
-        Result = CreateFieldOutput(nameof(Result), "RESULT", Calculate);
+        Result = CreateFuncOutput(nameof(Result), "RESULT", Calculate);
         Mode = CreateInput(nameof(Mode), "MATH_MODE", MathNodeMode.Add);
         Clamp = CreateInput(nameof(Clamp), "CLAMP", false);
         X = CreateFuncInput(nameof(X), "X", 0d);
