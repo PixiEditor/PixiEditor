@@ -313,7 +313,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
                 IsGeneratingPreview = false;
             });
 
-            videoPreviewTimer.Start();
+            videoPreviewTimer?.Start();
         });
     }
 

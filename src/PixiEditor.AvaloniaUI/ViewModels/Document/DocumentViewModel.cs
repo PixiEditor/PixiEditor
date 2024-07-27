@@ -503,7 +503,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 for (int j = 0; j < sizeInChunks.Y; j++)
                 {
-                    // TODO: Implement this
                     var maybeChunk = Renderer.RenderChunk(new(i, j), ChunkResolution.Full, frameTime);
                     if (maybeChunk.IsT1)
                         continue;
@@ -904,7 +903,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         for (int i = firstFrame; i < lastFrame; i++)
         {
-            var surface = TryRenderWholeImage(i);
+            KeyFrameTime frameTime = new KeyFrameTime(i, (double)(i - firstFrame) / (lastFrame - firstFrame));
+            var surface = TryRenderWholeImage(frameTime);
             if (surface.IsT0)
             {
                 return false;

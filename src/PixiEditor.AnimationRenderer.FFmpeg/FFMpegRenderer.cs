@@ -27,13 +27,13 @@ public class FFMpegRenderer : IAnimationRenderer
         {
             if (int.TryParse(Path.GetFileNameWithoutExtension(frames[i]), out int frameNumber))
             {
-                finalFrames[frameNumber] = frames[i];
+                finalFrames[frameNumber - 1] = frames[i];
             }
         }
 
         GlobalFFOptions.Configure(new FFOptions()
         {
-            BinaryFolder = @"C:\ProgramData\chocolatey\lib\ffmpeg\tools\ffmpeg\bin"
+            BinaryFolder = @"C:\ProgramData\chocolatey\lib\ffmpeg\tools\ffmpeg\bin",
         });
 
         try

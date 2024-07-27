@@ -632,7 +632,7 @@ internal class TransformOverlay : Overlay
             Origin = TransformHelper.OriginFromCorners(overlay.Corners),
         };
         overlay.isResettingRequestedCorners = true;
-        overlay.RequestedCorners = new ShapeCorners();
+        //overlay.RequestedCorners = new ShapeCorners();
         overlay.isResettingRequestedCorners = false;
     }
 }
