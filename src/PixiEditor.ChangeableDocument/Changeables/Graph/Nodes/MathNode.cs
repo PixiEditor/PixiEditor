@@ -41,7 +41,10 @@ public class MathNode : Node
             MathNodeMode.Add => x + y,
             MathNodeMode.Subtract => x - y,
             MathNodeMode.Multiply => x * y,
-            MathNodeMode.Divide => x / y
+            MathNodeMode.Divide => x / y,
+            MathNodeMode.Sin => Math.Sin(x),
+            MathNodeMode.Cos => Math.Cos(x),
+            MathNodeMode.Tan => Math.Tan(x),
         };
 
         if (Clamp.Value)

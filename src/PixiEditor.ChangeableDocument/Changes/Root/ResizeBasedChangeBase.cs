@@ -10,8 +10,8 @@ internal abstract class ResizeBasedChangeBase : Change
     protected VecI _originalSize;
     protected double _originalHorAxisY;
     protected double _originalVerAxisX;
-    protected Dictionary<Guid, CommittedChunkStorage> deletedChunks = new();
-    protected Dictionary<Guid, CommittedChunkStorage> deletedMaskChunks = new();
+    protected Dictionary<Guid, List<CommittedChunkStorage>> deletedChunks = new();
+    protected Dictionary<Guid, List<CommittedChunkStorage>> deletedMaskChunks = new();
 
     public ResizeBasedChangeBase()
     {
@@ -29,13 +29,16 @@ internal abstract class ResizeBasedChangeBase : Change
     /// Notice: this commits image changes, you won't have a chance to revert or set ignoreInUndo to true
     /// </summary>
     protected virtual void Resize(ChunkyImage img, Guid memberGuid, VecI size, VecI offset,
-        Dictionary<Guid, CommittedChunkStorage> deletedChunksDict)
+        Dictionary<Guid, List<CommittedChunkStorage>> deletedChunksDict)
     {
         img.EnqueueResize(size);
         img.EnqueueClear();
         img.EnqueueDrawCommitedChunkyImage(offset, img);
+        
+        if (!deletedChunksDict.ContainsKey(memberGuid))
+            deletedChunksDict.Add(memberGuid, new());
 
-        deletedChunksDict.Add(memberGuid, new CommittedChunkStorage(img, img.FindAffectedArea().Chunks));
+        deletedChunksDict[memberGuid].Add(new CommittedChunkStorage(img, img.FindAffectedArea().Chunks));
         img.CommitChanges();
     }
 
@@ -49,7 +52,8 @@ internal abstract class ResizeBasedChangeBase : Change
                 layer.ForEveryFrame(img =>
                 {
                     img.EnqueueResize(_originalSize);
-                    deletedChunks[layer.Id].ApplyChunksToImage(img);
+                    foreach (var stored in deletedChunks[layer.Id])
+                        stored.ApplyChunksToImage(img);
                     img.CommitChanges();
                 });
             }
@@ -59,7 +63,7 @@ internal abstract class ResizeBasedChangeBase : Change
             if (member.Mask.Value is null)
                 return;
             member.Mask.Value.EnqueueResize(_originalSize);
-            deletedMaskChunks[member.Id].ApplyChunksToImage(member.Mask.Value);
+            deletedMaskChunks[member.Id][0].ApplyChunksToImage(member.Mask.Value);
             member.Mask.Value.CommitChanges();
         });
 
@@ -74,11 +78,22 @@ internal abstract class ResizeBasedChangeBase : Change
     private void DisposeDeletedChunks()
     {
         foreach (var stored in deletedChunks)
-            stored.Value.Dispose();
+        {
+            foreach (var storage in stored.Value)
+            {
+                storage.Dispose();
+            }
+
+        }
         deletedChunks = new();
 
         foreach (var stored in deletedMaskChunks)
-            stored.Value.Dispose();
+        {
+            foreach (var storage in stored.Value)
+            {
+                storage.Dispose();
+            }
+        }
         deletedMaskChunks = new();
     }
 

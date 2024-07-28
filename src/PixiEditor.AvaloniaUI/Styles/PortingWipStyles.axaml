@@ -110,7 +110,7 @@
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
                         <Border.Background>
-                            <ImageBrush Source="/Images/AnchorDot.png" />
+                            <!--<ImageBrush Source="/Images/AnchorDot.png" />-->
                         </Border.Background>
                         <Border.Transitions>
                             <Transitions>

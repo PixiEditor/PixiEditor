@@ -5,5 +5,8 @@ public enum MathNodeMode
     Add,
     Subtract,
     Multiply,
-    Divide
+    Divide,
+    Sin,
+    Cos,
+    Tan,
 }
