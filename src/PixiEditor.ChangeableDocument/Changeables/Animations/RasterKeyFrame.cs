@@ -23,7 +23,7 @@ internal class RasterKeyFrame : KeyFrame, IReadOnlyRasterKeyFrame
     public override KeyFrame Clone()
     {
         var image = targetImage.CloneFromCommitted();
-        return new RasterKeyFrame(Id, targetNode, StartFrame, Document, image);
+        return new RasterKeyFrame(Id, targetNode, StartFrame, Document, image) { Duration = Duration, IsVisible = IsVisible };
     }
 
     public IReadOnlyChunkyImage Image => targetImage;

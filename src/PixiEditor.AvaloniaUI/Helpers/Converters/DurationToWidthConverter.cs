@@ -14,7 +14,7 @@ internal class DurationToWidthConverter : SingleInstanceMultiValueConverter<Dura
     {
         if (values.Count != 2)
         {
-            return 0;
+            return 0.0;
             throw new ArgumentException("DurationToWidthConverter requires 2 values");
         }
         
@@ -23,6 +23,6 @@ internal class DurationToWidthConverter : SingleInstanceMultiValueConverter<Dura
             return scale * duration;
         }
         
-        return 0;
+        return 0.0;
     }
 }

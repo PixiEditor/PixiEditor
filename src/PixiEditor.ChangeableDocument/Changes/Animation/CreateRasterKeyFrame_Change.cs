@@ -58,8 +58,11 @@ internal class CreateRasterKeyFrame_Change : Change
         {
             _frame = existingData.StartFrame;
             duration = existingData.Duration;
-
             isVisible = existingData.IsVisible;
+            
+            keyFrame.StartFrame = _frame;
+            keyFrame.Duration = duration;
+            keyFrame.IsVisible = isVisible;
         }
 
         target.AnimationData.AddKeyFrame(keyFrame);

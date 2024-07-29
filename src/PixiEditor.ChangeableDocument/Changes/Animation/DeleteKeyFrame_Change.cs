@@ -36,6 +36,13 @@ internal class DeleteKeyFrame_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         target.AnimationData.AddKeyFrame(clonedKeyFrame.Clone());
-        return new CreateRasterKeyFrame_ChangeInfo(clonedKeyFrame.NodeId, clonedKeyFrame.StartFrame, clonedKeyFrame.Id, false);   
+        List<IChangeInfo> changes = new List<IChangeInfo>
+        {
+           new CreateRasterKeyFrame_ChangeInfo(clonedKeyFrame.NodeId, clonedKeyFrame.StartFrame, clonedKeyFrame.Id, false),
+           new KeyFrameVisibility_ChangeInfo(clonedKeyFrame.Id, clonedKeyFrame.IsVisible),
+           new KeyFrameLength_ChangeInfo(clonedKeyFrame.Id, clonedKeyFrame.StartFrame, clonedKeyFrame.Duration)
+        };
+        
+        return changes;
     }
 }
