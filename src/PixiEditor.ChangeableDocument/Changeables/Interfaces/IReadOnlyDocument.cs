@@ -92,7 +92,7 @@ public interface IReadOnlyDocument : IDisposable
     /// <param name="childGuid">The <see cref="IReadOnlyStructureNode.GuidValue"/> of the member</param>
     /// <returns>A value tuple consisting of child (<see cref="ValueTuple{T, T}.Item1"/>) and parent (<see cref="ValueTuple{T, T}.Item2"/>)</returns>
     /// <exception cref="ArgumentException">Thrown if the member and parent could not be found</exception>
-    (IReadOnlyStructureNode, IReadOnlyFolderNode) FindChildAndParentOrThrow(Guid childGuid);
+    (IReadOnlyStructureNode, IReadOnlyNode) FindChildAndParentOrThrow(Guid childGuid);
 
     /// <summary>
     /// Finds the path to the member with <paramref name="guid"/>, the first element will be the member

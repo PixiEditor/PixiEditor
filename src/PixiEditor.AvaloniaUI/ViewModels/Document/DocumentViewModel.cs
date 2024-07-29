@@ -454,9 +454,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             }
         }*/
 
-        void AddAnimationData(AnimationDataBuilder data, Dictionary<int, Guid> mappedIds,
+        void AddAnimationData(AnimationDataBuilder? data, Dictionary<int, Guid> mappedIds,
             Dictionary<int, Guid> mappedKeyFrameIds)
         {
+            if(data is null)
+                return;
+            
             acc.AddActions(new SetFrameRate_Action(data.FrameRate));
             foreach (var keyFrame in data.KeyFrameGroups)
             {

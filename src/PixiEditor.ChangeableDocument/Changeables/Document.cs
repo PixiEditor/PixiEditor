@@ -26,7 +26,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     IReadOnlyList<IReadOnlyStructureNode> IReadOnlyDocument.FindMemberPath(Guid guid) => FindMemberPath(guid);
     IReadOnlyStructureNode IReadOnlyDocument.FindMemberOrThrow(Guid guid) => FindMemberOrThrow(guid);
 
-    (IReadOnlyStructureNode, IReadOnlyFolderNode) IReadOnlyDocument.FindChildAndParentOrThrow(Guid guid) =>
+    (IReadOnlyStructureNode, IReadOnlyNode) IReadOnlyDocument.FindChildAndParentOrThrow(Guid guid) =>
         FindChildAndParentOrThrow(guid);
 
     IReadOnlyReferenceLayer? IReadOnlyDocument.ReferenceLayer => ReferenceLayer;
@@ -304,12 +304,12 @@ internal class Document : IChangeable, IReadOnlyDocument
     /// <param name="childGuid">The <see cref="StructureNode.Id"/> of the member</param>
     /// <returns>A value tuple consisting of child (<see cref="ValueTuple{T, T}.Item1"/>) and parent (<see cref="ValueTuple{T, T}.Item2"/>)</returns>
     /// <exception cref="ArgumentException">Thrown if the member and parent could not be found</exception>
-    public (StructureNode, FolderNode) FindChildAndParentOrThrow(Guid childGuid)
+    public (StructureNode, Node) FindChildAndParentOrThrow(Guid childGuid)
     {
-        var path = FindMemberPath(childGuid);
+        var path = FindNodePath(childGuid);
         if (path.Count < 2)
             throw new ArgumentException("Couldn't find child and parent");
-        return (path[0], (FolderNode)path[1]);
+        return (path[0] as StructureNode, path[1]);
     }
 
     /// <summary>
@@ -357,21 +357,21 @@ internal class Document : IChangeable, IReadOnlyDocument
     {
         if (NodeGraph.OutputNode == null) return [];
 
-        var list = new List<Node>();
+        var list = new List<StructureNode>();
         var targetNode = FindNode(guid);
         if (targetNode == null)
         {
             return [];
         }
-        FillNodePath(targetNode, list);
-        return list.Cast<StructureNode>().ToList();
+        FillNodePath<StructureNode>(targetNode, list);
+        return list.ToList();
     }
 
-    private bool FillNodePath(Node node, List<Node> toFill)
+    private bool FillNodePath<T>(Node node, List<T> toFill) where T : Node
     {
         node.TraverseForwards(newNode =>
         {
-            if (newNode is StructureNode strNode)
+            if (newNode is T strNode)
             {
                 toFill.Add(strNode);
             }
