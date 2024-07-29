@@ -73,49 +73,64 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     private Surface RenderImage(ChunkyImage frameImage, RenderingContext context)
     {
-        var workingSurface = TryInitWorkingSurface(frameImage.LatestSize, context);
+        var outputWorkingSurface = TryInitWorkingSurface(frameImage.LatestSize, context, 0);
+        var filterlessWorkingSurface = TryInitWorkingSurface(frameImage.LatestSize, context, 1);
 
+        bool canClear = Background.Value == null;
+        if (Background.Value != null)
+        {
+            DrawBackground(filterlessWorkingSurface, context);
+            blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
+        }
+
+        DrawLayer(frameImage, context, filterlessWorkingSurface, canClear, useFilters: false);
+        blendPaint.BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src;
+        
+        FilterlessOutput.Value = filterlessWorkingSurface;
+        
         if (!HasOperations())
         {
-            bool canClear = Background.Value == null;
             if (Background.Value != null)
             {
-                DrawBackground(workingSurface, context);
+                DrawBackground(outputWorkingSurface, context);
                 blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
             }
 
-            DrawLayer(frameImage, context, workingSurface, canClear);
-            Output.Value = workingSurface;
-            return workingSurface;
+            DrawLayer(frameImage, context, outputWorkingSurface, canClear);
+            
+            Output.Value = outputWorkingSurface;
+            
+            return outputWorkingSurface;
         }
 
-        DrawLayer(frameImage, context, workingSurface, true);
+        DrawLayer(frameImage, context, outputWorkingSurface, true);
 
         // shit gets downhill with mask on big canvases, TODO: optimize
-        ApplyMaskIfPresent(workingSurface, context);
-        ApplyRasterClip(workingSurface, context);
-
+        ApplyMaskIfPresent(outputWorkingSurface, context);
+        ApplyRasterClip(outputWorkingSurface, context);
+        
         if (Background.Value != null)
         {
-            Surface tempSurface = new Surface(workingSurface.Size);
+            Surface tempSurface = new Surface(outputWorkingSurface.Size);
             DrawBackground(tempSurface, context);
             blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
-            tempSurface.DrawingSurface.Canvas.DrawSurface(workingSurface.DrawingSurface, 0, 0, blendPaint);
+            tempSurface.DrawingSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
 
             Output.Value = tempSurface;
             return tempSurface;
         }
 
-        Output.Value = workingSurface;
-        return workingSurface;
+        Output.Value = outputWorkingSurface;
+        
+        return outputWorkingSurface;
     }
 
-    private void DrawLayer(ChunkyImage frameImage, RenderingContext context, Surface workingSurface, bool shouldClear)
+    private void DrawLayer(ChunkyImage frameImage, RenderingContext context, Surface workingSurface, bool shouldClear, bool useFilters = true)
     {
-        blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255)); 
-        
-        blendPaint.SetFilters(Filters.Value);
-        
+        blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255));
+
+        blendPaint.SetFilters(useFilters ? Filters.Value : null);
+
         if (!frameImage.DrawMostUpToDateChunkOn(
                 context.ChunkToUpdate,
                 context.ChunkResolution,
@@ -124,6 +139,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                 blendPaint) && shouldClear)
         {
             workingSurface.DrawingSurface.Canvas.DrawRect(CalculateDestinationRect(context), clearPaint);
+            workingSurface.DrawingSurface.Canvas.Flush();
         }
     }
 

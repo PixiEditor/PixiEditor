@@ -39,48 +39,66 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
 
         VecI size = Content.Value?.Size ?? Background.Value?.Size ?? VecI.Zero;
         
-        var workingSurface = TryInitWorkingSurface(size, context);
+        var outputWorkingSurface = TryInitWorkingSurface(size, context, 0);
+        var filterlessWorkingSurface = TryInitWorkingSurface(size, context, 1);
+        
+        if (Background.Value != null)
+        {
+            DrawBackground(filterlessWorkingSurface, context);
+            blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
+        }
+
+        if (Content.Value != null)
+        {
+            blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255)); 
+            DrawSurface(filterlessWorkingSurface, Content.Value, context, null);
+        }
+
+        FilterlessOutput.Value = filterlessWorkingSurface;
 
         if (!HasOperations())
         {
             if (Background.Value != null)
             {
-                DrawBackground(workingSurface, context);
+                blendPaint.Color = new Color(255, 255, 255, 255);
+                blendPaint.BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src;
+                DrawBackground(outputWorkingSurface, context);
                 blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
             }
             
             if (Content.Value != null)
             {
                 blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255)); 
-                DrawSurface(workingSurface, Content.Value, context, Filters.Value);
+                DrawSurface(outputWorkingSurface, Content.Value, context, Filters.Value);
             }
             
-            Output.Value = workingSurface;
+            Output.Value = outputWorkingSurface;
             return Output.Value;
         }
         
         if (Content.Value != null)
         {
-            DrawSurface(workingSurface, Content.Value, context, Filters.Value);
+            DrawSurface(outputWorkingSurface, Content.Value, context, Filters.Value);
             
-            ApplyMaskIfPresent(workingSurface, context);
-            ApplyRasterClip(workingSurface, context);
+            ApplyMaskIfPresent(outputWorkingSurface, context);
+            ApplyRasterClip(outputWorkingSurface, context);
+            
         }
         
         if (Background.Value != null)
         {
-            Surface tempSurface = new Surface(workingSurface.Size);
+            Surface tempSurface = new Surface(outputWorkingSurface.Size);
             DrawBackground(tempSurface, context);
             
             blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255));
             blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
-            tempSurface.DrawingSurface.Canvas.DrawSurface(workingSurface.DrawingSurface, 0, 0, blendPaint);
+            tempSurface.DrawingSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
 
             Output.Value = tempSurface;
             return tempSurface;
         }
 
-        Output.Value = workingSurface;
+        Output.Value = outputWorkingSurface;
         return Output.Value;
     }
 
