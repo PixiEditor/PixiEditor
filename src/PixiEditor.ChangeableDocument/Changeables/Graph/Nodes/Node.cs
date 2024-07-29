@@ -57,6 +57,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     private VecI? _lastChunkPos;
     private bool _keyFramesDirty;
     private Surface? _lastCachedResult;
+    private bool _isDisposed;
 
     public Surface? Execute(RenderingContext context)
     {
@@ -68,6 +69,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     internal Surface ExecuteInternal(RenderingContext context)
     {
+        if(_isDisposed) throw new ObjectDisposedException("Node was disposed before execution.");
+        
         if (!CacheChanged(context)) return CachedResult;
 
         CachedResult = OnExecute(context);
@@ -246,6 +249,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     public virtual void Dispose()
     {
+        _isDisposed = true;
         DisconnectAll();
         foreach (var input in inputs)
         {

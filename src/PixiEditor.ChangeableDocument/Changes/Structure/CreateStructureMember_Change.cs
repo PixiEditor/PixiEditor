@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
@@ -27,7 +28,7 @@ internal class CreateStructureMember_Change : Change
 
     public override bool InitializeAndValidate(Document target)
     {
-        return target.TryFindNode<Node>(parentGuid, out var targetNode) && targetNode is IBackgroundInput;
+        return target.TryFindNode<Node>(parentGuid, out _);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document document, bool firstApply,
@@ -44,19 +45,23 @@ internal class CreateStructureMember_Change : Change
         document.TryFindNode<Node>(parentGuid, out var parentNode);
 
         List<IChangeInfo> changes = new() { CreateChangeInfo(member) };
-
-        IBackgroundInput backgroundInput = (IBackgroundInput)parentNode;
+        
+        InputProperty<Surface> targetInput = parentNode.InputProperties.FirstOrDefault(x => 
+            x.ValueType == typeof(Surface) && 
+            x.Connection.Node is StructureNode) as InputProperty<Surface>;
+        
+        
         
         if (member is FolderNode folder)
         {
             document.NodeGraph.AddNode(member);
-            AppendFolder(backgroundInput, folder, changes);
+            AppendFolder(targetInput, folder, changes);
         }
         else
         {
             document.NodeGraph.AddNode(member);
             List<ConnectProperty_ChangeInfo> connectPropertyChangeInfo =
-                NodeOperations.AppendMember(backgroundInput.Background, member.Output, member.Background, member.Id);
+                NodeOperations.AppendMember(targetInput, member.Output, member.Background, member.Id);
             changes.AddRange(connectPropertyChangeInfo);
         }
 
@@ -104,9 +109,9 @@ internal class CreateStructureMember_Change : Change
         return changes;
     }
 
-    private static void AppendFolder(IBackgroundInput backgroundInput, FolderNode folder, List<IChangeInfo> changes)
+    private static void AppendFolder(InputProperty<Surface> backgroundInput, FolderNode folder, List<IChangeInfo> changes)
     {
-        var appened = NodeOperations.AppendMember(backgroundInput.Background, folder.Output, folder.Background, folder.Id);
+        var appened = NodeOperations.AppendMember(backgroundInput, folder.Output, folder.Background, folder.Id);
         changes.AddRange(appened);
     }
 

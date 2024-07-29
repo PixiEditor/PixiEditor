@@ -194,10 +194,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
         videoPreviewTimer = null;
         cancellationTokenSource.Dispose();
 
-        if (ExportPreview != null)
-        {
-            ExportPreview.Dispose();
-        }
+        ExportPreview?.Dispose();
 
         if (videoPreviewFrames != null)
         {
