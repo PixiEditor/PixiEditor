@@ -11,7 +11,7 @@ namespace PixiEditor.AvaloniaUI.Views.Input;
 internal partial class SizeInput : UserControl
 {
     public static readonly StyledProperty<int> SizeProperty =
-        AvaloniaProperty.Register<SizeInput, int>(nameof(Size), defaultValue: 1, coerce: Coerce);
+        AvaloniaProperty.Register<SizeInput, int>(nameof(Size), defaultValue: 1);
 
     public static readonly StyledProperty<int> MaxSizeProperty =
         AvaloniaProperty.Register<SizeInput, int>(nameof(MaxSize), defaultValue: int.MaxValue);
@@ -19,8 +19,8 @@ internal partial class SizeInput : UserControl
     public static readonly StyledProperty<bool> BehaveLikeSmallEmbeddedFieldProperty =
         AvaloniaProperty.Register<SizeInput, bool>(nameof(BehaveLikeSmallEmbeddedField), defaultValue: true);
 
-    public static readonly StyledProperty<SizeUnit> UnitProperty =
-        AvaloniaProperty.Register<SizeInput, SizeUnit>(nameof(Unit), defaultValue: SizeUnit.Pixel);
+    public static readonly StyledProperty<string> UnitProperty =
+        AvaloniaProperty.Register<SizeInput, string>(nameof(Unit), defaultValue: "PIXEL_UNIT");
 
     public static readonly StyledProperty<bool> FocusNextProperty = AvaloniaProperty.Register<SizeInput, bool>(
         nameof(FocusNext), defaultValue: true);
@@ -58,11 +58,6 @@ internal partial class SizeInput : UserControl
         set => SetValue(BehaveLikeSmallEmbeddedFieldProperty, value);
     }
 
-    static SizeInput()
-    {
-        SizeProperty.Changed.Subscribe(InputSizeChanged);
-    }
-
     public SizeInput()
     {
         InitializeComponent();
@@ -97,45 +92,10 @@ internal partial class SizeInput : UserControl
             input.Focus();
     }
 
-    public SizeUnit Unit
+    public string Unit
     {
-        get => (SizeUnit)GetValue(UnitProperty);
+        get => (string)GetValue(UnitProperty);
         set => SetValue(UnitProperty, value);
-    }
-
-
-    private static int Coerce(AvaloniaObject sender, int value)
-    {
-        if (value <= 0)
-        {
-            return 1;
-        }
-
-        int maxSize = sender.GetValue(MaxSizeProperty);
-        
-        if (value > maxSize)
-        {
-            return maxSize;
-        }
-        
-        return value;
-    }
-
-    private static void InputSizeChanged(AvaloniaPropertyChangedEventArgs<int> e)
-    {
-        int newValue = e.NewValue.Value;
-        int maxSize = (int)e.Sender.GetValue(MaxSizeProperty);
-
-        if (newValue > maxSize)
-        {
-            e.Sender.SetValue(SizeProperty, maxSize);
-
-            return;
-        }
-        else if (newValue <= 0)
-        {
-            e.Sender.SetValue(SizeProperty, 1);
-        }
     }
 
     private void Border_MouseWheel(object? sender, PointerWheelEventArgs e)

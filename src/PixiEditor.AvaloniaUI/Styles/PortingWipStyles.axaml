@@ -45,14 +45,15 @@
     <Style Selector="CheckBox.ImageCheckBox:checked">
         <Setter Property="Content" Value="{DynamicResource icon-eye}" />
     </Style>
-    
+
     <Style Selector="ToggleButton.PlayButton">
         <Setter Property="Content" Value="{DynamicResource icon-play}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
                     <Border Cursor="Hand" Background="{TemplateBinding Background}">
-                        <TextBlock Text="{TemplateBinding Content}" FontSize="{TemplateBinding Width}" Classes="pixi-icon" />
+                        <TextBlock Text="{TemplateBinding Content}" FontSize="{TemplateBinding Width}"
+                                   Classes="pixi-icon" />
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
@@ -61,7 +62,12 @@
 
     <Style Selector="ToggleButton.PlayButton:checked">
         <Setter Property="Content" Value="{DynamicResource icon-pause}" />
+        <Setter Property="Background" Value="Transparent" />
     </Style>
+    
+    <Style Selector="ToggleButton.PlayButton:pressed">
+        <Setter Property="Background" Value="Transparent" />
+   </Style> 
     <Style Selector="ToggleButton.ExpandCollapseToggleStyle">
 
     </Style>

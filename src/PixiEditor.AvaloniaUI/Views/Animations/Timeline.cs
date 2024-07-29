@@ -139,6 +139,8 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         set { SetValue(FpsProperty, value); }
     }
 
+    public int EndFrame => KeyFrames?.FrameCount > 0 ? KeyFrames.FrameCount : DefaultEndFrame;
+
     public ICommand DraggedKeyFrameCommand { get; }
     public ICommand ReleasedKeyFrameCommand { get; }
     public ICommand ClearSelectedKeyFramesCommand { get; }
@@ -172,6 +174,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         IsPlayingProperty.Changed.Subscribe(IsPlayingChanged);
         FpsProperty.Changed.Subscribe(FpsChanged);
         KeyFramesProperty.Changed.Subscribe(OnKeyFramesChanged);
+        DefaultEndFrameProperty.Changed.Subscribe(OnDefaultEndFrameChanged);
     }
 
     public Timeline()
@@ -332,7 +335,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
     private void PlayTimerOnTick(object? sender, EventArgs e)
     {
-        if (ActiveFrame >= (KeyFrames.Count > 0 ? KeyFrames.FrameCount : DefaultEndFrame))
+        if (ActiveFrame >= EndFrame) 
         {
             ActiveFrame = 1;
         }
@@ -570,12 +573,16 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
             newCollection.KeyFrameAdded += timeline.KeyFrames_KeyFrameAdded;
             newCollection.KeyFrameRemoved += timeline.KeyFrames_KeyFrameRemoved;
         }
+        
+        timeline.PropertyChanged(timeline, new PropertyChangedEventArgs(nameof(SelectedKeyFrames)));
+        timeline.PropertyChanged(timeline, new PropertyChangedEventArgs(nameof(EndFrame)));
     }
 
     private void KeyFrames_KeyFrameAdded(KeyFrameViewModel keyFrame)
     {
         keyFrame.PropertyChanged += KeyFrameOnPropertyChanged;
         PropertyChanged(this, new PropertyChangedEventArgs(nameof(SelectedKeyFrames)));
+        PropertyChanged(this, new PropertyChangedEventArgs(nameof(EndFrame)));
     }
 
     private void KeyFrames_KeyFrameRemoved(KeyFrameViewModel keyFrame)
@@ -587,6 +594,17 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         }
         
         PropertyChanged(this, new PropertyChangedEventArgs(nameof(SelectedKeyFrames)));
+        PropertyChanged(this, new PropertyChangedEventArgs(nameof(EndFrame)));
+    }
+    
+    private static void OnDefaultEndFrameChanged(AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Sender is not Timeline timeline)
+        {
+            return;
+        }
+
+        timeline.PropertyChanged(timeline, new PropertyChangedEventArgs(nameof(EndFrame)));
     }
     
     private void KeyFrameOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -596,6 +614,10 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
             if (e.PropertyName == nameof(KeyFrameViewModel.IsSelected))
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(nameof(SelectedKeyFrames)));
+            }
+            else if (e.PropertyName == nameof(KeyFrameViewModel.StartFrameBindable) || e.PropertyName == nameof(KeyFrameViewModel.DurationBindable))
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(nameof(EndFrame)));
             }
         }
     }

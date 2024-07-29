@@ -7,7 +7,7 @@
     <ControlTheme TargetType="animations:TimelineGroupHeader" x:Key="{x:Type animations:TimelineGroupHeader}">
         <Setter Property="Template">
             <ControlTemplate>
-                <Border BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="1">
+                <Border BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="0 0 1 1">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <CheckBox Classes="ImageCheckBox" IsChecked="{Binding Item.IsVisible, RelativeSource={RelativeSource TemplatedParent}}"/>
                         <TextBlock Text="{Binding Item.LayerName, RelativeSource={RelativeSource TemplatedParent}}" />
