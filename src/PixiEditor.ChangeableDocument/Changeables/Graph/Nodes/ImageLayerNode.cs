@@ -16,6 +16,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     public const string ImageFramesKey = "Frames";
     public const string ImageLayerKey = "LayerImage";
 
+    public OutputProperty<Surface> RawOutput { get; }
+
     public InputProperty<bool> LockTransparency { get; }
 
     private VecI size;
@@ -36,6 +38,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public ImageLayerNode(VecI size)
     {
+        RawOutput = CreateOutput<Surface>(nameof(RawOutput), "RAW", null);
+
         LockTransparency = CreateInput<bool>("LockTransparency", "LOCK_TRANSPARENCY", false);
 
         if (keyFrames.Count == 0)
@@ -75,19 +79,27 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     {
         var outputWorkingSurface = TryInitWorkingSurface(frameImage.LatestSize, context, 0);
         var filterlessWorkingSurface = TryInitWorkingSurface(frameImage.LatestSize, context, 1);
+        var rawWorkingSurface = TryInitWorkingSurface(frameImage.LatestSize, context, 3);
 
-        bool canClear = Background.Value == null;
+        bool shouldClear = Background.Value == null;
+        // Draw filterless
         if (Background.Value != null)
         {
             DrawBackground(filterlessWorkingSurface, context);
             blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
         }
 
-        DrawLayer(frameImage, context, filterlessWorkingSurface, canClear, useFilters: false);
+        DrawLayer(frameImage, context, filterlessWorkingSurface, shouldClear, useFilters: false);
         blendPaint.BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src;
         
         FilterlessOutput.Value = filterlessWorkingSurface;
         
+        // Draw raw
+        DrawLayer(frameImage, context, rawWorkingSurface, true, useFilters: false);
+
+        RawOutput.Value = rawWorkingSurface;
+        
+        // Draw output
         if (!HasOperations())
         {
             if (Background.Value != null)
@@ -96,7 +108,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                 blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
             }
 
-            DrawLayer(frameImage, context, outputWorkingSurface, canClear);
+            DrawLayer(frameImage, context, outputWorkingSurface, shouldClear);
             
             Output.Value = outputWorkingSurface;
             
