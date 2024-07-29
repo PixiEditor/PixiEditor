@@ -95,7 +95,7 @@ public class TimelineTickBar : Control
         Pen largeTickPen = new Pen(Fill, thickness: 2);
         Pen smallTickPen = new Pen(Fill, 1.5);
         
-        int largeStart = visibleMin - (visibleMin % largeTickInterval);
+        int largeStart = visibleMin - (visibleMin % largeTickInterval) - MinValue;
         
         RenderBigTicks(context, largeStart, visibleMax, largeTickInterval, frameWidth, largeTickPen, height);
         

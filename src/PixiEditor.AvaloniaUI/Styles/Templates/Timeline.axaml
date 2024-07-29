@@ -27,8 +27,8 @@
                     <Border Grid.Row="0" Grid.Column="0" BorderThickness="0 0 1 0"
                             BorderBrush="{DynamicResource ThemeBorderMidBrush}">
                         <input:SizeInput Unit="FPS"
-                            Width="80" Height="25" HorizontalAlignment="Left"
-                            Size="{Binding Fps, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
+                                         Width="80" Height="25" HorizontalAlignment="Left"
+                                         Size="{Binding Fps, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
                     </Border>
                     <Border Grid.Row="0" Grid.Column="1">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
@@ -41,12 +41,13 @@
                                             <MultiBinding.Converter>
                                                 <converters:FrameToTimeConverter />
                                             </MultiBinding.Converter>
-                                            <Binding Path="ActiveFrame" RelativeSource="{RelativeSource TemplatedParent}" />
+                                            <Binding Path="ActiveFrame"
+                                                     RelativeSource="{RelativeSource TemplatedParent}" />
                                             <Binding Path="Fps" RelativeSource="{RelativeSource TemplatedParent}" />
                                         </MultiBinding>
                                     </Run.Text>
                                 </Run>
-                                <Run Text="/"/>
+                                <Run Text="/" />
                                 <Run>
                                     <Run.Text>
                                         <MultiBinding>
@@ -149,7 +150,7 @@
                                       Grid.Row="1" Grid.Column="0">
                             <StackPanel Orientation="Vertical" Background="{DynamicResource ThemeBackgroundBrush1}">
                                 <ItemsControl
-                                              ItemsSource="{Binding KeyFrames, RelativeSource={RelativeSource TemplatedParent}}">
+                                    ItemsSource="{Binding KeyFrames, RelativeSource={RelativeSource TemplatedParent}}">
                                     <ItemsControl.DataTemplates>
                                         <DataTemplate DataType="document:KeyFrameGroupViewModel">
                                             <animations:TimelineGroupHeader Height="70"
