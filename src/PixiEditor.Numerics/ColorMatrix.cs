@@ -233,7 +233,15 @@ public record struct ColorMatrix
         (M41, M42, M43, M44, M45) = row4;
     }
 
-    [System.Runtime.CompilerServices.CompilerGenerated]
+    public float[] ToArray()
+    {
+        var buffer = new float[Width * Height];
+
+        TryGetMembers(buffer);
+        
+        return buffer;
+    }
+
     public bool TryGetMembers(Span<float> members)
     {
         if (members.Length < 20)
@@ -259,6 +267,36 @@ public record struct ColorMatrix
         members[18] = M44;
         members[19] = M45;
         return true;
+    }
+
+    public static ColorMatrix CreateFromMembers(ReadOnlySpan<float> members)
+    {
+        if (members.Length < 20)
+            throw new IndexOutOfRangeException($"{nameof(members)} must have at least 20 elements. Actual length was {members.Length}");
+
+        var m11 = members[0];
+        var m12 = members[1];
+        var m13 = members[2];
+        var m14 = members[3];
+        var m15 = members[4];
+        var m21 = members[5];
+        var m22 = members[6];
+        var m23 = members[7];
+        var m24 = members[8];
+        var m25 = members[9];
+        var m31 = members[10];
+        var m32 = members[11];
+        var m33 = members[12];
+        var m34 = members[13];
+        var m35 = members[14];
+        var m41 = members[15];
+        var m42 = members[16];
+        var m43 = members[17];
+        var m44 = members[18];
+        var m45 = members[19];
+
+        return new ColorMatrix(m11, m12, m13, m14, m15, m21, m22, m23, m24, m25, m31, m32, m33, m34, m35, m41, m42, m43,
+            m44, m45);
     }
 
     public bool TryGetRow(int row, Span<float> members)
