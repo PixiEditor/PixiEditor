@@ -345,7 +345,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             Guid guid = Guid.NewGuid();
             mappedNodeIds.Add(id, guid);
             acc.AddActions(new CreateNodeFromName_Action(serializedNode.UniqueNodeName, guid));
-            acc.AddFinishedActions(new NodePosition_Action(guid, serializedNode.Position.ToVecD()), new EndNodePosition_Action());
+            acc.AddFinishedActions(new NodePosition_Action(guid, serializedNode.Position.ToVecD()),
+                new EndNodePosition_Action());
 
             if (serializedNode.InputValues != null)
             {
@@ -453,24 +454,25 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             }
         }*/
 
-        void AddAnimationData(List<KeyFrameBuilder> data, Dictionary<int, Guid> mappedIds,
+        void AddAnimationData(AnimationDataBuilder data, Dictionary<int, Guid> mappedIds,
             Dictionary<int, Guid> mappedKeyFrameIds)
         {
-            foreach (var keyFrame in data)
+            acc.AddActions(new SetFrameRate_Action(data.FrameRate));
+            foreach (var keyFrame in data.KeyFrameGroups)
             {
-                if (keyFrame is GroupKeyFrameBuilder groupKeyFrameBuilder)
+                if (keyFrame is GroupKeyFrameBuilder group)
                 {
-                    AddAnimationData(groupKeyFrameBuilder.Children, mappedIds, mappedKeyFrameIds);
-                }
-                else
-                {
-                    acc.AddActions(
-                        new CreateRasterKeyFrame_Action(
-                            mappedIds[keyFrame.NodeId],
-                            mappedKeyFrameIds[keyFrame.KeyFrameId],
-                            -1, -1, default));
+                    foreach (var child in group.Children)
+                    {
+                        acc.AddActions(
+                            new CreateRasterKeyFrame_Action(
+                                mappedIds[child.NodeId],
+                                mappedKeyFrameIds[child.KeyFrameId],
+                                -1, -1, default));
 
-                    acc.AddFinishedActions();
+                        acc.AddFinishedActions();
+                    }
+
                 }
             }
         }

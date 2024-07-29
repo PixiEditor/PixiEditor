@@ -215,6 +215,7 @@ internal partial class DocumentViewModel
     {
         var animData = new AnimationData();
         animData.KeyFrameGroups = new List<KeyFrameGroup>();
+        animData.FrameRate = animationData.FrameRate;
         BuildKeyFrames(animationData.KeyFrames, animData, nodeIdMap, keyFrameIds);
 
         return animData;

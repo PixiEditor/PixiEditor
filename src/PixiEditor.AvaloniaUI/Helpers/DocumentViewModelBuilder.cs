@@ -25,7 +25,7 @@ internal class DocumentViewModelBuilder
     public List<PaletteColor> Palette { get; set; } = new List<PaletteColor>();
 
     public ReferenceLayerBuilder ReferenceLayer { get; set; }
-    public List<KeyFrameBuilder> AnimationData { get; set; } = new List<KeyFrameBuilder>();
+    public AnimationDataBuilder AnimationData { get; set; }
 
     public NodeGraphBuilder Graph { get; set; }
     public string ImageEncoderUsed { get; set; } = "QOI";
@@ -83,11 +83,12 @@ internal class DocumentViewModelBuilder
 
     public DocumentViewModelBuilder WithAnimationData(AnimationData? animationData)
     {
-        AnimationData = new List<KeyFrameBuilder>();
+        AnimationData = new AnimationDataBuilder();
 
         if (animationData != null && animationData.KeyFrameGroups.Count > 0)
         {
-            BuildKeyFrames(animationData.KeyFrameGroups.ToList(), AnimationData);
+            AnimationData.WithFrameRate(animationData.FrameRate);
+            BuildKeyFrames(animationData.KeyFrameGroups.ToList(), AnimationData.KeyFrameGroups);
         }
 
         return this;
@@ -186,6 +187,24 @@ internal class DocumentViewModelBuilder
 
             return this;
         }
+    }
+}
+
+internal class AnimationDataBuilder
+{
+    public int FrameRate { get; set; } = 24;
+    public List<KeyFrameBuilder> KeyFrameGroups { get; set; } = new List<KeyFrameBuilder>();
+
+    public AnimationDataBuilder WithFrameRate(int frameRate)
+    {
+        FrameRate = frameRate;
+        return this;
+    }
+
+    public AnimationDataBuilder WithKeyFrameGroups(Action<List<KeyFrameBuilder>> builder)
+    {
+        builder(KeyFrameGroups);
+        return this;
     }
 }
 
@@ -338,8 +357,9 @@ internal class NodeGraphBuilder
                 {
                     InputConnections.Add(connection.OutputNodeId, new List<(string, string)>());
                 }
-                
-                InputConnections[connection.OutputNodeId].Add((connection.InputPropertyName, connection.OutputPropertyName)); 
+
+                InputConnections[connection.OutputNodeId]
+                    .Add((connection.InputPropertyName, connection.OutputPropertyName));
             }
 
             return this;

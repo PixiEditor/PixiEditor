@@ -193,6 +193,9 @@ internal class DocumentUpdater
             case NodeName_ChangeInfo info:
                 ProcessNodeName(info);
                 break;
+            case FrameRate_ChangeInfo info:
+                ProcessFrameRate(info);
+                break;
         }
     }
 
@@ -597,5 +600,10 @@ internal class DocumentUpdater
     {
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
         node.SetName(info.NewName);
+    }
+    
+    private void ProcessFrameRate(FrameRate_ChangeInfo info)
+    {
+        doc.AnimationHandler.SetFrameRate(info.NewFrameRate);
     }
 }

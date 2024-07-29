@@ -8,6 +8,7 @@ internal interface IAnimationHandler
     public int ActiveFrameBindable { get; set; }
     public KeyFrameTime ActiveFrameTime { get; }
     public void CreateRasterKeyFrame(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null, int? frameToCopyFrom = null);
+    public void SetFrameRate(int newFrameRate);
     public void SetActiveFrame(int newFrame);
     public void SetFrameLength(Guid keyFrameId, int newStartFrame, int newDuration);
     public void SetKeyFrameVisibility(Guid infoKeyFrameId, bool infoIsVisible);

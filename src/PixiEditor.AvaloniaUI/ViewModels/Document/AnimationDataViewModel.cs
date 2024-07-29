@@ -14,7 +14,7 @@ namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 {
     private int _activeFrameBindable = 1;
-    private int _frameRate = 60;
+    private int frameRateBindable = 60;
     public DocumentViewModel Document { get; }
     protected DocumentInternalParts Internals { get; }
     public IReadOnlyCollection<IKeyFrameHandler> KeyFrames => keyFrames;
@@ -38,14 +38,15 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public IAnimationRenderer Renderer { get; set; }
 
-    public int FrameRate
+    public int FrameRateBindable
     {
-        get => _frameRate;
+        get => frameRateBindable;
         set
         {
-            _frameRate = value;
-            OnPropertyChanged(nameof(FrameRate));
-            OnPropertyChanged(nameof(DefaultEndFrame));
+            if (Document.UpdateableChangeActive)
+                return;
+
+            Internals.ActionAccumulator.AddFinishedActions(new SetFrameRate_Action(value)); 
         }
     }
 
@@ -56,7 +57,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     
     private double ActiveNormalizedTime => (double)(ActiveFrameBindable - FirstFrame) / FramesCount;
 
-    private int DefaultEndFrame => FrameRate; // 1 second
+    private int DefaultEndFrame => FrameRateBindable; // 1 second
 
     public AnimationDataViewModel(DocumentViewModel document, DocumentInternalParts internals)
     {
@@ -108,6 +109,13 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         {
             Internals.ActionAccumulator.AddFinishedActions(new EndKeyFramesStartPos_Action());
         }
+    }
+    
+    public void SetFrameRate(int newFrameRate)
+    {
+        frameRateBindable = newFrameRate;
+        OnPropertyChanged(nameof(FrameRateBindable));
+        OnPropertyChanged(nameof(DefaultEndFrame));
     }
     
     public void SetActiveFrame(int newFrame)

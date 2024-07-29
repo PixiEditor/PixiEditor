@@ -173,7 +173,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
         this.document = document;
         videoPreviewTimer = new DispatcherTimer(DispatcherPriority.Normal)
         {
-            Interval = TimeSpan.FromMilliseconds(1000f / document.AnimationDataViewModel.FrameRate)
+            Interval = TimeSpan.FromMilliseconds(1000f / document.AnimationDataViewModel.FrameRateBindable)
         };
         videoPreviewTimer.Tick += OnVideoPreviewTimerOnTick;
 
@@ -235,7 +235,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
         if (IsVideoExport)
         {
             StartRenderAnimationJob();
-            videoPreviewTimer.Interval = TimeSpan.FromMilliseconds(1000f / document.AnimationDataViewModel.FrameRate);
+            videoPreviewTimer.Interval = TimeSpan.FromMilliseconds(1000f / document.AnimationDataViewModel.FrameRateBindable);
         }
         else
         {

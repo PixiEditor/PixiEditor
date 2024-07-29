@@ -47,6 +47,7 @@ internal class CreateRasterKeyFrame_Change : Change
         var existingData = targetNode.KeyFrames.FirstOrDefault(x => x.KeyFrameGuid == createdKeyFrameId);
 
         bool isVisible = true;
+        int duration = 1;
 
         if (existingData is null)
         {
@@ -56,6 +57,7 @@ internal class CreateRasterKeyFrame_Change : Change
         else
         {
             _frame = existingData.StartFrame;
+            duration = existingData.Duration;
 
             isVisible = existingData.IsVisible;
         }
@@ -66,6 +68,7 @@ internal class CreateRasterKeyFrame_Change : Change
         List<IChangeInfo> infos = new()
         {
             new CreateRasterKeyFrame_ChangeInfo(_targetLayerGuid, _frame, createdKeyFrameId, cloneFrom.HasValue),
+            new KeyFrameLength_ChangeInfo(createdKeyFrameId, _frame, duration),
             new KeyFrameVisibility_ChangeInfo(_targetLayerGuid, isVisible)
         };
 
