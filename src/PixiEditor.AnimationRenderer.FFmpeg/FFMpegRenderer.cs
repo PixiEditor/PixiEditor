@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Reflection;
 using FFMpegCore;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
@@ -30,10 +31,19 @@ public class FFMpegRenderer : IAnimationRenderer
                 finalFrames[frameNumber - 1] = frames[i];
             }
         }
+        
+        string path = "ThirdParty/{0}/ffmpeg/bin";
+#if WINDOWS
+        path = string.Format(path, "Windows");
+#elif MACOS
+        path = string.Format(path, "MacOS");
+#elif LINUX
+        path = string.Format(path, "Linux");
+#endif
 
         GlobalFFOptions.Configure(new FFOptions()
         {
-            BinaryFolder = @"C:\ProgramData\chocolatey\lib\ffmpeg\tools\ffmpeg\bin",
+            BinaryFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), path),
         });
 
         try
@@ -80,7 +90,7 @@ public class FFMpegRenderer : IAnimationRenderer
                     .WithCustomArgument($"-vsync 0"); // Ensure each input frame gets displayed exactly once
             });
     }
-    
+
     private FFMpegArgumentProcessor GetMp4Arguments(FFMpegArguments args, string outputPath)
     {
         return args

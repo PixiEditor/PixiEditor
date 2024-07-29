@@ -15,6 +15,10 @@
       <PackageReference Include="FFMpegCore" Version="5.1.0" />
     </ItemGroup>
   
-  <!--TODO: Publish-time binaries embedding-->
+    <ItemGroup>
+      <Content Include="ThirdParty\Windows\ffmpeg\**">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
 
 </Project>
