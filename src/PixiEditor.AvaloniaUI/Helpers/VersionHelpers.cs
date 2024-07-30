@@ -11,12 +11,10 @@ internal static class VersionHelpers
 
     public static string GetCurrentAssemblyVersionString(bool moreSpecific = false)
     {
-        StringBuilder builder = new(GetCurrentAssemblyVersion().ToString());
+        StringBuilder builder = new($"{GetCurrentAssemblyVersion()} Closed Beta");
 
-#if DEVRELEASE
-        builder.Append(" Dev Build");
-        return builder.ToString();
-#elif MSIX_DEBUG
+        // Dev Build removed for closed beta
+#if MSIX_DEBUG
         builder.Append(" MSIX Debug Build");
         return builder.ToString();
 #elif DEBUG
