@@ -233,6 +233,32 @@ public record struct ColorMatrix
         (M41, M42, M43, M44, M45) = row4;
     }
 
+    public ColorMatrix(float[] values)
+    {
+        if (values.Length != 20)
+            throw new ArgumentException("Array must have 20 elements", nameof(values));
+        M11 = values[0];
+        M12 = values[1];
+        M13 = values[2];
+        M14 = values[3];
+        M15 = values[4];
+        M21 = values[5];
+        M22 = values[6];
+        M23 = values[7];
+        M24 = values[8];
+        M25 = values[9];
+        M31 = values[10];
+        M32 = values[11];
+        M33 = values[12];
+        M34 = values[13];
+        M35 = values[14];
+        M41 = values[15];
+        M42 = values[16];
+        M43 = values[17];
+        M44 = values[18];
+        M45 = values[19];
+    }
+
     [System.Runtime.CompilerServices.CompilerGenerated]
     public bool TryGetMembers(Span<float> members)
     {
@@ -387,4 +413,30 @@ public record struct ColorMatrix
 
     public static int Width { get => 5; }
     public static int Height { get => 4; }
+
+    public Span<float> AsSpan()
+    {
+        float[] values = new float[20];
+        values[0] = M11;
+        values[1] = M12;
+        values[2] = M13;
+        values[3] = M14;
+        values[4] = M15;
+        values[5] = M21;
+        values[6] = M22;
+        values[7] = M23;
+        values[8] = M24;
+        values[9] = M25;
+        values[10] = M31;
+        values[11] = M32;
+        values[12] = M33;
+        values[13] = M34;
+        values[14] = M35;
+        values[15] = M41;
+        values[16] = M42;
+        values[17] = M43;
+        values[18] = M44;
+        values[19] = M45;
+        return values;
+    }
 }
