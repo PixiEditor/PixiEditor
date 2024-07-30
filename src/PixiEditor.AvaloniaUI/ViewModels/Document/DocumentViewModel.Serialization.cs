@@ -33,6 +33,7 @@ internal partial class DocumentViewModel
     {
         NodeGraph graph = new();
         ImageEncoder encoder = new QoiEncoder();
+        var serializationConfig = new SerializationConfig(encoder);
         var doc = Internals.Tracker.Document;
         
         Dictionary<Guid, int> nodeIdMap = new();
@@ -41,7 +42,7 @@ internal partial class DocumentViewModel
         List<SerializationFactory> factories =
             ViewModelMain.Current.Services.GetServices<SerializationFactory>().ToList(); // a bit ugly, sorry
 
-        AddNodes(doc.NodeGraph, graph, nodeIdMap, keyFrameIdMap, new SerializationConfig(encoder), factories);
+        AddNodes(doc.NodeGraph, graph, nodeIdMap, keyFrameIdMap, serializationConfig, factories);
 
         var document = new PixiDocument
         {
@@ -52,7 +53,7 @@ internal partial class DocumentViewModel
             Graph = graph,
             PreviewImage =
                 (TryRenderWholeImage(0).Value as Surface)?.DrawingSurface.Snapshot().Encode().AsSpan().ToArray(),
-            ReferenceLayer = GetReferenceLayer(doc),
+            ReferenceLayer = GetReferenceLayer(doc, serializationConfig),
             AnimationData = ToAnimationData(doc.AnimationData, nodeIdMap, keyFrameIdMap),
             ImageEncoderUsed = encoder.EncodedFormatName
         };
@@ -169,43 +170,34 @@ internal partial class DocumentViewModel
         return converted;
     }
 
-    private static ReferenceLayer? GetReferenceLayer(IReadOnlyDocument document)
+    private static ReferenceLayer? GetReferenceLayer(IReadOnlyDocument document, SerializationConfig config)
     {
         if (document.ReferenceLayer == null)
         {
             return null;
         }
 
-        var layer = document.ReferenceLayer!;
+        var layer = document.ReferenceLayer;
 
-        var surface = new Surface(new VecI(layer.ImageSize.X, layer.ImageSize.Y));
-
-        surface.DrawBytes(surface.Size, layer.ImageBgra8888Bytes.ToArray(), ColorType.Bgra8888, AlphaType.Premul);
-
-        var encoder = new UniversalFileEncoder(EncodedImageFormat.Png);
-
-        using var stream = new MemoryStream();
-
-        encoder.Save(stream, surface);
-
-        stream.Position = 0;
+        var shape = layer.Shape;
+        var imageSize = layer.ImageSize;
+        
+        var imageBytes = config.Encoder.Encode(layer.ImageBgra8888Bytes.ToArray(), imageSize.X, imageSize.Y);
 
         return new ReferenceLayer
         {
             Enabled = layer.IsVisible,
-            Width = (float)layer.Shape.RectSize.X,
-            Height = (float)layer.Shape.RectSize.Y,
-            OffsetX = (float)layer.Shape.TopLeft.X,
-            OffsetY = (float)layer.Shape.TopLeft.Y,
+            Topmost = layer.IsTopMost,
+            ImageWidth = imageSize.X,
+            ImageHeight = imageSize.Y,
             Corners = new Corners
             {
-                TopLeft = layer.Shape.TopLeft.ToVector2(),
-                TopRight = layer.Shape.TopRight.ToVector2(),
-                BottomLeft = layer.Shape.BottomLeft.ToVector2(),
-                BottomRight = layer.Shape.BottomRight.ToVector2()
+                TopLeft = shape.TopLeft.ToVector2(),
+                TopRight = shape.TopRight.ToVector2(),
+                BottomLeft = shape.BottomLeft.ToVector2(),
+                BottomRight = shape.BottomRight.ToVector2()
             },
-            Opacity = 1,
-            ImageBytes = stream.ToArray()
+            ImageBytes = imageBytes
         };
     }
 

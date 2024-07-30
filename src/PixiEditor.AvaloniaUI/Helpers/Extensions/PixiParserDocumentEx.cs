@@ -77,13 +77,13 @@ internal static class PixiParserDocumentEx
         DocumentViewModelBuilder.ReferenceLayerBuilder layerBuilder,
         ImageEncoder encoder)
     {
-        DecodeSurface(referenceLayer.ImageBytes, (int)referenceLayer.Width, (int)referenceLayer.Height, encoder);
+        var surface = DecodeSurface(referenceLayer.ImageBytes, referenceLayer.ImageWidth, referenceLayer.ImageHeight, encoder);
 
         layerBuilder
             .WithIsVisible(referenceLayer.Enabled)
             .WithShape(referenceLayer.Corners)
             .WithIsTopmost(referenceLayer.Topmost)
-            .WithSurface(Surface.Load(referenceLayer.ImageBytes));
+            .WithSurface(surface);
     }
 
     private static Surface DecodeSurface(byte[] imgBytes, int width, int height, ImageEncoder encoder)
