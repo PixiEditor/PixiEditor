@@ -250,7 +250,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             .WithSize(image.Size)
             .WithGraph(x => x
                 .WithImageLayerNode(
-                    new LocalizedString("PASTED_IMAGE_NAME"),
+                    new LocalizedString("IMAGE"),
                     image, out int id)
                 .WithOutputNode(id, "Output")
             ));
@@ -273,7 +273,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             .WithSize(surface.Size)
             .WithGraph(x => x
                 .WithImageLayerNode(
-                    new LocalizedString("PASTED_IMAGE_NAME"),
+                    new LocalizedString("IMAGE"),
                     surface, out int id)
                 .WithOutputNode(id, "Output")
             ));
