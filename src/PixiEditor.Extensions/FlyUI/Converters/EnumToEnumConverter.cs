@@ -9,7 +9,8 @@ public class EnumToEnumConverter<T1, T2> : IValueConverter
     {
         if (value is T1 enumValue)
         {
-            return (T2)(object)enumValue;
+            int enumInt = (int)(object)enumValue;
+            return Enum.ToObject(typeof(T2), enumInt);
         }
 
         return null;
@@ -19,7 +20,8 @@ public class EnumToEnumConverter<T1, T2> : IValueConverter
     {
         if (value is T2 enumValue)
         {
-            return (T1)(object)enumValue;
+            int enumInt = (int)(object)enumValue;
+            return Enum.ToObject(typeof(T1), enumInt);
         }
 
         return null;

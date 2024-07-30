@@ -34,21 +34,28 @@ I understand that:
                     new Center(new Text("Welcome to the closed beta of PixiEditor 2.0!", TextWrap.Wrap,
                         FontStyle.Normal,
                         fontSize: 24)),
-                    new Text(Body, TextWrap.Wrap, fontSize: 18),
-                    new CheckBox(new Text("The app is unstable and may crash and freeze"),
+                    new Text(Body, TextWrap.Wrap, fontSize: 16),
+                    new CheckBox(
+                        new Text("The app is unstable and may crash and freeze", fontSize: 16,
+                            fontStyle: FontStyle.Italic),
                         onCheckedChanged: (args) => CheckboxChanged(args.Sender as CheckBox, 0)),
-                    new CheckBox(new Text("I may encounter unfinished features and placeholders"),
+                    new CheckBox(
+                        new Text("I may encounter unfinished features and placeholders", fontSize: 16,
+                            fontStyle: FontStyle.Italic),
                         onCheckedChanged: (args) => CheckboxChanged(args.Sender as CheckBox, 1)),
-                    new CheckBox(new Text("I may lose my work due to bugs"),
+                    new CheckBox(new Text("I may lose my work due to bugs", fontSize: 16, fontStyle: FontStyle.Italic),
                         onCheckedChanged: (args) => CheckboxChanged(args.Sender as CheckBox, 2)),
-                    new CheckBox(new Text("I will have a lot of fun testing the app"),
+                    new CheckBox(
+                        new Text("I will have a lot of fun testing the app", fontSize: 16,
+                            fontStyle: FontStyle.Italic),
                         onCheckedChanged: (args) => CheckboxChanged(args.Sender as CheckBox, 3)),
                     new Container(
-                        width: 100,
+                        margin: new Edges(0, 5, 0, 0),
+                        width: AllCheckBoxesChecked() ? 100 : 200,
                         child:
                         AllCheckBoxesChecked()
                             ? new Button(new Text("Continue"), onClick: (args) => { OnContinue?.Invoke(); })
-                            : new Text("Select All Checkboxes to continue", fontSize: 12)
+                            : new Text("Select All Checkboxes to continue")
                     )
                 )
             )
