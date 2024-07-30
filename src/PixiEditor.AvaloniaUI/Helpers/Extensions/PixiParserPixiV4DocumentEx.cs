@@ -6,7 +6,7 @@ using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Numerics;
 using PixiEditor.Parser;
-using PixiEditor.Parser.Deprecated;
+using PixiEditor.Parser.Old.PixiV4;
 using BlendMode = PixiEditor.Parser.BlendMode;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Extensions;

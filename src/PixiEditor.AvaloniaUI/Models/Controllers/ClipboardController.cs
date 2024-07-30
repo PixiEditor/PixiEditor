@@ -24,7 +24,6 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using PixiEditor.Numerics;
 using PixiEditor.Parser;
-using PixiEditor.Parser.Deprecated;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
 namespace PixiEditor.AvaloniaUI.Models.Controllers;

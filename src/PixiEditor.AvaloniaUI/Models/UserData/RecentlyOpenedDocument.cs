@@ -10,7 +10,6 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Numerics;
 using PixiEditor.Parser;
-using PixiEditor.Parser.Deprecated;
 
 namespace PixiEditor.AvaloniaUI.Models.UserData;
 

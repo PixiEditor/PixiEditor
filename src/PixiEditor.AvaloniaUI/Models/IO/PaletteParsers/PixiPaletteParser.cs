@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 using PixiEditor.Parser;
-using PixiEditor.Parser.Deprecated;
+using PixiEditor.Parser.Old.PixiV4;
 
 namespace PixiEditor.AvaloniaUI.Models.IO.PaletteParsers;
 

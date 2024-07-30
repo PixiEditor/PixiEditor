@@ -17,7 +17,7 @@ using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Numerics;
 using PixiEditor.Parser;
-using PixiEditor.Parser.Deprecated;
+using PixiEditor.Parser.Old.PixiV4;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 using BlendMode = PixiEditor.DrawingApi.Core.Surfaces.BlendMode;
 
