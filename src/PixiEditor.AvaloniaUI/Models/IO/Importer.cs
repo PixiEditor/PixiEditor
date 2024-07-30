@@ -91,7 +91,7 @@ internal class Importer : ObservableObject
             var document = pixiDocument switch
             {
                 Document v5 => v5.ToDocument(),
-                DeprecatedDocument v4 => v4.ToDocument()
+                DocumentV4 v4 => v4.ToDocument()
             };
 
             if (associatePath)
@@ -131,7 +131,7 @@ internal class Importer : ObservableObject
             var document = pixiDocument switch
             {
                 Document v5 => v5.ToDocument(),
-                DeprecatedDocument v4 => v4.ToDocument()
+                DocumentV4 v4 => v4.ToDocument()
             };
 
             document.FullFilePath = originalFilePath;

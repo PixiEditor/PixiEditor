@@ -11,10 +11,11 @@ using BlendMode = PixiEditor.Parser.BlendMode;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Extensions;
 
-internal static class PixiParserV3DocumentEx
+internal static class PixiParserPixiV4DocumentEx
 {
-    public static DocumentViewModel ToDocument(this DeprecatedDocument document)
+    public static DocumentViewModel ToDocument(this DocumentV4 document)
     {
+        // TODO: Implement?
         return DocumentViewModel.Build(b =>
         {
             /*b.WithSize(document.Width, document.Height)

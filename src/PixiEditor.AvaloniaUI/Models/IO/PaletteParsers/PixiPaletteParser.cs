@@ -32,7 +32,7 @@ internal class PixiPaletteParser : PaletteFileParser
         var palette = file switch
         {
             Document v5 => v5.Palette,
-            DeprecatedDocument v4 => v4.Palette,
+            DocumentV4 v4 => v4.Palette,
             _ => null
         };
         
