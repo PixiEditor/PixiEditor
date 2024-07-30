@@ -27,6 +27,21 @@ public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyCh
 
         _events[eventName].Add(eventHandler);
     }
+    
+    public void AddEvent<T>(string eventName, ElementEventHandler<T> eventHandler) where T : ElementEventArgs<T>
+    {
+        if (_events == null)
+        {
+            _events = new Dictionary<string, List<ElementEventHandler>>();
+        }
+
+        if (!_events.ContainsKey(eventName))
+        {
+            _events.Add(eventName, new List<ElementEventHandler>());
+        }
+
+        _events[eventName].Add((args => eventHandler((T)args)));
+    }
 
     public void RemoveEvent(string eventName, ElementEventHandler eventHandler)
     {
@@ -41,6 +56,21 @@ public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyCh
         }
 
         _events[eventName].Remove(eventHandler);
+    }
+    
+    public void RemoveEvent<T>(string eventName, ElementEventHandler<T> eventHandler) where T : ElementEventArgs<T>
+    {
+        if (_events == null)
+        {
+            return;
+        }
+
+        if (!_events.ContainsKey(eventName))
+        {
+            return;
+        }
+
+        _events[eventName].Remove((args => eventHandler((T)args)));
     }
 
     public void RaiseEvent(string eventName, ElementEventArgs args)

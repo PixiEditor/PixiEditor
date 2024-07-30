@@ -37,6 +37,22 @@ public abstract class LayoutElement : ILayoutElement<CompiledControl>
         _events[eventName].Add(eventHandler);
         BuildQueuedEvents.Add(eventName);
     }
+    
+    /*public void AddEvent<TEventArgs>(string eventName, ElementEventHandler<TEventArgs> eventHandler) where TEventArgs : ElementEventArgs<TEventArgs>
+    {
+        if (_events == null)
+        {
+            _events = new Dictionary<string, List<ElementEventHandler>>();
+        }
+
+        if (!_events.ContainsKey(eventName))
+        {
+            _events.Add(eventName, new List<ElementEventHandler>());
+        }
+
+        _events[eventName].Add((args => eventHandler((TEventArgs)args))); 
+        BuildQueuedEvents.Add(eventName);
+    }*/
 
     public void RemoveEvent(string eventName, ElementEventHandler eventHandler)
     {
@@ -52,6 +68,21 @@ public abstract class LayoutElement : ILayoutElement<CompiledControl>
 
         _events[eventName].Remove(eventHandler);
     }
+    
+    /*public void RemoveEvent<TEventArgs>(string eventName, ElementEventHandler<TEventArgs> eventHandler) where TEventArgs : ElementEventArgs<TEventArgs>
+    {
+        if (_events == null)
+        {
+            return;
+        }
+
+        if (!_events.ContainsKey(eventName))
+        {
+            return;
+        }
+
+        _events[eventName].Remove((args => eventHandler((TEventArgs)args)));
+    }*/
 
     public void RaiseEvent(string eventName, ElementEventArgs args)
     {

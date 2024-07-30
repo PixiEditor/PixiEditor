@@ -33,7 +33,7 @@ public class Button : SingleChildLayoutElement
         Binding binding = new Binding(nameof(Child)) { Source = this, Converter = LayoutElementToNativeControlConverter.Instance };
         btn.Bind(Avalonia.Controls.Button.ContentProperty, binding);
 
-        btn.Click += (sender, args) => RaiseEvent(nameof(Click), new ElementEventArgs());
+        btn.Click += (sender, args) => RaiseEvent(nameof(Click), new ElementEventArgs() { Sender = this });
 
         return btn;
     }

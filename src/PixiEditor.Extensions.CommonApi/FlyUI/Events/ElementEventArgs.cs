@@ -2,6 +2,7 @@
 
 public class ElementEventArgs
 {
+    public object Sender { get; set; } 
     public static ElementEventArgs Empty { get; } = new ElementEventArgs();
 }
 
