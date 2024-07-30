@@ -85,13 +85,13 @@
                             <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="FLIP_VIEWPORT_HORIZONTALLY"
                                           Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
-                                          Content="{DynamicResource icon-x-flip}"
+                                          Content="{DynamicResource icon-y-flip}"
                                           Cursor="Hand"/>
                             <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
                                           ui:Translator.TooltipKey="FLIP_VIEWPORT_VERTICALLY"
                                           Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
-                                            Content="{DynamicResource icon-y-flip}"
+                                            Content="{DynamicResource icon-x-flip}"
                                           Cursor="Hand"/>
                         </StackPanel>
                     </StackPanel>
