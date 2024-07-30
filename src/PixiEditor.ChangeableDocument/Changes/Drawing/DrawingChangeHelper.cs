@@ -109,7 +109,7 @@ internal static class DrawingChangeHelper
         return drawOnMask switch
         {
             // If it should draw on the mask, the mask can't be null
-            true when member.Mask.Value is null => false,
+            true when member.Mask.NonOverridenValue is null => false,
             // If it should not draw on the mask, the member can't be a folder
             false when member is FolderNode => false,
             _ => true

@@ -496,7 +496,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
     public override void Render(ISkiaSharpApiLease lease)
     {
-        if (Surface == null || Document == null) return;
+        if (Surface == null || Surface.IsDisposed || Document == null) return;
 
         SKCanvas canvas = lease.SkCanvas;
 

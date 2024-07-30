@@ -158,10 +158,10 @@ internal sealed class RotateImage_Change : Change
 
                 // TODO: Add support for different Layer types
 
-                if (member.Mask.Value is null)
+                if (member.Mask.NonOverridenValue is null)
                     return;
 
-                Resize(member.Mask.Value, member.Id, deletedMaskChunks, null);
+                Resize(member.Mask.NonOverridenValue, member.Id, deletedMaskChunks, null);
             }
         });
 
@@ -199,10 +199,10 @@ internal sealed class RotateImage_Change : Change
                 }
             }
 
-            if (member.Mask.Value is null)
+            if (member.Mask.NonOverridenValue is null)
                 return;
 
-            Resize(member.Mask.Value, member.Id, deletedMaskChunks, null);
+            Resize(member.Mask.NonOverridenValue, member.Id, deletedMaskChunks, null);
         });
 
         return new Size_ChangeInfo(newSize, target.VerticalSymmetryAxisX, target.HorizontalSymmetryAxisY);
@@ -237,19 +237,32 @@ internal sealed class RotateImage_Change : Change
             if (membersToRotate.Count > 0 && !membersToRotate.Contains(member.Id)) return;
             if (member is ImageLayerNode layer)
             {
-                var layerImage = layer.GetLayerImageAtFrame(frame.Value);
-                layerImage.EnqueueResize(originalSize);
-                deletedChunks[layer.Id].ApplyChunksToImage(layerImage);
-                revertChanges.Add(new LayerImageArea_ChangeInfo(layer.Id, layerImage.FindAffectedArea()));
-                layerImage.CommitChanges();
+                if (frame != null)
+                {
+                    var layerImage = layer.GetLayerImageAtFrame(frame.Value);
+                    layerImage.EnqueueResize(originalSize);
+                    deletedChunks[layer.Id].ApplyChunksToImage(layerImage);
+                    revertChanges.Add(new LayerImageArea_ChangeInfo(layer.Id, layerImage.FindAffectedArea()));
+                    layerImage.CommitChanges();
+                }
+                else
+                {
+                    layer.ForEveryFrame(img =>
+                    {
+                        img.EnqueueResize(originalSize);
+                        deletedChunks[layer.Id].ApplyChunksToImage(img);
+                        revertChanges.Add(new LayerImageArea_ChangeInfo(layer.Id, img.FindAffectedArea()));
+                        img.CommitChanges();
+                    });
+                }
             }
 
-            if (member.Mask.Value is null)
+            if (member.Mask.NonOverridenValue is null)
                 return;
-            member.Mask.Value.EnqueueResize(originalSize);
+            member.Mask.NonOverridenValue.EnqueueResize(originalSize);
             deletedMaskChunks[member.Id].ApplyChunksToImage(member.Mask.Value);
             revertChanges.Add(new LayerImageArea_ChangeInfo(member.Id, member.Mask.Value.FindAffectedArea()));
-            member.Mask.Value.CommitChanges();
+            member.Mask.NonOverridenValue.CommitChanges();
         });
 
         DisposeDeletedChunks();

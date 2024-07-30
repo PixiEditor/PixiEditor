@@ -15,17 +15,17 @@ internal class DeleteStructureMemberMask_Change : Change
 
     public override bool InitializeAndValidate(Document target)
     {
-        if (!target.TryFindMember(memberGuid, out var member) || member.Mask is null)
+        if (!target.TryFindMember(memberGuid, out var member) || member.Mask.NonOverridenValue is null)
             return false;
         
-        storedMask = member.Mask.Value.CloneFromCommitted();
+        storedMask = member.Mask.NonOverridenValue.CloneFromCommitted();
         return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         var member = target.FindMemberOrThrow(memberGuid);
-        if (member.Mask is null)
+        if (member.Mask.NonOverridenValue is null)
             throw new InvalidOperationException("Cannot delete the mask; Target member has no mask");
         member.Mask.NonOverridenValue.Dispose();
         member.Mask.NonOverridenValue = null;
@@ -37,7 +37,7 @@ internal class DeleteStructureMemberMask_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var member = target.FindMemberOrThrow(memberGuid);
-        if (member.Mask is not null)
+        if (member.Mask.NonOverridenValue is not null)
             throw new InvalidOperationException("Cannot revert mask deletion; The target member already has a mask");
         member.Mask.NonOverridenValue = storedMask!.CloneFromCommitted();
 
