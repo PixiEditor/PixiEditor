@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+using PixiEditor.Extensions.Sdk;
 using PixiEditor.Extensions.Sdk.Api.FlyUI;
 using PixiEditor.Extensions.Sdk.Api.Window;
 
@@ -31,6 +32,10 @@ public class WindowContentElement : StatelessElement
                                 filterQuality: FilterQuality.None,
                                 width: 256, height: 256))
                     ),
+                    new CheckBox(new Text("heloo"), onCheckedChanged: args =>
+                    {
+                        PixiEditorExtension.Api.Logger.Log(((CheckBox)args.Sender).IsChecked ? "Checked" : "Unchecked");
+                    }),
                     new Center(
                         new Button(
                             child: new Text("Close"), onClick: _ =>
