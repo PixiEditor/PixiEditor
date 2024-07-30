@@ -11,6 +11,8 @@ namespace PixiEditor.Extensions.FlyUI.Elements;
 
 public class Border : SingleChildLayoutElement, IPropertyDeserializable
 {
+    private Avalonia.Controls.Border border;
+    
     private Edges _thickness;
     private Color _color;
     private Edges cornerRadius;
@@ -25,7 +27,7 @@ public class Border : SingleChildLayoutElement, IPropertyDeserializable
     
     public override Control BuildNative()
     {
-        Avalonia.Controls.Border border = new Avalonia.Controls.Border();
+        border = new Avalonia.Controls.Border();
         
         border.ClipToBounds = true;
         
@@ -76,6 +78,16 @@ public class Border : SingleChildLayoutElement, IPropertyDeserializable
         border.Bind(Layoutable.MarginProperty, marginBinding);
         
         return border;
+    }
+
+    protected override void AddChild(Control child)
+    {
+        border.Child = child;
+    }
+
+    protected override void RemoveChild()
+    {
+        border.Child = null;
     }
 
     public IEnumerable<object> GetProperties()

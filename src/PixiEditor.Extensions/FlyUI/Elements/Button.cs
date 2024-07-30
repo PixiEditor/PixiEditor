@@ -7,6 +7,7 @@ namespace PixiEditor.Extensions.FlyUI.Elements;
 
 public class Button : SingleChildLayoutElement
 {
+    private Avalonia.Controls.Button _button;
     public event ElementEventHandler Click
     {
         add => AddEvent(nameof(Click), value);
@@ -29,12 +30,22 @@ public class Button : SingleChildLayoutElement
 
     public override Control BuildNative()
     {
-        Avalonia.Controls.Button btn = new Avalonia.Controls.Button();
+        _button = new Avalonia.Controls.Button();
         Binding binding = new Binding(nameof(Child)) { Source = this, Converter = LayoutElementToNativeControlConverter.Instance };
-        btn.Bind(Avalonia.Controls.Button.ContentProperty, binding);
+        _button.Bind(Avalonia.Controls.Button.ContentProperty, binding);
 
-        btn.Click += (sender, args) => RaiseEvent(nameof(Click), new ElementEventArgs() { Sender = this });
+        _button.Click += (sender, args) => RaiseEvent(nameof(Click), new ElementEventArgs() { Sender = this });
 
-        return btn;
+        return _button;
+    }
+
+    protected override void AddChild(Control child)
+    {
+        _button.Content = child;
+    }
+
+    protected override void RemoveChild()
+    {
+        _button.Content = null;
     }
 }

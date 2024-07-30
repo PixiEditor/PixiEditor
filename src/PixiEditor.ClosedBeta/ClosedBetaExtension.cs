@@ -6,6 +6,12 @@ public class ClosedBetaExtension : PixiEditorExtension
 {
     public override void OnInitialized()
     {
-        Api.WindowProvider.CreatePopupWindow("Welcome to the closed beta!", new WelcomeMessage()).ShowDialog();
+        WelcomeMessage welcomeMessage = new();
+        var window = Api.WindowProvider.CreatePopupWindow("Welcome to the closed beta!", welcomeMessage);
+        welcomeMessage.OnContinue += () => window.Close();
+        
+        window.CanResize = false;
+        window.CanMinimize = false;
+        window.ShowDialog();
     }
 }

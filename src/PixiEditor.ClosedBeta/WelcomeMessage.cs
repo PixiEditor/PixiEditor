@@ -4,8 +4,12 @@ namespace PixiEditor.ClosedBeta;
 
 public class WelcomeMessage : StatefulElement<WelcomeMessageState>
 {
+    public event Action OnContinue;
+    
     public override WelcomeMessageState CreateState()
-    {
-        return new WelcomeMessageState();
+    { 
+        WelcomeMessageState state = new WelcomeMessageState();
+        state.OnContinue += () => OnContinue?.Invoke();
+        return state;
     }
 }

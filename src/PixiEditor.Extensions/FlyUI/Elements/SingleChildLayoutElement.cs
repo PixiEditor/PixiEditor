@@ -17,10 +17,15 @@ public abstract class SingleChildLayoutElement : LayoutElement, ISingleChildLayo
     public LayoutElement Child
     {
         get => _child;
-        set => SetField(ref _child, value);
+        set
+        {
+            SetField(ref _child, value);
+        }
     }
 
     public abstract override Control BuildNative();
+    protected abstract void AddChild(Control child);
+    protected abstract void RemoveChild();
 
     void IChildHost.DeserializeChildren(List<ILayoutElement<Control>> children)
     {
@@ -30,11 +35,13 @@ public abstract class SingleChildLayoutElement : LayoutElement, ISingleChildLayo
     public void AddChild(ILayoutElement<Control> child)
     {
         Child = (LayoutElement)child;
+        AddChild(child.BuildNative());
     }
 
     public void RemoveChild(ILayoutElement<Control> child)
     {
         Child = null;
+        RemoveChild();
     }
 
     public IEnumerator<ILayoutElement<Control>> GetEnumerator()

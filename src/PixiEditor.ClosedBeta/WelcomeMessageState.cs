@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+using PixiEditor.Extensions.Sdk;
 using PixiEditor.Extensions.Sdk.Api.FlyUI;
 
 namespace PixiEditor.ClosedBeta;
@@ -16,7 +17,13 @@ we have a few things to note:
 - Promised features available in this beta are: Animations, Procedural Art (Nodes)
 
 Click on below checkboxes that you understand what you are getting into and you are ready to test the app.
+
+I understand that:
 ";
+
+    private bool[] _checkboxes = new bool[4];
+
+    public event Action OnContinue;
 
     public override LayoutElement BuildElement()
     {
@@ -28,14 +35,36 @@ Click on below checkboxes that you understand what you are getting into and you 
                         FontStyle.Normal,
                         fontSize: 24)),
                     new Text(Body, TextWrap.Wrap, fontSize: 18),
+                    new CheckBox(new Text("The app is unstable and may crash and freeze"),
+                        onCheckedChanged: (args) => CheckboxChanged(args.Sender as CheckBox, 0)),
+                    new CheckBox(new Text("I may encounter unfinished features and placeholders"),
+                        onCheckedChanged: (args) => CheckboxChanged(args.Sender as CheckBox, 1)),
+                    new CheckBox(new Text("I may lose my work due to bugs"),
+                        onCheckedChanged: (args) => CheckboxChanged(args.Sender as CheckBox, 2)),
+                    new CheckBox(new Text("I will have a lot of fun testing the app"),
+                        onCheckedChanged: (args) => CheckboxChanged(args.Sender as CheckBox, 3)),
                     new Container(
                         width: 100,
                         child:
-                        new Button(new Text("Continue")
-                        )
+                        AllCheckBoxesChecked()
+                            ? new Button(new Text("Continue"), onClick: (args) => { OnContinue?.Invoke(); })
+                            : new Text("Select All Checkboxes to continue", fontSize: 12)
                     )
                 )
             )
         );
+    }
+
+    void CheckboxChanged(CheckBox checkBox, int index)
+    {
+        SetState(() =>
+        {
+            _checkboxes[index] = checkBox.IsChecked;
+        });
+    }
+
+    private bool AllCheckBoxesChecked()
+    {
+        return _checkboxes.All(x => x);
     }
 }

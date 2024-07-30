@@ -11,6 +11,7 @@ namespace PixiEditor.Extensions.FlyUI.Elements;
 
 public class Container : SingleChildLayoutElement, IPropertyDeserializable
 {
+    private Panel _panel; 
     private Edges _margin = Edges.All(0);
     private Color _backgroundColor = Colors.Transparent;
     private double _width = double.NaN;
@@ -23,13 +24,13 @@ public class Container : SingleChildLayoutElement, IPropertyDeserializable
     
     public override Control BuildNative()
     {
-        Panel panel = new Panel();
+        _panel = new Panel();
         
-        panel.ClipToBounds = true;
+        _panel.ClipToBounds = true;
         
         if(Child != null)
         {
-            panel.Children.Add(Child.BuildNative());
+            _panel.Children.Add(Child.BuildNative());
         }
         
         Binding marginBinding = new()
@@ -58,25 +59,29 @@ public class Container : SingleChildLayoutElement, IPropertyDeserializable
             Path = nameof(Height),
         };
         
-        panel.Bind(Layoutable.MarginProperty, marginBinding);
-        panel.Bind(Panel.BackgroundProperty, backgroundColorBinding);
-        panel.Bind(Layoutable.WidthProperty, widthBinding);
-        panel.Bind(Layoutable.HeightProperty, heightBinding);
+        _panel.Bind(Layoutable.MarginProperty, marginBinding);
+        _panel.Bind(Panel.BackgroundProperty, backgroundColorBinding);
+        _panel.Bind(Layoutable.WidthProperty, widthBinding);
+        _panel.Bind(Layoutable.HeightProperty, heightBinding);
         
-        return panel;
+        return _panel;
+    }
+
+    protected override void AddChild(Control child)
+    {
+        _panel.Children.Add(child);
+    }
+
+    protected override void RemoveChild()
+    {
+        _panel.Children.Clear();
     }
 
     public IEnumerable<object> GetProperties()
     {
-        yield return Margin.Left;
-        yield return Margin.Top;
-        yield return Margin.Right;
-        yield return Margin.Bottom;
-        
-        yield return BackgroundColor.R;
-        yield return BackgroundColor.G;
-        yield return BackgroundColor.B;
-        yield return BackgroundColor.A;
+        yield return Margin;
+
+        yield return BackgroundColor;
         
         yield return Width;
         yield return Height;

@@ -6,7 +6,7 @@ namespace PixiEditor.Extensions.FlyUI.Elements;
 
 public class CheckBox : SingleChildLayoutElement
 {
-    
+    private Avalonia.Controls.CheckBox checkbox;    
     public event ElementEventHandler<ToggleEventArgs> CheckedChanged
     {
         add => AddEvent(nameof(CheckedChanged), value);
@@ -15,7 +15,7 @@ public class CheckBox : SingleChildLayoutElement
 
     public override Control BuildNative()
     {
-        Avalonia.Controls.CheckBox checkbox = new Avalonia.Controls.CheckBox();
+        checkbox = new Avalonia.Controls.CheckBox();
         Binding binding =
             new Binding(nameof(Child)) { Source = this, Converter = LayoutElementToNativeControlConverter.Instance };
         checkbox.Bind(ContentControl.ContentProperty, binding);
@@ -25,5 +25,15 @@ public class CheckBox : SingleChildLayoutElement
             new ToggleEventArgs((sender as Avalonia.Controls.CheckBox).IsChecked.Value) { Sender = this });
 
         return checkbox;
+    }
+
+    protected override void AddChild(Control child)
+    {
+        checkbox.Content = child;
+    }
+
+    protected override void RemoveChild()
+    {
+        checkbox.Content = null;
     }
 }
