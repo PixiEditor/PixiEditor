@@ -69,7 +69,25 @@
         <Setter Property="Background" Value="Transparent" />
    </Style> 
     <Style Selector="ToggleButton.ExpandCollapseToggleStyle">
-
+        <Setter Property="Content" Value="{DynamicResource icon-chevron-down}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border Cursor="Hand" Background="{TemplateBinding Background}">
+                        <TextBlock Text="{TemplateBinding Content}" FontSize="16" Classes="pixi-icon" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <Style Selector="ToggleButton.ExpandCollapseToggleStyle:pressed">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    
+    <Style Selector="ToggleButton.ExpandCollapseToggleStyle:checked">
+        <Setter Property="Content" Value="{DynamicResource icon-chevron-left}" />
+        <Setter Property="Background" Value="Transparent"/>
     </Style>
 
     <Style Selector="Button.SocialMediaButton">

@@ -157,6 +157,11 @@
                                                                             Item="{Binding}" />
                                         </DataTemplate>
                                     </ItemsControl.DataTemplates>
+                                    <ItemsControl.Styles>
+                                        <Style Selector="animations|TimelineGroupHeader:collapsed">
+                                            <Setter Property="Height" Value="30" />
+                                        </Style>
+                                    </ItemsControl.Styles>
                                 </ItemsControl>
                             </StackPanel>
                         </ScrollViewer>
@@ -177,8 +182,8 @@
                                               ItemsSource="{Binding KeyFrames, RelativeSource={RelativeSource TemplatedParent}}">
                                     <ItemsControl.DataTemplates>
                                         <DataTemplate DataType="document:KeyFrameGroupViewModel">
-                                            <ItemsControl Padding="0 5" ClipToBounds="False" Height="70"
-                                                          BorderThickness="0, 0, 0, 1"
+                                            <ItemsControl ClipToBounds="False"
+                                                          BorderThickness="0, 0, 0, 1" 
                                                           BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                                                           ItemsSource="{Binding Children}">
                                                 <ItemsControl.ItemContainerTheme>
@@ -203,6 +208,7 @@
                                                 Scale="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
                                                 IsEnabled="{Binding IsVisible}"
                                                 IsSelected="{Binding IsSelected, Mode=TwoWay}"
+                                                IsCollapsed="{Binding IsCollapsed}"
                                                 Min="{Binding ElementName=PART_TimelineSlider, Path=Minimum}"
                                                 Item="{Binding}">
                                                 <animations:KeyFrame.Width>

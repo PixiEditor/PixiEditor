@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using ChunkyImageLib;
@@ -505,12 +506,15 @@ internal class MemberPreviewUpdater
 
             if (memberVM is ILayerHandler)
             {
-                RenderLayerMainPreview((IReadOnlyLayerNode)member, memberVM, affArea.Value, position, scaling);
+                RenderLayerMainPreview((IReadOnlyLayerNode)member,
+                    memberVM.PreviewSurface, affArea.Value, position, scaling,
+                    doc.AnimationHandler.ActiveFrameBindable);
 
                 if (doc.AnimationHandler.FindKeyFrame(guid, out IKeyFrameHandler? keyFrame))
                 {
                     if (keyFrame is IKeyFrameGroupHandler group)
                     {
+                        RenderGroupPreview(keyFrame, memberVM, member, affArea, position, scaling);
                         foreach (var child in group.Children)
                         {
                             if (member is IReadOnlyImageNode rasterLayer)
@@ -533,6 +537,24 @@ internal class MemberPreviewUpdater
                 throw new ArgumentOutOfRangeException();
             }
         }
+    }
+
+    private void RenderGroupPreview(IKeyFrameHandler keyFrame, IStructureMemberHandler memberVM,
+        IReadOnlyStructureNode member, [DisallowNull] AffectedArea? affArea, VecI position, float scaling)
+    {
+        bool isEditingRootImage = !member.KeyFrames.Any(x => x.IsInFrame(doc.AnimationHandler.ActiveFrameBindable));
+        if(!isEditingRootImage)
+            return;
+        
+        if (keyFrame.PreviewSurface == null ||
+            keyFrame.PreviewSurface.Size != memberVM.PreviewSurface.Size)
+        {
+            keyFrame.PreviewSurface?.Dispose();
+            keyFrame.PreviewSurface = new Surface(memberVM.PreviewSurface.Size);
+        }
+
+        RenderLayerMainPreview((IReadOnlyLayerNode)member, keyFrame.PreviewSurface, affArea.Value,
+            position, scaling, 0);
     }
 
     /// <summary>
@@ -561,9 +583,10 @@ internal class MemberPreviewUpdater
             }
             else
             {
-                rendered = doc.Renderer.RenderChunk(chunk, ChunkResolution.Full, contentNode, doc.AnimationHandler.ActiveFrameBindable);
+                rendered = doc.Renderer.RenderChunk(chunk, ChunkResolution.Full, contentNode,
+                    doc.AnimationHandler.ActiveFrameBindable);
             }
-            
+
             if (rendered.IsT0)
             {
                 memberVM.PreviewSurface.DrawingSurface.Canvas.DrawSurface(rendered.AsT0.Surface.DrawingSurface, pos,
@@ -583,31 +606,31 @@ internal class MemberPreviewUpdater
     /// <summary>
     /// Re-render the <paramref name="area"/> of the main preview of the <paramref name="memberVM"/> layer
     /// </summary>
-    private void RenderLayerMainPreview(IReadOnlyLayerNode layer, IStructureMemberHandler memberVM, AffectedArea area,
-        VecI position, float scaling)
+    private void RenderLayerMainPreview(IReadOnlyLayerNode layer, Surface surface, AffectedArea area,
+        VecI position, float scaling, int frame)
     {
-        memberVM.PreviewSurface.DrawingSurface.Canvas.Save();
-        memberVM.PreviewSurface.DrawingSurface.Canvas.Scale(scaling);
-        memberVM.PreviewSurface.DrawingSurface.Canvas.Translate(-position);
-        memberVM.PreviewSurface.DrawingSurface.Canvas.ClipRect((RectD)area.GlobalArea);
+        surface.DrawingSurface.Canvas.Save();
+        surface.DrawingSurface.Canvas.Scale(scaling);
+        surface.DrawingSurface.Canvas.Translate(-position);
+        surface.DrawingSurface.Canvas.ClipRect((RectD)area.GlobalArea);
 
         foreach (var chunk in area.Chunks)
         {
             var pos = chunk * ChunkResolution.Full.PixelSize();
             if (layer is not IReadOnlyImageNode raster) return;
-            IReadOnlyChunkyImage? result = raster.GetLayerImageAtFrame(doc.AnimationHandler.ActiveFrameBindable);
+            IReadOnlyChunkyImage? result = raster.GetLayerImageAtFrame(frame);
 
             if (!result.DrawCommittedChunkOn(
                     chunk,
-                    ChunkResolution.Full, memberVM.PreviewSurface.DrawingSurface, pos,
+                    ChunkResolution.Full, surface.DrawingSurface, pos,
                     scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint))
             {
-                memberVM.PreviewSurface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize,
+                surface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize,
                     ChunkyImage.FullChunkSize, ClearPaint);
             }
         }
 
-        memberVM.PreviewSurface.DrawingSurface.Canvas.Restore();
+        surface.DrawingSurface.Canvas.Restore();
     }
 
     private void RenderAnimationFramePreview(IReadOnlyImageNode node, IKeyFrameHandler keyFrameVM, AffectedArea area)
@@ -697,7 +720,7 @@ internal class MemberPreviewUpdater
 
     private void RenderNodePreviews(List<IRenderInfo> infos)
     {
-        foreach(var node in internals.Tracker.Document.NodeGraph.AllNodes)
+        foreach (var node in internals.Tracker.Document.NodeGraph.AllNodes)
         {
             if (node is null)
                 return;
@@ -712,7 +735,7 @@ internal class MemberPreviewUpdater
             {
                 return;
             }
-            
+
             if (nodeVm.ResultPreview == null)
             {
                 nodeVm.ResultPreview =
@@ -726,8 +749,9 @@ internal class MemberPreviewUpdater
             nodeVm.ResultPreview.DrawingSurface.Canvas.Scale(scalingX, scalingY);
 
             RectI region = new RectI(0, 0, node.CachedResult.Size.X, node.CachedResult.Size.Y);
-           
-            nodeVm.ResultPreview.DrawingSurface.Canvas.DrawSurface(node.CachedResult.DrawingSurface, 0, 0, ReplacingPaint);
+
+            nodeVm.ResultPreview.DrawingSurface.Canvas.DrawSurface(node.CachedResult.DrawingSurface, 0, 0,
+                ReplacingPaint);
 
             nodeVm.ResultPreview.DrawingSurface.Canvas.Restore();
             infos.Add(new NodePreviewDirty_RenderInfo(node.Id));
