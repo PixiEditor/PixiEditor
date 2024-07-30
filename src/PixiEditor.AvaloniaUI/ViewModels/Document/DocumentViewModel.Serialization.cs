@@ -70,6 +70,7 @@ internal partial class DocumentViewModel
         targetGraph.AllNodes = new List<Node>();
 
         int id = 0;
+        int keyFrameId = 0;
         foreach (var node in graph.AllNodes)
         {
             nodeIdMap[node.Id] = id + 1;
@@ -96,16 +97,18 @@ internal partial class DocumentViewModel
             
             for (int i = 0; i < node.KeyFrames.Count; i++)
             {
-                keyFrameIdMap[node.KeyFrames[i].KeyFrameGuid] = i + 1;
+                keyFrameIdMap[node.KeyFrames[i].KeyFrameGuid] = keyFrameId + 1;
                 keyFrames[i] = new KeyFrameData
                 {
-                    Id = i + 1, 
+                    Id = keyFrameId + 1,
                     Data = SerializationUtil.SerializeObject(node.KeyFrames[i].Data, config, allFactories), 
                     AffectedElement = node.KeyFrames[i].AffectedElement,
                     StartFrame = node.KeyFrames[i].StartFrame, 
                     Duration = node.KeyFrames[i].Duration,
                     IsVisible = node.KeyFrames[i].IsVisible
                 };
+                
+                keyFrameId++;
             }
                 
             Dictionary<string, object> converted = ConvertToSerializable(additionalData, config, allFactories);
