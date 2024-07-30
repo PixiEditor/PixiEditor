@@ -14,6 +14,13 @@ internal abstract class KeyFrameViewModel : ObservableObject, IKeyFrameHandler
     private int durationBindable;
     private bool isVisibleBindable = true;
     private bool isSelected;
+    private bool isCollapsed;
+    
+    public bool IsCollapsed
+    {
+        get => isCollapsed;
+        set => SetProperty(ref isCollapsed, value);
+    }
 
     public DocumentViewModel Document { get; }
     protected DocumentInternalParts Internals { get; }
@@ -69,7 +76,7 @@ internal abstract class KeyFrameViewModel : ObservableObject, IKeyFrameHandler
         get => isVisibleBindable;
         set
         {
-            if(!Document.UpdateableChangeActive)
+            if (!Document.UpdateableChangeActive)
             {
                 Internals.ActionAccumulator.AddFinishedActions(new KeyFrameVisibility_Action(Id, value));
             }
@@ -107,7 +114,7 @@ internal abstract class KeyFrameViewModel : ObservableObject, IKeyFrameHandler
         durationBindable = newDuration;
         OnPropertyChanged(nameof(DurationBindable));
     }
-    
+
     public void ChangeFrameLength(int newStartFrame, int newDuration)
     {
         newStartFrame = Math.Max(0, newStartFrame);
@@ -115,7 +122,7 @@ internal abstract class KeyFrameViewModel : ObservableObject, IKeyFrameHandler
         Internals.ActionAccumulator.AddActions(
             new KeyFrameLength_Action(Id, newStartFrame, newDuration));
     }
-    
+
     public void EndChangeFrameLength()
     {
         Internals.ActionAccumulator.AddFinishedActions(new EndKeyFrameLength_Action());

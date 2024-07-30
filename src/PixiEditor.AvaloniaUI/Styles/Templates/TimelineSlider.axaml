@@ -24,7 +24,7 @@
                 <ControlTemplate>
                     <Grid Name="grid">
                         <Border Background="{DynamicResource ThemeControlLowBrush}"
-                                Height="35"
+                                Height="40"
                                 VerticalAlignment="Center">
                         </Border>
                         <Canvas Margin="-6,-1">
@@ -38,7 +38,9 @@
                             Offset="{TemplateBinding Offset}"
                             MinLeftOffset="{TemplateBinding MinLeftOffset}"
                             MinValue="{TemplateBinding Minimum}"
-                            Fill="{DynamicResource ThemeForegroundBrush}" />
+                            Fill="{DynamicResource ThemeControlHighBrush}" 
+                            Foreground="{DynamicResource ThemeForegroundBrush}"
+                            Margin="0 0 0 5"/>
                         <animations:TimelineSliderTrack Name="PART_Track"
                                IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
                                Margin="15, 0, 0, 0"

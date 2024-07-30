@@ -8,4 +8,5 @@ public interface IReadOnlyKeyFrameData
     object Data { get; }
     string AffectedElement { get; }
     bool IsVisible { get; }
+    bool IsInFrame(int frame);
 }

@@ -55,7 +55,7 @@
                                      x:Name="PercentageSizePicker"
                                      IsEnabled="{Binding EditingEnabled, ElementName=uc}"
                                      Size="{Binding Path=ChosenPercentageSize, ElementName=uc, Mode=TwoWay}"
-                                     Unit="Percentage"
+                                     Unit="%"
                                      Margin="-10,0,0,0"
                                      MaxSize="9999"
                                      Width="{Binding Bounds.Width, ElementName=WidthPicker}">

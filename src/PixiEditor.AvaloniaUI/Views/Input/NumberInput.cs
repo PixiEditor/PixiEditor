@@ -19,29 +19,33 @@ internal partial class NumberInput : TextBox
 {
     public static readonly StyledProperty<double> ValueProperty =
         AvaloniaProperty.Register<NumberInput, double>(
-            nameof(Value), 0);
+            nameof(Value), 0, coerce: CoerceValue);
 
     public static readonly StyledProperty<double> MinProperty =
         AvaloniaProperty.Register<NumberInput, double>(
-            nameof(Min), float.NegativeInfinity);
+            nameof(Min), float.NegativeInfinity, coerce: CoerceValue);
 
     public static readonly StyledProperty<double> MaxProperty =
         AvaloniaProperty.Register<NumberInput, double>(
-            nameof(Max), double.PositiveInfinity);
+            nameof(Max), double.PositiveInfinity, coerce: CoerceValue);
 
-    public static readonly StyledProperty<string> FormattedValueProperty = AvaloniaProperty.Register<NumberInput, string>(
-        nameof(FormattedValue), "0");
+    public static readonly StyledProperty<string> FormattedValueProperty =
+        AvaloniaProperty.Register<NumberInput, string>(
+            nameof(FormattedValue), "0");
 
-    public static readonly StyledProperty<bool> EnableScrollChangeProperty = AvaloniaProperty.Register<NumberInput, bool>(
-        "EnableScrollChange", true);
+    public static readonly StyledProperty<bool> EnableScrollChangeProperty =
+        AvaloniaProperty.Register<NumberInput, bool>(
+            "EnableScrollChange", true);
+
     public string FormattedValue
     {
         get => GetValue(FormattedValueProperty);
         set => SetValue(FormattedValueProperty, value);
     }
 
-    public static readonly StyledProperty<bool> SelectOnMouseClickProperty = AvaloniaProperty.Register<NumberInput, bool>(
-        nameof(SelectOnMouseClick), true);
+    public static readonly StyledProperty<bool> SelectOnMouseClickProperty =
+        AvaloniaProperty.Register<NumberInput, bool>(
+            nameof(SelectOnMouseClick), true);
 
     public static readonly StyledProperty<bool> ConfirmOnEnterProperty = AvaloniaProperty.Register<NumberInput, bool>(
         nameof(ConfirmOnEnter), true);
@@ -60,14 +64,8 @@ internal partial class NumberInput : TextBox
 
     private static Regex regex;
 
-    public int Decimals
-    {
-        get { return (int)GetValue(DecimalsProperty); }
-        set { SetValue(DecimalsProperty, value); }
-    }
-
     public static readonly StyledProperty<int> DecimalsProperty =
-        AvaloniaProperty.Register<NumberInput, int>(nameof(Decimals), 2);
+        AvaloniaProperty.Register<NumberInput, int>(nameof(Decimals), 2, coerce: CoerceDecimals);
 
     public Action OnScrollAction
     {
@@ -96,6 +94,13 @@ internal partial class NumberInput : TextBox
         set => SetValue(MaxProperty, value);
     }
 
+
+    public int Decimals
+    {
+        get { return (int)GetValue(DecimalsProperty); }
+        set { SetValue(DecimalsProperty, value); }
+    }
+
     public static readonly StyledProperty<bool> FocusNextProperty =
         AvaloniaProperty.Register<NumberInput, bool>(
             nameof(FocusNext));
@@ -107,10 +112,11 @@ internal partial class NumberInput : TextBox
     }
 
     private static readonly DataTable DataTable = new DataTable();
+
     private static char[] allowedChars = new char[]
     {
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-', '*', '/', '(', ')', '.', ',', ' ',
-        'i', 'n', 'f', 't', 'y', 'e', 'I', 'N', 'F', 'T', 'Y', 'E'
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-', '*', '/', '(', ')', '.', ',', ' ', 'i', 'n',
+        'f', 't', 'y', 'e', 'I', 'N', 'F', 'T', 'Y', 'E'
     };
 
 
@@ -124,10 +130,10 @@ internal partial class NumberInput : TextBox
 
     private Control? leftGrabber;
     private Control? rightGrabber;
-    
+
     private double _pressedValue;
     private double _pressedRelativeX;
-    
+
     static NumberInput()
     {
         ValueProperty.Changed.Subscribe(OnValueChanged);
@@ -143,11 +149,7 @@ internal partial class NumberInput : TextBox
         behaviors.Add(behavior);
         Interaction.SetBehaviors(this, behaviors);
 
-        Binding binding = new Binding(nameof(FormattedValue))
-        {
-            Source = this,
-            Mode = BindingMode.TwoWay
-        };
+        Binding binding = new Binding(nameof(FormattedValue)) { Source = this, Mode = BindingMode.TwoWay };
 
         this.Bind(TextProperty, binding);
 
@@ -159,10 +161,10 @@ internal partial class NumberInput : TextBox
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         base.OnApplyTemplate(e);
-        
-        InnerLeftContent = leftGrabber = CreateMouseGrabber(); 
+
+        InnerLeftContent = leftGrabber = CreateMouseGrabber();
         leftGrabber.HorizontalAlignment = HorizontalAlignment.Left;
-        InnerRightContent = rightGrabber = CreateMouseGrabber(); 
+        InnerRightContent = rightGrabber = CreateMouseGrabber();
         rightGrabber.HorizontalAlignment = HorizontalAlignment.Right;
     }
 
@@ -172,10 +174,10 @@ internal partial class NumberInput : TextBox
         {
             rightGrabber.IsVisible = false;
         }
-        
+
         leftGrabber.Height = e.NewSize.Height - 10;
         leftGrabber.Width = e.NewSize.Width / 4f;
-        
+
         rightGrabber.Height = e.NewSize.Height - 10;
         rightGrabber.Width = e.NewSize.Width / 4f;
     }
@@ -184,16 +186,15 @@ internal partial class NumberInput : TextBox
     {
         var grabber = new Grid()
         {
-            Cursor = new Cursor(StandardCursorType.SizeWestEast),
-            Background = Brushes.Transparent,
+            Cursor = new Cursor(StandardCursorType.SizeWestEast), Background = Brushes.Transparent,
         };
 
         grabber.PointerPressed += GrabberPressed;
         grabber.PointerMoved += GrabberMoved;
-        
+
         return grabber;
     }
-    
+
     private void GrabberPressed(object sender, PointerPressedEventArgs e)
     {
         e.Pointer.Capture(leftGrabber);
@@ -201,53 +202,67 @@ internal partial class NumberInput : TextBox
         _pressedRelativeX = e.GetPosition(this).X;
         e.Handled = true;
     }
-    
+
     private void GrabberMoved(object sender, PointerEventArgs e)
     {
-        if(e.Pointer.Captured != null && (e.Pointer.Captured.Equals(leftGrabber) || e.Pointer.Captured.Equals(rightGrabber)))
+        if (e.Pointer.Captured != null &&
+            (e.Pointer.Captured.Equals(leftGrabber) || e.Pointer.Captured.Equals(rightGrabber)))
         {
             double relativeX = e.GetPosition(this).X;
             double diff = relativeX - _pressedRelativeX;
 
             double pixelsPerUnit = 5;
-            
+
             double newValue = _pressedValue + diff / pixelsPerUnit;
-            Value = (float)Math.Round(Math.Clamp(newValue, Min, Max), Decimals);
-            e.Handled = true; 
+            Value = newValue;
+            e.Handled = true;
         }
     }
 
     private void BindTextBoxBehavior(TextBoxFocusBehavior behavior)
     {
-        Binding focusNextBinding = new Binding(nameof(FocusNext))
-        {
-            Source = this,
-            Mode = BindingMode.OneWay
-        };
+        Binding focusNextBinding = new Binding(nameof(FocusNext)) { Source = this, Mode = BindingMode.OneWay };
 
         behavior.Bind(TextBoxFocusBehavior.FocusNextProperty, focusNextBinding);
 
         Binding selectOnMouseClickBinding = new Binding(nameof(SelectOnMouseClick))
         {
-            Source = this,
-            Mode = BindingMode.OneWay
+            Source = this, Mode = BindingMode.OneWay
         };
 
         behavior.Bind(TextBoxFocusBehavior.SelectOnMouseClickProperty, selectOnMouseClickBinding);
 
         Binding confirmOnEnterBinding = new Binding(nameof(ConfirmOnEnter))
         {
-            Source = this,
-            Mode = BindingMode.OneWay
+            Source = this, Mode = BindingMode.OneWay
         };
 
         behavior.Bind(TextBoxFocusBehavior.ConfirmOnEnterProperty, confirmOnEnterBinding);
     }
 
+    private static double CoerceValue(AvaloniaObject o, double value)
+    {
+        double min = (double)o.GetValue(MinProperty);
+        double max = (double)o.GetValue(MaxProperty);
+        int decimals = (int)o.GetValue(DecimalsProperty);
+
+        return Math.Round(Math.Clamp(value, min, max), decimals);
+    }
+    
+    private static int CoerceDecimals(AvaloniaObject o, int value)
+    {
+        if (value < 0)
+        {
+            value = 0;
+        }
+        
+        return value;
+    }
+
     private static void OnValueChanged(AvaloniaPropertyChangedEventArgs<double> e)
     {
         NumberInput input = (NumberInput)e.Sender;
-        input.Value = (float)Math.Round(Math.Clamp(e.NewValue.Value, input.Min, input.Max), input.Decimals);
+        //input.Value = (float)Math.Round(Math.Clamp(e.NewValue.Value, input.Min, input.Max), input.Decimals);
 
         var preFormatted = FormatValue(input.Value, input.Decimals);
         input.FormattedValue = preFormatted;
@@ -317,7 +332,7 @@ internal partial class NumberInput : TextBox
     private static void FormattedValueChanged(AvaloniaPropertyChangedEventArgs<string> e)
     {
         NumberInput input = (NumberInput)e.Sender;
-        if(ContainsInvalidCharacter(e.NewValue.Value))
+        if (ContainsInvalidCharacter(e.NewValue.Value))
         {
             input.FormattedValue = e.OldValue.Value;
         }
@@ -325,7 +340,7 @@ internal partial class NumberInput : TextBox
 
     private static bool ContainsInvalidCharacter(string text)
     {
-        if(text == null)
+        if (text == null)
         {
             return false;
         }
@@ -339,7 +354,7 @@ internal partial class NumberInput : TextBox
         {
             return;
         }
-        
+
         int step = (int)e.Delta.Y;
 
         double newValue = Value;
