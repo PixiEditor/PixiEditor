@@ -208,23 +208,7 @@ internal static class ClipboardController
                 {
                     using var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
 
-                    try
-                    {
-                        imported = Surface.Load(PixiParser.Deserialize(path).PreviewImage);
-                    }
-                    catch (InvalidFileException e)
-                    {
-                        // Check if it could be a old file
-                        if (!e.Message.StartsWith("Header"))
-                        {
-                            throw;
-                        }
-
-                        stream.Position = 0;
-                        var document = DeprecatedPixiParser.Deserialize(stream);
-
-                        imported = Surface.Load(document.PreviewImage);
-                    }
+                    imported = Surface.Load(PixiParser.ReadPreview(stream));
                 }
                 else
                 {

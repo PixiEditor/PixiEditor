@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 using PixiEditor.Parser;
+using PixiEditor.Parser.Deprecated;
 
 namespace PixiEditor.AvaloniaUI.Models.IO.PaletteParsers;
 
@@ -25,12 +26,21 @@ internal class PixiPaletteParser : PaletteFileParser
 
     private async Task<PaletteFileData> ParseFile(string path)
     {
-        var file = await PixiParser.DeserializeAsync(path);
-        if(file.Palette == null) return PaletteFileData.Corrupted;
+        using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+        var file = await PixiParser.DeserializeUsingCompatibleAsync(fileStream);
+
+        var palette = file switch
+        {
+            Document v5 => v5.Palette,
+            DeprecatedDocument v4 => v4.Palette,
+            _ => null
+        };
+        
+        if(palette == null) return PaletteFileData.Corrupted;
 
         string name = Path.GetFileNameWithoutExtension(path);
 
-        return new PaletteFileData(name, file.Palette.Select(x => new PaletteColor(x.R, x.G, x.B)).ToArray());
+        return new PaletteFileData(name, palette.Select(x => new PaletteColor(x.R, x.G, x.B)).ToArray());
     }
 
     public override bool CanSave => false;

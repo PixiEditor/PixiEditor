@@ -81,6 +81,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
 
+        // TODO: Exception handling would probably be good
         var bitmap = Importer.GetPreviewBitmap(path);
         byte[] pixels = bitmap.ToWriteableBitmap().ExtractPixels();
 
