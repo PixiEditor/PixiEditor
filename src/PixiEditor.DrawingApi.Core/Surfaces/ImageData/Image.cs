@@ -20,6 +20,8 @@ namespace PixiEditor.DrawingApi.Core.Surfaces.ImageData
         
         public int Height => DrawingBackendApi.Current.ImageImplementation.GetHeight(ObjectPointer);
         
+        public ImageInfo Info => DrawingBackendApi.Current.ImageImplementation.GetImageInfo(ObjectPointer);
+        
         public VecI Size => new VecI(Width, Height);
         
         public Image(IntPtr objPtr) : base(objPtr)

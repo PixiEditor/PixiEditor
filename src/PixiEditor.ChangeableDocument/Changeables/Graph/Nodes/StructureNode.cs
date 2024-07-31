@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
@@ -23,6 +24,8 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
     public OutputProperty<Surface?> Output { get; }
 
+    public OutputProperty<Surface?> FilterlessOutput { get; }
+
     public string MemberName { get; set; } = "New Element"; // would be good to add localization here, it is set if node is created via node graph
     
     public override string DisplayName
@@ -31,7 +34,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         set => MemberName = value;
     }
 
-    protected Dictionary<ChunkResolution, Surface> workingSurfaces = new Dictionary<ChunkResolution, Surface>();
+    protected Dictionary<(ChunkResolution, int), Surface> workingSurfaces = new Dictionary<(ChunkResolution, int), Surface>();
     private Paint maskPaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.DstIn };
     protected Paint blendPaint = new Paint();
 
@@ -47,20 +50,21 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         Filters = CreateInput<Filter>(nameof(Filters), "FILTERS", null);
 
         Output = CreateOutput<Surface?>("Output", "OUTPUT", null);
+        FilterlessOutput = CreateOutput<Surface?>(nameof(FilterlessOutput), "WITHOUT_FILTERS", null);
     }
 
     protected abstract override Surface? OnExecute(RenderingContext context);
 
-    protected Surface TryInitWorkingSurface(VecI imageSize, RenderingContext context)
+    protected Surface TryInitWorkingSurface(VecI imageSize, RenderingContext context, int id)
     {
         ChunkResolution targetResolution = context.ChunkResolution;
-        bool hasSurface = workingSurfaces.TryGetValue(targetResolution, out Surface workingSurface);
+        bool hasSurface = workingSurfaces.TryGetValue((targetResolution, id), out Surface workingSurface);
         VecI targetSize = (VecI)(imageSize * targetResolution.Multiplier());
 
         if (!hasSurface || workingSurface.Size != targetSize || workingSurface.IsDisposed)
         {
-            workingSurfaces[targetResolution] = new Surface(targetSize);
-            workingSurface = workingSurfaces[targetResolution];
+            workingSurfaces[(targetResolution, id)] = new Surface(targetSize);
+            workingSurface = workingSurfaces[(targetResolution, id)];
         }
 
         return workingSurface;
@@ -105,6 +109,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
     protected void DrawBackground(Surface workingSurface, RenderingContext context)
     {
+        blendPaint.Color = Colors.White;
         DrawSurface(workingSurface, Background.Value, context, null); 
     }
 

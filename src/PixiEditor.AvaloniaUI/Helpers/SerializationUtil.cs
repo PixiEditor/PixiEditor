@@ -28,7 +28,7 @@ public static class SerializationUtil
             return factory.Serialize(value);
         }
 
-        if (value.GetType().IsValueType || value is string)
+        if (value.GetType().IsValueType || value is string || value is object[])
         {
             return value;
         }

@@ -887,19 +887,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
-    public bool RenderFrames(string tempRenderingPath, Func<Surface, Surface> processFrameAction = null)
+    public bool RenderFrames(List<Image> frames, Func<Surface, Surface> processFrameAction = null)
     {
         if (AnimationDataViewModel.KeyFrames.Count == 0)
             return false;
-
-        if (!Directory.Exists(tempRenderingPath))
-        {
-            Directory.CreateDirectory(tempRenderingPath);
-        }
-        else
-        {
-            ClearTempFolder(tempRenderingPath);
-        }
 
         var keyFrames = AnimationDataViewModel.KeyFrames;
         var firstFrame = keyFrames.Min(x => x.StartFrameBindable);
@@ -919,9 +910,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 surface = processFrameAction(surface.AsT1);
             }
 
-            using var stream = new FileStream(Path.Combine(tempRenderingPath, $"{i}.png"), FileMode.Create);
-            surface.AsT1.DrawingSurface.Snapshot().Encode().SaveTo(stream);
-            stream.Position = 0;
+
+            var snapshot = surface.AsT1.DrawingSurface.Snapshot();
+            frames.Add(snapshot);
         }
 
         return true;

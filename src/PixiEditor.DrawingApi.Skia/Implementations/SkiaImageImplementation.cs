@@ -137,6 +137,12 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             return _pixmapImplementation.CreateFrom(nativePixmap);
         }
 
+        public ImageInfo GetImageInfo(IntPtr objectPointer)
+        {
+            var info = ManagedInstances[objectPointer].Info;
+            return info.ToImageInfo();
+        }
+
         public object GetNativeImage(IntPtr objectPointer)
         {
             return ManagedInstances[objectPointer];

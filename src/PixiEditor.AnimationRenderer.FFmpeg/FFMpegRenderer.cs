@@ -3,7 +3,9 @@ using System.Reflection;
 using FFMpegCore;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
+using FFMpegCore.Pipes;
 using PixiEditor.AnimationRenderer.Core;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AnimationRenderer.FFmpeg;
@@ -14,24 +16,8 @@ public class FFMpegRenderer : IAnimationRenderer
     public string OutputFormat { get; set; } = "mp4";
     public VecI Size { get; set; }
 
-    public async Task<bool> RenderAsync(string framesPath, string outputPath)
+    public async Task<bool> RenderAsync(List<Image> rawFrames, string outputPath)
     {
-        string[] frames = Directory.GetFiles(framesPath, "*.png");
-        if (frames.Length == 0)
-        {
-            return false;
-        }
-
-        string[] finalFrames = new string[frames.Length];
-
-        for (int i = 0; i < frames.Length; i++)
-        {
-            if (int.TryParse(Path.GetFileNameWithoutExtension(frames[i]), out int frameNumber))
-            {
-                finalFrames[frameNumber - 1] = frames[i];
-            }
-        }
-        
         string path = "ThirdParty/{0}/ffmpeg/bin";
 #if WINDOWS
         path = string.Format(path, "Windows");
@@ -48,19 +34,47 @@ public class FFMpegRenderer : IAnimationRenderer
 
         try
         {
-            if (RequiresPaletteGeneration())
+            List<ImgFrame> frames = new();
+            
+            foreach (var frame in rawFrames)
             {
-                GeneratePalette(finalFrames, framesPath);
+                frames.Add(new ImgFrame(frame));
             }
 
+            RawVideoPipeSource streamPipeSource = new(frames) { FrameRate = FrameRate, };
+            
+            string paletteTempPath = Path.Combine(Path.GetDirectoryName(outputPath), "RenderTemp", "palette.png");
+            
+            if (!Directory.Exists(Path.GetDirectoryName(paletteTempPath)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(paletteTempPath));
+            }
+            
+            if (RequiresPaletteGeneration())
+            {
+                GeneratePalette(streamPipeSource, paletteTempPath);
+            }
+            
+            streamPipeSource = new(frames) { FrameRate = FrameRate, };
+
             var args = FFMpegArguments
-                .FromConcatInput(finalFrames, options =>
+                .FromPipeInput(streamPipeSource, options =>
                 {
                     options.WithFramerate(FrameRate);
                 });
 
-            var outputArgs = GetProcessorForFormat(args, framesPath, outputPath);
-            return await outputArgs.ProcessAsynchronously();
+            var outputArgs = GetProcessorForFormat(args, outputPath, paletteTempPath);
+            var result = await outputArgs.ProcessAsynchronously();
+            
+            if (RequiresPaletteGeneration())
+            {
+                File.Delete(paletteTempPath);
+                Directory.Delete(Path.GetDirectoryName(paletteTempPath));
+            }
+            
+            DisposeStream(frames);
+            
+            return result;
         }
         catch (Exception e)
         {
@@ -69,20 +83,29 @@ public class FFMpegRenderer : IAnimationRenderer
         }
     }
 
-    private FFMpegArgumentProcessor GetProcessorForFormat(FFMpegArguments args, string framesPath, string outputPath)
+    private void DisposeStream(List<ImgFrame> frames)
+    {
+        foreach (var frame in frames)
+        {
+            frame.Dispose();
+        }
+    }
+
+    private FFMpegArgumentProcessor GetProcessorForFormat(FFMpegArguments args, string outputPath,
+        string paletteTempPath)
     {
         return OutputFormat switch
         {
-            "gif" => GetGifArguments(args, framesPath, outputPath),
+            "gif" => GetGifArguments(args, outputPath, paletteTempPath),
             "mp4" => GetMp4Arguments(args, outputPath),
             _ => throw new NotSupportedException($"Output format {OutputFormat} is not supported")
         };
     }
 
-    private FFMpegArgumentProcessor GetGifArguments(FFMpegArguments args, string framesPath, string outputPath)
+    private FFMpegArgumentProcessor GetGifArguments(FFMpegArguments args, string outputPath, string paletteTempPath)
     {
         return args
-            .AddFileInput(Path.Combine(framesPath, "palette.png"))
+            .AddFileInput(paletteTempPath)
             .OutputToFile(outputPath, true, options =>
             {
                 options.WithCustomArgument(
@@ -108,15 +131,14 @@ public class FFMpegRenderer : IAnimationRenderer
         return OutputFormat == "gif";
     }
 
-    private void GeneratePalette(string[] frames, string path)
+    private void GeneratePalette(IPipeSource imageStream, string path)
     {
-        string palettePath = Path.Combine(path, "palette.png");
         FFMpegArguments
-            .FromConcatInput(frames, options =>
+            .FromPipeInput(imageStream, options =>
             {
                 options.WithFramerate(FrameRate);
             })
-            .OutputToFile(palettePath, true, options =>
+            .OutputToFile(path, true, options =>
             {
                 options
                     .WithCustomArgument($"-vf \"palettegen\"");

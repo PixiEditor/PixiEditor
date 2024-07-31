@@ -12,7 +12,7 @@ internal class ColorMatrixSerializationFactory : SerializationFactory<Serializab
         {
             Width = 4,
             Height = 5,
-            Values = original.AsSpan().ToArray()
+            Values = original.ToArray()
         };    
     }
 

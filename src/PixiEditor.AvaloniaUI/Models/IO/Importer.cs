@@ -92,6 +92,7 @@ internal class Importer : ObservableObject
             {
                 Document v5 => v5.ToDocument(),
                 DocumentV4 v4 => v4.ToDocument()
+                // TODO: Default handling
             };
 
             if (associatePath)
@@ -132,6 +133,7 @@ internal class Importer : ObservableObject
             {
                 Document v5 => v5.ToDocument(),
                 DocumentV4 v4 => v4.ToDocument()
+                // TODO: Default handling
             };
 
             document.FullFilePath = originalFilePath;
