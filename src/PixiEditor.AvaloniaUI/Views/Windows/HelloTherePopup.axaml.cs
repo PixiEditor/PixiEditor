@@ -7,11 +7,13 @@ using Avalonia.Interactivity;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
+using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.AvaloniaUI.Models.Services.NewsFeed;
 using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.AvaloniaUI.Models.UserData;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.AvaloniaUI.Views.Dialogs;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.OperatingSystem;
 
@@ -23,6 +25,8 @@ namespace PixiEditor.AvaloniaUI.Views.Windows;
 internal partial class HelloTherePopup : PixiEditorPopup
 {
     public RecentlyOpenedCollection RecentlyOpened { get => FileViewModel.RecentlyOpened; }
+    
+    public List<BetaExampleFile> BetaExampleFiles { get; }
 
     public static readonly StyledProperty<FileViewModel> FileViewModelProperty =
         AvaloniaProperty.Register<HelloTherePopup, FileViewModel>(nameof(FileViewModel));
@@ -75,6 +79,8 @@ internal partial class HelloTherePopup : PixiEditorPopup
     public AsyncRelayCommand OpenNewFileCommand { get; set; }
 
     public RelayCommand<string> OpenRecentCommand { get; set; }
+    
+    public AsyncRelayCommand<BetaExampleFile> OpenBetaExampleCommand { get; set; }
 
     public RelayCommand<string> OpenInExplorerCommand { get; set; }
 
@@ -101,11 +107,19 @@ internal partial class HelloTherePopup : PixiEditorPopup
         OpenFileCommand = new AsyncRelayCommand(OpenFile);
         OpenNewFileCommand = new AsyncRelayCommand(OpenNewFile);
         OpenRecentCommand = new RelayCommand<string>(OpenRecent);
+        OpenBetaExampleCommand = new AsyncRelayCommand<BetaExampleFile>(OpenBetaExample);
         OpenInExplorerCommand = new RelayCommand<string>(OpenInExplorer, CanOpenInExplorer);
 
         RecentlyOpenedEmpty = RecentlyOpened.Count == 0;
         RecentlyOpened.CollectionChanged += RecentlyOpened_CollectionChanged;
 
+        // Beta examples
+        (string file, LocalizedString name)[] files = [
+            ("Pond.pixi", "POND_EXAMPLE")
+        ];
+
+        BetaExampleFiles = new List<BetaExampleFile>(files.Select(x => new BetaExampleFile(x.file, x.name)));
+        
         _newsDisabled = PixiEditorSettings.StartupWindow.DisableNewsPanel.Value;
 
         NewsProvider = new NewsProvider();
@@ -139,6 +153,16 @@ internal partial class HelloTherePopup : PixiEditorPopup
             Width = 575 + newsWidth;
             Height = 670;
         }
+    }
+
+    private async Task OpenBetaExample(BetaExampleFile? arg)
+    {
+        await using var stream = arg.GetStream();
+        
+        var bytes = new byte[stream.Length];
+        await stream.ReadExactlyAsync(bytes);
+
+        FileViewModel.OpenRecoveredDotPixi(null, bytes);
     }
 
     private static void NewsPanelCollapsedChangedCallback(AvaloniaPropertyChangedEventArgs<bool> e)

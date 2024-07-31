@@ -671,5 +671,8 @@
   "NOISE_TYPE": "Noise Type",
   "OCTAVES": "Octaves",
   "ACTIVE_FRAME": "Active Frame",
-  "NORMALIZED_TIME": "Normalized Time"
+  "NORMALIZED_TIME": "Normalized Time",
+  
+  "BETA_EXAMPLE_FILES": "Beta Example Files",
+  "POND_EXAMPLE": "Pond"
 }
