@@ -10,6 +10,7 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.Numerics;
 
@@ -190,21 +191,41 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
         Internals.ActionAccumulator.AddFinishedActions(new EndNodePosition_Action());
     }
 
-    public void CreateNode(Type nodeType)
+    public void CreateNode(Type nodeType, VecD pos = default)
     {
         IAction change;
 
         PairNodeAttribute? pairAttribute = nodeType.GetCustomAttribute<PairNodeAttribute>(true);
+        
+        List<IAction> changes = new();
+        
         if (pairAttribute != null)
         {
-            change = new CreateNodePair_Action(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), nodeType);
+            Guid startId = Guid.NewGuid();
+            Guid endId = Guid.NewGuid();
+            changes.Add(new CreateNodePair_Action(startId, endId, Guid.NewGuid(), nodeType));
+            
+            if(pos != default)
+            {
+                changes.Add(new NodePosition_Action(startId, pos));
+                changes.Add(new EndNodePosition_Action());
+                changes.Add(new NodePosition_Action(endId, new VecD(pos.X + 400, pos.Y)));
+                changes.Add(new EndNodePosition_Action()); 
+            }
         }
         else
         {
-            change = new CreateNode_Action(nodeType, Guid.NewGuid());
+            Guid nodeId = Guid.NewGuid();
+            changes.Add(new CreateNode_Action(nodeType, nodeId));
+            
+            if(pos != default)
+            {
+                changes.Add(new NodePosition_Action(nodeId, pos));
+                changes.Add(new EndNodePosition_Action());
+            }
         }
 
-        Internals.ActionAccumulator.AddFinishedActions(change);
+        Internals.ActionAccumulator.AddFinishedActions(changes.ToArray());
     }
 
     public void RemoveNodes(Guid[] selectedNodes)

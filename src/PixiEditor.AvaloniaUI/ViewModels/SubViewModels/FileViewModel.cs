@@ -302,7 +302,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 .WithGraph(x => x
                     .WithImageLayerNode(
                         new LocalizedString("BASE_LAYER_NAME"),
-                        new Surface(new VecI(newFile.Width, newFile.Height)), out int id)
+                        new VecI(newFile.Width, newFile.Height), out int id)
                     .WithOutputNode(id, "Output")
                 ));
         }

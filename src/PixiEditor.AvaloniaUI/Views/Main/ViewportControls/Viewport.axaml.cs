@@ -437,7 +437,9 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private void OnMainImageSizeChanged(object? sender, SizeChangedEventArgs e)
     {
         if (scene.Dimensions is { X: 0, Y: 0 }) return;
-        scene.CenterContent(new VecD(e.NewSize.Width, e.NewSize.Height));
+        scene.CenterContent();
+        scene.ZoomIntoCenter(-1);
+        scene.ZoomIntoCenter(1); // a bit hacky, but it resets brush overlay properly
     }
     
     private void ResetViewportClicked(object sender, RoutedEventArgs e)

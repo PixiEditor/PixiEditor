@@ -142,7 +142,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
         RectD dirtyBounds = new RectD(0, 0, Document.Width / resolutionScale, Document.Height / resolutionScale);
         Rect dirtyRect = new Rect(0, 0, Document.Width / resolutionScale, Document.Height / resolutionScale);
-        
 
         using var operation = new DrawSceneOperation(Surface, Document, CanvasPos, Scale * resolutionScale, angle, FlipX, FlipY,
             dirtyRect,
