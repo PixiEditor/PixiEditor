@@ -14,24 +14,6 @@ public class Center : SingleChildLayoutElement
     public Center(LayoutElement child = null)
     {
         Child = child;
-        PropertyChanged += OnPropertyChanged;
-    }
-
-    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if(panel == null)
-        {
-            return;
-        }
-
-        if (e.PropertyName == nameof(Child))
-        {
-            panel.Children.Clear();
-            if (Child != null)
-            {
-                panel.Children.Add(Child.BuildNative());
-            }
-        }
     }
 
     public override Control BuildNative()
@@ -49,5 +31,15 @@ public class Center : SingleChildLayoutElement
         }
 
         return panel;
+    }
+
+    protected override void AddChild(Control child)
+    {
+        panel.Children.Add(child);
+    }
+
+    protected override void RemoveChild()
+    {
+        panel.Children.Clear();
     }
 }

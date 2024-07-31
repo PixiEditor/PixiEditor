@@ -4,12 +4,12 @@ using System.Linq;
 using ChunkyImageLib;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.AvaloniaUI.Helpers;
+using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Numerics;
 using PixiEditor.Parser;
-using PixiEditor.Parser.Deprecated;
 
 namespace PixiEditor.AvaloniaUI.Models.UserData;
 
@@ -91,36 +91,12 @@ internal class RecentlyOpenedDocument : ObservableObject
         {
             try
             {
-                var document = PixiParser.Deserialize(filePath);
-
-                if (document.PreviewImage == null || document.PreviewImage.Length == 0)
-                {
-                    return null;
-                }
-
-                return Surface.Load(document.PreviewImage);
+                return Importer.GetPreviewBitmap(FilePath);
             }
             catch
             {
-
-                try
-                {
-                    var deprecatedDocument = DeprecatedPixiParser.Deserialize(filePath);
-                    
-                    if (deprecatedDocument.PreviewImage == null || deprecatedDocument.PreviewImage.Length == 0)
-                    {
-                        return null;
-                    }
-                    
-                    return Surface.Load(deprecatedDocument.PreviewImage);
-                }
-                catch
-                {
-                    corrupt = true;
-                    return null;
-                }
+                return null;
             }
-
         }
 
         if (SupportedFilesHelper.IsExtensionSupported(FileExtension))

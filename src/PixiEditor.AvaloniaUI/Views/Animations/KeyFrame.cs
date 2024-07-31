@@ -28,6 +28,15 @@ internal class KeyFrame : TemplatedControl
     public static readonly StyledProperty<double> MinProperty = AvaloniaProperty.Register<KeyFrame, double>(
         nameof(Min), 1);
 
+    public static readonly StyledProperty<bool> IsCollapsedProperty = AvaloniaProperty.Register<KeyFrame, bool>(
+        nameof(IsCollapsed)); 
+
+    public bool IsCollapsed
+    {
+        get => GetValue(IsCollapsedProperty);
+        set => SetValue(IsCollapsedProperty, value);
+    }
+    
     public double Min
     {
         get => GetValue(MinProperty);
@@ -58,6 +67,7 @@ internal class KeyFrame : TemplatedControl
     static KeyFrame()
     {
         IsSelectedProperty.Changed.Subscribe(IsSelectedChanged);
+        IsCollapsedProperty.Changed.Subscribe(IsCollapsedChanged);
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -177,5 +187,15 @@ internal class KeyFrame : TemplatedControl
         }
 
         keyFrame.PseudoClasses.Set(":selected", keyFrame.IsSelected);
+    }
+    
+    private static void IsCollapsedChanged(AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Sender is not KeyFrame keyFrame)
+        {
+            return;
+        }
+
+        keyFrame.PseudoClasses.Set(":collapsed", keyFrame.IsCollapsed);
     }
 }

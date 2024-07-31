@@ -6,15 +6,16 @@ using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Numerics;
 using PixiEditor.Parser;
-using PixiEditor.Parser.Deprecated;
+using PixiEditor.Parser.Old.PixiV4;
 using BlendMode = PixiEditor.Parser.BlendMode;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Extensions;
 
-internal static class PixiParserV3DocumentEx
+internal static class PixiParserPixiV4DocumentEx
 {
-    public static DocumentViewModel ToDocument(this DeprecatedDocument document)
+    public static DocumentViewModel ToDocument(this DocumentV4 document)
     {
+        // TODO: Implement?
         return DocumentViewModel.Build(b =>
         {
             /*b.WithSize(document.Width, document.Height)

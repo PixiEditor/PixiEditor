@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Extensions.CommonApi.Palettes;
 
-public partial class PaletteColor
+public partial class PaletteColor : IEquatable<PaletteColor>
 {
     public static PaletteColor Empty => new PaletteColor(0, 0, 0);
     public static PaletteColor Black => new PaletteColor(0, 0, 0);
@@ -78,5 +78,45 @@ public partial class PaletteColor
         byte b = Convert.ToByte(hex.Substring(4, 2), 16);
 
         return new PaletteColor(r, g, b);
+    }
+
+    public bool Equals(PaletteColor other)
+    {
+        if (ReferenceEquals(null, other))
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+
+        return RValue == other.RValue && GValue == other.GValue && BValue == other.BValue;
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (ReferenceEquals(null, obj))
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+
+        if (obj.GetType() != this.GetType())
+        {
+            return false;
+        }
+
+        return Equals((PaletteColor)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(RValue, GValue, BValue);
     }
 }

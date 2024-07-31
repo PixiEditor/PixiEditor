@@ -52,10 +52,10 @@ internal class ClipCanvas_Change : ResizeBasedChangeBase
                 });
             }
             
-            if (member.Mask is null)
+            if (member.Mask.NonOverridenValue is null)
                 return;
             
-            Resize(member.Mask.Value, member.Id, newBounds.Size, -newBounds.Pos, deletedMaskChunks);
+            Resize(member.Mask.NonOverridenValue, member.Id, newBounds.Size, -newBounds.Pos, deletedMaskChunks);
         });
 
         ignoreInUndo = false;

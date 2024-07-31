@@ -20,6 +20,15 @@ public class TimelineTickBar : Control
     public static readonly StyledProperty<int> MinValueProperty = AvaloniaProperty.Register<TimelineTickBar, int>(
         nameof(MinValue), 1);
 
+    public static readonly StyledProperty<IBrush> ForegroundProperty = AvaloniaProperty.Register<TimelineTickBar, IBrush>(
+        nameof(Foreground), Brushes.White);
+
+    public IBrush Foreground
+    {
+        get => GetValue(ForegroundProperty);
+        set => SetValue(ForegroundProperty, value);
+    }
+    
     public int MinValue
     {
         get => GetValue(MinValueProperty);
@@ -52,7 +61,7 @@ public class TimelineTickBar : Control
 
     static TimelineTickBar()
     {
-        AffectsRender<TimelineTickBar>(ScaleProperty, FillProperty, OffsetProperty);
+        AffectsRender<TimelineTickBar>(ScaleProperty, FillProperty, OffsetProperty, MinValueProperty, ForegroundProperty, MinLeftOffsetProperty);
     }
     
     private readonly int[] possibleLargeTickIntervals = { 1, 5, 10, 50, 100 };
@@ -83,10 +92,10 @@ public class TimelineTickBar : Control
             smallTickInterval = 1;
         }
 
-        Pen largeTickPen = new Pen(Fill);
-        Pen smallTickPen = new Pen(Fill, 0.5);
+        Pen largeTickPen = new Pen(Fill, thickness: 2);
+        Pen smallTickPen = new Pen(Fill, 1.5);
         
-        int largeStart = visibleMin - (visibleMin % largeTickInterval);
+        int largeStart = visibleMin - (visibleMin % largeTickInterval) - MinValue;
         
         RenderBigTicks(context, largeStart, visibleMax, largeTickInterval, frameWidth, largeTickPen, height);
         
@@ -117,7 +126,7 @@ public class TimelineTickBar : Control
             context.DrawLine(largeTickPen, new Point(x, height), new Point(x, height * 0.55f));
             
             var text = new FormattedText((i + MinValue).ToString(), CultureInfo.CurrentCulture, FlowDirection.LeftToRight,
-                Typeface.Default, 12, Fill);
+                Typeface.Default, 12, Foreground);
             
             double textCenter = text.WidthIncludingTrailingWhitespace / 2;
             Point textPosition = new Point(x - textCenter, height * 0.05);

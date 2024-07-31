@@ -71,7 +71,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     }
     
     [Command.Basic("PixiEditor.Window.FlipHorizontally", "FLIP_VIEWPORT_HORIZONTALLY", "FLIP_VIEWPORT_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument",
-        Icon = PixiPerfectIcons.XFlip)]
+        Icon = PixiPerfectIcons.YFlip)]
     public void FlipViewportHorizontally()
     {
         if (ActiveWindow is ViewportWindowViewModel viewport)
@@ -81,7 +81,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     }
     
     [Command.Basic("PixiEditor.Window.FlipVertically", "FLIP_VIEWPORT_VERTICALLY", "FLIP_VIEWPORT_VERTICALLY", CanExecute = "PixiEditor.HasDocument",
-        Icon = PixiPerfectIcons.YFlip)]
+        Icon = PixiPerfectIcons.XFlip)]
     public void FlipViewportVertically()
     {
         if (ActiveWindow is ViewportWindowViewModel viewport)

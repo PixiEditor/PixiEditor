@@ -99,11 +99,11 @@
             <system:String x:Key="icon-trash">&#xE958;</system:String>
             <system:String x:Key="icon-undo">&#xE959;</system:String>
             <system:String x:Key="icon-unlock">&#xE95A;</system:String>
-            <system:String x:Key="icon-y-flip">&#xE95B;</system:String>
-            <system:String x:Key="icon-x-selected-flip">&#xE95C;</system:String>
+            <system:String x:Key="icon-x-flip">&#xE95B;</system:String>
+            <system:String x:Key="icon-x-selected-flip">&#xE95F;</system:String>
+            <system:String x:Key="icon-y-flip">&#xE95E;</system:String>
+            <system:String x:Key="icon-y-selected-flip">&#xE95C;</system:String>
             <system:String x:Key="icon-x-symmetry">&#xE95D;</system:String>
-            <system:String x:Key="icon-x-flip">&#xE95E;</system:String>
-            <system:String x:Key="icon-y-selected-flip">&#xE95F;</system:String>
             <system:String x:Key="icon-y-symmetry">&#xE960;</system:String>
             <system:String x:Key="icon-zoom-in">&#xE961;</system:String>
             <system:String x:Key="icon-zoom-out">&#xE962;</system:String>

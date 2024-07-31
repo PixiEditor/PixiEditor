@@ -45,7 +45,6 @@ using PixiEditor.DrawingApi.Core.Surfaces.Vector;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Numerics;
-using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
 using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;

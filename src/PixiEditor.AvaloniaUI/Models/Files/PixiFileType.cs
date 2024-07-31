@@ -20,7 +20,7 @@ internal class PixiFileType : IoFileType
     {
         try
         {
-            await Parser.PixiParser.SerializeAsync(document.ToSerializable(), pathWithExtension);
+            await Parser.PixiParser.V5.SerializeAsync(document.ToSerializable(), pathWithExtension);
         }
         catch (UnauthorizedAccessException e)
         {

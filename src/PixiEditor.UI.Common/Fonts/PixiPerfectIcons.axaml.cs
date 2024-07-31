@@ -102,11 +102,11 @@ public static class PixiPerfectIcons
     public const string Trash = "\uE958";
     public const string Undo = "\uE959";
     public const string Unlock = "\uE95A";
-    public const string XFlip = "\uE95B";
-    public const string XSelectedFlip = "\uE95C";
+    public const string XFlip = "\uE95E";
+    public const string XSelectedFlip = "\uE95F";
     public const string XSymmetry = "\uE95D";
-    public const string YFlip = "\uE95E";
-    public const string YSelectedFlip = "\uE95F";
+    public const string YFlip = "\uE95B";
+    public const string YSelectedFlip = "\uE95C";
     public const string YSymmetry = "\uE960";
     public const string ZoomIn = "\uE961";
     public const string ZoomOut = "\uE962";

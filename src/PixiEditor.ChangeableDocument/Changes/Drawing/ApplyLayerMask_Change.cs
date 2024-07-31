@@ -63,7 +63,7 @@ internal class ApplyLayerMask_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var layer = target.FindMemberOrThrow<ImageLayerNode>(layerGuid);
-        if (layer.Mask is not null)
+        if (layer.Mask.Value is not null)
             throw new InvalidOperationException("Cannot restore layer mask, it already has one");
         if (savedLayer is null || savedMask is null)
             throw new InvalidOperationException("Cannot restore layer mask, no saved data");

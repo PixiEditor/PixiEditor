@@ -54,7 +54,7 @@ internal static partial class Native
     {
         if (LayoutElementsStore.LayoutElements.TryGetValue((int)internalControlId, out ILayoutElement<CompiledControl> element))
         {
-            element.RaiseEvent(eventName ?? "", new ElementEventArgs());
+            element.RaiseEvent(eventName ?? "", new ElementEventArgs { Sender = element });
         }
     }
 

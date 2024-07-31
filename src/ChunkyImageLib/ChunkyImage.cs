@@ -9,6 +9,7 @@ using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.DrawingApi.Core.Surfaces.Vector;
 using PixiEditor.Numerics;
@@ -123,6 +124,12 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             [ChunkResolution.Quarter] = new(),
             [ChunkResolution.Eighth] = new(),
         };
+    }
+
+    public ChunkyImage(Surface image) : this(image.Size)
+    {
+        EnqueueDrawImage(VecI.Zero, image);
+        CommitChanges();
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>

@@ -384,7 +384,7 @@ internal class CrashReport : IDisposable
                     .Replace(':', '_')
                     .Replace('/', '_');
 
-                byte[] serialized = PixiParser.Serialize(document.ToSerializable());
+                byte[] serialized = PixiParser.V5.Serialize(document.ToSerializable());
 
                 using Stream documentStream = archive.CreateEntry($"Documents/{nameInZip}").Open();
                 documentStream.Write(serialized);

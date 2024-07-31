@@ -17,7 +17,7 @@ using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Numerics;
 using PixiEditor.Parser;
-using PixiEditor.Parser.Deprecated;
+using PixiEditor.Parser.Old.PixiV4;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 using BlendMode = PixiEditor.DrawingApi.Core.Surfaces.BlendMode;
 
@@ -85,37 +85,35 @@ internal class Importer : ObservableObject
     {
         try
         {
-            var doc = PixiParser.Deserialize(path).ToDocument();
+            using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+            var pixiDocument = PixiParser.DeserializeUsingCompatible(fileStream);
+
+            var document = pixiDocument switch
+            {
+                Document v5 => v5.ToDocument(),
+                DocumentV4 v4 => v4.ToDocument()
+                // TODO: Default handling
+            };
 
             if (associatePath)
             {
-                doc.FullFilePath = path;
+                document.FullFilePath = path;
             }
 
-            return doc;
+            return document;
         }
         catch (DirectoryNotFoundException)
         {
             //TODO: Handle
             throw new RecoverableException();
         }
-        catch (InvalidFileException)
+        catch (InvalidFileException e)
         {
-            try
-            {
-                var doc = DeprecatedPixiParser.Deserialize(path).ToDocument();
-                
-                if (associatePath)
-                {
-                    doc.FullFilePath = path;
-                }
-
-                return doc;
-            }
-            catch (Exception e)
-            {
-                throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
-            }
+            throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
+        }
+        catch (OldFileFormatException e)
+        {
+            throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
         }
     }
 
@@ -123,22 +121,32 @@ internal class Importer : ObservableObject
     {
         try
         {
-            var doc = PixiParser.Deserialize(file).ToDocument();
-            doc.FullFilePath = originalFilePath;
-            return doc;
+            if (!PixiParser.TryGetCompatibleVersion(file, out var parser))
+            {
+                // TODO: Handle
+                throw new RecoverableException();
+            }
+            
+            var pixiDocument = parser.Deserialize(file);
+
+            var document = pixiDocument switch
+            {
+                Document v5 => v5.ToDocument(),
+                DocumentV4 v4 => v4.ToDocument()
+                // TODO: Default handling
+            };
+
+            document.FullFilePath = originalFilePath;
+
+            return document;
         }
-        catch (InvalidFileException)
+        catch (InvalidFileException e)
         {
-            try
-            {
-                var doc = DeprecatedPixiParser.Deserialize(file).ToDocument();
-                doc.FullFilePath = originalFilePath;
-                return doc;
-            }
-            catch (InvalidFileException e)
-            {
-                throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
-            }
+            throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
+        }
+        catch (OldFileFormatException e)
+        {
+            throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
         }
     }
 
@@ -148,8 +156,13 @@ internal class Importer : ObservableObject
         {
             throw new InvalidFileTypeException(new LocalizedString("FILE_EXTENSION_NOT_SUPPORTED", Path.GetExtension(path)));
         }
+        
+        if (Path.GetExtension(path) != ".pixi")
+            return Surface.Load(path);
 
-        return Path.GetExtension(path) != ".pixi" ? Surface.Load(path) : PixiParser.Deserialize(path).ToDocument().PreviewSurface;
+        using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+
+        return Surface.Load(PixiParser.ReadPreview(fileStream));
     }
 
     public static bool IsSupportedFile(string path)

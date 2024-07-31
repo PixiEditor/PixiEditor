@@ -285,8 +285,17 @@ internal class NodeGraphBuilder
             this.WithNodeOfType(typeof(ImageLayerNode))
                 .WithName(name)
                 .WithId(AllNodes.Count + 1)
-                .WithAdditionalData(
-                    new Dictionary<string, object> { { ImageLayerNode.ImageFramesKey, new List<Surface> { image } } }));
+                .WithKeyFrames(
+                [
+                    new KeyFrameData
+                        {
+                            AffectedElement = ImageLayerNode.ImageLayerKey,
+                            Data = new ChunkyImage(image),
+                            Duration = 0,
+                            StartFrame = 0,
+                            IsVisible = true
+                        }
+                ]));
 
         id = AllNodes.Count;
         return this;

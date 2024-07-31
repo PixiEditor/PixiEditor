@@ -8,6 +8,7 @@ namespace PixiEditor.Extensions.FlyUI.Elements;
 
 public class Align : SingleChildLayoutElement, IPropertyDeserializable
 {
+    private Panel _panel; 
     public Alignment Alignment { get; set; }
 
     public Align(LayoutElement child = null, Alignment alignment = Alignment.Center)
@@ -18,17 +19,27 @@ public class Align : SingleChildLayoutElement, IPropertyDeserializable
 
     public override Control BuildNative()
     {
-        Panel panel = new Panel
+        _panel = new Panel
         {
             HorizontalAlignment = DecomposeHorizontalAlignment(Alignment), VerticalAlignment = DecomposeVerticalAlignment(Alignment)
         };
 
         if (Child != null)
         {
-            panel.Children.Add(Child.BuildNative());
+            _panel.Children.Add(Child.BuildNative());
         }
 
-        return panel;
+        return _panel;
+    }
+
+    protected override void AddChild(Control child)
+    {
+        _panel.Children.Add(child);
+    }
+
+    protected override void RemoveChild()
+    {
+        _panel.Children.Clear(); 
     }
 
     private HorizontalAlignment DecomposeHorizontalAlignment(Alignment alignment)

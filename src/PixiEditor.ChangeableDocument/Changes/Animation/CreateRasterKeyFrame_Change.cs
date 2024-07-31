@@ -27,7 +27,7 @@ internal class CreateRasterKeyFrame_Change : Change
 
     public override bool InitializeAndValidate(Document target)
     {
-        return target.TryFindMember(_targetLayerGuid, out _layer);
+        return _frame != 0 && target.TryFindMember(_targetLayerGuid, out _layer);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,

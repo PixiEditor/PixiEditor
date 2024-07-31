@@ -10,16 +10,17 @@ namespace PixiEditor.Extensions.FlyUI.Elements;
 
 public class Padding : SingleChildLayoutElement, IPropertyDeserializable
 {
+    private Decorator _decorator;
     private Edges _edges = Edges.All(0);
     
     public Edges Edges { get => _edges; set => SetField(ref _edges, value); }
     public override Control BuildNative()
     {
-        Decorator decorator = new();
+        _decorator = new();
         
         if(Child != null)
         {
-            decorator.Child = Child.BuildNative();
+            _decorator.Child = Child.BuildNative();
         }
         
         Binding edgesBinding = new()
@@ -29,9 +30,19 @@ public class Padding : SingleChildLayoutElement, IPropertyDeserializable
             Converter = new EdgesToThicknessConverter(),
         };
         
-        decorator.Bind(Decorator.PaddingProperty, edgesBinding);
+        _decorator.Bind(Decorator.PaddingProperty, edgesBinding);
         
-        return decorator;
+        return _decorator;
+    }
+
+    protected override void AddChild(Control child)
+    {
+        _decorator.Child = child;
+    }
+
+    protected override void RemoveChild()
+    {
+        _decorator.Child = null;
     }
 
     public IEnumerable<object> GetProperties()
