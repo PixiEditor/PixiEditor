@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
@@ -108,6 +109,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
     protected void DrawBackground(Surface workingSurface, RenderingContext context)
     {
+        blendPaint.Color = Colors.White;
         DrawSurface(workingSurface, Background.Value, context, null); 
     }
 
