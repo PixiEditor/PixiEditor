@@ -739,7 +739,7 @@ internal class MemberPreviewUpdater
             if (nodeVm.ResultPreview == null)
             {
                 nodeVm.ResultPreview =
-                    new Surface(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size));
+                    new Surface(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size, 150));
             }
 
             float scalingX = (float)nodeVm.ResultPreview.Size.X / node.CachedResult.Size.X;

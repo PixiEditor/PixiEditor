@@ -51,12 +51,18 @@ public class NodeSocket : TemplatedControl
         ConnectPort = e.NameScope.Find<Control>("PART_ConnectPort");
         ConnectPort.PointerPressed += ConnectPortOnPointerPressed;
         ConnectPort.PointerReleased += ConnectPortOnPointerReleased;
+        ConnectPort.PointerMoved += ConnectPortOnPointerMoved;
     }
 
     private void ConnectPortOnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         e.Source = this;
         e.Pointer.Capture(null);
+    }
+    
+    private void ConnectPortOnPointerMoved(object? sender, PointerEventArgs e)
+    {
+        e.Source = this;
     }
 
     private void ConnectPortOnPointerReleased(object? sender, PointerEventArgs e)
