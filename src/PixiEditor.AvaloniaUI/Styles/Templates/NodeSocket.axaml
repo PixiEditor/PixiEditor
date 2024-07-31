@@ -6,14 +6,19 @@
             <ControlTemplate>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Grid Name="PART_ConnectPort">
-                        <Ellipse Width="10" Height="10" 
-                                 Fill="{TemplateBinding SocketBrush}" 
-                                 IsVisible="{Binding !IsFunc, RelativeSource={RelativeSource TemplatedParent}}"/>
-                        <Rectangle Width="10" Height="10"
-                                   RadiusX="2" RadiusY="2"
-                                   Fill="{TemplateBinding SocketBrush}"
-                                   RenderTransform="rotate(45deg) scale(0.89)"
-                                   IsVisible="{Binding IsFunc, RelativeSource={RelativeSource TemplatedParent}}"/>
+                        <Panel Width="20" Height="20" Margin="-5, 0" Background="Transparent"
+                               IsVisible="{Binding !IsFunc, RelativeSource={RelativeSource TemplatedParent}}">
+                            <Ellipse Width="10" Height="10"
+                                     Fill="{TemplateBinding SocketBrush}" />
+                        </Panel>
+                        <Panel Margin="-5, 0" Width="20" Height="20" Background="Transparent"
+                               IsVisible="{Binding IsFunc, RelativeSource={RelativeSource TemplatedParent}}">
+                            <Rectangle Width="10" Height="10"
+                                       RadiusX="2" RadiusY="2"
+                                       Fill="{TemplateBinding SocketBrush}"
+                                       RenderTransform="rotate(45deg) scale(0.89)" />
+                        </Panel>
+
                     </Grid>
                 </StackPanel>
             </ControlTemplate>
