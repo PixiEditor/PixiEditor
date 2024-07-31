@@ -6,4 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\PixiEditor.DrawingApi.Core\PixiEditor.DrawingApi.Core.csproj" />
+    </ItemGroup>
+
 </Project>

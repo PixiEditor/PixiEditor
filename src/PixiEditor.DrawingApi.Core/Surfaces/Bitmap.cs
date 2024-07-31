@@ -16,6 +16,8 @@ public class Bitmap : NativeObject
     }
 
     public override object Native => DrawingBackendApi.Current.BitmapImplementation.GetNativeBitmap(ObjectPointer);
+    public byte[] Bytes => DrawingBackendApi.Current.BitmapImplementation.GetBytes(ObjectPointer);
+    public ImageInfo Info => DrawingBackendApi.Current.BitmapImplementation.GetInfo(ObjectPointer);
 
     public override void Dispose()
     {

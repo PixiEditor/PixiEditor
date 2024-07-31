@@ -1,6 +1,7 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
 using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using PixiEditor.Numerics;
 using SkiaSharp;
 
@@ -41,6 +42,18 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             SKBitmap bitmap = ManagedInstances[objectPointer];
             return new VecI(bitmap.Width, bitmap.Height);
+        }
+
+        public byte[] GetBytes(IntPtr objectPointer)
+        {
+            SKBitmap bitmap = ManagedInstances[objectPointer];
+            return bitmap.Bytes; 
+        }
+        
+        public ImageInfo GetInfo(IntPtr objectPointer)
+        {
+            SKBitmap bitmap = ManagedInstances[objectPointer];
+            return bitmap.Info.ToImageInfo();
         }
 
         public object GetNativeBitmap(IntPtr objectPointer)
