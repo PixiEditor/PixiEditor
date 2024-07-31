@@ -155,16 +155,6 @@ internal partial class HelloTherePopup : PixiEditorPopup
         }
     }
 
-    private async Task OpenBetaExample(BetaExampleFile? arg)
-    {
-        await using var stream = arg.GetStream();
-        
-        var bytes = new byte[stream.Length];
-        await stream.ReadExactlyAsync(bytes);
-
-        FileViewModel.OpenRecoveredDotPixi(null, bytes);
-    }
-
     private static void NewsPanelCollapsedChangedCallback(AvaloniaPropertyChangedEventArgs<bool> e)
     {
         HelloTherePopup helloTherePopup = (HelloTherePopup)e.Sender;
@@ -203,6 +193,19 @@ internal partial class HelloTherePopup : PixiEditorPopup
         Application.Current.ForDesktopMainWindow(mainWindow => mainWindow.Activate());
         Close();
         await FileViewModel.CreateFromNewFileDialog();
+    }
+
+    private async Task OpenBetaExample(BetaExampleFile? arg)
+    {
+        await using var stream = arg.GetStream();
+        
+        var bytes = new byte[stream.Length];
+        await stream.ReadExactlyAsync(bytes);
+
+        Application.Current.ForDesktopMainWindow(mainWindow => mainWindow.Activate());
+        Close();
+        
+        FileViewModel.OpenRecoveredDotPixi(null, bytes);
     }
 
     private void OpenRecent(string parameter)
