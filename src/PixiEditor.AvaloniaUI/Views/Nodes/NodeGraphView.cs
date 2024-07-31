@@ -338,7 +338,7 @@ internal class NodeGraphView : Zoombox.Zoombox
             _previewConnectionLine = new ConnectionLine();
             _previewConnectionLine.Thickness = 2;
 
-            canvas.Children.Insert(0, _previewConnectionLine);
+            canvas.Children.Add(_previewConnectionLine);
         }
 
         _previewConnectionLine.IsVisible = true;
