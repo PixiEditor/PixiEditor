@@ -42,6 +42,11 @@ public class ConnectionLine : Control
         AffectsRender<ConnectionLine>(LineBrushProperty, ThicknessProperty, StartPointProperty, EndPointProperty);
     }
 
+    public ConnectionLine()
+    {
+        IsHitTestVisible = false;
+    }
+
     public override void Render(DrawingContext context)
     {
         var p1 = new Point(StartPoint.X, StartPoint.Y);
