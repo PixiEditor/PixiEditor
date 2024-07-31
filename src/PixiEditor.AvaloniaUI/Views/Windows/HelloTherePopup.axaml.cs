@@ -141,17 +141,17 @@ internal partial class HelloTherePopup : PixiEditorPopup
         if (RecentlyOpenedEmpty)
         {
             Width = 500 + newsWidth;
-            Height = 500;
+            Height = 670;
         }
         else if (RecentlyOpened.Count < 4)
         {
             Width = 545 + newsWidth;
-            Height = 500;
+            Height = 670;
         }
         else if (RecentlyOpened.Count < 7)
         {
             Width = 575 + newsWidth;
-            Height = 670;
+            Height = 840;
         }
     }
 
