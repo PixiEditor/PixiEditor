@@ -81,7 +81,7 @@
                         <TextBlock FontSize="23" FontWeight="SemiBold" HorizontalAlignment="Center"
                                    ui:Translator.Key="BETA_EXAMPLE_FILES" />
                         
-                        <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <windows:BetaExampleButton FileName="Pond.pixi" DisplayName="POND_EXAMPLE" CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                             <windows:BetaExampleButton FileName="Tree.pixi" DisplayName="TREE_EXAMPLE" CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                             
@@ -326,12 +326,14 @@
             
             <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" IsVisible="{Binding ShowAllBetaExamples, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" Margin="3,0">
                 <StackPanel>
-                    <Button Margin="0,5,0,0" HorizontalAlignment="Left"
+                    <Button Margin="6,8,0,0" HorizontalAlignment="Left"
                             Command="{Binding SetShowAllBetaExamplesCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}"
                             CommandParameter="{x:False}"
                             Content="Go back" HorizontalContentAlignment="Left"/>
                     
-                    <TextBlock Text="Procedural Generation" Margin="0,0,0,2" HorizontalAlignment="Center" TextAlignment="Center" FontSize="18" FontWeight="SemiBold" />
+                    <TextBlock ui:Translator.Key="BETA_EXAMPLE_FILES" Margin="0,-9,0,5" HorizontalAlignment="Center" TextAlignment="Center" FontSize="22" FontWeight="Bold" />
+                    
+                    <TextBlock ui:Translator.Key="BETA_PROCEDURAL_GENERATION" Margin="0,2" HorizontalAlignment="Center" TextAlignment="Center" FontSize="18" FontWeight="SemiBold" />
                     
                     <ScrollViewer HorizontalAlignment="Center" VerticalScrollBarVisibility="Auto">
                         <StackPanel Orientation="Horizontal">
@@ -341,7 +343,7 @@
                         </StackPanel>
                     </ScrollViewer>
                     
-                    <TextBlock Text="Animations" Margin="0,8,0,2" HorizontalAlignment="Center" TextAlignment="Center" FontSize="18" FontWeight="SemiBold" />
+                    <TextBlock ui:Translator.Key="BETA_ANIMATIONS" Margin="0,8,0,2" HorizontalAlignment="Center" TextAlignment="Center" FontSize="18" FontWeight="SemiBold" />
                     
                     <ScrollViewer HorizontalAlignment="Center" VerticalScrollBarVisibility="Auto">
                         <StackPanel Orientation="Horizontal">

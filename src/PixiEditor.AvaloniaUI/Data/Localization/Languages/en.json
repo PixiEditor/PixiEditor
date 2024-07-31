@@ -676,8 +676,10 @@
   "RAW_LAYER_OUTPUT": "Raw",
   
   "BETA_EXAMPLE_FILES": "Beta Example Files",
+  "BETA_PROCEDURAL_GENERATION": "Procedural Animation",
   "POND_EXAMPLE": "Pond",
   "TREE_EXAMPLE": "Windy Tree",
   "OUTLINE_EXAMPLE": "Automatic Outline",
+  "BETA_ANIMATIONS": "Animations",
   "SLIME_EXAMPLE": "Animated Slime"
 }
