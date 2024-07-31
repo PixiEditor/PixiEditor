@@ -1,0 +1,39 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:visuals="clr-namespace:PixiEditor.AvaloniaUI.Views.Visuals"
+             xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
+             xmlns:windows="clr-namespace:PixiEditor.AvaloniaUI.Views.Windows"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PixiEditor.AvaloniaUI.Views.Windows.BetaExampleButton">
+    <StackPanel>
+        <Button Margin="0,10,0,0" HorizontalAlignment="Center"
+                Width="100" Height="100"
+                Padding="0"
+                Command="{Binding OpenCommand, RelativeSource={RelativeSource AncestorType=windows:BetaExampleButton}}"
+                x:Name="fileButton">
+            <Grid Width="100" Height="100">
+                <visuals:SurfaceControl
+                    Surface="{Binding BetaExampleFile.PreviewImage, RelativeSource={RelativeSource AncestorType=windows:BetaExampleButton}}"
+                    Margin="10"
+                    Stretch="Uniform"
+                    x:Name="image">
+                    <ui:RenderOptionsBindable.BitmapInterpolationMode>
+                        <MultiBinding
+                            Converter="{converters:WidthToBitmapScalingModeConverter}">
+                            <Binding Path="BetaExampleFile.PreviewImage.Size.X" RelativeSource="{RelativeSource AncestorType=windows:BetaExampleButton}" />
+                            <Binding ElementName="image" Path="Width" />
+                        </MultiBinding>
+                    </ui:RenderOptionsBindable.BitmapInterpolationMode>
+                </visuals:SurfaceControl>
+            </Grid>
+        </Button>
+
+        <TextBlock ui:Translator.Key="{Binding DisplayName, RelativeSource={RelativeSource AncestorType=windows:BetaExampleButton}}"
+                   Width="110" TextAlignment="Center"
+                   TextTrimming="CharacterEllipsis"
+                   FontSize="18" Margin="10,10,10,2" HorizontalAlignment="Center" />
+    </StackPanel>
+</UserControl>

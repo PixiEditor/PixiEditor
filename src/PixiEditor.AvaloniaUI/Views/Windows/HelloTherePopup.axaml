@@ -81,43 +81,10 @@
                         <TextBlock FontSize="23" FontWeight="SemiBold" HorizontalAlignment="Center"
                                    ui:Translator.Key="BETA_EXAMPLE_FILES" />
                         
-                        <ItemsControl ItemsSource="{Binding BetaExampleFiles}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="{x:Type windows:BetaExampleFile}">
-                                    <Grid>
-                                        <StackPanel Margin="8,5,8,0">
-                                            <Button Margin="0,10,0,0" HorizontalAlignment="Center"
-                                                    Width="100" Height="100"
-                                                    Padding="0"
-                                                    Command="{Binding OpenBetaExampleCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}"
-                                                    CommandParameter="{Binding}"
-                                                    x:Name="fileButton">
-                                                <Grid Width="100" Height="100">
-                                                    <visuals:SurfaceControl
-                                                        Surface="{Binding PreviewImage}"
-                                                        Margin="10"
-                                                        Stretch="Uniform"
-                                                        x:Name="image">
-                                                        <ui:RenderOptionsBindable.BitmapInterpolationMode>
-                                                            <MultiBinding
-                                                                Converter="{converters:WidthToBitmapScalingModeConverter}">
-                                                                <Binding Path="PreviewImage.Size.X" />
-                                                                <Binding ElementName="image" Path="Width" />
-                                                            </MultiBinding>
-                                                        </ui:RenderOptionsBindable.BitmapInterpolationMode>
-                                                    </visuals:SurfaceControl>
-                                                </Grid>
-                                            </Button>
-
-                                            <TextBlock ui:Translator.LocalizedString="{Binding DisplayName}"
-                                                       Width="110" TextAlignment="Center"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       FontSize="18" Margin="10,10,10,2" HorizontalAlignment="Center" />
-                                        </StackPanel>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        <StackPanel Orientation="Horizontal">
+                            <windows:BetaExampleButton FileName="Pond.pixi" DisplayName="POND_EXAMPLE" CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="Tree.pixi" DisplayName="TREE_EXAMPLE" CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                        </StackPanel>
                         
                         <TextBlock Margin="0,8,0,0" FontSize="23" FontWeight="SemiBold" HorizontalAlignment="Center"
                                    ui:Translator.Key="RECENT_FILES" />
