@@ -288,13 +288,35 @@ internal class NodeGraphBuilder
                 .WithKeyFrames(
                 [
                     new KeyFrameData
-                        {
-                            AffectedElement = ImageLayerNode.ImageLayerKey,
-                            Data = new ChunkyImage(image),
-                            Duration = 0,
-                            StartFrame = 0,
-                            IsVisible = true
-                        }
+                    {
+                        AffectedElement = ImageLayerNode.ImageLayerKey,
+                        Data = new ChunkyImage(image),
+                        Duration = 0,
+                        StartFrame = 0,
+                        IsVisible = true
+                    }
+                ]));
+
+        id = AllNodes.Count;
+        return this;
+    }
+
+    public NodeGraphBuilder WithImageLayerNode(string name, VecI size, out int id)
+    {
+        AllNodes.Add(
+            this.WithNodeOfType(typeof(ImageLayerNode))
+                .WithName(name)
+                .WithId(AllNodes.Count + 1)
+                .WithKeyFrames(
+                [
+                    new KeyFrameData
+                    {
+                        AffectedElement = ImageLayerNode.ImageLayerKey,
+                        Data = new ChunkyImage(size),
+                        Duration = 0,
+                        StartFrame = 0,
+                        IsVisible = true
+                    }
                 ]));
 
         id = AllNodes.Count;
