@@ -200,6 +200,19 @@ public class NodeView : TemplatedControl
         e.Handled = true;
     }
 
+    public NodeSocket GetSocket(INodePropertyHandler property)
+    {
+        NodePropertyView propertyView = this.GetVisualDescendants().OfType<NodePropertyView>()
+            .FirstOrDefault(x => x.DataContext == property);
+
+        if (propertyView is null)
+        {
+            return default;
+        }
+
+        return property.IsInput ? propertyView.InputSocket : propertyView.OutputSocket;
+    }
+
     public Point GetSocketPoint(INodePropertyHandler property, Canvas canvas)
     {
         NodePropertyView propertyView = this.GetVisualDescendants().OfType<NodePropertyView>()

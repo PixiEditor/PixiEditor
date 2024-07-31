@@ -8,15 +8,15 @@ public class ConnectionLine : Control
 {
     private Pen pen = new() { LineCap = PenLineCap.Round };
     
-    public static readonly StyledProperty<LinearGradientBrush> ColorProperty = AvaloniaProperty.Register<ConnectionLine, LinearGradientBrush>("Color");
+    public static readonly StyledProperty<LinearGradientBrush> LineBrushProperty = AvaloniaProperty.Register<ConnectionLine, LinearGradientBrush>("LineBrush");
     public static readonly StyledProperty<double> ThicknessProperty = AvaloniaProperty.Register<ConnectionLine, double>("Thickness");
     public static readonly StyledProperty<Point> StartPointProperty = AvaloniaProperty.Register<ConnectionLine, Point>("StartPoint");
     public static readonly StyledProperty<Point> EndPointProperty = AvaloniaProperty.Register<ConnectionLine, Point>("EndPoint");
 
     public LinearGradientBrush LineBrush
     {
-        get { return GetValue(ColorProperty); }
-        set { SetValue(ColorProperty, value); }
+        get { return GetValue(LineBrushProperty); }
+        set { SetValue(LineBrushProperty, value); }
     }
 
     public double Thickness
@@ -39,7 +39,7 @@ public class ConnectionLine : Control
     
     static ConnectionLine()
     {
-        AffectsRender<ConnectionLine>(ColorProperty, ThicknessProperty, StartPointProperty, EndPointProperty);
+        AffectsRender<ConnectionLine>(LineBrushProperty, ThicknessProperty, StartPointProperty, EndPointProperty);
     }
 
     public override void Render(DrawingContext context)
