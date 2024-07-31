@@ -6,6 +6,8 @@ using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Media;
+using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Handlers;
@@ -48,19 +50,24 @@ internal class NodeGraphView : Zoombox.Zoombox
         AvaloniaProperty.Register<NodeGraphView, ICommand>(
             nameof(EndChangeNodePosCommand));
 
-    public static readonly StyledProperty<string> SearchQueryProperty = AvaloniaProperty.Register<NodeGraphView, string>(
-        nameof(SearchQuery));
+    public static readonly StyledProperty<string> SearchQueryProperty =
+        AvaloniaProperty.Register<NodeGraphView, string>(
+            nameof(SearchQuery));
 
-    public static readonly StyledProperty<ObservableCollection<Type>> AllNodeTypesProperty = AvaloniaProperty.Register<NodeGraphView, ObservableCollection<Type>>(
-        nameof(AllNodeTypes));
+    public static readonly StyledProperty<ObservableCollection<Type>> AllNodeTypesProperty =
+        AvaloniaProperty.Register<NodeGraphView, ObservableCollection<Type>>(
+            nameof(AllNodeTypes));
 
-    public static readonly StyledProperty<ICommand> SocketDropCommandProperty = AvaloniaProperty.Register<NodeGraphView, ICommand>(
-        nameof(SocketDropCommand));
+    public static readonly StyledProperty<ICommand> SocketDropCommandProperty =
+        AvaloniaProperty.Register<NodeGraphView, ICommand>(
+            nameof(SocketDropCommand));
 
-    public static readonly StyledProperty<ICommand> CreateNodeCommandProperty = AvaloniaProperty.Register<NodeGraphView, ICommand>("CreateNodeCommand");
+    public static readonly StyledProperty<ICommand> CreateNodeCommandProperty =
+        AvaloniaProperty.Register<NodeGraphView, ICommand>("CreateNodeCommand");
 
-    public static readonly StyledProperty<ICommand> ConnectPropertiesCommandProperty = AvaloniaProperty.Register<NodeGraphView, ICommand>(
-        "ConnectPropertiesCommand");
+    public static readonly StyledProperty<ICommand> ConnectPropertiesCommandProperty =
+        AvaloniaProperty.Register<NodeGraphView, ICommand>(
+            "ConnectPropertiesCommand");
 
     public ICommand ConnectPropertiesCommand
     {
@@ -150,6 +157,8 @@ internal class NodeGraphView : Zoombox.Zoombox
     private INodeHandler startConnectionNode;
     private INodeHandler endConnectionNode;
 
+    private ConnectionLine _previewConnectionLine;
+
     public NodeGraphView()
     {
         SelectNodeCommand = new RelayCommand<PointerPressedEventArgs>(SelectNode);
@@ -171,12 +180,35 @@ internal class NodeGraphView : Zoombox.Zoombox
         }
     }
 
+    protected override void OnPointerMoved(PointerEventArgs e)
+    {
+        if (isDraggingConnection)
+        {
+            Point pos = e.GetPosition(this);
+            VecD currentPoint = ToZoomboxSpace(new VecD(pos.X, pos.Y));
+            if (_previewConnectionLine != null)
+            {
+                _previewConnectionLine.EndPoint = new Point(currentPoint.X, currentPoint.Y);
+            }
+        }
+    }
+
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         base.OnPointerReleased(e);
         if (startConnectionProperty != null)
         {
             SocketDrop(null);
+        }
+        
+        if (isDraggingConnection)
+        {
+            if (_previewConnectionLine != null)
+            {
+                _previewConnectionLine.IsVisible = false;
+            }
+
+            isDraggingConnection = false;
         }
     }
 
@@ -196,6 +228,8 @@ internal class NodeGraphView : Zoombox.Zoombox
                 startConnectionProperty = nodeSocket.Property;
                 startConnectionNode = nodeSocket.Node;
                 isDraggingConnection = true;
+
+                UpdatePreviewLine(nodeSocket);
             }
             else
             {
@@ -207,12 +241,46 @@ internal class NodeGraphView : Zoombox.Zoombox
         }
     }
 
+    private void UpdatePreviewLine(NodeSocket nodeSocket)
+    {
+        Canvas canvas = nodeSocket.FindAncestorOfType<Canvas>();
+        if (_previewConnectionLine == null)
+        {
+            _previewConnectionLine = new ConnectionLine();
+            _previewConnectionLine.Thickness = 2;
+            _previewConnectionLine.LineBrush = new LinearGradientBrush()
+            {
+                GradientStops = new GradientStops()
+                {
+                    new GradientStop(Colors.Black, 0), new GradientStop(Colors.White, 1)
+                }
+            };
+
+            canvas.Children.Insert(0, _previewConnectionLine);
+        }
+
+        _previewConnectionLine.IsVisible = true;
+        _previewConnectionLine.LineBrush = new LinearGradientBrush()
+        {
+            GradientStops = new GradientStops()
+            {
+                new GradientStop(((SolidColorBrush)nodeSocket.SocketBrush).Color, 1),
+            }
+        };
+
+        _previewConnectionLine.StartPoint = nodeSocket.ConnectPort.TranslatePoint(
+            new Point(nodeSocket.ConnectPort.Bounds.Width / 2, nodeSocket.ConnectPort.Bounds.Height / 2),
+            canvas) ?? default;
+        _previewConnectionLine.EndPoint = _previewConnectionLine.StartPoint;
+    }
+
     private void Dragged(PointerEventArgs e)
     {
         if (isDraggingNodes)
         {
             Point pos = e.GetPosition(this);
             VecD currentPoint = ToZoomboxSpace(new VecD(pos.X, pos.Y));
+
             VecD delta = currentPoint - clickPointOffset;
             foreach (var node in SelectedNodes)
             {
@@ -232,11 +300,11 @@ internal class NodeGraphView : Zoombox.Zoombox
 
     private void SocketDrop(NodeSocket socket)
     {
-        if(startConnectionProperty == null)
+        if (startConnectionProperty == null)
         {
             return;
         }
-        
+
         (INodePropertyHandler, INodePropertyHandler) connection = (startConnectionProperty, null);
         if (socket != null)
         {
@@ -257,11 +325,11 @@ internal class NodeGraphView : Zoombox.Zoombox
             }
         }
 
-        if(ConnectPropertiesCommand != null && ConnectPropertiesCommand.CanExecute(connection))
+        if (ConnectPropertiesCommand != null && ConnectPropertiesCommand.CanExecute(connection))
         {
             ConnectPropertiesCommand.Execute(connection);
         }
-        
+
         startConnectionProperty = null;
         endConnectionProperty = null;
         startConnectionNode = null;
