@@ -297,7 +297,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         AddAnimationData(builderInstance.AnimationData, mappedNodeIds, mappedKeyFrameIds);
 
-        acc.AddFinishedActions(new DeleteRecordedChanges_Action());
+        acc.AddFinishedActions(new ChangeBoundary_Action(), new DeleteRecordedChanges_Action());
         viewModel.MarkAsSaved();
 
         return viewModel;
