@@ -35,6 +35,9 @@ internal partial class HelloTherePopup : PixiEditorPopup
     public static readonly StyledProperty<bool> IsFetchingNewsProperty =
         AvaloniaProperty.Register<HelloTherePopup, bool>(nameof(IsFetchingNews), defaultValue: default(bool));
 
+    public static readonly StyledProperty<bool> ShowAllBetaExamplesProperty =
+        AvaloniaProperty.Register<HelloTherePopup, bool>(nameof(ShowAllBetaExamples));
+
     public static readonly StyledProperty<bool> NewsPanelCollapsedProperty =
         AvaloniaProperty.Register<HelloTherePopup, bool>(nameof(NewsPanelCollapsed), defaultValue: false);
 
@@ -55,6 +58,12 @@ internal partial class HelloTherePopup : PixiEditorPopup
     {
         get { return (bool)GetValue(IsFetchingNewsProperty); }
         set { SetValue(IsFetchingNewsProperty, value); }
+    }
+    
+    public bool ShowAllBetaExamples
+    {
+        get => GetValue(ShowAllBetaExamplesProperty);
+        set => SetValue(ShowAllBetaExamplesProperty, value);
     }
 
     public bool FailedFetchingNews
@@ -80,6 +89,8 @@ internal partial class HelloTherePopup : PixiEditorPopup
     
     public RelayCommand<string> OpenInExplorerCommand { get; set; }
 
+    public RelayCommand<bool> SetShowAllBetaExamplesCommand { get; set; }
+
     public bool IsClosing { get; private set; }
 
     private NewsProvider NewsProvider { get; set; }
@@ -103,6 +114,7 @@ internal partial class HelloTherePopup : PixiEditorPopup
         OpenFileCommand = new AsyncRelayCommand(OpenFile);
         OpenNewFileCommand = new AsyncRelayCommand(OpenNewFile);
         OpenRecentCommand = new RelayCommand<string>(OpenRecent);
+        SetShowAllBetaExamplesCommand = new RelayCommand<bool>(SetShowAllBetaExamples);
         OpenInExplorerCommand = new RelayCommand<string>(OpenInExplorer, CanOpenInExplorer);
 
         RecentlyOpenedEmpty = RecentlyOpened.Count == 0;
@@ -141,6 +153,11 @@ internal partial class HelloTherePopup : PixiEditorPopup
             Width = 575 + newsWidth;
             Height = 840;
         }
+    }
+
+    private void SetShowAllBetaExamples(bool value)
+    {
+        ShowAllBetaExamples = value;
     }
 
     private static void NewsPanelCollapsedChangedCallback(AvaloniaPropertyChangedEventArgs<bool> e)

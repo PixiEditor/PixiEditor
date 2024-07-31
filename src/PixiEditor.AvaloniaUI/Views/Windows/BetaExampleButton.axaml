@@ -34,6 +34,7 @@
         <TextBlock ui:Translator.Key="{Binding DisplayName, RelativeSource={RelativeSource AncestorType=windows:BetaExampleButton}}"
                    Width="110" TextAlignment="Center"
                    TextTrimming="CharacterEllipsis"
-                   FontSize="18" Margin="10,10,10,2" HorizontalAlignment="Center" />
+                   TextWrapping="Wrap"
+                   Margin="10,10,10,2" HorizontalAlignment="Center" />
     </StackPanel>
 </UserControl>

@@ -35,7 +35,7 @@
                 <ColumnDefinition Width="300" />
             </Grid.ColumnDefinitions>
 
-            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" Margin="3,0">
+            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" IsVisible="{Binding !ShowAllBetaExamples, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" Margin="3,0">
                 <Grid Grid.Row="1" Margin="0,30,0,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="90" />
@@ -84,6 +84,24 @@
                         <StackPanel Orientation="Horizontal">
                             <windows:BetaExampleButton FileName="Pond.pixi" DisplayName="POND_EXAMPLE" CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                             <windows:BetaExampleButton FileName="Tree.pixi" DisplayName="TREE_EXAMPLE" CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            
+                            <StackPanel>
+                                <Button Margin="0,10,0,0" HorizontalAlignment="Center"
+                                        Width="100" Height="100"
+                                        Padding="0"
+                                        Background="{DynamicResource ThemeAccentBrush2}"
+                                        Command="{Binding SetShowAllBetaExamplesCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}"
+                                        CommandParameter="{x:True}">
+                                    <Grid Width="100" Height="100">
+                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="Show all 8 >"/>
+                                    </Grid>
+                                </Button>
+
+                                <TextBlock Text=" "
+                                           Width="110" TextAlignment="Center"
+                                           TextTrimming="CharacterEllipsis"
+                                           FontSize="18" Margin="10,10,10,2" HorizontalAlignment="Center" />
+                            </StackPanel>
                         </StackPanel>
                         
                         <TextBlock Margin="0,8,0,0" FontSize="23" FontWeight="SemiBold" HorizontalAlignment="Center"
@@ -304,6 +322,33 @@
                                 Content="/Images/SocialMedia/DonateIcon.png" />
                     </panels:AlignableWrapPanel>
                 </Grid>
+            </ScrollViewer>
+            
+            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" IsVisible="{Binding ShowAllBetaExamples, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" Margin="3,0">
+                <StackPanel>
+                    <Button Margin="0,5,0,0" HorizontalAlignment="Left"
+                            Command="{Binding SetShowAllBetaExamplesCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}"
+                            CommandParameter="{x:False}"
+                            Content="Go back" HorizontalContentAlignment="Left"/>
+                    
+                    <TextBlock Text="Procedural Generation" Margin="0,0,0,2" HorizontalAlignment="Center" TextAlignment="Center" FontSize="18" FontWeight="SemiBold" />
+                    
+                    <ScrollViewer HorizontalAlignment="Center" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Orientation="Horizontal">
+                            <windows:BetaExampleButton FileName="Pond.pixi" DisplayName="POND_EXAMPLE" CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="Tree.pixi" DisplayName="TREE_EXAMPLE" CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="Outline.pixi" DisplayName="OUTLINE_EXAMPLE" CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                        </StackPanel>
+                    </ScrollViewer>
+                    
+                    <TextBlock Text="Animations" Margin="0,8,0,2" HorizontalAlignment="Center" TextAlignment="Center" FontSize="18" FontWeight="SemiBold" />
+                    
+                    <ScrollViewer HorizontalAlignment="Center" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Orientation="Horizontal">
+                            <windows:BetaExampleButton FileName="Slime.pixi" DisplayName="SLIME_EXAMPLE" CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </StackPanel>
             </ScrollViewer>
 
             <ScrollViewer Grid.Column="1"

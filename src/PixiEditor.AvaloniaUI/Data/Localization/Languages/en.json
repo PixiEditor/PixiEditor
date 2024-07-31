@@ -677,5 +677,7 @@
   
   "BETA_EXAMPLE_FILES": "Beta Example Files",
   "POND_EXAMPLE": "Pond",
-  "TREE_EXAMPLE": "Windy Tree"
+  "TREE_EXAMPLE": "Windy Tree",
+  "OUTLINE_EXAMPLE": "Automatic Outline",
+  "SLIME_EXAMPLE": "Animated Slime"
 }
