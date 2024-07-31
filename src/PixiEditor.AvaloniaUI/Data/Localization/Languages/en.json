@@ -671,5 +671,7 @@
   "NOISE_TYPE": "Noise Type",
   "OCTAVES": "Octaves",
   "ACTIVE_FRAME": "Active Frame",
-  "NORMALIZED_TIME": "Normalized Time"
+  "NORMALIZED_TIME": "Normalized Time",
+  "WITHOUT_FILTERS": "Without filters",
+  "RAW_LAYER_OUTPUT": "Raw"
 }

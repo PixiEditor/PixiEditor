@@ -38,7 +38,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public ImageLayerNode(VecI size)
     {
-        RawOutput = CreateOutput<Surface>(nameof(RawOutput), "RAW", null);
+        RawOutput = CreateOutput<Surface>(nameof(RawOutput), "RAW_LAYER_OUTPUT", null);
 
         LockTransparency = CreateInput<bool>("LockTransparency", "LOCK_TRANSPARENCY", false);
 
