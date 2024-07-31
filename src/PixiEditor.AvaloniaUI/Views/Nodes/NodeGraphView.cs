@@ -70,6 +70,15 @@ internal class NodeGraphView : Zoombox.Zoombox
         AvaloniaProperty.Register<NodeGraphView, ICommand>(
             "ConnectPropertiesCommand");
 
+    public static readonly StyledProperty<ICommand> CreateNodeFromContextCommandProperty = AvaloniaProperty.Register<NodeGraphView, ICommand>(
+        "CreateNodeFromContextCommand");
+
+    public ICommand CreateNodeFromContextCommand
+    {
+        get => GetValue(CreateNodeFromContextCommandProperty);
+        set => SetValue(CreateNodeFromContextCommandProperty, value);
+    }
+
     public ICommand ConnectPropertiesCommand
     {
         get => GetValue(ConnectPropertiesCommandProperty);
@@ -162,6 +171,7 @@ internal class NodeGraphView : Zoombox.Zoombox
     private ConnectionLine _previewConnectionLine;
     private NodeConnectionViewModel? _hiddenConnection;
     private Color _startingPropColor;
+    private VecD _lastMouseClickPos;
 
     public NodeGraphView()
     {
@@ -170,8 +180,18 @@ internal class NodeGraphView : Zoombox.Zoombox
         DraggedCommand = new RelayCommand<PointerEventArgs>(Dragged);
         EndDragCommand = new RelayCommand<PointerCaptureLostEventArgs>(EndDrag);
         SocketDropCommand = new RelayCommand<NodeSocket>(SocketDrop);
+        CreateNodeFromContextCommand = new RelayCommand<Type>(CreateNodeType);
 
         AllNodeTypes = new ObservableCollection<Type>(GatherAssemblyTypes<Node>());
+    }
+    
+    private void CreateNodeType(Type nodeType)
+    {
+        if (CreateNodeCommand != null && CreateNodeCommand.CanExecute(nodeType))
+        {
+            CreateNodeCommand.Execute((nodeType, _lastMouseClickPos));
+            ((Control)this.GetVisualDescendants().FirstOrDefault()).ContextFlyout.Hide();
+        }
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -182,6 +202,9 @@ internal class NodeGraphView : Zoombox.Zoombox
         {
             ClearSelection();
         }
+        
+        Point pos = e.GetPosition(this);
+        _lastMouseClickPos = ToZoomboxSpace(new VecD(pos.X, pos.Y));
     }
 
     protected override void OnPointerMoved(PointerEventArgs e)

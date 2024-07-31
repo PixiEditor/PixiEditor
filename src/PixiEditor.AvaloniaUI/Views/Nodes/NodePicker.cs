@@ -5,6 +5,8 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using CommunityToolkit.Mvvm.Input;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Views.Nodes;
 
@@ -46,15 +48,10 @@ public partial class NodePicker : TemplatedControl
         get => GetValue(SelectNodeCommandProperty);
         set => SetValue(SelectNodeCommandProperty, value);
     }
-
+    
     static NodePicker()
     {
         SearchQueryProperty.Changed.Subscribe(OnSearchQueryChanged);
-    }
-
-    public NodePicker()
-    {
-
     }
 
     private static void OnSearchQueryChanged(AvaloniaPropertyChangedEventArgs e)
