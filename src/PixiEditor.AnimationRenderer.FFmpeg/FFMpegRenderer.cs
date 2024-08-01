@@ -18,7 +18,7 @@ public class FFMpegRenderer : IAnimationRenderer
 
     public async Task<bool> RenderAsync(List<Image> rawFrames, string outputPath)
     {
-        string path = "ThirdParty/{0}/ffmpeg/bin";
+        string path = "ThirdParty/{0}/ffmpeg";
 #if WINDOWS
         path = string.Format(path, "Windows");
 #elif MACOS
