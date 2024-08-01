@@ -23,7 +23,7 @@ internal class MiscViewModel : SubViewModel<ViewModelMain>
         MenuItemPath = "HELP/REPOSITORY", MenuItemOrder = 2)]
     [Command.Basic("PixiEditor.Links.OpenLicense", "LICENSE", "LICENSE", "OPEN_LICENSE", Icon = PixiPerfectIcons.Globe,
         MenuItemPath = "HELP/LICENSE", MenuItemOrder = 3)]
-    [Command.Basic("PixiEditor.Links.OpenOtherLicenses", "THIRD_PARTY_LICENSES.txt", "THIRD_PARTY_LICENSES", "OPEN_THIRD_PARTY_LICENSES", Icon = PixiPerfectIcons.Globe,
+    [Command.Basic("PixiEditor.Links.OpenOtherLicenses", "Third Party Licenses", "THIRD_PARTY_LICENSES", "OPEN_THIRD_PARTY_LICENSES", Icon = PixiPerfectIcons.Globe,
         MenuItemPath = "HELP/THIRD_PARTY_LICENSES", MenuItemOrder = 4)]
     public static void OpenUri(string uri)
     {

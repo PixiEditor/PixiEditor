@@ -135,9 +135,10 @@
     <Content Include="../../LICENSE">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="../../THIRD_PARTY_LICENSES.txt">
+    <!--Would be great to automate that on publish-->
+    <None Include="../../Third Party Licenses/**" LinkBase="Third Party Licenses/">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
