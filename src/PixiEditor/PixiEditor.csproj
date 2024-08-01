@@ -78,6 +78,7 @@
     <AvaloniaResource Include="Data\**"/>
     <AvaloniaResource Include="Data\Languages\**"/>
     <AvaloniaResource Include="Data\ShortcutActionMaps\**"/>
+    <AvaloniaResource Include="Data\BetaExampleFiles\**"/>
   </ItemGroup>
 
   <ItemGroup>

@@ -7,7 +7,6 @@ using PixiEditor.Numerics;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 // TODO: Add based on debug mode, not debug build.
-#if DEBUG
 [NodeInfo("DebugBlendMode")]
 public class DebugBlendModeNode : Node
 {
@@ -52,4 +51,3 @@ public class DebugBlendModeNode : Node
 
     public override Node CreateCopy() => new DebugBlendModeNode();
 }
-#endif
