@@ -78,7 +78,7 @@
             </Label>
 
             <Label Margin="20 10 0 0" FontSize="14">
-                <TextBlock ui1:Hyperlink.Url="THIRD_PARTY_LICENSES.txt">
+                <TextBlock ui1:Hyperlink.Url="Third Party Licenses">
                     <Run ui:Translator.Key="THIRD_PARTY_LICENSES"/>
                     <Run Text="{DynamicResource icon-link}" Classes="pixi-icon"/>
                 </TextBlock>

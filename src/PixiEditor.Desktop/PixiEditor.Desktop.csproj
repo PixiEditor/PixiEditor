@@ -30,6 +30,11 @@
 
   <Target Name="Rename" AfterTargets="AfterBuild">
     <Move SourceFiles="$(OutDir)PixiEditor.Desktop.exe" DestinationFiles="$(OutDir)PixiEditor.exe" />
-    <Message Text="Renamed executable file." Importance="high" />
-  </Target> 
+    <Message Text="Renamed build executable file." Importance="high" />
+  </Target>
+
+  <Target Name="Rename" AfterTargets="Publish">
+    <Move SourceFiles="$(PublishDir)PixiEditor.Desktop.exe" DestinationFiles="$(PublishDir)PixiEditor.exe" />
+    <Message Text="Renamed published executable file." Importance="high" />
+  </Target>
 </Project>
