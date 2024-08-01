@@ -1,8 +1,7 @@
 ﻿using System;
 using Avalonia;
-using PixiEditor;
 
-namespace PixiEditor.Avalonia.Desktop;
+namespace PixiEditor.Desktop;
 
 public class Program
 {
