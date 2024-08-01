@@ -1,14 +1,15 @@
-﻿using System.IO;
-using System.Windows.Input;
-using PixiEditor.Models.Commands.Templates.Parsers;
+﻿using System.Collections.Generic;
+using System.IO;
+using PixiEditor.Models.Commands.Templates.Providers.Parsers;
+using PixiEditor.Models.IO;
 
-namespace PixiEditor.Models.Commands.Templates;
+namespace PixiEditor.Models.Commands.Templates.Providers;
 
 internal partial class ShortcutProvider
 {
     public static AsepriteProvider Aseprite { get; } = new();
 
-    internal class AsepriteProvider : ShortcutProvider, IShortcutDefaults, IShortcutInstallation, ICustomShortcutFormat
+    internal class AsepriteProvider : Templates.ShortcutProvider, IShortcutDefaults, IShortcutInstallation, ICustomShortcutFormat
     {
         private static string InstallationPath { get; } = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Aseprite", "user.aseprite-keys");
@@ -17,7 +18,7 @@ internal partial class ShortcutProvider
         
         public AsepriteProvider() : base("Aseprite")
         {
-            _parser = new AsepriteKeysParser("AsepriteShortcutMap.json");
+            _parser = new AsepriteKeysParser($"{Paths.InternalResourceDataPath}/ShortcutActionMaps/AsepriteShortcutMap.json");
             LogoPath = "/Images/TemplateLogos/Aseprite.png";
             HoverLogoPath = "/Images/TemplateLogos/Aseprite-Hover.png";
         }

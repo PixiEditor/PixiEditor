@@ -38,19 +38,21 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='MSIX Debug'">
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='MSIX'">
     <DefineConstants>TRACE;RELEASE</DefineConstants>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
     <Optimize>true</Optimize>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <DefineConstants>TRACE;UPDATE</DefineConstants>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
     <Optimize>true</Optimize>
   </PropertyGroup>
 
@@ -64,16 +66,22 @@
   <PropertyGroup Condition="'$(Configuration)'=='Steam'">
     <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
     <Optimize>True</Optimize>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='DevSteam'">
     <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
     <Optimize>True</Optimize>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'DevRelease' ">
     <DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
     <Optimize>True</Optimize>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(RuntimeIdentifier)'=='win-x64'">

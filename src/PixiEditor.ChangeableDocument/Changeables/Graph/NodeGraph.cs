@@ -60,6 +60,13 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
                 {
                     continue;
                 }
+                
+                if(finalQueue.Contains(input.Connection.Node))
+                {
+                   // swap the order of the nodes
+                   finalQueue.Remove(input.Connection.Node);
+                   finalQueue.Add(input.Connection.Node);
+                }
 
                 queueNodes.Enqueue(input.Connection.Node);
             }

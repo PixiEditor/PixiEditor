@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
-using System.Windows.Media;
+using Avalonia.Media;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 

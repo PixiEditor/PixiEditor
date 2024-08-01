@@ -1,26 +1,29 @@
-﻿using System.Windows.Input;
+﻿using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
+using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Models.Enums;
+using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Tools;
 using PixiEditor.Numerics;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.Views.UserControls.SymmetryOverlay;
+using PixiEditor.Views.Overlays.SymmetryOverlay;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
 internal abstract class UpdateableChangeExecutor
 {
-    protected DocumentViewModel? document;
+    protected IDocument? document;
     protected DocumentInternalParts? internals;
     protected ChangeExecutionController? controller;
+    protected IServiceProvider services;
     private bool initialized = false;
 
     protected Action<UpdateableChangeExecutor>? onEnded;
     public virtual ExecutorType Type => ExecutorType.Regular;
     public virtual ExecutorStartMode StartMode => ExecutorStartMode.RightAway;
 
-    public void Initialize(DocumentViewModel document, DocumentInternalParts internals, ChangeExecutionController controller, Action<UpdateableChangeExecutor> onEnded)
+    public void Initialize(IDocument document, DocumentInternalParts internals, IServiceProvider services,
+        ChangeExecutionController controller, Action<UpdateableChangeExecutor> onEnded)
     {
         if (initialized)
             throw new InvalidOperationException();
@@ -29,7 +32,14 @@ internal abstract class UpdateableChangeExecutor
         this.document = document;
         this.internals = internals;
         this.controller = controller;
+        this.services = services;
         this.onEnded = onEnded;
+    }
+
+    protected T GetHandler<T>()
+        where T : IHandler
+    {
+        return services.GetRequiredService<T>();
     }
 
     public abstract ExecutionState Start();

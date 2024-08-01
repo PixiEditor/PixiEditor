@@ -1,14 +1,15 @@
-﻿using System.Collections;
-using System.ComponentModel;
-using System.Windows.Input;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Avalonia.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Commands;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Localization;
+using PixiEditor.Models.Input;
 
 namespace PixiEditor.Models.Commands;
 
-internal class CommandGroup : NotifyableObject
+internal class CommandGroup : ObservableObject
 {
     private readonly Command[] commands;
     private readonly Command[] visibleCommands;
@@ -22,6 +23,8 @@ internal class CommandGroup : NotifyableObject
     }
 
     public bool HasAssignedShortcuts { get; set; }
+
+    public string? IsVisibleProperty { get; set; }
 
     public IEnumerable<Command> Commands => commands;
 

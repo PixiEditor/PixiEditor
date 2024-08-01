@@ -1,30 +1,34 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.Helpers.Extensions;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
-using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Clipboard;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.DocumentPassthroughActions;
-using PixiEditor.Models.Enums;
+using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools;
 using PixiEditor.Numerics;
-using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.DocumentModels.Public;
 #nullable enable
-internal class DocumentOperationsModule
+internal class DocumentOperationsModule : IDocumentOperations
 {
-    private DocumentViewModel Document { get; }
+    private IDocument Document { get; }
     private DocumentInternalParts Internals { get; }
 
-    public DocumentOperationsModule(DocumentViewModel document, DocumentInternalParts internals)
+    public DocumentOperationsModule(IDocument document, DocumentInternalParts internals)
     {
         Document = document;
         Internals = internals;
@@ -33,12 +37,17 @@ internal class DocumentOperationsModule
     /// <summary>
     /// Creates a new selection with the size of the document
     /// </summary>
-    public void SelectAll()
+    public void SelectAll() => Select(new RectI(VecI.Zero, Document.SizeBindable), SelectionMode.Add);
+
+    /// <summary>
+    /// Creates a new selection with the size of the document
+    /// </summary>
+    public void Select(RectI rect, SelectionMode mode = SelectionMode.New)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
         Internals.ActionAccumulator.AddFinishedActions(
-            new SelectRectangle_Action(new RectI(VecI.Zero, Document.SizeBindable), SelectionMode.Add),
+            new SelectRectangle_Action(rect, mode),
             new EndSelectRectangle_Action());
     }
 
@@ -56,15 +65,15 @@ internal class DocumentOperationsModule
     /// Deletes selected pixels
     /// </summary>
     /// <param name="clearSelection">Should the selection be cleared</param>
-    public void DeleteSelectedPixels(bool clearSelection = false)
+    public void DeleteSelectedPixels(int frame, bool clearSelection = false)
     {
         var member = Document.SelectedStructureMember;
         if (Internals.ChangeController.IsChangeActive || member is null)
             return;
-        bool drawOnMask = member is LayerViewModel layer ? layer.ShouldDrawOnMask : true;
+        bool drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
         if (drawOnMask && !member.HasMaskBindable)
             return;
-        Internals.ActionAccumulator.AddActions(new ClearSelectedArea_Action(member.GuidValue, drawOnMask));
+        Internals.ActionAccumulator.AddActions(new ClearSelectedArea_Action(member.Id, drawOnMask, frame));
         if (clearSelection)
             Internals.ActionAccumulator.AddActions(new ClearSelection_Action());
         Internals.ActionAccumulator.AddFinishedActions();
@@ -109,7 +118,7 @@ internal class DocumentOperationsModule
     /// Pastes the <paramref name="images"/> as new layers
     /// </summary>
     /// <param name="images">The images to paste</param>
-    public void PasteImagesAsLayers(List<ClipboardController.DataImage> images)
+    public void PasteImagesAsLayers(List<DataImage> images, int frame)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
@@ -126,7 +135,8 @@ internal class DocumentOperationsModule
         foreach (var imageWithName in images)
         {
             var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.Layer, Path.GetFileName(imageWithName.name));
-            DrawImage(imageWithName.image, new ShapeCorners(new RectD(imageWithName.position, imageWithName.image.Size)), layerGuid, true, false, false);
+            DrawImage(imageWithName.image, new ShapeCorners(new RectD(imageWithName.position, imageWithName.image.Size)),
+                layerGuid, true, false, frame, false);
         }
         Internals.ActionAccumulator.AddFinishedActions();
     }
@@ -187,10 +197,10 @@ internal class DocumentOperationsModule
         if (Internals.ChangeController.IsChangeActive || newSize.X > 9999 || newSize.Y > 9999 || newSize.X < 1 || newSize.Y < 1)
             return;
 
-        if (Document.ReferenceLayerViewModel.ReferenceBitmap is not null)
+        if (Document.ReferenceLayerHandler.ReferenceBitmap is not null)
         {
             VecI offset = anchor.FindOffsetFor(Document.SizeBindable, newSize);
-            ShapeCorners curShape = Document.ReferenceLayerViewModel.ReferenceShapeBindable;
+            ShapeCorners curShape = Document.ReferenceLayerHandler.ReferenceShapeBindable;
             ShapeCorners offsetCorners = new ShapeCorners()
             {
                 TopLeft = curShape.TopLeft + offset,
@@ -214,10 +224,10 @@ internal class DocumentOperationsModule
         if (Internals.ChangeController.IsChangeActive || newSize.X > 9999 || newSize.Y > 9999 || newSize.X < 1 || newSize.Y < 1)
             return;
 
-        if (Document.ReferenceLayerViewModel.ReferenceBitmap is not null)
+        if (Document.ReferenceLayerHandler.ReferenceBitmap is not null)
         {
             VecD scale = ((VecD)newSize).Divide(Document.SizeBindable);
-            ShapeCorners curShape = Document.ReferenceLayerViewModel.ReferenceShapeBindable;
+            ShapeCorners curShape = Document.ReferenceLayerHandler.ReferenceShapeBindable;
             ShapeCorners offsetCorners = new ShapeCorners()
             {
                 TopLeft = curShape.TopLeft.Multiply(scale),
@@ -236,12 +246,12 @@ internal class DocumentOperationsModule
     /// </summary>
     /// <param name="oldColor">The color to replace</param>
     /// <param name="newColor">The new color</param>
-    public void ReplaceColor(PaletteColor oldColor, PaletteColor newColor)
+    public void ReplaceColor(PaletteColor oldColor, PaletteColor newColor, int frame)
     {
         if (Internals.ChangeController.IsChangeActive || oldColor == newColor)
             return;
         
-        Internals.ActionAccumulator.AddFinishedActions(new ReplaceColor_Action(oldColor.ToColor(), newColor.ToColor()));
+        Internals.ActionAccumulator.AddFinishedActions(new ReplaceColor_Action(oldColor.ToColor(), newColor.ToColor(), frame));
         ReplaceInPalette(oldColor, newColor);
     }
 
@@ -258,34 +268,34 @@ internal class DocumentOperationsModule
     /// <summary>
     /// Creates a new mask on the <paramref name="member"/>
     /// </summary>
-    public void CreateMask(StructureMemberViewModel member)
+    public void CreateMask(IStructureMemberHandler member)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
         if (!member.MaskIsVisibleBindable)
-            Internals.ActionAccumulator.AddActions(new StructureMemberMaskIsVisible_Action(true, member.GuidValue));
-        Internals.ActionAccumulator.AddFinishedActions(new CreateStructureMemberMask_Action(member.GuidValue));
+            Internals.ActionAccumulator.AddActions(new StructureMemberMaskIsVisible_Action(true, member.Id));
+        Internals.ActionAccumulator.AddFinishedActions(new CreateStructureMemberMask_Action(member.Id));
     }
 
     /// <summary>
     /// Deletes the mask of the <paramref name="member"/>
     /// </summary>
-    public void DeleteMask(StructureMemberViewModel member)
+    public void DeleteMask(IStructureMemberHandler member)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
-        Internals.ActionAccumulator.AddFinishedActions(new DeleteStructureMemberMask_Action(member.GuidValue));
+        Internals.ActionAccumulator.AddFinishedActions(new DeleteStructureMemberMask_Action(member.Id));
     }
     
     /// <summary>
     /// Applies the mask to the image
     /// </summary>
-    public void ApplyMask(StructureMemberViewModel member)
+    public void ApplyMask(IStructureMemberHandler member, int frame)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
         
-        Internals.ActionAccumulator.AddFinishedActions(new ApplyMask_Action(member.GuidValue), new DeleteStructureMemberMask_Action(member.GuidValue));
+        Internals.ActionAccumulator.AddFinishedActions(new ApplyMask_Action(member.Id, frame), new DeleteStructureMemberMask_Action(member.Id));
     }
 
     /// <summary>
@@ -310,6 +320,13 @@ internal class DocumentOperationsModule
     /// Clears the soft selection
     /// </summary>
     public void ClearSoftSelectedMembers() => Internals.ActionAccumulator.AddActions(new ClearSoftSelectedMembers_PassthroughAction());
+    
+    public void SetActiveFrame(int newFrame) => Internals.ActionAccumulator.AddActions(new SetActiveFrame_PassthroughAction(newFrame));
+    public void AddSelectedKeyFrame(Guid keyFrameGuid) => Internals.ActionAccumulator.AddActions(new AddSelectedKeyFrame_PassthroughAction(keyFrameGuid));
+    
+    public void RemoveSelectedKeyFrame(Guid keyFrameGuid) => Internals.ActionAccumulator.AddActions(new RemoveSelectedKeyFrame_PassthroughAction(keyFrameGuid));
+    
+    public void ClearSelectedKeyFrames() => Internals.ActionAccumulator.AddActions(new ClearSelectedKeyFrames_PassthroughAction());
 
     /// <summary>
     /// Undo last change
@@ -365,17 +382,35 @@ internal class DocumentOperationsModule
     {
         if (Internals.ChangeController.IsChangeActive || members.Count < 2)
             return;
-        var (child, parent) = Document.StructureHelper.FindChildAndParent(members[0]);
-        if (child is null || parent is null)
+
+        IStructureMemberHandler? node = Document.StructureHelper.FindNode<IStructureMemberHandler>(members[0]);
+        
+        if (node is null)
             return;
-        int index = parent.Children.IndexOf(child);
+
+        INodeHandler? parent = null;
+
+        node.TraverseForwards(traversedNode =>
+        {
+            if (!members.Contains(traversedNode.Id))
+            {
+                parent = traversedNode;
+                return false;
+            }
+            
+            return true;
+        });
+        
+        if (parent is null)
+            return;
+        
         Guid newGuid = Guid.NewGuid();
 
         //make a new layer, put combined image onto it, delete layers that were merged
         Internals.ActionAccumulator.AddActions(
-            new CreateStructureMember_Action(parent.GuidValue, newGuid, index, StructureMemberType.Layer),
-            new StructureMemberName_Action(newGuid, child.NameBindable),
-            new CombineStructureMembersOnto_Action(members.ToHashSet(), newGuid));
+            new CreateStructureMember_Action(parent.Id, newGuid, StructureMemberType.Layer),
+            new StructureMemberName_Action(newGuid, node.NodeNameBindable),
+            new CombineStructureMembersOnto_Action(members.ToHashSet(), newGuid, Document.AnimationHandler.ActiveFrameBindable));
         foreach (var member in members)
             Internals.ActionAccumulator.AddActions(new DeleteStructureMember_Action(member));
         Internals.ActionAccumulator.AddActions(new ChangeBoundary_Action());
@@ -425,8 +460,8 @@ internal class DocumentOperationsModule
             Internals.ChangeController.TryStopActiveExecutor();
     }
 
-    public void DrawImage(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipSymmetriesEtc, bool drawOnMask) =>
-        DrawImage(image, corners, memberGuid, ignoreClipSymmetriesEtc, drawOnMask, true);
+    public void DrawImage(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipSymmetriesEtc, bool drawOnMask, int frame) =>
+        DrawImage(image, corners, memberGuid, ignoreClipSymmetriesEtc, drawOnMask, frame, true);
 
     /// <summary>
     /// Draws a image on the member with the <paramref name="memberGuid"/>
@@ -437,12 +472,12 @@ internal class DocumentOperationsModule
     /// <param name="ignoreClipSymmetriesEtc">Ignore selection clipping and symmetry (See DrawingChangeHelper.ApplyClipsSymmetriesEtc of UpdateableDocument)</param>
     /// <param name="drawOnMask">Draw on the mask or on the image</param>
     /// <param name="finish">Is this a finished action</param>
-    private void DrawImage(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipSymmetriesEtc, bool drawOnMask, bool finish)
+    private void DrawImage(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipSymmetriesEtc, bool drawOnMask, int atFrame, bool finish)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
         Internals.ActionAccumulator.AddActions(
-            new PasteImage_Action(image, corners, memberGuid, ignoreClipSymmetriesEtc, drawOnMask),
+            new PasteImage_Action(image, corners, memberGuid, ignoreClipSymmetriesEtc, drawOnMask, atFrame, default),
             new EndPasteImage_Action());
         if (finish)
             Internals.ActionAccumulator.AddFinishedActions();
@@ -455,66 +490,66 @@ internal class DocumentOperationsModule
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
-        Internals.ActionAccumulator.AddFinishedActions(new ClipCanvas_Action());
+        Internals.ActionAccumulator.AddFinishedActions(new ClipCanvas_Action(Document.AnimationHandler.ActiveFrameBindable));
     }
 
     /// <summary>
     /// Flips the image on the <paramref name="flipType"/> axis
     /// </summary>
-    public void FlipImage(FlipType flipType) => FlipImage(flipType, null);
+    public void FlipImage(FlipType flipType, int frame) => FlipImage(flipType, null, frame);
 
     /// <summary>
     /// Flips the members with the Guids of <paramref name="membersToFlip"/> on the <paramref name="flipType"/> axis
     /// </summary>
-    public void FlipImage(FlipType flipType, List<Guid> membersToFlip)
+    public void FlipImage(FlipType flipType, List<Guid> membersToFlip, int frame)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
         
-        Internals.ActionAccumulator.AddFinishedActions(new FlipImage_Action(flipType, membersToFlip));
+        Internals.ActionAccumulator.AddFinishedActions(new FlipImage_Action(flipType, frame, membersToFlip));
     }
 
     /// <summary>
     /// Rotates the image
     /// </summary>
     /// <param name="rotation">The degrees to rotate the image by</param>
-    public void RotateImage(RotationAngle rotation) => RotateImage(rotation, null);
+    public void RotateImage(RotationAngle rotation) => RotateImage(rotation, null, -1);
 
     /// <summary>
     /// Rotates the members with the Guids of <paramref name="membersToRotate"/>
     /// </summary>
     /// <param name="rotation">The degrees to rotate the members by</param>
-    public void RotateImage(RotationAngle rotation, List<Guid> membersToRotate)
+    public void RotateImage(RotationAngle rotation, List<Guid> membersToRotate, int frame)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
         
-        Internals.ActionAccumulator.AddFinishedActions(new RotateImage_Action(rotation, membersToRotate));
+        Internals.ActionAccumulator.AddFinishedActions(new RotateImage_Action(rotation, membersToRotate, frame));
     }
     
     /// <summary>
     /// Puts the content of the image in the middle of the canvas
     /// </summary>
-    public void CenterContent(IReadOnlyList<Guid> structureMembers)
+    public void CenterContent(IReadOnlyList<Guid> structureMembers, int frame)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
 
-        Internals.ActionAccumulator.AddFinishedActions(new CenterContent_Action(structureMembers.ToList()));
+        Internals.ActionAccumulator.AddFinishedActions(new CenterContent_Action(structureMembers.ToList(), frame));
     }
 
     /// <summary>
     /// Imports a reference layer from a Pbgra Int32 array
     /// </summary>
     /// <param name="imageSize">The size of the image</param>
-    public void ImportReferenceLayer(ImmutableArray<byte> imagePbgra32Bytes, VecI imageSize)
+    public void ImportReferenceLayer(ImmutableArray<byte> imageBgra8888Bytes, VecI imageSize)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
 
         RectD referenceImageRect = new RectD(VecD.Zero, Document.SizeBindable).AspectFit(new RectD(VecD.Zero, imageSize));
         ShapeCorners corners = new ShapeCorners(referenceImageRect);
-        Internals.ActionAccumulator.AddFinishedActions(new SetReferenceLayer_Action(corners, imagePbgra32Bytes, imageSize));
+        Internals.ActionAccumulator.AddFinishedActions(new SetReferenceLayer_Action(corners, imageBgra8888Bytes, imageSize));
     }
 
     /// <summary>
@@ -522,7 +557,7 @@ internal class DocumentOperationsModule
     /// </summary>
     public void DeleteReferenceLayer()
     {
-        if (Internals.ChangeController.IsChangeActive || Document.ReferenceLayerViewModel.ReferenceBitmap is null)
+        if (Internals.ChangeController.IsChangeActive || Document.ReferenceLayerHandler.ReferenceBitmap is null)
             return;
 
         Internals.ActionAccumulator.AddFinishedActions(new DeleteReferenceLayer_Action());
@@ -533,7 +568,7 @@ internal class DocumentOperationsModule
     /// </summary>
     public void TransformReferenceLayer()
     {
-        if (Document.ReferenceLayerViewModel.ReferenceBitmap is null || Internals.ChangeController.IsChangeActive)
+        if (Document.ReferenceLayerHandler.ReferenceBitmap is null || Internals.ChangeController.IsChangeActive)
             return;
         Internals.ChangeController.TryStartExecutor(new TransformReferenceLayerExecutor());
     }
@@ -543,10 +578,12 @@ internal class DocumentOperationsModule
     /// </summary>
     public void ResetReferenceLayerPosition()
     {
-        if (Document.ReferenceLayerViewModel.ReferenceBitmap is null || Internals.ChangeController.IsChangeActive)
+        if (Document.ReferenceLayerHandler.ReferenceBitmap is null || Internals.ChangeController.IsChangeActive)
             return;
 
-        VecD size = new(Document.ReferenceLayerViewModel.ReferenceBitmap.PixelWidth, Document.ReferenceLayerViewModel.ReferenceBitmap.PixelHeight);
+
+
+        VecD size = new(Document.ReferenceLayerHandler.ReferenceBitmap.Size.X, Document.ReferenceLayerHandler.ReferenceBitmap.Size.Y);
         RectD referenceImageRect = new RectD(VecD.Zero, Document.SizeBindable).AspectFit(new RectD(VecD.Zero, size));
         ShapeCorners corners = new ShapeCorners(referenceImageRect);
         Internals.ActionAccumulator.AddFinishedActions(
@@ -555,20 +592,20 @@ internal class DocumentOperationsModule
             );
     }
 
-    public void SelectionToMask(SelectionMode mode)
+    public void SelectionToMask(SelectionMode mode, int frame)
     {
         if (Document.SelectedStructureMember is not { } member || Document.SelectionPathBindable.IsEmpty)
             return;
 
         if (!Document.SelectedStructureMember.HasMaskBindable)
         {
-            Internals.ActionAccumulator.AddActions(new CreateStructureMemberMask_Action(member.GuidValue));
+            Internals.ActionAccumulator.AddActions(new CreateStructureMemberMask_Action(member.Id));
         }
         
-        Internals.ActionAccumulator.AddFinishedActions(new SelectionToMask_Action(member.GuidValue, mode));
+        Internals.ActionAccumulator.AddFinishedActions(new SelectionToMask_Action(member.Id, mode, frame));
     }
 
-    public void CropToSelection(bool clearSelection = true)
+    public void CropToSelection(int frame, bool clearSelection = true)
     {
         var bounds = Document.SelectionPathBindable.TightBounds;
         if (Document.SelectionPathBindable.IsEmpty || bounds.Width <= 0 || bounds.Height <= 0)

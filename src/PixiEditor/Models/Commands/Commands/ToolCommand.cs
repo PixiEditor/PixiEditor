@@ -1,5 +1,5 @@
-﻿using System.Windows.Input;
-using PixiEditor.ViewModels;
+﻿using Avalonia.Input;
+using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.Commands.Commands;
 
@@ -13,6 +13,6 @@ internal partial class Command
 
         public override object GetParameter() => ToolType;
 
-        public ToolCommand() : base(ViewModelMain.Current.ToolsSubViewModel.SetTool, CommandController.Current.CanExecuteEvaluators["PixiEditor.HasDocument"]) { }
+        public ToolCommand(IToolsHandler handler) : base(handler.SetTool, CommandController.Current.CanExecuteEvaluators["PixiEditor.HasDocument"]) { }
     }
 }

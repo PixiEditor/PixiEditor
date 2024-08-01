@@ -1,4 +1,4 @@
-﻿using System.Windows.Input;
+﻿using Avalonia.Input;
 
 namespace PixiEditor.Models.Events;
 #nullable enable
@@ -12,22 +12,22 @@ internal class FilteredKeyEventArgs : EventArgs
         State = state;
         IsRepeat = isRepeat;
 
-        ModifierKeys modifiers = ModifierKeys.None;
+        KeyModifiers modifiers = KeyModifiers.None;
         if (isShiftDown)
-            modifiers |= ModifierKeys.Shift;
+            modifiers |= KeyModifiers.Shift;
         if (isCtrlDown)
-            modifiers |= ModifierKeys.Control;
+            modifiers |= KeyModifiers.Control;
         if (isAltDown)
-            modifiers |= ModifierKeys.Alt;
+            modifiers |= KeyModifiers.Alt;
         Modifiers = modifiers;
     }
 
-    public ModifierKeys Modifiers { get; }
+    public KeyModifiers Modifiers { get; }
     public Key UnfilteredKey { get; }
     public Key Key { get; }
     public KeyStates State { get; }
     public bool IsRepeat { get; }
-    public bool IsShiftDown => (Modifiers & ModifierKeys.Shift) != 0;
-    public bool IsCtrlDown => (Modifiers & ModifierKeys.Control) != 0;
-    public bool IsAltDown => (Modifiers & ModifierKeys.Alt) != 0;
+    public bool IsShiftDown => (Modifiers & KeyModifiers.Shift) != 0;
+    public bool IsCtrlDown => (Modifiers & KeyModifiers.Control) != 0;
+    public bool IsAltDown => (Modifiers & KeyModifiers.Alt) != 0;
 }

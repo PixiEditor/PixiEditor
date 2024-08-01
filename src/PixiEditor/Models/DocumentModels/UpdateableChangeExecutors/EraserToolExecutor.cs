@@ -1,13 +1,14 @@
 ﻿#nullable enable
 using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.CommonApi.Palettes;
-using PixiEditor.Models.Enums;
+using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Handlers.Toolbars;
+using PixiEditor.Models.Handlers.Tools;
+using PixiEditor.Models.Tools;
 using PixiEditor.Numerics;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
-using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -20,25 +21,27 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
 
     public override ExecutionState Start()
     {
-        ViewModelMain? vm = ViewModelMain.Current;
-        StructureMemberViewModel? member = document!.SelectedStructureMember;
-        EraserToolViewModel? eraserTool = (EraserToolViewModel?)(vm?.ToolsSubViewModel.GetTool<EraserToolViewModel>());
-        BasicToolbar? toolbar = eraserTool?.Toolbar as BasicToolbar;
-        if (vm is null || eraserTool is null || member is null || toolbar is null)
+        IStructureMemberHandler? member = document!.SelectedStructureMember;
+        IEraserToolHandler? eraserTool = GetHandler<IEraserToolHandler>();
+        IBasicToolbar? toolbar = eraserTool?.Toolbar as IBasicToolbar;
+        IColorsHandler? colorsHandler = GetHandler<IColorsHandler>();
+
+        if (colorsHandler is null || eraserTool is null || member is null || toolbar is null)
             return ExecutionState.Error;
-        drawOnMask = member is LayerViewModel layer ? layer.ShouldDrawOnMask : true;
+        drawOnMask = member is ILayerHandler layer ? layer.ShouldDrawOnMask : true;
         if (drawOnMask && !member.HasMaskBindable)
             return ExecutionState.Error;
-        if (!drawOnMask && member is not LayerViewModel)
+        if (!drawOnMask && member is not ILayerHandler)
             return ExecutionState.Error;
 
-        guidValue = member.GuidValue;
-        color = vm.ColorsSubViewModel.PrimaryColor;
+
+        guidValue = member.Id;
+        color = GetHandler<IColorsHandler>().PrimaryColor;
         toolSize = toolbar.ToolSize;
 
-        vm.ColorsSubViewModel.AddSwatch(new PaletteColor(color.R, color.G, color.B));
+        colorsHandler.AddSwatch(new PaletteColor(color.R, color.G, color.B));
         IAction? action = new LineBasedPen_Action(guidValue, DrawingApi.Core.ColorsImpl.Colors.Transparent, controller!.LastPixelPosition, toolSize, true,
-            drawOnMask);
+            drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);
 
         return ExecutionState.Success;
@@ -46,7 +49,7 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        IAction? action = new LineBasedPen_Action(guidValue, DrawingApi.Core.ColorsImpl.Colors.Transparent, pos, toolSize, true, drawOnMask);
+        IAction? action = new LineBasedPen_Action(guidValue, DrawingApi.Core.ColorsImpl.Colors.Transparent, pos, toolSize, true, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);
     }
 

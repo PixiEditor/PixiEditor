@@ -1,0 +1,23 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs">
+    
+    <Style Selector="dialogs|DialogTitleBar CaptionButtons Button#PART_RestoreButton:disabled">
+        <Setter Property="IsVisible" Value="False"/>
+    </Style>
+    <Style Selector="dialogs|DialogTitleBar[CanMinimize=False] CaptionButtons Button#PART_MinimizeButton">
+        <Setter Property="IsVisible" Value="False"/>
+    </Style>
+    
+    <Style Selector="dialogs|DialogTitleBar[CanFullscreen=False] CaptionButtons Button#PART_FullScreenButton">
+        <Setter Property="IsVisible" Value="False"/>
+    </Style>
+    
+    <Style Selector="dialogs|DialogTitleBar[CanFullscreen=False] CaptionButtons Button#PART_RestoreButton">
+        <Setter Property="IsVisible" Value="False"/>
+    </Style>
+    
+    <Style Selector="CaptionButtons">
+        <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush1}"/>
+    </Style>
+</Styles>

@@ -1,21 +1,53 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Text.RegularExpressions;
-using System.Windows;
+using Avalonia.Input;
 
 namespace PixiEditor.Helpers;
 
 public class ColorHelper
 {
+    public const string PaletteColorDaoFormat = "PixiEditor.PaletteColor";
+
     public static bool ParseAnyFormat(IDataObject data, [NotNullWhen(true)] out DrawingApi.Core.ColorsImpl.Color? result) => 
-        ParseAnyFormat(((DataObject)data).GetText().Trim(), out result);
+        ParseAnyFormat(GetTextFromData(data), out result);
     
-    public static bool ParseAnyFormatList(IDataObject data, [NotNullWhen(true)] out List<DrawingApi.Core.ColorsImpl.Color> result) => 
-        ParseAnyFormatList(((DataObject)data).GetText().Trim(), out result);
+    public static bool ParseAnyFormatList(IDataObject data, [NotNullWhen(true)] out List<DrawingApi.Core.ColorsImpl.Color> result)
+    {
+        var text = GetTextFromData(data);
+
+        if (string.IsNullOrEmpty(text))
+        {
+            result = new List<DrawingApi.Core.ColorsImpl.Color>();
+            return false;
+        }
+
+        return ParseAnyFormatList(text, out result);
+    }
+
+    private static string GetTextFromData(IDataObject data)
+    {
+        string text = "";
+        if (data.Contains(DataFormats.Text))
+        {
+            text = (data).GetText().Trim();
+        }
+        else
+        {
+            var formats = data.GetDataFormats().ToList();
+            if(formats.Count > 0)
+            {
+                text = (data).Get(formats[0]).ToString().Trim();
+            }
+        }
+
+        return text;
+    }
 
     public static bool ParseAnyFormat(string value, [NotNullWhen(true)] out DrawingApi.Core.ColorsImpl.Color? result)
     {
         bool hex = Regex.IsMatch(value, "^#?([a-fA-F0-9]{8}|[a-fA-F0-9]{6}|[a-fA-F0-9]{3})$");
-
         if (hex)
         {
             result = DrawingApi.Core.ColorsImpl.Color.Parse(value);

@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-browser</TargetFramework>
+    <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
+    <WasmMainJSPath>wwwroot\main.js</WasmMainJSPath>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>PixiEditor.Avalonia.Browser</RootNamespace>
+    <Nullable>enable</Nullable>
+    <WasmRuntimeAssetsLocation>./_framework</WasmRuntimeAssetsLocation>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <WasmExtraFilesToDeploy Include="wwwroot\**"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Browser" Version="$(AvaloniaVersion)"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PixiEditor\PixiEditor.csproj" />
+  </ItemGroup>
+</Project>

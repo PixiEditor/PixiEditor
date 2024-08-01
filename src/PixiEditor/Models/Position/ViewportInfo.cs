@@ -13,6 +13,6 @@ internal readonly record struct ViewportInfo(
     VecD RealDimensions,
     VecD Dimensions,
     ChunkResolution Resolution,
-    Guid GuidValue,
+    Guid Id,
     bool Delayed,
     Action InvalidateVisual);

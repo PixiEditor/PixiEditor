@@ -1,7 +1,7 @@
-﻿using System.ComponentModel;
-using System.Windows;
+﻿using System.Collections.Generic;
 using System.Windows.Input;
-using System.Windows.Markup;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 using PixiEditor.Helpers;
 
 namespace PixiEditor.Models.Commands.XAML;
@@ -22,7 +22,7 @@ internal class Command : MarkupExtension
 
     public override object ProvideValue(IServiceProvider serviceProvider)
     {
-        if ((bool)(DesignerProperties.IsInDesignModeProperty.GetMetadata(typeof(DependencyObject)).DefaultValue))
+        if (Design.IsDesignMode)
         {
             var attribute = DesignCommandHelpers.GetCommandAttribute(Name);
             return GetICommand(
@@ -38,10 +38,10 @@ internal class Command : MarkupExtension
 
         if (commandController is null)
         {
-            commandController = ViewModelMain.Current.CommandController;
+            commandController = CommandController.Current; // TODO: Find a better way to get the current CommandController
         }
 
-        var command = commandController.Commands[Name];
+        Commands.Command command = commandController.Commands[Name];
         return GetPixiCommand ? command : GetICommand(command, UseProvided);
     }
 
@@ -53,13 +53,40 @@ internal class Command : MarkupExtension
 
     class ProvidedICommand : ICommand
     {
-        public event EventHandler CanExecuteChanged
+        public event EventHandler? CanExecuteChanged
         {
-            add => CommandManager.RequerySuggested += value;
-            remove => CommandManager.RequerySuggested -= value;
+            add
+            {
+                if (CanExecuteChangedHandlers.Count == 0)
+                {
+                    CommandController.ListenForCanExecuteChanged(Command);
+                }
+
+                CanExecuteChangedHandlers.Add(value);
+            }
+            remove
+            {
+                CanExecuteChangedHandlers.Remove(value);
+                if (CanExecuteChangedHandlers.Count == 0)
+                {
+                    CommandController.StopListeningForCanExecuteChanged(Command);
+                }
+            }
         }
 
-        public Commands.Command Command { get; init; }
+        private List<EventHandler> CanExecuteChangedHandlers { get; } = new();
+
+        private Commands.Command command;
+
+        public Commands.Command Command
+        {
+            get => command;
+            init
+            {
+                command = value;
+                Command.CanExecuteChanged += () => CanExecuteChangedHandlers.ForEach(x => x.Invoke(this, EventArgs.Empty));
+            }
+        }
 
         public bool UseProvidedParameter { get; init; }
 

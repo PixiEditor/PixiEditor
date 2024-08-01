@@ -1,7 +1,9 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
+using System.Threading.Tasks;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 using PixiEditor.Helpers;
@@ -36,6 +38,7 @@ internal class PaintNetTxtParser : PaletteFileParser
         List<PaletteColor> colors = new();
         for (int i = 0; i < lines.Length; i++)
         {
+            // Color format aarrggbb
             string colorLine = lines[i];
             if(colorLine.Length < 8)
                 continue;

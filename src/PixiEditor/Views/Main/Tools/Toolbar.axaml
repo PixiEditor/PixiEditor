@@ -1,0 +1,61 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PixiEditor.Views.Main.Tools.Toolbar">
+     <StackPanel
+                Background="{DynamicResource ThemeBackgroundBrush1}"
+                Orientation="Horizontal">
+                <Button
+                    Margin="12.5,0,0,0"
+                    Width="36" Height="36"
+                    Classes="pixi-icon"
+                    Command="{cmds:Command PixiEditor.Undo.Undo}"
+                    ui:Translator.TooltipKey="UNDO">
+                    <TextBlock Text="{DynamicResource icon-undo}" FontSize="20"/>
+                </Button>
+                <Button
+				Command="{cmds:Command PixiEditor.Undo.Redo}"
+                Width="36" Height="36"
+                Classes="pixi-icon" 
+                Margin="0, 0, 5, 0"
+				ui:Translator.TooltipKey="REDO">
+                    <TextBlock Text="{DynamicResource icon-redo}" FontSize="20"/>
+                </Button>
+                <ToggleButton
+				Width="30"
+				BorderThickness="0"
+				ui:Translator.TooltipKey="PEN_MODE"
+				Focusable="False"
+                Classes="pixi-icon"
+                Content="{DynamicResource icon-edit}"
+                FontSize="20"
+                IsChecked="{Binding StylusSubViewModel.IsPenModeEnabled}">
+                </ToggleButton>
+                <Grid Margin="5,5,10,5" Background="{DynamicResource ThemeBackgroundBrush2}" Width="5"/>
+                <Label Classes="BaseLabel" FontSize="12"
+                   VerticalAlignment="Center" ui:Translator.Key="{Binding ToolsSubViewModel.ActiveTool.DisplayName.Key}"
+                   ui:Translator.TooltipLocalizedString="{Binding ToolsSubViewModel.ActiveTool.ActionDisplay}"
+                   />
+                <ItemsControl ItemsSource="{Binding ToolsSubViewModel.ActiveTool.Toolbar.Settings}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="10, 0, 0, 0" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,10,0">
+                                <Label
+                                IsVisible="{Binding HasLabel}" VerticalAlignment="Center"
+                                Foreground="White" ui:Translator.Key="{Binding Label.Key}" />
+                                <ContentControl VerticalAlignment="Center" Content="{Binding SettingControl}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+</UserControl>

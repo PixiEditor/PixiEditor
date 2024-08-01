@@ -88,7 +88,7 @@ public sealed class ReplaceSpecialStringsTask : FrostingTask<BuildContext>
     {
         context.Log.Information("Replacing special strings...");
         string projectPath = context.PathToProject;
-        string filePath = Path.Combine(projectPath, "BuildConstants.cs");
+        string filePath = Path.Combine(projectPath, "..", "PixiEditor", "BuildConstants.cs");
 
         string result;
         var fileContent = File.ReadAllText(filePath);
@@ -130,7 +130,7 @@ public sealed class BuildProjectTask : FrostingTask<BuildContext>
     public override void Finally(BuildContext context)
     {
         context.Log.Information("Cleaning up...");
-        string constantsPath = Path.Combine(context.PathToProject, "BuildConstants.cs");
+        string constantsPath = Path.Combine(context.PathToProject, "..", "PixiEditor", "BuildConstants.cs");
 
         File.WriteAllText(constantsPath, context.BackedUpConstants);
     }

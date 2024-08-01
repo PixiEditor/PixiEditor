@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text;
 
 namespace PixiEditor.Helpers;
@@ -16,9 +15,6 @@ internal static class VersionHelpers
 
 #if DEVRELEASE
         builder.Append(" Dev Build");
-        return builder.ToString();
-#elif DEVSTEAM
-        builder.Append(" Dev Steam Build");
         return builder.ToString();
 #elif MSIX_DEBUG
         builder.Append(" MSIX Debug Build");

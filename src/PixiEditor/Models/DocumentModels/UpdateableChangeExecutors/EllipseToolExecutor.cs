@@ -1,13 +1,14 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Models.Enums;
+using PixiEditor.Models.Handlers.Tools;
+using PixiEditor.Models.Tools;
 using PixiEditor.Numerics;
-using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
-internal class EllipseToolExecutor : ShapeToolExecutor<EllipseToolViewModel>
+internal class EllipseToolExecutor : ShapeToolExecutor<IEllipseToolHandler>
 {
     private void DrawEllipseOrCircle(VecI curPos, bool firstDraw)
     {
@@ -21,7 +22,7 @@ internal class EllipseToolExecutor : ShapeToolExecutor<EllipseToolViewModel>
 
         lastRect = rect;
 
-        internals!.ActionAccumulator.AddActions(new DrawEllipse_Action(memberGuid, rect, strokeColor, fillColor, strokeWidth, drawOnMask));
+        internals!.ActionAccumulator.AddActions(new DrawEllipse_Action(memberGuid, rect, strokeColor, fillColor, strokeWidth, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     public override ExecutorType Type => ExecutorType.ToolLinked;
@@ -30,7 +31,7 @@ internal class EllipseToolExecutor : ShapeToolExecutor<EllipseToolViewModel>
 
     protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners) =>
         new DrawEllipse_Action(memberGuid, (RectI)RectD.FromCenterAndSize(data.Center, data.Size), strokeColor,
-            fillColor, strokeWidth, drawOnMask);
+            fillColor, strokeWidth, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
 
     protected override IAction EndDrawAction() => new EndDrawEllipse_Action();
 }

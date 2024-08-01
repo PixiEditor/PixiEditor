@@ -4,22 +4,23 @@ using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
 using PixiEditor.Extensions.Helpers;
-using PixiEditor.Helpers.Converters;
+using PixiEditor.Helpers.Converters.JsonConverters;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.Models.Services.NewsFeed;
 
 [JsonConverter(typeof(DefaultUnknownEnumConverter), (int)Misc)]
 internal enum NewsType
 {
-    [Description("NewVersion.png")]
+    [Description(PixiPerfectIcons.Download)]
     NewVersion,
-    [Description("YouTube.png")]
+    [Description(PixiPerfectIcons.YouTube)]
     YtVideo,
-    [Description("Article.png")]
+    [Description(PixiPerfectIcons.Write)]
     BlogPost,
-    [Description("OfficialAnnouncement.png")]
+    [Description(PixiPerfectIcons.Message)]
     OfficialAnnouncement,
-    [Description("Misc.png")]
+    [Description(PixiPerfectIcons.Misc)]
     Misc
 }
 
@@ -32,7 +33,7 @@ internal record News
     public string CoverImageUrl { get; init; } = string.Empty;
 
     [JsonIgnore]
-    public string ResolvedIconUrl => $"/Images/News/{NewsType.GetDescription()}";
+    public string ResolvedIcon => NewsType.GetDescription();
 
     [JsonIgnore]
     public bool IsNew { get; set; } = false;

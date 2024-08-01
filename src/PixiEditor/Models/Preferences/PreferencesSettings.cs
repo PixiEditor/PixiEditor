@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -9,8 +10,6 @@ namespace PixiEditor.Models.Preferences;
 [DebuggerDisplay("{Preferences.Count + LocalPreferences.Count} Preference(s)")]
 internal class PreferencesSettings : IPreferences
 {
-    public static IPreferences Current => ViewModelMain.Current.Preferences;
-
     public bool IsLoaded { get; private set; } = false;
 
     public string PathToRoamingUserPreferences { get; private set; } = GetPathToSettings(Environment.SpecialFolder.ApplicationData, "user_preferences.json");
@@ -43,6 +42,8 @@ internal class PreferencesSettings : IPreferences
 
     public void UpdatePreference<T>(string name, T value)
     {
+        name = TrimPrefix(name);
+
         if (IsLoaded == false)
         {
             Init();
@@ -50,11 +51,11 @@ internal class PreferencesSettings : IPreferences
 
         Preferences[name] = value;
 
-        if (Callbacks.ContainsKey(name))
+        if (Callbacks.TryGetValue(name, out var callback))
         {
-            foreach (var action in Callbacks[name])
+            foreach (var action in callback)
             {
-                action.Invoke(value);
+                action.Invoke(name, value);
             }
         }
 
@@ -63,6 +64,8 @@ internal class PreferencesSettings : IPreferences
 
     public void UpdateLocalPreference<T>(string name, T value)
     {
+        name = TrimPrefix(name);
+
         if (IsLoaded == false)
         {
             Init();
@@ -70,11 +73,11 @@ internal class PreferencesSettings : IPreferences
 
         LocalPreferences[name] = value;
 
-        if (Callbacks.ContainsKey(name))
+        if (Callbacks.TryGetValue(name, out var callback))
         {
-            foreach (var action in Callbacks[name])
+            foreach (var action in callback)
             {
-                action.Invoke(value);
+                action.Invoke(name, value);
             }
         }
 
@@ -92,10 +95,12 @@ internal class PreferencesSettings : IPreferences
         File.WriteAllText(PathToLocalPreferences, JsonConvert.SerializeObject(LocalPreferences));
     }
 
-    public Dictionary<string, List<Action<object>>> Callbacks { get; set; } = new Dictionary<string, List<Action<object>>>();
+    public Dictionary<string, List<Action<string, object>>> Callbacks { get; set; } = new Dictionary<string, List<Action<string, object>>>();
 
-    public void AddCallback(string name, Action<object> action)
+    public void AddCallback(string name, Action<string, object> action)
     {
+        name = TrimPrefix(name);
+
         if (action == null)
         {
             throw new ArgumentNullException(nameof(action));
@@ -107,21 +112,25 @@ internal class PreferencesSettings : IPreferences
             return;
         }
 
-        Callbacks.Add(name, new List<Action<object>>() { action });
+        Callbacks.Add(name, new List<Action<string, object>>() { action });
     }
 
-    public void AddCallback<T>(string name, Action<T> action)
+    public void AddCallback<T>(string name, Action<string, T> action)
     {
+        name = TrimPrefix(name);
+
         if (action == null)
         {
             throw new ArgumentNullException(nameof(action));
         }
 
-        AddCallback(name, new Action<object>(o => action((T)o)));
+        AddCallback(name, new Action<string, object>((n, o) => action(n, (T)o)));
     }
 
-    public void RemoveCallback(string name, Action<object> action)
+    public void RemoveCallback(string name, Action<string, object> action)
     {
+        name = TrimPrefix(name);
+
         if (action == null)
         {
             throw new ArgumentNullException(nameof(action));
@@ -133,25 +142,31 @@ internal class PreferencesSettings : IPreferences
         }
     }
 
-    public void RemoveCallback<T>(string name, Action<T> action)
+    public void RemoveCallback<T>(string name, Action<string, T> action)
     {
+        name = TrimPrefix(name);
+
         if (action == null)
         {
             throw new ArgumentNullException(nameof(action));
         }
 
-        RemoveCallback(name, new Action<object>(o => action((T)o)));
+        RemoveCallback(name, new Action<string, object>((n, o) => action(n, (T)o)));
     }
 
 #nullable enable
 
     public T? GetPreference<T>(string name)
     {
+        name = TrimPrefix(name);
+
         return GetPreference(name, default(T));
     }
 
     public T? GetPreference<T>(string name, T? fallbackValue)
     {
+        name = TrimPrefix(name);
+
         if (IsLoaded == false)
         {
             Init();
@@ -172,11 +187,15 @@ internal class PreferencesSettings : IPreferences
 
     public T? GetLocalPreference<T>(string name)
     {
+        name = TrimPrefix(name);
+
         return GetLocalPreference(name, default(T));
     }
 
     public T? GetLocalPreference<T>(string name, T? fallbackValue)
     {
+        name = TrimPrefix(name);
+        
         if (IsLoaded == false)
         {
             Init();
@@ -197,6 +216,8 @@ internal class PreferencesSettings : IPreferences
 
     private T? GetValue<T>(Dictionary<string, object> dict, string name, T? fallbackValue)
     {
+        name = TrimPrefix(name);
+        
         if (!dict.ContainsKey(name)) return fallbackValue;
         var preference = dict[name];
         if (typeof(T) == preference.GetType()) return (T)preference;
@@ -251,4 +272,8 @@ internal class PreferencesSettings : IPreferences
 
         return new Dictionary<string, object>();
     }
+
+    private const string Prefix = "PixiEditor:";
+
+    private string TrimPrefix(string value) => value.StartsWith("PixiEditor:") ? value[Prefix.Length..] : value;
 }

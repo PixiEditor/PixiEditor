@@ -1,17 +1,17 @@
-﻿using System.Diagnostics;
-using System.Windows;
-using System.Windows.Threading;
-using ChunkyImageLib.DataHolders;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Avalonia.Platform;
+using Avalonia.Threading;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentPassthroughActions;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Rendering.RenderInfos;
 using PixiEditor.Numerics;
-using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable
@@ -20,13 +20,13 @@ internal class ActionAccumulator
     private bool executing = false;
 
     private List<IAction> queuedActions = new();
-    private DocumentViewModel document;
+    private IDocument document;
     private DocumentInternalParts internals;
 
     private CanvasUpdater canvasUpdater;
     private MemberPreviewUpdater previewUpdater;
 
-    public ActionAccumulator(DocumentViewModel doc, DocumentInternalParts internals)
+    public ActionAccumulator(IDocument doc, DocumentInternalParts internals)
     {
         this.document = doc;
         this.internals = internals;
@@ -70,9 +70,13 @@ internal class ActionAccumulator
             // pass them to changeabledocument for processing
             List<IChangeInfo?> changes;
             if (AreAllPassthrough(toExecute))
+            {
                 changes = toExecute.Select(a => (IChangeInfo?)a).ToList();
+            }
             else
+            {
                 changes = await internals.Tracker.ProcessActions(toExecute);
+            }
 
             // update viewmodels based on changes
             List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);
@@ -85,49 +89,19 @@ internal class ActionAccumulator
             if (undoBoundaryPassed)
                 internals.Updater.AfterUndoBoundaryPassed();
 
-            // render changes
-            // If you are a sane person or maybe just someone who reads WPF documentation, you might think that the reasonable order of operations should be
-            // 1. Lock the writeable bitmaps
-            // 2. Update their contents
-            // 3. Add dirty rectangles
-            // 4. Unlock them
-            // As it turns out, doing operations in this order leads to WPF render thread crashing in some circumstatances.
-            // Then the whole app freezes without throwing any errors, because the UI thread is blocked on a mutex, waiting for the dead render thread.
-            // This is despite the order clearly being adviced in the documentations here: https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imaging.writeablebitmap?view=windowsdesktop-6.0&viewFallbackFrom=net-6.0#remarks
-            // Because of that, I'm executing the operations in the order that makes a lot less sense:
-            // 1. Update the contents of the bitmaps
-            // 2. Lock Them
-            // 3. Add dirty rectangles
-            // 4. Unlock
-            // The locks clearly do nothing useful here, and I'm only calling them because WriteableBitmap checks if it's locked before letting you add dirty rectangles.
-            // Really, the locks are supposed to prevent me from updating the bitmap contents in step 1, but they can't since I'm doing direct unsafe memory copying
-            // Somehow this all works
-            // Also, there is a bug report for this on github https://github.com/dotnet/wpf/issues/5816
-
             // update the contents of the bitmaps
-            var affectedAreas = new AffectedAreasGatherer(internals.Tracker, optimizedChanges);
+            var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime, internals.Tracker, optimizedChanges);
             List<IRenderInfo> renderResult = new();
             renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed || viewportRefreshRequest));
             renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
 
-            // lock bitmaps
-            foreach (var (_, bitmap) in document.LazyBitmaps)
-            {
-                bitmap.Lock();
-            }
             if (undoBoundaryPassed)
-                LockPreviewBitmaps(document.StructureRoot);
+            {
+                //ClearDirtyRects();
+            }
 
             // add dirty rectangles
             AddDirtyRects(renderResult);
-
-            // unlock bitmaps
-            foreach (var (_, bitmap) in document.LazyBitmaps)
-            {
-                bitmap.Unlock();
-            }
-            if (undoBoundaryPassed)
-                UnlockPreviewBitmaps(document.StructureRoot);
 
             // force refresh viewports for better responsiveness
             foreach (var (_, value) in internals.State.Viewports)
@@ -153,30 +127,6 @@ internal class ActionAccumulator
         return true;
     }
 
-    private void LockPreviewBitmaps(FolderViewModel root)
-    {
-        foreach (var child in root.Children)
-        {
-            child.PreviewBitmap?.Lock();
-            child.MaskPreviewBitmap?.Lock();
-            if (child is FolderViewModel innerFolder)
-                LockPreviewBitmaps(innerFolder);
-        }
-        document.PreviewBitmap.Lock();
-    }
-
-    private void UnlockPreviewBitmaps(FolderViewModel root)
-    {
-        foreach (var child in root.Children)
-        {
-            child.PreviewBitmap?.Unlock();
-            child.MaskPreviewBitmap?.Unlock();
-            if (child is FolderViewModel innerFolder)
-                UnlockPreviewBitmaps(innerFolder);
-        }
-        document.PreviewBitmap.Unlock();
-    }
-
     private void AddDirtyRects(List<IRenderInfo> changes)
     {
         foreach (IRenderInfo renderInfo in changes)
@@ -185,32 +135,40 @@ internal class ActionAccumulator
             {
                 case DirtyRect_RenderInfo info:
                     {
-                        var bitmap = document.LazyBitmaps[info.Resolution];
-                        RectI finalRect = new RectI(VecI.Zero, new(bitmap.PixelWidth, bitmap.PixelHeight));
+                        var bitmap = document.Surfaces[info.Resolution];
+                        RectI finalRect = new RectI(VecI.Zero, new(bitmap.Size.X, bitmap.Size.Y));
 
                         RectI dirtyRect = new RectI(info.Pos, info.Size).Intersect(finalRect);
-                        bitmap.AddDirtyRect(new(dirtyRect.Left, dirtyRect.Top, dirtyRect.Width, dirtyRect.Height));
+                        bitmap.AddDirtyRect(dirtyRect);
                     }
                     break;
                 case PreviewDirty_RenderInfo info:
                     {
-                        var bitmap = document.StructureHelper.Find(info.GuidValue)?.PreviewBitmap;
+                        var bitmap = document.StructureHelper.Find(info.GuidValue)?.PreviewSurface;
                         if (bitmap is null)
                             continue;
-                        bitmap.AddDirtyRect(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight));
+                        bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
                     }
                     break;
                 case MaskPreviewDirty_RenderInfo info:
                     {
-                        var bitmap = document.StructureHelper.Find(info.GuidValue)?.MaskPreviewBitmap;
+                        var bitmap = document.StructureHelper.Find(info.GuidValue)?.MaskPreviewSurface;
                         if (bitmap is null)
                             continue;
-                        bitmap.AddDirtyRect(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight));
+                        bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
                     }
                     break;
                 case CanvasPreviewDirty_RenderInfo:
                     {
-                        document.PreviewBitmap.AddDirtyRect(new Int32Rect(0, 0, document.PreviewBitmap.PixelWidth, document.PreviewBitmap.PixelHeight));
+                        document.PreviewSurface.AddDirtyRect(new RectI(0, 0, document.PreviewSurface.Size.X, document.PreviewSurface.Size.Y));
+                    }
+                    break;
+                case NodePreviewDirty_RenderInfo info:
+                    {
+                        var node = document.StructureHelper.Find(info.NodeId);
+                        if (node is null || node.PreviewSurface is null)
+                            continue;
+                        node.PreviewSurface.AddDirtyRect(new RectI(0, 0, node.PreviewSurface.Size.X, node.PreviewSurface.Size.Y));
                     }
                     break;
             }
