@@ -1,33 +1,25 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using Microsoft.Xaml.Behaviors;
-using PixiEditor.Views;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Threading;
+using Avalonia.Xaml.Interactivity;
 
 namespace PixiEditor.Helpers.Behaviours;
 
 internal class TextBoxFocusBehavior : Behavior<TextBox>
 {
-    public static readonly DependencyProperty SelectOnMouseClickProperty =
-        DependencyProperty.Register(
-            nameof(SelectOnMouseClick),
-            typeof(bool),
-            typeof(TextBoxFocusBehavior),
-            new PropertyMetadata(false));
+    public static readonly StyledProperty<bool> SelectOnMouseClickProperty =
+        AvaloniaProperty.Register<TextBoxFocusBehavior, bool>(
+            nameof(SelectOnMouseClick));
 
-    public static readonly DependencyProperty ConfirmOnEnterProperty =
-        DependencyProperty.Register(
-            nameof(ConfirmOnEnter),
-            typeof(bool),
-            typeof(TextBoxFocusBehavior),
-            new PropertyMetadata(false));
+    public static readonly StyledProperty<bool> ConfirmOnEnterProperty =
+        AvaloniaProperty.Register<TextBoxFocusBehavior, bool>(
+            nameof(ConfirmOnEnter));
 
-    public static readonly DependencyProperty DeselectOnFocusLossProperty =
-        DependencyProperty.Register(
-            nameof(DeselectOnFocusLoss),
-            typeof(bool),
-            typeof(TextBoxFocusBehavior),
-            new PropertyMetadata(false));
+    public static readonly StyledProperty<bool> DeselectOnFocusLossProperty =
+        AvaloniaProperty.Register<TextBoxFocusBehavior, bool>(
+            nameof(DeselectOnFocusLoss));
 
     public bool SelectOnMouseClick
     {
@@ -46,7 +38,8 @@ internal class TextBoxFocusBehavior : Behavior<TextBox>
         set => SetValue(DeselectOnFocusLossProperty, value);
     }
 
-    public static readonly DependencyProperty FocusNextProperty = DependencyProperty.Register(nameof(FocusNext), typeof(bool), typeof(TextBoxFocusBehavior), new PropertyMetadata(false));
+    public static readonly StyledProperty<bool> FocusNextProperty =
+        AvaloniaProperty.Register<TextBoxFocusBehavior, bool>(nameof(FocusNext));
 
     public bool FocusNext
     {
@@ -54,23 +47,25 @@ internal class TextBoxFocusBehavior : Behavior<TextBox>
         set { SetValue(FocusNextProperty, value); }
     }
 
+    public static IInputElement FallbackFocusElement { get; set; }
+
     protected override void OnAttached()
     {
         base.OnAttached();
-        AssociatedObject.GotKeyboardFocus += AssociatedObjectGotKeyboardFocus;
-        AssociatedObject.GotMouseCapture += AssociatedObjectGotMouseCapture;
+        AssociatedObject.GotFocus += AssociatedObjectGotKeyboardFocus;
+        AssociatedObject.PointerPressed += AssociatedObjectGotMouseCapture;
         AssociatedObject.LostFocus += AssociatedObject_LostFocus;
-        AssociatedObject.PreviewMouseLeftButtonDown += AssociatedObjectPreviewMouseLeftButtonDown;
+        AssociatedObject.PointerPressed += OnPointerPressed;
         AssociatedObject.KeyUp += AssociatedObject_KeyUp;
     }
 
     protected override void OnDetaching()
     {
         base.OnDetaching();
-        AssociatedObject.GotKeyboardFocus -= AssociatedObjectGotKeyboardFocus;
-        AssociatedObject.GotMouseCapture -= AssociatedObjectGotMouseCapture;
+        AssociatedObject.GotFocus -= AssociatedObjectGotKeyboardFocus;
+        AssociatedObject.PointerPressed -= AssociatedObjectGotMouseCapture;
         AssociatedObject.LostFocus -= AssociatedObject_LostFocus;
-        AssociatedObject.PreviewMouseLeftButtonDown -= AssociatedObjectPreviewMouseLeftButtonDown;
+        AssociatedObject.PointerPressed -= OnPointerPressed;
         AssociatedObject.KeyUp -= AssociatedObject_KeyUp;
     }
 
@@ -85,40 +80,42 @@ internal class TextBoxFocusBehavior : Behavior<TextBox>
 
     private void RemoveFocus()
     {
-        if (!FocusNext)
-        {
-            FocusHelper.MoveFocusToParent(AssociatedObject);
-        }
-        else
-        {
-            AssociatedObject.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
-        }
+        var next = FocusNext
+            ? KeyboardNavigationHandler.GetNext(AssociatedObject, NavigationDirection.Next)
+            : FallbackFocusElement;
+        NavigationMethod nextMethod = FocusNext ? NavigationMethod.Directional : NavigationMethod.Unspecified;
+        if (next == AssociatedObject) return;
+        next?.Focus(nextMethod);
     }
 
     private void AssociatedObjectGotKeyboardFocus(
         object sender,
-        KeyboardFocusChangedEventArgs e)
+        GotFocusEventArgs e)
     {
-        if (SelectOnMouseClick || e.KeyboardDevice.IsKeyDown(Key.Tab))
-            AssociatedObject.SelectAll();
+        if ((e.NavigationMethod == NavigationMethod.Pointer && SelectOnMouseClick) || e.NavigationMethod == NavigationMethod.Tab)
+        {
+            Dispatcher.UIThread.Post(() => AssociatedObject?.SelectAll(), DispatcherPriority.Input);
+        }
     }
 
     private void AssociatedObjectGotMouseCapture(
-        object sender,
-        MouseEventArgs e)
+        object? sender, PointerPressedEventArgs pointerPressedEventArgs)
     {
         if (SelectOnMouseClick)
-            AssociatedObject.SelectAll();
+        {
+            Dispatcher.UIThread.Post(() => AssociatedObject?.SelectAll(), DispatcherPriority.Input);
+        }
     }
 
     private void AssociatedObject_LostFocus(object sender, RoutedEventArgs e)
     {
         if (DeselectOnFocusLoss)
-            AssociatedObject.Select(0, 0);
-        RemoveFocus();
+            AssociatedObject.ClearSelection();
+
+        //RemoveFocus();
     }
 
-    private void AssociatedObjectPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         if (!SelectOnMouseClick)
             return;

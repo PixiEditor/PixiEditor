@@ -1,16 +1,15 @@
 ﻿using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
-using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Tools;
 
-namespace Models.DocumentModels.Public;
+namespace PixiEditor.Models.DocumentModels.Public;
 internal class DocumentToolsModule
 {
-    private DocumentViewModel Document { get; set; }
+    private IDocument Document { get; set; }
     private DocumentInternalParts Internals { get; set; }
 
-    public DocumentToolsModule(DocumentViewModel doc, DocumentInternalParts internals)
+    public DocumentToolsModule(IDocument doc, DocumentInternalParts internals)
     {
         this.Document = doc;
         this.Internals = internals;

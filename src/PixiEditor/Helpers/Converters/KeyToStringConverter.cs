@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
-using System.Windows.Input;
+using Avalonia.Input;
 using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Models.Localization;
 
 namespace PixiEditor.Helpers.Converters;
 
@@ -12,11 +11,11 @@ internal class KeyToStringConverter
         value switch
         {
             Key key => (object)InputKeyHelpers.GetKeyboardKey(key),
-            ModifierKeys modifier => modifier switch
+            KeyModifiers modifier => modifier switch
             {
-                ModifierKeys.Control => new LocalizedString("CTRL_KEY"),
-                ModifierKeys.Shift => new LocalizedString("SHIFT_KEY"),
-                ModifierKeys.Alt => new LocalizedString("ALT_KEY"),
+                KeyModifiers.Control => new LocalizedString("CTRL_KEY"),
+                KeyModifiers.Shift => new LocalizedString("SHIFT_KEY"),
+                KeyModifiers.Alt => new LocalizedString("ALT_KEY"),
                 _ => modifier.ToString()
             },
             _ => string.Empty

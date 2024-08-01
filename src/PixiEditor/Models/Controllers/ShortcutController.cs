@@ -1,8 +1,10 @@
-﻿using System.Windows.Input;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Avalonia.Input;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Commands;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.ViewModels.SubViewModels.Tools;
+using PixiEditor.Models.Input;
+using PixiEditor.ViewModels.Tools;
 
 namespace PixiEditor.Models.Controllers;
 
@@ -15,6 +17,8 @@ internal class ShortcutController
     public IEnumerable<Command> LastCommands { get; private set; }
 
     public Dictionary<KeyCombination, ToolViewModel> TransientShortcuts { get; set; } = new();
+    
+    public Type? ActiveContext { get; private set; }
 
     public static void BlockShortcutExecution(string blocker)
     {
@@ -43,13 +47,13 @@ internal class ShortcutController
         return CommandController.Current.Commands.First(x => x is Command.ToolCommand tool && tool.ToolType == type).Shortcut;
     }
 
-    public void KeyPressed(Key key, ModifierKeys modifiers)
+    public void KeyPressed(Key key, KeyModifiers modifiers)
     {
         KeyCombination shortcut = new(key, modifiers);
 
         if (!ShortcutExecutionBlocked)
         {
-            var commands = CommandController.Current.Commands[shortcut];
+            var commands = CommandController.Current.Commands[shortcut].Where(x => x.ShortcutContext is null || x.ShortcutContext == ActiveContext).ToList();
 
             if (!commands.Any())
             {
@@ -58,10 +62,23 @@ internal class ShortcutController
 
             LastCommands = commands;
 
-            foreach (var command in CommandController.Current.Commands[shortcut])
+            foreach (var command in commands)
             {
                 command.Execute();
             }
+        }
+    }
+
+    public void OverwriteContext(Type getType)
+    {
+        ActiveContext = getType;
+    }
+    
+    public void ClearContext(Type clearFrom)
+    {
+        if (ActiveContext == clearFrom)
+        {
+            ActiveContext = null;
         }
     }
 }

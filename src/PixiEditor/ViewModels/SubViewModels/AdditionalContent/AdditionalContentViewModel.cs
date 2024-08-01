@@ -1,5 +1,4 @@
-﻿using PixiEditor.Models.Commands.Attributes.Commands;
-using PixiEditor.Platform;
+﻿using PixiEditor.Platform;
 
 namespace PixiEditor.ViewModels.SubViewModels.AdditionalContent;
 

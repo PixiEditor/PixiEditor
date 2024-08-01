@@ -1,29 +1,34 @@
-﻿using System.Windows.Media;
-using System.Windows.Media.Imaging;
+﻿using System.Collections.Immutable;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Exceptions;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos;
+using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root.ReferenceLayerChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.Models.Controllers;
+using PixiEditor.DrawingApi.Core;
+using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentPassthroughActions;
-using PixiEditor.Models.Enums;
+using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Layers;
 using PixiEditor.Numerics;
-using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable
 internal class DocumentUpdater
 {
-    private DocumentViewModel doc;
+    private IDocument doc;
     private DocumentInternalParts helper;
 
-    public DocumentUpdater(DocumentViewModel doc, DocumentInternalParts helper)
+    public DocumentUpdater(IDocument doc, DocumentInternalParts helper)
     {
         this.doc = doc;
         this.helper = helper;
@@ -34,7 +39,8 @@ internal class DocumentUpdater
     /// </summary>
     public void AfterUndoBoundaryPassed()
     {
-        doc.RaisePropertyChanged(nameof(doc.AllChangesSaved));
+        //TODO: Make sure AllChangesSaved trigger raise property changed itself
+        doc.UpdateSavedState();
     }
 
     /// <summary>
@@ -45,13 +51,24 @@ internal class DocumentUpdater
         if (arbitraryInfo is null)
             return;
 
+        //TODO: Find a more elegant way to do this
         switch (arbitraryInfo)
         {
             case CreateStructureMember_ChangeInfo info:
+                if (info is CreateLayer_ChangeInfo layerChangeInfo)
+                {
+                    ProcessCreateNode<LayerViewModel>(info);
+                }
+                else if (info is CreateFolder_ChangeInfo folderChangeInfo)
+                {
+                    ProcessCreateNode<FolderViewModel>(info);
+                }
+
                 ProcessCreateStructureMember(info);
                 break;
             case DeleteStructureMember_ChangeInfo info:
                 ProcessDeleteStructureMember(info);
+                ProcessDeleteNode(info);
                 break;
             case StructureMemberName_ChangeInfo info:
                 ProcessUpdateStructureMemberName(info);
@@ -125,264 +142,468 @@ internal class DocumentUpdater
             case ClearSoftSelectedMembers_PassthroughAction info:
                 ProcessClearSoftSelectedMembers(info);
                 break;
-                
+            case CreateRasterKeyFrame_ChangeInfo info:
+                ProcessCreateRasterKeyFrame(info);
+                break;
+            case DeleteKeyFrame_ChangeInfo info:
+                ProcessDeleteKeyFrame(info);
+                break;
+            case SetActiveFrame_PassthroughAction info:
+                ProcessActiveFrame(info);
+                break;
+            case KeyFrameLength_ChangeInfo info:
+                ProcessKeyFrameLength(info);
+                break;
+            case KeyFrameVisibility_ChangeInfo info:
+                ProcessKeyFrameVisibility(info);
+                break;
+            case AddSelectedKeyFrame_PassthroughAction info:
+                ProcessAddSelectedKeyFrame(info);
+                break;
+            case RemoveSelectedKeyFrame_PassthroughAction info:
+                ProcessRemoveSelectedKeyFrame(info);
+                break;
+            case ClearSelectedKeyFrames_PassthroughAction info:
+                ClearSelectedKeyFrames(info);
+                break;
+            case CreateNode_ChangeInfo info:
+                ProcessCreateNode<NodeViewModel>(info);
+                break;
+            case DeleteNode_ChangeInfo info:
+                ProcessDeleteNode(info);
+                break;
+            case CreateNodeFrame_ChangeInfo info:
+                ProcessCreateNodeFrame(info);
+                break;
+            case CreateNodeZone_ChangeInfo info:
+                ProcessCreateNodeZone(info);
+                break;
+            case DeleteNodeFrame_ChangeInfo info:
+                ProcessDeleteNodeFrame(info);
+                break;
+            case ConnectProperty_ChangeInfo info:
+                ProcessConnectProperty(info);
+                break;
+            case NodePosition_ChangeInfo info:
+                ProcessNodePosition(info);
+                break;
+            case PropertyValueUpdated_ChangeInfo info:
+                ProcessNodePropertyValueUpdated(info);
+                break;
+            case NodeName_ChangeInfo info:
+                ProcessNodeName(info);
+                break;
+            case FrameRate_ChangeInfo info:
+                ProcessFrameRate(info);
+                break;
         }
     }
 
     private void ProcessReferenceLayerIsVisible(ReferenceLayerIsVisible_ChangeInfo info)
     {
-        doc.ReferenceLayerViewModel.InternalSetReferenceLayerIsVisible(info.IsVisible);
+        doc.ReferenceLayerHandler.SetReferenceLayerIsVisible(info.IsVisible);
     }
 
     private void ProcessTransformReferenceLayer(TransformReferenceLayer_ChangeInfo info)
     {
-        doc.ReferenceLayerViewModel.InternalTransformReferenceLayer(info.Corners);
+        doc.ReferenceLayerHandler.TransformReferenceLayer(info.Corners);
     }
 
     private void ProcessDeleteReferenceLayer(DeleteReferenceLayer_ChangeInfo info)
     {
-        doc.ReferenceLayerViewModel.InternalDeleteReferenceLayer();
+        doc.ReferenceLayerHandler.DeleteReferenceLayer();
     }
 
     private void ProcessSetReferenceLayer(SetReferenceLayer_ChangeInfo info)
     {
-        doc.ReferenceLayerViewModel.InternalSetReferenceLayer(info.ImageRgba64Bytes, info.ImageSize, info.Shape);
+        doc.ReferenceLayerHandler.SetReferenceLayer(info.ImagePbgra8888Bytes, info.ImageSize, info.Shape);
     }
     
     private void ProcessReferenceLayerTopMost(ReferenceLayerTopMost_ChangeInfo info)
     {
-        doc.ReferenceLayerViewModel.InternalSetReferenceLayerTopMost(info.IsTopMost);
+        doc.ReferenceLayerHandler.SetReferenceLayerTopMost(info.IsTopMost);
     }
 
     private void ProcessRemoveSoftSelectedMember(RemoveSoftSelectedMember_PassthroughAction info)
     {
-        StructureMemberViewModel? member = doc.StructureHelper.Find(info.GuidValue);
+        IStructureMemberHandler? member = doc.StructureHelper.Find(info.Id);
         if (member is null || member.Selection == StructureMemberSelectionType.Hard)
             return;
         if (member.Selection != StructureMemberSelectionType.Soft)
             return;
         member.Selection = StructureMemberSelectionType.None;
-        member.RaisePropertyChanged(nameof(member.Selection));
-        doc.InternalRemoveSoftSelectedMember(member);
+        // TODO: Make sure Selection raises property changed internally
+        //member.OnPropertyChanged(nameof(member.Selection));
+        doc.RemoveSoftSelectedMember(member);
     }
 
     private void ProcessClearSoftSelectedMembers(ClearSoftSelectedMembers_PassthroughAction info)
     {
-        foreach (StructureMemberViewModel? oldMember in doc.SoftSelectedStructureMembers)
+        foreach (IStructureMemberHandler? oldMember in doc.SoftSelectedStructureMembers)
         {
             if (oldMember.Selection == StructureMemberSelectionType.Hard)
                 continue;
             oldMember.Selection = StructureMemberSelectionType.None;
-            oldMember.RaisePropertyChanged(nameof(oldMember.Selection));
+            //oldMember.OnPropertyChanged(nameof(oldMember.Selection));
         }
-        doc.InternalClearSoftSelectedMembers();
+        doc.ClearSoftSelectedMembers();
     }
 
     private void ProcessAddSoftSelectedMember(AddSoftSelectedMember_PassthroughAction info)
     {
-        StructureMemberViewModel? member = doc.StructureHelper.Find(info.GuidValue);
+        IStructureMemberHandler? member = doc.StructureHelper.Find(info.Id);
         if (member is null || member.Selection == StructureMemberSelectionType.Hard)
             return;
         member.Selection = StructureMemberSelectionType.Soft;
-        member.RaisePropertyChanged(nameof(member.Selection));
-        doc.InternalAddSoftSelectedMember(member);
+        //member.OnPropertyChanged(nameof(member.Selection));
+        doc.AddSoftSelectedMember(member);
     }
 
     private void ProcessSetSelectedMember(SetSelectedMember_PassthroughAction info)
     {
-        StructureMemberViewModel? member = doc.StructureHelper.Find(info.GuidValue);
+        IStructureMemberHandler? member = doc.StructureHelper.Find(info.Id);
         if (member is null || member.Selection == StructureMemberSelectionType.Hard)
             return;
+        
         if (doc.SelectedStructureMember is { } oldMember)
         {
             oldMember.Selection = StructureMemberSelectionType.None;
-            oldMember.RaisePropertyChanged(nameof(oldMember.Selection));
+            //oldMember.OnPropertyChanged(nameof(oldMember.Selection));
         }
         member.Selection = StructureMemberSelectionType.Hard;
-        member.RaisePropertyChanged(nameof(member.Selection));
-        doc.InternalSetSelectedMember(member);
+        //member.OnPropertyChanged(nameof(member.Selection));
+        doc.SetSelectedMember(member);
     }
 
     private void ProcessMaskIsVisible(StructureMemberMaskIsVisible_ChangeInfo info)
     {
-        StructureMemberViewModel? member = doc.StructureHelper.FindOrThrow(info.GuidValue);
-        member.InternalSetMaskIsVisible(info.IsVisible);
+        IStructureMemberHandler? member = doc.StructureHelper.FindOrThrow(info.Id);
+        member.SetMaskIsVisible(info.IsVisible);
     }
 
     private void ProcessClipToMemberBelow(StructureMemberClipToMemberBelow_ChangeInfo info)
     {
-        StructureMemberViewModel? member = doc.StructureHelper.FindOrThrow(info.GuidValue);
-        member.InternalSetClipToMemberBelowEnabled(info.ClipToMemberBelow);
+        IStructureMemberHandler? member = doc.StructureHelper.FindOrThrow(info.Id);
+        member.SetClipToMemberBelowEnabled(info.ClipToMemberBelow);
     }
 
     private void ProcessSymmetryPosition(SymmetryAxisPosition_ChangeInfo info)
     {
         if (info.Direction == SymmetryAxisDirection.Horizontal)
-            doc.InternalSetHorizontalSymmetryAxisY(info.NewPosition);
+            doc.SetHorizontalSymmetryAxisY(info.NewPosition);
         else if (info.Direction == SymmetryAxisDirection.Vertical)
-            doc.InternalSetVerticalSymmetryAxisX(info.NewPosition);
+            doc.SetVerticalSymmetryAxisX(info.NewPosition);
     }
 
     private void ProcessSymmetryState(SymmetryAxisState_ChangeInfo info)
     {
         if (info.Direction == SymmetryAxisDirection.Horizontal)
-            doc.InternalSetHorizontalSymmetryAxisEnabled(info.State);
+            doc.SetHorizontalSymmetryAxisEnabled(info.State);
         else if (info.Direction == SymmetryAxisDirection.Vertical)
-            doc.InternalSetVerticalSymmetryAxisEnabled(info.State);
+            doc.SetVerticalSymmetryAxisEnabled(info.State);
     }
 
     private void ProcessSelection(Selection_ChangeInfo info)
     {
-        doc.InternalUpdateSelectionPath(info.NewPath);
+        doc.UpdateSelectionPath(info.NewPath);
     }
 
     private void ProcessLayerLockTransparency(LayerLockTransparency_ChangeInfo info)
     {
-        LayerViewModel? layer = (LayerViewModel)doc.StructureHelper.FindOrThrow(info.GuidValue);
+        ILayerHandler? layer = (ILayerHandler)doc.StructureHelper.FindOrThrow(info.Id);
         layer.SetLockTransparency(info.LockTransparency);
     }
 
     private void ProcessStructureMemberBlendMode(StructureMemberBlendMode_ChangeInfo info)
     {
-        StructureMemberViewModel? memberVm = doc.StructureHelper.FindOrThrow(info.GuidValue);
-        memberVm.InternalSetBlendMode(info.BlendMode);
+        IStructureMemberHandler? memberVm = doc.StructureHelper.FindOrThrow(info.Id);
+        memberVm.SetBlendMode(info.BlendMode);
     }
 
     private void ProcessStructureMemberMask(StructureMemberMask_ChangeInfo info)
     {
-        StructureMemberViewModel? memberVm = doc.StructureHelper.FindOrThrow(info.GuidValue);
+        IStructureMemberHandler? memberVm = doc.StructureHelper.FindOrThrow(info.Id);
 
-        memberVm.InternalSetHasMask(info.HasMask);
-        memberVm.RaisePropertyChanged(nameof(memberVm.MaskPreviewBitmap));
-        if (!info.HasMask && memberVm is LayerViewModel layer)
+        memberVm.SetHasMask(info.HasMask);
+        // TODO: Make sure HasMask raises property changed internally
+        //memberVm.OnPropertyChanged(nameof(memberVm.MaskPreviewBitmap));
+        if (!info.HasMask && memberVm is ILayerHandler layer)
             layer.ShouldDrawOnMask = false;
     }
 
     private void ProcessRefreshViewport(RefreshViewport_PassthroughAction info)
     {
-        helper.State.Viewports[info.Info.GuidValue] = info.Info;
+        helper.State.Viewports[info.Info.Id] = info.Info;
     }
 
     private void ProcessRemoveViewport(RemoveViewport_PassthroughAction info)
     {
-        helper.State.Viewports.Remove(info.GuidValue);
+        helper.State.Viewports.Remove(info.Id);
     }
 
     private void ProcessSize(Size_ChangeInfo info)
     {
         VecI oldSize = doc.SizeBindable;
 
-        Dictionary<ChunkResolution, WriteableBitmap> newBitmaps = new();
-        foreach ((ChunkResolution res, DrawingSurface surf) in doc.Surfaces)
+        foreach ((ChunkResolution res, Surface surf) in doc.Surfaces)
         {
             surf.Dispose();
-            newBitmaps[res] = StructureMemberViewModel.CreateBitmap((VecI)(info.Size * res.Multiplier()));
-            doc.Surfaces[res] = StructureMemberViewModel.CreateDrawingSurface(newBitmaps[res]);
+            VecI size = (VecI)(info.Size * res.Multiplier());
+            doc.Surfaces[res] = new Surface(new VecI(Math.Max(size.X, 1), Math.Max(size.Y, 1))); //TODO: Bgra8888 was here
         }
 
-        doc.LazyBitmaps = newBitmaps;
+        doc.SetSize(info.Size);
+        doc.SetVerticalSymmetryAxisX(info.VerticalSymmetryAxisX);
+        doc.SetHorizontalSymmetryAxisY(info.HorizontalSymmetryAxisY);
 
-        doc.InternalSetSize(info.Size);
-        doc.InternalSetVerticalSymmetryAxisX(info.VerticalSymmetryAxisX);
-        doc.InternalSetHorizontalSymmetryAxisY(info.HorizontalSymmetryAxisY);
-
-        VecI documentPreviewSize = StructureMemberViewModel.CalculatePreviewSize(info.Size);
+        VecI documentPreviewSize = StructureHelpers.CalculatePreviewSize(info.Size);
         doc.PreviewSurface.Dispose();
-        doc.PreviewBitmap = StructureMemberViewModel.CreateBitmap(documentPreviewSize);
-        doc.PreviewSurface = StructureMemberViewModel.CreateDrawingSurface(doc.PreviewBitmap);
+        doc.PreviewSurface = new Surface(documentPreviewSize); //TODO: Bgra8888 was here
 
-        doc.RaisePropertyChanged(nameof(doc.LazyBitmaps));
-        doc.RaisePropertyChanged(nameof(doc.PreviewBitmap));
-
-        doc.InternalRaiseSizeChanged(new(doc, oldSize, info.Size));
+        // TODO: Make sure property changed events are raised internally
+        // UPDATE: I think I did, but I'll leave it commented out for now
+        /*doc.OnPropertyChanged(nameof(doc.LazyBitmaps));
+        doc.OnPropertyChanged(nameof(doc.PreviewBitmap));
+        doc.InternalRaiseSizeChanged(new DocumentSizeChangedEventArgs(doc, oldSize, info.Size));*/
     }
 
     private void ProcessCreateStructureMember(CreateStructureMember_ChangeInfo info)
     {
-        FolderViewModel? parentFolderVM = (FolderViewModel)doc.StructureHelper.FindOrThrow(info.ParentGuid);
-
-        StructureMemberViewModel memberVM;
+        IStructureMemberHandler memberVM;
         if (info is CreateLayer_ChangeInfo layerInfo)
         {
-            memberVM = new LayerViewModel(doc, helper, info.GuidValue);
-            ((LayerViewModel)memberVM).SetLockTransparency(layerInfo.LockTransparency);
+            memberVM = doc.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.Id == info.Id) as ILayerHandler;
+            ((ILayerHandler)memberVM).SetLockTransparency(layerInfo.LockTransparency);
         }
         else if (info is CreateFolder_ChangeInfo)
         {
-            memberVM = new FolderViewModel(doc, helper, info.GuidValue);
+            memberVM = doc.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.Id == info.Id) as IFolderHandler;
         }
         else
         {
             throw new NotSupportedException();
         }
-        memberVM.InternalSetOpacity(info.Opacity);
-        memberVM.InternalSetIsVisible(info.IsVisible);
-        memberVM.InternalSetClipToMemberBelowEnabled(info.ClipToMemberBelow);
-        memberVM.InternalSetName(info.Name);
-        memberVM.InternalSetHasMask(info.HasMask);
-        memberVM.InternalSetMaskIsVisible(info.MaskIsVisible);
-        memberVM.InternalSetBlendMode(info.BlendMode);
 
-        parentFolderVM.Children.Insert(info.Index, memberVM);
+        memberVM.SetOpacity(info.Opacity);
+        memberVM.SetIsVisible(info.IsVisible);
+        memberVM.SetClipToMemberBelowEnabled(info.ClipToMemberBelow);
+        memberVM.SetName(info.Name);
+        memberVM.SetHasMask(info.HasMask);
+        memberVM.SetMaskIsVisible(info.MaskIsVisible);
+        memberVM.SetBlendMode(info.BlendMode);
+        
+        //parentFolderVM.Children.Insert(info.Index, memberVM);
 
-        if (info is CreateFolder_ChangeInfo folderInfo)
+        /*if (info is CreateFolder_ChangeInfo folderInfo)
         {
             foreach (CreateStructureMember_ChangeInfo childInfo in folderInfo.Children)
             {
                 ProcessCreateStructureMember(childInfo);
             }
         }
-        
+        */
+
         if (doc.SelectedStructureMember is not null)
         {
             doc.SelectedStructureMember.Selection = StructureMemberSelectionType.None;
-            doc.SelectedStructureMember.RaisePropertyChanged(nameof(doc.SelectedStructureMember.Selection));
+            // TODO: Make sure property changed events are raised internally
+            //doc.SelectedStructureMember.OnPropertyChanged(nameof(doc.SelectedStructureMember.Selection));
         }
-        
-        doc.InternalSetSelectedMember(memberVM);
-        memberVM.Selection = StructureMemberSelectionType.Hard;
-        doc.RaisePropertyChanged(nameof(doc.SelectedStructureMember));
-        doc.RaisePropertyChanged(nameof(memberVM.Selection));
 
-        doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.GuidValue, LayerAction.Add));
+        doc.SetSelectedMember(memberVM);
+        memberVM.Selection = StructureMemberSelectionType.Hard;
+
+        // TODO: Make sure property changed events are raised internally
+        /*doc.OnPropertyChanged(nameof(doc.SelectedStructureMember));
+        doc.OnPropertyChanged(nameof(memberVM.Selection));*/
+
+        //doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.Id, LayerAction.Add));
     }
 
     private void ProcessDeleteStructureMember(DeleteStructureMember_ChangeInfo info)
     {
-        (StructureMemberViewModel memberVM, FolderViewModel folderVM) = doc.StructureHelper.FindChildAndParentOrThrow(info.GuidValue);
-        folderVM.Children.Remove(memberVM);
+        IStructureMemberHandler memberVM = doc.StructureHelper.Find(info.Id);
+        //folderVM.Children.Remove(memberVM);
         if (doc.SelectedStructureMember == memberVM)
-            doc.InternalSetSelectedMember(null);
-        doc.InternalClearSoftSelectedMembers();
-        doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.GuidValue, LayerAction.Remove));
+            doc.SetSelectedMember(null);
+        doc.ClearSoftSelectedMembers();
+        // TODO: Make sure property changed events are raised internally
+        //doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.Id, LayerAction.Remove));
     }
 
     private void ProcessUpdateStructureMemberIsVisible(StructureMemberIsVisible_ChangeInfo info)
     {
-        StructureMemberViewModel? memberVM = doc.StructureHelper.FindOrThrow(info.GuidValue);
-        memberVM.InternalSetIsVisible(info.IsVisible);
+        IStructureMemberHandler? memberVM = doc.StructureHelper.FindOrThrow(info.Id);
+        memberVM.SetIsVisible(info.IsVisible);
     }
 
     private void ProcessUpdateStructureMemberName(StructureMemberName_ChangeInfo info)
     {
-        StructureMemberViewModel? memberVM = doc.StructureHelper.FindOrThrow(info.GuidValue);
-        memberVM.InternalSetName(info.Name);
+        IStructureMemberHandler? memberVM = doc.StructureHelper.FindOrThrow(info.Id);
+        memberVM.SetName(info.Name);
     }
 
     private void ProcessUpdateStructureMemberOpacity(StructureMemberOpacity_ChangeInfo info)
     {
-        StructureMemberViewModel? memberVM = doc.StructureHelper.FindOrThrow(info.GuidValue);
-        memberVM.InternalSetOpacity(info.Opacity);
+        IStructureMemberHandler? memberVM = doc.StructureHelper.FindOrThrow(info.Id);
+        memberVM.SetOpacity(info.Opacity);
     }
 
     private void ProcessMoveStructureMember(MoveStructureMember_ChangeInfo info)
     {
-        (StructureMemberViewModel memberVM, FolderViewModel curFolderVM) = doc.StructureHelper.FindChildAndParentOrThrow(info.GuidValue);
+         
+    }
+    
+    private void ProcessCreateRasterKeyFrame(CreateRasterKeyFrame_ChangeInfo info)
+    {
+        doc.AnimationHandler.AddKeyFrame(new RasterKeyFrameViewModel(info.TargetLayerGuid, info.Frame, 1, info.KeyFrameId, 
+            (DocumentViewModel)doc, helper));
+    }
+    
+    private void ProcessDeleteKeyFrame(DeleteKeyFrame_ChangeInfo info)
+    {
+        doc.AnimationHandler.RemoveKeyFrame(info.DeletedKeyFrameId);
+    }
+    
+    private void ProcessActiveFrame(SetActiveFrame_PassthroughAction info)
+    {
+        doc.AnimationHandler.SetActiveFrame(info.Frame);
+    }
+    
+    private void ProcessKeyFrameLength(KeyFrameLength_ChangeInfo info)
+    {
+        doc.AnimationHandler.SetFrameLength(info.KeyFrameGuid, info.StartFrame, info.Duration);
+    }
+    
+    private void ProcessKeyFrameVisibility(KeyFrameVisibility_ChangeInfo info)
+    {
+        doc.AnimationHandler.SetKeyFrameVisibility(info.KeyFrameId, info.IsVisible);
+    }
+    
+    private void ProcessAddSelectedKeyFrame(AddSelectedKeyFrame_PassthroughAction info)
+    {
+        doc.AnimationHandler.AddSelectedKeyFrame(info.KeyFrameGuid);
+    }
+    
+    private void ProcessRemoveSelectedKeyFrame(RemoveSelectedKeyFrame_PassthroughAction info)
+    {
+        doc.AnimationHandler.RemoveSelectedKeyFrame(info.KeyFrameGuid);
+    }
+    
+    private void ClearSelectedKeyFrames(ClearSelectedKeyFrames_PassthroughAction info)
+    {
+        doc.AnimationHandler.ClearSelectedKeyFrames();
+    }
+    
+    private void ProcessCreateNode<T>(CreateNode_ChangeInfo info) where T : NodeViewModel, new()
+    {
+        T node = new T()
+        {
+            InternalName = info.InternalName,
+            Id = info.Id,
+            Document = (DocumentViewModel)doc,
+            Internals = helper
+        };
+        
+        node.SetName(info.NodeName);
+        node.SetPosition(info.Position);
+        
+        List<INodePropertyHandler> inputs = CreateProperties(info.Inputs, node, true);
+        List<INodePropertyHandler> outputs = CreateProperties(info.Outputs, node, false);
+        node.Inputs.AddRange(inputs);
+        node.Outputs.AddRange(outputs);
+        doc.NodeGraphHandler.AddNode(node);
+    }
+    
+    private List<INodePropertyHandler> CreateProperties(ImmutableArray<NodePropertyInfo> source, NodeViewModel node, bool isInput)
+    {
+        List<INodePropertyHandler> inputs = new();
+        foreach (var input in source)
+        {
+            var prop = NodePropertyViewModel.CreateFromType(input.ValueType, node);
+            prop.DisplayName = input.DisplayName;
+            prop.PropertyName = input.PropertyName;
+            prop.IsInput = isInput;
+            prop.IsFunc = input.ValueType.IsAssignableTo(typeof(Delegate));
+            prop.InternalSetValue(input.InputValue);
+            inputs.Add(prop);
+        }
+        
+        return inputs;
+    }
+    
+    private void ProcessDeleteNode(DeleteNode_ChangeInfo info)
+    {
+        doc.NodeGraphHandler.RemoveConnections(info.Id);
+        doc.NodeGraphHandler.RemoveNode(info.Id);
+    }
+    
+    private void ProcessCreateNodeFrame(CreateNodeFrame_ChangeInfo info)
+    {
+        doc.NodeGraphHandler.AddFrame(info.Id, info.NodeIds);
+    }
 
-        FolderViewModel? targetFolderVM = (FolderViewModel)doc.StructureHelper.FindOrThrow(info.ParentToGuid);
+    private void ProcessCreateNodeZone(CreateNodeZone_ChangeInfo info)
+    {
+        doc.NodeGraphHandler.AddZone(info.Id, info.internalName, info.StartId, info.EndId);
+    }
 
-        curFolderVM.Children.Remove(memberVM);
-        targetFolderVM.Children.Insert(info.NewIndex, memberVM);
-        doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.GuidValue, LayerAction.Move));
+    private void ProcessDeleteNodeFrame(DeleteNodeFrame_ChangeInfo info)
+    {
+        doc.NodeGraphHandler.RemoveFrame(info.Id);
+    }
+
+    private void ProcessConnectProperty(ConnectProperty_ChangeInfo info)
+    {
+        NodeViewModel outputNode = info.OutputNodeId.HasValue ? doc.StructureHelper.FindNode<NodeViewModel>(info.OutputNodeId.Value) : null;
+        NodeViewModel inputNode = doc.StructureHelper.FindNode<NodeViewModel>(info.InputNodeId);
+
+        if (inputNode != null && outputNode != null)
+        {
+            NodeConnectionViewModel connection = new NodeConnectionViewModel()
+            {
+                InputNode = inputNode,
+                OutputNode = outputNode,
+                InputProperty = inputNode.FindInputProperty(info.InputProperty),
+                OutputProperty = outputNode.FindOutputProperty(info.OutputProperty)
+            };
+            
+            doc.NodeGraphHandler.SetConnection(connection);
+        }
+        else if(info.OutputProperty == null)
+        {
+            doc.NodeGraphHandler.RemoveConnection(info.InputNodeId, info.InputProperty);
+        }
+        else
+        {
+#if DEBUG
+            throw new MissingNodeException("Connection requested for a node that doesn't exist");
+#endif
+        }
+    }
+    
+    private void ProcessNodePosition(NodePosition_ChangeInfo info)
+    {
+        NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
+        node.SetPosition(info.NewPosition);
+    }
+    
+    private void ProcessNodePropertyValueUpdated(PropertyValueUpdated_ChangeInfo info)
+    {
+        NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
+        var property = node.FindInputProperty(info.Property);
+        
+        property.InternalSetValue(info.Value);
+    }
+    
+    private void ProcessNodeName(NodeName_ChangeInfo info)
+    {
+        NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
+        node.SetName(info.NewName);
+    }
+    
+    private void ProcessFrameRate(FrameRate_ChangeInfo info)
+    {
+        doc.AnimationHandler.SetFrameRate(info.NewFrameRate);
     }
 }

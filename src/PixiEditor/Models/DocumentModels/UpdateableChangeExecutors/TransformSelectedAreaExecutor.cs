@@ -1,17 +1,19 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿using System.Collections.Generic;
+using System.Linq;
+using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Models.Enums;
+using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Handlers.Tools;
+using PixiEditor.Models.Tools;
 using PixiEditor.Numerics;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
-using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
 internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
 {
     private Guid[]? membersToTransform;
-    private MoveToolViewModel? tool;
+    private IMoveToolHandler? tool;
     public override ExecutorType Type { get; }
 
     public TransformSelectedAreaExecutor(bool toolLinked)
@@ -21,39 +23,39 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
 
     public override ExecutionState Start()
     {
-        tool = ViewModelMain.Current?.ToolsSubViewModel.GetTool<MoveToolViewModel>();
+        tool = GetHandler<IMoveToolHandler>();
         if (tool is null || document!.SelectedStructureMember is null || document!.SelectionPathBindable.IsEmpty)
             return ExecutionState.Error;
 
         tool.TransformingSelectedArea = true;
-        List<StructureMemberViewModel> members = new();
+        List<IStructureMemberHandler> members = new();
         
         members = document.SoftSelectedStructureMembers
             .Append(document.SelectedStructureMember)
-            .Where(static m => m is LayerViewModel).ToList();
+            .Where(static m => m is ILayerHandler).ToList();
         
         if (!members.Any())
             return ExecutionState.Error;
 
         ShapeCorners corners = new(document.SelectionPathBindable.TightBounds);
-        document.TransformViewModel.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, corners, Type == ExecutorType.Regular);
-        membersToTransform = members.Select(static a => a.GuidValue).ToArray();
+        document.TransformHandler.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, corners, Type == ExecutorType.Regular);
+        membersToTransform = members.Select(static a => a.Id).ToArray();
         internals!.ActionAccumulator.AddActions(
-            new TransformSelectedArea_Action(membersToTransform, corners, tool.KeepOriginalImage, false));
+            new TransformSelectedArea_Action(membersToTransform, corners, tool.KeepOriginalImage, false, document.AnimationHandler.ActiveFrameBindable));
         return ExecutionState.Success;
     }
 
     public override void OnTransformMoved(ShapeCorners corners)
     {
         internals!.ActionAccumulator.AddActions(
-            new TransformSelectedArea_Action(membersToTransform!, corners, tool!.KeepOriginalImage, false));
+            new TransformSelectedArea_Action(membersToTransform!, corners, tool!.KeepOriginalImage, false, document!.AnimationHandler.ActiveFrameBindable));
     }
 
-    public override void OnSelectedObjectNudged(VecI distance) => document!.TransformViewModel.Nudge(distance);
+    public override void OnSelectedObjectNudged(VecI distance) => document!.TransformHandler.Nudge(distance);
 
-    public override void OnMidChangeUndo() => document!.TransformViewModel.Undo();
+    public override void OnMidChangeUndo() => document!.TransformHandler.Undo();
 
-    public override void OnMidChangeRedo() => document!.TransformViewModel.Redo();
+    public override void OnMidChangeRedo() => document!.TransformHandler.Redo();
 
     public override void OnTransformApplied()
     {
@@ -64,12 +66,12 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
         
         internals!.ActionAccumulator.AddActions(new EndTransformSelectedArea_Action());
         internals!.ActionAccumulator.AddFinishedActions();
-        document!.TransformViewModel.HideTransform();
+        document!.TransformHandler.HideTransform();
         onEnded!.Invoke(this);
 
         if (Type == ExecutorType.ToolLinked)
         {
-            ViewModelMain.Current!.ToolsSubViewModel.RestorePreviousTool();
+            GetHandler<IToolsHandler>().RestorePreviousTool();
         }
     }
 
@@ -82,6 +84,6 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
         
         internals!.ActionAccumulator.AddActions(new EndTransformSelectedArea_Action());
         internals!.ActionAccumulator.AddFinishedActions();
-        document!.TransformViewModel.HideTransform();
+        document!.TransformHandler.HideTransform();
     }
 }

@@ -1,13 +1,14 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Windows.Input;
+using System.Threading.Tasks;
 using ByteSizeLib;
 using Hardware.Info;
-using PixiEditor.Models.DataHolders;
-using Mouse = System.Windows.Input.Mouse;
+using PixiEditor.Models.ExceptionHandling;
+using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Helpers;
 
@@ -15,11 +16,11 @@ internal class CrashHelper
 {
     private readonly IHardwareInfo hwInfo;
 
-    public static void SaveCrashInfo(Exception exception)
+    public static void SaveCrashInfo(Exception exception, IEnumerable<DocumentViewModel> documents)
     {
         try
         {
-            Mouse.OverrideCursor = Cursors.Wait;
+            //TODO: proper implementation of Mouse.OverrideCursor = Cursors.Wait;
         }
         catch (Exception e)
         {
@@ -27,7 +28,7 @@ internal class CrashHelper
         }
         
         var report = CrashReport.Generate(exception);
-        report.TrySave();
+        report.TrySave(documents);
         report.RestartToCrashReport();
     }
 
@@ -111,10 +112,12 @@ internal class CrashHelper
             }
         }
     }
-
+    
     public static void SendExceptionInfoToWebhook(Exception e, bool wait = false,
         [CallerFilePath] string filePath = "<unknown>", [CallerMemberName] string memberName = "<unknown>")
     {
+        // TODO: quadruple check that this Task.Run is actually acceptable here
+        // I think it might not be because there is stuff about the main window in the crash report, so Avalonia is touched from a different thread (is it bad for avalonia?)
         var task = Task.Run(() => SendExceptionInfoToWebhookAsync(e, filePath, memberName));
         if (wait)
         {
@@ -124,8 +127,9 @@ internal class CrashHelper
 
     public static async Task SendExceptionInfoToWebhookAsync(Exception e, [CallerFilePath] string filePath = "<unknown>", [CallerMemberName] string memberName = "<unknown>")
     {
-        if (DebugViewModel.IsDebugBuild)
-            return;
+        // TODO: Proper DebugBuild checking
+        /*if (DebugViewModel.IsDebugBuild)
+            return;*/
         await SendReportTextToWebhookAsync(CrashReport.Generate(e), $"{filePath}; Method {memberName}");
     }
 

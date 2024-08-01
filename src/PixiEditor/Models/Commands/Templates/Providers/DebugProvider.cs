@@ -1,13 +1,14 @@
-﻿using System.IO;
-using System.Windows.Input;
+﻿using System.Collections.Generic;
+using System.IO;
+using Avalonia.Input;
 
-namespace PixiEditor.Models.Commands.Templates;
+namespace PixiEditor.Models.Commands.Templates.Providers;
 
 internal partial class ShortcutProvider
 {
-    private static DebugProvider Debug { get; } = new();
+    internal static DebugProvider Debug { get; } = new();
 
-    internal class DebugProvider : ShortcutProvider, IShortcutDefaults, IShortcutFile, IShortcutInstallation
+    internal class DebugProvider : Templates.ShortcutProvider, IShortcutDefaults, IShortcutFile, IShortcutInstallation
     {
         private static string InstallationPath { get; } = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
@@ -22,9 +23,9 @@ internal partial class ShortcutProvider
         public List<Shortcut> DefaultShortcuts { get; } = new()
         {
             // Add shortcuts for undo and redo
-            new Shortcut(Key.Z, ModifierKeys.Control, "PixiEditor.Undo.Undo"),
-            new Shortcut(Key.Y, ModifierKeys.Control, "PixiEditor.Undo.Redo"),
-            new Shortcut(Key.X, ModifierKeys.None, "PixiEditor.Colors.Swap")
+            new Shortcut(Key.Z, KeyModifiers.Control, "PixiEditor.Undo.Undo"),
+            new Shortcut(Key.Y, KeyModifiers.Control, "PixiEditor.Undo.Redo"),
+            new Shortcut(Key.X, KeyModifiers.None, "PixiEditor.Colors.Swap")
         };
 
         public string Filter => "json (*.json)|*.json";

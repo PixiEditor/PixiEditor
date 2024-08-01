@@ -34,8 +34,8 @@ internal partial class ShortcutProvider
     public static ShortcutProvider[] GetProviders() => new ShortcutProvider[]
     {
         #if DEBUG
-        Debug,
+        Providers.ShortcutProvider.Debug,
         #endif
-        Aseprite
+        Providers.ShortcutProvider.Aseprite
     };
 }

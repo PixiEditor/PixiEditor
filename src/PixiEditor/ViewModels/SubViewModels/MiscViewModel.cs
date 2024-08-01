@@ -1,0 +1,40 @@
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Dialogs;
+using PixiEditor.OperatingSystem;
+using PixiEditor.UI.Common.Fonts;
+
+namespace PixiEditor.ViewModels.SubViewModels;
+
+[Command.Group("PixiEditor.Links", "MISC")]
+internal class MiscViewModel : SubViewModel<ViewModelMain>
+{
+    public MiscViewModel(ViewModelMain owner)
+        : base(owner)
+    {
+    }
+
+    [Command.Internal("PixiEditor.Links.OpenHyperlink")]
+    [Command.Basic("PixiEditor.Links.OpenDocumentation", "https://pixieditor.net/docs/introduction", "DOCUMENTATION", "OPEN_DOCUMENTATION", Icon = PixiPerfectIcons.Globe,
+        MenuItemPath = "HELP/DOCUMENTATION", MenuItemOrder = 0)]
+    [Command.Basic("PixiEditor.Links.OpenWebsite", "https://pixieditor.net", "WEBSITE", "OPEN_WEBSITE", Icon = PixiPerfectIcons.Globe,
+        MenuItemPath = "HELP/WEBSITE", MenuItemOrder = 1)]
+    [Command.Basic("PixiEditor.Links.OpenRepository", "https://github.com/PixiEditor/PixiEditor", "REPOSITORY", "OPEN_REPOSITORY", Icon = PixiPerfectIcons.Globe,
+        MenuItemPath = "HELP/REPOSITORY", MenuItemOrder = 2)]
+    [Command.Basic("PixiEditor.Links.OpenLicense", "LICENSE", "LICENSE", "OPEN_LICENSE", Icon = PixiPerfectIcons.Globe,
+        MenuItemPath = "HELP/LICENSE", MenuItemOrder = 3)]
+    [Command.Basic("PixiEditor.Links.OpenOtherLicenses", "THIRD_PARTY_LICENSES.txt", "THIRD_PARTY_LICENSES", "OPEN_THIRD_PARTY_LICENSES", Icon = PixiPerfectIcons.Globe,
+        MenuItemPath = "HELP/THIRD_PARTY_LICENSES", MenuItemOrder = 4)]
+    public static void OpenUri(string uri)
+    {
+        try
+        {
+            IOperatingSystem.Current.OpenUri(uri);
+        }
+        catch (Exception e)
+        {
+            CrashHelper.SendExceptionInfoToWebhook(e);
+            NoticeDialog.Show(title: "Error", message: $"Couldn't open the address {uri} in your default browser");
+        }
+    }
+}

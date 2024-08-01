@@ -1,24 +1,25 @@
-﻿using System.Windows.Input;
+﻿using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
-using PixiEditor.Models.Enums;
+using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Tools;
 using PixiEditor.Numerics;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.Views.UserControls.SymmetryOverlay;
+using PixiEditor.Views.Overlays.SymmetryOverlay;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable
 internal class ChangeExecutionController
 {
-    public MouseButtonState LeftMouseState { get; private set; }
+    public bool LeftMousePressed { get; private set; }
     public ShapeCorners LastTransformState { get; private set; }
     public VecI LastPixelPosition => lastPixelPos;
     public VecD LastPrecisePosition => lastPrecisePos;
     public bool IsChangeActive => currentSession is not null;
 
-    private readonly DocumentViewModel document;
+    private readonly IDocument document;
+    private readonly IServiceProvider services;
     private readonly DocumentInternalParts internals;
 
     private VecI lastPixelPos;
@@ -28,10 +29,11 @@ internal class ChangeExecutionController
     
     private UpdateableChangeExecutor? _queuedExecutor = null;
 
-    public ChangeExecutionController(DocumentViewModel document, DocumentInternalParts internals)
+    public ChangeExecutionController(IDocument document, DocumentInternalParts internals, IServiceProvider services)
     {
         this.document = document;
         this.internals = internals;
+        this.services = services;
     }
 
     public ExecutorType GetCurrentExecutorType()
@@ -70,7 +72,7 @@ internal class ChangeExecutionController
 
     private bool TryStartExecutorInternal(UpdateableChangeExecutor executor)
     {
-        executor.Initialize(document, internals, this, EndExecutor);
+        executor.Initialize(document, internals, services, this, EndExecutor);
 
         if (executor.StartMode == ExecutorStartMode.OnMouseLeftButtonDown)
         {
@@ -161,7 +163,7 @@ internal class ChangeExecutionController
     public void LeftMouseButtonDownInlet(VecD canvasPos)
     {
         //update internal state
-        LeftMouseState = MouseButtonState.Pressed;
+        LeftMousePressed = true;
 
         if (_queuedExecutor != null && currentSession == null)
         {
@@ -175,7 +177,7 @@ internal class ChangeExecutionController
     public void LeftMouseButtonUpInlet()
     {
         //update internal state
-        LeftMouseState = MouseButtonState.Released;
+        LeftMousePressed = false;
 
         //call session events
         currentSession?.OnLeftMouseButtonUp();

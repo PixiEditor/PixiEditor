@@ -1,32 +1,33 @@
-﻿using System;
+﻿#nullable enable
+
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using ChunkyImageLib.Operations;
+using PixiEditor.ViewModels.Document;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Models.DocumentModels;
-using PixiEditor.Models.Rendering.RenderInfos;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using System.Diagnostics;
-using System.Drawing.Text;
-using System.Printing;
-using ChunkyImageLib.Operations;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
+using PixiEditor.Helpers;
+using PixiEditor.Models.DocumentModels;
+using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Rendering.RenderInfos;
 using PixiEditor.Numerics;
 
-#nullable enable
-
 namespace PixiEditor.Models.Rendering;
+
 internal class MemberPreviewUpdater
 {
     private const float smoothingThreshold = 1.5f;
 
-    private readonly DocumentViewModel doc;
+    private readonly IDocument doc;
     private readonly DocumentInternalParts internals;
 
     private Dictionary<Guid, RectI> lastMainPreviewTightBounds = new();
@@ -35,11 +36,17 @@ internal class MemberPreviewUpdater
     private Dictionary<Guid, AffectedArea> mainPreviewAreasAccumulator = new();
     private Dictionary<Guid, AffectedArea> maskPreviewAreasAccumulator = new();
 
-    private static readonly Paint SmoothReplacingPaint = new() { BlendMode = BlendMode.Src, FilterQuality = FilterQuality.Medium, IsAntiAliased = true };
-    private static readonly Paint ReplacingPaint = new() { BlendMode = BlendMode.Src };
-    private static readonly Paint ClearPaint = new() { BlendMode = BlendMode.Src, Color = DrawingApi.Core.ColorsImpl.Colors.Transparent };
+    private static readonly Paint SmoothReplacingPaint = new()
+    {
+        BlendMode = BlendMode.Src, FilterQuality = FilterQuality.Medium, IsAntiAliased = true
+    };
 
-    public MemberPreviewUpdater(DocumentViewModel doc, DocumentInternalParts internals)
+    private static readonly Paint ReplacingPaint = new() { BlendMode = BlendMode.Src };
+
+    private static readonly Paint ClearPaint =
+        new() { BlendMode = BlendMode.Src, Color = DrawingApi.Core.ColorsImpl.Colors.Transparent };
+
+    public MemberPreviewUpdater(IDocument doc, DocumentInternalParts internals)
     {
         this.doc = doc;
         this.internals = internals;
@@ -57,14 +64,19 @@ internal class MemberPreviewUpdater
 
         Dictionary<Guid, (VecI previewSize, RectI tightBounds)?>? changedMainPreviewBounds = null;
         Dictionary<Guid, (VecI previewSize, RectI tightBounds)?>? changedMaskPreviewBounds = null;
+
+        int atFrame = doc.AnimationHandler.ActiveFrameBindable;
+
         await Task.Run(() =>
         {
-            changedMainPreviewBounds = FindChangedTightBounds(false);
-            changedMaskPreviewBounds = FindChangedTightBounds(true);
+            changedMainPreviewBounds = FindChangedTightBounds(atFrame, false);
+            changedMaskPreviewBounds = FindChangedTightBounds(atFrame, true);
         }).ConfigureAwait(true);
 
         RecreatePreviewBitmaps(changedMainPreviewBounds!, changedMaskPreviewBounds!);
-        var renderInfos = await Task.Run(() => Render(changedMainPreviewBounds!, changedMaskPreviewBounds)).ConfigureAwait(true);
+
+        var renderInfos = await Task.Run(() => Render(changedMainPreviewBounds!, changedMaskPreviewBounds))
+            .ConfigureAwait(true);
 
         CleanupUnusedTightBounds();
 
@@ -97,8 +109,10 @@ internal class MemberPreviewUpdater
         if (!rerenderPreviews)
             return new List<IRenderInfo>();
 
-        var changedMainPreviewBounds = FindChangedTightBounds(false);
-        var changedMaskPreviewBounds = FindChangedTightBounds(true);
+        int frame = doc.AnimationHandler.ActiveFrameBindable;
+
+        var changedMainPreviewBounds = FindChangedTightBounds(frame, false);
+        var changedMaskPreviewBounds = FindChangedTightBounds(frame, true);
 
         RecreatePreviewBitmaps(changedMainPreviewBounds, changedMaskPreviewBounds);
         var renderInfos = Render(changedMainPreviewBounds, changedMaskPreviewBounds);
@@ -130,10 +144,10 @@ internal class MemberPreviewUpdater
 
         internals.Tracker.Document.ForEveryReadonlyMember(member =>
         {
-            if (lastMainPreviewTightBounds.ContainsKey(member.GuidValue))
-                clearedLastMainPreviewTightBounds.Add(member.GuidValue, lastMainPreviewTightBounds[member.GuidValue]);
-            if (lastMaskPreviewTightBounds.ContainsKey(member.GuidValue))
-                clearedLastMaskPreviewTightBounds.Add(member.GuidValue, lastMaskPreviewTightBounds[member.GuidValue]);
+            if (lastMainPreviewTightBounds.ContainsKey(member.Id))
+                clearedLastMainPreviewTightBounds.Add(member.Id, lastMainPreviewTightBounds[member.Id]);
+            if (lastMaskPreviewTightBounds.ContainsKey(member.Id))
+                clearedLastMaskPreviewTightBounds.Add(member.Id, lastMaskPreviewTightBounds[member.Id]);
         });
 
         lastMainPreviewTightBounds = clearedLastMainPreviewTightBounds;
@@ -164,7 +178,7 @@ internal class MemberPreviewUpdater
     /// <summary>
     /// Looks at the accumulated areas and determines which members need to have their preview bitmaps resized or deleted
     /// </summary>
-    private Dictionary<Guid, (VecI previewSize, RectI tightBounds)?> FindChangedTightBounds(bool forMasks)
+    private Dictionary<Guid, (VecI previewSize, RectI tightBounds)?> FindChangedTightBounds(int atFrame, bool forMasks)
     {
         // VecI? == null stands for "layer is empty, the preview needs to be deleted"
         Dictionary<Guid, (VecI previewSize, RectI tightBounds)?> newPreviewBitmapSizes = new();
@@ -183,7 +197,7 @@ internal class MemberPreviewUpdater
                 continue;
             }
 
-            RectI? tightBounds = GetOrFindMemberTightBounds(member, area, forMasks);
+            RectI? tightBounds = GetOrFindMemberTightBounds(member, atFrame, area, forMasks);
             RectI? maybeLastBounds = targetLastBounds.TryGetValue(guid, out RectI lastBounds) ? lastBounds : null;
             if (tightBounds == maybeLastBounds)
                 continue;
@@ -194,9 +208,10 @@ internal class MemberPreviewUpdater
                 continue;
             }
 
-            VecI previewSize = StructureMemberViewModel.CalculatePreviewSize(tightBounds.Value.Size);
+            VecI previewSize = StructureHelpers.CalculatePreviewSize(tightBounds.Value.Size);
             newPreviewBitmapSizes.Add(guid, (previewSize, tightBounds.Value));
         }
+
         return newPreviewBitmapSizes;
     }
 
@@ -204,73 +219,77 @@ internal class MemberPreviewUpdater
     /// Recreates the preview bitmaps using the passed sizes (or deletes them when new size is null)
     /// </summary>
     private void RecreatePreviewBitmaps(
-        Dictionary<Guid, (VecI previewSize, RectI tightBounds)?> newPreviewSizes, 
+        Dictionary<Guid, (VecI previewSize, RectI tightBounds)?> newPreviewSizes,
         Dictionary<Guid, (VecI previewSize, RectI tightBounds)?> newMaskSizes)
     {
         // update previews
         foreach (var (guid, newSize) in newPreviewSizes)
         {
-            StructureMemberViewModel member = doc.StructureHelper.FindOrThrow(guid);
+            IStructureMemberHandler member = doc.StructureHelper.FindOrThrow(guid);
 
             if (newSize is null)
             {
                 member.PreviewSurface?.Dispose();
                 member.PreviewSurface = null;
-                member.PreviewBitmap = null;
             }
             else
             {
-                if (member.PreviewBitmap is not null && member.PreviewBitmap.PixelWidth == newSize.Value.previewSize.X && member.PreviewBitmap.PixelHeight == newSize.Value.previewSize.Y)
+                if (member.PreviewSurface is not null && member.PreviewSurface.Size.X == newSize.Value.previewSize.X &&
+                    member.PreviewSurface.Size.Y == newSize.Value.previewSize.Y)
                 {
-                    member.PreviewSurface!.Canvas.Clear();
+                    member.PreviewSurface!.DrawingSurface.Canvas.Clear();
                 }
                 else
                 {
                     member.PreviewSurface?.Dispose();
-                    member.PreviewBitmap = StructureMemberViewModel.CreateBitmap(newSize.Value.previewSize);
-                    member.PreviewSurface = StructureMemberViewModel.CreateDrawingSurface(member.PreviewBitmap);
+                    member.PreviewSurface = new Surface(newSize.Value.previewSize);
                 }
             }
-            member.RaisePropertyChanged(nameof(member.PreviewBitmap));
+
+            //TODO: Make sure PreviewBitmap implementation raises PropertyChanged
+            //member.OnPropertyChanged(nameof(member.PreviewBitmap));
         }
 
         // update masks
         foreach (var (guid, newSize) in newMaskSizes)
         {
-            StructureMemberViewModel member = doc.StructureHelper.FindOrThrow(guid);
+            IStructureMemberHandler member = doc.StructureHelper.FindOrThrow(guid);
 
             member.MaskPreviewSurface?.Dispose();
             if (newSize is null)
             {
                 member.MaskPreviewSurface = null;
-                member.MaskPreviewBitmap = null;
             }
             else
             {
-                member.MaskPreviewBitmap = StructureMemberViewModel.CreateBitmap(newSize.Value.previewSize);
-                member.MaskPreviewSurface = StructureMemberViewModel.CreateDrawingSurface(member.MaskPreviewBitmap);
+                member.MaskPreviewSurface = new Surface(newSize.Value.previewSize); // TODO: premul bgra8888 was here
             }
-            member.RaisePropertyChanged(nameof(member.MaskPreviewBitmap));
+
+            //TODO: Make sure MaskPreviewBitmap implementation raises PropertyChanged
+            //member.OnPropertyChanged(nameof(member.MaskPreviewBitmap));
         }
     }
+
 
     /// <summary>
     /// Returns the previosly known committed tight bounds if there are no reasons to believe they have changed (based on the passed <paramref name="currentlyAffectedArea"/>).
     /// Otherwise, calculates the new bounds via <see cref="FindLayerTightBounds"/> and returns them.
     /// </summary>
-    private RectI? GetOrFindMemberTightBounds(IReadOnlyStructureMember member, AffectedArea currentlyAffectedArea, bool forMask)
+    private RectI? GetOrFindMemberTightBounds(IReadOnlyStructureNode member, int atFrame,
+        AffectedArea currentlyAffectedArea, bool forMask)
     {
-        if (forMask && member.Mask is null)
+        if (forMask && member.Mask.Value is null)
             throw new InvalidOperationException();
 
         RectI? prevTightBounds = null;
 
         var targetLastCollection = forMask ? lastMaskPreviewTightBounds : lastMainPreviewTightBounds;
 
-        if (targetLastCollection.TryGetValue(member.GuidValue, out RectI tightBounds))
+        if (targetLastCollection.TryGetValue(member.Id, out RectI tightBounds))
             prevTightBounds = tightBounds;
 
-        if (prevTightBounds is not null && currentlyAffectedArea.GlobalArea is not null && prevTightBounds.Value.ContainsExclusive(currentlyAffectedArea.GlobalArea.Value))
+        if (prevTightBounds is not null && currentlyAffectedArea.GlobalArea is not null &&
+            prevTightBounds.Value.ContainsExclusive(currentlyAffectedArea.GlobalArea.Value))
         {
             // if the affected area is fully inside the previous tight bounds, the tight bounds couldn't possibly have changed
             return prevTightBounds.Value;
@@ -278,8 +297,8 @@ internal class MemberPreviewUpdater
 
         return member switch
         {
-            IReadOnlyLayer layer => FindLayerTightBounds(layer, forMask),
-            IReadOnlyFolder folder => FindFolderTightBounds(folder, forMask),
+            IReadOnlyLayerNode layer => FindLayerTightBounds(layer, atFrame, forMask),
+            IReadOnlyFolderNode folder => FindFolderTightBounds(folder, atFrame, forMask),
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -287,36 +306,43 @@ internal class MemberPreviewUpdater
     /// <summary>
     /// Finds the current committed tight bounds for a layer.
     /// </summary>
-    private RectI? FindLayerTightBounds(IReadOnlyLayer layer, bool forMask)
+    private RectI? FindLayerTightBounds(IReadOnlyLayerNode layer, int frame, bool forMask)
     {
-        if (layer.Mask is null && forMask)
+        if (layer.Mask.Value is null && forMask)
             throw new InvalidOperationException();
 
-        IReadOnlyChunkyImage targetImage = forMask ? layer.Mask! : layer.LayerImage;
-        return FindImageTightBounds(targetImage);
+        if (layer.Mask.Value is not null && forMask)
+            return FindImageTightBoundsFast(layer.Mask.Value);
+
+        if (layer is IReadOnlyImageNode raster)
+        {
+            return FindImageTightBoundsFast(raster.GetLayerImageAtFrame(frame));
+        }
+
+        return layer.GetTightBounds(frame);
     }
 
     /// <summary>
     /// Finds the current committed tight bounds for a folder recursively.
     /// </summary>
-    private RectI? FindFolderTightBounds(IReadOnlyFolder folder, bool forMask)
+    private RectI? FindFolderTightBounds(IReadOnlyFolderNode folder, int frame, bool forMask)
     {
         if (forMask)
         {
-            if (folder.Mask is null)
+            if (folder.Mask.Value is null)
                 throw new InvalidOperationException();
-            return FindImageTightBounds(folder.Mask);
+            return FindImageTightBoundsFast(folder.Mask.Value);
         }
 
-        RectI? combinedBounds = null;
+        /*RectI? combinedBounds = null;
         foreach (var child in folder.Children)
         {
             RectI? curBounds = null;
-            
-            if (child is IReadOnlyLayer childLayer)
-                curBounds = FindLayerTightBounds(childLayer, false);
-            else if (child is IReadOnlyFolder childFolder)
-                curBounds = FindFolderTightBounds(childFolder, false);
+
+            if (child is IReadOnlyLayerNode childLayer)
+                curBounds = FindLayerTightBounds(childLayer, frame, false);
+            else if (child is IReadOnlyFolderNode childFolder)
+                curBounds = FindFolderTightBounds(childFolder, frame, false);
 
             if (combinedBounds is null)
                 combinedBounds = curBounds;
@@ -324,14 +350,15 @@ internal class MemberPreviewUpdater
                 combinedBounds = combinedBounds.Value.Union(curBounds.Value);
         }
 
-        return combinedBounds;
+        return combinedBounds;*/
+        return folder.GetTightBounds(frame);
     }
 
     /// <summary>
     /// Finds the current committed tight bounds for an image in a reasonably efficient way.
     /// Looks at the low-res chunks for large images, meaning the resulting bounds aren't 100% precise.
     /// </summary>
-    private RectI? FindImageTightBounds(IReadOnlyChunkyImage targetImage)
+    private RectI? FindImageTightBoundsFast(IReadOnlyChunkyImage targetImage)
     {
         RectI? bounds = targetImage.FindChunkAlignedCommittedBounds();
         if (bounds is null)
@@ -362,6 +389,7 @@ internal class MemberPreviewUpdater
         RenderWholeCanvasPreview(mainPreviewChunksToRerender, maskPreviewChunksToRerender, infos);
         RenderMainPreviews(mainPreviewChunksToRerender, recreatedMainPreviewSizes, infos);
         RenderMaskPreviews(maskPreviewChunksToRerender, recreatedMaskPreviewSizes, infos);
+        RenderNodePreviews(infos);
 
         return infos;
 
@@ -370,9 +398,11 @@ internal class MemberPreviewUpdater
         // don't forget to get rid of the bitmap recreation code in DocumentUpdater
     }
 
-    private (Dictionary<Guid, AffectedArea> main, Dictionary<Guid, AffectedArea> mask) GetChunksToRerenderAndResetAccumulator()
+    private (Dictionary<Guid, AffectedArea> main, Dictionary<Guid, AffectedArea> mask)
+        GetChunksToRerenderAndResetAccumulator()
     {
-        var result = (mainPreviewPostponedChunks: mainPreviewAreasAccumulator, maskPreviewPostponedChunks: maskPreviewAreasAccumulator);
+        var result = (mainPreviewPostponedChunks: mainPreviewAreasAccumulator,
+            maskPreviewPostponedChunks: maskPreviewAreasAccumulator);
         mainPreviewAreasAccumulator = new();
         maskPreviewAreasAccumulator = new();
         return result;
@@ -381,19 +411,20 @@ internal class MemberPreviewUpdater
     /// <summary>
     /// Re-renders the preview of the whole canvas which is shown as the tab icon
     /// </summary>
-    private void RenderWholeCanvasPreview(Dictionary<Guid, AffectedArea> mainPreviewChunks, Dictionary<Guid, AffectedArea> maskPreviewChunks, List<IRenderInfo> infos)
+    private void RenderWholeCanvasPreview(Dictionary<Guid, AffectedArea> mainPreviewChunks,
+        Dictionary<Guid, AffectedArea> maskPreviewChunks, List<IRenderInfo> infos)
     {
         var cumulative = mainPreviewChunks
             .Concat(maskPreviewChunks)
             .Aggregate(new AffectedArea(), (set, pair) =>
-        {
-            set.UnionWith(pair.Value);
-            return set;
-        });
+            {
+                set.UnionWith(pair.Value);
+                return set;
+            });
         if (cumulative.GlobalArea is null)
             return;
 
-        var previewSize = StructureMemberViewModel.CalculatePreviewSize(internals.Tracker.Document.Size);
+        var previewSize = StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size);
         float scaling = (float)previewSize.X / doc.SizeBindable.X;
 
         bool somethingChanged = false;
@@ -408,29 +439,32 @@ internal class MemberPreviewUpdater
                 _ => ChunkResolution.Eighth,
             };
             var pos = chunkPos * resolution.PixelSize();
-            var rendered = ChunkRenderer.MergeWholeStructure(chunkPos, resolution, internals.Tracker.Document.StructureRoot);
-            doc.PreviewSurface.Canvas.Save();
-            doc.PreviewSurface.Canvas.Scale(scaling);
-            doc.PreviewSurface.Canvas.ClipRect((RectD)cumulative.GlobalArea);
-            doc.PreviewSurface.Canvas.Scale(1 / (float)resolution.Multiplier());
+            var rendered = doc.Renderer.RenderChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameTime);
+            doc.PreviewSurface.DrawingSurface.Canvas.Save();
+            doc.PreviewSurface.DrawingSurface.Canvas.Scale(scaling);
+            doc.PreviewSurface.DrawingSurface.Canvas.ClipRect((RectD)cumulative.GlobalArea);
+            doc.PreviewSurface.DrawingSurface.Canvas.Scale(1 / (float)resolution.Multiplier());
             if (rendered.IsT1)
             {
-                doc.PreviewSurface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(), resolution.PixelSize(), ClearPaint);
+                doc.PreviewSurface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(),
+                    resolution.PixelSize(), ClearPaint);
             }
             else if (rendered.IsT0)
             {
                 using var renderedChunk = rendered.AsT0;
-                renderedChunk.DrawOnSurface(doc.PreviewSurface, pos, SmoothReplacingPaint);
+                renderedChunk.DrawChunkOn(doc.PreviewSurface.DrawingSurface, pos, SmoothReplacingPaint);
             }
-            doc.PreviewSurface.Canvas.Restore();
+
+            doc.PreviewSurface.DrawingSurface.Canvas.Restore();
         }
+
         if (somethingChanged)
             infos.Add(new CanvasPreviewDirty_RenderInfo());
     }
 
     private void RenderMainPreviews(
-        Dictionary<Guid, AffectedArea> mainPreviewChunks, 
-        Dictionary<Guid, (VecI previewSize, RectI tightBounds)?> recreatedPreviewSizes, 
+        Dictionary<Guid, AffectedArea> mainPreviewChunks,
+        Dictionary<Guid, (VecI previewSize, RectI tightBounds)?> recreatedPreviewSizes,
         List<IRenderInfo> infos)
     {
         foreach (var guid in mainPreviewChunks.Select(a => a.Key).Concat(recreatedPreviewSizes.Select(a => a.Key)))
@@ -438,7 +472,7 @@ internal class MemberPreviewUpdater
             // find the true affected area
             AffectedArea? affArea = null;
             RectI? tightBounds = null;
-            
+
             if (mainPreviewChunks.TryGetValue(guid, out AffectedArea areaFromChunks))
                 affArea = areaFromChunks;
 
@@ -447,10 +481,13 @@ internal class MemberPreviewUpdater
                 if (value is null)
                     continue;
                 tightBounds = value.Value.tightBounds;
-                affArea = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(value.Value.tightBounds, ChunkyImage.FullChunkSize), value.Value.tightBounds);
+                affArea = new AffectedArea(
+                    OperationHelper.FindChunksTouchingRectangle(value.Value.tightBounds, ChunkyImage.FullChunkSize),
+                    value.Value.tightBounds);
             }
 
-            if (affArea is null || affArea.Value.GlobalArea is null || affArea.Value.GlobalArea.Value.IsZeroOrNegativeArea)
+            if (affArea is null || affArea.Value.GlobalArea is null ||
+                affArea.Value.GlobalArea.Value.IsZeroOrNegativeArea)
                 continue;
 
             // re-render the area
@@ -463,18 +500,36 @@ internal class MemberPreviewUpdater
 
             var member = internals.Tracker.Document.FindMemberOrThrow(guid);
 
-            var previewSize = StructureMemberViewModel.CalculatePreviewSize(tightBounds.Value.Size);
+            var previewSize = StructureHelpers.CalculatePreviewSize(tightBounds.Value.Size);
             float scaling = (float)previewSize.X / tightBounds.Value.Width;
             VecI position = tightBounds.Value.Pos;
 
-            if (memberVM is LayerViewModel)
+            if (memberVM is ILayerHandler)
             {
-                RenderLayerMainPreview((IReadOnlyLayer)member, memberVM, affArea.Value, position, scaling);
+                RenderLayerMainPreview((IReadOnlyLayerNode)member,
+                    memberVM.PreviewSurface, affArea.Value, position, scaling,
+                    doc.AnimationHandler.ActiveFrameBindable);
+
+                if (doc.AnimationHandler.FindKeyFrame(guid, out IKeyFrameHandler? keyFrame))
+                {
+                    if (keyFrame is IKeyFrameGroupHandler group)
+                    {
+                        RenderGroupPreview(keyFrame, memberVM, member, affArea, position, scaling);
+                        foreach (var child in group.Children)
+                        {
+                            if (member is IReadOnlyImageNode rasterLayer)
+                            {
+                                RenderAnimationFramePreview(rasterLayer, child, affArea.Value);
+                            }
+                        }
+                    }
+                }
+
                 infos.Add(new PreviewDirty_RenderInfo(guid));
             }
-            else if (memberVM is FolderViewModel)
+            else if (memberVM is IFolderHandler)
             {
-                RenderFolderMainPreview((IReadOnlyFolder)member, memberVM, affArea.Value, position, scaling);
+                RenderFolderMainPreview((IReadOnlyFolderNode)member, memberVM, affArea.Value, position, scaling);
                 infos.Add(new PreviewDirty_RenderInfo(guid));
             }
             else
@@ -484,57 +539,128 @@ internal class MemberPreviewUpdater
         }
     }
 
+    private void RenderGroupPreview(IKeyFrameHandler keyFrame, IStructureMemberHandler memberVM,
+        IReadOnlyStructureNode member, [DisallowNull] AffectedArea? affArea, VecI position, float scaling)
+    {
+        bool isEditingRootImage = !member.KeyFrames.Any(x => x.IsInFrame(doc.AnimationHandler.ActiveFrameBindable));
+        if(!isEditingRootImage)
+            return;
+        
+        if (keyFrame.PreviewSurface == null ||
+            keyFrame.PreviewSurface.Size != memberVM.PreviewSurface.Size)
+        {
+            keyFrame.PreviewSurface?.Dispose();
+            keyFrame.PreviewSurface = new Surface(memberVM.PreviewSurface.Size);
+        }
+
+        RenderLayerMainPreview((IReadOnlyLayerNode)member, keyFrame.PreviewSurface, affArea.Value,
+            position, scaling, 0);
+    }
+
     /// <summary>
     /// Re-render the <paramref name="area"/> of the main preview of the <paramref name="memberVM"/> folder
     /// </summary>
-    private void RenderFolderMainPreview(IReadOnlyFolder folder, StructureMemberViewModel memberVM, AffectedArea area, VecI position, float scaling)
+    private void RenderFolderMainPreview(IReadOnlyFolderNode folder, IStructureMemberHandler memberVM,
+        AffectedArea area,
+        VecI position, float scaling)
     {
-        memberVM.PreviewSurface.Canvas.Save();
-        memberVM.PreviewSurface.Canvas.Scale(scaling);
-        memberVM.PreviewSurface.Canvas.Translate(-position);
-        memberVM.PreviewSurface.Canvas.ClipRect((RectD)area.GlobalArea);
+        memberVM.PreviewSurface.DrawingSurface.Canvas.Save();
+        memberVM.PreviewSurface.DrawingSurface.Canvas.Scale(scaling);
+        memberVM.PreviewSurface.DrawingSurface.Canvas.Translate(-position);
+        memberVM.PreviewSurface.DrawingSurface.Canvas.ClipRect((RectD)area.GlobalArea);
         foreach (var chunk in area.Chunks)
         {
             var pos = chunk * ChunkResolution.Full.PixelSize();
             // drawing in full res here is kinda slow
             // we could switch to a lower resolution based on (canvas size / preview size) to make it run faster
-            OneOf<Chunk, EmptyChunk> rendered = ChunkRenderer.MergeWholeStructure(chunk, ChunkResolution.Full, folder);
+            var contentNode = folder.Content.Connection?.Node;
+
+            OneOf<Chunk, EmptyChunk> rendered;
+
+            if (contentNode is null)
+            {
+                rendered = new EmptyChunk();
+            }
+            else
+            {
+                rendered = doc.Renderer.RenderChunk(chunk, ChunkResolution.Full, contentNode,
+                    doc.AnimationHandler.ActiveFrameBindable);
+            }
+
             if (rendered.IsT0)
             {
-                memberVM.PreviewSurface.Canvas.DrawSurface(rendered.AsT0.Surface.DrawingSurface, pos, scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint);
+                memberVM.PreviewSurface.DrawingSurface.Canvas.DrawSurface(rendered.AsT0.Surface.DrawingSurface, pos,
+                    scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint);
                 rendered.AsT0.Dispose();
             }
             else
             {
-                memberVM.PreviewSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkResolution.Full.PixelSize(), ChunkResolution.Full.PixelSize(), ClearPaint);
+                memberVM.PreviewSurface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkResolution.Full.PixelSize(),
+                    ChunkResolution.Full.PixelSize(), ClearPaint);
             }
         }
-        memberVM.PreviewSurface.Canvas.Restore();
+
+        memberVM.PreviewSurface.DrawingSurface.Canvas.Restore();
     }
 
     /// <summary>
     /// Re-render the <paramref name="area"/> of the main preview of the <paramref name="memberVM"/> layer
     /// </summary>
-    private void RenderLayerMainPreview(IReadOnlyLayer layer, StructureMemberViewModel memberVM, AffectedArea area, VecI position, float scaling)
+    private void RenderLayerMainPreview(IReadOnlyLayerNode layer, Surface surface, AffectedArea area,
+        VecI position, float scaling, int frame)
     {
-        memberVM.PreviewSurface.Canvas.Save();
-        memberVM.PreviewSurface.Canvas.Scale(scaling);
-        memberVM.PreviewSurface.Canvas.Translate(-position);
-        memberVM.PreviewSurface.Canvas.ClipRect((RectD)area.GlobalArea);
+        surface.DrawingSurface.Canvas.Save();
+        surface.DrawingSurface.Canvas.Scale(scaling);
+        surface.DrawingSurface.Canvas.Translate(-position);
+        surface.DrawingSurface.Canvas.ClipRect((RectD)area.GlobalArea);
 
         foreach (var chunk in area.Chunks)
         {
             var pos = chunk * ChunkResolution.Full.PixelSize();
-            if (!layer.LayerImage.DrawCommittedChunkOn(chunk, ChunkResolution.Full, memberVM.PreviewSurface, pos, scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint))
-                memberVM.PreviewSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize, ChunkyImage.FullChunkSize, ClearPaint);
+            if (layer is not IReadOnlyImageNode raster) return;
+            IReadOnlyChunkyImage? result = raster.GetLayerImageAtFrame(frame);
+
+            if (!result.DrawCommittedChunkOn(
+                    chunk,
+                    ChunkResolution.Full, surface.DrawingSurface, pos,
+                    scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint))
+            {
+                surface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize,
+                    ChunkyImage.FullChunkSize, ClearPaint);
+            }
         }
 
-        memberVM.PreviewSurface.Canvas.Restore();
+        surface.DrawingSurface.Canvas.Restore();
+    }
+
+    private void RenderAnimationFramePreview(IReadOnlyImageNode node, IKeyFrameHandler keyFrameVM, AffectedArea area)
+    {
+        if (keyFrameVM.PreviewSurface is null)
+        {
+            keyFrameVM.PreviewSurface =
+                new Surface(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size));
+        }
+
+        keyFrameVM.PreviewSurface!.DrawingSurface.Canvas.Save();
+        float scaling = (float)keyFrameVM.PreviewSurface.Size.X / internals.Tracker.Document.Size.X;
+        keyFrameVM.PreviewSurface.DrawingSurface.Canvas.Scale(scaling);
+        foreach (var chunk in area.Chunks)
+        {
+            var pos = chunk * ChunkResolution.Full.PixelSize();
+            if (!node.GetLayerImageByKeyFrameGuid(keyFrameVM.Id).DrawCommittedChunkOn(chunk, ChunkResolution.Full,
+                    keyFrameVM.PreviewSurface!.DrawingSurface, pos, ReplacingPaint))
+            {
+                keyFrameVM.PreviewSurface!.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize,
+                    ChunkyImage.FullChunkSize, ClearPaint);
+            }
+        }
+
+        keyFrameVM.PreviewSurface!.DrawingSurface.Canvas.Restore();
     }
 
     private void RenderMaskPreviews(
         Dictionary<Guid, AffectedArea> maskPreviewChunks,
-        Dictionary<Guid, (VecI previewSize, RectI tightBounds)?> recreatedMaskSizes, 
+        Dictionary<Guid, (VecI previewSize, RectI tightBounds)?> recreatedMaskSizes,
         List<IRenderInfo> infos)
     {
         foreach (Guid guid in maskPreviewChunks.Select(a => a.Key).Concat(recreatedMaskSizes.Select(a => a.Key)))
@@ -551,10 +677,13 @@ internal class MemberPreviewUpdater
                 if (value is null)
                     continue;
                 tightBounds = value.Value.tightBounds;
-                affArea = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(value.Value.tightBounds, ChunkyImage.FullChunkSize), value.Value.tightBounds);
+                affArea = new AffectedArea(
+                    OperationHelper.FindChunksTouchingRectangle(value.Value.tightBounds, ChunkyImage.FullChunkSize),
+                    value.Value.tightBounds);
             }
 
-            if (affArea is null || affArea.Value.GlobalArea is null || affArea.Value.GlobalArea.Value.IsZeroOrNegativeArea)
+            if (affArea is null || affArea.Value.GlobalArea is null ||
+                affArea.Value.GlobalArea.Value.IsZeroOrNegativeArea)
                 continue;
 
             // re-render the area
@@ -566,25 +695,66 @@ internal class MemberPreviewUpdater
             if (tightBounds is null)
                 tightBounds = lastMaskPreviewTightBounds[guid];
 
-            var previewSize = StructureMemberViewModel.CalculatePreviewSize(tightBounds.Value.Size);
+            var previewSize = StructureHelpers.CalculatePreviewSize(tightBounds.Value.Size);
             float scaling = (float)previewSize.X / tightBounds.Value.Width;
             VecI position = tightBounds.Value.Pos;
 
             var member = internals.Tracker.Document.FindMemberOrThrow(guid);
 
-            memberVM.MaskPreviewSurface!.Canvas.Save();
-            memberVM.MaskPreviewSurface.Canvas.Scale(scaling);
-            memberVM.MaskPreviewSurface.Canvas.Translate(-position);
-            memberVM.MaskPreviewSurface.Canvas.ClipRect((RectD)affArea.Value.GlobalArea);
+            memberVM.MaskPreviewSurface!.DrawingSurface.Canvas.Save();
+            memberVM.MaskPreviewSurface.DrawingSurface.Canvas.Scale(scaling);
+            memberVM.MaskPreviewSurface.DrawingSurface.Canvas.Translate(-position);
+            memberVM.MaskPreviewSurface.DrawingSurface.Canvas.ClipRect((RectD)affArea.Value.GlobalArea);
             foreach (var chunk in affArea.Value.Chunks)
             {
                 var pos = chunk * ChunkResolution.Full.PixelSize();
-                member.Mask!.DrawMostUpToDateChunkOn
-                    (chunk, ChunkResolution.Full, memberVM.MaskPreviewSurface, pos, scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint);
+                member.Mask!.Value.DrawMostUpToDateChunkOn
+                (chunk, ChunkResolution.Full, memberVM.MaskPreviewSurface.DrawingSurface, pos,
+                    scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint);
             }
 
-            memberVM.MaskPreviewSurface.Canvas.Restore();
+            memberVM.MaskPreviewSurface.DrawingSurface.Canvas.Restore();
             infos.Add(new MaskPreviewDirty_RenderInfo(guid));
+        }
+    }
+
+    private void RenderNodePreviews(List<IRenderInfo> infos)
+    {
+        foreach (var node in internals.Tracker.Document.NodeGraph.AllNodes)
+        {
+            if (node is null)
+                return;
+
+            if (node.CachedResult == null)
+            {
+                return;
+            }
+
+            var nodeVm = doc.StructureHelper.FindNode<INodeHandler>(node.Id);
+            if (nodeVm == null)
+            {
+                return;
+            }
+
+            if (nodeVm.ResultPreview == null)
+            {
+                nodeVm.ResultPreview =
+                    new Surface(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size, 150));
+            }
+
+            float scalingX = (float)nodeVm.ResultPreview.Size.X / node.CachedResult.Size.X;
+            float scalingY = (float)nodeVm.ResultPreview.Size.Y / node.CachedResult.Size.Y;
+
+            nodeVm.ResultPreview.DrawingSurface.Canvas.Save();
+            nodeVm.ResultPreview.DrawingSurface.Canvas.Scale(scalingX, scalingY);
+
+            RectI region = new RectI(0, 0, node.CachedResult.Size.X, node.CachedResult.Size.Y);
+
+            nodeVm.ResultPreview.DrawingSurface.Canvas.DrawSurface(node.CachedResult.DrawingSurface, 0, 0,
+                ReplacingPaint);
+
+            nodeVm.ResultPreview.DrawingSurface.Canvas.Restore();
+            infos.Add(new NodePreviewDirty_RenderInfo(node.Id));
         }
     }
 }

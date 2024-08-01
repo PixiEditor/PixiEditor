@@ -1,5 +1,6 @@
-﻿using System.Windows.Input;
-using PixiEditor.Models.DataHolders;
+﻿using System.Collections.Generic;
+using Avalonia.Input;
+using PixiEditor.Models.Input;
 
 namespace PixiEditor.Models.Commands.Templates;
 
@@ -10,7 +11,7 @@ internal class ShortcutCollection : List<Shortcut>
     public ShortcutCollection(List<Shortcut> enumerable) : base(enumerable)
     { }
 
-    public void Add(string commandName, Key key, ModifierKeys modifiers)
+    public void Add(string commandName, Key key, KeyModifiers modifiers)
     {
         Add(new Shortcut(new KeyCombination(key, modifiers), new List<string>() { commandName }));
     }

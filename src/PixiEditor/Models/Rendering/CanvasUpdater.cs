@@ -1,25 +1,23 @@
 ﻿using System.Collections.Generic;
-using System.Printing;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.Xml;
+using System.Threading.Tasks;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
-using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Models.DocumentModels;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Rendering.RenderInfos;
 using PixiEditor.Numerics;
-using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.Rendering;
 #nullable enable
 internal class CanvasUpdater
 {
-    private readonly DocumentViewModel doc;
+    private readonly IDocument doc;
     private readonly DocumentInternalParts internals;
 
     private static readonly Paint ReplacingPaint = new() { BlendMode = BlendMode.Src };
@@ -37,7 +35,7 @@ internal class CanvasUpdater
     private readonly Dictionary<ChunkResolution, HashSet<VecI>> nonRerenderedChunksAffectedBeforeLastRerenderDelayed = new() { [ChunkResolution.Full] = new(), [ChunkResolution.Half] = new(), [ChunkResolution.Quarter] = new(), [ChunkResolution.Eighth] = new() };
 
 
-    public CanvasUpdater(DocumentViewModel doc, DocumentInternalParts internals)
+    public CanvasUpdater(IDocument doc, DocumentInternalParts internals)
     {
         this.doc = doc;
         this.internals = internals;
@@ -158,7 +156,7 @@ internal class CanvasUpdater
         }
         if (!anythingToUpdate)
             return new();
-
+        
         List<IRenderInfo> infos = new();
         UpdateMainImage(chunksToRerender, updatingStoredChunks ? null : chunkGatherer.MainImageArea.GlobalArea.Value, infos);
         return infos;
@@ -173,7 +171,7 @@ internal class CanvasUpdater
             if (globalClippingRectangle is not null)
                 globalScaledClippingRectangle = (RectI?)((RectI)globalClippingRectangle).Scale(resolution.Multiplier()).RoundOutwards();
 
-            DrawingSurface screenSurface = doc.Surfaces[resolution];
+            Surface screenSurface = doc.Surfaces[resolution];
             foreach (var chunkPos in chunks)
             {
                 RenderChunk(chunkPos, screenSurface, resolution, globalClippingRectangle, globalScaledClippingRectangle);
@@ -190,27 +188,30 @@ internal class CanvasUpdater
         }
     }
 
-    private void RenderChunk(VecI chunkPos, DrawingSurface screenSurface, ChunkResolution resolution, RectI? globalClippingRectangle, RectI? globalScaledClippingRectangle)
+    private void RenderChunk(VecI chunkPos, Surface screenSurface, ChunkResolution resolution, RectI? globalClippingRectangle, RectI? globalScaledClippingRectangle)
     {
+        if(screenSurface is null || screenSurface.IsDisposed)
+            return;
+        
         if (globalScaledClippingRectangle is not null)
         {
-            screenSurface.Canvas.Save();
-            screenSurface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
+            screenSurface.DrawingSurface.Canvas.Save();
+            screenSurface.DrawingSurface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
         }
 
-        ChunkRenderer.MergeWholeStructure(chunkPos, resolution, internals.Tracker.Document.StructureRoot, globalClippingRectangle).Switch(
+        doc.Renderer.RenderChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameTime, globalClippingRectangle).Switch(
             (Chunk chunk) =>
             {
-                screenSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface, chunkPos.Multiply(chunk.PixelSize), ReplacingPaint);
+                screenSurface.DrawingSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface, chunkPos.Multiply(chunk.PixelSize), ReplacingPaint);
                 chunk.Dispose();
             },
             (EmptyChunk _) =>
             {
                 var pos = chunkPos * resolution.PixelSize();
-                screenSurface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(), resolution.PixelSize(), ClearPaint);
+                screenSurface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(), resolution.PixelSize(), ClearPaint);
             });
 
         if (globalScaledClippingRectangle is not null)
-            screenSurface.Canvas.Restore();
+            screenSurface.DrawingSurface.Canvas.Restore();
     }
 }

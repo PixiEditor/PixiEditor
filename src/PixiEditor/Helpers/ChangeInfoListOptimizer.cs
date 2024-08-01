@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.ChangeInfos;
+﻿using System.Collections.Generic;
+using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
 
 namespace PixiEditor.Helpers;

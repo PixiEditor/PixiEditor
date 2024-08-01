@@ -3,7 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Input;
 
-namespace PixiEditor.AvaloniaUI.Views.Input;
+namespace PixiEditor.UI.Common.Controls;
 
 [PseudoClasses(":checked")]
 public class ToggleableMenuItem : MenuItem
