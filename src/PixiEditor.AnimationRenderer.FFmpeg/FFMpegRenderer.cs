@@ -120,7 +120,6 @@ public class FFMpegRenderer : IAnimationRenderer
             .OutputToFile(outputPath, true, options =>
             {
                 options.WithFramerate(FrameRate)
-                    .WithVideoCodec(VideoCodec.LibX264)
                     .WithConstantRateFactor(21)
                     .ForcePixelFormat("yuv420p");
             });
