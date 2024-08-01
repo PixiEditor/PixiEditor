@@ -38,21 +38,19 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
 
     private Queue<IReadOnlyNode> CalculateExecutionQueue(OutputNode outputNode)
     {
-        // backwards breadth-first search
-        var visited = new HashSet<IReadOnlyNode>();
+        var finalQueue = new HashSet<IReadOnlyNode>();
         var queueNodes = new Queue<IReadOnlyNode>();
-        List<IReadOnlyNode> finalQueue = new();
         queueNodes.Enqueue(outputNode);
 
         while (queueNodes.Count > 0)
         {
             var node = queueNodes.Dequeue();
-            if (!visited.Add(node))
+            if (finalQueue.Contains(node))
             {
                 continue;
             }
-
-            finalQueue.Add(node);
+            
+            bool canAdd = true;
 
             foreach (var input in node.InputProperties)
             {
@@ -60,19 +58,36 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
                 {
                     continue;
                 }
-                
-                if(finalQueue.Contains(input.Connection.Node))
+
+                if (finalQueue.Contains(input.Connection.Node))
                 {
-                   // swap the order of the nodes
-                   finalQueue.Remove(input.Connection.Node);
-                   finalQueue.Add(input.Connection.Node);
+                    continue;
                 }
 
-                queueNodes.Enqueue(input.Connection.Node);
+                canAdd = false;
+                
+                if (finalQueue.Contains(input.Connection.Node))
+                {
+                    finalQueue.Remove(input.Connection.Node);
+                    finalQueue.Add(input.Connection.Node);
+                }
+
+                if (!queueNodes.Contains(input.Connection.Node))
+                {
+                    queueNodes.Enqueue(input.Connection.Node);
+                }
+            }
+            
+            if (canAdd)
+            {
+                finalQueue.Add(node);
+            }
+            else
+            {
+                queueNodes.Enqueue(node);
             }
         }
 
-        finalQueue.Reverse();
         return new Queue<IReadOnlyNode>(finalQueue);
     }
 

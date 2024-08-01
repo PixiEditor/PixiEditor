@@ -35,9 +35,10 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
 
     public void AddNode(INodeHandler node)
     {
-        if (OutputNode == null && node.InternalName == typeof(OutputNode).GetCustomAttribute<NodeInfoAttribute>().UniqueName)
+        if (OutputNode == null &&
+            node.InternalName == typeof(OutputNode).GetCustomAttribute<NodeInfoAttribute>().UniqueName)
         {
-            OutputNode = node; 
+            OutputNode = node;
         }
 
         AllNodes.Add(node);
@@ -145,21 +146,19 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
 
     private Queue<INodeHandler> CalculateExecutionQueue(INodeHandler outputNode)
     {
-        // backwards breadth-first search
-        var visited = new HashSet<INodeHandler>();
+        var finalQueue = new HashSet<INodeHandler>();
         var queueNodes = new Queue<INodeHandler>();
-        List<INodeHandler> finalQueue = new();
         queueNodes.Enqueue(outputNode);
 
         while (queueNodes.Count > 0)
         {
             var node = queueNodes.Dequeue();
-            if (!visited.Add(node))
+            if (finalQueue.Contains(node))
             {
                 continue;
             }
 
-            finalQueue.Add(node);
+            bool canAdd = true;
 
             foreach (var input in node.Inputs)
             {
@@ -168,11 +167,35 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
                     continue;
                 }
 
-                queueNodes.Enqueue(input.ConnectedOutput.Node);
+                if (finalQueue.Contains(input.ConnectedOutput.Node))
+                {
+                    continue;
+                }
+
+                canAdd = false;
+
+                if (finalQueue.Contains(input.ConnectedOutput.Node))
+                {
+                    finalQueue.Remove(input.ConnectedOutput.Node);
+                    finalQueue.Add(input.ConnectedOutput.Node);
+                }
+
+                if (!queueNodes.Contains(input.ConnectedOutput.Node))
+                {
+                    queueNodes.Enqueue(input.ConnectedOutput.Node);
+                }
+            }
+
+            if (canAdd)
+            {
+                finalQueue.Add(node);
+            }
+            else
+            {
+                queueNodes.Enqueue(node);
             }
         }
 
-        finalQueue.Reverse();
         return new Queue<INodeHandler>(finalQueue);
     }
 
@@ -196,29 +219,29 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
         IAction change;
 
         PairNodeAttribute? pairAttribute = nodeType.GetCustomAttribute<PairNodeAttribute>(true);
-        
+
         List<IAction> changes = new();
-        
+
         if (pairAttribute != null)
         {
             Guid startId = Guid.NewGuid();
             Guid endId = Guid.NewGuid();
             changes.Add(new CreateNodePair_Action(startId, endId, Guid.NewGuid(), nodeType));
-            
-            if(pos != default)
+
+            if (pos != default)
             {
                 changes.Add(new NodePosition_Action(startId, pos));
                 changes.Add(new EndNodePosition_Action());
                 changes.Add(new NodePosition_Action(endId, new VecD(pos.X + 400, pos.Y)));
-                changes.Add(new EndNodePosition_Action()); 
+                changes.Add(new EndNodePosition_Action());
             }
         }
         else
         {
             Guid nodeId = Guid.NewGuid();
             changes.Add(new CreateNode_Action(nodeType, nodeId));
-            
-            if(pos != default)
+
+            if (pos != default)
             {
                 changes.Add(new NodePosition_Action(nodeId, pos));
                 changes.Add(new EndNodePosition_Action());
@@ -231,12 +254,12 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
     public void RemoveNodes(Guid[] selectedNodes)
     {
         IAction[] actions = new IAction[selectedNodes.Length];
-        
+
         for (int i = 0; i < selectedNodes.Length; i++)
         {
             actions[i] = new DeleteNode_Action(selectedNodes[i]);
         }
-        
+
         Internals.ActionAccumulator.AddFinishedActions(actions);
     }
 
