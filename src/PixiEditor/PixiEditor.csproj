@@ -123,15 +123,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="PixiDocks.Avalonia">
-      <HintPath>..\..\..\PixiDocks\src\PixiDocks.Avalonia\bin\Debug\net8.0\PixiDocks.Avalonia.dll</HintPath>
-    </Reference>
-    <Reference Include="PixiDocks.Core">
-      <HintPath>..\..\..\PixiDocks\src\PixiDocks.Core\bin\Debug\net8.0\PixiDocks.Core.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="../../LICENSE">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

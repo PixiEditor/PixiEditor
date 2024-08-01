@@ -1,10 +1,10 @@
 ﻿using Avalonia.Platform;
-using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.IO;
 using PixiEditor.Parser;
 
-namespace PixiEditor.AvaloniaUI.Views.Windows;
+namespace PixiEditor.Views.Windows;
 
 public class BetaExampleFile
 {

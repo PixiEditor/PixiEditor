@@ -6,8 +6,8 @@
              xmlns:main1="clr-namespace:PixiEditor.Views.Main"
              xmlns:tools="clr-namespace:PixiEditor.Views.Main.Tools"
              xmlns:commandSearch="clr-namespace:PixiEditor.Views.Main.CommandSearch"
-             xmlns:controls="clr-namespace:PixiDocks.Avalonia.Controls;assembly=PixiDocks.Avalonia"
              xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
+             xmlns:controls="clr-namespace:PixiDocks.Avalonia.Controls;assembly=PixiDocks.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.MainView"
              x:DataType="viewModels1:ViewModelMain">

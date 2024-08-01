@@ -1,12 +1,10 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.Input;
-using PixiEditor.AvaloniaUI.Helpers.Extensions;
-using PixiEditor.AvaloniaUI.ViewModels;
-using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
+using PixiEditor.Helpers.Extensions;
+using PixiEditor.ViewModels;
 
-namespace PixiEditor.AvaloniaUI.Views.Windows;
+namespace PixiEditor.Views.Windows;
 
 public partial class BetaExampleButton : UserControl
 {

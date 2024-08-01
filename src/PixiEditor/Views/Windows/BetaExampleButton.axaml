@@ -3,35 +3,35 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
-             xmlns:visuals="clr-namespace:PixiEditor.AvaloniaUI.Views.Visuals"
-             xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
-             xmlns:windows="clr-namespace:PixiEditor.AvaloniaUI.Views.Windows"
+             xmlns:visuals1="clr-namespace:PixiEditor.Views.Visuals"
+             xmlns:converters1="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:windows1="clr-namespace:PixiEditor.Views.Windows"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="PixiEditor.AvaloniaUI.Views.Windows.BetaExampleButton">
+             x:Class="PixiEditor.Views.Windows.BetaExampleButton">
     <StackPanel>
         <Button Margin="0,10,0,0" HorizontalAlignment="Center"
                 Width="100" Height="100"
                 Padding="0"
-                Command="{Binding OpenCommand, RelativeSource={RelativeSource AncestorType=windows:BetaExampleButton}}"
+                Command="{Binding OpenCommand, RelativeSource={RelativeSource AncestorType=windows1:BetaExampleButton}}"
                 x:Name="fileButton">
             <Grid Width="100" Height="100">
-                <visuals:SurfaceControl
-                    Surface="{Binding BetaExampleFile.PreviewImage, RelativeSource={RelativeSource AncestorType=windows:BetaExampleButton}}"
+                <visuals1:SurfaceControl
+                    Surface="{Binding BetaExampleFile.PreviewImage, RelativeSource={RelativeSource AncestorType=windows1:BetaExampleButton}}"
                     Margin="10"
                     Stretch="Uniform"
                     x:Name="image">
                     <ui:RenderOptionsBindable.BitmapInterpolationMode>
                         <MultiBinding
-                            Converter="{converters:WidthToBitmapScalingModeConverter}">
-                            <Binding Path="BetaExampleFile.PreviewImage.Size.X" RelativeSource="{RelativeSource AncestorType=windows:BetaExampleButton}" />
+                            Converter="{converters1:WidthToBitmapScalingModeConverter}">
+                            <Binding Path="BetaExampleFile.PreviewImage.Size.X" RelativeSource="{RelativeSource AncestorType=windows1:BetaExampleButton}" />
                             <Binding ElementName="image" Path="Width" />
                         </MultiBinding>
                     </ui:RenderOptionsBindable.BitmapInterpolationMode>
-                </visuals:SurfaceControl>
+                </visuals1:SurfaceControl>
             </Grid>
         </Button>
 
-        <TextBlock ui:Translator.Key="{Binding DisplayName, RelativeSource={RelativeSource AncestorType=windows:BetaExampleButton}}"
+        <TextBlock ui:Translator.Key="{Binding DisplayName, RelativeSource={RelativeSource AncestorType=windows1:BetaExampleButton}}"
                    Width="110" TextAlignment="Center"
                    TextTrimming="CharacterEllipsis"
                    TextWrapping="Wrap"
