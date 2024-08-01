@@ -43,6 +43,6 @@ internal class CreateNodeFromName_Change : Change
 
     public override void Dispose()
     {
-        change.Dispose();
+        change?.Dispose();
     }
 }
