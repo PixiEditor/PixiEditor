@@ -93,7 +93,7 @@
                                         Command="{Binding SetShowAllBetaExamplesCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}"
                                         CommandParameter="{x:True}">
                                     <Grid Width="100" Height="100">
-                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="Show all 8 >"/>
+                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" ui:Translator.Key="SHOW_ALL_EXAMPLES"/>
                                     </Grid>
                                 </Button>
 

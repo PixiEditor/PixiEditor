@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
@@ -14,7 +12,7 @@ internal class PreferencesSettings : IPreferences
 
     public string PathToRoamingUserPreferences { get; private set; } = GetPathToSettings(Environment.SpecialFolder.ApplicationData, "user_preferences.json");
 
-    public string PathToLocalPreferences { get; private set; } = GetPathToSettings(Environment.SpecialFolder.LocalApplicationData, "editor_data.json");
+    public string PathToLocalPreferences { get; private set; } = GetPathToSettings(Environment.SpecialFolder.LocalApplicationData, "2_0_beta_editor_data.json");
 
     public Dictionary<string, object> Preferences { get; set; } = new Dictionary<string, object>();
 
