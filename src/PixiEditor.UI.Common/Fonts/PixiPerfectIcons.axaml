@@ -113,11 +113,12 @@
             <system:String x:Key="icon-hard-drive">&#xE96C;</system:String>
             <system:String x:Key="icon-copy-add">&#xe921;</system:String>
             <system:String x:Key="icon-check">&#xe96a;</system:String>
+            <system:String x:Key="icon-dot">&#xe963;</system:String>
             
             <system:String x:Key="icon-paste-reference-layer">&#xe977;</system:String>
             <system:String x:Key="icon-paste-as-new-layer">&#xe978;</system:String>
-            <system:String x:Key="icon-star">&#x25a1;</system:String>
-            <system:String x:Key="icon-star-filled">&#xfffd;</system:String>
+            <system:String x:Key="icon-star">&#xe97c;</system:String>
+            <system:String x:Key="icon-star-filled">&#xe979;</system:String>
             <system:String x:Key="icon-reset">R</system:String>
             <system:String x:Key="icon-message">&#xE96F;</system:String>
             <system:String x:Key="icon-download">&#xE969;</system:String>

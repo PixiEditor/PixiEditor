@@ -1,6 +1,7 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters">
+        xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+        xmlns:rendering="clr-namespace:PixiEditor.UI.Common.Rendering;assembly=PixiEditor.UI.Common">
     <Design.PreviewWith>
         <Border Padding="20">
             <!-- Add Controls for Previewer Here -->
@@ -64,10 +65,10 @@
         <Setter Property="Content" Value="{DynamicResource icon-pause}" />
         <Setter Property="Background" Value="Transparent" />
     </Style>
-    
+
     <Style Selector="ToggleButton.PlayButton:pressed">
         <Setter Property="Background" Value="Transparent" />
-   </Style> 
+    </Style>
     <Style Selector="ToggleButton.ExpandCollapseToggleStyle">
         <Setter Property="Content" Value="{DynamicResource icon-chevron-down}" />
         <Setter Property="Template">
@@ -80,14 +81,14 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
     <Style Selector="ToggleButton.ExpandCollapseToggleStyle:pressed">
         <Setter Property="Background" Value="Transparent" />
     </Style>
-    
+
     <Style Selector="ToggleButton.ExpandCollapseToggleStyle:checked">
         <Setter Property="Content" Value="{DynamicResource icon-chevron-left}" />
-        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Background" Value="Transparent" />
     </Style>
 
     <Style Selector="Button.SocialMediaButton">
@@ -132,22 +133,23 @@
                     <!--TODO: After toggling on and off, weird visual glitch appears on the corner of rounded anchor-->
                     <Border CornerRadius="{TemplateBinding CornerRadius}"
                             BorderBrush="{TemplateBinding BorderBrush}"
+                            Background="Transparent"
                             BorderThickness="{TemplateBinding BorderThickness}">
-                        <Border.Background>
-                            <!--<ImageBrush Source="/Images/AnchorDot.png" />-->
-                        </Border.Background>
                         <Border.Transitions>
                             <Transitions>
                                 <BrushTransition Duration="0:0:0.1" Property="BorderBrush" />
                             </Transitions>
                         </Border.Transitions>
-                        <ContentPresenter Padding="{TemplateBinding Padding}"
-                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                          Content="{TemplateBinding Content}"
-                                          ContentTemplate="{TemplateBinding ContentTemplate}"
-                                          RecognizesAccessKey="True"
-                                          TextElement.Foreground="{TemplateBinding Foreground}" />
+                        <Grid>
+                            <TextBlock Text="{DynamicResource icon-dot}" VerticalAlignment="Center" HorizontalAlignment="Center" Classes="pixi-icon"/>
+                            <ContentPresenter Padding="{TemplateBinding Padding}"
+                                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              RecognizesAccessKey="True"
+                                              TextElement.Foreground="{TemplateBinding Foreground}" />
+                        </Grid>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
