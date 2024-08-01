@@ -17,7 +17,14 @@ namespace PixiEditor.ViewModels.Menu;
 
 internal class MenuBarViewModel : PixiObservableObject
 {
-    public AdditionalContentViewModel AdditionalContentSubViewModel { get; set; }
+    private AdditionalContentViewModel additionalContentViewModel;
+   
+    public AdditionalContentViewModel AdditionalContentSubViewModel
+    {
+        get => additionalContentViewModel;
+        set => SetProperty(ref additionalContentViewModel, value);
+    }
+    
     public ObservableCollection<MenuItem> MenuEntries { get; set; } = new();
 
     private Dictionary<string, MenuTreeItem> menuItems = new();
