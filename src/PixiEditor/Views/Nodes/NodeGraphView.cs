@@ -286,9 +286,8 @@ internal class NodeGraphView : Zoombox.Zoombox
 
     private IEnumerable<Type> GatherAssemblyTypes<T>()
     {
-        return AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(x => x.GetTypes())
-            .Where(x => typeof(T).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+        return typeof(T).Assembly.GetTypes()
+            .Where(x => typeof(T).IsAssignableFrom(x) && x is { IsInterface: false, IsAbstract: false });
     }
 
     private void StartDragging(PointerPressedEventArgs e)
