@@ -14,7 +14,7 @@ internal class DeleteNode_Change : Change
 
     private Node savedCopy;
     
-    private GroupKeyFrame savedKeyFrameGroup;
+    private GroupKeyFrame? savedKeyFrameGroup;
 
     [GenerateMakeChangeAction]
     public DeleteNode_Change(Guid nodeId)
@@ -38,9 +38,11 @@ internal class DeleteNode_Change : Change
         return true;
     }
 
-    public static GroupKeyFrame CloneGroupKeyFrame(Document target, Guid id)
+    public static GroupKeyFrame? CloneGroupKeyFrame(Document target, Guid id)
     {
         GroupKeyFrame group = target.AnimationData.KeyFrames.FirstOrDefault(x => x.TargetNode.Id == id) as GroupKeyFrame;
+        if (group is null)
+            return null;
         return group.Clone() as GroupKeyFrame;
     }
 
