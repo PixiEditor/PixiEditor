@@ -13,7 +13,7 @@ internal class FloodFillChunkCache : IDisposable
     private Paint ReplacingPaint { get; } = new Paint() { BlendMode = BlendMode.Src };
 
     private readonly HashSet<Guid>? membersToRender;
-    private readonly IReadOnlyNodeGraph? graph;
+    private readonly IReadOnlyDocument? document;
     private readonly IReadOnlyChunkyImage? image;
     private readonly int frame;
 
@@ -24,10 +24,10 @@ internal class FloodFillChunkCache : IDisposable
         this.image = image;
     }
 
-    public FloodFillChunkCache(HashSet<Guid> membersToRender, IReadOnlyNodeGraph graph, int frame)
+    public FloodFillChunkCache(HashSet<Guid> membersToRender, IReadOnlyDocument document, int frame)
     {
         this.membersToRender = membersToRender;
-        this.graph = graph;
+        this.document = document;
         this.frame = frame;
     }
 
@@ -45,15 +45,14 @@ internal class FloodFillChunkCache : IDisposable
             return foundChunk;
 
         // need to get the chunk by merging multiple members
-        //TODO: Implement
-        /*if (image is null)
+        if (image is null)
         {
-            if (graph is null || membersToRender is null)
+            if (document is null || membersToRender is null)
                 throw new InvalidOperationException();
-            var chunk = ChunkRenderer.MergeChosenMembers(pos, ChunkResolution.Full, graph, frame, membersToRender);
+            var chunk = document.Renderer.RenderLayersChunk(pos, ChunkResolution.Full, frame, membersToRender);
             acquiredChunks[pos] = chunk;
             return chunk;
-        }*/
+        }
 
         // there is only a single image, just get the chunk from it
         if (!image.LatestOrCommittedChunkExists(pos))

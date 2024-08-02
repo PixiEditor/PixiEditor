@@ -100,4 +100,5 @@ public interface IReadOnlyDocument : IDisposable
     /// <param name="guid">The <see cref="IReadOnlyStructureNode.GuidValue"/> of the member</param>
     IReadOnlyList<IReadOnlyStructureNode> FindMemberPath(Guid guid);
     IReadOnlyReferenceLayer? ReferenceLayer { get; }
+    public DocumentRenderer Renderer { get; }
 }

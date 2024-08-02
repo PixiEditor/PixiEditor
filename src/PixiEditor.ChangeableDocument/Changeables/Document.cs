@@ -30,6 +30,7 @@ internal class Document : IChangeable, IReadOnlyDocument
         FindChildAndParentOrThrow(guid);
 
     IReadOnlyReferenceLayer? IReadOnlyDocument.ReferenceLayer => ReferenceLayer;
+    public DocumentRenderer Renderer { get; }
 
     /// <summary>
     /// The default size for a new document
@@ -49,6 +50,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     public Document()
     {
         AnimationData = new AnimationData(this);
+        Renderer = new DocumentRenderer(this);
     }
 
     public void Dispose()
