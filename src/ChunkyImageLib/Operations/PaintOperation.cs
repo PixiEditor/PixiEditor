@@ -1,5 +1,5 @@
 ﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace ChunkyImageLib.Operations;

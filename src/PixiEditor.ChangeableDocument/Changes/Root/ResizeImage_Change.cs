@@ -1,11 +1,13 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.PaintImpl;
 using PixiEditor.Numerics;
-using BlendMode = PixiEditor.DrawingApi.Core.Surface.BlendMode;
+using BlendMode = PixiEditor.DrawingApi.Core.Surfaces.Surface.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
@@ -59,7 +61,7 @@ internal class ResizeImage_Change : Change
 
         bool downscaling = newSize.LengthSquared < originalSize.LengthSquared;
         FilterQuality quality = ToFilterQuality(method, downscaling);
-        using Paint paint = new() { FilterQuality = quality, BlendMode = BlendMode.Src, };
+        using Paint paint = new() { FilterQuality = quality, BlendMode = Enums.BlendMode.Src, };
 
         using Surface newSurface = new(newSize);
         newSurface.DrawingSurface.Canvas.Save();

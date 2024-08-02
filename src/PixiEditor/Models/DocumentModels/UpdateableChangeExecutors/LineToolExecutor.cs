@@ -2,7 +2,7 @@
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Models.Enums;
 using PixiEditor.Numerics;

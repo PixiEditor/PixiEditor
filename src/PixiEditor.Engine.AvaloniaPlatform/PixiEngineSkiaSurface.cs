@@ -1,5 +1,5 @@
 ﻿using Avalonia.Skia;
-using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using SkiaSharp;
 
 namespace PixiEditor.Engine.AvaloniaPlatform;

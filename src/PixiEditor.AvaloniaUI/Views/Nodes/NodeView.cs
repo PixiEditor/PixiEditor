@@ -12,6 +12,9 @@ using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.AvaloniaUI.ViewModels.Nodes;
 using PixiEditor.AvaloniaUI.Views.Nodes.Properties;
+using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using Canvas = Avalonia.Controls.Canvas;
 
 namespace PixiEditor.AvaloniaUI.Views.Nodes;
 

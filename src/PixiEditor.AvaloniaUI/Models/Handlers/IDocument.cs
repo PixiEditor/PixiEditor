@@ -7,10 +7,12 @@ using PixiEditor.AvaloniaUI.Models.DocumentModels.Public;
 using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.AvaloniaUI.Models.Tools;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Numerics;
 

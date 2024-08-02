@@ -10,9 +10,11 @@ using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Files;
 using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Numerics;
-using Image = PixiEditor.DrawingApi.Core.Surface.ImageData.Image;
+using Image = PixiEditor.DrawingApi.Core.Surfaces.Surface.ImageData.Image;
 
 namespace PixiEditor.AvaloniaUI.Views.Dialogs;
 

@@ -8,10 +8,12 @@ using System.Windows.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Microsoft.Win32;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.PaintImpl;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
@@ -160,7 +162,7 @@ internal class Exporter
                 bitmap = bitmap.ResizeNearestNeighbor((VecI)exportSize);
 
             if (encoder is (JpegBitmapEncoder or BmpBitmapEncoder))
-                bitmap.DrawingSurface.Canvas.DrawColor(Colors.White, DrawingApi.Core.Surface.BlendMode.Multiply);
+                bitmap.DrawingSurface.Canvas.DrawColor(Colors.White, Surface.BlendMode.Multiply);
 
             using var stream = new FileStream(savePath, FileMode.Create);
             encoder.Frames.Add(BitmapFrame.Create(bitmap.ToWriteableBitmap()));

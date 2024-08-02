@@ -3,6 +3,8 @@ using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Extensions;
 
@@ -47,10 +49,10 @@ public static class BitmapExtensions
         return new WriteableBitmap(PixelFormats.Bgra8888, AlphaFormat.Premul, address, size, new Vector(96, 96), stride);
     }
 
-    public static DrawingApi.Core.Surface.Bitmap FromStream(Stream stream)
+    public static Surface.Bitmap FromStream(Stream stream)
     {
         using var memoryStream = new MemoryStream();
         stream.CopyTo(memoryStream);
-        return DrawingApi.Core.Surface.Bitmap.Decode(memoryStream.ToArray());
+        return Surface.Bitmap.Decode(memoryStream.ToArray());
     }
 }

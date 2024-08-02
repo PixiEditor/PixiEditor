@@ -1,5 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.PaintImpl;
 
 namespace PixiEditor.ChangeableDocument.Helpers;
 

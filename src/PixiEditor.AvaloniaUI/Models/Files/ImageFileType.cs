@@ -4,10 +4,12 @@ using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.AvaloniaUI.Models.IO.FileEncoders;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Models.Files;
@@ -94,7 +96,7 @@ internal abstract class ImageFileType : IoFileType
         try
         {
             if (!encoder.SupportsTransparency)
-                bitmap.DrawingSurface.Canvas.DrawColor(Colors.White, DrawingApi.Core.Surface.BlendMode.Multiply);
+                bitmap.DrawingSurface.Canvas.DrawColor(Colors.White, Surface.BlendMode.Multiply);
 
             await using var stream = new FileStream(savePath, FileMode.Create);
             await encoder.SaveAsync(stream, bitmap);

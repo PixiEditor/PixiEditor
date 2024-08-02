@@ -2,8 +2,10 @@
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -14,7 +16,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     private VecI size;
 
-    private static readonly Paint clearPaint = new() { BlendMode = DrawingApi.Core.Surface.BlendMode.Src, 
+    private static readonly Paint clearPaint = new() { BlendMode = Surface.BlendMode.Src, 
         Color = PixiEditor.DrawingApi.Core.ColorsImpl.Colors.Transparent };
     
     // Handled by overriden CacheChanged
@@ -48,7 +50,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         var frameImage = GetFrameImage(context.FrameTime).Data;
 
         blendPaint.Color = new Color(255, 255, 255, 255);
-        blendPaint.BlendMode = DrawingApi.Core.Surface.BlendMode.Src;
+        blendPaint.BlendMode = Surface.BlendMode.Src;
 
         var renderedSurface = RenderImage(frameImage, context);
 

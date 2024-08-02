@@ -7,6 +7,7 @@ using Avalonia.Platform;
 using Avalonia.Rendering.Composition;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Skia;
+using PixiEditor.DrawingApi.Skia.Implementations;
 using PixiEditor.Numerics;
 using SkiaSharp;
 
@@ -24,7 +25,10 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             var grContext = App.GetGrContext();
-            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend());
+            SkiaDrawingBackend grDrawingBackend = new();
+            DrawingBackendApi.SetupBackend(grDrawingBackend);
+            
+            (grDrawingBackend.SurfaceImplementation as SkiaSurfaceImplementation).GrContext = grContext;
             
             desktop.MainWindow = new MainWindow();
         }

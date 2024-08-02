@@ -1,7 +1,7 @@
 ﻿using PixiEditor.DrawingApi.Core.Bridge;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.DrawingApi.Skia;
 using PixiEditor.Engine;
 using PixiEditor.Numerics;

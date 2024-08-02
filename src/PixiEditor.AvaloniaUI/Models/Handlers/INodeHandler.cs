@@ -3,6 +3,8 @@ using System.ComponentModel;
 using ChunkyImageLib;
 using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Models.Handlers;

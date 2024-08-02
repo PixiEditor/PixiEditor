@@ -1,5 +1,5 @@
 ﻿using Avalonia.Media;
-using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface;
 using PixiEditor.Extensions.Common.Localization;
 
 namespace PixiEditor.AvaloniaUI.Models.Files;

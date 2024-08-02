@@ -1,5 +1,4 @@
-﻿using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.Engine.Helpers;
+﻿using PixiEditor.Engine.Helpers;
 using PixiEditor.Numerics;
 using Silk.NET.GLFW;
 using Silk.NET.Maths;

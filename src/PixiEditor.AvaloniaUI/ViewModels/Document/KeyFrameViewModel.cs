@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 

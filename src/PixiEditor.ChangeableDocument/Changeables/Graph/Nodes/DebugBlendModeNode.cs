@@ -1,7 +1,9 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
-using DrawingApiBlendMode = PixiEditor.DrawingApi.Core.Surface.BlendMode;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using DrawingApiBlendMode = PixiEditor.DrawingApi.Core.Surfaces.Surface.BlendMode;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;

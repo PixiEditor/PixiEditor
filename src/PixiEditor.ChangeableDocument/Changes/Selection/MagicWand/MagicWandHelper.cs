@@ -4,7 +4,7 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.Vector;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection.MagicWand;

@@ -6,12 +6,13 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Threading;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.DrawingApi.Skia;
+using PixiEditor.Numerics;
 using SkiaSharp;
 using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
 
@@ -19,15 +20,27 @@ namespace InjectedDrawingApiAvalonia;
 
 public partial class MainWindow : Window
 {
-    CommandBuffer CommandBuffer = new CommandBuffer();
+    private Texture texture;
+
     public MainWindow()
     {
         InitializeComponent();
         SurfaceControl.Draw += SurfaceControlOnDraw;
-
-        Task.Run(() =>
+        
+        Task.Run(async () =>
         {
-            CommandBuffer.DrawRect(10, 10, 100, 100, new Paint { Color = Colors.Red });
+            texture = new(new VecI(100, 100));
+            texture.GpuSurface.Canvas.DrawRect(0, 0, 100, 100, new Paint() { Color = Colors.Red });
+            await Task.Delay(50); // some test delay
+
+            Texture texture2 = new(new VecI(50, 50));
+            texture2.GpuSurface.Canvas.DrawRect(0, 0, 50, 50, new Paint() { Color = Colors.Blue });
+
+            texture.GpuSurface.Canvas.DrawSurface(texture2.GpuSurface, 0, 0);
+            Dispatcher.UIThread.Post(() =>
+            {
+                SurfaceControl.InvalidateVisual();
+            });
         });
     }
 
@@ -38,6 +51,8 @@ public partial class MainWindow : Window
 
     private void SurfaceControlOnDraw(SKCanvas draw)
     {
-        CommandBuffer.Dispatch(draw);
+        draw.Clear(SKColors.White);
+        texture.GpuSurface.Flush();
+        draw.DrawSurface(texture.GpuSurface.Native as SKSurface, 0, 0);
     }
 }

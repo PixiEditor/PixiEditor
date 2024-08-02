@@ -3,7 +3,9 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Tools;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Models.DocumentModels.UpdateableChangeExecutors;

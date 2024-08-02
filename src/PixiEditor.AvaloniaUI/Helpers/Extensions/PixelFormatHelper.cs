@@ -1,5 +1,5 @@
 ﻿using Avalonia.Platform;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.ImageData;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Extensions;
 

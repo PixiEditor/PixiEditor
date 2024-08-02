@@ -7,7 +7,7 @@ using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using Avalonia.Threading;
 using PixiEditor.DrawingApi.Core.Bridge;
-using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Skia.Implementations;
 using PixiEditor.Numerics;
 using SkiaSharp;

@@ -4,10 +4,12 @@ using System.Runtime.InteropServices;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.PaintImpl;
 using PixiEditor.Exceptions;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
@@ -17,7 +19,7 @@ using PixiEditor.Numerics;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Deprecated;
 using PixiEditor.ViewModels.SubViewModels.Document;
-using BlendMode = PixiEditor.DrawingApi.Core.Surface.BlendMode;
+using BlendMode = PixiEditor.DrawingApi.Core.Surfaces.Surface.BlendMode;
 
 namespace PixiEditor.Models.IO;
 
@@ -170,7 +172,7 @@ internal class Importer : NotifyableObject
             Pixmap map = new(info, ptr);
             DrawingSurface surface = DrawingSurface.Create(map);
             Surface finalSurface = new Surface(new VecI(width, height));
-            using Paint paint = new() { BlendMode = BlendMode.Src };
+            using Paint paint = new() { BlendMode = Parser.BlendMode.Src };
             surface.Draw(finalSurface.DrawingSurface.Canvas, 0, 0, paint);
             return finalSurface;
         }

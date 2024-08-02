@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Skia;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using Silk.NET.Core.Contexts;
 using Silk.NET.OpenGL;
 using SkiaSharp;

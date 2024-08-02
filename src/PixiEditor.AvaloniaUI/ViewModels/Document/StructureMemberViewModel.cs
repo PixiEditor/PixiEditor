@@ -9,8 +9,10 @@ using PixiEditor.AvaloniaUI.Models.Layers;
 using PixiEditor.AvaloniaUI.ViewModels.Nodes;
 using PixiEditor.AvaloniaUI.Views.Nodes;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface;
 using PixiEditor.Numerics;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 

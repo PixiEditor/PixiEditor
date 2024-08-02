@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using PixiEditor;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.Vector;
 using PixiEditor.Views;
 using PixiEditor.Views.UserControls;
 using PixiEditor.Views.UserControls.Overlays;

@@ -1,6 +1,8 @@
 using Avalonia;
 using Avalonia.Media;
 using ChunkyImageLib;
+using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces;
 
 namespace PixiEditor.AvaloniaUI.Views.Visuals;
 

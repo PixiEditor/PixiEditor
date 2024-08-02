@@ -8,17 +8,19 @@ using PixiEditor.AvaloniaUI.Exceptions;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.PaintImpl;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Numerics;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Deprecated;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
-using BlendMode = PixiEditor.DrawingApi.Core.Surface.BlendMode;
+using BlendMode = PixiEditor.DrawingApi.Core.Surfaces.Surface.BlendMode;
 
 namespace PixiEditor.AvaloniaUI.Models.IO;
 
@@ -175,7 +177,7 @@ internal class Importer : ObservableObject
             Pixmap map = new(info, ptr);
             DrawingSurface surface = DrawingSurface.Create(map);
             Surface finalSurface = new Surface(new VecI(width, height));
-            using Paint paint = new() { BlendMode = BlendMode.Src };
+            using Paint paint = new() { BlendMode = Parser.BlendMode.Src };
             surface.Draw(finalSurface.DrawingSurface.Canvas, 0, 0, paint);
             return finalSurface;
         }

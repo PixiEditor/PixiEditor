@@ -3,8 +3,10 @@ using Avalonia;
 using Avalonia.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Models.Handlers;

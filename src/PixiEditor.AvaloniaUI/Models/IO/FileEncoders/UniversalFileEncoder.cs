@@ -1,7 +1,9 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using ChunkyImageLib;
-using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface;
 
 namespace PixiEditor.AvaloniaUI.Models.IO.FileEncoders;
 

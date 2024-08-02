@@ -1,6 +1,5 @@
 ﻿using System;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces;
 
 namespace PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
 

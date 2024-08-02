@@ -1,9 +1,9 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge.Operations;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 using SkiaSharp;
 
@@ -53,7 +53,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         
         public DrawingSurface Create(ImageInfo imageInfo, IntPtr pixels, int rowBytes)
         {
-            SKSurface skSurface = CreateSkiaSurface(imageInfo.Size, !imageInfo.ForceCpu);
+            SKSurface skSurface = CreateSkiaSurface(imageInfo.Size, imageInfo.GpuBacked);
             
             var canvas = skSurface.Canvas;
             canvas.DrawImage(SKImage.FromPixelCopy(imageInfo.ToSkImageInfo(), pixels, rowBytes), new SKPoint(0, 0));
@@ -63,7 +63,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public DrawingSurface Create(ImageInfo imageInfo, IntPtr pixelBuffer)
         {
-            SKSurface skSurface = CreateSkiaSurface(imageInfo.Size, !imageInfo.ForceCpu);
+            SKSurface skSurface = CreateSkiaSurface(imageInfo.Size, imageInfo.GpuBacked);
             
             var canvas = skSurface.Canvas;
             canvas.DrawImage(SKImage.FromPixelCopy(imageInfo.ToSkImageInfo(), pixelBuffer), new SKPoint(0, 0));
@@ -85,7 +85,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public DrawingSurface Create(ImageInfo imageInfo)
         {
-            SKSurface skSurface = CreateSkiaSurface(imageInfo.Size, !imageInfo.ForceCpu);
+            SKSurface skSurface = CreateSkiaSurface(imageInfo.Size, imageInfo.GpuBacked);
             return CreateDrawingSurface(skSurface);
         }
 

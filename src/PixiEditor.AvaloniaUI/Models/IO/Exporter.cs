@@ -7,7 +7,9 @@ using ChunkyImageLib;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Files;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Models.IO;

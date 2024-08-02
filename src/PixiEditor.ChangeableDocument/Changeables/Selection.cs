@@ -1,6 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.Vector;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 

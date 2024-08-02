@@ -6,6 +6,7 @@ using Avalonia;
 using Avalonia.Platform;
 using Avalonia.Svg.Skia;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Converters;
@@ -36,7 +37,7 @@ internal class ImagePathToBitmapConverter : SingleInstanceConverter<ImagePathToB
         return new Bitmap(AssetLoader.Open(uri));
     }
 
-    public static DrawingApi.Core.Surface.Bitmap LoadDrawingApiBitmapFromRelativePath(string path)
+    public static Surface.Bitmap LoadDrawingApiBitmapFromRelativePath(string path)
     {
         Uri uri = new($"avares://{Assembly.GetExecutingAssembly().FullName}{path}");
         if (!AssetLoader.Exists(uri))

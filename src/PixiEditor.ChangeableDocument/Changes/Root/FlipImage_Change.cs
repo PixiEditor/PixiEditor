@@ -2,9 +2,11 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.PaintImpl;
 using PixiEditor.Numerics;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
@@ -52,7 +54,7 @@ internal sealed class FlipImage_Change : Change
     {
         using Paint paint = new()
         {
-            BlendMode = DrawingApi.Core.Surface.BlendMode.Src
+            BlendMode = Surface.BlendMode.Src
         };
 
         RectI bounds = new RectI(VecI.Zero, img.LatestSize);

@@ -1,7 +1,9 @@
 ﻿using ChunkyImageLib;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.ImageData;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Numerics;
 using PixiEditor.Parser;

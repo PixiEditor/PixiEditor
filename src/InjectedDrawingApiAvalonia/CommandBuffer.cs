@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using SkiaSharp;
 
 namespace InjectedDrawingApiAvalonia;

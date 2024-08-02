@@ -1,6 +1,8 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.Surface.PaintImpl;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -38,7 +40,7 @@ public class ShaderNode : Node
         }
 
         var shader =
-            PixiEditor.DrawingApi.Core.Surface.PaintImpl.Shader.CreateFromSksl(_shaderCode, false, out string errors);
+            Surface.PaintImpl.Shader.CreateFromSksl(_shaderCode, false, out string errors);
         if (shader == null)
         {
             Console.WriteLine(errors);
