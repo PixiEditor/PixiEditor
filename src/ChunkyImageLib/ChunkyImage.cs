@@ -93,7 +93,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     private VectorPath? clippingPath;
     private double? horizontalSymmetryAxis = null;
     private double? verticalSymmetryAxis = null;
-    private float opacity = 1;
+    
+    private int operationCounter = 0;
 
     private readonly Dictionary<ChunkResolution, Dictionary<VecI, Chunk>> committedChunks;
     private readonly Dictionary<ChunkResolution, Dictionary<VecI, Chunk>> latestChunks;
@@ -809,6 +810,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             if (operation.IgnoreEmptyChunks)
                 area.Chunks.IntersectWith(FindAllChunks());
             EnqueueOperation(op, area);
+            operationCounter++;
         }
     }
 
@@ -1420,6 +1422,10 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
 
     public int GetCacheHash()
     {
-        return commitCounter + queuedOperations.Count;
+        return commitCounter + queuedOperations.Count + operationCounter + activeClips.Count
+            + (int)blendMode + (lockTransparency ? 1 : 0) 
+            + (horizontalSymmetryAxis is not null ? (int)(horizontalSymmetryAxis * 100) : 0) 
+            + (verticalSymmetryAxis is not null ? (int)(verticalSymmetryAxis * 100) : 0) 
+            + (clippingPath is not null ? 1 : 0);
     }
 }
