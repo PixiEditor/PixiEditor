@@ -52,6 +52,7 @@ public partial class NodePicker : TemplatedControl
     static NodePicker()
     {
         SearchQueryProperty.Changed.Subscribe(OnSearchQueryChanged);
+        AllNodeTypesProperty.Changed.Subscribe(OnAllNodeTypesChanged);
     }
 
     private static void OnSearchQueryChanged(AvaloniaPropertyChangedEventArgs e)
@@ -60,6 +61,14 @@ public partial class NodePicker : TemplatedControl
         {
             nodePicker.FilteredNodeTypes = new ObservableCollection<Type>(nodePicker.AllNodeTypes
                 .Where(x => x.Name.ToLower().Contains(nodePicker.SearchQuery.ToLower())));
+        }
+    }
+    
+    private static void OnAllNodeTypesChanged(AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Sender is NodePicker nodePicker)
+        {
+            nodePicker.FilteredNodeTypes = new ObservableCollection<Type>(nodePicker.AllNodeTypes);
         }
     }
 }
