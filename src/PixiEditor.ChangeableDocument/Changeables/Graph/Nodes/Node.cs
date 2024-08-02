@@ -328,6 +328,18 @@ public abstract class Node : IReadOnlyNode, IDisposable
             var newOutput = cloneOutput.Clone(clone);
             clone.outputs[i].Value = newOutput.Value; 
         }
+        
+        foreach (var keyFrame in keyFrames)
+        {
+            KeyFrameData newKeyFrame = new KeyFrameData(keyFrame.KeyFrameGuid, keyFrame.StartFrame, keyFrame.Duration,
+                keyFrame.AffectedElement)
+            {
+                IsVisible = keyFrame.IsVisible, Duration = keyFrame.Duration,
+                Data = keyFrame.Data is ICloneable cloneable ? cloneable.Clone() : keyFrame.Data
+            };
+            
+            clone.keyFrames.Add(newKeyFrame);
+        }
 
         return clone;
     }

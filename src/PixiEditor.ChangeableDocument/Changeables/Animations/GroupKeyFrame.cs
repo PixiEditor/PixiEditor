@@ -40,7 +40,7 @@ internal class GroupKeyFrame : KeyFrame, IKeyFrameChildrenContainer
 
     public override KeyFrame Clone()
     {
-        var clone = new GroupKeyFrame(TargetNode, StartFrame, document) { Id = this.Id };
+        var clone = new GroupKeyFrame(TargetNode, StartFrame, document) { Id = this.Id, IsVisible = IsVisible };
         foreach (var child in Children)
         {
             clone.Children.Add(child.Clone());

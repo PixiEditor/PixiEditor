@@ -170,8 +170,15 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     {
         TryFindKeyFrame<KeyFrameViewModel>(keyFrameId, out _, (frame, parent) =>
         {
-            parent.Children.Remove(frame);
-            keyFrames.NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, (KeyFrameViewModel)frame);
+            if (frame is not KeyFrameGroupViewModel group)
+            {
+                parent.Children.Remove(frame);
+                keyFrames.NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, (KeyFrameViewModel)frame);
+            }
+            else
+            {
+                keyFrames.Remove(group);
+            }
         });
         
         allKeyFrames.RemoveAll(x => x.Id == keyFrameId);

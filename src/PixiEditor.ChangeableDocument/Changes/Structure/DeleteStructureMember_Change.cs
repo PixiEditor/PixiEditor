@@ -1,5 +1,7 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
@@ -10,8 +12,10 @@ internal class DeleteStructureMember_Change : Change
 {
     private Guid memberGuid;
     private int originalIndex;
-    private ConnectionsData originalConnections; 
+    private ConnectionsData originalConnections;
     private StructureNode? savedCopy;
+
+    private GroupKeyFrame savedKeyFrameGroup;
 
     [GenerateMakeChangeAction]
     public DeleteStructureMember_Change(Guid memberGuid)
@@ -25,10 +29,13 @@ internal class DeleteStructureMember_Change : Change
         if (member is null)
             return false;
 
-        originalConnections = NodeOperations.CreateConnectionsData(member); 
-        
+        originalConnections = NodeOperations.CreateConnectionsData(member);
+
         savedCopy = (StructureNode)member.Clone();
         savedCopy.Id = memberGuid;
+
+        savedKeyFrameGroup = DeleteNode_Change.CloneGroupKeyFrame(document, memberGuid);
+
         return true;
     }
 
@@ -51,9 +58,15 @@ internal class DeleteStructureMember_Change : Change
                 bgConnection.ConnectTo(connection);
                 changes.Add(new ConnectProperty_ChangeInfo(bgConnection.Node.Id, connection.Node.Id,
                     bgConnection.InternalPropertyName, connection.InternalPropertyName));
-                
+
                 node.Output.DisconnectFrom(connection);
             }
+        }
+
+        if (savedKeyFrameGroup != null)
+        {
+            document.AnimationData.RemoveKeyFrame(savedKeyFrameGroup.Id);
+            changes.Add(new DeleteKeyFrame_ChangeInfo(savedKeyFrameGroup.Id));
         }
 
         node.Dispose();
@@ -74,15 +87,17 @@ internal class DeleteStructureMember_Change : Change
 
         IChangeInfo createChange = copy switch
         {
-            LayerNode => CreateLayer_ChangeInfo.FromLayer((LayerNode)copy),
-            FolderNode => CreateFolder_ChangeInfo.FromFolder((FolderNode)copy),
+            LayerNode node => CreateLayer_ChangeInfo.FromLayer(node),
+            FolderNode node => CreateFolder_ChangeInfo.FromFolder(node),
             _ => throw new NotSupportedException(),
         };
-        
+
         changes.Add(createChange);
 
-        changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, copy, doc.NodeGraph)); 
+        changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, copy, doc.NodeGraph));
         
+        DeleteNode_Change.RevertKeyFrames(doc, savedKeyFrameGroup, changes);
+
         return changes;
     }
 
@@ -91,4 +106,3 @@ internal class DeleteStructureMember_Change : Change
         savedCopy?.Dispose();
     }
 }
-

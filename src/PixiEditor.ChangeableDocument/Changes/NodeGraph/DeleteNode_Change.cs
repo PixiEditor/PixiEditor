@@ -1,4 +1,7 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
@@ -10,6 +13,8 @@ internal class DeleteNode_Change : Change
     private ConnectionsData originalConnections;
 
     private Node savedCopy;
+    
+    private GroupKeyFrame savedKeyFrameGroup;
 
     [GenerateMakeChangeAction]
     public DeleteNode_Change(Guid nodeId)
@@ -28,7 +33,15 @@ internal class DeleteNode_Change : Change
 
         savedCopy = node.Clone();
 
+        savedKeyFrameGroup = CloneGroupKeyFrame(target, NodeId);
+
         return true;
+    }
+
+    public static GroupKeyFrame CloneGroupKeyFrame(Document target, Guid id)
+    {
+        GroupKeyFrame group = target.AnimationData.KeyFrames.FirstOrDefault(x => x.TargetNode.Id == id) as GroupKeyFrame;
+        return group.Clone() as GroupKeyFrame;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
@@ -42,6 +55,12 @@ internal class DeleteNode_Change : Change
         target.NodeGraph.RemoveNode(node);
 
         changes.Add(new DeleteNode_ChangeInfo(NodeId));
+
+        if (savedKeyFrameGroup != null)
+        {
+            target.AnimationData.RemoveKeyFrame(savedKeyFrameGroup.Id);
+            changes.Add(new DeleteKeyFrame_ChangeInfo(savedKeyFrameGroup.Id));
+        }
 
         return changes;
     }
@@ -60,8 +79,25 @@ internal class DeleteNode_Change : Change
         changes.Add(createChange);
 
         changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, copy, doc.NodeGraph));
+        
+        RevertKeyFrames(doc, savedKeyFrameGroup, changes);
 
         return changes;
+    }
+
+    public static void RevertKeyFrames(Document doc, GroupKeyFrame savedKeyFrameGroup, List<IChangeInfo> changes)
+    {
+        if (savedKeyFrameGroup != null)
+        {
+            doc.AnimationData.AddKeyFrame(savedKeyFrameGroup.Clone());
+            foreach (var keyFrame in savedKeyFrameGroup.Children)
+            {
+                changes.Add(new CreateRasterKeyFrame_ChangeInfo(keyFrame.NodeId, keyFrame.StartFrame, keyFrame.Id, false));
+                changes.Add(new KeyFrameLength_ChangeInfo(keyFrame.Id, keyFrame.StartFrame, keyFrame.Duration));
+            } 
+            
+            changes.Add(new KeyFrameVisibility_ChangeInfo(savedKeyFrameGroup.Id, savedKeyFrameGroup.IsVisible));
+        }
     }
 
     public override void Dispose()

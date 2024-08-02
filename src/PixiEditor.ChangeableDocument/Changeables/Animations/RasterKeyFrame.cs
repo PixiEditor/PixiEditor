@@ -8,23 +8,19 @@ internal class RasterKeyFrame : KeyFrame, IReadOnlyRasterKeyFrame
     public Document Document { get; set; }
 
     private ImageLayerNode targetNode;
-    private ChunkyImage targetImage;
 
-    public RasterKeyFrame(Guid id, ImageLayerNode node, int startFrame, Document document, ChunkyImage keyFrameImage)
+    public RasterKeyFrame(Guid id, ImageLayerNode node, int startFrame, Document document)
         : base(node, startFrame)
     {
         Id = id;
         targetNode = node;
-        targetImage = keyFrameImage;
-
         Document = document;
     }
 
     public override KeyFrame Clone()
     {
-        var image = targetImage.CloneFromCommitted();
-        return new RasterKeyFrame(Id, targetNode, StartFrame, Document, image) { Duration = Duration, IsVisible = IsVisible };
+        return new RasterKeyFrame(Id, targetNode, StartFrame, Document) { Duration = Duration, IsVisible = IsVisible };
     }
 
-    public IReadOnlyChunkyImage Image => targetImage;
+    public IReadOnlyChunkyImage Image => targetNode.GetLayerImageByKeyFrameGuid(Id);
 }

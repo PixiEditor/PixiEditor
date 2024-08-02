@@ -23,6 +23,10 @@ internal class AnimationData : IReadOnlyAnimationData
         {
             group.Children.Add(keyFrame);
         }
+        else if (keyFrame is GroupKeyFrame groupKeyFrame)
+        {
+            keyFrames.Add(groupKeyFrame);
+        }
         else
         {
             var node = document.FindNodeOrThrow<Node>(id);
@@ -36,6 +40,14 @@ internal class AnimationData : IReadOnlyAnimationData
     {
         TryFindKeyFrameCallback<KeyFrame>(createdKeyFrameId, out _, (frame, parent) =>
         {
+            if (frame is GroupKeyFrame group)
+            {
+                keyFrames.Remove(group);
+                foreach (var child in group.Children)
+                {
+                    RemoveKeyFrame(child.Id); 
+                }
+            }
             if (document.TryFindNode<Node>(frame.NodeId, out Node? node))
             {
                 node.RemoveKeyFrame(frame.Id);
