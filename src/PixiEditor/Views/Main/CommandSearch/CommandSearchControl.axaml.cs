@@ -89,6 +89,7 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
     static CommandSearchControl()
     {
         SearchTermProperty.Changed.Subscribe(OnSearchTermChange);
+        IsVisibleProperty.Changed.Subscribe(OnIsVisibleChanged);
     }
 
     public CommandSearchControl()
@@ -106,10 +107,11 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
         KeyDown += OnPreviewKeyDown;
         Loaded += (_, _) => UpdateSearchResults();
     }
+    
 
     private static void OnIsVisibleChanged(AvaloniaPropertyChangedEventArgs<bool> e)
     {
-        CommandSearchControl control = ((CommandSearchControl)e.Sender);
+        if (e.Sender is not CommandSearchControl control) return;
         if (e.NewValue.Value)
         {
             Dispatcher.UIThread.Invoke(
