@@ -681,5 +681,11 @@
   "OUTLINE_EXAMPLE": "Automatic Outline",
   "BETA_ANIMATIONS": "Animations",
   "SLIME_EXAMPLE": "Animated Slime",
-  "SHOW_ALL_EXAMPLES": "Show all"
+  "SHOW_ALL_EXAMPLES": "Show all",
+  "APPLY_FILTER_NODE": "Apply Filter",
+  "FILTER": "Filter",
+  "LERP_NODE": "Lerp",
+  "FROM": "From",
+  "TO": "To",
+  "TIME": "Time"
 }
