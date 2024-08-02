@@ -11,7 +11,7 @@ namespace PixiEditor.Models.Handlers;
 
 public interface IReferenceLayerHandler : IHandler
 {
-    public Surface? ReferenceBitmap { get; }
+    public Texture? ReferenceBitmap { get; }
     public ShapeCorners ReferenceShapeBindable { get; set; }
     public bool IsTopMost { get; set; }
     public bool IsTransforming { get; set; }

@@ -9,11 +9,15 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Media;
 using Avalonia.Styling;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Helpers.Converters;
 using PixiEditor.Numerics;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.Views.Visuals;
+using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Views.Overlays;
 
@@ -79,8 +83,19 @@ internal class ReferenceLayerOverlay : Overlay
 
             RectD dirty = new RectD(0, 0, ReferenceLayer.ReferenceBitmap.Size.X, ReferenceLayer.ReferenceBitmap.Size.Y);
             Rect dirtyRect = new Rect(dirty.X, dirty.Y, dirty.Width, dirty.Height);
-            DrawSurfaceOperation drawOperation =
-                new DrawSurfaceOperation(dirtyRect, ReferenceLayer.ReferenceBitmap, Stretch.None, Opacity);
+            
+            double opacity = Opacity;
+            var referenceBitmap = ReferenceLayer.ReferenceBitmap;
+            DrawTextureOperation drawOperation =
+                new DrawTextureOperation(dirtyRect, Stretch.None, ReferenceLayer.ReferenceBitmap.Size, canvas =>
+                {
+                    using Paint opacityPaint = new Paint();
+                    opacityPaint.Color = new Color(255, 255, 255, (byte)(255 * opacity));
+                    opacityPaint.BlendMode = BlendMode.SrcOver;
+
+                    canvas.DrawSurface(referenceBitmap.GpuSurface.Native as SKSurface, 0, 0, opacityPaint.Native as SKPaint);
+                });
+            
             context.Custom(drawOperation);
 
             matrix.Dispose();

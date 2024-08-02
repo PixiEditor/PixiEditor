@@ -626,7 +626,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public Color? PickColorFromReferenceLayer(VecD pos)
     {
-        Surface? bitmap = ReferenceLayerViewModel.ReferenceBitmap;
+        Texture? bitmap = ReferenceLayerViewModel.ReferenceBitmap;
         if (bitmap is null)
             return null;
 

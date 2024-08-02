@@ -7,6 +7,7 @@ using Avalonia.Input;
 using Avalonia.Media;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Clipboard;
 using PixiEditor.Models.Commands.Attributes.Commands;
@@ -82,7 +83,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
 
         // TODO: Exception handling would probably be good
-        var bitmap = Importer.GetPreviewBitmap(path);
+        var bitmap = Importer.GetPreviewSurface(path);
         byte[] pixels = bitmap.ToWriteableBitmap().ExtractPixels();
 
         doc.Operations.ImportReferenceLayer(

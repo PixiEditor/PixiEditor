@@ -1,12 +1,30 @@
 ﻿using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
 using PixiEditor.DrawingApi.Core.Bridge.Operations;
+using PixiEditor.DrawingApi.Skia.Exceptions;
 using PixiEditor.DrawingApi.Skia.Implementations;
+using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Skia
 {
     public class SkiaDrawingBackend : IDrawingBackend
     {
+        public GRContext? GraphicsContext
+        {
+            get => _grContext;
+            set
+            {
+                if (_grContext != null)
+                {
+                    throw new GrContextAlreadyInitializedException();
+                }
+                
+                _grContext = value;
+            }
+        }
+        
+        public bool IsGpuAccelerated => GraphicsContext != null;
+        
         public IColorImplementation ColorImplementation { get; }
         public IImageImplementation ImageImplementation { get; }
         public IImgDataImplementation ImgDataImplementation { get; }
@@ -15,12 +33,15 @@ namespace PixiEditor.DrawingApi.Skia
         public IVectorPathImplementation PathImplementation { get; }
         public IMatrix3X3Implementation MatrixImplementation { get; }
         public IPixmapImplementation PixmapImplementation { get; }
-        public ISurfaceImplementation SurfaceImplementation { get; }
+        public ISurfaceImplementation SurfaceImplementation => _surfaceImplementation;
         public IColorSpaceImplementation ColorSpaceImplementation { get; }
         public IBitmapImplementation BitmapImplementation { get; }
         public IColorFilterImplementation ColorFilterImplementation { get; }
         public IImageFilterImplementation ImageFilterImplementation { get; }
         public IShaderImplementation ShaderImplementation { get; set; }
+
+        private SkiaSurfaceImplementation _surfaceImplementation;
+        private GRContext _grContext;
 
         public SkiaDrawingBackend()
         {
@@ -54,26 +75,22 @@ namespace PixiEditor.DrawingApi.Skia
             
             SkiaImageImplementation imgImpl = new SkiaImageImplementation(dataImpl, pixmapImpl);
             ImageImplementation = imgImpl;
-
             SkiaBitmapImplementation bitmapImpl = new SkiaBitmapImplementation(imgImpl);
             BitmapImplementation = bitmapImpl;
             
             SkiaCanvasImplementation canvasImpl = new SkiaCanvasImplementation(paintImpl, imgImpl, bitmapImpl, pathImpl);
             
-            var surfaceImpl = new SkiaSurfaceImplementation(pixmapImpl, canvasImpl, paintImpl);
+            _surfaceImplementation = new SkiaSurfaceImplementation(GraphicsContext, pixmapImpl, canvasImpl, paintImpl);
 
-            canvasImpl.SetSurfaceImplementation(surfaceImpl);
-            imgImpl.SetSurfaceImplementation(surfaceImpl);
+            canvasImpl.SetSurfaceImplementation(_surfaceImplementation);
+            imgImpl.SetSurfaceImplementation(_surfaceImplementation);
 
             CanvasImplementation = canvasImpl;
-
-            SurfaceImplementation = surfaceImpl;
-
         }
         
         public void Setup()
         {
-            
+            _surfaceImplementation.GrContext = GraphicsContext;
         }
     }
 }
