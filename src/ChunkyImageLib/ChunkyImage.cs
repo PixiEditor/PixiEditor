@@ -346,7 +346,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             }
 
             var committedChunk = GetCommittedChunk(chunkPos, resolution);
-
+            
             // draw committed directly
             if (latestChunk.IsT0 || latestChunk.IsT1 && committedChunk is not null && blendMode != BlendMode.Src)
             {

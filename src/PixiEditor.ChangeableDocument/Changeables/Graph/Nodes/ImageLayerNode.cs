@@ -91,14 +91,14 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         DrawLayer(frameImage, context, filterlessWorkingSurface, shouldClear, useFilters: false);
         blendPaint.BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src;
-        
+
         FilterlessOutput.Value = filterlessWorkingSurface;
-        
+
         // Draw raw
         DrawLayer(frameImage, context, rawWorkingSurface, true, useFilters: false);
 
         RawOutput.Value = rawWorkingSurface;
-        
+
         // Draw output
         if (!HasOperations())
         {
@@ -109,9 +109,9 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             }
 
             DrawLayer(frameImage, context, outputWorkingSurface, shouldClear);
-            
+
             Output.Value = outputWorkingSurface;
-            
+
             return outputWorkingSurface;
         }
 
@@ -120,7 +120,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         // shit gets downhill with mask on big canvases, TODO: optimize
         ApplyMaskIfPresent(outputWorkingSurface, context);
         ApplyRasterClip(outputWorkingSurface, context);
-        
+
         if (Background.Value != null)
         {
             Surface tempSurface = new Surface(outputWorkingSurface.Size);
@@ -133,25 +133,140 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
 
         Output.Value = outputWorkingSurface;
-        
+
         return outputWorkingSurface;
     }
 
-    private void DrawLayer(ChunkyImage frameImage, RenderingContext context, Surface workingSurface, bool shouldClear, bool useFilters = true)
+    private void DrawLayer(ChunkyImage frameImage, RenderingContext context, Surface workingSurface, bool shouldClear,
+        bool useFilters = true)
     {
         blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255));
 
-        blendPaint.SetFilters(useFilters ? Filters.Value : null);
-
-        if (!frameImage.DrawMostUpToDateChunkOn(
-                context.ChunkToUpdate,
-                context.ChunkResolution,
-                workingSurface.DrawingSurface,
-                context.ChunkToUpdate * context.ChunkResolution.PixelSize(),
-                blendPaint) && shouldClear)
+        if (useFilters && Filters.Value != null)
         {
-            workingSurface.DrawingSurface.Canvas.DrawRect(CalculateDestinationRect(context), clearPaint);
-            workingSurface.DrawingSurface.Canvas.Flush();
+            DrawWithFilters(frameImage, context, workingSurface, shouldClear);
+        }
+        else
+        {
+            blendPaint.SetFilters(null);
+
+            if (!frameImage.DrawMostUpToDateChunkOn(
+                    context.ChunkToUpdate,
+                    context.ChunkResolution,
+                    workingSurface.DrawingSurface,
+                    context.ChunkToUpdate * context.ChunkResolution.PixelSize(),
+                    blendPaint) && shouldClear)
+            {
+                workingSurface.DrawingSurface.Canvas.DrawRect(CalculateDestinationRect(context), clearPaint);
+            }
+        }
+    }
+
+    // Draw with filters is a bit tricky since some filters sample data from chunks surrounding the chunk being drawn,
+    // this is why we need to do intermediate drawing to a temporary surface and then apply filters to that surface
+    private void DrawWithFilters(ChunkyImage frameImage, RenderingContext context, Surface workingSurface,
+        bool shouldClear)
+    {
+        VecI imageChunksSize = frameImage.LatestSize / context.ChunkResolution.PixelSize();
+        bool requiresTopLeft = context.ChunkToUpdate.X > 0 || context.ChunkToUpdate.Y > 0;
+        bool requiresTop = context.ChunkToUpdate.Y > 0;
+        bool requiresLeft = context.ChunkToUpdate.X > 0;
+        bool requiresTopRight = context.ChunkToUpdate.X < imageChunksSize.X - 1 && context.ChunkToUpdate.Y > 0; 
+        bool requiresRight = context.ChunkToUpdate.X < imageChunksSize.X - 1;
+        bool requiresBottomRight = context.ChunkToUpdate.X < imageChunksSize.X - 1 && context.ChunkToUpdate.Y < imageChunksSize.Y - 1; 
+        bool requiresBottom = context.ChunkToUpdate.Y < imageChunksSize.Y - 1;
+        bool requiresBottomLeft = context.ChunkToUpdate.X > 0 && context.ChunkToUpdate.Y < imageChunksSize.Y - 1;
+
+        VecI tempSizeInChunks = new VecI(1, 1);
+        if(requiresLeft)
+        {
+            tempSizeInChunks.X++;
+        }
+        
+        if(requiresRight)
+        {
+            tempSizeInChunks.X++;
+        }
+        
+        if(requiresTop)
+        {
+            tempSizeInChunks.Y++;
+        }
+        
+        if(requiresBottom)
+        {
+            tempSizeInChunks.Y++;
+        }
+
+        if (shouldClear)
+        {
+            workingSurface.DrawingSurface.Canvas.DrawRect(
+                new RectI(
+                    VecI.Zero,
+                    tempSizeInChunks * context.ChunkResolution.PixelSize()),
+                clearPaint);
+        }
+        
+        using Surface tempSurface = new Surface(tempSizeInChunks * context.ChunkResolution.PixelSize());
+
+        if (requiresTopLeft)
+        {
+            DrawChunk(frameImage, context, tempSurface, new VecI(-1, -1));
+        }
+        
+        if (requiresTop)
+        {
+            DrawChunk(frameImage, context, tempSurface, new VecI(0, -1));
+        }
+        
+        if (requiresLeft)
+        {
+            DrawChunk(frameImage, context, tempSurface, new VecI(-1, 0));
+        }
+        
+        if (requiresTopRight)
+        {
+            DrawChunk(frameImage, context, tempSurface, new VecI(1, -1));
+        }
+        
+        if (requiresRight)
+        {
+            DrawChunk(frameImage, context, tempSurface, new VecI(1, 0));
+        }
+        
+        if (requiresBottomRight)
+        {
+            DrawChunk(frameImage, context, tempSurface, new VecI(1, 1));
+        }
+        
+        if (requiresBottom)
+        {
+            DrawChunk(frameImage, context, tempSurface, new VecI(0, 1));
+        }
+        
+        if (requiresBottomLeft)
+        {
+            DrawChunk(frameImage, context, tempSurface, new VecI(-1, 1));
+        }
+        
+        DrawChunk(frameImage, context, tempSurface, new VecI(0, 0));
+        
+        blendPaint.SetFilters(Filters.Value);
+        var destinationRect = CalculateDestinationRect(context);
+        workingSurface.DrawingSurface.Canvas.DrawSurface(tempSurface.DrawingSurface, VecI.Zero, blendPaint);
+    }
+
+    private void DrawChunk(ChunkyImage frameImage, RenderingContext context, Surface tempSurface, VecI vecI)
+    {
+        VecI chunkPos = context.ChunkToUpdate + vecI;
+        if (frameImage.LatestOrCommittedChunkExists(chunkPos))
+        {
+            frameImage.DrawMostUpToDateChunkOn(
+                chunkPos,
+                context.ChunkResolution,
+                tempSurface.DrawingSurface,
+                chunkPos * context.ChunkResolution.PixelSize(),
+                blendPaint);
         }
     }
 
