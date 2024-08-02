@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 
 namespace PixiEditor.ChangeableDocument.Changes.Animation;
@@ -7,7 +8,8 @@ internal class DeleteKeyFrame_Change : Change
 {
     private readonly Guid _keyFrameId;
     private KeyFrame clonedKeyFrame;
-    
+    private KeyFrameData savedKeyFrameData;
+
     [GenerateMakeChangeAction]
     public DeleteKeyFrame_Change(Guid keyFrameId)
     {
@@ -18,7 +20,18 @@ internal class DeleteKeyFrame_Change : Change
     {
         if (target.AnimationData.TryFindKeyFrame(_keyFrameId, out KeyFrame keyFrame))
         {
+            Node node = target.FindNode<Node>(keyFrame.NodeId);
+            if (node is null)
+            {
+                return false;
+            }
+
             clonedKeyFrame = keyFrame.Clone();
+            
+            KeyFrameData data = node.KeyFrames.FirstOrDefault(x => x.KeyFrameGuid == keyFrame.Id);
+
+            savedKeyFrameData = data.Clone();
+            
             return true;
         }
 
@@ -35,14 +48,17 @@ internal class DeleteKeyFrame_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
+        target.FindNode<Node>(clonedKeyFrame.NodeId).AddFrame(_keyFrameId, savedKeyFrameData.Clone());
         target.AnimationData.AddKeyFrame(clonedKeyFrame.Clone());
-        List<IChangeInfo> changes = new List<IChangeInfo>
-        {
-           new CreateRasterKeyFrame_ChangeInfo(clonedKeyFrame.NodeId, clonedKeyFrame.StartFrame, clonedKeyFrame.Id, false),
-           new KeyFrameVisibility_ChangeInfo(clonedKeyFrame.Id, clonedKeyFrame.IsVisible),
-           new KeyFrameLength_ChangeInfo(clonedKeyFrame.Id, clonedKeyFrame.StartFrame, clonedKeyFrame.Duration)
-        };
-        
+        List<IChangeInfo> changes =
+        [
+            new CreateRasterKeyFrame_ChangeInfo(clonedKeyFrame.NodeId, clonedKeyFrame.StartFrame, clonedKeyFrame.Id,
+                false),
+
+            new KeyFrameVisibility_ChangeInfo(clonedKeyFrame.Id, clonedKeyFrame.IsVisible),
+            new KeyFrameLength_ChangeInfo(clonedKeyFrame.Id, clonedKeyFrame.StartFrame, clonedKeyFrame.Duration)
+        ];
+
         return changes;
     }
 }
