@@ -489,7 +489,7 @@ internal class TransformOverlay : Overlay
 
     private bool CanRotate(VecD mousePos)
     {
-        return !Corners.IsPointInside(mousePos) && Handles.All(x => !x.IsWithinHandle(x.Position, mousePos, ZoomScale));
+        return !Corners.IsPointInside(mousePos) && Handles.All(x => !x.IsWithinHandle(x.Position, mousePos, ZoomScale)) && TestHit(mousePos);
     }
 
     private bool UpdateRotationCursor(VecD mousePos)

@@ -19,7 +19,7 @@ internal class ViewportOverlays
 {
     public Viewport Viewport { get; set; }
 
-    private GridLinesOverlay gridLinesOverlayOverlay;
+    private GridLinesOverlay gridLinesOverlay;
     private SelectionOverlay selectionOverlay;
     private SymmetryOverlay symmetryOverlay;
     private LineToolOverlay lineToolOverlay;
@@ -29,7 +29,7 @@ internal class ViewportOverlays
     public void Init(Viewport viewport)
     {
         Viewport = viewport;
-        gridLinesOverlayOverlay = new GridLinesOverlay();
+        gridLinesOverlay = new GridLinesOverlay();
         BindGridLines();
 
         selectionOverlay = new SelectionOverlay();
@@ -47,7 +47,7 @@ internal class ViewportOverlays
         referenceLayerOverlay = new ReferenceLayerOverlay();
         BindReferenceLayerOverlay();
 
-        Viewport.ActiveOverlays.Add(gridLinesOverlayOverlay);
+        Viewport.ActiveOverlays.Add(gridLinesOverlay);
         Viewport.ActiveOverlays.Add(referenceLayerOverlay);
         Viewport.ActiveOverlays.Add(selectionOverlay);
         Viewport.ActiveOverlays.Add(symmetryOverlay);
@@ -107,8 +107,8 @@ internal class ViewportOverlays
             Mode = BindingMode.OneWay
         };
 
-        gridLinesOverlayOverlay.Bind(GridLinesOverlay.PixelWidthProperty, binding);
-        gridLinesOverlayOverlay.Bind(GridLinesOverlay.ColumnsProperty, binding);
+        gridLinesOverlay.Bind(GridLinesOverlay.PixelWidthProperty, binding);
+        gridLinesOverlay.Bind(GridLinesOverlay.ColumnsProperty, binding);
 
         binding = new Binding
         {
@@ -117,9 +117,9 @@ internal class ViewportOverlays
             Mode = BindingMode.OneWay
         };
 
-        gridLinesOverlayOverlay.Bind(GridLinesOverlay.PixelHeightProperty, binding);
-        gridLinesOverlayOverlay.Bind(GridLinesOverlay.RowsProperty, binding);
-        gridLinesOverlayOverlay.Bind(Visual.IsVisibleProperty, isVisBinding);
+        gridLinesOverlay.Bind(GridLinesOverlay.PixelHeightProperty, binding);
+        gridLinesOverlay.Bind(GridLinesOverlay.RowsProperty, binding);
+        gridLinesOverlay.Bind(Visual.IsVisibleProperty, isVisBinding);
     }
 
     private void BindSelectionOverlay()

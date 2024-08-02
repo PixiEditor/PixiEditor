@@ -60,9 +60,9 @@ public class GridLinesOverlay : Overlay
         IsHitTestVisible = false;
     }
 
-    protected override void ZoomChanged(double newZoom)
+    public override bool CanRender()
     {
-        IsVisible = IsVisible && visibilityConverter.Check(newZoom);
+        return visibilityConverter.Check(ZoomScale);
     }
 
     public override void RenderOverlay(DrawingContext context, RectD canvasBounds)

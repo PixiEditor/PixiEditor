@@ -52,8 +52,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     public static readonly StyledProperty<Cursor> DefaultCursorProperty = AvaloniaProperty.Register<Scene, Cursor>(
         nameof(DefaultCursor));
 
-    public static readonly StyledProperty<ViewportColorChannels> ChannelsProperty = AvaloniaProperty.Register<Scene, ViewportColorChannels>(
-        nameof(Channels));
+    public static readonly StyledProperty<ViewportColorChannels> ChannelsProperty =
+        AvaloniaProperty.Register<Scene, ViewportColorChannels>(
+            nameof(Channels));
 
     public Cursor DefaultCursor
     {
@@ -107,7 +108,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     static Scene()
     {
-        AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty, ScaleProperty, AngleRadiansProperty, FlipXProperty,
+        AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty, ScaleProperty, AngleRadiansProperty,
+            FlipXProperty,
             FlipYProperty, DocumentProperty, SurfaceProperty, AllOverlaysProperty);
 
         FadeOutProperty.Changed.AddClassHandler<Scene>(FadeOutChanged);
@@ -137,13 +139,14 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         if (Surface == null || Document == null) return;
 
         float angle = (float)MathUtil.RadiansToDegrees(AngleRadians);
-        
+
         float resolutionScale = CalculateResolutionScale();
 
         RectD dirtyBounds = new RectD(0, 0, Document.Width / resolutionScale, Document.Height / resolutionScale);
         Rect dirtyRect = new Rect(0, 0, Document.Width / resolutionScale, Document.Height / resolutionScale);
 
-        using var operation = new DrawSceneOperation(Surface, Document, CanvasPos, Scale * resolutionScale, angle, FlipX, FlipY,
+        using var operation = new DrawSceneOperation(Surface, Document, CanvasPos, Scale * resolutionScale, angle,
+            FlipX, FlipY,
             dirtyRect,
             Bounds,
             sceneOpacity,
@@ -176,9 +179,15 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         {
             foreach (Overlay overlay in AllOverlays)
             {
-                if (!overlay.IsVisible || overlay.OverlayRenderSorting != sorting) continue;
-                overlay.ZoomScale = Scale;
+                if (!overlay.IsVisible || overlay.OverlayRenderSorting != sorting)
+                {
+                    continue;
+                }
 
+                overlay.ZoomScale = Scale;
+                
+                if(!overlay.CanRender()) continue;
+                
                 overlay.RenderOverlay(context, dirtyBounds);
                 Cursor = overlay.Cursor ?? DefaultCursor;
             }
@@ -319,7 +328,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             {
                 foreach (Overlay overlay in mouseOverOverlays)
                 {
-                    if(args.Handled) break;
+                    if (args.Handled) break;
                     if (!overlay.IsVisible) continue;
 
                     overlay.ReleasePointer(args);
@@ -336,7 +345,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             Modifiers = e.KeyModifiers,
             Pointer = new MouseOverlayPointer(e.Pointer, CaptureOverlay),
             PointerButton = e.GetMouseButton(this),
-            InitialPressMouseButton = e is PointerReleasedEventArgs released ? released.InitialPressMouseButton : MouseButton.None,
+            InitialPressMouseButton = e is PointerReleasedEventArgs released
+                ? released.InitialPressMouseButton
+                : MouseButton.None,
         };
     }
 
@@ -367,7 +378,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private void CaptureOverlay(Overlay? overlay, IPointer pointer)
     {
-        if(AllOverlays == null) return;
+        if (AllOverlays == null) return;
         if (overlay == null)
         {
             pointer.Capture(null);
@@ -376,7 +387,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             return;
         }
 
-        if(!AllOverlays.Contains(overlay)) return;
+        if (!AllOverlays.Contains(overlay)) return;
 
         pointer.Capture(this);
         capturedOverlay = overlay;
@@ -387,7 +398,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     private void OverlayCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         InvalidateVisual();
-        if(e.OldItems != null)
+        if (e.OldItems != null)
         {
             foreach (Overlay overlay in e.OldItems)
             {
@@ -395,7 +406,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             }
         }
 
-        if(e.NewItems != null)
+        if (e.NewItems != null)
         {
             foreach (Overlay overlay in e.NewItems)
             {
@@ -408,6 +419,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
     }
+
     private static void FadeOutChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
     {
         scene.sceneOpacity = e.NewValue is true ? 0 : 1;
@@ -441,7 +453,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private static void SurfaceChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
     {
-        if(e.NewValue is Surface surface)
+        if (e.NewValue is Surface surface)
         {
             scene.ContentDimensions = surface.Size;
         }
@@ -478,7 +490,8 @@ internal class DrawSceneOperation : SkiaDrawOperation
     private SKPaint _paint = new SKPaint();
 
     public DrawSceneOperation(Surface surface, DocumentViewModel document, VecD contentPosition, double scale,
-        double angle, bool flipX, bool flipY, Rect dirtyBounds, Rect viewportBounds, double opacity, ColorMatrix colorMatrix) : base(dirtyBounds)
+        double angle, bool flipX, bool flipY, Rect dirtyBounds, Rect viewportBounds, double opacity,
+        ColorMatrix colorMatrix) : base(dirtyBounds)
     {
         Surface = surface;
         Document = document;
@@ -506,12 +519,12 @@ internal class DrawSceneOperation : SkiaDrawOperation
             canvas.Restore();
             return;
         }
-        
+
         using Image snapshot = Surface.DrawingSurface.Snapshot(SurfaceRectToRender);
 
         var matrixValues = new float[ColorMatrix.Width * ColorMatrix.Height];
         ColorMatrix.TryGetMembers(matrixValues);
-        
+
         _paint.ColorFilter = SKColorFilter.CreateColorMatrix(matrixValues);
         canvas.DrawImage((SKImage)snapshot.Native, SurfaceRectToRender.X, SurfaceRectToRender.Y, _paint);
 
@@ -523,7 +536,8 @@ internal class DrawSceneOperation : SkiaDrawOperation
         ShapeCorners surfaceInViewportSpace = SurfaceToViewport(new RectI(VecI.Zero, Surface.Size), finalScale);
         RectI surfaceBoundsInViewportSpace = (RectI)surfaceInViewportSpace.AABBBounds.RoundOutwards();
         RectI viewportBoundsInViewportSpace =
-            (RectI)(new RectD(ViewportBounds.X, ViewportBounds.Y, ViewportBounds.Width, ViewportBounds.Height)).RoundOutwards();
+            (RectI)(new RectD(ViewportBounds.X, ViewportBounds.Y, ViewportBounds.Width, ViewportBounds.Height))
+            .RoundOutwards();
         RectI firstIntersectionInViewportSpace = surfaceBoundsInViewportSpace.Intersect(viewportBoundsInViewportSpace);
         ShapeCorners firstIntersectionInSurfaceSpace = ViewportToSurface(firstIntersectionInViewportSpace, finalScale);
         RectI firstIntersectionBoundsInSurfaceSpace = (RectI)firstIntersectionInSurfaceSpace.AABBBounds.RoundOutwards();

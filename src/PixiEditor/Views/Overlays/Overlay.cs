@@ -53,6 +53,8 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         transitionTimer?.Stop();
     }
 
+    public virtual bool CanRender() => true;
+    
     public abstract void RenderOverlay(DrawingContext context, RectD canvasBounds);
 
     public void Refresh()
