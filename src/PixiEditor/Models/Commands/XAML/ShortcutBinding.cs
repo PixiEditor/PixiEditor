@@ -15,6 +15,8 @@ internal class ShortcutBinding : MarkupExtension
     private static CommandController commandController;
 
     public string Name { get; set; }
+    
+    public bool UseAvaloniaGesture { get; set; } = true;
 
     public IValueConverter Converter { get; set; }
     
@@ -32,7 +34,7 @@ internal class ShortcutBinding : MarkupExtension
 
         ICommandsHandler? handler = ViewModelMain.Current;
         commandController ??= handler.CommandController;
-        return GetBinding(commandController.Commands[Name], Converter);
+        return GetBinding(commandController.Commands[Name], Converter, UseAvaloniaGesture);
 
         /*var targetValue = serviceProvider.GetService<IProvideValueTarget>();
         var targetObject = targetValue.TargetObject as AvaloniaObject;
@@ -43,10 +45,10 @@ internal class ShortcutBinding : MarkupExtension
         return instancedBinding; //TODO: This won't work, leaving it for now*/
     }
 
-    public static Binding GetBinding(Commands.Command command, IValueConverter converter) => new Binding
+    public static Binding GetBinding(ActualCommand command, IValueConverter converter, bool useAvaloniaGesture) => new Binding
     {
         Source = command,
-        Path = new("Shortcut.Gesture"),
+        Path = useAvaloniaGesture ? "Shortcut.Gesture" : "Shortcut",
         Mode = BindingMode.OneWay,
         StringFormat = "",
         Converter = converter

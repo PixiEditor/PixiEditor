@@ -51,7 +51,7 @@ internal class Menu : global::Avalonia.Controls.Menu
 
         item.Command = Command.GetICommand(command, false);
         item.Icon = icon;
-        item.Bind(MenuItem.InputGestureProperty, ShortcutBinding.GetBinding(command, null));
+        item.Bind(MenuItem.InputGestureProperty, ShortcutBinding.GetBinding(command, null, true));
     }
 
     private static void HandleDesignMode(MenuItem item, string name)

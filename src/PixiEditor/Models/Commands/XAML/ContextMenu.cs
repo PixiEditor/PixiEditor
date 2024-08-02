@@ -35,7 +35,7 @@ internal class ContextMenu : global::Avalonia.Controls.ContextMenu
         var command = CommandController.Current.Commands[value];
 
         item.Command = Command.GetICommand(command, false);
-        item.Bind(MenuItem.InputGestureProperty, ShortcutBinding.GetBinding(command, null));
+        item.Bind(MenuItem.InputGestureProperty, ShortcutBinding.GetBinding(command, null, true));
     }
 
     private static void HandleDesignMode(MenuItem item, string name)

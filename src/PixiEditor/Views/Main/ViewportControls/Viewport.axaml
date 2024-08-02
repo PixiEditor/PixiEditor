@@ -208,9 +208,9 @@
             </Button.IsVisible>
             <StackPanel Orientation="Horizontal">
                 <TextBlock ui:Translator.Key="APPLY_TRANSFORM" VerticalAlignment="Center" Margin="0,0,5,0" />
-                <Border Padding="10,3" CornerRadius="5" Background="{DynamicResource ThemeAccentBrush}"
+                <Border Padding="10,3" CornerRadius="5" Background="{DynamicResource ThemeControlLowBrush}"
                         IsVisible="{xaml:ShortcutBinding PixiEditor.Tools.ApplyTransform, Converter={converters:NotNullToVisibilityConverter}}">
-                    <TextBlock Text="{xaml:ShortcutBinding PixiEditor.Tools.ApplyTransform}" />
+                    <TextBlock Text="{xaml:ShortcutBinding PixiEditor.Tools.ApplyTransform, UseAvaloniaGesture=False}" />
                 </Border>
             </StackPanel>
         </Button>
