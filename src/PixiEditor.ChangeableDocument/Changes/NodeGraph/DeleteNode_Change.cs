@@ -21,7 +21,7 @@ internal class DeleteNode_Change : Change
     {
         Node node = target.FindNode<Node>(NodeId);
 
-        if (node is null)
+        if (node is null || target.NodeGraph.OutputNode == node)
             return false;
 
         originalConnections = NodeOperations.CreateConnectionsData(node);

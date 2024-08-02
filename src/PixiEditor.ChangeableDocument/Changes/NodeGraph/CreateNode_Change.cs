@@ -25,7 +25,8 @@ internal class CreateNode_Change : Change
     
     public override bool InitializeAndValidate(Document target)
     {
-        return nodeType.IsSubclassOf(typeof(Node)) && nodeType is { IsAbstract: false, IsInterface: false };
+        bool canCreate = nodeType.IsSubclassOf(typeof(Node)) && nodeType is { IsAbstract: false, IsInterface: false };
+        return canCreate && (!nodeType.IsAssignableTo(typeof(OutputNode)) || target.NodeGraph.OutputNode is null);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
