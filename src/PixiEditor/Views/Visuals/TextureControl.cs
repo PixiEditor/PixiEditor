@@ -89,11 +89,7 @@ public class TextureControl : Control
         ICustomDrawOperation drawOperation = new DrawTextureOperation(
             new Rect(0, 0, Bounds.Width, Bounds.Height),
             Stretch,
-            texture.Size,
-            canvas =>
-            {
-                canvas.DrawSurface(texture.GpuSurface.Native as SKSurface, 0, 0);
-            });
+            texture);
 
         context.Custom(drawOperation);
     }
@@ -101,27 +97,29 @@ public class TextureControl : Control
 
 internal class DrawTextureOperation : SkiaDrawOperation
 {
-    public event Action<SKCanvas> Draw;
     public Stretch Stretch { get; }
     public VecD TargetSize { get; }
+    public Texture Texture { get; }
 
-    public DrawTextureOperation(Rect dirtyBounds, Stretch stretch, VecD targetSize, Action<SKCanvas> draw) :
+    public DrawTextureOperation(Rect dirtyBounds, Stretch stretch, Texture texture) :
         base(dirtyBounds)
     {
-        Draw += draw;
         Stretch = stretch;
-        TargetSize = targetSize;
+        Texture = texture;
+        TargetSize = new VecD(texture.Size.X, texture.Size.Y);
     }
 
     public override void Render(ISkiaSharpApiLease lease)
     {
         SKCanvas canvas = lease.SkCanvas;
         
+        Texture.GpuSurface.Canvas.Flush();
+        
         (DrawingBackendApi.Current.SurfaceImplementation as SkiaSurfaceImplementation).GrContext = lease.GrContext;
-
+        
         canvas.Save();
         ScaleCanvas(canvas);
-        Draw?.Invoke(lease.SkCanvas);
+        canvas.DrawSurface(Texture.GpuSurface.Native as SKSurface, 0, 0); 
         canvas.Restore();
     }
 

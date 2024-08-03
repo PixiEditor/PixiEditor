@@ -39,7 +39,7 @@ public class Texture : IDisposable
 
         Texture texture = new Texture(image.Size);
         texture.GpuSurface.Canvas.DrawImage(image, 0, 0);
-
+        
         return texture;
     }
 
@@ -48,7 +48,7 @@ public class Texture : IDisposable
         using Image image = Image.FromEncodedData(data);
         Texture texture = new Texture(image.Size);
         texture.GpuSurface.Canvas.DrawImage(image, 0, 0);
-
+        
         return texture;
     }
 
@@ -60,7 +60,7 @@ public class Texture : IDisposable
 
         var surface = new Texture(new VecI(image.Width, image.Height));
         surface.GpuSurface.Canvas.DrawImage(image, 0, 0);
-
+        
         return surface;
     }
 
@@ -81,6 +81,7 @@ public class Texture : IDisposable
         paint.FilterQuality = filterQuality;
 
         newTexture.GpuSurface.Canvas.DrawImage(image, new RectD(0, 0, newSize.X, newSize.Y), paint);
+        
         return newTexture;
     }
 
@@ -88,7 +89,7 @@ public class Texture : IDisposable
     {
         if (vecI.X < 0 || vecI.X >= Size.X || vecI.Y < 0 || vecI.Y >= Size.Y)
             return null;
-        
+
         //TODO:
         return Color.Empty;
     }

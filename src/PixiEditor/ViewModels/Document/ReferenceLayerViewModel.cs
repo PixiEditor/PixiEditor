@@ -114,7 +114,7 @@ internal class ReferenceLayerViewModel : ObservableObject, IReferenceLayerHandle
     
     public void SetReferenceLayer(ImmutableArray<byte> imageBgra8888Bytes, VecI imageSize, ShapeCorners shape)
     {
-        ReferenceBitmap = Texture.Load(imageBgra8888Bytes.ToArray(), ColorType.Bgra8888, imageSize); //TODO: Was WriteableBitmapUtility.FromBgra8888Array(imageBgra8888Bytes.ToArray(), imageSize);
+        ReferenceBitmap = Texture.Load(imageBgra8888Bytes.ToArray(), ColorType.Bgra8888, imageSize); 
         referenceShape = shape;
         isVisible = true;
         isTransforming = false;
