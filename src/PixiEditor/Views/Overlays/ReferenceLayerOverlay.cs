@@ -64,6 +64,12 @@ internal class ReferenceLayerOverlay : Overlay
         : OverlayRenderSorting.Background;
 
     private Pen borderBen = new Pen(Brushes.Black, 2);
+    
+    private Paint overlayPaint = new Paint
+    {
+        Color = new Color(255, 255, 255, 255),
+        BlendMode = BlendMode.SrcOver
+    };
 
     static ReferenceLayerOverlay()
     {
@@ -89,14 +95,10 @@ internal class ReferenceLayerOverlay : Overlay
             var referenceBitmap = ReferenceLayer.ReferenceBitmap;
 
             referenceBitmap.GpuSurface.Flush();
-            Paint paint = new Paint
-            {
-                Color = new Color(255, 255, 255, (byte)(opacity * 255)),
-                BlendMode = BlendMode.SrcOver
-            };
+            overlayPaint.Color = new Color(255, 255, 255, (byte)(opacity * 255)); 
             
             DrawTextureOperation drawOperation =
-                new DrawTextureOperation(dirtyRect, Stretch.None, referenceBitmap, paint);
+                new DrawTextureOperation(dirtyRect, Stretch.None, referenceBitmap, overlayPaint);
 
             context.Custom(drawOperation);
 
