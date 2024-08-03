@@ -60,7 +60,7 @@ public class Texture : IDisposable
 
         var surface = new Texture(new VecI(image.Width, image.Height));
         surface.GpuSurface.Canvas.DrawImage(image, 0, 0);
-        
+
         return surface;
     }
 

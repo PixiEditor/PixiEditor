@@ -88,16 +88,15 @@ internal class ReferenceLayerOverlay : Overlay
             double opacity = Opacity;
             var referenceBitmap = ReferenceLayer.ReferenceBitmap;
 
+            referenceBitmap.GpuSurface.Flush();
+            Paint paint = new Paint
+            {
+                Color = new Color(255, 255, 255, (byte)(opacity * 255)),
+                BlendMode = BlendMode.SrcOver
+            };
+            
             DrawTextureOperation drawOperation =
-                new DrawTextureOperation(dirtyRect, Stretch.None, referenceBitmap/*, canvas =>
-                {
-                    using Paint opacityPaint = new Paint();
-                    opacityPaint.Color = new Color(255, 255, 255, (byte)(255 * opacity));
-                    opacityPaint.BlendMode = BlendMode.SrcOver;
-
-                    canvas.DrawSurface(referenceBitmap.GpuSurface.Native as SKSurface, 0, 0,
-                        opacityPaint.Native as SKPaint);
-                }*/);
+                new DrawTextureOperation(dirtyRect, Stretch.None, referenceBitmap, paint);
 
             context.Custom(drawOperation);
 
