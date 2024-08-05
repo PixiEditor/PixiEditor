@@ -96,9 +96,8 @@ public class Texture : IDisposable
     {
         if (vecI.X < 0 || vecI.X >= Size.X || vecI.Y < 0 || vecI.Y >= Size.Y)
             return null;
-
-        //TODO:
-        return Color.Empty;
+        
+        return Surface.PeekPixels().GetPixelColor(vecI.X, vecI.Y);
     }
 
     public void Dispose()

@@ -31,7 +31,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             SKPixmap pixmap = ManagedInstances[drawingSurface.ObjectPointer].PeekPixels();
             if (pixmap == null)
             {
-                return drawingSurface.Snapshot().PeekPixels();
+                pixmap = (Bitmap.FromImage(drawingSurface.Snapshot()).Native as SKBitmap).PeekPixels();
             }
 
             return _pixmapImplementation.CreateFrom(pixmap);
