@@ -33,9 +33,11 @@ public class AnalyticsPeriodicReporter
         Task.Run(RunAsync);
     }
 
-    public void Stop()
+    public async Task StopAsync()
     {
         _cancellationToken.Cancel();
+
+        await _client.EndSessionAsync(SessionId).WaitAsync(TimeSpan.FromSeconds(1));
     }
 
     public void AddEvent(AnalyticEvent value)

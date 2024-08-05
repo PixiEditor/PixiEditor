@@ -8,6 +8,7 @@ using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
+using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
@@ -191,6 +192,15 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public async Task CloseWindow()
     {
         UserWantsToClose = await DisposeAllDocumentsWithSaveConfirmation();
+
+        if (UserWantsToClose)
+        {
+            var analytics = Services.GetService<AnalyticsPeriodicReporter>();
+            if (analytics != null)
+            {
+                await analytics.StopAsync();
+            }
+        }
     }
 
     private void ToolsSubViewModel_SelectedToolChanged(object sender, SelectedToolEventArgs e)
