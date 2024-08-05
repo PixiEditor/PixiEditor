@@ -55,7 +55,7 @@ internal class SupportedFilesHelper
     {
         return AllSupportedExtensions.Contains(fileExtension);
     }
-    public static IoFileType ParseImageFormat(string extension)
+    public static IoFileType? ParseImageFormat(string extension)
     {
         var allExts = FileTypes;
         var fileData = allExts.SingleOrDefault(i => i.Extensions.Contains(extension));

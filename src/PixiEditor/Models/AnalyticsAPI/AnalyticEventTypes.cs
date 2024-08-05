@@ -2,20 +2,20 @@
 
 public class AnalyticEventTypes
 {
-    public string Startup { get; } = GetEventType("Startup");
-    public string CreateDocument { get; } = GetEventType("CreateDocument");
-    public string SwitchTab { get; } = GetEventType("SwitchTab");
-    public string OpenWindow { get; } = GetEventType("OpenWindow");
-    public string CreateNode { get; } = GetEventType("CreateNode");
-    public string CreateKeyframe { get; } = GetEventType("CreateKeyframe");
-    public string CloseDocument { get; } = GetEventType("CloseDocument");
-    public string ResizeDocument { get; } = GetEventType("ResizeDocument");
-    public string OpenExample { get; } = GetEventType("OpenExample");
-    public string OpenFile { get; } = GetEventType("OpenFile");
-    public string GeneralCommand { get; } = GetEventType("GeneralCommand");
-    public string SwitchTool { get; } = GetEventType("SwitchTool");
-    public string UseTool { get; } = GetEventType("UseTool");
-    public string SetColor { get; } = GetEventType("SetColor");
+    public static string Startup { get; } = GetEventType("Startup");
+    public static string CreateDocument { get; } = GetEventType("CreateDocument");
+    public static string SwitchTab { get; } = GetEventType("SwitchTab");
+    public static string OpenWindow { get; } = GetEventType("OpenWindow");
+    public static string CreateNode { get; } = GetEventType("CreateNode");
+    public static string CreateKeyframe { get; } = GetEventType("CreateKeyframe");
+    public static string CloseDocument { get; } = GetEventType("CloseDocument");
+    public static string ResizeDocument { get; } = GetEventType("ResizeDocument");
+    public static string OpenExample { get; } = GetEventType("OpenExample");
+    public static string OpenFile { get; } = GetEventType("OpenFile");
+    public static string GeneralCommand { get; } = GetEventType("GeneralCommand");
+    public static string SwitchTool { get; } = GetEventType("SwitchTool");
+    public static string UseTool { get; } = GetEventType("UseTool");
+    public static string SetColor { get; } = GetEventType("SetColor");
 
     private static string GetEventType(string value) => $"PixiEditor.{value}";
 }

@@ -15,11 +15,11 @@ public class AnalyticsClient
 
     public async Task<Guid?> CreateSessionAsync(CancellationToken cancellationToken = default)
     {
-        var response = await _client.GetAsync("init-session", cancellationToken);
+        var response = await _client.GetAsync($"init-session?version={VersionHelpers.GetCurrentAssemblyVersion()}", cancellationToken);
 
         if (response.IsSuccessStatusCode)
         {
-            return Guid.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+            return await response.Content.ReadFromJsonAsync<Guid?>(cancellationToken);
         }
 
         if (response.StatusCode is not HttpStatusCode.ServiceUnavailable)

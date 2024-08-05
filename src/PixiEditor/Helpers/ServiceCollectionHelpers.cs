@@ -11,6 +11,7 @@ using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.FlyUI;
 using PixiEditor.Extensions.IO;
 using PixiEditor.Extensions.Runtime;
+using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.ExtensionServices;
@@ -74,6 +75,9 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<LayoutManager>()
             .AddSingleton<LayoutViewModel>()
             .AddSingleton(x => new ExtensionsViewModel(x.GetService<ViewModels_ViewModelMain>(), extensionLoader))
+            // Analytics
+            .AddSingleton<AnalyticsClient>(_ => new AnalyticsClient(Environment.GetEnvironmentVariable("PixiEditorAnalytics")))
+            .AddSingleton<AnalyticsPeriodicReporter>()
             // Controllers
             .AddSingleton<ShortcutController>()
             .AddSingleton<CommandController>()

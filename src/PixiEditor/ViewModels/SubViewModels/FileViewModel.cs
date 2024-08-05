@@ -14,13 +14,16 @@ using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Exceptions;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Helpers;
+using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.Files;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserData;
 using PixiEditor.Numerics;
@@ -223,8 +226,12 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     private void OpenDotPixi(string path, bool associatePath = true)
     {
         DocumentViewModel document = Importer.ImportDocument(path, associatePath);
+
         AddDocumentViewModelToTheSystem(document);
         AddRecentlyOpened(document.FullFilePath);
+        
+        var fileSize = new FileInfo(path).Length;
+        Analytics.SendOpenFile(PixiFileType.PixiFile, fileSize, document.SizeBindable);
     }
 
     /// <summary>
@@ -261,6 +268,18 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
 
         AddRecentlyOpened(path);
+
+        var fileType = SupportedFilesHelper.ParseImageFormat(path);
+
+        if (fileType != null)
+        {
+            var fileSize = new FileInfo(path).Length;
+            Analytics.SendOpenFile(fileType, fileSize, doc.SizeBindable);
+        }
+        else
+        {
+            CrashHelper.SendExceptionInfoToWebhook(new InvalidFileTypeException(default, $"Invalid file type '{fileType}'"));
+        }
     }
 
 
@@ -305,6 +324,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                         new VecI(newFile.Width, newFile.Height), out int id)
                     .WithOutputNode(id, "Output")
                 ));
+
+            Analytics.SendCreateDocument(newFile.Width, newFile.Height);
         }
     }
 

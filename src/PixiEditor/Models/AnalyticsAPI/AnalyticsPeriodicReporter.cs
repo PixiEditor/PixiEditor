@@ -61,7 +61,9 @@ public class AnalyticsPeriodicReporter
             return;
         }
 
-        await Task.Run(RunHeartbeatAsync);
+        SessionId = createSession.Value;
+
+        Task.Run(RunHeartbeatAsync);
 
         while (!_cancellationToken.IsCancellationRequested)
         {
@@ -69,7 +71,7 @@ public class AnalyticsPeriodicReporter
             {
                 await SendBacklogAsync();
 
-                await Task.Delay(10);
+                await Task.Delay(TimeSpan.FromSeconds(10));
             }
             catch (TaskCanceledException) { }
             catch (Exception e)
@@ -85,6 +87,11 @@ public class AnalyticsPeriodicReporter
 
         try
         {
+            if (_backlog.Count == 0)
+            {
+                return;
+            }
+            
             var result = await _client.SendEventsAsync(SessionId, _backlog, _cancellationToken.Token);
             _backlog.Clear();
 

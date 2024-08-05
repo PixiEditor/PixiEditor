@@ -13,6 +13,7 @@ using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
 using PixiEditor.Initialization;
+using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Platform;
 using PixiEditor.ViewModels.SubViewModels;
@@ -28,6 +29,8 @@ internal partial class MainWindow : Window
     private readonly IServiceProvider services;
     private static ExtensionLoader extLoader;
 
+    private StartupPerformance _startupPerformance = new();
+    
     public new ViewModels_ViewModelMain DataContext { get => (ViewModels_ViewModelMain)base.DataContext; set => base.DataContext = value; }
     
     public static MainWindow? Current {
@@ -43,6 +46,8 @@ internal partial class MainWindow : Window
 
     public MainWindow(ExtensionLoader extensionLoader)
     {
+        _startupPerformance.ReportToMainWindow();
+        
         (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime).MainWindow = this;
         extLoader = extensionLoader;
 
@@ -61,7 +66,11 @@ internal partial class MainWindow : Window
         platform = services.GetRequiredService<IPlatform>();
         DataContext = services.GetRequiredService<ViewModels_ViewModelMain>();
         DataContext.Setup(services);
+        _startupPerformance.ReportToMainViewModel();
 
+        var analytics = services.GetService<AnalyticsPeriodicReporter>();
+        analytics?.Start();
+        
         InitializeComponent();
     }
 
@@ -116,6 +125,8 @@ internal partial class MainWindow : Window
         base.OnLoaded(e);
         LoadingWindow.Instance?.SafeClose();
         Activate();
+        _startupPerformance.ReportToInteractivity();
+        Analytics.SendStartup(_startupPerformance);
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)
