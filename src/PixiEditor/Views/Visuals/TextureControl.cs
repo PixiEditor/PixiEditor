@@ -106,11 +106,11 @@ internal class DrawTextureOperation : SkiaDrawOperation
 {
     public Stretch Stretch { get; }
     public VecD TargetSize { get; }
-    public Texture Texture { get; }
+    public Texture? Texture { get; }
     public Paint? Paint { get; }
     
 
-    public DrawTextureOperation(Rect dirtyBounds, Stretch stretch, Texture texture, Paint paint = null) :
+    public DrawTextureOperation(Rect dirtyBounds, Stretch stretch, Texture? texture, Paint paint = null) :
         base(dirtyBounds)
     {
         Stretch = stretch;
@@ -121,6 +121,11 @@ internal class DrawTextureOperation : SkiaDrawOperation
 
     public override void Render(ISkiaSharpApiLease lease)
     {
+        if (Texture == null || Texture.IsDisposed)
+        {
+            return;
+        }
+        
         SKCanvas canvas = lease.SkCanvas;
 
         using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);

@@ -23,7 +23,7 @@ namespace PixiEditor.DrawingApi.Skia
             }
         }
         
-        public bool IsGpuAccelerated => GraphicsContext != null;
+        public bool IsHardwareAccelerated => GraphicsContext != null;
         
         public IColorImplementation ColorImplementation { get; }
         public IImageImplementation ImageImplementation { get; }

@@ -15,7 +15,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         private readonly SkiaCanvasImplementation _canvasImplementation;
         private readonly SkiaPaintImplementation _paintImplementation;
 
-        internal GRContext GrContext { get; set; }
+        internal GRContext? GrContext { get; set; }
 
         public SkiaSurfaceImplementation(GRContext context, SkiaPixmapImplementation pixmapImplementation,
             SkiaCanvasImplementation canvasImplementation, SkiaPaintImplementation paintImplementation)
@@ -55,39 +55,61 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public DrawingSurface Create(ImageInfo imageInfo, IntPtr pixels, int rowBytes)
         {
-            SKSurface skSurface = CreateSkiaSurface(imageInfo.ToSkImageInfo(), imageInfo.GpuBacked);
-
-            using var image = SKImage.FromPixelCopy(imageInfo.ToSkImageInfo(), pixels, rowBytes);
-
-            var canvas = skSurface.Canvas;
-            canvas.DrawImage(image, new SKPoint(0, 0));
-
+            SKSurface skSurface = CreateSkiaSurface(imageInfo.ToSkImageInfo(), imageInfo.GpuBacked, pixels, rowBytes);
             return CreateDrawingSurface(skSurface);
         }
 
         public DrawingSurface Create(ImageInfo imageInfo, IntPtr pixelBuffer)
         {
             SKImageInfo info = imageInfo.ToSkImageInfo();
-            SKSurface skSurface = CreateSkiaSurface(info, imageInfo.GpuBacked);
-
-            using var image = SKImage.FromPixelCopy(info, pixelBuffer);
-
-            var canvas = skSurface.Canvas;
-            canvas.DrawImage(image, new SKPoint(0, 0));
-
+            SKSurface skSurface = CreateSkiaSurface(info, imageInfo.GpuBacked, pixelBuffer);
             return CreateDrawingSurface(skSurface);
+        }
+
+        private SKSurface CreateSkiaSurface(SKImageInfo imageInfo, bool isGpuBacked, IntPtr pixels, int rowBytes)
+        {
+            if (isGpuBacked)
+            {
+                SKSurface skSurface = CreateSkiaSurface(imageInfo, true);
+                using var image = SKImage.FromPixelCopy(imageInfo, pixels, rowBytes);
+
+                var canvas = skSurface.Canvas;
+                canvas.DrawImage(image, new SKPoint(0, 0));
+
+                return skSurface;
+            }
+
+            return SKSurface.Create(imageInfo, pixels, rowBytes);
+        }
+
+        private SKSurface CreateSkiaSurface(SKImageInfo imageInfo, bool isGpuBacked, IntPtr pixels)
+        {
+            if (isGpuBacked)
+            {
+                SKSurface skSurface = CreateSkiaSurface(imageInfo, true);
+                using var image = SKImage.FromPixelCopy(imageInfo, pixels);
+
+                var canvas = skSurface.Canvas;
+                canvas.DrawImage(image, new SKPoint(0, 0));
+
+                return skSurface;
+            }
+
+            return SKSurface.Create(imageInfo, pixels);
         }
 
         public DrawingSurface Create(Pixmap pixmap)
         {
             SKPixmap skPixmap = _pixmapImplementation[pixmap.ObjectPointer];
-            SKImageInfo info = skPixmap.Info;
-            SKSurface skSurface = CreateSkiaSurface(info, true);
-
-            var canvas = skSurface.Canvas;
-            canvas.DrawImage(SKImage.FromPixels(skPixmap), new SKPoint(0, 0));
+            var skSurface = CreateSkiaSurface(skPixmap);
 
             return CreateDrawingSurface(skSurface);
+        }
+
+        private SKSurface CreateSkiaSurface(SKPixmap skPixmap)
+        {
+            SKSurface skSurface = SKSurface.Create(skPixmap); 
+            return skSurface;
         }
 
         public DrawingSurface Create(ImageInfo imageInfo)
@@ -98,7 +120,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         private SKSurface CreateSkiaSurface(SKImageInfo info, bool gpu)
         {
-            if (!gpu)
+            if (!gpu || GrContext == null)
             {
                 return SKSurface.Create(info);
             }

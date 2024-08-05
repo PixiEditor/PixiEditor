@@ -21,9 +21,6 @@ public class Program
                 RenderingMode = new Win32RenderingMode[] { Win32RenderingMode.Wgl, Win32RenderingMode.AngleEgl },
                 OverlayPopups = true
             })
-            .With(new SkiaOptions()
-            {
-                MaxGpuResourceSizeBytes = 1024 * 1024 * 1024,
-            })
+           
             .LogToTrace();
 }

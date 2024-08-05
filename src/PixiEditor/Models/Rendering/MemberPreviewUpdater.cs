@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
@@ -12,6 +13,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
@@ -537,9 +539,9 @@ internal class MemberPreviewUpdater
         IReadOnlyStructureNode member, [DisallowNull] AffectedArea? affArea, VecI position, float scaling)
     {
         bool isEditingRootImage = !member.KeyFrames.Any(x => x.IsInFrame(doc.AnimationHandler.ActiveFrameBindable));
-        if(!isEditingRootImage)
+        if (!isEditingRootImage)
             return;
-        
+
         if (keyFrame.PreviewSurface == null ||
             keyFrame.PreviewSurface.Size != memberVM.PreviewSurface.Size)
         {
@@ -558,6 +560,10 @@ internal class MemberPreviewUpdater
         AffectedArea area,
         VecI position, float scaling)
     {
+        PostRender(() =>
+        {
+            
+        
         memberVM.PreviewSurface.Surface.Canvas.Save();
         memberVM.PreviewSurface.Surface.Canvas.Scale(scaling);
         memberVM.PreviewSurface.Surface.Canvas.Translate(-position);
@@ -595,6 +601,7 @@ internal class MemberPreviewUpdater
         }
 
         memberVM.PreviewSurface.Surface.Canvas.Restore();
+        });
     }
 
     /// <summary>
@@ -603,29 +610,31 @@ internal class MemberPreviewUpdater
     private void RenderLayerMainPreview(IReadOnlyLayerNode layer, Texture surface, AffectedArea area,
         VecI position, float scaling, int frame)
     {
-        surface.Surface.Canvas.Save();
-        surface.Surface.Canvas.Scale(scaling);
-        surface.Surface.Canvas.Translate(-position);
-        surface.Surface.Canvas.ClipRect((RectD)area.GlobalArea);
-
-        foreach (var chunk in area.Chunks)
+        PostRender(() =>
         {
-            var pos = chunk * ChunkResolution.Full.PixelSize();
-            if (layer is not IReadOnlyImageNode raster) return;
-            IReadOnlyChunkyImage? result = raster.GetLayerImageAtFrame(frame);
+            surface.Surface.Canvas.Save();
+            surface.Surface.Canvas.Scale(scaling);
+            surface.Surface.Canvas.Translate(-position);
+            surface.Surface.Canvas.ClipRect((RectD)area.GlobalArea);
 
-            if (!result.DrawCommittedChunkOn(
-                    chunk,
-                    ChunkResolution.Full, surface.Surface, pos,
-                    scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint))
+            foreach (var chunk in area.Chunks)
             {
-                surface.Surface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize,
-                    ChunkyImage.FullChunkSize, ClearPaint);
-            }
-        }
+                var pos = chunk * ChunkResolution.Full.PixelSize();
+                if (layer is not IReadOnlyImageNode raster) return;
+                IReadOnlyChunkyImage? result = raster.GetLayerImageAtFrame(frame);
 
-        surface.Surface.Canvas.Restore();
-        surface.Surface.Flush();
+                if (!result.DrawCommittedChunkOn(
+                        chunk,
+                        ChunkResolution.Full, surface.Surface, pos,
+                        scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint))
+                {
+                    surface.Surface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize,
+                        ChunkyImage.FullChunkSize, ClearPaint);
+                }
+            }
+
+            surface.Surface.Canvas.Restore();
+        });
     }
 
     private void RenderAnimationFramePreview(IReadOnlyImageNode node, IKeyFrameHandler keyFrameVM, AffectedArea area)
@@ -636,21 +645,24 @@ internal class MemberPreviewUpdater
                 new Texture(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size));
         }
 
-        keyFrameVM.PreviewSurface!.Surface.Canvas.Save();
-        float scaling = (float)keyFrameVM.PreviewSurface.Size.X / internals.Tracker.Document.Size.X;
-        keyFrameVM.PreviewSurface.Surface.Canvas.Scale(scaling);
-        foreach (var chunk in area.Chunks)
+        PostRender(() =>
         {
-            var pos = chunk * ChunkResolution.Full.PixelSize();
-            if (!node.GetLayerImageByKeyFrameGuid(keyFrameVM.Id).DrawCommittedChunkOn(chunk, ChunkResolution.Full,
-                    keyFrameVM.PreviewSurface!.Surface, pos, ReplacingPaint))
+            keyFrameVM.PreviewSurface!.Surface.Canvas.Save();
+            float scaling = (float)keyFrameVM.PreviewSurface.Size.X / internals.Tracker.Document.Size.X;
+            keyFrameVM.PreviewSurface.Surface.Canvas.Scale(scaling);
+            foreach (var chunk in area.Chunks)
             {
-                keyFrameVM.PreviewSurface!.Surface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize,
-                    ChunkyImage.FullChunkSize, ClearPaint);
+                var pos = chunk * ChunkResolution.Full.PixelSize();
+                if (!node.GetLayerImageByKeyFrameGuid(keyFrameVM.Id).DrawCommittedChunkOn(chunk, ChunkResolution.Full,
+                        keyFrameVM.PreviewSurface!.Surface, pos, ReplacingPaint))
+                {
+                    keyFrameVM.PreviewSurface!.Surface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize,
+                        ChunkyImage.FullChunkSize, ClearPaint);
+                }
             }
-        }
 
-        keyFrameVM.PreviewSurface!.Surface.Canvas.Restore();
+            keyFrameVM.PreviewSurface!.Surface.Canvas.Restore();
+        });
     }
 
     private void RenderMaskPreviews(
@@ -696,19 +708,23 @@ internal class MemberPreviewUpdater
 
             var member = internals.Tracker.Document.FindMemberOrThrow(guid);
 
-            memberVM.MaskPreviewSurface!.Surface.Canvas.Save();
-            memberVM.MaskPreviewSurface.Surface.Canvas.Scale(scaling);
-            memberVM.MaskPreviewSurface.Surface.Canvas.Translate(-position);
-            memberVM.MaskPreviewSurface.Surface.Canvas.ClipRect((RectD)affArea.Value.GlobalArea);
-            foreach (var chunk in affArea.Value.Chunks)
+            PostRender(() =>
             {
-                var pos = chunk * ChunkResolution.Full.PixelSize();
-                member.Mask!.Value.DrawMostUpToDateChunkOn
-                (chunk, ChunkResolution.Full, memberVM.MaskPreviewSurface.Surface, pos,
-                    scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint);
-            }
+                memberVM.MaskPreviewSurface!.Surface.Canvas.Save();
+                memberVM.MaskPreviewSurface.Surface.Canvas.Scale(scaling);
+                memberVM.MaskPreviewSurface.Surface.Canvas.Translate(-position);
+                memberVM.MaskPreviewSurface.Surface.Canvas.ClipRect((RectD)affArea.Value.GlobalArea);
+                foreach (var chunk in affArea.Value.Chunks)
+                {
+                    var pos = chunk * ChunkResolution.Full.PixelSize();
+                    member.Mask!.Value.DrawMostUpToDateChunkOn
+                    (chunk, ChunkResolution.Full, memberVM.MaskPreviewSurface.Surface, pos,
+                        scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint);
+                }
 
-            memberVM.MaskPreviewSurface.Surface.Canvas.Restore();
+                memberVM.MaskPreviewSurface.Surface.Canvas.Restore();
+            });
+
             infos.Add(new MaskPreviewDirty_RenderInfo(guid));
         }
     }
@@ -740,16 +756,32 @@ internal class MemberPreviewUpdater
             float scalingX = (float)nodeVm.ResultPreview.Size.X / node.CachedResult.Size.X;
             float scalingY = (float)nodeVm.ResultPreview.Size.Y / node.CachedResult.Size.Y;
 
-            nodeVm.ResultPreview.Surface.Canvas.Save();
-            nodeVm.ResultPreview.Surface.Canvas.Scale(scalingX, scalingY);
+            PostRender(() =>
+            {
+                nodeVm.ResultPreview.Surface.Canvas.Save();
+                nodeVm.ResultPreview.Surface.Canvas.Scale(scalingX, scalingY);
 
-            RectI region = new RectI(0, 0, node.CachedResult.Size.X, node.CachedResult.Size.Y);
+                RectI region = new RectI(0, 0, node.CachedResult.Size.X, node.CachedResult.Size.Y);
 
-            nodeVm.ResultPreview.Surface.Canvas.DrawSurface(node.CachedResult.DrawingSurface, 0, 0,
-                ReplacingPaint);
+                nodeVm.ResultPreview.Surface.Canvas.DrawSurface(node.CachedResult.DrawingSurface, 0, 0,
+                    ReplacingPaint);
 
-            nodeVm.ResultPreview.Surface.Canvas.Restore();
+                nodeVm.ResultPreview.Surface.Canvas.Restore();
+            });
+
             infos.Add(new NodePreviewDirty_RenderInfo(node.Id));
+        }
+    }
+
+    private void PostRender(Action action)
+    {
+        if (!DrawingBackendApi.Current.IsHardwareAccelerated)
+        {
+            action();
+        }
+        else
+        {
+            Dispatcher.UIThread.Post(action, DispatcherPriority.Render);
         }
     }
 }
