@@ -84,7 +84,7 @@ public static class FloodFillHelper
             if (!drawingChunks.ContainsKey(chunkPos))
             {
                 var chunk = Chunk.Create();
-                chunk.Surface.DrawingSurface.Canvas.Clear(Colors.Transparent);
+                chunk.Surface.Surface.Canvas.Clear(Colors.Transparent);
                 drawingChunks[chunkPos] = chunk;
             }
             var drawingChunk = drawingChunks[chunkPos];
@@ -95,7 +95,7 @@ public static class FloodFillHelper
             {
                 if (colorToReplace.A == 0 && !processedEmptyChunks.Contains(chunkPos))
                 {
-                    drawingChunk.Surface.DrawingSurface.Canvas.Clear(drawingColor);
+                    drawingChunk.Surface.Surface.Canvas.Clear(drawingColor);
                     for (int i = 0; i < chunkSize; i++)
                     {
                         if (chunkPos.Y > 0)
@@ -165,10 +165,10 @@ public static class FloodFillHelper
         byte[] pixelStates = new byte[chunkSize * chunkSize];
         DrawSelection(pixelStates, selection, globalSelectionBounds, chunkPos, chunkSize);
 
-        using var refPixmap = referenceChunk.Surface.DrawingSurface.PeekPixels();
+        using var refPixmap = referenceChunk.Surface.Surface.PeekPixels();
         Half* refArray = (Half*)refPixmap.GetPixels();
 
-        using var drawPixmap = drawingChunk.Surface.DrawingSurface.PeekPixels();
+        using var drawPixmap = drawingChunk.Surface.Surface.PeekPixels();
         Half* drawArray = (Half*)drawPixmap.GetPixels();
 
         Stack<VecI> toVisit = new();
@@ -195,18 +195,18 @@ public static class FloodFillHelper
         return pixelStates;
     }
 
-    public static Surface FillSelection(IReadOnlyDocument document, VectorPath selection)
+    public static Texture FillSelection(IReadOnlyDocument document, VectorPath selection)
     {
-        Surface surface = new Surface(document.Size);
+        Texture surface = new Texture(document.Size);
 
         var inverse = new VectorPath();
         inverse.AddRect(new RectI(new(0, 0), document.Size));
 
-        surface.DrawingSurface.Canvas.Clear(new Color(255, 255, 255, 255));
-        surface.DrawingSurface.Canvas.Flush();
-        surface.DrawingSurface.Canvas.ClipPath(inverse.Op(selection, VectorPathOp.Difference));
-        surface.DrawingSurface.Canvas.Clear(new Color(0, 0, 0, 0));
-        surface.DrawingSurface.Canvas.Flush();
+        surface.Surface.Canvas.Clear(new Color(255, 255, 255, 255));
+        surface.Surface.Canvas.Flush();
+        surface.Surface.Canvas.ClipPath(inverse.Op(selection, VectorPathOp.Difference));
+        surface.Surface.Canvas.Clear(new Color(0, 0, 0, 0));
+        surface.Surface.Canvas.Flush();
 
         return surface;
     }

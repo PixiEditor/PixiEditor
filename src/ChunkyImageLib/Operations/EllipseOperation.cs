@@ -58,7 +58,7 @@ internal class EllipseOperation : IMirroredDrawOperation
     {
         if (!init)
             Init();
-        var surf = targetChunk.Surface.DrawingSurface;
+        var surf = targetChunk.Surface.Surface;
         surf.Canvas.Save();
         surf.Canvas.Scale((float)targetChunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);

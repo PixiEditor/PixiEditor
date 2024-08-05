@@ -14,10 +14,10 @@ public class EllipseNode : Node
     public InputProperty<Color> StrokeColor { get; }
     public InputProperty<Color> FillColor { get; }
     public InputProperty<int> StrokeWidth { get; }
-    public OutputProperty<Surface> Output { get; }
+    public OutputProperty<Texture> Output { get; }
 
     private ChunkyImage? workingImage;
-    private Surface? targetSurface;
+    private Texture? targetSurface;
 
     private VecI _lastRadius = new VecI(-1, -1);
     private Color _lastStrokeColor = new Color(0, 0, 0, 0);
@@ -31,10 +31,10 @@ public class EllipseNode : Node
         StrokeColor = CreateInput<Color>("StrokeColor", "STROKE_COLOR", new Color(0, 0, 0, 255));
         FillColor = CreateInput<Color>("FillColor", "FILL_COLOR", new Color(0, 0, 0, 255));
         StrokeWidth = CreateInput<int>("StrokeWidth", "STROKE_WIDTH", 1);
-        Output = CreateOutput<Surface?>("Output", "OUTPUT", null);
+        Output = CreateOutput<Texture?>("Output", "OUTPUT", null);
     }
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         var radius = Radius.Value;
         VecI targetDimensions = radius * 2;
@@ -52,7 +52,7 @@ public class EllipseNode : Node
             
             workingImage = new ChunkyImage(targetDimensions);
 
-            targetSurface = new Surface(targetDimensions);
+            targetSurface = new Texture(targetDimensions);
         }
 
         if (radius != _lastRadius || StrokeColor.Value != _lastStrokeColor || FillColor.Value != _lastFillColor ||
@@ -68,7 +68,7 @@ public class EllipseNode : Node
             workingImage.CommitChanges();
         }
 
-        workingImage.DrawMostUpToDateChunkOn(context.ChunkToUpdate, context.ChunkResolution, targetSurface.DrawingSurface, VecI.Zero,
+        workingImage.DrawMostUpToDateChunkOn(context.ChunkToUpdate, context.ChunkResolution, targetSurface.Surface, VecI.Zero,
             replacingPaint);
 
         Output.Value = targetSurface;

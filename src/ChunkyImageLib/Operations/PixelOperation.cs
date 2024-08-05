@@ -41,7 +41,7 @@ internal class PixelOperation : IMirroredDrawOperation
         // a hacky way to make the lines look slightly better on non full res chunks
         paint.Color = GetColor(targetChunk, chunkPos);
 
-        DrawingSurface surf = targetChunk.Surface.DrawingSurface;
+        DrawingSurface surf = targetChunk.Surface.Surface;
         surf.Canvas.Save();
         surf.Canvas.Scale((float)targetChunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);

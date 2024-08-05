@@ -7,9 +7,9 @@ using PixiEditor.Parser.Skia;
 
 namespace PixiEditor.Models.Serialization.Factories;
 
-public class SurfaceSerializationFactory : SerializationFactory<byte[], Surface>
+public class SurfaceSerializationFactory : SerializationFactory<byte[], Texture>
 {
-    public override byte[] Serialize(Surface original)
+    public override byte[] Serialize(Texture original)
     {
         var encoder = Config.Encoder;
         byte[] result = encoder.Encode(original.ToByteArray(), original.Size.X, original.Size.Y);
@@ -17,7 +17,7 @@ public class SurfaceSerializationFactory : SerializationFactory<byte[], Surface>
         return result;
     }
 
-    public override bool TryDeserialize(object serialized, out Surface original)
+    public override bool TryDeserialize(object serialized, out Texture original)
     {
         if (serialized is byte[] imgBytes)
         {
@@ -30,13 +30,13 @@ public class SurfaceSerializationFactory : SerializationFactory<byte[], Surface>
     }
 
 
-    public static Surface DecodeSurface(byte[] imgBytes, ImageEncoder encoder)
+    public static Texture DecodeSurface(byte[] imgBytes, ImageEncoder encoder)
     {
         byte[] decoded =
             encoder.Decode(imgBytes, out SKImageInfo info);
         using Image img = Image.FromPixels(info.ToImageInfo(), decoded);
-        Surface surface = new Surface(img.Size);
-        surface.DrawingSurface.Canvas.DrawImage(img, 0, 0);
+        Texture surface = new Texture(img.Size);
+        surface.Surface.Canvas.DrawImage(img, 0, 0);
 
         return surface;
     }

@@ -19,7 +19,7 @@ public class TimeNode : Node
         NormalizedTime = CreateOutput("NormalizedTime", "NORMALIZED_TIME", 0.0);
     }
     
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         ActiveFrame.Value = context.FrameTime.Frame;
         NormalizedTime.Value = context.FrameTime.NormalizedTime;

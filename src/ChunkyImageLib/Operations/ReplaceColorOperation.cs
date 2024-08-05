@@ -34,7 +34,7 @@ internal class ReplaceColorOperation : IDrawOperation
         VecI imageSize = chunk.PixelSize;
         int rowsPerThread = imageSize.Y / maxThreads;
 
-        using Pixmap pixmap = chunk.Surface.DrawingSurface.PeekPixels();
+        using Pixmap pixmap = chunk.Surface.Surface.PeekPixels();
         IntPtr pixels = pixmap.GetPixels();
 
         Half* endOffset = (Half*)(pixels + pixmap.BytesSize);

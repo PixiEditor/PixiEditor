@@ -28,7 +28,7 @@ public class SeparateColorNode : Node
         A = CreateFuncOutput(nameof(A), "A", ctx => Color.Value(ctx).A / 255d);
     }
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         return null;
     }

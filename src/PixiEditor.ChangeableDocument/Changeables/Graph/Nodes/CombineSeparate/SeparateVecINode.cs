@@ -22,7 +22,7 @@ public class SeparateVecINode : Node
         Vector = CreateFuncInput("Vector", "VECTOR", new VecI(0, 0));
     }
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         return null;
     }

@@ -421,7 +421,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     /// <param name="image">The image to paste</param>
     /// <param name="startPos">Where the transform should start</param>
-    public void PasteImageWithTransform(Surface image, VecI startPos)
+    public void PasteImageWithTransform(Texture image, VecI startPos)
     {
         if (Document.SelectedStructureMember is null)
             return;
@@ -433,7 +433,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     /// <param name="image">The image to paste</param>
     /// <param name="startPos">Where the transform should start</param>
-    public void PasteImageWithTransform(Surface image, VecI startPos, Guid memberGuid, bool drawOnMask)
+    public void PasteImageWithTransform(Texture image, VecI startPos, Guid memberGuid, bool drawOnMask)
     {
         Internals.ChangeController.TryStartExecutor(new PasteImageExecutor(image, startPos, memberGuid, drawOnMask));
     }
@@ -460,7 +460,7 @@ internal class DocumentOperationsModule : IDocumentOperations
             Internals.ChangeController.TryStopActiveExecutor();
     }
 
-    public void DrawImage(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipSymmetriesEtc, bool drawOnMask, int frame) =>
+    public void DrawImage(Texture image, ShapeCorners corners, Guid memberGuid, bool ignoreClipSymmetriesEtc, bool drawOnMask, int frame) =>
         DrawImage(image, corners, memberGuid, ignoreClipSymmetriesEtc, drawOnMask, frame, true);
 
     /// <summary>
@@ -472,7 +472,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="ignoreClipSymmetriesEtc">Ignore selection clipping and symmetry (See DrawingChangeHelper.ApplyClipsSymmetriesEtc of UpdateableDocument)</param>
     /// <param name="drawOnMask">Draw on the mask or on the image</param>
     /// <param name="finish">Is this a finished action</param>
-    private void DrawImage(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipSymmetriesEtc, bool drawOnMask, int atFrame, bool finish)
+    private void DrawImage(Texture image, ShapeCorners corners, Guid memberGuid, bool ignoreClipSymmetriesEtc, bool drawOnMask, int atFrame, bool finish)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;

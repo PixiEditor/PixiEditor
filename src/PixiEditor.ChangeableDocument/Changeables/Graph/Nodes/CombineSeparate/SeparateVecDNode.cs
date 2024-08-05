@@ -23,7 +23,7 @@ public class SeparateVecDNode : Node
     }
 
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         return null;
     }

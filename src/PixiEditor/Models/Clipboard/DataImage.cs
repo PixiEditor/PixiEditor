@@ -5,7 +5,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.Clipboard;
 
-public record struct DataImage(string? name, Surface image, VecI position)
+public record struct DataImage(string? name, Texture image, VecI position)
 {
-    public DataImage(Surface image, VecI position) : this(null, image, position) { }
+    public DataImage(Texture image, VecI position) : this(null, image, position) { }
 }

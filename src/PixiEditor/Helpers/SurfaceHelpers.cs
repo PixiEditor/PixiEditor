@@ -10,7 +10,7 @@ namespace PixiEditor.Helpers;
 
 public static class SurfaceHelpers
 {
-    public static Surface FromBitmap(Bitmap original)
+    public static Texture FromBitmap(Bitmap original)
     {
         if(original.Format == null) throw new ArgumentException("Bitmap format must be non-null");
 
@@ -21,7 +21,7 @@ public static class SurfaceHelpers
         int stride = (original.PixelSize.Width * original.Format.Value.BitsPerPixel + 7) / 8;
         byte[] pixels = original.ExtractPixels();
 
-        Surface surface = new Surface(new VecI(original.PixelSize.Width, original.PixelSize.Height));
+        Texture surface = new Texture(new VecI(original.PixelSize.Width, original.PixelSize.Height));
         surface.DrawBytes(surface.Size, pixels, color, alpha);
         return surface;
     }
@@ -48,6 +48,24 @@ public static class SurfaceHelpers
             if (!surface.DrawingSurface.ReadPixels(imageInfo, new IntPtr(pointer), imageInfo.RowBytes, 0, 0))
             {
                 throw new InvalidOperationException("Could not read surface into buffer");
+            }
+        }
+
+        return buffer;
+    }
+    
+    public static unsafe byte[] ToByteArray(this Texture texture, ColorType colorType = ColorType.Bgra8888, AlphaType alphaType = AlphaType.Premul)
+    {
+        int width = texture.Size.X;
+        int height = texture.Size.Y;
+        var imageInfo = new ImageInfo(width, height, colorType, alphaType, ColorSpace.CreateSrgb());
+
+        byte[] buffer = new byte[width * height * imageInfo.BytesPerPixel];
+        fixed (void* pointer = buffer)
+        {
+            if (!texture.Surface.ReadPixels(imageInfo, new IntPtr(pointer), imageInfo.RowBytes, 0, 0))
+            {
+                throw new InvalidOperationException("Could not read texture into buffer");
             }
         }
 

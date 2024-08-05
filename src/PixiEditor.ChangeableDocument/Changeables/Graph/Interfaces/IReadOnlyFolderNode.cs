@@ -5,5 +5,5 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 public interface IReadOnlyFolderNode : IReadOnlyStructureNode
 {
-    InputProperty<Surface?> Content { get; }
+    InputProperty<Texture?> Content { get; }
 }

@@ -11,18 +11,18 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
 internal class PasteImageExecutor : UpdateableChangeExecutor
 {
-    private readonly Surface image;
+    private readonly Texture image;
     private readonly VecI pos;
     private bool drawOnMask;
     private Guid? memberGuid;
 
-    public PasteImageExecutor(Surface image, VecI pos)
+    public PasteImageExecutor(Texture image, VecI pos)
     {
         this.image = image;
         this.pos = pos;
     }
 
-    public PasteImageExecutor(Surface image, VecI pos, Guid memberGuid, bool drawOnMask)
+    public PasteImageExecutor(Texture image, VecI pos, Guid memberGuid, bool drawOnMask)
     {
         this.image = image;
         this.pos = pos;

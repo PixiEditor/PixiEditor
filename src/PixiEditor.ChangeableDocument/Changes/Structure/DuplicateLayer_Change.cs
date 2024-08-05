@@ -40,9 +40,9 @@ internal class DuplicateLayer_Change : Change
         LayerNode clone = (LayerNode)existingLayer.Clone();
         clone.Id = duplicateGuid;
 
-        InputProperty<Surface?> targetInput = parent.InputProperties.FirstOrDefault(x =>
-            x.ValueType == typeof(Surface) &&
-            x.Connection.Node is StructureNode) as InputProperty<Surface?>;
+        InputProperty<Texture?> targetInput = parent.InputProperties.FirstOrDefault(x =>
+            x.ValueType == typeof(Texture) &&
+            x.Connection.Node is StructureNode) as InputProperty<Texture?>;
 
         List<IChangeInfo> operations = new();
 

@@ -20,33 +20,33 @@ public class SeparateChannelsNode : Node
     private readonly ColorFilter _blueGrayscaleFilter = ColorFilter.CreateColorMatrix(ColorMatrix.UseBlue + ColorMatrix.MapBlueToRedGreen + ColorMatrix.OpaqueAlphaOffset);
     private readonly ColorFilter _alphaGrayscaleFilter = ColorFilter.CreateColorMatrix(ColorMatrix.MapAlphaToRedGreenBlue + ColorMatrix.OpaqueAlphaOffset);
 
-    public OutputProperty<Surface?> Red { get; }
+    public OutputProperty<Texture?> Red { get; }
     
-    public OutputProperty<Surface?> Green { get; }
+    public OutputProperty<Texture?> Green { get; }
     
-    public OutputProperty<Surface?> Blue { get; }
+    public OutputProperty<Texture?> Blue { get; }
 
-    public OutputProperty<Surface?> Alpha { get; }
+    public OutputProperty<Texture?> Alpha { get; }
     
-    public InputProperty<Surface?> Image { get; }
+    public InputProperty<Texture?> Image { get; }
     
     public InputProperty<bool> Grayscale { get; }
 
     public SeparateChannelsNode()
     {
-        Red = CreateOutput<Surface>(nameof(Red), "RED", null);
-        Green = CreateOutput<Surface>(nameof(Green), "GREEN", null);
-        Blue = CreateOutput<Surface>(nameof(Blue), "BLUE", null);
-        Alpha = CreateOutput<Surface>(nameof(Alpha), "ALPHA", null);
+        Red = CreateOutput<Texture>(nameof(Red), "RED", null);
+        Green = CreateOutput<Texture>(nameof(Green), "GREEN", null);
+        Blue = CreateOutput<Texture>(nameof(Blue), "BLUE", null);
+        Alpha = CreateOutput<Texture>(nameof(Alpha), "ALPHA", null);
         
-        Image = CreateInput<Surface>(nameof(Image), "IMAGE", null);
+        Image = CreateInput<Texture>(nameof(Image), "IMAGE", null);
         Grayscale = CreateInput(nameof(Grayscale), "GRAYSCALE", false);
     }
 
 
     public override string DisplayName { get; set; } = "SEPARATE_CHANNELS_NODE";
     
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         var image = Image.Value;
 
@@ -65,7 +65,7 @@ public class SeparateChannelsNode : Node
         Blue.Value = GetImage(image, blue);
         Alpha.Value = GetImage(image, alpha);
 
-        var previewSurface = new Surface(image.Size * 2);
+        var previewSurface = new Texture(image.Size * 2);
 
         var size = image.Size;
         
@@ -74,22 +74,22 @@ public class SeparateChannelsNode : Node
         var bluePos = new VecI(0, size.Y);
         var alphaPos = new VecI(size.X, size.Y);
         
-        previewSurface.DrawingSurface.Canvas.DrawSurface(Red.Value.DrawingSurface, redPos, context.ReplacingPaintWithOpacity);
-        previewSurface.DrawingSurface.Canvas.DrawSurface(Green.Value.DrawingSurface, greenPos, context.ReplacingPaintWithOpacity);
-        previewSurface.DrawingSurface.Canvas.DrawSurface(Blue.Value.DrawingSurface, bluePos, context.ReplacingPaintWithOpacity);
-        previewSurface.DrawingSurface.Canvas.DrawSurface(Alpha.Value.DrawingSurface, alphaPos, context.ReplacingPaintWithOpacity);
+        previewSurface.Surface.Canvas.DrawSurface(Red.Value.Surface, redPos, context.ReplacingPaintWithOpacity);
+        previewSurface.Surface.Canvas.DrawSurface(Green.Value.Surface, greenPos, context.ReplacingPaintWithOpacity);
+        previewSurface.Surface.Canvas.DrawSurface(Blue.Value.Surface, bluePos, context.ReplacingPaintWithOpacity);
+        previewSurface.Surface.Canvas.DrawSurface(Alpha.Value.Surface, alphaPos, context.ReplacingPaintWithOpacity);
         
         return previewSurface;
     }
 
-    private Surface GetImage(Surface image, ColorFilter filter)
+    private Texture GetImage(Texture image, ColorFilter filter)
     {
-        var imageSurface = new Surface(image.Size);
+        var imageTexture = new Texture(image.Size);
 
         _paint.ColorFilter = filter;
-        imageSurface.DrawingSurface.Canvas.DrawSurface(image.DrawingSurface, 0, 0, _paint);
+        imageTexture.Surface.Canvas.DrawSurface(image.Surface, 0, 0, _paint);
 
-        return imageSurface;
+        return imageTexture;
     }
 
 

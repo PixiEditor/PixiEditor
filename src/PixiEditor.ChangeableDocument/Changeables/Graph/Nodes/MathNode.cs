@@ -58,7 +58,7 @@ public class MathNode : Node
     private (double x, double y) GetValues(FuncContext context) => (X.Value(context), Y.Value(context));
 
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         return null;
     }

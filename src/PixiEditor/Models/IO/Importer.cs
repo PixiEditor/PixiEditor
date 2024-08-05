@@ -31,15 +31,15 @@ internal class Importer : ObservableObject
     /// <param name="path">Path of the image.</param>
     /// <param name="size">New size of the image.</param>
     /// <returns>WriteableBitmap of imported image.</returns>
-    public static Surface? ImportImage(string path, VecI size)
+    public static Texture? ImportImage(string path, VecI size)
     {
         if (!Path.Exists(path))
             throw new MissingFileException();
 
-        Surface original;
+        Texture original;
         try
         {
-            original = Surface.Load(path);
+            original = Texture.Load(path);
         }
         catch (Exception e) when (e is ArgumentException or FileNotFoundException)
         {
@@ -51,7 +51,7 @@ internal class Importer : ObservableObject
             return original;
         }
 
-        Surface resized = original.ResizeNearestNeighbor(size);
+        Texture resized = original.ResizeNearestNeighbor(size);
         original.Dispose();
         return resized;
     }

@@ -279,7 +279,7 @@ internal class NodeGraphBuilder
         return this;
     }
 
-    public NodeGraphBuilder WithImageLayerNode(string name, Surface image, out int id)
+    public NodeGraphBuilder WithImageLayerNode(string name, Texture image, out int id)
     {
         AllNodes.Add(
             this.WithNodeOfType(typeof(ImageLayerNode))

@@ -38,7 +38,7 @@ internal static class ClipboardController
     {
         Clipboard = clipboard;
     }
-    
+
     public static readonly string TempCopyFilePath = Path.Join(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "PixiEditor",
@@ -74,7 +74,7 @@ internal static class ClipboardController
             Directory.CreateDirectory(Path.GetDirectoryName(TempCopyFilePath)!);
             await using FileStream fileStream = new FileStream(TempCopyFilePath, FileMode.Create, FileAccess.Write);
             await pngStream.CopyToAsync(fileStream);
-            data.SetFileDropList(new [] { TempCopyFilePath });
+            data.SetFileDropList(new[] { TempCopyFilePath });
         }
 
         WriteableBitmap finalBitmap = actuallySurface.ToWriteableBitmap();
@@ -185,7 +185,7 @@ internal static class ClipboardController
         }
 
         var paths = data.GetFileDropList().Select(x => x.Path.LocalPath).ToList();
-        if(paths != null && data.TryGetRawTextPath(out string? textPath))
+        if (paths != null && data.TryGetRawTextPath(out string? textPath))
         {
             paths.Add(textPath);
         }
@@ -201,17 +201,17 @@ internal static class ClipboardController
                 continue;
             try
             {
-                Surface imported;
+                Texture imported;
 
                 if (Path.GetExtension(path) == ".pixi")
                 {
                     using var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
 
-                    imported = Surface.Load(PixiParser.ReadPreview(stream));
+                    imported = Texture.Load(PixiParser.ReadPreview(stream));
                 }
                 else
                 {
-                    imported = Surface.Load(path);
+                    imported = Texture.Load(path);
                 }
 
                 string filename = Path.GetFullPath(path);
@@ -301,7 +301,7 @@ internal static class ClipboardController
     private static Bitmap FromPNG(IDataObject data)
     {
         object obj = data.Get("PNG");
-        if(obj is byte[] bytes)
+        if (obj is byte[] bytes)
         {
             using MemoryStream stream = new MemoryStream(bytes);
             return new Bitmap(stream);
@@ -316,8 +316,8 @@ internal static class ClipboardController
     }
 
     private static bool HasData(IDataObject dataObject, params string[] formats) => formats.Any(dataObject.Contains);
-    
-    private static bool TryExtractSingleImage(IDataObject data, [NotNullWhen(true)] out Surface? result)
+
+    private static bool TryExtractSingleImage(IDataObject data, [NotNullWhen(true)] out Texture? result)
     {
         try
         {

@@ -51,7 +51,7 @@ internal class MoveStructureMember_Change : Change
         
         Guid oldBackgroundId = sourceNode.Background.Node.Id;
 
-        InputProperty<Surface?> inputProperty = backgroundInput.Background;
+        InputProperty<Texture?> inputProperty = backgroundInput.Background;
 
         if (targetNode is FolderNode folder && putInsideFolder)
         {

@@ -20,7 +20,7 @@ public class NoiseNode : Node
     private static readonly ColorFilter grayscaleFilter = ColorFilter.CreateColorMatrix(
         ColorMatrix.MapAlphaToRedGreenBlue + ColorMatrix.OpaqueAlphaOffset);
     
-    public OutputProperty<Surface> Noise { get; }
+    public OutputProperty<Texture> Noise { get; }
     
     public InputProperty<NoiseType> NoiseType { get; }
     public InputProperty<VecI> Size { get; }
@@ -33,7 +33,7 @@ public class NoiseNode : Node
 
     public NoiseNode()
     {
-        Noise = CreateOutput<Surface>(nameof(Noise), "NOISE", null);
+        Noise = CreateOutput<Texture>(nameof(Noise), "NOISE", null);
         NoiseType = CreateInput(nameof(NoiseType), "NOISE_TYPE", Nodes.NoiseType.TurbulencePerlin);
         Size = CreateInput(nameof(Size), "SIZE", new VecI(64, 64));
         Scale = CreateInput(nameof(Scale), "SCALE", 10d);
@@ -41,7 +41,7 @@ public class NoiseNode : Node
         Seed = CreateInput(nameof(Seed), "SEED", 0d);
     }
 
-    protected override Surface OnExecute(RenderingContext context)
+    protected override Texture OnExecute(RenderingContext context)
     {
         if (Math.Abs(previousScale - Scale.Value) > 0.000001
             || previousSeed != Seed.Value
@@ -81,9 +81,9 @@ public class NoiseNode : Node
             return null;
         }
         
-        var workingSurface = new Surface(size);
+        var workingSurface = new Texture(size);
        
-        workingSurface.DrawingSurface.Canvas.DrawPaint(paint);
+        workingSurface.Surface.Canvas.DrawPaint(paint);
 
         Noise.Value = workingSurface;
         

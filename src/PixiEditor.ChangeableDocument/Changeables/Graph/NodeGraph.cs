@@ -118,11 +118,13 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         return true;
     }
 
-    public Surface? Execute(RenderingContext context)
+    public Texture? Execute(RenderingContext context)
     {
         if (OutputNode == null) return null;
 
         var queue = CalculateExecutionQueue(OutputNode);
+        
+        Stopwatch stopwatch = new();
 
         while (queue.Count > 0)
         {
@@ -130,7 +132,9 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
             
             if (node is Node typedNode)
             {
+                stopwatch.Restart();
                 typedNode.ExecuteInternal(context);
+                Debug.WriteLine($"{typedNode.DisplayName} took {stopwatch.ElapsedMilliseconds}ms");
             }
             else
             {

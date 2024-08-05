@@ -527,7 +527,6 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
         using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
 
-
         var matrixValues = new float[ColorMatrix.Width * ColorMatrix.Height];
         ColorMatrix.TryGetMembers(matrixValues);
 

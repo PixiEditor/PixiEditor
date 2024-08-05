@@ -267,7 +267,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     /// <summary>
     /// Opens a regular image file from path, creates a document from it, and adds it to the system.
     /// </summary>
-    private void OpenRegularImage(Surface surface, string path)
+    private void OpenRegularImage(Texture surface, string path)
     {
         DocumentViewModel doc = NewDocument(b => b
             .WithSize(surface.Size)

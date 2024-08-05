@@ -21,7 +21,7 @@ public class PaintOperation : IDrawOperation
     public bool IgnoreEmptyChunks => false;
     public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
-        targetChunk.Surface.DrawingSurface.Canvas.DrawPaint(paint);
+        targetChunk.Surface.Surface.Canvas.DrawPaint(paint);
     }
 
     public AffectedArea FindAffectedArea(VecI imageSize)

@@ -15,7 +15,7 @@ public class ModifyImageLeftNode : Node
 {
     private Pixmap? pixmap;
 
-    public InputProperty<Surface?> Image { get; }
+    public InputProperty<Texture?> Image { get; }
     
     public FuncOutputProperty<VecD> Coordinate { get; }
     
@@ -25,7 +25,7 @@ public class ModifyImageLeftNode : Node
 
     public ModifyImageLeftNode()
     {
-        Image = CreateInput<Surface>(nameof(Surface), "IMAGE", null);
+        Image = CreateInput<Texture>(nameof(Surface), "IMAGE", null);
         Coordinate = CreateFuncOutput(nameof(Coordinate), "UV", ctx => ctx.Position);
         Color = CreateFuncOutput(nameof(Color), "COLOR", GetColor);
     }
@@ -45,10 +45,10 @@ public class ModifyImageLeftNode : Node
 
     internal void PreparePixmap()
     {
-        pixmap = Image.Value?.PeekPixels();
+        pixmap = Image.Value?.PeekReadOnlyPixels();
     }
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         return Image.Value;
     }

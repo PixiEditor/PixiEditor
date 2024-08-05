@@ -512,7 +512,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                         continue;
                     using Chunk chunk = maybeChunk.AsT0;
                     finalSurface.DrawingSurface.Canvas.DrawSurface(
-                        chunk.Surface.DrawingSurface,
+                        chunk.Surface.Surface,
                         i * ChunkyImage.FullChunkSize, j * ChunkyImage.FullChunkSize);
                 }
             }

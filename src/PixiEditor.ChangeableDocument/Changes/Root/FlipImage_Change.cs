@@ -72,19 +72,19 @@ internal sealed class FlipImage_Change : Change
             originalSurface.DrawingSurface,
             VecI.Zero);
 
-        using Surface flipped = new Surface(img.LatestSize);
+        using Texture flipped = new Texture(img.LatestSize);
 
         bool flipX = flipType == FlipType.Horizontal;
         bool flipY = flipType == FlipType.Vertical;
         
-        flipped.DrawingSurface.Canvas.Save();
-        flipped.DrawingSurface.Canvas.Scale(
+        flipped.Surface.Canvas.Save();
+        flipped.Surface.Canvas.Scale(
             flipX ? -1 : 1, 
             flipY ? -1 : 1, 
             flipX ? bounds.X + (bounds.Width / 2f) : 0,
             flipY ? bounds.Y + (bounds.Height / 2f) : 0f);
-        flipped.DrawingSurface.Canvas.DrawSurface(originalSurface.DrawingSurface, 0, 0, paint);
-        flipped.DrawingSurface.Canvas.Restore();
+        flipped.Surface.Canvas.DrawSurface(originalSurface.DrawingSurface, 0, 0, paint);
+        flipped.Surface.Canvas.Restore();
         
         img.EnqueueClear();
         img.EnqueueDrawImage(VecI.Zero, flipped);

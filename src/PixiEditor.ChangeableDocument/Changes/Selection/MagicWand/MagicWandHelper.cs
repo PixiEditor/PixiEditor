@@ -261,7 +261,7 @@ internal class MagicWandHelper
 
         bool[] pixelVisitedStates = new bool[chunkSize * chunkSize];
 
-        using var refPixmap = referenceChunk.Surface.DrawingSurface.PeekPixels();
+        using var refPixmap = referenceChunk.Surface.Surface.PeekPixels();
         Half* refArray = (Half*)refPixmap.GetPixels();
 
         Stack<VecI> toVisit = new();

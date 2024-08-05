@@ -20,10 +20,10 @@ internal class ClearRegionOperation : IMirroredDrawOperation
         VecI convPos = OperationHelper.ConvertForResolution(rect.Pos, targetChunk.Resolution);
         VecI convSize = OperationHelper.ConvertForResolution(rect.Size, targetChunk.Resolution);
 
-        targetChunk.Surface.DrawingSurface.Canvas.Save();
-        targetChunk.Surface.DrawingSurface.Canvas.ClipRect(RectD.Create(convPos - chunkPos.Multiply(targetChunk.PixelSize), convSize));
-        targetChunk.Surface.DrawingSurface.Canvas.Clear();
-        targetChunk.Surface.DrawingSurface.Canvas.Restore();
+        targetChunk.Surface.Surface.Canvas.Save();
+        targetChunk.Surface.Surface.Canvas.ClipRect(RectD.Create(convPos - chunkPos.Multiply(targetChunk.PixelSize), convSize));
+        targetChunk.Surface.Surface.Canvas.Clear();
+        targetChunk.Surface.Surface.Canvas.Restore();
     }
 
     public AffectedArea FindAffectedArea(VecI imageSize)

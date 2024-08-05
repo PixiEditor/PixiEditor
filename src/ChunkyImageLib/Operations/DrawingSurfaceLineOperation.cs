@@ -31,7 +31,7 @@ internal class DrawingSurfaceLineOperation : IMirroredDrawOperation
     public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
         paint.IsAntiAliased = targetChunk.Resolution != ChunkResolution.Full;
-        var surf = targetChunk.Surface.DrawingSurface;
+        var surf = targetChunk.Surface.Surface;
         surf.Canvas.Save();
         surf.Canvas.Scale((float)targetChunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);

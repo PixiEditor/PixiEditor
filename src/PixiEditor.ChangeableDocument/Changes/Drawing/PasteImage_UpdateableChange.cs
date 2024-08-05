@@ -10,7 +10,7 @@ internal class PasteImage_UpdateableChange : UpdateableChange
     private readonly Guid memberGuid;
     private readonly bool ignoreClipsSymmetriesEtc;
     private readonly bool drawOnMask;
-    private readonly Surface imageToPaste;
+    private readonly Texture imageToPaste;
     private CommittedChunkStorage? savedChunks;
     private int? frame;
     private Guid? targetKeyFrameGuid;
@@ -19,13 +19,13 @@ internal class PasteImage_UpdateableChange : UpdateableChange
     private bool hasEnqueudImage = false;
 
     [GenerateUpdateableChangeActions]
-    public PasteImage_UpdateableChange(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipsSymmetriesEtc, bool isDrawingOnMask, int frame, Guid targetKeyFrameGuid)
+    public PasteImage_UpdateableChange(Texture image, ShapeCorners corners, Guid memberGuid, bool ignoreClipsSymmetriesEtc, bool isDrawingOnMask, int frame, Guid targetKeyFrameGuid)
     {
         this.corners = corners;
         this.memberGuid = memberGuid;
         this.ignoreClipsSymmetriesEtc = ignoreClipsSymmetriesEtc;
         this.drawOnMask = isDrawingOnMask;
-        this.imageToPaste = new Surface(image);
+        this.imageToPaste = new Texture(image);
         this.frame = frame;
         this.targetKeyFrameGuid = targetKeyFrameGuid;
     }

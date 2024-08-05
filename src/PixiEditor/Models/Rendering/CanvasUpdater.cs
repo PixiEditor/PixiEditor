@@ -200,17 +200,22 @@ internal class CanvasUpdater
             Texture screenSurface = doc.Surfaces[resolution];
             foreach (var chunkPos in chunks)
             {
-                RenderChunk(chunkPos, screenSurface, resolution, globalClippingRectangle,
-                    globalScaledClippingRectangle);
-                RectI chunkRect = new(chunkPos * chunkSize, new(chunkSize, chunkSize));
-                if (globalScaledClippingRectangle is RectI rect)
-                    chunkRect = chunkRect.Intersect(rect);
+                // TODO render on dedicated thread
+                Dispatcher.UIThread.Post(
+                    () =>
+                    {
+                        RenderChunk(chunkPos, screenSurface, resolution, globalClippingRectangle,
+                            globalScaledClippingRectangle);
+                        RectI chunkRect = new(chunkPos * chunkSize, new(chunkSize, chunkSize));
+                        if (globalScaledClippingRectangle is RectI rect)
+                            chunkRect = chunkRect.Intersect(rect);
 
-                infos.Add(new DirtyRect_RenderInfo(
-                    chunkRect.Pos,
-                    chunkRect.Size,
-                    resolution
-                ));
+                        infos.Add(new DirtyRect_RenderInfo(
+                            chunkRect.Pos,
+                            chunkRect.Size,
+                            resolution
+                        ));
+                    }, DispatcherPriority.Render);
             }
         }
     }
@@ -221,50 +226,43 @@ internal class CanvasUpdater
         if (screenSurface is null || screenSurface.IsDisposed)
             return;
 
-
         doc.Renderer.RenderChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameTime, globalClippingRectangle)
             .Switch(
                 (Chunk chunk) =>
                 {
-                    Dispatcher.UIThread.Post(() =>
+                    if (screenSurface.IsDisposed) return;
+
+                    if (globalScaledClippingRectangle is not null)
                     {
-                        if (screenSurface.IsDisposed) return;
+                        screenSurface.Surface.Canvas.Save();
+                        screenSurface.Surface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
+                    }
 
-                        if (globalScaledClippingRectangle is not null)
-                        {
-                            screenSurface.Surface.Canvas.Save();
-                            screenSurface.Surface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
-                        }
-
-                        screenSurface.Surface.Canvas.DrawSurface(
-                            chunk.Surface.DrawingSurface,
-                            chunkPos.Multiply(chunk.PixelSize), ReplacingPaint);
-                        chunk.Dispose();
+                    screenSurface.Surface.Canvas.DrawSurface(
+                        chunk.Surface.Surface,
+                        chunkPos.Multiply(chunk.PixelSize), ReplacingPaint);
+                    chunk.Dispose();
 
 
-                        if (globalScaledClippingRectangle is not null)
-                            screenSurface.Surface.Canvas.Restore();
-                    });
+                    if (globalScaledClippingRectangle is not null)
+                        screenSurface.Surface.Canvas.Restore();
                 },
                 (EmptyChunk _) =>
                 {
-                    Dispatcher.UIThread.Post(() =>
+                    if (screenSurface.IsDisposed) return;
+
+                    if (globalScaledClippingRectangle is not null)
                     {
-                        if (screenSurface.IsDisposed) return;
+                        screenSurface.Surface.Canvas.Save();
+                        screenSurface.Surface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
+                    }
 
-                        if (globalScaledClippingRectangle is not null)
-                        {
-                            screenSurface.Surface.Canvas.Save();
-                            screenSurface.Surface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
-                        }
+                    var pos = chunkPos * resolution.PixelSize();
+                    screenSurface.Surface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(),
+                        resolution.PixelSize(), ClearPaint);
 
-                        var pos = chunkPos * resolution.PixelSize();
-                        screenSurface.Surface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(),
-                            resolution.PixelSize(), ClearPaint);
-                        
-                        if (globalScaledClippingRectangle is not null)
-                            screenSurface.Surface.Canvas.Restore();
-                    });
+                    if (globalScaledClippingRectangle is not null)
+                        screenSurface.Surface.Canvas.Restore();
                 });
     }
 }

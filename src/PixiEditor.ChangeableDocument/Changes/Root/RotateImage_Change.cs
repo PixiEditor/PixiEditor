@@ -89,7 +89,7 @@ internal sealed class RotateImage_Change : Change
             originalSurface.DrawingSurface,
             VecI.Zero);
 
-        using Surface flipped = new Surface(newSize);
+        using Texture flipped = new Texture(newSize);
 
         float translationX = newSize.X;
         float translationY = newSize.Y;
@@ -103,11 +103,11 @@ internal sealed class RotateImage_Change : Change
                 break;
         }
 
-        flipped.DrawingSurface.Canvas.Save();
-        flipped.DrawingSurface.Canvas.Translate(translationX, translationY);
-        flipped.DrawingSurface.Canvas.RotateRadians(RotationAngleToRadians(rotation), 0, 0);
-        flipped.DrawingSurface.Canvas.DrawSurface(originalSurface.DrawingSurface, 0, 0, paint);
-        flipped.DrawingSurface.Canvas.Restore();
+        flipped.Surface.Canvas.Save();
+        flipped.Surface.Canvas.Translate(translationX, translationY);
+        flipped.Surface.Canvas.RotateRadians(RotationAngleToRadians(rotation), 0, 0);
+        flipped.Surface.Canvas.DrawSurface(originalSurface.DrawingSurface, 0, 0, paint);
+        flipped.Surface.Canvas.Restore();
 
         if (membersToRotate.Count == 0)
         {

@@ -13,7 +13,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundInput
 {
-    public InputProperty<Surface?> Background { get; }
+    public InputProperty<Texture?> Background { get; }
     public InputProperty<float> Opacity { get; }
     public InputProperty<bool> IsVisible { get; }
     public InputProperty<bool> ClipToPreviousMember { get; }
@@ -22,9 +22,9 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     public InputProperty<bool> MaskIsVisible { get; }
     public InputProperty<Filter> Filters { get; }
 
-    public OutputProperty<Surface?> Output { get; }
+    public OutputProperty<Texture?> Output { get; }
 
-    public OutputProperty<Surface?> FilterlessOutput { get; }
+    public OutputProperty<Texture?> FilterlessOutput { get; }
 
     public string MemberName { get; set; } = "New Element"; // would be good to add localization here, it is set if node is created via node graph
     
@@ -34,13 +34,13 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         set => MemberName = value;
     }
 
-    protected Dictionary<(ChunkResolution, int), Surface> workingSurfaces = new Dictionary<(ChunkResolution, int), Surface>();
+    protected Dictionary<(ChunkResolution, int), Texture> workingSurfaces = new Dictionary<(ChunkResolution, int), Texture>();
     private Paint maskPaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.DstIn };
     protected Paint blendPaint = new Paint();
 
     protected StructureNode()
     {
-        Background = CreateInput<Surface?>("Background", "BACKGROUND", null);
+        Background = CreateInput<Texture?>("Background", "BACKGROUND", null);
         Opacity = CreateInput<float>("Opacity", "OPACITY", 1);
         IsVisible = CreateInput<bool>("IsVisible", "IS_VISIBLE", true);
         ClipToPreviousMember = CreateInput<bool>("ClipToMemberBelow", "CLIP_TO_MEMBER_BELOW", false);
@@ -49,41 +49,41 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         MaskIsVisible = CreateInput<bool>("MaskIsVisible", "MASK_IS_VISIBLE", true);
         Filters = CreateInput<Filter>(nameof(Filters), "FILTERS", null);
 
-        Output = CreateOutput<Surface?>("Output", "OUTPUT", null);
-        FilterlessOutput = CreateOutput<Surface?>(nameof(FilterlessOutput), "WITHOUT_FILTERS", null);
+        Output = CreateOutput<Texture?>("Output", "OUTPUT", null);
+        FilterlessOutput = CreateOutput<Texture?>(nameof(FilterlessOutput), "WITHOUT_FILTERS", null);
     }
 
-    protected abstract override Surface? OnExecute(RenderingContext context);
+    protected abstract override Texture? OnExecute(RenderingContext context);
 
-    protected Surface TryInitWorkingSurface(VecI imageSize, RenderingContext context, int id)
+    protected Texture TryInitWorkingSurface(VecI imageSize, RenderingContext context, int id)
     {
         ChunkResolution targetResolution = context.ChunkResolution;
-        bool hasSurface = workingSurfaces.TryGetValue((targetResolution, id), out Surface workingSurface);
+        bool hasSurface = workingSurfaces.TryGetValue((targetResolution, id), out Texture workingSurface);
         VecI targetSize = (VecI)(imageSize * targetResolution.Multiplier());
 
         if (!hasSurface || workingSurface.Size != targetSize || workingSurface.IsDisposed)
         {
-            workingSurfaces[(targetResolution, id)] = new Surface(targetSize);
+            workingSurfaces[(targetResolution, id)] = new Texture(targetSize);
             workingSurface = workingSurfaces[(targetResolution, id)];
         }
 
         return workingSurface;
     }
 
-    protected void ApplyMaskIfPresent(Surface surface, RenderingContext context)
+    protected void ApplyMaskIfPresent(Texture surface, RenderingContext context)
     {
         if (Mask.Value != null && MaskIsVisible.Value)
         {
             Mask.Value.DrawMostUpToDateChunkOn(
                 context.ChunkToUpdate,
                 context.ChunkResolution,
-                surface.DrawingSurface,
+                surface.Surface,
                 context.ChunkToUpdate * context.ChunkResolution.PixelSize(),
                 maskPaint);
         }
     }
 
-    protected void ApplyRasterClip(Surface surface, RenderingContext context)
+    protected void ApplyRasterClip(Texture surface, RenderingContext context)
     {
         if (ClipToPreviousMember.Value && Background.Value != null)
         {
@@ -92,7 +92,8 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
             VecI targetSize = new VecI(context.ChunkResolution.PixelSize());
             clippingRect = new RectI(chunkStart, targetSize);
 
-            OperationHelper.ClampAlpha(surface.DrawingSurface, Background.Value, clippingRect);
+            //TODO: Implement this
+            // OperationHelper.ClampAlpha(surface.DrawingSurface, Background.Value, clippingRect);
         }
     }
 
@@ -107,24 +108,24 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         return (MaskIsVisible.Value && Mask.Value != null) || ClipToPreviousMember.Value;
     }
 
-    protected void DrawBackground(Surface workingSurface, RenderingContext context)
+    protected void DrawBackground(Texture workingSurface, RenderingContext context)
     {
         blendPaint.Color = Colors.White;
         DrawSurface(workingSurface, Background.Value, context, null); 
     }
 
-    protected void DrawSurface(Surface workingSurface, Surface source, RenderingContext context, Filter? filter)
+    protected void DrawSurface(Texture workingSurface, Texture source, RenderingContext context, Filter? filter)
     {
         // Maybe clip rect will allow to avoid snapshotting? Idk if it will be faster
         RectI sourceRect = CalculateSourceRect(source, workingSurface.Size, context);
         RectI targetRect = CalculateDestinationRect(context);
-        using var snapshot = source.DrawingSurface.Snapshot(sourceRect);
+        using var snapshot = source.Surface.Snapshot(sourceRect);
 
         blendPaint.SetFilters(filter);
-        workingSurface.DrawingSurface.Canvas.DrawImage(snapshot, targetRect.X, targetRect.Y, blendPaint);
+        workingSurface.Surface.Canvas.DrawImage(snapshot, targetRect.X, targetRect.Y, blendPaint);
     }
 
-    protected RectI CalculateSourceRect(Surface image, VecI targetSize, RenderingContext context)
+    protected RectI CalculateSourceRect(Texture image, VecI targetSize, RenderingContext context)
     {
         float multiplierToFit = image.Size.X / (float)targetSize.X;
         int chunkSize = context.ChunkResolution.PixelSize();

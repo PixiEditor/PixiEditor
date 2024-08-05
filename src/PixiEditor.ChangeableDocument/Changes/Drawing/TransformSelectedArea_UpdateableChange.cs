@@ -15,7 +15,7 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
     private bool keepOriginal;
     private ShapeCorners corners;
 
-    private Dictionary<Guid, (Surface surface, VecI pos)>? images;
+    private Dictionary<Guid, (Texture surface, VecI pos)>? images;
     private Matrix3X3 globalMatrix;
     private Dictionary<Guid, CommittedChunkStorage>? savedChunks;
 
@@ -74,7 +74,7 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
         return true;
     }
 
-    public OneOf<None, (Surface image, RectI extractedRect)> ExtractArea(ChunkyImage image, VectorPath path, RectI pathBounds)
+    public OneOf<None, (Texture image, RectI extractedRect)> ExtractArea(ChunkyImage image, VectorPath path, RectI pathBounds)
     {
         // get rid of transparent areas on edges
         var memberImageBounds = image.FindChunkAlignedMostUpToDateBounds();
@@ -90,11 +90,11 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
         clipPath.Transform(Matrix3X3.CreateTranslation(-pathBounds.X, -pathBounds.Y));
 
         // draw
-        Surface output = new(pathBounds.Size);
-        output.DrawingSurface.Canvas.Save();
-        output.DrawingSurface.Canvas.ClipPath(clipPath);
-        image.DrawMostUpToDateRegionOn(pathBounds, ChunkResolution.Full, output.DrawingSurface, VecI.Zero);
-        output.DrawingSurface.Canvas.Restore();
+        Texture output = new(pathBounds.Size);
+        output.Surface.Canvas.Save();
+        output.Surface.Canvas.ClipPath(clipPath);
+        image.DrawMostUpToDateRegionOn(pathBounds, ChunkResolution.Full, output.Surface, VecI.Zero);
+        output.Surface.Canvas.Restore();
 
         return (output, pathBounds);
     }
@@ -107,7 +107,7 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
         globalMatrix = OperationHelper.CreateMatrixFromPoints(corners, originalTightBounds.Size);
     }
 
-    private AffectedArea DrawImage(Document doc, Guid memberGuid, Surface image, VecI originalPos, ChunkyImage memberImage)
+    private AffectedArea DrawImage(Document doc, Guid memberGuid, Texture image, VecI originalPos, ChunkyImage memberImage)
     {
         var prevAffArea = memberImage.FindAffectedArea();
 

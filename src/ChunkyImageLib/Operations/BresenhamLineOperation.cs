@@ -31,7 +31,7 @@ internal class BresenhamLineOperation : IMirroredDrawOperation
         // a hacky way to make the lines look slightly better on non full res chunks
         paint.Color = new Color(color.R, color.G, color.B, (byte)(color.A * targetChunk.Resolution.Multiplier()));
 
-        var surf = targetChunk.Surface.DrawingSurface;
+        var surf = targetChunk.Surface.Surface;
         surf.Canvas.Save();
         surf.Canvas.Scale((float)targetChunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);

@@ -63,13 +63,14 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         DataImage imageData = (data == null ? await ClipboardController.GetImagesFromClipboard() : ClipboardController.GetImage(data)).First();
         using var surface = imageData.image;
 
-        var bitmap = imageData.image.ToWriteableBitmap();
+        // TODO: Implement this
+        /*var bitmap = imageData.image.ToWriteableBitmap();
 
         byte[] pixels = bitmap.ExtractPixels();
 
         doc.Operations.ImportReferenceLayer(
             pixels.ToImmutableArray(),
-            imageData.image.Size);
+            imageData.image.Size);*/
 
         if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {

@@ -3,6 +3,9 @@ using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
 namespace PixiEditor.Helpers.Extensions;
 

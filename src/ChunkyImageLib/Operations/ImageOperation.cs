@@ -10,13 +10,13 @@ internal class ImageOperation : IMirroredDrawOperation
 {
     private Matrix3X3 transformMatrix;
     private ShapeCorners corners;
-    private Surface toPaint;
+    private Texture toPaint;
     private bool imageWasCopied = false;
     private readonly Paint? customPaint;
 
     public bool IgnoreEmptyChunks => false;
 
-    public ImageOperation(VecI pos, Surface image, Paint? paint = null, bool copyImage = true)
+    public ImageOperation(VecI pos, Texture image, Paint? paint = null, bool copyImage = true)
     {
         if (paint is not null)
             customPaint = paint.Clone();
@@ -34,13 +34,13 @@ internal class ImageOperation : IMirroredDrawOperation
 
         // copying is needed for thread safety
         if (copyImage)
-            toPaint = new Surface(image);
+            toPaint = new Texture(image);
         else
             toPaint = image;
         imageWasCopied = copyImage;
     }
 
-    public ImageOperation(ShapeCorners corners, Surface image, Paint? paint = null, bool copyImage = true)
+    public ImageOperation(ShapeCorners corners, Texture image, Paint? paint = null, bool copyImage = true)
     {
         if (paint is not null)
             customPaint = paint.Clone();
@@ -50,13 +50,13 @@ internal class ImageOperation : IMirroredDrawOperation
 
         // copying is needed for thread safety
         if (copyImage)
-            toPaint = new Surface(image);
+            toPaint = new Texture(image);
         else
             toPaint = image;
         imageWasCopied = copyImage;
     }
 
-    public ImageOperation(Matrix3X3 transformMatrix, Surface image, Paint? paint = null, bool copyImage = true)
+    public ImageOperation(Matrix3X3 transformMatrix, Texture image, Paint? paint = null, bool copyImage = true)
     {
         if (paint is not null)
             customPaint = paint.Clone();
@@ -72,12 +72,11 @@ internal class ImageOperation : IMirroredDrawOperation
 
         // copying is needed for thread safety
         if (copyImage)
-            toPaint = new Surface(image);
+            toPaint = new Texture(image);
         else
             toPaint = image;
         imageWasCopied = copyImage;
     }
-
 
 
     public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
@@ -89,10 +88,10 @@ internal class ImageOperation : IMirroredDrawOperation
         var scaleTrans = Matrix3X3.CreateScaleTranslation(scaleMult, scaleMult, (float)trans.X * scaleMult, (float)trans.Y * scaleMult);
         var finalMatrix = Matrix3X3.Concat(scaleTrans, transformMatrix);
 
-        targetChunk.Surface.DrawingSurface.Canvas.Save();
-        targetChunk.Surface.DrawingSurface.Canvas.SetMatrix(finalMatrix);
-        targetChunk.Surface.DrawingSurface.Canvas.DrawSurface(toPaint.DrawingSurface, 0, 0, customPaint);
-        targetChunk.Surface.DrawingSurface.Canvas.Restore();
+        targetChunk.Surface.Surface.Canvas.Save();
+        targetChunk.Surface.Surface.Canvas.SetMatrix(finalMatrix);
+        targetChunk.Surface.Surface.Canvas.DrawSurface(toPaint.Surface, 0, 0, customPaint);
+        targetChunk.Surface.Surface.Canvas.Restore();
     }
 
     public AffectedArea FindAffectedArea(VecI imageSize)

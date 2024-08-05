@@ -93,7 +93,7 @@ internal class ActionAccumulator
             var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime, internals.Tracker, optimizedChanges);
             List<IRenderInfo> renderResult = new();
             renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed || viewportRefreshRequest));
-            renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
+            //renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
 
             if (undoBoundaryPassed)
             {

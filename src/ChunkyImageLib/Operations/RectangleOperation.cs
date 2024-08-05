@@ -18,9 +18,9 @@ internal class RectangleOperation : IMirroredDrawOperation
 
     public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
-        var skiaSurf = targetChunk.Surface.DrawingSurface;
+        var skiaSurf = targetChunk.Surface.Surface;
 
-        var surf = targetChunk.Surface.DrawingSurface;
+        var surf = targetChunk.Surface.Surface;
 
         var rect = RectD.FromCenterAndSize(Data.Center, Data.Size.Abs());
         var innerRect = rect.Inflate(-Data.StrokeWidth);

@@ -21,6 +21,10 @@ public class TextureControl : Control
     public static readonly StyledProperty<Stretch> StretchProperty = AvaloniaProperty.Register<TextureControl, Stretch>(
         nameof(Stretch), Stretch.Uniform);
 
+    public static readonly StyledProperty<IBrush> BackgroundProperty =
+        AvaloniaProperty.Register<TextureControl, IBrush>(
+            nameof(Background));
+
     public Stretch Stretch
     {
         get => GetValue(StretchProperty);
@@ -31,6 +35,12 @@ public class TextureControl : Control
     {
         get => GetValue(TextureProperty);
         set => SetValue(TextureProperty, value);
+    }
+
+    public IBrush Background
+    {
+        get { return (IBrush)GetValue(BackgroundProperty); }
+        set { SetValue(BackgroundProperty, value); }
     }
 
     static TextureControl()
@@ -87,11 +97,16 @@ public class TextureControl : Control
 
     public override void Render(DrawingContext context)
     {
+        if (Background != null)
+        {
+            context.FillRectangle(Background, new Rect(0, 0, Bounds.Width, Bounds.Height));
+        }
+
         if (Texture == null)
         {
             return;
         }
-        
+
         Texture texture = Texture;
         texture.Surface.Flush();
         ICustomDrawOperation drawOperation = new DrawTextureOperation(
@@ -101,20 +116,20 @@ public class TextureControl : Control
 
         context.Custom(drawOperation);
     }
-    
+
     private void OnTextureChanged(AvaloniaPropertyChangedEventArgs<Texture> args)
     {
         if (args.OldValue.Value != null)
         {
             args.OldValue.Value.Changed -= TextureOnChanged;
         }
-        
+
         if (args.NewValue.Value != null)
         {
             args.NewValue.Value.Changed += TextureOnChanged;
         }
     }
-    
+
     private void TextureOnChanged(RectD? changedRect)
     {
         Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
@@ -143,7 +158,7 @@ internal class DrawTextureOperation : SkiaDrawOperation
         {
             return;
         }
-        
+
         SKCanvas canvas = lease.SkCanvas;
 
         using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);

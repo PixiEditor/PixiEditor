@@ -17,10 +17,10 @@ public class ChunkyImageSerializationFactory : SerializationFactory<byte[], Chun
         var encoder = Config.Encoder;
         surfaceFactory.Config = Config;
 
-        Surface surface = new Surface(original.LatestSize);
+        Texture surface = new Texture(original.LatestSize);
         original.DrawMostUpToDateRegionOn(
             new RectI(0, 0, original.LatestSize.X,
-                original.LatestSize.Y), ChunkResolution.Full, surface.DrawingSurface, new VecI(0, 0), new Paint());
+                original.LatestSize.Y), ChunkResolution.Full, surface.Surface, new VecI(0, 0), new Paint());
 
         return surfaceFactory.Serialize(surface);
     }
@@ -30,7 +30,7 @@ public class ChunkyImageSerializationFactory : SerializationFactory<byte[], Chun
         if (serialized is byte[] imgBytes)
         {
             surfaceFactory.Config = Config;
-            if (!surfaceFactory.TryDeserialize(imgBytes, out Surface surface))
+            if (!surfaceFactory.TryDeserialize(imgBytes, out Texture surface))
             {
                 original = null;
                 return false;

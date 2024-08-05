@@ -22,7 +22,7 @@ public class Chunk : IDisposable
     /// <summary>
     /// The surface of the chunk
     /// </summary>
-    public Surface Surface
+    public Texture Surface
     {
         get
         {
@@ -47,14 +47,14 @@ public class Chunk : IDisposable
     
     public bool Disposed => returned;
 
-    private Surface internalSurface;
+    private Texture internalSurface;
     private Chunk(ChunkResolution resolution)
     {
         int size = resolution.PixelSize();
 
         Resolution = resolution;
         PixelSize = new(size, size);
-        internalSurface = new Surface(PixelSize);
+        internalSurface = new Texture(PixelSize);
     }
 
     /// <summary>
@@ -75,7 +75,7 @@ public class Chunk : IDisposable
     /// <param name="paint">The paint to use while drawing</param>
     public void DrawChunkOn(DrawingSurface surface, VecI pos, Paint? paint = null)
     {
-        surface.Canvas.DrawSurface(Surface.DrawingSurface, pos.X, pos.Y, paint);
+        surface.Canvas.DrawSurface(Surface.Surface, pos.X, pos.Y, paint);
     }
     
     public unsafe RectI? FindPreciseBounds(RectI? passedSearchRegion = null)
@@ -88,8 +88,10 @@ public class Chunk : IDisposable
             throw new ArgumentException("Passed search region lies outside of the chunk's surface", nameof(passedSearchRegion));
 
         RectI searchRegion = passedSearchRegion ?? new RectI(VecI.Zero, Surface.Size);
-        
-        ulong* ptr = (ulong*)Surface.PixelBuffer;
+
+        Pixmap pixmap = Surface.PeekReadOnlyPixels();
+
+        ulong* ptr = (ulong*)pixmap.GetPixels();
         for (int y = searchRegion.Top; y < searchRegion.Bottom; y++)
         {
             for (int x = searchRegion.Left; x < searchRegion.Right; x++)
@@ -116,7 +118,7 @@ public class Chunk : IDisposable
         if (returned)
             return;
         Interlocked.Decrement(ref chunkCounter);
-        Surface.DrawingSurface.Canvas.Clear();
+        Surface.Surface.Canvas.Clear();
         ChunkPool.Instance.Push(this);
         returned = true;
     }

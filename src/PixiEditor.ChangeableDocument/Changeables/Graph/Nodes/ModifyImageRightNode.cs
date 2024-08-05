@@ -22,7 +22,7 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
     public FuncInputProperty<VecD> Coordinate { get; }
     public FuncInputProperty<Color> Color { get; }
 
-    public OutputProperty<Surface> Output { get; }
+    public OutputProperty<Texture> Output { get; }
 
     public override string DisplayName { get; set; } = "MODIFY_IMAGE_RIGHT_NODE";
 
@@ -30,10 +30,10 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
     {
         Coordinate = CreateFuncInput(nameof(Coordinate), "UV", new VecD());
         Color = CreateFuncInput(nameof(Color), "COLOR", new Color());
-        Output = CreateOutput<Surface>(nameof(Output), "OUTPUT", null);
+        Output = CreateOutput<Texture>(nameof(Output), "OUTPUT", null);
     }
 
-    protected override Surface? OnExecute(RenderingContext renderingContext)
+    protected override Texture? OnExecute(RenderingContext renderingContext)
     {
         if (StartNode == null)
         {
@@ -55,7 +55,7 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
         var width = size.X;
         var height = size.Y;
 
-        var surface = new Surface(size);
+        var surface = new Texture(size);
 
         var context = new FuncContext();
 
@@ -70,7 +70,7 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
                 
                 drawingPaint.Color = color;
 
-                surface.DrawingSurface.Canvas.DrawPixel(x, y, drawingPaint);
+                surface.Surface.Canvas.DrawPixel(x, y, drawingPaint);
             }
         }
 

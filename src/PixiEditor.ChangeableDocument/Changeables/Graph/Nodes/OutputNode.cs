@@ -11,10 +11,10 @@ public class OutputNode : Node, IBackgroundInput
     public const string InputPropertyName = "Background";
 
     public override string DisplayName { get; set; } = "OUTPUT_NODE";
-    public InputProperty<Surface?> Input { get; } 
+    public InputProperty<Texture?> Input { get; } 
     public OutputNode()
     {
-        Input = CreateInput<Surface>(InputPropertyName, "INPUT", null);
+        Input = CreateInput<Texture>(InputPropertyName, "INPUT", null);
     }
 
     public override Node CreateCopy()
@@ -22,10 +22,10 @@ public class OutputNode : Node, IBackgroundInput
         return new OutputNode();
     }
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         return Input.Value;
     }
 
-    InputProperty<Surface?> IBackgroundInput.Background => Input;
+    InputProperty<Texture?> IBackgroundInput.Background => Input;
 }

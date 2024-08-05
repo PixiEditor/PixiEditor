@@ -34,7 +34,7 @@ public class LerpColorNode : Node // TODO: ILerpable as inputs?
         return Color.Lerp(from, to, time); 
     }
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         return null;
     }

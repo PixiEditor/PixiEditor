@@ -587,7 +587,7 @@ internal class MemberPreviewUpdater
 
                 if (rendered.IsT0)
                 {
-                    memberVM.PreviewSurface.Surface.Canvas.DrawSurface(rendered.AsT0.Surface.DrawingSurface, pos,
+                    memberVM.PreviewSurface.Surface.Canvas.DrawSurface(rendered.AsT0.Surface.Surface, pos,
                         scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint);
                     rendered.AsT0.Dispose();
                 }
@@ -761,7 +761,7 @@ internal class MemberPreviewUpdater
 
                 RectI region = new RectI(0, 0, node.CachedResult.Size.X, node.CachedResult.Size.Y);
 
-                nodeVm.ResultPreview.Surface.Canvas.DrawSurface(node.CachedResult.DrawingSurface, 0, 0,
+                nodeVm.ResultPreview.Surface.Canvas.DrawSurface(node.CachedResult.Surface, 0, 0,
                     ReplacingPaint);
 
                 nodeVm.ResultPreview.Surface.Canvas.Restore();

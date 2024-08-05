@@ -16,7 +16,7 @@ public abstract class FilterNode : Node
         Input = CreateInput<Filter>(nameof(Input), "PREVIOUS", null);
     }
     
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         var colorFilter = GetColorFilter();
         var imageFilter = GetImageFilter();

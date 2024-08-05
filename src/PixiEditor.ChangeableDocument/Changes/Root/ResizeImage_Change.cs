@@ -62,11 +62,11 @@ internal class ResizeImage_Change : Change
         FilterQuality quality = ToFilterQuality(method, downscaling);
         using Paint paint = new() { FilterQuality = quality, BlendMode = BlendMode.Src, };
 
-        using Surface newSurface = new(newSize);
-        newSurface.DrawingSurface.Canvas.Save();
-        newSurface.DrawingSurface.Canvas.Scale(newSize.X / (float)originalSize.X, newSize.Y / (float)originalSize.Y);
-        newSurface.DrawingSurface.Canvas.DrawSurface(originalSurface.DrawingSurface, 0, 0, paint);
-        newSurface.DrawingSurface.Canvas.Restore();
+        using Texture newSurface = new(newSize);
+        newSurface.Surface.Canvas.Save();
+        newSurface.Surface.Canvas.Scale(newSize.X / (float)originalSize.X, newSize.Y / (float)originalSize.Y);
+        newSurface.Surface.Canvas.DrawSurface(originalSurface.DrawingSurface, 0, 0, paint);
+        newSurface.Surface.Canvas.Restore();
 
         image.EnqueueResize(newSize);
         image.EnqueueClear();
