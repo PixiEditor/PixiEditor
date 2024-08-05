@@ -33,4 +33,9 @@ public class Bitmap : NativeObject
     {
         return DrawingBackendApi.Current.BitmapImplementation.FromImage(snapshot.ObjectPointer);
     }
+
+    public Pixmap? PeekPixels()
+    {
+        return DrawingBackendApi.Current.BitmapImplementation.PeekPixels(ObjectPointer);
+    }
 }

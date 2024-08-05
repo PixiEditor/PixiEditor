@@ -16,6 +16,9 @@ public class Texture : IDisposable
     public event SurfaceChangedEventHandler? Changed;
     
     public bool IsDisposed { get; private set; }
+    
+    private bool pixmapUpToDate;
+    private Pixmap pixmap;
 
     public Texture(VecI size)
     {
@@ -97,7 +100,13 @@ public class Texture : IDisposable
         if (vecI.X < 0 || vecI.X >= Size.X || vecI.Y < 0 || vecI.Y >= Size.Y)
             return null;
         
-        return Surface.PeekPixels().GetPixelColor(vecI.X, vecI.Y);
+        if (!pixmapUpToDate)
+        {
+            pixmapUpToDate = true;
+            pixmap = Surface.PeekPixels();
+        }
+        
+        return pixmap.GetPixelColor(vecI);
     }
 
     public void Dispose()
