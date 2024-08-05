@@ -41,7 +41,7 @@ public class Pixmap : NativeObject
         DrawingBackendApi.Current.PixmapImplementation.Dispose(ObjectPointer);
     }
 
-    public Color GetPixelColor(int x, int y) => GetPixelColor(new VecI(x, y));
+    public Color GetPixelColor(int x, int y) => GetPixelColor(new VecI(Math.Clamp(x, 0, Width), Math.Clamp(y, 0, Height)));
     
     public Color GetPixelColor(VecI position)
     {
