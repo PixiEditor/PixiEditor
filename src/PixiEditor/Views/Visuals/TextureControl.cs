@@ -41,6 +41,7 @@ public class TextureControl : Control
     public TextureControl()
     {
         ClipToBounds = true;
+        TextureProperty.Changed.Subscribe(OnTextureChanged);
     }
 
     /// <summary>
@@ -99,6 +100,24 @@ public class TextureControl : Control
             texture);
 
         context.Custom(drawOperation);
+    }
+    
+    private void OnTextureChanged(AvaloniaPropertyChangedEventArgs<Texture> args)
+    {
+        if (args.OldValue.Value != null)
+        {
+            args.OldValue.Value.Changed -= TextureOnChanged;
+        }
+        
+        if (args.NewValue.Value != null)
+        {
+            args.NewValue.Value.Changed += TextureOnChanged;
+        }
+    }
+    
+    private void TextureOnChanged(RectD? changedRect)
+    {
+        Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
     }
 }
 

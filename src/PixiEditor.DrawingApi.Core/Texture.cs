@@ -13,6 +13,7 @@ public class Texture : IDisposable
     public VecI Size { get; }
     public DrawingSurface Surface { get; }
 
+    public event SurfaceChangedEventHandler? Changed;
     
     public bool IsDisposed { get; private set; }
 
@@ -26,7 +27,14 @@ public class Texture : IDisposable
                     GpuBacked = true
                 });
         
+        Surface.Changed += SurfaceOnChanged;
     }
+
+    private void SurfaceOnChanged(RectD? changedRect)
+    {
+        Changed?.Invoke(changedRect);
+    }
+
 
     public static Texture Load(string path)
     {
@@ -99,6 +107,7 @@ public class Texture : IDisposable
             return;
 
         IsDisposed = true;
+        Surface.Changed -= SurfaceOnChanged;
         Surface.Dispose();
     }
 }

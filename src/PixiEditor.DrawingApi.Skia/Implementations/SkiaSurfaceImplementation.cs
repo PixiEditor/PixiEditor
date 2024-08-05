@@ -152,7 +152,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public void Flush(DrawingSurface drawingSurface)
         {
-            ManagedInstances[drawingSurface.ObjectPointer].Flush(true, false);
+            ManagedInstances[drawingSurface.ObjectPointer].Flush(true, true);
         }
     }
 }
