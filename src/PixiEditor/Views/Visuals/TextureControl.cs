@@ -7,6 +7,7 @@ using Avalonia.Threading;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
+using PixiEditor.DrawingApi.Skia.Extensions;
 using PixiEditor.DrawingApi.Skia.Implementations;
 using PixiEditor.Numerics;
 
@@ -85,8 +86,13 @@ public class TextureControl : Control
 
     public override void Render(DrawingContext context)
     {
+        if (Texture == null)
+        {
+            return;
+        }
+        
         Texture texture = Texture;
-        texture.GpuSurface.Flush();
+        texture.Surface.Flush();
         ICustomDrawOperation drawOperation = new DrawTextureOperation(
             new Rect(0, 0, Bounds.Width, Bounds.Height),
             Stretch,
@@ -117,16 +123,12 @@ internal class DrawTextureOperation : SkiaDrawOperation
     {
         SKCanvas canvas = lease.SkCanvas;
 
-        GRContext original = (DrawingBackendApi.Current.SurfaceImplementation as SkiaSurfaceImplementation).GrContext;
-        
-        (DrawingBackendApi.Current.SurfaceImplementation as SkiaSurfaceImplementation).GrContext = lease.GrContext;
+        using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
 
         canvas.Save();
         ScaleCanvas(canvas);
-        canvas.DrawSurface(Texture.GpuSurface.Native as SKSurface, 0, 0, Paint?.Native as SKPaint ?? null);
+        canvas.DrawSurface(Texture.Surface.Native as SKSurface, 0, 0, Paint?.Native as SKPaint ?? null);
         canvas.Restore();
-        
-        (DrawingBackendApi.Current.SurfaceImplementation as SkiaSurfaceImplementation).GrContext = original;
     }
 
     private void ScaleCanvas(SKCanvas canvas)

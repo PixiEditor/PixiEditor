@@ -11,12 +11,12 @@ namespace PixiEditor.DrawingApi.Core;
 public class Texture : IDisposable
 {
     public VecI Size { get; }
-    public DrawingSurface GpuSurface { get; }
+    public DrawingSurface Surface { get; }
 
     public Texture(VecI size)
     {
         Size = size;
-        GpuSurface =
+        Surface =
             DrawingSurface.Create(
                 new ImageInfo(Size.X, Size.Y, ColorType.RgbaF16, AlphaType.Premul, ColorSpace.CreateSrgb())
                 {
@@ -26,7 +26,7 @@ public class Texture : IDisposable
 
     public void Dispose()
     {
-        GpuSurface.Dispose();
+        Surface.Dispose();
     }
 
     public static Texture Load(string path)
@@ -38,7 +38,7 @@ public class Texture : IDisposable
             throw new ArgumentException($"The image with path {path} couldn't be loaded");
 
         Texture texture = new Texture(image.Size);
-        texture.GpuSurface.Canvas.DrawImage(image, 0, 0);
+        texture.Surface.Canvas.DrawImage(image, 0, 0);
         
         return texture;
     }
@@ -47,7 +47,7 @@ public class Texture : IDisposable
     {
         using Image image = Image.FromEncodedData(data);
         Texture texture = new Texture(image.Size);
-        texture.GpuSurface.Canvas.DrawImage(image, 0, 0);
+        texture.Surface.Canvas.DrawImage(image, 0, 0);
         
         return texture;
     }
@@ -59,14 +59,14 @@ public class Texture : IDisposable
             return null;
 
         var surface = new Texture(new VecI(image.Width, image.Height));
-        surface.GpuSurface.Canvas.DrawImage(image, 0, 0);
+        surface.Surface.Canvas.DrawImage(image, 0, 0);
 
         return surface;
     }
 
     public Texture CreateResized(VecI newSize, ResizeMethod method)
     {
-        using Image image = GpuSurface.Snapshot();
+        using Image image = Surface.Snapshot();
         Texture newTexture = new(newSize);
         using Paint paint = new();
 
@@ -80,7 +80,7 @@ public class Texture : IDisposable
 
         paint.FilterQuality = filterQuality;
 
-        newTexture.GpuSurface.Canvas.DrawImage(image, new RectD(0, 0, newSize.X, newSize.Y), paint);
+        newTexture.Surface.Canvas.DrawImage(image, new RectD(0, 0, newSize.X, newSize.Y), paint);
         
         return newTexture;
     }

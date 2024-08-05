@@ -15,7 +15,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         private readonly SkiaCanvasImplementation _canvasImplementation;
         private readonly SkiaPaintImplementation _paintImplementation;
 
-        public GRContext GrContext { get; set; }
+        internal GRContext GrContext { get; set; }
 
         public SkiaSurfaceImplementation(GRContext context, SkiaPixmapImplementation pixmapImplementation,
             SkiaCanvasImplementation canvasImplementation, SkiaPaintImplementation paintImplementation)

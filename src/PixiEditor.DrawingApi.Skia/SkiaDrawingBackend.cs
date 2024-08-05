@@ -33,14 +33,14 @@ namespace PixiEditor.DrawingApi.Skia
         public IVectorPathImplementation PathImplementation { get; }
         public IMatrix3X3Implementation MatrixImplementation { get; }
         public IPixmapImplementation PixmapImplementation { get; }
-        public ISurfaceImplementation SurfaceImplementation => _surfaceImplementation;
+        ISurfaceImplementation IDrawingBackend.SurfaceImplementation => SurfaceImplementation;
+        public SkiaSurfaceImplementation SurfaceImplementation { get; }
         public IColorSpaceImplementation ColorSpaceImplementation { get; }
         public IBitmapImplementation BitmapImplementation { get; }
         public IColorFilterImplementation ColorFilterImplementation { get; }
         public IImageFilterImplementation ImageFilterImplementation { get; }
         public IShaderImplementation ShaderImplementation { get; set; }
 
-        private SkiaSurfaceImplementation _surfaceImplementation;
         private GRContext _grContext;
 
         public SkiaDrawingBackend()
@@ -80,17 +80,17 @@ namespace PixiEditor.DrawingApi.Skia
             
             SkiaCanvasImplementation canvasImpl = new SkiaCanvasImplementation(paintImpl, imgImpl, bitmapImpl, pathImpl);
             
-            _surfaceImplementation = new SkiaSurfaceImplementation(GraphicsContext, pixmapImpl, canvasImpl, paintImpl);
+            SurfaceImplementation = new SkiaSurfaceImplementation(GraphicsContext, pixmapImpl, canvasImpl, paintImpl);
 
-            canvasImpl.SetSurfaceImplementation(_surfaceImplementation);
-            imgImpl.SetSurfaceImplementation(_surfaceImplementation);
+            canvasImpl.SetSurfaceImplementation(SurfaceImplementation);
+            imgImpl.SetSurfaceImplementation(SurfaceImplementation);
 
             CanvasImplementation = canvasImpl;
         }
         
         public void Setup()
         {
-            _surfaceImplementation.GrContext = GraphicsContext;
+            SurfaceImplementation.GrContext = GraphicsContext;
         }
     }
 }

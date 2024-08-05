@@ -1,4 +1,5 @@
-﻿using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
+﻿using System;
+using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
 using PixiEditor.DrawingApi.Core.Bridge.Operations;
 
 namespace PixiEditor.DrawingApi.Core.Bridge
