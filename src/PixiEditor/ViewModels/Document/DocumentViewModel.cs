@@ -168,17 +168,17 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public IStructureMemberHandler? SelectedStructureMember { get; private set; } = null;
 
     //TODO: It was DrawingSurface before, check if it's correct
-    public Dictionary<ChunkResolution, Surface> Surfaces { get; set; } = new()
+    public Dictionary<ChunkResolution, Texture> Surfaces { get; set; } = new()
     {
-        [ChunkResolution.Full] = new Surface(new VecI(64, 64)),
-        [ChunkResolution.Half] = new Surface(new VecI(32, 32)),
-        [ChunkResolution.Quarter] = new Surface(new VecI(16, 16)),
-        [ChunkResolution.Eighth] = new Surface(new VecI(8, 8))
+        [ChunkResolution.Full] = new Texture(new VecI(64, 64)),
+        [ChunkResolution.Half] = new Texture(new VecI(32, 32)),
+        [ChunkResolution.Quarter] = new Texture(new VecI(16, 16)),
+        [ChunkResolution.Eighth] = new Texture(new VecI(8, 8))
     };
 
-    private Surface previewSurface;
+    private Texture previewSurface;
 
-    public Surface PreviewSurface
+    public Texture PreviewSurface
     {
         get => previewSurface;
         set
@@ -237,7 +237,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             Internals.ChangeController.LineOverlayMovedInlet(args.Item1, args.Item2);
 
         VecI previewSize = StructureMemberViewModel.CalculatePreviewSize(SizeBindable);
-        PreviewSurface = new Surface(new VecI(previewSize.X, previewSize.Y));
+        PreviewSurface = new Texture(new VecI(previewSize.X, previewSize.Y));
 
         ReferenceLayerViewModel = new(this, Internals);
 

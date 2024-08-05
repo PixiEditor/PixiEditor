@@ -436,22 +436,22 @@ internal class MemberPreviewUpdater
             };
             var pos = chunkPos * resolution.PixelSize();
             var rendered = doc.Renderer.RenderChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameTime);
-            doc.PreviewSurface.DrawingSurface.Canvas.Save();
-            doc.PreviewSurface.DrawingSurface.Canvas.Scale(scaling);
-            doc.PreviewSurface.DrawingSurface.Canvas.ClipRect((RectD)cumulative.GlobalArea);
-            doc.PreviewSurface.DrawingSurface.Canvas.Scale(1 / (float)resolution.Multiplier());
+            doc.PreviewSurface.Surface.Canvas.Save();
+            doc.PreviewSurface.Surface.Canvas.Scale(scaling);
+            doc.PreviewSurface.Surface.Canvas.ClipRect((RectD)cumulative.GlobalArea);
+            doc.PreviewSurface.Surface.Canvas.Scale(1 / (float)resolution.Multiplier());
             if (rendered.IsT1)
             {
-                doc.PreviewSurface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(),
+                doc.PreviewSurface.Surface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(),
                     resolution.PixelSize(), ClearPaint);
             }
             else if (rendered.IsT0)
             {
                 using var renderedChunk = rendered.AsT0;
-                renderedChunk.DrawChunkOn(doc.PreviewSurface.DrawingSurface, pos, SmoothReplacingPaint);
+                renderedChunk.DrawChunkOn(doc.PreviewSurface.Surface, pos, SmoothReplacingPaint);
             }
 
-            doc.PreviewSurface.DrawingSurface.Canvas.Restore();
+            doc.PreviewSurface.Surface.Canvas.Restore();
         }
 
         if (somethingChanged)

@@ -13,8 +13,10 @@ using Avalonia.Threading;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Skia;
+using PixiEditor.DrawingApi.Skia.Extensions;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Converters;
@@ -32,7 +34,7 @@ namespace PixiEditor.Views.Rendering;
 
 internal class Scene : Zoombox.Zoombox, ICustomHitTest
 {
-    public static readonly StyledProperty<Surface> SurfaceProperty = AvaloniaProperty.Register<SurfaceControl, Surface>(
+    public static readonly StyledProperty<Texture> SurfaceProperty = AvaloniaProperty.Register<SurfaceControl, Texture>(
         nameof(Surface));
 
     public static readonly StyledProperty<DocumentViewModel> DocumentProperty =
@@ -86,7 +88,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         set => SetValue(DocumentProperty, value);
     }
 
-    public Surface Surface
+    public Texture Surface
     {
         get => GetValue(SurfaceProperty);
         set => SetValue(SurfaceProperty, value);
@@ -145,6 +147,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         RectD dirtyBounds = new RectD(0, 0, Document.Width / resolutionScale, Document.Height / resolutionScale);
         Rect dirtyRect = new Rect(0, 0, Document.Width / resolutionScale, Document.Height / resolutionScale);
 
+        Surface.Surface.Flush();
         using var operation = new DrawSceneOperation(Surface, Document, CanvasPos, Scale * resolutionScale, angle,
             FlipX, FlipY,
             dirtyRect,
@@ -185,9 +188,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 }
 
                 overlay.ZoomScale = Scale;
-                
-                if(!overlay.CanRender()) continue;
-                
+
+                if (!overlay.CanRender()) continue;
+
                 overlay.RenderOverlay(context, dirtyBounds);
                 Cursor = overlay.Cursor ?? DefaultCursor;
             }
@@ -453,7 +456,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private static void SurfaceChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
     {
-        if (e.NewValue is Surface surface)
+        if (e.NewValue is Texture surface)
         {
             scene.ContentDimensions = surface.Size;
         }
@@ -475,7 +478,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
 internal class DrawSceneOperation : SkiaDrawOperation
 {
-    public Surface Surface { get; set; }
+    public Texture Surface { get; set; }
     public DocumentViewModel Document { get; set; }
     public VecD ContentPosition { get; set; }
     public double Scale { get; set; }
@@ -489,7 +492,9 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
     private SKPaint _paint = new SKPaint();
 
-    public DrawSceneOperation(Surface surface, DocumentViewModel document, VecD contentPosition, double scale,
+    private bool hardwareAccelerationAvailable = DrawingBackendApi.Current.IsHardwareAccelerated;
+
+    public DrawSceneOperation(Texture surface, DocumentViewModel document, VecD contentPosition, double scale,
         double angle, bool flipX, bool flipY, Rect dirtyBounds, Rect viewportBounds, double opacity,
         ColorMatrix colorMatrix) : base(dirtyBounds)
     {
@@ -520,13 +525,25 @@ internal class DrawSceneOperation : SkiaDrawOperation
             return;
         }
 
-        using Image snapshot = Surface.DrawingSurface.Snapshot(SurfaceRectToRender);
+        using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
+
 
         var matrixValues = new float[ColorMatrix.Width * ColorMatrix.Height];
         ColorMatrix.TryGetMembers(matrixValues);
 
         _paint.ColorFilter = SKColorFilter.CreateColorMatrix(matrixValues);
-        canvas.DrawImage((SKImage)snapshot.Native, SurfaceRectToRender.X, SurfaceRectToRender.Y, _paint);
+
+        if (!hardwareAccelerationAvailable)
+        {
+            // snapshotting wanted region on CPU is faster than rendering whole surface on CPU,
+            // but slower than rendering whole surface on GPU
+            using Image snapshot = Surface.Surface.Snapshot(SurfaceRectToRender);
+            canvas.DrawImage((SKImage)snapshot.Native, SurfaceRectToRender.X, SurfaceRectToRender.Y, _paint);
+        }
+        else
+        {
+            canvas.DrawSurface(Surface.Surface.Native as SKSurface, 0, 0, _paint);
+        }
 
         canvas.Restore();
     }

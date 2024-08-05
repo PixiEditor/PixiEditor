@@ -139,7 +139,7 @@ internal class ActionAccumulator
                         RectI finalRect = new RectI(VecI.Zero, new(bitmap.Size.X, bitmap.Size.Y));
 
                         RectI dirtyRect = new RectI(info.Pos, info.Size).Intersect(finalRect);
-                        bitmap.AddDirtyRect(dirtyRect);
+                        // bitmap.AddDirtyRect(dirtyRect);
                     }
                     break;
                 case PreviewDirty_RenderInfo info:
@@ -161,7 +161,7 @@ internal class ActionAccumulator
                     break;
                 case CanvasPreviewDirty_RenderInfo:
                     {
-                        document.PreviewSurface.AddDirtyRect(new RectI(0, 0, document.PreviewSurface.Size.X, document.PreviewSurface.Size.Y));
+                        //document.PreviewSurface.AddDirtyRect(new RectI(0, 0, document.PreviewSurface.Size.X, document.PreviewSurface.Size.Y));
                     }
                     break;
                 case NodePreviewDirty_RenderInfo info:

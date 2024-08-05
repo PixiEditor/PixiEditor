@@ -267,11 +267,11 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         }
     }
 
-    public Surface? TargetBitmap
+    public Texture? TargetBitmap
     {
         get
         {
-            return Document?.Surfaces.TryGetValue(CalculateResolution(), out Surface? value) == true ? value : null;
+            return Document?.Surfaces.TryGetValue(CalculateResolution(), out Texture? value) == true ? value : null;
         }
     }
 

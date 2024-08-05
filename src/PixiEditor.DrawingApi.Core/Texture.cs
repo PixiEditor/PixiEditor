@@ -13,6 +13,7 @@ public class Texture : IDisposable
     public VecI Size { get; }
     public DrawingSurface Surface { get; }
 
+    
     public bool IsDisposed { get; private set; }
 
     public Texture(VecI size)
@@ -24,8 +25,8 @@ public class Texture : IDisposable
                 {
                     GpuBacked = true
                 });
+        
     }
-
 
     public static Texture Load(string path)
     {
@@ -96,7 +97,7 @@ public class Texture : IDisposable
     {
         if (IsDisposed)
             return;
-        
+
         IsDisposed = true;
         Surface.Dispose();
     }

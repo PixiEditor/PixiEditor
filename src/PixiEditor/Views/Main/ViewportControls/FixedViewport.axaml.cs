@@ -1,14 +1,12 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Interactivity;
-using Avalonia.Media.Imaging;
-using ChunkyImageLib;
+using Avalonia.Media;
+using Avalonia.Threading;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Position;
 using PixiEditor.Numerics;
@@ -21,8 +19,8 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
     public static readonly StyledProperty<DocumentViewModel> DocumentProperty =
         AvaloniaProperty.Register<FixedViewport, DocumentViewModel>(nameof(Document), null);
 
-    private static readonly StyledProperty<Dictionary<ChunkResolution, WriteableBitmap>> BitmapsProperty =
-        AvaloniaProperty.Register<FixedViewport, Dictionary<ChunkResolution, WriteableBitmap>>(nameof(Bitmaps), null);
+    private static readonly StyledProperty<Dictionary<ChunkResolution, Texture>> BitmapsProperty =
+        AvaloniaProperty.Register<FixedViewport, Dictionary<ChunkResolution, Texture>>(nameof(Bitmaps), null);
 
     public static readonly StyledProperty<bool> DelayedProperty =
         AvaloniaProperty.Register<FixedViewport, bool>(nameof(Delayed), false);
@@ -35,7 +33,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
         set => SetValue(DelayedProperty, value);
     }
 
-    public Dictionary<ChunkResolution, WriteableBitmap>? Bitmaps
+    public Dictionary<ChunkResolution, Texture>? Bitmaps
     {
         get => GetValue(BitmapsProperty);
         set => SetValue(BitmapsProperty, value);
@@ -47,11 +45,11 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
         set => SetValue(DocumentProperty, value);
     }
 
-    public Surface? TargetBitmap
+    public Texture? TargetBitmap
     {
         get
         {
-            if (Document?.Surfaces.TryGetValue(CalculateResolution(), out Surface? value) == true)
+            if (Document?.Surfaces.TryGetValue(CalculateResolution(), out Texture? value) == true)
                 return value;
             return null;
         }
@@ -146,7 +144,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
         Document?.Operations.AddOrUpdateViewport(GetLocation());
     }
 
-    private static void OnBitmapsChange(AvaloniaPropertyChangedEventArgs<Dictionary<ChunkResolution, WriteableBitmap>> args)
+    private static void OnBitmapsChange(AvaloniaPropertyChangedEventArgs<Dictionary<ChunkResolution, Texture>> args)
     {
         FixedViewport? viewport = (FixedViewport)args.Sender;
         viewport.PropertyChanged?.Invoke(viewport, new(nameof(TargetBitmap)));
