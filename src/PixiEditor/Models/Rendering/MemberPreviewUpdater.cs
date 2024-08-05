@@ -562,45 +562,43 @@ internal class MemberPreviewUpdater
     {
         PostRender(() =>
         {
-            
-        
-        memberVM.PreviewSurface.Surface.Canvas.Save();
-        memberVM.PreviewSurface.Surface.Canvas.Scale(scaling);
-        memberVM.PreviewSurface.Surface.Canvas.Translate(-position);
-        memberVM.PreviewSurface.Surface.Canvas.ClipRect((RectD)area.GlobalArea);
-        foreach (var chunk in area.Chunks)
-        {
-            var pos = chunk * ChunkResolution.Full.PixelSize();
-            // drawing in full res here is kinda slow
-            // we could switch to a lower resolution based on (canvas size / preview size) to make it run faster
-            var contentNode = folder.Content.Connection?.Node;
-
-            OneOf<Chunk, EmptyChunk> rendered;
-
-            if (contentNode is null)
+            memberVM.PreviewSurface.Surface.Canvas.Save();
+            memberVM.PreviewSurface.Surface.Canvas.Scale(scaling);
+            memberVM.PreviewSurface.Surface.Canvas.Translate(-position);
+            memberVM.PreviewSurface.Surface.Canvas.ClipRect((RectD)area.GlobalArea);
+            foreach (var chunk in area.Chunks)
             {
-                rendered = new EmptyChunk();
-            }
-            else
-            {
-                rendered = doc.Renderer.RenderChunk(chunk, ChunkResolution.Full, contentNode,
-                    doc.AnimationHandler.ActiveFrameBindable);
+                var pos = chunk * ChunkResolution.Full.PixelSize();
+                // drawing in full res here is kinda slow
+                // we could switch to a lower resolution based on (canvas size / preview size) to make it run faster
+                var contentNode = folder.Content.Connection?.Node;
+
+                OneOf<Chunk, EmptyChunk> rendered;
+
+                if (contentNode is null)
+                {
+                    rendered = new EmptyChunk();
+                }
+                else
+                {
+                    rendered = doc.Renderer.RenderChunk(chunk, ChunkResolution.Full, contentNode,
+                        doc.AnimationHandler.ActiveFrameBindable);
+                }
+
+                if (rendered.IsT0)
+                {
+                    memberVM.PreviewSurface.Surface.Canvas.DrawSurface(rendered.AsT0.Surface.DrawingSurface, pos,
+                        scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint);
+                    rendered.AsT0.Dispose();
+                }
+                else
+                {
+                    memberVM.PreviewSurface.Surface.Canvas.DrawRect(pos.X, pos.Y, ChunkResolution.Full.PixelSize(),
+                        ChunkResolution.Full.PixelSize(), ClearPaint);
+                }
             }
 
-            if (rendered.IsT0)
-            {
-                memberVM.PreviewSurface.Surface.Canvas.DrawSurface(rendered.AsT0.Surface.DrawingSurface, pos,
-                    scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint);
-                rendered.AsT0.Dispose();
-            }
-            else
-            {
-                memberVM.PreviewSurface.Surface.Canvas.DrawRect(pos.X, pos.Y, ChunkResolution.Full.PixelSize(),
-                    ChunkResolution.Full.PixelSize(), ClearPaint);
-            }
-        }
-
-        memberVM.PreviewSurface.Surface.Canvas.Restore();
+            memberVM.PreviewSurface.Surface.Canvas.Restore();
         });
     }
 
