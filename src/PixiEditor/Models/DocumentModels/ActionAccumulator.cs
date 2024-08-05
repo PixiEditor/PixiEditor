@@ -147,7 +147,8 @@ internal class ActionAccumulator
                         var bitmap = document.StructureHelper.Find(info.GuidValue)?.PreviewSurface;
                         if (bitmap is null)
                             continue;
-                        bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
+                        //TODO: Implement dirty rects
+                        // bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
                     }
                     break;
                 case MaskPreviewDirty_RenderInfo info:
@@ -155,7 +156,7 @@ internal class ActionAccumulator
                         var bitmap = document.StructureHelper.Find(info.GuidValue)?.MaskPreviewSurface;
                         if (bitmap is null)
                             continue;
-                        bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
+                        //bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
                     }
                     break;
                 case CanvasPreviewDirty_RenderInfo:
@@ -168,7 +169,7 @@ internal class ActionAccumulator
                         var node = document.StructureHelper.Find(info.NodeId);
                         if (node is null || node.PreviewSurface is null)
                             continue;
-                        node.PreviewSurface.AddDirtyRect(new RectI(0, 0, node.PreviewSurface.Size.X, node.PreviewSurface.Size.Y));
+                        //node.PreviewSurface.AddDirtyRect(new RectI(0, 0, node.PreviewSurface.Size.X, node.PreviewSurface.Size.Y));
                     }
                     break;
             }

@@ -15,7 +15,7 @@ public interface INodeHandler : INotifyPropertyChanged
     public string InternalName { get; }
     public ObservableRangeCollection<INodePropertyHandler> Inputs { get; }
     public ObservableRangeCollection<INodePropertyHandler> Outputs { get; }
-    public Surface ResultPreview { get; set; }
+    public Texture? ResultPreview { get; set; }
     public VecD PositionBindable { get; set; }
     public bool IsSelected { get; set; }
     public void TraverseBackwards(Func<INodeHandler, bool> func);

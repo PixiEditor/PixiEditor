@@ -13,6 +13,8 @@ public class Texture : IDisposable
     public VecI Size { get; }
     public DrawingSurface Surface { get; }
 
+    public bool IsDisposed { get; private set; }
+
     public Texture(VecI size)
     {
         Size = size;
@@ -24,10 +26,6 @@ public class Texture : IDisposable
                 });
     }
 
-    public void Dispose()
-    {
-        Surface.Dispose();
-    }
 
     public static Texture Load(string path)
     {
@@ -39,7 +37,7 @@ public class Texture : IDisposable
 
         Texture texture = new Texture(image.Size);
         texture.Surface.Canvas.DrawImage(image, 0, 0);
-        
+
         return texture;
     }
 
@@ -48,7 +46,7 @@ public class Texture : IDisposable
         using Image image = Image.FromEncodedData(data);
         Texture texture = new Texture(image.Size);
         texture.Surface.Canvas.DrawImage(image, 0, 0);
-        
+
         return texture;
     }
 
@@ -81,7 +79,7 @@ public class Texture : IDisposable
         paint.FilterQuality = filterQuality;
 
         newTexture.Surface.Canvas.DrawImage(image, new RectD(0, 0, newSize.X, newSize.Y), paint);
-        
+
         return newTexture;
     }
 
@@ -92,5 +90,14 @@ public class Texture : IDisposable
 
         //TODO:
         return Color.Empty;
+    }
+
+    public void Dispose()
+    {
+        if (IsDisposed)
+            return;
+        
+        IsDisposed = true;
+        Surface.Dispose();
     }
 }

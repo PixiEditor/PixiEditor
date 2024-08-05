@@ -9,7 +9,7 @@ namespace PixiEditor.ViewModels.Document;
 
 internal abstract class KeyFrameViewModel : ObservableObject, IKeyFrameHandler
 {
-    private Surface? previewSurface;
+    private Texture? previewSurface;
     private int startFrameBindable;
     private int durationBindable;
     private bool isVisibleBindable = true;
@@ -27,7 +27,7 @@ internal abstract class KeyFrameViewModel : ObservableObject, IKeyFrameHandler
 
     IDocument IKeyFrameHandler.Document => Document;
 
-    public Surface? PreviewSurface
+    public Texture? PreviewSurface
     {
         get => previewSurface;
         set => SetProperty(ref previewSurface, value);

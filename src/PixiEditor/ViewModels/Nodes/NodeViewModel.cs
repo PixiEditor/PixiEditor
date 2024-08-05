@@ -19,7 +19,7 @@ internal class NodeViewModel : ObservableObject, INodeHandler
     private VecD position;
     private ObservableRangeCollection<INodePropertyHandler> inputs = new();
     private ObservableRangeCollection<INodePropertyHandler> outputs = new();
-    private Surface resultPreview;
+    private Texture resultPreview;
     private bool isSelected;
 
     protected Guid id;
@@ -71,7 +71,7 @@ internal class NodeViewModel : ObservableObject, INodeHandler
         set => SetProperty(ref outputs, value);
     }
 
-    public Surface ResultPreview
+    public Texture ResultPreview
     {
         get => resultPreview;
         set => SetProperty(ref resultPreview, value);
