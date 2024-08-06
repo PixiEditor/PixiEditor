@@ -17,7 +17,7 @@ internal class UndoViewModel : SubViewModel<ViewModelMain>
     ///     Redo last action.
     /// </summary>
     [Command.Basic("PixiEditor.Undo.Redo", "REDO", "REDO_DESCRIPTIVE", CanExecute = "PixiEditor.Undo.CanRedo", Key = Key.Y, Modifiers = KeyModifiers.Control,
-        Icon = PixiPerfectIcons.Redo, MenuItemPath = "EDIT/REDO", MenuItemOrder = 1)]
+        Icon = PixiPerfectIcons.Redo, MenuItemPath = "EDIT/REDO", MenuItemOrder = 1, AnalyticsTrack = true)]
     public void Redo()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -30,7 +30,7 @@ internal class UndoViewModel : SubViewModel<ViewModelMain>
     ///     Undo last action.
     /// </summary>
     [Command.Basic("PixiEditor.Undo.Undo", "UNDO", "UNDO_DESCRIPTIVE", CanExecute = "PixiEditor.Undo.CanUndo", Key = Key.Z, Modifiers = KeyModifiers.Control,
-        Icon = PixiPerfectIcons.Undo, MenuItemPath = "EDIT/UNDO", MenuItemOrder = 0)]
+        Icon = PixiPerfectIcons.Undo, MenuItemPath = "EDIT/UNDO", MenuItemOrder = 0, AnalyticsTrack = true)]
     public void Undo()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;

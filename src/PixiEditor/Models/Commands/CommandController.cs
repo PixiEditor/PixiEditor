@@ -292,7 +292,7 @@ internal class CommandController
 
                         var command =
                             new Command.BasicCommand(
-                                _ => searchHandler.OpenSearchWindow($":{searchTerm}:"),
+                                ExecuteFilter,
                                 CanExecuteEvaluator.AlwaysTrue)
                             {
                                 InternalName = menu.InternalName,
@@ -306,6 +306,16 @@ internal class CommandController
                         Commands.Add(command);
 
                         AddCommandToCommandsCollection(command, commandGroupsData, commands);
+
+                        void ExecuteFilter(object o)
+                        {
+                            if (attribute.AnalyticsTrack && o is CommandExecutionContext c)
+                            {
+                                Analytics.SendCommand(menu.InternalName, c.SourceInfo);
+                            }
+                            
+                            searchHandler.OpenSearchWindow($":{searchTerm}:");
+                        }
                     }
                 }
             }

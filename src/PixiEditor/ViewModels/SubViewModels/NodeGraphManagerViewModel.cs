@@ -15,7 +15,7 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.NodeGraph.DeleteSelectedNodes", "DELETE_NODES", "DELETE_NODES_DESCRIPTIVE", 
-        Key = Key.Delete, ShortcutContext = typeof(NodeGraphDockViewModel))]
+        Key = Key.Delete, ShortcutContext = typeof(NodeGraphDockViewModel), AnalyticsTrack = true)]
     public void DeleteSelectedNodes()
     {
         Guid[] selectedNodes = Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.AllNodes
@@ -27,7 +27,8 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
         Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.RemoveNodes(selectedNodes);
     }
 
-    [Command.Debug("PixiEditor.NodeGraph.CreateNodeFrameAroundEverything", "Create node frame", "Create node frame")]
+    // TODO: Remove this
+    [Command.Debug("PixiEditor.NodeGraph.CreateNodeFrameAroundEverything", "Create node frame", "Create node frame", AnalyticsTrack = true)]
     public void CreateNodeFrameAroundEverything()
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.CreateNodeFrameAroundEverything();
@@ -52,7 +53,7 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
         Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.SetNodePosition(args.node, args.newPos);
     }
 
-    [Command.Internal("PixiEditor.NodeGraph.UpdateValue")]
+    [Command.Internal("PixiEditor.NodeGraph.UpdateValue", AnalyticsTrack = true)]
     public void UpdatePropertyValue((INodeHandler node, string property, object value) args)
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.UpdatePropertyValue(args.node, args.property,

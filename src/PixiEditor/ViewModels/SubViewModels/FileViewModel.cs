@@ -125,7 +125,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Command.Internal("PixiEditor.File.OpenRecent")]
+    [Command.Internal("PixiEditor.File.OpenRecent", AnalyticsTrack = true)]
     public void OpenRecent(string parameter)
     {
         string path = parameter;
@@ -141,7 +141,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.File.Open", "OPEN", "OPEN_FILE", Key = Key.O, Modifiers = KeyModifiers.Control,
-        MenuItemPath = "FILE/OPEN_FILE", MenuItemOrder = 1, Icon = PixiPerfectIcons.FileText)]
+        MenuItemPath = "FILE/OPEN_FILE", MenuItemOrder = 1, Icon = PixiPerfectIcons.FileText, AnalyticsTrack = true)]
     public async Task OpenFromOpenFileDialog()
     {
         var filter = SupportedFilesHelper.BuildOpenFilter();
@@ -159,7 +159,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.File.OpenFileFromClipboard", "OPEN_FILE_FROM_CLIPBOARD",
-        "OPEN_FILE_FROM_CLIPBOARD_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.HasImageInClipboard")]
+        "OPEN_FILE_FROM_CLIPBOARD_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.HasImageInClipboard", AnalyticsTrack = true)]
     public async Task OpenFromClipboard()
     {
         var images = await ClipboardController.GetImagesFromClipboard();
@@ -345,10 +345,10 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     [Command.Basic("PixiEditor.File.Save", false, "SAVE", "SAVE_IMAGE", CanExecute = "PixiEditor.HasDocument",
         Key = Key.S, Modifiers = KeyModifiers.Control, Icon = PixiPerfectIcons.Save,
-        MenuItemPath = "FILE/SAVE_PIXI", MenuItemOrder = 3)]
+        MenuItemPath = "FILE/SAVE_PIXI", MenuItemOrder = 3, AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.File.SaveAsNew", true, "SAVE_AS", "SAVE_IMAGE_AS", CanExecute = "PixiEditor.HasDocument",
         Key = Key.S, Modifiers = KeyModifiers.Control | KeyModifiers.Shift, Icon = PixiPerfectIcons.Save,
-        MenuItemPath = "FILE/SAVE_AS_PIXI", MenuItemOrder = 4)]
+        MenuItemPath = "FILE/SAVE_AS_PIXI", MenuItemOrder = 4, AnalyticsTrack = true)]
     public async Task<bool> SaveActiveDocument(bool asNew)
     {
         DocumentViewModel doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -397,7 +397,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     /// <param name="parameter">CommandProperty.</param>
     [Command.Basic("PixiEditor.File.Export", "EXPORT", "EXPORT_IMAGE", CanExecute = "PixiEditor.HasDocument",
         Key = Key.E, Modifiers = KeyModifiers.Control,
-        MenuItemPath = "FILE/EXPORT_IMG", MenuItemOrder = 5, Icon = PixiPerfectIcons.Image)]
+        MenuItemPath = "FILE/EXPORT_IMG", MenuItemOrder = 5, Icon = PixiPerfectIcons.Image, AnalyticsTrack = true)]
     public async Task ExportFile()
     {
         try

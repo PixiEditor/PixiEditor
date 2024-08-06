@@ -27,9 +27,9 @@ internal class ViewOptionsViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.View.ZoomIn", 1, "ZOOM_IN", "ZOOM_IN", CanExecute = "PixiEditor.HasDocument", Key = Key.OemPlus,
-        Icon = PixiPerfectIcons.ZoomIn)]
+        Icon = PixiPerfectIcons.ZoomIn, AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.View.Zoomout", -1, "ZOOM_OUT", "ZOOM_OUT", CanExecute = "PixiEditor.HasDocument", Key = Key.OemMinus,
-        Icon = PixiPerfectIcons.ZoomOut)]
+        Icon = PixiPerfectIcons.ZoomOut, AnalyticsTrack = true)]
     public void ZoomViewport(double zoom)
     {
         ViewportWindowViewModel? viewport = Owner.WindowSubViewModel.ActiveWindow as ViewportWindowViewModel;

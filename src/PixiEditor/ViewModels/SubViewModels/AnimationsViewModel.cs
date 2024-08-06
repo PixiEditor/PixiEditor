@@ -17,8 +17,8 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
     {
     }
     
-    [Command.Basic("PixiEditor.Animation.CreateRasterKeyFrame", "Create Raster Key Frame", "Create a raster key frame", Parameter = false)]
-    [Command.Basic("PixiEditor.Animation.DuplicateRasterKeyFrame", "Duplicate Raster Key Frame", "Duplicate a raster key frame", Parameter = true)]
+    [Command.Basic("PixiEditor.Animation.CreateRasterKeyFrame", "Create Raster Key Frame", "Create a raster key frame", Parameter = false, AnalyticsTrack = true)]
+    [Command.Basic("PixiEditor.Animation.DuplicateRasterKeyFrame", "Duplicate Raster Key Frame", "Duplicate a raster key frame", Parameter = true, AnalyticsTrack = true)]
     public void CreateRasterKeyFrame(bool duplicate)
     {
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -49,7 +49,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
     }
     
     [Command.Basic("PixiEditor.Animation.DeleteKeyFrames", "DELETE_KEY_FRAMES", "DELETE_KEY_FRAMES_DESCRIPTIVE",
-        ShortcutContext = typeof(TimelineDockViewModel), Key = Key.Delete)]
+        ShortcutContext = typeof(TimelineDockViewModel), Key = Key.Delete, AnalyticsTrack = true)]
     public void DeleteKeyFrames()
     {
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;

@@ -90,9 +90,9 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     
 
     [Command.Debug("PixiEditor.Debug.IO.OpenLocalAppDataDirectory", @"PixiEditor", "OPEN_LOCAL_APPDATA_DIR", "OPEN_LOCAL_APPDATA_DIR",
-        MenuItemPath = "DEBUG/OPEN_LOCAL_APPDATA_DIR", MenuItemOrder = 3, Icon = PixiPerfectIcons.Folder)]
+        MenuItemPath = "DEBUG/OPEN_LOCAL_APPDATA_DIR", MenuItemOrder = 3, Icon = PixiPerfectIcons.Folder, AnalyticsTrack = true)]
     [Command.Debug("PixiEditor.Debug.IO.OpenCrashReportsDirectory", @"PixiEditor\crash_logs", "OPEN_CRASH_REPORTS_DIR", "OPEN_CRASH_REPORTS_DIR",
-        MenuItemPath = "DEBUG/OPEN_CRASH_REPORTS_DIR", MenuItemOrder = 4, Icon = PixiPerfectIcons.Folder)]
+        MenuItemPath = "DEBUG/OPEN_CRASH_REPORTS_DIR", MenuItemOrder = 4, Icon = PixiPerfectIcons.Folder, AnalyticsTrack = true)]
     public static void OpenLocalAppDataFolder(string subDirectory)
     {
         var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), subDirectory);
@@ -108,14 +108,14 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Debug("PixiEditor.Debug.IO.OpenTempDirectory", @"PixiEditor", "OPEN_TEMP_DIR", "OPEN_TEMP_DIR", Icon = PixiPerfectIcons.Folder,
-        MenuItemPath = "DEBUG/OPEN_TEMP_DIR", MenuItemOrder = 6)]
+        MenuItemPath = "DEBUG/OPEN_TEMP_DIR", MenuItemOrder = 6, AnalyticsTrack = true)]
     public static void OpenTempFolder(string subDirectory)
     {
         var path = Path.Combine(Path.GetTempPath(), subDirectory);
         OpenFolder(path);
     }
 
-    [Command.Debug("PixiEditor.Debug.DumpAllCommands", "DUMP_ALL_COMMANDS", "DUMP_ALL_COMMANDS_DESCRIPTIVE")]
+    [Command.Debug("PixiEditor.Debug.DumpAllCommands", "DUMP_ALL_COMMANDS", "DUMP_ALL_COMMANDS_DESCRIPTIVE", AnalyticsTrack = true)]
     public async Task DumpAllCommands()
     {
         await Application.Current.ForDesktopMainWindowAsync(async desktop =>
@@ -141,7 +141,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         });
     }
     
-    [Command.Debug("PixiEditor.Debug.GenerateKeysTemplate", "GENERATE_KEY_BINDINGS_TEMPLATE", "GENERATE_KEY_BINDINGS_TEMPLATE_DESCRIPTIVE")]
+    [Command.Debug("PixiEditor.Debug.GenerateKeysTemplate", "GENERATE_KEY_BINDINGS_TEMPLATE", "GENERATE_KEY_BINDINGS_TEMPLATE_DESCRIPTIVE", AnalyticsTrack = true)]
     public async Task GenerateKeysTemplate()
     {
         await Application.Current.ForDesktopMainWindowAsync(async desktop =>
@@ -180,7 +180,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         });
     }
 
-    [Command.Debug("PixiEditor.Debug.ValidateShortcutMap", "VALIDATE_SHORTCUT_MAP", "VALIDATE_SHORTCUT_MAP_DESCRIPTIVE")]
+    [Command.Debug("PixiEditor.Debug.ValidateShortcutMap", "VALIDATE_SHORTCUT_MAP", "VALIDATE_SHORTCUT_MAP_DESCRIPTIVE", AnalyticsTrack = true)]
     public async Task ValidateShortcutMap()
     {
         await Application.Current.ForDesktopMainWindowAsync(async desktop =>
@@ -216,7 +216,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Debug("PixiEditor.Debug.ClearRecentDocument", "CLEAR_RECENT_DOCUMENTS", "CLEAR_RECENTLY_OPENED_DOCUMENTS",
-        MenuItemPath = "DEBUG/DELETE/CLEAR_RECENT_DOCUMENTS")]
+        MenuItemPath = "DEBUG/DELETE/CLEAR_RECENT_DOCUMENTS", AnalyticsTrack = true)]
     public void ClearRecentDocuments()
     {
         Owner.FileSubViewModel.RecentlyOpened.Clear();
@@ -224,21 +224,21 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Debug("PixiEditor.Debug.OpenCommandDebugWindow", "OPEN_CMD_DEBUG_WINDOW", "OPEN_CMD_DEBUG_WINDOW",
-        MenuItemPath = "DEBUG/OPEN_COMMAND_DEBUG_WINDOW", MenuItemOrder = 0)]
+        MenuItemPath = "DEBUG/OPEN_COMMAND_DEBUG_WINDOW", MenuItemOrder = 0, AnalyticsTrack = true)]
     public void OpenCommandDebugWindow()
     {
         new CommandDebugPopup().Show();
     }
 
     [Command.Debug("PixiEditor.Debug.OpenPointerDebugWindow", "Open pointer debug window", "Open pointer debug window",
-        MenuItemPath = "DEBUG/Open pointer debug window", MenuItemOrder = 1)]
+        MenuItemPath = "DEBUG/Open pointer debug window", MenuItemOrder = 1, AnalyticsTrack = true)]
     public void OpenPointerDebugWindow()
     {
         new PointerDebugPopup().Show();
     }
 
     [Command.Debug("PixiEditor.Debug.OpenLocalizationDebugWindow", "OPEN_LOCALIZATION_DEBUG_WINDOW", "OPEN_LOCALIZATION_DEBUG_WINDOW",
-        MenuItemPath = "DEBUG/OPEN_LOCALIZATION_DEBUG_WINDOW", MenuItemOrder = 2)]
+        MenuItemPath = "DEBUG/OPEN_LOCALIZATION_DEBUG_WINDOW", MenuItemOrder = 2, AnalyticsTrack = true)]
     public void OpenLocalizationDebugWindow()
     {
         if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
@@ -250,7 +250,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
 
     }
 
-    [Command.Internal("PixiEditor.Debug.SetLanguageFromFilePicker")]
+    [Command.Internal("PixiEditor.Debug.SetLanguageFromFilePicker", AnalyticsTrack = true)]
     public async Task SetLanguageFromFilePicker()
     {
         await Application.Current.ForDesktopMainWindowAsync(async desktop =>
@@ -276,22 +276,22 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Debug("PixiEditor.Debug.IO.OpenInstallDirectory", "OPEN_INSTALLATION_DIR", "OPEN_INSTALLATION_DIR", Icon = PixiPerfectIcons.Folder,
-        MenuItemPath = "DEBUG/OPEN_INSTALLATION_DIR", MenuItemOrder = 8)]
+        MenuItemPath = "DEBUG/OPEN_INSTALLATION_DIR", MenuItemOrder = 8, AnalyticsTrack = true)]
     public static void OpenInstallLocation()
     {
         IOperatingSystem.Current.OpenFolder(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
     }
 
     [Command.Debug("PixiEditor.Debug.Crash", "CRASH", "CRASH_APP",
-        MenuItemPath = "DEBUG/CRASH", MenuItemOrder = 9)]
+        MenuItemPath = "DEBUG/CRASH", MenuItemOrder = 9, AnalyticsTrack = true)]
     public static void Crash() => throw new InvalidOperationException("User requested to crash :c");
 
     [Command.Debug("PixiEditor.Debug.DeleteUserPreferences", @"%appdata%\PixiEditor\user_preferences.json", "DELETE_USR_PREFS", "DELETE_USR_PREFS",
-        MenuItemPath = "DEBUG/DELETE/USER_PREFS", MenuItemOrder = 10)]
+        MenuItemPath = "DEBUG/DELETE/USER_PREFS", MenuItemOrder = 10, AnalyticsTrack = true)]
     [Command.Debug("PixiEditor.Debug.DeleteShortcutFile", @"%appdata%\PixiEditor\shortcuts.json", "DELETE_SHORTCUT_FILE", "DELETE_SHORTCUT_FILE",
-        MenuItemPath = "DEBUG/DELETE/SHORTCUT_FILE", MenuItemOrder = 11)]
+        MenuItemPath = "DEBUG/DELETE/SHORTCUT_FILE", MenuItemOrder = 11, AnalyticsTrack = true)]
     [Command.Debug("PixiEditor.Debug.DeleteEditorData", @"%localappdata%\PixiEditor\editor_data.json", "DELETE_EDITOR_DATA", "DELETE_EDITOR_DATA",
-        MenuItemPath = "DEBUG/DELETE/EDITOR_DATA", MenuItemOrder = 12)]
+        MenuItemPath = "DEBUG/DELETE/EDITOR_DATA", MenuItemOrder = 12, AnalyticsTrack = true)]
     public static async Task DeleteFile(string path)
     {
         if (MainWindow.Current is null)

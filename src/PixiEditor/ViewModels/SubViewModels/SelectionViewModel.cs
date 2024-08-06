@@ -18,7 +18,7 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Selection.SelectAll", "SELECT_ALL", "SELECT_ALL_DESCRIPTIVE", CanExecute = "PixiEditor.HasDocument", Key = Key.A, Modifiers = KeyModifiers.Control,
-        MenuItemPath = "SELECT/SELECT_ALL", MenuItemOrder = 8, Icon = PixiPerfectIcons.SelectAll)]
+        MenuItemPath = "SELECT/SELECT_ALL", MenuItemOrder = 8, Icon = PixiPerfectIcons.SelectAll, AnalyticsTrack = true)]
     public void SelectAll()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -28,7 +28,7 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Selection.Clear", "CLEAR_SELECTION", "CLEAR_SELECTION", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.D, Modifiers = KeyModifiers.Control,
-        MenuItemPath = "SELECT/DESELECT", MenuItemOrder = 9, Icon = PixiPerfectIcons.Deselect)]
+        MenuItemPath = "SELECT/DESELECT", MenuItemOrder = 9, Icon = PixiPerfectIcons.Deselect, AnalyticsTrack = true)]
     public void ClearSelection()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -38,7 +38,7 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Selection.InvertSelection", "INVERT_SELECTION", "INVERT_SELECTION_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.I, Modifiers = KeyModifiers.Control,
-        MenuItemPath = "SELECT/INVERT", MenuItemOrder = 10, Icon = PixiPerfectIcons.Invert)]
+        MenuItemPath = "SELECT/INVERT", MenuItemOrder = 10, Icon = PixiPerfectIcons.Invert, AnalyticsTrack = true)]
     public void InvertSelection()
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.InvertSelection();
@@ -57,7 +57,7 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Selection.TransformArea", "TRANSFORM_SELECTED_AREA", "TRANSFORM_SELECTED_AREA", CanExecute = "PixiEditor.Selection.IsNotEmpty", 
-        Key = Key.T, Modifiers = KeyModifiers.Control)]
+        Key = Key.T, Modifiers = KeyModifiers.Control, AnalyticsTrack = true)]
     public void TransformSelectedArea()
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(false);
@@ -74,14 +74,14 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Selection.NewToMask", SelectionMode.New, "MASK_FROM_SELECTION", "MASK_FROM_SELECTION_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty",
-        MenuItemPath = "SELECT/SELECTION_TO_MASK/TO_NEW_MASK", MenuItemOrder = 12, Icon = PixiPerfectIcons.NewMask)]
+        MenuItemPath = "SELECT/SELECTION_TO_MASK/TO_NEW_MASK", MenuItemOrder = 12, Icon = PixiPerfectIcons.NewMask, AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.Selection.AddToMask", SelectionMode.Add, "ADD_SELECTION_TO_MASK", "ADD_SELECTION_TO_MASK", CanExecute = "PixiEditor.Selection.IsNotEmpty",
-        MenuItemPath = "SELECT/SELECTION_TO_MASK/ADD_TO_MASK", MenuItemOrder = 13, Icon = PixiPerfectIcons.AddToMask)]
+        MenuItemPath = "SELECT/SELECTION_TO_MASK/ADD_TO_MASK", MenuItemOrder = 13, Icon = PixiPerfectIcons.AddToMask, AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.Selection.SubtractFromMask", SelectionMode.Subtract, "SUBTRACT_SELECTION_FROM_MASK", "SUBTRACT_SELECTION_FROM_MASK", CanExecute = "PixiEditor.Selection.IsNotEmptyAndHasMask",
-        MenuItemPath = "SELECT/SELECTION_TO_MASK/SUBTRACT_FROM_MASK", MenuItemOrder = 14, Icon = PixiPerfectIcons.Subtract)]
+        MenuItemPath = "SELECT/SELECTION_TO_MASK/SUBTRACT_FROM_MASK", MenuItemOrder = 14, Icon = PixiPerfectIcons.Subtract, AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.Selection.IntersectSelectionMask", SelectionMode.Intersect, "INTERSECT_SELECTION_MASK", "INTERSECT_SELECTION_MASK", CanExecute = "PixiEditor.Selection.IsNotEmptyAndHasMask",
-        MenuItemPath = "SELECT/SELECTION_TO_MASK/INTERSECT_WITH_MASK", MenuItemOrder = 15, Icon = PixiPerfectIcons.Intersect)]
-    [Command.Filter("PixiEditor.Selection.ToMaskMenu", "SELECTION_TO_MASK", "SELECTION_TO_MASK", Key = Key.M, Modifiers = KeyModifiers.Control)]
+        MenuItemPath = "SELECT/SELECTION_TO_MASK/INTERSECT_WITH_MASK", MenuItemOrder = 15, Icon = PixiPerfectIcons.Intersect, AnalyticsTrack = true)]
+    [Command.Filter("PixiEditor.Selection.ToMaskMenu", "SELECTION_TO_MASK", "SELECTION_TO_MASK", Key = Key.M, Modifiers = KeyModifiers.Control, AnalyticsTrack = true)]
     public void SelectionToMask(SelectionMode mode)
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is null)
@@ -91,7 +91,7 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Selection.CropToSelection", "CROP_TO_SELECTION", "CROP_TO_SELECTION_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty",
-        MenuItemPath = "SELECT/CROP_TO_SELECTION", MenuItemOrder = 11, Icon = PixiPerfectIcons.CropToSelection)]
+        MenuItemPath = "SELECT/CROP_TO_SELECTION", MenuItemOrder = 11, Icon = PixiPerfectIcons.CropToSelection, AnalyticsTrack = true)]
     public void CropToSelection()
     {
         var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
