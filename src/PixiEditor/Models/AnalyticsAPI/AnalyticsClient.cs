@@ -1,16 +1,22 @@
-﻿using System.Net;
+﻿using System.Globalization;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Input;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.AnalyticsAPI;
 
 public class AnalyticsClient
 {
     private readonly HttpClient _client = new();
-    private readonly JsonSerializerOptions _options = new() { Converters = { new JsonStringEnumConverter(), new KeyCombinationConverter() } };
+
+    private readonly JsonSerializerOptions _options = new()
+    {
+        Converters = { new JsonStringEnumConverter(), new KeyCombinationConverter(), new VecDConverter() }
+    };
 
     public AnalyticsClient(string url)
     {
@@ -80,6 +86,20 @@ public class AnalyticsClient
         public override void Write(Utf8JsonWriter writer, KeyCombination value, JsonSerializerOptions options)
         {
             writer.WriteStringValue(value.ToString());
+        }
+    }
+
+    class VecDConverter : JsonConverter<VecD>
+    {
+        public override VecD Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(Utf8JsonWriter writer, VecD value, JsonSerializerOptions options)
+        {
+            var invariant = CultureInfo.InvariantCulture;
+            writer.WriteStringValue($"{value.X.ToString("F2", invariant)}; {value.X.ToString("F2", invariant)}");
         }
     }
 }
