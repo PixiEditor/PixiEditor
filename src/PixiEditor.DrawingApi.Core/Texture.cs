@@ -11,7 +11,7 @@ namespace PixiEditor.DrawingApi.Core;
 public class Texture : IDisposable
 {
     public VecI Size { get; }
-    public DrawingSurface Surface { get; }
+    public DrawingSurface Surface { get; private set; }
 
     public event SurfaceChangedEventHandler? Changed;
 
@@ -31,6 +31,17 @@ public class Texture : IDisposable
                 });
 
         Surface.Changed += SurfaceOnChanged;
+    }
+
+    internal Texture(DrawingSurface surface)
+    {
+        Surface = surface;
+        Surface.Changed += SurfaceOnChanged;
+    }
+    
+    ~Texture()
+    {
+       Surface.Changed -= SurfaceOnChanged;
     }
 
     private void SurfaceOnChanged(RectD? changedRect)
@@ -122,5 +133,11 @@ public class Texture : IDisposable
         IsDisposed = true;
         Surface.Changed -= SurfaceOnChanged;
         Surface.Dispose();
+    }
+
+    public static Texture FromExisting(DrawingSurface drawingSurface)
+    {
+        Texture texture = new(drawingSurface);
+        return texture;
     }
 }

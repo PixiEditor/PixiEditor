@@ -2,9 +2,11 @@
 using System.Linq;
 using Avalonia.Platform;
 using Avalonia.Threading;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentPassthroughActions;
@@ -12,6 +14,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Rendering.RenderInfos;
 using PixiEditor.Numerics;
+using PixiEditor.Views.Rendering;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable
@@ -33,6 +36,12 @@ internal class ActionAccumulator
 
         canvasUpdater = new(doc, internals);
         previewUpdater = new(doc, internals);
+        Scene.Paint += SceneOnPaint;
+    }
+
+    private void SceneOnPaint(Texture obj)
+    {
+        canvasUpdater.Render(obj, ChunkResolution.Full); 
     }
 
     public void AddFinishedActions(params IAction[] actions)
@@ -89,10 +98,9 @@ internal class ActionAccumulator
             if (undoBoundaryPassed)
                 internals.Updater.AfterUndoBoundaryPassed();
 
-            // update the contents of the bitmaps
             var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime, internals.Tracker, optimizedChanges);
             List<IRenderInfo> renderResult = new();
-            renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed || viewportRefreshRequest));
+            //await canvasUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed || viewportRefreshRequest);
             renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
 
             if (undoBoundaryPassed)
