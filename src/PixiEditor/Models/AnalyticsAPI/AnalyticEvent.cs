@@ -4,9 +4,9 @@ public class AnalyticEvent
 {
     public string EventType { get; set; }
     
-    public DateTimeOffset Time { get; set; }
+    public DateTime Time { get; set; }
     
-    public DateTimeOffset End { get; set; }
+    public DateTime End { get; set; }
     
     public Dictionary<string, object>? Data { get; set; }
 }

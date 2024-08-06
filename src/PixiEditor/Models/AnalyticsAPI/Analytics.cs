@@ -58,7 +58,7 @@ public static class Analytics
         var e = new AnalyticEvent
         {
             EventType = name,
-            Time = DateTimeOffset.Now,
+            Time = DateTime.UtcNow,
             Data = data
         };
         
