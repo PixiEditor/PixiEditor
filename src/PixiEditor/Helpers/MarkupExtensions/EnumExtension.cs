@@ -28,7 +28,7 @@ internal class EnumExtension : MarkupExtension
         }
     }
 
-    public override object ProvideValue(IServiceProvider serviceProvider) // or IXamlServiceProvider for UWP and WinUI
+    public override object ProvideValue(IServiceProvider serviceProvider)
     {
         return Enum.GetValues(EnumType);
     }

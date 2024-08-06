@@ -139,7 +139,7 @@ internal class ActionAccumulator
                         RectI finalRect = new RectI(VecI.Zero, new(bitmap.Size.X, bitmap.Size.Y));
 
                         RectI dirtyRect = new RectI(info.Pos, info.Size).Intersect(finalRect);
-                        // bitmap.AddDirtyRect(dirtyRect);
+                        bitmap.AddDirtyRect(dirtyRect);
                     }
                     break;
                 case PreviewDirty_RenderInfo info:
@@ -147,8 +147,7 @@ internal class ActionAccumulator
                         var bitmap = document.StructureHelper.Find(info.GuidValue)?.PreviewSurface;
                         if (bitmap is null)
                             continue;
-                        //TODO: Implement dirty rects
-                        // bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
+                        bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
                     }
                     break;
                 case MaskPreviewDirty_RenderInfo info:
@@ -156,12 +155,12 @@ internal class ActionAccumulator
                         var bitmap = document.StructureHelper.Find(info.GuidValue)?.MaskPreviewSurface;
                         if (bitmap is null)
                             continue;
-                        //bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
+                        bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
                     }
                     break;
                 case CanvasPreviewDirty_RenderInfo:
                     {
-                        //document.PreviewSurface.AddDirtyRect(new RectI(0, 0, document.PreviewSurface.Size.X, document.PreviewSurface.Size.Y));
+                        document.PreviewSurface.AddDirtyRect(new RectI(0, 0, document.PreviewSurface.Size.X, document.PreviewSurface.Size.Y));
                     }
                     break;
                 case NodePreviewDirty_RenderInfo info:
@@ -169,7 +168,7 @@ internal class ActionAccumulator
                         var node = document.StructureHelper.Find(info.NodeId);
                         if (node is null || node.PreviewSurface is null)
                             continue;
-                        //node.PreviewSurface.AddDirtyRect(new RectI(0, 0, node.PreviewSurface.Size.X, node.PreviewSurface.Size.Y));
+                        node.PreviewSurface.AddDirtyRect(new RectI(0, 0, node.PreviewSurface.Size.X, node.PreviewSurface.Size.Y));
                     }
                     break;
             }

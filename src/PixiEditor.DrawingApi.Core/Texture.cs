@@ -14,9 +14,9 @@ public class Texture : IDisposable
     public DrawingSurface Surface { get; }
 
     public event SurfaceChangedEventHandler? Changed;
-    
+
     public bool IsDisposed { get; private set; }
-    
+
     private bool pixmapUpToDate;
     private Pixmap pixmap;
 
@@ -29,7 +29,7 @@ public class Texture : IDisposable
                 {
                     GpuBacked = true
                 });
-        
+
         Surface.Changed += SurfaceOnChanged;
     }
 
@@ -99,14 +99,19 @@ public class Texture : IDisposable
     {
         if (vecI.X < 0 || vecI.X >= Size.X || vecI.Y < 0 || vecI.Y >= Size.Y)
             return null;
-        
+
         if (!pixmapUpToDate)
         {
             pixmapUpToDate = true;
             pixmap = Surface.PeekPixels();
         }
-        
+
         return pixmap.GetPixelColor(vecI);
+    }
+
+    public void AddDirtyRect(RectI dirtyRect)
+    {
+        Changed?.Invoke(new RectD(dirtyRect.X, dirtyRect.Y, dirtyRect.Width, dirtyRect.Height));
     }
 
     public void Dispose()
