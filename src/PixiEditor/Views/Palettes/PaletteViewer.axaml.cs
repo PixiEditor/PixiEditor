@@ -286,6 +286,7 @@ internal partial class PaletteViewer : UserControl
                     Colors.RemoveAt(currIndex);
                     Colors.Insert(newIndex, paletteColor);
                     int indexOfSource = Colors.IndexOf(paletteColorControl.Color);
+                    if(indexOfSource < 0) return;
                     Colors.Move(indexOfSource, currIndex);
                 }
             }

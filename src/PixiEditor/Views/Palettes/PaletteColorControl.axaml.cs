@@ -56,9 +56,17 @@ internal partial class PaletteColorControl : UserControl
             float length = (float)Math.Sqrt(movedDistance.X * movedDistance.X + movedDistance.Y * movedDistance.Y);
             if (length > 10)
             {
-                DataObject data = new DataObject();
-                data.Set(PaletteColorDaoFormat, colorControl.Color.ToString());
-                DragDrop.DoDragDrop(e, data, DragDropEffects.Move);
+                try
+                {
+                    DataObject data = new DataObject();
+                    data.Set(PaletteColorDaoFormat, colorControl.Color.ToString());
+                    DragDrop.DoDragDrop(e, data, DragDropEffects.Move);
+                }
+                catch
+                {
+                    // ignored
+                }
+
                 e.Handled = true;
             }
         }
