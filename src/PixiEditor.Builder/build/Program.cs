@@ -25,6 +25,8 @@ public class BuildContext : FrostingContext
 
     public string CrashReportWebhookUrl { get; set; }
 
+    public string AnalyticsUrl { get; set; }
+
     public string BackedUpConstants { get; set; }
 
     public string BuildConfiguration { get; set; } = "Release";
@@ -38,10 +40,8 @@ public class BuildContext : FrostingContext
     public BuildContext(ICakeContext context)
         : base(context)
     {
-        bool hasWebhook = context.Arguments.HasArgument("crash-report-webhook-url");
-        CrashReportWebhookUrl = hasWebhook
-            ? context.Arguments.GetArgument("crash-report-webhook-url")
-            : string.Empty;
+        CrashReportWebhookUrl = GetArgumentOrDefault(context, "crash-report-webhook-url", string.Empty);
+        AnalyticsUrl = GetArgumentOrDefault(context, "analytics-url", string.Empty);
 
         bool hasCustomProjectPath = context.Arguments.HasArgument("project-path");
         if (hasCustomProjectPath)
@@ -68,6 +68,14 @@ public class BuildContext : FrostingContext
         }
 
         Runtime = context.Arguments.GetArgument("runtime");
+    }
+
+    private static string GetArgumentOrDefault(ICakeContext context, string argumentName, string defaultValue)
+    {
+        var arguments = context.Arguments;
+
+        var hasArgument = arguments.HasArgument(argumentName);
+        return hasArgument ? arguments.GetArgument(argumentName) : defaultValue;
     }
 }
 
@@ -101,7 +109,8 @@ public sealed class ReplaceSpecialStringsTask : FrostingTask<BuildContext>
     private string ReplaceSpecialStrings(BuildContext context, string fileContent)
     {
         string result = fileContent
-            .Replace("${crash-report-webhook-url}", context.CrashReportWebhookUrl);
+            .Replace("${crash-report-webhook-url}", context.CrashReportWebhookUrl)
+            .Replace("${analytics-url}", context.AnalyticsUrl);
 
         return result;
     }

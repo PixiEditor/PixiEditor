@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AnimationRenderer.Core;
@@ -75,9 +76,6 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<LayoutManager>()
             .AddSingleton<LayoutViewModel>()
             .AddSingleton(x => new ExtensionsViewModel(x.GetService<ViewModels_ViewModelMain>(), extensionLoader))
-            // Analytics
-            .AddSingleton<AnalyticsClient>(_ => new AnalyticsClient(Environment.GetEnvironmentVariable("PixiEditorAnalytics")))
-            .AddSingleton<AnalyticsPeriodicReporter>()
             // Controllers
             .AddSingleton<ShortcutController>()
             .AddSingleton<CommandController>()
@@ -138,7 +136,34 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<PaletteFileParser, PixiPaletteParser>()
             // Palette data sources
             .AddSingleton<PaletteListDataSource, LocalPalettesFetcher>()
-            .AddMenuBuilders();
+            .AddMenuBuilders()
+            .AddAnalyticsAsNeeded();
+    }
+
+    private static IServiceCollection AddAnalyticsAsNeeded(this IServiceCollection collection)
+    {
+        string url = BuildConstants.AnalyticsUrl;
+
+        if (url == "${analytics-url}")
+        {
+            url = null;
+            SetDebugUrl(ref url);
+        }
+
+        if (!string.IsNullOrWhiteSpace(url))
+        {
+            collection
+                .AddSingleton<AnalyticsClient>(_ => new AnalyticsClient(url))
+                .AddSingleton<AnalyticsPeriodicReporter>();
+        }
+
+        return collection;
+
+        [Conditional("DEBUG")]
+        static void SetDebugUrl(ref string? url)
+        {
+            url = Environment.GetEnvironmentVariable("PixiEditorAnalytics");
+        }
     }
 
     private static IServiceCollection AddMenuBuilders(this IServiceCollection collection)

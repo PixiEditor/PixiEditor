@@ -14,7 +14,7 @@ public class AnalyticsPeriodicReporter
 
     private DateTime lastActivity;
 
-    public static AnalyticsPeriodicReporter Instance { get; private set; }
+    public static AnalyticsPeriodicReporter? Instance { get; private set; }
 
     public Guid SessionId { get; private set; }
     
