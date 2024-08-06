@@ -71,14 +71,14 @@
             <Setter Property="MinWidth" Value="200" />
             <Setter Property="MinHeight" Value="16" />
         </Style>
-        <Style Selector="^ /template/ Border#PART_Indicator">
+        <!--<Style Selector="^ /template/ Border#PART_Indicator">
             <Setter Property="Transitions">
                 <Transitions>
                     <DoubleTransition Duration="0:0:0.3" Property="Width" />
                     <DoubleTransition Duration="0:0:0.3" Property="Height" />
                 </Transitions>
             </Setter>
-        </Style>
+        </Style>-->
         <Style Selector="^:vertical">
             <Setter Property="MinWidth" Value="16" />
             <Setter Property="MinHeight" Value="200" />

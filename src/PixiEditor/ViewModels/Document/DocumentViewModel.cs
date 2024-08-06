@@ -827,9 +827,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
-    public Image[] RenderFrames(Func<Surface, Surface> processFrameAction = null)
+    public Image[] RenderFrames(Func<Surface, Surface> processFrameAction = null, CancellationToken token = default)
     {
         if (AnimationDataViewModel.KeyFrames.Count == 0)
+            return [];
+        
+        if(token.IsCancellationRequested)
             return [];
 
         int firstFrame = AnimationDataViewModel.FirstFrame;
@@ -837,8 +840,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         int lastFrame = firstFrame + framesCount;
 
         Image[] images = new Image[framesCount];
+        
+        // TODO: Multi-threading
         for (int i = firstFrame; i < lastFrame; i++)
         {
+            if (token.IsCancellationRequested)
+                return [];
+            
             double normalizedTime = (double)(i - firstFrame) / framesCount;
             KeyFrameTime frameTime = new KeyFrameTime(i, normalizedTime);
             var surface = TryRenderWholeImage(frameTime);
@@ -863,7 +871,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     ///     Render frames progressively and disposes the surface after processing.
     /// </summary>
     /// <param name="processFrameAction">Action to perform on rendered frame</param>
-    public void RenderFramesProgressive(Action<Surface, int> processFrameAction)
+    /// <param name="token"></param>
+    public void RenderFramesProgressive(Action<Surface, int> processFrameAction, CancellationToken token)
     {
         if (AnimationDataViewModel.KeyFrames.Count == 0)
             return;
@@ -876,7 +885,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         for (int i = firstFrame; i < lastFrame; i++)
         {
-            var surface = TryRenderWholeImage(i);
+            if (token.IsCancellationRequested)
+                return;
+            
+            KeyFrameTime frameTime = new KeyFrameTime(i, (double)(i - firstFrame) / framesCount);
+            
+            var surface = TryRenderWholeImage(frameTime);
             if (surface.IsT0)
             {
                 continue;

@@ -403,9 +403,6 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                             info.ExportConfig,
                             job);
                     
-                    if(job?.CancellationTokenSource.IsCancellationRequested == true)
-                        return;
-                    
                     if (result.result == SaveResult.Success)
                         IOperatingSystem.Current.OpenFolder(result.finalPath);
                     else

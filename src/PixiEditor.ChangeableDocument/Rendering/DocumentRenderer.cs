@@ -60,6 +60,8 @@ public class DocumentRenderer
             }
 
             using var chunkSnapshot = evaluated.DrawingSurface.Snapshot((RectI)sourceRect);
+            
+            if(context.IsDisposed) return new EmptyChunk();
 
             chunk.Surface.DrawingSurface.Canvas.DrawImage(chunkSnapshot, 0, 0, context.ReplacingPaintWithOpacity);
 

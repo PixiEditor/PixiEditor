@@ -74,7 +74,8 @@ internal abstract class ImageFileType : IoFileType
         
         job?.Report(0, new LocalizedString("RENDERING_FRAME", 0, document.AnimationDataViewModel.FramesCount));
 
-        document.RenderFramesProgressive((frame, index) =>
+        document.RenderFramesProgressive(
+            (frame, index) =>
         {
             job?.CancellationTokenSource.Token.ThrowIfCancellationRequested();
             
@@ -84,13 +85,13 @@ internal abstract class ImageFileType : IoFileType
             Surface target = frame;
             if (config.ExportSize != frame.Size)
             {
-               target =
+                target =
                     frame.ResizeNearestNeighbor(new VecI(config.ExportSize.X, config.ExportSize.Y));
             }
             
             surface!.DrawingSurface.Canvas.DrawSurface(target.DrawingSurface, x * config.ExportSize.X, y * config.ExportSize.Y);
             target.Dispose();
-        });
+        }, job?.CancellationTokenSource.Token ?? CancellationToken.None);
 
         return surface;
     }

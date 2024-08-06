@@ -20,6 +20,8 @@ public class RenderingContext : IDisposable
     public ChunkResolution ChunkResolution { get; }
     public VecI DocumentSize { get; set; }
 
+    public bool IsDisposed { get; private set; }
+    
     public RenderingContext(KeyFrameTime frameTime, VecI chunkToUpdate, ChunkResolution chunkResolution, VecI docSize)
     {
         FrameTime = frameTime;
@@ -55,6 +57,12 @@ public class RenderingContext : IDisposable
 
     public void Dispose()
     {
+        if (IsDisposed)
+        {
+            return;
+        }
+        
+        IsDisposed = true;
         BlendModePaint.Dispose();
         BlendModeOpacityPaint.Dispose();
         ReplacingPaintWithOpacity.Dispose();

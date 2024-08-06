@@ -51,35 +51,33 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
         {
             return null;
         }
-
-        startNode.PreparePixmap();
-
+        
         var width = size.X;
         var height = size.Y;
+        
+        surface = new Surface(size);
 
-        if (surface == null || surface.Size != size)
-        {
-            surface?.Dispose();
-            surface = new Surface(size);
-        }
-
+        startNode.PreparePixmap(renderingContext);
+        
         using Pixmap targetPixmap = surface.PeekPixels();
 
-        ModifyImageInParallel(targetPixmap, width, height);
+        ModifyImageInParallel(renderingContext, targetPixmap, width, height);
+        
+        startNode.DisposePixmap(renderingContext);
 
         Output.Value = surface;
 
         return Output.Value;
     }
 
-    private unsafe void ModifyImageInParallel(Pixmap targetPixmap, int width, int height)
+    private unsafe void ModifyImageInParallel(RenderingContext renderingContext, Pixmap targetPixmap, int width, int height)
     {
         int threads = Environment.ProcessorCount;
         int chunkHeight = height / threads;
 
         Parallel.For(0, threads, i =>
         {
-            FuncContext context = new();
+            FuncContext context = new(renderingContext);
             
             int startY = i * chunkHeight;
             int endY = (i + 1) * chunkHeight;
