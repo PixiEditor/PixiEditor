@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.Models.Commands.CommandContext;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Numerics;
@@ -38,6 +39,9 @@ public static class Analytics
 
     internal static AnalyticEvent SendSwitchToTool(IToolHandler? newTool, IToolHandler? oldTool) =>
         SendEvent(AnalyticEventTypes.SwitchTool, ("NewTool", newTool?.ToolName), ("OldTool", oldTool?.ToolName));
+
+    internal static AnalyticEvent SendCommand(string commandName, ICommandExecutionSourceInfo? source) =>
+        SendEvent(AnalyticEventTypes.GeneralCommand, ("CommandName", commandName), ("Source", source));
     
     private static AnalyticEvent SendEvent(string name, params (string, object)[] data) =>
         SendEvent(name, data.ToDictionary());

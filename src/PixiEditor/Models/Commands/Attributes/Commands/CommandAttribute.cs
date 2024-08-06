@@ -38,6 +38,11 @@ internal partial class Command
         /// Gets or sets the icon.
         /// </summary>
         public string Icon { get; set; }
+        
+        /// <summary>
+        /// Gets or sets whether this command should be tracked in analytics.
+        /// </summary>
+        public bool AnalyticsTrack { get; set; }
 
         /// <summary>
         ///     Gets or sets the path to the menu item. If null, command will not be added to menu.

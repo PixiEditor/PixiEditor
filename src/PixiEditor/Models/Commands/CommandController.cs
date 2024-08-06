@@ -8,7 +8,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
+using PixiEditor.Models.Commands.CommandContext;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.Dialogs;
@@ -330,33 +332,6 @@ internal class CommandController
 
             var parameters = method?.GetParameters();
 
-            async void ActionOnException(Task faultedTask)
-            {
-                // since this method is "async void" and not "async Task", the runtime will propagate exceptions out if it
-                // (instead of putting them into the returned task and forgetting about them)
-                await faultedTask; // this instantly throws the exception from the already faulted task
-            }
-
-            Action<object> action;
-            if (parameters is not { Length: 1 })
-            {
-                action = x =>
-                {
-                    object result = method.Invoke(instance, null);
-                    if (result is Task task)
-                        task.ContinueWith(ActionOnException, TaskContinuationOptions.OnlyOnFaulted);
-                };
-            }
-            else
-            {
-                action = x =>
-                {
-                    object result = method.Invoke(instance, new[] { x });
-                    if (result is Task task)
-                        task.ContinueWith(ActionOnException, TaskContinuationOptions.OnlyOnFaulted);
-                };
-            }
-
             string name = attribute.InternalName;
             bool isDebug = attribute.InternalName.StartsWith("#DEBUG#");
 
@@ -368,7 +343,7 @@ internal class CommandController
             var command = commandFactory(
                 isDebug,
                 name,
-                action,
+                CommandAction,
                 attribute.CanExecute != null ? CanExecuteEvaluators[attribute.CanExecute] : CanExecuteEvaluator.AlwaysTrue,
                 attribute.IconEvaluator != null ? IconEvaluators[attribute.IconEvaluator] : IconEvaluator.Default);
 
@@ -376,6 +351,60 @@ internal class CommandController
             AddCommandToCommandsCollection(command, commandGroupsData, commands);
 
             return command;
+
+            void CommandAction(object x) => CommandMethodInvoker(method, name, instance, x, parameters, attribute.AnalyticsTrack);
+
+            
+        }
+    }
+
+    private static void CommandMethodInvoker(MethodInfo method, string name, object? instance, object parameter, ParameterInfo[] parameterInfos, bool isTracking)
+    {
+        var parameters = GetParameters(parameter, parameterInfos);
+                
+        if (isTracking)
+        {
+            Analytics.SendCommand(name, (parameter as CommandExecutionContext)?.SourceInfo);
+        }
+                
+        object result = method.Invoke(instance, parameters);
+        if (result is Task task)
+            task.ContinueWith(ActionOnException, TaskContinuationOptions.OnlyOnFaulted);
+
+        return;
+
+        static async void ActionOnException(Task faultedTask)
+        {
+            // since this method is "async void" and not "async Task", the runtime will propagate exceptions out if it
+            // (instead of putting them into the returned task and forgetting about them)
+            await faultedTask; // this instantly throws the exception from the already faulted task
+        }
+
+        static object?[]? GetParameters(object parameter, ParameterInfo[] parameterInfos)
+        {
+            object?[]? parameters;
+
+            if (parameterInfos.Length == 0)
+            {
+                parameters = null;
+            }
+            else if (parameter is CommandExecutionContext context)
+            {
+                if (parameterInfos[0].ParameterType == typeof(CommandExecutionContext))
+                {
+                    parameters = [ context ];
+                }
+                else
+                {
+                    parameters = [ context.Parameter ];
+                }
+            }
+            else
+            {
+                parameters = [ parameter ];
+            }
+
+            return parameters;
         }
     }
 

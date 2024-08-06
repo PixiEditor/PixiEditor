@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Avalonia.Media;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.Commands.CommandContext;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.Input;
 using PixiEditor.ViewModels;
@@ -69,6 +70,16 @@ internal abstract partial class Command : PixiObservableObject
     }
 
     public void Execute() => Methods.Execute(GetParameter());
+
+    public void Execute(CommandExecutionContext context, bool keepParameter)
+    {
+        if (!keepParameter)
+        {
+            context.Parameter = GetParameter();
+        }
+        
+        Methods.Execute(context);
+    }
 
     public bool CanExecute() => Methods.CanExecute(GetParameter());
 
