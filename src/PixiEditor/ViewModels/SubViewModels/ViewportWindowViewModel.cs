@@ -80,7 +80,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         Document = document;
         Document.SizeChanged += DocumentOnSizeChanged;
         Document.PropertyChanged += DocumentOnPropertyChanged;
-        TabCustomizationSettings.Icon = new SurfaceImage(Document.PreviewSurface);
+        TabCustomizationSettings.Icon = new TextureImage(Document.PreviewSurface);
     }
 
     private void DocumentOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -91,7 +91,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         }
         else if (e.PropertyName == nameof(DocumentViewModel.PreviewSurface))
         {
-            TabCustomizationSettings.Icon = new SurfaceImage(Document.PreviewSurface);
+            TabCustomizationSettings.Icon = new TextureImage(Document.PreviewSurface);
         }
         else if (e.PropertyName == nameof(DocumentViewModel.AllChangesSaved))
         {
@@ -107,7 +107,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
 
     private void DocumentOnSizeChanged(object? sender, DocumentSizeChangedEventArgs e)
     {
-        TabCustomizationSettings.Icon = new SurfaceImage(Document.PreviewSurface);
+        TabCustomizationSettings.Icon = new TextureImage(Document.PreviewSurface);
         OnPropertyChanged(nameof(TabCustomizationSettings));
     }
 

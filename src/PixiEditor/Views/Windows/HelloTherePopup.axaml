@@ -129,8 +129,8 @@
                                                     CommandParameter="{Binding FilePath}"
                                                     x:Name="fileButton">
                                                 <Grid Width="100" Height="100">
-                                                    <visuals:SurfaceControl
-                                                        Surface="{Binding PreviewBitmap}"
+                                                    <visuals:TextureControl
+                                                        Texture="{Binding PreviewBitmap}"
                                                         Margin="10"
                                                         Stretch="Uniform"
                                                         x:Name="image">
@@ -141,7 +141,7 @@
                                                                 <Binding ElementName="image" Path="Width" />
                                                             </MultiBinding>
                                                         </ui:RenderOptionsBindable.BitmapInterpolationMode>
-                                                    </visuals:SurfaceControl>
+                                                    </visuals:TextureControl>
                                                     <Border Grid.Row="1" Height="8" Width="8" x:Name="extensionBorder"
                                                             Margin="5"
                                                             Background="{Binding FileExtension, Converter={converters:FileExtensionToColorConverter}}"

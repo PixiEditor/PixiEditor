@@ -34,7 +34,7 @@ public class NodeView : TemplatedControl
         AvaloniaProperty.Register<NodeView, ObservableRangeCollection<INodePropertyHandler>>(
             nameof(Outputs));
 
-    public static readonly StyledProperty<Surface> ResultPreviewProperty = AvaloniaProperty.Register<NodeView, Surface>(
+    public static readonly StyledProperty<Texture> ResultPreviewProperty = AvaloniaProperty.Register<NodeView, Texture>(
         nameof(ResultPreview));
 
     public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<NodeView, bool>(
@@ -64,7 +64,7 @@ public class NodeView : TemplatedControl
         set => SetValue(IsSelectedProperty, value);
     }
 
-    public Surface ResultPreview
+    public Texture ResultPreview
     {
         get => GetValue(ResultPreviewProperty);
         set => SetValue(ResultPreviewProperty, value);

@@ -168,17 +168,17 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public IStructureMemberHandler? SelectedStructureMember { get; private set; } = null;
 
     //TODO: It was DrawingSurface before, check if it's correct
-    public Dictionary<ChunkResolution, Surface> Surfaces { get; set; } = new()
+    public Dictionary<ChunkResolution, Texture> Surfaces { get; set; } = new()
     {
-        [ChunkResolution.Full] = new Surface(new VecI(64, 64)),
-        [ChunkResolution.Half] = new Surface(new VecI(32, 32)),
-        [ChunkResolution.Quarter] = new Surface(new VecI(16, 16)),
-        [ChunkResolution.Eighth] = new Surface(new VecI(8, 8))
+        [ChunkResolution.Full] = new Texture(new VecI(64, 64)),
+        [ChunkResolution.Half] = new Texture(new VecI(32, 32)),
+        [ChunkResolution.Quarter] = new Texture(new VecI(16, 16)),
+        [ChunkResolution.Eighth] = new Texture(new VecI(8, 8))
     };
 
-    private Surface previewSurface;
+    private Texture previewSurface;
 
-    public Surface PreviewSurface
+    public Texture PreviewSurface
     {
         get => previewSurface;
         set
@@ -237,7 +237,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             Internals.ChangeController.LineOverlayMovedInlet(args.Item1, args.Item2);
 
         VecI previewSize = StructureMemberViewModel.CalculatePreviewSize(SizeBindable);
-        PreviewSurface = new Surface(new VecI(previewSize.X, previewSize.Y));
+        PreviewSurface = new Texture(new VecI(previewSize.X, previewSize.Y));
 
         ReferenceLayerViewModel = new(this, Internals);
 
@@ -626,7 +626,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public Color? PickColorFromReferenceLayer(VecD pos)
     {
-        Surface? bitmap = ReferenceLayerViewModel.ReferenceBitmap;
+        Texture? bitmap = ReferenceLayerViewModel.ReferenceBitmap;
         if (bitmap is null)
             return null;
 
@@ -827,9 +827,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
-    public Image[] RenderFrames(Func<Surface, Surface> processFrameAction = null)
+    public Image[] RenderFrames(Func<Surface, Surface> processFrameAction = null, CancellationToken token = default)
     {
         if (AnimationDataViewModel.KeyFrames.Count == 0)
+            return [];
+        
+        if(token.IsCancellationRequested)
             return [];
 
         int firstFrame = AnimationDataViewModel.FirstFrame;
@@ -837,8 +840,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         int lastFrame = firstFrame + framesCount;
 
         Image[] images = new Image[framesCount];
+        
+        // TODO: Multi-threading
         for (int i = firstFrame; i < lastFrame; i++)
         {
+            if (token.IsCancellationRequested)
+                return [];
+            
             double normalizedTime = (double)(i - firstFrame) / framesCount;
             KeyFrameTime frameTime = new KeyFrameTime(i, normalizedTime);
             var surface = TryRenderWholeImage(frameTime);
@@ -863,7 +871,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     ///     Render frames progressively and disposes the surface after processing.
     /// </summary>
     /// <param name="processFrameAction">Action to perform on rendered frame</param>
-    public void RenderFramesProgressive(Action<Surface, int> processFrameAction)
+    /// <param name="token"></param>
+    public void RenderFramesProgressive(Action<Surface, int> processFrameAction, CancellationToken token)
     {
         if (AnimationDataViewModel.KeyFrames.Count == 0)
             return;
@@ -876,7 +885,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         for (int i = firstFrame; i < lastFrame; i++)
         {
-            var surface = TryRenderWholeImage(i);
+            if (token.IsCancellationRequested)
+                return;
+            
+            KeyFrameTime frameTime = new KeyFrameTime(i, (double)(i - firstFrame) / framesCount);
+            
+            var surface = TryRenderWholeImage(frameTime);
             if (surface.IsT0)
             {
                 continue;

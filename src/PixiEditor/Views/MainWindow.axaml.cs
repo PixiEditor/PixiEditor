@@ -4,11 +4,16 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
+using Avalonia.OpenGL;
+using Avalonia.Platform;
+using Avalonia.Rendering.Composition;
 using Avalonia.Threading;
+using Avalonia.Vulkan;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.IO;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Skia;
+using PixiEditor.DrawingApi.Skia.Implementations;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
@@ -31,10 +36,15 @@ internal partial class MainWindow : Window
 
     private StartupPerformance _startupPerformance = new();
     
-    public new ViewModels_ViewModelMain DataContext { get => (ViewModels_ViewModelMain)base.DataContext; set => base.DataContext = value; }
-    
-    public static MainWindow? Current {
-        get 
+    public new ViewModels_ViewModelMain DataContext
+    {
+        get => (ViewModels_ViewModelMain)base.DataContext;
+        set => base.DataContext = value;
+    }
+
+    public static MainWindow? Current
+    {
+        get
         {
             if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
                 return desktop.MainWindow as MainWindow;
@@ -60,6 +70,7 @@ internal partial class MainWindow : Window
         AsyncImageLoader.ImageLoader.AsyncImageLoader = new DiskCachedWebImageLoader();
 
         SkiaDrawingBackend skiaDrawingBackend = new SkiaDrawingBackend();
+        skiaDrawingBackend.GraphicsContext = GetOpenGlGrContext();
         DrawingBackendApi.SetupBackend(skiaDrawingBackend);
 
         preferences = services.GetRequiredService<IPreferences>();
@@ -72,6 +83,31 @@ internal partial class MainWindow : Window
         analytics?.Start();
         
         InitializeComponent();
+    }
+
+
+    public static GRContext GetOpenGlGrContext()
+    {
+        Compositor compositor = Compositor.TryGetDefaultCompositor();
+        var interop = compositor.TryGetCompositionGpuInterop();
+        var contextSharingFeature =
+            compositor.TryGetRenderInterfaceFeature(typeof(IOpenGlTextureSharingRenderInterfaceContextFeature)).Result
+                as IOpenGlTextureSharingRenderInterfaceContextFeature;
+
+        if (contextSharingFeature.CanCreateSharedContext)
+        {
+            IGlContext? glContext = contextSharingFeature.CreateSharedContext();
+            glContext.MakeCurrent();
+            return GRContext.CreateGl(GRGlInterface.Create(glContext.GlInterface.GetProcAddress));
+        }
+
+        return null;
+        /*var contextFactory = AvaloniaLocator.Current.GetRequiredService<IPlatformGraphicsOpenGlContextFactory>();
+        var ctx = contextFactory.CreateContext(null);
+        ctx.MakeCurrent();
+        var ctxInterface = GRGlInterface.Create(ctx.GlInterface.GetProcAddress);
+        var grContext = GRContext.CreateGl(ctxInterface);
+        return grContext;*/
     }
 
     public static MainWindow CreateWithRecoveredDocuments(CrashReport report, out bool showMissingFilesDialog)

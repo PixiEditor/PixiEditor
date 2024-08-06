@@ -5,7 +5,7 @@ namespace PixiEditor.Models.Handlers;
 
 internal interface IKeyFrameHandler
 {
-    public Surface? PreviewSurface { get; set; }
+    public Texture? PreviewSurface { get; set; }
     public int StartFrameBindable { get; }
     public int DurationBindable { get; }
     public bool IsSelected { get; set; }

@@ -63,7 +63,7 @@ internal class LayoutManager
                         Id = "DocumentArea", FallbackContent = new CreateDocumentFallbackView(),
                         Dockables = [ DockContext.CreateDockable(nodeGraphDockViewModel) ]
                     },
-                    FirstSize = 0.85,
+                    SecondSize = 200,
                     SplitDirection = DockingDirection.Bottom,
                     Second = new DockableArea
                     {
@@ -71,7 +71,7 @@ internal class LayoutManager
                         ActiveDockable = DockContext.CreateDockable(timelineDockViewModel)
                     }
                 },
-                FirstSize = 0.85,
+                SecondSize = 360,
                 SplitDirection = DockingDirection.Right,
                 Second = new DockableTree
                 {

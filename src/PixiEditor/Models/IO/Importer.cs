@@ -33,9 +33,9 @@ internal class Importer : ObservableObject
     /// <returns>WriteableBitmap of imported image.</returns>
     public static Surface? ImportImage(string path, VecI size)
     {
-        if (!Path.Exists(path)) 
+        if (!Path.Exists(path))
             throw new MissingFileException();
-        
+
         Surface original;
         try
         {
@@ -45,7 +45,7 @@ internal class Importer : ObservableObject
         {
             throw new CorruptedFileException(e);
         }
-        
+
         if (original.Size == size || size == VecI.NegativeOne)
         {
             return original;
@@ -64,7 +64,8 @@ internal class Importer : ObservableObject
         }
         catch (NotSupportedException e)
         {
-            throw new InvalidFileTypeException(new LocalizedString("FILE_EXTENSION_NOT_SUPPORTED", Path.GetExtension(path)), e);
+            throw new InvalidFileTypeException(
+                new LocalizedString("FILE_EXTENSION_NOT_SUPPORTED", Path.GetExtension(path)), e);
         }
         /*catch (FileFormatException e) TODO: Not found in Avalonia
         {
@@ -126,7 +127,7 @@ internal class Importer : ObservableObject
                 // TODO: Handle
                 throw new RecoverableException();
             }
-            
+
             var pixiDocument = parser.Deserialize(file);
 
             var document = pixiDocument switch
@@ -150,13 +151,30 @@ internal class Importer : ObservableObject
         }
     }
 
-    public static Surface GetPreviewBitmap(string path)
+    public static Texture GetPreviewTexture(string path)
     {
         if (!IsSupportedFile(path))
         {
-            throw new InvalidFileTypeException(new LocalizedString("FILE_EXTENSION_NOT_SUPPORTED", Path.GetExtension(path)));
+            throw new InvalidFileTypeException(new LocalizedString("FILE_EXTENSION_NOT_SUPPORTED",
+                Path.GetExtension(path)));
         }
-        
+
+        if (Path.GetExtension(path) != ".pixi")
+            return Texture.Load(path);
+
+        using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+
+        return Texture.Load(PixiParser.ReadPreview(fileStream));
+    }
+
+    public static Surface GetPreviewSurface(string path)
+    {
+        if (!IsSupportedFile(path))
+        {
+            throw new InvalidFileTypeException(new LocalizedString("FILE_EXTENSION_NOT_SUPPORTED",
+                Path.GetExtension(path)));
+        }
+
         if (Path.GetExtension(path) != ".pixi")
             return Surface.Load(path);
 

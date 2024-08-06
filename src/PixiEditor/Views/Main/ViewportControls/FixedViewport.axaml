@@ -14,10 +14,10 @@
              VerticalAlignment="Center"
              d:DesignHeight="450" d:DesignWidth="800">
 
-    <visuals:SurfaceControl
+    <visuals:TextureControl
         x:Name="mainImage"
         Focusable="True"
-        Surface="{Binding TargetBitmap, ElementName=uc}"
+        Texture="{Binding TargetBitmap, ElementName=uc}"
         Stretch="Uniform"
         SizeChanged="OnImageSizeChanged">
         <ui1:RenderOptionsBindable.BitmapInterpolationMode>
@@ -26,5 +26,5 @@
                 <Binding ElementName="mainImage" Path="Bounds.Width"/>
             </MultiBinding>
         </ui1:RenderOptionsBindable.BitmapInterpolationMode>
-    </visuals:SurfaceControl>
+    </visuals:TextureControl>
 </UserControl>

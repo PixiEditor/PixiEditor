@@ -6,6 +6,7 @@ using PixiEditor.Views.Nodes;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Extensions.FlyUI.Elements;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
@@ -143,16 +144,16 @@ internal abstract class StructureMemberViewModel : NodeViewModel, IStructureMemb
         set => SetProperty(ref selection, value);
     }
 
-    private Surface? previewSurface;
-    private Surface? maskPreviewSurface;
+    private Texture? previewSurface;
+    private Texture? maskPreviewSurface;
 
-    public Surface? PreviewSurface
+    public Texture? PreviewSurface
     {
         get => previewSurface;
         set => SetProperty(ref previewSurface, value);
     }
 
-    public Surface? MaskPreviewSurface
+    public Texture? MaskPreviewSurface
     {
         get => maskPreviewSurface;
         set => SetProperty(ref maskPreviewSurface, value);

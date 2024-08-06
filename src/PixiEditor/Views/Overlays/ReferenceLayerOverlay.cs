@@ -9,17 +9,22 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Media;
 using Avalonia.Styling;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Helpers.Converters;
 using PixiEditor.Numerics;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.Views.Visuals;
+using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Views.Overlays;
 
 internal class ReferenceLayerOverlay : Overlay
 {
     private const float OpacityTransitionDuration = 0.1f;
+
     public static readonly StyledProperty<ReferenceLayerViewModel> ReferenceLayerProperty =
         AvaloniaProperty.Register<ReferenceLayerOverlay, ReferenceLayerViewModel>(
             nameof(ReferenceLayerViewModel));
@@ -59,6 +64,12 @@ internal class ReferenceLayerOverlay : Overlay
         : OverlayRenderSorting.Background;
 
     private Pen borderBen = new Pen(Brushes.Black, 2);
+    
+    private Paint overlayPaint = new Paint
+    {
+        Color = new Color(255, 255, 255, 255),
+        BlendMode = BlendMode.SrcOver
+    };
 
     static ReferenceLayerOverlay()
     {
@@ -79,8 +90,16 @@ internal class ReferenceLayerOverlay : Overlay
 
             RectD dirty = new RectD(0, 0, ReferenceLayer.ReferenceBitmap.Size.X, ReferenceLayer.ReferenceBitmap.Size.Y);
             Rect dirtyRect = new Rect(dirty.X, dirty.Y, dirty.Width, dirty.Height);
-            DrawSurfaceOperation drawOperation =
-                new DrawSurfaceOperation(dirtyRect, ReferenceLayer.ReferenceBitmap, Stretch.None, Opacity);
+
+            double opacity = Opacity;
+            var referenceBitmap = ReferenceLayer.ReferenceBitmap;
+
+            referenceBitmap.Surface.Flush();
+            overlayPaint.Color = new Color(255, 255, 255, (byte)(opacity * 255)); 
+            
+            DrawTextureOperation drawOperation =
+                new DrawTextureOperation(dirtyRect, Stretch.None, referenceBitmap, overlayPaint);
+
             context.Custom(drawOperation);
 
             matrix.Dispose();

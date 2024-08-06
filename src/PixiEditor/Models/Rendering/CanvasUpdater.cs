@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
@@ -196,7 +197,7 @@ internal class CanvasUpdater
                 globalScaledClippingRectangle =
                     (RectI?)((RectI)globalClippingRectangle).Scale(resolution.Multiplier()).RoundOutwards();
 
-            Surface screenSurface = doc.Surfaces[resolution];
+            Texture screenSurface = doc.Surfaces[resolution];
             foreach (var chunkPos in chunks)
             {
                 RenderChunk(chunkPos, screenSurface, resolution, globalClippingRectangle,
@@ -214,38 +215,56 @@ internal class CanvasUpdater
         }
     }
 
-    private void RenderChunk(VecI chunkPos, Surface screenSurface, ChunkResolution resolution,
+    private void RenderChunk(VecI chunkPos, Texture screenSurface, ChunkResolution resolution,
         RectI? globalClippingRectangle, RectI? globalScaledClippingRectangle)
     {
         if (screenSurface is null || screenSurface.IsDisposed)
             return;
 
-        if (globalScaledClippingRectangle is not null)
-        {
-            screenSurface.DrawingSurface.Canvas.Save();
-            screenSurface.DrawingSurface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
-        }
 
         doc.Renderer.RenderChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameTime, globalClippingRectangle)
             .Switch(
                 (Chunk chunk) =>
                 {
-                    if (screenSurface.IsDisposed) return;
-                    
-                    screenSurface.DrawingSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface,
-                        chunkPos.Multiply(chunk.PixelSize), ReplacingPaint);
-                    chunk.Dispose();
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        if (screenSurface.IsDisposed) return;
+
+                        if (globalScaledClippingRectangle is not null)
+                        {
+                            screenSurface.Surface.Canvas.Save();
+                            screenSurface.Surface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
+                        }
+
+                        screenSurface.Surface.Canvas.DrawSurface(
+                            chunk.Surface.DrawingSurface,
+                            chunkPos.Multiply(chunk.PixelSize), ReplacingPaint);
+                        chunk.Dispose();
+
+
+                        if (globalScaledClippingRectangle is not null)
+                            screenSurface.Surface.Canvas.Restore();
+                    });
                 },
                 (EmptyChunk _) =>
                 {
-                    if (screenSurface.IsDisposed) return;
-                    
-                    var pos = chunkPos * resolution.PixelSize();
-                    screenSurface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(),
-                        resolution.PixelSize(), ClearPaint);
-                });
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        if (screenSurface.IsDisposed) return;
 
-        if (globalScaledClippingRectangle is not null)
-            screenSurface.DrawingSurface.Canvas.Restore();
+                        if (globalScaledClippingRectangle is not null)
+                        {
+                            screenSurface.Surface.Canvas.Save();
+                            screenSurface.Surface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
+                        }
+
+                        var pos = chunkPos * resolution.PixelSize();
+                        screenSurface.Surface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(),
+                            resolution.PixelSize(), ClearPaint);
+                        
+                        if (globalScaledClippingRectangle is not null)
+                            screenSurface.Surface.Canvas.Restore();
+                    });
+                });
     }
 }

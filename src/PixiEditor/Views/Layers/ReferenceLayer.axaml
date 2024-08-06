@@ -80,7 +80,7 @@
                             BorderBrush="Black"
                             Background="{DynamicResource ThemeBackgroundBrush}"
                             Margin="5, 0, 10, 0">
-                            <visuals:SurfaceControl Surface="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap,ElementName=uc}"
+                            <visuals:TextureControl Texture="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap,ElementName=uc}"
                                    Stretch="Uniform" Width="26" Height="26"
                                    RenderOptions.BitmapInterpolationMode="HighQuality" IsHitTestVisible="False" />
                         </Border>

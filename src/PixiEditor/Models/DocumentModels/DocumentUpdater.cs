@@ -345,11 +345,11 @@ internal class DocumentUpdater
     {
         VecI oldSize = doc.SizeBindable;
 
-        foreach ((ChunkResolution res, Surface surf) in doc.Surfaces)
+        foreach ((ChunkResolution res, Texture surf) in doc.Surfaces)
         {
             surf.Dispose();
             VecI size = (VecI)(info.Size * res.Multiplier());
-            doc.Surfaces[res] = new Surface(new VecI(Math.Max(size.X, 1), Math.Max(size.Y, 1))); //TODO: Bgra8888 was here
+            doc.Surfaces[res] = new Texture(new VecI(Math.Max(size.X, 1), Math.Max(size.Y, 1))); //TODO: Bgra8888 was here
         }
 
         doc.SetSize(info.Size);
@@ -358,7 +358,7 @@ internal class DocumentUpdater
 
         VecI documentPreviewSize = StructureHelpers.CalculatePreviewSize(info.Size);
         doc.PreviewSurface.Dispose();
-        doc.PreviewSurface = new Surface(documentPreviewSize); //TODO: Bgra8888 was here
+        doc.PreviewSurface = new Texture(documentPreviewSize); //TODO: Bgra8888 was here
 
         // TODO: Make sure property changed events are raised internally
         // UPDATE: I think I did, but I'll leave it commented out for now

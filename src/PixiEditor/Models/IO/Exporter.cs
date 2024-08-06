@@ -51,7 +51,7 @@ internal class Exporter
     /// <summary>
     /// Attempts to save file using a SaveFileDialog
     /// </summary>
-    public static async Task<ExporterResult> TrySaveWithDialog(DocumentViewModel document, ExportConfig exportConfig)
+    public static async Task<ExporterResult> TrySaveWithDialog(DocumentViewModel document, ExportConfig exportConfig, ExportJob? job)
     {
         ExporterResult result = new(DialogSaveResult.UnknownError, null);
 
@@ -70,7 +70,7 @@ internal class Exporter
 
             var fileType = SupportedFilesHelper.GetSaveFileType(FileTypeDialogDataSet.SetKind.Any, file);
 
-            (SaveResult Result, string finalPath) saveResult = await TrySaveUsingDataFromDialog(document, file.Path.LocalPath, fileType, exportConfig);
+            (SaveResult Result, string finalPath) saveResult = await TrySaveUsingDataFromDialog(document, file.Path.LocalPath, fileType, exportConfig, job);
             if (saveResult.Result == SaveResult.Success)
             {
                 result.Path = saveResult.finalPath;
@@ -85,10 +85,10 @@ internal class Exporter
     /// <summary>
     /// Takes data as returned by SaveFileDialog and attempts to use it to save the document
     /// </summary>
-    public static async Task<(SaveResult result, string finalPath)> TrySaveUsingDataFromDialog(DocumentViewModel document, string pathFromDialog, IoFileType fileTypeFromDialog, ExportConfig exportConfig)
+    public static async Task<(SaveResult result, string finalPath)> TrySaveUsingDataFromDialog(DocumentViewModel document, string pathFromDialog, IoFileType fileTypeFromDialog, ExportConfig exportConfig, ExportJob? job)
     {
         string finalPath = SupportedFilesHelper.FixFileExtension(pathFromDialog, fileTypeFromDialog);
-        var saveResult = await TrySaveAsync(document, finalPath, exportConfig);
+        var saveResult = await TrySaveAsync(document, finalPath, exportConfig, job);
         if (saveResult != SaveResult.Success)
             finalPath = "";
 
@@ -98,7 +98,7 @@ internal class Exporter
     /// <summary>
     /// Attempts to save the document into the given location, filetype is inferred from path
     /// </summary>
-    public static async Task<SaveResult> TrySaveAsync(DocumentViewModel document, string pathWithExtension, ExportConfig exportConfig)
+    public static async Task<SaveResult> TrySaveAsync(DocumentViewModel document, string pathWithExtension, ExportConfig exportConfig, ExportJob? job)
     {
         string directory = Path.GetDirectoryName(pathWithExtension);
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
@@ -109,7 +109,9 @@ internal class Exporter
         if (typeFromPath is null)
             return SaveResult.UnknownError;
         
-        return await typeFromPath.TrySave(pathWithExtension, document, exportConfig);
+        var result = await typeFromPath.TrySave(pathWithExtension, document, exportConfig, job);
+        job?.Finish();
+        return result;
     }
 
     public static void SaveAsGZippedBytes(string path, Surface surface)

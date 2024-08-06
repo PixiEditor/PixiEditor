@@ -14,4 +14,5 @@ public interface IBitmapImplementation
     public VecI GetSize(IntPtr objectPointer);
     public byte[] GetBytes(IntPtr objectPointer);
     public ImageInfo GetInfo(IntPtr objectPointer);
+    public Pixmap? PeekPixels(IntPtr objectPointer);
 }

@@ -10,16 +10,20 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
     public class SkiaBitmapImplementation : SkObjectImplementation<SKBitmap>, IBitmapImplementation
     {
         public SkiaImageImplementation ImageImplementation { get; }
-        public SkiaBitmapImplementation(SkiaImageImplementation imgImpl)
+        
+        private readonly SkiaPixmapImplementation _pixmapImplementation;
+
+        public SkiaBitmapImplementation(SkiaImageImplementation imgImpl, SkiaPixmapImplementation pixmapImplementation)
         {
             ImageImplementation = imgImpl;
+            _pixmapImplementation = pixmapImplementation;
         }
 
         public void Dispose(IntPtr objectPointer)
         {
             SKBitmap bitmap = ManagedInstances[objectPointer];
-            bitmap.Dispose();   
-            
+            bitmap.Dispose();
+
             ManagedInstances.TryRemove(objectPointer, out _);
         }
 
@@ -37,7 +41,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             ManagedInstances[skBitmap.Handle] = skBitmap;
             return new Bitmap(skBitmap.Handle);
         }
-        
+
         public VecI GetSize(IntPtr objectPointer)
         {
             SKBitmap bitmap = ManagedInstances[objectPointer];
@@ -47,13 +51,20 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public byte[] GetBytes(IntPtr objectPointer)
         {
             SKBitmap bitmap = ManagedInstances[objectPointer];
-            return bitmap.Bytes; 
+            return bitmap.Bytes;
         }
-        
+
         public ImageInfo GetInfo(IntPtr objectPointer)
         {
             SKBitmap bitmap = ManagedInstances[objectPointer];
             return bitmap.Info.ToImageInfo();
+        }
+
+        public Pixmap PeekPixels(IntPtr objectPointer)
+        {
+            SKBitmap bitmap = ManagedInstances[objectPointer];
+            SKPixmap pixmap = bitmap.PeekPixels();
+            return _pixmapImplementation.CreateFrom(pixmap);
         }
 
         public object GetNativeBitmap(IntPtr objectPointer)

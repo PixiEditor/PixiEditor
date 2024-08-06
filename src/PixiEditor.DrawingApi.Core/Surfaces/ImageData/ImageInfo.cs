@@ -137,6 +137,8 @@ public struct ImageInfo : System.IEquatable<ImageInfo>
     /// <value />
     public readonly RectI Rect => RectI.Create(this.Width, this.Height);
 
+    public bool GpuBacked { get; set; } = false;
+
 
     public readonly ImageInfo WithSize(VecI size) => this.WithSize(size.X, size.Y);
 

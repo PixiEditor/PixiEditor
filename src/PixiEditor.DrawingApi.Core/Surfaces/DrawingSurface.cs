@@ -75,5 +75,10 @@ namespace PixiEditor.DrawingApi.Core.Surfaces
         {
             Changed?.Invoke(changedrect);
         }
+
+        public void Flush()
+        {
+            DrawingBackendApi.Current.SurfaceImplementation.Flush(this);
+        }
     }
 }

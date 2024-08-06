@@ -25,9 +25,9 @@ internal interface IDocument : IHandler
     public IAnimationHandler AnimationHandler { get; }
     public VectorPath SelectionPathBindable { get; }
     public INodeGraphHandler NodeGraphHandler { get; }
-    public Dictionary<ChunkResolution, Surface> Surfaces { get; set; }
+    public Dictionary<ChunkResolution, Texture> Surfaces { get; set; }
     public DocumentStructureModule StructureHelper { get; }
-    public Surface PreviewSurface { get; set; }
+    public Texture PreviewSurface { get; set; }
     public bool AllChangesSaved { get; }
     public string CoordinatesString { get; set; }
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers { get; }
