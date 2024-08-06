@@ -9,6 +9,7 @@ using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
+using PixiEditor.Models.Commands.CommandContext;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
@@ -117,8 +118,10 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     public void SetActiveTool<T>(bool transient)
         where T : IToolHandler
     {
-        SetActiveTool(typeof(T), transient);
+        SetActiveTool(typeof(T), transient, null);
     }
+
+    public void SetActiveTool(Type toolType, bool transient) => SetActiveTool(toolType, transient, null);
 
     [Command.Basic("PixiEditor.Tools.ApplyTransform", "APPLY_TRANSFORM", "", Key = Key.Enter, AnalyticsTrack = true)]
     public void ApplyTransform()
@@ -132,10 +135,12 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     [Command.Internal("PixiEditor.Tools.SelectTool", CanExecute = "PixiEditor.HasDocument")]
     public void SetActiveTool(ToolViewModel tool)
     {
-        SetActiveTool(tool, false);
+        SetActiveTool(tool, false, null);
     }
 
-    public void SetActiveTool(IToolHandler tool, bool transient)
+    public void SetActiveTool(IToolHandler tool, bool transient) => SetActiveTool(tool, transient, null);
+
+    public void SetActiveTool(IToolHandler tool, bool transient, ICommandExecutionSourceInfo? sourceInfo)
     {
         if(Owner.DocumentManagerSubViewModel.ActiveDocument is { PointerDragChangeInProgress: true }) return;
 
@@ -187,20 +192,28 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
         if (ActiveTool != null || LastActionTool != null)
         {
-            Analytics.SendSwitchToTool(tool, LastActionTool);
+            Analytics.SendSwitchToTool(tool, LastActionTool, sourceInfo);
         }
     }
 
     public void SetTool(object parameter)
     {
+        ICommandExecutionSourceInfo source = null;
+
+        if (parameter is CommandExecutionContext context)
+        {
+            source = context.SourceInfo;
+            parameter = context.Parameter;
+        }
+        
         if (parameter is Type type)
         {
-            SetActiveTool(type, false);
+            SetActiveTool(type, false, source);
             return;
         }
 
         ToolViewModel tool = (ToolViewModel)parameter;
-        SetActiveTool(tool.GetType(), false);
+        SetActiveTool(tool.GetType(), false, source);
     }
 
     [Command.Basic("PixiEditor.Tools.IncreaseSize", 1, "INCREASE_TOOL_SIZE", "INCREASE_TOOL_SIZE", CanExecute = "PixiEditor.Tools.CanChangeToolSize", Key = Key.OemCloseBrackets, AnalyticsTrack = true)]
@@ -221,12 +234,12 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                                            PixelPerfectEnabled: true
                                        };
 
-    public void SetActiveTool(Type toolType, bool transient)
+    public void SetActiveTool(Type toolType, bool transient, ICommandExecutionSourceInfo sourceInfo)
     {
         if (!typeof(ToolViewModel).IsAssignableFrom(toolType))
             throw new ArgumentException($"'{toolType}' does not inherit from {typeof(ToolViewModel)}");
         IToolHandler foundTool = ToolSet!.First(x => x.GetType().IsAssignableFrom(toolType));
-        SetActiveTool(foundTool, transient);
+        SetActiveTool(foundTool, transient, sourceInfo);
     }
     
     public void RestorePreviousTool()

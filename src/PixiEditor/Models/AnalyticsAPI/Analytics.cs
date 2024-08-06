@@ -37,8 +37,8 @@ public static class Analytics
     internal static AnalyticEvent SendUseTool(IToolHandler? tool, VecD positionOnCanvas, VecD documentSize) =>
         SendEvent(AnalyticEventTypes.UseTool, ("Tool", tool?.ToolName), ("Position", new VecD(documentSize.X / positionOnCanvas.X, documentSize.Y / positionOnCanvas.Y)));
 
-    internal static AnalyticEvent SendSwitchToTool(IToolHandler? newTool, IToolHandler? oldTool) =>
-        SendEvent(AnalyticEventTypes.SwitchTool, ("NewTool", newTool?.ToolName), ("OldTool", oldTool?.ToolName));
+    internal static AnalyticEvent SendSwitchToTool(IToolHandler? newTool, IToolHandler? oldTool, ICommandExecutionSourceInfo? sourceInfo) =>
+        SendEvent(AnalyticEventTypes.SwitchTool, ("NewTool", newTool?.ToolName), ("OldTool", oldTool?.ToolName), ("Source", sourceInfo));
 
     internal static AnalyticEvent SendCommand(string commandName, ICommandExecutionSourceInfo? source) =>
         SendEvent(AnalyticEventTypes.GeneralCommand, ("CommandName", commandName), ("Source", source));
