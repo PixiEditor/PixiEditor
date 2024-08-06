@@ -2,9 +2,11 @@
 using System.Linq;
 using Avalonia.Platform;
 using Avalonia.Threading;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentPassthroughActions;
@@ -12,6 +14,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Rendering.RenderInfos;
 using PixiEditor.Numerics;
+using PixiEditor.Views.Rendering;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable
@@ -33,6 +36,12 @@ internal class ActionAccumulator
 
         canvasUpdater = new(doc, internals);
         previewUpdater = new(doc, internals);
+        Scene.Paint += SceneOnPaint;
+    }
+
+    private void SceneOnPaint(Texture obj)
+    {
+        canvasUpdater.Render(obj, ChunkResolution.Full); 
     }
 
     public void AddFinishedActions(params IAction[] actions)
@@ -89,11 +98,10 @@ internal class ActionAccumulator
             if (undoBoundaryPassed)
                 internals.Updater.AfterUndoBoundaryPassed();
 
-            // update the contents of the bitmaps
             var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime, internals.Tracker, optimizedChanges);
             List<IRenderInfo> renderResult = new();
-            renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed || viewportRefreshRequest));
-            //renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
+            //await canvasUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed || viewportRefreshRequest);
+            renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
 
             if (undoBoundaryPassed)
             {
@@ -139,7 +147,7 @@ internal class ActionAccumulator
                         RectI finalRect = new RectI(VecI.Zero, new(bitmap.Size.X, bitmap.Size.Y));
 
                         RectI dirtyRect = new RectI(info.Pos, info.Size).Intersect(finalRect);
-                        // bitmap.AddDirtyRect(dirtyRect);
+                        bitmap.AddDirtyRect(dirtyRect);
                     }
                     break;
                 case PreviewDirty_RenderInfo info:
@@ -147,8 +155,7 @@ internal class ActionAccumulator
                         var bitmap = document.StructureHelper.Find(info.GuidValue)?.PreviewSurface;
                         if (bitmap is null)
                             continue;
-                        //TODO: Implement dirty rects
-                        // bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
+                        bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
                     }
                     break;
                 case MaskPreviewDirty_RenderInfo info:
@@ -156,12 +163,12 @@ internal class ActionAccumulator
                         var bitmap = document.StructureHelper.Find(info.GuidValue)?.MaskPreviewSurface;
                         if (bitmap is null)
                             continue;
-                        //bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
+                        bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
                     }
                     break;
                 case CanvasPreviewDirty_RenderInfo:
                     {
-                        //document.PreviewSurface.AddDirtyRect(new RectI(0, 0, document.PreviewSurface.Size.X, document.PreviewSurface.Size.Y));
+                        document.PreviewSurface.AddDirtyRect(new RectI(0, 0, document.PreviewSurface.Size.X, document.PreviewSurface.Size.Y));
                     }
                     break;
                 case NodePreviewDirty_RenderInfo info:
@@ -169,7 +176,7 @@ internal class ActionAccumulator
                         var node = document.StructureHelper.Find(info.NodeId);
                         if (node is null || node.PreviewSurface is null)
                             continue;
-                        //node.PreviewSurface.AddDirtyRect(new RectI(0, 0, node.PreviewSurface.Size.X, node.PreviewSurface.Size.Y));
+                        node.PreviewSurface.AddDirtyRect(new RectI(0, 0, node.PreviewSurface.Size.X, node.PreviewSurface.Size.Y));
                     }
                     break;
             }

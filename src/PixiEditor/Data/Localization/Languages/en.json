@@ -687,5 +687,12 @@
   "LERP_NODE": "Lerp",
   "FROM": "From",
   "TO": "To",
-  "TIME": "Time"
+  "TIME": "Time",
+  "WARMING_UP": "Warming up",
+  "RENDERING_FRAME": "Generating Frame {0}/{1}",
+  "RENDERING_VIDEO": "Rendering Video",
+  "FINISHED": "Finished",
+  "GENERATING_SPRITE_SHEET": "Generating Sprite Sheet",
+  "RENDERING_IMAGE": "Rendering Image",
+  "PROGRESS_POPUP_TITLE": "Progress"
 }

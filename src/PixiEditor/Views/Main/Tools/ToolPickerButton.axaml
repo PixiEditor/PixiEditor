@@ -7,6 +7,7 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:tools="clr-namespace:PixiEditor.ViewModels.Tools"
              xmlns:markupExtensions="clr-namespace:PixiEditor.Helpers.MarkupExtensions"
+             xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              d:DataContext="{tools:ToolViewModel}"
              x:Class="PixiEditor.Views.Main.Tools.ToolPickerButton">
@@ -20,7 +21,8 @@
             Background="{DynamicResource ThemeBackgroundBrush1}">
         <Button.Template>
             <ControlTemplate>
-                <Border Height="40" Width="40" Background="{DynamicResource ThemeBackgroundBrush1}">
+                <Border Height="40" Width="40" 
+                        Background="{DynamicResource ThemeBackgroundBrush1}">
                     <ContentPresenter Content="{TemplateBinding Content}"/>
                 </Border>
             </ControlTemplate>

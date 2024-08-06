@@ -21,9 +21,8 @@ public class TextureControl : Control
     public static readonly StyledProperty<Stretch> StretchProperty = AvaloniaProperty.Register<TextureControl, Stretch>(
         nameof(Stretch), Stretch.Uniform);
 
-    public static readonly StyledProperty<IBrush> BackgroundProperty =
-        AvaloniaProperty.Register<TextureControl, IBrush>(
-            nameof(Background));
+    public static readonly StyledProperty<IBrush> BackgroundProperty = AvaloniaProperty.Register<TextureControl, IBrush>
+    (nameof(Background));
 
     public Stretch Stretch
     {
@@ -99,14 +98,14 @@ public class TextureControl : Control
     {
         if (Background != null)
         {
-            context.FillRectangle(Background, new Rect(0, 0, Bounds.Width, Bounds.Height));
+            context.FillRectangle(Background, new Rect(Bounds.Size));
         }
-
-        if (Texture == null)
+        
+        if (Texture == null || Texture.IsDisposed)
         {
             return;
         }
-
+        
         Texture texture = Texture;
         texture.Surface.Flush();
         ICustomDrawOperation drawOperation = new DrawTextureOperation(
@@ -116,20 +115,20 @@ public class TextureControl : Control
 
         context.Custom(drawOperation);
     }
-
+    
     private void OnTextureChanged(AvaloniaPropertyChangedEventArgs<Texture> args)
     {
         if (args.OldValue.Value != null)
         {
             args.OldValue.Value.Changed -= TextureOnChanged;
         }
-
+        
         if (args.NewValue.Value != null)
         {
             args.NewValue.Value.Changed += TextureOnChanged;
         }
     }
-
+    
     private void TextureOnChanged(RectD? changedRect)
     {
         Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
@@ -158,7 +157,7 @@ internal class DrawTextureOperation : SkiaDrawOperation
         {
             return;
         }
-
+        
         SKCanvas canvas = lease.SkCanvas;
 
         using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);

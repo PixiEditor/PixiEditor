@@ -15,6 +15,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Skia;
 using PixiEditor.DrawingApi.Skia.Extensions;
 using PixiEditor.Extensions.UI.Overlays;
@@ -107,6 +108,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     private List<Overlay> mouseOverOverlays = new();
 
     private double sceneOpacity = 1;
+    
+    private static Scene instance;
 
     static Scene()
     {
@@ -136,9 +139,16 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         };
     }
 
+    public static event Action<Texture> Paint;
+
+    public static void RequestRender()
+    {
+        instance.QueueRender();
+    }
+
     public override void Render(DrawingContext context)
     {
-        if (Surface == null || Surface.IsDisposed || Document == null) return;
+        //if (Surface == null || Document == null) return;
 
         float angle = (float)MathUtil.RadiansToDegrees(AngleRadians);
 
@@ -147,8 +157,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         RectD dirtyBounds = new RectD(0, 0, Document.Width / resolutionScale, Document.Height / resolutionScale);
         Rect dirtyRect = new Rect(0, 0, Document.Width / resolutionScale, Document.Height / resolutionScale);
 
-        Surface.Surface.Flush();
-        using var operation = new DrawSceneOperation(Surface, Document, CanvasPos, Scale * resolutionScale, angle,
+        //Surface.Surface.Flush();
+        using var operation = new DrawSceneOperation(Paint, Document, CanvasPos, Scale * resolutionScale, angle,
             FlipX, FlipY,
             dirtyRect,
             Bounds,
@@ -490,15 +500,18 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
     public RectI SurfaceRectToRender { get; }
 
+    public event Action<Texture> Paint;
+
     private SKPaint _paint = new SKPaint();
 
     private bool hardwareAccelerationAvailable = DrawingBackendApi.Current.IsHardwareAccelerated;
 
-    public DrawSceneOperation(Texture surface, DocumentViewModel document, VecD contentPosition, double scale,
+    public DrawSceneOperation(Action<Texture> paint, DocumentViewModel document, VecD contentPosition, double scale,
         double angle, bool flipX, bool flipY, Rect dirtyBounds, Rect viewportBounds, double opacity,
         ColorMatrix colorMatrix) : base(dirtyBounds)
     {
-        Surface = surface;
+        //Surface = surface;
+        Paint += paint;
         Document = document;
         ContentPosition = contentPosition;
         Scale = scale;
@@ -508,29 +521,35 @@ internal class DrawSceneOperation : SkiaDrawOperation
         ColorMatrix = colorMatrix;
         ViewportBounds = viewportBounds;
         _paint.Color = _paint.Color.WithAlpha((byte)(opacity * 255));
-        SurfaceRectToRender = FindRectToRender((float)scale);
+        //SurfaceRectToRender = FindRectToRender((float)scale);
+        SurfaceRectToRender = new RectI(VecI.Zero, Document.SizeBindable);
     }
 
     public override void Render(ISkiaSharpApiLease lease)
     {
-        if (Surface == null || Surface.IsDisposed || Document == null) return;
+        //if (Surface == null || Surface.IsDisposed || Document == null) return;
 
         SKCanvas canvas = lease.SkCanvas;
 
         canvas.Save();
 
-        if (SurfaceRectToRender.IsZeroOrNegativeArea)
+        /*if (SurfaceRectToRender.IsZeroOrNegativeArea)
         {
             canvas.Restore();
             return;
-        }
+        }*/
 
         using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
 
         var matrixValues = new float[ColorMatrix.Width * ColorMatrix.Height];
         ColorMatrix.TryGetMembers(matrixValues);
 
-        _paint.ColorFilter = SKColorFilter.CreateColorMatrix(matrixValues);
+        DrawingSurface drawingSurface = DrawingSurface.CreateFromNative(lease.SkSurface);
+        Texture texture = Texture.FromExisting(drawingSurface);
+        
+        Paint?.Invoke(texture);
+        
+        /*_paint.ColorFilter = SKColorFilter.CreateColorMatrix(matrixValues);
 
         if (!hardwareAccelerationAvailable)
         {
@@ -542,7 +561,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
         else
         {
             canvas.DrawSurface(Surface.Surface.Native as SKSurface, 0, 0, _paint);
-        }
+        }*/
 
         canvas.Restore();
     }

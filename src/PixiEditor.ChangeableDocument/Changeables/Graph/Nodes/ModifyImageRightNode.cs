@@ -22,18 +22,20 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
     public FuncInputProperty<VecD> Coordinate { get; }
     public FuncInputProperty<Color> Color { get; }
 
-    public OutputProperty<Texture> Output { get; }
+    public OutputProperty<Surface> Output { get; }
 
     public override string DisplayName { get; set; } = "MODIFY_IMAGE_RIGHT_NODE";
+
+    private Surface surface;
 
     public ModifyImageRightNode()
     {
         Coordinate = CreateFuncInput(nameof(Coordinate), "UV", new VecD());
         Color = CreateFuncInput(nameof(Color), "COLOR", new Color());
-        Output = CreateOutput<Texture>(nameof(Output), "OUTPUT", null);
+        Output = CreateOutput<Surface>(nameof(Output), "OUTPUT", null);
     }
 
-    protected override Texture? OnExecute(RenderingContext renderingContext)
+    protected override Surface? OnExecute(RenderingContext renderingContext)
     {
         if (StartNode == null)
         {
@@ -49,34 +51,60 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
         {
             return null;
         }
-
-        startNode.PreparePixmap();
-
+        
         var width = size.X;
         var height = size.Y;
+        
+        surface = new Surface(size);
 
-        var surface = new Texture(size);
+        startNode.PreparePixmap(renderingContext);
+        
+        using Pixmap targetPixmap = surface.PeekPixels();
 
-        var context = new FuncContext();
-
-        for (int y = 0; y < height; y++)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                context.UpdateContext(new VecD((double)x / width, (double)y / height), new VecI(width, height));
-                var uv = Coordinate.Value(context);
-                context.UpdateContext(uv, new VecI(width, height));
-                var color = Color.Value(context);
-                
-                drawingPaint.Color = color;
-
-                surface.Surface.Canvas.DrawPixel(x, y, drawingPaint);
-            }
-        }
+        ModifyImageInParallel(renderingContext, targetPixmap, width, height);
+        
+        startNode.DisposePixmap(renderingContext);
 
         Output.Value = surface;
 
         return Output.Value;
+    }
+
+    private unsafe void ModifyImageInParallel(RenderingContext renderingContext, Pixmap targetPixmap, int width, int height)
+    {
+        int threads = Environment.ProcessorCount;
+        int chunkHeight = height / threads;
+
+        Parallel.For(0, threads, i =>
+        {
+            FuncContext context = new(renderingContext);
+            
+            int startY = i * chunkHeight;
+            int endY = (i + 1) * chunkHeight;
+            if (i == threads - 1)
+            {
+                endY = height;
+            }
+
+            Half* drawArray = (Half*)targetPixmap.GetPixels();
+
+            for (int y = startY; y < endY; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    context.UpdateContext(new VecD((double)x / width, (double)y / height), new VecI(width, height));
+                    var coordinate = Coordinate.Value(context);
+                    context.UpdateContext(coordinate, new VecI(width, height));
+                    
+                    var color = Color.Value(context);
+                    ulong colorBits = color.ToULong();
+                    
+                    int pixelOffset = (y * width + x) * 4;
+                    Half* drawPixel = drawArray + pixelOffset;
+                    *(ulong*)drawPixel = colorBits;
+                }
+            }
+        });
     }
 
     private void FindStartNode()

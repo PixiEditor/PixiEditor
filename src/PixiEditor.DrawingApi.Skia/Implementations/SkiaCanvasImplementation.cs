@@ -57,8 +57,22 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public void DrawImage(IntPtr objPtr, Image image, int x, int y, Paint paint)
         {
-            var canvas = ManagedInstances[objPtr];
-            canvas.DrawImage(_imageImpl.ManagedInstances[image.ObjectPointer], x, y, _paintImpl.ManagedInstances[paint.ObjectPointer]);
+            if(!ManagedInstances.TryGetValue(objPtr, out var canvas))
+            {
+                throw new ObjectDisposedException(nameof(canvas));
+            }
+            
+            if (!_paintImpl.ManagedInstances.TryGetValue(paint.ObjectPointer, out var skPaint))
+            {
+                throw new ObjectDisposedException(nameof(paint));
+            }
+            
+            if(!_imageImpl.ManagedInstances.TryGetValue(image.ObjectPointer, out var img))
+            {
+                throw new ObjectDisposedException(nameof(image));
+            }
+            
+            canvas.DrawImage(img, x, y, skPaint);
         }
 
         public int Save(IntPtr objPtr)

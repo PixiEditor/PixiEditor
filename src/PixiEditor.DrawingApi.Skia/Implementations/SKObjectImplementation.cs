@@ -17,7 +17,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         
         public T this[IntPtr objPtr]
         {
-            get => ManagedInstances[objPtr];
+            get => ManagedInstances.TryGetValue(objPtr, out var instance) ? instance : throw new ObjectDisposedException(nameof(objPtr));
             set => ManagedInstances[objPtr] = value;
         }
     }

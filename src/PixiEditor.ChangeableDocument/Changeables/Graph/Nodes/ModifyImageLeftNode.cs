@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using System.Collections.Concurrent;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -13,19 +14,19 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [PairNode(typeof(ModifyImageRightNode), "ModifyImageZone", true)]
 public class ModifyImageLeftNode : Node
 {
-    private Pixmap? pixmap;
-
-    public InputProperty<Texture?> Image { get; }
+    public InputProperty<Surface?> Image { get; }
     
     public FuncOutputProperty<VecD> Coordinate { get; }
     
     public FuncOutputProperty<Color> Color { get; }
 
     public override string DisplayName { get; set; } = "MODIFY_IMAGE_LEFT_NODE";
+    
+    private ConcurrentDictionary<RenderingContext, Pixmap> pixmapCache = new();
 
     public ModifyImageLeftNode()
     {
-        Image = CreateInput<Texture>(nameof(Surface), "IMAGE", null);
+        Image = CreateInput<Surface>(nameof(Surface), "IMAGE", null);
         Coordinate = CreateFuncOutput(nameof(Coordinate), "UV", ctx => ctx.Position);
         Color = CreateFuncOutput(nameof(Color), "COLOR", GetColor);
     }
@@ -33,26 +34,35 @@ public class ModifyImageLeftNode : Node
     private Color GetColor(FuncContext context)
     {
         context.ThrowOnMissingContext();
+
+        var targetPixmap = pixmapCache[context.RenderingContext];
         
-        if (pixmap == null)
+        if (targetPixmap == null)
             return new Color();
         
         var x = context.Position.X * context.Size.X;
         var y = context.Position.Y * context.Size.Y;
         
-        return pixmap.GetPixelColor((int)x, (int)y);
+        return targetPixmap.GetPixelColor((int)x, (int)y);
     }
 
-    internal void PreparePixmap()
+    internal void PreparePixmap(RenderingContext forContext)
     {
-        pixmap = Image.Value?.PeekReadOnlyPixels();
+        pixmapCache[forContext] = Image.Value?.DrawingSurface.Snapshot().PeekPixels();
+    }
+    
+    internal void DisposePixmap(RenderingContext forContext)
+    {
+        if (pixmapCache.TryRemove(forContext, out var targetPixmap))
+        {
+            targetPixmap?.Dispose();
+        }
     }
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override Surface? OnExecute(RenderingContext context)
     {
         return Image.Value;
     }
-
 
     public override Node CreateCopy() => new ModifyImageLeftNode();
 }
