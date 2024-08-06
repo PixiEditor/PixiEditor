@@ -16,7 +16,7 @@ public class FFMpegRenderer : IAnimationRenderer
     public string OutputFormat { get; set; } = "mp4";
     public VecI Size { get; set; }
 
-    public async Task<bool> RenderAsync(List<Image> rawFrames, string outputPath)
+    public async Task<bool> RenderAsync(List<Image> rawFrames, string outputPath, CancellationToken cancellationToken, Action<double>? progressCallback = null)
     {
         string path = "ThirdParty/{0}/ffmpeg";
 #if WINDOWS
@@ -64,7 +64,9 @@ public class FFMpegRenderer : IAnimationRenderer
                 });
 
             var outputArgs = GetProcessorForFormat(args, outputPath, paletteTempPath);
-            var result = await outputArgs.ProcessAsynchronously();
+            TimeSpan totalTimeSpan = TimeSpan.FromSeconds(frames.Count / (float)FrameRate);
+            var result = await outputArgs.CancellableThrough(cancellationToken)
+                .NotifyOnProgress(progressCallback, totalTimeSpan).ProcessAsynchronously();
             
             if (RequiresPaletteGeneration())
             {

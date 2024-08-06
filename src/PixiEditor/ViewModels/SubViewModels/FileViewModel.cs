@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,6 +9,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using ChunkyImageLib;
 using Newtonsoft.Json.Linq;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
@@ -341,7 +343,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         string finalPath = null;
         if (asNew || string.IsNullOrEmpty(document.FullFilePath))
         {
-            var result = await Exporter.TrySaveWithDialog(document, ExportConfig.Empty);
+            var result = await Exporter.TrySaveWithDialog(document, ExportConfig.Empty, null);
             if (result.Result == DialogSaveResult.Cancelled)
                 return false;
             if (result.Result != DialogSaveResult.Success)
@@ -355,7 +357,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
         else
         {
-            var result = await Exporter.TrySaveAsync(document, document.FullFilePath, ExportConfig.Empty);
+            var result = await Exporter.TrySaveAsync(document, document.FullFilePath, ExportConfig.Empty, null);
             if (result != SaveResult.Success)
             {
                 ShowSaveError((DialogSaveResult)result);
@@ -391,12 +393,26 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             };
             if (await info.ShowDialog())
             {
-                var result =
-                    await Exporter.TrySaveUsingDataFromDialog(doc, info.FilePath, info.ChosenFormat, info.ExportConfig);
-                if (result.result == SaveResult.Success)
-                    IOperatingSystem.Current.OpenFolder(result.finalPath);
-                else
-                    ShowSaveError((DialogSaveResult)result.result);
+                ExportJob job = new ExportJob();
+                ProgressDialog dialog = new ProgressDialog(job, MainWindow.Current);
+
+                Task.Run(async () =>
+                {
+                    var result =
+                        await Exporter.TrySaveUsingDataFromDialog(doc, info.FilePath, info.ChosenFormat,
+                            info.ExportConfig,
+                            job);
+                    
+                    if(job?.CancellationTokenSource.IsCancellationRequested == true)
+                        return;
+                    
+                    if (result.result == SaveResult.Success)
+                        IOperatingSystem.Current.OpenFolder(result.finalPath);
+                    else
+                        ShowSaveError((DialogSaveResult)result.result);
+                });
+                
+                await dialog.ShowDialog();
             }
         }
         catch (RecoverableException e)

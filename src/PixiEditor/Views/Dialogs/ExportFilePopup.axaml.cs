@@ -192,6 +192,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
         videoPreviewTimer.Stop();
         videoPreviewTimer.Tick -= OnVideoPreviewTimerOnTick;
         videoPreviewTimer = null;
+        cancellationTokenSource.Cancel();
         cancellationTokenSource.Dispose();
 
         ExportPreview?.Dispose();
@@ -232,7 +233,8 @@ internal partial class ExportFilePopup : PixiEditorPopup
         if (IsVideoExport)
         {
             StartRenderAnimationJob();
-            videoPreviewTimer.Interval = TimeSpan.FromMilliseconds(1000f / document.AnimationDataViewModel.FrameRateBindable);
+            videoPreviewTimer.Interval =
+                TimeSpan.FromMilliseconds(1000f / document.AnimationDataViewModel.FrameRateBindable);
         }
         else
         {
@@ -242,43 +244,67 @@ internal partial class ExportFilePopup : PixiEditorPopup
 
     private void RenderImagePreview()
     {
-        if (IsSpriteSheetExport)
+        try
         {
-            GenerateSpriteSheetPreview();
-        }
-        else
-        {
-            var rendered = document.TryRenderWholeImage(0);
-            if (rendered.IsT1)
+            if (IsSpriteSheetExport)
             {
-                VecI previewSize = CalculatePreviewSize(rendered.AsT1.Size);
-                ExportPreview = rendered.AsT1.ResizeNearestNeighbor(previewSize);
-                rendered.AsT1.Dispose();
+                GenerateSpriteSheetPreview();
+            }
+            else
+            {
+                Task.Run(() =>
+                {
+                    var rendered = document.TryRenderWholeImage(0);
+                    if (rendered.IsT1)
+                    {
+                        VecI previewSize = CalculatePreviewSize(rendered.AsT1.Size);
+                        Dispatcher.UIThread.Post(() =>
+                        {
+                            ExportPreview = rendered.AsT1.ResizeNearestNeighbor(previewSize);
+                            rendered.AsT1.Dispose();
+                        });
+                    }
+                });
             }
         }
-
-        IsGeneratingPreview = false;
+        finally
+        {
+            IsGeneratingPreview = false;
+        }
     }
 
     private void GenerateSpriteSheetPreview()
     {
         int clampedColumns = Math.Max(SpriteSheetColumns, 1);
         int clampedRows = Math.Max(SpriteSheetRows, 1);
-        
+
         VecI previewSize = CalculatePreviewSize(new VecI(SaveWidth * clampedColumns, SaveHeight * clampedRows));
-        VecI singleFrameSize = new VecI(previewSize.X / Math.Max(clampedColumns, 1), previewSize.Y / Math.Max(clampedRows, 1));
+        VecI singleFrameSize = new VecI(previewSize.X / Math.Max(clampedColumns, 1),
+            previewSize.Y / Math.Max(clampedRows, 1));
         if (previewSize != ExportPreview.Size)
         {
             ExportPreview?.Dispose();
             ExportPreview = new Surface(previewSize);
 
-            document.RenderFramesProgressive((frame, index) =>
+            Task.Run(() =>
             {
-                int x = index % clampedColumns;
-                int y = index / clampedColumns;
-                var resized = frame.ResizeNearestNeighbor(new VecI(singleFrameSize.X, singleFrameSize.Y));
-                ExportPreview!.DrawingSurface.Canvas.DrawSurface(resized.DrawingSurface, x * singleFrameSize.X, y * singleFrameSize.Y);
-                resized.Dispose();
+                document.RenderFramesProgressive((frame, index) =>
+                {
+                    if (cancellationTokenSource.IsCancellationRequested)
+                    {
+                        throw new TaskCanceledException();
+                    }
+                    
+                    int x = index % clampedColumns;
+                    int y = index / clampedColumns;
+                    var resized = frame.ResizeNearestNeighbor(new VecI(singleFrameSize.X, singleFrameSize.Y));
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        ExportPreview!.DrawingSurface.Canvas.DrawSurface(resized.DrawingSurface, x * singleFrameSize.X,
+                            y * singleFrameSize.Y);
+                        resized.Dispose();
+                    });
+                });
             });
         }
     }
@@ -318,6 +344,11 @@ internal partial class ExportFilePopup : PixiEditorPopup
     {
         return Dispatcher.UIThread.Invoke(() =>
         {
+            if (cancellationTokenSource.IsCancellationRequested)
+            {
+                return surface;
+            }
+            
             Surface original = surface;
             if (SaveWidth != surface.Size.X || SaveHeight != surface.Size.Y)
             {

@@ -20,7 +20,7 @@ public class DocumentRenderer
     public OneOf<Chunk, EmptyChunk> RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime,
         RectI? globalClippingRect = null)
     {
-        using RenderingContext context = new(frameTime, chunkPos, resolution, Document.Size);
+        RenderingContext context = new(frameTime, chunkPos, resolution, Document.Size);
         try
         {
             RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
@@ -70,6 +70,10 @@ public class DocumentRenderer
         catch (ObjectDisposedException)
         {
             return new EmptyChunk();
+        }
+        finally
+        {
+            context.Dispose();
         }
     }
 

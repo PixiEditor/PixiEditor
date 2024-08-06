@@ -16,11 +16,13 @@ internal class PixiFileType : IoFileType
 
     public override FileTypeDialogDataSet.SetKind SetKind { get; } = FileTypeDialogDataSet.SetKind.Pixi;
 
-    public override async Task<SaveResult> TrySave(string pathWithExtension, DocumentViewModel document, ExportConfig config)
+    public override async Task<SaveResult> TrySave(string pathWithExtension, DocumentViewModel document, ExportConfig config, ExportJob? job)
     {
         try
         {
+            job?.Report(0, "Serializing document");
             await Parser.PixiParser.V5.SerializeAsync(document.ToSerializable(), pathWithExtension);
+            job?.Report(1, "Document serialized");
         }
         catch (UnauthorizedAccessException e)
         {
