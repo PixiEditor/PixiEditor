@@ -560,7 +560,7 @@ internal class MemberPreviewUpdater
         AffectedArea area,
         VecI position, float scaling)
     {
-        PostRender(() =>
+        QueueRender(() =>
         {
             memberVM.PreviewSurface.Surface.Canvas.Save();
             memberVM.PreviewSurface.Surface.Canvas.Scale(scaling);
@@ -608,7 +608,7 @@ internal class MemberPreviewUpdater
     private void RenderLayerMainPreview(IReadOnlyLayerNode layer, Texture surface, AffectedArea area,
         VecI position, float scaling, int frame)
     {
-        PostRender(() =>
+        QueueRender(() =>
         {
             surface.Surface.Canvas.Save();
             surface.Surface.Canvas.Scale(scaling);
@@ -643,7 +643,7 @@ internal class MemberPreviewUpdater
                 new Texture(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size));
         }
 
-        PostRender(() =>
+        QueueRender(() =>
         {
             keyFrameVM.PreviewSurface!.Surface.Canvas.Save();
             float scaling = (float)keyFrameVM.PreviewSurface.Size.X / internals.Tracker.Document.Size.X;
@@ -706,7 +706,7 @@ internal class MemberPreviewUpdater
 
             var member = internals.Tracker.Document.FindMemberOrThrow(guid);
 
-            PostRender(() =>
+            QueueRender(() =>
             {
                 memberVM.MaskPreviewSurface!.Surface.Canvas.Save();
                 memberVM.MaskPreviewSurface.Surface.Canvas.Scale(scaling);
@@ -754,7 +754,7 @@ internal class MemberPreviewUpdater
             float scalingX = (float)nodeVm.ResultPreview.Size.X / node.CachedResult.Size.X;
             float scalingY = (float)nodeVm.ResultPreview.Size.Y / node.CachedResult.Size.Y;
 
-            PostRender(() =>
+            QueueRender(() =>
             {
                 nodeVm.ResultPreview.Surface.Canvas.Save();
                 nodeVm.ResultPreview.Surface.Canvas.Scale(scalingX, scalingY);
@@ -771,7 +771,7 @@ internal class MemberPreviewUpdater
         }
     }
 
-    private void PostRender(Action action)
+    private void QueueRender(Action action)
     {
         if (!DrawingBackendApi.Current.IsHardwareAccelerated)
         {

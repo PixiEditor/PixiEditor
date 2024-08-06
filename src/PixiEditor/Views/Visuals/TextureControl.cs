@@ -21,6 +21,9 @@ public class TextureControl : Control
     public static readonly StyledProperty<Stretch> StretchProperty = AvaloniaProperty.Register<TextureControl, Stretch>(
         nameof(Stretch), Stretch.Uniform);
 
+    public static readonly StyledProperty<IBrush> BackgroundProperty = AvaloniaProperty.Register<TextureControl, IBrush>
+    (nameof(Background));
+
     public Stretch Stretch
     {
         get => GetValue(StretchProperty);
@@ -31,6 +34,12 @@ public class TextureControl : Control
     {
         get => GetValue(TextureProperty);
         set => SetValue(TextureProperty, value);
+    }
+
+    public IBrush Background
+    {
+        get { return (IBrush)GetValue(BackgroundProperty); }
+        set { SetValue(BackgroundProperty, value); }
     }
 
     static TextureControl()
@@ -87,7 +96,12 @@ public class TextureControl : Control
 
     public override void Render(DrawingContext context)
     {
-        if (Texture == null)
+        if (Background != null)
+        {
+            context.FillRectangle(Background, new Rect(Bounds.Size));
+        }
+        
+        if (Texture == null || Texture.IsDisposed)
         {
             return;
         }
