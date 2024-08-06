@@ -26,6 +26,8 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
 
     public override string DisplayName { get; set; } = "MODIFY_IMAGE_RIGHT_NODE";
 
+    private Surface surface;
+
     public ModifyImageRightNode()
     {
         Coordinate = CreateFuncInput(nameof(Coordinate), "UV", new VecD());
@@ -55,28 +57,56 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
         var width = size.X;
         var height = size.Y;
 
-        var surface = new Surface(size);
-
-        var context = new FuncContext();
-
-        for (int y = 0; y < height; y++)
+        if (surface == null || surface.Size != size)
         {
-            for (int x = 0; x < width; x++)
-            {
-                context.UpdateContext(new VecD((double)x / width, (double)y / height), new VecI(width, height));
-                var uv = Coordinate.Value(context);
-                context.UpdateContext(uv, new VecI(width, height));
-                var color = Color.Value(context);
-                
-                drawingPaint.Color = color;
-
-                surface.DrawingSurface.Canvas.DrawPixel(x, y, drawingPaint);
-            }
+            surface?.Dispose();
+            surface = new Surface(size);
         }
+
+        using Pixmap targetPixmap = surface.PeekPixels();
+
+        ModifyImageInParallel(targetPixmap, width, height);
 
         Output.Value = surface;
 
         return Output.Value;
+    }
+
+    private unsafe void ModifyImageInParallel(Pixmap targetPixmap, int width, int height)
+    {
+        int threads = Environment.ProcessorCount;
+        int chunkHeight = height / threads;
+
+        Parallel.For(0, threads, i =>
+        {
+            FuncContext context = new();
+            
+            int startY = i * chunkHeight;
+            int endY = (i + 1) * chunkHeight;
+            if (i == threads - 1)
+            {
+                endY = height;
+            }
+
+            Half* drawArray = (Half*)targetPixmap.GetPixels();
+
+            for (int y = startY; y < endY; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    context.UpdateContext(new VecD((double)x / width, (double)y / height), new VecI(width, height));
+                    var coordinate = Coordinate.Value(context);
+                    context.UpdateContext(coordinate, new VecI(width, height));
+                    
+                    var color = Color.Value(context);
+                    ulong colorBits = color.ToULong();
+                    
+                    int pixelOffset = (y * width + x) * 4;
+                    Half* drawPixel = drawArray + pixelOffset;
+                    *(ulong*)drawPixel = colorBits;
+                }
+            }
+        });
     }
 
     private void FindStartNode()
