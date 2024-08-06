@@ -13,7 +13,7 @@ internal static class VersionHelpers
     {
         StringBuilder builder = new($"{GetCurrentAssemblyVersion().ToString()} Closed Beta");
 
-        // Dev Build removed for closed beta
+        // TODO: Dev Build removed for closed beta
 #if MSIX_DEBUG
         builder.Append(" MSIX Debug Build");
         return builder.ToString();
@@ -33,5 +33,23 @@ internal static class VersionHelpers
         builder.Append(" Release Build");
 #endif
         return builder.ToString();
+    }
+
+    // BuildId should not contain spaces
+    public static string GetBuildId()
+    {
+#if DEBUG
+        return "ClosedBetaDebug";
+#elif DEVRELEASE
+        return "ClosedBetaDevRelease";
+#elif RELEASE
+        return "ClosedBetaRelease";
+#elif STEAM
+        return "ClosedBetaStream";
+#elif MSIX
+        return "ClosedBetaMSIX";
+#else
+        #error No build name configured for this configuration
+#endif
     }
 }
