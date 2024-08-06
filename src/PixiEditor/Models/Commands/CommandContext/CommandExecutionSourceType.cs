@@ -4,5 +4,7 @@ public enum CommandExecutionSourceType
 {
     Unknown,
     Shortcut,
+    Menu,
+    CommandBinding,
     Search
 }

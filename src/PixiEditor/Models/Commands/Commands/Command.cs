@@ -71,9 +71,9 @@ internal abstract partial class Command : PixiObservableObject
 
     public void Execute() => Methods.Execute(GetParameter());
 
-    public void Execute(CommandExecutionContext context, bool keepParameter)
+    public void Execute(CommandExecutionContext context, bool useContextParameter)
     {
-        if (!keepParameter)
+        if (!useContextParameter)
         {
             context.Parameter = GetParameter();
         }

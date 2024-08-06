@@ -1,12 +1,16 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Input;
 
 namespace PixiEditor.Models.AnalyticsAPI;
 
 public class AnalyticsClient
 {
     private readonly HttpClient _client = new();
+    private readonly JsonSerializerOptions _options = new() { Converters = { new JsonStringEnumConverter(), new KeyCombinationConverter() } };
 
     public AnalyticsClient(string url)
     {
@@ -19,7 +23,7 @@ public class AnalyticsClient
 
         if (response.IsSuccessStatusCode)
         {
-            return await response.Content.ReadFromJsonAsync<Guid?>(cancellationToken);
+            return await response.Content.ReadFromJsonAsync<Guid?>(_options, cancellationToken);
         }
 
         if (response.StatusCode is not HttpStatusCode.ServiceUnavailable)
@@ -34,7 +38,7 @@ public class AnalyticsClient
     public async Task<string?> SendEventsAsync(Guid sessionId, IEnumerable<AnalyticEvent> events,
         CancellationToken cancellationToken = default)
     {
-        var response = await _client.PostAsJsonAsync($"post-events?id={sessionId}", events, cancellationToken);
+        var response = await _client.PostAsJsonAsync($"post-events?id={sessionId}", events, _options, cancellationToken);
         
         if (response.IsSuccessStatusCode)
         {
@@ -64,5 +68,18 @@ public class AnalyticsClient
     private static async Task ReportInvalidStatusCodeAsync(HttpStatusCode statusCode)
     {
         await CrashHelper.SendExceptionInfoToWebhookAsync(new InvalidOperationException($"Invalid status code from analytics API '{statusCode}'"));
+    }
+
+    class KeyCombinationConverter : JsonConverter<KeyCombination>
+    {
+        public override KeyCombination Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(Utf8JsonWriter writer, KeyCombination value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value.ToString());
+        }
     }
 }

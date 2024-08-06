@@ -1,4 +1,5 @@
 ﻿using Avalonia.Media;
+using PixiEditor.Models.Commands.CommandContext;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Input;
 
@@ -20,6 +21,6 @@ internal class CommandSearchResult : SearchResult
 
     public override void Execute()
     {
-        Command.Execute();
+        Command.Execute(SearchSourceInfo.GetContext(SearchTerm), false);
     }
 }

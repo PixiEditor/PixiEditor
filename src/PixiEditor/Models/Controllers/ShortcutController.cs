@@ -2,6 +2,7 @@
 using System.Linq;
 using Avalonia.Input;
 using PixiEditor.Models.Commands;
+using PixiEditor.Models.Commands.CommandContext;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Input;
 using PixiEditor.ViewModels.Tools;
@@ -51,21 +52,24 @@ internal class ShortcutController
     {
         KeyCombination shortcut = new(key, modifiers);
 
-        if (!ShortcutExecutionBlocked)
+        if (ShortcutExecutionBlocked)
         {
-            var commands = CommandController.Current.Commands[shortcut].Where(x => x.ShortcutContext is null || x.ShortcutContext == ActiveContext).ToList();
+            return;
+        }
 
-            if (!commands.Any())
-            {
-                return;
-            }
+        var commands = CommandController.Current.Commands[shortcut].Where(x => x.ShortcutContext is null || x.ShortcutContext == ActiveContext).ToList();
 
-            LastCommands = commands;
+        if (!commands.Any())
+        {
+            return;
+        }
 
-            foreach (var command in commands)
-            {
-                command.Execute();
-            }
+        LastCommands = commands;
+
+        var context = ShortcutSourceInfo.GetContext(shortcut);
+        foreach (var command in commands)
+        {
+            command.Execute(context, false);
         }
     }
 

@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using Avalonia.Media;
 using PixiEditor.Models.Commands;
+using PixiEditor.Models.Commands.CommandContext;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
 using XAMLCommand = PixiEditor.Models.Commands.XAML.Command;
@@ -28,5 +29,5 @@ internal class CommandProvider
     public IImage GetIcon(string name, Command command, object argument) =>
         _controller.IconEvaluators[name].CallEvaluate(command, argument);
 
-    public ICommand GetICommand(string name, bool useProvidedArgument = false) => Commands.XAML.Command.GetICommand(_controller.Commands[name], useProvidedArgument);
+    public ICommand GetICommand(string name, ICommandExecutionSourceInfo source, bool useProvidedArgument = false) => Commands.XAML.Command.GetICommand(_controller.Commands[name], source, useProvidedArgument);
 }

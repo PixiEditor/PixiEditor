@@ -19,6 +19,8 @@ internal abstract class SearchResult : ObservableObject
     private bool isMouseSelected;
 
     public string SearchTerm { get; init; }
+    
+    public int Index { get; init; }
 
     public virtual Inline[] TextBlockContent => GetInlines().ToArray();
 

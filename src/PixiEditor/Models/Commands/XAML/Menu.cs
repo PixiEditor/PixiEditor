@@ -4,6 +4,7 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Commands.CommandContext;
 using PixiEditor.Models.Input;
 
 namespace PixiEditor.Models.Commands.XAML;
@@ -49,7 +50,7 @@ internal class Menu : global::Avalonia.Controls.Menu
             HorizontalAlignment = HorizontalAlignment.Center,
         };
 
-        item.Command = Command.GetICommand(command, false);
+        item.Command = Command.GetICommand(command, new MenuSourceInfo(MenuType.Menu), false);
         item.Icon = icon;
         item.Bind(MenuItem.InputGestureProperty, ShortcutBinding.GetBinding(command, null, true));
     }

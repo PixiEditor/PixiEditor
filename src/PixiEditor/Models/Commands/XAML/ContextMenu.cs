@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Commands.CommandContext;
 using PixiEditor.Models.Input;
 
 namespace PixiEditor.Models.Commands.XAML;
@@ -34,7 +35,7 @@ internal class ContextMenu : global::Avalonia.Controls.ContextMenu
 
         var command = CommandController.Current.Commands[value];
 
-        item.Command = Command.GetICommand(command, false);
+        item.Command = Command.GetICommand(command, new MenuSourceInfo(MenuType.ContextMenu), false);
         item.Bind(MenuItem.InputGestureProperty, ShortcutBinding.GetBinding(command, null, true));
     }
 
