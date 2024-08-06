@@ -15,7 +15,13 @@ public class AnalyticsClient
 
     private readonly JsonSerializerOptions _options = new()
     {
-        Converters = { new JsonStringEnumConverter(), new KeyCombinationConverter(), new VecDConverter() }
+        Converters =
+        {
+            new JsonStringEnumConverter(),
+            new KeyCombinationConverter(),
+            new VecDConverter(),
+            new VersionConverter()
+        }
     };
 
     public AnalyticsClient(string url)
@@ -25,7 +31,12 @@ public class AnalyticsClient
 
     public async Task<Guid?> CreateSessionAsync(CancellationToken cancellationToken = default)
     {
-        var response = await _client.GetAsync($"init-session?version={VersionHelpers.GetCurrentAssemblyVersion()}&buildId={VersionHelpers.GetBuildId()}", cancellationToken);
+        var session = new AnalyticSessionInfo()
+        {
+            Version = VersionHelpers.GetCurrentAssemblyVersion(), BuildId = VersionHelpers.GetBuildId()
+        };
+        
+        var response = await _client.PostAsJsonAsync("sessions/new", session, _options, cancellationToken);
 
         if (response.IsSuccessStatusCode)
         {
@@ -41,14 +52,14 @@ public class AnalyticsClient
 
     }
 
-    public async Task<string?> SendEventsAsync(Guid sessionId, IEnumerable<AnalyticEvent> events,
+    public async Task<bool> SendEventsAsync(Guid sessionId, IEnumerable<AnalyticEvent> events,
         CancellationToken cancellationToken = default)
     {
-        var response = await _client.PostAsJsonAsync($"post-events?id={sessionId}", events, _options, cancellationToken);
+        var response = await _client.PostAsJsonAsync($"sessions/{sessionId}/events", events, _options, cancellationToken);
         
         if (response.IsSuccessStatusCode)
         {
-            return await response.Content.ReadAsStringAsync(cancellationToken);
+            return true;
         }
 
         if (response.StatusCode is not (HttpStatusCode.NotFound or HttpStatusCode.ServiceUnavailable))
@@ -56,19 +67,19 @@ public class AnalyticsClient
             await ReportInvalidStatusCodeAsync(response.StatusCode);
         }
             
-        return null;
+        return false;
     }
 
     public async Task<bool> SendHeartbeatAsync(Guid sessionId, CancellationToken cancellationToken = default)
     {
-        var response = await _client.PostAsync($"heartbeat?id={sessionId}", null, cancellationToken);
+        var response = await _client.PostAsync($"sessions/{sessionId}/heartbeat", null, cancellationToken);
 
         return response.IsSuccessStatusCode;
     }
 
     public async Task EndSessionAsync(Guid sessionId, CancellationToken cancellationToken = default)
     {
-        await _client.PostAsync($"end-session?id={sessionId}", null, cancellationToken);
+        await _client.DeleteAsync($"sessions/{sessionId}", cancellationToken);
     }
 
     private static async Task ReportInvalidStatusCodeAsync(HttpStatusCode statusCode)
@@ -100,6 +111,19 @@ public class AnalyticsClient
         {
             var invariant = CultureInfo.InvariantCulture;
             writer.WriteStringValue($"{value.X.ToString("F2", invariant)}; {value.X.ToString("F2", invariant)}");
+        }
+    }
+    
+    class VersionConverter : JsonConverter<Version>
+    {
+        public override Version? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(Utf8JsonWriter writer, Version value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value.ToString());
         }
     }
 }
