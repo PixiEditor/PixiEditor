@@ -1,6 +1,7 @@
 ﻿using Avalonia.Input;
 using ChunkyImageLib;
 using PixiEditor.AnimationRenderer.Core;
+using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Numerics;
@@ -38,6 +39,13 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             frameToCopyFrom);
         
         activeDocument.Operations.SetActiveFrame(newFrame);
+
+        Analytics.SendCreateKeyframe(
+            newFrame,
+            "Raster",
+            activeDocument.AnimationDataViewModel.FrameRateBindable,
+            activeDocument.AnimationDataViewModel.FramesCount,
+            activeDocument.AnimationDataViewModel.AllKeyFrames.Count);
     }
     
     [Command.Basic("PixiEditor.Animation.DeleteKeyFrames", "DELETE_KEY_FRAMES", "DELETE_KEY_FRAMES_DESCRIPTIVE",

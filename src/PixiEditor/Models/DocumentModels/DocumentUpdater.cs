@@ -504,7 +504,7 @@ internal class DocumentUpdater
             Document = (DocumentViewModel)doc,
             Internals = helper
         };
-        
+
         node.SetName(info.NodeName);
         node.SetPosition(info.Position);
         

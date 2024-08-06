@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Models.Preferences;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
+using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Controllers;
@@ -162,6 +163,8 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         drawingWithRight = args.Button == MouseButton.Right;
         Owner.ToolsSubViewModel.UseToolEventInlet(args.PositionOnCanvas, args.Button);
         activeDocument.EventInlet.OnCanvasLeftMouseButtonDown(args.PositionOnCanvas);
+
+        Analytics.SendUseTool(Owner.ToolsSubViewModel.ActiveTool, args.PositionOnCanvas, activeDocument.SizeBindable);
     }
 
     private bool HandleRightMouseDown()

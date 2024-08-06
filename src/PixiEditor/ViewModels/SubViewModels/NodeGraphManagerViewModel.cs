@@ -1,4 +1,5 @@
 ﻿using Avalonia.Input;
+using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
@@ -36,6 +37,7 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
     public void CreateNode((Type nodeType, VecD pos) data)
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.CreateNode(data.nodeType, data.pos);
+        Analytics.SendCreateNode(data.nodeType);
     }
     
     [Command.Internal("PixiEditor.NodeGraph.ConnectProperties")]

@@ -42,16 +42,19 @@ public class AnalyticsPeriodicReporter
 
     public void AddEvent(AnalyticEvent value)
     {
-        _semaphore.Wait();
+        Task.Run(() =>
+        {
+            _semaphore.Wait();
 
-        try
-        {
-            _backlog.Add(value);
-        }
-        finally
-        {
-            _semaphore.Release();
-        }
+            try
+            {
+                _backlog.Add(value);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        });
     }
 
     private async Task RunAsync()

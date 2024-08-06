@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.Input;
 using PixiDocks.Core.Docking;
+using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Document;
@@ -129,6 +130,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         var viewports = Viewports.Where(vp => vp.Document == viewport.Document).ToArray();
         if (viewports.Length == 1)
         {
+            Analytics.SendCloseDocument();
             return await Owner.DisposeDocumentWithSaveConfirmation(viewport.Document);
         }
 

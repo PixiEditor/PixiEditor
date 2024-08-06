@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.Preferences;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
+using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Controllers;
@@ -182,6 +183,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         if (Owner.StylusSubViewModel != null)
         {
             Owner.StylusSubViewModel.ToolSetByStylus = false;
+        }
+
+        if (ActiveTool != null || LastActionTool != null)
+        {
+            Analytics.SendSwitchToTool(tool, LastActionTool);
         }
     }
 

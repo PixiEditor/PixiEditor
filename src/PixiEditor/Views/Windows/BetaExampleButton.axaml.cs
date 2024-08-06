@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.ViewModels;
 
 namespace PixiEditor.Views.Windows;
@@ -70,6 +71,7 @@ public partial class BetaExampleButton : UserControl
         CloseCommand.Execute(null);
         
         ViewModelMain.Current.FileSubViewModel.OpenRecoveredDotPixi(null, bytes);
+        Analytics.SendOpenExample(FileName);
     }
 
 }
