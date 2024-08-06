@@ -429,7 +429,10 @@ internal partial class ExportFilePopup : PixiEditorPopup
     {
         if (e.Sender is ExportFilePopup popup)
         {
-            popup.RenderPreview();
+            if (popup.videoPreviewTimer != null)
+            {
+                popup.RenderPreview();
+            }
         }
     }
 }
