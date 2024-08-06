@@ -17,6 +17,12 @@ public class DocumentRenderer
 
     private IReadOnlyDocument Document { get; }
 
+    public Texture RenderFull(KeyFrameTime frameTime, ChunkResolution resolution)
+    {
+        RenderingContext context = new(frameTime, VecI.Zero, resolution, Document.Size);
+        return Document.NodeGraph.Execute(context);
+    }
+
     public OneOf<Chunk, EmptyChunk> RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime,
         RectI? globalClippingRect = null)
     {
@@ -25,7 +31,7 @@ public class DocumentRenderer
         {
             RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
 
-            Surface? evaluated = Document.NodeGraph.Execute(context);
+            Texture? evaluated = Document.NodeGraph.Execute(context);
             if (evaluated is null)
             {
                 return new EmptyChunk();
@@ -33,12 +39,12 @@ public class DocumentRenderer
 
             Chunk chunk = Chunk.Create(resolution);
 
-            chunk.Surface.DrawingSurface.Canvas.Save();
-            chunk.Surface.DrawingSurface.Canvas.Clear();
+            chunk.Surface.Surface.Canvas.Save();
+            chunk.Surface.Surface.Canvas.Clear();
 
             if (transformedClippingRect is not null)
             {
-                chunk.Surface.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
+                chunk.Surface.Surface.Canvas.ClipRect((RectD)transformedClippingRect);
             }
 
             VecD pos = chunkPos;
@@ -59,13 +65,13 @@ public class DocumentRenderer
                 return new EmptyChunk();
             }
 
-            using var chunkSnapshot = evaluated.DrawingSurface.Snapshot((RectI)sourceRect);
+            using var chunkSnapshot = evaluated.Surface.Snapshot((RectI)sourceRect);
             
             if(context.IsDisposed) return new EmptyChunk();
 
-            chunk.Surface.DrawingSurface.Canvas.DrawImage(chunkSnapshot, 0, 0, context.ReplacingPaintWithOpacity);
+            chunk.Surface.Surface.Canvas.DrawImage(chunkSnapshot, 0, 0, context.ReplacingPaintWithOpacity);
 
-            chunk.Surface.DrawingSurface.Canvas.Restore();
+            chunk.Surface.Surface.Canvas.Restore();
 
             return chunk;
         }
@@ -87,7 +93,7 @@ public class DocumentRenderer
         {
             RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
 
-            Surface? evaluated = node.Execute(context);
+            Texture? evaluated = node.Execute(context);
             if (evaluated is null)
             {
                 return new EmptyChunk();
@@ -118,7 +124,7 @@ public class DocumentRenderer
         NodeGraph membersOnlyGraph = ConstructMembersOnlyGraph(layersToCombine, Document.NodeGraph);
         try
         {
-            Surface? evaluated = membersOnlyGraph.Execute(context);
+            Texture? evaluated = membersOnlyGraph.Execute(context);
             if (evaluated is null)
             {
                 return new EmptyChunk();
@@ -153,7 +159,7 @@ public class DocumentRenderer
             }
         });
 
-        IInputProperty<Surface> lastInput = outputNode.Input;
+        IInputProperty<Texture> lastInput = outputNode.Input;
 
         foreach (var layer in layersInOrder)
         {
@@ -168,28 +174,28 @@ public class DocumentRenderer
     }
 
     private static OneOf<Chunk, EmptyChunk> ChunkFromResult(ChunkResolution resolution,
-        RectI? transformedClippingRect, Surface evaluated,
+        RectI? transformedClippingRect, Texture evaluated,
         RenderingContext context)
     {
         Chunk chunk = Chunk.Create(resolution);
 
-        chunk.Surface.DrawingSurface.Canvas.Save();
-        chunk.Surface.DrawingSurface.Canvas.Clear();
+        chunk.Surface.Surface.Canvas.Save();
+        chunk.Surface.Surface.Canvas.Clear();
 
         int x = 0;
         int y = 0;
 
         if (transformedClippingRect is not null)
         {
-            chunk.Surface.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
+            chunk.Surface.Surface.Canvas.ClipRect((RectD)transformedClippingRect);
             x = transformedClippingRect.Value.X;
             y = transformedClippingRect.Value.Y;
         }
 
-        chunk.Surface.DrawingSurface.Canvas.DrawSurface(evaluated.DrawingSurface, x, y,
+        chunk.Surface.Surface.Canvas.DrawSurface(evaluated.Surface, x, y,
             context.ReplacingPaintWithOpacity);
 
-        chunk.Surface.DrawingSurface.Canvas.Restore();
+        chunk.Surface.Surface.Canvas.Restore();
 
         return chunk;
     }

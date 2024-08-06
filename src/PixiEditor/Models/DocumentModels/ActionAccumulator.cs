@@ -41,7 +41,7 @@ internal class ActionAccumulator
 
     private void SceneOnPaint(Texture obj)
     {
-        canvasUpdater.Render(obj, ChunkResolution.Full); 
+        canvasUpdater.RenderFull(obj, ChunkResolution.Full); 
     }
 
     public void AddFinishedActions(params IAction[] actions)
@@ -101,7 +101,7 @@ internal class ActionAccumulator
             var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime, internals.Tracker, optimizedChanges);
             List<IRenderInfo> renderResult = new();
             //await canvasUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed || viewportRefreshRequest);
-            renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
+            //renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
 
             if (undoBoundaryPassed)
             {

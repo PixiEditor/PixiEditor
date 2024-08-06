@@ -249,6 +249,16 @@ internal class CanvasUpdater
         }
     }
 
+    public void RenderFull(Texture screenSurface, ChunkResolution resolution)
+    {
+        var texture = doc.Renderer.RenderFull(doc.AnimationHandler.ActiveFrameTime, resolution);
+        
+        if (texture is null)
+            return;
+        
+        screenSurface.Surface.Canvas.DrawSurface(texture.Surface, 0, 0);
+    }
+
     private void RenderChunk(VecI chunkPos, Texture screenSurface, ChunkResolution resolution,
         RectI? globalClippingRectangle, RectI? globalScaledClippingRectangle)
     {
@@ -266,9 +276,9 @@ internal class CanvasUpdater
                         screenSurface.Surface.Canvas.Save();
                         screenSurface.Surface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
                     }
-
+                    
                     screenSurface.Surface.Canvas.DrawSurface(
-                        chunk.Surface.DrawingSurface,
+                        chunk.Surface.Surface,
                         chunkPos.Multiply(chunk.PixelSize), ReplacingPaint);
                     chunk.Dispose();
 

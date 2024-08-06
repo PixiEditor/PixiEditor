@@ -42,7 +42,7 @@ public class SampleImageNode : Node
 
     internal void PreparePixmap()
     {
-        pixmap = Image.Value?.PeekReadOnlyPixels();
+        pixmap = Image.Value?.Surface.PeekPixels();
     }
 
     protected override Texture? OnExecute(RenderingContext context)
