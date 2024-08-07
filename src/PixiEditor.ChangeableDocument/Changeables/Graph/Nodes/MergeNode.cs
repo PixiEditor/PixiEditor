@@ -1,7 +1,9 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -9,12 +11,16 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("Merge")]
 public class MergeNode : Node, IBackgroundInput
 {
+    private Paint _paint = new();
+
+    public InputProperty<BlendMode> BlendMode { get; }
     public InputProperty<Surface?> Top { get; }
     public InputProperty<Surface?> Bottom { get; }
     public OutputProperty<Surface?> Output { get; }
     
     public MergeNode() 
     {
+        BlendMode = CreateInput("BlendMode", "BlendMode", Enums.BlendMode.Normal);
         Top = CreateInput<Surface?>("Top", "TOP", null);
         Bottom = CreateInput<Surface?>("Bottom", "BOTTOM", null);
         Output = CreateOutput<Surface?>("Output", "OUTPUT", null);
@@ -45,10 +51,11 @@ public class MergeNode : Node, IBackgroundInput
         {
             workingSurface.DrawingSurface.Canvas.DrawSurface(Bottom.Value.DrawingSurface, 0, 0);
         }
-        
+
         if(Top.Value != null)
         {
-            workingSurface.DrawingSurface.Canvas.DrawSurface(Top.Value.DrawingSurface, 0, 0);
+            _paint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
+            workingSurface.DrawingSurface.Canvas.DrawSurface(Top.Value.DrawingSurface, 0, 0, _paint);
         }
 
         Output.Value = workingSurface;
