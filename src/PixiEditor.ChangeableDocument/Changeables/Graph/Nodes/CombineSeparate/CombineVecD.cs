@@ -34,7 +34,7 @@ public class CombineVecD : Node
         return new VecD(r, g);
     }
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         return null;
     }

@@ -14,7 +14,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [PairNode(typeof(ModifyImageRightNode), "ModifyImageZone", true)]
 public class ModifyImageLeftNode : Node
 {
-    public InputProperty<Surface?> Image { get; }
+    public InputProperty<Texture?> Image { get; }
     
     public FuncOutputProperty<VecD> Coordinate { get; }
     
@@ -26,9 +26,9 @@ public class ModifyImageLeftNode : Node
 
     public ModifyImageLeftNode()
     {
-        Image = CreateInput<Surface>(nameof(Surface), "IMAGE", null);
-        Coordinate = CreateFuncOutput(nameof(Coordinate), "UV", ctx => ctx.Position);
-        Color = CreateFuncOutput(nameof(Color), "COLOR", GetColor);
+        Image = CreateInput<Texture>("Surface", "IMAGE", null);
+        Coordinate = CreateFuncOutput("Coordinate", "UV", ctx => ctx.Position);
+        Color = CreateFuncOutput("Color", "COLOR", GetColor);
     }
 
     private Color GetColor(FuncContext context)
@@ -48,7 +48,7 @@ public class ModifyImageLeftNode : Node
 
     internal void PreparePixmap(RenderingContext forContext)
     {
-        pixmapCache[forContext] = Image.Value?.DrawingSurface.Snapshot().PeekPixels();
+        pixmapCache[forContext] = Image.Value?.PeekReadOnlyPixels();
     }
     
     internal void DisposePixmap(RenderingContext forContext)
@@ -59,7 +59,7 @@ public class ModifyImageLeftNode : Node
         }
     }
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         return Image.Value;
     }

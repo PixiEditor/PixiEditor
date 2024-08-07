@@ -16,7 +16,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     public const string ImageFramesKey = "Frames";
     public const string ImageLayerKey = "LayerImage";
 
-    public OutputProperty<Surface> RawOutput { get; }
+    public OutputProperty<Texture> RawOutput { get; }
 
     public InputProperty<bool> LockTransparency { get; }
 
@@ -38,7 +38,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public ImageLayerNode(VecI size)
     {
-        RawOutput = CreateOutput<Surface>(nameof(RawOutput), "RAW_LAYER_OUTPUT", null);
+        RawOutput = CreateOutput<Texture>(nameof(RawOutput), "RAW_LAYER_OUTPUT", null);
 
         LockTransparency = CreateInput<bool>("LockTransparency", "LOCK_TRANSPARENCY", false);
 
@@ -55,7 +55,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return GetLayerImageAtFrame(frameTime.Frame).FindTightCommittedBounds();
     }
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         if (!IsVisible.Value || Opacity.Value <= 0 || IsEmptyMask())
         {
@@ -75,7 +75,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return Output.Value;
     }
 
-    private Surface RenderImage(ChunkyImage frameImage, RenderingContext context)
+    private Texture RenderImage(ChunkyImage frameImage, RenderingContext context)
     {
         var outputWorkingSurface = TryInitWorkingSurface(frameImage.LatestSize, context, 0);
         var filterlessWorkingSurface = TryInitWorkingSurface(frameImage.LatestSize, context, 1);
@@ -123,7 +123,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         if (Background.Value != null)
         {
-            Surface tempSurface = new Surface(outputWorkingSurface.Size);
+            Texture tempSurface = new Texture(outputWorkingSurface.Size);
             DrawBackground(tempSurface, context);
             blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
             tempSurface.DrawingSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
@@ -137,7 +137,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return outputWorkingSurface;
     }
 
-    private void DrawLayer(ChunkyImage frameImage, RenderingContext context, Surface workingSurface, bool shouldClear,
+    private void DrawLayer(ChunkyImage frameImage, RenderingContext context, Texture workingSurface, bool shouldClear,
         bool useFilters = true)
     {
         blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255));
@@ -164,7 +164,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     // Draw with filters is a bit tricky since some filters sample data from chunks surrounding the chunk being drawn,
     // this is why we need to do intermediate drawing to a temporary surface and then apply filters to that surface
-    private void DrawWithFilters(ChunkyImage frameImage, RenderingContext context, Surface workingSurface,
+    private void DrawWithFilters(ChunkyImage frameImage, RenderingContext context, Texture workingSurface,
         bool shouldClear)
     {
         VecI imageChunksSize = frameImage.LatestSize / context.ChunkResolution.PixelSize();

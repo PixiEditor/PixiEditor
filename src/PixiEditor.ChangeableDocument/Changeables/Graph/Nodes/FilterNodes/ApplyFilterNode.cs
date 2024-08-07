@@ -12,20 +12,20 @@ public class ApplyFilterNode : Node
     
     public override string DisplayName { get; set; } = "APPLY_FILTER_NODE";
     
-    public OutputProperty<Surface?> Output { get; }
+    public OutputProperty<Texture?> Output { get; }
 
-    public InputProperty<Surface?> Input { get; }
+    public InputProperty<Texture?> Input { get; }
     
     public InputProperty<Filter?> Filter { get; }
 
     public ApplyFilterNode()
     {
-        Output = CreateOutput<Surface>(nameof(Output), "IMAGE", null);
-        Input = CreateInput<Surface>(nameof(Input), "IMAGE", null);
+        Output = CreateOutput<Texture>(nameof(Output), "IMAGE", null);
+        Input = CreateInput<Texture>(nameof(Input), "IMAGE", null);
         Filter = CreateInput<Filter>(nameof(Filter), "FILTER", null);
     }
     
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         if (Input.Value is not { } input)
         {
@@ -34,7 +34,7 @@ public class ApplyFilterNode : Node
         
         _paint.SetFilters(Filter.Value);
 
-        var workingSurface = new Surface(input.Size);
+        var workingSurface = new Texture(input.Size);
         
         workingSurface.DrawingSurface.Canvas.DrawSurface(input.DrawingSurface, 0, 0, _paint);
 

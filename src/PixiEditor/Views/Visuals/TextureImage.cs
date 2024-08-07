@@ -20,7 +20,7 @@ public class TextureImage : IImage
 
     public void Draw(DrawingContext context, Rect sourceRect, Rect destRect)
     {
-        Texture.Surface.Flush();
+        Texture.DrawingSurface.Flush();
         context.Custom(new DrawTextureOperation(destRect, Stretch, Texture));
     }
 }

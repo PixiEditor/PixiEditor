@@ -94,7 +94,7 @@ internal class ReferenceLayerOverlay : Overlay
             double opacity = Opacity;
             var referenceBitmap = ReferenceLayer.ReferenceBitmap;
 
-            referenceBitmap.Surface.Flush();
+            referenceBitmap.DrawingSurface.Flush();
             overlayPaint.Color = new Color(255, 255, 255, (byte)(opacity * 255)); 
             
             DrawTextureOperation drawOperation =

@@ -107,7 +107,7 @@ public class TextureControl : Control
         }
         
         Texture texture = Texture;
-        texture.Surface.Flush();
+        texture.DrawingSurface.Flush();
         ICustomDrawOperation drawOperation = new DrawTextureOperation(
             new Rect(0, 0, Bounds.Width, Bounds.Height),
             Stretch,
@@ -164,7 +164,7 @@ internal class DrawTextureOperation : SkiaDrawOperation
 
         canvas.Save();
         ScaleCanvas(canvas);
-        canvas.DrawSurface(Texture.Surface.Native as SKSurface, 0, 0, Paint?.Native as SKPaint ?? null);
+        canvas.DrawSurface(Texture.DrawingSurface.Native as SKSurface, 0, 0, Paint?.Native as SKPaint ?? null);
         canvas.Restore();
     }
 

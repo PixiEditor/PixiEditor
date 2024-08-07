@@ -9,15 +9,15 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("Merge")]
 public class MergeNode : Node, IBackgroundInput
 {
-    public InputProperty<Surface?> Top { get; }
-    public InputProperty<Surface?> Bottom { get; }
-    public OutputProperty<Surface?> Output { get; }
+    public InputProperty<Texture?> Top { get; }
+    public InputProperty<Texture?> Bottom { get; }
+    public OutputProperty<Texture?> Output { get; }
     
     public MergeNode() 
     {
-        Top = CreateInput<Surface?>("Top", "TOP", null);
-        Bottom = CreateInput<Surface?>("Bottom", "BOTTOM", null);
-        Output = CreateOutput<Surface?>("Output", "OUTPUT", null);
+        Top = CreateInput<Texture?>("Top", "TOP", null);
+        Bottom = CreateInput<Texture?>("Bottom", "BOTTOM", null);
+        Output = CreateOutput<Texture?>("Output", "OUTPUT", null);
     }
 
     public override string DisplayName { get; set; } = "MERGE_NODE";
@@ -28,7 +28,7 @@ public class MergeNode : Node, IBackgroundInput
     }
 
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         if(Top.Value == null && Bottom.Value == null)
         {
@@ -39,7 +39,7 @@ public class MergeNode : Node, IBackgroundInput
         int width = Top.Value?.Size.X ?? Bottom.Value.Size.X;
         int height = Top.Value?.Size.Y ?? Bottom.Value.Size.Y;
         
-        Surface workingSurface = new Surface(new VecI(width, height));
+        Texture workingSurface = new Texture(new VecI(width, height));
         
         if(Bottom.Value != null)
         {
@@ -56,5 +56,5 @@ public class MergeNode : Node, IBackgroundInput
         return Output.Value;
     }
 
-    InputProperty<Surface> IBackgroundInput.Background => Bottom;
+    InputProperty<Texture> IBackgroundInput.Background => Bottom;
 }

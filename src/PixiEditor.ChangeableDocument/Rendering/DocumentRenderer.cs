@@ -25,7 +25,7 @@ public class DocumentRenderer
         {
             RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
 
-            Surface? evaluated = Document.NodeGraph.Execute(context);
+            Texture? evaluated = Document.NodeGraph.Execute(context);
             if (evaluated is null)
             {
                 return new EmptyChunk();
@@ -87,7 +87,7 @@ public class DocumentRenderer
         {
             RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
 
-            Surface? evaluated = node.Execute(context);
+            Texture? evaluated = node.Execute(context);
             if (evaluated is null)
             {
                 return new EmptyChunk();
@@ -118,7 +118,7 @@ public class DocumentRenderer
         NodeGraph membersOnlyGraph = ConstructMembersOnlyGraph(layersToCombine, Document.NodeGraph);
         try
         {
-            Surface? evaluated = membersOnlyGraph.Execute(context);
+            Texture? evaluated = membersOnlyGraph.Execute(context);
             if (evaluated is null)
             {
                 return new EmptyChunk();
@@ -153,7 +153,7 @@ public class DocumentRenderer
             }
         });
 
-        IInputProperty<Surface> lastInput = outputNode.Input;
+        IInputProperty<Texture> lastInput = outputNode.Input;
 
         foreach (var layer in layersInOrder)
         {
@@ -168,7 +168,7 @@ public class DocumentRenderer
     }
 
     private static OneOf<Chunk, EmptyChunk> ChunkFromResult(ChunkResolution resolution,
-        RectI? transformedClippingRect, Surface evaluated,
+        RectI? transformedClippingRect, Texture evaluated,
         RenderingContext context)
     {
         Chunk chunk = Chunk.Create(resolution);

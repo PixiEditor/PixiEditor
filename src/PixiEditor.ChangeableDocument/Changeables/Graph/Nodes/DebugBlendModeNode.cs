@@ -12,31 +12,31 @@ public class DebugBlendModeNode : Node
 {
     private Paint _paint = new();
     
-    public InputProperty<Surface?> Dst { get; }
+    public InputProperty<Texture?> Dst { get; }
 
-    public InputProperty<Surface?> Src { get; }
+    public InputProperty<Texture?> Src { get; }
 
     public InputProperty<DrawingApiBlendMode> BlendMode { get; }
 
-    public OutputProperty<Surface> Result { get; }
+    public OutputProperty<Texture> Result { get; }
 
     public override string DisplayName { get; set; } = "Debug Blend Mode";
     public DebugBlendModeNode()
     {
-        Dst = CreateInput<Surface?>(nameof(Dst), "Dst", null);
-        Src = CreateInput<Surface?>(nameof(Src), "Src", null);
+        Dst = CreateInput<Texture?>(nameof(Dst), "Dst", null);
+        Src = CreateInput<Texture?>(nameof(Src), "Src", null);
         BlendMode = CreateInput(nameof(BlendMode), "Blend Mode", DrawingApiBlendMode.SrcOver);
 
-        Result = CreateOutput<Surface>(nameof(Result), "Result", null);
+        Result = CreateOutput<Texture>(nameof(Result), "Result", null);
     }
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         if (Dst.Value is not { } dst || Src.Value is not { } src)
             return null;
 
         var size = new VecI(Math.Max(src.Size.X, dst.Size.X), int.Max(src.Size.Y, dst.Size.Y));
-        var workingSurface = new Surface(size);
+        var workingSurface = new Texture(size);
 
         workingSurface.DrawingSurface.Canvas.DrawSurface(dst.DrawingSurface, 0, 0, context.BlendModeOpacityPaint);
 

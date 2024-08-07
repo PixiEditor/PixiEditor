@@ -10,17 +10,17 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("Folder")]
 public class FolderNode : StructureNode, IReadOnlyFolderNode
 {
-    public InputProperty<Surface?> Content { get; }
+    public InputProperty<Texture?> Content { get; }
 
     public FolderNode()
     {
-        Content = CreateInput<Surface?>("Content", "CONTENT", null);
+        Content = CreateInput<Texture?>("Content", "CONTENT", null);
     }
 
     public override Node CreateCopy() => new FolderNode { MemberName = MemberName };
 
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         if(Background.Value == null && Content.Value == null)
         {
@@ -87,7 +87,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
         
         if (Background.Value != null)
         {
-            Surface tempSurface = new Surface(outputWorkingSurface.Size);
+            Texture tempSurface = new Texture(outputWorkingSurface.Size);
             DrawBackground(tempSurface, context);
             
             blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255));

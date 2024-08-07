@@ -68,9 +68,9 @@ public static class NodeOperations
         return node;
     }
 
-    public static List<ConnectProperty_ChangeInfo> AppendMember(InputProperty<Surface?> parentInput,
-        OutputProperty<Surface> toAddOutput,
-        InputProperty<Surface> toAddInput, Guid memberId)
+    public static List<ConnectProperty_ChangeInfo> AppendMember(InputProperty<Texture?> parentInput,
+        OutputProperty<Texture> toAddOutput,
+        InputProperty<Texture> toAddInput, Guid memberId)
     {
         List<ConnectProperty_ChangeInfo> changes = new();
         IOutputProperty? previouslyConnected = null;

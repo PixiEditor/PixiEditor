@@ -118,7 +118,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         return true;
     }
 
-    public Surface? Execute(RenderingContext context)
+    public Texture? Execute(RenderingContext context)
     {
         if (OutputNode == null) return null;
 

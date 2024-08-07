@@ -33,7 +33,7 @@ public class CombineVecI : Node
     }
 
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         return null;
     }

@@ -147,7 +147,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         RectD dirtyBounds = new RectD(0, 0, Document.Width / resolutionScale, Document.Height / resolutionScale);
         Rect dirtyRect = new Rect(0, 0, Document.Width / resolutionScale, Document.Height / resolutionScale);
 
-        Surface.Surface.Flush();
+        Surface.DrawingSurface.Flush();
         using var operation = new DrawSceneOperation(Surface, Document, CanvasPos, Scale * resolutionScale, angle,
             FlipX, FlipY,
             dirtyRect,
@@ -537,12 +537,12 @@ internal class DrawSceneOperation : SkiaDrawOperation
         {
             // snapshotting wanted region on CPU is faster than rendering whole surface on CPU,
             // but slower than rendering whole surface on GPU
-            using Image snapshot = Surface.Surface.Snapshot(SurfaceRectToRender);
+            using Image snapshot = Surface.DrawingSurface.Snapshot(SurfaceRectToRender);
             canvas.DrawImage((SKImage)snapshot.Native, SurfaceRectToRender.X, SurfaceRectToRender.Y, _paint);
         }
         else
         {
-            canvas.DrawSurface(Surface.Surface.Native as SKSurface, 0, 0, _paint);
+            canvas.DrawSurface(Surface.DrawingSurface.Native as SKSurface, 0, 0, _paint);
         }
 
         canvas.Restore();

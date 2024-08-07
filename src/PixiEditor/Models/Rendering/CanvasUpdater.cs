@@ -226,45 +226,45 @@ internal class CanvasUpdater
             .Switch(
                 (Chunk chunk) =>
                 {
-                    Dispatcher.UIThread.Post(() =>
-                    {
+                    /*Dispatcher.UIThread.Post(() =>
+                    {*/
                         if (screenSurface.IsDisposed) return;
 
                         if (globalScaledClippingRectangle is not null)
                         {
-                            screenSurface.Surface.Canvas.Save();
-                            screenSurface.Surface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
+                            screenSurface.DrawingSurface.Canvas.Save();
+                            screenSurface.DrawingSurface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
                         }
-
-                        screenSurface.Surface.Canvas.DrawSurface(
+                        
+                        screenSurface.DrawingSurface.Canvas.DrawSurface(
                             chunk.Surface.DrawingSurface,
                             chunkPos.Multiply(chunk.PixelSize), ReplacingPaint);
                         chunk.Dispose();
 
 
                         if (globalScaledClippingRectangle is not null)
-                            screenSurface.Surface.Canvas.Restore();
-                    });
+                            screenSurface.DrawingSurface.Canvas.Restore();
+                    /*});*/
                 },
                 (EmptyChunk _) =>
                 {
-                    Dispatcher.UIThread.Post(() =>
-                    {
+                    /*Dispatcher.UIThread.Post(() =>
+                    {*/
                         if (screenSurface.IsDisposed) return;
 
                         if (globalScaledClippingRectangle is not null)
                         {
-                            screenSurface.Surface.Canvas.Save();
-                            screenSurface.Surface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
+                            screenSurface.DrawingSurface.Canvas.Save();
+                            screenSurface.DrawingSurface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
                         }
 
                         var pos = chunkPos * resolution.PixelSize();
-                        screenSurface.Surface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(),
+                        screenSurface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(),
                             resolution.PixelSize(), ClearPaint);
                         
                         if (globalScaledClippingRectangle is not null)
-                            screenSurface.Surface.Canvas.Restore();
-                    });
+                            screenSurface.DrawingSurface.Canvas.Restore();
+                    /*});*/
                 });
     }
 }

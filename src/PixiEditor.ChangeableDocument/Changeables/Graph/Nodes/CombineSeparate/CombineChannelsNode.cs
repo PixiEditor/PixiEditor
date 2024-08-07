@@ -16,38 +16,38 @@ public class CombineChannelsNode : Node
     private readonly ColorFilter _greenFilter = ColorFilter.CreateColorMatrix(ColorMatrix.UseGreen + ColorMatrix.OpaqueAlphaOffset);
     private readonly ColorFilter _blueFilter = ColorFilter.CreateColorMatrix(ColorMatrix.UseBlue + ColorMatrix.OpaqueAlphaOffset);
 
-    public InputProperty<Surface> Red { get; }
+    public InputProperty<Texture> Red { get; }
     
-    public InputProperty<Surface> Green { get; }
+    public InputProperty<Texture> Green { get; }
     
-    public InputProperty<Surface> Blue { get; }
+    public InputProperty<Texture> Blue { get; }
     
-    public InputProperty<Surface> Alpha { get; }
+    public InputProperty<Texture> Alpha { get; }
 
-    public OutputProperty<Surface> Image { get; }
+    public OutputProperty<Texture> Image { get; }
     
     // TODO: Either use a shader to combine each, or find a way to automatically "detect" if alpha channel is grayscale or not, oooor find an even better solution
     public InputProperty<bool> Grayscale { get; }
 
     public CombineChannelsNode()
     {
-        Red = CreateInput<Surface>(nameof(Red), "RED", null);
-        Green = CreateInput<Surface>(nameof(Green), "GREEN", null);
-        Blue = CreateInput<Surface>(nameof(Blue), "BLUE", null);
-        Alpha = CreateInput<Surface>(nameof(Alpha), "ALPHA", null);
+        Red = CreateInput<Texture>(nameof(Red), "RED", null);
+        Green = CreateInput<Texture>(nameof(Green), "GREEN", null);
+        Blue = CreateInput<Texture>(nameof(Blue), "BLUE", null);
+        Alpha = CreateInput<Texture>(nameof(Alpha), "ALPHA", null);
         
-        Image = CreateOutput<Surface>(nameof(Image), "IMAGE", null);
+        Image = CreateOutput<Texture>(nameof(Image), "IMAGE", null);
         Grayscale = CreateInput(nameof(Grayscale), "GRAYSCALE", false);
     }
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         var size = GetSize();
 
         if (size == VecI.Zero)
             return null;
         
-        var workingSurface = new Surface(size);
+        var workingSurface = new Texture(size);
 
         if (Red.Value is { } red)
         {

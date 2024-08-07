@@ -22,20 +22,20 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
     public FuncInputProperty<VecD> Coordinate { get; }
     public FuncInputProperty<Color> Color { get; }
 
-    public OutputProperty<Surface> Output { get; }
+    public OutputProperty<Texture> Output { get; }
 
     public override string DisplayName { get; set; } = "MODIFY_IMAGE_RIGHT_NODE";
 
-    private Surface surface;
+    private Texture surface;
 
     public ModifyImageRightNode()
     {
         Coordinate = CreateFuncInput(nameof(Coordinate), "UV", new VecD());
         Color = CreateFuncInput(nameof(Color), "COLOR", new Color());
-        Output = CreateOutput<Surface>(nameof(Output), "OUTPUT", null);
+        Output = CreateOutput<Texture>(nameof(Output), "OUTPUT", null);
     }
 
-    protected override Surface? OnExecute(RenderingContext renderingContext)
+    protected override Texture? OnExecute(RenderingContext renderingContext)
     {
         if (StartNode == null)
         {
@@ -55,11 +55,11 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
         var width = size.X;
         var height = size.Y;
         
-        surface = new Surface(size);
+        surface = new Texture(size);
 
         startNode.PreparePixmap(renderingContext);
         
-        using Pixmap targetPixmap = surface.PeekPixels();
+        using Pixmap targetPixmap = surface.PeekReadOnlyPixels();
 
         ModifyImageInParallel(renderingContext, targetPixmap, width, height);
         

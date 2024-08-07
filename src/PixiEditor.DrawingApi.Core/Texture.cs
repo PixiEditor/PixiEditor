@@ -11,7 +11,7 @@ namespace PixiEditor.DrawingApi.Core;
 public class Texture : IDisposable
 {
     public VecI Size { get; }
-    public DrawingSurface Surface { get; }
+    public DrawingSurface DrawingSurface { get; private set; }
 
     public event SurfaceChangedEventHandler? Changed;
 
@@ -20,20 +20,39 @@ public class Texture : IDisposable
     private bool pixmapUpToDate;
     private Pixmap pixmap;
 
+    private Paint nearestNeighborReplacingPaint =
+        new() { BlendMode = BlendMode.Src, FilterQuality = FilterQuality.None };
+
     public Texture(VecI size)
     {
         Size = size;
-        Surface =
+        DrawingSurface =
             DrawingSurface.Create(
                 new ImageInfo(Size.X, Size.Y, ColorType.RgbaF16, AlphaType.Premul, ColorSpace.CreateSrgb())
                 {
                     GpuBacked = true
                 });
 
-        Surface.Changed += SurfaceOnChanged;
+        DrawingSurface.Changed += DrawingSurfaceOnChanged;
     }
 
-    private void SurfaceOnChanged(RectD? changedRect)
+    public Texture(Texture other) : this(other.Size)
+    {
+        DrawingSurface.Canvas.DrawSurface(other.DrawingSurface, 0, 0);
+    }
+
+    internal Texture(DrawingSurface drawingSurface)
+    {
+        DrawingSurface = drawingSurface;
+        DrawingSurface.Changed += DrawingSurfaceOnChanged;
+    }
+
+    ~Texture()
+    {
+        DrawingSurface.Changed -= DrawingSurfaceOnChanged;
+    }
+
+    private void DrawingSurfaceOnChanged(RectD? changedRect)
     {
         Changed?.Invoke(changedRect);
     }
@@ -48,7 +67,7 @@ public class Texture : IDisposable
             throw new ArgumentException($"The image with path {path} couldn't be loaded");
 
         Texture texture = new Texture(image.Size);
-        texture.Surface.Canvas.DrawImage(image, 0, 0);
+        texture.DrawingSurface.Canvas.DrawImage(image, 0, 0);
 
         return texture;
     }
@@ -57,7 +76,7 @@ public class Texture : IDisposable
     {
         using Image image = Image.FromEncodedData(data);
         Texture texture = new Texture(image.Size);
-        texture.Surface.Canvas.DrawImage(image, 0, 0);
+        texture.DrawingSurface.Canvas.DrawImage(image, 0, 0);
 
         return texture;
     }
@@ -69,14 +88,14 @@ public class Texture : IDisposable
             return null;
 
         var surface = new Texture(new VecI(image.Width, image.Height));
-        surface.Surface.Canvas.DrawImage(image, 0, 0);
+        surface.DrawingSurface.Canvas.DrawImage(image, 0, 0);
 
         return surface;
     }
 
     public Texture CreateResized(VecI newSize, ResizeMethod method)
     {
-        using Image image = Surface.Snapshot();
+        using Image image = DrawingSurface.Snapshot();
         Texture newTexture = new(newSize);
         using Paint paint = new();
 
@@ -90,20 +109,71 @@ public class Texture : IDisposable
 
         paint.FilterQuality = filterQuality;
 
-        newTexture.Surface.Canvas.DrawImage(image, new RectD(0, 0, newSize.X, newSize.Y), paint);
+        newTexture.DrawingSurface.Canvas.DrawImage(image, new RectD(0, 0, newSize.X, newSize.Y), paint);
 
         return newTexture;
     }
 
-    public Color? GetSRGBPixel(VecI vecI)
+    public Pixmap? PeekReadOnlyPixels()
+    {
+        if (pixmapUpToDate)
+        {
+            return pixmap;
+        }
+
+        pixmap = DrawingSurface.PeekPixels();
+        pixmapUpToDate = true;
+
+        return pixmap;
+    }
+
+    public void CopyTo(Texture destination)
+    {
+        destination.DrawingSurface.Canvas.DrawSurface(DrawingSurface, 0, 0);
+    }
+
+    public unsafe bool IsFullyTransparent()
+    {
+        ulong* ptr = (ulong*)PeekReadOnlyPixels().GetPixels();
+        for (int i = 0; i < Size.X * Size.Y; i++)
+        {
+            // ptr[i] actually contains 4 16-bit floats. We only care about the first one which is alpha.
+            // An empty pixel can have alpha of 0 or -0 (not sure if -0 actually ever comes up). 0 in hex is 0x0, -0 in hex is 0x8000
+            if ((ptr[i] & 0x1111_0000_0000_0000) != 0 && (ptr[i] & 0x1111_0000_0000_0000) != 0x8000_0000_0000_0000)
+                return false;
+        }
+
+        return true;
+    }
+
+    public void DrawBytes(VecI surfaceSize, byte[] pixels, ColorType color, AlphaType alphaType)
+    {
+        if (surfaceSize != Size)
+            throw new ArgumentException("Surface size must match the size of the byte array");
+
+        using Image image = Image.FromPixels(new ImageInfo(Size.X, Size.Y, color, alphaType, ColorSpace.CreateSrgb()),
+            pixels);
+        DrawingSurface.Canvas.DrawImage(image, 0, 0);
+    }
+
+    public Texture ResizeNearestNeighbor(VecI newSize)
+    {
+        using Image image = DrawingSurface.Snapshot();
+        Texture newSurface = new(newSize);
+        newSurface.DrawingSurface.Canvas.DrawImage(image, new RectD(0, 0, newSize.X, newSize.Y),
+            nearestNeighborReplacingPaint);
+        return newSurface;
+    }
+
+    public Color GetSRGBPixel(VecI vecI)
     {
         if (vecI.X < 0 || vecI.X >= Size.X || vecI.Y < 0 || vecI.Y >= Size.Y)
-            return null;
+            return Color.Empty;
 
         if (!pixmapUpToDate)
         {
             pixmapUpToDate = true;
-            pixmap = Surface.PeekPixels();
+            pixmap = DrawingSurface.PeekPixels();
         }
 
         return pixmap.GetPixelColor(vecI);
@@ -120,7 +190,13 @@ public class Texture : IDisposable
             return;
 
         IsDisposed = true;
-        Surface.Changed -= SurfaceOnChanged;
-        Surface.Dispose();
+        DrawingSurface.Changed -= DrawingSurfaceOnChanged;
+        DrawingSurface.Dispose();
+    }
+
+    public static Texture FromExisting(DrawingSurface drawingSurface)
+    {
+        Texture texture = new(drawingSurface);
+        return texture;
     }
 }

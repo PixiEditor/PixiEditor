@@ -46,9 +46,9 @@ internal class CreateStructureMember_Change : Change
 
         List<IChangeInfo> changes = new() { CreateChangeInfo(member) };
         
-        InputProperty<Surface> targetInput = parentNode.InputProperties.FirstOrDefault(x => 
-            x.ValueType == typeof(Surface) && 
-            x.Connection.Node is StructureNode) as InputProperty<Surface>;
+        InputProperty<Texture> targetInput = parentNode.InputProperties.FirstOrDefault(x => 
+            x.ValueType == typeof(Texture) && 
+            x.Connection.Node is StructureNode) as InputProperty<Texture>;
         
         
         
@@ -109,7 +109,7 @@ internal class CreateStructureMember_Change : Change
         return changes;
     }
 
-    private static void AppendFolder(InputProperty<Surface> backgroundInput, FolderNode folder, List<IChangeInfo> changes)
+    private static void AppendFolder(InputProperty<Texture> backgroundInput, FolderNode folder, List<IChangeInfo> changes)
     {
         var appened = NodeOperations.AppendMember(backgroundInput, folder.Output, folder.Background, folder.Id);
         changes.AddRange(appened);

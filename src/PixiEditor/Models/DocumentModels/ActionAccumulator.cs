@@ -5,6 +5,7 @@ using Avalonia.Threading;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
+using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentPassthroughActions;
@@ -80,20 +81,32 @@ internal class ActionAccumulator
 
             // update viewmodels based on changes
             List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);
-            bool undoBoundaryPassed = toExecute.Any(static action => action is ChangeBoundary_Action or Redo_Action or Undo_Action);
+            bool undoBoundaryPassed =
+                toExecute.Any(static action => action is ChangeBoundary_Action or Redo_Action or Undo_Action);
             bool viewportRefreshRequest = toExecute.Any(static action => action is RefreshViewport_PassthroughAction);
             foreach (IChangeInfo info in optimizedChanges)
             {
                 internals.Updater.ApplyChangeFromChangeInfo(info);
             }
+
             if (undoBoundaryPassed)
                 internals.Updater.AfterUndoBoundaryPassed();
 
             // update the contents of the bitmaps
-            var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime, internals.Tracker, optimizedChanges);
+            var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime, internals.Tracker,
+                optimizedChanges);
             List<IRenderInfo> renderResult = new();
-            renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed || viewportRefreshRequest));
-            renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
+            if (DrawingBackendApi.Current.IsHardwareAccelerated)
+            {
+                renderResult.AddRange(canvasUpdater.UpdateGatheredChunksSync(affectedAreas, undoBoundaryPassed || viewportRefreshRequest));
+                renderResult.AddRange(previewUpdater.UpdateGatheredChunksSync(affectedAreas, undoBoundaryPassed));
+            }
+            else
+            {
+                renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed || viewportRefreshRequest));
+                renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
+            }
+
 
             if (undoBoundaryPassed)
             {
@@ -124,6 +137,7 @@ internal class ActionAccumulator
             if (action is not IChangeInfo)
                 return false;
         }
+
         return true;
     }
 
@@ -134,42 +148,44 @@ internal class ActionAccumulator
             switch (renderInfo)
             {
                 case DirtyRect_RenderInfo info:
-                    {
-                        var bitmap = document.Surfaces[info.Resolution];
-                        RectI finalRect = new RectI(VecI.Zero, new(bitmap.Size.X, bitmap.Size.Y));
+                {
+                    var bitmap = document.Surfaces[info.Resolution];
+                    RectI finalRect = new RectI(VecI.Zero, new(bitmap.Size.X, bitmap.Size.Y));
 
-                        RectI dirtyRect = new RectI(info.Pos, info.Size).Intersect(finalRect);
-                        bitmap.AddDirtyRect(dirtyRect);
-                    }
+                    RectI dirtyRect = new RectI(info.Pos, info.Size).Intersect(finalRect);
+                    bitmap.AddDirtyRect(dirtyRect);
+                }
                     break;
                 case PreviewDirty_RenderInfo info:
-                    {
-                        var bitmap = document.StructureHelper.Find(info.GuidValue)?.PreviewSurface;
-                        if (bitmap is null)
-                            continue;
-                        bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
-                    }
+                {
+                    var bitmap = document.StructureHelper.Find(info.GuidValue)?.PreviewSurface;
+                    if (bitmap is null)
+                        continue;
+                    bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
+                }
                     break;
                 case MaskPreviewDirty_RenderInfo info:
-                    {
-                        var bitmap = document.StructureHelper.Find(info.GuidValue)?.MaskPreviewSurface;
-                        if (bitmap is null)
-                            continue;
-                        bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
-                    }
+                {
+                    var bitmap = document.StructureHelper.Find(info.GuidValue)?.MaskPreviewSurface;
+                    if (bitmap is null)
+                        continue;
+                    bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
+                }
                     break;
                 case CanvasPreviewDirty_RenderInfo:
-                    {
-                        document.PreviewSurface.AddDirtyRect(new RectI(0, 0, document.PreviewSurface.Size.X, document.PreviewSurface.Size.Y));
-                    }
+                {
+                    document.PreviewSurface.AddDirtyRect(new RectI(0, 0, document.PreviewSurface.Size.X,
+                        document.PreviewSurface.Size.Y));
+                }
                     break;
                 case NodePreviewDirty_RenderInfo info:
-                    {
-                        var node = document.StructureHelper.Find(info.NodeId);
-                        if (node is null || node.PreviewSurface is null)
-                            continue;
-                        node.PreviewSurface.AddDirtyRect(new RectI(0, 0, node.PreviewSurface.Size.X, node.PreviewSurface.Size.Y));
-                    }
+                {
+                    var node = document.StructureHelper.Find(info.NodeId);
+                    if (node is null || node.PreviewSurface is null)
+                        continue;
+                    node.PreviewSurface.AddDirtyRect(new RectI(0, 0, node.PreviewSurface.Size.X,
+                        node.PreviewSurface.Size.Y));
+                }
                     break;
             }
         }

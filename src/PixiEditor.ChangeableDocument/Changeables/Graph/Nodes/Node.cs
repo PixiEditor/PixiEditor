@@ -23,7 +23,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public IReadOnlyList<OutputProperty> OutputProperties => outputs;
     public IReadOnlyList<KeyFrameData> KeyFrames => keyFrames;
 
-    public Surface? CachedResult
+    public Texture? CachedResult
     {
         get
         {
@@ -56,18 +56,18 @@ public abstract class Node : IReadOnlyNode, IDisposable
     private ChunkResolution? _lastResolution;
     private VecI? _lastChunkPos;
     private bool _keyFramesDirty;
-    private Surface? _lastCachedResult;
+    private Texture? _lastCachedResult;
     private bool _isDisposed;
 
-    public Surface? Execute(RenderingContext context)
+    public Texture? Execute(RenderingContext context)
     {
         var result = ExecuteInternal(context);
 
-        var copy = new Surface(result);
+        var copy = new Texture(result);
         return copy;
     }
 
-    internal Surface ExecuteInternal(RenderingContext context)
+    internal Texture ExecuteInternal(RenderingContext context)
     {
         if(_isDisposed) throw new ObjectDisposedException("Node was disposed before execution.");
         
@@ -76,14 +76,14 @@ public abstract class Node : IReadOnlyNode, IDisposable
         CachedResult = OnExecute(context);
         if (CachedResult is { IsDisposed: true })
         {
-            throw new ObjectDisposedException("Surface was disposed after execution.");
+            throw new ObjectDisposedException("Texture was disposed after execution.");
         }
 
         UpdateCache(context);
         return CachedResult;
     }
 
-    protected abstract Surface? OnExecute(RenderingContext context);
+    protected abstract Texture? OnExecute(RenderingContext context);
 
     protected virtual bool CacheChanged(RenderingContext context)
     {

@@ -5,5 +5,5 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 public interface IBackgroundInput
 {
-    InputProperty<Surface?> Background { get; }
+    InputProperty<Texture?> Background { get; }
 }

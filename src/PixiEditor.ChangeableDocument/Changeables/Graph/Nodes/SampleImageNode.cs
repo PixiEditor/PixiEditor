@@ -12,7 +12,7 @@ public class SampleImageNode : Node
 {
     private Pixmap? pixmap;
 
-    public InputProperty<Surface?> Image { get; }
+    public InputProperty<Texture?> Image { get; }
 
     public FuncOutputProperty<VecD> Coordinate { get; }
 
@@ -22,7 +22,7 @@ public class SampleImageNode : Node
 
     public SampleImageNode()
     {
-        Image = CreateInput<Surface>(nameof(Surface), "IMAGE", null);
+        Image = CreateInput<Texture>(nameof(Texture), "IMAGE", null);
         Coordinate = CreateFuncOutput(nameof(Coordinate), "UV", ctx => ctx.Position);
         Color = CreateFuncOutput(nameof(Color), "COLOR", GetColor);
     }
@@ -42,10 +42,10 @@ public class SampleImageNode : Node
 
     internal void PreparePixmap()
     {
-        pixmap = Image.Value?.PeekPixels();
+        pixmap = Image.Value?.PeekReadOnlyPixels();
     }
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         PreparePixmap();
         return Image.Value;
