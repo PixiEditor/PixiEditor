@@ -58,11 +58,19 @@ public partial class NodePicker : TemplatedControl
 
     private static void OnSearchQueryChanged(AvaloniaPropertyChangedEventArgs e)
     {
-        if (e.Sender is NodePicker nodePicker)
+        if (e.Sender is not NodePicker nodePicker)
         {
-            // nodePicker.FilteredNodeTypes = new ObservableCollection<NodeTypeInfo>(nodePicker.AllNodeTypes
-            //     .Where(x => x.Name.ToLower().Contains(nodePicker.SearchQuery.ToLower())));
+            return;
         }
+
+        nodePicker.FilteredNodeTypeInfos = new ObservableCollection<NodeTypeInfo>(nodePicker.AllNodeTypeInfos
+            .Where(SearchComparer));
+
+        return;
+
+        bool SearchComparer(NodeTypeInfo x) =>
+            x.FinalPickerName.Value.Replace(" ", "")
+                .Contains(nodePicker.SearchQuery.Replace(" ", ""), StringComparison.OrdinalIgnoreCase);
     }
     
     private static void OnAllNodeTypesChanged(AvaloniaPropertyChangedEventArgs e)

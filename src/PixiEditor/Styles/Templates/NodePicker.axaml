@@ -22,8 +22,8 @@
                                 <Button Command="{Binding SelectNodeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodePicker}}"
                                         CommandParameter="{Binding}"
                                         Margin="0,1"
-                                        IsVisible="{Binding FinalPickerName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                        ui:Translator.Key="{Binding FinalPickerName}" />
+                                        IsVisible="{Binding !Hidden}"
+                                        ui:Translator.LocalizedString="{Binding FinalPickerName}" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
