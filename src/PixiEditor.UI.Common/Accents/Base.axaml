@@ -91,11 +91,14 @@
             
             <SolidColorBrush x:Key="DefaultSocketBrush" Color="{StaticResource DefaultSocketColor}"/>
             <SolidColorBrush x:Key="TextureSocketBrush" Color="{StaticResource ImageSocketColor}"/>
+            <SolidColorBrush x:Key="TextureSamplerSocketBrush" Color="{StaticResource ImageSocketColor}"/>
             <SolidColorBrush x:Key="BooleanSocketBrush" Color="{StaticResource BoolSocketColor}"/>
             <SolidColorBrush x:Key="SingleSocketBrush" Color="{StaticResource FloatSocketColor}"/>
             <SolidColorBrush x:Key="DoubleSocketBrush" Color="{StaticResource DoubleSocketColor}"/>
             <SolidColorBrush x:Key="ColorSocketBrush" Color="{StaticResource ColorSocketColor}"/>
+            <SolidColorBrush x:Key="Half4SocketBrush" Color="{StaticResource ColorSocketColor}"/>
             <SolidColorBrush x:Key="VecDSocketBrush" Color="{StaticResource VecDSocketColor}"/>
+            <SolidColorBrush x:Key="Float2SocketBrush" Color="{StaticResource VecDSocketColor}"/>
             <SolidColorBrush x:Key="VecISocketBrush" Color="{StaticResource VecISocketColor}"/>
             <SolidColorBrush x:Key="Int32SocketBrush" Color="{StaticResource IntSocketColor}"/>
             
