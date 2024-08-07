@@ -652,7 +652,7 @@
   "IMAGE_SPACE_NODE": "Image Space",
   "KERNEL_FILTER_NODE": "Kernel Filter",
   "MATH_NODE": "Math",
-  "MATRIX_TRANSFORM_NODE": "Matrix Transform",
+  "COLOR_MATRIX_TRANSFORM_FILTER_NODE": "Matrix Transform Filter",
   "MERGE_NODE": "Merge",
   "MODIFY_IMAGE_LEFT_NODE": "Begin Modify Image",
   "MODIFY_IMAGE_RIGHT_NODE": "End Modify Image",
