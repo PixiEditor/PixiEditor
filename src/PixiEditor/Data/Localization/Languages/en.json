@@ -703,5 +703,6 @@
   "REMOVE_CLOSE_POINTS": "Remove close points",
   "RASTERIZE_POINTS": "Rasterize Points",
   "BEGIN_COLOR_EVALUATOR": "Begin evaluating color",
-  "FINISH_COLOR_EVALUATOR": "Finish evaluating color"
+  "FINISH_COLOR_EVALUATOR": "Finish evaluating color",
+  "STARS_EXAMPLE": "Stars"
 }
