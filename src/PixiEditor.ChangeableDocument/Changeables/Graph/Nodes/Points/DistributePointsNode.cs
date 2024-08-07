@@ -22,8 +22,6 @@ public class DistributePointsNode : Node
 
     public InputProperty<int> MaxPointCount { get; }
 
-    public InputProperty<bool> IntegerOnly { get; }
-
     public InputProperty<int> Seed { get; }
 
     public DistributePointsNode()
@@ -32,7 +30,6 @@ public class DistributePointsNode : Node
 
         Probability = CreateInput<Surface>("Probability", "PROBABILITY", null);
         MaxPointCount = CreateInput("MaxPointCount", "MAX_POINTS", 10);
-        IntegerOnly = CreateInput("IntegerOnly", "INTEGER_ONLY", false);
         Seed = CreateInput("Seed", "SEED", 0);
     }
 
