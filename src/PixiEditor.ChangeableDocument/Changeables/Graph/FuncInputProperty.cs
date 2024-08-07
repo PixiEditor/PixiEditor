@@ -2,6 +2,8 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
+using PixiEditor.DrawingApi.Core.Shaders;
+using PixiEditor.DrawingApi.Core.Shaders.Generation;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
@@ -38,6 +40,12 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
         if (value is T)
         {
             constantNonOverrideValue = (T)value;
+            return;
+        }
+
+        if (constantNonOverrideValue is ShaderExpressionVariable shaderExpressionVariable)
+        {
+            shaderExpressionVariable.SetConstantValue(value, ConversionTable.Convert);
             return;
         }
         

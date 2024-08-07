@@ -6,6 +6,8 @@ using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Shaders;
+using PixiEditor.DrawingApi.Core.Shaders.Generation;
+using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
@@ -20,8 +22,8 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
 
     private Paint drawingPaint = new Paint() { BlendMode = BlendMode.Src };
 
-    public FuncInputProperty<VecD> Coordinate { get; }
-    public FuncInputProperty<Color> Color { get; }
+    public FuncInputProperty<Float2> Coordinate { get; }
+    public FuncInputProperty<Half4> Color { get; }
 
     public OutputProperty<Texture> Output { get; }
 
@@ -32,8 +34,8 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
 
     public ModifyImageRightNode()
     {
-        Coordinate = CreateFuncInput(nameof(Coordinate), "UV", new VecD());
-        Color = CreateFuncInput(nameof(Color), "COLOR", new Color());
+        Coordinate = CreateFuncInput(nameof(Coordinate), "UV", new Float2("coords", VecD.Zero));
+        Color = CreateFuncInput(nameof(Color), "COLOR", new Half4("", DrawingApi.Core.ColorsImpl.Color.Empty));
         Output = CreateOutput<Texture>(nameof(Output), "OUTPUT", null);
     }
 
@@ -53,10 +55,10 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
         {
             return null;
         }
-        
+
         var width = size.X;
         var height = size.Y;
-        
+
         if (surface == null || surface.Size != size)
         {
             surface?.Dispose();
@@ -77,7 +79,25 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
         else
         {
             ShaderBuilder builder = new();
-            builder.WithTexture("original", startNode.Image.Value);
+            FuncContext context = new(renderingContext, builder);
+
+            if (Coordinate.Connection != null)
+            {
+                builder.Set(context.Position, Coordinate.Value(context));
+            }
+            else
+            {
+                builder.SetConstant(context.Position, Coordinate.NonOverridenValue(FuncContext.NoContext));
+            }
+
+            if (Color.Connection != null)
+            {
+                builder.ReturnVar(Color.Value(context));
+            }
+            else
+            {
+                builder.ReturnConst(Color.NonOverridenValue(FuncContext.NoContext));
+            }
 
             string sksl = builder.ToSkSl();
             if (sksl != _lastSksl)
@@ -85,7 +105,7 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
                 _lastSksl = sksl;
                 drawingPaint.Shader = builder.BuildShader();
             }
-            
+
             surface.DrawingSurface.Canvas.DrawPaint(drawingPaint);
         }
 
@@ -94,15 +114,16 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
         return Output.Value;
     }
 
-    private unsafe void ModifyImageInParallel(RenderingContext renderingContext, Pixmap targetPixmap, int width, int height)
+    private unsafe void ModifyImageInParallel(RenderingContext renderingContext, Pixmap targetPixmap, int width,
+        int height)
     {
         int threads = Environment.ProcessorCount;
         int chunkHeight = height / threads;
 
-        Parallel.For(0, threads, i =>
+        /*Parallel.For(0, threads, i =>
         {
             FuncContext context = new(renderingContext);
-            
+
             int startY = i * chunkHeight;
             int endY = (i + 1) * chunkHeight;
             if (i == threads - 1)
@@ -119,16 +140,16 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
                     context.UpdateContext(new VecD((double)x / width, (double)y / height), new VecI(width, height));
                     var coordinate = Coordinate.Value(context);
                     context.UpdateContext(coordinate, new VecI(width, height));
-                    
+
                     var color = Color.Value(context);
                     ulong colorBits = color.ToULong();
-                    
+
                     int pixelOffset = (y * width + x) * 4;
                     Half* drawPixel = drawArray + pixelOffset;
                     *(ulong*)drawPixel = colorBits;
                 }
             }
-        });
+        });*/
     }
 
     private void FindStartNode()

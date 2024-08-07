@@ -2,6 +2,7 @@
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Styling;
+using PixiEditor.DrawingApi.Core.Shaders.Generation;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Nodes.Properties;
@@ -139,6 +140,11 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         {
             propertyType = type.GetMethod("Invoke").ReturnType;
         }
+
+        if (IsShaderType(propertyType))
+        {
+            propertyType = type.GetMethod("Invoke").ReturnType.BaseType.GenericTypeArguments[0];
+        }
         
         string name = $"{propertyType.Name}PropertyViewModel";
         
@@ -157,6 +163,11 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     }
 
     public void InternalSetValue(object? value) => SetProperty(ref _value, value, nameof(Value));
+    
+    private static bool IsShaderType(Type type)
+    {
+        return type.IsAssignableTo(typeof(ShaderExpressionVariable));
+    }
 }
 
 internal abstract class NodePropertyViewModel<T> : NodePropertyViewModel

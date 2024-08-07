@@ -79,7 +79,7 @@ public static class ConversionTable
         
         try
         {
-            result = Convert.ChangeType(arg, targetType);
+            result = System.Convert.ChangeType(arg, targetType);
             return true;
         }
         catch
@@ -87,6 +87,16 @@ public static class ConversionTable
             result = null;
             return false;
         }
+    }
+    
+    public static object Convert(object arg, Type targetType)
+    {
+        if (TryConvert(arg, targetType, out var result))
+        {
+            return result;
+        }
+
+        throw new InvalidCastException($"Cannot convert {arg.GetType()} to {targetType}");
     }
 
     private static int DoubleToInt(double d)

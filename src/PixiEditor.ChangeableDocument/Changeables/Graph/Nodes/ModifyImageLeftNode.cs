@@ -5,6 +5,9 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Shaders;
+using PixiEditor.DrawingApi.Core.Shaders.Generation;
+using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.Numerics;
 
@@ -16,9 +19,9 @@ public class ModifyImageLeftNode : Node
 {
     public InputProperty<Texture?> Image { get; }
     
-    public FuncOutputProperty<VecD> Coordinate { get; }
+    public FuncOutputProperty<Float2> Coordinate { get; }
     
-    public FuncOutputProperty<Color> Color { get; }
+    public FuncOutputProperty<Half4> Color { get; }
 
     public override string DisplayName { get; set; } = "MODIFY_IMAGE_LEFT_NODE";
     
@@ -31,19 +34,21 @@ public class ModifyImageLeftNode : Node
         Color = CreateFuncOutput("Color", "COLOR", GetColor);
     }
 
-    private Color GetColor(FuncContext context)
+    private Half4 GetColor(FuncContext context)
     {
         context.ThrowOnMissingContext();
 
-        var targetPixmap = pixmapCache[context.RenderingContext];
-        
+        return context.SampleTexture(Image.Value, context.Position);
+
+        /*var targetPixmap = pixmapCache[context.RenderingContext];
+
         if (targetPixmap == null)
             return new Color();
-        
+
         var x = context.Position.X * context.Size.X;
         var y = context.Position.Y * context.Size.Y;
-        
-        return targetPixmap.GetPixelColor((int)x, (int)y);
+
+        return targetPixmap.GetPixelColor((int)x, (int)y);*/
     }
 
     internal void PreparePixmap(RenderingContext forContext)

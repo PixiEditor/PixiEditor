@@ -23,11 +23,12 @@ public class SampleImageNode : Node
     public SampleImageNode()
     {
         Image = CreateInput<Texture>(nameof(Texture), "IMAGE", null);
-        Coordinate = CreateFuncOutput(nameof(Coordinate), "UV", ctx => ctx.Position);
-        Color = CreateFuncOutput(nameof(Color), "COLOR", GetColor);
+        //TODO: Implement this
+        //Coordinate = CreateFuncOutput(nameof(Coordinate), "UV", ctx => ctx.Position);
+        //Color = CreateFuncOutput(nameof(Color), "COLOR", GetColor);
     }
 
-    private Color GetColor(FuncContext context)
+    /*private Color GetColor(FuncContext context)
     {
         context.ThrowOnMissingContext();
 
@@ -38,7 +39,7 @@ public class SampleImageNode : Node
         var y = context.Position.Y * context.Size.Y;
 
         return pixmap.GetPixelColor((int)x, (int)y);
-    }
+    }*/
 
     internal void PreparePixmap()
     {

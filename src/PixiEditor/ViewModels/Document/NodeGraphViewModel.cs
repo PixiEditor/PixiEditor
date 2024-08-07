@@ -111,6 +111,16 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
             connection.OutputProperty.ConnectedInputs.Remove(connection.InputProperty);
             Connections.Remove(connection);
         }
+        
+        var node = AllNodes.FirstOrDefault(x => x.Id == nodeId);
+        if (node != null)
+        {
+            var input = node.Inputs.FirstOrDefault(x => x.PropertyName == property);
+            if (input != null)
+            {
+                input.ConnectedOutput = null;
+            }
+        }
 
         StructureTree.Update(this);
     }
