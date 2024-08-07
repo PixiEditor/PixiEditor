@@ -15,7 +15,7 @@ public class ColorEvaluatorLeftNode : Node
 
     public ColorEvaluatorLeftNode()
     {
-        Position = CreateFuncOutput("Position", "POSITION", c => c.Position);
+        Position = CreateFuncOutput("Position", "UV", c => c.Position);
     }
     
     protected override Surface? OnExecute(RenderingContext context)
