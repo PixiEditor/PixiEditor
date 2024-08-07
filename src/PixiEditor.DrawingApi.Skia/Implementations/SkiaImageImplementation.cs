@@ -15,12 +15,13 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         private readonly SkObjectImplementation<SKData> _imgImplementation;
         private readonly SkiaPixmapImplementation _pixmapImplementation;
         private SkObjectImplementation<SKSurface>? _surfaceImplementation;
-        private SkiaColorSpaceImplementation colorSpaceImpl;
+        private SkiaShaderImplementation shaderImpl;
         
-        public SkiaImageImplementation(SkObjectImplementation<SKData> imgDataImplementation, SkiaPixmapImplementation pixmapImplementation)
+        public SkiaImageImplementation(SkObjectImplementation<SKData> imgDataImplementation, SkiaPixmapImplementation pixmapImplementation,  SkiaShaderImplementation shaderImplementation)
         {
             _imgImplementation = imgDataImplementation;
             _pixmapImplementation = pixmapImplementation;
+            shaderImpl = shaderImplementation;
         }
         
         public void SetSurfaceImplementation(SkObjectImplementation<SKSurface> surfaceImplementation)
@@ -147,6 +148,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public Shader ToShader(IntPtr objectPointer)
         {
             var shader = ManagedInstances[objectPointer].ToShader();
+            shaderImpl.ManagedInstances[shader.Handle] = shader;
             return new Shader(shader.Handle);
         }
 

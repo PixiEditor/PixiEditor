@@ -20,7 +20,7 @@ public class ShaderBuilder
         AppendUniforms(sb);
         sb.AppendLine("half4 main(float2 p)");
         sb.AppendLine("{");
-        sb.AppendLine("return original.eval(p).rgba;");
+        sb.AppendLine("return sample(original, p);");
         sb.AppendLine("}");
         
         return sb.ToString();

@@ -73,7 +73,7 @@ namespace PixiEditor.DrawingApi.Skia
             SkiaPixmapImplementation pixmapImpl = new SkiaPixmapImplementation(colorSpaceImpl);
             PixmapImplementation = pixmapImpl;
             
-            SkiaImageImplementation imgImpl = new SkiaImageImplementation(dataImpl, pixmapImpl);
+            SkiaImageImplementation imgImpl = new SkiaImageImplementation(dataImpl, pixmapImpl, shader);
             ImageImplementation = imgImpl;
             SkiaBitmapImplementation bitmapImpl = new SkiaBitmapImplementation(imgImpl, pixmapImpl);
             BitmapImplementation = bitmapImpl;
