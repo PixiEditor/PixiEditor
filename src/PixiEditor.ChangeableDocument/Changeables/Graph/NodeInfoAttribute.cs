@@ -6,6 +6,8 @@ public class NodeInfoAttribute : Attribute
     public string UniqueName { get; }
     
     public string DisplayName { get; }
+    
+    public string? PickerName { get; set; }
 
     public NodeInfoAttribute(string uniqueName, string displayName)
     {

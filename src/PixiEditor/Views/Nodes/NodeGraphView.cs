@@ -14,6 +14,7 @@ using PixiEditor.ViewModels.Document;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Nodes;
 using PixiEditor.Numerics;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.Views.Nodes.Properties;
@@ -59,6 +60,10 @@ internal class NodeGraphView : Zoombox.Zoombox
         AvaloniaProperty.Register<NodeGraphView, ObservableCollection<Type>>(
             nameof(AllNodeTypes));
 
+    public static readonly StyledProperty<ObservableCollection<NodeTypeInfo>> AllNodeTypeInfosProperty =
+        AvaloniaProperty.Register<NodeGraphView, ObservableCollection<NodeTypeInfo>>(
+            nameof(AllNodeTypeInfos));
+
     public static readonly StyledProperty<ICommand> SocketDropCommandProperty =
         AvaloniaProperty.Register<NodeGraphView, ICommand>(
             nameof(SocketDropCommand));
@@ -89,6 +94,12 @@ internal class NodeGraphView : Zoombox.Zoombox
     {
         get => GetValue(AllNodeTypesProperty);
         set => SetValue(AllNodeTypesProperty, value);
+    }
+    
+    public ObservableCollection<NodeTypeInfo> AllNodeTypeInfos
+    {
+        get => GetValue(AllNodeTypeInfosProperty);
+        set => SetValue(AllNodeTypeInfosProperty, value);
     }
 
     public string SearchQuery
@@ -180,16 +191,18 @@ internal class NodeGraphView : Zoombox.Zoombox
         DraggedCommand = new RelayCommand<PointerEventArgs>(Dragged);
         EndDragCommand = new RelayCommand<PointerCaptureLostEventArgs>(EndDrag);
         SocketDropCommand = new RelayCommand<NodeSocket>(SocketDrop);
-        CreateNodeFromContextCommand = new RelayCommand<Type>(CreateNodeType);
+        CreateNodeFromContextCommand = new RelayCommand<NodeTypeInfo>(CreateNodeType);
 
         AllNodeTypes = new ObservableCollection<Type>(GatherAssemblyTypes<Node>());
+        AllNodeTypeInfos = new ObservableCollection<NodeTypeInfo>(AllNodeTypes.Select(x => new NodeTypeInfo(x)));
     }
     
-    private void CreateNodeType(Type nodeType)
+    private void CreateNodeType(NodeTypeInfo nodeType)
     {
-        if (CreateNodeCommand != null && CreateNodeCommand.CanExecute(nodeType))
+        var type = nodeType.NodeType;
+        if (CreateNodeCommand != null && CreateNodeCommand.CanExecute(type))
         {
-            CreateNodeCommand.Execute((nodeType, _lastMouseClickPos));
+            CreateNodeCommand.Execute((type, _lastMouseClickPos));
             ((Control)this.GetVisualDescendants().FirstOrDefault()).ContextFlyout.Hide();
         }
     }

@@ -10,7 +10,7 @@
                     <Grid.ContextFlyout>
                         <Flyout>
                             <nodes:NodePicker
-                                AllNodeTypes="{Binding AllNodeTypes, RelativeSource={RelativeSource TemplatedParent}}"
+                                AllNodeTypeInfos="{Binding AllNodeTypeInfos, RelativeSource={RelativeSource TemplatedParent}}"
                                 SearchQuery="{Binding SearchQuery, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
                                 SelectNodeCommand="{Binding CreateNodeFromContextCommand, RelativeSource={RelativeSource TemplatedParent}}"
                                 />

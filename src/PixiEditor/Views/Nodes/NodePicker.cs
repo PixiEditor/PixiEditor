@@ -6,6 +6,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.Input;
+using PixiEditor.Models.Nodes;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.Views.Nodes;
@@ -21,23 +22,23 @@ public partial class NodePicker : TemplatedControl
         set => SetValue(SearchQueryProperty, value);
     }
 
-    public static readonly StyledProperty<ObservableCollection<Type>> AllNodeTypesProperty =
-        AvaloniaProperty.Register<NodePicker, ObservableCollection<Type>>(
+    public static readonly StyledProperty<ObservableCollection<NodeTypeInfo>> AllNodeTypeInfosProperty =
+        AvaloniaProperty.Register<NodePicker, ObservableCollection<NodeTypeInfo>>(
             "AllNodeTypes");
 
-    public static readonly StyledProperty<ObservableCollection<Type>> FilteredNodeTypesProperty =
-        AvaloniaProperty.Register<NodePicker, ObservableCollection<Type>>(nameof(FilteredNodeTypes));
+    public static readonly StyledProperty<ObservableCollection<NodeTypeInfo>> FilteredNodeTypeInfosProperty =
+        AvaloniaProperty.Register<NodePicker, ObservableCollection<NodeTypeInfo>>(nameof(FilteredNodeTypeInfos));
 
-    public ObservableCollection<Type> AllNodeTypes
+    public ObservableCollection<NodeTypeInfo> AllNodeTypeInfos
     {
-        get => GetValue(AllNodeTypesProperty);
-        set => SetValue(AllNodeTypesProperty, value);
+        get => GetValue(AllNodeTypeInfosProperty);
+        set => SetValue(AllNodeTypeInfosProperty, value);
     }
 
-    public ObservableCollection<Type> FilteredNodeTypes
+    public ObservableCollection<NodeTypeInfo> FilteredNodeTypeInfos
     {
-        get { return (ObservableCollection<Type>)GetValue(FilteredNodeTypesProperty); }
-        set { SetValue(FilteredNodeTypesProperty, value); }
+        get => GetValue(FilteredNodeTypeInfosProperty);
+        set => SetValue(FilteredNodeTypeInfosProperty, value);
     }
 
     public static readonly StyledProperty<ICommand> SelectNodeCommandProperty = AvaloniaProperty.Register<NodePicker, ICommand>(
@@ -52,15 +53,15 @@ public partial class NodePicker : TemplatedControl
     static NodePicker()
     {
         SearchQueryProperty.Changed.Subscribe(OnSearchQueryChanged);
-        AllNodeTypesProperty.Changed.Subscribe(OnAllNodeTypesChanged);
+        AllNodeTypeInfosProperty.Changed.Subscribe(OnAllNodeTypesChanged);
     }
 
     private static void OnSearchQueryChanged(AvaloniaPropertyChangedEventArgs e)
     {
         if (e.Sender is NodePicker nodePicker)
         {
-            nodePicker.FilteredNodeTypes = new ObservableCollection<Type>(nodePicker.AllNodeTypes
-                .Where(x => x.Name.ToLower().Contains(nodePicker.SearchQuery.ToLower())));
+            // nodePicker.FilteredNodeTypes = new ObservableCollection<NodeTypeInfo>(nodePicker.AllNodeTypes
+            //     .Where(x => x.Name.ToLower().Contains(nodePicker.SearchQuery.ToLower())));
         }
     }
     
@@ -68,7 +69,7 @@ public partial class NodePicker : TemplatedControl
     {
         if (e.Sender is NodePicker nodePicker)
         {
-            nodePicker.FilteredNodeTypes = new ObservableCollection<Type>(nodePicker.AllNodeTypes);
+            nodePicker.FilteredNodeTypeInfos = new ObservableCollection<NodeTypeInfo>(nodePicker.AllNodeTypeInfos);
         }
     }
 }

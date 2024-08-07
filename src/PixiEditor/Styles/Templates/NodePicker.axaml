@@ -2,7 +2,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
                     xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
-                    xmlns:input="clr-namespace:PixiEditor.Views.Input">
+                    xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                    xmlns:input="clr-namespace:PixiEditor.Views.Input"
+                    xmlns:nodeModels="clr-namespace:PixiEditor.Models.Nodes">
     <ControlTheme TargetType="nodes:NodePicker" x:Key="{x:Type nodes:NodePicker}">
         <Setter Property="Template">
             <ControlTemplate>
@@ -14,12 +16,14 @@
 
                     <input:InputBox
                         Text="{Binding SearchQuery, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
-                    <ItemsControl MinHeight="200" Grid.Row="1" ItemsSource="{TemplateBinding FilteredNodeTypes}">
+                    <ItemsControl MinHeight="200" Grid.Row="1" ItemsSource="{TemplateBinding FilteredNodeTypeInfos}">
                         <ItemsControl.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate DataType="nodeModels:NodeTypeInfo">
                                 <Button Command="{Binding SelectNodeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodePicker}}"
                                         CommandParameter="{Binding}"
-                                        Content="{Binding Name}" />
+                                        Margin="0,1"
+                                        IsVisible="{Binding FinalPickerName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                        ui:Translator.Key="{Binding FinalPickerName}" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
