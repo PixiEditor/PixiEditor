@@ -382,6 +382,7 @@
   "LAYERS_TITLE": "Layers",
   "NAVIGATION_TITLE": "Navigation",
   "NORMAL_BLEND_MODE": "Normal",
+  "ERASE_BLEND_MODE": "Erase",
   "DARKEN_BLEND_MODE": "Darken",
   "MULTIPLY_BLEND_MODE": "Multiply",
   "COLOR_BURN_BLEND_MODE": "Color burn",
