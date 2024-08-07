@@ -7,7 +7,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("SampleImage")]
+[NodeInfo("SampleImage", "SAMPLE_IMAGE")]
 public class SampleImageNode : Node
 {
     private Pixmap? pixmap;
@@ -17,8 +17,6 @@ public class SampleImageNode : Node
     public FuncOutputProperty<VecD> Coordinate { get; }
 
     public FuncOutputProperty<Color> Color { get; }
-
-    public override string DisplayName { get; set; } = "SAMPLE_IMAGE";
 
     public SampleImageNode()
     {

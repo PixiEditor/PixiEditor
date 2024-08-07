@@ -4,12 +4,10 @@ using PixiEditor.DrawingApi.Core.ColorsImpl;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Evaluator;
 
-[NodeInfo("ColorEvaluatorRight")]
+[NodeInfo("ColorEvaluatorRight", "FINISH_COLOR_EVALUATOR")]
 [PairNode(typeof(ColorEvaluatorLeftNode), "ColorEvaluatorZone")]
 public class ColorEvaluatorRightNode : Node
 {
-    public override string DisplayName { get; set; } = "FINISH_COLOR_EVALUATOR";
-    
     public FuncOutputProperty<Color> Output { get; }
 
     public FuncInputProperty<Color> Input { get; }

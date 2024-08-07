@@ -13,6 +13,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [DebuggerDisplay("Type = {GetType().Name}")]
 public abstract class Node : IReadOnlyNode, IDisposable
 {
+    private string displayName;
     private List<InputProperty> inputs = new();
     private List<OutputProperty> outputs = new();
     protected List<KeyFrameData> keyFrames = new();
@@ -44,13 +45,19 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     protected Node()
     {
+        displayName = GetType().GetCustomAttribute<NodeInfoAttribute>().DisplayName;
     }
 
     IReadOnlyList<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyList<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
     IReadOnlyList<IReadOnlyKeyFrameData> IReadOnlyNode.KeyFrames => keyFrames;
     public VecD Position { get; set; }
-    public abstract string DisplayName { get; set; }
+
+    public virtual string DisplayName
+    {
+        get => displayName;
+        set => displayName = value;
+    }
 
     private KeyFrameTime _lastFrameTime = new KeyFrameTime(-1, 0);
     private ChunkResolution? _lastResolution;

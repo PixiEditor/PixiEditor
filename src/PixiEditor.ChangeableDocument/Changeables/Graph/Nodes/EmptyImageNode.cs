@@ -7,7 +7,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("CreateImage")]
+[NodeInfo("CreateImage", "CREATE_IMAGE_NODE")]
 public class CreateImageNode : Node
 {
     private Paint _paint = new();
@@ -37,7 +37,5 @@ public class CreateImageNode : Node
         return Output.Value;
     }
  
-    public override string DisplayName { get; set; } = "CREATE_IMAGE_NODE";
-
     public override Node CreateCopy() => new CreateImageNode();
 }

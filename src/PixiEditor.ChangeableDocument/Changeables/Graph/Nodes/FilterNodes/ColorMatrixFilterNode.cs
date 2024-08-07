@@ -3,13 +3,11 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
-[NodeInfo("ColorMatrixFilter")]
+[NodeInfo("ColorMatrixFilter", "COLOR_MATRIX_FILTER_NODE")]
 public class ColorMatrixFilterNode : FilterNode
 {
     public InputProperty<ColorMatrix> Matrix { get; }
 
-    public override string DisplayName { get; set; } = "COLOR_MATRIX_FILTER_NODE";
-    
     public ColorMatrixFilterNode()
     {
         Matrix = CreateInput(nameof(Matrix), "MATRIX", ColorMatrix.Identity);

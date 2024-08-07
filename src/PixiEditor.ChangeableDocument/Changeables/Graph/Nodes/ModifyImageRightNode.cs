@@ -11,7 +11,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("ModifyImageRight")]
+[NodeInfo("ModifyImageRight", "MODIFY_IMAGE_RIGHT_NODE")]
 [PairNode(typeof(ModifyImageLeftNode), "ModifyImageZone")]
 public class ModifyImageRightNode : Node, IPairNodeEnd
 {
@@ -23,8 +23,6 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
     public FuncInputProperty<Color> Color { get; }
 
     public OutputProperty<Surface> Output { get; }
-
-    public override string DisplayName { get; set; } = "MODIFY_IMAGE_RIGHT_NODE";
 
     private Surface surface;
 

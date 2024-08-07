@@ -7,7 +7,7 @@ using PixiEditor.DrawingApi.Core;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("Math")]
+[NodeInfo("Math", "MATH_NODE")]
 public class MathNode : Node
 {
     public FuncOutputProperty<double> Result { get; }
@@ -19,9 +19,6 @@ public class MathNode : Node
     public FuncInputProperty<double> X { get; }
     
     public FuncInputProperty<double> Y { get; }
-    
-    
-    public override string DisplayName { get; set; } = "MATH_NODE";
     
     public MathNode()
     {

@@ -5,11 +5,9 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Points;
 
-[NodeInfo("DistributePoints")]
+[NodeInfo("DistributePoints", "DISTRIBUTE_POINTS")]
 public class DistributePointsNode : Node
 {
-    public override string DisplayName { get; set; } = "DISTRIBUTE_POINTS";
-
     public OutputProperty<PointList> Points { get; }
 
     public InputProperty<int> MaxPointCount { get; }

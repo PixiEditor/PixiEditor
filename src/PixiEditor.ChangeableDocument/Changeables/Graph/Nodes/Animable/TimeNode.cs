@@ -3,11 +3,9 @@ using PixiEditor.DrawingApi.Core;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Animable;
 
-[NodeInfo("Time")]
+[NodeInfo("Time", "TIME_NODE")]
 public class TimeNode : Node
 {
-    public override string DisplayName { get; set; } = "TIME_NODE";
-    
     public OutputProperty<int> ActiveFrame { get; set; }
     public OutputProperty<double> NormalizedTime { get; set; }
 

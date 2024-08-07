@@ -8,7 +8,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("Merge")]
+[NodeInfo("Merge", "MERGE_NODE")]
 public class MergeNode : Node, IBackgroundInput
 {
     private Paint _paint = new();
@@ -25,8 +25,6 @@ public class MergeNode : Node, IBackgroundInput
         Bottom = CreateInput<Surface?>("Bottom", "BOTTOM", null);
         Output = CreateOutput<Surface?>("Output", "OUTPUT", null);
     }
-
-    public override string DisplayName { get; set; } = "MERGE_NODE";
 
     public override Node CreateCopy()
     {

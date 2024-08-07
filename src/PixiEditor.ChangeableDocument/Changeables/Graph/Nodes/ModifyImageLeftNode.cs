@@ -10,7 +10,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("ModifyImageLeft")]
+[NodeInfo("ModifyImageLeft", "MODIFY_IMAGE_LEFT_NODE")]
 [PairNode(typeof(ModifyImageRightNode), "ModifyImageZone", true)]
 public class ModifyImageLeftNode : Node
 {
@@ -20,8 +20,6 @@ public class ModifyImageLeftNode : Node
     
     public FuncOutputProperty<Color> Color { get; }
 
-    public override string DisplayName { get; set; } = "MODIFY_IMAGE_LEFT_NODE";
-    
     private ConcurrentDictionary<RenderingContext, Pixmap> pixmapCache = new();
 
     public ModifyImageLeftNode()

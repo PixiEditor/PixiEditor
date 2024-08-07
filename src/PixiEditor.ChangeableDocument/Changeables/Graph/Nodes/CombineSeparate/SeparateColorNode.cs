@@ -4,7 +4,7 @@ using PixiEditor.DrawingApi.Core.ColorsImpl;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
-[NodeInfo("SeparateColor")]
+[NodeInfo("SeparateColor", "SEPARATE_COLOR_NODE")]
 public class SeparateColorNode : Node
 {
     public FuncInputProperty<Color> Color { get; }
@@ -17,8 +17,6 @@ public class SeparateColorNode : Node
     
     public FuncOutputProperty<double> A { get; }
     
-    public override string DisplayName { get; set; } = "SEPARATE_COLOR_NODE";
-
     public SeparateColorNode()
     {
         Color = CreateFuncInput(nameof(Color), "COLOR", new Color());

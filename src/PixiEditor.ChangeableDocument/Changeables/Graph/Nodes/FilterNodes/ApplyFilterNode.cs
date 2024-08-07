@@ -5,12 +5,10 @@ using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
-[NodeInfo("ApplyFilter")]
+[NodeInfo("ApplyFilter", "APPLY_FILTER_NODE")]
 public class ApplyFilterNode : Node
 {
     private Paint _paint = new();
-    
-    public override string DisplayName { get; set; } = "APPLY_FILTER_NODE";
     
     public OutputProperty<Surface?> Output { get; }
 
