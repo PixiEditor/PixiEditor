@@ -694,5 +694,15 @@
   "FINISHED": "Finished",
   "GENERATING_SPRITE_SHEET": "Generating Sprite Sheet",
   "RENDERING_IMAGE": "Rendering Image",
-  "PROGRESS_POPUP_TITLE": "Progress"
+  "PROGRESS_POPUP_TITLE": "Progress",
+  "POINTS": "Points",
+  "MIN_DISTANCE": "Min. Distance",
+  "MAX_POINTS": "Max. Points",
+  "PROBABILITY": "Probability",
+  "DISTRIBUTE_POINTS": "Distribute points",
+  "REMOVE_CLOSE_POINTS": "Remove close points",
+  "RASTERIZE_POINTS": "Rasterize Points",
+  "BEGIN_COLOR_EVALUATOR": "Begin evaluating color",
+  "FINISH_COLOR_EVALUATOR": "Finish evaluating color",
+  "STARS_EXAMPLE": "Stars"
 }
