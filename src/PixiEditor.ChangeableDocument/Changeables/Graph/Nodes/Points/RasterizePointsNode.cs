@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Rendering;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
@@ -17,13 +18,13 @@ public class RasterizePointsNode : Node
 
     public InputProperty<PointList> Points { get; }
 
-    public InputProperty<Color> Color { get; }
+    public FuncInputProperty<Color> Color { get; }
 
     public RasterizePointsNode()
     {
         Image = CreateOutput<Surface>("Image", "IMAGE", null);
         Points = CreateInput("Points", "POINTS", PointList.Empty);
-        Color = CreateInput("Color", "COLOR", Colors.Black);
+        Color = CreateFuncInput("Color", "COLOR", Colors.Black);
     }
 
     protected override Surface? OnExecute(RenderingContext context)
@@ -36,9 +37,12 @@ public class RasterizePointsNode : Node
         var size = context.DocumentSize;
         var image = new Surface(size);
 
-        _paint.Color = Color.Value;
+        var colorFunc = Color.Value;
+        var funcContext = new FuncContext();
         foreach (var point in points)
         {
+            funcContext.UpdateContext(point, context.DocumentSize);
+            _paint.Color = colorFunc(funcContext);
             image.DrawingSurface.Canvas.DrawPixel((VecI)point.Multiply(size), _paint);
         }
 
