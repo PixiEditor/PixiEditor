@@ -656,6 +656,7 @@
   "MERGE_NODE": "Merge",
   "MODIFY_IMAGE_LEFT_NODE": "Begin Modify Image",
   "MODIFY_IMAGE_RIGHT_NODE": "End Modify Image",
+  "MODIFY_IMAGE_PAIR_NODE": "Modify Image",
   "COMBINE_CHANNELS_NODE": "Combine Channels",
   "COMBINE_COLOR_NODE": "Combine Color",
   "COMBINE_VECD_NODE": "Combine Vector",
@@ -703,7 +704,8 @@
   "DISTRIBUTE_POINTS": "Distribute points",
   "REMOVE_CLOSE_POINTS": "Remove close points",
   "RASTERIZE_POINTS": "Rasterize Points",
-  "BEGIN_COLOR_EVALUATOR": "Begin evaluating color",
-  "FINISH_COLOR_EVALUATOR": "Finish evaluating color",
+  "BEGIN_COLOR_EVALUATOR_NODE": "Begin evaluating color",
+  "FINISH_COLOR_EVALUATOR_NODE": "Finish evaluating color",
+  "COLOR_EVALUATOR_NODE_PAIR": "Color Evaluator",
   "STARS_EXAMPLE": "Stars"
 }

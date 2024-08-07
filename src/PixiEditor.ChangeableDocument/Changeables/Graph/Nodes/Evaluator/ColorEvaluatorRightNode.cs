@@ -4,7 +4,7 @@ using PixiEditor.DrawingApi.Core.ColorsImpl;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Evaluator;
 
-[NodeInfo("ColorEvaluatorRight", "FINISH_COLOR_EVALUATOR")]
+[NodeInfo("ColorEvaluatorRight", "FINISH_COLOR_EVALUATOR", PickerName = "")]
 [PairNode(typeof(ColorEvaluatorLeftNode), "ColorEvaluatorZone")]
 public class ColorEvaluatorRightNode : Node
 {
