@@ -46,9 +46,13 @@ public class DistributePointsNode : Node
 
     private PointList GetPointsRandomly()
     {
-        var random = new Random(Seed.Value);
+        var seed = Seed.Value;
+        var random = new Random(seed);
         var pointCount = MaxPointCount.Value;
-        var finalPoints = new PointList(pointCount);
+        var finalPoints = new PointList(pointCount)
+        {
+            HashValue = HashCode.Combine(Probability.Value, pointCount, seed)
+        };
 
         for (int i = 0; i < pointCount; i++)
         {
@@ -74,7 +78,7 @@ public class DistributePointsNode : Node
         Array.Fill(rowSumCache, -1);
         
         var pointCount = MaxPointCount.Value;
-        var finalPoints = new PointList(pointCount);
+        var finalPoints = new PointList(pointCount) { HashValue = 0 };
         
         for (int i = 0; i < pointCount; i++)
         {

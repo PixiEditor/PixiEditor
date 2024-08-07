@@ -35,8 +35,8 @@ public class RemoveClosePointsNode : Node
             return null;
         }
 
-        var availablePoints = new PointList(Input.Value).Distinct().ToList();
-        var newPoints = new PointList(availablePoints.Count);
+        var availablePoints = Input.Value.Distinct().ToList();
+        var newPoints = new PointList(availablePoints.Count) { HashValue = HashCode.Combine(Input.Value.HashValue, MinDistance.Value, Seed.Value) };
 
         var minDistance = MinDistance.Value;
         var documentSize = context.DocumentSize;
