@@ -1,6 +1,7 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Shaders;
 
 namespace PixiEditor.DrawingApi.Core.Surfaces.PaintImpl
 {

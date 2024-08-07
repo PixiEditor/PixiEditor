@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
@@ -16,6 +17,7 @@ public class Texture : IDisposable
     public event SurfaceChangedEventHandler? Changed;
 
     public bool IsDisposed { get; private set; }
+    public bool IsHardwareAccelerated { get; } = DrawingBackendApi.Current.IsHardwareAccelerated;
 
     private bool pixmapUpToDate;
     private Pixmap pixmap;

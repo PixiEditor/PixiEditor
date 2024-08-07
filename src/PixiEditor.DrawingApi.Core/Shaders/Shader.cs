@@ -1,9 +1,11 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Exceptions;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.Numerics;
 
-namespace PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
+namespace PixiEditor.DrawingApi.Core.Shaders;
 
 public class Shader : NativeObject
 {
@@ -12,7 +14,15 @@ public class Shader : NativeObject
     public Shader(IntPtr objPtr) : base(objPtr)
     {
     }
-    
+
+    public Shader(string sksl, Uniforms uniforms) : base(DrawingBackendApi.Current.ShaderImplementation.CreateFromSksl(sksl, false, uniforms, out string errors)?.ObjectPointer ?? IntPtr.Zero)
+    {
+        if (!string.IsNullOrEmpty(errors))
+        {
+            throw new ShaderCompilationException(errors);
+        }
+    }
+
     public static Shader? CreateFromSksl(string sksl, bool isOpaque, out string errors)
     {
        return DrawingBackendApi.Current.ShaderImplementation.CreateFromSksl(sksl, isOpaque, out errors);

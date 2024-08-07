@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Shaders;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
@@ -27,6 +28,7 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
     public override string DisplayName { get; set; } = "MODIFY_IMAGE_RIGHT_NODE";
 
     private Texture surface;
+    private string _lastSksl;
 
     public ModifyImageRightNode()
     {
@@ -55,15 +57,37 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
         var width = size.X;
         var height = size.Y;
         
-        surface = new Texture(size);
+        if (surface == null || surface.Size != size)
+        {
+            surface?.Dispose();
+            surface = new Texture(size);
+            surface.DrawingSurface.Canvas.Clear();
+        }
 
-        startNode.PreparePixmap(renderingContext);
-        
-        using Pixmap targetPixmap = surface.PeekReadOnlyPixels();
+        if (!surface.IsHardwareAccelerated)
+        {
+            startNode.PreparePixmap(renderingContext);
 
-        ModifyImageInParallel(renderingContext, targetPixmap, width, height);
-        
-        startNode.DisposePixmap(renderingContext);
+            using Pixmap targetPixmap = surface.PeekReadOnlyPixels();
+
+            ModifyImageInParallel(renderingContext, targetPixmap, width, height);
+
+            startNode.DisposePixmap(renderingContext);
+        }
+        else
+        {
+            ShaderBuilder builder = new();
+            builder.WithTexture("original", startNode.Image.Value);
+
+            string sksl = builder.ToSkSl();
+            if (sksl != _lastSksl)
+            {
+                _lastSksl = sksl;
+                drawingPaint.Shader = builder.BuildShader();
+            }
+            
+            surface.DrawingSurface.Canvas.DrawPaint(drawingPaint);
+        }
 
         Output.Value = surface;
 

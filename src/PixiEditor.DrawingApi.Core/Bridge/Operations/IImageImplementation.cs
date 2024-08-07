@@ -1,6 +1,7 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Shaders;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using PixiEditor.Numerics;
@@ -24,5 +25,6 @@ namespace PixiEditor.DrawingApi.Core.Bridge.Operations
         public Image Clone(Image image);
         public Pixmap PeekPixels(IntPtr objectPointer);
         public ImageInfo GetImageInfo(IntPtr objectPointer);
+        public Shader ToShader(IntPtr objectPointer);
     }
 }

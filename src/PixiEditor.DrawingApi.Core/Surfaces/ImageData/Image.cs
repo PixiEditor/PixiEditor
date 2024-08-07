@@ -1,5 +1,6 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge;
+using PixiEditor.DrawingApi.Core.Shaders;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.DrawingApi.Core.Surfaces.ImageData
@@ -66,6 +67,11 @@ namespace PixiEditor.DrawingApi.Core.Surfaces.ImageData
         public object Clone()
         {
             return DrawingBackendApi.Current.ImageImplementation.Clone(this);
+        }
+
+        public Shader ToShader()
+        {
+            return DrawingBackendApi.Current.ImageImplementation.ToShader(ObjectPointer);
         }
     }
 }

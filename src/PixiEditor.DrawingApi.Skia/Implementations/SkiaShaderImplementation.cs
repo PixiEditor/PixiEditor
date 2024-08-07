@@ -1,6 +1,7 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Shaders;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 using SkiaSharp;
@@ -20,6 +21,21 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             return skShader.Handle;
         }
 
+        public Shader? CreateFromSksl(string sksl, bool isOpaque, Uniforms uniforms, out string errors)
+        {
+            SKRuntimeEffect effect = SKRuntimeEffect.Create(sksl, out errors);
+            if (string.IsNullOrEmpty(errors))
+            {
+                SKRuntimeEffectUniforms effectUniforms = UniformsToSkUniforms(uniforms, effect); 
+                SKRuntimeEffectChildren effectChildren = UniformsToSkChildren(uniforms, effect);
+                SKShader shader = effect.ToShader(isOpaque, effectUniforms, effectChildren);
+                ManagedInstances[shader.Handle] = shader;
+                return new Shader(shader.Handle);
+            }
+            
+            return null;
+        }
+        
         public Shader? CreateFromSksl(string sksl, bool isOpaque, out string errors)
         {
             SKRuntimeEffect effect = SKRuntimeEffect.Create(sksl, out errors);
@@ -82,6 +98,38 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             if (!ManagedInstances.TryGetValue(shaderObjPointer, out var shader)) return;
             shader.Dispose();
             ManagedInstances.TryRemove(shaderObjPointer, out _);
+        }
+        
+        private SKRuntimeEffectUniforms UniformsToSkUniforms(Uniforms uniforms, SKRuntimeEffect effect)
+        {
+            SKRuntimeEffectUniforms skUniforms = new SKRuntimeEffectUniforms(effect);
+            foreach (var uniform in uniforms)
+            {
+                if (uniform.Value.DataType == UniformValueType.Float)
+                {
+                    skUniforms.Add(uniform.Value.Name, uniform.Value.FloatValue);
+                }
+                else if (uniform.Value.DataType == UniformValueType.FloatArray)
+                {
+                    skUniforms.Add(uniform.Value.Name, uniform.Value.FloatArrayValue);
+                }
+            }
+
+            return skUniforms;
+        }
+        
+        private SKRuntimeEffectChildren UniformsToSkChildren(Uniforms uniforms, SKRuntimeEffect effect)
+        {
+            SKRuntimeEffectChildren skChildren = new SKRuntimeEffectChildren(effect);
+            foreach (var uniform in uniforms)
+            {
+                if (uniform.Value.DataType == UniformValueType.Shader)
+                {
+                    skChildren.Add(uniform.Value.Name, this[uniform.Value.ShaderValue.ObjectPointer]);
+                }
+            }
+
+            return skChildren;
         }
     }
 }

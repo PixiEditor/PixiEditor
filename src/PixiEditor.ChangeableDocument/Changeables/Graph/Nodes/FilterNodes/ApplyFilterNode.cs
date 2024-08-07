@@ -17,6 +17,8 @@ public class ApplyFilterNode : Node
     public InputProperty<Texture?> Input { get; }
     
     public InputProperty<Filter?> Filter { get; }
+    
+    private Texture _workingSurface;
 
     public ApplyFilterNode()
     {
@@ -34,12 +36,17 @@ public class ApplyFilterNode : Node
         
         _paint.SetFilters(Filter.Value);
 
-        var workingSurface = new Texture(input.Size);
+        if (_workingSurface == null || _workingSurface.Size != input.Size)
+        {
+            _workingSurface?.Dispose();
+            _workingSurface = new Texture(input.Size);
+            _workingSurface.DrawingSurface.Canvas.Clear();
+        }
         
-        workingSurface.DrawingSurface.Canvas.DrawSurface(input.DrawingSurface, 0, 0, _paint);
+        _workingSurface.DrawingSurface.Canvas.DrawSurface(input.DrawingSurface, 0, 0, _paint);
 
-        Output.Value = workingSurface;
-        return workingSurface;
+        Output.Value = _workingSurface;
+        return _workingSurface;
     }
 
     public override Node CreateCopy() => new ApplyFilterNode();

@@ -90,7 +90,7 @@
             <SolidColorBrush x:Key="SelectionFillBrush" Color="{StaticResource SelectionFillColor}"/>
             
             <SolidColorBrush x:Key="DefaultSocketBrush" Color="{StaticResource DefaultSocketColor}"/>
-            <SolidColorBrush x:Key="SurfaceSocketBrush" Color="{StaticResource ImageSocketColor}"/>
+            <SolidColorBrush x:Key="TextureSocketBrush" Color="{StaticResource ImageSocketColor}"/>
             <SolidColorBrush x:Key="BooleanSocketBrush" Color="{StaticResource BoolSocketColor}"/>
             <SolidColorBrush x:Key="SingleSocketBrush" Color="{StaticResource FloatSocketColor}"/>
             <SolidColorBrush x:Key="DoubleSocketBrush" Color="{StaticResource DoubleSocketColor}"/>

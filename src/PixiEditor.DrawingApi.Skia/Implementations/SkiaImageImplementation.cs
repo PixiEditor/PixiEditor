@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using PixiEditor.DrawingApi.Core.Bridge.Operations;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Shaders;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using PixiEditor.Numerics;
@@ -141,6 +142,12 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             var info = ManagedInstances[objectPointer].Info;
             return info.ToImageInfo();
+        }
+
+        public Shader ToShader(IntPtr objectPointer)
+        {
+            var shader = ManagedInstances[objectPointer].ToShader();
+            return new Shader(shader.Handle);
         }
 
         public object GetNativeImage(IntPtr objectPointer)
