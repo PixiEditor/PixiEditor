@@ -24,7 +24,7 @@ public class RasterizePointsNode : Node
     {
         Image = CreateOutput<Surface>("Image", "IMAGE", null);
         Points = CreateInput("Points", "POINTS", PointList.Empty);
-        Color = CreateFuncInput("Color", "COLOR", Colors.Black);
+        Color = CreateFuncInput("Color", "COLOR", Colors.White);
     }
 
     protected override Surface? OnExecute(RenderingContext context)
