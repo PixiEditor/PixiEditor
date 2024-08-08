@@ -17,7 +17,7 @@ public class DocumentRenderer
 
     private IReadOnlyDocument Document { get; }
 
-    public OneOf<Texture, EmptyChunk> RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime,
+    public OneOf<Chunk, EmptyChunk> RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime,
         RectI? globalClippingRect = null)
     {
         RenderingContext context = new(frameTime, chunkPos, resolution, Document.Size);
@@ -31,14 +31,14 @@ public class DocumentRenderer
                 return new EmptyChunk();
             }
 
-            Texture chunk = new Texture(new VecI(resolution.PixelSize()));
+            Chunk chunk = Chunk.Create(resolution);
 
-            chunk.DrawingSurface.Canvas.Save();
-            chunk.DrawingSurface.Canvas.Clear();
+            chunk.Surface.DrawingSurface.Canvas.Save();
+            chunk.Surface.DrawingSurface.Canvas.Clear();
 
             if (transformedClippingRect is not null)
             {
-                chunk.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
+                chunk.Surface.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
             }
 
             VecD pos = chunkPos;
@@ -63,9 +63,9 @@ public class DocumentRenderer
             
             if(context.IsDisposed) return new EmptyChunk();
 
-            chunk.DrawingSurface.Canvas.DrawImage(chunkSnapshot, 0, 0, context.ReplacingPaintWithOpacity);
+            chunk.Surface.DrawingSurface.Canvas.DrawImage(chunkSnapshot, 0, 0, context.ReplacingPaintWithOpacity);
 
-            chunk.DrawingSurface.Canvas.Restore();
+            chunk.Surface.DrawingSurface.Canvas.Restore();
 
             return chunk;
         }

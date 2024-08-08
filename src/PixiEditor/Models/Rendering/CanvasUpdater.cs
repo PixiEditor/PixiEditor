@@ -224,7 +224,7 @@ internal class CanvasUpdater
 
         doc.Renderer.RenderChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameTime, globalClippingRectangle)
             .Switch(
-                (Texture chunk) =>
+                (Chunk chunk) =>
                 {
                     if (screenSurface.IsDisposed) return;
 
@@ -235,7 +235,7 @@ internal class CanvasUpdater
                     }
 
                     screenSurface.DrawingSurface.Canvas.DrawSurface(
-                        chunk.DrawingSurface,
+                        chunk.Surface.DrawingSurface,
                         chunkPos.Multiply(new VecI(resolution.PixelSize())), ReplacingPaint);
                     chunk.Dispose();
 
