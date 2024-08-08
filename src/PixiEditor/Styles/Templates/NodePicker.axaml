@@ -15,7 +15,8 @@
                     </Grid.RowDefinitions>
 
                     <input:InputBox
-                        Text="{Binding SearchQuery, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
+                        Text="{Binding SearchQuery, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                        Name="PART_InputBox" />
                     <ItemsControl MinHeight="200" Grid.Row="1" ItemsSource="{TemplateBinding FilteredNodeTypeInfos}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="nodeModels:NodeTypeInfo">
