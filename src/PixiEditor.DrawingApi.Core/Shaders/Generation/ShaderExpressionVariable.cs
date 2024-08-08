@@ -23,10 +23,10 @@ public abstract class ShaderExpressionVariable(string name) : Expression
     }
 }
 
-public abstract class ShaderExpressionVariable<TConstant>(string name, TConstant constant)
+public abstract class ShaderExpressionVariable<TConstant>(string name)
     : ShaderExpressionVariable(name)
 {
-    public TConstant? ConstantValue { get; set; } = constant;
+    public TConstant? ConstantValue { get; set; }
 
     public override void SetConstantValue(object? value, Func<object, Type, object> convertFunc)
     {

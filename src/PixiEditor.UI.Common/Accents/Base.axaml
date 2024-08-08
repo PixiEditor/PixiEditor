@@ -42,7 +42,6 @@
             <Color x:Key="ImageSocketColor">#99c47a</Color>
             <Color x:Key="BoolSocketColor">#68abdf</Color>
             <Color x:Key="FloatSocketColor">#ffc66d</Color>
-            <!-- TODO: How do we wanna handle floats and doubles? -->
             <Color x:Key="DoubleSocketColor">#efb66d</Color>
             <Color x:Key="ColorSocketColor">#99e4aa</Color>
             <Color x:Key="VecDSocketColor">#c984ca</Color>
@@ -95,6 +94,7 @@
             <SolidColorBrush x:Key="BooleanSocketBrush" Color="{StaticResource BoolSocketColor}"/>
             <SolidColorBrush x:Key="SingleSocketBrush" Color="{StaticResource FloatSocketColor}"/>
             <SolidColorBrush x:Key="DoubleSocketBrush" Color="{StaticResource DoubleSocketColor}"/>
+            <SolidColorBrush x:Key="Float1SocketBrush" Color="{StaticResource DoubleSocketColor}"/>
             <SolidColorBrush x:Key="ColorSocketBrush" Color="{StaticResource ColorSocketColor}"/>
             <SolidColorBrush x:Key="Half4SocketBrush" Color="{StaticResource ColorSocketColor}"/>
             <SolidColorBrush x:Key="VecDSocketBrush" Color="{StaticResource VecDSocketColor}"/>

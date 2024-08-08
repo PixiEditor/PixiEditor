@@ -102,7 +102,7 @@ public class ShaderBuilder
     public Float1 ConstructFloat1(Expression assignment)
     {
         string name = $"float_{_variables.Count}";
-        Float1 result = new Float1(name, 0);
+        Float1 result = new Float1(name);
         _variables.Add(result);
         
         _bodyBuilder.AppendLine($"float {name} = {assignment.ExpressionValue};");

@@ -19,7 +19,17 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
 
     protected override object FuncFactory(object toReturn)
     {
-        Func<FuncContext, T> func = _ => (T)toReturn;
+        Func<FuncContext, T> func = _ =>
+        {
+            if (typeof(T).IsAssignableTo(typeof(ShaderExpressionVariable)))
+            {
+                var shaderExpressionVariable = (ShaderExpressionVariable)Activator.CreateInstance(typeof(T), "");
+                shaderExpressionVariable.SetConstantValue(toReturn, ConversionTable.Convert);
+                return (T)(object)shaderExpressionVariable;
+            }
+            
+            return (T)toReturn;
+        };
         return func;
     }
 

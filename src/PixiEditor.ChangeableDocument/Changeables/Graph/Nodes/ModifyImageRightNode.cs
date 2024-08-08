@@ -35,8 +35,8 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
 
     public ModifyImageRightNode()
     {
-        Coordinate = CreateFuncInput(nameof(Coordinate), "UV", new Float2("coords", VecD.Zero));
-        Color = CreateFuncInput(nameof(Color), "COLOR", new Half4("", DrawingApi.Core.ColorsImpl.Color.Empty));
+        Coordinate = CreateFuncInput(nameof(Coordinate), "UV", new Float2("coords"));
+        Color = CreateFuncInput(nameof(Color), "COLOR", new Half4(""));
         Output = CreateOutput<Texture>(nameof(Output), "OUTPUT", null);
     }
 

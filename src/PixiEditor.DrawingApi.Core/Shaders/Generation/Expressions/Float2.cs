@@ -2,12 +2,8 @@
 
 namespace PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 
-public class Float2(string name, VecD constant) : ShaderExpressionVariable<VecD>(name, constant)
+public class Float2(string name) : ShaderExpressionVariable<VecD>(name)
 {
-    public Float2(string name) : this(name, VecD.Zero)
-    {
-    }
-
     public override string ConstantValueString
     {
         get
@@ -22,7 +18,7 @@ public class Float2(string name, VecD constant) : ShaderExpressionVariable<VecD>
     {
         get
         {
-            return new Float1($"{UniformName}.x", ConstantValue.X);
+            return new Float1($"{UniformName}.x") { ConstantValue = ConstantValue.X };
         }
     }
     
@@ -30,10 +26,10 @@ public class Float2(string name, VecD constant) : ShaderExpressionVariable<VecD>
     {
         get
         {
-            return new Float1($"{UniformName}.y", ConstantValue.Y);
+            return new Float1($"{UniformName}.y") { ConstantValue = ConstantValue.Y };
         }
     }
     
-    public static implicit operator Float2(VecD value) => new Float2("", value);
+    public static implicit operator Float2(VecD value) => new Float2("") { ConstantValue = value };
     public static explicit operator VecD(Float2 value) => value.ConstantValue;
 }

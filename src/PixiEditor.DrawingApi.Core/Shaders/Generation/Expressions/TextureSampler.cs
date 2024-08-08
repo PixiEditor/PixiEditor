@@ -2,7 +2,7 @@
 
 public class TextureSampler : ShaderExpressionVariable<Texture>
 {
-    public TextureSampler(string name) : base(name, null)
+    public TextureSampler(string name) : base(name)
     {
     }
 
