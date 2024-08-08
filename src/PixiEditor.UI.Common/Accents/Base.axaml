@@ -100,7 +100,9 @@
             <SolidColorBrush x:Key="VecDSocketBrush" Color="{StaticResource VecDSocketColor}"/>
             <SolidColorBrush x:Key="Float2SocketBrush" Color="{StaticResource VecDSocketColor}"/>
             <SolidColorBrush x:Key="VecISocketBrush" Color="{StaticResource VecISocketColor}"/>
+            <SolidColorBrush x:Key="Int2SocketBrush" Color="{StaticResource VecISocketColor}"/>
             <SolidColorBrush x:Key="Int32SocketBrush" Color="{StaticResource IntSocketColor}"/>
+            <SolidColorBrush x:Key="Int1SocketBrush" Color="{StaticResource IntSocketColor}"/>
             
             <SolidColorBrush x:Key="PixiEditorModifyImageLeftBorderBrush" Color="{StaticResource PixiEditorModifyImageBorderColor}"/>
             <SolidColorBrush x:Key="PixiEditorModifyImageRightBorderBrush" Color="{StaticResource PixiEditorModifyImageBorderColor}"/>

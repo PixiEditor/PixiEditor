@@ -57,8 +57,43 @@ public class FuncContext
         return Builder.ConstructFloat1(result);
     }
 
+
+    public Int2 NewInt2(Expression first, Expression second)
+    {
+        return Builder.ConstructInt2(first, second);
+    }
+
     public Half4 NewHalf4(Expression r, Expression g, Expression b, Expression a)
     {
         return Builder.ConstructHalf4(r, g, b, a);
+    }
+
+    public Float1 GetValue(FuncInputProperty<Float1> getFrom)
+    {
+        if (getFrom.Connection == null || !IsFuncType(getFrom))
+        {
+            string uniformName = $"float_{Builder.GetUniqueNameNumber()}";
+            Builder.AddUniform(uniformName, (float)getFrom.Value(this).ConstantValue);
+            return new Float1(uniformName);
+        }
+
+        return getFrom.Value(this);
+    }
+
+    public Expression GetValue(FuncInputProperty<Int1> getFrom)
+    {
+        if (getFrom.Connection == null || !IsFuncType(getFrom))
+        {
+            string uniformName = $"int_{Builder.GetUniqueNameNumber()}";
+            Builder.AddUniform(uniformName, (int)getFrom.Value(this).ConstantValue);
+            return new Expression(uniformName);
+        }
+
+        return getFrom.Value(this);
+    }
+
+    private static bool IsFuncType<T>(FuncInputProperty<T> getFrom)
+    {
+        return getFrom.Connection.ValueType.IsAssignableTo(typeof(Delegate));
     }
 }

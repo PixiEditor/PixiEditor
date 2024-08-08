@@ -29,8 +29,8 @@ public class CombineVecD : Node
     
     private Float2 GetVector(FuncContext ctx)
     {
-        var x = X.Value(ctx);
-        var y = Y.Value(ctx);
+        var x = ctx.GetValue(X); 
+        var y = ctx.GetValue(Y);
 
         return ctx.NewFloat2(x, y); 
     }

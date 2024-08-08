@@ -1,5 +1,7 @@
 ﻿using System.Numerics;
+using System.Reflection;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
+using PixiEditor.DrawingApi.Core.Shaders.Generation;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
@@ -49,6 +51,11 @@ public static class ConversionTable
         {
             try
             {
+                if (IsCrossExpression(func.Method, targetType))
+                {
+                    //TODO
+                }
+
                 var actualArg = func.DynamicInvoke(FuncContext.NoContext);
                 return TryConvert(actualArg, targetType, out result);
             }
@@ -97,6 +104,12 @@ public static class ConversionTable
         }
 
         throw new InvalidCastException($"Cannot convert {arg.GetType()} to {targetType}");
+    }
+    
+    private static bool IsCrossExpression(MethodInfo method, Type targetType)
+    {
+        return method.ReturnType.IsAssignableTo(typeof(ShaderExpressionVariable))
+               && targetType.IsAssignableTo(typeof(Delegate));
     }
 
     private static int DoubleToInt(double d)

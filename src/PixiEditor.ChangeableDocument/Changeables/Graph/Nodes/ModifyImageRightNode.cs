@@ -86,12 +86,15 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
                 }
                 else
                 {
-                    builder.Set(context.Position, Coordinate.Value(context));
+                    builder.Set(context.Position, coordinate);
                 }
             }
             else
             {
-                builder.SetConstant(context.Position, Coordinate.NonOverridenValue(FuncContext.NoContext));
+                var constCoords = Coordinate.NonOverridenValue(FuncContext.NoContext);
+                constCoords.UniformName = "constCords";
+                builder.AddUniform(constCoords.UniformName, constCoords.ConstantValue);
+                builder.Set(context.Position, constCoords);
             }
 
             if (Color.Connection != null)
@@ -100,7 +103,10 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
             }
             else
             {
-                builder.ReturnConst(Color.NonOverridenValue(FuncContext.NoContext));
+                Half4 color = Color.NonOverridenValue(FuncContext.NoContext);
+                color.UniformName = "color";
+                builder.AddUniform(color.UniformName, color.ConstantValue);
+                builder.ReturnVar(color);
             }
 
             string sksl = builder.ToSkSl();

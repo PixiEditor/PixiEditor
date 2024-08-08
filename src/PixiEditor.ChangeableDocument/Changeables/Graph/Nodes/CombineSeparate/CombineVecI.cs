@@ -1,6 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
@@ -8,11 +9,11 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 [NodeInfo("CombineVecI")]
 public class CombineVecI : Node
 {
-    public FuncOutputProperty<VecI> Vector { get; }
+    public FuncOutputProperty<Int2> Vector { get; }
     
-    public FuncInputProperty<int> X { get; }
+    public FuncInputProperty<Int1> X { get; }
     
-    public FuncInputProperty<int> Y { get; }
+    public FuncInputProperty<Int1> Y { get; }
 
     public override string DisplayName { get; set; } = "COMBINE_VECI_NODE";
 
@@ -20,16 +21,16 @@ public class CombineVecI : Node
     {
         Vector = CreateFuncOutput(nameof(Vector), "VECTOR", GetVector);
 
-        X = CreateFuncInput(nameof(X), "X", 0);
-        Y = CreateFuncInput(nameof(Y), "Y", 0);
+        X = CreateFuncInput<Int1>(nameof(X), "X", 0);
+        Y = CreateFuncInput<Int1>(nameof(Y), "Y", 0);
     }
 
-    private VecI GetVector(FuncContext ctx)
+    private Int2 GetVector(FuncContext ctx)
     {
-        var r = X.Value(ctx);
-        var g = Y.Value(ctx);
+        var x = ctx.GetValue(X);
+        var y = ctx.GetValue(Y);
 
-        return new VecI(r, g);
+        return ctx.NewInt2(x, y);
     }
 
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.DrawingApi.Core.Shaders;
@@ -14,7 +15,7 @@ public struct Uniform
     public string UniformName { get; }
 
     public UniformValueType DataType { get; }
-    
+
     public Uniform(string name, float value)
     {
         Name = name;
@@ -44,10 +45,20 @@ public struct Uniform
         DataType = UniformValueType.Shader;
         UniformName = "shader";
     }
+    
+    public Uniform(string name, Color color)
+    {
+        Name = name;
+        FloatValue = default;
+        FloatArrayValue = new float[] { color.R, color.G, color.B, color.A };
+        ShaderValue = default;
+        DataType = UniformValueType.FloatArray;
+        UniformName = "half4";
+    }
 
     public void Dispose()
     {
-        ShaderValue.Dispose();
+        ShaderValue?.Dispose();
     }
 }
 

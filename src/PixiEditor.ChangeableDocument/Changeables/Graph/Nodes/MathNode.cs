@@ -56,7 +56,10 @@ public class MathNode : Node
         return context.NewFloat1(result);
     }
 
-    private (Float1 x, Float1 y) GetValues(FuncContext context) => (X.Value(context), Y.Value(context));
+    private (Float1 x, Float1 y) GetValues(FuncContext context)
+    {
+        return (context.GetValue(X), context.GetValue(Y));
+    }
 
 
     protected override Texture? OnExecute(RenderingContext context)
