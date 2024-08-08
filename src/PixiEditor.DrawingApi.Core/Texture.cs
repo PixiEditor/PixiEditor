@@ -194,6 +194,8 @@ public class Texture : IDisposable
         IsDisposed = true;
         DrawingSurface.Changed -= DrawingSurfaceOnChanged;
         DrawingSurface.Dispose();
+        pixmap?.Dispose();
+        nearestNeighborReplacingPaint.Dispose();
     }
 
     public static Texture FromExisting(DrawingSurface drawingSurface)

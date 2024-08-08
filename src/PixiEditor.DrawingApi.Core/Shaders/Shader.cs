@@ -19,8 +19,18 @@ public class Shader : NativeObject
     {
         if (!string.IsNullOrEmpty(errors))
         {
-            throw new ShaderCompilationException(errors);
+            throw new ShaderCompilationException(errors, sksl);
         }
+    }
+    
+    /// <summary>
+    ///     Creates updated version of shader with new uniforms. THIS FUNCTION DISPOSES OLD SHADER.
+    /// </summary>
+    /// <param name="uniforms"></param>
+    /// <returns></returns>
+    public Shader WithUpdatedUniforms(Uniforms uniforms)
+    {
+        return DrawingBackendApi.Current.ShaderImplementation.WithUpdatedUniforms(ObjectPointer, uniforms);
     }
 
     public static Shader? CreateFromSksl(string sksl, bool isOpaque, out string errors)
@@ -30,7 +40,7 @@ public class Shader : NativeObject
 
     public override void Dispose()
     {
-        DrawingBackendApi.Current.PaintImplementation.Dispose(ObjectPointer);
+        DrawingBackendApi.Current.ShaderImplementation.Dispose(ObjectPointer);
     }
 
     public static Shader CreateLinearGradient(VecI p1, VecI p2, Color[] colors)

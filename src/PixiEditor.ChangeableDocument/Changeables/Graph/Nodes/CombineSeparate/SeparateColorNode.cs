@@ -1,36 +1,58 @@
-﻿using PixiEditor.ChangeableDocument.Rendering;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
 [NodeInfo("SeparateColor")]
 public class SeparateColorNode : Node
 {
-    public FuncInputProperty<Color> Color { get; }
+    public FuncInputProperty<Half4> Color { get; }
     
-    public FuncOutputProperty<double> R { get; }
+    public FuncOutputProperty<Float1> R { get; }
     
-    public FuncOutputProperty<double> G { get; }
+    public FuncOutputProperty<Float1> G { get; }
     
-    public FuncOutputProperty<double> B { get; }
+    public FuncOutputProperty<Float1> B { get; }
     
-    public FuncOutputProperty<double> A { get; }
+    public FuncOutputProperty<Float1> A { get; }
     
     public override string DisplayName { get; set; } = "SEPARATE_COLOR_NODE";
+    
+    private FuncContext lastContext;
+    private Half4 lastColor;
 
     public SeparateColorNode()
     {
-        Color = CreateFuncInput(nameof(Color), "COLOR", new Color());
-        R = CreateFuncOutput(nameof(R), "R", ctx => Color.Value(ctx).R / 255d);
-        G = CreateFuncOutput(nameof(G), "G", ctx => Color.Value(ctx).G / 255d);
-        B = CreateFuncOutput(nameof(B), "B", ctx => Color.Value(ctx).B / 255d);
-        A = CreateFuncOutput(nameof(A), "A", ctx => Color.Value(ctx).A / 255d);
+        Color = CreateFuncInput<Half4>(nameof(Color), "COLOR", new Color());
+        R = CreateFuncOutput<Float1>(nameof(R), "R", ctx => GetColor(ctx).R);
+        G = CreateFuncOutput<Float1>(nameof(G), "G", ctx => GetColor(ctx).G);
+        B = CreateFuncOutput<Float1>(nameof(B), "B", ctx => GetColor(ctx).B);
+        A = CreateFuncOutput<Float1>(nameof(A), "A", ctx => GetColor(ctx).A);
     }
 
     protected override Texture? OnExecute(RenderingContext context)
     {
         return null;
+    }
+    
+    private Half4 GetColor(FuncContext ctx)
+    {
+        Half4 target = null;
+        if (lastContext == ctx)
+        {
+            target = lastColor;
+        }
+        else
+        {
+            target = Color.Value(ctx);
+        }
+        
+        lastColor = target;
+        lastContext = ctx;
+        return lastColor;
     }
 
 

@@ -36,13 +36,24 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public void Dispose(IntPtr paintObjPointer)
         {
-            if (!ManagedInstances.ContainsKey(paintObjPointer)) return;
-            SKPaint paint = ManagedInstances[paintObjPointer];
+            if (!ManagedInstances.TryGetValue(paintObjPointer, out var paint)) return;
 
             if (paint.ColorFilter != null)
             {
                 paint.ColorFilter.Dispose();
                 colorFilterImplementation.ManagedInstances.TryRemove(paint.ColorFilter.Handle, out _);
+            }
+            
+            if (paint.ImageFilter != null)
+            {
+                paint.ImageFilter.Dispose();
+                imageFilterImplementation.ManagedInstances.TryRemove(paint.ImageFilter.Handle, out _);
+            }
+            
+            if (paint.Shader != null)
+            {
+                paint.Shader.Dispose();
+                shaderImplementation.ManagedInstances.TryRemove(paint.Shader.Handle, out _);
             }
 
             paint.Dispose();
@@ -164,10 +175,19 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             skPaint.ImageFilter = value == null ? null : imageFilterImplementation[value.ObjectPointer];
         }
 
-        public Shader GetShader(Paint paint)
+        public Shader? GetShader(Paint paint)
         {
-            SKPaint skPaint = ManagedInstances[paint.ObjectPointer];
-            return new Shader(skPaint.Shader.Handle);
+            if(ManagedInstances.TryGetValue(paint.ObjectPointer, out var skPaint))
+            {
+                if (skPaint.Shader == null)
+                {
+                    return null;
+                }
+                
+                return new Shader(skPaint.Shader.Handle);
+            }
+            
+            return null;
         }
         
         public void SetShader(Paint paint, Shader? shader)

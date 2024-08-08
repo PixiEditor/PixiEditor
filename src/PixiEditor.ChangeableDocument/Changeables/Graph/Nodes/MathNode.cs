@@ -4,58 +4,59 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("Math")]
 public class MathNode : Node
 {
-    public FuncOutputProperty<double> Result { get; }
+    public FuncOutputProperty<Float1> Result { get; }
 
     public InputProperty<MathNodeMode> Mode { get; }
     
     public InputProperty<bool> Clamp { get; }
 
-    public FuncInputProperty<double> X { get; }
+    public FuncInputProperty<Float1> X { get; }
     
-    public FuncInputProperty<double> Y { get; }
+    public FuncInputProperty<Float1> Y { get; }
     
     
     public override string DisplayName { get; set; } = "MATH_NODE";
     
     public MathNode()
     {
-        Result = CreateFuncOutput(nameof(Result), "RESULT", Calculate);
+        Result = CreateFuncOutput<Float1>(nameof(Result), "RESULT", Calculate);
         Mode = CreateInput(nameof(Mode), "MATH_MODE", MathNodeMode.Add);
         Clamp = CreateInput(nameof(Clamp), "CLAMP", false);
-        X = CreateFuncInput(nameof(X), "X", 0d);
-        Y = CreateFuncInput(nameof(Y), "Y", 0d);
+        X = CreateFuncInput<Float1>(nameof(X), "X", 0d);
+        Y = CreateFuncInput<Float1>(nameof(Y), "Y", 0d);
     }
 
-    private double Calculate(FuncContext context)
+    private Float1 Calculate(FuncContext context)
     {
         var (x, y) = GetValues(context);
 
         var result = Mode.Value switch
         {
-            MathNodeMode.Add => x + y,
-            MathNodeMode.Subtract => x - y,
-            MathNodeMode.Multiply => x * y,
-            MathNodeMode.Divide => x / y,
-            MathNodeMode.Sin => Math.Sin(x),
-            MathNodeMode.Cos => Math.Cos(x),
-            MathNodeMode.Tan => Math.Tan(x),
+            MathNodeMode.Add => ShaderMath.Add(x, y),
+            MathNodeMode.Subtract => ShaderMath.Subtract(x, y),
+            MathNodeMode.Multiply => ShaderMath.Multiply(x, y),
+            MathNodeMode.Divide => ShaderMath.Divide(x, y),
+            MathNodeMode.Sin => ShaderMath.Sin(x),
+            MathNodeMode.Cos => ShaderMath.Cos(x),
+            MathNodeMode.Tan => ShaderMath.Tan(x),
         };
 
         if (Clamp.Value)
         {
-            result = Math.Clamp(result, 0, 1);
+            result = ShaderMath.Clamp(result, (Float1)0, (Float1)1);
         }
         
-        return result;
+        return context.NewFloat1(result);
     }
 
-    private (double x, double y) GetValues(FuncContext context) => (X.Value(context), Y.Value(context));
+    private (Float1 x, Float1 y) GetValues(FuncContext context) => (X.Value(context), Y.Value(context));
 
 
     protected override Texture? OnExecute(RenderingContext context)

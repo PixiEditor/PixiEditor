@@ -2,21 +2,22 @@
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
 [NodeInfo("CombineColor")]
 public class CombineColorNode : Node
 {
-    public FuncOutputProperty<Color> Color { get; }
+    public FuncOutputProperty<Half4> Color { get; }
 
-    public FuncInputProperty<double> R { get; }
+    public FuncInputProperty<Float1> R { get; }
 
-    public FuncInputProperty<double> G { get; }
+    public FuncInputProperty<Float1> G { get; }
 
-    public FuncInputProperty<double> B { get; }
+    public FuncInputProperty<Float1> B { get; }
 
-    public FuncInputProperty<double> A { get; }
+    public FuncInputProperty<Float1> A { get; }
 
     public override string DisplayName { get; set; } = "COMBINE_COLOR_NODE";
 
@@ -24,20 +25,20 @@ public class CombineColorNode : Node
     {
         Color = CreateFuncOutput(nameof(Color), "COLOR", GetColor);
 
-        R = CreateFuncInput("R", "R", 0d);
-        G = CreateFuncInput("G", "G", 0d);
-        B = CreateFuncInput("B", "B", 0d);
-        A = CreateFuncInput("A", "A", 0d);
+        R = CreateFuncInput<Float1>("R", "R", 0d);
+        G = CreateFuncInput<Float1>("G", "G", 0d);
+        B = CreateFuncInput<Float1>("B", "B", 0d);
+        A = CreateFuncInput<Float1>("A", "A", 0d);
     }
 
-    private Color GetColor(FuncContext ctx)
+    private Half4 GetColor(FuncContext ctx)
     {
-        var r = R.Value(ctx) * 255;
-        var g = G.Value(ctx) * 255;
-        var b = B.Value(ctx) * 255;
-        var a = A.Value(ctx) * 255;
+        var r = R.Value(ctx);
+        var g = G.Value(ctx);
+        var b = B.Value(ctx);
+        var a = A.Value(ctx);
 
-        return new Color((byte)r, (byte)g, (byte)b, (byte)a);
+        return ctx.NewHalf4(r, g, b, a); 
     }
 
 

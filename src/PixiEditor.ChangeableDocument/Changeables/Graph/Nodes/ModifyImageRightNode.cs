@@ -29,8 +29,9 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
 
     public override string DisplayName { get; set; } = "MODIFY_IMAGE_RIGHT_NODE";
 
-    private Texture surface;
     private string _lastSksl;
+    
+    private TextureCache _textureCache = new(); 
 
     public ModifyImageRightNode()
     {
@@ -59,12 +60,7 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
         var width = size.X;
         var height = size.Y;
 
-        if (surface == null || surface.Size != size)
-        {
-            surface?.Dispose();
-            surface = new Texture(size);
-            surface.DrawingSurface.Canvas.Clear();
-        }
+        Texture surface = _textureCache.GetTexture(renderingContext.ChunkResolution, size); 
 
         if (!surface.IsHardwareAccelerated)
         {
@@ -83,7 +79,15 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
 
             if (Coordinate.Connection != null)
             {
-                builder.Set(context.Position, Coordinate.Value(context));
+                var coordinate = Coordinate.Value(context);
+                if (string.IsNullOrEmpty(coordinate.UniformName))
+                {
+                    builder.SetConstant(context.Position, coordinate);
+                }
+                else
+                {
+                    builder.Set(context.Position, Coordinate.Value(context));
+                }
             }
             else
             {
@@ -103,12 +107,18 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
             if (sksl != _lastSksl)
             {
                 _lastSksl = sksl;
+                drawingPaint?.Shader?.Dispose();
                 drawingPaint.Shader = builder.BuildShader();
+            }
+            else
+            {
+                drawingPaint.Shader = drawingPaint.Shader.WithUpdatedUniforms(builder.Uniforms);
             }
 
             surface.DrawingSurface.Canvas.DrawPaint(drawingPaint);
+            builder.Dispose();
         }
-
+        
         Output.Value = surface;
 
         return Output.Value;
@@ -150,6 +160,13 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
                 }
             }
         });*/
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        _textureCache.Dispose(); 
+        drawingPaint?.Dispose();
     }
 
     private void FindStartNode()

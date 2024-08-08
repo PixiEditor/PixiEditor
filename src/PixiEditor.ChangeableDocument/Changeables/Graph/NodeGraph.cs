@@ -123,7 +123,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         if (OutputNode == null) return null;
 
         var queue = CalculateExecutionQueue(OutputNode);
-
+        
         while (queue.Count > 0)
         {
             var node = queue.Dequeue();

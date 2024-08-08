@@ -78,7 +78,7 @@ namespace PixiEditor.DrawingApi.Core.Surfaces.PaintImpl
             }
         }
 
-        public Shader Shader
+        public Shader? Shader
         {
             get => shader ??= DrawingBackendApi.Current.PaintImplementation.GetShader(this);
             set

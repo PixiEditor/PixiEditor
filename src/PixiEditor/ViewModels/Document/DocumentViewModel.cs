@@ -510,9 +510,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                     var maybeChunk = Renderer.RenderChunk(new(i, j), ChunkResolution.Full, frameTime);
                     if (maybeChunk.IsT1)
                         continue;
-                    using Chunk chunk = maybeChunk.AsT0;
+                    using Texture chunk = maybeChunk.AsT0;
                     finalSurface.DrawingSurface.Canvas.DrawSurface(
-                        chunk.Surface.DrawingSurface,
+                        chunk.DrawingSurface,
                         i * ChunkyImage.FullChunkSize, j * ChunkyImage.FullChunkSize);
                 }
             }
@@ -656,7 +656,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                         chunk =>
                         {
                             VecI posOnChunk = pos - chunkPos * ChunkyImage.FullChunkSize;
-                            var color = chunk.Surface.GetSRGBPixel(posOnChunk);
+                            var color = chunk.GetSRGBPixel(posOnChunk);
                             chunk.Dispose();
                             return color;
                         },

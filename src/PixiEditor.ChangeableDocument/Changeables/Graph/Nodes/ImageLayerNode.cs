@@ -207,7 +207,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                 clearPaint);
         }
         
-        using Surface tempSurface = new Surface(tempSizeInChunks * context.ChunkResolution.PixelSize());
+        using Texture tempSurface = new Texture(tempSizeInChunks * context.ChunkResolution.PixelSize());
 
         if (requiresTopLeft)
         {
@@ -256,7 +256,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         workingSurface.DrawingSurface.Canvas.DrawSurface(tempSurface.DrawingSurface, VecI.Zero, blendPaint);
     }
 
-    private void DrawChunk(ChunkyImage frameImage, RenderingContext context, Surface tempSurface, VecI vecI)
+    private void DrawChunk(ChunkyImage frameImage, RenderingContext context, Texture tempSurface, VecI vecI)
     {
         VecI chunkPos = context.ChunkToUpdate + vecI;
         if (frameImage.LatestOrCommittedChunkExists(chunkPos))
@@ -309,6 +309,16 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                 new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = layerImage.CloneFromCommitted() }
             }
         };
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+
+        foreach (var workingSurface in workingSurfaces)
+        {
+            workingSurface.Value.Dispose();
+        }
     }
 
 

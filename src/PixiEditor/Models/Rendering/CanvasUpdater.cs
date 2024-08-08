@@ -224,47 +224,41 @@ internal class CanvasUpdater
 
         doc.Renderer.RenderChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameTime, globalClippingRectangle)
             .Switch(
-                (Chunk chunk) =>
+                (Texture chunk) =>
                 {
-                    /*Dispatcher.UIThread.Post(() =>
-                    {*/
-                        if (screenSurface.IsDisposed) return;
+                    if (screenSurface.IsDisposed) return;
 
-                        if (globalScaledClippingRectangle is not null)
-                        {
-                            screenSurface.DrawingSurface.Canvas.Save();
-                            screenSurface.DrawingSurface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
-                        }
-                        
-                        screenSurface.DrawingSurface.Canvas.DrawSurface(
-                            chunk.Surface.DrawingSurface,
-                            chunkPos.Multiply(chunk.PixelSize), ReplacingPaint);
-                        chunk.Dispose();
+                    if (globalScaledClippingRectangle is not null)
+                    {
+                        screenSurface.DrawingSurface.Canvas.Save();
+                        screenSurface.DrawingSurface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
+                    }
+
+                    screenSurface.DrawingSurface.Canvas.DrawSurface(
+                        chunk.DrawingSurface,
+                        chunkPos.Multiply(new VecI(resolution.PixelSize())), ReplacingPaint);
+                    chunk.Dispose();
 
 
-                        if (globalScaledClippingRectangle is not null)
-                            screenSurface.DrawingSurface.Canvas.Restore();
-                    /*});*/
+                    if (globalScaledClippingRectangle is not null)
+                        screenSurface.DrawingSurface.Canvas.Restore();
                 },
                 (EmptyChunk _) =>
                 {
-                    /*Dispatcher.UIThread.Post(() =>
-                    {*/
-                        if (screenSurface.IsDisposed) return;
+                    if (screenSurface.IsDisposed) return;
 
-                        if (globalScaledClippingRectangle is not null)
-                        {
-                            screenSurface.DrawingSurface.Canvas.Save();
-                            screenSurface.DrawingSurface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
-                        }
+                    if (globalScaledClippingRectangle is not null)
+                    {
+                        screenSurface.DrawingSurface.Canvas.Save();
+                        screenSurface.DrawingSurface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
+                    }
 
-                        var pos = chunkPos * resolution.PixelSize();
-                        screenSurface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(),
-                            resolution.PixelSize(), ClearPaint);
-                        
-                        if (globalScaledClippingRectangle is not null)
-                            screenSurface.DrawingSurface.Canvas.Restore();
-                    /*});*/
+                    var pos = chunkPos * resolution.PixelSize();
+                    screenSurface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(),
+                        resolution.PixelSize(), ClearPaint);
+
+                    if (globalScaledClippingRectangle is not null)
+                        screenSurface.DrawingSurface.Canvas.Restore();
                 });
     }
 }

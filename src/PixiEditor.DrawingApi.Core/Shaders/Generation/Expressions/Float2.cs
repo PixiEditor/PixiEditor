@@ -17,4 +17,23 @@ public class Float2(string name, VecD constant) : ShaderExpressionVariable<VecD>
             return $"float2({x}, {y})";
         }
     }
+
+    public Float1 X
+    {
+        get
+        {
+            return new Float1($"{UniformName}.x", ConstantValue.X);
+        }
+    }
+    
+    public Float1 Y
+    {
+        get
+        {
+            return new Float1($"{UniformName}.y", ConstantValue.Y);
+        }
+    }
+    
+    public static implicit operator Float2(VecD value) => new Float2("", value);
+    public static explicit operator VecD(Float2 value) => value.ConstantValue;
 }

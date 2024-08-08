@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Shaders;
@@ -10,6 +11,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 {
     public class SkiaShaderImplementation : SkObjectImplementation<SKShader>, IShaderImplementation
     {
+        private Dictionary<IntPtr, SKRuntimeEffect> runtimeEffects = new();
         public SkiaShaderImplementation()
         {
         }
@@ -30,6 +32,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
                 SKRuntimeEffectChildren effectChildren = UniformsToSkChildren(uniforms, effect);
                 SKShader shader = effect.ToShader(isOpaque, effectUniforms, effectChildren);
                 ManagedInstances[shader.Handle] = shader;
+                runtimeEffects[shader.Handle] = effect;
                 return new Shader(shader.Handle);
             }
             
@@ -91,6 +94,31 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public object GetNativeShader(IntPtr objectPointer)
         {
             return ManagedInstances[objectPointer]; 
+        }
+
+        public Shader WithUpdatedUniforms(IntPtr objectPointer, Uniforms uniforms)
+        {
+            if (!ManagedInstances.TryGetValue(objectPointer, out var shader))
+            {
+                 throw new InvalidOperationException("Shader does not exist");
+            }
+            if (!runtimeEffects.TryGetValue(objectPointer, out var effect))
+            {
+                throw new InvalidOperationException("Shader is not a runtime effect shader");
+            }
+            
+            SKRuntimeEffectUniforms effectUniforms = UniformsToSkUniforms(uniforms, effect);
+            SKRuntimeEffectChildren effectChildren = UniformsToSkChildren(uniforms, effect);
+            
+            shader.Dispose();
+            ManagedInstances.TryRemove(objectPointer, out _);
+            runtimeEffects.Remove(objectPointer);
+            
+            var newShader = effect.ToShader(false, effectUniforms, effectChildren);
+            ManagedInstances[newShader.Handle] = newShader;
+            runtimeEffects[newShader.Handle] = effect;
+            
+            return new Shader(newShader.Handle);
         }
 
         public void Dispose(IntPtr shaderObjPointer)

@@ -448,7 +448,9 @@ internal class MemberPreviewUpdater
             else if (rendered.IsT0)
             {
                 using var renderedChunk = rendered.AsT0;
-                renderedChunk.DrawChunkOn(doc.PreviewSurface.DrawingSurface, pos, SmoothReplacingPaint);
+                
+                //TODO: Check if this is correct
+                doc.PreviewSurface.DrawingSurface.Canvas.DrawSurface(renderedChunk.DrawingSurface, pos, SmoothReplacingPaint);
             }
 
             doc.PreviewSurface.DrawingSurface.Canvas.Restore();

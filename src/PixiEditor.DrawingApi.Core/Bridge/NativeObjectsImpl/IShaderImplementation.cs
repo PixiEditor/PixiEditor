@@ -16,4 +16,5 @@ public interface IShaderImplementation
     public Shader CreatePerlinNoiseTurbulence(float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed);
     public Shader CreatePerlinFractalNoise(float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed);
     public object GetNativeShader(IntPtr objectPointer);
+    public Shader WithUpdatedUniforms(IntPtr objectPointer, Uniforms uniforms);
 }

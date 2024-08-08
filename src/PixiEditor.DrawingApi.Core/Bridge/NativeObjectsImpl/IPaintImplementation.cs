@@ -33,7 +33,7 @@ namespace PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl
         public void SetImageFilter(Paint paint, ImageFilter value);
         
         public object GetNativePaint(IntPtr objectPointer);
-        public Shader GetShader(Paint paint);
+        public Shader? GetShader(Paint paint);
         public void SetShader(Paint paint, Shader shader);
     }
 }

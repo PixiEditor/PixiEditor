@@ -44,6 +44,11 @@ public struct Uniform
         DataType = UniformValueType.Shader;
         UniformName = "shader";
     }
+
+    public void Dispose()
+    {
+        ShaderValue.Dispose();
+    }
 }
 
 public enum UniformValueType

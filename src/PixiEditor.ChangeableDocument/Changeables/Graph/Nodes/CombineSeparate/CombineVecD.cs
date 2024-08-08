@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
@@ -9,11 +10,11 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 [NodeInfo("CombineVecD")]
 public class CombineVecD : Node
 {
-    public FuncOutputProperty<VecD> Vector { get; }
+    public FuncOutputProperty<Float2> Vector { get; }
     
-    public FuncInputProperty<double> X { get; }
+    public FuncInputProperty<Float1> X { get; }
     
-    public FuncInputProperty<double> Y { get; }
+    public FuncInputProperty<Float1> Y { get; }
     
     
     public override string DisplayName { get; set; } = "COMBINE_VECD_NODE";
@@ -22,16 +23,16 @@ public class CombineVecD : Node
     {
         Vector = CreateFuncOutput(nameof(Vector), "VECTOR", GetVector);
 
-        X = CreateFuncInput(nameof(X), "X", 0d);
-        Y = CreateFuncInput(nameof(Y), "Y", 0d);
+        X = CreateFuncInput<Float1>(nameof(X), "X", 0);
+        Y = CreateFuncInput<Float1>(nameof(Y), "Y", 0);
     }
     
-    private VecD GetVector(FuncContext ctx)
+    private Float2 GetVector(FuncContext ctx)
     {
-        var r = X.Value(ctx);
-        var g = Y.Value(ctx);
+        var x = X.Value(ctx);
+        var y = Y.Value(ctx);
 
-        return new VecD(r, g);
+        return ctx.NewFloat2(x, y); 
     }
 
     protected override Texture? OnExecute(RenderingContext context)

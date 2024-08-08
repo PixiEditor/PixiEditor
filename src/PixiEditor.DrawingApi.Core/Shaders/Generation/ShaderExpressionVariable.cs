@@ -1,8 +1,9 @@
 ﻿using System;
+using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 
 namespace PixiEditor.DrawingApi.Core.Shaders.Generation;
 
-public abstract class ShaderExpressionVariable(string name)
+public abstract class ShaderExpressionVariable(string name) : Expression
 {
     public string UniformName { get; set; } = name;
     public abstract string ConstantValueString { get; }
@@ -12,7 +13,14 @@ public abstract class ShaderExpressionVariable(string name)
         return UniformName;
     }
 
+    public override string ExpressionValue => VarOrConst();
+
     public abstract void SetConstantValue(object? value, Func<object, Type, object> convertFunc);
+    
+    public string VarOrConst()
+    {
+        return string.IsNullOrEmpty(UniformName) ? ConstantValueString : UniformName;
+    }
 }
 
 public abstract class ShaderExpressionVariable<TConstant>(string name, TConstant constant)
