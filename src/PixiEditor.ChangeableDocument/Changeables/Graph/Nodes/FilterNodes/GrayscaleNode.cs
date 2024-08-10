@@ -24,7 +24,7 @@ public class GrayscaleNode : FilterNode
         // TODO: Clamp 0 - 1 in UI
         Factor = CreateInput("Factor", "FACTOR", 1d);
         Normalize = CreateInput("Normalize", "NORMALIZE", true);
-        CustomWeight = CreateInput("CustomWeight", "WEIGHT", new VecD3(1, 1, 1));
+        CustomWeight = CreateInput("CustomWeight", "WEIGHT_FACTOR", new VecD3(1, 1, 1));
     }
 
     protected override ColorFilter GetColorFilter() => ColorFilter.CreateColorMatrix(Mode.Value switch

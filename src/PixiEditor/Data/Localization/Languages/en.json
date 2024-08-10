@@ -687,6 +687,7 @@
   "APPLY_FILTER_NODE": "Apply Filter",
   "FILTER": "Filter",
   "LERP_NODE": "Lerp",
+  "GRAYSCALE_FILTER_NODE": "Grayscale Filter",
   "FROM": "From",
   "TO": "To",
   "TIME": "Time",
@@ -707,5 +708,9 @@
   "BEGIN_COLOR_EVALUATOR_NODE": "Begin evaluating color",
   "FINISH_COLOR_EVALUATOR_NODE": "Finish evaluating color",
   "COLOR_EVALUATOR_NODE_PAIR": "Color Evaluator",
+  "MODE": "Mode",
+  "Factor": "Factor",
+  "NORMALIZE": "Normalize",
+  "WEIGHT_FACTOR": "Weight",
   "STARS_EXAMPLE": "Stars"
 }
