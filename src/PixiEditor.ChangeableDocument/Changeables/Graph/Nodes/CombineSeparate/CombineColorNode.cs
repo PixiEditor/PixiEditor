@@ -29,7 +29,7 @@ public class CombineColorNode : Node
         RH = CreateFuncInput("R", "RH", 0d);
         GS = CreateFuncInput("G", "GS", 0d);
         BVL = CreateFuncInput("B", "BVL", 0d);
-        A = CreateFuncInput("A", "A", 0d);
+        A = CreateFuncInput("A", "A", 1d);
     }
 
     private Color GetColor(FuncContext ctx)
