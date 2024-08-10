@@ -138,18 +138,33 @@ public record struct ColorMatrix
     /// (_, _, _, w) => (0, 0, 0, w + 1)
     /// </summary>
     public static ColorMatrix OpaqueAlphaOffset => Offset(0, 0, 0, 1);
-    
+
     /// <summary>
     /// The rgb values become averaged into a grayscale image. Alpha becomes zero <br/>
     /// (r, g, b, _) => (r, g, b, 0) / 3
     /// </summary>
-    public static ColorMatrix AverageGrayscale => new(
-        (1 / 3f, 1 / 3f, 1 / 3f, 0, 0),
-        (1 / 3f, 1 / 3f, 1 / 3f, 0, 0),
-        (1 / 3f, 1 / 3f, 1 / 3f, 0, 0),
+    public static ColorMatrix AverageGrayscale { get; } = WeightedGrayscale(1 / 3f, 1 / 3f, 1 / 3f, 0);
+
+    public static ColorMatrix WeightedWavelengthGrayscale { get; } = WeightedGrayscale(0.299f, 0.587f, 0.114f, 0);
+
+    /// <summary>
+    /// The rgb values become grayscale according to the weights image. Alpha becomes zero <br/>
+    /// (r, g, b, a) => (rgb: r * rWeight + g * gWeight + b * bWeight + a * aWeight, 0)
+    /// </summary>
+    public static ColorMatrix WeightedGrayscale(float rWeight, float gWeight, float bWeight, float aWeight) => new(
+        (rWeight, gWeight, bWeight, aWeight, 0),
+        (rWeight, gWeight, bWeight, aWeight, 0),
+        (rWeight, gWeight, bWeight, aWeight, 0),
         (0, 0, 0, 0, 0)
     );
 
+    /// <summary>
+    /// The rgb values become grayscale according to the weights image. Alpha becomes zero <br/>
+    /// (r, g, b, a) => (rgb: r * rWeight + g * gWeight + b * bWeight + a * aWeight, 0)
+    /// </summary>
+    public static ColorMatrix WeightedGrayscale(VecD3 vector) =>
+        WeightedGrayscale((float)vector.X, (float)vector.Y, (float)vector.Z, 0);
+    
     public static ColorMatrix operator +(ColorMatrix left, ColorMatrix right) => new(left.M11 + right.M11,
         left.M12 + right.M12, left.M13 + right.M13, left.M14 + right.M14, left.M15 + right.M15, left.M21 + right.M21,
         left.M22 + right.M22, left.M23 + right.M23, left.M24 + right.M24, left.M25 + right.M25, left.M31 + right.M31,
