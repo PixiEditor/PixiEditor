@@ -422,8 +422,13 @@ internal class CommandController
     {
         object CastParameter(object input, Type target)
         {
+            var commandExecutionType = typeof(CommandExecutionContext);
+            if (input is CommandExecutionContext context && !target.IsAssignableTo(commandExecutionType))
+                input = context.Parameter;
+
             if (target == typeof(object) || target == input?.GetType())
                 return input;
+            
             return Convert.ChangeType(input, target);
         }
 
