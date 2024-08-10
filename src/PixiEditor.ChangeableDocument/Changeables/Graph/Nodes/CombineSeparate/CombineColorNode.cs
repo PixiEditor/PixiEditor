@@ -10,32 +10,43 @@ public class CombineColorNode : Node
 {
     public FuncOutputProperty<Color> Color { get; }
 
-    public FuncInputProperty<double> R { get; }
+    public InputProperty<CombineSeparateColorMode> Mode { get; }
 
-    public FuncInputProperty<double> G { get; }
+    public FuncInputProperty<double> RH { get; }
 
-    public FuncInputProperty<double> B { get; }
+    public FuncInputProperty<double> GS { get; }
+
+    public FuncInputProperty<double> BVL { get; }
 
     public FuncInputProperty<double> A { get; }
 
     public CombineColorNode()
     {
         Color = CreateFuncOutput(nameof(Color), "COLOR", GetColor);
+        Mode = CreateInput("Mode", "MODE", CombineSeparateColorMode.RGB);
 
-        R = CreateFuncInput("R", "R", 0d);
-        G = CreateFuncInput("G", "G", 0d);
-        B = CreateFuncInput("B", "B", 0d);
+        // TODO: Mode based naming
+        RH = CreateFuncInput("R", "RH", 0d);
+        GS = CreateFuncInput("G", "GS", 0d);
+        BVL = CreateFuncInput("B", "BVL", 0d);
         A = CreateFuncInput("A", "A", 0d);
     }
 
     private Color GetColor(FuncContext ctx)
     {
-        var r = R.Value(ctx) * 255;
-        var g = G.Value(ctx) * 255;
-        var b = B.Value(ctx) * 255;
-        var a = A.Value(ctx) * 255;
+        var mode = Mode.Value;
+        
+        var rh = RH.Value(ctx);
+        var gs = GS.Value(ctx);
+        var bvl = BVL.Value(ctx);
+        var a = (byte)(A.Value(ctx) * 255);
 
-        return new Color((byte)r, (byte)g, (byte)b, (byte)a);
+        return mode switch
+        {
+            CombineSeparateColorMode.RGB => new Color((byte)(rh * 255), (byte)(gs * 255), (byte)(bvl * 255), a),
+            CombineSeparateColorMode.HSV => DrawingApi.Core.ColorsImpl.Color.FromHsv((float)(rh * 360d), (float)gs, (float)bvl, a),
+            CombineSeparateColorMode.HSL => DrawingApi.Core.ColorsImpl.Color.FromHsl((float)(rh * 360d), (float)gs, (float)bvl, a)
+        };
     }
 
 
