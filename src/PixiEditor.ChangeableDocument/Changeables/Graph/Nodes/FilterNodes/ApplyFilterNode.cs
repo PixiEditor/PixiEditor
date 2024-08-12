@@ -35,13 +35,8 @@ public class ApplyFilterNode : Node
         }
         
         _paint.SetFilters(Filter.Value);
-
-        if (_workingSurface == null || _workingSurface.Size != input.Size)
-        {
-            _workingSurface?.Dispose();
-            _workingSurface = new Texture(input.Size);
-            _workingSurface.DrawingSurface.Canvas.Clear();
-        }
+        
+        _workingSurface = RequestTexture(0, input.Size, true);
         
         _workingSurface.DrawingSurface.Canvas.DrawSurface(input.DrawingSurface, 0, 0, _paint);
 

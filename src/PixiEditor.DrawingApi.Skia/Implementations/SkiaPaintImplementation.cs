@@ -38,7 +38,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             if (!ManagedInstances.TryGetValue(paintObjPointer, out var paint)) return;
 
-            if (paint.ColorFilter != null)
+            /*if (paint.ColorFilter != null)
             {
                 paint.ColorFilter.Dispose();
                 colorFilterImplementation.ManagedInstances.TryRemove(paint.ColorFilter.Handle, out _);
@@ -48,7 +48,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             {
                 paint.ImageFilter.Dispose();
                 imageFilterImplementation.ManagedInstances.TryRemove(paint.ImageFilter.Handle, out _);
-            }
+            }*/
             
             if (paint.Shader != null)
             {

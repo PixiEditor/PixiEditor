@@ -36,10 +36,10 @@ public class MergeNode : Node, IBackgroundInput
             return null;
         }
         
-        int width = Top.Value?.Size.X ?? Bottom.Value.Size.X;
-        int height = Top.Value?.Size.Y ?? Bottom.Value.Size.Y;
+        int width = Math.Max(Top.Value?.Size.X ?? Bottom.Value.Size.X, Bottom.Value.Size.X);
+        int height = Math.Max(Top.Value?.Size.Y ?? Bottom.Value.Size.Y, Bottom.Value.Size.Y);
         
-        Texture workingSurface = new Texture(new VecI(width, height));
+        Texture workingSurface = RequestTexture(0, new VecI(width, height), true);
         
         if(Bottom.Value != null)
         {

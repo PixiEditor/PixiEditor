@@ -109,7 +109,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
         _keyFramesDirty = false;
     }
 
-    protected Texture RequestTexture(int id, VecI size, bool clear = false)
+    protected Texture RequestTexture(int id, VecI size, bool clear = true)
     {
         if (_managedTextures.TryGetValue(id, out var texture))
         {

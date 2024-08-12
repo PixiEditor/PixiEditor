@@ -123,7 +123,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         if (Background.Value != null)
         {
-            Texture tempSurface = new Texture(outputWorkingSurface.Size);
+            Texture tempSurface = RequestTexture(4, outputWorkingSurface.Size, true);
             DrawBackground(tempSurface, context);
             blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
             tempSurface.DrawingSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);

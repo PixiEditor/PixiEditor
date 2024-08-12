@@ -292,8 +292,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
             // So they remain alive and keep "showing" the now disposed DocumentViewModel
             // And since they reference the DocumentViewModel it doesn't get collected by GC
 
-            document.Dispose();
             WindowSubViewModel.CloseViewportsForDocument(document);
+            document.Dispose();
 
             return true;
         }
