@@ -158,6 +158,17 @@ public class ShaderBuilder
         return result;
     }
 
+
+    public Half4 AssignNewHalf4(Expression assignment)
+    {
+        string name = $"color_{GetUniqueNameNumber()}";
+        Half4 result = new Half4(name);
+        _variables.Add(result);
+
+        _bodyBuilder.AppendLine($"half4 {name} = {assignment.ExpressionValue};");
+        return result;
+    }
+
     public void Dispose()
     {
         _bodyBuilder.Clear();

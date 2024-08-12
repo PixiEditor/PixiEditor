@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
+using PixiEditor.DrawingApi.Core.Shaders.Generation;
 using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
 
@@ -14,10 +15,14 @@ public static class SerializationUtil
         {
             return null;
         }
-
+        
         if (value is Delegate del)
         {
             value = del.DynamicInvoke(FuncContext.NoContext);
+            if (value is ShaderExpressionVariable expressionVariable)
+            { 
+                value = expressionVariable.GetConstant();
+            }
         }
 
         var factory = allFactories.FirstOrDefault(x => x.OriginalType == value.GetType());

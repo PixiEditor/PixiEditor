@@ -197,17 +197,20 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         {
             tempSizeInChunks.Y++;
         }
+        
+        VecI tempSize = tempSizeInChunks * context.ChunkResolution.PixelSize();
+        tempSize = new VecI(Math.Min(tempSize.X, workingSurface.Size.X), Math.Min(tempSize.Y, workingSurface.Size.Y));
 
         if (shouldClear)
         {
             workingSurface.DrawingSurface.Canvas.DrawRect(
                 new RectI(
                     VecI.Zero,
-                    tempSizeInChunks * context.ChunkResolution.PixelSize()),
+                    tempSize), 
                 clearPaint);
         }
         
-        using Texture tempSurface = new Texture(tempSizeInChunks * context.ChunkResolution.PixelSize());
+        using Texture tempSurface = new Texture(tempSize);
 
         if (requiresTopLeft)
         {
@@ -252,7 +255,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         DrawChunk(frameImage, context, tempSurface, new VecI(0, 0));
         
         blendPaint.SetFilters(Filters.Value);
-        var destinationRect = CalculateDestinationRect(context);
         workingSurface.DrawingSurface.Canvas.DrawSurface(tempSurface.DrawingSurface, VecI.Zero, blendPaint);
     }
 

@@ -79,7 +79,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
         {
             throw new ObjectDisposedException("Texture was disposed after execution.");
         }
-
+        
         UpdateCache(context);
         return CachedResult;
     }

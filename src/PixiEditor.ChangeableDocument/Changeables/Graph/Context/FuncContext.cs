@@ -41,7 +41,7 @@ public class FuncContext
         Position = new Float2("coords"); // input argument 'half4 main(float2 coords)'
     }
 
-    public Half4 SampleTexture(Texture? imageValue, Float2 pos)
+    public Half4 SampleTexture(Texture imageValue, Float2 pos)
     {
         TextureSampler texName = Builder.AddOrGetTexture(imageValue);
         return Builder.Sample(texName, pos);
@@ -66,6 +66,12 @@ public class FuncContext
     public Half4 NewHalf4(Expression r, Expression g, Expression b, Expression a)
     {
         return Builder.ConstructHalf4(r, g, b, a);
+    }
+
+
+    public Half4 NewHalf4(Expression assignment)
+    {
+        return Builder.AssignNewHalf4(assignment);
     }
 
     public Float1 GetValue(FuncInputProperty<Float1> getFrom)

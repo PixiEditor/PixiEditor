@@ -21,6 +21,8 @@ public abstract class ShaderExpressionVariable(string name) : Expression
     {
         return string.IsNullOrEmpty(VariableName) ? ConstantValueString : VariableName;
     }
+
+    public abstract object GetConstant();
 }
 
 public abstract class ShaderExpressionVariable<TConstant>(string name)
@@ -46,5 +48,10 @@ public abstract class ShaderExpressionVariable<TConstant>(string name)
                 ConstantValue = default;
             }
         }
+    }
+    
+    public override object GetConstant()
+    {
+        return ConstantValue;
     }
 }

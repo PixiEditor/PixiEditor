@@ -43,4 +43,9 @@ public static class ShaderMath
     {
         return new Expression($"tan({x.ExpressionValue})");
     }
+    
+    public static Expression Lerp(ShaderExpressionVariable a, ShaderExpressionVariable b, ShaderExpressionVariable t)
+    {
+        return new Expression($"mix({a.VarOrConst()}, {b.VarOrConst()}, {t.VarOrConst()})"); 
+    }
 }

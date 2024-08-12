@@ -27,6 +27,11 @@ public class CreateImageNode : Node
 
     protected override Texture? OnExecute(RenderingContext context)
     {
+        if (Size.Value.X <= 0 || Size.Value.Y <= 0)
+        {
+            return null;
+        }
+        
         var surface = new Texture(Size.Value);
 
         _paint.Color = Fill.Value;

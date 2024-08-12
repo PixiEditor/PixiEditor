@@ -107,6 +107,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
                 throw new InvalidOperationException("Shader is not a runtime effect shader");
             }
             
+            // TODO: Don't reupload shaders if they are the same
             SKRuntimeEffectUniforms effectUniforms = UniformsToSkUniforms(uniforms, effect);
             SKRuntimeEffectChildren effectChildren = UniformsToSkChildren(uniforms, effect);
             
