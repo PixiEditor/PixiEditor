@@ -48,8 +48,12 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
             ConversionTable.TryConvert(delegateToCast.DynamicInvoke(f), targetType, out var result);
             if (isShaderExpression)
             {
-                var toReturn = Activator.CreateInstance(typeof(T), ""); 
-                ((ShaderExpressionVariable)toReturn).SetConstantValue(result, ConversionTable.Convert);
+                var toReturn = Activator.CreateInstance(typeof(T), "");
+                if (result != null)
+                {
+                    ((ShaderExpressionVariable)toReturn).SetConstantValue(result, ConversionTable.Convert);
+                }
+
                 return (T)toReturn;
             }
             

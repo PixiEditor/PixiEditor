@@ -63,13 +63,13 @@ public class ShaderBuilder
         string resultName = $"color_{GetUniqueNameNumber()}";
         Half4 result = new Half4(resultName);
         _variables.Add(result);
-        _bodyBuilder.AppendLine($"half4 {resultName} = sample({texName.UniformName}, {pos.UniformName});");
+        _bodyBuilder.AppendLine($"half4 {resultName} = sample({texName.VariableName}, {pos.VariableName});");
         return result;
     }
 
     public void ReturnVar(Half4 colorValue)
     {
-        _bodyBuilder.AppendLine($"return {colorValue.UniformName};");
+        _bodyBuilder.AppendLine($"return {colorValue.VariableName};");
     }
 
     public void ReturnConst(Half4 colorValue)
@@ -94,17 +94,17 @@ public class ShaderBuilder
 
     public void Set<T>(T contextPosition, T coordinateValue) where T : ShaderExpressionVariable
     {
-        if (contextPosition.UniformName == coordinateValue.UniformName)
+        if (contextPosition.VariableName == coordinateValue.VariableName)
         {
             return;
         }
 
-        _bodyBuilder.AppendLine($"{contextPosition.UniformName} = {coordinateValue.UniformName};");
+        _bodyBuilder.AppendLine($"{contextPosition.VariableName} = {coordinateValue.VariableName};");
     }
 
     public void SetConstant<T>(T contextPosition, T constantValueVar) where T : ShaderExpressionVariable
     {
-        _bodyBuilder.AppendLine($"{contextPosition.UniformName} = {constantValueVar.ConstantValueString};");
+        _bodyBuilder.AppendLine($"{contextPosition.VariableName} = {constantValueVar.ConstantValueString};");
     }
 
     public Float2 ConstructFloat2(Expression x, Expression y)

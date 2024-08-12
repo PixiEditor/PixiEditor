@@ -80,7 +80,7 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
             if (Coordinate.Connection != null)
             {
                 var coordinate = Coordinate.Value(context);
-                if (string.IsNullOrEmpty(coordinate.UniformName))
+                if (string.IsNullOrEmpty(coordinate.VariableName))
                 {
                     builder.SetConstant(context.Position, coordinate);
                 }
@@ -92,8 +92,8 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
             else
             {
                 var constCoords = Coordinate.NonOverridenValue(FuncContext.NoContext);
-                constCoords.UniformName = "constCords";
-                builder.AddUniform(constCoords.UniformName, constCoords.ConstantValue);
+                constCoords.VariableName = "constCords";
+                builder.AddUniform(constCoords.VariableName, constCoords.ConstantValue);
                 builder.Set(context.Position, constCoords);
             }
 
@@ -104,8 +104,8 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
             else
             {
                 Half4 color = Color.NonOverridenValue(FuncContext.NoContext);
-                color.UniformName = "color";
-                builder.AddUniform(color.UniformName, color.ConstantValue);
+                color.VariableName = "color";
+                builder.AddUniform(color.VariableName, color.ConstantValue);
                 builder.ReturnVar(color);
             }
 

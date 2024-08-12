@@ -18,7 +18,7 @@ public class Float2(string name) : ShaderExpressionVariable<VecD>(name)
     {
         get
         {
-            return new Float1($"{UniformName}.x") { ConstantValue = ConstantValue.X };
+            return new Float1($"{VariableName}.x") { ConstantValue = ConstantValue.X };
         }
     }
     
@@ -26,7 +26,7 @@ public class Float2(string name) : ShaderExpressionVariable<VecD>(name)
     {
         get
         {
-            return new Float1($"{UniformName}.y") { ConstantValue = ConstantValue.Y };
+            return new Float1($"{VariableName}.y") { ConstantValue = ConstantValue.Y };
         }
     }
     

@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
+using PixiEditor.DrawingApi.Core.Shaders.Generation;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
@@ -40,9 +41,9 @@ internal class ConnectProperties_Change : Change
         {
             return false;
         }
-        
+
         bool canConnect = CheckTypeCompatibility(inputProp, outputProp);
-        
+
         if (!canConnect)
         {
             return false;
@@ -53,7 +54,8 @@ internal class ConnectProperties_Change : Change
         return true;
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
+        out bool ignoreInUndo)
     {
         Node inputNode = target.FindNode(InputNodeId);
         Node outputNode = target.FindNode(OutputNodeId);
@@ -77,16 +79,13 @@ internal class ConnectProperties_Change : Change
         OutputProperty outputProp = outputNode.GetOutputProperty(OutputProperty);
 
         outputProp.DisconnectFrom(inputProp);
-        
+
         ConnectProperty_ChangeInfo change = new(null, InputNodeId, null, InputProperty);
-        
+
         inputProp.Connection = originalConnection;
 
-        List<IChangeInfo> changes = new()
-        {
-            change,
-        };
-        
+        List<IChangeInfo> changes = new() { change, };
+
         if (originalConnection != null)
         {
             ConnectProperty_ChangeInfo oldConnection = new(originalConnection.Node.Id, InputNodeId,
@@ -97,12 +96,17 @@ internal class ConnectProperties_Change : Change
 
         return changes;
     }
-    
+
     private static bool CheckTypeCompatibility(InputProperty input, OutputProperty output)
     {
         if (input.ValueType != output.ValueType)
         {
-            if(ConversionTable.TryConvert(output.Value, input.ValueType, out _))
+            if (IsCrossExpression(output.Value, input.ValueType))
+            {
+                return true;
+            }
+
+            if (ConversionTable.TryConvert(output.Value, input.ValueType, out _))
             {
                 return true;
             }
@@ -111,5 +115,15 @@ internal class ConnectProperties_Change : Change
         }
 
         return true;
+    }
+
+    private static bool IsCrossExpression(object first, Type secondType)
+    {
+        if (first is Delegate func && func.Method.ReturnType.IsAssignableTo(typeof(ShaderExpressionVariable)))
+        {
+            return secondType.IsAssignableTo(typeof(Delegate));
+        }
+        
+        return false;
     }
 }

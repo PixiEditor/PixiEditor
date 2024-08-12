@@ -5,12 +5,12 @@ namespace PixiEditor.DrawingApi.Core.Shaders.Generation;
 
 public abstract class ShaderExpressionVariable(string name) : Expression
 {
-    public string UniformName { get; set; } = name;
+    public string VariableName { get; set; } = name;
     public abstract string ConstantValueString { get; }
 
     public override string ToString()
     {
-        return UniformName;
+        return VariableName;
     }
 
     public override string ExpressionValue => VarOrConst();
@@ -19,7 +19,7 @@ public abstract class ShaderExpressionVariable(string name) : Expression
     
     public string VarOrConst()
     {
-        return string.IsNullOrEmpty(UniformName) ? ConstantValueString : UniformName;
+        return string.IsNullOrEmpty(VariableName) ? ConstantValueString : VariableName;
     }
 }
 
