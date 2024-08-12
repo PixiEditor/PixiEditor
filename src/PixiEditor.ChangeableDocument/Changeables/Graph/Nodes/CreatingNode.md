@@ -15,3 +15,5 @@ with solving common problems that may occur during the process.
 Creating new textures without managing them properly will lead to memory leaks, performance issues, visual glitches and unexpected crashes.
 
 Use `RequestTexture` method, it handles node texture caching and management.
+
+2. For the love of god, DO NOT USE `SetPixel` and `GetPixel` methods on textures, they are slow and should be avoided at all costs.
