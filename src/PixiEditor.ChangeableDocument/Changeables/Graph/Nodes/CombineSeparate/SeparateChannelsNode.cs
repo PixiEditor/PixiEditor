@@ -43,7 +43,6 @@ public class SeparateChannelsNode : Node
         Grayscale = CreateInput(nameof(Grayscale), "GRAYSCALE", false);
     }
 
-
     public override string DisplayName { get; set; } = "SEPARATE_CHANNELS_NODE";
     
     protected override Texture? OnExecute(RenderingContext context)
@@ -60,12 +59,12 @@ public class SeparateChannelsNode : Node
         var blue = !grayscale ? _blueFilter : _blueGrayscaleFilter;
         var alpha = !grayscale ? _alphaFilter : _alphaGrayscaleFilter;
 
-        Red.Value = GetImage(image, red);
-        Green.Value = GetImage(image, green);
-        Blue.Value = GetImage(image, blue);
-        Alpha.Value = GetImage(image, alpha);
+        Red.Value = GetImage(image, red, 0);
+        Green.Value = GetImage(image, green, 1);
+        Blue.Value = GetImage(image, blue, 2);
+        Alpha.Value = GetImage(image, alpha, 3);
 
-        var previewSurface = new Texture(image.Size * 2);
+        var previewSurface = RequestTexture(4, image.Size * 2);
 
         var size = image.Size;
         
@@ -82,9 +81,9 @@ public class SeparateChannelsNode : Node
         return previewSurface;
     }
 
-    private Texture GetImage(Texture image, ColorFilter filter)
+    private Texture GetImage(Texture image, ColorFilter filter, int id)
     {
-        var imageSurface = new Texture(image.Size);
+        var imageSurface = RequestTexture(id, image.Size);
 
         _paint.ColorFilter = filter;
         imageSurface.DrawingSurface.Canvas.DrawSurface(image.DrawingSurface, 0, 0, _paint);

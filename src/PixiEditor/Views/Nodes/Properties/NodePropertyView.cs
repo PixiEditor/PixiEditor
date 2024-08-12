@@ -25,6 +25,11 @@ public abstract class NodePropertyView : UserControl
         base.OnApplyTemplate(e);
         InputSocket = e.NameScope.Find<NodeSocket>("PART_InputSocket");
         OutputSocket = e.NameScope.Find<NodeSocket>("PART_OutputSocket");
+        
+        if(InputSocket is null || OutputSocket is null)
+        {
+            return;
+        }
 
         INodePropertyHandler propertyHandler = DataContext as INodePropertyHandler;
 

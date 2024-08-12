@@ -17,7 +17,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
     private List<InputProperty> inputs = new();
     private List<OutputProperty> outputs = new();
     protected List<KeyFrameData> keyFrames = new();
-
     public Guid Id { get; internal set; } = Guid.NewGuid();
 
     public IReadOnlyList<InputProperty> InputProperties => inputs;
@@ -59,6 +58,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
     private bool _keyFramesDirty;
     private Texture? _lastCachedResult;
     private bool _isDisposed;
+    
+    private Dictionary<int, Texture> _managedTextures = new();
 
     public Texture? Execute(RenderingContext context)
     {
@@ -106,6 +107,30 @@ public abstract class Node : IReadOnlyNode, IDisposable
         _lastResolution = context.ChunkResolution;
         _lastChunkPos = context.ChunkToUpdate;
         _keyFramesDirty = false;
+    }
+
+    protected Texture RequestTexture(int id, VecI size, bool clear = false)
+    {
+        if (_managedTextures.TryGetValue(id, out var texture))
+        {
+            if (texture.Size != size)
+            {
+                texture.Dispose();
+                texture = new Texture(size);
+                _managedTextures[id] = texture;
+                return texture;
+            }
+            
+            if (clear)
+            {
+                texture.DrawingSurface.Canvas.Clear();
+            }
+            
+            return texture;
+        }
+        
+        _managedTextures[id] = new Texture(size);
+        return _managedTextures[id];
     }
 
     public void TraverseBackwards(Func<IReadOnlyNode, bool> action)
