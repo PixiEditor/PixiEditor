@@ -22,7 +22,7 @@ public class DistributePointsNode : Node
         Seed = CreateInput("Seed", "SEED", 0);
     }
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         Points.Value = GetPointsRandomly();
         

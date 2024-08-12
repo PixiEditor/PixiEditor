@@ -2,6 +2,9 @@
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Shaders.Generation;
+using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
@@ -10,22 +13,22 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Points;
 [NodeInfo("RasterizePoints", "RASTERIZE_POINTS")]
 public class RasterizePointsNode : Node
 {
-    private Paint _paint = new();
+    private Paint _paint = new() { Color = Colors.White };
 
-    public OutputProperty<Surface> Image { get; }
+    public OutputProperty<Texture> Image { get; }
 
     public InputProperty<PointList> Points { get; }
 
-    public FuncInputProperty<Color> Color { get; }
+    public FuncInputProperty<Half4> Color { get; }
 
     public RasterizePointsNode()
     {
-        Image = CreateOutput<Surface>("Image", "IMAGE", null);
+        Image = CreateOutput<Texture>("Image", "IMAGE", null);
         Points = CreateInput("Points", "POINTS", PointList.Empty);
-        Color = CreateFuncInput("Color", "COLOR", Colors.White);
+        Color = CreateFuncInput<Half4>("Color", "COLOR", Colors.White);
     }
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         var points = Points.Value;
 
@@ -33,16 +36,12 @@ public class RasterizePointsNode : Node
             return null;
 
         var size = context.DocumentSize;
-        var image = new Surface(size);
+        var image = RequestTexture(0, size);
 
-        var colorFunc = Color.Value;
-        var funcContext = new FuncContext();
-        foreach (var point in points)
-        {
-            funcContext.UpdateContext(point, context.DocumentSize);
-            _paint.Color = colorFunc(funcContext);
-            image.DrawingSurface.Canvas.DrawPixel((VecI)point.Multiply(size), _paint);
-        }
+        image.DrawingSurface.Canvas.DrawPoints(
+            PointMode.Points, 
+            points.Select(x => new Point((float)x.X, (float)x.Y)).ToArray(),
+            _paint);
 
         Image.Value = image;
         

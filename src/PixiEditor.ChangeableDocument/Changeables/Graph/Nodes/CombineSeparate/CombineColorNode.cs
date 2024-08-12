@@ -13,11 +13,11 @@ public class CombineColorNode : Node
 
     public InputProperty<CombineSeparateColorMode> Mode { get; }
 
-    public FuncInputProperty<Float1> RH { get; }
+    public FuncInputProperty<Float1> R { get; }
 
-    public FuncInputProperty<Float1> GS { get; }
+    public FuncInputProperty<Float1> G { get; }
 
-    public FuncInputProperty<Float1> BVL { get; }
+    public FuncInputProperty<Float1> B { get; }
 
     public FuncInputProperty<Float1> A { get; }
 

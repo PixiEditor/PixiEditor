@@ -1,6 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Evaluator;
 
@@ -8,17 +9,17 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Evaluator;
 [PairNode(typeof(ColorEvaluatorLeftNode), "ColorEvaluatorZone")]
 public class ColorEvaluatorRightNode : Node
 {
-    public FuncOutputProperty<Color> Output { get; }
+    public FuncOutputProperty<Half4> Output { get; }
 
-    public FuncInputProperty<Color> Input { get; }
+    public FuncInputProperty<Half4> Input { get; }
 
     public ColorEvaluatorRightNode()
     {
         Output = CreateFuncOutput("Output", "COLOR", c => Input.Value(c));
-        Input = CreateFuncInput("Input", "COLOR", Colors.Black);
+        Input = CreateFuncInput<Half4>("Input", "COLOR", Colors.Black);
     }
     
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         return null;
     }

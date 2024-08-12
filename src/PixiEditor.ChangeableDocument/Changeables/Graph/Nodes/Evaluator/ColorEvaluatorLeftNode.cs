@@ -1,6 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Evaluator;
@@ -9,14 +10,14 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Evaluator;
 [PairNode(typeof(ColorEvaluatorRightNode), "ColorEvaluatorZone", true)]
 public class ColorEvaluatorLeftNode : Node
 {
-    public FuncOutputProperty<VecD> Position { get; }
+    public FuncOutputProperty<Float2> Position { get; }
 
     public ColorEvaluatorLeftNode()
     {
         Position = CreateFuncOutput("Position", "UV", c => c.Position);
     }
     
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         return null;
     }

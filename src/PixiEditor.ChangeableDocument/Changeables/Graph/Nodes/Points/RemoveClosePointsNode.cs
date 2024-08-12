@@ -23,7 +23,7 @@ public class RemoveClosePointsNode : Node
         Seed = CreateInput("Seed", "SEED", 0);
     }
     
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Texture? OnExecute(RenderingContext context)
     {
         var distance = MinDistance.Value;
 
