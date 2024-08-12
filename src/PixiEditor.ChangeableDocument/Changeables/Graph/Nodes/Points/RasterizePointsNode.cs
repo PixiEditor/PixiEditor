@@ -19,13 +19,11 @@ public class RasterizePointsNode : Node
 
     public InputProperty<PointList> Points { get; }
 
-    public FuncInputProperty<Half4> Color { get; }
 
     public RasterizePointsNode()
     {
         Image = CreateOutput<Texture>("Image", "IMAGE", null);
         Points = CreateInput("Points", "POINTS", PointList.Empty);
-        Color = CreateFuncInput<Half4>("Color", "COLOR", Colors.White);
     }
 
     protected override Texture? OnExecute(RenderingContext context)
@@ -40,7 +38,7 @@ public class RasterizePointsNode : Node
 
         image.DrawingSurface.Canvas.DrawPoints(
             PointMode.Points, 
-            points.Select(x => new Point((float)x.X, (float)x.Y)).ToArray(),
+            points.Select(x => new Point((float)x.X * size.X, (float)x.Y * size.Y)).ToArray(),
             _paint);
 
         Image.Value = image;
