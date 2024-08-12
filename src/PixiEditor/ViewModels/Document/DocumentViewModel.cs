@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using Avalonia;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
@@ -456,9 +457,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         void AddAnimationData(AnimationDataBuilder? data, Dictionary<int, Guid> mappedIds,
             Dictionary<int, Guid> mappedKeyFrameIds)
         {
-            if(data is null)
+            if (data is null)
                 return;
-            
+
             acc.AddActions(new SetFrameRate_Action(data.FrameRate));
             foreach (var keyFrame in data.KeyFrameGroups)
             {
@@ -474,7 +475,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
                         acc.AddFinishedActions();
                     }
-
                 }
             }
         }
@@ -507,13 +507,16 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 for (int j = 0; j < sizeInChunks.Y; j++)
                 {
-                    var maybeChunk = Renderer.RenderChunk(new(i, j), ChunkResolution.Full, frameTime);
-                    if (maybeChunk.IsT1)
-                        continue;
-                    using Chunk chunk = maybeChunk.AsT0;
-                    finalSurface.DrawingSurface.Canvas.DrawSurface(
-                        chunk.Surface.DrawingSurface,
-                        i * ChunkyImage.FullChunkSize, j * ChunkyImage.FullChunkSize);
+                    Dispatcher.UIThread.Invoke(() =>
+                    {
+                        var maybeChunk = Renderer.RenderChunk(new(i, j), ChunkResolution.Full, frameTime);
+                        if (maybeChunk.IsT1)
+                            return;
+                        using Chunk chunk = maybeChunk.AsT0;
+                        finalSurface.DrawingSurface.Canvas.DrawSurface(
+                            chunk.Surface.DrawingSurface,
+                            i * ChunkyImage.FullChunkSize, j * ChunkyImage.FullChunkSize);
+                    });
                 }
             }
 
@@ -831,8 +834,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         if (AnimationDataViewModel.KeyFrames.Count == 0)
             return [];
-        
-        if(token.IsCancellationRequested)
+
+        if (token.IsCancellationRequested)
             return [];
 
         int firstFrame = AnimationDataViewModel.FirstFrame;
@@ -840,13 +843,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         int lastFrame = firstFrame + framesCount;
 
         Image[] images = new Image[framesCount];
-        
+
         // TODO: Multi-threading
         for (int i = firstFrame; i < lastFrame; i++)
         {
             if (token.IsCancellationRequested)
                 return [];
-            
+
             double normalizedTime = (double)(i - firstFrame) / framesCount;
             KeyFrameTime frameTime = new KeyFrameTime(i, normalizedTime);
             var surface = TryRenderWholeImage(frameTime);
@@ -887,9 +890,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             if (token.IsCancellationRequested)
                 return;
-            
+
             KeyFrameTime frameTime = new KeyFrameTime(i, (double)(i - firstFrame) / framesCount);
-            
+
             var surface = TryRenderWholeImage(frameTime);
             if (surface.IsT0)
             {

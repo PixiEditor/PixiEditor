@@ -161,7 +161,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.File.OpenFileFromClipboard", "OPEN_FILE_FROM_CLIPBOARD",
-        "OPEN_FILE_FROM_CLIPBOARD_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.HasImageInClipboard", AnalyticsTrack = true)]
+        "OPEN_FILE_FROM_CLIPBOARD_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.HasImageInClipboard",
+        AnalyticsTrack = true)]
     public async Task OpenFromClipboard()
     {
         var images = await ClipboardController.GetImagesFromClipboard();
@@ -231,7 +232,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         AddDocumentViewModelToTheSystem(document);
         AddRecentlyOpened(document.FullFilePath);
-        
+
         var fileSize = new FileInfo(path).Length;
         Analytics.SendOpenFile(PixiFileType.PixiFile, fileSize, document.SizeBindable);
     }
@@ -280,7 +281,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
         else
         {
-            CrashHelper.SendExceptionInfoToWebhook(new InvalidFileTypeException(default, $"Invalid file type '{fileType}'"));
+            CrashHelper.SendExceptionInfoToWebhook(new InvalidFileTypeException(default,
+                $"Invalid file type '{fileType}'"));
         }
     }
 
@@ -423,13 +425,20 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                         await Exporter.TrySaveUsingDataFromDialog(doc, info.FilePath, info.ChosenFormat,
                             info.ExportConfig,
                             job);
-                    
+
                     if (result.result == SaveResult.Success)
-                        IOperatingSystem.Current.OpenFolder(result.finalPath);
+                    {
+                        Dispatcher.UIThread.Post(() =>
+                        {
+                            IOperatingSystem.Current.OpenFolder(result.finalPath);
+                        });
+                    }
                     else
+                    {
                         ShowSaveError((DialogSaveResult)result.result);
+                    }
                 });
-                
+
                 await dialog.ShowDialog();
             }
         }
