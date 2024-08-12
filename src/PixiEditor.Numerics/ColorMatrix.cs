@@ -121,7 +121,7 @@ public record struct ColorMatrix
         (0, 0, 1, 0, 0),
         (0, 0, 0, 0, 0)
     );
-    
+
     /// <summary>
     /// The alpha value will stay the alpha value <br/>
     /// (_, _, _, w) => (0, 0, 0, w)
@@ -138,6 +138,38 @@ public record struct ColorMatrix
     /// (_, _, _, w) => (0, 0, 0, w + 1)
     /// </summary>
     public static ColorMatrix OpaqueAlphaOffset => Offset(0, 0, 0, 1);
+
+    /// <summary>
+    /// The rgb values become averaged into a grayscale image. Alpha becomes zero <br/>
+    /// (r, g, b, _) => (r, g, b, 0) / 3
+    /// </summary>
+    public static ColorMatrix AverageGrayscale { get; } = WeightedGrayscale(1 / 3f, 1 / 3f, 1 / 3f, 0);
+
+    public static ColorMatrix WeightedWavelengthGrayscale { get; } = WeightedGrayscale(0.299f, 0.587f, 0.114f, 0);
+
+    /// <summary>
+    /// The rgb values become grayscale according to the weights image. Alpha becomes zero <br/>
+    /// (r, g, b, a) => (rgb: r * rWeight + g * gWeight + b * bWeight + a * aWeight, 0)
+    /// </summary>
+    public static ColorMatrix WeightedGrayscale(float rWeight, float gWeight, float bWeight, float aWeight) => new(
+        (rWeight, gWeight, bWeight, aWeight, 0),
+        (rWeight, gWeight, bWeight, aWeight, 0),
+        (rWeight, gWeight, bWeight, aWeight, 0),
+        (0, 0, 0, 0, 0)
+    );
+
+    /// <summary>
+    /// The rgb values become grayscale according to the weights image. Alpha becomes zero <br/>
+    /// (r, g, b, a) => (rgb: r * rWeight + g * gWeight + b * bWeight + a * aWeight, 0)
+    /// </summary>
+    public static ColorMatrix WeightedGrayscale(VecD3 vector) =>
+        WeightedGrayscale((float)vector.X, (float)vector.Y, (float)vector.Z, 0);
+    
+    public static ColorMatrix Lerp(ColorMatrix from, ColorMatrix to, float amount) => new(float.Lerp(from.M11, to.M11, amount),
+        float.Lerp(from.M12, to.M12, amount), float.Lerp(from.M13, to.M13, amount), float.Lerp(from.M14, to.M14, amount), float.Lerp(from.M15, to.M15, amount), float.Lerp(from.M21, to.M21, amount),
+        float.Lerp(from.M22, to.M22, amount), float.Lerp(from.M23, to.M23, amount), float.Lerp(from.M24, to.M24, amount), float.Lerp(from.M25, to.M25, amount), float.Lerp(from.M31, to.M31, amount),
+        float.Lerp(from.M32, to.M32, amount), float.Lerp(from.M33, to.M33, amount), float.Lerp(from.M34, to.M34, amount), float.Lerp(from.M35, to.M35, amount), float.Lerp(from.M41, to.M41, amount),
+        float.Lerp(from.M42, to.M42, amount), float.Lerp(from.M43, to.M43, amount), float.Lerp(from.M44, to.M44, amount), float.Lerp(from.M45, to.M45, amount));
     
     public static ColorMatrix operator +(ColorMatrix left, ColorMatrix right) => new(left.M11 + right.M11,
         left.M12 + right.M12, left.M13 + right.M13, left.M14 + right.M14, left.M15 + right.M15, left.M21 + right.M21,

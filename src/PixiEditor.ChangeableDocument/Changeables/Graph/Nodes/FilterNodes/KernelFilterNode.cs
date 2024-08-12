@@ -4,7 +4,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
-[NodeInfo("KernelFilter")]
+[NodeInfo("KernelFilter", "KERNEL_FILTER_NODE")]
 public class KernelFilterNode : FilterNode
 {
     private readonly Paint _paint = new();
@@ -19,7 +19,6 @@ public class KernelFilterNode : FilterNode
 
     public InputProperty<bool> OnAlpha { get; }
 
-    public override string DisplayName { get; set; } = "KERNEL_FILTER_NODE";
     public KernelFilterNode()
     {
         Kernel = CreateInput(nameof(Kernel), "KERNEL", Numerics.Kernel.Identity(3, 3));

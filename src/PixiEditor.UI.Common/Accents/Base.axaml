@@ -47,9 +47,13 @@
             <Color x:Key="VecDSocketColor">#c984ca</Color>
             <Color x:Key="VecISocketColor">#c9b4ca</Color>
             <Color x:Key="IntSocketColor">#4C64B1</Color>
+            <Color x:Key="PointListSocketColor">#7f5280</Color>
             
             <Color x:Key="PixiEditorModifyImageBorderColor">#68abdf</Color>
             <Color x:Key="PixiEditorModifyImageNodeBackgroundColor">#4068abdf</Color>
+
+            <Color x:Key="PixiEditorColorEvaluatorBorderColor">#99e4aa</Color>
+            <Color x:Key="PixiEditorColorEvaluatorNodeBackgroundColor">#4099e4aa</Color>
 
             <Color x:Key="NodeFrameBorderColor">#101010</Color>
             <Color x:Key="NodeFrameBackgroundColor">#40101010</Color>
@@ -103,12 +107,18 @@
             <SolidColorBrush x:Key="Int2SocketBrush" Color="{StaticResource VecISocketColor}"/>
             <SolidColorBrush x:Key="Int32SocketBrush" Color="{StaticResource IntSocketColor}"/>
             <SolidColorBrush x:Key="Int1SocketBrush" Color="{StaticResource IntSocketColor}"/>
+            <SolidColorBrush x:Key="PointListSocketBrush" Color="{StaticResource PointListSocketColor}"/>
             
             <SolidColorBrush x:Key="PixiEditorModifyImageLeftBorderBrush" Color="{StaticResource PixiEditorModifyImageBorderColor}"/>
             <SolidColorBrush x:Key="PixiEditorModifyImageRightBorderBrush" Color="{StaticResource PixiEditorModifyImageBorderColor}"/>
             <SolidColorBrush x:Key="PixiEditorModifyImageZoneBorderBrush" Color="{StaticResource PixiEditorModifyImageBorderColor}"/>
             <SolidColorBrush x:Key="PixiEditorModifyImageZoneBackgroundBrush" Color="{StaticResource PixiEditorModifyImageNodeBackgroundColor}"/>
             
+            <SolidColorBrush x:Key="PixiEditorColorEvaluatorLeftBorderBrush" Color="{StaticResource PixiEditorColorEvaluatorBorderColor}"/>
+            <SolidColorBrush x:Key="PixiEditorColorEvaluatorRightBorderBrush" Color="{StaticResource PixiEditorColorEvaluatorBorderColor}"/>
+            <SolidColorBrush x:Key="PixiEditorColorEvaluatorZoneBorderBrush" Color="{StaticResource PixiEditorColorEvaluatorBorderColor}"/>
+            <SolidColorBrush x:Key="PixiEditorColorEvaluatorZoneBackgroundBrush" Color="{StaticResource PixiEditorColorEvaluatorNodeBackgroundColor}"/>
+
             <SolidColorBrush x:Key="NodeFrameBorderBrush" Color="{StaticResource NodeFrameBorderColor}"/>
             <SolidColorBrush x:Key="NodeFrameBackgroundBrush" Color="{StaticResource NodeFrameBackgroundColor}"/>
 

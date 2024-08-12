@@ -5,7 +5,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
-[NodeInfo("SeparateVecI")]
+[NodeInfo("SeparateVecI", "SEPARATE_VECI_NODE")]
 public class SeparateVecINode : Node
 {
     public FuncInputProperty<Int2> Vector { get; }
@@ -14,8 +14,6 @@ public class SeparateVecINode : Node
     
     public FuncOutputProperty<Int1> Y { get; }
     
-    public override string DisplayName { get; set; } = "SEPARATE_VECI_NODE";
-
     public SeparateVecINode()
     {
         X = CreateFuncOutput<Int1>("X", "X", ctx => Vector.Value(ctx).X);

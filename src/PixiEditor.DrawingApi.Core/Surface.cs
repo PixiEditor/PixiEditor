@@ -21,28 +21,44 @@ public class Surface : IDisposable, ICloneable, IPixelsMap
     
     public bool IsDisposed => disposed;
 
+    private static ImageInfo DefaultImageInfo => new(0, 0, ColorType.RgbaF16, AlphaType.Premul, ColorSpace.CreateSrgb());
+
     public event SurfaceChangedEventHandler? Changed;
 
     private Paint drawingPaint = new Paint() { BlendMode = BlendMode.Src };
     private Paint nearestNeighborReplacingPaint = new() { BlendMode = BlendMode.Src, FilterQuality = FilterQuality.None };
 
-    public Surface(VecI size)
+    private Surface(ImageInfo info)
     {
+        var size = info.Size;
+        
         if (size.X < 1 || size.Y < 1)
             throw new ArgumentException("Width and height must be >=1");
 
         Size = size;
 
-        BytesPerPixel = 8;
+        BytesPerPixel = info.BytesPerPixel;
         PixelBuffer = CreateBuffer(size.X, size.Y, BytesPerPixel);
-        DrawingSurface = CreateDrawingSurface();
+        DrawingSurface = CreateDrawingSurface(info);
     }
 
-    public Surface(Surface original) : this((VecI)original.Size)
+    public Surface(VecI size) : this(DefaultImageInfo.WithSize(size))
+    {
+    }
+
+    public Surface(Surface original) : this(original.Size)
     {
         DrawingSurface.Canvas.DrawSurface(original.DrawingSurface, 0, 0);
     }
-    
+
+    public static Surface UsingColorType(VecI size, ColorType type = ColorType.RgbaF16)
+    {
+        if (type == ColorType.Unknown)
+            throw new ArgumentException("Can't use unknown color type for surface", nameof(type));
+
+        return new Surface(DefaultImageInfo.WithSize(size).WithColorType(type));
+    }
+
     public static Surface Combine(int width, int height, List<(Image img, VecI offset)> images)
     {
         Surface surface = new Surface(new VecI(width, height));
@@ -187,9 +203,9 @@ public class Surface : IDisposable, ICloneable, IPixelsMap
     }
 #endif
 
-    private DrawingSurface CreateDrawingSurface()
+    private DrawingSurface CreateDrawingSurface(ImageInfo info)
     {
-        var surface = DrawingSurface.Create(new ImageInfo(Size.X, Size.Y, ColorType.RgbaF16, AlphaType.Premul, ColorSpace.CreateSrgb()), PixelBuffer);
+        var surface = DrawingSurface.Create(info, PixelBuffer);
         surface.Changed += DrawingSurfaceChanged;
         if (surface is null)
             throw new InvalidOperationException($"Could not create surface (Size:{Size})");

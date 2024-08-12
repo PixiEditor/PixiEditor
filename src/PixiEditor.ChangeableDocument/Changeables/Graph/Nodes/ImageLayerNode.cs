@@ -10,7 +10,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("ImageLayer")]
+[NodeInfo("ImageLayer", "IMAGE_LAYER_NODE")]
 public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 {
     public const string ImageFramesKey = "Frames";

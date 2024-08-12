@@ -6,7 +6,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
-[NodeInfo("CombineVecI")]
+[NodeInfo("CombineVecI", "COMBINE_VECI_NODE")]
 public class CombineVecI : Node
 {
     public FuncOutputProperty<Int2> Vector { get; }
@@ -14,8 +14,6 @@ public class CombineVecI : Node
     public FuncInputProperty<Int1> X { get; }
     
     public FuncInputProperty<Int1> Y { get; }
-
-    public override string DisplayName { get; set; } = "COMBINE_VECI_NODE";
 
     public CombineVecI()
     {

@@ -7,16 +7,13 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("Lerp")]
+[NodeInfo("Lerp", "LERP_NODE")]
 public class LerpColorNode : Node // TODO: ILerpable as inputs? 
 {
     public FuncOutputProperty<Half4> Result { get; } 
     public FuncInputProperty<Half4> From { get; }
     public FuncInputProperty<Half4> To { get; }
     public FuncInputProperty<Float1> Time { get; }
-    
-    public override string DisplayName { get; set; } = "LERP_NODE";
-    
     
     public LerpColorNode()
     {

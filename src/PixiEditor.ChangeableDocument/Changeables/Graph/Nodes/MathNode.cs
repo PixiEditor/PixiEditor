@@ -8,7 +8,7 @@ using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("Math")]
+[NodeInfo("Math", "MATH_NODE")]
 public class MathNode : Node
 {
     public FuncOutputProperty<Float1> Result { get; }
@@ -20,9 +20,6 @@ public class MathNode : Node
     public FuncInputProperty<Float1> X { get; }
     
     public FuncInputProperty<Float1> Y { get; }
-    
-    
-    public override string DisplayName { get; set; } = "MATH_NODE";
     
     public MathNode()
     {

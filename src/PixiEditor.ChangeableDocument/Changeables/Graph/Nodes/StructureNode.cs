@@ -28,11 +28,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
     public string MemberName { get; set; } = "New Element"; // would be good to add localization here, it is set if node is created via node graph
     
-    public override string DisplayName
-    {
-        get => MemberName;
-        set => MemberName = value;
-    }
+    public string DisplayName => MemberName;
 
     protected Dictionary<(ChunkResolution, int), Texture> workingSurfaces = new Dictionary<(ChunkResolution, int), Texture>();
     private Paint maskPaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.DstIn };

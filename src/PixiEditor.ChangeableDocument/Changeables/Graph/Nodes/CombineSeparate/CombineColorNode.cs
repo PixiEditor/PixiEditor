@@ -6,24 +6,25 @@ using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
-[NodeInfo("CombineColor")]
+[NodeInfo("CombineColor", "COMBINE_COLOR_NODE")]
 public class CombineColorNode : Node
 {
     public FuncOutputProperty<Half4> Color { get; }
 
-    public FuncInputProperty<Float1> R { get; }
+    public InputProperty<CombineSeparateColorMode> Mode { get; }
 
-    public FuncInputProperty<Float1> G { get; }
+    public FuncInputProperty<Float1> RH { get; }
 
-    public FuncInputProperty<Float1> B { get; }
+    public FuncInputProperty<Float1> GS { get; }
+
+    public FuncInputProperty<Float1> BVL { get; }
 
     public FuncInputProperty<Float1> A { get; }
-
-    public override string DisplayName { get; set; } = "COMBINE_COLOR_NODE";
 
     public CombineColorNode()
     {
         Color = CreateFuncOutput(nameof(Color), "COLOR", GetColor);
+        Mode = CreateInput("Mode", "MODE", CombineSeparateColorMode.RGB);
 
         R = CreateFuncInput<Float1>("R", "R", 0d);
         G = CreateFuncInput<Float1>("G", "G", 0d);

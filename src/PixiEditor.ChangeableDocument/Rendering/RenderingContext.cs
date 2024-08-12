@@ -35,6 +35,7 @@ public class RenderingContext : IDisposable
         return blendMode switch
         {
             BlendMode.Normal => DrawingApiBlendMode.SrcOver,
+            BlendMode.Erase => DrawingApiBlendMode.DstOut,
             BlendMode.Darken => DrawingApiBlendMode.Darken,
             BlendMode.Multiply => DrawingApiBlendMode.Multiply,
             BlendMode.ColorBurn => DrawingApiBlendMode.ColorBurn,

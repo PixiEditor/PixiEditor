@@ -7,7 +7,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("Folder")]
+[NodeInfo("Folder", "FOLDER_NODE")]
 public class FolderNode : StructureNode, IReadOnlyFolderNode
 {
     public InputProperty<Texture?> Content { get; }

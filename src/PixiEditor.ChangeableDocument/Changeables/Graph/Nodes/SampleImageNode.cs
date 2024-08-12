@@ -8,7 +8,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("SampleImage")]
+[NodeInfo("SampleImage", "SAMPLE_IMAGE")]
 public class SampleImageNode : Node
 {
     public InputProperty<Texture?> Image { get; }
@@ -16,8 +16,6 @@ public class SampleImageNode : Node
     public FuncOutputProperty<Float2> Coordinate { get; }
 
     public FuncOutputProperty<Half4> Color { get; }
-
-    public override string DisplayName { get; set; } = "SAMPLE_IMAGE";
 
     public SampleImageNode()
     {

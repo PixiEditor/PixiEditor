@@ -110,7 +110,7 @@ public class AnalyticsClient
         public override void Write(Utf8JsonWriter writer, VecD value, JsonSerializerOptions options)
         {
             var invariant = CultureInfo.InvariantCulture;
-            writer.WriteStringValue($"{value.X.ToString("F2", invariant)}; {value.X.ToString("F2", invariant)}");
+            writer.WriteStringValue($"{value.X.ToString("F2", invariant)}; {value.Y.ToString("F2", invariant)}");
         }
     }
     

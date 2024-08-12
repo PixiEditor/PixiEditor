@@ -6,7 +6,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
-[NodeInfo("CombineChannels")]
+[NodeInfo("CombineChannels", "COMBINE_CHANNELS_NODE")]
 public class CombineChannelsNode : Node
 {
     private readonly Paint _screenPaint = new() { BlendMode = BlendMode.Screen };
@@ -105,8 +105,6 @@ public class CombineChannelsNode : Node
 
         return final.Size;
     }
-
-    public override string DisplayName { get; set; } = "COMBINE_CHANNELS_NODE";
 
     public override Node CreateCopy() => new CombineChannelsNode();
 }

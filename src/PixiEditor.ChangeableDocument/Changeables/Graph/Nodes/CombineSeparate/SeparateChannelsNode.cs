@@ -5,7 +5,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
-[NodeInfo("SeparateChannels")]
+[NodeInfo("SeparateChannels", "SEPARATE_CHANNELS_NODE")]
 public class SeparateChannelsNode : Node
 {
     private readonly Paint _paint = new();
@@ -42,8 +42,6 @@ public class SeparateChannelsNode : Node
         Image = CreateInput<Texture>(nameof(Image), "IMAGE", null);
         Grayscale = CreateInput(nameof(Grayscale), "GRAYSCALE", false);
     }
-
-    public override string DisplayName { get; set; } = "SEPARATE_CHANNELS_NODE";
     
     protected override Texture? OnExecute(RenderingContext context)
     {

@@ -74,6 +74,7 @@ internal class BlendModeComboBox : ComboBox
         var items = new List<AvaloniaObject>()
         {
             new ComboBoxItem() { Content = BlendMode.Normal.LocalizedKeys(), Tag = BlendMode.Normal },
+            new ComboBoxItem() { Content = BlendMode.Erase.LocalizedKeys(), Tag = BlendMode.Erase },
             new Separator(),
             new ComboBoxItem() { Content = BlendMode.Darken.LocalizedKeys(), Tag = BlendMode.Darken },
             new ComboBoxItem() { Content = BlendMode.Multiply.LocalizedKeys(), Tag = BlendMode.Multiply },

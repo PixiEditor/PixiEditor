@@ -84,6 +84,7 @@
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <windows:BetaExampleButton FileName="Pond.pixi" DisplayName="POND_EXAMPLE" CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                             <windows:BetaExampleButton FileName="Tree.pixi" DisplayName="TREE_EXAMPLE" CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="Stars.pixi" DisplayName="STARS_EXAMPLE" CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                             
                             <StackPanel>
                                 <Button Margin="0,10,0,0" HorizontalAlignment="Center"
@@ -339,6 +340,7 @@
                         <StackPanel Orientation="Horizontal">
                             <windows:BetaExampleButton FileName="Pond.pixi" DisplayName="POND_EXAMPLE" CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                             <windows:BetaExampleButton FileName="Tree.pixi" DisplayName="TREE_EXAMPLE" CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="Stars.pixi" DisplayName="STARS_EXAMPLE" CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                             <windows:BetaExampleButton FileName="Outline.pixi" DisplayName="OUTLINE_EXAMPLE" CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                         </StackPanel>
                     </ScrollViewer>
