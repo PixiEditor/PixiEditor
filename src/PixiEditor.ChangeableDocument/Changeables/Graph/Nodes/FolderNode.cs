@@ -81,14 +81,14 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
             DrawSurface(outputWorkingSurface, Content.Value, context, Filters.Value);
             
             ApplyMaskIfPresent(outputWorkingSurface, context);
-            ApplyRasterClip(outputWorkingSurface, context);
-            
         }
         
         if (Background.Value != null)
         {
-            Texture tempSurface = new Texture(outputWorkingSurface.Size);
+            Texture tempSurface = RequestTexture(2, outputWorkingSurface.Size);
             DrawBackground(tempSurface, context);
+            
+            ApplyRasterClip(outputWorkingSurface, tempSurface);
             
             blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255));
             blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);

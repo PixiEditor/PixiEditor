@@ -119,15 +119,14 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         // shit gets downhill with mask on big canvases, TODO: optimize
         ApplyMaskIfPresent(outputWorkingSurface, context);
-        ApplyRasterClip(outputWorkingSurface, context);
 
         if (Background.Value != null)
         {
             Texture tempSurface = RequestTexture(4, outputWorkingSurface.Size, true);
             DrawBackground(tempSurface, context);
+            ApplyRasterClip(outputWorkingSurface, tempSurface);
             blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
             tempSurface.DrawingSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
-
             Output.Value = tempSurface;
             return tempSurface;
         }
@@ -171,33 +170,34 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         bool requiresTopLeft = context.ChunkToUpdate.X > 0 || context.ChunkToUpdate.Y > 0;
         bool requiresTop = context.ChunkToUpdate.Y > 0;
         bool requiresLeft = context.ChunkToUpdate.X > 0;
-        bool requiresTopRight = context.ChunkToUpdate.X < imageChunksSize.X - 1 && context.ChunkToUpdate.Y > 0; 
+        bool requiresTopRight = context.ChunkToUpdate.X < imageChunksSize.X - 1 && context.ChunkToUpdate.Y > 0;
         bool requiresRight = context.ChunkToUpdate.X < imageChunksSize.X - 1;
-        bool requiresBottomRight = context.ChunkToUpdate.X < imageChunksSize.X - 1 && context.ChunkToUpdate.Y < imageChunksSize.Y - 1; 
+        bool requiresBottomRight = context.ChunkToUpdate.X < imageChunksSize.X - 1 &&
+                                   context.ChunkToUpdate.Y < imageChunksSize.Y - 1;
         bool requiresBottom = context.ChunkToUpdate.Y < imageChunksSize.Y - 1;
         bool requiresBottomLeft = context.ChunkToUpdate.X > 0 && context.ChunkToUpdate.Y < imageChunksSize.Y - 1;
 
         VecI tempSizeInChunks = new VecI(1, 1);
-        if(requiresLeft)
+        if (requiresLeft)
         {
             tempSizeInChunks.X++;
         }
-        
-        if(requiresRight)
+
+        if (requiresRight)
         {
             tempSizeInChunks.X++;
         }
-        
-        if(requiresTop)
+
+        if (requiresTop)
         {
             tempSizeInChunks.Y++;
         }
-        
-        if(requiresBottom)
+
+        if (requiresBottom)
         {
             tempSizeInChunks.Y++;
         }
-        
+
         VecI tempSize = tempSizeInChunks * context.ChunkResolution.PixelSize();
         tempSize = new VecI(Math.Min(tempSize.X, workingSurface.Size.X), Math.Min(tempSize.Y, workingSurface.Size.Y));
 
@@ -206,54 +206,54 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             workingSurface.DrawingSurface.Canvas.DrawRect(
                 new RectI(
                     VecI.Zero,
-                    tempSize), 
+                    tempSize),
                 clearPaint);
         }
-        
+
         using Texture tempSurface = new Texture(tempSize);
 
         if (requiresTopLeft)
         {
             DrawChunk(frameImage, context, tempSurface, new VecI(-1, -1));
         }
-        
+
         if (requiresTop)
         {
             DrawChunk(frameImage, context, tempSurface, new VecI(0, -1));
         }
-        
+
         if (requiresLeft)
         {
             DrawChunk(frameImage, context, tempSurface, new VecI(-1, 0));
         }
-        
+
         if (requiresTopRight)
         {
             DrawChunk(frameImage, context, tempSurface, new VecI(1, -1));
         }
-        
+
         if (requiresRight)
         {
             DrawChunk(frameImage, context, tempSurface, new VecI(1, 0));
         }
-        
+
         if (requiresBottomRight)
         {
             DrawChunk(frameImage, context, tempSurface, new VecI(1, 1));
         }
-        
+
         if (requiresBottom)
         {
             DrawChunk(frameImage, context, tempSurface, new VecI(0, 1));
         }
-        
+
         if (requiresBottomLeft)
         {
             DrawChunk(frameImage, context, tempSurface, new VecI(-1, 1));
         }
-        
+
         DrawChunk(frameImage, context, tempSurface, new VecI(0, 0));
-        
+
         blendPaint.SetFilters(Filters.Value);
         workingSurface.DrawingSurface.Canvas.DrawSurface(tempSurface.DrawingSurface, VecI.Zero, blendPaint);
     }

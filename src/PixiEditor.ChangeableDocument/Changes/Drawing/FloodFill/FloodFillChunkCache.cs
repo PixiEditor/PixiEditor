@@ -49,7 +49,7 @@ internal class FloodFillChunkCache : IDisposable
         {
             if (document is null || membersToRender is null)
                 throw new InvalidOperationException();
-            var chunk = document.Renderer.RenderLayersChunk(pos, ChunkResolution.Full, frame, membersToRender);
+            var chunk = document.Renderer.RenderLayersChunk(pos, ChunkResolution.Full, frame, membersToRender, null);
             acquiredChunks[pos] = chunk;
             return chunk;
         }

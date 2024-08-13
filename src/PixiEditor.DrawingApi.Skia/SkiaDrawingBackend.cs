@@ -1,4 +1,5 @@
-﻿using PixiEditor.DrawingApi.Core.Bridge;
+﻿using System;
+using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
 using PixiEditor.DrawingApi.Core.Bridge.Operations;
 using PixiEditor.DrawingApi.Skia.Exceptions;
@@ -24,7 +25,8 @@ namespace PixiEditor.DrawingApi.Skia
         }
         
         public bool IsHardwareAccelerated => GraphicsContext != null;
-        
+        public Action<Action> RenderDispatch { get; set; }
+
         public IColorImplementation ColorImplementation { get; }
         public IImageImplementation ImageImplementation { get; }
         public IImgDataImplementation ImgDataImplementation { get; }

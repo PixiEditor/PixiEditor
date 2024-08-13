@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
@@ -93,7 +94,10 @@ public class DocumentRenderer
                 return new EmptyChunk();
             }
 
-            return ChunkFromResult(resolution, transformedClippingRect, evaluated, context);
+            var result = ChunkFromResult(resolution, transformedClippingRect, evaluated.DrawingSurface.Snapshot(), context);
+            evaluated.Dispose();
+            
+            return result;
         }
         catch (ObjectDisposedException)
         {
@@ -112,19 +116,20 @@ public class DocumentRenderer
     }
 
     public OneOf<Chunk, EmptyChunk> RenderLayersChunk(VecI chunkPos, ChunkResolution resolution, int frame,
-        HashSet<Guid> layersToCombine)
+        HashSet<Guid> layersToCombine, RectI? globalClippingRect)
     {
         using RenderingContext context = new(frame, chunkPos, resolution, Document.Size);
         NodeGraph membersOnlyGraph = ConstructMembersOnlyGraph(layersToCombine, Document.NodeGraph);
         try
         {
+            RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
             Texture? evaluated = membersOnlyGraph.Execute(context);
             if (evaluated is null)
             {
                 return new EmptyChunk();
             }
 
-            var result = ChunkFromResult(resolution, null, evaluated, context);
+            var result = ChunkFromResult(resolution, transformedClippingRect, evaluated.DrawingSurface.Snapshot(), context);
             
             membersOnlyGraph.Dispose();
             return result;
@@ -167,8 +172,9 @@ public class DocumentRenderer
         return membersOnlyGraph;
     }
 
-    private static OneOf<Chunk, EmptyChunk> ChunkFromResult(ChunkResolution resolution,
-        RectI? transformedClippingRect, Texture evaluated,
+    private static OneOf<Chunk, EmptyChunk> ChunkFromResult(
+        ChunkResolution resolution,
+        RectI? transformedClippingRect, Image evaluated,
         RenderingContext context)
     {
         Chunk chunk = Chunk.Create(resolution);
@@ -186,7 +192,7 @@ public class DocumentRenderer
             y = transformedClippingRect.Value.Y;
         }
 
-        chunk.Surface.DrawingSurface.Canvas.DrawSurface(evaluated.DrawingSurface, x, y,
+        chunk.Surface.DrawingSurface.Canvas.DrawImage(evaluated, x, y,
             context.ReplacingPaintWithOpacity);
 
         chunk.Surface.DrawingSurface.Canvas.Restore();

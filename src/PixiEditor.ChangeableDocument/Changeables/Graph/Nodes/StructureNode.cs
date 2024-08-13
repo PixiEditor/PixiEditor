@@ -79,17 +79,11 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         }
     }
 
-    protected void ApplyRasterClip(Texture surface, RenderingContext context)
+    protected void ApplyRasterClip(Texture toClip, Texture clipSource)
     {
         if (ClipToPreviousMember.Value && Background.Value != null)
         {
-            RectI? clippingRect = null;
-            VecI chunkStart = context.ChunkToUpdate * context.ChunkResolution.PixelSize();
-            VecI targetSize = new VecI(context.ChunkResolution.PixelSize());
-            clippingRect = new RectI(chunkStart, targetSize);
-
-            //TODO: Fix
-            //OperationHelper.ClampAlpha(surface.DrawingSurface, Background.Value, clippingRect);
+             toClip.DrawingSurface.Canvas.DrawSurface(clipSource.DrawingSurface, 0, 0, maskPaint);
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Numerics;
 
@@ -31,7 +32,7 @@ internal class CombineStructureMembersOnto_Change : Change
         {
             if (!target.TryFindMember(guid, out var member))
                 return false;
-            
+
             if (member is LayerNode layer)
                 layersToCombine.Add(layer.Id);
             else if (member is FolderNode innerFolder)
@@ -58,7 +59,8 @@ internal class CombineStructureMembersOnto_Change : Change
         }
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
+        out bool ignoreInUndo)
     {
         //TODO: Add support for different Layer types
         var toDrawOn = target.FindMemberOrThrow<ImageLayerNode>(targetLayer);
@@ -73,21 +75,29 @@ internal class CombineStructureMembersOnto_Change : Change
 
         var toDrawOnImage = toDrawOn.GetLayerImageAtFrame(frame);
         toDrawOnImage.EnqueueClear();
-        
+
         DocumentRenderer renderer = new(target);
-        
-        foreach (var chunk in chunksToCombine)
+
+        AffectedArea affArea = new();
+        DrawingBackendApi.Current.RenderDispatch(() =>
         {
-            OneOf<Chunk, EmptyChunk> combined = renderer.RenderLayersChunk(chunk, ChunkResolution.Full, frame, layersToCombine);
-            if (combined.IsT0)
+            RectI? globalClippingRect = new RectI(0, 0, target.Size.X, target.Size.Y);
+            foreach (var chunk in chunksToCombine)
             {
-                toDrawOnImage.EnqueueDrawImage(chunk * ChunkyImage.FullChunkSize, combined.AsT0.Surface);
-                combined.AsT0.Dispose();
+                OneOf<Chunk, EmptyChunk> combined =
+                    renderer.RenderLayersChunk(chunk, ChunkResolution.Full, frame, layersToCombine, globalClippingRect);
+                if (combined.IsT0)
+                {
+                    toDrawOnImage.EnqueueDrawImage(chunk * ChunkyImage.FullChunkSize, combined.AsT0.Surface);
+                    combined.AsT0.Dispose();
+                }
             }
-        }
-        var affArea = toDrawOnImage.FindAffectedArea();
-        originalChunks = new CommittedChunkStorage(toDrawOnImage, affArea.Chunks);
-        toDrawOnImage.CommitChanges();
+
+            affArea = toDrawOnImage.FindAffectedArea();
+            originalChunks = new CommittedChunkStorage(toDrawOnImage, affArea.Chunks);
+            toDrawOnImage.CommitChanges();
+        });
+
 
         ignoreInUndo = false;
         return new LayerImageArea_ChangeInfo(targetLayer, affArea);
@@ -96,7 +106,9 @@ internal class CombineStructureMembersOnto_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var toDrawOn = target.FindMemberOrThrow<ImageLayerNode>(targetLayer);
-        var affectedArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(toDrawOn.GetLayerImageAtFrame(frame), ref originalChunks);
+        var affectedArea =
+            DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(toDrawOn.GetLayerImageAtFrame(frame),
+                ref originalChunks);
         return new LayerImageArea_ChangeInfo(targetLayer, affectedArea);
     }
 

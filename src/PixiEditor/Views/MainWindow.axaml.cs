@@ -71,7 +71,7 @@ internal partial class MainWindow : Window
 
         SkiaDrawingBackend skiaDrawingBackend = new SkiaDrawingBackend();
         skiaDrawingBackend.GraphicsContext = GetOpenGlGrContext();
-        DrawingBackendApi.SetupBackend(skiaDrawingBackend);
+        DrawingBackendApi.SetupBackend(skiaDrawingBackend, (a) => Dispatcher.UIThread.Invoke(a));
 
         preferences = services.GetRequiredService<IPreferences>();
         platform = services.GetRequiredService<IPlatform>();

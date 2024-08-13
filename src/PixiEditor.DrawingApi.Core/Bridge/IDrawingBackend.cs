@@ -22,5 +22,6 @@ namespace PixiEditor.DrawingApi.Core.Bridge
         public IImageFilterImplementation ImageFilterImplementation { get; }
         public IShaderImplementation ShaderImplementation { get; set; }
         public bool IsHardwareAccelerated { get; }
+        public Action<Action> RenderDispatch { get; set; }
     }
 }

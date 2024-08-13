@@ -47,7 +47,8 @@ internal class CreateStructureMember_Change : Change
         List<IChangeInfo> changes = new() { CreateChangeInfo(member) };
         
         InputProperty<Texture> targetInput = parentNode.InputProperties.FirstOrDefault(x => 
-            x.ValueType == typeof(Texture) && 
+            x.ValueType == typeof(Texture) &&
+            x.Connection != null &&
             x.Connection.Node is StructureNode) as InputProperty<Texture>;
         
         
