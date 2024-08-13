@@ -34,7 +34,7 @@ internal partial class MainWindow : Window
     private readonly IServiceProvider services;
     private static ExtensionLoader extLoader;
 
-    private StartupPerformance _startupPerformance = new();
+    public StartupPerformance StartupPerformance { get; } = new();
     
     public new ViewModels_ViewModelMain DataContext
     {
@@ -56,7 +56,7 @@ internal partial class MainWindow : Window
 
     public MainWindow(ExtensionLoader extensionLoader)
     {
-        _startupPerformance.ReportToMainWindow();
+        StartupPerformance.ReportToMainWindow();
         
         (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime).MainWindow = this;
         extLoader = extensionLoader;
@@ -77,7 +77,7 @@ internal partial class MainWindow : Window
         platform = services.GetRequiredService<IPlatform>();
         DataContext = services.GetRequiredService<ViewModels_ViewModelMain>();
         DataContext.Setup(services);
-        _startupPerformance.ReportToMainViewModel();
+        StartupPerformance.ReportToMainViewModel();
 
         var analytics = services.GetService<AnalyticsPeriodicReporter>();
         analytics?.Start();
@@ -161,8 +161,8 @@ internal partial class MainWindow : Window
         base.OnLoaded(e);
         LoadingWindow.Instance?.SafeClose();
         Activate();
-        _startupPerformance.ReportToInteractivity();
-        Analytics.SendStartup(_startupPerformance);
+        StartupPerformance.ReportToInteractivity();
+        Analytics.SendStartup(StartupPerformance);
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)
