@@ -42,7 +42,7 @@ internal class CreateRasterKeyFrame_Change : Change
         ChunkyImage img = cloneFromImage?.CloneFromCommitted() ?? new ChunkyImage(target.Size);
 
         var keyFrame =
-            new RasterKeyFrame(createdKeyFrameId, targetNode, _frame, target);
+            new RasterKeyFrame(createdKeyFrameId, targetNode.Id, _frame, target);
 
         var existingData = targetNode.KeyFrames.FirstOrDefault(x => x.KeyFrameGuid == createdKeyFrameId);
 

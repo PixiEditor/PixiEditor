@@ -40,7 +40,7 @@ internal class DeleteNode_Change : Change
 
     public static GroupKeyFrame? CloneGroupKeyFrame(Document target, Guid id)
     {
-        GroupKeyFrame group = target.AnimationData.KeyFrames.FirstOrDefault(x => x.TargetNode.Id == id) as GroupKeyFrame;
+        GroupKeyFrame group = target.AnimationData.KeyFrames.FirstOrDefault(x => x.NodeId == id) as GroupKeyFrame;
         if (group is null)
             return null;
         return group.Clone() as GroupKeyFrame;
@@ -91,7 +91,8 @@ internal class DeleteNode_Change : Change
     {
         if (savedKeyFrameGroup != null)
         {
-            doc.AnimationData.AddKeyFrame(savedKeyFrameGroup.Clone());
+            var cloned = savedKeyFrameGroup.Clone();
+            doc.AnimationData.AddKeyFrame(cloned);
             foreach (var keyFrame in savedKeyFrameGroup.Children)
             {
                 changes.Add(new CreateRasterKeyFrame_ChangeInfo(keyFrame.NodeId, keyFrame.StartFrame, keyFrame.Id, false));

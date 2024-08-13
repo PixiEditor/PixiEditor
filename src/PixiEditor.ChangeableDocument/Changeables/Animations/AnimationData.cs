@@ -30,10 +30,25 @@ internal class AnimationData : IReadOnlyAnimationData
         else
         {
             var node = document.FindNodeOrThrow<Node>(id);
-            GroupKeyFrame createdGroup = new GroupKeyFrame(node, keyFrame.StartFrame, document);
+            GroupKeyFrame createdGroup = new GroupKeyFrame(node.Id, keyFrame.StartFrame, document);
             createdGroup.Children.Add(keyFrame);
             keyFrames.Add(createdGroup);
         }
+
+        SubscribeToKeyFrameEvents(keyFrame);
+    }
+
+    private void SubscribeToKeyFrameEvents(KeyFrame keyFrame)
+    {
+        Node node = document.FindNodeOrThrow<Node>(keyFrame.NodeId);
+
+        keyFrame.KeyFrameVisibilityChanged += node.SetKeyFrameVisibility;
+        keyFrame.KeyFrameLengthChanged += node.SetKeyFrameLength;
+    }
+    
+    private void UnsubscribeFromKeyFrameEvents(KeyFrame keyFrame)
+    {
+        keyFrame.ClearEvents();
     }
 
     public void RemoveKeyFrame(Guid createdKeyFrameId)
@@ -45,15 +60,17 @@ internal class AnimationData : IReadOnlyAnimationData
                 keyFrames.Remove(group);
                 foreach (var child in group.Children)
                 {
-                    RemoveKeyFrame(child.Id); 
+                    RemoveKeyFrame(child.Id);
                 }
             }
+
             if (document.TryFindNode<Node>(frame.NodeId, out Node? node))
             {
                 node.RemoveKeyFrame(frame.Id);
             }
 
             parent?.Children.Remove(frame);
+            UnsubscribeFromKeyFrameEvents(frame);
         });
     }
 

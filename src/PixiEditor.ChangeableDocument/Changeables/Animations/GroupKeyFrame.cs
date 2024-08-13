@@ -32,15 +32,15 @@ internal class GroupKeyFrame : KeyFrame, IKeyFrameChildrenContainer
 
     IReadOnlyList<IReadOnlyKeyFrame> IKeyFrameChildrenContainer.Children => Children;
 
-    public GroupKeyFrame(Node node, int startFrame, Document document) : base(node, startFrame)
+    public GroupKeyFrame(Guid targetNodeId, int startFrame, Document document) : base(targetNodeId, startFrame)
     {
-        Id = node.Id;
+        Id = targetNodeId; 
         this.document = document;
     }
 
     public override KeyFrame Clone()
     {
-        var clone = new GroupKeyFrame(TargetNode, StartFrame, document) { Id = this.Id, IsVisible = IsVisible };
+        var clone = new GroupKeyFrame(NodeId, StartFrame, document) { Id = this.Id, IsVisible = IsVisible };
         foreach (var child in Children)
         {
             clone.Children.Add(child.Clone());

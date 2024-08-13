@@ -1,6 +1,8 @@
-﻿namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+
+namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 public interface IReadOnlyRasterKeyFrame : IReadOnlyKeyFrame
 {
-    IReadOnlyChunkyImage Image { get; }
+    IReadOnlyChunkyImage GetTargetImage(IReadOnlyCollection<IReadOnlyNode> allNodes);
 }

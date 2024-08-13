@@ -54,7 +54,7 @@ internal partial class DocumentViewModel
             PreviewImage =
                 (TryRenderWholeImage(0).Value as Surface)?.DrawingSurface.Snapshot().Encode().AsSpan().ToArray(),
             ReferenceLayer = GetReferenceLayer(doc, serializationConfig),
-            AnimationData = ToAnimationData(doc.AnimationData, nodeIdMap, keyFrameIdMap),
+            AnimationData = ToAnimationData(doc.AnimationData, doc.NodeGraph, nodeIdMap, keyFrameIdMap),
             ImageEncoderUsed = encoder.EncodedFormatName
         };
 
@@ -204,17 +204,18 @@ internal partial class DocumentViewModel
     private ColorCollection ToCollection(IList<PaletteColor> collection) =>
         new(collection.Select(x => Color.FromArgb(255, x.R, x.G, x.B)));
 
-    private AnimationData ToAnimationData(IReadOnlyAnimationData animationData, Dictionary<Guid, int> nodeIdMap, Dictionary<Guid, int> keyFrameIds)
+    private AnimationData ToAnimationData(IReadOnlyAnimationData animationData, IReadOnlyNodeGraph graph, Dictionary<Guid, int> nodeIdMap, Dictionary<Guid, int> keyFrameIds)
     {
         var animData = new AnimationData();
         animData.KeyFrameGroups = new List<KeyFrameGroup>();
         animData.FrameRate = animationData.FrameRate;
-        BuildKeyFrames(animationData.KeyFrames, animData, nodeIdMap, keyFrameIds);
+        BuildKeyFrames(animationData.KeyFrames, animData, graph, nodeIdMap, keyFrameIds);
 
         return animData;
     }
 
     private static void BuildKeyFrames(IReadOnlyList<IReadOnlyKeyFrame> root, AnimationData animationData,
+        IReadOnlyNodeGraph graph,
         Dictionary<Guid, int> nodeIdMap, Dictionary<Guid, int> keyFrameIds)
     {
         foreach (var keyFrame in root)
@@ -229,7 +230,7 @@ internal partial class DocumentViewModel
                 {
                     if (child is IReadOnlyRasterKeyFrame rasterKeyFrame)
                     {
-                        BuildRasterKeyFrame(rasterKeyFrame, group, nodeIdMap, keyFrameIds);
+                        BuildRasterKeyFrame(rasterKeyFrame, graph, group, nodeIdMap, keyFrameIds);
                     }
                 }
 
@@ -238,10 +239,11 @@ internal partial class DocumentViewModel
         }
     }
 
-    private static void BuildRasterKeyFrame(IReadOnlyRasterKeyFrame rasterKeyFrame, KeyFrameGroup group,
+    private static void BuildRasterKeyFrame(IReadOnlyRasterKeyFrame rasterKeyFrame, IReadOnlyNodeGraph graph, KeyFrameGroup group,
         Dictionary<Guid, int> idMap, Dictionary<Guid, int> keyFrameIds)
     {
-        var bounds = rasterKeyFrame.Image.FindChunkAlignedMostUpToDateBounds();
+        IReadOnlyChunkyImage image = rasterKeyFrame.GetTargetImage(graph.AllNodes);
+        var bounds = image.FindChunkAlignedMostUpToDateBounds();
 
         DrawingSurface surface = null;
 
@@ -250,7 +252,7 @@ internal partial class DocumentViewModel
             surface = DrawingBackendApi.Current.SurfaceImplementation.Create(
                 new ImageInfo(bounds.Value.Width, bounds.Value.Height));
 
-            rasterKeyFrame.Image.DrawMostUpToDateRegionOn(
+            image.DrawMostUpToDateRegionOn(
                 new RectI(0, 0, bounds.Value.Width, bounds.Value.Height), ChunkResolution.Full, surface,
                 new VecI(0, 0));
         }

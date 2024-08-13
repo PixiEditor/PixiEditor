@@ -4,11 +4,16 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Animations;
 
+public delegate void KeyFrameVisibilityChangedHandler(Guid keyFrameId, bool isVisible);
+public delegate void KeyFrameLengthChangedHandler(Guid keyFrameId, int startFrame, int duration);
 public abstract class KeyFrame : IReadOnlyKeyFrame
 {
     private int startFrame;
     private int duration;
     private bool isVisible = true;
+    
+    public event KeyFrameVisibilityChangedHandler? KeyFrameVisibilityChanged;
+    public event KeyFrameLengthChangedHandler? KeyFrameLengthChanged;
     
     public virtual int StartFrame
     {
@@ -21,7 +26,7 @@ public abstract class KeyFrame : IReadOnlyKeyFrame
             }
 
             startFrame = value;
-            TargetNode.SetKeyFrameLength(Id, startFrame, Duration);
+            KeyFrameLengthChanged?.Invoke(Id, StartFrame, Duration);
         }
     }
 
@@ -36,7 +41,7 @@ public abstract class KeyFrame : IReadOnlyKeyFrame
             }
 
             duration = value;
-            TargetNode.SetKeyFrameLength(Id, StartFrame, Duration);
+            KeyFrameLengthChanged?.Invoke(Id, StartFrame, Duration);
         }
     }
     
@@ -51,22 +56,23 @@ public abstract class KeyFrame : IReadOnlyKeyFrame
         set
         {
             isVisible = value;
-            TargetNode.SetKeyFrameVisibility(Id, isVisible);
+            KeyFrameVisibilityChanged?.Invoke(Id, IsVisible);
         }
     }
 
-    public Node TargetNode { get; }
-    
-    IReadOnlyNode IReadOnlyKeyFrame.TargetNode => TargetNode;
-
-    protected KeyFrame(Node node, int startFrame)
+    protected KeyFrame(Guid targetNode, int startFrame)
     {
-        TargetNode = node;
-        NodeId = node.Id;
+        NodeId = targetNode;
         this.startFrame = startFrame;
         duration = 1;
         Id = Guid.NewGuid();
     }
     
     public abstract KeyFrame Clone();
+
+    public void ClearEvents()
+    {
+        KeyFrameVisibilityChanged = null;
+        KeyFrameLengthChanged = null;
+    }
 }

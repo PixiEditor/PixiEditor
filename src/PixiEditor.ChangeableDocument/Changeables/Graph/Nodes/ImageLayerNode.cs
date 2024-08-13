@@ -320,15 +320,14 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public override Node CreateCopy()
     {
-        return new ImageLayerNode(size)
+        var image = new ImageLayerNode(size)
         {
-            MemberName = MemberName,
-            keyFrames = new List<KeyFrameData>()
-            {
-                // we are only copying the layer image, keyframes probably shouldn't be copied since they are controlled by AnimationData
-                new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = layerImage.CloneFromCommitted() }
-            }
+            MemberName = this.MemberName,
         };
+        
+        image.keyFrames.Clear();
+        
+        return image;
     }
 
     public override void Dispose()

@@ -9,5 +9,4 @@ public interface IReadOnlyKeyFrame
     public Guid NodeId { get; }
     public Guid Id { get; }
     public bool IsVisible { get; }
-    public IReadOnlyNode TargetNode { get; }
 }
