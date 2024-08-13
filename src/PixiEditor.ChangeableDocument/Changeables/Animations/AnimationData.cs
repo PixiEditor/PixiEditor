@@ -70,6 +70,12 @@ internal class AnimationData : IReadOnlyAnimationData
             }
 
             parent?.Children.Remove(frame);
+            
+            if (parent?.Children.Count == 0)
+            {
+                keyFrames.Remove(parent);
+            }
+            
             UnsubscribeFromKeyFrameEvents(frame);
         });
     }

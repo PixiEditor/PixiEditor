@@ -174,6 +174,11 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             {
                 parent.Children.Remove(frame);
                 keyFrames.NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, (KeyFrameViewModel)frame);
+                
+                if(parent.Children.Count == 0)
+                {
+                    keyFrames.Remove(parent as KeyFrameGroupViewModel);
+                }
             }
             else
             {
