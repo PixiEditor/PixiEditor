@@ -117,14 +117,14 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
     protected RectI CalculateSourceRect(Texture image, VecI targetSize, RenderingContext context)
     {
-        float multiplierToFit = image.Size.X / (float)targetSize.X;
+        float dividerToFit = image.Size.X / (float)targetSize.X;
         int chunkSize = context.ChunkResolution.PixelSize();
         VecI chunkPos = context.ChunkToUpdate;
 
-        int x = (int)(chunkPos.X * chunkSize * multiplierToFit);
-        int y = (int)(chunkPos.Y * chunkSize * multiplierToFit);
-        int width = (int)(chunkSize * multiplierToFit);
-        int height = (int)(chunkSize * multiplierToFit);
+        int x = (int)(chunkPos.X * chunkSize / dividerToFit);
+        int y = (int)(chunkPos.Y * chunkSize / dividerToFit);
+        int width = (int)(chunkSize / dividerToFit);
+        int height = (int)(chunkSize / dividerToFit);
 
         return new RectI(x, y, width, height);
     }
