@@ -48,7 +48,7 @@ internal class ShortcutController
         return CommandController.Current.Commands.First(x => x is Command.ToolCommand tool && tool.ToolType == type).Shortcut;
     }
 
-    public void KeyPressed(Key key, KeyModifiers modifiers)
+    public void KeyPressed(bool isRepeat, Key key, KeyModifiers modifiers)
     {
         KeyCombination shortcut = new(key, modifiers);
 
@@ -66,7 +66,7 @@ internal class ShortcutController
 
         LastCommands = commands;
 
-        var context = ShortcutSourceInfo.GetContext(shortcut);
+        var context = ShortcutSourceInfo.GetContext(shortcut, isRepeat);
         foreach (var command in commands)
         {
             command.Execute(context, false);

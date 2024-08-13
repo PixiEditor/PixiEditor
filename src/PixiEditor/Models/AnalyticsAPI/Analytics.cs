@@ -41,8 +41,8 @@ public static class Analytics
         SendEvent(AnalyticEventTypes.SwitchTool, ("NewTool", newTool?.ToolName), ("OldTool", oldTool?.ToolName), ("Source", sourceInfo));
 
     internal static AnalyticEvent? SendCommand(string commandName, ICommandExecutionSourceInfo? source) =>
-        SendEvent(AnalyticEventTypes.GeneralCommand, ("CommandName", commandName), ("Source", source));
-    
+        source is ShortcutSourceInfo { IsRepeat: true } ? null : SendEvent(AnalyticEventTypes.GeneralCommand, ("CommandName", commandName), ("Source", source));
+
     private static AnalyticEvent? SendEvent(string name, params (string, object)[] data) =>
         SendEvent(name, data.ToDictionary());
 

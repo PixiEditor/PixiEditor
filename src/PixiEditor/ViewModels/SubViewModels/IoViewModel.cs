@@ -126,7 +126,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             Owner.ToolsSubViewModel.HandleToolRepeatShortcutDown();
         }
 
-        Owner.ShortcutController.KeyPressed(key, argsModifiers);
+        Owner.ShortcutController.KeyPressed(isRepeat, key, argsModifiers);
     }
 
     private void OnKeyUp(object? sender, FilteredKeyEventArgs args)
