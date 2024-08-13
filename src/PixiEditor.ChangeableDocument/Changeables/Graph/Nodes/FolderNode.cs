@@ -39,8 +39,8 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
 
         VecI size = Content.Value?.Size ?? Background.Value?.Size ?? VecI.Zero;
         
-        var outputWorkingSurface = TryInitWorkingSurface(size, context, 0);
-        var filterlessWorkingSurface = TryInitWorkingSurface(size, context, 1);
+        var outputWorkingSurface = RequestTexture(0, size); 
+        var filterlessWorkingSurface = RequestTexture(1, size); 
         
         if (Background.Value != null)
         {

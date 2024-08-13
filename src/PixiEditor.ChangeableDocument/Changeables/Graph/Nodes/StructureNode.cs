@@ -30,7 +30,6 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     
     public string DisplayName => MemberName;
 
-    protected Dictionary<(ChunkResolution, int), Texture> workingSurfaces = new Dictionary<(ChunkResolution, int), Texture>();
     private Paint maskPaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.DstIn };
     protected Paint blendPaint = new Paint();
 
@@ -53,21 +52,6 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     protected override bool AffectedByChunkToUpdate => true;
 
     protected abstract override Texture? OnExecute(RenderingContext context);
-
-    protected Texture TryInitWorkingSurface(VecI imageSize, RenderingContext context, int id)
-    {
-        ChunkResolution targetResolution = context.ChunkResolution;
-        bool hasSurface = workingSurfaces.TryGetValue((targetResolution, id), out Texture workingSurface);
-        VecI targetSize = (VecI)(imageSize * targetResolution.Multiplier());
-
-        if (!hasSurface || workingSurface.Size != targetSize || workingSurface.IsDisposed)
-        {
-            workingSurfaces[(targetResolution, id)] = new Texture(targetSize);
-            workingSurface = workingSurfaces[(targetResolution, id)];
-        }
-
-        return workingSurface;
-    }
 
     protected void ApplyMaskIfPresent(Texture surface, RenderingContext context)
     {

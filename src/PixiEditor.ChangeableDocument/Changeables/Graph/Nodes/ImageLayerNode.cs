@@ -23,6 +23,9 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     private VecI size;
     private ChunkyImage layerImage => keyFrames[0]?.Data as ChunkyImage;
 
+    protected Dictionary<(ChunkResolution, int), Texture> workingSurfaces =
+        new Dictionary<(ChunkResolution, int), Texture>();
+
     private static readonly Paint clearPaint = new()
     {
         BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src,
@@ -134,6 +137,21 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         Output.Value = outputWorkingSurface;
 
         return outputWorkingSurface;
+    }
+
+    protected Texture TryInitWorkingSurface(VecI imageSize, RenderingContext context, int id)
+    {
+        ChunkResolution targetResolution = context.ChunkResolution;
+        bool hasSurface = workingSurfaces.TryGetValue((targetResolution, id), out Texture workingSurface);
+        VecI targetSize = (VecI)(imageSize * targetResolution.Multiplier());
+
+        if (!hasSurface || workingSurface.Size != targetSize || workingSurface.IsDisposed)
+        {
+            workingSurfaces[(targetResolution, id)] = new Texture(targetSize);
+            workingSurface = workingSurfaces[(targetResolution, id)];
+        }
+
+        return workingSurface;
     }
 
     private void DrawLayer(ChunkyImage frameImage, RenderingContext context, Texture workingSurface, bool shouldClear,
