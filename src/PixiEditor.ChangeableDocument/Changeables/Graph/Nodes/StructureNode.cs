@@ -13,6 +13,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundInput
 {
+    public const string DefaultMemberName = "DEFAULT_MEMBER_NAME";
     public InputProperty<Texture?> Background { get; }
     public InputProperty<float> Opacity { get; }
     public InputProperty<bool> IsVisible { get; }
@@ -26,7 +27,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
     public OutputProperty<Texture?> FilterlessOutput { get; }
 
-    public string MemberName { get; set; } = "New Element"; // would be good to add localization here, it is set if node is created via node graph
+    public string MemberName { get; set; } = DefaultMemberName;
     
     public string DisplayName => MemberName;
 
