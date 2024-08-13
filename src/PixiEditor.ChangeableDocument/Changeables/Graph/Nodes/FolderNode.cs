@@ -104,33 +104,43 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
 
     public override RectI? GetTightBounds(KeyFrameTime frameTime)
     {
-        // TODO: Implement GetTightBounds
+        RectI bounds = new RectI();
+        if(Content.Connection != null)
+        {
+            Content.Connection.Node.TraverseBackwards((n) =>
+            {
+                if (n is ImageLayerNode imageLayerNode)
+                {
+                    RectI? imageBounds = imageLayerNode.GetTightBounds(frameTime);
+                    if (imageBounds != null)
+                    {
+                        bounds = bounds.Union(imageBounds.Value);
+                    }
+                }
+
+                return true;
+            });
+            
+            return bounds;
+        }
+        
         return RectI.Create(0, 0, Content.Value?.Size.X ?? 0, Content.Value?.Size.Y ?? 0);
-        /*if (Children.Count == 0)
-      {
-          return null;
-      }
+    }
 
-      var bounds = Children[0].GetTightBounds(frame);
-      for (var i = 1; i < Children.Count; i++)
-      {
-          var childBounds = Children[i].GetTightBounds(frame);
-          if (childBounds == null)
-          {
-              continue;
-          }
+    public HashSet<Guid> GetLayerNodeGuids()
+    {
+        HashSet<Guid> guids = new();
+        Content.Connection?.Node.TraverseBackwards((n) =>
+        {
+            if (n is ImageLayerNode imageLayerNode)
+            {
+                guids.Add(imageLayerNode.Id);
+            }
 
-          if (bounds == null)
-          {
-              bounds = childBounds;
-          }
-          else
-          {
-              bounds = bounds.Value.Union(childBounds.Value);
-          }
-      }
+            return true;
+        });
 
-      return bounds;*/
+        return guids;
     }
 
     /// <summary>

@@ -107,7 +107,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     protected void DrawSurface(Texture workingSurface, Texture source, RenderingContext context, Filter? filter)
     {
         // Maybe clip rect will allow to avoid snapshotting? Idk if it will be faster
-        RectI sourceRect = CalculateSourceRect(source, workingSurface.Size, context);
+        RectI sourceRect = CalculateSourceRect(context);
         RectI targetRect = CalculateDestinationRect(context);
         using var snapshot = source.DrawingSurface.Snapshot(sourceRect);
 
@@ -115,16 +115,15 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         workingSurface.DrawingSurface.Canvas.DrawImage(snapshot, targetRect.X, targetRect.Y, blendPaint);
     }
 
-    protected RectI CalculateSourceRect(Texture image, VecI targetSize, RenderingContext context)
+    protected RectI CalculateSourceRect(RenderingContext context)
     {
-        float dividerToFit = image.Size.X / (float)targetSize.X;
         int chunkSize = context.ChunkResolution.PixelSize();
         VecI chunkPos = context.ChunkToUpdate;
 
-        int x = (int)(chunkPos.X * chunkSize / dividerToFit);
-        int y = (int)(chunkPos.Y * chunkSize / dividerToFit);
-        int width = (int)(chunkSize / dividerToFit);
-        int height = (int)(chunkSize / dividerToFit);
+        int x = (int)(chunkPos.X * chunkSize);
+        int y = (int)(chunkPos.Y * chunkSize);
+        int width = (int)(chunkSize);
+        int height = (int)(chunkSize);
 
         return new RectI(x, y, width, height);
     }

@@ -571,18 +571,18 @@ internal class MemberPreviewUpdater
                 var pos = chunk * ChunkResolution.Full.PixelSize();
                 // drawing in full res here is kinda slow
                 // we could switch to a lower resolution based on (canvas size / preview size) to make it run faster
-                var contentNode = folder.Content.Connection?.Node;
+                HashSet<Guid> layers = folder.GetLayerNodeGuids();
 
                 OneOf<Chunk, EmptyChunk> rendered;
 
-                if (contentNode is null)
+                if (layers.Count == 0)
                 {
                     rendered = new EmptyChunk();
                 }
                 else
                 {
-                    rendered = doc.Renderer.RenderChunk(chunk, ChunkResolution.Full, contentNode,
-                        doc.AnimationHandler.ActiveFrameBindable);
+                    rendered = doc.Renderer.RenderLayersChunk(chunk, ChunkResolution.Full, doc.AnimationHandler.ActiveFrameTime, layers,
+                        null);
                 }
 
                 if (rendered.IsT0)
