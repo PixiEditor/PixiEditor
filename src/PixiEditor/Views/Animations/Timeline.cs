@@ -573,9 +573,12 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
             newCollection.KeyFrameAdded += timeline.KeyFrames_KeyFrameAdded;
             newCollection.KeyFrameRemoved += timeline.KeyFrames_KeyFrameRemoved;
         }
-        
-        timeline.PropertyChanged(timeline, new PropertyChangedEventArgs(nameof(SelectedKeyFrames)));
-        timeline.PropertyChanged(timeline, new PropertyChangedEventArgs(nameof(EndFrame)));
+
+        if (timeline.PropertyChanged != null)
+        {
+            timeline.PropertyChanged(timeline, new PropertyChangedEventArgs(nameof(SelectedKeyFrames)));
+            timeline.PropertyChanged(timeline, new PropertyChangedEventArgs(nameof(EndFrame)));
+        }
     }
 
     private void KeyFrames_KeyFrameAdded(KeyFrameViewModel keyFrame)
@@ -604,7 +607,10 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
             return;
         }
 
-        timeline.PropertyChanged(timeline, new PropertyChangedEventArgs(nameof(EndFrame)));
+        if (timeline.PropertyChanged != null)
+        {
+            timeline.PropertyChanged(timeline, new PropertyChangedEventArgs(nameof(EndFrame)));
+        }
     }
     
     private void KeyFrameOnPropertyChanged(object? sender, PropertyChangedEventArgs e)

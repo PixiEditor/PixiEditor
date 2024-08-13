@@ -68,7 +68,7 @@ internal class LayoutManager
                     Second = new DockableArea
                     {
                         Id = "TimelineArea", 
-                        ActiveDockable = DockContext.CreateDockable(timelineDockViewModel)
+                        Dockables = [ DockContext.CreateDockable(timelineDockViewModel) ]
                     }
                 },
                 SecondSize = 360,
