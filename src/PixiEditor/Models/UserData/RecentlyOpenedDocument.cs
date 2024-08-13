@@ -36,7 +36,13 @@ internal class RecentlyOpenedDocument : ObservableObject
     public bool Corrupt
     {
         get => corrupt;
-        set => SetProperty(ref corrupt, value);
+        set
+        {
+            if (SetProperty(ref corrupt, value))
+            {
+                this.OnPropertyChanged(FileExtension);
+            }
+        }
     }
 
     public string FileName => Path.GetFileNameWithoutExtension(filePath);

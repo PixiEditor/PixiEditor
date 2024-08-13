@@ -58,13 +58,17 @@ internal class PixiFilePreviewImage : SurfaceControl
     {
         var surface = LoadPreviewSurface(path);
         
-        Dispatcher.UIThread.Post(() => SetImage(surface, surface.Size));
+        Dispatcher.UIThread.Post(() => SetImage(surface));
     }
 
-    private void SetImage(Surface surface, VecI size)
+    private void SetImage(Surface? surface)
     {
-        Surface = surface;
-        ImageSize = size;
+        Surface = surface!;
+
+        if (surface != null)
+        {
+            ImageSize = surface.Size;
+        }
     }
 
     private static void OnFilePathChanged(PixiFilePreviewImage previewImage, AvaloniaPropertyChangedEventArgs args)
@@ -91,7 +95,12 @@ internal class PixiFilePreviewImage : SurfaceControl
         {
             try
             {
-                return Importer.GetPreviewSurface(filePath);
+                var result = Importer.GetPreviewSurface(filePath);
+
+                if (result == null)
+                {
+                    SetCorrupt();
+                }
             }
             catch
             {
@@ -121,6 +130,7 @@ internal class PixiFilePreviewImage : SurfaceControl
 
         return null;
 
+        // TODO: This does not actually set the dot to gray
         void SetCorrupt()
         {
             Dispatcher.UIThread.Post(() => Corrupt = true);
