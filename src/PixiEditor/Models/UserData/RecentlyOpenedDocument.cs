@@ -30,7 +30,6 @@ internal class RecentlyOpenedDocument : ObservableObject
             SetProperty(ref filePath, value);
             this.OnPropertyChanged(nameof(FileName));
             this.OnPropertyChanged(nameof(FileExtension));
-            PreviewBitmap = null;
         }
     }
 
@@ -61,77 +60,8 @@ internal class RecentlyOpenedDocument : ObservableObject
         }
     }
 
-    public Texture PreviewBitmap
-    {
-        get
-        {
-            if (previewBitmap == null && !Corrupt)
-            {
-                previewBitmap = LoadPreviewBitmap();
-            }
-
-            return previewBitmap;
-        }
-        private set => SetProperty(ref previewBitmap, value);
-    }
-
     public RecentlyOpenedDocument(string path)
     {
         FilePath = path;
-    }
-
-    private Texture? LoadPreviewBitmap()
-    {
-        if (!File.Exists(FilePath))
-        {
-            return null;
-        }
-
-        if (FileExtension == ".pixi")
-        {
-            try
-            {
-                return Importer.GetPreviewTexture(FilePath);
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        if (SupportedFilesHelper.IsExtensionSupported(FileExtension))
-        {
-            Texture bitmap = null;
-
-            try
-            {
-                bitmap = Texture.Load(FilePath);
-            }
-            catch (RecoverableException)
-            {
-                corrupt = true;
-                return null;
-            }
-
-            if (bitmap == null) //prevent crash
-                return null;
-
-            return DownscaleToMaxSize(bitmap);
-        }
-
-        return null;
-    }
-
-    private Texture DownscaleToMaxSize(Texture bitmap)
-    {
-        if (bitmap.Size.X > Constants.MaxPreviewWidth || bitmap.Size.Y > Constants.MaxPreviewHeight)
-        {
-            double factor = Math.Min(Constants.MaxPreviewWidth / (double)bitmap.Size.X, Constants.MaxPreviewHeight / (double)bitmap.Size.Y);
-            var scaledBitmap = bitmap.CreateResized(new VecI((int)(bitmap.Size.X * factor), (int)(bitmap.Size.Y * factor)),
-                ResizeMethod.HighQuality);
-            return scaledBitmap;
-        }
-
-        return bitmap;
     }
 }

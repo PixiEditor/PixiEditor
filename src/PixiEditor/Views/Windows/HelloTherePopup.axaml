@@ -130,19 +130,20 @@
                                                     CommandParameter="{Binding FilePath}"
                                                     x:Name="fileButton">
                                                 <Grid Width="100" Height="100">
-                                                    <visuals:TextureControl
-                                                        Texture="{Binding PreviewBitmap}"
+                                                    <visuals:PixiFilePreviewImage
+                                                        FilePath="{Binding FilePath}"
+                                                        Corrupt="{Binding Corrupt}"
                                                         Margin="10"
                                                         Stretch="Uniform"
                                                         x:Name="image">
                                                         <ui:RenderOptionsBindable.BitmapInterpolationMode>
                                                             <MultiBinding
                                                                 Converter="{converters:WidthToBitmapScalingModeConverter}">
-                                                                <Binding Path="PreviewBitmap.Size.X" />
-                                                                <Binding ElementName="image" Path="Width" />
+                                                                <Binding Path="ImageSize.X" ElementName="image" />
+                                                                <Binding Path="Width" ElementName="image" />
                                                             </MultiBinding>
                                                         </ui:RenderOptionsBindable.BitmapInterpolationMode>
-                                                    </visuals:TextureControl>
+                                                    </visuals:PixiFilePreviewImage>
                                                     <Border Grid.Row="1" Height="8" Width="8" x:Name="extensionBorder"
                                                             Margin="5"
                                                             Background="{Binding FileExtension, Converter={converters:FileExtensionToColorConverter}}"
