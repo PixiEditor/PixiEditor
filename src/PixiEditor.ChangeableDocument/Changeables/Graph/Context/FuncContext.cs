@@ -102,4 +102,17 @@ public class FuncContext
     {
         return getFrom.Connection.ValueType.IsAssignableTo(typeof(Delegate));
     }
+
+    public ShaderExpressionVariable GetValue(FuncInputProperty<Half4> getFrom)
+    {
+        if (getFrom.Connection == null || !IsFuncType(getFrom))
+        {
+            Half4 color = getFrom.Value(this);
+            color.VariableName = $"color_{Builder.GetUniqueNameNumber()}";
+            Builder.AddUniform(color.VariableName, color.ConstantValue);
+            return color;
+        }
+
+        return getFrom.Value(this);
+    }
 }

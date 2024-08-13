@@ -25,9 +25,9 @@ public class LerpColorNode : Node // TODO: ILerpable as inputs?
 
     private Half4 Lerp(FuncContext arg)
     {
-        var from = From.Value(arg);
-        var to = To.Value(arg);
-        var time = Time.Value(arg);
+        var from = arg.GetValue(From);
+        var to = arg.GetValue(To);
+        var time = arg.GetValue(Time);
         
         return arg.NewHalf4(ShaderMath.Lerp(from, to, time)); 
     }

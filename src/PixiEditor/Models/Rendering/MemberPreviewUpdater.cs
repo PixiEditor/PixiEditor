@@ -539,7 +539,7 @@ internal class MemberPreviewUpdater
         IReadOnlyStructureNode member, [DisallowNull] AffectedArea? affArea, VecI position, float scaling)
     {
         bool isEditingRootImage = !member.KeyFrames.Any(x => x.IsInFrame(doc.AnimationHandler.ActiveFrameBindable));
-        if (!isEditingRootImage)
+        if (!isEditingRootImage && keyFrame.PreviewSurface is not null)
             return;
 
         if (keyFrame.PreviewSurface == null ||
