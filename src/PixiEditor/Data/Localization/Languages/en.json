@@ -712,5 +712,8 @@
   "Factor": "Factor",
   "NORMALIZE": "Normalize",
   "WEIGHT_FACTOR": "Weight",
-  "STARS_EXAMPLE": "Stars"
+  "STARS_EXAMPLE": "Stars",
+  "ADD_EMPTY_FRAME": "Add empty frame",
+  "DUPLICATE_FRAME": "Duplicate frame",
+  "DELETE_FRAME": "Remove frame"
 }

@@ -9,7 +9,8 @@
                     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
                     xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
                     xmlns:input="clr-namespace:PixiEditor.Views.Input"
-                    xmlns:system="clr-namespace:System;assembly=System.Runtime">
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime"
+                    xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions">
     <ControlTheme TargetType="animations:Timeline" x:Key="{x:Type animations:Timeline}">
         <Setter Property="Template">
             <ControlTemplate>
@@ -68,12 +69,15 @@
                         <StackPanel Orientation="Horizontal" Height="40">
                             <Button Classes="pixi-icon"
                                     Content="{DynamicResource icon-plus-square}"
+                                    ui1:Translator.TooltipKey="ADD_EMPTY_FRAME"
                                     Command="{TemplateBinding NewKeyFrameCommand}" />
                             <Button Classes="pixi-icon"
                                     Content="{DynamicResource icon-duplicate}"
+                                    ui1:Translator.TooltipKey="DUPLICATE_FRAME"
                                     Command="{TemplateBinding DuplicateKeyFrameCommand}" />
                             <Button Classes="pixi-icon"
                                     Content="{DynamicResource icon-trash}"
+                                    ui1:Translator.TooltipKey="DELETE_FRAME"
                                     Command="{TemplateBinding DeleteKeyFrameCommand}"
                                     IsEnabled="{Binding SelectedKeyFrames.Count, RelativeSource={RelativeSource TemplatedParent}}"
                                     CommandParameter="{Binding SelectedKeyFrames, RelativeSource={RelativeSource TemplatedParent}}" />
