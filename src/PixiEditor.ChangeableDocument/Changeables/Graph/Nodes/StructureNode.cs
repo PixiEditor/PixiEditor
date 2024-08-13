@@ -49,6 +49,9 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         FilterlessOutput = CreateOutput<Texture?>(nameof(FilterlessOutput), "WITHOUT_FILTERS", null);
     }
 
+    protected override bool AffectedByChunkResolution => true;
+    protected override bool AffectedByChunkToUpdate => true;
+
     protected abstract override Texture? OnExecute(RenderingContext context);
 
     protected Texture TryInitWorkingSurface(VecI imageSize, RenderingContext context, int id)
@@ -107,7 +110,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     protected void DrawSurface(Texture workingSurface, Texture source, RenderingContext context, Filter? filter)
     {
         // Maybe clip rect will allow to avoid snapshotting? Idk if it will be faster
-        RectI sourceRect = CalculateSourceRect(context);
+        RectI sourceRect = CalculateSourceRect(workingSurface.Size, source.Size, context);
         RectI targetRect = CalculateDestinationRect(context);
         using var snapshot = source.DrawingSurface.Snapshot(sourceRect);
 
@@ -115,9 +118,16 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         workingSurface.DrawingSurface.Canvas.DrawImage(snapshot, targetRect.X, targetRect.Y, blendPaint);
     }
 
-    protected RectI CalculateSourceRect(RenderingContext context)
+    protected RectI CalculateSourceRect(VecI targetSize, VecI sourceSize, RenderingContext context)
     {
-        int chunkSize = context.ChunkResolution.PixelSize();
+        float divider = 1;
+        
+        if(sourceSize.X < targetSize.X || sourceSize.Y < targetSize.Y)
+        {
+            divider = Math.Min((float)targetSize.X / sourceSize.X, (float)targetSize.Y / sourceSize.Y);
+        }
+        
+        int chunkSize = (int)Math.Round(context.ChunkResolution.PixelSize() / divider);
         VecI chunkPos = context.ChunkToUpdate;
 
         int x = (int)(chunkPos.X * chunkSize);
