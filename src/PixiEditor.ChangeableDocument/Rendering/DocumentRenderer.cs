@@ -24,9 +24,7 @@ public class DocumentRenderer
         RenderingContext context = new(frameTime, chunkPos, resolution, Document.Size);
         try
         {
-          
             return RenderChunkOnGraph(chunkPos, resolution, globalClippingRect, Document.NodeGraph, context);
-
         }
         catch (ObjectDisposedException)
         {

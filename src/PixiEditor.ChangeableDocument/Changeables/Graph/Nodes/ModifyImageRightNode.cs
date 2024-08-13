@@ -123,7 +123,7 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
             surface.DrawingSurface.Canvas.DrawPaint(drawingPaint);
             builder.Dispose();
         }
-        
+
         Output.Value = surface;
 
         return Output.Value;
