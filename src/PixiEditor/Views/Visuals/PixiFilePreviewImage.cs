@@ -29,7 +29,7 @@ internal class PixiFilePreviewImage : SurfaceControl
         get => GetValue(FilePathProperty);
         set => SetValue(FilePathProperty, value);
     }
-    
+
     public VecI ImageSize
     {
         get => GetValue(ImageSizeProperty);
@@ -57,7 +57,7 @@ internal class PixiFilePreviewImage : SurfaceControl
     private void LoadImage(string path)
     {
         var surface = LoadPreviewSurface(path);
-        
+
         Dispatcher.UIThread.Post(() => SetImage(surface));
     }
 
@@ -78,77 +78,99 @@ internal class PixiFilePreviewImage : SurfaceControl
             previewImage.Surface = null;
             return;
         }
-        
+
         previewImage.RunLoadImage();
     }
-    
+
     private Surface? LoadPreviewSurface(string filePath)
     {
         if (!File.Exists(filePath))
         {
             return null;
         }
-        
+
         var fileExtension = Path.GetExtension(filePath);
 
         if (fileExtension == ".pixi")
         {
-            try
-            {
-                var result = Importer.GetPreviewSurface(filePath);
-
-                if (result == null)
-                {
-                    SetCorrupt();
-                }
-            }
-            catch
-            {
-                SetCorrupt();
-                return null;
-            }
+            return LoadPixiPreview(filePath);
         }
 
         if (SupportedFilesHelper.IsExtensionSupported(fileExtension))
         {
-            Surface bitmap = null;
-
-            try
-            {
-                bitmap = Surface.Load(filePath);
-            }
-            catch (RecoverableException)
-            {
-                SetCorrupt();
-            }
-
-            if (bitmap == null) //prevent crash
-                return null;
-
-            return DownscaleToMaxSize(bitmap);
+            return LoadNonPixiPreview(filePath);
         }
 
         return null;
 
-        // TODO: This does not actually set the dot to gray
-        void SetCorrupt()
+    }
+
+    private Surface LoadPixiPreview(string filePath)
+    {
+        try
         {
-            Dispatcher.UIThread.Post(() => Corrupt = true);
+            var loaded = Importer.GetPreviewSurface(filePath);
+
+            if (loaded.Size is { X: <= Constants.MaxPreviewWidth, Y: <= Constants.MaxPreviewHeight })
+            {
+                return loaded;
+            }
+
+            var downscaled = DownscaleSurface(loaded);
+            loaded.Dispose();
+            return downscaled;
+        }
+        catch
+        {
+            SetCorrupt();
+            return null;
         }
     }
 
-    private static Surface DownscaleToMaxSize(Surface bitmap)
+    private Surface LoadNonPixiPreview(string filePath)
     {
-        if (bitmap.Size.X > Constants.MaxPreviewWidth || bitmap.Size.Y > Constants.MaxPreviewHeight)
+        Surface loaded = null;
+
+        try
         {
-            double factor = Math.Min(Constants.MaxPreviewWidth / (double)bitmap.Size.X, Constants.MaxPreviewHeight / (double)bitmap.Size.Y);
-            var scaledBitmap = bitmap.Resize(new VecI((int)(bitmap.Size.X * factor), (int)(bitmap.Size.Y * factor)), ResizeMethod.HighQuality);
-            
-            bitmap.Dispose();
-            return scaledBitmap;
+            loaded = Surface.Load(filePath);
         }
-    
-        return bitmap;
+        catch (RecoverableException)
+        {
+            SetCorrupt();
+        }
+
+        if (loaded == null) //prevent crash
+            return null;
+
+        if (loaded.Size is { X: <= Constants.MaxPreviewWidth, Y: <= Constants.MaxPreviewHeight })
+        {
+            return loaded;
+        }
+
+        var downscaled = DownscaleSurface(loaded);
+        loaded.Dispose();
+        return downscaled;
+
+    }
+
+    private static Surface DownscaleSurface(Surface surface)
+    {
+        double factor = Math.Min(
+            Constants.MaxPreviewWidth / (double)surface.Size.X,
+            Constants.MaxPreviewHeight / (double)surface.Size.Y);
+
+        var newSize = new VecI((int)(surface.Size.X * factor), (int)(surface.Size.Y * factor));
+        
+        var scaledBitmap = surface.Resize(newSize, ResizeMethod.HighQuality);
+
+        surface.Dispose();
+        return scaledBitmap;
     }
     
+    // TODO: This does not actually set the dot to gray
+    void SetCorrupt()
+    {
+        Dispatcher.UIThread.Post(() => Corrupt = true);
+    }
 }
