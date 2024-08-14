@@ -152,9 +152,6 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
         ActiveTool?.OnDeselecting();
 
-        if (!tool.Toolbar.SettingsGenerated)
-            tool.Toolbar.GenerateSettings();
-
         if (ActiveTool != null) ActiveTool.IsTransient = false;
         bool shareToolbar = EnableSharedToolbar;
         if (ActiveTool is not null)

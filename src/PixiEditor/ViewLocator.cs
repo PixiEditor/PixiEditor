@@ -20,12 +20,25 @@ public class ViewLocator : IDataTemplate
 
     public Control Build(object? data)
     {
-        var name = data.GetType().FullName.Replace("ViewModel", "View");
+        Type dataType = data.GetType();
+        var name = dataType.FullName.Replace("ViewModel", "View");
         var type = Type.GetType(name);
 
         if (type != null)
         {
             return (Control)Activator.CreateInstance(type);
+        }
+
+        if (dataType.IsGenericType)
+        {
+            string nameWithoutGeneric = data.GetType().FullName.Split('`')[0];
+            name = nameWithoutGeneric.Replace("ViewModel", "View");
+            type = Type.GetType(name);
+            
+            if (type != null)
+            {
+                return (Control)Activator.CreateInstance(type);
+            }
         }
 
         type = data?.GetType() ?? typeof(object);

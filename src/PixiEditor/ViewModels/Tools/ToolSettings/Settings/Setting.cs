@@ -13,12 +13,6 @@ internal abstract class Setting<T, TControl> : Setting<T>
         : base(name)
     {
     }
-
-    public new TControl SettingControl
-    {
-        get => (TControl)base.SettingControl;
-        set => base.SettingControl = value;
-    }
 }
 
 internal abstract class Setting<T> : Setting
@@ -79,10 +73,6 @@ internal abstract class Setting : ObservableObject
     public LocalizedString Label { get; set; }
 
     public bool HasLabel => !string.IsNullOrEmpty(Label);
-
-    public Control SettingControl { get; set; }
-
-    public abstract Control GenerateControl();
 
     public abstract Type GetSettingType();
 }

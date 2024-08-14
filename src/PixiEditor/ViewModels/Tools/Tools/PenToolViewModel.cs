@@ -55,7 +55,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
             if (e.NewTool == this && PixelPerfectEnabled)
             {
                 var toolbar = (BasicToolbar)Toolbar;
-                var setting = (SizeSetting)toolbar.Settings.First(x => x.Name == "ToolSize");
+                var setting = (SizeSettingViewModel)toolbar.Settings.First(x => x.Name == "ToolSize");
                 setting.Value = 1;
             }
             
@@ -69,7 +69,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
                 return;
             }
             
-            var oldSetting = (SizeSetting)oldToolbar.Settings[0];
+            var oldSetting = (SizeSettingViewModel)oldToolbar.Settings[0];
             actualToolSize = oldSetting.Value;
         }
 
@@ -81,16 +81,16 @@ namespace PixiEditor.ViewModels.Tools.Tools
             }
 
             var toolbar = (BasicToolbar)Toolbar;
-            var setting = (SizeSetting)toolbar.Settings[0];
+            var setting = (SizeSettingViewModel)toolbar.Settings[0];
             setting.Value = actualToolSize;
         }
 
         private void PixelPerfectChanged()
         {
             var toolbar = (BasicToolbar)Toolbar;
-            var setting = (SizeSetting)toolbar.Settings[0];
+            var setting = (SizeSettingViewModel)toolbar.Settings[0];
 
-            setting.SettingControl.IsEnabled = !PixelPerfectEnabled;
+            setting.IsEnabled = !PixelPerfectEnabled;
 
             if (PixelPerfectEnabled)
             {

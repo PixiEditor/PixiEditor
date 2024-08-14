@@ -61,7 +61,7 @@
                             <Label
                                 IsVisible="{Binding HasLabel}" VerticalAlignment="Center"
                                 Foreground="{DynamicResource ThemeForegroundBrush}" ui:Translator.Key="{Binding Label.Key}" />
-                            <ContentControl VerticalAlignment="Center" Content="{Binding SettingControl}" />
+                            <ContentControl VerticalAlignment="Center" Content="{Binding }" />
                         </StackPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
