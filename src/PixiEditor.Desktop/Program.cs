@@ -21,6 +21,11 @@ public class Program
                 RenderingMode = new Win32RenderingMode[] { Win32RenderingMode.Wgl, Win32RenderingMode.AngleEgl },
                 OverlayPopups = true
             })
+            .With(new X11PlatformOptions()
+            {
+                RenderingMode = [ X11RenderingMode.Egl ],
+                OverlayPopups = true
+            })
            
             .LogToTrace();
 }

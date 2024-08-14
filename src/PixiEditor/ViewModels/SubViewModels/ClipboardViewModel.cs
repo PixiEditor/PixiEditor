@@ -149,25 +149,28 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPaste")]
     public bool CanPaste(object parameter)
     {
+        return false;
         return Owner.DocumentIsNotNull(null) && parameter is IDataObject data ? ClipboardController.IsImage(data) : ClipboardController.IsImageInClipboard().Result;
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteColor")]
-    public static async Task<bool> CanPasteColor() => ColorHelper.ParseAnyFormat((await ClipboardController.Clipboard.GetTextAsync())?.Trim() ?? string.Empty, out _);
+    public static async Task<bool> CanPasteColor() => false; // ColorHelper.ParseAnyFormat((await ClipboardController.Clipboard.GetTextAsync())?.Trim() ?? string.Empty, out _);
 
     [Evaluator.Icon("PixiEditor.Clipboard.PasteColorIcon")]
     public static async Task<IImage> GetPasteColorIcon()
     {
+        return ColorSearchResult.GetIcon(new DrawingApi.Core.ColorsImpl.Color(255, 0, 255, 255));
         Color color;
 
         color = ColorHelper.ParseAnyFormat((await ClipboardController.Clipboard.GetTextAsync())?.Trim() ?? string.Empty, out var result) ? result.Value.ToOpaqueMediaColor() : Colors.Transparent;
 
-        return ColorSearchResult.GetIcon(color.ToOpaqueColor());
+        
     }
 
     [Evaluator.Icon("PixiEditor.Clipboard.CopyColorIcon")]
     public IImage GetCopyColorIcon(object data)
     {
+        return ColorSearchResult.GetIcon(new DrawingApi.Core.ColorsImpl.Color(255, 0, 255, 255));
         if (data is CopyColor color)
         {
         }
