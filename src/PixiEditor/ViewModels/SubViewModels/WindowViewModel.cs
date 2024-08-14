@@ -24,8 +24,6 @@ namespace PixiEditor.ViewModels.SubViewModels;
 internal class WindowViewModel : SubViewModel<ViewModelMain>
 {
     private CommandController commandController;
-    private ShortcutsPopup? shortcutPopup;
-    private ShortcutsPopup ShortcutsPopup => shortcutPopup ??= new(commandController);
     public RelayCommand<string> ShowAvalonDockWindowCommand { get; set; }
     public ObservableCollection<ViewportWindowViewModel> Viewports { get; } = new();
     public event EventHandler<ViewportWindowViewModel>? ActiveViewportChanged;
@@ -180,8 +178,9 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         Icon = PixiPerfectIcons.Book, MenuItemPath = "VIEW/OPEN_SHORTCUT_WINDOW", MenuItemOrder = 2, AnalyticsTrack = true)]
     public void ShowShortcutWindow()
     {
-        ShortcutsPopup.Show();
-        ShortcutsPopup.Activate();
+        var popup = new ShortcutsPopup(commandController);
+        popup.Show();
+        popup.Activate();
     }
         
     [Commands_Command.Basic("PixiEditor.Window.OpenAboutWindow", "OPEN_ABOUT_WINDOW", "OPEN_ABOUT_WINDOW",
