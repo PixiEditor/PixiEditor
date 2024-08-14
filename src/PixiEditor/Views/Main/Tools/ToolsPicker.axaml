@@ -11,7 +11,7 @@
             BorderThickness="{DynamicResource ThemeBorderThickness}"
             Background="{DynamicResource ThemeBackgroundBrush1}">
         <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-        <ItemsControl ItemsSource="{Binding ElementName=picker, Path=Tools}" Padding="0 10">
+        <ItemsControl ItemsSource="{Binding ElementName=picker, Path=Tools}" Padding="0 2">
             <ItemsControl.ItemTemplate>
                 <DataTemplate DataType="tools:ToolViewModel">
                     <tools1:ToolPickerButton DataContext="{Binding}" IsSelected="{Binding IsActive}"/>

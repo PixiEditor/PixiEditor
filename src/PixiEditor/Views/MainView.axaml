@@ -31,11 +31,6 @@
                 </Grid.RowDefinitions>
 
                 <tools:Toolbar Grid.Row="0" DataContext="{Binding .}" />
-                <tools:ToolsPicker ZIndex="2" Grid.Row="1"
-                                   Margin="10 50 0 0"
-                                   HorizontalAlignment="Left"
-                                   VerticalAlignment="Top"
-                                   Tools="{Binding Path=ToolsSubViewModel.ToolSet}" />
                 <controls:DockableAreaRegion Grid.Row="1"
                                              Root="{Binding LayoutSubViewModel.LayoutManager.ActiveLayout.Root}"
                                              Context="{Binding LayoutSubViewModel.LayoutManager.DockContext}"/>

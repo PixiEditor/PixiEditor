@@ -21,6 +21,7 @@
     xmlns:overlays="clr-namespace:PixiEditor.Views.Overlays"
     xmlns:selectionOverlay="clr-namespace:PixiEditor.Views.Overlays.SelectionOverlay"
     xmlns:rendering="clr-namespace:PixiEditor.Views.Rendering"
+    xmlns:tools="clr-namespace:PixiEditor.Views.Main.Tools"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -51,7 +52,8 @@
                                   ui:Translator.TooltipKey="VIEWPORT_SETTINGS"
                                   ZIndex="2" HorizontalAlignment="Right" VerticalAlignment="Top">
             <overlays:TogglableFlyout.Child>
-                <Border BorderThickness="1" CornerRadius="5" Padding="5" Background="{DynamicResource ThemeBackgroundTranslucentBrush}" ZIndex="2">
+                <Border BorderThickness="1" CornerRadius="5" Padding="5"
+                        Background="{DynamicResource ThemeBackgroundTranslucentBrush}" ZIndex="2">
                     <StackPanel Orientation="Vertical">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Margin="5 0" TextAlignment="Center"
@@ -64,7 +66,7 @@
                                     BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                                     BorderThickness="1"
                                     Content="{DynamicResource icon-reset}"
-                                    Cursor="Hand"/>
+                                    Cursor="Hand" />
                         </StackPanel>
                         <Separator />
                         <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
@@ -72,13 +74,13 @@
                                           Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding Document.VerticalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
                                           Content="{DynamicResource icon-y-symmetry}"
-                                          Cursor="Hand"/>
+                                          Cursor="Hand" />
                             <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
                                           ui:Translator.TooltipKey="TOGGLE_HORIZONTAL_SYMMETRY"
                                           Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding Document.HorizontalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
-                                            Content="{DynamicResource icon-x-symmetry}"
-                                          Cursor="Hand"/>
+                                          Content="{DynamicResource icon-x-symmetry}"
+                                          Cursor="Hand" />
                         </StackPanel>
                         <Separator />
                         <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
@@ -86,18 +88,24 @@
                                           Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
                                           Content="{DynamicResource icon-y-flip}"
-                                          Cursor="Hand"/>
+                                          Cursor="Hand" />
                             <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
                                           ui:Translator.TooltipKey="FLIP_VIEWPORT_VERTICALLY"
                                           Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
-                                            Content="{DynamicResource icon-x-flip}"
-                                          Cursor="Hand"/>
+                                          Content="{DynamicResource icon-x-flip}"
+                                          Cursor="Hand" />
                         </StackPanel>
                     </StackPanel>
                 </Border>
             </overlays:TogglableFlyout.Child>
         </overlays:TogglableFlyout>
+        
+        <tools:ToolsPicker ZIndex="2"
+                           Margin="10 10 0 0"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Top"
+                           Tools="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolSet}" />
         <rendering:Scene
             Focusable="False" Name="scene"
             ZIndex="1"
@@ -116,7 +124,7 @@
             FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
             DefaultCursor="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolCursor, Mode=OneWay}"
             CheckerImagePath="/Images/CheckerTile.png"
-            ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}"/>
+            ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}" />
         <!--<zoombox:Zoombox
             Tag="{Binding ElementName=vpUc}"
             x:Name="zoombox"
