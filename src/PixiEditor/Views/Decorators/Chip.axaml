@@ -9,6 +9,6 @@
     <Border VerticalAlignment="Center" Background="{DynamicResource GlyphBrush}" BorderThickness="1"
             BorderBrush="{Binding ElementName=chip, Path=OutlineColor}"
             Padding="5 2.5" CornerRadius="2.5">
-        <TextBlock Text="{Binding ElementName=chip, Path=Text}" Foreground="White"/>
+        <TextBlock Text="{Binding ElementName=chip, Path=Text}" Foreground="{DynamicResource ThemeForegroundBrush}"/>
     </Border>
 </UserControl>

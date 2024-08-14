@@ -81,6 +81,9 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <Style Selector="ToggleButton.Right">
+        <Setter Property="Content" Value="{DynamicResource icon-chevron-left}" />
+    </Style>
 
     <Style Selector="ToggleButton.ExpandCollapseToggleStyle:pressed">
         <Setter Property="Background" Value="Transparent" />
@@ -88,6 +91,11 @@
 
     <Style Selector="ToggleButton.ExpandCollapseToggleStyle:checked">
         <Setter Property="Content" Value="{DynamicResource icon-chevron-left}" />
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="ToggleButton.Right:checked">
+        <Setter Property="Content" Value="{DynamicResource icon-chevron-right}" />
         <Setter Property="Background" Value="Transparent" />
     </Style>
 
@@ -141,7 +149,8 @@
                             </Transitions>
                         </Border.Transitions>
                         <Grid>
-                            <TextBlock Text="{DynamicResource icon-dot}" VerticalAlignment="Center" HorizontalAlignment="Center" Classes="pixi-icon"/>
+                            <TextBlock Text="{DynamicResource icon-dot}" VerticalAlignment="Center"
+                                       HorizontalAlignment="Center" Classes="pixi-icon" />
                             <ContentPresenter Padding="{TemplateBinding Padding}"
                                               HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"

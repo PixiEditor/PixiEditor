@@ -85,8 +85,18 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     public static readonly StyledProperty<ICommand> MiddleMouseClickedCommandProperty =
         AvaloniaProperty.Register<Viewport, ICommand>(nameof(MiddleMouseClickedCommand), null);
 
-    public static readonly StyledProperty<ViewportColorChannels> ChannelsProperty = AvaloniaProperty.Register<Viewport, ViewportColorChannels>(
-        nameof(Channels));
+    public static readonly StyledProperty<ViewportColorChannels> ChannelsProperty =
+        AvaloniaProperty.Register<Viewport, ViewportColorChannels>(
+            nameof(Channels));
+
+    public static readonly StyledProperty<bool> IsOverCanvasProperty = AvaloniaProperty.Register<Viewport, bool>(
+        "IsOverCanvas");
+
+    public bool IsOverCanvas
+    {
+        get => GetValue(IsOverCanvasProperty);
+        set => SetValue(IsOverCanvasProperty, value);
+    }
 
     public ICommand? MiddleMouseClickedCommand
     {
@@ -302,6 +312,9 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         //TODO: It's weird that I had to do it this way, right click didn't raise Image_MouseUp otherwise.
         viewportGrid.AddHandler(PointerReleasedEvent, Image_MouseUp, RoutingStrategies.Tunnel);
         viewportGrid.AddHandler(PointerPressedEvent, Image_MouseDown, RoutingStrategies.Bubble);
+        
+        Scene.PointerExited += (sender, args) => IsOverCanvas = false;
+        Scene.PointerEntered += (sender, args) => IsOverCanvas = true;
     }
 
     public Scene Scene => scene;
@@ -338,6 +351,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         {
             oldDoc.SizeChanged -= viewport.OnImageSizeChanged;
         }
+
         DocumentViewModel? newDoc = e.NewValue.Value;
         if (newDoc != null)
         {
@@ -368,12 +382,13 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private ViewportInfo GetLocation()
     {
-        return new(AngleRadians, Center, RealDimensions, Dimensions, CalculateResolution(), GuidValue, Delayed, ForceRefreshFinalImage);
+        return new(AngleRadians, Center, RealDimensions, Dimensions, CalculateResolution(), GuidValue, Delayed,
+            ForceRefreshFinalImage);
     }
 
     private void Image_MouseDown(object? sender, PointerPressedEventArgs e)
     {
-        if(Document is null)
+        if (Document is null)
             return;
 
         bool isMiddle = e.GetCurrentPoint(this).Properties.IsMiddleButtonPressed;
@@ -441,7 +456,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         scene.ZoomIntoCenter(-1);
         scene.ZoomIntoCenter(1); // a bit hacky, but it resets brush overlay properly
     }
-    
+
     private void ResetViewportClicked(object sender, RoutedEventArgs e)
     {
         scene.AngleRadians = 0;

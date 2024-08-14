@@ -25,16 +25,14 @@
             <main1:MainTitleBar DockPanel.Dock="Top" DataContext="{Binding MenuBarViewModel}"/>
             <Grid Focusable="True" Name="FocusableGrid">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="40" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="30"/>
                 </Grid.RowDefinitions>
 
-                <tools:Toolbar Grid.Row="0" DataContext="{Binding .}" />
-                <controls:DockableAreaRegion Grid.Row="1"
+                <controls:DockableAreaRegion Grid.Row="0"
                                              Root="{Binding LayoutSubViewModel.LayoutManager.ActiveLayout.Root}"
                                              Context="{Binding LayoutSubViewModel.LayoutManager.DockContext}"/>
-                <main1:ActionDisplayBar Grid.Row="2" DataContext="{Binding .}"/>
+                <main1:ActionDisplayBar Grid.Row="1" DataContext="{Binding .}"/>
             </Grid>
         </DockPanel>
         <commandSearch:CommandSearchControl

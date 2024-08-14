@@ -9,6 +9,7 @@
     <Border CornerRadius="{DynamicResource ControlCornerRadius}"
             BorderBrush="{DynamicResource ThemeBorderMidBrush}"
             BorderThickness="{DynamicResource ThemeBorderThickness}"
+            Cursor="Arrow"
             Background="{DynamicResource ThemeBackgroundBrush1}">
         <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
         <ItemsControl ItemsSource="{Binding ElementName=picker, Path=Tools}" Padding="0 2">

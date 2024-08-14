@@ -100,9 +100,10 @@
                 </Border>
             </overlays:TogglableFlyout.Child>
         </overlays:TogglableFlyout>
-        
-        <tools:ToolsPicker ZIndex="2"
-                           Margin="10 10 0 0"
+        <tools:Toolbar ZIndex="100" VerticalAlignment="Top" DataContext="{Binding Source={viewModels:MainVM}, Path=.}" />
+
+        <tools:ToolsPicker ZIndex="100"
+                           Margin="10 55 0 0"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Top"
                            Tools="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolSet}" />
@@ -125,61 +126,6 @@
             DefaultCursor="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolCursor, Mode=OneWay}"
             CheckerImagePath="/Images/CheckerTile.png"
             ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}" />
-        <!--<zoombox:Zoombox
-            Tag="{Binding ElementName=vpUc}"
-            x:Name="zoombox"
-            UseTouchGestures="{Binding UseTouchGestures, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
-            Scale="{Binding ZoomboxScale, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
-            Center="{Binding Center, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
-            Angle="{Binding Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
-            RealDimensions="{Binding RealDimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
-            Dimensions="{Binding Dimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
-            ZoomMode="{Binding ZoomMode, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
-            ZoomOutOnClick="{Binding ZoomOutOnClick, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
-            FlipX="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
-            FlipY="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}">
-            <zoombox:Zoombox.AdditionalContent>
-                <Border
-                    d:Width="64"
-                    d:Height="64"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
-                    RenderOptions.BitmapInterpolationMode="None">
-                    <Grid>
-
-                        <Rectangle Stroke="{DynamicResource ThemeBackgroundBrush1}" Opacity=".8" ZIndex="2"
-                                   IsVisible="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable}">
-                            <Rectangle.StrokeThickness>
-                                <Binding Converter="{converters:ReciprocalConverter}">
-                                    <Binding.Path>Zoombox.Scale</Binding.Path>
-                                    <Binding.ConverterParameter>
-                                        <sys:Double>
-                                            3
-                                        </sys:Double>
-                                    </Binding.ConverterParameter>
-                                </Binding>
-                            </Rectangle.StrokeThickness>
-                            <Rectangle.Margin>
-                                <Binding Converter="{converters:ReciprocalConverter}">
-                                    <Binding.Path>Zoombox.Scale</Binding.Path>
-                                    <Binding.ConverterParameter>
-                                        <sys:Double>
-                                            -3
-                                        </sys:Double>
-                                    </Binding.ConverterParameter>
-                                </Binding>
-                            </Rectangle.Margin>
-                        </Rectangle>
-                    </Grid>
-                </Border>
-            </zoombox:Zoombox.AdditionalContent>
-        </zoombox:Zoombox>-->
-        <!--<overlays:ReferenceLayerOverlay SizeChanged="OnReferenceImageSizeChanged"
-                                        ReferenceLayer="{Binding Document.ReferenceLayerViewModel}"
-                                        ReferenceLayerScale="{Binding ReferenceLayerScale}"
-                                        FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=!PickFromReferenceLayer, Mode=OneWay}"
-                                        RenderTransformOrigin="0, 0" RenderTransform="{Binding #scene.CanvasTransform}"/>-->
 
         <!--Brush shape overlay is rendered separately, so it doesn't trigger rerender each mouse movement to scene-->
         <!--I didn't measure it, but I thought that could impact performance-->
@@ -190,12 +136,18 @@
             Name="brushShapeOverlay"
             Focusable="False" ZIndex="6"
             IsHitTestVisible="False"
-            IsVisible="{Binding !Document.TransformViewModel.TransformActive}"
             ZoomScale="{Binding #scene.Scale}"
             Scene="{Binding #scene, Mode=OneTime}"
             BrushSize="{Binding ToolsSubViewModel.ActiveBasicToolbar.ToolSize, Source={viewModels:MainVM}}"
             BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={viewModels:MainVM}, FallbackValue={x:Static brushShapeOverlay:BrushShape.Hidden}}"
-            FlowDirection="LeftToRight" />
+            FlowDirection="LeftToRight">
+            <brushShapeOverlay:BrushShapeOverlay.IsVisible>
+                <MultiBinding Converter="{converters:AllTrueConverter}">
+                    <Binding Path="!Document.TransformViewModel.TransformActive"/>
+                    <Binding Path="IsOverCanvas"/> 
+                </MultiBinding>
+            </brushShapeOverlay:BrushShapeOverlay.IsVisible>
+        </brushShapeOverlay:BrushShapeOverlay>
         <Button
             ZIndex="99999"
             DockPanel.Dock="Bottom"

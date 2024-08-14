@@ -8,6 +8,7 @@ using Avalonia.Media;
 using ChunkyImageLib.Operations;
 using PixiEditor.Views.Visuals;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Numerics;
 using PixiEditor.Views.Rendering;
@@ -78,14 +79,14 @@ internal class BrushShapeOverlay : Overlay
 
     private void SourceMouseMove(PointerEventArgs args)
     {
-        if (Scene is null || BrushShape == BrushShape.Hidden)
+        if (Scene is null || BrushShape == BrushShape.Hidden) 
             return;
 
         Point rawPoint = args.GetPosition(Scene);
         lastMousePos = Scene.ToZoomboxSpace(new VecD(rawPoint.X, rawPoint.Y));
         InvalidateVisual();
     }
-
+    
     public override void RenderOverlay(DrawingContext context, RectD canvasBounds) => Render(context);
 
     public override void Render(DrawingContext drawingContext)
