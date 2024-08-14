@@ -70,8 +70,8 @@ public class ShaderBuilder
 
     public void ReturnVar(Half4 colorValue)
     {
-        _bodyBuilder.AppendLine($"half4 toReturn = half4({colorValue.VariableName}.r * {colorValue.VariableName}.a, {colorValue.VariableName}.g * {colorValue.VariableName}.a, {colorValue.VariableName}.b * {colorValue.VariableName}.a, {colorValue.VariableName}.a);");
-        _bodyBuilder.AppendLine($"return toReturn;"); 
+        _bodyBuilder.AppendLine($"half4 premultiplied = half4({colorValue.VariableName}.r * {colorValue.VariableName}.a, {colorValue.VariableName}.g * {colorValue.VariableName}.a, {colorValue.VariableName}.b * {colorValue.VariableName}.a, {colorValue.VariableName}.a);");
+        _bodyBuilder.AppendLine($"return premultiplied;"); 
     }
 
     public void ReturnConst(Half4 colorValue)
