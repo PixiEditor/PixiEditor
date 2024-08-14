@@ -10,12 +10,12 @@ internal class BasicToolbar : Toolbar, IBasicToolbar
 {
     public int ToolSize
     {
-        get => GetSetting<SizeSetting>(nameof(ToolSize)).Value;
-        set => GetSetting<SizeSetting>(nameof(ToolSize)).Value = value;
+        get => GetSetting<SizeSettingViewModel>(nameof(ToolSize)).Value;
+        set => GetSetting<SizeSettingViewModel>(nameof(ToolSize)).Value = value;
     }
     public BasicToolbar()
     {
-        var setting = new SizeSetting(nameof(ToolSize), "TOOL_SIZE_LABEL");
+        var setting = new SizeSettingViewModel(nameof(ToolSize), "TOOL_SIZE_LABEL");
         setting.ValueChanged += (_, _) => OnPropertyChanged(nameof(ToolSize));
         Settings.Add(setting);
     }

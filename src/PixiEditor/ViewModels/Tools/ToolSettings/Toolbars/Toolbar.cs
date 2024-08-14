@@ -12,17 +12,6 @@ internal abstract class Toolbar : ObservableObject, IToolbar
     private static readonly List<Setting> SharedSettings = new List<Setting>();
 
     public ObservableCollection<Setting> Settings { get; set; } = new ObservableCollection<Setting>();
-    public bool SettingsGenerated { get; private set; }
-
-    public void GenerateSettings()
-    {
-        foreach (Setting setting in Settings)
-        {
-            setting.SettingControl = setting.GenerateControl();
-        }
-
-        SettingsGenerated = true;
-    }
 
     /// <summary>
     ///     Gets setting in toolbar by name.

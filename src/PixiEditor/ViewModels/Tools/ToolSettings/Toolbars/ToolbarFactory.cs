@@ -55,13 +55,13 @@ internal static class ToolbarFactory
     {
         return attribute switch
         {
-            Settings.BoolAttribute => new BoolSetting(name, (bool)(attribute.DefaultValue ?? false), label),
-            Settings.ColorAttribute => new ColorSetting(name,
+            Settings.BoolAttribute => new BoolSettingViewModel(name, (bool)(attribute.DefaultValue ?? false), label),
+            Settings.ColorAttribute => new ColorSettingViewModel(name,
                 ((Color)(attribute.DefaultValue ?? Colors.White)).ToColor(), label),
             Settings.EnumAttribute => GetEnumSetting(propertyType, name, attribute),
-            Settings.FloatAttribute floatAttribute => new FloatSetting(name, (float)(attribute.DefaultValue ?? 0f), label,
+            Settings.FloatAttribute floatAttribute => new FloatSettingViewModel(name, (float)(attribute.DefaultValue ?? 0f), label,
                 floatAttribute.Min, floatAttribute.Max),
-            Settings.SizeAttribute => new SizeSetting(name, label),
+            Settings.SizeAttribute => new SizeSettingViewModel(name, label),
             _ => throw new NotImplementedException(
                 $"SettingsAttribute of type '{attribute.GetType().FullName}' has not been implemented")
         };
@@ -97,7 +97,7 @@ internal static class ToolbarFactory
 
     private static Setting GetEnumSetting(Type enumType, string name, Settings.SettingsAttribute attribute)
     {
-        return (Setting)typeof(EnumSetting<>)
+        return (Setting)typeof(EnumSettingViewModel<>)
             .MakeGenericType(enumType)
             .GetConstructor(new[] { typeof(string), typeof(string), enumType })!
             .Invoke(new[] { name, attribute.LabelKey ?? name, attribute.DefaultValue });
