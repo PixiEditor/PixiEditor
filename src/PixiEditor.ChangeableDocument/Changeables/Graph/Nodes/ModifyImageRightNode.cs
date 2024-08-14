@@ -30,7 +30,6 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
 
     private string _lastSksl;
     
-    private TextureCache _textureCache = new(); 
 
     public ModifyImageRightNode()
     {
@@ -59,7 +58,7 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
         var width = size.X;
         var height = size.Y;
 
-        Texture surface = _textureCache.GetTexture(renderingContext.ChunkResolution, size); 
+        Texture surface = RequestTexture(0, size);
 
         if (!surface.IsHardwareAccelerated)
         {
@@ -123,9 +122,8 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
             surface.DrawingSurface.Canvas.DrawPaint(drawingPaint);
             builder.Dispose();
         }
-
+        
         Output.Value = surface;
-
         return Output.Value;
     }
 
@@ -170,7 +168,6 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
     public override void Dispose()
     {
         base.Dispose();
-        _textureCache.Dispose(); 
         drawingPaint?.Dispose();
     }
 

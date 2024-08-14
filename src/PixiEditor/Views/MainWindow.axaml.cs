@@ -22,6 +22,7 @@ using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Platform;
 using PixiEditor.ViewModels.SubViewModels;
+using PixiEditor.Views.Rendering;
 using ViewModelMain = PixiEditor.ViewModels.ViewModelMain;
 using ViewModels_ViewModelMain = PixiEditor.ViewModels.ViewModelMain;
 
@@ -71,7 +72,9 @@ internal partial class MainWindow : Window
 
         SkiaDrawingBackend skiaDrawingBackend = new SkiaDrawingBackend();
         skiaDrawingBackend.GraphicsContext = GetOpenGlGrContext();
-        DrawingBackendApi.SetupBackend(skiaDrawingBackend, (a) => Dispatcher.UIThread.Invoke(a));
+        
+        AvaloniaRenderingServer renderingServer = new AvaloniaRenderingServer();
+        DrawingBackendApi.SetupBackend(skiaDrawingBackend, renderingServer);
 
         preferences = services.GetRequiredService<IPreferences>();
         platform = services.GetRequiredService<IPlatform>();

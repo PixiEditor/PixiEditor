@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
 using PixiEditor.DrawingApi.Core.Bridge.Operations;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Skia.Exceptions;
 using PixiEditor.DrawingApi.Skia.Implementations;
 using SkiaSharp;
@@ -25,7 +28,8 @@ namespace PixiEditor.DrawingApi.Skia
         }
         
         public bool IsHardwareAccelerated => GraphicsContext != null;
-        public Action<Action> RenderDispatch { get; set; }
+        
+        public IRenderingServer RenderingServer { get; set; }
 
         public IColorImplementation ColorImplementation { get; }
         public IImageImplementation ImageImplementation { get; }

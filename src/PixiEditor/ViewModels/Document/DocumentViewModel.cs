@@ -504,24 +504,22 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             Surface finalSurface = new Surface(SizeBindable);
             VecI sizeInChunks = (VecI)((VecD)SizeBindable / ChunkyImage.FullChunkSize).Ceiling();
-            for (int i = 0; i < sizeInChunks.X; i++)
+            DrawingBackendApi.Current.RenderingServer.Invoke(() =>
             {
-                for (int j = 0; j < sizeInChunks.Y; j++)
+                for (int i = 0; i < sizeInChunks.X; i++)
                 {
-                    var i1 = i;
-                    var j1 = j;
-                    DrawingBackendApi.Current.RenderDispatch(() =>
+                    for (int j = 0; j < sizeInChunks.Y; j++)
                     {
-                        var maybeChunk = Renderer.RenderChunk(new(i1, j1), ChunkResolution.Full, frameTime);
+                        var maybeChunk = Renderer.RenderChunk(new(i, j), ChunkResolution.Full, frameTime);
                         if (maybeChunk.IsT1)
                             return;
                         using Chunk chunk = maybeChunk.AsT0;
                         finalSurface.DrawingSurface.Canvas.DrawSurface(
                             chunk.Surface.DrawingSurface,
-                            i1 * ChunkyImage.FullChunkSize, j1 * ChunkyImage.FullChunkSize);
-                    });
+                            i * ChunkyImage.FullChunkSize, j * ChunkyImage.FullChunkSize);
+                    }
                 }
-            }
+            });
 
             return finalSurface;
         }

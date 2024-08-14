@@ -11,8 +11,9 @@ public struct Uniform
     public float FloatValue { get; }
     public float[] FloatArrayValue { get; }
     public Shader ShaderValue { get; }
-    
     public string UniformName { get; }
+
+    public string LayoutOf { get; } = string.Empty;
 
     public UniformValueType DataType { get; }
 
@@ -50,9 +51,10 @@ public struct Uniform
     {
         Name = name;
         FloatValue = default;
-        FloatArrayValue = new float[] { color.R, color.G, color.B, color.A };
+        FloatArrayValue = new float[] { color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f };
         ShaderValue = default;
         DataType = UniformValueType.FloatArray;
+        //LayoutOf = "color"; TODO: Doesn't work with SkiaSharp 2.8x, check with 3.0 when it releases
         UniformName = "half4";
     }
 

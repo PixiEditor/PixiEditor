@@ -20,7 +20,7 @@ namespace PixiEditor.DrawingApi.Core.Bridge
         
         public static bool HasBackend => _current != null;
         
-        public static void SetupBackend(IDrawingBackend backend, Action<Action> dispatcher)
+        public static void SetupBackend(IDrawingBackend backend, IRenderingServer server)
         {
             if (_current != null)
             {
@@ -28,7 +28,7 @@ namespace PixiEditor.DrawingApi.Core.Bridge
             }
             
             _current = backend;
-            _current.RenderDispatch = dispatcher;
+            _current.RenderingServer = server;
             backend.Setup();
         }
     }
