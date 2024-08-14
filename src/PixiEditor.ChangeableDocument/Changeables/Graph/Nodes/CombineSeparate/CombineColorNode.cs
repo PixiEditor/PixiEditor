@@ -34,10 +34,10 @@ public class CombineColorNode : Node
 
     private Half4 GetColor(FuncContext ctx)
     {
-        var r = R.Value(ctx);
-        var g = G.Value(ctx);
-        var b = B.Value(ctx);
-        var a = A.Value(ctx);
+        var r = ctx.GetValue(R);
+        var g = ctx.GetValue(G);
+        var b = ctx.GetValue(B);
+        var a = ctx.GetValue(A);
 
         return ctx.NewHalf4(r, g, b, a); 
     }

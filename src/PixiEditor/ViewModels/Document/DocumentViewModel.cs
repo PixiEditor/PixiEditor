@@ -27,6 +27,7 @@ using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using PixiEditor.DrawingApi.Core.Surfaces.Vector;
@@ -503,11 +504,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             Surface finalSurface = new Surface(SizeBindable);
             VecI sizeInChunks = (VecI)((VecD)SizeBindable / ChunkyImage.FullChunkSize).Ceiling();
-            for (int i = 0; i < sizeInChunks.X; i++)
+            DrawingBackendApi.Current.RenderingServer.Invoke(() =>
             {
-                for (int j = 0; j < sizeInChunks.Y; j++)
+                for (int i = 0; i < sizeInChunks.X; i++)
                 {
-                    Dispatcher.UIThread.Invoke(() =>
+                    for (int j = 0; j < sizeInChunks.Y; j++)
                     {
                         var maybeChunk = Renderer.RenderChunk(new(i, j), ChunkResolution.Full, frameTime);
                         if (maybeChunk.IsT1)
@@ -516,9 +517,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                         finalSurface.DrawingSurface.Canvas.DrawSurface(
                             chunk.Surface.DrawingSurface,
                             i * ChunkyImage.FullChunkSize, j * ChunkyImage.FullChunkSize);
-                    });
+                    }
                 }
-            }
+            });
 
             return finalSurface;
         }

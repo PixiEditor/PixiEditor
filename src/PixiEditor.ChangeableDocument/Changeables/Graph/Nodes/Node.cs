@@ -6,6 +6,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Shaders;
 using PixiEditor.Numerics;
 
@@ -130,7 +131,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
             
             if (clear)
             {
-                texture.DrawingSurface.Canvas.Clear();
+                texture.DrawingSurface.Canvas.Clear(Colors.Transparent);
             }
             
             return texture;
@@ -308,6 +309,11 @@ public abstract class Node : IReadOnlyNode, IDisposable
             {
                 keyFrame.Dispose();
             }
+        }
+        
+        foreach (var texture in _managedTextures)
+        {
+            texture.Value.Dispose();
         }
     }
 

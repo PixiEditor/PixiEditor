@@ -79,7 +79,7 @@ internal class CombineStructureMembersOnto_Change : Change
         DocumentRenderer renderer = new(target);
 
         AffectedArea affArea = new();
-        DrawingBackendApi.Current.RenderDispatch(() =>
+        DrawingBackendApi.Current.RenderingServer.Invoke(() =>
         {
             RectI? globalClippingRect = new RectI(0, 0, target.Size.X, target.Size.Y);
             foreach (var chunk in chunksToCombine)

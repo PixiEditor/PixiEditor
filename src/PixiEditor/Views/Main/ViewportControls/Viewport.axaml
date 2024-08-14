@@ -112,7 +112,6 @@
             ZoomOutOnClick="{Binding ZoomOutOnClick, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
             FlipX="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
             FlipY="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
-            Channels="{Binding Channels, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
             AllOverlays="{Binding ElementName=vpUc, Path=ActiveOverlays}"
             FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
             DefaultCursor="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolCursor, Mode=OneWay}"

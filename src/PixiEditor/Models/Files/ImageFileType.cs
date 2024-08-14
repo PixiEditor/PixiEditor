@@ -2,6 +2,7 @@
 using ChunkyImageLib;
 using PixiEditor.Helpers;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.Extensions.Common.Localization;
@@ -35,7 +36,7 @@ internal abstract class ImageFileType : IoFileType
             var maybeBitmap = document.TryRenderWholeImage(0);
             if (maybeBitmap.IsT0)
                 return SaveResult.ConcurrencyError;
-            
+
             finalSurface = maybeBitmap.AsT1;
             if (maybeBitmap.AsT1.Size != exportConfig.ExportSize)
             {

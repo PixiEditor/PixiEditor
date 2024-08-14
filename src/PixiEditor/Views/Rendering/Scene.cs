@@ -151,8 +151,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             FlipX, FlipY,
             dirtyRect,
             Bounds,
-            sceneOpacity,
-            Channels.GetColorMatrix());
+            sceneOpacity);
 
         var matrix = CalculateTransformMatrix();
         context.PushTransform(matrix);
@@ -485,7 +484,6 @@ internal class DrawSceneOperation : SkiaDrawOperation
     public bool FlipX { get; set; }
     public bool FlipY { get; set; }
     public Rect ViewportBounds { get; }
-    public ColorMatrix ColorMatrix { get; }
 
     public RectI SurfaceRectToRender { get; }
 
@@ -494,8 +492,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
     private bool hardwareAccelerationAvailable = DrawingBackendApi.Current.IsHardwareAccelerated;
 
     public DrawSceneOperation(Texture surface, DocumentViewModel document, VecD contentPosition, double scale,
-        double angle, bool flipX, bool flipY, Rect dirtyBounds, Rect viewportBounds, double opacity,
-        ColorMatrix colorMatrix) : base(dirtyBounds)
+        double angle, bool flipX, bool flipY, Rect dirtyBounds, Rect viewportBounds, double opacity) : base(dirtyBounds)
     {
         Surface = surface;
         Document = document;
@@ -504,7 +501,6 @@ internal class DrawSceneOperation : SkiaDrawOperation
         Angle = angle;
         FlipX = flipX;
         FlipY = flipY;
-        ColorMatrix = colorMatrix;
         ViewportBounds = viewportBounds;
         _paint.Color = _paint.Color.WithAlpha((byte)(opacity * 255));
         SurfaceRectToRender = FindRectToRender((float)scale);
@@ -527,11 +523,9 @@ internal class DrawSceneOperation : SkiaDrawOperation
         using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
 
 
-        var matrixValues = new float[ColorMatrix.Width * ColorMatrix.Height];
-        ColorMatrix.TryGetMembers(matrixValues);
-
-        _paint.ColorFilter = SKColorFilter.CreateColorMatrix(matrixValues);
-
+        /*var matrixValues = new float[ColorMatrix.Width * ColorMatrix.Height];
+        ColorMatrix.TryGetMembers(matrixValues);*/
+        
         if (!hardwareAccelerationAvailable)
         {
             // snapshotting wanted region on CPU is faster than rendering whole surface on CPU,

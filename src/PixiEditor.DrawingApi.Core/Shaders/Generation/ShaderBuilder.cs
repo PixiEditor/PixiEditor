@@ -38,7 +38,8 @@ public class ShaderBuilder
     {
         foreach (var uniform in Uniforms)
         {
-            sb.AppendLine($"uniform {uniform.Value.UniformName} {uniform.Value.Name};");
+            string layout = string.IsNullOrEmpty(uniform.Value.LayoutOf) ? string.Empty : $"layout({uniform.Value.LayoutOf}) ";
+            sb.AppendLine($"{layout}uniform {uniform.Value.UniformName} {uniform.Value.Name};");
         }
     }
 

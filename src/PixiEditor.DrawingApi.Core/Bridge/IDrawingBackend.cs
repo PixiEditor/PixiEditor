@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
 using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
 using PixiEditor.DrawingApi.Core.Bridge.Operations;
+using PixiEditor.DrawingApi.Core.Surfaces;
 
 namespace PixiEditor.DrawingApi.Core.Bridge
 {
@@ -22,6 +24,6 @@ namespace PixiEditor.DrawingApi.Core.Bridge
         public IImageFilterImplementation ImageFilterImplementation { get; }
         public IShaderImplementation ShaderImplementation { get; set; }
         public bool IsHardwareAccelerated { get; }
-        public Action<Action> RenderDispatch { get; set; }
+        public IRenderingServer RenderingServer { get; set; }
     }
 }

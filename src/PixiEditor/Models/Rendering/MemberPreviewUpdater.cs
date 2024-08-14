@@ -539,7 +539,7 @@ internal class MemberPreviewUpdater
         IReadOnlyStructureNode member, [DisallowNull] AffectedArea? affArea, VecI position, float scaling)
     {
         bool isEditingRootImage = !member.KeyFrames.Any(x => x.IsInFrame(doc.AnimationHandler.ActiveFrameBindable));
-        if (!isEditingRootImage)
+        if (!isEditingRootImage && keyFrame.PreviewSurface is not null)
             return;
 
         if (keyFrame.PreviewSurface == null ||
@@ -758,8 +758,6 @@ internal class MemberPreviewUpdater
             {
                 nodeVm.ResultPreview.DrawingSurface.Canvas.Save();
                 nodeVm.ResultPreview.DrawingSurface.Canvas.Scale(scalingX, scalingY);
-
-                RectI region = new RectI(0, 0, node.CachedResult.Size.X, node.CachedResult.Size.Y);
 
                 nodeVm.ResultPreview.DrawingSurface.Canvas.DrawSurface(node.CachedResult.DrawingSurface, 0, 0,
                     ReplacingPaint);

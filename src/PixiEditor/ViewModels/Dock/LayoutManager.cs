@@ -40,7 +40,9 @@ internal class LayoutManager
         TimelineDockViewModel timelineDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
         
         NodeGraphDockViewModel nodeGraphDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
+        /*
         ChannelsDockViewModel channelsDockDockViewModel = new(mainViewModel.WindowSubViewModel);
+        */
 
         RegisterDockable(layersDockViewModel);
         RegisterDockable(colorPickerDockViewModel);
@@ -50,7 +52,9 @@ internal class LayoutManager
         RegisterDockable(paletteViewerDockViewModel);
         RegisterDockable(timelineDockViewModel);
         RegisterDockable(nodeGraphDockViewModel);
+        /*
         RegisterDockable(channelsDockDockViewModel);
+        */
         
         DefaultLayout = new LayoutTree
         {
@@ -94,7 +98,7 @@ internal class LayoutManager
                         Second = new DockableArea
                         {
                             Id = "LayersArea",
-                            Dockables = [ DockContext.CreateDockable(layersDockViewModel), DockContext.CreateDockable(channelsDockDockViewModel) ]
+                            Dockables = [ DockContext.CreateDockable(layersDockViewModel) ]
                         },
                     },
                     FirstSize = 0.66,
