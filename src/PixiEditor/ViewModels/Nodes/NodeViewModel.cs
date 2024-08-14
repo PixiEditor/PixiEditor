@@ -6,6 +6,7 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Structures;
@@ -109,7 +110,7 @@ internal class NodeViewModel : ObservableObject, INodeHandler
     
     public void SetName(string newName)
     {
-        nodeNameBindable = newName;
+        nodeNameBindable = new LocalizedString(newName);
         OnPropertyChanged(nameof(NodeNameBindable));
     }
 

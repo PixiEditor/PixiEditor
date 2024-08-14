@@ -103,8 +103,8 @@
                                 x:Name="editableTextBlock"
                                 d:Text="New Folder" FontSize="14"
                                 VerticalAlignment="Center"
-                                ui:Translator.Key="{Binding Folder.NodeNameBindable, ElementName=folderControl, Mode=TwoWay}" />
-                            
+                                Text="{Binding Folder.NodeNameBindable, ElementName=folderControl, Mode=TwoWay}" />
+                            <!--Don't change above Text to Translator.Key, it will break renaming-->
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock d:Text="100" Foreground="White" FontSize="11">
                                     <TextBlock.Text>
