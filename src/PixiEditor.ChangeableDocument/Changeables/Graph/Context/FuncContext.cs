@@ -115,4 +115,17 @@ public class FuncContext
 
         return getFrom.Value(this);
     }
+
+    public Float2 GetValue(FuncInputProperty<Float2> getFrom)
+    {
+        if (getFrom.Connection == null || !IsFuncType(getFrom))
+        {
+            Float2 value = getFrom.Value(this);
+            value.VariableName = $"float2_{Builder.GetUniqueNameNumber()}";
+            Builder.AddUniform(value.VariableName, value.ConstantValue);
+            return value;
+        }
+
+        return getFrom.Value(this);
+    }
 }

@@ -13,14 +13,14 @@ public class SampleImageNode : Node
 {
     public InputProperty<Texture?> Image { get; }
 
-    public FuncOutputProperty<Float2> Coordinate { get; }
+    public FuncInputProperty<Float2> Coordinate { get; }
 
     public FuncOutputProperty<Half4> Color { get; }
 
     public SampleImageNode()
     {
         Image = CreateInput<Texture>(nameof(Texture), "IMAGE", null);
-        Coordinate = CreateFuncOutput(nameof(Coordinate), "UV", ctx => ctx.Position);
+        Coordinate = CreateFuncInput<Float2>(nameof(Coordinate), "UV", VecD.Zero);
         Color = CreateFuncOutput(nameof(Color), "COLOR", GetColor);
     }
 
@@ -33,7 +33,9 @@ public class SampleImageNode : Node
             return new Half4("");
         }
 
-        return context.SampleTexture(Image.Value, context.Position);
+        Float2 uv = context.GetValue(Coordinate);
+
+        return context.SampleTexture(Image.Value, uv);
     }
 
     protected override Texture? OnExecute(RenderingContext context)
