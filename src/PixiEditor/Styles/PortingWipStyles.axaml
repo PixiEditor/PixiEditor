@@ -13,11 +13,11 @@
     </Style>
 
     <Style Selector="Button.OverlayToggleButton">
-
+        <Setter Property="BorderThickness" Value="0"/>
     </Style>
 
     <Style Selector="Button.OverlayButton">
-
+        <Setter Property="BorderThickness" Value="0"/>
     </Style>
 
     <Style Selector="Button.ImageButtonStyle">

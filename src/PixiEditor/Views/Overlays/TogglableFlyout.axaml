@@ -8,7 +8,11 @@
              d:DesignHeight="380" d:DesignWidth="200" Name="togglableFlyout">
     <Border Background="Transparent">
         <StackPanel Orientation="Vertical">
-            <Border HorizontalAlignment="Right" Background="{DynamicResource ThemeBackgroundTranslucentBrush}" CornerRadius="5" Padding="5" x:Name="btnBorder">
+            <Border HorizontalAlignment="Right" Background="{DynamicResource ThemeBackgroundBrush1}"
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                    BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                    BorderThickness="{DynamicResource ThemeBorderThickness}" Padding="5"
+                    x:Name="btnBorder">
                 <ToggleButton Padding="0" Margin="0"
                               x:Name="toggleButton" BorderThickness="0" Width="24" Height="24" Background="Transparent">
                     <ToggleButton.Template>
@@ -16,57 +20,34 @@
                             <Grid>
                                 <Grid.Styles>
                                     <Style Selector="Grid TextBlock#btnBg">
-                                        <Setter Property="RenderTransform" Value="rotate(0)"/>
+                                        <Setter Property="RenderTransform" Value="rotate(0)" />
                                     </Style>
                                     <Style Selector="ToggleButton:checked TextBlock#btnBg">
-                                        <Setter Property="RenderTransform" Value="rotate(180deg)"/>
+                                        <Setter Property="RenderTransform" Value="rotate(180deg)" />
                                     </Style>
                                 </Grid.Styles>
                                 <TextBlock Focusable="False" FontSize="24" Width="24" Cursor="Hand" x:Name="btnBg"
                                            Classes="pixi-icon"
-                                       Text="{Binding ElementName=togglableFlyout, Path=Icon}">
+                                           Text="{Binding ElementName=togglableFlyout, Path=Icon}">
                                     <TextBlock.Transitions>
                                         <Transitions>
-                                            <TransformOperationsTransition Duration="0:0:0.15" Property="RenderTransform" />
+                                            <TransformOperationsTransition Duration="0:0:0.15"
+                                                                           Property="RenderTransform" />
                                         </Transitions>
                                     </TextBlock.Transitions>
                                     <TextBlock.RenderTransform>
-                                        <RotateTransform Angle="0" CenterX="12" CenterY="12"/>
+                                        <RotateTransform Angle="0" CenterX="12" CenterY="12" />
                                     </TextBlock.RenderTransform>
                                 </TextBlock>
-                                <ContentPresenter/>
+                                <ContentPresenter />
                             </Grid>
-                            <!--<ControlTemplate.Triggers>
-                                <Trigger Property="IsChecked" Value="True">
-                                    <Trigger.EnterActions>
-                                        <BeginStoryboard x:Name="Rotate90Animation">
-                                            <Storyboard>
-                                                <DoubleAnimation From="0" To="180"
-                                                                 Storyboard.TargetName="btnBg"
-                                                                 Storyboard.TargetProperty="(ToggleButton.RenderTransform).(RotateTransform.Angle)"
-                                                                 Duration="0:0:0.15"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </Trigger.EnterActions>
-                                    <Trigger.ExitActions>
-                                        <BeginStoryboard x:Name="RotateReverse90Animation">
-                                            <Storyboard>
-                                                <DoubleAnimation From="180" To="0"
-                                                                 Storyboard.TargetName="btnBg"
-                                                                 Storyboard.TargetProperty="(ToggleButton.RenderTransform).(RotateTransform.Angle)"
-                                                                 Duration="0:0:0.15"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </Trigger.ExitActions>
-                                </Trigger>
-                            </ControlTemplate.Triggers>-->
                         </ControlTemplate>
                     </ToggleButton.Template>
                 </ToggleButton>
             </Border>
             <ContentControl x:Name="popup" DataContext="{Binding ElementName=togglableFlyout}"
-                              IsVisible="{Binding Path=IsChecked, ElementName=toggleButton}"
-                   Content="{Binding ElementName=togglableFlyout, Path=Child}" />
+                            IsVisible="{Binding Path=IsChecked, ElementName=toggleButton}"
+                            Content="{Binding ElementName=togglableFlyout, Path=Child}" />
         </StackPanel>
     </Border>
 </UserControl>

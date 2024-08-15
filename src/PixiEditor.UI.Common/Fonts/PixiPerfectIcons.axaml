@@ -155,6 +155,7 @@
     
     <Style Selector="ToggleButton.pixi-icon">
         <Setter Property="FontFamily" Value="{DynamicResource PixiPerfectIcons}"/>
+        <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="FontSize" Value="24"/>
         <Setter Property="Padding" Value="0"/>

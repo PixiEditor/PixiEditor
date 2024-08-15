@@ -52,19 +52,30 @@
                                   ui:Translator.TooltipKey="VIEWPORT_SETTINGS"
                                   ZIndex="2" HorizontalAlignment="Right" VerticalAlignment="Top">
             <overlays:TogglableFlyout.Child>
-                <Border BorderThickness="1" CornerRadius="5" Padding="5"
-                        Background="{DynamicResource ThemeBackgroundTranslucentBrush}" ZIndex="2">
+                <Border Padding="5"
+                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                        BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                        BorderThickness="{DynamicResource ThemeBorderThickness}"
+                        Background="{DynamicResource ThemeBackgroundBrush1}" ZIndex="2">
                     <StackPanel Orientation="Vertical">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Margin="5 0" TextAlignment="Center"
-                                       Text="{Binding Path=AngleRadians, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport},
+                            <Border Width="35" Height="35" Margin="5 0" 
+                                    BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                    BorderThickness="{DynamicResource ThemeBorderThickness}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Background="{DynamicResource ThemeControlHighBrush}"
+                                    VerticalAlignment="Center">
+                                <TextBlock TextAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Text="{Binding Path=AngleRadians, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport},
              Converter={converters:RadiansToDegreesConverter}, StringFormat={}{0}°}"
-                                       Width="35" Foreground="White" VerticalAlignment="Center" FontSize="16" />
+                                           Foreground="{DynamicResource ThemeForegroundBrush}"
+                                           FontSize="16" />
+                            </Border>
                             <Button Width="32" Height="32" ui:Translator.TooltipKey="RESET_VIEWPORT"
                                     Classes="OverlayButton pixi-icon"
                                     Click="ResetViewportClicked"
                                     BorderBrush="{DynamicResource ThemeBorderMidBrush}"
-                                    BorderThickness="1"
                                     Content="{DynamicResource icon-reset}"
                                     Cursor="Hand" />
                         </StackPanel>
@@ -143,8 +154,8 @@
             FlowDirection="LeftToRight">
             <brushShapeOverlay:BrushShapeOverlay.IsVisible>
                 <MultiBinding Converter="{converters:AllTrueConverter}">
-                    <Binding Path="!Document.TransformViewModel.TransformActive"/>
-                    <Binding Path="IsOverCanvas"/> 
+                    <Binding Path="!Document.TransformViewModel.TransformActive" />
+                    <Binding Path="IsOverCanvas" />
                 </MultiBinding>
             </brushShapeOverlay:BrushShapeOverlay.IsVisible>
         </brushShapeOverlay:BrushShapeOverlay>
