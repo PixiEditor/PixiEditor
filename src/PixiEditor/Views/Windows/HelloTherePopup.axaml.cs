@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
@@ -132,7 +133,7 @@ internal partial class HelloTherePopup : PixiEditorPopup
 
         if (_newsDisabled || NewsPanelCollapsed)
         {
-            Enumerable.Last<ColumnDefinition>(grid.ColumnDefinitions).Width = new GridLength(0);
+            grid.ColumnDefinitions.Last<ColumnDefinition>().Width = new GridLength(0);
             newsWidth = 0;
         }
 
@@ -167,13 +168,11 @@ internal partial class HelloTherePopup : PixiEditorPopup
 
         if (e.NewValue.Value)
         {
-            helloTherePopup.Width -= 300;
-            Enumerable.Last<ColumnDefinition>(helloTherePopup.grid.ColumnDefinitions).Width = new GridLength(0);
+            helloTherePopup.grid.ColumnDefinitions.Last<ColumnDefinition>().Width = new GridLength(0);
         }
         else
         {
-            helloTherePopup.Width += 300;
-            Enumerable.Last<ColumnDefinition>(helloTherePopup.grid.ColumnDefinitions).Width = new GridLength(300);
+            helloTherePopup.grid.ColumnDefinitions.Last<ColumnDefinition>().Width = new GridLength(300);
         }
 
         PixiEditorSettings.StartupWindow.NewsPanelCollapsed.Value = e.NewValue.Value;
