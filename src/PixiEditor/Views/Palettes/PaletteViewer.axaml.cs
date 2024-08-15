@@ -10,6 +10,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
@@ -167,13 +168,25 @@ internal partial class PaletteViewer : UserControl
             List<PaletteFileParser> availableParsers = PaletteProvider.AvailableParsers.Where(x => x.CanSave).ToList();
             var file = await window.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions()
             {
-                FileTypeChoices = PaletteHelpers.GetFilter(availableParsers, false)
+                FileTypeChoices = PaletteHelpers.GetFilter(availableParsers, false),
+                SuggestedFileName = new LocalizedString("NEW_PALETTE_FILE"),
             });
 
             if (file is null) return;
+            
+            string extension = Path.GetExtension(file.Path.LocalPath);
 
-            int filterIndex = 0; //file.FilterIndex; //TODO get chosen filter index somehow
-            var foundParser = availableParsers[filterIndex - 1];
+            var parsersOfExtensions =
+                availableParsers.Where(x => x.SupportedFileExtensions.Contains(extension)).ToList();
+            
+            var foundParser = await GetPaletteFileParser(parsersOfExtensions);
+
+            if (foundParser is null)
+            {
+                NoticeDialog.Show(new LocalizedString("NO_PARSER_FOUND", extension), "ERROR");
+                return;
+            }
+            
             if (Colors is null || Colors.Count == 0)
             {
                 NoticeDialog.Show("NO_COLORS_TO_SAVE", "ERROR");
@@ -193,6 +206,34 @@ internal partial class PaletteViewer : UserControl
                 NoticeDialog.Show("COULD_NOT_SAVE_PALETTE", "ERROR");
             }
         });
+    }
+
+    private static async Task<PaletteFileParser?> GetPaletteFileParser(List<PaletteFileParser> parsersOfExtensions)
+    {
+        PaletteFileParser foundParser = null;
+
+        if (parsersOfExtensions.Count > 1)
+        {
+            var optionsDialog = new OptionsDialog<PaletteFileParser>(
+                new LocalizedString("SELECT_FILE_FORMAT"),
+                new LocalizedString("SELECT_FILE_FORMAT_DESCRIPTION"), MainWindow.Current);
+
+            foreach (var pars in parsersOfExtensions)
+            {
+                optionsDialog.Add(pars);
+            }
+                
+            if (await optionsDialog.ShowDialog())
+            {
+                foundParser = optionsDialog.Result;
+            }
+        }
+        else if (parsersOfExtensions.Count == 1)
+        {
+            foundParser = parsersOfExtensions.First();
+        }
+
+        return foundParser;
     }
 
     private void Grid_PreviewDragEnter(object sender, DragEventArgs e)

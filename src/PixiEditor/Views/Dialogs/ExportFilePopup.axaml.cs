@@ -7,6 +7,7 @@ using Avalonia.Threading;
 using ChunkyImageLib;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Files;
@@ -300,7 +301,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
                             int x = index % clampedColumns;
                             int y = index / clampedColumns;
                             var resized = frame.ResizeNearestNeighbor(new VecI(singleFrameSize.X, singleFrameSize.Y));
-                            Dispatcher.UIThread.Post(() =>
+                            DrawingBackendApi.Current.RenderingServer.Invoke(() =>
                             {
                                 if (ExportPreview.IsDisposed) return;
                                 ExportPreview!.DrawingSurface.Canvas.DrawSurface(resized.DrawingSurface,

@@ -16,4 +16,9 @@ public abstract class PaletteFileParser
         string[] lines = fileContent.Split('\n');
         return lines;
     }
+
+    public override string ToString()
+    {
+        return FileName;
+    }
 }

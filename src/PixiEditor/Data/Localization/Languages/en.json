@@ -716,5 +716,9 @@
   "ADD_EMPTY_FRAME": "Add empty frame",
   "DUPLICATE_FRAME": "Duplicate frame",
   "DELETE_FRAME": "Remove frame",
-  "DEFAULT_MEMBER_NAME": "New Element"
+  "DEFAULT_MEMBER_NAME": "New Element",
+  "NO_PARSER_FOUND": "No file parser found for extension '{0}'",
+  "SELECT_FILE_FORMAT": "Select file format",
+  "SELECT_FILE_FORMAT_DESCRIPTION": "Multiple file types of the same format are supported. Please select the one you want to use.",
+  "NEW_PALETTE_FILE": "palette"
 }
