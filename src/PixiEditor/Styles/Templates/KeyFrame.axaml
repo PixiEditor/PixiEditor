@@ -25,6 +25,7 @@
                     <Border IsVisible="{Binding !IsCollapsed, RelativeSource={RelativeSource TemplatedParent}}"
                             CornerRadius="{DynamicResource ControlCornerRadius}" Width="60" Height="60"
                             Margin="-30, 0, 0, 0"
+                            ClipToBounds="True"
                             BorderThickness="1" VerticalAlignment="Center" IsHitTestVisible="True" Name="PreviewBorder"
                             HorizontalAlignment="Left" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                             RenderOptions.BitmapInterpolationMode="None">

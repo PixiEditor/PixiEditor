@@ -581,7 +581,8 @@ internal class MemberPreviewUpdater
                 }
                 else
                 {
-                    rendered = doc.Renderer.RenderLayersChunk(chunk, ChunkResolution.Full, doc.AnimationHandler.ActiveFrameTime, layers,
+                    rendered = doc.Renderer.RenderLayersChunk(chunk, ChunkResolution.Full,
+                        doc.AnimationHandler.ActiveFrameTime, layers,
                         null);
                 }
 
@@ -593,7 +594,8 @@ internal class MemberPreviewUpdater
                 }
                 else
                 {
-                    memberVM.PreviewSurface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkResolution.Full.PixelSize(),
+                    memberVM.PreviewSurface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y,
+                        ChunkResolution.Full.PixelSize(),
                         ChunkResolution.Full.PixelSize(), ClearPaint);
                 }
             }
@@ -729,20 +731,34 @@ internal class MemberPreviewUpdater
 
     private void RenderNodePreviews(List<IRenderInfo> infos)
     {
-        foreach (var node in internals.Tracker.Document.NodeGraph.AllNodes)
+        using RenderingContext previewContext = new(doc.AnimationHandler.ActiveFrameTime, VecI.Zero, ChunkResolution.Full, doc.SizeBindable);
+
+        var outputNode = internals.Tracker.Document.NodeGraph.OutputNode;
+        
+        if (outputNode is null)
+            return;
+        
+        var executionQueue = internals.Tracker.Document.NodeGraph.CalculateExecutionQueue(outputNode);
+        
+        foreach (var node in executionQueue) 
         {
             if (node is null)
-                return;
-
-            if (node.CachedResult == null)
-            {
-                return;
-            }
+                continue;
 
             var nodeVm = doc.StructureHelper.FindNode<INodeHandler>(node.Id);
+
             if (nodeVm == null)
             {
-                return;
+                continue;
+            }
+
+            Texture evaluated = node.Execute(previewContext);
+
+            if (evaluated == null)
+            {
+                nodeVm.ResultPreview?.Dispose();
+                nodeVm.ResultPreview = null;
+                continue;
             }
 
             if (nodeVm.ResultPreview == null)
@@ -750,19 +766,20 @@ internal class MemberPreviewUpdater
                 nodeVm.ResultPreview =
                     new Texture(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size, 150));
             }
-
-            float scalingX = (float)nodeVm.ResultPreview.Size.X / node.CachedResult.Size.X;
-            float scalingY = (float)nodeVm.ResultPreview.Size.Y / node.CachedResult.Size.Y;
+            
+            float scalingX = (float)nodeVm.ResultPreview.Size.X / evaluated.Size.X;
+            float scalingY = (float)nodeVm.ResultPreview.Size.Y / evaluated.Size.Y;
 
             QueueRender(() =>
             {
                 nodeVm.ResultPreview.DrawingSurface.Canvas.Save();
                 nodeVm.ResultPreview.DrawingSurface.Canvas.Scale(scalingX, scalingY);
 
-                nodeVm.ResultPreview.DrawingSurface.Canvas.DrawSurface(node.CachedResult.DrawingSurface, 0, 0,
-                    ReplacingPaint);
+                nodeVm.ResultPreview.DrawingSurface.Canvas.DrawSurface(evaluated.DrawingSurface, 0, 0, ReplacingPaint);
 
                 nodeVm.ResultPreview.DrawingSurface.Canvas.Restore();
+                
+                evaluated.Dispose();
             });
 
             infos.Add(new NodePreviewDirty_RenderInfo(node.Id));

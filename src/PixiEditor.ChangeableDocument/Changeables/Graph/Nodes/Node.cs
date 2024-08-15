@@ -72,12 +72,17 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public Texture? Execute(RenderingContext context)
     {
         var result = ExecuteInternal(context);
+        
+        if (result is null)
+        {
+            return null;
+        }
 
         var copy = new Texture(result);
         return copy;
     }
 
-    internal Texture ExecuteInternal(RenderingContext context)
+    internal Texture? ExecuteInternal(RenderingContext context)
     {
         if(_isDisposed) throw new ObjectDisposedException("Node was disposed before execution.");
         

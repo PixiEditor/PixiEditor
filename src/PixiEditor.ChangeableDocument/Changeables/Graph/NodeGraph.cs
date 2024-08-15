@@ -36,7 +36,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         _nodes.Remove(node);
     }
 
-    private Queue<IReadOnlyNode> CalculateExecutionQueue(OutputNode outputNode)
+    public Queue<IReadOnlyNode> CalculateExecutionQueue(IReadOnlyNode outputNode)
     {
         var finalQueue = new HashSet<IReadOnlyNode>();
         var queueNodes = new Queue<IReadOnlyNode>();

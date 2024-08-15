@@ -11,4 +11,5 @@ public interface IReadOnlyNodeGraph
     public void RemoveNode(IReadOnlyNode node);
     public bool TryTraverse(Action<IReadOnlyNode> action);
     public Texture? Execute(RenderingContext context);
+    Queue<IReadOnlyNode> CalculateExecutionQueue(IReadOnlyNode endNode);
 }

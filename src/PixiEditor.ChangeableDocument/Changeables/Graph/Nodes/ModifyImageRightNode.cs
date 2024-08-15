@@ -124,7 +124,7 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
         }
         
         Output.Value = surface;
-        return Output.Value;
+        return surface;
     }
 
     private unsafe void ModifyImageInParallel(RenderingContext renderingContext, Pixmap targetPixmap, int width,
