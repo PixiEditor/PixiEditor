@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.DrawingApi.Core.Shaders;
 using PixiEditor.DrawingApi.Core.Shaders.Generation;
+using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
@@ -45,13 +46,18 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
                 isShaderExpression = true;
             }
             
-            ConversionTable.TryConvert(delegateToCast.DynamicInvoke(f), targetType, out var result);
+            var sourceObj = delegateToCast.DynamicInvoke(f);
+            ConversionTable.TryConvert(sourceObj, targetType, out var result);
             if (isShaderExpression)
             {
                 var toReturn = Activator.CreateInstance(typeof(T), "");
                 if (result != null)
                 {
                     ((ShaderExpressionVariable)toReturn).SetConstantValue(result, ConversionTable.Convert);
+                }
+                else if (sourceObj is Expression expression)
+                {
+                    ((ShaderExpressionVariable)toReturn).OverrideExpression = expression;
                 }
 
                 return (T)toReturn;

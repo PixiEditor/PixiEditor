@@ -7,9 +7,13 @@
 /// <param name="constant">Constant value of the variable.</param>
 public class Float1(string name) : ShaderExpressionVariable<double>(name)
 {
-    public override string ConstantValueString => ConstantValue.ToString(System.Globalization.CultureInfo.InvariantCulture);
-    
+    public override string ConstantValueString =>
+        ConstantValue.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+    public override Expression? OverrideExpression { get; set; }
+
     public static implicit operator Float1(double value) => new Float1("") { ConstantValue = value };
-    
+
     public static explicit operator double(Float1 value) => value.ConstantValue;
+    
 }

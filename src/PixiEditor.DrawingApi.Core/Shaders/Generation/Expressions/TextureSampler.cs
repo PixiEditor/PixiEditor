@@ -7,4 +7,5 @@ public class TextureSampler : ShaderExpressionVariable<Texture>
     }
 
     public override string ConstantValueString { get; } = "";
+    public override Expression? OverrideExpression { get; set; }
 }

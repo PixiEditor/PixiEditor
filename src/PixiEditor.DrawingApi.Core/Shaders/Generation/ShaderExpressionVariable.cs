@@ -13,7 +13,8 @@ public abstract class ShaderExpressionVariable(string name) : Expression
         return VariableName;
     }
 
-    public override string ExpressionValue => VarOrConst();
+    public override string ExpressionValue => OverrideExpression?.ExpressionValue ?? VarOrConst();
+    public abstract Expression? OverrideExpression { get; set; }
 
     public abstract void SetConstantValue(object? value, Func<object, Type, object> convertFunc);
     

@@ -4,6 +4,7 @@ namespace PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 
 public class Float2(string name) : ShaderExpressionVariable<VecD>(name)
 {
+    private Expression? _overrideExpression;
     public override string ConstantValueString
     {
         get
@@ -14,11 +15,22 @@ public class Float2(string name) : ShaderExpressionVariable<VecD>(name)
         }
     }
 
+    public override Expression? OverrideExpression
+    {
+        get => _overrideExpression;
+        set
+        {
+            _overrideExpression = value;
+            X.OverrideExpression = value;
+            Y.OverrideExpression = value;
+        }
+    }
+
     public Float1 X
     {
         get
         {
-            return new Float1($"{VariableName}.x") { ConstantValue = ConstantValue.X };
+            return new Float1($"{VariableName}.x") { ConstantValue = ConstantValue.X, OverrideExpression = _overrideExpression };
         }
     }
     
@@ -26,7 +38,7 @@ public class Float2(string name) : ShaderExpressionVariable<VecD>(name)
     {
         get
         {
-            return new Float1($"{VariableName}.y") { ConstantValue = ConstantValue.Y };
+            return new Float1($"{VariableName}.y") { ConstantValue = ConstantValue.Y, OverrideExpression = _overrideExpression };
         }
     }
     
