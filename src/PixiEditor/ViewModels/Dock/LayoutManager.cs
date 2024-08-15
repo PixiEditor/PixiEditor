@@ -20,6 +20,7 @@ internal class LayoutManager
     public DockContext DockContext { get; set; } = new DockContext();
 
     public IReadOnlyCollection<IDockableContent> RegisteredDockables => registeredDockables;
+    public event Action<HostWindow> WindowFloated;
 
     private readonly List<IDockableContent> registeredDockables = new();
 
@@ -113,6 +114,8 @@ internal class LayoutManager
 
         ActiveLayout = DefaultLayout;
         ActiveLayout.SetContext(DockContext);
+
+        DockContext.WindowFloated += WindowFloated;
     }
 
     private IDockable? TryCreateDockable(string name)

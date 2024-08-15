@@ -1,8 +1,10 @@
 ﻿using System.Linq;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.Input;
+using PixiDocks.Avalonia.Controls;
 using PixiEditor.Models.Preferences;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
@@ -17,6 +19,7 @@ using PixiEditor.Models.Input;
 using PixiEditor.Numerics;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Tools.Tools;
+using PixiEditor.Views;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 #nullable enable
@@ -43,6 +46,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         MouseMoveCommand = new RelayCommand<MouseOnCanvasEventArgs>(mouseFilter.MouseMoveInlet);
         MouseUpCommand = new RelayCommand<MouseOnCanvasEventArgs>(mouseFilter.MouseUpInlet);
         PreviewMouseMiddleButtonCommand = new RelayCommand(OnMiddleMouseButton);
+        Owner.LayoutSubViewModel.LayoutManager.WindowFloated += OnLayoutManagerOnWindowFloated;
         // TODO: Implement mouse capturing
         //GlobalMouseHook.Instance.OnMouseUp += mouseFilter.MouseUpInlet;
 
@@ -64,6 +68,29 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
         keyboardFilter.OnConvertedKeyDown += OnConvertedKeyDown;
         keyboardFilter.OnConvertedKeyUp += OnConvertedKeyDown;
+    }
+
+    private void OnLayoutManagerOnWindowFloated(HostWindow window)
+    {
+        window.KeyDown += MainWindowKeyDown;
+        window.KeyUp += MainWindowKeyUp;
+        
+        window.Deactivated += keyboardFilter.DeactivatedInlet;
+        window.Deactivated += mouseFilter.DeactivatedInlet;
+        
+        window.Closing += HostWindowOnClosing;
+    }
+    
+    private void HostWindowOnClosing(object? sender, WindowClosingEventArgs e)
+    {
+        if (sender is not HostWindow hostWindow)
+        {
+            return;
+        }
+
+        hostWindow.Closing -= HostWindowOnClosing;
+        hostWindow.Deactivated -= keyboardFilter.DeactivatedInlet;
+        hostWindow.Deactivated -= mouseFilter.DeactivatedInlet;
     }
 
     private void OnConvertedKeyDown(object? sender, FilteredKeyEventArgs args)
@@ -202,7 +229,9 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             tools.EnableSharedToolbar = false;
             var toolSize = tools.GetTool<EraserToolViewModel>().Toolbar.Settings.First(x => x.Name == "ToolSize");
             previousEraseSize = (int)toolSize.Value;
-            toolSize.Value = tools.ActiveTool is PenToolViewModel { PixelPerfectEnabled: true } ? 1 : currentToolSize.Value;
+            toolSize.Value = tools.ActiveTool is PenToolViewModel { PixelPerfectEnabled: true }
+                ? 1
+                : currentToolSize.Value;
         }
         else
         {
@@ -211,7 +240,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
         tools.SetActiveTool<EraserToolViewModel>(true);
     }
-    
+
     private void OnMiddleMouseButton()
     {
         Owner.ToolsSubViewModel.SetActiveTool<MoveViewportToolViewModel>(true);
@@ -230,7 +259,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         bool toLeftRightClick = drawingWithRight == null ||
                                 (button == MouseButton.Left && drawingWithRight.Value) ||
                                 (button == MouseButton.Right && !drawingWithRight.Value);
-        
+
         if (toLeftRightClick && button != MouseButton.Middle)
             return;
 
@@ -238,17 +267,18 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             return;
         var tools = Owner.ToolsSubViewModel;
 
-        var rightCanUp = (button == MouseButton.Right && tools.RightClickMode == RightClickMode.Erase || tools.RightClickMode == RightClickMode.SecondaryColor);
-        
+        var rightCanUp = (button == MouseButton.Right && tools.RightClickMode == RightClickMode.Erase ||
+                          tools.RightClickMode == RightClickMode.SecondaryColor);
+
         if (button == MouseButton.Left || rightCanUp)
         {
             Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.OnCanvasLeftMouseButtonUp();
         }
-        
+
         drawingWithRight = null;
 
         HandleRightMouseUp(button, tools);
-        
+
         hadSwapped = false;
     }
 
@@ -259,9 +289,12 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             case MouseButton.Middle:
                 tools.RestorePreviousTool();
                 break;
-            case MouseButton.Right when hadSwapped && 
-                                        (tools.RightClickMode == RightClickMode.SecondaryColor || 
-                                         tools is { ActiveTool: ColorPickerToolViewModel, RightClickMode: RightClickMode.Erase }
+            case MouseButton.Right when hadSwapped &&
+                                        (tools.RightClickMode == RightClickMode.SecondaryColor ||
+                                         tools is
+                                         {
+                                             ActiveTool: ColorPickerToolViewModel, RightClickMode: RightClickMode.Erase
+                                         }
                                         ):
 
                 Owner.ColorsSubViewModel.SwapColors(null);
@@ -282,8 +315,10 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         tools.EnableSharedToolbar = hadSharedToolbar;
         if (previousEraseSize != null)
         {
-            tools.GetTool<EraserToolViewModel>().Toolbar.Settings.First(x => x.Name == "ToolSize").Value = previousEraseSize.Value;
+            tools.GetTool<EraserToolViewModel>().Toolbar.Settings.First(x => x.Name == "ToolSize").Value =
+                previousEraseSize.Value;
         }
+
         tools.RestorePreviousTool();
     }
 }
