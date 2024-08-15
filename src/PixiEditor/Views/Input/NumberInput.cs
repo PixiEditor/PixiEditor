@@ -214,6 +214,7 @@ internal partial class NumberInput : TextBox
             double pixelsPerUnit = 5;
 
             double newValue = _pressedValue + diff / pixelsPerUnit;
+            newValue = Math.Round(newValue, Decimals);
             Value = newValue;
             e.Handled = true;
         }
