@@ -111,11 +111,11 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         OnPropertyChanged(nameof(TabCustomizationSettings));
     }
 
-    bool IDockableCloseEvents.OnClose()
+    async Task<bool> IDockableCloseEvents.OnClose()
     {
         if (!_closeRequested)
         {
-            Task.Run(async () =>
+            await Task.Run(async () =>
             {
                 await Dispatcher.UIThread.InvokeAsync(async () =>
                 {
