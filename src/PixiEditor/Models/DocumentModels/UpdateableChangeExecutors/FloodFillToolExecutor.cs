@@ -22,6 +22,7 @@ internal class FloodFillToolExecutor : UpdateableChangeExecutor
         var fillTool = GetHandler<IFloodFillToolHandler>();
         IColorsHandler? colorsVM = GetHandler<IColorsHandler>();
         var member = document!.SelectedStructureMember;
+        color = colorsVM!.PrimaryColor;
 
         if (fillTool is null || member is null || colorsVM is null)
             return ExecutionState.Error;
