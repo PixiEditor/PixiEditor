@@ -201,6 +201,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
                     }
                 }
 
+                browser.IsFetching = false;
                 await SavePalette(palette, browser);
             }
             else

@@ -344,6 +344,11 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
         {
             SortedResults.Add(updatedItem);
         }
+        
+        if(PaletteList == null)
+        {
+            PaletteList = new PaletteList();
+        }
 
         if(!PaletteEquals(updatedItem, PaletteList.Palettes))
         {
