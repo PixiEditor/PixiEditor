@@ -13,7 +13,7 @@ public class NoiseNode : Node
 {
     private double previousScale = double.NaN;
     private double previousSeed = double.NaN;
-    private NoiseType previousNoiseType = Nodes.NoiseType.TurbulencePerlin;
+    private NoiseType previousNoiseType = Nodes.NoiseType.FractalPerlin;
     private int previousOctaves = -1;
     
     private Paint paint = new();
@@ -35,7 +35,7 @@ public class NoiseNode : Node
     public NoiseNode()
     {
         Noise = CreateOutput<Texture>(nameof(Noise), "NOISE", null);
-        NoiseType = CreateInput(nameof(NoiseType), "NOISE_TYPE", Nodes.NoiseType.TurbulencePerlin);
+        NoiseType = CreateInput(nameof(NoiseType), "NOISE_TYPE", Nodes.NoiseType.FractalPerlin);
         Size = CreateInput(nameof(Size), "SIZE", new VecI(64, 64));
         Scale = CreateInput(nameof(Scale), "SCALE", 10d);
         Octaves = CreateInput(nameof(Octaves), "OCTAVES", 1);

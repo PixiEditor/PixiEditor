@@ -27,10 +27,12 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
     public OutputProperty<Texture?> FilterlessOutput { get; }
 
-    public string MemberName { get; set; } = DefaultMemberName;
+    public string MemberName
+    {
+        get => DisplayName;
+        set => DisplayName = value;
+    } 
     
-    public string DisplayName => MemberName;
-
     private Paint maskPaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.DstIn };
     protected Paint blendPaint = new Paint();
 
@@ -47,6 +49,8 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
         Output = CreateOutput<Texture?>("Output", "OUTPUT", null);
         FilterlessOutput = CreateOutput<Texture?>(nameof(FilterlessOutput), "WITHOUT_FILTERS", null);
+        
+        MemberName = DefaultMemberName;
     }
 
     protected override bool AffectedByChunkResolution => true;
