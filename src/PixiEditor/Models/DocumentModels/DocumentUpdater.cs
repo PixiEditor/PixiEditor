@@ -151,6 +151,9 @@ internal class DocumentUpdater
             case SetActiveFrame_PassthroughAction info:
                 ProcessActiveFrame(info);
                 break;
+            case ToggleOnionSkinning_PassthroughAction info:
+                ProcessToggleOnionSkinning(info);
+                break;
             case KeyFrameLength_ChangeInfo info:
                 ProcessKeyFrameLength(info);
                 break;
@@ -451,7 +454,12 @@ internal class DocumentUpdater
 
     private void ProcessMoveStructureMember(MoveStructureMember_ChangeInfo info)
     {
-         
+         // TODO: uh why is this empty, find out why
+    }
+    
+    private void ProcessToggleOnionSkinning(ToggleOnionSkinning_PassthroughAction info)
+    {
+        doc.AnimationHandler.SetOnionSkinning(info.IsOnionSkinningEnabled);
     }
     
     private void ProcessCreateRasterKeyFrame(CreateRasterKeyFrame_ChangeInfo info)

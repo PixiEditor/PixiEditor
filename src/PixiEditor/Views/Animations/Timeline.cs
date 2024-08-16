@@ -85,6 +85,15 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     public static readonly StyledProperty<int> DefaultEndFrameProperty = AvaloniaProperty.Register<Timeline, int>(
         nameof(DefaultEndFrame));
 
+    public static readonly StyledProperty<ICommand> ToggleOnionSkinningCommandProperty = AvaloniaProperty.Register<Timeline, ICommand>(
+        nameof(ToggleOnionSkinningCommand));
+
+    public ICommand ToggleOnionSkinningCommand
+    {
+        get => GetValue(ToggleOnionSkinningCommandProperty);
+        set => SetValue(ToggleOnionSkinningCommandProperty, value);
+    }
+
     public int DefaultEndFrame
     {
         get => GetValue(DefaultEndFrameProperty);

@@ -18,11 +18,12 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     public DocumentViewModel Document { get; }
     protected DocumentInternalParts Internals { get; }
     public IReadOnlyCollection<IKeyFrameHandler> KeyFrames => keyFrames;
-    
+
     public IReadOnlyCollection<IKeyFrameHandler> AllKeyFrames => allKeyFrames;
 
     private KeyFrameCollection keyFrames = new KeyFrameCollection();
     private List<IKeyFrameHandler> allKeyFrames = new List<IKeyFrameHandler>();
+    private bool onionSkinningEnabled;
 
     public int ActiveFrameBindable
     {
@@ -46,15 +47,30 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             if (Document.UpdateableChangeActive)
                 return;
 
-            Internals.ActionAccumulator.AddFinishedActions(new SetFrameRate_Action(value)); 
+            Internals.ActionAccumulator.AddFinishedActions(new SetFrameRate_Action(value));
+        }
+    }
+
+    public bool OnionSkinningEnabledBindable
+    {
+        get => onionSkinningEnabled;
+        set
+        {
+            if (Document.UpdateableChangeActive)
+                return;
+
+            Internals.ActionAccumulator.AddFinishedActions(new ToggleOnionSkinning_PassthroughAction(value));
         }
     }
 
     public int FirstFrame => keyFrames.Count > 0 ? keyFrames.Min(x => x.StartFrameBindable) : 0;
-    public int LastFrame => keyFrames.Count > 0 ? keyFrames.Max(x => x.StartFrameBindable + x.DurationBindable) 
+
+    public int LastFrame => keyFrames.Count > 0
+        ? keyFrames.Max(x => x.StartFrameBindable + x.DurationBindable)
         : DefaultEndFrame;
+
     public int FramesCount => LastFrame - FirstFrame + 1;
-    
+
     private double ActiveNormalizedTime => (double)(ActiveFrameBindable - FirstFrame) / FramesCount;
 
     private int DefaultEndFrame => FrameRateBindable; // 1 second
@@ -67,11 +83,13 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public KeyFrameTime ActiveFrameTime => new KeyFrameTime(ActiveFrameBindable, ActiveNormalizedTime);
 
-    public void CreateRasterKeyFrame(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null, int? frameToCopyFrom = null)
+    public void CreateRasterKeyFrame(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null,
+        int? frameToCopyFrom = null)
     {
         if (!Document.UpdateableChangeActive)
         {
-            Internals.ActionAccumulator.AddFinishedActions(new CreateRasterKeyFrame_Action(targetLayerGuid, Guid.NewGuid(), Math.Max(1, frame),
+            Internals.ActionAccumulator.AddFinishedActions(new CreateRasterKeyFrame_Action(targetLayerGuid,
+                Guid.NewGuid(), Math.Max(1, frame),
                 frameToCopyFrom ?? -1, toCloneFrom ?? Guid.Empty));
         }
     }
@@ -83,7 +101,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             for (var i = 0; i < keyFrameIds.Count; i++)
             {
                 var id = keyFrameIds[i];
-                if(i == keyFrameIds.Count - 1)
+                if (i == keyFrameIds.Count - 1)
                 {
                     Internals.ActionAccumulator.AddFinishedActions(new DeleteKeyFrame_Action(id));
                 }
@@ -94,7 +112,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             }
         }
     }
-    
+
     public void ChangeKeyFramesStartPos(Guid[] infoIds, int infoDelta)
     {
         if (!Document.UpdateableChangeActive)
@@ -102,7 +120,15 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             Internals.ActionAccumulator.AddActions(new KeyFramesStartPos_Action(infoIds.ToList(), infoDelta));
         }
     }
-    
+
+    public void ToggleOnionSkinning(bool value)
+    {
+        if (!Document.UpdateableChangeActive)
+        {
+            Internals.ActionAccumulator.AddFinishedActions(new ToggleOnionSkinning_PassthroughAction(value));
+        }
+    }
+
     public void EndKeyFramesStartPos()
     {
         if (!Document.UpdateableChangeActive)
@@ -110,33 +136,39 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             Internals.ActionAccumulator.AddFinishedActions(new EndKeyFramesStartPos_Action());
         }
     }
-    
+
     public void SetFrameRate(int newFrameRate)
     {
         frameRateBindable = newFrameRate;
         OnPropertyChanged(nameof(FrameRateBindable));
         OnPropertyChanged(nameof(DefaultEndFrame));
     }
-    
+
     public void SetActiveFrame(int newFrame)
     {
         _activeFrameBindable = newFrame;
         OnPropertyChanged(nameof(ActiveFrameBindable));
     }
+    
+    public void SetOnionSkinning(bool value)
+    {
+        onionSkinningEnabled = value;
+        OnPropertyChanged(nameof(OnionSkinningEnabledBindable));
+    }
 
     public void SetFrameLength(Guid keyFrameId, int newStartFrame, int newDuration)
     {
-        if(TryFindKeyFrame(keyFrameId, out KeyFrameViewModel keyFrame))
+        if (TryFindKeyFrame(keyFrameId, out KeyFrameViewModel keyFrame))
         {
             keyFrame.SetStartFrame(newStartFrame);
             keyFrame.SetDuration(newDuration);
             keyFrames.NotifyCollectionChanged();
         }
     }
-    
+
     public void SetKeyFrameVisibility(Guid keyFrameId, bool isVisible)
     {
-        if(TryFindKeyFrame(keyFrameId, out KeyFrameViewModel keyFrame))
+        if (TryFindKeyFrame(keyFrameId, out KeyFrameViewModel keyFrame))
         {
             keyFrame.SetVisibility(isVisible);
             keyFrames.NotifyCollectionChanged();
@@ -153,7 +185,8 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         else
         {
             var group =
-                new KeyFrameGroupViewModel(keyFrame.StartFrameBindable, keyFrame.DurationBindable, id, id, Document, Internals);
+                new KeyFrameGroupViewModel(keyFrame.StartFrameBindable, keyFrame.DurationBindable, id, id, Document,
+                    Internals);
             group.Children.Add((KeyFrameViewModel)keyFrame);
             keyFrames.Add(group);
         }
@@ -174,8 +207,8 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             {
                 parent.Children.Remove(frame);
                 keyFrames.NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, (KeyFrameViewModel)frame);
-                
-                if(parent.Children.Count == 0)
+
+                if (parent.Children.Count == 0)
                 {
                     keyFrames.Remove(parent as KeyFrameGroupViewModel);
                 }
@@ -185,7 +218,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
                 keyFrames.Remove(group);
             }
         });
-        
+
         allKeyFrames.RemoveAll(x => x.Id == keyFrameId);
     }
 
@@ -224,13 +257,13 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
                 parent.Children.Remove(frame);
                 framesToRemove.Add((KeyFrameViewModel)frame);
             });
-            
+
             allKeyFrames.RemoveAll(x => x.Id == keyFrame);
         }
-        
+
         keyFrames.NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, framesToRemove);
     }
-    
+
     public bool FindKeyFrame<T>(Guid guid, out T keyFrameHandler) where T : IKeyFrameHandler
     {
         return TryFindKeyFrame<T>(keyFrames, null, guid, out keyFrameHandler, null);
@@ -243,7 +276,8 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         return TryFindKeyFrame(keyFrames, null, id, out foundKeyFrame, onFound);
     }
 
-    private bool TryFindKeyFrame<T>(IReadOnlyCollection<IKeyFrameHandler> root, IKeyFrameGroupHandler parent, Guid id, out T? result,
+    private bool TryFindKeyFrame<T>(IReadOnlyCollection<IKeyFrameHandler> root, IKeyFrameGroupHandler parent, Guid id,
+        out T? result,
         Action<IKeyFrameHandler, IKeyFrameGroupHandler?> onFound) where T : IKeyFrameHandler
     {
         for (var i = 0; i < root.Count; i++)

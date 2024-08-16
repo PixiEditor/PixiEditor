@@ -4,7 +4,9 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
@@ -17,6 +19,38 @@ public class DocumentRenderer
     }
 
     private IReadOnlyDocument Document { get; }
+    public Image LastOnionSkinningFrame { get; set; }
+
+    public Texture RenderDocument(KeyFrameTime frameTime, ChunkResolution resolution, Texture toDrawOn = null, Paint paint = null)
+    {
+        VecI sizeInChunks = Document.Size / resolution.PixelSize();
+        
+        sizeInChunks = new VecI(
+            Math.Max(1, sizeInChunks.X),
+            Math.Max(1, sizeInChunks.Y));
+
+        if (toDrawOn is null)
+        {
+            toDrawOn = new Texture(resolution.PixelSize() * sizeInChunks);
+        }
+        
+        for (int x = 0; x < sizeInChunks.X; x++)
+        {
+            for (int y = 0; y < sizeInChunks.Y; y++)
+            {
+                VecI chunkPos = new(x, y);
+                OneOf<Chunk, EmptyChunk> chunk = RenderChunk(chunkPos, resolution, frameTime);
+                if (chunk.IsT0)
+                {
+                    toDrawOn.DrawingSurface.Canvas.DrawSurface(
+                        chunk.AsT0.Surface.DrawingSurface, 
+                        resolution.PixelSize(), resolution.PixelSize(), paint);
+                }
+            }
+        }
+        
+        return toDrawOn;
+    }
 
     public OneOf<Chunk, EmptyChunk> RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime,
         RectI? globalClippingRect = null)

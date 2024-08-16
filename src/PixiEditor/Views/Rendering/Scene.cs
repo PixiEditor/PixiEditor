@@ -12,9 +12,12 @@ using Avalonia.Skia;
 using Avalonia.Threading;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.DrawingApi.Skia;
 using PixiEditor.DrawingApi.Skia.Extensions;
 using PixiEditor.Extensions.UI.Overlays;
@@ -27,6 +30,7 @@ using PixiEditor.Views.Overlays;
 using PixiEditor.Views.Overlays.Pointers;
 using PixiEditor.Views.Visuals;
 using Bitmap = PixiEditor.DrawingApi.Core.Surfaces.Bitmap;
+using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
 using Image = PixiEditor.DrawingApi.Core.Surfaces.ImageData.Image;
 using Point = Avalonia.Point;
 
@@ -522,6 +526,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
         using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
 
+        RenderOnionSkin(canvas);
 
         /*var matrixValues = new float[ColorMatrix.Width * ColorMatrix.Height];
         ColorMatrix.TryGetMembers(matrixValues);*/
@@ -539,6 +544,22 @@ internal class DrawSceneOperation : SkiaDrawOperation
         }
 
         canvas.Restore();
+    }
+
+    private void RenderOnionSkin(SKCanvas canvas)
+    {
+        if (Document.AnimationDataViewModel.OnionSkinningEnabledBindable)
+        {
+            var onionSkinFrame = Document.Renderer.LastOnionSkinningFrame;
+            if (onionSkinFrame == null)
+            {
+                return;
+            }
+
+            using Paint onionSkinPaint = new Paint();
+            onionSkinPaint.Color = Colors.White.WithAlpha(64); // 25% opacity
+            canvas.DrawImage((SKImage)onionSkinFrame.Native, 0, 0, onionSkinPaint.Native as SKPaint);
+        }
     }
 
     private RectI FindRectToRender(float finalScale)

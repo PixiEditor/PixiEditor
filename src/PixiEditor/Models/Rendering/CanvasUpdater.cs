@@ -8,6 +8,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
@@ -20,6 +21,9 @@ internal class CanvasUpdater
 {
     private readonly IDocument doc;
     private readonly DocumentInternalParts internals;
+
+    private Image? lastRenderedFrame;
+    private int lastRenderedFrameNumber;
 
     private static readonly Paint ReplacingPaint = new() { BlendMode = BlendMode.Src };
 
@@ -212,6 +216,25 @@ internal class CanvasUpdater
                     resolution
                 ));
             }
+        }
+
+
+        UpdateOnionSkinning(doc.Surfaces[ChunkResolution.Full]);
+    }
+
+    private void UpdateOnionSkinning(Texture screenSurface)
+    {
+        if (doc.AnimationHandler.OnionSkinningEnabledBindable)
+        {
+            if (lastRenderedFrameNumber != doc.AnimationHandler.ActiveFrameBindable)
+            {
+                lastRenderedFrame?.Dispose();
+                lastRenderedFrame = screenSurface.DrawingSurface.Snapshot();
+                lastRenderedFrameNumber = doc.AnimationHandler.ActiveFrameBindable;
+                doc.Renderer.LastOnionSkinningFrame = lastRenderedFrame;
+            }
+
+            lastRenderedFrameNumber = doc.AnimationHandler.ActiveFrameBindable;
         }
     }
 

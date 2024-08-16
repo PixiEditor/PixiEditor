@@ -80,5 +80,10 @@ namespace PixiEditor.DrawingApi.Core.Surfaces
         {
             DrawingBackendApi.Current.SurfaceImplementation.Flush(this);
         }
+
+        public static DrawingSurface FromNative(object native)
+        {
+            return DrawingBackendApi.Current.SurfaceImplementation.FromNative(native);
+        }
     }
 }

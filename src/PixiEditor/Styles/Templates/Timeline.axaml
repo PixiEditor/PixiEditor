@@ -75,6 +75,10 @@
                                     Content="{DynamicResource icon-duplicate}"
                                     ui1:Translator.TooltipKey="DUPLICATE_FRAME"
                                     Command="{TemplateBinding DuplicateKeyFrameCommand}" />
+                            <ToggleButton Classes="pixi-icon"
+                                    Content="onion-skining"
+                                    ui1:Translator.TooltipKey="TOGGLE_ONION_SKINNING"
+                                    Command="{TemplateBinding ToggleOnionSkinningCommand}" />
                             <Button Classes="pixi-icon"
                                     Content="{DynamicResource icon-trash}"
                                     ui1:Translator.TooltipKey="DELETE_FRAME"

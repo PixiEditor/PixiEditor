@@ -156,5 +156,15 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             ManagedInstances[drawingSurface.ObjectPointer].Flush(true, true);
         }
+
+        public DrawingSurface FromNative(object native)
+        {
+            if (native is not SKSurface skSurface)
+            {
+                throw new ArgumentException("Native object is not of type SKSurface");
+            }
+
+            return CreateDrawingSurface(skSurface);
+        }
     }
 }
