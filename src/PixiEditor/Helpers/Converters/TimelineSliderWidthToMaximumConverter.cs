@@ -12,14 +12,15 @@ internal class TimelineSliderWidthToMaximumConverter : SingleInstanceMultiValueC
 
     public override object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (values.Count != 3)
+        if (values.Count != 4)
         {
-            throw new ArgumentException("TimelineSliderWidthToMaximumConverter requires 2 values");
+            throw new ArgumentException("TimelineSliderWidthToMaximumConverter requires 4 values");
         }
 
-        if (values[0] is Rect bounds && values[1] is double scale && values[2] is Vector offset)
+        if (values[0] is Rect bounds && values[1] is double scale && values[2] is Vector offset && values[3] is int activeFrame)
         {
-            return Math.Floor((bounds.Width + offset.X) / scale);
+            int rounded = (int)Math.Round((bounds.Width + offset.X) / scale);
+            return Math.Max(rounded, activeFrame);
         }
 
         return 0;

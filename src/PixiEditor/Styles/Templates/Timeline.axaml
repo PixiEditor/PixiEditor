@@ -117,6 +117,8 @@
                                                  Path="Scale" />
                                         <Binding RelativeSource="{RelativeSource TemplatedParent}"
                                                  Path="ScrollOffset" />
+                                        <Binding RelativeSource="{RelativeSource TemplatedParent}"
+                                                 Path="ActiveFrame" />
                                     </MultiBinding>
                                 </animations:TimelineSlider.Maximum>
                                 <Interaction.Behaviors>
