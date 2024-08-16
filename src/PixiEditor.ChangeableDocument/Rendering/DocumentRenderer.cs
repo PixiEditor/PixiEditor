@@ -13,27 +13,36 @@ namespace PixiEditor.ChangeableDocument.Rendering;
 
 public class DocumentRenderer
 {
+    private Paint ClearPaint { get; } = new Paint()
+    {
+        BlendMode = BlendMode.Src, Color = PixiEditor.DrawingApi.Core.ColorsImpl.Colors.Transparent
+    };
+
     public DocumentRenderer(IReadOnlyDocument document)
     {
         Document = document;
     }
 
     private IReadOnlyDocument Document { get; }
-    public Image LastOnionSkinningFrame { get; set; }
+    public Texture OnionSkinTexture { get; set; }
 
-    public Texture RenderDocument(KeyFrameTime frameTime, ChunkResolution resolution, Texture toDrawOn = null, Paint paint = null)
+    public Texture RenderDocument(KeyFrameTime frameTime, ChunkResolution resolution, Texture toDrawOn = null,
+        Paint paint = null)
     {
         VecI sizeInChunks = Document.Size / resolution.PixelSize();
-        
+
         sizeInChunks = new VecI(
             Math.Max(1, sizeInChunks.X),
             Math.Max(1, sizeInChunks.Y));
 
         if (toDrawOn is null)
         {
-            toDrawOn = new Texture(resolution.PixelSize() * sizeInChunks);
+            VecI size = new VecI(
+                Math.Min(Document.Size.X, resolution.PixelSize() * sizeInChunks.X),
+                Math.Min(Document.Size.Y, resolution.PixelSize() * sizeInChunks.Y));
+            toDrawOn = new Texture(size);
         }
-        
+
         for (int x = 0; x < sizeInChunks.X; x++)
         {
             for (int y = 0; y < sizeInChunks.Y; y++)
@@ -43,12 +52,18 @@ public class DocumentRenderer
                 if (chunk.IsT0)
                 {
                     toDrawOn.DrawingSurface.Canvas.DrawSurface(
-                        chunk.AsT0.Surface.DrawingSurface, 
-                        resolution.PixelSize(), resolution.PixelSize(), paint);
+                        chunk.AsT0.Surface.DrawingSurface,
+                        chunkPos.Multiply(new VecI(resolution.PixelSize())), paint);
+                }
+                else
+                {
+                    var pos = chunkPos * resolution.PixelSize();
+                    toDrawOn.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(),
+                        resolution.PixelSize(), ClearPaint);
                 }
             }
         }
-        
+
         return toDrawOn;
     }
 
@@ -84,9 +99,10 @@ public class DocumentRenderer
                 return new EmptyChunk();
             }
 
-            var result = ChunkFromResult(resolution, transformedClippingRect, evaluated.DrawingSurface.Snapshot(), context);
+            var result = ChunkFromResult(resolution, transformedClippingRect, evaluated.DrawingSurface.Snapshot(),
+                context);
             evaluated.Dispose();
-            
+
             return result;
         }
         catch (ObjectDisposedException)
@@ -120,7 +136,8 @@ public class DocumentRenderer
         }
     }
 
-    private static OneOf<Chunk, EmptyChunk> RenderChunkOnGraph(VecI chunkPos, ChunkResolution resolution, RectI? globalClippingRect,
+    private static OneOf<Chunk, EmptyChunk> RenderChunkOnGraph(VecI chunkPos, ChunkResolution resolution,
+        RectI? globalClippingRect,
         IReadOnlyNodeGraph graph, RenderingContext context)
     {
         RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
@@ -148,11 +165,11 @@ public class DocumentRenderer
         int height = (int)(ChunkyImage.FullChunkSize * resolution.Multiplier());
 
         RectD sourceRect = new(x, y, width, height);
-            
+
         RectD availableRect = new(0, 0, evaluated.Size.X, evaluated.Size.Y);
-            
+
         sourceRect = sourceRect.Intersect(availableRect);
-            
+
         if (sourceRect.IsZeroOrNegativeArea)
         {
             chunk.Dispose();
@@ -160,8 +177,8 @@ public class DocumentRenderer
         }
 
         using var chunkSnapshot = evaluated.DrawingSurface.Snapshot((RectI)sourceRect);
-            
-        if(context.IsDisposed) return new EmptyChunk();
+
+        if (context.IsDisposed) return new EmptyChunk();
 
         chunk.Surface.DrawingSurface.Canvas.DrawImage(chunkSnapshot, 0, 0, context.ReplacingPaintWithOpacity);
 
@@ -175,7 +192,7 @@ public class DocumentRenderer
         NodeGraph membersOnlyGraph = new();
 
         OutputNode outputNode = new();
-        
+
         membersOnlyGraph.AddNode(outputNode);
 
         List<LayerNode> layersInOrder = new();
@@ -194,11 +211,11 @@ public class DocumentRenderer
         {
             var clone = (LayerNode)layer.Clone();
             membersOnlyGraph.AddNode(clone);
-            
+
             clone.Output.ConnectTo(lastInput);
             lastInput = clone.Background;
         }
-        
+
         return membersOnlyGraph;
     }
 

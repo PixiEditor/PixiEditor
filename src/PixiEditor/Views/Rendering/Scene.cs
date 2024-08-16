@@ -151,7 +151,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         RectD dirtyBounds = new RectD(0, 0, Document.Width / resolutionScale, Document.Height / resolutionScale);
         Rect dirtyRect = new Rect(0, 0, Document.Width / resolutionScale, Document.Height / resolutionScale);
 
-        using var operation = new DrawSceneOperation(Surface, Document, CanvasPos, Scale * resolutionScale, angle,
+        using var operation = new DrawSceneOperation(Surface, Document, CanvasPos, Scale * resolutionScale,
+            resolutionScale, angle,
             FlipX, FlipY,
             dirtyRect,
             Bounds,
@@ -484,6 +485,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
     public DocumentViewModel Document { get; set; }
     public VecD ContentPosition { get; set; }
     public double Scale { get; set; }
+    public double ResolutionScale { get; set; }
     public double Angle { get; set; }
     public bool FlipX { get; set; }
     public bool FlipY { get; set; }
@@ -496,6 +498,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
     private bool hardwareAccelerationAvailable = DrawingBackendApi.Current.IsHardwareAccelerated;
 
     public DrawSceneOperation(Texture surface, DocumentViewModel document, VecD contentPosition, double scale,
+        double resolutionScale,
         double angle, bool flipX, bool flipY, Rect dirtyBounds, Rect viewportBounds, double opacity) : base(dirtyBounds)
     {
         Surface = surface;
@@ -506,6 +509,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
         FlipX = flipX;
         FlipY = flipY;
         ViewportBounds = viewportBounds;
+        ResolutionScale = resolutionScale;
         _paint.Color = _paint.Color.WithAlpha((byte)(opacity * 255));
         SurfaceRectToRender = FindRectToRender((float)scale);
     }
@@ -530,7 +534,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
         /*var matrixValues = new float[ColorMatrix.Width * ColorMatrix.Height];
         ColorMatrix.TryGetMembers(matrixValues);*/
-        
+
         if (!hardwareAccelerationAvailable)
         {
             // snapshotting wanted region on CPU is faster than rendering whole surface on CPU,
@@ -550,17 +554,27 @@ internal class DrawSceneOperation : SkiaDrawOperation
     {
         if (Document.AnimationDataViewModel.OnionSkinningEnabledBindable)
         {
-            var onionSkinFrame = Document.Renderer.LastOnionSkinningFrame;
-            if (onionSkinFrame == null)
+            var onionSkinTexture = Document.Renderer.OnionSkinTexture;
+
+            if (onionSkinTexture == null)
             {
                 return;
             }
 
             using Paint onionSkinPaint = new Paint();
-            onionSkinPaint.Color = Colors.White.WithAlpha(64); // 25% opacity
-            canvas.DrawImage((SKImage)onionSkinFrame.Native, 0, 0, onionSkinPaint.Native as SKPaint);
+            onionSkinPaint.Color = Colors.White.WithAlpha(128); // 50% opacity
+
+            int count = canvas.Save();
+
+            canvas.Scale(1f / (float)ResolutionScale, 1f / (float)ResolutionScale);
+
+            canvas.DrawSurface(onionSkinTexture.DrawingSurface.Native as SKSurface, 0, 0,
+                onionSkinPaint.Native as SKPaint);
+
+            canvas.RestoreToCount(count);
         }
     }
+
 
     private RectI FindRectToRender(float finalScale)
     {

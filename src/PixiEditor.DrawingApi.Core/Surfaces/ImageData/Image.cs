@@ -24,13 +24,17 @@ namespace PixiEditor.DrawingApi.Core.Surfaces.ImageData
         public ImageInfo Info => DrawingBackendApi.Current.ImageImplementation.GetImageInfo(ObjectPointer);
         
         public VecI Size => new VecI(Width, Height);
+        public bool IsDisposed => isDisposed;
         
+        private bool isDisposed;
+
         public Image(IntPtr objPtr) : base(objPtr)
         {
         }
 
         public override void Dispose()
         {
+            isDisposed = true;
             DrawingBackendApi.Current.ImageImplementation.DisposeImage(this);
         }
 

@@ -20,4 +20,6 @@ internal interface IAnimationHandler
     public void RemoveSelectedKeyFrame(Guid keyFrameId);
     public void ClearSelectedKeyFrames();
     public void SetOnionSkinning(bool enabled);
+    public int FirstFrame { get; }
+    public int LastFrame { get; }
 }

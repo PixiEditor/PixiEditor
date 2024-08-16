@@ -78,7 +78,9 @@
                             <ToggleButton Classes="pixi-icon"
                                     Content="onion-skining"
                                     ui1:Translator.TooltipKey="TOGGLE_ONION_SKINNING"
-                                    Command="{TemplateBinding ToggleOnionSkinningCommand}" />
+                                    Command="{TemplateBinding ToggleOnionSkinningCommand}" 
+                                    CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}"
+                                    />
                             <Button Classes="pixi-icon"
                                     Content="{DynamicResource icon-trash}"
                                     ui1:Translator.TooltipKey="DELETE_FRAME"

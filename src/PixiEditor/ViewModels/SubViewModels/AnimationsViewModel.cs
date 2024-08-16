@@ -51,13 +51,12 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Animation.ToggleOnionSkinning", "TOGGLE_ONION_SKINNING",
         "TOGGLE_ONION_SKINNING_DESCRIPTIVE",
         ShortcutContext = typeof(TimelineDockViewModel), Key = Key.O, AnalyticsTrack = true)]
-    public void ToggleOnionSkinning()
+    public void ToggleOnionSkinning(bool value)
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is null)
             return;
         
-        bool value = Owner.DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.OnionSkinningEnabledBindable;
-        Owner.DocumentManagerSubViewModel.ActiveDocument?.AnimationDataViewModel.ToggleOnionSkinning(!value);
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.AnimationDataViewModel.ToggleOnionSkinning(value);
     }
     
     [Command.Basic("PixiEditor.Animation.DeleteKeyFrames", "DELETE_KEY_FRAMES", "DELETE_KEY_FRAMES_DESCRIPTIVE",
