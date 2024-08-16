@@ -89,7 +89,7 @@
                                                        CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                             <windows:BetaExampleButton FileName="Tree.pixi" DisplayName="TREE_EXAMPLE"
                                                        CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
-                            <windows:BetaExampleButton FileName="Stars.pixi" DisplayName="STARS_EXAMPLE"
+                            <windows:BetaExampleButton FileName="Island.pixi" DisplayName="ISLAND_EXAMPLE"
                                                        CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
 
                             <StackPanel>
@@ -349,16 +349,18 @@
                                TextAlignment="Center" FontSize="18" FontWeight="SemiBold" />
 
                     <ScrollViewer HorizontalAlignment="Center" VerticalScrollBarVisibility="Auto">
-                        <StackPanel Orientation="Horizontal">
+                        <panels:AlignableWrapPanel>
                             <windows:BetaExampleButton FileName="Pond.pixi" DisplayName="POND_EXAMPLE"
                                                        CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                             <windows:BetaExampleButton FileName="Tree.pixi" DisplayName="TREE_EXAMPLE"
                                                        CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                            <windows:BetaExampleButton FileName="Island.pixi" DisplayName="ISLAND_EXAMPLE"
+                                                         CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                             <windows:BetaExampleButton FileName="Stars.pixi" DisplayName="STARS_EXAMPLE"
                                                        CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                             <windows:BetaExampleButton FileName="Outline.pixi" DisplayName="OUTLINE_EXAMPLE"
                                                        CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
-                        </StackPanel>
+                        </panels:AlignableWrapPanel>
                     </ScrollViewer>
 
                     <TextBlock ui:Translator.Key="BETA_ANIMATIONS" Margin="0,8,0,2" HorizontalAlignment="Center"
