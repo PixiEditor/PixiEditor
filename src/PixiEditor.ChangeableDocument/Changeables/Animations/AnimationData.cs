@@ -8,6 +8,7 @@ internal class AnimationData : IReadOnlyAnimationData
     public int FrameRate { get; set; } = 24;
     public int OnionFrames { get; set; } = 1;
     public IReadOnlyList<IReadOnlyKeyFrame> KeyFrames => keyFrames;
+    public double OnionOpacity { get; set; }
 
     private List<KeyFrame> keyFrames = new List<KeyFrame>();
     private readonly Document document;

@@ -620,6 +620,6 @@ internal class DocumentUpdater
     
     private void ProcessSetOnionFrames(OnionFrames_ChangeInfo info)
     {
-        doc.AnimationHandler.SetOnionFrames(info.OnionFrames);
+        doc.AnimationHandler.SetOnionFrames(info.OnionFrames, info.Opacity);
     }
 }

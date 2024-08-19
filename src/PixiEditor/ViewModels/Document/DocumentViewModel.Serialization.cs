@@ -210,6 +210,7 @@ internal partial class DocumentViewModel
         animData.KeyFrameGroups = new List<KeyFrameGroup>();
         animData.FrameRate = animationData.FrameRate;
         animData.OnionFrames = animationData.OnionFrames;
+        animData.OnionOpacity = animationData.OnionOpacity;
         BuildKeyFrames(animationData.KeyFrames, animData, graph, nodeIdMap, keyFrameIds);
 
         return animData;

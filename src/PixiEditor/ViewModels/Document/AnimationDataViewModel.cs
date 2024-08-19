@@ -16,6 +16,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     private int _activeFrameBindable = 1;
     private int frameRateBindable = 60;
     private int onionFrames = 1;
+    private double onionOpacity = 50;
     
     public DocumentViewModel Document { get; }
     protected DocumentInternalParts Internals { get; }
@@ -73,7 +74,19 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             if (Document.UpdateableChangeActive)
                 return;
 
-            Internals.ActionAccumulator.AddFinishedActions(new SetOnionFrames_Action(value));
+            Internals.ActionAccumulator.AddFinishedActions(new SetOnionSettings_Action(value, OnionOpacityBindable));
+        }
+    }
+    
+    public double OnionOpacityBindable
+    {
+        get => onionOpacity;
+        set
+        {
+            if (Document.UpdateableChangeActive)
+                return;
+
+            Internals.ActionAccumulator.AddFinishedActions(new SetOnionSettings_Action(OnionFramesBindable, value)); 
         }
     }
 
@@ -170,10 +183,12 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         OnPropertyChanged(nameof(OnionSkinningEnabledBindable));
     }
     
-    public void SetOnionFrames(int frames)
+    public void SetOnionFrames(int frames, double opacity)
     {
         onionFrames = frames;
+        onionOpacity = opacity;
         OnPropertyChanged(nameof(OnionFramesBindable));
+        OnPropertyChanged(nameof(OnionOpacityBindable));
     }
 
     public void SetFrameLength(Guid keyFrameId, int newStartFrame, int newDuration)

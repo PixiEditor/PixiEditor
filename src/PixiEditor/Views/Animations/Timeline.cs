@@ -97,6 +97,15 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     public static readonly StyledProperty<bool> OnionSkinningEnabledProperty = AvaloniaProperty.Register<Timeline, bool>(
         nameof(OnionSkinningEnabled));
 
+    public static readonly StyledProperty<double> OnionOpacityProperty = AvaloniaProperty.Register<Timeline, double>(
+        nameof(OnionOpacity), 50);
+
+    public double OnionOpacity
+    {
+        get => GetValue(OnionOpacityProperty);
+        set => SetValue(OnionOpacityProperty, value);
+    }
+
     public bool OnionSkinningEnabled
     {
         get => GetValue(OnionSkinningEnabledProperty);

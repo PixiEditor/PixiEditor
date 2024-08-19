@@ -20,6 +20,7 @@
         DefaultEndFrame="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.DefaultEndFrame}"
         OnionSkinningEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.OnionSkinningEnabledBindable, Mode=TwoWay}"
         OnionFrames="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.OnionFramesBindable, Mode=TwoWay}"
+        OnionOpacity="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.OnionOpacityBindable, Mode=TwoWay}"
         DuplicateKeyFrameCommand="{xaml:Command PixiEditor.Animation.DuplicateRasterKeyFrame}"
         DeleteKeyFrameCommand="{xaml:Command PixiEditor.Animation.DeleteKeyFrames, UseProvided=True}"
         ChangeKeyFramesLengthCommand="{xaml:Command PixiEditor.Animation.ChangeKeyFramesStartPos, UseProvided=True}"/>

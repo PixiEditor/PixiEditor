@@ -9,6 +9,7 @@ internal interface IAnimationHandler
     public KeyFrameTime ActiveFrameTime { get; }
     public bool OnionSkinningEnabledBindable { get; set; }
     public int OnionFramesBindable { get; set; }
+    public double OnionOpacityBindable { get; set; }
     public void CreateRasterKeyFrame(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null, int? frameToCopyFrom = null);
     public void SetFrameRate(int newFrameRate);
     public void SetActiveFrame(int newFrame);
@@ -23,5 +24,5 @@ internal interface IAnimationHandler
     public void SetOnionSkinning(bool enabled);
     public int FirstFrame { get; }
     public int LastFrame { get; }
-    public void SetOnionFrames(int frames);
+    public void SetOnionFrames(int frames, double opacity);
 }

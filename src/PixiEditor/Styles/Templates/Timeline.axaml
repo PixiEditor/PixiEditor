@@ -40,12 +40,22 @@
                                         <StackPanel>
                                             <TextBlock Classes="h4" Margin="5" ui1:Translator.Key="SETTINGS" />
                                             <StackPanel Orientation="Horizontal" Spacing="5">
-                                                <TextBlock VerticalAlignment="Center" ui1:Translator.Key="ONION_FRAMES_COUNT" />
+                                                <TextBlock VerticalAlignment="Center"
+                                                           ui1:Translator.Key="ONION_FRAMES_COUNT" />
                                                 <input:NumberInput
-                                                   HorizontalAlignment="Left" Width="50"
+                                                    HorizontalAlignment="Left" Width="50"
                                                     Min="1" Decimals="0"
                                                     Max="128"
                                                     Value="{Binding OnionFrames, RelativeSource={RelativeSource TemplatedParent}, 
+                                                    Mode=TwoWay}" />
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                                <TextBlock VerticalAlignment="Center"
+                                                           ui1:Translator.Key="ONION_OPACITY" />
+                                                <input:SizeInput
+                                                    HorizontalAlignment="Left" Width="80"
+                                                    MaxSize="100" Unit="%"
+                                                    Size="{Binding OnionOpacity, RelativeSource={RelativeSource TemplatedParent}, 
                                                     Mode=TwoWay}" />
                                             </StackPanel>
                                         </StackPanel>
@@ -101,7 +111,7 @@
                             <ToggleButton Classes="pixi-icon"
                                           Content="{DynamicResource icon-onion-skin}"
                                           ui1:Translator.TooltipKey="TOGGLE_ONION_SKINNING"
-                                          IsChecked="{Binding OnionSkinningEnabled, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                          IsChecked="{Binding OnionSkinningEnabled, RelativeSource={RelativeSource TemplatedParent}}" />
                             <Button Classes="pixi-icon"
                                     Content="{DynamicResource icon-trash}"
                                     ui1:Translator.TooltipKey="DELETE_FRAME"

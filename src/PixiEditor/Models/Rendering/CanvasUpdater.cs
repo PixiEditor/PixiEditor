@@ -21,14 +21,13 @@ namespace PixiEditor.Models.Rendering;
 #nullable enable
 internal class CanvasUpdater
 {
-    private const int NearestOnionFrameAlpha = 129;
-
     private readonly IDocument doc;
     private readonly DocumentInternalParts internals;
 
     private Dictionary<int, Texture> renderedFramesCache = new();
     private int lastRenderedFrameNumber = -1;
     private int lastOnionKeyFrames = -1;
+    private double lastOnionOpacity = -1;
 
     private static readonly Paint ReplacingPaint = new() { BlendMode = BlendMode.Src };
 
@@ -239,11 +238,14 @@ internal class CanvasUpdater
                 UpdateLastRenderedFrame(lastRendered, lastRenderedFrameNumber);
             }
 
-            if (lastRenderedFrameNumber != doc.AnimationHandler.ActiveFrameBindable || doc.AnimationHandler.OnionFramesBindable != lastOnionKeyFrames)
+            if (lastRenderedFrameNumber != doc.AnimationHandler.ActiveFrameBindable 
+                || doc.AnimationHandler.OnionFramesBindable != lastOnionKeyFrames
+                || Math.Abs(doc.AnimationHandler.OnionOpacityBindable - lastOnionOpacity) > 0.01)
             {
                 int framesToRender = doc.AnimationHandler.OnionFramesBindable;
                 using Paint onionPaint = new Paint();
-                onionPaint.Color = new Color(0, 0, 0, NearestOnionFrameAlpha);
+                byte opacity = (byte)((doc.AnimationHandler.OnionOpacityBindable / 100f) * 255);
+                onionPaint.Color = new Color(0, 0, 0, opacity); 
                 onionPaint.BlendMode = BlendMode.SrcOver;
 
                 if (doc.Renderer.OnionSkinTexture == null || doc.Renderer.OnionSkinTexture.Size != doc.SizeBindable)
@@ -254,7 +256,7 @@ internal class CanvasUpdater
 
                 doc.Renderer.OnionSkinTexture.DrawingSurface.Canvas.Clear();
 
-                float alphaFaloffMultiplier = 1f / framesToRender;
+                float alphaFalloffMultiplier = 1f / framesToRender;
 
                 for (int i = 1; i <= framesToRender; i++)
                 {
@@ -274,14 +276,15 @@ internal class CanvasUpdater
                     DrawOnionSkinningFrame(previousFrameIndex, doc.Renderer.OnionSkinTexture, onionPaint);
                     DrawOnionSkinningFrame(nextFrameIndex, doc.Renderer.OnionSkinTexture, onionPaint);
 
-                    onionPaint.Color = onionPaint.Color.WithAlpha((byte)(NearestOnionFrameAlpha -
-                                                                         (NearestOnionFrameAlpha *
-                                                                          alphaFaloffMultiplier * i)));
+                    onionPaint.Color = onionPaint.Color.WithAlpha((byte)(opacity -
+                                                                         (opacity *
+                                                                          alphaFalloffMultiplier * i)));
                 }
             }
 
             lastRenderedFrameNumber = doc.AnimationHandler.ActiveFrameBindable;
             lastOnionKeyFrames = doc.AnimationHandler.OnionFramesBindable;
+            lastOnionOpacity = doc.AnimationHandler.OnionOpacityBindable;
         }
     }
 
