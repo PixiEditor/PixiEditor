@@ -35,6 +35,16 @@
                             <Button Classes="pixi-icon" DockPanel.Dock="Right"
                                     Content="{DynamicResource icon-settings}"
                                     ui1:Translator.TooltipKey="SETTINGS">
+                                <Button.Styles>
+                                    <Style Selector="Button:pointerover">
+                                        <Setter Property="RenderTransform" Value="rotate(45deg)"/>
+                                    </Style>
+                                </Button.Styles>
+                                <Button.Transitions>
+                                        <Transitions>
+                                            <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3" Easing="SineEaseInOut"/>
+                                        </Transitions>
+                                </Button.Transitions>
                                 <Button.Flyout>
                                     <Flyout Placement="Top">
                                         <StackPanel>
