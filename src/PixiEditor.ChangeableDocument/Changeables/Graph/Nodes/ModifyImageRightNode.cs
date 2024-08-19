@@ -80,11 +80,11 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
                 var coordinate = Coordinate.Value(context);
                 if (string.IsNullOrEmpty(coordinate.VariableName))
                 {
-                    builder.SetConstant(context.Position, coordinate);
+                    builder.SetConstant(context.SamplePosition, coordinate);
                 }
                 else
                 {
-                    builder.Set(context.Position, coordinate);
+                    builder.Set(context.SamplePosition, coordinate);
                 }
             }
             else
@@ -92,7 +92,7 @@ public class ModifyImageRightNode : Node, IPairNodeEnd
                 var constCoords = Coordinate.NonOverridenValue(FuncContext.NoContext);
                 constCoords.VariableName = "constCords";
                 builder.AddUniform(constCoords.VariableName, constCoords.ConstantValue);
-                builder.Set(context.Position, constCoords);
+                builder.Set(context.SamplePosition, constCoords);
             }
 
             if (Color.Connection != null)

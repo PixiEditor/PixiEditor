@@ -28,7 +28,7 @@ public class ModifyImageLeftNode : Node
     public ModifyImageLeftNode()
     {
         Image = CreateInput<Texture>("Surface", "IMAGE", null);
-        Coordinate = CreateFuncOutput("Coordinate", "UV", ctx => ctx.Position);
+        Coordinate = CreateFuncOutput("Coordinate", "UV", ctx => ctx.OriginalPosition);
         Color = CreateFuncOutput("Color", "COLOR", GetColor);
     }
 
@@ -36,7 +36,7 @@ public class ModifyImageLeftNode : Node
     {
         context.ThrowOnMissingContext();
 
-        return context.SampleTexture(Image.Value, context.Position);
+        return context.SampleTexture(Image.Value, context.SamplePosition);
 
         /*var targetPixmap = pixmapCache[context.RenderingContext];
 

@@ -50,6 +50,11 @@ public class TimelineSlider : Slider
         AffectsRender<TimelineSlider>(ScaleProperty, OffsetProperty, MinLeftOffsetProperty);
     }
 
+    public TimelineSlider()
+    {
+        Maximum = int.MaxValue;
+    }
+
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         _increaseButtonSubscription?.Dispose();

@@ -143,7 +143,7 @@
                                 IsSnapToTickEnabled="True"
                                 Name="PART_TimelineSlider"
                                 Minimum="1">
-                                <animations:TimelineSlider.Maximum>
+                                <!--<animations:TimelineSlider.Maximum>
                                     <MultiBinding>
                                         <MultiBinding.Converter>
                                             <converters:TimelineSliderWidthToMaximumConverter />
@@ -157,7 +157,7 @@
                                         <Binding RelativeSource="{RelativeSource TemplatedParent}"
                                                  Path="ActiveFrame" />
                                     </MultiBinding>
-                                </animations:TimelineSlider.Maximum>
+                                </animations:TimelineSlider.Maximum>-->
                                 <Interaction.Behaviors>
                                     <behaviours:SliderUpdateBehavior
                                         Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActiveFrame, Mode=OneWay}"

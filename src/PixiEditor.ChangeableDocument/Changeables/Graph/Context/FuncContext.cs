@@ -14,7 +14,15 @@ public class FuncContext
 {
     public static FuncContext NoContext { get; } = new();
 
-    public Float2 Position { get; private set; }
+    /// <summary>
+    ///     Original position of the pixel in the image. This is the input argument of the main function.
+    /// </summary>
+    public Float2 OriginalPosition { get; private set; }
+    
+    /// <summary>
+    ///     Modified position of the pixel. This should be used to sample the texture, unless you want to sample the texture at the original position only.
+    /// </summary>
+    public Float2 SamplePosition { get; private set; }
     public VecI Size { get; private set; }
     public bool HasContext { get; private set; }
     public RenderingContext RenderingContext { get; set; }
@@ -38,7 +46,8 @@ public class FuncContext
         RenderingContext = renderingContext;
         Builder = builder;
         HasContext = true;
-        Position = new Float2("coords"); // input argument 'half4 main(float2 coords)'
+        OriginalPosition = new Float2("coords"); // input argument 'half4 main(float2 coords)'
+        SamplePosition = Builder.ConstructFloat2(OriginalPosition.X, OriginalPosition.Y); 
     }
 
     public Half4 SampleTexture(Texture imageValue, Float2 pos)

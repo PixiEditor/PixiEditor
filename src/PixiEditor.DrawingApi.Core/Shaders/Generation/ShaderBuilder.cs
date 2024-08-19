@@ -101,7 +101,7 @@ public class ShaderBuilder
         {
             return;
         }
-
+        
         _bodyBuilder.AppendLine($"{contextPosition.VariableName} = {coordinateValue.VariableName};");
     }
 
