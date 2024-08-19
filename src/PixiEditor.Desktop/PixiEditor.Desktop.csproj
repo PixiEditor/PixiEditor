@@ -8,6 +8,7 @@
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <RootNamespace>PixiEditor.Desktop</RootNamespace>
+    <ApplicationIcon>..\PixiEditor\Images\favicon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -26,6 +27,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PixiEditor\PixiEditor.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\PixiEditor\Images\favicon.ico">
+      <Link>favicon.ico</Link>
+    </None>
   </ItemGroup>
 
   <Target Name="Rename" AfterTargets="AfterBuild">
