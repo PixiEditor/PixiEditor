@@ -460,7 +460,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private void ResetViewportClicked(object sender, RoutedEventArgs e)
     {
         scene.AngleRadians = 0;
-        scene.CenterContent();
+        scene.CenterContent(Document.SizeBindable);
     }
 
     private static void CenterViewportTriggerChanged(AvaloniaPropertyChangedEventArgs<ExecutionTrigger<VecI>> e)

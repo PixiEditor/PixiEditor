@@ -169,7 +169,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public IStructureMemberHandler? SelectedStructureMember { get; private set; } = null;
 
-    //TODO: It was DrawingSurface before, check if it's correct
     public Dictionary<ChunkResolution, Texture> Surfaces { get; set; } = new()
     {
         [ChunkResolution.Full] = new Texture(new VecI(64, 64)),
