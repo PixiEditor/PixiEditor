@@ -76,7 +76,7 @@
                                     ui1:Translator.TooltipKey="DUPLICATE_FRAME"
                                     Command="{TemplateBinding DuplicateKeyFrameCommand}" />
                             <ToggleButton Classes="pixi-icon"
-                                    Content="onion-skining"
+                                    Content="{DynamicResource icon-onion-skin}"
                                     ui1:Translator.TooltipKey="TOGGLE_ONION_SKINNING"
                                     Command="{TemplateBinding ToggleOnionSkinningCommand}" 
                                     CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}"

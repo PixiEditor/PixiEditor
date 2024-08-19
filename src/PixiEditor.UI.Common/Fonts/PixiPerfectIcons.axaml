@@ -129,6 +129,7 @@
             <system:String x:Key="icon-pause">&#xE980;</system:String>
             <system:String x:Key="icon-timeline">&#xE983;</system:String>
             <system:String x:Key="icon-swatches">&#xE982;</system:String>
+            <system:String x:Key="icon-onion-skin">&#x25AF;</system:String>
         </ResourceDictionary>
     </Styles.Resources>
     
