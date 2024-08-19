@@ -197,8 +197,8 @@ internal class CanvasUpdater
         if (chunksToRerender.Count == 0)
             return;
 
-        //TODO: based on active viewport resolution
-        UpdateOnionSkinning(doc.Surfaces[ChunkResolution.Full]);
+        ChunkResolution onionSkinResolution = chunksToRerender.Min(x => x.Key);
+        UpdateOnionSkinning(doc.Surfaces[onionSkinResolution]);
 
         foreach (var (resolution, chunks) in chunksToRerender)
         {
@@ -242,6 +242,7 @@ internal class CanvasUpdater
 
                 if (doc.Renderer.OnionSkinTexture == null || doc.Renderer.OnionSkinTexture.Size != doc.SizeBindable)
                 {
+                    doc.Renderer.OnionSkinTexture?.Dispose();
                     doc.Renderer.OnionSkinTexture = new Texture(doc.SizeBindable);
                 }
 
@@ -295,6 +296,9 @@ internal class CanvasUpdater
 
     private void DrawOnionSkinningFrame(int frameIndex, Texture onionSkinTexture)
     {
+        if (frameIndex < 1 || frameIndex >= doc.AnimationHandler.LastFrame)
+            return;
+        
         if (renderedFramesCache.TryGetValue(frameIndex, out var frame))
         {
             onionSkinTexture.DrawingSurface.Canvas.DrawSurface(frame.DrawingSurface, 0, 0);

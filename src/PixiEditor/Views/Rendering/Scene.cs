@@ -493,9 +493,9 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
     public RectI SurfaceRectToRender { get; }
 
-    private SKPaint _paint = new SKPaint();
-
     private bool hardwareAccelerationAvailable = DrawingBackendApi.Current.IsHardwareAccelerated;
+    
+    private double opacity;
 
     public DrawSceneOperation(Texture surface, DocumentViewModel document, VecD contentPosition, double scale,
         double resolutionScale,
@@ -510,8 +510,8 @@ internal class DrawSceneOperation : SkiaDrawOperation
         FlipY = flipY;
         ViewportBounds = viewportBounds;
         ResolutionScale = resolutionScale;
-        _paint.Color = _paint.Color.WithAlpha((byte)(opacity * 255));
         SurfaceRectToRender = FindRectToRender((float)scale);
+        this.opacity = opacity;
     }
 
     public override void Render(ISkiaSharpApiLease lease)
@@ -520,11 +520,11 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
         SKCanvas canvas = lease.SkCanvas;
 
-        canvas.Save();
+        int count = canvas.Save();
 
         if (SurfaceRectToRender.IsZeroOrNegativeArea)
         {
-            canvas.Restore();
+            canvas.RestoreToCount(count);
             return;
         }
 
@@ -535,19 +535,22 @@ internal class DrawSceneOperation : SkiaDrawOperation
         /*var matrixValues = new float[ColorMatrix.Width * ColorMatrix.Height];
         ColorMatrix.TryGetMembers(matrixValues);*/
 
+        using SKPaint paint = new SKPaint();
+        paint.Color = paint.Color.WithAlpha((byte)(opacity * 255));
+
         if (!hardwareAccelerationAvailable)
         {
             // snapshotting wanted region on CPU is faster than rendering whole surface on CPU,
             // but slower than rendering whole surface on GPU
             using Image snapshot = Surface.DrawingSurface.Snapshot(SurfaceRectToRender);
-            canvas.DrawImage((SKImage)snapshot.Native, SurfaceRectToRender.X, SurfaceRectToRender.Y, _paint);
+            canvas.DrawImage((SKImage)snapshot.Native, SurfaceRectToRender.X, SurfaceRectToRender.Y, paint);
         }
         else
         {
-            canvas.DrawSurface(Surface.DrawingSurface.Native as SKSurface, 0, 0, _paint);
+            canvas.DrawSurface(Surface.DrawingSurface.Native as SKSurface, 0, 0, paint);
         }
 
-        canvas.Restore();
+        canvas.RestoreToCount(count);
     }
 
     private void RenderOnionSkin(SKCanvas canvas)
@@ -560,16 +563,16 @@ internal class DrawSceneOperation : SkiaDrawOperation
             {
                 return;
             }
-
-            using Paint onionSkinPaint = new Paint();
-            onionSkinPaint.Color = Colors.White.WithAlpha(128); // 50% opacity
+            
+            
+            using SKPaint onionSkinPaint = new SKPaint();
+            onionSkinPaint.Color = Colors.White.WithAlpha(128).ToSKColor();
 
             int count = canvas.Save();
 
             canvas.Scale(1f / (float)ResolutionScale, 1f / (float)ResolutionScale);
 
-            canvas.DrawSurface(onionSkinTexture.DrawingSurface.Native as SKSurface, 0, 0,
-                onionSkinPaint.Native as SKPaint);
+            canvas.DrawSurface(onionSkinTexture.DrawingSurface.Native as SKSurface, 0, 0, onionSkinPaint);
 
             canvas.RestoreToCount(count);
         }
