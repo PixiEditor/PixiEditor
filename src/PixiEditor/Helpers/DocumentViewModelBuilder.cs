@@ -88,6 +88,7 @@ internal class DocumentViewModelBuilder
         if (animationData != null && animationData.KeyFrameGroups.Count > 0)
         {
             AnimationData.WithFrameRate(animationData.FrameRate);
+            AnimationData.WithOnionFrames(animationData.OnionFrames);
             BuildKeyFrames(animationData.KeyFrameGroups.ToList(), AnimationData.KeyFrameGroups);
         }
 
@@ -194,10 +195,17 @@ internal class AnimationDataBuilder
 {
     public int FrameRate { get; set; } = 24;
     public List<KeyFrameBuilder> KeyFrameGroups { get; set; } = new List<KeyFrameBuilder>();
+    public int OnionFrames { get; set; }
 
     public AnimationDataBuilder WithFrameRate(int frameRate)
     {
         FrameRate = frameRate;
+        return this;
+    }
+    
+    public AnimationDataBuilder WithOnionFrames(int onionFrames)
+    {
+        OnionFrames = onionFrames;
         return this;
     }
 

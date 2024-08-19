@@ -73,7 +73,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             if (Document.UpdateableChangeActive)
                 return;
 
-            Internals.ActionAccumulator.AddFinishedActions(new SetOnionFrames_PassthroughAction(value));
+            Internals.ActionAccumulator.AddFinishedActions(new SetOnionFrames_Action(value));
         }
     }
 

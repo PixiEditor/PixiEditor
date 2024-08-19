@@ -461,6 +461,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 return;
 
             acc.AddActions(new SetFrameRate_Action(data.FrameRate));
+            acc.AddActions(new SetOnionFrames_Action(data.OnionFrames));
             foreach (var keyFrame in data.KeyFrameGroups)
             {
                 if (keyFrame is GroupKeyFrameBuilder group)

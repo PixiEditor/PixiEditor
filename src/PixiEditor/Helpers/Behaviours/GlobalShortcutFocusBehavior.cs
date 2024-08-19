@@ -20,6 +20,7 @@ internal class GlobalShortcutFocusBehavior : Behavior<Control>
         base.OnDetaching();
         AssociatedObject.GotFocus -= AssociatedObject_GotKeyboardFocus;
         AssociatedObject.LostFocus -= AssociatedObject_LostKeyboardFocus;
+        ShortcutController.UnblockShortcutExecution("GlobalShortcutFocusBehavior");
     }
 
     private void AssociatedObject_LostKeyboardFocus(object? sender, RoutedEventArgs routedEventArgs)

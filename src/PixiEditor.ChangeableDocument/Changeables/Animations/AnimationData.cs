@@ -6,6 +6,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Animations;
 internal class AnimationData : IReadOnlyAnimationData
 {
     public int FrameRate { get; set; } = 24;
+    public int OnionFrames { get; set; } = 1;
     public IReadOnlyList<IReadOnlyKeyFrame> KeyFrames => keyFrames;
 
     private List<KeyFrame> keyFrames = new List<KeyFrame>();
