@@ -1,14 +1,13 @@
-﻿using System.Collections.Generic;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Styling;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.UI;
 using PixiEditor.Models.UserData;
+using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.SubViewModels;
 
-namespace PixiEditor.ViewModels.Menu;
+namespace PixiEditor.ViewModels.Menu.MenuBuilders;
 
 internal class RecentFilesMenuBuilder : MenuItemBuilder
 {
@@ -65,10 +64,11 @@ internal class RecentFilesMenuBuilder : MenuItemBuilder
 
             var removeButton = new Button
             {
-                Content = "",
-                FontFamily = "{DynamicResource Feather}"
+                Classes = { "pixi-icon" },
+                FontSize = 16,
+                Content = PixiPerfectIcons.Exit,
             };
-
+            
             Style style = new Style((selector => selector.OfType<Button>()))
             {
                 Setters =
