@@ -723,5 +723,6 @@
   "NEW_PALETTE_FILE": "palette",
   "ISLAND_EXAMPLE": "Islands",
   "ONION_FRAMES_COUNT": "Onion frames",
-  "ONION_OPACITY": "Onion opacity"
+  "ONION_OPACITY": "Onion opacity",
+  "TOGGLE_ONION_SKINNING": "Toggle onion skinning"
 }
