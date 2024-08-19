@@ -25,11 +25,34 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Row="0" Grid.Column="0" BorderThickness="0 0 1 0"
+                    <Border DockPanel.Dock="Left" BorderThickness="0 0 1 0"
                             BorderBrush="{DynamicResource ThemeBorderMidBrush}">
-                        <input:SizeInput Unit="FPS"
-                                         Width="80" Height="25" HorizontalAlignment="Left"
-                                         Size="{Binding Fps, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
+                        <DockPanel Grid.Row="0" Grid.Column="0" LastChildFill="False" Margin="5 0">
+                            <input:SizeInput Unit="FPS"
+                                             Width="80" Height="25" HorizontalAlignment="Left"
+                                             Size="{Binding Fps, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
+
+                            <Button Classes="pixi-icon" DockPanel.Dock="Right"
+                                    Content="{DynamicResource icon-settings}"
+                                    ui1:Translator.TooltipKey="SETTINGS">
+                                <Button.Flyout>
+                                    <Flyout Placement="Top">
+                                        <StackPanel>
+                                            <TextBlock Classes="h4" Margin="5" ui1:Translator.Key="SETTINGS" />
+                                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                                <TextBlock VerticalAlignment="Center" ui1:Translator.Key="ONION_FRAMES_COUNT" />
+                                                <input:NumberInput
+                                                   HorizontalAlignment="Left" Width="50"
+                                                    Min="1" Decimals="0"
+                                                    Max="128"
+                                                    Value="{Binding OnionFrames, RelativeSource={RelativeSource TemplatedParent}, 
+                                                    Mode=TwoWay}" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+                        </DockPanel>
                     </Border>
                     <Border Grid.Row="0" Grid.Column="1">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
@@ -66,7 +89,7 @@
 
                     <Border Grid.Column="0" Grid.Row="1" BorderThickness="0 1 1 1"
                             BorderBrush="{DynamicResource ThemeBorderMidBrush}">
-                        <StackPanel Orientation="Horizontal" Height="40">
+                        <StackPanel Margin="5, 0" Orientation="Horizontal" Height="40">
                             <Button Classes="pixi-icon"
                                     Content="{DynamicResource icon-plus-square}"
                                     ui1:Translator.TooltipKey="ADD_EMPTY_FRAME"
@@ -76,11 +99,9 @@
                                     ui1:Translator.TooltipKey="DUPLICATE_FRAME"
                                     Command="{TemplateBinding DuplicateKeyFrameCommand}" />
                             <ToggleButton Classes="pixi-icon"
-                                    Content="{DynamicResource icon-onion-skin}"
-                                    ui1:Translator.TooltipKey="TOGGLE_ONION_SKINNING"
-                                    Command="{TemplateBinding ToggleOnionSkinningCommand}" 
-                                    CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}"
-                                    />
+                                          Content="{DynamicResource icon-onion-skin}"
+                                          ui1:Translator.TooltipKey="TOGGLE_ONION_SKINNING"
+                                          IsChecked="{Binding OnionSkinningEnabled, RelativeSource={RelativeSource TemplatedParent}}"/>
                             <Button Classes="pixi-icon"
                                     Content="{DynamicResource icon-trash}"
                                     ui1:Translator.TooltipKey="DELETE_FRAME"
@@ -195,7 +216,7 @@
                                     <ItemsControl.DataTemplates>
                                         <DataTemplate DataType="document:KeyFrameGroupViewModel">
                                             <ItemsControl ClipToBounds="False"
-                                                          BorderThickness="0, 0, 0, 1" 
+                                                          BorderThickness="0, 0, 0, 1"
                                                           BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                                                           ItemsSource="{Binding Children}">
                                                 <ItemsControl.ItemContainerTheme>

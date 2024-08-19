@@ -7,6 +7,7 @@ using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
@@ -20,11 +21,14 @@ namespace PixiEditor.Models.Rendering;
 #nullable enable
 internal class CanvasUpdater
 {
+    private const int NearestOnionFrameAlpha = 129;
+
     private readonly IDocument doc;
     private readonly DocumentInternalParts internals;
 
     private Dictionary<int, Texture> renderedFramesCache = new();
     private int lastRenderedFrameNumber = -1;
+    private int lastOnionKeyFrames = -1;
 
     private static readonly Paint ReplacingPaint = new() { BlendMode = BlendMode.Src };
 
@@ -161,6 +165,9 @@ internal class CanvasUpdater
     {
         Dictionary<ChunkResolution, HashSet<VecI>> chunksToRerender =
             FindGlobalChunksToRerender(chunkGatherer, rerenderDelayed);
+        
+        ChunkResolution onionSkinResolution = chunksToRerender.Min(x => x.Key);
+        UpdateOnionSkinning(doc.Surfaces[onionSkinResolution]);
 
         bool updatingStoredChunks = false;
         foreach (var (res, stored) in affectedAndNonRerenderedChunks)
@@ -197,9 +204,6 @@ internal class CanvasUpdater
         if (chunksToRerender.Count == 0)
             return;
 
-        ChunkResolution onionSkinResolution = chunksToRerender.Min(x => x.Key);
-        UpdateOnionSkinning(doc.Surfaces[onionSkinResolution]);
-
         foreach (var (resolution, chunks) in chunksToRerender)
         {
             int chunkSize = resolution.PixelSize();
@@ -235,10 +239,12 @@ internal class CanvasUpdater
                 UpdateLastRenderedFrame(lastRendered, lastRenderedFrameNumber);
             }
 
-            if (lastRenderedFrameNumber != doc.AnimationHandler.ActiveFrameBindable)
+            if (lastRenderedFrameNumber != doc.AnimationHandler.ActiveFrameBindable || doc.AnimationHandler.OnionFramesBindable != lastOnionKeyFrames)
             {
-                int previousFrameIndex = doc.AnimationHandler.ActiveFrameBindable - 1;
-                int nextFrameIndex = doc.AnimationHandler.ActiveFrameBindable + 1;
+                int framesToRender = doc.AnimationHandler.OnionFramesBindable;
+                using Paint onionPaint = new Paint();
+                onionPaint.Color = new Color(0, 0, 0, NearestOnionFrameAlpha);
+                onionPaint.BlendMode = BlendMode.SrcOver;
 
                 if (doc.Renderer.OnionSkinTexture == null || doc.Renderer.OnionSkinTexture.Size != doc.SizeBindable)
                 {
@@ -248,21 +254,34 @@ internal class CanvasUpdater
 
                 doc.Renderer.OnionSkinTexture.DrawingSurface.Canvas.Clear();
 
-                if (!renderedFramesCache.ContainsKey(previousFrameIndex))
-                {
-                    RenderNextOnionSkinningFrame(previousFrameIndex);
-                }
+                float alphaFaloffMultiplier = 1f / framesToRender;
 
-                if (!renderedFramesCache.ContainsKey(nextFrameIndex))
+                for (int i = 1; i <= framesToRender; i++)
                 {
-                    RenderNextOnionSkinningFrame(nextFrameIndex);
-                }
+                    int previousFrameIndex = doc.AnimationHandler.ActiveFrameBindable - i;
+                    int nextFrameIndex = doc.AnimationHandler.ActiveFrameBindable + i;
 
-                DrawOnionSkinningFrame(previousFrameIndex, doc.Renderer.OnionSkinTexture);
-                DrawOnionSkinningFrame(nextFrameIndex, doc.Renderer.OnionSkinTexture);
+                    if (!renderedFramesCache.ContainsKey(previousFrameIndex))
+                    {
+                        RenderNextOnionSkinningFrame(previousFrameIndex);
+                    }
+
+                    if (!renderedFramesCache.ContainsKey(nextFrameIndex))
+                    {
+                        RenderNextOnionSkinningFrame(nextFrameIndex);
+                    }
+
+                    DrawOnionSkinningFrame(previousFrameIndex, doc.Renderer.OnionSkinTexture, onionPaint);
+                    DrawOnionSkinningFrame(nextFrameIndex, doc.Renderer.OnionSkinTexture, onionPaint);
+
+                    onionPaint.Color = onionPaint.Color.WithAlpha((byte)(NearestOnionFrameAlpha -
+                                                                         (NearestOnionFrameAlpha *
+                                                                          alphaFaloffMultiplier * i)));
+                }
             }
 
             lastRenderedFrameNumber = doc.AnimationHandler.ActiveFrameBindable;
+            lastOnionKeyFrames = doc.AnimationHandler.OnionFramesBindable;
         }
     }
 
@@ -294,14 +313,14 @@ internal class CanvasUpdater
         }
     }
 
-    private void DrawOnionSkinningFrame(int frameIndex, Texture onionSkinTexture)
+    private void DrawOnionSkinningFrame(int frameIndex, Texture onionSkinTexture, Paint paint)
     {
         if (frameIndex < 1 || frameIndex >= doc.AnimationHandler.LastFrame)
             return;
-        
+
         if (renderedFramesCache.TryGetValue(frameIndex, out var frame))
         {
-            onionSkinTexture.DrawingSurface.Canvas.DrawSurface(frame.DrawingSurface, 0, 0);
+            onionSkinTexture.DrawingSurface.Canvas.DrawSurface(frame.DrawingSurface, 0, 0, paint);
         }
     }
 

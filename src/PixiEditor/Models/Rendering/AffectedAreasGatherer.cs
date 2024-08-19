@@ -140,6 +140,9 @@ internal class AffectedAreasGatherer
                 case ToggleOnionSkinning_PassthroughAction:
                     AddWholeCanvasToMainImage();
                     break;
+                case SetOnionFrames_PassthroughAction:
+                    AddWholeCanvasToMainImage();
+                    break;
             }
         }
     }

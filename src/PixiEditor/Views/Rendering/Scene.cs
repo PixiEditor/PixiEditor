@@ -495,7 +495,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
     public RectI SurfaceRectToRender { get; }
 
     private bool hardwareAccelerationAvailable = DrawingBackendApi.Current.IsHardwareAccelerated;
-    
+
     private double opacity;
 
     public DrawSceneOperation(Texture surface, DocumentViewModel document, VecD contentPosition, double scale,
@@ -531,13 +531,14 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
         using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
 
-        RenderOnionSkin(canvas);
+        using SKPaint paint = new SKPaint();
+        paint.Color = paint.Color.WithAlpha((byte)(opacity * 255));
+        
+        RenderOnionSkin(canvas, paint);
 
         /*var matrixValues = new float[ColorMatrix.Width * ColorMatrix.Height];
         ColorMatrix.TryGetMembers(matrixValues);*/
 
-        using SKPaint paint = new SKPaint();
-        paint.Color = paint.Color.WithAlpha((byte)(opacity * 255));
 
         if (!hardwareAccelerationAvailable)
         {
@@ -554,7 +555,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
         canvas.RestoreToCount(count);
     }
 
-    private void RenderOnionSkin(SKCanvas canvas)
+    private void RenderOnionSkin(SKCanvas canvas, SKPaint paint)
     {
         if (Document.AnimationDataViewModel.OnionSkinningEnabledBindable)
         {
@@ -564,16 +565,12 @@ internal class DrawSceneOperation : SkiaDrawOperation
             {
                 return;
             }
-            
-            
-            using SKPaint onionSkinPaint = new SKPaint();
-            onionSkinPaint.Color = Colors.White.WithAlpha(128).ToSKColor();
 
             int count = canvas.Save();
 
             canvas.Scale(1f / (float)ResolutionScale, 1f / (float)ResolutionScale);
 
-            canvas.DrawSurface(onionSkinTexture.DrawingSurface.Native as SKSurface, 0, 0, onionSkinPaint);
+            canvas.DrawSurface(onionSkinTexture.DrawingSurface.Native as SKSurface, 0, 0, paint);
 
             canvas.RestoreToCount(count);
         }

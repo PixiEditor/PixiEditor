@@ -15,6 +15,8 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 {
     private int _activeFrameBindable = 1;
     private int frameRateBindable = 60;
+    private int onionFrames = 1;
+    
     public DocumentViewModel Document { get; }
     protected DocumentInternalParts Internals { get; }
     public IReadOnlyCollection<IKeyFrameHandler> KeyFrames => keyFrames;
@@ -60,6 +62,18 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
                 return;
 
             Internals.ActionAccumulator.AddFinishedActions(new ToggleOnionSkinning_PassthroughAction(value));
+        }
+    }
+    
+    public int OnionFramesBindable
+    {
+        get => onionFrames;
+        set
+        {
+            if (Document.UpdateableChangeActive)
+                return;
+
+            Internals.ActionAccumulator.AddFinishedActions(new SetOnionFrames_PassthroughAction(value));
         }
     }
 
@@ -154,6 +168,12 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     {
         onionSkinningEnabled = value;
         OnPropertyChanged(nameof(OnionSkinningEnabledBindable));
+    }
+    
+    public void SetOnionFrames(int frames)
+    {
+        onionFrames = frames;
+        OnPropertyChanged(nameof(OnionFramesBindable));
     }
 
     public void SetFrameLength(Guid keyFrameId, int newStartFrame, int newDuration)

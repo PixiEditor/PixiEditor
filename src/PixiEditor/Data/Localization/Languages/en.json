@@ -721,5 +721,6 @@
   "SELECT_FILE_FORMAT": "Select file format",
   "SELECT_FILE_FORMAT_DESCRIPTION": "Multiple file types of the same format are supported. Please select the one you want to use.",
   "NEW_PALETTE_FILE": "palette",
-  "ISLAND_EXAMPLE": "Islands"
+  "ISLAND_EXAMPLE": "Islands",
+  "ONION_FRAMES_COUNT": "Onion frames"
 }

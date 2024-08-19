@@ -50,6 +50,15 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     public static readonly StyledProperty<Vector> ScrollOffsetProperty = AvaloniaProperty.Register<Timeline, Vector>(
         nameof(ScrollOffset));
 
+    public static readonly StyledProperty<int> OnionFramesProperty = AvaloniaProperty.Register<Timeline, int>(
+        nameof(OnionFrames), 1);
+
+    public int OnionFrames
+    {
+        get => GetValue(OnionFramesProperty);
+        set => SetValue(OnionFramesProperty, value);
+    }
+
     public Vector ScrollOffset
     {
         get => GetValue(ScrollOffsetProperty);
@@ -85,13 +94,13 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     public static readonly StyledProperty<int> DefaultEndFrameProperty = AvaloniaProperty.Register<Timeline, int>(
         nameof(DefaultEndFrame));
 
-    public static readonly StyledProperty<ICommand> ToggleOnionSkinningCommandProperty = AvaloniaProperty.Register<Timeline, ICommand>(
-        nameof(ToggleOnionSkinningCommand));
+    public static readonly StyledProperty<bool> OnionSkinningEnabledProperty = AvaloniaProperty.Register<Timeline, bool>(
+        nameof(OnionSkinningEnabled));
 
-    public ICommand ToggleOnionSkinningCommand
+    public bool OnionSkinningEnabled
     {
-        get => GetValue(ToggleOnionSkinningCommandProperty);
-        set => SetValue(ToggleOnionSkinningCommandProperty, value);
+        get => GetValue(OnionSkinningEnabledProperty);
+        set => SetValue(OnionSkinningEnabledProperty, value);
     }
 
     public int DefaultEndFrame
@@ -175,7 +184,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     private KeyFrameViewModel clickedKeyFrame;
     private bool dragged;
     private int dragStartFrame;
-    
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     static Timeline()

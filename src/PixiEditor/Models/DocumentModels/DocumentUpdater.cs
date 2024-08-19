@@ -199,6 +199,9 @@ internal class DocumentUpdater
             case FrameRate_ChangeInfo info:
                 ProcessFrameRate(info);
                 break;
+            case SetOnionFrames_PassthroughAction info:
+                ProcessSetOnionFrames(info);
+                break;
         }
     }
 
@@ -613,5 +616,10 @@ internal class DocumentUpdater
     private void ProcessFrameRate(FrameRate_ChangeInfo info)
     {
         doc.AnimationHandler.SetFrameRate(info.NewFrameRate);
+    }
+    
+    private void ProcessSetOnionFrames(SetOnionFrames_PassthroughAction info)
+    {
+        doc.AnimationHandler.SetOnionFrames(info.Frames);
     }
 }
