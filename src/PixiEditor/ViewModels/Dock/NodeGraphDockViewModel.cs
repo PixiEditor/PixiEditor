@@ -2,12 +2,15 @@
 using PixiDocks.Core.Docking.Events;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.ViewModels.Dock;
 
-internal class NodeGraphDockViewModel(DocumentManagerViewModel document) : DockableViewModel, IDockableSelectionEvents
+internal class NodeGraphDockViewModel : DockableViewModel, IDockableSelectionEvents
 {
+    private DocumentManagerViewModel document;
+
     public const string TabId = "NodeGraph";
 
     public override string Id { get; } = TabId;
@@ -20,7 +23,14 @@ internal class NodeGraphDockViewModel(DocumentManagerViewModel document) : Docka
         get => document;
         set => SetProperty(ref document, value);
     }
-    
+
+    public NodeGraphDockViewModel(DocumentManagerViewModel document)
+    {
+        DocumentManagerSubViewModel = document;
+
+        TabCustomizationSettings.Icon = PixiPerfectIcons.ToIcon(PixiPerfectIcons.Nodes);
+    }
+
     void IDockableSelectionEvents.OnSelected()
     {
         DocumentManagerSubViewModel.Owner.ShortcutController.OverwriteContext(this.GetType());

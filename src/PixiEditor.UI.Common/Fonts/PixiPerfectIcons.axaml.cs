@@ -123,6 +123,8 @@ public static class PixiPerfectIcons
     public const string Swatches = "\uE982";
     public const string Timeline = "\uE983";
     public const string Dot = "\uE963";
+    public const string Nodes = "\uE984";
+    public const string Onion = "\uE965";
         
     public const string Reset = "R"; // TODO: Create a reset icon
     public const string ToggleLayerVisible = "\u25a1;"; // TODO: Create a toggle layer visible icon

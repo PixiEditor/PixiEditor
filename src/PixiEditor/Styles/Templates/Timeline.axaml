@@ -119,7 +119,7 @@
                                     ui1:Translator.TooltipKey="DUPLICATE_FRAME"
                                     Command="{TemplateBinding DuplicateKeyFrameCommand}" />
                             <ToggleButton Classes="pixi-icon"
-                                          Content="{DynamicResource icon-onion-skin}"
+                                          Content="{DynamicResource icon-onion}"
                                           ui1:Translator.TooltipKey="TOGGLE_ONION_SKINNING"
                                           IsChecked="{Binding OnionSkinningEnabled, RelativeSource={RelativeSource TemplatedParent}}" />
                             <Button Classes="pixi-icon"
