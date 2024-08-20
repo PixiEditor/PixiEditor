@@ -8,6 +8,7 @@ using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using PixiEditor.Numerics;
+using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
@@ -15,9 +16,11 @@ internal class PenToolExecutor : UpdateableChangeExecutor
 {
     private Guid guidValue;
     private Color color;
-    private int toolSize;
+    public int ToolSize => basicToolbar.ToolSize;
     private bool drawOnMask;
     private bool pixelPerfect;
+
+    private IBasicToolbar basicToolbar;
 
     public override ExecutionState Start()
     {
@@ -33,15 +36,15 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         if (!drawOnMask && member is not ILayerHandler)
             return ExecutionState.Error;
 
+        basicToolbar = toolbar;
         guidValue = member.Id;
         color = colorsHandler.PrimaryColor;
-        toolSize = toolbar.ToolSize;
         pixelPerfect = penTool.PixelPerfectEnabled;
 
         colorsHandler.AddSwatch(new PaletteColor(color.R, color.G, color.B));
         IAction? action = pixelPerfect switch
         {
-            false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, toolSize, false, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
+            false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, ToolSize, false, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
             true => new PixelPerfectPen_Action(guidValue, controller!.LastPixelPosition, color, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)
         };
         internals!.ActionAccumulator.AddActions(action);
@@ -53,7 +56,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
     {
         IAction? action = pixelPerfect switch
         {
-            false => new LineBasedPen_Action(guidValue, color, pos, toolSize, false, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
+            false => new LineBasedPen_Action(guidValue, color, pos, ToolSize, false, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
             true => new PixelPerfectPen_Action(guidValue, pos, color, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)
         };
         internals!.ActionAccumulator.AddActions(action);

@@ -9,7 +9,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 {
     private readonly Guid memberGuid;
     private readonly Color color;
-    private readonly int strokeWidth;
+    private int strokeWidth;
     private readonly bool replacing;
     private readonly bool drawOnMask;
     private readonly Paint srcPaint = new Paint() { BlendMode = BlendMode.Src };
@@ -32,9 +32,10 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 }
 
     [UpdateChangeMethod]
-    public void Update(VecI pos)
+    public void Update(VecI pos, int strokeWidth)
     {
         points.Add(pos);
+        this.strokeWidth = strokeWidth;
     }
 
     public override bool InitializeAndValidate(Document target)
