@@ -16,7 +16,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("ModifyImageRight", "MODIFY_IMAGE_RIGHT_NODE", PickerName = "")]
 [PairNode(typeof(ModifyImageLeftNode), "ModifyImageZone")]
-public class ModifyImageRightNode : Node, IPairNodeEnd
+public class ModifyImageRightNode : Node, IPairNodeEnd, ICustomShaderNode
 {
     public Node StartNode { get; set; }
 

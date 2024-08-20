@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
@@ -26,7 +27,7 @@ internal class AffectedAreasGatherer
     public AffectedArea MainImageArea { get; private set; } = new();
     public Dictionary<Guid, AffectedArea> ImagePreviewAreas { get; private set; } = new();
     public Dictionary<Guid, AffectedArea> MaskPreviewAreas { get; private set; } = new();
-    
+
     private KeyFrameTime ActiveFrame { get; set; }
 
     public AffectedAreasGatherer(KeyFrameTime activeFrame, DocumentChangeTracker tracker,
@@ -35,6 +36,16 @@ internal class AffectedAreasGatherer
         this.tracker = tracker;
         ActiveFrame = activeFrame;
         ProcessChanges(changes);
+        
+        var outputNode = tracker.Document.NodeGraph.OutputNode;
+        if (outputNode is null)
+            return;
+        
+        if (tracker.Document.NodeGraph.CalculateExecutionQueue(tracker.Document.NodeGraph.OutputNode)
+            .Any(x => x is ICustomShaderNode))
+        {
+            AddWholeCanvasToMainImage(); // Detecting what pixels shader might affect is very hard, so we just redraw everything
+        }
     }
 
     private void ProcessChanges(IReadOnlyList<IChangeInfo> changes)
@@ -63,7 +74,8 @@ internal class AffectedAreasGatherer
                     break;
                 case DeleteStructureMember_ChangeInfo info:
                     AddWholeCanvasToMainImage();
-                    AddWholeCanvasToImagePreviews(info.Id); // TODO: ParentGuid was here, make sure previews are updated correctly
+                    AddWholeCanvasToImagePreviews(info
+                        .Id); // TODO: ParentGuid was here, make sure previews are updated correctly
                     break;
                 case MoveStructureMember_ChangeInfo info:
                     AddAllToMainImage(info.Id, ActiveFrame);
@@ -112,6 +124,7 @@ internal class AffectedAreasGatherer
                         AddWholeCanvasToMainImage();
                         AddWholeCanvasToImagePreviews(info.TargetLayerGuid);
                     }
+
                     break;
                 case SetActiveFrame_PassthroughAction:
                     AddWholeCanvasToMainImage();
@@ -158,7 +171,7 @@ internal class AffectedAreasGatherer
                 AddWholeCanvasToImagePreviews(memberGuid, ignoreSelf);
                 return;
             }
-            
+
             var chunks = result.FindAllChunks();
             AddToImagePreviews(memberGuid, new AffectedArea(chunks), ignoreSelf);
         }
@@ -181,7 +194,7 @@ internal class AffectedAreasGatherer
                 AddWholeCanvasToMainImage();
                 return;
             }
-            
+
             var chunks = result.FindAllChunks();
             if (layer.Mask.Value is not null && layer.MaskIsVisible.Value && useMask)
                 chunks.IntersectWith(layer.Mask.Value.FindAllChunks());
@@ -202,6 +215,7 @@ internal class AffectedAreasGatherer
             var chunks = member.Mask.Value.FindAllChunks();
             AddToMaskPreview(memberGuid, new AffectedArea(chunks));
         }
+
         if (member is IReadOnlyFolderNode folder)
         {
             /*foreach (var child in folder.Children)
@@ -289,7 +303,7 @@ internal class AffectedAreasGatherer
 
     private void AddWholeCanvasToEveryMaskPreview()
     {
-        tracker.Document.ForEveryReadonlyMember((member) => 
+        tracker.Document.ForEveryReadonlyMember((member) =>
         {
             if (member.Mask.Value is not null)
                 AddWholeCanvasToMaskPreview(member.Id);
@@ -308,6 +322,7 @@ internal class AffectedAreasGatherer
                 area.Chunks.Add(new(i, j));
             }
         }
+
         area.GlobalArea = new RectI(VecI.Zero, tracker.Document.Size);
         return area;
     }
