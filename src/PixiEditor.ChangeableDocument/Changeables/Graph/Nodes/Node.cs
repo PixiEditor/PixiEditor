@@ -126,7 +126,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
         if (_managedTextures.TryGetValue(id, out var texture))
         {
-            if (texture.Size != size)
+            if (texture.Size != size || texture.IsDisposed)
             {
                 texture.Dispose();
                 texture = new Texture(size);

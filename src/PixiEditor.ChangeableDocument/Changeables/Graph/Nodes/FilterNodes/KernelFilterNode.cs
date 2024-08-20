@@ -21,6 +21,9 @@ public class KernelFilterNode : FilterNode
 
     private ImageFilter filter;
     private Kernel lastKernel;
+    private TileMode lastTile;
+    private double lastGain;
+    private double lastBias;
 
     public KernelFilterNode()
     {
@@ -35,10 +38,13 @@ public class KernelFilterNode : FilterNode
     {
         var kernel = Kernel.Value;
         
-        if (kernel.Equals(lastKernel))
+        if (kernel.Equals(lastKernel) && Tile.Value == lastTile && Gain.Value == lastGain && Bias.Value == lastBias)
             return filter;
         
         lastKernel = kernel;
+        lastTile = Tile.Value;
+        lastGain = Gain.Value;
+        lastBias = Bias.Value;
         
         filter?.Dispose();
         
