@@ -52,7 +52,7 @@ public class EllipseNode : Node
             
             workingImage = new ChunkyImage(targetDimensions);
 
-            targetSurface = new Texture(targetDimensions);
+            targetSurface = RequestTexture(0, targetDimensions);
         }
 
         if (radius != _lastRadius || StrokeColor.Value != _lastStrokeColor || FillColor.Value != _lastFillColor ||

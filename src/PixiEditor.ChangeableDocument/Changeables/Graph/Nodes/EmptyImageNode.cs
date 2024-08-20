@@ -31,8 +31,8 @@ public class CreateImageNode : Node
         {
             return null;
         }
-        
-        var surface = new Texture(Size.Value);
+
+        var surface = RequestTexture(0, Size.Value); 
 
         _paint.Color = Fill.Value;
         surface.DrawingSurface.Canvas.DrawPaint(_paint);

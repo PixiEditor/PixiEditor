@@ -18,6 +18,13 @@ public class GrayscaleNode : FilterNode
     // TODO: Hide when Mode != Custom
     public InputProperty<VecD3> CustomWeight { get; }
     
+    private GrayscaleMode lastMode;
+    private double lastFactor;
+    private bool lastNormalize;
+    private VecD3 lastCustomWeight;
+    
+    private ColorFilter? filter;
+    
     public GrayscaleNode()
     {
         Mode = CreateInput("Mode", "MODE", GrayscaleMode.Weighted);
@@ -27,12 +34,33 @@ public class GrayscaleNode : FilterNode
         CustomWeight = CreateInput("CustomWeight", "WEIGHT_FACTOR", new VecD3(1, 1, 1));
     }
 
-    protected override ColorFilter GetColorFilter() => ColorFilter.CreateColorMatrix(Mode.Value switch
+    protected override ColorFilter GetColorFilter()
     {
-        GrayscaleMode.Weighted => UseFactor(WeightedMatrix),
-        GrayscaleMode.Average => UseFactor(AverageMatrix),
-        GrayscaleMode.Custom => UseFactor(ColorMatrix.WeightedGrayscale(GetAdjustedCustomWeight()) + ColorMatrix.UseAlpha)
-    });
+        if (Mode.Value == lastMode 
+            && Factor.Value == lastFactor 
+            && Normalize.Value == lastNormalize &&
+            CustomWeight.Value == lastCustomWeight)
+        {
+            return filter;
+        }
+        
+        lastMode = Mode.Value;
+        lastFactor = Factor.Value;
+        lastNormalize = Normalize.Value;
+        lastCustomWeight = CustomWeight.Value;
+        
+        filter?.Dispose();
+        
+        filter = ColorFilter.CreateColorMatrix(Mode.Value switch
+        {
+            GrayscaleMode.Weighted => UseFactor(WeightedMatrix),
+            GrayscaleMode.Average => UseFactor(AverageMatrix),
+            GrayscaleMode.Custom => UseFactor(ColorMatrix.WeightedGrayscale(GetAdjustedCustomWeight()) +
+                                              ColorMatrix.UseAlpha)
+        });
+        
+        return filter;
+    }
 
     private ColorMatrix UseFactor(ColorMatrix target)
     {

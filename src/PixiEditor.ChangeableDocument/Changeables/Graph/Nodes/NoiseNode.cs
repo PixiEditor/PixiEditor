@@ -82,7 +82,7 @@ public class NoiseNode : Node
             return null;
         }
         
-        var workingSurface = new Texture(size);
+        var workingSurface = RequestTexture(0, size); 
        
         workingSurface.DrawingSurface.Canvas.DrawPaint(paint);
 

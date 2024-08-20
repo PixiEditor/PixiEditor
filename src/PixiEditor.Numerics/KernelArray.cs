@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Numerics;
 
-public class KernelArray
+public class KernelArray : IEquatable<KernelArray>
 {
     private readonly float[] _buffer;
     
@@ -49,4 +49,10 @@ public class KernelArray
     }
 
     public ReadOnlySpan<float> AsSpan() => _buffer.AsSpan();
+    public bool Equals(KernelArray? other)
+    {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return _buffer.SequenceEqual(other._buffer) && Width == other.Width && Height == other.Height;
+    }
 }

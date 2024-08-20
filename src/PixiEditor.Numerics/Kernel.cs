@@ -2,7 +2,7 @@
 
 namespace PixiEditor.Numerics;
 
-public class Kernel : ICloneable
+public class Kernel : ICloneable, IEquatable<Kernel>
 {
     private KernelArray _buffer;
 
@@ -82,5 +82,12 @@ public class Kernel : ICloneable
         float[] values = new float[Width * Height];
         AsSpan().CopyTo(values);
         return new Kernel(Width, Height, values);
+    }
+
+    public bool Equals(Kernel? other)
+    {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return Width == other.Width && Height == other.Height && _buffer.Equals(other._buffer);
     }
 }

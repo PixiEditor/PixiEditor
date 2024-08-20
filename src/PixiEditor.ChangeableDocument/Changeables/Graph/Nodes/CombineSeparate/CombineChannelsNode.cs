@@ -47,7 +47,7 @@ public class CombineChannelsNode : Node
         if (size == VecI.Zero)
             return null;
         
-        var workingSurface = new Texture(size);
+        var workingSurface = RequestTexture(0, size); 
 
         if (Red.Value is { } red)
         {

@@ -358,7 +358,7 @@ internal class DocumentUpdater
         {
             surf.Dispose();
             VecI size = (VecI)(info.Size * res.Multiplier());
-            doc.Surfaces[res] = new Texture(new VecI(Math.Max(size.X, 1), Math.Max(size.Y, 1))); //TODO: Bgra8888 was here
+            doc.Surfaces[res] = new Texture(new VecI(Math.Max(size.X, 1), Math.Max(size.Y, 1)));
         }
 
         doc.SetSize(info.Size);
@@ -367,13 +367,7 @@ internal class DocumentUpdater
 
         VecI documentPreviewSize = StructureHelpers.CalculatePreviewSize(info.Size);
         doc.PreviewSurface.Dispose();
-        doc.PreviewSurface = new Texture(documentPreviewSize); //TODO: Bgra8888 was here
-
-        // TODO: Make sure property changed events are raised internally
-        // UPDATE: I think I did, but I'll leave it commented out for now
-        /*doc.OnPropertyChanged(nameof(doc.LazyBitmaps));
-        doc.OnPropertyChanged(nameof(doc.PreviewBitmap));
-        doc.InternalRaiseSizeChanged(new DocumentSizeChangedEventArgs(doc, oldSize, info.Size));*/
+        doc.PreviewSurface = new Texture(documentPreviewSize);
     }
 
     private void ProcessCreateStructureMember(CreateStructureMember_ChangeInfo info)

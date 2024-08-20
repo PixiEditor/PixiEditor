@@ -19,6 +19,9 @@ public class KernelFilterNode : FilterNode
 
     public InputProperty<bool> OnAlpha { get; }
 
+    private ImageFilter filter;
+    private Kernel lastKernel;
+
     public KernelFilterNode()
     {
         Kernel = CreateInput(nameof(Kernel), "KERNEL", Numerics.Kernel.Identity(3, 3));
@@ -32,9 +35,17 @@ public class KernelFilterNode : FilterNode
     {
         var kernel = Kernel.Value;
         
+        if (kernel.Equals(lastKernel))
+            return filter;
+        
+        lastKernel = kernel;
+        
+        filter?.Dispose();
+        
         var kernelOffset = new VecI(kernel.RadiusX, kernel.RadiusY);
         
-        return ImageFilter.CreateMatrixConvolution(kernel, (float)Gain.Value, (float)Bias.Value, kernelOffset, Tile.Value, OnAlpha.Value);
+        filter = ImageFilter.CreateMatrixConvolution(kernel, (float)Gain.Value, (float)Bias.Value, kernelOffset, Tile.Value, OnAlpha.Value);
+        return filter;
     }
 
     public override Node CreateCopy() => new KernelFilterNode();
