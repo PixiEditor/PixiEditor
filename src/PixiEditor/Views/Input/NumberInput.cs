@@ -137,7 +137,6 @@ internal partial class NumberInput : TextBox
     static NumberInput()
     {
         ValueProperty.Changed.Subscribe(OnValueChanged);
-        FormattedValueProperty.Changed.Subscribe(FormattedValueChanged);
     }
 
     public NumberInput()
@@ -240,7 +239,7 @@ internal partial class NumberInput : TextBox
 
         behavior.Bind(TextBoxFocusBehavior.ConfirmOnEnterProperty, confirmOnEnterBinding);
     }
-
+    
     private static double CoerceValue(AvaloniaObject o, double value)
     {
         double min = (double)o.GetValue(MinProperty);
@@ -328,15 +327,6 @@ internal partial class NumberInput : TextBox
     private static bool IsNumber(object value)
     {
         return value is sbyte or byte or short or ushort or int or uint or long or ulong or float or double or decimal;
-    }
-
-    private static void FormattedValueChanged(AvaloniaPropertyChangedEventArgs<string> e)
-    {
-        NumberInput input = (NumberInput)e.Sender;
-        if (ContainsInvalidCharacter(e.NewValue.Value))
-        {
-            input.FormattedValue = e.OldValue.Value;
-        }
     }
 
     private static bool ContainsInvalidCharacter(string text)

@@ -22,6 +22,7 @@ public partial class ColorPickerDockView : UserControl
         foreach (var textBox in textBoxes)
         {
             var existingBehaviors = Interaction.GetBehaviors(textBox);
+            if(existingBehaviors.Any(x => x is GlobalShortcutFocusBehavior)) continue;
             bool attach = false;
             if (existingBehaviors == null)
             {
