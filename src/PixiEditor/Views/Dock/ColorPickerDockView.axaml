@@ -7,16 +7,19 @@
              xmlns:subViewModels="clr-namespace:PixiEditor.ViewModels.SubViewModels"
              xmlns:dock="clr-namespace:PixiEditor.ViewModels.Dock"
              xmlns:input="clr-namespace:PixiEditor.Views.Input"
+             xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+             xmlns:dock1="clr-namespace:PixiEditor.Views.Dock"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="dock:ColorPickerDockViewModel"
              x:Class="PixiEditor.Views.Dock.ColorPickerDockView">
     <Design.DataContext>
-        <dock:ColorPickerDockViewModel/>
+        <dock:ColorPickerDockViewModel />
     </Design.DataContext>
 
     <input:SmallColorPicker
         SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"
         SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"
         ColorState="{Binding ColorsSubViewModel.PrimaryColorState, Mode=TwoWay}"
-        UseHintColor="False"/>
+        UseHintColor="False">
+    </input:SmallColorPicker>
 </UserControl>
