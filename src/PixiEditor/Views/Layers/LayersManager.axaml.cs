@@ -137,7 +137,7 @@ internal partial class LayersManager : UserControl
             e.Handled = true;
         }
 
-        if (ClipboardController.TryPaste(ActiveDocument, (IDataObject)e.Data, true))
+        if (ClipboardController.TryPaste(ActiveDocument, new [] { (IDataObject)e.Data }, true))
         {
             e.Handled = true;
         }

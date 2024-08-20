@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Services.NewsFeed;
 using PixiEditor.Models.Structures;
 using PixiEditor.Models.UserData;
@@ -24,7 +25,7 @@ namespace PixiEditor.Views.Windows;
 internal partial class HelloTherePopup : PixiEditorPopup
 {
     public RecentlyOpenedCollection RecentlyOpened { get => FileViewModel.RecentlyOpened; }
-    
+
     public static readonly StyledProperty<FileViewModel> FileViewModelProperty =
         AvaloniaProperty.Register<HelloTherePopup, FileViewModel>(nameof(FileViewModel));
 
@@ -53,12 +54,13 @@ internal partial class HelloTherePopup : PixiEditorPopup
         get { return (bool)GetValue(NewsPanelCollapsedProperty); }
         set { SetValue(NewsPanelCollapsedProperty, value); }
     }
+
     public bool IsFetchingNews
     {
         get { return (bool)GetValue(IsFetchingNewsProperty); }
         set { SetValue(IsFetchingNewsProperty, value); }
     }
-    
+
     public bool ShowAllBetaExamples
     {
         get => GetValue(ShowAllBetaExamplesProperty);
@@ -76,16 +78,26 @@ internal partial class HelloTherePopup : PixiEditorPopup
     public static string VersionText =>
         $"v{VersionHelpers.GetCurrentAssemblyVersionString()}";
 
-    public FileViewModel FileViewModel { get => (FileViewModel)GetValue(FileViewModelProperty); set => SetValue(FileViewModelProperty, value); }
+    public FileViewModel FileViewModel
+    {
+        get => (FileViewModel)GetValue(FileViewModelProperty);
+        set => SetValue(FileViewModelProperty, value);
+    }
 
-    public bool RecentlyOpenedEmpty { get => (bool)GetValue(RecentlyOpenedEmptyProperty); set => SetValue(RecentlyOpenedEmptyProperty, value); }
+    public bool RecentlyOpenedEmpty
+    {
+        get => (bool)GetValue(RecentlyOpenedEmptyProperty);
+        set => SetValue(RecentlyOpenedEmptyProperty, value);
+    }
 
     public AsyncRelayCommand OpenFileCommand { get; set; }
 
     public AsyncRelayCommand OpenNewFileCommand { get; set; }
 
+    public AsyncRelayCommand NewFromClipboardCommand { get; set; }
+
     public RelayCommand<string> OpenRecentCommand { get; set; }
-    
+
     public RelayCommand<string> OpenInExplorerCommand { get; set; }
 
     public RelayCommand<bool> SetShowAllBetaExamplesCommand { get; set; }
@@ -115,6 +127,7 @@ internal partial class HelloTherePopup : PixiEditorPopup
         OpenRecentCommand = new RelayCommand<string>(OpenRecent);
         SetShowAllBetaExamplesCommand = new RelayCommand<bool>(SetShowAllBetaExamples);
         OpenInExplorerCommand = new RelayCommand<string>(OpenInExplorer, CanOpenInExplorer);
+        NewFromClipboardCommand = new AsyncRelayCommand(NewFromClipboard, CanOpenFromClipboard);
 
         RecentlyOpenedEmpty = RecentlyOpened.Count == 0;
         RecentlyOpened.CollectionChanged += RecentlyOpened_CollectionChanged;
@@ -124,6 +137,8 @@ internal partial class HelloTherePopup : PixiEditorPopup
         NewsProvider = new NewsProvider();
 
         Closing += (_, _) => { IsClosing = true; };
+
+        Activated += RefreshClipboardImg;
 
         InitializeComponent();
 
@@ -163,7 +178,7 @@ internal partial class HelloTherePopup : PixiEditorPopup
     {
         HelloTherePopup helloTherePopup = (HelloTherePopup)e.Sender;
 
-        if(helloTherePopup._newsDisabled)
+        if (helloTherePopup._newsDisabled)
             return;
 
         if (e.NewValue.Value)
@@ -178,7 +193,8 @@ internal partial class HelloTherePopup : PixiEditorPopup
         PixiEditorSettings.StartupWindow.NewsPanelCollapsed.Value = e.NewValue.Value;
     }
 
-    private void RecentlyOpened_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    private void RecentlyOpened_CollectionChanged(object sender,
+        System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
         RecentlyOpenedEmpty = FileViewModel.RecentlyOpened.Count == 0;
     }
@@ -195,6 +211,25 @@ internal partial class HelloTherePopup : PixiEditorPopup
         Application.Current.ForDesktopMainWindow(mainWindow => mainWindow.Activate());
         Close();
         await FileViewModel.CreateFromNewFileDialog();
+    }
+
+    private void RefreshClipboardImg(object? sender, EventArgs e)
+    {
+        NewFromClipboardCommand.NotifyCanExecuteChanged();
+    }
+
+
+    private async Task NewFromClipboard()
+    {
+        Activated -= RefreshClipboardImg;
+        Application.Current.ForDesktopMainWindow(mainWindow => mainWindow.Activate());
+        Close();
+        await FileViewModel.OpenFromClipboard();
+    }
+
+    private bool CanOpenFromClipboard()
+    {
+        return ClipboardController.IsImageInClipboard().Result;
     }
 
     private void OpenRecent(string parameter)
@@ -214,7 +249,7 @@ internal partial class HelloTherePopup : PixiEditorPopup
     private async void HelloTherePopup_OnLoaded(object sender, RoutedEventArgs e)
     {
         // TODO: Fetching news freezes input when no internet is present
-        if(_newsDisabled) return;
+        if (_newsDisabled) return;
 
         try
         {
@@ -236,7 +271,7 @@ internal partial class HelloTherePopup : PixiEditorPopup
                 FailedFetchingNews = true;
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             IsFetchingNews = false;
             FailedFetchingNews = true;
