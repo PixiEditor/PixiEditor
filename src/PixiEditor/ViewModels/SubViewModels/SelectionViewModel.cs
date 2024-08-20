@@ -63,10 +63,14 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
         Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(false);
     }
 
-    [Command.Basic("PixiEditor.Selection.NudgeSelectedObjectLeft", "NUDGE_SELECTED_LEFT", "NUDGE_SELECTED_LEFT", Key = Key.Left, Parameter = new int[] { -1, 0 }, Icon = PixiPerfectIcons.ChevronLeft, CanExecute = "PixiEditor.Selection.CanNudgeSelectedObject")]
-    [Command.Basic("PixiEditor.Selection.NudgeSelectedObjectRight", "NUDGE_SELECTED_RIGHT", "NUDGE_SELECTED_RIGHT", Key = Key.Right, Parameter = new int[] { 1, 0 }, Icon = PixiPerfectIcons.ChevronRight, CanExecute = "PixiEditor.Selection.CanNudgeSelectedObject")]
-    [Command.Basic("PixiEditor.Selection.NudgeSelectedObjectUp", "NUDGE_SELECTED_UP", "NUDGE_SELECTED_UP", Key = Key.Up, Parameter = new int[] { 0, -1 }, Icon = PixiPerfectIcons.ChevronUp, CanExecute = "PixiEditor.Selection.CanNudgeSelectedObject")]
-    [Command.Basic("PixiEditor.Selection.NudgeSelectedObjectDown", "NUDGE_SELECTED_DOWN", "NUDGE_SELECTED_DOWN", Key = Key.Down, Parameter = new int[] { 0, 1 }, Icon = PixiPerfectIcons.ChevronDown, CanExecute = "PixiEditor.Selection.CanNudgeSelectedObject")]
+    [Command.Basic("PixiEditor.Selection.NudgeSelectedObjectLeft", "NUDGE_SELECTED_LEFT", "NUDGE_SELECTED_LEFT", Key = Key.Left, Parameter = new int[] { -1, 0 }, Icon = PixiPerfectIcons.ChevronLeft, CanExecute = "PixiEditor.Selection.CanNudgeSelectedObject",
+        ShortcutContext = typeof(ViewportWindowViewModel))]
+    [Command.Basic("PixiEditor.Selection.NudgeSelectedObjectRight", "NUDGE_SELECTED_RIGHT", "NUDGE_SELECTED_RIGHT", Key = Key.Right, Parameter = new int[] { 1, 0 }, Icon = PixiPerfectIcons.ChevronRight, CanExecute = "PixiEditor.Selection.CanNudgeSelectedObject",
+        ShortcutContext = typeof(ViewportWindowViewModel))]
+    [Command.Basic("PixiEditor.Selection.NudgeSelectedObjectUp", "NUDGE_SELECTED_UP", "NUDGE_SELECTED_UP", Key = Key.Up, Parameter = new int[] { 0, -1 }, Icon = PixiPerfectIcons.ChevronUp, CanExecute = "PixiEditor.Selection.CanNudgeSelectedObject",
+        ShortcutContext = typeof(ViewportWindowViewModel))]
+    [Command.Basic("PixiEditor.Selection.NudgeSelectedObjectDown", "NUDGE_SELECTED_DOWN", "NUDGE_SELECTED_DOWN", Key = Key.Down, Parameter = new int[] { 0, 1 }, Icon = PixiPerfectIcons.ChevronDown, CanExecute = "PixiEditor.Selection.CanNudgeSelectedObject",
+        ShortcutContext = typeof(ViewportWindowViewModel))]
     public void NudgeSelectedObject(int[] dist)
     {
         VecI distance = new(dist[0], dist[1]);

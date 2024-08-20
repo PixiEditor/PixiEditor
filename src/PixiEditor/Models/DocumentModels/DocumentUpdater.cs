@@ -202,6 +202,9 @@ internal class DocumentUpdater
             case OnionFrames_ChangeInfo info:
                 ProcessSetOnionFrames(info);
                 break;
+            case SetPlayingState_PassthroughAction info:
+                ProcessPlayAnimation(info);
+                break;
         }
     }
 
@@ -463,6 +466,11 @@ internal class DocumentUpdater
     private void ProcessToggleOnionSkinning(ToggleOnionSkinning_PassthroughAction info)
     {
         doc.AnimationHandler.SetOnionSkinning(info.IsOnionSkinningEnabled);
+    }
+    
+    private void ProcessPlayAnimation(SetPlayingState_PassthroughAction info)
+    {
+        doc.AnimationHandler.SetPlayingState(info.Play);
     }
     
     private void ProcessCreateRasterKeyFrame(CreateRasterKeyFrame_ChangeInfo info)

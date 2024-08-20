@@ -146,7 +146,11 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void ProcessShortcutDown(bool isRepeat, Key key, KeyModifiers argsModifiers)
     {
-        HandleTransientKey(key);
+        if (argsModifiers == KeyModifiers.None)
+        {
+            HandleTransientKey(key);
+        }
+
         if (isRepeat && Owner.ShortcutController.LastCommands != null &&
             Owner.ShortcutController.LastCommands.Any(x => x is Command.ToolCommand))
         {

@@ -27,6 +27,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     private KeyFrameCollection keyFrames = new KeyFrameCollection();
     private List<IKeyFrameHandler> allKeyFrames = new List<IKeyFrameHandler>();
     private bool onionSkinningEnabled;
+    private bool isPlayingBindable;
 
     public int ActiveFrameBindable
     {
@@ -87,6 +88,18 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
                 return;
 
             Internals.ActionAccumulator.AddFinishedActions(new SetOnionSettings_Action(OnionFramesBindable, value)); 
+        }
+    }
+    
+    public bool IsPlayingBindable
+    {
+        get => isPlayingBindable;
+        set
+        {
+            if (Document.UpdateableChangeActive)
+                return;
+
+            Internals.ActionAccumulator.AddFinishedActions(new SetPlayingState_PassthroughAction(value));
         }
     }
 
@@ -175,6 +188,12 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     {
         _activeFrameBindable = newFrame;
         OnPropertyChanged(nameof(ActiveFrameBindable));
+    }
+    
+    public void SetPlayingState(bool value)
+    {
+        isPlayingBindable = value;
+        OnPropertyChanged(nameof(IsPlayingBindable));
     }
     
     public void SetOnionSkinning(bool value)
