@@ -42,14 +42,13 @@ public class EllipseNode : Node
         if (workingImage is null || workingImage.LatestSize.X != targetDimensions.X ||
             workingImage.LatestSize.Y != targetDimensions.Y)
         {
-            workingImage?.Dispose();
-
-            if (Radius.Value.LongestAxis <= 0)
+            if (targetDimensions.X <= 0 || targetDimensions.Y <= 0)
             {
                 Output.Value = null;
                 return null;
             }
-            
+
+            workingImage?.Dispose();
             workingImage = new ChunkyImage(targetDimensions);
 
             targetSurface = RequestTexture(0, targetDimensions);
@@ -68,7 +67,8 @@ public class EllipseNode : Node
             workingImage.CommitChanges();
         }
 
-        workingImage.DrawMostUpToDateChunkOn(context.ChunkToUpdate, context.ChunkResolution, targetSurface.DrawingSurface, VecI.Zero,
+        workingImage.DrawMostUpToDateChunkOn(context.ChunkToUpdate, context.ChunkResolution,
+            targetSurface.DrawingSurface, VecI.Zero,
             replacingPaint);
 
         Output.Value = targetSurface;
