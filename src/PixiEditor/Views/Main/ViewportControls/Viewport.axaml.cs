@@ -12,6 +12,7 @@ using PixiEditor.ViewModels;
 using PixiEditor.Views.Visuals;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Helpers.Behaviours;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentModels;
@@ -308,6 +309,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         Scene.SizeChanged += OnMainImageSizeChanged;
         Loaded += OnLoad;
         Unloaded += OnUnload;
+        Scene.AttachedToVisualTree += OnAttachedToVisualTree;
 
         //TODO: It's weird that I had to do it this way, right click didn't raise Image_MouseUp otherwise.
         viewportGrid.AddHandler(PointerReleasedEvent, Image_MouseUp, RoutingStrategies.Tunnel);
@@ -315,6 +317,11 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         
         Scene.PointerExited += (sender, args) => IsOverCanvas = false;
         Scene.PointerEntered += (sender, args) => IsOverCanvas = true;
+    }
+
+    private void OnAttachedToVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
+    {
+        TextBoxFocusBehavior.FallbackFocusElement.Focus();
     }
 
     public Scene Scene => scene;
