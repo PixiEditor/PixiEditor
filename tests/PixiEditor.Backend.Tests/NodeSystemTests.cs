@@ -1,11 +1,5 @@
-using System.Collections.Immutable;
 using System.Reflection;
-using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.AvaloniaUI.Helpers;
-using PixiEditor.AvaloniaUI.Models.Serialization;
-using PixiEditor.AvaloniaUI.Models.Serialization.Factories;
-using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -13,10 +7,12 @@ using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Skia;
+using PixiEditor.Models.Serialization;
+using PixiEditor.Models.Serialization.Factories;
 using PixiEditor.Numerics;
 using PixiEditor.Parser.Skia.Encoders;
+using PixiEditor.Views.Rendering;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
 namespace PixiEditor.Backend.Tests;
 
@@ -33,7 +29,7 @@ public class NodeSystemTests
     {
         this.output = output;
         if (!DrawingBackendApi.HasBackend)
-            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend());
+            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend(), new AvaloniaRenderingServer());
     }
 
     [Fact]
@@ -95,7 +91,7 @@ public class NodeSystemTests
         foreach (var type in pairs)
         {
             var startNode = NodeOperations.CreateNode(type.Key, target);
-            var endNode = NodeOperations.CreateNode(type.Value, target, startNode);
+            var endNode = NodeOperations.CreateNode(type.Value, target);
 
             Assert.NotNull(startNode);
             Assert.NotNull(endNode);
