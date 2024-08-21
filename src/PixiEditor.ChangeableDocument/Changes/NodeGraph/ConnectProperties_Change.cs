@@ -41,6 +41,11 @@ internal class ConnectProperties_Change : Change
         {
             return false;
         }
+        
+        if(IsLoop(inputProp, outputProp))
+        {
+            return false;
+        }
 
         bool canConnect = CheckTypeCompatibility(inputProp, outputProp);
 
@@ -52,6 +57,20 @@ internal class ConnectProperties_Change : Change
         originalConnection = inputProp.Connection;
 
         return true;
+    }
+    
+    private bool IsLoop(InputProperty input, OutputProperty output)
+    {
+        if (input.Node == output.Node)
+        {
+            return true;
+        }
+        if(input.Node.OutputProperties.Any(x => x.Connections.Any(y => y.Node == output.Node)))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,

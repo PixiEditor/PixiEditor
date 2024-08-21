@@ -45,6 +45,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         while (queueNodes.Count > 0)
         {
             var node = queueNodes.Dequeue();
+            
             if (finalQueue.Contains(node))
             {
                 continue;
