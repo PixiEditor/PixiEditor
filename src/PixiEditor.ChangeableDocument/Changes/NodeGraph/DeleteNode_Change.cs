@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
@@ -13,7 +14,7 @@ internal class DeleteNode_Change : Change
     private ConnectionsData originalConnections;
 
     private Node savedCopy;
-    
+
     private GroupKeyFrame? savedKeyFrameGroup;
 
     [GenerateMakeChangeAction]
@@ -32,6 +33,10 @@ internal class DeleteNode_Change : Change
         originalConnections = NodeOperations.CreateConnectionsData(node);
 
         savedCopy = node.Clone();
+        if (savedCopy is IPairNode pairNode)
+        {
+            pairNode.OtherNode = (node as IPairNode).OtherNode;
+        }
 
         savedKeyFrameGroup = CloneGroupKeyFrame(target, NodeId);
 
@@ -71,6 +76,11 @@ internal class DeleteNode_Change : Change
     {
         var copy = savedCopy!.Clone();
         copy.Id = NodeId;
+        
+        if (copy is IPairNode pairNode)
+        {
+            pairNode.OtherNode = (savedCopy as IPairNode).OtherNode;
+        }
 
         doc.NodeGraph.AddNode(copy);
 
@@ -81,7 +91,7 @@ internal class DeleteNode_Change : Change
         changes.Add(createChange);
 
         changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, copy, doc.NodeGraph));
-        
+
         RevertKeyFrames(doc, savedKeyFrameGroup, changes);
 
         return changes;
@@ -95,10 +105,11 @@ internal class DeleteNode_Change : Change
             doc.AnimationData.AddKeyFrame(cloned);
             foreach (var keyFrame in savedKeyFrameGroup.Children)
             {
-                changes.Add(new CreateRasterKeyFrame_ChangeInfo(keyFrame.NodeId, keyFrame.StartFrame, keyFrame.Id, false));
+                changes.Add(new CreateRasterKeyFrame_ChangeInfo(keyFrame.NodeId, keyFrame.StartFrame, keyFrame.Id,
+                    false));
                 changes.Add(new KeyFrameLength_ChangeInfo(keyFrame.Id, keyFrame.StartFrame, keyFrame.Duration));
-            } 
-            
+            }
+
             changes.Add(new KeyFrameVisibility_ChangeInfo(savedKeyFrameGroup.Id, savedKeyFrameGroup.IsVisible));
         }
     }

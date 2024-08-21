@@ -11,54 +11,57 @@ internal class CreateNodePair_Change : Change
 {
     private Guid startId;
     private Guid endId;
-    private Guid zoneId;
     private Type nodeType;
-    
+
     [GenerateMakeChangeAction]
-    public CreateNodePair_Change(Guid startId, Guid endId, Guid zoneId, Type nodeType)
+    public CreateNodePair_Change(Guid startId, Guid endId, Type nodeType)
     {
         this.startId = startId;
         this.endId = endId;
-        this.zoneId = zoneId;
         this.nodeType = nodeType;
     }
 
     public override bool InitializeAndValidate(Document target)
     {
-        return nodeType.GetCustomAttribute<PairNodeAttribute>() != null && nodeType is { IsAbstract: false, IsInterface: false };
+        return nodeType.GetCustomAttribute<PairNodeAttribute>() != null &&
+               nodeType is { IsAbstract: false, IsInterface: false };
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
+        out bool ignoreInUndo)
     {
         if (startId == Guid.Empty)
             startId = Guid.NewGuid();
         if (endId == Guid.Empty)
             endId = Guid.NewGuid();
-        
+
         PairNodeAttribute attribute = nodeType.GetCustomAttribute<PairNodeAttribute>();
         Type startingType = attribute.IsStartingType ? nodeType : attribute.OtherType;
         Type endingType = attribute.IsStartingType ? attribute.OtherType : nodeType;
-        
+
         var start = NodeOperations.CreateNode(startingType, target);
         var end = NodeOperations.CreateNode(endingType, target);
-        
-        if(end is IPairNodeEnd pairEnd)
-            pairEnd.StartNode = start;
 
         start.Id = startId;
         end.Id = endId;
+
+        if (start is IPairNode pairStart)
+            pairStart.OtherNode = end.Id;
+
+        if (end is IPairNode pairEnd)
+            pairEnd.OtherNode = start.Id;
+
         end.Position = new VecD(100, 0);
-        
+
         target.NodeGraph.AddNode(start);
         target.NodeGraph.AddNode(end);
-        
+
         ignoreInUndo = false;
 
         return new List<IChangeInfo>
         {
             CreateNode_ChangeInfo.CreateFromNode(start),
             CreateNode_ChangeInfo.CreateFromNode(end),
-            new CreateNodeZone_ChangeInfo(zoneId, $"PixiEditor.{attribute.ZoneUniqueName}", startId, endId)
         };
     }
 
@@ -66,9 +69,8 @@ internal class CreateNodePair_Change : Change
     {
         var startChange = RemoveNode(target, startId);
         var endChange = RemoveNode(target, endId);
-        var zoneChange = new DeleteNodeFrame_ChangeInfo(zoneId);
 
-        return new List<IChangeInfo> { startChange, endChange, zoneChange };
+        return new List<IChangeInfo> { startChange, endChange };
     }
 
     private static DeleteNode_ChangeInfo RemoveNode(Document target, Guid id)

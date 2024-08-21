@@ -16,9 +16,9 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("ModifyImageRight", "MODIFY_IMAGE_RIGHT_NODE", PickerName = "")]
 [PairNode(typeof(ModifyImageLeftNode), "ModifyImageZone")]
-public class ModifyImageRightNode : Node, IPairNodeEnd, ICustomShaderNode
+public class ModifyImageRightNode : Node, IPairNode, ICustomShaderNode
 {
-    public Node StartNode { get; set; }
+    public Guid OtherNode { get; set; }
 
     private Paint drawingPaint = new Paint() { BlendMode = BlendMode.Src };
 
@@ -40,16 +40,21 @@ public class ModifyImageRightNode : Node, IPairNodeEnd, ICustomShaderNode
 
     protected override Texture? OnExecute(RenderingContext renderingContext)
     {
-        if (StartNode == null)
+        if (OtherNode == null)
         {
             FindStartNode();
-            if (StartNode == null)
+            if (OtherNode == null)
             {
                 return null;
             }
         }
 
-        var startNode = StartNode as ModifyImageLeftNode;
+        var startNode = FindStartNode(); 
+        if (startNode == null)
+        {
+            return null;
+        }
+        
         if (startNode.Image.Value is not { Size: var size })
         {
             return null;
@@ -171,18 +176,22 @@ public class ModifyImageRightNode : Node, IPairNodeEnd, ICustomShaderNode
         drawingPaint?.Dispose();
     }
 
-    private void FindStartNode()
+    private ModifyImageLeftNode FindStartNode()
     {
+        ModifyImageLeftNode startNode = null;
         TraverseBackwards(node =>
         {
             if (node is ModifyImageLeftNode leftNode)
             {
-                StartNode = leftNode;
+                startNode = leftNode;
+                OtherNode = leftNode.Id;
                 return false;
             }
 
             return true;
         });
+        
+        return startNode;
     }
 
     public override Node CreateCopy() => new ModifyImageRightNode();

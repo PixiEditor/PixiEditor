@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.DocumentModels;
@@ -45,6 +46,8 @@ internal class NodeViewModel : ObservableObject, INodeHandler
     }
 
     public string InternalName { get; init; }
+    
+    public NodeMetadata? Metadata { get; set; }
 
     public VecD PositionBindable
     {

@@ -2,7 +2,7 @@
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
-public interface IPairNodeEnd
+public interface IPairNode
 {
-    public Node StartNode { get; set; }
+    public Guid OtherNode { get; set; }
 }

@@ -16,15 +16,18 @@ public record CreateNode_ChangeInfo(
     VecD Position,
     Guid Id,
     ImmutableArray<NodePropertyInfo> Inputs,
-    ImmutableArray<NodePropertyInfo> Outputs) : IChangeInfo
+    ImmutableArray<NodePropertyInfo> Outputs,
+    NodeMetadata? Metadata) : IChangeInfo
 {
+
     public static ImmutableArray<NodePropertyInfo> CreatePropertyInfos(IEnumerable<INodeProperty> properties,
         bool isInput, Guid guid)
     {
-        return properties.Select(p => new NodePropertyInfo(p.InternalPropertyName, p.DisplayName, p.ValueType, isInput, GetNonOverridenValue(p), guid))
+        return properties.Select(p => new NodePropertyInfo(p.InternalPropertyName, p.DisplayName, p.ValueType, isInput,
+                GetNonOverridenValue(p), guid))
             .ToImmutableArray();
     }
-    
+
     public static CreateNode_ChangeInfo CreateFromNode(IReadOnlyNode node)
     {
         if (node is IReadOnlyStructureNode structureNode)
@@ -42,12 +45,23 @@ public record CreateNode_ChangeInfo(
 
         if (string.IsNullOrEmpty(internalName))
         {
-            throw new ArgumentException("Node does not have a unique name attribute. Please add [NodeInfo(\"UNIQUE_NAME\")] to the node class.");
+            throw new ArgumentException(
+                "Node does not have a unique name attribute. Please add [NodeInfo(\"UNIQUE_NAME\")] to the node class.");
+        }
+
+        Guid? pairNodeGuid = null;
+        if (node is IPairNode pairNode)
+        {
+            pairNodeGuid = pairNode.OtherNode;
         }
         
+        NodeMetadata metadata = new NodeMetadata() { PairNodeGuid = pairNodeGuid };
+        metadata.AddAttributes(node);
+
         return new CreateNode_ChangeInfo(internalName, node.DisplayName, node.Position,
             node.Id,
-            CreatePropertyInfos(node.InputProperties, true, node.Id), CreatePropertyInfos(node.OutputProperties, false, node.Id));
+            CreatePropertyInfos(node.InputProperties, true, node.Id),
+            CreatePropertyInfos(node.OutputProperties, false, node.Id), metadata);
     }
 
     private static object? GetNonOverridenValue(INodeProperty property) => property switch

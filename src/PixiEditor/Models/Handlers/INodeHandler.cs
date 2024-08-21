@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using ChunkyImageLib;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.Models.Structures;
 using PixiEditor.Numerics;
@@ -13,6 +14,7 @@ public interface INodeHandler : INotifyPropertyChanged
     public Guid Id { get; }
     public string NodeNameBindable { get; set; }
     public string InternalName { get; }
+    public NodeMetadata Metadata { get; set; }
     public ObservableRangeCollection<INodePropertyHandler> Inputs { get; }
     public ObservableRangeCollection<INodePropertyHandler> Outputs { get; }
     public Texture? ResultPreview { get; set; }

@@ -19,6 +19,7 @@ public class RenderingContext : IDisposable
     public VecI ChunkToUpdate { get; }
     public ChunkResolution ChunkResolution { get; }
     public VecI DocumentSize { get; set; }
+    
 
     public bool IsDisposed { get; private set; }
     

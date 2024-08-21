@@ -236,7 +236,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
         {
             Guid startId = Guid.NewGuid();
             Guid endId = Guid.NewGuid();
-            changes.Add(new CreateNodePair_Action(startId, endId, Guid.NewGuid(), nodeType));
+            changes.Add(new CreateNodePair_Action(startId, endId, nodeType));
 
             if (pos != default)
             {
@@ -263,14 +263,14 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
 
     public void RemoveNodes(Guid[] selectedNodes)
     {
-        IAction[] actions = new IAction[selectedNodes.Length];
+        List<IAction> actions = new(); 
 
         for (int i = 0; i < selectedNodes.Length; i++)
         {
-            actions[i] = new DeleteNode_Action(selectedNodes[i]);
+            actions.Add(new DeleteNode_Action(selectedNodes[i]));
         }
 
-        Internals.ActionAccumulator.AddFinishedActions(actions);
+        Internals.ActionAccumulator.AddFinishedActions(actions.ToArray());
     }
 
     // TODO: Remove this

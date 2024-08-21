@@ -18,9 +18,28 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
         Key = Key.Delete, ShortcutContext = typeof(NodeGraphDockViewModel), AnalyticsTrack = true)]
     public void DeleteSelectedNodes()
     {
-        Guid[] selectedNodes = Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.AllNodes
-            .Where(x => x.IsSelected).Select(x => x.Id).ToArray();
+        var nodes = Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.AllNodes
+            .Where(x => x.IsSelected).ToList();
         
+        if (nodes == null || nodes.Count == 0)
+            return;
+        
+        for (var i = 0; i < nodes.Count; i++)
+        {
+            var node = nodes[i];
+            if(node.Metadata?.PairNodeGuid == null) continue;
+            
+            INodeHandler otherNode = Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.AllNodes
+                .FirstOrDefault(x => x.Id == node.Metadata.PairNodeGuid);
+            
+            if (otherNode != null && !nodes.Contains(otherNode))
+            {
+                nodes.Add(otherNode);
+            }
+        }
+        
+        Guid[] selectedNodes = nodes.Select(x => x.Id).ToArray();
+
         if (selectedNodes == null || selectedNodes.Length == 0)
             return;
 
