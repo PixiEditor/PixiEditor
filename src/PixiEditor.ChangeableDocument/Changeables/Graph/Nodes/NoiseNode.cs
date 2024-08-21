@@ -41,11 +41,7 @@ public class NoiseNode : Node
         Noise = CreateOutput<Texture>(nameof(Noise), "NOISE", null);
         NoiseType = CreateInput(nameof(NoiseType), "NOISE_TYPE", Nodes.NoiseType.FractalPerlin);
         Size = CreateInput(nameof(Size), "SIZE", new VecI(64, 64))
-            .WithRules(v =>
-                v.Min(
-                    VecI.One,
-                    vector => new VecI(Math.Max(1, vector.X), Math.Max(1, vector.Y))
-                )
+            .WithRules(v => v.Min(VecI.One)
             );
 
         Offset = CreateInput(nameof(Offset), "OFFSET", new VecD(0d, 0d));

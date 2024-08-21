@@ -8,6 +8,16 @@ public class PropertyValidator
 {
     public List<ValidateProperty> Rules { get; } = new();
 
+    public PropertyValidator Min(VecI min)
+    {
+       return Min(min, v => new VecI(Math.Max(v.X, min.X), Math.Max(v.Y, min.Y))); 
+    }
+    
+    public PropertyValidator Min(VecD min)
+    {
+        return Min(min, v => new VecD(Math.Max(v.X, min.X), Math.Max(v.Y, min.Y))); 
+    }
+
     public PropertyValidator Min<T>(T min, Func<T, T>? adjust = null) where T : IComparable<T>
     {
         Rules.Add((value) =>

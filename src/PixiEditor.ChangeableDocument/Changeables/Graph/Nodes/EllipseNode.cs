@@ -27,7 +27,8 @@ public class EllipseNode : Node
 
     public EllipseNode()
     {
-        Radius = CreateInput<VecI>("Radius", "RADIUS", new VecI(32, 32));
+        Radius = CreateInput<VecI>("Radius", "RADIUS", new VecI(32, 32)).WithRules(
+            v => v.Min(VecI.One));
         StrokeColor = CreateInput<Color>("StrokeColor", "STROKE_COLOR", new Color(0, 0, 0, 255));
         FillColor = CreateInput<Color>("FillColor", "FILL_COLOR", new Color(0, 0, 0, 255));
         StrokeWidth = CreateInput<int>("StrokeWidth", "STROKE_WIDTH", 1);

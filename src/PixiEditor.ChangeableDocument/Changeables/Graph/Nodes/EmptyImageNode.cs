@@ -21,7 +21,7 @@ public class CreateImageNode : Node
     public CreateImageNode()
     {
         Output = CreateOutput<Texture>(nameof(Output), "EMPTY_IMAGE", null);
-        Size = CreateInput(nameof(Size), "SIZE", new VecI(32, 32));
+        Size = CreateInput(nameof(Size), "SIZE", new VecI(32, 32)).WithRules(v => v.Min(VecI.One));
         Fill = CreateInput(nameof(Fill), "FILL", new Color(0, 0, 0, 255));
     }
 

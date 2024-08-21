@@ -18,7 +18,8 @@ public class DistributePointsNode : Node
     {
         Points = CreateOutput(nameof(Points), "POINTS", PointList.Empty);
 
-        MaxPointCount = CreateInput("MaxPointCount", "MAX_POINTS", 10);
+        MaxPointCount = CreateInput("MaxPointCount", "MAX_POINTS", 10).
+            WithRules(v => v.Min(1));
         Seed = CreateInput("Seed", "SEED", 0);
     }
 

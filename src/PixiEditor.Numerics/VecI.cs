@@ -194,7 +194,12 @@ public struct VecI : IEquatable<VecI>, IComparable<VecI>
     public int CompareTo(VecI other)
     {
         int xComparison = X.CompareTo(other.X);
-        return xComparison * Y.CompareTo(other.Y); 
+        int yComparison = Y.CompareTo(other.Y);
+        if (xComparison == 0 && yComparison == 0)
+            return 0;
+        
+        bool anyNegative = xComparison < 0 || yComparison < 0;
+        return anyNegative ? -1 : 1;
     }
 
     public override bool Equals(object? obj)
