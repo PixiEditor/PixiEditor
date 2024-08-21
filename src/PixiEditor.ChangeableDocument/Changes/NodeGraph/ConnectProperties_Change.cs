@@ -132,6 +132,11 @@ internal class ConnectProperties_Change : Change
             {
                 outputValue = result;
             }
+            
+            if(IsConstantToExpression(input, outputValue, out result))
+            {
+                return ConversionTable.TryConvert(result, output.ValueType, out _);
+            }
 
             if (ConversionTable.TryConvert(outputValue, input.ValueType, out _))
             {
@@ -142,6 +147,30 @@ internal class ConnectProperties_Change : Change
         }
 
         return true;
+    }
+    
+    private static bool IsConstantToExpression(InputProperty input, object objValue, out object result)
+    {
+        if (input.Value is Delegate func && func.Method.ReturnType.IsAssignableTo(typeof(ShaderExpressionVariable)))
+        {
+            try
+            {
+                var actualArg = func.DynamicInvoke(FuncContext.NoContext);
+                if(actualArg is ShaderExpressionVariable variable)
+                {
+                    result = variable.GetConstant();
+                    return true;
+                }
+            }
+            catch
+            {
+                result = null;
+                return false;
+            }
+        }
+
+        result = null;
+        return false;
     }
 
     private static bool IsExpressionToConstant(OutputProperty output, InputProperty input, out object o)

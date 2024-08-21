@@ -43,7 +43,7 @@
             <Color x:Key="BoolSocketColor">#68abdf</Color>
             <Color x:Key="FloatSocketColor">#ffc66d</Color>
             <Color x:Key="DoubleSocketColor">#efb66d</Color>
-            <Color x:Key="ColorSocketColor">#99e4aa</Color>
+            <Color x:Key="ColorSocketColor">#8cf2dd</Color>
             <Color x:Key="VecDSocketColor">#c984ca</Color>
             <Color x:Key="VecISocketColor">#c9b4ca</Color>
             <Color x:Key="IntSocketColor">#4C64B1</Color>
