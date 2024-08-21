@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
@@ -124,8 +125,15 @@ internal class ConnectProperties_Change : Change
             {
                 return true;
             }
+            
+            var outputValue = output.Value;
+            
+            if(IsExpressionToConstant(output, input, out var result))
+            {
+                outputValue = result;
+            }
 
-            if (ConversionTable.TryConvert(output.Value, input.ValueType, out _))
+            if (ConversionTable.TryConvert(outputValue, input.ValueType, out _))
             {
                 return true;
             }
@@ -134,6 +142,31 @@ internal class ConnectProperties_Change : Change
         }
 
         return true;
+    }
+
+    private static bool IsExpressionToConstant(OutputProperty output, InputProperty input, out object o)
+    {
+        if (output.Value is Delegate func && func.Method.ReturnType.IsAssignableTo(typeof(ShaderExpressionVariable)))
+        {
+            try
+            {
+                o = func.DynamicInvoke(FuncContext.NoContext);
+                if(o is ShaderExpressionVariable variable)
+                {
+                    o = variable.GetConstant();
+                }
+                
+                return true;
+            }
+            catch
+            {
+                o = null;
+                return false;
+            }
+        }
+
+        o = null;
+        return false;
     }
 
     private static bool IsCrossExpression(object first, Type secondType)

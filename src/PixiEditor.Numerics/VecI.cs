@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Numerics;
 
-public struct VecI : IEquatable<VecI>
+public struct VecI : IEquatable<VecI>, IComparable<VecI>
 {
     public int X { set; get; }
     public int Y { set; get; }
@@ -189,6 +189,12 @@ public struct VecI : IEquatable<VecI>
     public override string ToString()
     {
         return $"({X}; {Y})";
+    }
+
+    public int CompareTo(VecI other)
+    {
+        int xComparison = X.CompareTo(other.X);
+        return xComparison * Y.CompareTo(other.Y); 
     }
 
     public override bool Equals(object? obj)

@@ -43,7 +43,6 @@ internal class CreateNode_Change : Change
         ignoreInUndo = false;
        
         using RenderingContext context = new RenderingContext(new KeyFrameTime(0, 0), VecI.Zero, ChunkResolution.Full, target.Size);
-        node.ExecuteInternal(context);
         
         return CreateNode_ChangeInfo.CreateFromNode(node); 
     }

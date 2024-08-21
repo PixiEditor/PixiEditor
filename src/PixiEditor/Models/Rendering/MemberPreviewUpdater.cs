@@ -737,8 +737,8 @@ internal class MemberPreviewUpdater
         
         if (outputNode is null)
             return;
-        
-        var executionQueue = internals.Tracker.Document.NodeGraph.CalculateExecutionQueue(outputNode);
+
+        var executionQueue = internals.Tracker.Document.NodeGraph.AllNodes; //internals.Tracker.Document.NodeGraph.CalculateExecutionQueue(outputNode);
         
         foreach (var node in executionQueue) 
         {
