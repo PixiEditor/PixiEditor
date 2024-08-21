@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Shaders;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
@@ -120,6 +121,16 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             runtimeEffects[newShader.Handle] = effect;
             
             return new Shader(newShader.Handle);
+        }
+
+        public void SetLocalMatrix(IntPtr objectPointer, Matrix3X3 matrix)
+        {
+            if (!ManagedInstances.TryGetValue(objectPointer, out var shader))
+            {
+                throw new InvalidOperationException("Shader does not exist");
+            }
+            
+            shader.WithLocalMatrix(matrix.ToSkMatrix());
         }
 
         public void Dispose(IntPtr shaderObjPointer)

@@ -124,11 +124,14 @@ public class FuncContext
 
     public Float1 GetValue(FuncInputProperty<Float1> getFrom)
     {
-        if (getFrom.Connection == null || !IsFuncType(getFrom))
+        if (HasContext)
         {
-            string uniformName = $"float_{Builder.GetUniqueNameNumber()}";
-            Builder.AddUniform(uniformName, (float)getFrom.Value(this).ConstantValue);
-            return new Float1(uniformName);
+            if (getFrom.Connection == null || !IsFuncType(getFrom))
+            {
+                string uniformName = $"float_{Builder.GetUniqueNameNumber()}";
+                Builder.AddUniform(uniformName, (float)getFrom.Value(this).ConstantValue);
+                return new Float1(uniformName);
+            }
         }
 
         return getFrom.Value(this);
@@ -156,12 +159,15 @@ public class FuncContext
 
     public ShaderExpressionVariable GetValue(FuncInputProperty<Half4> getFrom)
     {
-        if (getFrom.Connection == null || !IsFuncType(getFrom))
+        if (HasContext)
         {
-            Half4 color = getFrom.Value(this);
-            color.VariableName = $"color_{Builder.GetUniqueNameNumber()}";
-            Builder.AddUniform(color.VariableName, color.ConstantValue);
-            return color;
+            if (getFrom.Connection == null || !IsFuncType(getFrom))
+            {
+                Half4 color = getFrom.Value(this);
+                color.VariableName = $"color_{Builder.GetUniqueNameNumber()}";
+                Builder.AddUniform(color.VariableName, color.ConstantValue);
+                return color;
+            }
         }
 
         return getFrom.Value(this);
@@ -169,12 +175,15 @@ public class FuncContext
 
     public Float2 GetValue(FuncInputProperty<Float2> getFrom)
     {
-        if (getFrom.Connection == null || !IsFuncType(getFrom))
+        if (HasContext)
         {
-            Float2 value = getFrom.Value(this);
-            value.VariableName = $"float2_{Builder.GetUniqueNameNumber()}";
-            Builder.AddUniform(value.VariableName, value.ConstantValue);
-            return value;
+            if (getFrom.Connection == null || !IsFuncType(getFrom))
+            {
+                Float2 value = getFrom.Value(this);
+                value.VariableName = $"float2_{Builder.GetUniqueNameNumber()}";
+                Builder.AddUniform(value.VariableName, value.ConstantValue);
+                return value;
+            }
         }
 
         return getFrom.Value(this);

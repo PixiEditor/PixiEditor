@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Shaders;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
@@ -15,6 +16,7 @@ public class NoiseNode : Node
     private double previousSeed = double.NaN;
     private NoiseType previousNoiseType = Nodes.NoiseType.FractalPerlin;
     private int previousOctaves = -1;
+    private VecD previousOffset = new VecD(0d, 0d);
 
     private Paint paint = new();
 
@@ -26,6 +28,8 @@ public class NoiseNode : Node
     public InputProperty<NoiseType> NoiseType { get; }
     public InputProperty<VecI> Size { get; }
 
+    public InputProperty<VecD> Offset { get; }
+    
     public InputProperty<double> Scale { get; }
 
     public InputProperty<int> Octaves { get; }
@@ -44,6 +48,8 @@ public class NoiseNode : Node
                 )
             );
 
+        Offset = CreateInput(nameof(Offset), "OFFSET", new VecD(0d, 0d));
+        
         Scale = CreateInput(nameof(Scale), "SCALE", 10d).WithRules(v => v.Min(0.1));
         Octaves = CreateInput(nameof(Octaves), "OCTAVES", 1)
             .WithRules(validator => validator.Min(1));
@@ -57,6 +63,7 @@ public class NoiseNode : Node
             || previousSeed != Seed.Value
             || previousOctaves != Octaves.Value
             || previousNoiseType != NoiseType.Value
+            || previousOffset != Offset.Value
             || double.IsNaN(previousScale))
         {
             if (Scale.Value < 0.000001)
@@ -76,7 +83,7 @@ public class NoiseNode : Node
 
             // Define a grayscale color filter to apply to the image
             paint.ColorFilter = grayscaleFilter;
-
+            
             previousScale = Scale.Value;
             previousSeed = Seed.Value;
             previousOctaves = Octaves.Value;
@@ -93,7 +100,12 @@ public class NoiseNode : Node
 
         var workingSurface = RequestTexture(0, size);
 
+        workingSurface.DrawingSurface.Canvas.Save();
+        workingSurface.DrawingSurface.Canvas.Translate(-(float)Offset.Value.X, -(float)Offset.Value.Y);
+        
         workingSurface.DrawingSurface.Canvas.DrawPaint(paint);
+        
+        workingSurface.DrawingSurface.Canvas.Restore();
 
         Noise.Value = workingSurface;
 
@@ -110,7 +122,8 @@ public class NoiseNode : Node
                 (float)(1d / Scale.Value), octaves, (float)Seed.Value),
             Nodes.NoiseType.FractalPerlin => Shader.CreatePerlinFractalNoise(
                 (float)(1d / Scale.Value),
-                (float)(1d / Scale.Value), octaves, (float)Seed.Value),
+                (float)(1d / Scale.Value),
+                octaves, (float)Seed.Value),
             _ => null
         };
 

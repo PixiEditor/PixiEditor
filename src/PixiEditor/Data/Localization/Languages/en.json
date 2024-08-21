@@ -728,5 +728,6 @@
   "CHANGE_ACTIVE_FRAME_PREVIOUS": "Change active frame to previous",
   "CHANGE_ACTIVE_FRAME_NEXT": "Change active frame to next",
   "TOGGLE_ANIMATION": "Toggle animation",
-  "NEW_FROM_CLIPBOARD": "New from clipboard"
+  "NEW_FROM_CLIPBOARD": "New from clipboard",
+  "OFFSET": "Offset"
 }
