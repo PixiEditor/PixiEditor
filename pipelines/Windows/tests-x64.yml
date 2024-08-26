@@ -11,7 +11,7 @@ variables:
   buildPlatform: 'win-x64'
   buildConfiguration: 'Release'
   wasiUrl: 'https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-24/wasi-sdk-24.0-x86_64-windows.tar.gz'
-  wasiName: 'was-sdk-windows'
+  wasiName: 'wasi-sdk-windows'
 
 steps:
 - task: CmdLine@2
@@ -25,6 +25,8 @@ steps:
   inputs:
     script: |
       tar -xzf $(wasiName).tar.gz
+      echo "Contents of directory after extraction:"
+      dir $(wasiName)
 
 - task: PowerShell@2
   displayName: 'Set Environment Path for WASI SDK'
