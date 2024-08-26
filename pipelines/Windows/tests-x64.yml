@@ -15,9 +15,11 @@ steps:
 - task: NuGetToolInstaller@1
 
 - task: DotNetCoreCLI@2
+  displayName: Install wasi-wasm
   inputs:
     command: 'custom'
-    custom: workload install wasi-experimental
+    custom: 'workload'
+    arguments: 'install wasi-experimental'
 
 - task: NuGetCommand@2
   inputs:
