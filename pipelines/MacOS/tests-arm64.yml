@@ -1,0 +1,38 @@
+trigger:
+- development
+- master
+- 2.0-cicd
+
+pool:
+  vmImage: 'macOS-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'osx-arm64'
+  buildConfiguration: 'Release'
+
+steps:
+- task: NuGetToolInstaller@1
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'custom'
+    custom: 'workload install wasi-experimental'
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: 'build'
+    projects: '**/*.csproj'
+    arguments: '--configuration Release -r $(buildPlatform)'
+
+- task: DotNetCoreCLI@2
+  displayName: Tests
+  inputs:
+    command: test
+    projects: '**/*Tests/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
