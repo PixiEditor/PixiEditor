@@ -13,13 +13,6 @@ variables:
   wasiUrl: 'https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-24/wasi-sdk-24.0-x86_64-windows.tar.gz'
   wasiName: 'was-sdk-windows'
 
-- task: CmdLine@2
-  inputs:
-    script: |
-      echo Write your commands here
-      
-      echo Hello world
-
 - job: CmdLine@2
   displayName: 'Download and Setup WASI SDK'
   inputs:
