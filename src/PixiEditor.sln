@@ -780,6 +780,7 @@ Global
 		{0D3DE5D1-D984-407D-B2A6-7945F011B636}.Steam|ARM64.ActiveCfg = Debug|Any CPU
 		{0D3DE5D1-D984-407D-B2A6-7945F011B636}.Steam|ARM64.Build.0 = Debug|Any CPU
 		{41B40602-2E8C-4B76-9BDB-B9FDE686ACCE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{41B40602-2E8C-4B76-9BDB-B9FDE686ACCE}.Debug|x64.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
