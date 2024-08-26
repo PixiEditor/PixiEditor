@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Avalonia.Controls;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.UI;
 
 namespace PixiEditor.ViewModels.Menu;
 
@@ -13,6 +14,12 @@ internal abstract class MenuItemBuilder
         foreach (var item in tree)
         {
             if (item.Header is LocalizedString localizedString && localizedString.Key == header)
+            {
+                menuItem = item;
+                return true;
+            }
+            
+            if(Translator.GetKey(item) == header)
             {
                 menuItem = item;
                 return true;
