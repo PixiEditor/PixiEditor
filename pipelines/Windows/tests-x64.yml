@@ -10,6 +10,27 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'win-x64'
   buildConfiguration: 'Release'
+  wasiUrl: 'https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-24/wasi-sdk-24.0-x86_64-windows.tar.gz'
+  wasiName: 'was-sdk-windows'
+
+- job: downloadAndSetupWasiSdk
+  displayName: 'Download and Setup WASI SDK'
+  steps:
+  - script: |
+      curl -L -o $(wasiName).tar.gz $(wasiUrl)
+    displayName: 'Download WASI SDK'
+
+  - script: |
+      tar -xzf $(wasiName).tar.gz
+    displayName: 'Unpack WASI SDK'
+
+  - powershell: |
+      $env:Path += ";$(Get-Location)\$(wasiName)\bin"
+    displayName: 'Set Environment Path for WASI SDK'
+
+  - script: |
+      echo "Environment path set to: $env:Path"
+    displayName: 'Verify Environment Path'
 
 steps:
 - task: NuGetToolInstaller@1
@@ -20,6 +41,8 @@ steps:
     command: 'custom'
     custom: 'workload'
     arguments: 'install wasi-experimental'
+
+
 
 - task: NuGetCommand@2
   inputs:
