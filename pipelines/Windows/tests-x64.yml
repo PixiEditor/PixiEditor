@@ -26,19 +26,22 @@ steps:
     script: |
       tar -xzf $(wasiName).tar.gz
 
+steps:
 - task: PowerShell@2
   displayName: 'Set Environment Path for WASI SDK'
   inputs:
     targetType: 'inline'
     script: |
       $env:WASI_SDK_PATH = "$(Get-Location)\$(wasiName)\bin"
+      Write-Host "##vso[task.setvariable variable=WASI_SDK_PATH]$env:WASI_SDK_PATH"
 
 - task: PowerShell@2
   displayName: 'Verify Environment Path'
   inputs:
     targetType: 'inline'
     script: |
-      echo "Environment path set to: $env:WASI_SDK_PATH"
+      Write-Host "Environment path set to: $env:WASI_SDK_PATH"
+
 
 - task: NuGetToolInstaller@1
 
