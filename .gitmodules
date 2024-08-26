@@ -1,0 +1,6 @@
+[submodule "src/PixiDocks"]
+	path = src/PixiDocks
+	url = https://github.com/PixiEditor/PixiDocks.git
+[submodule "src/PixiParser"]
+	path = src/PixiParser
+	url = https://github.com/PixiEditor/PixiParser.git
