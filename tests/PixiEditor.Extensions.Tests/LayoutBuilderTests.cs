@@ -6,6 +6,7 @@ using Button = PixiEditor.Extensions.FlyUI.Elements.Button;
 
 namespace PixiEditor.Extensions.Test;
 
+[Collection("LayoutBuilderTests")]
 public class LayoutBuilderTests
 {
     [Fact]
