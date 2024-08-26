@@ -31,14 +31,14 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      $env:WASI_SDK_PATH += ";$(Get-Location)\$(wasiName)\bin"
+      $env:WASI_SDK_PATH = "$(Get-Location)\$(wasiName)\bin"
 
 - task: PowerShell@2
   displayName: 'Verify Environment Path'
   inputs:
     targetType: 'inline'
     script: |
-      echo "Environment path set to: $env:Path"
+      echo "Environment path set to: $env:WASI_SDK_PATH"
 
 - task: NuGetToolInstaller@1
 
