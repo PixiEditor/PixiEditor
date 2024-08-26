@@ -26,7 +26,6 @@ steps:
     script: |
       tar -xzf $(wasiName).tar.gz
 
-steps:
 - task: PowerShell@2
   displayName: 'Set Environment Path for WASI SDK'
   inputs:
