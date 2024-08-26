@@ -80,7 +80,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     }
 
     ICollection<IToolHandler> IToolsHandler.ToolSet => ToolSet;
-    public ObservableCollection<IToolHandler> ToolSet { get; private set; }
+    public ToolSetViewModel ToolSet { get; private set; }
 
     public event EventHandler<SelectedToolEventArgs>? SelectedToolChanged;
 
