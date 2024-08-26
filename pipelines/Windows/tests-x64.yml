@@ -31,7 +31,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      $env:WASI_SDK_PATH = "$(Get-Location)\$(wasiName)\bin"
+      $env:WASI_SDK_PATH = "$(Get-Location)\$(wasiName)"
       Write-Host "##vso[task.setvariable variable=WASI_SDK_PATH]$env:WASI_SDK_PATH"
 
 - task: PowerShell@2
