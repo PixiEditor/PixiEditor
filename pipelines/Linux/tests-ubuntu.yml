@@ -4,13 +4,13 @@ trigger:
 - 2.0-cicd
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'ubuntu-latest'
 
 variables:
   solution: '**/*.sln'
-  buildPlatform: 'win-x64'
+  buildPlatform: 'linux-$(arch)'
   buildConfiguration: 'Release'
-  wasiVer: 'wasi-sdk-24.0-x86_64-windows'
+  wasiVer: 'wasi-sdk-24.0-$(wasi-arch)-linux'
   wasiUrl: 'https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-24/$(wasiVer).tar.gz'
 
 steps:
@@ -54,8 +54,8 @@ steps:
     arguments: 'install wasi-experimental'
 
 
-
 - task: NuGetCommand@2
+  displayName: 'Restore solution'
   inputs:
     restoreSolution: '$(solution)'
 
