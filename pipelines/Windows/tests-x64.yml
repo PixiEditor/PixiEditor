@@ -21,24 +21,24 @@ steps:
       curl -L -o $(wasiName).tar.gz $(wasiUrl)
 
 - task: CmdLine@2
+  displayName: 'Unpack WASI SDK'
   inputs:
     script: |
       tar -xzf $(wasiName).tar.gz
-    displayName: 'Unpack WASI SDK'
 
 - task: PowerShell@2
+  displayName: 'Set Environment Path for WASI SDK'
   inputs:
     targetType: 'inline'
     script: |
-      $env:Path += ";$(Get-Location)\$(wasiName)\bin"
-    displayName: 'Set Environment Path for WASI SDK'
+      $env:WASI_SDK_PATH += ";$(Get-Location)\$(wasiName)\bin"
 
 - task: PowerShell@2
+  displayName: 'Verify Environment Path'
   inputs:
     targetType: 'inline'
     script: |
       echo "Environment path set to: $env:Path"
-    displayName: 'Verify Environment Path'
 
 - task: NuGetToolInstaller@1
 
