@@ -40,7 +40,6 @@ steps:
       echo "Environment path set to: $env:Path"
     displayName: 'Verify Environment Path'
 
-steps:
 - task: NuGetToolInstaller@1
 
 - task: DotNetCoreCLI@2
