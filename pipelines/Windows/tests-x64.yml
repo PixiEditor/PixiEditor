@@ -13,22 +13,37 @@ variables:
   wasiUrl: 'https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-24/wasi-sdk-24.0-x86_64-windows.tar.gz'
   wasiName: 'was-sdk-windows'
 
-- job: downloadAndSetupWasiSdk
+- task: CmdLine@2
+  inputs:
+    script: |
+      echo Write your commands here
+      
+      echo Hello world
+
+- job: CmdLine@2
   displayName: 'Download and Setup WASI SDK'
-  steps:
-  - script: |
+  inputs:
+    script: |
       curl -L -o $(wasiName).tar.gz $(wasiUrl)
     displayName: 'Download WASI SDK'
 
-  - script: |
+- job: CmdLine@2
+  inputs:
+    script: |
       tar -xzf $(wasiName).tar.gz
     displayName: 'Unpack WASI SDK'
 
-  - powershell: |
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
       $env:Path += ";$(Get-Location)\$(wasiName)\bin"
     displayName: 'Set Environment Path for WASI SDK'
 
-  - script: |
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
       echo "Environment path set to: $env:Path"
     displayName: 'Verify Environment Path'
 
