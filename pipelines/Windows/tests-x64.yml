@@ -13,14 +13,14 @@ variables:
   wasiUrl: 'https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-24/wasi-sdk-24.0-x86_64-windows.tar.gz'
   wasiName: 'was-sdk-windows'
 
-- job: CmdLine@2
+- task: CmdLine@2
   displayName: 'Download and Setup WASI SDK'
   inputs:
     script: |
       curl -L -o $(wasiName).tar.gz $(wasiUrl)
     displayName: 'Download WASI SDK'
 
-- job: CmdLine@2
+- task: CmdLine@2
   inputs:
     script: |
       tar -xzf $(wasiName).tar.gz
