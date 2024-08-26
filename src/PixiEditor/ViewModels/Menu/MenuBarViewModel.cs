@@ -8,6 +8,7 @@ using Avalonia.Data;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.Commands.XAML;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.UI;
 using PixiEditor.Models.Commands;
 using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
 using Command = PixiEditor.Models.Commands.Commands.Command;
@@ -87,10 +88,15 @@ internal class MenuBarViewModel : PixiObservableObject
 
         foreach (var item in root)
         {
-            MenuItem menuItem = new()
+            MenuItem menuItem = new();
+            
+            var headerBinding = new Binding(".")
             {
-                Header = new LocalizedString(item.Key),
+                Source = item.Key, 
+                Mode = BindingMode.OneWay,
             };
+            
+            menuItem.Bind(Translator.KeyProperty, headerBinding);
 
             CommandGroup? group = controller.CommandGroups.FirstOrDefault(x => x.IsVisibleProperty != null && x.Commands.Contains(item.Value.Command));
 
