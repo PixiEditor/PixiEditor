@@ -13,6 +13,7 @@ variables:
   wasiUrl: 'https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-24/wasi-sdk-24.0-x86_64-windows.tar.gz'
   wasiName: 'was-sdk-windows'
 
+steps:
 - task: CmdLine@2
   displayName: 'Download WASI SDK'
   inputs:
