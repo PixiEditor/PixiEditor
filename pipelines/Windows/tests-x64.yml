@@ -10,30 +10,30 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'win-x64'
   buildConfiguration: 'Release'
-  wasiUrl: 'https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-24/wasi-sdk-24.0-x86_64-windows.tar.gz'
-  wasiName: 'wasi-sdk-windows'
+  wasiVer: 'wasi-sdk-24.0-x86_64-windows'
+  wasiUrl: 'https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-24/$(wasiVer).tar.gz'
 
 steps:
 - task: CmdLine@2
   displayName: 'Download WASI SDK'
   inputs:
     script: |
-      curl -L -o $(wasiName).tar.gz $(wasiUrl)
+      curl -L -o $(wasiVer).tar.gz $(wasiUrl)
 
 - task: CmdLine@2
   displayName: 'Unpack WASI SDK'
   inputs:
     script: |
-      tar -xzf $(wasiName).tar.gz
+      tar -xzf $(wasiVer).tar.gz
       echo "Contents of directory after extraction:"
-      dir $(wasiName)
+      dir $(wasiVer)
 
 - task: PowerShell@2
   displayName: 'Set Environment Path for WASI SDK'
   inputs:
     targetType: 'inline'
     script: |
-      $env:WASI_SDK_PATH = "$(Get-Location)\$(wasiName)"
+      $env:WASI_SDK_PATH = "$(Get-Location)\$(wasiVer)"
       Write-Host "##vso[task.setvariable variable=WASI_SDK_PATH]$env:WASI_SDK_PATH"
 
 - task: PowerShell@2
