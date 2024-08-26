@@ -14,11 +14,10 @@ variables:
   wasiName: 'was-sdk-windows'
 
 - task: CmdLine@2
-  displayName: 'Download and Setup WASI SDK'
+  displayName: 'Download WASI SDK'
   inputs:
     script: |
       curl -L -o $(wasiName).tar.gz $(wasiUrl)
-    displayName: 'Download WASI SDK'
 
 - task: CmdLine@2
   inputs:
