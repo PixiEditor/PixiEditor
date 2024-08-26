@@ -1,0 +1,11 @@
+syntax = "proto3";
+package PixiEditor.Palettes;
+
+import "ExtensionPalette.proto";
+
+option csharp_namespace = "PixiEditor.Extensions.CommonApi.Palettes";
+
+message PaletteListResult
+{
+    repeated ExtensionPalette Palettes = 1;  
+}

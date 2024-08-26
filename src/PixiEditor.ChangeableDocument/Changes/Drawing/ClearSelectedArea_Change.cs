@@ -1,4 +1,5 @@
 ﻿using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class ClearSelectedArea_Change : Change
@@ -6,12 +7,14 @@ internal class ClearSelectedArea_Change : Change
     private readonly Guid memberGuid;
     private readonly bool drawOnMask;
     private CommittedChunkStorage? savedChunks;
+    private int frame;
 
     [GenerateMakeChangeAction]
-    public ClearSelectedArea_Change(Guid memberGuid, bool drawOnMask)
+    public ClearSelectedArea_Change(Guid memberGuid, bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.drawOnMask = drawOnMask;
+        this.frame = frame;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -24,7 +27,7 @@ internal class ClearSelectedArea_Change : Change
         if (savedChunks is not null)
             throw new InvalidOperationException("trying to save chunks while they are already saved");
 
-        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
 
         RectD bounds = target.Selection.SelectionPath.Bounds;
         RectI intBounds = (RectI)bounds.Intersect(new RectD(0, 0, target.Size.X, target.Size.Y)).RoundOutwards();
@@ -39,7 +42,7 @@ internal class ClearSelectedArea_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var affArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref savedChunks);
+        var affArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, frame, ref savedChunks);
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask);
     }
 

@@ -4,7 +4,8 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.DrawingApi.Core.Surfaces.Vector;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection.MagicWand;
 internal class MagicWandHelper
@@ -107,14 +108,14 @@ internal class MagicWandHelper
     }
 
     public static VectorPath DoMagicWandFloodFill(VecI startingPos, HashSet<Guid> membersToFloodFill,
-        IReadOnlyDocument document)
+        IReadOnlyDocument document, int frame)
     {
         if (startingPos.X < 0 || startingPos.Y < 0 || startingPos.X >= document.Size.X || startingPos.Y >= document.Size.Y)
             return new VectorPath();
 
         int chunkSize = ChunkResolution.Full.PixelSize();
 
-        FloodFillChunkCache cache = FloodFillHelper.CreateCache(membersToFloodFill, document);
+        FloodFillChunkCache cache = FloodFillHelper.CreateCache(membersToFloodFill, document, frame);
 
         VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
         VecI imageSizeInChunks = (VecI)(document.Size / (double)chunkSize).Ceiling();

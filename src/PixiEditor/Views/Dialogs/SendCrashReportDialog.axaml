@@ -1,0 +1,27 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="PixiEditor.Views.Dialogs.SendCrashReportDialog"
+        MinHeight="195" MinWidth="340"
+        ExtendClientAreaToDecorationsHint="False"
+        ExtendClientAreaChromeHints="Default"
+        Height="195" Width="340"
+        Title="Send crash report">
+    <StackPanel Margin="10">
+        <TextBlock>You can find the report here:</TextBlock>
+        <StackPanel Margin="0 10" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Width="140" Click="OpenInExplorer" Content="Open in explorer"/>
+        </StackPanel>
+        <TextBlock TextAlignment="Center" Text="You can send your crash report using:"/>
+        <StackPanel Margin="0 10" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Click="OpenHyperlink" Tag="github" Content="GitHub"/>
+            <Button Click="OpenHyperlink" Tag="discord" Content="Discord"/>
+            <Button Click="OpenHyperlink" Tag="email" Content="E-Mail"/>
+        </StackPanel>
+        <TextBlock TextWrapping="Wrap" TextAlignment="Center" Text="The report contains the documents that were opened when the crash happened, feel free to review it before sending."/>
+    </StackPanel>
+</Window>

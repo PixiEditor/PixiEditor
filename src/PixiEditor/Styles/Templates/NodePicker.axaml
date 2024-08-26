@@ -1,0 +1,35 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
+                    xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+                    xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                    xmlns:input="clr-namespace:PixiEditor.Views.Input"
+                    xmlns:nodeModels="clr-namespace:PixiEditor.Models.Nodes">
+    <ControlTheme TargetType="nodes:NodePicker" x:Key="{x:Type nodes:NodePicker}">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid MinWidth="200">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <input:InputBox
+                        Text="{Binding SearchQuery, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                        Name="PART_InputBox" />
+                    <ItemsControl MinHeight="200" Grid.Row="1" ItemsSource="{TemplateBinding FilteredNodeTypeInfos}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="nodeModels:NodeTypeInfo">
+                                <Button Command="{Binding SelectNodeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodePicker}}"
+                                        CommandParameter="{Binding}"
+                                        Margin="0,1"
+                                        IsVisible="{Binding !Hidden}"
+                                        ui:Translator.LocalizedString="{Binding FinalPickerName}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

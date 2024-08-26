@@ -1,9 +1,11 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿using System.Collections.Generic;
+using System.Linq;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
-using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
+using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Handlers.Tools;
+using PixiEditor.Models.Tools;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
@@ -11,35 +13,34 @@ internal class ShiftLayerExecutor : UpdateableChangeExecutor
 {
     private List<Guid> _affectedMemberGuids = new List<Guid>();
     private VecI startPos;
-    private MoveToolViewModel? tool;
+    private IMoveToolHandler? tool;
 
     public override ExecutorStartMode StartMode => ExecutorStartMode.OnMouseLeftButtonDown;
 
     public override ExecutionState Start()
     {
-        ViewModelMain? vm = ViewModelMain.Current;
-        StructureMemberViewModel? member = document!.SelectedStructureMember;
+        IStructureMemberHandler? member = document!.SelectedStructureMember;
         
-        tool = ViewModelMain.Current?.ToolsSubViewModel.GetTool<MoveToolViewModel>();
-        if (vm is null || tool is null)
+        tool = GetHandler<IMoveToolHandler>();
+        if (tool is null)
             return ExecutionState.Error;
 
         if (tool.MoveAllLayers)
         {
-            _affectedMemberGuids.AddRange(document.StructureHelper.GetAllLayers().Select(x => x.GuidValue));
+            _affectedMemberGuids.AddRange(document.StructureHelper.GetAllLayers().Select(x => x.Id));
         }
         else
         {
             if (member != null)
-                _affectedMemberGuids.Add(member.GuidValue);
-            _affectedMemberGuids.AddRange(document!.SoftSelectedStructureMembers.Select(x => x.GuidValue));
+                _affectedMemberGuids.Add(member.Id);
+            _affectedMemberGuids.AddRange(document!.SoftSelectedStructureMembers.Select(x => x.Id));
         }
 
         RemoveDrawOnMaskLayers(_affectedMemberGuids);
         
         startPos = controller!.LastPixelPosition;
 
-        ShiftLayer_Action action = new(_affectedMemberGuids, VecI.Zero, tool.KeepOriginalImage);
+        ShiftLayer_Action action = new(_affectedMemberGuids, VecI.Zero, tool.KeepOriginalImage, document!.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);
 
         return ExecutionState.Success;
@@ -50,7 +51,7 @@ internal class ShiftLayerExecutor : UpdateableChangeExecutor
         for (var i = 0; i < affectedMemberGuids.Count; i++)
         {
             var guid = affectedMemberGuids[i];
-            if (document!.StructureHelper.FindOrThrow(guid) is LayerViewModel { ShouldDrawOnMask: true })
+            if (document!.StructureHelper.FindOrThrow(guid) is ILayerHandler { ShouldDrawOnMask: true })
             {
                 _affectedMemberGuids.Remove(guid);
                 i--;
@@ -60,7 +61,7 @@ internal class ShiftLayerExecutor : UpdateableChangeExecutor
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        ShiftLayer_Action action = new(_affectedMemberGuids, pos - startPos, tool!.KeepOriginalImage);
+        ShiftLayer_Action action = new(_affectedMemberGuids, pos - startPos, tool!.KeepOriginalImage, document!.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);
     }
 

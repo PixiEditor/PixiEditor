@@ -1,7 +1,9 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
+using PixiEditor.Numerics;
 using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Skia.Implementations
@@ -19,6 +21,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             ManagedInstances[objectPointer].Dispose();
             ManagedInstances.TryRemove(objectPointer, out _);
+        }
+
+        public Color GetPixelColor(IntPtr objectPointer, VecI position)
+        {
+            return ManagedInstances[objectPointer].GetPixelColor(position.X, position.Y).ToBackendColor();
         }
 
         public IntPtr GetPixels(IntPtr objectPointer)
@@ -52,6 +59,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public int GetBytesSize(Pixmap pixmap)
         {
             return ManagedInstances[pixmap.ObjectPointer].BytesSize;
+        }
+
+        public object GetNativePixmap(IntPtr objectPointer)
+        {
+            return ManagedInstances[objectPointer];
         }
 
         public Pixmap CreateFrom(SKPixmap pixmap)

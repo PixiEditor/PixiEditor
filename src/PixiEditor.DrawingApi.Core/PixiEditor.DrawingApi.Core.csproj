@@ -1,64 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>netstandard2.1</TargetFramework>
-        <Nullable>enable</Nullable>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <LangVersion>10</LangVersion>
-        <Configurations>Debug;Release;Steam;DevRelease;DevSteam</Configurations>
-        <Platforms>AnyCPU;x86;x64</Platforms>
-      <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|AnyCPU'">
-      <Optimize>True</Optimize>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|x64'">
-      <Optimize>True</Optimize>
-      <PlatformTarget>AnyCPU</PlatformTarget>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|x86'">
-      <Optimize>True</Optimize>
-      <PlatformTarget>AnyCPU</PlatformTarget>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
-      <PlatformTarget>AnyCPU</PlatformTarget>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-      <PlatformTarget>AnyCPU</PlatformTarget>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DevRelease|x64' ">
-      <PlatformTarget>AnyCPU</PlatformTarget>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DevRelease|x86' ">
-      <PlatformTarget>AnyCPU</PlatformTarget>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
-      <PlatformTarget>AnyCPU</PlatformTarget>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-      <PlatformTarget>AnyCPU</PlatformTarget>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DevSteam|x86' ">
-      <Optimize>True</Optimize>
-      <PlatformTarget>AnyCPU</PlatformTarget>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DevSteam|x64' ">
-      <Optimize>True</Optimize>
-      <PlatformTarget>AnyCPU</PlatformTarget>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)' == 'DevSteam' ">
-      <Optimize>True</Optimize>
-    </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PixiEditor.Numerics\PixiEditor.Numerics.csproj"/>
+  </ItemGroup>
 </Project>

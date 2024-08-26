@@ -1,78 +1,111 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Documents;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Data.Core;
+using Avalonia.Media;
+using Avalonia.Reactive;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Helpers;
-using PixiEditor.Views;
 
 namespace PixiEditor.Extensions.UI;
 
-public class Translator : UIElement
+public class Translator : Control
 {
-    public static List<ExternalProperty> ExternalProperties { get; } = new();
+    public static List<ExternalProperty> ExternalProperties { get; } = new List<ExternalProperty>();
 
-    public static readonly DependencyProperty KeyProperty = DependencyProperty.RegisterAttached(
-        "Key",
-        typeof(string),
-        typeof(Translator),
-        new FrameworkPropertyMetadata(default(string), FrameworkPropertyMetadataOptions.AffectsRender, KeyPropertyChangedCallback));
+    public static readonly AttachedProperty<string> KeyProperty =
+        AvaloniaProperty.RegisterAttached<Translator, Control, string>("Key");
 
-    public static readonly DependencyProperty LocalizedStringProperty = DependencyProperty.RegisterAttached(
-        "LocalizedString",
-        typeof(LocalizedString),
-        typeof(Translator),
-        new FrameworkPropertyMetadata(default(LocalizedString), FrameworkPropertyMetadataOptions.AffectsRender, LocalizedStringPropertyChangedCallback));
+    public static readonly AttachedProperty<LocalizedString> LocalizedStringProperty =
+        AvaloniaProperty.RegisterAttached<Translator, Control, LocalizedString>("LocalizedString");
 
-    public static readonly DependencyProperty EnumProperty = DependencyProperty.RegisterAttached(
-        "Enum",
-        typeof(object),
-        typeof(Translator),
-        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, EnumPropertyChangedCallback));
+    public static readonly AttachedProperty<object> EnumProperty =
+        AvaloniaProperty.RegisterAttached<Translator, Control, object>("Enum");
 
-    public static readonly DependencyProperty TooltipKeyProperty = DependencyProperty.RegisterAttached(
-        "TooltipKey", typeof(string), typeof(Translator), 
-        new FrameworkPropertyMetadata(default(string), FrameworkPropertyMetadataOptions.AffectsRender, TooltipKeyPropertyChangedCallback));
+    public static readonly AttachedProperty<string> TooltipKeyProperty =
+        AvaloniaProperty.RegisterAttached<Translator, Control, string>("TooltipKey");
 
-    public static readonly DependencyProperty ValueProperty = DependencyProperty.RegisterAttached(
-        "Value",
-        typeof(string),
-        typeof(Translator),
-        new FrameworkPropertyMetadata(default(string), FrameworkPropertyMetadataOptions.AffectsRender));
+    public static readonly AttachedProperty<string> ValueProperty =
+        AvaloniaProperty.RegisterAttached<Translator, Control, string>("Value");
 
-    public static readonly DependencyProperty TooltipLocalizedStringProperty = DependencyProperty.RegisterAttached(
-        "TooltipLocalizedString",
-        typeof(LocalizedString),
-        typeof(Translator),
-        new FrameworkPropertyMetadata(default(LocalizedString), FrameworkPropertyMetadataOptions.AffectsRender, TooltipLocalizedStringPropertyChangedCallback));
+    public static readonly AttachedProperty<LocalizedString> TooltipLocalizedStringProperty =
+        AvaloniaProperty.RegisterAttached<Translator, Control, LocalizedString>("TooltipLocalizedString");
 
-    private static void TooltipLocalizedStringPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    public static readonly AttachedProperty<bool> UseLanguageFlowDirectionProperty =
+        AvaloniaProperty.RegisterAttached<Translator, Control, bool>("UseLanguageFlowDirection");
+
+    public static void SetUseLanguageFlowDirection(Control obj, bool value) => obj.SetValue(UseLanguageFlowDirectionProperty, value);
+    public static bool GetUseLanguageFlowDirection(Control obj) => obj.GetValue(UseLanguageFlowDirectionProperty);
+
+    static Translator()
     {
-        d.SetValue(FrameworkElement.ToolTipProperty, GetTooltipLocalizedString(d).Value);
-        ILocalizationProvider.Current.OnLanguageChanged += (lang) => OnLanguageChangedTooltipString(d, lang);
+        IObserver<AvaloniaPropertyChangedEventArgs<string>> keyObserver = new AnonymousObserver<AvaloniaPropertyChangedEventArgs<string>>(KeyPropertyChanged);
+        KeyProperty.Changed.Subscribe(keyObserver);
+
+        IObserver<AvaloniaPropertyChangedEventArgs<LocalizedString>> localizedStringObserver = new AnonymousObserver<AvaloniaPropertyChangedEventArgs<LocalizedString>>(LocalizedStringPropertyChanged);
+        LocalizedStringProperty.Changed.Subscribe(localizedStringObserver);
+
+        IObserver<AvaloniaPropertyChangedEventArgs<object>> enumObserver = new AnonymousObserver<AvaloniaPropertyChangedEventArgs<object>>(EnumPropertyChanged);
+        EnumProperty.Changed.Subscribe(enumObserver);
+
+        IObserver<AvaloniaPropertyChangedEventArgs<string>> tooltipKeyObserver = new AnonymousObserver<AvaloniaPropertyChangedEventArgs<string>>(TooltipKeyPropertyChanged);
+        TooltipKeyProperty.Changed.Subscribe(tooltipKeyObserver);
+
+        IObserver<AvaloniaPropertyChangedEventArgs<LocalizedString>> tooltipLocalizedStringObserver = new AnonymousObserver<AvaloniaPropertyChangedEventArgs<LocalizedString>>(TooltipLocalizedStringPropertyChanged);
+        TooltipLocalizedStringProperty.Changed.Subscribe(tooltipLocalizedStringObserver);
+
+        IObserver<AvaloniaPropertyChangedEventArgs<bool>> useLanguageFlowDirectionObserver = new AnonymousObserver<AvaloniaPropertyChangedEventArgs<bool>>(UseLanguageFlowDirectionPropertyChanged);
+        UseLanguageFlowDirectionProperty.Changed.Subscribe(useLanguageFlowDirectionObserver);
     }
 
-    private static void OnLanguageChangedTooltipString(DependencyObject dependencyObject, Language lang)
+    private static void UseLanguageFlowDirectionPropertyChanged(AvaloniaPropertyChangedEventArgs<bool> obj)
+    {
+        if (!obj.NewValue.Value)
+        {
+            obj.Sender.SetValue(Control.FlowDirectionProperty, FlowDirection.LeftToRight);
+            ILocalizationProvider.Current.OnLanguageChanged -= (lang) => OnLanguageChangedFlowDirection(obj.Sender);
+        }
+        else
+        {
+            OnLanguageChangedFlowDirection(obj.Sender);
+            ILocalizationProvider.Current.OnLanguageChanged += (lang) => OnLanguageChangedFlowDirection(obj.Sender);
+        }
+    }
+
+    private static void OnLanguageChangedFlowDirection(AvaloniaObject objSender)
+    {
+        objSender.SetValue(Control.FlowDirectionProperty, ILocalizationProvider.Current?.CurrentLanguage.FlowDirection ?? FlowDirection.LeftToRight);
+    }
+
+    private static void TooltipLocalizedStringPropertyChanged(AvaloniaPropertyChangedEventArgs<LocalizedString> e)
+    {
+        e.Sender.SetValue(ToolTip.TipProperty, GetTooltipLocalizedString(e.Sender).Value);
+        ILocalizationProvider.Current.OnLanguageChanged += (lang) => OnLanguageChangedTooltipString(e.Sender, lang);
+    }
+
+    private static void OnLanguageChangedTooltipString(AvaloniaObject dependencyObject, Language lang)
     {
         LocalizedString localizedString = GetTooltipLocalizedString(dependencyObject);
         LocalizedString newLocalizedString = new(localizedString.Key, localizedString.Parameters);
 
-        dependencyObject.SetValue(FrameworkElement.ToolTipProperty, newLocalizedString.Value);
+        dependencyObject.SetValue(ToolTip.TipProperty, newLocalizedString.Value);
     }
-    
-    private static void TooltipKeyPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+
+    private static void TooltipKeyPropertyChanged(AvaloniaPropertyChangedEventArgs<string> e)
     {
-        d.SetValue(FrameworkElement.ToolTipProperty, new LocalizedString(GetTooltipKey(d)).Value);
+        e.Sender.SetValue(ToolTip.TipProperty, new LocalizedString(GetTooltipKey(e.Sender)).Value);
 
         if (ILocalizationProvider.Current == null)
         {
             return;
         }
-        
-        ILocalizationProvider.Current.OnLanguageChanged += (lang) => OnLanguageChangedTooltipKey(d, lang);
+
+        ILocalizationProvider.Current.OnLanguageChanged += (lang) => OnLanguageChangedTooltipKey(e.Sender, lang);
     }
 
-    private static void OnLanguageChangedKey(DependencyObject obj, Language newLanguage)
+    private static void OnLanguageChangedKey(AvaloniaObject obj, Language newLanguage)
     {
         string key = GetKey(obj);
         if (key != null)
@@ -81,106 +114,106 @@ public class Translator : UIElement
         }
     }
 
-    private static void OnLanguageChangedTooltipKey(DependencyObject element, Language lang)
+    private static void OnLanguageChangedTooltipKey(AvaloniaObject element, Language lang)
     {
         string tooltipKey = GetTooltipKey(element);
         if (tooltipKey != null)
         {
-            element.SetValue(FrameworkElement.ToolTipProperty, new LocalizedString(tooltipKey).Value);
+            element.SetValue(ToolTip.TipProperty, new LocalizedString(tooltipKey).Value);
         }
     }
 
-    public static void SetTooltipKey(DependencyObject element, string value)
+    public static void SetTooltipKey(AvaloniaObject element, string value)
     {
         element.SetValue(TooltipKeyProperty, value);
     }
 
-    public static string GetTooltipKey(DependencyObject element)
+    public static string GetTooltipKey(AvaloniaObject element)
     {
         return (string)element.GetValue(TooltipKeyProperty);
     }
 
-    private static void KeyPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    private static void KeyPropertyChanged(AvaloniaPropertyChangedEventArgs<string> e)
     {
-        if (e.NewValue is string key)
+        UpdateKey(e.Sender, e.NewValue.Value);
+
+        if (ILocalizationProvider.Current == null)
         {
-            UpdateKey(d, key);
-            
-            if (ILocalizationProvider.Current == null)
-            {
-                return;
-            }
-
-            ILocalizationProvider.Current.OnLanguageChanged += (lang) => OnLanguageChangedKey(d, lang);
-        }
-    }
-
-    private static void LocalizedStringPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        d.SetValue(KeyProperty, ((LocalizedString)e.NewValue).Key);
-    }
-
-    private static void EnumPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        if (e.NewValue == null)
-        {
-            d.SetValue(KeyProperty, null);
             return;
         }
-        
-        d.SetValue(KeyProperty, EnumHelpers.GetDescription(e.NewValue));
+
+        ILocalizationProvider.Current.OnLanguageChanged += (lang) => OnLanguageChangedKey(e.Sender, lang);
     }
 
-    private static void UpdateKey(DependencyObject d, string key)
+    private static void LocalizedStringPropertyChanged(AvaloniaPropertyChangedEventArgs<LocalizedString> e)
     {
+        e.Sender.SetValue(KeyProperty, (e.NewValue.Value).Key);
+    }
+
+    private static void EnumPropertyChanged(AvaloniaPropertyChangedEventArgs<object> e)
+    {
+        if (!e.NewValue.HasValue)
+        {
+            e.Sender.SetValue(KeyProperty, null);
+            return;
+        }
+
+        e.Sender.SetValue(KeyProperty, EnumHelpers.GetDescription(e.NewValue));
+    }
+
+    private static void UpdateKey(AvaloniaObject d, string key)
+    {
+        if(key == null) return;
         var parameters = GetLocalizedString(d).Parameters;
         LocalizedString localizedString = new(key, parameters);
-        Binding binding = new()
-        {
-            Path = new PropertyPath("(0)", ValueProperty),
-            RelativeSource = new RelativeSource(RelativeSourceMode.Self)
-        };
+
+        var valueObservable = d.GetObservable(ValueProperty);
 
         ExternalProperty externalProperty = ExternalProperties.FirstOrDefault(x => x.PropertyType.IsAssignableFrom(d.GetType()));
 
         if (d is ICustomTranslatorElement customTranslatorElement)
         {
-            customTranslatorElement.SetTranslationBinding(customTranslatorElement.GetDependencyProperty(), binding);
+            customTranslatorElement.SetTranslationBinding(customTranslatorElement.GetDependencyProperty(), valueObservable);
         }
         else if (externalProperty != null)
         {
             if (externalProperty.SetTranslationBinding != null)
             {
-                externalProperty.SetTranslationBinding(d, binding);
+                externalProperty.SetTranslationBinding(d, valueObservable);
             }
             else
             {
-                externalProperty.SetTranslation(d, localizedString);
+                externalProperty.SetTranslation?.Invoke(d, localizedString);
             }
         }
         else if (d is TextBox textBox)
         {
-            textBox.SetBinding(TextBox.TextProperty, binding);
+            textBox.Bind(TextBox.TextProperty, valueObservable);
         }
         else if (d is TextBlock textBlock)
         {
-            textBlock.SetBinding(TextBlock.TextProperty, binding);
+            //textBlock.Bind(TextBlock.TextProperty, binding);
+            textBlock.Bind(TextBlock.TextProperty, valueObservable);
         }
         else if (d is Run run)
         {
-            run.SetBinding(Run.TextProperty, binding);
+            run.Bind(Run.TextProperty, valueObservable);
         }
         else if (d is Window window)
         {
-            window.SetBinding(Window.TitleProperty, binding);
+            window.Bind(Window.TitleProperty, valueObservable);
+        }
+        else if (d is HeaderedSelectingItemsControl menuItem)
+        {
+            menuItem.Bind(HeaderedSelectingItemsControl.HeaderProperty, valueObservable);
+        }
+        else if (d is HeaderedContentControl headeredContentControl)
+        {
+            headeredContentControl.Bind(HeaderedContentControl.HeaderProperty, valueObservable);
         }
         else if (d is ContentControl contentControl)
         {
-            contentControl.SetBinding(ContentControl.ContentProperty, binding);
-        }
-        else if (d is HeaderedItemsControl menuItem)
-        {
-            menuItem.SetBinding(HeaderedItemsControl.HeaderProperty, binding);
+            contentControl.Bind(ContentControl.ContentProperty, valueObservable);
         }
 #if DEBUG
         else
@@ -192,42 +225,42 @@ public class Translator : UIElement
         d.SetValue(ValueProperty, localizedString.Value);
     }
 
-    public static void SetKey(DependencyObject element, string value)
+    public static void SetKey(AvaloniaObject element, string value)
     {
         element.SetValue(KeyProperty, value);
     }
 
-    public static string GetKey(DependencyObject element)
+    public static string GetKey(AvaloniaObject element)
     {
-        return (string)element.GetValue(KeyProperty);
+        return element.GetValue(KeyProperty);
     }
 
-    public static void SetLocalizedString(DependencyObject element, LocalizedString value)
+    public static void SetLocalizedString(AvaloniaObject element, LocalizedString value)
     {
         element.SetValue(LocalizedStringProperty, value);
     }
 
-    public static void SetEnum(DependencyObject element, object value)
+    public static void SetEnum(AvaloniaObject element, object value)
     {
         element.SetValue(EnumProperty, value);
     }
 
-    public static LocalizedString GetLocalizedString(DependencyObject element)
+    public static LocalizedString GetLocalizedString(AvaloniaObject element)
     {
-        return (LocalizedString)element.GetValue(LocalizedStringProperty);
+        return element.GetValue(LocalizedStringProperty);
     }
-    
-    public static string GetValue(DependencyObject element)
+
+    public static string GetValue(AvaloniaObject element)
     {
         return (string)element.GetValue(ValueProperty);
     }
 
-    public static LocalizedString GetTooltipLocalizedString(DependencyObject element)
+    public static LocalizedString GetTooltipLocalizedString(AvaloniaObject element)
     {
-        return (LocalizedString)element.GetValue(TooltipLocalizedStringProperty);
+        return element.GetValue(TooltipLocalizedStringProperty);
     }
 
-    public static void SetTooltipLocalizedString(UIElement element, LocalizedString value)
+    public static void SetTooltipLocalizedString(AvaloniaObject element, LocalizedString value)
     {
         element.SetValue(TooltipLocalizedStringProperty, value);
     }

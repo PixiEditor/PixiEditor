@@ -1,6 +1,6 @@
 ﻿using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Skia.Implementations

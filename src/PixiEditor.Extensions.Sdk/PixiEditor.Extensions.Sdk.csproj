@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RuntimeIdentifier>wasi-wasm</RuntimeIdentifier>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <PublishTrimmed>true</PublishTrimmed>
+    <WasmBuildNative>true</WasmBuildNative>
+    <WasmSingleFileBundle>true</WasmSingleFileBundle>
+    <TrimMode>full</TrimMode>
+    <DebuggerSupport>false</DebuggerSupport>
+    <EventSourceSupport>false</EventSourceSupport>
+    <UseSystemResourceKeys>true</UseSystemResourceKeys>
+    <NativeDebugSymbols>false</NativeDebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PixiEditor.Extensions.CommonApi\PixiEditor.Extensions.CommonApi.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.8.3"/>
+  </ItemGroup>
+
+  <Target Name="PackTaskDependencies" BeforeTargets="GenerateNuspec">
+    <ItemGroup>
+      <_PackageFiles Include="build\**" BuildAction="Content" PackagePath="build"/>
+      <_PackageFiles Include="native\**" BuildAction="Content" PackagePath="native"/>
+    </ItemGroup>
+  </Target>
+
+</Project>

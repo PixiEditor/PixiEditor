@@ -1,23 +1,26 @@
 ﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class LineBasedPen_UpdateableChange : UpdateableChange
 {
     private readonly Guid memberGuid;
     private readonly Color color;
-    private readonly int strokeWidth;
+    private int strokeWidth;
     private readonly bool replacing;
     private readonly bool drawOnMask;
     private readonly Paint srcPaint = new Paint() { BlendMode = BlendMode.Src };
 
     private CommittedChunkStorage? storedChunks;
     private readonly List<VecI> points = new();
+    private int frame;
 
     [GenerateUpdateableChangeActions]
-    public LineBasedPen_UpdateableChange(Guid memberGuid, Color color, VecI pos, int strokeWidth, bool replacing, bool drawOnMask)
+    public LineBasedPen_UpdateableChange(Guid memberGuid, Color color, VecI pos, int strokeWidth, bool replacing,
+        bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.color = color;
@@ -25,12 +28,14 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         this.replacing = replacing;
         this.drawOnMask = drawOnMask;
         points.Add(pos);
-    }
+        this.frame = frame;
+}
 
     [UpdateChangeMethod]
-    public void Update(VecI pos)
+    public void Update(VecI pos, int strokeWidth)
     {
         points.Add(pos);
+        this.strokeWidth = strokeWidth;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -39,7 +44,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             return false;
         if (strokeWidth < 1)
             return false;
-        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
         if (!replacing)
             image.SetBlendMode(BlendMode.SrcOver);
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
@@ -48,7 +53,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
-        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
 
         var (from, to) = points.Count > 1 ? (points[^2], points[^1]) : (points[0], points[0]);
 
@@ -107,7 +112,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     {
         if (storedChunks is not null)
             throw new InvalidOperationException("Trying to save chunks while there are saved chunks already");
-        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
 
         ignoreInUndo = false;
         if (firstApply)
@@ -135,7 +140,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref storedChunks);
+        var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, frame, ref storedChunks);
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affected, drawOnMask);
     }
 

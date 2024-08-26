@@ -1,7 +1,7 @@
 ﻿using System;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 
 namespace PixiEditor.DrawingApi.Core.Bridge.Operations;
 
@@ -15,4 +15,8 @@ public interface ISurfaceImplementation
     public DrawingSurface Create(Pixmap pixmap);
     public DrawingSurface Create(ImageInfo imageInfo);
     public void Dispose(DrawingSurface drawingSurface);
+    public object GetNativeSurface(IntPtr objectPointer);
+    public void Flush(DrawingSurface drawingSurface);
+    public DrawingSurface FromNative(object native);
 }
+

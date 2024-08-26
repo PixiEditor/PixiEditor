@@ -1,9 +1,12 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
-using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Platform;
-using PixiEditor.UpdateModule;
 
 namespace PixiEditor.Models.Services.NewsFeed;
 
@@ -12,11 +15,11 @@ internal class NewsProvider
     private const int MaxNewsCount = 20;
     private const string FeedUrl = "https://raw.githubusercontent.com/PixiEditor/news-feed/main/";
 
-    private List<int> _lastCheckedIds = new List<int>();
+    private List<int> _lastCheckedIds;
 
     public NewsProvider()
     {
-        _lastCheckedIds = IPreferences.Current.GetPreference(PreferencesConstants.LastCheckedNewsIds, new List<int>());
+        _lastCheckedIds = PixiEditorSettings.StartupWindow.LastCheckedNewsIds.AsList();
     }
 
     public async Task<List<News>?> FetchNewsAsync()
@@ -58,6 +61,6 @@ internal class NewsProvider
             }
         }
 
-        IPreferences.Current.UpdatePreference(PreferencesConstants.LastCheckedNewsIds, _lastCheckedIds);
+        PixiEditorSettings.StartupWindow.LastCheckedNewsIds.Value = _lastCheckedIds;
     }
 }

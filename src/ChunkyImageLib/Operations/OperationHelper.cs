@@ -1,6 +1,7 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.Numerics;
 
 namespace ChunkyImageLib.Operations;
 
@@ -21,7 +22,7 @@ public static class OperationHelper
     /// <summary>
     /// toModify[x,y].Alpha = Math.Min(toModify[x,y].Alpha, toGetAlphaFrom[x,y].Alpha)
     /// </summary>
-    public static unsafe void ClampAlpha(DrawingSurface toModify, DrawingSurface toGetAlphaFrom, RectI? clippingRect = null)
+    public static unsafe void ClampAlpha(IPixelsMap toModify, IPixelsMap toGetAlphaFrom, RectI? clippingRect = null)
     {
         if (clippingRect is not null)
         {
@@ -58,7 +59,7 @@ public static class OperationHelper
         }
     }
 
-    private static unsafe void ClampAlphaWithClippingRect(DrawingSurface toModify, DrawingSurface toGetAlphaFrom, RectI clippingRect)
+    private static unsafe void ClampAlphaWithClippingRect(IPixelsMap toModify, IPixelsMap toGetAlphaFrom, RectI clippingRect)
     {
         using Pixmap map = toModify.PeekPixels();
         using Pixmap refMap = toGetAlphaFrom.PeekPixels();

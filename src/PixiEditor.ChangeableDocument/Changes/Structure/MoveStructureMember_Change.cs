@@ -1,4 +1,9 @@
-﻿using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+using PixiEditor.ChangeableDocument.Changes.NodeGraph;
+using PixiEditor.DrawingApi.Core;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
@@ -6,50 +11,86 @@ internal class MoveStructureMember_Change : Change
 {
     private Guid memberGuid;
 
-    private Guid targetFolderGuid;
-    private int targetFolderIndex;
+    private Guid targetNodeGuid;
 
     private Guid originalFolderGuid;
-    private int originalFolderIndex;
+
+    private ConnectionsData originalConnections; 
+    
+    private bool putInsideFolder;
+
 
     [GenerateMakeChangeAction]
-    public MoveStructureMember_Change(Guid memberGuid, Guid targetFolder, int targetFolderIndex)
+    public MoveStructureMember_Change(Guid memberGuid, Guid targetNode, bool putInsideFolder)
     {
         this.memberGuid = memberGuid;
-        this.targetFolderGuid = targetFolder;
-        this.targetFolderIndex = targetFolderIndex;
+        this.targetNodeGuid = targetNode;
+        this.putInsideFolder = putInsideFolder;
     }
 
     public override bool InitializeAndValidate(Document document)
     {
-        var (member, curFolder) = document.FindChildAndParent(memberGuid);
-        var targetFolder = document.FindMember(targetFolderGuid);
-        if (member is null || curFolder is null || targetFolder is not Folder)
+        var member = document.FindMember(memberGuid);
+        var targetFolder = document.FindNode(targetNodeGuid);
+        if (member is null || targetFolder is null)
             return false;
-        originalFolderGuid = curFolder.GuidValue;
-        originalFolderIndex = curFolder.Children.IndexOf(member);
+
+        originalConnections = NodeOperations.CreateConnectionsData(member); 
+          
         return true;
     }
 
-    private static void Move(Document document, Guid memberGuid, Guid targetFolderGuid, int targetIndex)
+    private static List<IChangeInfo> Move(Document document, Guid sourceNodeGuid, Guid targetNodeGuid, bool putInsideFolder)
     {
-        var targetFolder = document.FindMemberOrThrow<Folder>(targetFolderGuid);
-        var (member, curFolder) = document.FindChildAndParentOrThrow(memberGuid);
+        var sourceNode = document.FindMember(sourceNodeGuid);
+        var targetNode = document.FindNode(targetNodeGuid);
+        if (sourceNode is null || targetNode is not IBackgroundInput backgroundInput)
+            return [];
 
-        curFolder.Children = curFolder.Children.Remove(member);
-        targetFolder.Children = targetFolder.Children.Insert(targetIndex, member);
+        List<IChangeInfo> changes = new();
+        
+        Guid oldBackgroundId = sourceNode.Background.Node.Id;
+
+        InputProperty<Texture?> inputProperty = backgroundInput.Background;
+
+        if (targetNode is FolderNode folder && putInsideFolder)
+        {
+            inputProperty = folder.Content;
+        }
+
+        MoveStructureMember_ChangeInfo changeInfo = new(sourceNodeGuid, oldBackgroundId, targetNodeGuid);
+        
+        changes.AddRange(NodeOperations.DetachStructureNode(sourceNode));
+        changes.AddRange(NodeOperations.AppendMember(inputProperty, sourceNode.Output,
+            sourceNode.Background,
+            sourceNode.Id));
+        
+        changes.Add(changeInfo);
+
+        return changes;
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
+        out bool ignoreInUndo)
     {
-        Move(target, memberGuid, targetFolderGuid, targetFolderIndex);
+        var changes = Move(target, memberGuid, targetNodeGuid, putInsideFolder);
         ignoreInUndo = false;
-        return new MoveStructureMember_ChangeInfo(memberGuid, originalFolderGuid, targetFolderGuid, targetFolderIndex);
+        return changes;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        Move(target, memberGuid, originalFolderGuid, originalFolderIndex);
-        return new MoveStructureMember_ChangeInfo(memberGuid, targetFolderGuid, originalFolderGuid, originalFolderIndex);
+        StructureNode member = target.FindMember(memberGuid);
+
+        List<IChangeInfo> changes = new List<IChangeInfo>();
+        
+        MoveStructureMember_ChangeInfo changeInfo = new(memberGuid, targetNodeGuid, originalFolderGuid);
+        
+        changes.AddRange(NodeOperations.DetachStructureNode(member));
+        changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, member, target.NodeGraph));
+        
+        changes.Add(changeInfo);
+        
+        return changes;
     }
 }

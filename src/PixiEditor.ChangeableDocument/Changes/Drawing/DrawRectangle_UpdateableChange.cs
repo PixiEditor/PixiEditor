@@ -8,13 +8,15 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
     private ShapeData rect;
     private readonly bool drawOnMask;
     private CommittedChunkStorage? storedChunks;
-
+    private int frame;
+    
     [GenerateUpdateableChangeActions]
-    public DrawRectangle_UpdateableChange(Guid memberGuid, ShapeData rectangle, bool drawOnMask)
+    public DrawRectangle_UpdateableChange(Guid memberGuid, ShapeData rectangle, bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.rect = rectangle;
         this.drawOnMask = drawOnMask;
+        this.frame = frame;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -48,7 +50,7 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
-        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
         var area = UpdateRectangle(target, targetImage);
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, area, drawOnMask);
     }
@@ -61,7 +63,7 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
             return new None();
         }
 
-        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
         var area = UpdateRectangle(target, targetImage);
         storedChunks = new CommittedChunkStorage(targetImage, area.Chunks);
         targetImage.CommitChanges();
@@ -72,7 +74,7 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var area = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref storedChunks);
+        var area = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, frame, ref storedChunks);
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, area, drawOnMask);
     }
 

@@ -1,9 +1,11 @@
 ﻿using ChunkyImageLib.Operations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
+using PixiEditor.Numerics;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
@@ -12,12 +14,14 @@ internal sealed class FlipImage_Change : Change
 {
     private readonly FlipType flipType;
     private List<Guid> membersToFlip;
+    private int frame;
 
     [GenerateMakeChangeAction]
-    public FlipImage_Change(FlipType flipType, List<Guid>? membersToFlip = null)
+    public FlipImage_Change(FlipType flipType, int frame, List<Guid>? membersToFlip = null)
     {
         this.flipType = flipType;
         membersToFlip ??= new List<Guid>();
+        this.frame = frame;
         this.membersToFlip = membersToFlip;
     }
     
@@ -48,7 +52,7 @@ internal sealed class FlipImage_Change : Change
     {
         using Paint paint = new()
         {
-            BlendMode = DrawingApi.Core.Surface.BlendMode.Src
+            BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src
         };
 
         RectI bounds = new RectI(VecI.Zero, img.LatestSize);
@@ -97,22 +101,24 @@ internal sealed class FlipImage_Change : Change
 
         target.ForEveryMember(member =>
         {
-            if (membersToFlip.Count == 0 || membersToFlip.Contains(member.GuidValue))
+            if (membersToFlip.Count == 0 || membersToFlip.Contains(member.Id))
             {
-                if (member is Layer layer)
+                if (member is ImageLayerNode layer)
                 {
-                    FlipImage(layer.LayerImage);
+                    var image = layer.GetLayerImageAtFrame(frame);
+                    FlipImage(image);
                     changes.Add(
-                        new LayerImageArea_ChangeInfo(member.GuidValue, layer.LayerImage.FindAffectedArea()));
-                    layer.LayerImage.CommitChanges();
+                        new LayerImageArea_ChangeInfo(member.Id, image.FindAffectedArea()));
+                    image.CommitChanges();
                 }
+                // TODO: Add support for non-raster layers
 
-                if (member.Mask is not null)
+                if (member.Mask.NonOverridenValue is not null)
                 {
-                    FlipImage(member.Mask);
+                    FlipImage(member.Mask.NonOverridenValue);
                     changes.Add(
-                        new MaskArea_ChangeInfo(member.GuidValue, member.Mask.FindAffectedArea()));
-                    member.Mask.CommitChanges();
+                        new MaskArea_ChangeInfo(member.Id, member.Mask.NonOverridenValue.FindAffectedArea()));
+                    member.Mask.NonOverridenValue.CommitChanges();
                 }
             }
         });

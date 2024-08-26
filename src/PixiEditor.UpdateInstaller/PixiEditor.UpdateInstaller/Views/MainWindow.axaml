@@ -1,0 +1,13 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PixiEditor.UpdateInstaller.New.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:PixiEditor.UpdateInstaller.New.Views"
+        mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="250"
+        ExtendClientAreaChromeHints="NoChrome" ExtendClientAreaTitleBarHeightHint="30" ExtendClientAreaToDecorationsHint="True"
+        Width="250" Height="350" CanResize="False" WindowStartupLocation="CenterScreen"
+        x:Class="PixiEditor.UpdateInstaller.New.Views.MainWindow" Loaded="Window_OnLoaded"
+        Icon="/Assets/avalonia-logo.ico" Background="{DynamicResource Background0}">
+        <views:MainView />
+</Window>

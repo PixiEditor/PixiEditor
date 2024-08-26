@@ -1,7 +1,8 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Shaders;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 
 namespace PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl
 {
@@ -24,8 +25,15 @@ namespace PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl
         public void SetStrokeCap(Paint paint, StrokeCap value);
         public float GetStrokeWidth(Paint paint);
         public void SetStrokeWidth(Paint paint, float value);
+        
         public ColorFilter GetColorFilter(Paint paint);
-
         public void SetColorFilter(Paint paint, ColorFilter value);
+        
+        public ImageFilter GetImageFilter(Paint paint);
+        public void SetImageFilter(Paint paint, ImageFilter value);
+        
+        public object GetNativePaint(IntPtr objectPointer);
+        public Shader? GetShader(Paint paint);
+        public void SetShader(Paint paint, Shader shader);
     }
 }

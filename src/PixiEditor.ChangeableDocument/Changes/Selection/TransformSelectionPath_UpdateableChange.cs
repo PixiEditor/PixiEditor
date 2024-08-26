@@ -1,5 +1,6 @@
 ﻿using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.DrawingApi.Core.Surfaces.Vector;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection;
 internal class TransformSelectionPath_UpdateableChange : UpdateableChange

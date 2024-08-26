@@ -1,33 +1,42 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
+using PixiEditor.Numerics;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
-using DrawingApiBlendMode = PixiEditor.DrawingApi.Core.Surface.BlendMode;
+using DrawingApiBlendMode = PixiEditor.DrawingApi.Core.Surfaces.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
-internal class RenderingContext : IDisposable
+
+public class RenderingContext : IDisposable
 {
-    public Paint BlendModePaint = new () { BlendMode = DrawingApiBlendMode.SrcOver };
-    public Paint BlendModeOpacityPaint = new () { BlendMode = DrawingApiBlendMode.SrcOver };
-    public Paint ReplacingPaintWithOpacity = new () { BlendMode = DrawingApiBlendMode.Src };
+    public Paint BlendModePaint = new() { BlendMode = DrawingApiBlendMode.SrcOver };
+    public Paint BlendModeOpacityPaint = new() { BlendMode = DrawingApiBlendMode.SrcOver };
+    public Paint ReplacingPaintWithOpacity = new() { BlendMode = DrawingApiBlendMode.Src };
 
-    public void UpdateFromMember(IReadOnlyStructureMember member)
+    public KeyFrameTime FrameTime { get; }
+    public VecI ChunkToUpdate { get; }
+    public ChunkResolution ChunkResolution { get; }
+    public VecI DocumentSize { get; set; }
+    
+
+    public bool IsDisposed { get; private set; }
+    
+    public RenderingContext(KeyFrameTime frameTime, VecI chunkToUpdate, ChunkResolution chunkResolution, VecI docSize)
     {
-        Color opacityColor = new(255, 255, 255, (byte)Math.Round(member.Opacity * 255));
-        DrawingApiBlendMode blendMode = GetDrawingBlendMode(member.BlendMode);
-
-        BlendModeOpacityPaint.Color = opacityColor;
-        BlendModeOpacityPaint.BlendMode = blendMode;
-        BlendModePaint.BlendMode = blendMode;
-        ReplacingPaintWithOpacity.Color = opacityColor;
+        FrameTime = frameTime;
+        ChunkToUpdate = chunkToUpdate;
+        ChunkResolution = chunkResolution;
+        DocumentSize = docSize;
     }
 
-    private static DrawingApiBlendMode GetDrawingBlendMode(BlendMode blendMode)
+    public static DrawingApiBlendMode GetDrawingBlendMode(BlendMode blendMode)
     {
         return blendMode switch
         {
             BlendMode.Normal => DrawingApiBlendMode.SrcOver,
+            BlendMode.Erase => DrawingApiBlendMode.DstOut,
             BlendMode.Darken => DrawingApiBlendMode.Darken,
             BlendMode.Multiply => DrawingApiBlendMode.Multiply,
             BlendMode.ColorBurn => DrawingApiBlendMode.ColorBurn,
@@ -50,6 +59,12 @@ internal class RenderingContext : IDisposable
 
     public void Dispose()
     {
+        if (IsDisposed)
+        {
+            return;
+        }
+        
+        IsDisposed = true;
         BlendModePaint.Dispose();
         BlendModeOpacityPaint.Dispose();
         ReplacingPaintWithOpacity.Dispose();

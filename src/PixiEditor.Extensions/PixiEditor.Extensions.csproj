@@ -1,12 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0-windows</TargetFramework>
-      <TargetFrameworks>net7.0-windows</TargetFrameworks>
-      <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-      <UseWPF>true</UseWPF>
+      <TargetFramework>net8.0</TargetFramework>
+      <ImplicitUsings>enable</ImplicitUsings>
+      <Nullable>enable</Nullable>
       <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
       <Version>0.0.3</Version>
       <Title>PixiEditor Extensions</Title>
@@ -16,8 +13,15 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+      <PackageReference Include="Avalonia.Remote.Protocol" Version="$(AvaloniaVersion)" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PixiEditor.Extensions.CommonApi\PixiEditor.Extensions.CommonApi.csproj" />
+      <ProjectReference Include="..\PixiEditor.Numerics\PixiEditor.Numerics.csproj" />
     </ItemGroup>
 </Project>

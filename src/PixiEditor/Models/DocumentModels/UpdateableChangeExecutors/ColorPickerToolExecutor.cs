@@ -1,6 +1,8 @@
 ﻿using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
+using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Handlers.Tools;
+using PixiEditor.Models.Tools;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -10,21 +12,21 @@ internal class ColorPickerToolExecutor : UpdateableChangeExecutor
     private bool includeReference;
     private bool includeCanvas;
     private DocumentScope scope;
-    private ColorsViewModel? colorsViewModel;
+    private IColorsHandler? colorsViewModel;
 
     public override ExecutionState Start()
     {
-        colorsViewModel = ViewModelMain.Current?.ColorsSubViewModel;
-        ColorPickerToolViewModel? tool = ViewModelMain.Current?.ToolsSubViewModel.GetTool<ColorPickerToolViewModel>();
+        colorsViewModel = GetHandler<IColorsHandler>();
+        IColorPickerHandler? tool = GetHandler<IColorPickerHandler>();
 
         if (colorsViewModel is null || tool is null)
             return ExecutionState.Error;
 
         scope = tool.Mode;
-        includeReference = tool.PickFromReferenceLayer && document!.ReferenceLayerViewModel.ReferenceBitmap is not null;
+        includeReference = tool.PickFromReferenceLayer && document!.ReferenceLayerHandler.ReferenceBitmap is not null;
         includeCanvas = tool.PickFromCanvas;
         
-        colorsViewModel.PrimaryColor = document.PickColor(controller.LastPrecisePosition, scope, includeReference, includeCanvas, document.ReferenceLayerViewModel.IsTopMost);
+        colorsViewModel.PrimaryColor = document.PickColor(controller.LastPrecisePosition, scope, includeReference, includeCanvas, document.AnimationHandler.ActiveFrameBindable, document.ReferenceLayerHandler.IsTopMost);
         return ExecutionState.Success;
     }
 
@@ -32,12 +34,12 @@ internal class ColorPickerToolExecutor : UpdateableChangeExecutor
     {
         if (!includeReference)
             return;
-        colorsViewModel.PrimaryColor = document.PickColor(pos, scope, includeReference, includeCanvas, document.ReferenceLayerViewModel.IsTopMost);
+        colorsViewModel.PrimaryColor = document.PickColor(pos, scope, includeReference, includeCanvas, document.AnimationHandler.ActiveFrameBindable, document.ReferenceLayerHandler.IsTopMost);
     }
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        colorsViewModel.PrimaryColor = document.PickColor(pos, scope, includeReference, includeCanvas, document.ReferenceLayerViewModel.IsTopMost);
+        colorsViewModel.PrimaryColor = document.PickColor(pos, scope, includeReference, includeCanvas, document.AnimationHandler.ActiveFrameBindable, document.ReferenceLayerHandler.IsTopMost);
     }
 
     public override void OnLeftMouseButtonUp()

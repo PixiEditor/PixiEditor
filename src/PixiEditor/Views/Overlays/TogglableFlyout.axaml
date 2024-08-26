@@ -1,0 +1,53 @@
+﻿<UserControl x:Class="PixiEditor.Views.Overlays.TogglableFlyout"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             mc:Ignorable="d"
+             d:DesignHeight="380" d:DesignWidth="200" Name="togglableFlyout">
+    <Border Background="Transparent">
+        <StackPanel Orientation="Vertical">
+            <Border HorizontalAlignment="Right" Background="{DynamicResource ThemeBackgroundBrush1}"
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                    BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                    BorderThickness="{DynamicResource ThemeBorderThickness}" Padding="5"
+                    x:Name="btnBorder">
+                <ToggleButton Padding="0" Margin="0"
+                              x:Name="toggleButton" BorderThickness="0" Width="24" Height="24" Background="Transparent">
+                    <ToggleButton.Template>
+                        <ControlTemplate TargetType="{x:Type ToggleButton}">
+                            <Grid>
+                                <Grid.Styles>
+                                    <Style Selector="Grid TextBlock#btnBg">
+                                        <Setter Property="RenderTransform" Value="rotate(0)" />
+                                    </Style>
+                                    <Style Selector="ToggleButton:checked TextBlock#btnBg">
+                                        <Setter Property="RenderTransform" Value="rotate(180deg)" />
+                                    </Style>
+                                </Grid.Styles>
+                                <TextBlock Focusable="False" FontSize="24" Width="24" Cursor="Hand" x:Name="btnBg"
+                                           Classes="pixi-icon"
+                                           Text="{Binding ElementName=togglableFlyout, Path=Icon}">
+                                    <TextBlock.Transitions>
+                                        <Transitions>
+                                            <TransformOperationsTransition Duration="0:0:0.15"
+                                                                           Property="RenderTransform" />
+                                        </Transitions>
+                                    </TextBlock.Transitions>
+                                    <TextBlock.RenderTransform>
+                                        <RotateTransform Angle="0" CenterX="12" CenterY="12" />
+                                    </TextBlock.RenderTransform>
+                                </TextBlock>
+                                <ContentPresenter />
+                            </Grid>
+                        </ControlTemplate>
+                    </ToggleButton.Template>
+                </ToggleButton>
+            </Border>
+            <ContentControl x:Name="popup" DataContext="{Binding ElementName=togglableFlyout}"
+                            IsVisible="{Binding Path=IsChecked, ElementName=toggleButton}"
+                            Content="{Binding ElementName=togglableFlyout, Path=Child}" />
+        </StackPanel>
+    </Border>
+</UserControl>

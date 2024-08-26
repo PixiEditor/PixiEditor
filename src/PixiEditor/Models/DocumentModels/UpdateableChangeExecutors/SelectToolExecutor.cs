@@ -1,29 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Actions;
+﻿using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
-using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
+using PixiEditor.Models.Handlers.Toolbars;
+using PixiEditor.Models.Handlers.Tools;
+using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
 internal class SelectToolExecutor : UpdateableChangeExecutor
 {
-    private SelectToolViewModel? toolViewModel;
-    private Toolbar? toolbar;
+    private ISelectToolHandler? toolViewModel;
+    private IToolbar? toolbar;
     private VecI startPos;
     private SelectionShape selectShape;
     private SelectionMode selectMode;
 
     public override ExecutionState Start()
     {
-        toolViewModel = ViewModelMain.Current?.ToolsSubViewModel.GetTool<SelectToolViewModel>();
+        toolViewModel = GetHandler<ISelectToolHandler>();
         toolbar = toolViewModel?.Toolbar;
 
         if (toolViewModel is null || toolbar is null)

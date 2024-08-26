@@ -1,18 +1,18 @@
 ﻿using PixiEditor.ChangeableDocument;
-using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable
 internal class DocumentInternalParts
 {
-    public DocumentInternalParts(DocumentViewModel doc)
+    public DocumentInternalParts(IDocument doc, IServiceProvider services)
     {
         Tracker = new DocumentChangeTracker();
         StructureHelper = new DocumentStructureHelper(doc, this);
         Updater = new DocumentUpdater(doc, this);
         ActionAccumulator = new ActionAccumulator(doc, this);
         State = new DocumentState();
-        ChangeController = new ChangeExecutionController(doc, this);
+        ChangeController = new ChangeExecutionController(doc, this, services);
     }
     public ActionAccumulator ActionAccumulator { get; }
     public DocumentChangeTracker Tracker { get; }

@@ -1,0 +1,126 @@
+﻿<dialogs:PixiEditorPopup
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+    xmlns:debugging="clr-namespace:PixiEditor.Views.Dialogs.Debugging"
+    xmlns:input="clr-namespace:PixiEditor.Views.Input"
+    mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+    Width="1000" Height="900"
+    x:Class="PixiEditor.Views.Dialogs.Debugging.PointerDebugPopup"
+    Name="uc"
+    Title="Pointer Debug Window" Padding="10">
+    <Grid RowDefinitions="*,Auto">
+        <Border CornerRadius="10" BorderThickness="1"
+                BorderBrush="{DynamicResource ThemeBorderHighBrush}"
+                Background="{DynamicResource ThemeControlLowBrush}"
+                PointerMoved="OnPointerMoved"
+                PointerEntered="OnPointerEntered"
+                PointerPressed="OnPointerPressed"
+                PointerReleased="OnPointerReleased"
+                PointerWheelChanged="OnPointerWheel"
+                BoxShadow="inset 0 0 15 0 #222">
+            <debugging:PointerDebugField IsVisible="{Binding #uc.ShowDebugLine}" Name="DebugField"
+                                         PointBrush="{DynamicResource ThemeBorderHighBrush}"
+                                         ScrollInfo="{Binding #uc.ScrollInfo}"/>
+        </Border>
+        <StackPanel Grid.Row="1" Orientation="Vertical" Margin="0, 5, 0, 0">
+            <StackPanel.Styles>
+                <Style Selector="TextBlock">
+                    <Setter Property="FontFamily" Value="monospace" />
+                </Style>
+                <Style Selector="TextBlock:not(.title)">
+                    <Setter Property="Margin" Value="3,0,0,0" />
+                </Style>
+                <Style Selector="TextBlock.title">
+                    <Setter Property="FontWeight" Value="Bold" />
+                    <Setter Property="Margin" Value="0, 5, 0, 0" />
+                </Style>
+                <Style Selector="TextBlock.separator">
+                    <Setter Property="Margin" Value="3, 3, 0, 0" />
+                </Style>
+                <Style Selector="TextBlock.invs">
+                    <Setter Property="Opacity" Value="0" />
+                </Style>
+            </StackPanel.Styles>
+            
+            <DockPanel>
+                <CheckBox IsChecked="{Binding #uc.ShowDebugLine, Mode=TwoWay}">Show debug lines</CheckBox>
+                
+                <TextBlock DockPanel.Dock="Right" HorizontalAlignment="Right" Text="{Binding #DebugField.PointCount, StringFormat='Pointer Events: {0}'}" />
+                <TextBlock DockPanel.Dock="Right" HorizontalAlignment="Right" Text="{Binding #uc.Performance.ScrollPolls, StringFormat='Scroll Events: {0}'}" Margin="0,0,5,0" />
+            </DockPanel>
+            
+            <StackPanel Orientation="Vertical" Margin="5">
+
+                <Grid ColumnDefinitions="*, *, .5*" RowDefinitions="Auto, Auto, Auto">
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Text="Generic" Classes="title" />
+
+                        <TextBlock Text="{Binding #uc.PointerType, StringFormat='Pointer Type: {0}'}" />
+
+                        <TextBlock Classes="separator"
+                                   Text="{Binding #uc.LastPoint.IsLeftButtonPressed, StringFormat='Left Button Pressed: {0}; '}" />
+                        <TextBlock Text="{Binding #uc.LastPoint.IsMiddleButtonPressed, StringFormat='Middle Button Pressed: {0}; '}" />
+                        <TextBlock Text="{Binding #uc.LastPoint.IsRightButtonPressed, StringFormat='Right Button Pressed: {0};'}" />
+
+                        <TextBlock Classes="separator" Text="{Binding #uc.LastPoint.IsXButton1Pressed, StringFormat='X1 Button Pressed: {0}; '}" />
+                        <TextBlock Text="{Binding #uc.LastPoint.IsXButton2Pressed, StringFormat='X2 Button Pressed: {0};'}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Grid.Row="0">
+                        <TextBlock Text="Pen Specific" Classes="title" />
+
+                        <TextBlock Text="{Binding #uc.LastPoint.Pressure, StringFormat='Pressure: {0:F2}; '}" />
+                        <TextBlock Classes="separator" Text="{Binding #uc.LastPoint.XTilt, StringFormat='X Tilt: {0:F2}°; '}" />
+                        <TextBlock Text="{Binding #uc.LastPoint.YTilt, StringFormat='Y Tilt: {0:F2}°;'}" />
+                        <TextBlock Text="{Binding #uc.LastPoint.Twist, StringFormat='Twist: {0:F2}°; '}" />
+                        <TextBlock Classes="separator" Text="{Binding #uc.LastPoint.IsInverted, StringFormat='Inverted: {0:F2}; '}" />
+
+                        <TextBlock Classes="separator" Text="{Binding #uc.LastPoint.IsEraser, StringFormat='Is Eraser: {0}; '}" />
+                        <TextBlock
+                            Text="{Binding #uc.LastPoint.IsBarrelButtonPressed, StringFormat='Barrel Button Pressed: {0}; '}" />
+
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Grid.Row="0">
+                        <TextBlock Text="Scrolling" Classes="title" />
+                        
+                        <TextBlock Text="{Binding #uc.ScrollInfo.TotalScroll, StringFormat='Total: {0:F2}; '}" />
+                        <TextBlock Text="{Binding #uc.ScrollInfo.Delta, StringFormat='Delta: {0:F2}; '}" />
+
+                        <TextBlock Text="{Binding #uc.ScrollInfo.Minimum, StringFormat='Min: {0:F2}; '}" />
+                        <TextBlock Text="{Binding #uc.ScrollInfo.Maximum, StringFormat='Max: {0:F2}; '}" />
+
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="0" Grid.Row="1">
+                        <TextBlock Text="Pointer Performance" Classes="title" />
+
+                        <TextBlock
+                            Text="{Binding #uc.Performance.LastPollRate, StringFormat='Last Poll Rate: {0:F2}Hz; ', Mode=OneWay}" />
+                        <TextBlock
+                            Text="{Binding #uc.Performance.AveragePollRate, StringFormat='Average Poll Rate: {0:F2}Hz; ', Mode=OneWay}" />
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="1" Grid.Row="1">
+                        <TextBlock Text="Scrolling Performance" Classes="title" />
+
+                        <TextBlock
+                            Text="{Binding #uc.Performance.LastScrollPoll, StringFormat='Last Poll Rate: {0:F2}Hz; ', Mode=OneWay}" />
+                        <TextBlock
+                            Text="{Binding #uc.Performance.AverageScrollPoll, StringFormat='Average Poll Rate: {0:F2}Hz; ', Mode=OneWay}" />
+                    </StackPanel>
+                    
+                    <TextBlock Text="Performance accuracy may be degraded due to debug lines"
+                               Foreground="{DynamicResource ErrorBrush}"
+                               Classes.invs="{Binding !#uc.ShowDebugLine}"
+                               Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2"/>
+                </Grid>
+
+                <Grid ColumnDefinitions="*,*,0.5*">
+                </Grid>
+
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</dialogs:PixiEditorPopup>

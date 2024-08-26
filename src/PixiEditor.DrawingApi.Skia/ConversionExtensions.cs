@@ -1,8 +1,9 @@
-﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
+﻿using PixiEditor.DrawingApi.Core.Bridge;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using PixiEditor.DrawingApi.Skia.Implementations;
+using PixiEditor.Numerics;
 using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Skia
@@ -45,6 +46,11 @@ namespace PixiEditor.DrawingApi.Skia
         {
             return new SKRect(rect.Left, rect.Top, rect.Right, rect.Bottom);
         }
+
+        public static SKRectI ToSkRectI(this RectI rect)
+        {
+            return new SKRectI(rect.Left, rect.Top, rect.Right, rect.Bottom);
+        }
         
         public static SKImageInfo ToSkImageInfo(this ImageInfo info)
         {
@@ -56,12 +62,13 @@ namespace PixiEditor.DrawingApi.Skia
             return new Color(color.Red, color.Green, color.Blue, color.Alpha);
         }
 
-        public static ImageInfo ToImageInfo(this SKImageInfo info, SkiaColorSpaceImplementation colorSpaceImpl)
+        public static ImageInfo ToImageInfo(this SKImageInfo info)
         {
             ColorSpace? cs = null;
             if (info.ColorSpace != null)
             {
                 cs = new ColorSpace(info.ColorSpace.Handle);
+                var colorSpaceImpl = DrawingBackendApi.Current.ColorSpaceImplementation as SkiaColorSpaceImplementation;
                 colorSpaceImpl.ManagedInstances[info.ColorSpace.Handle] = info.ColorSpace;
             }
 

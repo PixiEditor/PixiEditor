@@ -1,0 +1,89 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <StackPanel HorizontalAlignment="Center">
+            <CheckBox IsChecked="True" Content="Label"/>
+            <CheckBox IsChecked="False" Content="Label"/>
+            <CheckBox IsChecked="{x:Null}" IsThreeState="True" Content="Label"/>
+        </StackPanel>
+    </Design.PreviewWith>
+
+    <PathGeometry x:Key="Tick">
+        <PathGeometry.Figures>
+            <PathFigure StartPoint="0 4" IsClosed="False">
+                <LineSegment Point="3 8"/>
+                <LineSegment Point="8 0"/>
+            </PathFigure>
+        </PathGeometry.Figures>
+    </PathGeometry>
+
+    <PathGeometry x:Key="Intermediate">
+        <PathGeometry.Figures>
+            <PathFigure StartPoint="0 8">
+                <LineSegment Point="8 0"/>
+            </PathFigure>
+        </PathGeometry.Figures>
+    </PathGeometry>
+
+    <PathGeometry x:Key="Empty">
+        <PathFigure StartPoint="0 4">
+            <LineSegment Point="0 4"/>
+        </PathFigure>
+    </PathGeometry>
+
+     <ControlTheme x:Key="{x:Type CheckBox}"
+                TargetType="CheckBox">
+    <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource ThemeBorderThickness}" />
+    <Setter Property="Padding" Value="4,0,0,0" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid ColumnDefinitions="Auto,*">
+         <Border x:Name="border" Width="20" Height="20" CornerRadius="2.5"
+                 BorderBrush="{DynamicResource ThemeBorderMidColor}"
+                 Background="{DynamicResource ThemeControlLowColor}"
+                                      BorderThickness="1">
+            <Panel>
+                <Path FlowDirection="LeftToRight" Width="9" Height="9" x:Name="checkMark" Margin="1 1 0 0"
+                      Stroke="{DynamicResource ThemeAccentBrush}" StrokeThickness="1.5"
+                      Data="{StaticResource Empty}">
+                </Path>
+            </Panel>
+          </Border>
+          <ContentPresenter Name="PART_ContentPresenter"
+                            Grid.Column="1"
+                            Margin="{TemplateBinding Padding}"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            IsVisible="{TemplateBinding Content,
+                                                        Converter={x:Static ObjectConverters.IsNotNull}}"
+                            RecognizesAccessKey="True"
+                            TextElement.Foreground="{TemplateBinding Foreground}" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+    <Style Selector="^:pointerover /template/ Border#border">
+      <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
+    </Style>
+    <Style Selector="^ /template/ Path#checkMark">
+      <Setter Property="Data" Value="{StaticResource Empty}"/>
+    </Style>
+    <Style Selector="^:checked /template/ Path#checkMark">
+      <Setter Property="IsVisible" Value="True" />
+      <Setter Property="Data" Value="{StaticResource Tick}"/>
+    </Style>
+    <Style Selector="^:indeterminate /template/ Path#checkMark">
+        <Setter Property="IsVisible" Value="True" />
+        <Setter Property="Data" Value="{StaticResource Intermediate}"/>
+    </Style>
+    <Style Selector="^:disabled /template/ Border#border">
+      <Setter Property="Opacity" Value="{DynamicResource ThemeDisabledOpacity}" />
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

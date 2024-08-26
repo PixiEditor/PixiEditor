@@ -1,20 +1,20 @@
-﻿using System.Windows.Input;
-using ChunkyImageLib.DataHolders;
+﻿using Avalonia.Input;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Events;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.Views.UserControls.SymmetryOverlay;
+using PixiEditor.Models.Handlers;
+using PixiEditor.Numerics;
+using PixiEditor.Views.Overlays.SymmetryOverlay;
 
 namespace PixiEditor.Models.DocumentModels.Public;
 internal class DocumentEventsModule
 {
-    private DocumentViewModel Document { get; }
+    private IDocument DocumentsHandler { get; }
     private DocumentInternalParts Internals { get; }
 
-    public DocumentEventsModule(DocumentViewModel document, DocumentInternalParts internals)
+    public DocumentEventsModule(IDocument documentsHandler, DocumentInternalParts internals)
     {
-        Document = document;
+        DocumentsHandler = documentsHandler;
         Internals = internals;
     }
 
@@ -24,18 +24,18 @@ internal class DocumentEventsModule
     public void OnConvertedKeyDown(FilteredKeyEventArgs args)
     {
         Internals.ChangeController.ConvertedKeyDownInlet(args.Key);
-        Document.TransformViewModel.ModifierKeysInlet(args.IsShiftDown, args.IsCtrlDown, args.IsAltDown);
+        DocumentsHandler.TransformHandler.KeyModifiersInlet(args.IsShiftDown, args.IsCtrlDown, args.IsAltDown);
     }
     public void OnConvertedKeyUp(FilteredKeyEventArgs args)
     {
         Internals.ChangeController.ConvertedKeyUpInlet(args.Key);
-        Document.TransformViewModel.ModifierKeysInlet(args.IsShiftDown, args.IsCtrlDown, args.IsAltDown);
+        DocumentsHandler.TransformHandler.KeyModifiersInlet(args.IsShiftDown, args.IsCtrlDown, args.IsAltDown);
     }
 
     public void OnCanvasLeftMouseButtonDown(VecD pos) => Internals.ChangeController.LeftMouseButtonDownInlet(pos);
     public void OnCanvasMouseMove(VecD newPos)
     {
-        Document.CoordinatesString = $"X: {(int)newPos.X} Y: {(int)newPos.Y}";
+        DocumentsHandler.CoordinatesString = $"X: {(int)newPos.X} Y: {(int)newPos.Y}";
         Internals.ChangeController.MouseMoveInlet(newPos);
     }
     public void OnCanvasLeftMouseButtonUp() => Internals.ChangeController.LeftMouseButtonUpInlet();

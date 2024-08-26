@@ -1,8 +1,9 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
+using PixiEditor.Numerics;
 
 namespace ChunkyImageLib;
 
@@ -19,4 +20,6 @@ public interface IReadOnlyChunkyImage
     AffectedArea FindAffectedArea(int fromOperationIndex = 0);
     HashSet<VecI> FindCommittedChunks();
     HashSet<VecI> FindAllChunks();
+    VecI CommittedSize { get; }
+    VecI LatestSize { get; }
 }

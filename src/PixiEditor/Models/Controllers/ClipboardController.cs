@@ -1,28 +1,45 @@
-﻿using System.Collections.Specialized;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using System.Threading.Tasks;
+using Avalonia.Input;
+using Avalonia.Input.Platform;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using Avalonia.Platform.Storage;
 using ChunkyImageLib;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using PixiEditor.Helpers;
+using PixiEditor.Helpers.Constants;
+using PixiEditor.Models.Clipboard;
+using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
+using PixiEditor.Numerics;
 using PixiEditor.Parser;
-using PixiEditor.Parser.Deprecated;
-using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.ViewModels.Document;
+using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
 namespace PixiEditor.Models.Controllers;
 
 #nullable enable
 internal static class ClipboardController
 {
+    public static IClipboard Clipboard { get; private set; }
+
     private const string PositionFormat = "PixiEditor.Position";
-    
+
+    public static void Initialize(IClipboard clipboard)
+    {
+        Clipboard = clipboard;
+    }
+
     public static readonly string TempCopyFilePath = Path.Join(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "PixiEditor",
@@ -31,10 +48,9 @@ internal static class ClipboardController
     /// <summary>
     ///     Copies the selection to clipboard in PNG, Bitmap and DIB formats.
     /// </summary>
-    public static void CopyToClipboard(DocumentViewModel document)
+    public static async Task CopyToClipboard(DocumentViewModel document)
     {
-        if (!ClipboardHelper.TryClear())
-            return;
+        await Clipboard.ClearAsync();
 
         var surface = document.MaybeExtractSelectedArea();
         if (surface.IsT0)
@@ -44,40 +60,40 @@ internal static class ClipboardController
             NoticeDialog.Show("SELECTED_AREA_EMPTY", "NOTHING_TO_COPY");
             return;
         }
+
         var (actuallySurface, area) = surface.AsT2;
         DataObject data = new DataObject();
 
         using (ImgData pngData = actuallySurface.DrawingSurface.Snapshot().Encode())
         {
-            // Stream should not be disposed
-            MemoryStream pngStream = new MemoryStream();
-            pngData.AsStream().CopyTo(pngStream);
+            using MemoryStream pngStream = new MemoryStream();
+            await pngData.AsStream().CopyToAsync(pngStream);
 
-            data.SetData("PNG", pngStream, false); // PNG, supports transparency
+            data.Set(ClipboardDataFormats.Png, pngStream.ToArray()); // PNG, supports transparency
 
             pngStream.Position = 0;
             Directory.CreateDirectory(Path.GetDirectoryName(TempCopyFilePath)!);
-            using FileStream fileStream = new FileStream(TempCopyFilePath, FileMode.Create, FileAccess.Write);
-            pngStream.CopyTo(fileStream);
-            data.SetFileDropList(new StringCollection() { TempCopyFilePath });
+            await using FileStream fileStream = new FileStream(TempCopyFilePath, FileMode.Create, FileAccess.Write);
+            await pngStream.CopyToAsync(fileStream);
+            data.SetFileDropList(new[] { TempCopyFilePath });
         }
 
         WriteableBitmap finalBitmap = actuallySurface.ToWriteableBitmap();
-        data.SetData(DataFormats.Bitmap, finalBitmap, true); // Bitmap, no transparency
-        data.SetImage(finalBitmap); // DIB format, no transparency
+        data.Set(ClipboardDataFormats.Bitmap, finalBitmap); // Bitmap, no transparency
+        data.Set(ClipboardDataFormats.Dib, finalBitmap); // DIB format, no transparency
 
         if (area.Size != document.SizeBindable && area.Pos != VecI.Zero)
         {
             data.SetVecI(PositionFormat, area.Pos);
         }
 
-        ClipboardHelper.TrySetDataObject(data, true);
+        await Clipboard.SetDataObjectAsync(data);
     }
 
     /// <summary>
     ///     Pastes image from clipboard into new layer.
     /// </summary>
-    public static bool TryPaste(DocumentViewModel document, DataObject data, bool pasteAsNew = false)
+    public static bool TryPaste(DocumentViewModel document, IEnumerable<IDataObject> data, bool pasteAsNew = false)
     {
         List<DataImage> images = GetImage(data);
         if (images.Count == 0)
@@ -92,7 +108,7 @@ internal static class ClipboardController
             {
                 position = VecI.Zero;
             }
-            
+
             if (pasteAsNew)
             {
                 var guid = document.Operations.CreateStructureMember(StructureMemberType.Layer, "New Layer", false);
@@ -101,7 +117,7 @@ internal static class ClipboardController
                 {
                     return false;
                 }
-                
+
                 document.Operations.SetSelectedMember(guid.Value);
                 document.Operations.PasteImageWithTransform(dataImage.image, position, guid.Value, false);
             }
@@ -109,97 +125,168 @@ internal static class ClipboardController
             {
                 document.Operations.PasteImageWithTransform(dataImage.image, position);
             }
-            
+
             return true;
         }
 
-        document.Operations.PasteImagesAsLayers(images);
+        document.Operations.PasteImagesAsLayers(images, document.AnimationDataViewModel.ActiveFrameBindable);
         return true;
     }
 
     /// <summary>
     ///     Pastes image from clipboard into new layer.
     /// </summary>
-    public static bool TryPasteFromClipboard(DocumentViewModel document, bool pasteAsNew = false) =>
-        TryPaste(document, ClipboardHelper.TryGetDataObject(), pasteAsNew);
+    public static async Task<bool> TryPasteFromClipboard(DocumentViewModel document, bool pasteAsNew = false)
+    {
+        var data = await TryGetDataObject();
+        if (data == null)
+            return false;
 
-    public static List<DataImage> GetImagesFromClipboard() => GetImage(ClipboardHelper.TryGetDataObject());
+        return TryPaste(document, data, pasteAsNew);
+    }
+
+    private static async Task<List<DataObject?>> TryGetDataObject()
+    {
+        string[] formats = await Clipboard.GetFormatsAsync();
+        if (formats.Length == 0)
+            return null;
+
+        List<DataObject?> dataObjects = new();
+
+        for (int i = 0; i < formats.Length; i++)
+        {
+            string format = formats[i];
+            var obj = await Clipboard.GetDataAsync(format);
+
+            if (obj == null)
+                continue;
+
+            DataObject data = new DataObject();
+            data.Set(format, obj);
+            
+            dataObjects.Add(data);
+        }
+
+        return dataObjects;
+    }
+
+    public static async Task<List<DataImage>> GetImagesFromClipboard()
+    {
+        var dataObj = await TryGetDataObject();
+        return GetImage(dataObj);
+    }
 
     /// <summary>
     /// Gets images from clipboard, supported PNG, Dib and Bitmap.
     /// </summary>
-    public static List<DataImage> GetImage(DataObject? data)
+    public static List<DataImage> GetImage(IEnumerable<IDataObject?> data)
     {
         List<DataImage> surfaces = new();
 
         if (data == null)
             return surfaces;
 
-        if (TryExtractSingleImage(data, out var singleImage))
+        foreach (var dataObject in data)
         {
-            surfaces.Add(new DataImage(singleImage, data.GetVecI(PositionFormat)));
-            return surfaces;
-        }
-
-        if (!data.GetDataPresent(DataFormats.FileDrop))
-        {
-            return surfaces;
-        }
-
-        foreach (string? path in data.GetFileDropList())
-        {
-            if (path is null || !Importer.IsSupportedFile(path))
-                continue;
-            try
+            if (TryExtractSingleImage(dataObject, out var singleImage))
             {
-                Surface imported;
-                    
-                if (Path.GetExtension(path) == ".pixi")
-                {
-                    using var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-                        
-                    try
-                    {
-                        imported = Surface.Load(PixiParser.Deserialize(path).PreviewImage);
-                    }
-                    catch (InvalidFileException e)
-                    {
-                        // Check if it could be a old file
-                        if (!e.Message.StartsWith("Header"))
-                        {
-                            throw;
-                        }
-                            
-                        stream.Position = 0;
-                        using var bitmap = DepractedPixiParser.Deserialize(stream).RenderOldDocument();
-                        var size = new VecI(bitmap.Width, bitmap.Height);
-                        imported = new Surface(size);
-                        imported.DrawBytes(size, bitmap.Bytes, ColorType.RgbaF32, AlphaType.Premul);
-                            
-                        System.Diagnostics.Debug.Write(imported.ToString());
-                    }
-                }
-                else
-                {
-                    imported = Surface.Load(path);
-                }
-
-                string filename = Path.GetFullPath(path);
-                surfaces.Add(new DataImage(filename, imported, data.GetVecI(PositionFormat)));
+                surfaces.Add(new DataImage(singleImage, dataObject.GetVecI(PositionFormat)));
+                continue;
             }
-            catch
+
+            var paths = dataObject.GetFileDropList().Select(x => x.Path.LocalPath).ToList();
+            if (paths != null && dataObject.TryGetRawTextPath(out string? textPath))
+            {
+                paths.Add(textPath);
+            }
+
+            if (paths == null || paths.Count == 0)
             {
                 continue;
             }
+
+            foreach (string? path in paths)
+            {
+                if (path is null || !Importer.IsSupportedFile(path))
+                    continue;
+                try
+                {
+                    Surface imported;
+
+                    if (Path.GetExtension(path) == ".pixi")
+                    {
+                        using var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+
+                        imported = Surface.Load(PixiParser.ReadPreview(stream));
+                    }
+                    else
+                    {
+                        imported = Surface.Load(path);
+                    }
+
+                    string filename = Path.GetFullPath(path);
+                    surfaces.Add(new DataImage(filename, imported, dataObject.GetVecI(PositionFormat)));
+                }
+                catch
+                {
+                    continue;
+                }
+            }
         }
-        
+
         return surfaces;
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.HasImageInClipboard")]
-    public static bool IsImageInClipboard() => IsImage(ClipboardHelper.TryGetDataObject());
-    
-    public static bool IsImage(DataObject? dataObject)
+    public static async Task<bool> IsImageInClipboard()
+    {
+        var formats = await Clipboard.GetFormatsAsync();
+        if (formats == null || formats.Length == 0)
+            return false;
+
+        bool isImage = IsImageFormat(formats);
+
+        if (!isImage)
+        {
+            string path = await TryFindImageInFiles(formats);
+            return Path.Exists(path);
+        }
+
+        return isImage;
+    }
+
+    private static async Task<string> TryFindImageInFiles(string[] formats)
+    {
+        foreach (string format in formats)
+        {
+            if (format == DataFormats.Text)
+            {
+                string text = await Clipboard.GetTextAsync();
+                if (Importer.IsSupportedFile(text))
+                {
+                    return text;
+                }
+            }
+            else if (format == DataFormats.Files)
+            {
+                var files = await Clipboard.GetDataAsync(format);
+                if (files is IEnumerable<IStorageItem> storageFiles)
+                {
+                    foreach (var file in storageFiles)
+                    {
+                        if (Importer.IsSupportedFile(file.Path.LocalPath))
+                        {
+                            return file.Path.LocalPath;
+                        }
+                    }
+                }
+            }
+        }
+
+        return string.Empty;
+    }
+
+    public static bool IsImage(IDataObject? dataObject)
     {
         if (dataObject == null)
             return false;
@@ -209,12 +296,9 @@ internal static class ClipboardController
             var files = dataObject.GetFileDropList();
             if (files != null)
             {
-                foreach (var file in files)
+                if (IsImageFormat(files.Select(x => x.Path.LocalPath).ToArray()))
                 {
-                    if (Importer.IsSupportedFile(file))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
         }
@@ -223,32 +307,61 @@ internal static class ClipboardController
             return false;
         }
 
-        return HasData(dataObject, "PNG", DataFormats.Dib, DataFormats.Bitmap);
+        return HasData(dataObject, "PNG", ClipboardDataFormats.Dib, ClipboardDataFormats.Bitmap);
     }
 
-    private static BitmapSource FromPNG(DataObject data)
+    private static bool IsImageFormat(string[] files)
     {
-        MemoryStream pngStream = (MemoryStream)data.GetData("PNG");
-        PngBitmapDecoder decoder = new PngBitmapDecoder(pngStream, BitmapCreateOptions.IgnoreImageCache, BitmapCacheOption.OnLoad);
+        foreach (var file in files)
+        {
+            if (Importer.IsSupportedFile(file))
+            {
+                return true;
+            }
+        }
 
-        return decoder.Frames[0];
+        return false;
     }
 
-    private static bool HasData(DataObject dataObject, params string[] formats) => formats.Any(dataObject.GetDataPresent);
-    
-    private static bool TryExtractSingleImage(DataObject data, [NotNullWhen(true)] out Surface? result)
+    private static Bitmap FromPNG(IDataObject data)
+    {
+        object obj = data.Get("PNG");
+        if (obj is byte[] bytes)
+        {
+            using MemoryStream stream = new MemoryStream(bytes);
+            return new Bitmap(stream);
+        }
+
+        if (obj is MemoryStream memoryStream)
+        {
+            return new Bitmap(memoryStream);
+        }
+
+        throw new InvalidDataException("PNG data is not in a supported format.");
+    }
+
+    private static bool HasData(IDataObject dataObject, params string[] formats) => formats.Any(dataObject.Contains);
+
+    private static bool TryExtractSingleImage(IDataObject data, [NotNullWhen(true)] out Surface? result)
     {
         try
         {
-            BitmapSource source;
-
-            if (data.GetDataPresent("PNG"))
+            Bitmap source;
+            if (data.Contains("PNG"))
             {
                 source = FromPNG(data);
             }
-            else if (HasData(data, DataFormats.Dib, DataFormats.Bitmap))
+            else if (HasData(data, ClipboardDataFormats.Dib, ClipboardDataFormats.Bitmap))
             {
-                source = Clipboard.GetImage();
+                var imgs = GetImage(new [] { data });
+                if (imgs == null || imgs.Count == 0)
+                {
+                    result = null;
+                    return false;
+                }
+
+                result = imgs[0].image;
+                return true;
             }
             else
             {
@@ -256,19 +369,17 @@ internal static class ClipboardController
                 return false;
             }
 
-            if (source.Format.IsSkiaSupported())
+            if (source.Format.Value.IsSkiaSupported())
             {
-                result = SurfaceHelpers.FromBitmapSource(source);
+                result = SurfaceHelpers.FromBitmap(source);
             }
             else
             {
-                FormatConvertedBitmap newFormat = new FormatConvertedBitmap();
-                newFormat.BeginInit();
-                newFormat.Source = source;
-                newFormat.DestinationFormat = PixelFormats.Bgra32;
-                newFormat.EndInit();
+                source.ExtractPixels(out IntPtr address);
+                Bitmap newFormat = new Bitmap(PixelFormats.Bgra8888, AlphaFormat.Premul, address, source.PixelSize,
+                    source.Dpi, source.PixelSize.Width * 4);
 
-                result = SurfaceHelpers.FromBitmapSource(newFormat);
+                result = SurfaceHelpers.FromBitmap(newFormat);
             }
 
             return true;
@@ -277,10 +388,5 @@ internal static class ClipboardController
 
         result = null;
         return false;
-    }
-
-    public record struct DataImage(string? name, Surface image, VecI position)
-    {
-        public DataImage(Surface image, VecI position) : this(null, image, position) { }
     }
 }

@@ -1,6 +1,11 @@
-﻿namespace PixiEditor.Helpers.Converters;
+﻿using System.Collections.Generic;
+using System.Globalization;
+using Avalonia.Data.Converters;
+using PixiEditor.UI.Common.Converters;
 
-internal abstract class SingleInstanceMultiValueConverter<TThis> : MultiValueMarkupConverter
+namespace PixiEditor.Helpers.Converters;
+
+internal abstract class SingleInstanceMultiValueConverter<TThis> : MarkupConverter, IMultiValueConverter
     where TThis : SingleInstanceMultiValueConverter<TThis>
 {
     private static SingleInstanceMultiValueConverter<TThis> instance;
@@ -14,4 +19,6 @@ internal abstract class SingleInstanceMultiValueConverter<TThis> : MultiValueMar
 
         return instance;
     }
+
+    public abstract object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture);
 }

@@ -1,16 +1,25 @@
-﻿using PixiEditor.ChangeableDocument.Enums;
+﻿using System.Collections.Immutable;
+using System.Reflection;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
+using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 
 public abstract record class CreateStructureMember_ChangeInfo(
-    Guid ParentGuid,
-    int Index,
+    string InternalName,
     float Opacity,
     bool IsVisible,
     bool ClipToMemberBelow,
     string Name,
     BlendMode BlendMode,
-    Guid GuidValue,
+    Guid Id,
     bool HasMask,
-    bool MaskIsVisible
-) : IChangeInfo;
+    bool MaskIsVisible,
+    ImmutableArray<NodePropertyInfo> InputProperties,
+    ImmutableArray<NodePropertyInfo> OutputProperties
+) : CreateNode_ChangeInfo(InternalName, Name, new VecD(0, 0), Id, InputProperties, OutputProperties, null)
+{
+    public ImmutableArray<NodePropertyInfo> InputProperties { get; init; } = InputProperties;
+    public ImmutableArray<NodePropertyInfo> OutputProperties { get; init; } = OutputProperties;
+}

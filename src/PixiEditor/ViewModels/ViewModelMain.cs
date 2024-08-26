@@ -1,47 +1,41 @@
 ﻿using System.ComponentModel;
-using System.Timers;
-using System.Windows;
+using System.Linq;
+using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
+using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands;
-using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
-using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.Enums;
-using PixiEditor.Models.Events;
-using PixiEditor.Models.Localization;
-using PixiEditor.Platform;
+using PixiEditor.Models.DocumentModels;
+using PixiEditor.Models.Files;
+using PixiEditor.Models.Handlers;
+using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Menu;
+using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.ViewModels.SubViewModels.Tools;
-using Timer = System.Timers.Timer;
+using PixiEditor.ViewModels.Tools;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels;
 
-internal class ViewModelMain : ViewModelBase
+internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 {
     public static ViewModelMain Current { get; set; }
-
     public IServiceProvider Services { get; private set; }
 
     public Action CloseAction { get; set; }
-
     public event EventHandler OnStartupEvent;
-
-    public RelayCommand OnStartupCommand { get; set; }
-
-    public RelayCommand CloseWindowCommand { get; set; }
-
     public FileViewModel FileSubViewModel { get; set; }
 
     public UpdateViewModel UpdateSubViewModel { get; set; }
 
-    public ToolsViewModel ToolsSubViewModel { get; set; }
+    public IToolsHandler ToolsSubViewModel { get; set; }
 
     public IoViewModel IoSubViewModel { get; set; }
 
@@ -81,10 +75,15 @@ internal class ViewModelMain : ViewModelBase
 
     public ExtensionsViewModel ExtensionsSubViewModel { get; set; }
 
+    public LayoutViewModel LayoutSubViewModel { get; set; }
+
+    public MenuBarViewModel MenuBarViewModel { get; set; }
+    public AnimationsViewModel AnimationsSubViewModel { get; set; }
+    
+    public NodeGraphManagerViewModel NodeGraphManager { get; set; }
+
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
-
-    private Timer _updateTimer;
 
     public LocalizedString ActiveActionDisplay
     {
@@ -106,11 +105,12 @@ internal class ViewModelMain : ViewModelBase
     }
 
     public ActionDisplayList ActionDisplays { get; }
+    public bool UserWantsToClose { get; private set; }
 
-    public ViewModelMain(IServiceProvider serviceProvider)
+    public ViewModelMain()
     {
         Current = this;
-        ActionDisplays = new ActionDisplayList(() => RaisePropertyChanged(nameof(ActiveActionDisplay)));
+        ActionDisplays = new ActionDisplayList(() => OnPropertyChanged(nameof(ActiveActionDisplay)));
     }
 
     public void Setup(IServiceProvider services)
@@ -120,18 +120,22 @@ internal class ViewModelMain : ViewModelBase
         Preferences = services.GetRequiredService<IPreferences>();
         Preferences.Init();
         
+        SupportedFilesHelper.InitFileTypes(services.GetServices<IoFileType>());
+
+        CommandController = services.GetService<CommandController>();
+
         LocalizationProvider = services.GetRequiredService<ILocalizationProvider>();
-        LocalizationProvider.LoadData();
-        
+        string code = Preferences.GetPreference<string>("LanguageCode", null);
+        LocalizationProvider.LoadData(code);
+
         WindowSubViewModel = services.GetService<WindowViewModel>();
+        LayoutSubViewModel = services.GetService<LayoutViewModel>();
+
         DocumentManagerSubViewModel = services.GetRequiredService<DocumentManagerViewModel>();
         SelectionSubViewModel = services.GetService<SelectionViewModel>();
 
-        OnStartupCommand = new RelayCommand(OnStartup);
-        CloseWindowCommand = new RelayCommand(CloseWindow);
-
         FileSubViewModel = services.GetService<FileViewModel>();
-        ToolsSubViewModel = services.GetService<ToolsViewModel>();
+        ToolsSubViewModel = services.GetService<IToolsHandler>();
         ToolsSubViewModel.SelectedToolChanged += ToolsSubViewModel_SelectedToolChanged;
 
         IoSubViewModel = services.GetService<IoViewModel>();
@@ -152,34 +156,27 @@ internal class ViewModelMain : ViewModelBase
         RegistrySubViewModel = services.GetService<RegistryViewModel>();
 
         AdditionalContentSubViewModel = services.GetService<AdditionalContentViewModel>();
+        MenuBarViewModel = new MenuBarViewModel(AdditionalContentSubViewModel);
+
+        CommandController.Init(services);
+        LayoutSubViewModel.LayoutManager.InitLayout(this);
+        MenuBarViewModel.Init(services, CommandController);
 
         MiscSubViewModel = services.GetService<MiscViewModel>();
 
-        CommandController = services.GetService<CommandController>();
-        CommandController.Init(services);
         ShortcutController = new ShortcutController();
 
         ToolsSubViewModel?.SetupToolsTooltipShortcuts(services);
 
         SearchSubViewModel = services.GetService<SearchViewModel>();
-
+        
+        AnimationsSubViewModel = services.GetService<AnimationsViewModel>();
+        
+        NodeGraphManager = services.GetService<NodeGraphManagerViewModel>();
+        
         ExtensionsSubViewModel = services.GetService<ExtensionsViewModel>(); // Must be last
 
         DocumentManagerSubViewModel.ActiveDocumentChanged += OnActiveDocumentChanged;
-        InitUpdateTimer();
-    }
-
-    private void InitUpdateTimer()
-    {
-        // Enable this while implementing something that needs it
-        /*_updateTimer = new Timer(50);
-        _updateTimer.Elapsed += UpdateTimerOnElapsed;
-        _updateTimer.Start();*/
-    }
-
-    private void UpdateTimerOnElapsed(object sender, ElapsedEventArgs e)
-    {
-        IPlatform.Current?.Update();
     }
 
     public bool DocumentIsNotNull(object property)
@@ -192,21 +189,26 @@ internal class ViewModelMain : ViewModelBase
         return DocumentIsNotNull(null);
     }
 
-    public void CloseWindow(object property)
+    [RelayCommand]
+    public async Task CloseWindow()
     {
-        if (!(property is CancelEventArgs))
-        {
-            throw new ArgumentException();
-        }
+        UserWantsToClose = await DisposeAllDocumentsWithSaveConfirmation();
 
-        ((CancelEventArgs)property).Cancel = !DisposeAllDocumentsWithSaveConfirmation();
+        if (UserWantsToClose)
+        {
+            var analytics = Services.GetService<AnalyticsPeriodicReporter>();
+            if (analytics != null)
+            {
+                await analytics.StopAsync();
+            }
+        }
     }
 
     private void ToolsSubViewModel_SelectedToolChanged(object sender, SelectedToolEventArgs e)
     {
         if (e.OldTool != null)
-            e.OldTool.PropertyChanged -= SelectedTool_PropertyChanged;
-        e.NewTool.PropertyChanged += SelectedTool_PropertyChanged;
+            ((ToolViewModel)e.OldTool).PropertyChanged -= SelectedTool_PropertyChanged;
+        ((ToolViewModel)e.NewTool).PropertyChanged += SelectedTool_PropertyChanged;
 
         NotifyToolActionDisplayChanged();
     }
@@ -221,20 +223,20 @@ internal class ViewModelMain : ViewModelBase
 
     public void NotifyToolActionDisplayChanged()
     {
-        if (!ActionDisplays.Any()) RaisePropertyChanged(nameof(ActiveActionDisplay));
+        if (!ActionDisplays.Any()) OnPropertyChanged(nameof(ActiveActionDisplay));
     }
 
     /// <summary>
     /// Closes documents with unsaved changes confirmation dialog.
     /// </summary>
     /// <returns>If documents was removed successfully.</returns>
-    private bool DisposeAllDocumentsWithSaveConfirmation()
+    private async Task<bool> DisposeAllDocumentsWithSaveConfirmation()
     {
         int docCount = DocumentManagerSubViewModel.Documents.Count;
         for (int i = 0; i < docCount; i++)
         {
             WindowSubViewModel.MakeDocumentViewportActive(DocumentManagerSubViewModel.Documents.First());
-            bool canceled = !DisposeActiveDocumentWithSaveConfirmation();
+            bool canceled = !await DisposeActiveDocumentWithSaveConfirmation();
             if (canceled)
             {
                 return false;
@@ -248,14 +250,14 @@ internal class ViewModelMain : ViewModelBase
     /// Disposes the active document after showing the unsaved changes confirmation dialog.
     /// </summary>
     /// <returns>If the document was closed successfully.</returns>
-    public bool DisposeActiveDocumentWithSaveConfirmation()
+    public async Task<bool> DisposeActiveDocumentWithSaveConfirmation()
     {
         if (DocumentManagerSubViewModel.ActiveDocument is null)
             return false;
-        return DisposeDocumentWithSaveConfirmation(DocumentManagerSubViewModel.ActiveDocument);
+        return await DisposeDocumentWithSaveConfirmation(DocumentManagerSubViewModel.ActiveDocument);
     }
 
-    public bool DisposeDocumentWithSaveConfirmation(DocumentViewModel document)
+    public async Task<bool> DisposeDocumentWithSaveConfirmation(DocumentViewModel document)
     {
         const string ConfirmationDialogTitle = "UNSAVED_CHANGES";
         const string ConfirmationDialogMessage = "DOCUMENT_MODIFIED_SAVE";
@@ -263,10 +265,10 @@ internal class ViewModelMain : ViewModelBase
         ConfirmationType result = ConfirmationType.No;
         if (!document.AllChangesSaved)
         {
-            result = ConfirmationDialog.Show(ConfirmationDialogMessage, ConfirmationDialogTitle);
+            result = await ConfirmationDialog.Show(ConfirmationDialogMessage, ConfirmationDialogTitle);
             if (result == ConfirmationType.Yes)
             {
-                if (!FileSubViewModel.SaveDocument(document, false))
+                if (!await FileSubViewModel.SaveDocument(document, false))
                     return false;
             }
         }
@@ -275,7 +277,7 @@ internal class ViewModelMain : ViewModelBase
         {
             if (!DocumentManagerSubViewModel.Documents.Remove(document))
                 throw new InvalidOperationException("Trying to close a document that's not in the documents collection. Likely, the document wasn't added there after creation by mistake.");
-            
+
             if (DocumentManagerSubViewModel.ActiveDocument == document)
             {
                 if (DocumentManagerSubViewModel.Documents.Count > 0)
@@ -291,14 +293,15 @@ internal class ViewModelMain : ViewModelBase
             // So they remain alive and keep "showing" the now disposed DocumentViewModel
             // And since they reference the DocumentViewModel it doesn't get collected by GC
 
-            // document.Dispose();
             WindowSubViewModel.CloseViewportsForDocument(document);
+            document.Dispose();
 
             return true;
         }
         return false;
     }
 
+    [RelayCommand]
     private void OnStartup(object parameter)
     {
         OnStartupEvent?.Invoke(this, EventArgs.Empty);

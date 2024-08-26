@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using PixiEditor.Models.Commands.Commands;
 
@@ -17,12 +18,12 @@ internal class CommandLog
             list[0].CanExecute = canExecute;
             return;
         }
-        
+
         if (list.Count >= MaxEntries)
         {
             list.RemoveRange(MaxEntries - 1, list.Count - MaxEntries + 1);
         }
-        
+
         list.Insert(0, new CommandLogEntry(command, canExecute, DateTime.Now));
     }
 
@@ -33,8 +34,8 @@ internal class CommandLog
         foreach (var entry in list)
         {
             var relativeSpan = entry.DateTime - relativeTime;
-            string canExecute = entry.CanExecute.HasValue ? entry.CanExecute.ToString() : "not executed";
-            
+            string canExecute = entry.CanExecute.HasValue ? entry.CanExecute.ToString()! : "not executed";
+
             builder.AppendLine($"{entry.Command.InternalName} | CanExecute: {canExecute} | {relativeSpan.TotalSeconds.ToString("F3", CultureInfo.InvariantCulture)}s ago | {entry.DateTime.ToString("O", CultureInfo.InvariantCulture)}");
         }
 

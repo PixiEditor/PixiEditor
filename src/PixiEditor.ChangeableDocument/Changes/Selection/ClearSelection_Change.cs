@@ -1,4 +1,4 @@
-﻿using PixiEditor.DrawingApi.Core.Surface.Vector;
+﻿using PixiEditor.DrawingApi.Core.Surfaces.Vector;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection;
 

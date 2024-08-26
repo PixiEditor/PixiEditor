@@ -1,18 +1,20 @@
 ﻿using ChunkyImageLib.DataHolders;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Extensions.Palettes;
-using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.ViewModels.SubViewModels.Tools;
-using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
+using PixiEditor.Extensions.CommonApi.Palettes;
+using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Handlers.Toolbars;
+using PixiEditor.Models.Handlers.Tools;
+using PixiEditor.Models.Tools;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
 #nullable enable
 
-internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T : ShapeTool
+internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T : IShapeToolHandler
 {
     protected int strokeWidth;
     protected Color fillColor;
@@ -29,23 +31,23 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
 
     public override ExecutionState Start()
     {
-        ColorsViewModel? colorsVM = ViewModelMain.Current?.ColorsSubViewModel;
-        toolViewModel = ViewModelMain.Current?.ToolsSubViewModel.GetTool<T>();
-        BasicShapeToolbar? toolbar = (BasicShapeToolbar?)toolViewModel?.Toolbar;
-        StructureMemberViewModel? member = document?.SelectedStructureMember;
+        IColorsHandler? colorsVM = GetHandler<IColorsHandler>();
+        toolViewModel = GetHandler<T>();
+        IBasicShapeToolbar? toolbar = (IBasicShapeToolbar?)toolViewModel?.Toolbar;
+        IStructureMemberHandler? member = document?.SelectedStructureMember;
         if (colorsVM is null || toolbar is null || member is null)
             return ExecutionState.Error;
-        drawOnMask = member is LayerViewModel layer ? layer.ShouldDrawOnMask : true;
+        drawOnMask = member is ILayerHandler layer ? layer.ShouldDrawOnMask : true;
         if (drawOnMask && !member.HasMaskBindable)
             return ExecutionState.Error;
-        if (!drawOnMask && member is not LayerViewModel)
+        if (!drawOnMask && member is not ILayerHandler)
             return ExecutionState.Error;
 
         fillColor = toolbar.Fill ? toolbar.FillColor.ToColor() : DrawingApi.Core.ColorsImpl.Colors.Transparent;
         startPos = controller!.LastPixelPosition;
         strokeColor = colorsVM.PrimaryColor;
         strokeWidth = toolbar.ToolSize;
-        memberGuid = member.GuidValue;
+        memberGuid = member.Id;
 
         colorsVM.AddSwatch(new PaletteColor(strokeColor.R, strokeColor.G, strokeColor.B));
         DrawShape(startPos, true);
@@ -111,7 +113,7 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     public override void OnTransformApplied()
     {
         internals!.ActionAccumulator.AddFinishedActions(EndDrawAction());
-        document!.TransformViewModel.HideTransform();
+        document!.TransformHandler.HideTransform();
         onEnded?.Invoke(this);
     }
 
@@ -119,21 +121,21 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     {
         if (!transforming)
             return;
-        document!.TransformViewModel.Nudge(distance);
+        document!.TransformHandler.Nudge(distance);
     }
 
     public override void OnMidChangeUndo()
     {
         if (!transforming)
             return;
-        document!.TransformViewModel.Undo();
+        document!.TransformHandler.Undo();
     }
 
     public override void OnMidChangeRedo()
     {
         if (!transforming)
             return;
-        document!.TransformViewModel.Redo();
+        document!.TransformHandler.Redo();
     }
 
     public override void OnPixelPositionChange(VecI pos)
@@ -155,13 +157,13 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
             return;
         }
         transforming = true;
-        document!.TransformViewModel.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect), true);
+        document!.TransformHandler.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect), true);
     }
 
     public override void ForceStop()
     {
         if (transforming)
-            document!.TransformViewModel.HideTransform();
+            document!.TransformHandler.HideTransform();
         internals!.ActionAccumulator.AddFinishedActions(EndDrawAction());
     }
 }

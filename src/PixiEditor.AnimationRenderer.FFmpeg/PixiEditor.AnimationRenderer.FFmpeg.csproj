@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PixiEditor.AnimationRenderer.Core\PixiEditor.AnimationRenderer.Core.csproj" />
+      <ProjectReference Include="..\PixiEditor.Numerics\PixiEditor.Numerics.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FFMpegCore" Version="5.1.0" />
+    </ItemGroup>
+  
+    <ItemGroup>
+      <Content Include="ThirdParty\Windows\ffmpeg\**">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+</Project>

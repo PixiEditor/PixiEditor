@@ -1,0 +1,18 @@
+﻿<properties:NodePropertyView xmlns="https://github.com/avaloniaui"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                             xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
+                             xmlns:input="clr-namespace:PixiEditor.Views.Input"
+                             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:Class="PixiEditor.Views.Nodes.Properties.VecDPropertyView">
+    <StackPanel HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
+        <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}"/>
+        <StackPanel IsVisible="{Binding ShowInputField}">
+            <input:NumberInput EnableScrollChange="False" MinWidth="100" Value="{Binding XValue, Mode=TwoWay}" Margin="0,2" />
+            <input:NumberInput EnableScrollChange="False" MinWidth="100" Value="{Binding YValue, Mode=TwoWay}" />
+        </StackPanel>
+    </StackPanel>
+</properties:NodePropertyView>

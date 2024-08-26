@@ -1,0 +1,171 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime">
+    <Styles.Resources>
+        <ResourceDictionary>
+            <FontFamily x:Key="PixiPerfectIcons">avares://PixiEditor.UI.Common/Fonts/pixiperfect.ttf#pixiperfect</FontFamily>
+            
+            <system:String x:Key="icon-add-reference">&#xE900;</system:String>
+            <system:String x:Key="icon-add-to-mask">&#xE901;</system:String>
+            <system:String x:Key="icon-alpha-lock">&#xE902;</system:String>
+            <system:String x:Key="icon-alpha-unlock">&#xE903;</system:String>
+            <system:String x:Key="icon-arrow-down">&#xE904;</system:String>
+            <system:String x:Key="icon-arrow-left">&#xE905;</system:String>
+            <system:String x:Key="icon-arrow-right">&#xE906;</system:String>
+            <system:String x:Key="icon-arrow-up">&#xE907;</system:String>
+            <system:String x:Key="icon-book">&#xE908;</system:String>
+            <system:String x:Key="icon-bucket">&#xE909;</system:String>
+            <system:String x:Key="icon-canvas-resize">&#xE90A;</system:String>
+            <system:String x:Key="icon-center">&#xE90B;</system:String>
+            <system:String x:Key="icon-chevron-down">&#xE90C;</system:String>
+            <system:String x:Key="icon-chevron-left">&#xE90D;</system:String>
+            <system:String x:Key="icon-chevron-right">&#xE90E;</system:String>
+            <system:String x:Key="icon-chevrons-down">&#xE964;</system:String>
+            <system:String x:Key="icon-chevrons-left">&#xE964;</system:String>
+            <system:String x:Key="icon-chevrons-right">&#xE966;</system:String>
+            <system:String x:Key="icon-chevrons-up">&#xE967;</system:String>
+            <system:String x:Key="icon-chevron-up">&#xE90F;</system:String>
+            <system:String x:Key="icon-circle">&#xE910;</system:String>
+            <system:String x:Key="icon-clock">&#xE911;</system:String>
+            <system:String x:Key="icon-color-palette">&#xE912;</system:String>
+            <system:String x:Key="icon-color-picker">&#xE913;</system:String>
+            <system:String x:Key="icon-color-sliders">&#xE914;</system:String>
+            <system:String x:Key="icon-colors-swap">&#xE915;</system:String>
+            <system:String x:Key="icon-compass">&#xE916;</system:String>
+            <system:String x:Key="icon-copy">&#xE917;</system:String>
+            <system:String x:Key="icon-corner-up-left">&#xE918;</system:String>
+            <system:String x:Key="icon-corner-up-right">&#xE919;</system:String>
+            <system:String x:Key="icon-create-mask">&#xE91A;</system:String>
+            <system:String x:Key="icon-crop-to-selection">&#xE91B;</system:String>
+            <system:String x:Key="icon-crop">&#xE91C;</system:String>
+            <system:String x:Key="icon-database">&#xE91D;</system:String>
+            <system:String x:Key="icon-deselect">&#xE91E;</system:String>
+            <system:String x:Key="icon-droplet">&#xE91F;</system:String>
+            <system:String x:Key="icon-duplicate-file">&#xE920;</system:String>
+            <system:String x:Key="icon-duplicate">&#xE921;</system:String>
+            <system:String x:Key="icon-edit">&#xE922;</system:String>
+            <system:String x:Key="icon-exit">&#xE923;</system:String>
+            <system:String x:Key="icon-eye-off">&#xE924;</system:String>
+            <system:String x:Key="icon-eye">&#xE925;</system:String>
+            <system:String x:Key="icon-file-minus90">&#xE926;</system:String>
+            <system:String x:Key="icon-file-plus">&#xE927;</system:String>
+            <system:String x:Key="icon-file-text">&#xE928;</system:String>
+            <system:String x:Key="icon-file">&#xE929;</system:String>
+            <system:String x:Key="icon-file90">&#xE92A;</system:String>
+            <system:String x:Key="icon-file180">&#xE92B;</system:String>
+            <system:String x:Key="icon-folder-plus">&#xE92C;</system:String>
+            <system:String x:Key="icon-folder">&#xE92D;</system:String>
+            <system:String x:Key="icon-globe">&#xE92E;</system:String>
+            <system:String x:Key="icon-grid">&#xE92F;</system:String>
+            <system:String x:Key="icon-home">&#xE930;</system:String>
+            <system:String x:Key="icon-image-90">&#xE931;</system:String>
+            <system:String x:Key="icon-image">&#xE932;</system:String>
+            <system:String x:Key="icon-image90">&#xE933;</system:String>
+            <system:String x:Key="icon-image180">&#xE934;</system:String>
+            <system:String x:Key="icon-info">&#xE935;</system:String>
+            <system:String x:Key="icon-intersect">&#xE936;</system:String>
+            <system:String x:Key="icon-invert">&#xE937;</system:String>
+            <system:String x:Key="icon-lasso">&#xE938;</system:String>
+            <system:String x:Key="icon-layers">&#xE939;</system:String>
+            <system:String x:Key="icon-line">&#xE93A;</system:String>
+            <system:String x:Key="icon-lock">&#xE93B;</system:String>
+            <system:String x:Key="icon-log-out">&#xE93C;</system:String>
+            <system:String x:Key="icon-magic-wand">&#xE93D;</system:String>
+            <system:String x:Key="icon-minimize">&#xE93E;</system:String>
+            <system:String x:Key="icon-merge">&#xE93F;</system:String>
+            <system:String x:Key="icon-mouse-pointer">&#xE940;</system:String>
+            <system:String x:Key="icon-move-view">&#xE942;</system:String>
+            <system:String x:Key="icon-new-mask">&#xE943;</system:String>
+            <system:String x:Key="icon-paste">&#xE944;</system:String>
+            <system:String x:Key="icon-vector-pen">&#xE945;</system:String>
+            <system:String x:Key="icon-picker">&#xE946;</system:String>
+            <system:String x:Key="icon-plus-square">&#xE947;</system:String>
+            <system:String x:Key="icon-rectangle-selection">&#xE948;</system:String>
+            <system:String x:Key="icon-redo">&#xE949;</system:String>
+            <system:String x:Key="icon-reference-layer">&#xE94A;</system:String>
+            <system:String x:Key="icon-resize">&#xE94B;</system:String>
+            <system:String x:Key="icon-rotate-view">&#xE94C;</system:String>
+            <system:String x:Key="icon-eraser">&#xE94D;</system:String>
+            <system:String x:Key="icon-save">&#xE94E;</system:String>
+            <system:String x:Key="icon-scissors">&#xE94F;</system:String>
+            <system:String x:Key="icon-select-all">&#xE950;</system:String>
+            <system:String x:Key="icon-settings">&#xE951;</system:String>
+            <system:String x:Key="icon-sliders">&#xE952;</system:String>
+            <system:String x:Key="icon-square">&#xE953;</system:String>
+            <system:String x:Key="icon-subtract">&#xE954;</system:String>
+            <system:String x:Key="icon-sun">&#xE955;</system:String>
+            <system:String x:Key="icon-swap">&#xE956;</system:String>
+            <system:String x:Key="icon-tool">&#xE957;</system:String>
+            <system:String x:Key="icon-trash">&#xE958;</system:String>
+            <system:String x:Key="icon-undo">&#xE959;</system:String>
+            <system:String x:Key="icon-unlock">&#xE95A;</system:String>
+            <system:String x:Key="icon-x-flip">&#xE95B;</system:String>
+            <system:String x:Key="icon-x-selected-flip">&#xE95F;</system:String>
+            <system:String x:Key="icon-y-flip">&#xE95E;</system:String>
+            <system:String x:Key="icon-y-selected-flip">&#xE95C;</system:String>
+            <system:String x:Key="icon-x-symmetry">&#xE95D;</system:String>
+            <system:String x:Key="icon-y-symmetry">&#xE960;</system:String>
+            <system:String x:Key="icon-zoom-in">&#xE961;</system:String>
+            <system:String x:Key="icon-zoom-out">&#xE962;</system:String>
+            <system:String x:Key="icon-pen">&#xE971;</system:String>
+            <system:String x:Key="icon-link">&#xE96B;</system:String>
+            <system:String x:Key="icon-search">&#xE976;</system:String>
+            <system:String x:Key="icon-hard-drive">&#xE96C;</system:String>
+            <system:String x:Key="icon-copy-add">&#xe921;</system:String>
+            <system:String x:Key="icon-check">&#xe96a;</system:String>
+            <system:String x:Key="icon-dot">&#xe963;</system:String>
+            
+            <system:String x:Key="icon-paste-reference-layer">&#xe977;</system:String>
+            <system:String x:Key="icon-paste-as-new-layer">&#xe978;</system:String>
+            <system:String x:Key="icon-star">&#xe97c;</system:String>
+            <system:String x:Key="icon-star-filled">&#xe979;</system:String>
+            <system:String x:Key="icon-reset">R</system:String>
+            <system:String x:Key="icon-message">&#xE96F;</system:String>
+            <system:String x:Key="icon-download">&#xE969;</system:String>
+            <system:String x:Key="icon-youtube">&#xE975;</system:String>
+            <system:String x:Key="icon-misc">&#xE968;</system:String>
+            <system:String x:Key="icon-write">&#xE970;</system:String>
+            <system:String x:Key="icon-play">&#xE981;</system:String>
+            <system:String x:Key="icon-pause">&#xE980;</system:String>
+            <system:String x:Key="icon-timeline">&#xE983;</system:String>
+            <system:String x:Key="icon-swatches">&#xE982;</system:String>
+            <system:String x:Key="icon-nodes">&#xe984;</system:String>
+            <system:String x:Key="icon-onion">&#xe985;</system:String>
+        </ResourceDictionary>
+    </Styles.Resources>
+    
+    <Style Selector="TextBlock.pixi-icon">
+        <Setter Property="FontFamily" Value="{DynamicResource PixiPerfectIcons}"/>
+    </Style>
+    
+    <Style Selector="Run.pixi-icon">
+        <Setter Property="FontFamily" Value="{DynamicResource PixiPerfectIcons}"/>
+    </Style>
+    
+    <Style Selector="Button.pixi-icon">
+        <Setter Property="FontFamily" Value="{DynamicResource PixiPerfectIcons}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    
+    <Style Selector="Button.pixi-icon:pointerover">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    
+    <Style Selector="ToggleButton.pixi-icon">
+        <Setter Property="FontFamily" Value="{DynamicResource PixiPerfectIcons}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    
+    <Style Selector="ToggleButton.pixi-icon:checked">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}"/>
+    </Style>
+</Styles>

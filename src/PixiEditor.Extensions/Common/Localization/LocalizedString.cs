@@ -26,14 +26,14 @@ public struct LocalizedString
     }
     public string Value { get; private set; }
 
-    public object[] Parameters { get; set; }
+    public object[]? Parameters { get; set; }
 
     public LocalizedString(string key)
     {
         Key = key;
     }
 
-    public LocalizedString(string key, params object[] parameters)
+    public LocalizedString(string key, params object[]? parameters)
     {
         Parameters = parameters;
         Key = key;
@@ -51,7 +51,7 @@ public struct LocalizedString
             return localizationKey;
         }
         
-        ILocalizationProvider localizationProvider = ILocalizationProvider.Current;
+        ILocalizationProvider? localizationProvider = ILocalizationProvider.Current;
         if (localizationProvider?.LocalizationData == null)
         {
             return localizationKey;
@@ -70,7 +70,7 @@ public struct LocalizedString
         }
 
 
-        return ApplyParameters(ILocalizationProvider.Current.CurrentLanguage.Locale[localizationKey]);
+        return ApplyParameters(ILocalizationProvider.Current!.CurrentLanguage.Locale[localizationKey]);
     }
 
     private string GetLongString(int length) => string.Join(' ', Enumerable.Repeat("LaLaLaLaLa", length));

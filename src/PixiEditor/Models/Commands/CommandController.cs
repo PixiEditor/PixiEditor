@@ -1,15 +1,22 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
-using System.Windows.Media;
+using System.Threading.Tasks;
+using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.AnalyticsAPI;
+using PixiEditor.Models.Commands.Attributes.Evaluators;
+using PixiEditor.Models.Commands.CommandContext;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
-using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.Localization;
-using PixiEditor.ViewModels.SubViewModels.Tools;
+using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Input;
+using PixiEditor.Models.Structures;
 using CommandAttribute = PixiEditor.Models.Commands.Attributes.Commands.Command;
 
 namespace PixiEditor.Models.Commands;
@@ -36,6 +43,8 @@ internal class CommandController
 
     public Dictionary<string, IconEvaluator> IconEvaluators { get; }
 
+    private static readonly List<Command> objectsToInvokeOn = new();
+    
     public CommandController()
     {
         Current ??= this;
@@ -75,15 +84,15 @@ internal class CommandController
         }
     }
 
-    private static List<(string internalName, LocalizedString displayName)> FindCommandGroups(IEnumerable<Type> typesToSearchForAttributes)
+    private static List<Attributes.Commands.Command.GroupAttribute> FindCommandGroups(IEnumerable<Type> typesToSearchForAttributes)
     {
-        List<(string internalName, LocalizedString displayName)> result = new();
+        List<Attributes.Commands.Command.GroupAttribute> result = new();
 
         foreach (var type in typesToSearchForAttributes)
         {
-            foreach (var group in type.GetCustomAttributes<CommandAttribute.GroupAttribute>())
+            foreach (var group in type.GetCustomAttributes<Attributes.Commands.Command.GroupAttribute>())
             {
-                result.Add((group.InternalName, group.DisplayName));
+                result.Add(group);
             }
         }
 
@@ -113,48 +122,74 @@ internal class CommandController
         }
         catch (JsonException)
         {
-            File.Move(shortcutFile.Path, $"{shortcutFile.Path}.corrupted", true);
+            File.Move(shortcutFile.Path, $"{shortcutFile.Path}.corrupted", true);  // TODO: platform dependent
             shortcutFile = new ShortcutFile(ShortcutsPath, this);
             template = shortcutFile.LoadTemplate();
             NoticeDialog.Show("SHORTCUTS_CORRUPTED", "SHORTCUTS_CORRUPTED_TITLE");
         }
         var compiledCommandList = new CommandNameList();
-        List<(string internalName, LocalizedString displayName)> commandGroupsData = FindCommandGroups(compiledCommandList.Groups);
+        List<Attributes.Commands.Command.GroupAttribute> commandGroupsData = FindCommandGroups(compiledCommandList.Groups);
         OneToManyDictionary<string, Command> commands = new(); // internal name of the corr. group -> command in that group
 
         LoadEvaluators(serviceProvider, compiledCommandList);
         LoadCommands(serviceProvider, compiledCommandList, commandGroupsData, commands, template);
         LoadTools(serviceProvider, commandGroupsData, commands, template);
-
+        
         var miscList = new List<Command>();
 
         foreach (var (groupInternalName, storedCommands) in commands)
         {
-            var groupData = commandGroupsData.FirstOrDefault(group => group.internalName == groupInternalName);
-            if (groupData == default || groupData.internalName == "PixiEditor.Links")
+            var groupData = commandGroupsData.FirstOrDefault(group => group.InternalName == groupInternalName);
+            if (groupData == default || groupData.InternalName == "PixiEditor.Links")
             {
                 miscList.AddRange(storedCommands);
                 continue;
             }
 
-            LocalizedString groupDisplayName = groupData.displayName;
-            CommandGroups.Add(new CommandGroup(groupDisplayName, storedCommands));
+            LocalizedString groupDisplayName = groupData.DisplayName;
+            CommandGroups.Add(new CommandGroup(groupDisplayName, storedCommands)
+            {
+                IsVisibleProperty = groupData.IsVisibleMenuProperty
+            } );
         }
         
         CommandGroups.Add(new CommandGroup("MISC", miscList));
     }
 
-    private void LoadTools(IServiceProvider serviceProvider, List<(string internalName, LocalizedString displayName)> commandGroupsData, OneToManyDictionary<string, Command> commands,
+    public static void ListenForCanExecuteChanged(Command command)
+    {
+        objectsToInvokeOn.Add(command);
+    }
+
+    public static void StopListeningForCanExecuteChanged(Command handler)
+    {
+        objectsToInvokeOn.Remove(handler);
+    }
+
+    public void NotifyPropertyChanged(string? propertyName)
+    {
+        foreach (var evaluator in objectsToInvokeOn)
+        {
+            //TODO: Check if performance is better with or without this
+            /*if (evaluator.Methods.CanExecuteEvaluator.DependentOn != null && evaluator.Methods.CanExecuteEvaluator.DependentOn.Contains(propertyName))*/
+            {
+                evaluator.OnCanExecuteChanged();
+            }
+        }
+    }
+
+    private void LoadTools(IServiceProvider serviceProvider, List<Attributes.Commands.Command.GroupAttribute> commandGroupsData, OneToManyDictionary<string, Command> commands,
         ShortcutsTemplate template)
     {
-        foreach (var toolInstance in serviceProvider.GetServices<ToolViewModel>())
+        IToolsHandler toolsHandler = serviceProvider.GetService<IToolsHandler>();
+        foreach (var toolInstance in serviceProvider.GetServices<IToolHandler>())
         {
             var type = toolInstance.GetType();
 
-            if (!type.IsAssignableTo(typeof(ToolViewModel)))
+            if (!type.IsAssignableTo(typeof(IToolHandler)))
                 continue;
 
-            var toolAttr = type.GetCustomAttribute<CommandAttribute.ToolAttribute>();
+            var toolAttr = type.GetCustomAttribute<Attributes.Commands.Command.ToolAttribute>();
             if (toolAttr is null)
                 continue;
 
@@ -162,12 +197,12 @@ internal class CommandController
 
             LocalizedString displayName = new("SELECT_TOOL", toolInstance.DisplayName);
 
-            var command = new Command.ToolCommand()
+            var command = new Command.ToolCommand(toolsHandler)
             {
                 InternalName = internalName,
                 DisplayName = displayName,
                 Description = displayName,
-                IconPath = $"@{toolInstance.ImagePath}",
+                Icon = toolInstance.Icon,
                 IconEvaluator = IconEvaluator.Default,
                 TransientKey = toolAttr.Transient,
                 DefaultShortcut = toolAttr.GetShortcut(),
@@ -185,16 +220,16 @@ internal class CommandController
             .FirstOrDefault(x => x.Commands.Contains(internalName), new Shortcut(defaultShortcut, (List<string>)null))
             .KeyCombination;
 
-    private void AddCommandToCommandsCollection(Command command, List<(string internalName, LocalizedString displayName)> commandGroupsData, OneToManyDictionary<string, Command> commands)
+    private void AddCommandToCommandsCollection(Command command, List<Attributes.Commands.Command.GroupAttribute> commandGroupsData, OneToManyDictionary<string, Command> commands)
     {
-        (string internalName, string displayName) group = commandGroupsData.FirstOrDefault(x => command.InternalName.StartsWith(x.internalName));
+        var group = commandGroupsData.FirstOrDefault(x => command.InternalName.StartsWith(x.InternalName));
         if (group == default)
             commands.Add("", command);
         else
-            commands.Add(group.internalName, command);
+            commands.Add(group.InternalName, command);
     }
 
-    private void LoadCommands(IServiceProvider serviceProvider, CommandNameList compiledCommandList, List<(string internalName, LocalizedString displayName)> commandGroupsData, OneToManyDictionary<string, Command> commands, ShortcutsTemplate template)
+    private void LoadCommands(IServiceProvider serviceProvider, CommandNameList compiledCommandList, List<Attributes.Commands.Command.GroupAttribute> commandGroupsData, OneToManyDictionary<string, Command> commands, ShortcutsTemplate template)
     {
         foreach (var type in compiledCommandList.Commands)
         {
@@ -204,11 +239,11 @@ internal class CommandController
 
                 var methodInfo = type.Key.GetMethod(name, methodNames.Item2.ToArray());
 
-                var commandAttrs = methodInfo.GetCustomAttributes<CommandAttribute.CommandAttribute>();
+                var commandAttrs = methodInfo.GetCustomAttributes<Attributes.Commands.Command.CommandAttribute>();
 
                 foreach (var attribute in commandAttrs)
                 {
-                    if (attribute is CommandAttribute.BasicAttribute basic)
+                    if (attribute is Attributes.Commands.Command.BasicAttribute basic)
                     {
                         AddCommand(methodInfo, serviceProvider.GetService(type.Key), attribute,
                             (isDebug, name, x, xCan, xIcon) => new Command.BasicCommand(x, xCan)
@@ -217,14 +252,17 @@ internal class CommandController
                                 IsDebug = isDebug,
                                 DisplayName = attribute.DisplayName,
                                 Description = attribute.Description,
-                                IconPath = attribute.IconPath,
+                                Icon = attribute.Icon,
                                 IconEvaluator = xIcon,
                                 DefaultShortcut = attribute.GetShortcut(),
                                 Shortcut = GetShortcut(name, attribute.GetShortcut(), template),
                                 Parameter = basic.Parameter,
+                                MenuItemPath = basic.MenuItemPath,
+                                MenuItemOrder = basic.MenuItemOrder,
+                                ShortcutContext = basic.ShortcutContext
                             });
                     }
-                    else if (attribute is CommandAttribute.FilterAttribute menu)
+                    else if (attribute is Attributes.Commands.Command.FilterAttribute menu)
                     {
                         string searchTerm = menu.SearchTerm;
                         
@@ -239,7 +277,7 @@ internal class CommandController
 
                         bool hasFilter = FilterCommands.ContainsKey(searchTerm);
                         
-                        foreach (var menuCommand in commandAttrs.Where(x => x is not CommandAttribute.FilterAttribute))
+                        foreach (var menuCommand in commandAttrs.Where(x => x is not Attributes.Commands.Command.FilterAttribute))
                         {
                             FilterCommands.Add(searchTerm, Commands[menuCommand.InternalName]);
                         }
@@ -247,9 +285,14 @@ internal class CommandController
                         if (hasFilter)
                             continue;
 
+                        ISearchHandler searchHandler = serviceProvider.GetRequiredService<ISearchHandler>();
+
+                        if (searchHandler is null)
+                            continue;
+
                         var command =
                             new Command.BasicCommand(
-                                _ => ViewModelMain.Current.SearchSubViewModel.OpenSearchWindow($":{searchTerm}:"),
+                                ExecuteFilter,
                                 CanExecuteEvaluator.AlwaysTrue)
                             {
                                 InternalName = menu.InternalName,
@@ -263,6 +306,16 @@ internal class CommandController
                         Commands.Add(command);
 
                         AddCommandToCommandsCollection(command, commandGroupsData, commands);
+
+                        void ExecuteFilter(object o)
+                        {
+                            if (attribute.AnalyticsTrack && o is CommandExecutionContext c)
+                            {
+                                Analytics.SendCommand(menu.InternalName, c.SourceInfo);
+                            }
+                            
+                            searchHandler.OpenSearchWindow($":{searchTerm}:");
+                        }
                     }
                 }
             }
@@ -270,7 +323,7 @@ internal class CommandController
         
         TCommand AddCommand<TAttr, TCommand>(MethodInfo method, object instance, TAttr attribute,
             Func<bool, string, Action<object>, CanExecuteEvaluator, IconEvaluator, TCommand> commandFactory)
-            where TAttr : CommandAttribute.CommandAttribute
+            where TAttr : Attributes.Commands.Command.CommandAttribute
             where TCommand : Command
         {
             if (method != null)
@@ -289,33 +342,6 @@ internal class CommandController
 
             var parameters = method?.GetParameters();
 
-            async void ActionOnException(Task faultedTask)
-            {
-                // since this method is "async void" and not "async Task", the runtime will propagate exceptions out if it
-                // (instead of putting them into the returned task and forgetting about them)
-                await faultedTask; // this instantly throws the exception from the already faulted task
-            }
-
-            Action<object> action;
-            if (parameters is not { Length: 1 })
-            {
-                action = x =>
-                {
-                    object result = method.Invoke(instance, null);
-                    if (result is Task task)
-                        task.ContinueWith(ActionOnException, TaskContinuationOptions.OnlyOnFaulted);
-                };
-            }
-            else
-            {
-                action = x =>
-                {
-                    object result = method.Invoke(instance, new[] { x });
-                    if (result is Task task)
-                        task.ContinueWith(ActionOnException, TaskContinuationOptions.OnlyOnFaulted);
-                };
-            }
-
             string name = attribute.InternalName;
             bool isDebug = attribute.InternalName.StartsWith("#DEBUG#");
 
@@ -327,7 +353,7 @@ internal class CommandController
             var command = commandFactory(
                 isDebug,
                 name,
-                action,
+                CommandAction,
                 attribute.CanExecute != null ? CanExecuteEvaluators[attribute.CanExecute] : CanExecuteEvaluator.AlwaysTrue,
                 attribute.IconEvaluator != null ? IconEvaluators[attribute.IconEvaluator] : IconEvaluator.Default);
 
@@ -335,6 +361,60 @@ internal class CommandController
             AddCommandToCommandsCollection(command, commandGroupsData, commands);
 
             return command;
+
+            void CommandAction(object x) => CommandMethodInvoker(method, name, instance, x, parameters, attribute.AnalyticsTrack);
+
+            
+        }
+    }
+
+    private static void CommandMethodInvoker(MethodInfo method, string name, object? instance, object parameter, ParameterInfo[] parameterInfos, bool isTracking)
+    {
+        var parameters = GetParameters(parameter, parameterInfos);
+                
+        if (isTracking)
+        {
+            Analytics.SendCommand(name, (parameter as CommandExecutionContext)?.SourceInfo);
+        }
+                
+        object result = method.Invoke(instance, parameters);
+        if (result is Task task)
+            task.ContinueWith(ActionOnException, TaskContinuationOptions.OnlyOnFaulted);
+
+        return;
+
+        static async void ActionOnException(Task faultedTask)
+        {
+            // since this method is "async void" and not "async Task", the runtime will propagate exceptions out if it
+            // (instead of putting them into the returned task and forgetting about them)
+            await faultedTask; // this instantly throws the exception from the already faulted task
+        }
+
+        static object?[]? GetParameters(object parameter, ParameterInfo[] parameterInfos)
+        {
+            object?[]? parameters;
+
+            if (parameterInfos.Length == 0)
+            {
+                parameters = null;
+            }
+            else if (parameter is CommandExecutionContext context)
+            {
+                if (parameterInfos[0].ParameterType == typeof(CommandExecutionContext))
+                {
+                    parameters = [ context ];
+                }
+                else
+                {
+                    parameters = [ context.Parameter ];
+                }
+            }
+            else
+            {
+                parameters = [ parameter ];
+            }
+
+            return parameters;
         }
     }
 
@@ -342,8 +422,13 @@ internal class CommandController
     {
         object CastParameter(object input, Type target)
         {
+            var commandExecutionType = typeof(CommandExecutionContext);
+            if (input is CommandExecutionContext context && !target.IsAssignableTo(commandExecutionType))
+                input = context.Parameter;
+
             if (target == typeof(object) || target == input?.GetType())
                 return input;
+            
             return Convert.ChangeType(input, target);
         }
 
@@ -352,7 +437,8 @@ internal class CommandController
             where T : Evaluator<TParameter>, new()
             where TAttr : Evaluator.EvaluatorAttribute
         {
-            if (method.ReturnType != typeof(TParameter))
+            bool isAssignableAsync = IsAssignaleAsync<TAttr, T, TParameter>(method);
+            if (!method.ReturnType.IsAssignableFrom(typeof(TParameter)) && !isAssignableAsync)
             {
                 throw new Exception(
                     $"Invalid return type for the CanExecute evaluator '{attribute.Name}' at {method.ReflectedType.FullName}.{method.Name}\nExpected '{typeof(TParameter).FullName}'");
@@ -370,21 +456,39 @@ internal class CommandController
 
             var parameters = method.GetParameters();
 
-            Func<object, TParameter> func;
-
-            if (parameters.Length == 1)
+            if (!isAssignableAsync)
             {
-                func = x => (TParameter)method.Invoke(serviceInstance,
-                    new[] { CastParameter(x, parameters[0].ParameterType) });
+                Func<object, TParameter> func;
+
+                if (parameters.Length == 1)
+                {
+                    func = x => (TParameter)method.Invoke(serviceInstance,
+                        new[] { CastParameter(x, parameters[0].ParameterType) });
+                }
+                else
+                {
+                    func = x => (TParameter)method.Invoke(serviceInstance, null);
+                }
+
+                T evaluator = factory(func);
+                evaluators.Add(evaluator.Name, evaluator);
             }
             else
             {
-                func = x => (TParameter)method.Invoke(serviceInstance, null);
+                Func<object, Task<TParameter>> func;
+                if (parameters.Length == 1)
+                {
+                    func = async x => await method.InvokeAsync<TParameter>(serviceInstance,
+                        new[] { CastParameter(x, parameters[0].ParameterType) });
+                }
+                else
+                {
+                    func = async x => await method.InvokeAsync<TParameter>(serviceInstance, null);
+                }
+
+                T evaluator = factory(x => Task.Run(async () => await func(x)).Result);//TODO: This is not truly async
+                evaluators.Add(evaluator.Name, evaluator);
             }
-
-            T evaluator = factory(func);
-
-            evaluators.Add(evaluator.Name, evaluator);
         }
 
         void AddEvaluator<TAttr, T, TParameter>(MethodInfo method, object instance, TAttr attribute,
@@ -411,11 +515,6 @@ internal class CommandController
                         {
                             case Evaluator.CanExecuteAttribute canExecuteAttribute:
                             {
-                                var getRequiredEvaluatorsObjectsOfCurrentEvaluator =
-                                    (CommandController controller) =>
-                                        canExecuteAttribute.NamesOfRequiredCanExecuteEvaluators.Select(x =>
-                                            controller.CanExecuteEvaluators[x]);
-
                                 AddEvaluatorFactory<Evaluator.CanExecuteAttribute, CanExecuteEvaluator, bool>(
                                     methodInfo,
                                     serviceProvider.GetService(type.Key),
@@ -424,16 +523,13 @@ internal class CommandController
                                     evaluateFunction => new CanExecuteEvaluator()
                                     {
                                         Name = attribute.Name,
-                                        Evaluate = evaluateFunctionArgument =>
-                                            evaluateFunction.Invoke(evaluateFunctionArgument) &&
-                                            getRequiredEvaluatorsObjectsOfCurrentEvaluator.Invoke(this).All(
-                                                requiredEvaluator =>
-                                                    requiredEvaluator.CallEvaluate(null, evaluateFunctionArgument))
+                                        Evaluate = evaluateFunction.Invoke,
+                                        /*DependentOn = canExecuteAttribute.DependentOn*/
                                     });
                                 break;
                             }
                             case Evaluator.IconAttribute icon:
-                                AddEvaluator<Evaluator.IconAttribute, IconEvaluator, ImageSource>(methodInfo,
+                                AddEvaluator<Evaluator.IconAttribute, IconEvaluator, IImage>(methodInfo,
                                     serviceProvider.GetService(type.Key), icon, IconEvaluators);
                                 break;
                         }
@@ -441,6 +537,17 @@ internal class CommandController
                 }
             }
         }
+    }
+
+    private static bool IsAssignaleAsync<TAttr, T, TParameter>(MethodInfo method) where T : Evaluator<TParameter>, new() where TAttr : Evaluator.EvaluatorAttribute
+    {
+        if (method.ReturnType.IsAssignableTo(typeof(Task)))
+        {
+            return method.ReturnType.GenericTypeArguments.Length == 0 ||
+                   method.ReturnType.GenericTypeArguments[0].IsAssignableFrom(typeof(TParameter));
+        }
+
+        return false;
     }
 
     /// <summary>

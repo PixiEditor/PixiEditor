@@ -1,8 +1,10 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge.Operations;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
+using PixiEditor.Numerics;
 using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Skia.Implementations
@@ -13,20 +15,32 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         private readonly SkiaCanvasImplementation _canvasImplementation;
         private readonly SkiaPaintImplementation _paintImplementation;
 
-        public SkiaSurfaceImplementation(SkiaPixmapImplementation pixmapImplementation, SkiaCanvasImplementation canvasImplementation, SkiaPaintImplementation paintImplementation)
+        internal GRContext? GrContext { get; set; }
+
+        public SkiaSurfaceImplementation(GRContext context, SkiaPixmapImplementation pixmapImplementation,
+            SkiaCanvasImplementation canvasImplementation, SkiaPaintImplementation paintImplementation)
         {
             _pixmapImplementation = pixmapImplementation;
             _canvasImplementation = canvasImplementation;
             _paintImplementation = paintImplementation;
+            GrContext = context;
         }
-        
+
         public Pixmap PeekPixels(DrawingSurface drawingSurface)
         {
             SKPixmap pixmap = ManagedInstances[drawingSurface.ObjectPointer].PeekPixels();
+            if (pixmap == null)
+            {
+                using var snapshot = drawingSurface.Snapshot();
+                Bitmap bitmap = Bitmap.FromImage(snapshot);
+                return bitmap.PeekPixels();
+            }
+
             return _pixmapImplementation.CreateFrom(pixmap);
         }
 
-        public bool ReadPixels(DrawingSurface drawingSurface, ImageInfo dstInfo, IntPtr dstPixels, int dstRowBytes, int srcX,
+        public bool ReadPixels(DrawingSurface drawingSurface, ImageInfo dstInfo, IntPtr dstPixels, int dstRowBytes,
+            int srcX,
             int srcY)
         {
             return ManagedInstances[drawingSurface.ObjectPointer]
@@ -37,38 +51,94 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             SKCanvas canvas = _canvasImplementation[surfaceToDraw.ObjectPointer];
             SKPaint paint = _paintImplementation[drawingPaint.ObjectPointer];
-            ManagedInstances[drawingSurface.ObjectPointer].Draw(canvas, x, y, paint);
+            var instance = ManagedInstances[drawingSurface.ObjectPointer];
+            instance.Draw(canvas, x, y, paint);
         }
-        
+
         public DrawingSurface Create(ImageInfo imageInfo, IntPtr pixels, int rowBytes)
         {
-            SKSurface skSurface = SKSurface.Create(imageInfo.ToSkImageInfo(), pixels, rowBytes);
+            SKSurface skSurface = CreateSkiaSurface(imageInfo.ToSkImageInfo(), imageInfo.GpuBacked, pixels, rowBytes);
             return CreateDrawingSurface(skSurface);
         }
 
         public DrawingSurface Create(ImageInfo imageInfo, IntPtr pixelBuffer)
         {
-            SKSurface skSurface = SKSurface.Create(imageInfo.ToSkImageInfo(), pixelBuffer);
+            SKImageInfo info = imageInfo.ToSkImageInfo();
+            SKSurface skSurface = CreateSkiaSurface(info, imageInfo.GpuBacked, pixelBuffer);
             return CreateDrawingSurface(skSurface);
+        }
+
+        private SKSurface CreateSkiaSurface(SKImageInfo imageInfo, bool isGpuBacked, IntPtr pixels, int rowBytes)
+        {
+            if (isGpuBacked)
+            {
+                SKSurface skSurface = CreateSkiaSurface(imageInfo, true);
+                using var image = SKImage.FromPixelCopy(imageInfo, pixels, rowBytes);
+
+                var canvas = skSurface.Canvas;
+                canvas.DrawImage(image, new SKPoint(0, 0));
+
+                return skSurface;
+            }
+
+            return SKSurface.Create(imageInfo, pixels, rowBytes);
+        }
+
+        private SKSurface CreateSkiaSurface(SKImageInfo imageInfo, bool isGpuBacked, IntPtr pixels)
+        {
+            if (isGpuBacked)
+            {
+                SKSurface skSurface = CreateSkiaSurface(imageInfo, true);
+                using var image = SKImage.FromPixelCopy(imageInfo, pixels);
+
+                var canvas = skSurface.Canvas;
+                canvas.DrawImage(image, new SKPoint(0, 0));
+
+                return skSurface;
+            }
+
+            return SKSurface.Create(imageInfo, pixels);
         }
 
         public DrawingSurface Create(Pixmap pixmap)
         {
             SKPixmap skPixmap = _pixmapImplementation[pixmap.ObjectPointer];
-            SKSurface skSurface = SKSurface.Create(skPixmap);
+            var skSurface = CreateSkiaSurface(skPixmap);
+
             return CreateDrawingSurface(skSurface);
+        }
+
+        private SKSurface CreateSkiaSurface(SKPixmap skPixmap)
+        {
+            SKSurface skSurface = SKSurface.Create(skPixmap); 
+            return skSurface;
         }
 
         public DrawingSurface Create(ImageInfo imageInfo)
         {
-            SKSurface skSurface = SKSurface.Create(imageInfo.ToSkImageInfo());
+            SKSurface skSurface = CreateSkiaSurface(imageInfo.ToSkImageInfo(), imageInfo.GpuBacked);
             return CreateDrawingSurface(skSurface);
+        }
+
+        private SKSurface CreateSkiaSurface(SKImageInfo info, bool gpu)
+        {
+            if (!gpu || GrContext == null)
+            {
+                return SKSurface.Create(info);
+            }
+
+            return SKSurface.Create(GrContext, false, info);
         }
 
         public void Dispose(DrawingSurface drawingSurface)
         {
             ManagedInstances[drawingSurface.ObjectPointer].Dispose();
             ManagedInstances.TryRemove(drawingSurface.ObjectPointer, out _);
+        }
+
+        public object GetNativeSurface(IntPtr objectPointer)
+        {
+            return ManagedInstances[objectPointer];
         }
 
         private DrawingSurface CreateDrawingSurface(SKSurface skSurface)
@@ -78,7 +148,23 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
             DrawingSurface surface = new DrawingSurface(skSurface.Handle, canvas);
             ManagedInstances[skSurface.Handle] = skSurface;
+
             return surface;
+        }
+
+        public void Flush(DrawingSurface drawingSurface)
+        {
+            ManagedInstances[drawingSurface.ObjectPointer].Flush(true, true);
+        }
+
+        public DrawingSurface FromNative(object native)
+        {
+            if (native is not SKSurface skSurface)
+            {
+                throw new ArgumentException("Native object is not of type SKSurface");
+            }
+
+            return CreateDrawingSurface(skSurface);
         }
     }
 }

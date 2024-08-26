@@ -1,10 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <WarningsAsErrors>Nullable</WarningsAsErrors>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
     <Configurations>Debug;Release;Steam;DevRelease;DevSteam</Configurations>
@@ -66,6 +65,10 @@
   <ItemGroup>
     <ProjectReference Include="..\ChunkyImageLib\ChunkyImageLib.csproj" />
     <ProjectReference Include="..\PixiEditor.ChangeableDocument.Gen\PixiEditor.ChangeableDocument.Gen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Utils\" />
   </ItemGroup>
 
 </Project>

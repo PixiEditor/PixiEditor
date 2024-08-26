@@ -1,10 +1,11 @@
-﻿using System.Windows.Input;
-using ChunkyImageLib.DataHolders;
+﻿using Avalonia.Input;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
-using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
+using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Handlers.Toolbars;
+using PixiEditor.Models.Handlers.Tools;
+using PixiEditor.Models.Tools;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
@@ -17,20 +18,19 @@ internal class BrightnessToolExecutor : UpdateableChangeExecutor
 
     public override ExecutionState Start()
     {
-        ViewModelMain? vm = ViewModelMain.Current;
-        StructureMemberViewModel? member = document!.SelectedStructureMember;
-        BrightnessToolViewModel? tool = vm?.ToolsSubViewModel.GetTool<BrightnessToolViewModel>();
-        if (vm is null || tool is null || member is null)
+        IStructureMemberHandler? member = document!.SelectedStructureMember;
+        IBrightnessToolHandler? tool = GetHandler<IBrightnessToolHandler>();
+        if (tool is null || member is null || tool.Toolbar is not IBasicToolbar toolbar)
             return ExecutionState.Error;
-        if (member is not LayerViewModel layer || layer.ShouldDrawOnMask)
+        if (member is not ILayerHandler layer || layer.ShouldDrawOnMask)
             return ExecutionState.Error;
 
-        guidValue = member.GuidValue;
+        guidValue = member.Id;
         repeat = tool.BrightnessMode == BrightnessMode.Repeat;
-        toolSize = tool.ToolSize;
+        toolSize = toolbar.ToolSize;
         correctionFactor = tool.Darken || tool.UsedWith == MouseButton.Right ? -tool.CorrectionFactor : tool.CorrectionFactor;
 
-        ChangeBrightness_Action action = new(guidValue, controller!.LastPixelPosition, correctionFactor, toolSize, repeat);
+        ChangeBrightness_Action action = new(guidValue, controller!.LastPixelPosition, correctionFactor, toolSize, repeat, document.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);
 
         return ExecutionState.Success;
@@ -38,7 +38,7 @@ internal class BrightnessToolExecutor : UpdateableChangeExecutor
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        ChangeBrightness_Action action = new(guidValue, pos, correctionFactor, toolSize, repeat);
+        ChangeBrightness_Action action = new(guidValue, pos, correctionFactor, toolSize, repeat, document!.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);
     }
 

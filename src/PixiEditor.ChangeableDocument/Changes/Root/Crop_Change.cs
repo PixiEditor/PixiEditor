@@ -1,5 +1,7 @@
-﻿using PixiEditor.ChangeableDocument.ChangeInfos.Root;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
@@ -12,6 +14,7 @@ internal class Crop_Change : ResizeBasedChangeBase
     {
         this.rect = rect;
     }
+
 
     public override bool InitializeAndValidate(Document target)
     {
@@ -32,14 +35,17 @@ internal class Crop_Change : ResizeBasedChangeBase
 
         target.ForEveryMember((member) =>
         {
-            if (member is Layer layer)
+            if (member is ImageLayerNode layer)
             {
-                Resize(layer.LayerImage, layer.GuidValue, rect.Size, rect.Pos * -1, deletedChunks);
+                layer.ForEveryFrame(frame =>
+                {
+                    Resize(frame, layer.Id, rect.Size, rect.Pos * -1, deletedChunks);
+                });
             }
-            if (member.Mask is null)
+            if (member.Mask.NonOverridenValue is null)
                 return;
 
-            Resize(member.Mask, member.GuidValue, rect.Size, rect.Pos * -1, deletedMaskChunks);
+            Resize(member.Mask.NonOverridenValue, member.Id, rect.Size, rect.Pos * -1, deletedMaskChunks);
         });
         
         ignoreInUndo = false;

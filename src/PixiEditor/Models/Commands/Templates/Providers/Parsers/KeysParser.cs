@@ -1,8 +1,10 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using Avalonia.Platform;
 using Newtonsoft.Json;
 using PixiEditor.Models.IO;
 
-namespace PixiEditor.Models.Commands.Templates.Parsers;
+namespace PixiEditor.Models.Commands.Templates.Providers.Parsers;
 
 public abstract class KeysParser
 {
@@ -18,15 +20,36 @@ public abstract class KeysParser
     
     public KeysParser(string mapFileName)
     {
+        if (mapFileName.StartsWith("avares://"))
+        {
+            SetResourcePathOrThrow(mapFileName);
+        }
+        else
+        {
+            SetPathOrThrow(mapFileName);
+        }
+        
+        MapFileName = mapFileName;
+    }
+
+    private void SetResourcePathOrThrow(string mapFileName)
+    {
+        _fullMapFilePath = mapFileName;
+        if (!AssetLoader.Exists(new Uri(mapFileName)))
+        {
+            throw new FileNotFoundException($"Keys map file '{_fullMapFilePath}' not found in resources.");
+        }
+    }
+
+    private void SetPathOrThrow(string mapFileName)
+    {
         _fullMapFilePath = Path.Combine(Paths.DataFullPath, "ShortcutActionMaps", mapFileName);
         if (!File.Exists(_fullMapFilePath))
         {
             throw new FileNotFoundException($"Keys map file '{_fullMapFilePath}' not found.");
         }
-        
-        MapFileName = mapFileName;
     }
-    
+
     /// <summary>
     ///     Parses custom shortcuts file into ShortcutTemplate.
     /// </summary>
@@ -37,13 +60,25 @@ public abstract class KeysParser
     
     private Dictionary<string, KeyDefinition> LoadKeysMap()
     {
-        string text = File.ReadAllText(_fullMapFilePath);
+        string text = ReadMap();
         var dict = JsonConvert.DeserializeObject<Dictionary<string, KeyDefinition>>(text);
         if(dict == null) throw new Exception("Keys map file is empty.");
         if(dict.ContainsKey("")) dict.Remove("");
         return dict;
     }
-    
+
+    private static string ReadMap()
+    {
+        if (_fullMapFilePath.StartsWith("avares://"))
+        {
+            using Stream stream = AssetLoader.Open(new Uri(_fullMapFilePath));
+            using StreamReader reader = new(stream);
+            return reader.ReadToEnd();
+        }
+
+        return File.ReadAllText(_fullMapFilePath);
+    }
+
     private List<Shortcut> ParseDefaults()
     {
         var defaults = new List<Shortcut>();

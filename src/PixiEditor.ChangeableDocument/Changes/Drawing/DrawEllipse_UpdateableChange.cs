@@ -1,5 +1,6 @@
 ﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class DrawEllipse_UpdateableChange : UpdateableChange
@@ -10,11 +11,12 @@ internal class DrawEllipse_UpdateableChange : UpdateableChange
     private readonly Color fillColor;
     private readonly int strokeWidth;
     private readonly bool drawOnMask;
+    private int frame;
 
     private CommittedChunkStorage? storedChunks;
 
     [GenerateUpdateableChangeActions]
-    public DrawEllipse_UpdateableChange(Guid memberGuid, RectI location, Color strokeColor, Color fillColor, int strokeWidth, bool drawOnMask)
+    public DrawEllipse_UpdateableChange(Guid memberGuid, RectI location, Color strokeColor, Color fillColor, int strokeWidth, bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.location = location;
@@ -22,6 +24,7 @@ internal class DrawEllipse_UpdateableChange : UpdateableChange
         this.fillColor = fillColor;
         this.strokeWidth = strokeWidth;
         this.drawOnMask = drawOnMask;
+        this.frame = frame;
     }
 
     [UpdateChangeMethod]
@@ -61,7 +64,7 @@ internal class DrawEllipse_UpdateableChange : UpdateableChange
             return new None();
         }
 
-        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
         var area = UpdateEllipse(target, image);
         storedChunks = new CommittedChunkStorage(image, image.FindAffectedArea().Chunks);
         image.CommitChanges();
@@ -71,14 +74,14 @@ internal class DrawEllipse_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
-        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
         var area = UpdateEllipse(target, image);
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, area, drawOnMask);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var affArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref storedChunks);
+        var affArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, frame, ref storedChunks);
         var changes = DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask);
         return changes;
     }

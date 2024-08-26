@@ -1,7 +1,9 @@
 ﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
+using PixiEditor.DrawingApi.Core.Surfaces.Vector;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class PathBasedPen_UpdateableChange : UpdateableChange
@@ -15,15 +17,17 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
     private VectorPath tempPath = new();
 
     private List<VecD> points = new();
+    private int frame;
 
     [GenerateUpdateableChangeActions]
-    public PathBasedPen_UpdateableChange(Guid memberGuid, VecD pos, Color color, float strokeWidth, bool drawOnMask)
+    public PathBasedPen_UpdateableChange(Guid memberGuid, VecD pos, Color color, float strokeWidth, bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.color = color;
         this.strokeWidth = strokeWidth;
         this.drawOnMask = drawOnMask;
         points.Add(pos);
+        this.frame = frame;
     }
 
     [UpdateChangeMethod]
@@ -36,7 +40,7 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
     {
         if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask))
             return false;
-        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
         image.SetBlendMode(BlendMode.SrcOver);
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
         return true;
@@ -103,7 +107,7 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
     {
         if (storedChunks is not null)
             throw new InvalidOperationException("Trying to save chunks while there are saved chunks already");
-        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
 
         ignoreInUndo = false;
         if (firstApply)
@@ -134,7 +138,7 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
         UpdateTempPath(points.Count);
-        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
 
         int opCount = image.QueueLength;
         image.EnqueueDrawPath(tempPath, color, strokeWidth, StrokeCap.Round, BlendMode.Src);
@@ -145,7 +149,7 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref storedChunks);
+        var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, frame, ref storedChunks);
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affected, drawOnMask);
     }
 

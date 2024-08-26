@@ -1,5 +1,6 @@
 ﻿using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.DrawingApi.Skia.Implementations
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.DrawingApi.Core.Surfaces.Vector;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
 
@@ -38,4 +38,5 @@ public interface IVectorPathImplementation
     public string ToSvgPathData(VectorPath vectorPath);
     public bool Contains(VectorPath vectorPath, float x, float y);
     public void AddPath(VectorPath vectorPath, VectorPath path, AddPathMode mode);
+    public object GetNativePath(IntPtr objectPointer);
 }
