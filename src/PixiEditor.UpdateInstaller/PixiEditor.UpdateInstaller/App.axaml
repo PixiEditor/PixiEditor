@@ -12,7 +12,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceInclude Source="avares://PixiEditor.UI.Common/Styles/Colors.axaml"/>
+                <ResourceInclude Source="avares://PixiEditor.UI.Common/Accents/Base.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

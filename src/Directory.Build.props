@@ -7,7 +7,7 @@
         <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" />
     </ItemGroup>
     <ItemGroup>
-        <AdditionalFiles Include="../stylecop.json" />
+        <AdditionalFiles Include="$(SolutionDir)/stylecop.json" />
     </ItemGroup>
 
   <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Windows')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'X64'">
