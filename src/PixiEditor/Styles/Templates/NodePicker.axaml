@@ -22,7 +22,7 @@
                         Text="{Binding SearchQuery, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
                         Name="PART_InputBox" />
                     
-                    <ListBox Grid.Column="0" Grid.Row="1" ItemsSource="{TemplateBinding AllCategories}" 
+                    <ListBox Grid.Column="0" Grid.Row="1" ItemsSource="{TemplateBinding FilteredCategories}" 
                              SelectedItem="{Binding SelectedCategory, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>

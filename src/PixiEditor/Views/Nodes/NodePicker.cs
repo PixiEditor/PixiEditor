@@ -58,6 +58,16 @@ public partial class NodePicker : TemplatedControl
         AvaloniaProperty.Register<NodePicker, ObservableCollection<string>>(
             nameof(AllCategories));
 
+    public static readonly StyledProperty<ObservableCollection<string>> FilteredCategoriesProperty =
+        AvaloniaProperty.Register<NodePicker, ObservableCollection<string>>(
+            nameof(FilteredCategories));
+
+    public ObservableCollection<string> FilteredCategories
+    {
+        get => GetValue(FilteredCategoriesProperty);
+        set => SetValue(FilteredCategoriesProperty, value);
+    }
+
     public ObservableCollection<string> AllCategories
     {
         get => GetValue(AllCategoriesProperty);
@@ -89,7 +99,7 @@ public partial class NodePicker : TemplatedControl
     private ScrollViewer? _scrollViewer;
 
     private const string MiscCategory = "MISC";
-    
+
     private bool SuppressCategoryChanged { get; set; }
 
     static NodePicker()
@@ -146,6 +156,9 @@ public partial class NodePicker : TemplatedControl
         {
             if (string.IsNullOrEmpty(nodePicker.SearchQuery))
             {
+                nodePicker.FilteredCategories = new ObservableCollection<string>(nodePicker.AllCategories);
+                UpdateCategoryDict(nodePicker);
+                
                 nodePicker.FilteredNodeTypeInfos =
                     OrderByCategory(nodePicker);
             }
@@ -153,6 +166,8 @@ public partial class NodePicker : TemplatedControl
             {
                 nodePicker.FilteredNodeTypeInfos = new ObservableCollection<NodeTypeInfo>(nodePicker.AllNodeTypeInfos
                     .Where(x => SearchComparer(x, nodePicker.SearchQuery)));
+                
+                FilterCategories(nodePicker);
             }
         }
 
@@ -163,12 +178,21 @@ public partial class NodePicker : TemplatedControl
                 .Contains(lookFor.Replace(" ", ""), StringComparison.OrdinalIgnoreCase);
     }
 
+    private static void UpdateCategoryDict(NodePicker nodePicker)
+    {
+        nodePicker._categoryIndexes = nodePicker.FilteredCategories
+            .Select((x, i) => (x, i))
+            .ToDictionary(x => x.x, x => x.i);
+    }
+
     private static ObservableCollection<NodeTypeInfo> OrderByCategory(NodePicker nodePicker)
     {
         return new ObservableCollection<NodeTypeInfo>(nodePicker.AllNodeTypeInfos
             .Where(x => x.Category != null)
             .OrderBy(
-                x => string.IsNullOrEmpty(x.Category) ? nodePicker._categoryIndexes[MiscCategory] : nodePicker._categoryIndexes[x.Category]));
+                x => string.IsNullOrEmpty(x.Category)
+                    ? nodePicker._categoryIndexes[MiscCategory]
+                    : nodePicker._categoryIndexes[x.Category]));
     }
 
     private void OnInputBoxKeyDown(object? sender, KeyEventArgs e)
@@ -204,12 +228,26 @@ public partial class NodePicker : TemplatedControl
 
             nodePicker.AllCategories.Add(MiscCategory);
 
-            nodePicker._categoryIndexes = nodePicker.AllCategories
-                .Select((x, i) => (x, i))
-                .ToDictionary(x => x.x, x => x.i);
+            nodePicker.FilteredCategories = new ObservableCollection<string>(nodePicker.AllCategories);
+
+            UpdateCategoryDict(nodePicker); 
 
             nodePicker.FilteredNodeTypeInfos = OrderByCategory(nodePicker);
         }
+    }
+    
+    private static void FilterCategories(NodePicker nodePicker)
+    {
+        nodePicker.FilteredCategories = new ObservableCollection<string>(nodePicker.AllCategories
+            .Where(x => nodePicker.FilteredNodeTypeInfos.Any(y => y.Category == x)));
+        
+        bool miscCategoryExists = nodePicker.FilteredNodeTypeInfos.Any(x => string.IsNullOrEmpty(x.Category));
+        if (miscCategoryExists)
+        {
+            nodePicker.FilteredCategories.Add(MiscCategory);
+        }
+        
+        UpdateCategoryDict(nodePicker); 
     }
 
     private static void SelectedCategoryChanged(AvaloniaPropertyChangedEventArgs e)
@@ -220,14 +258,18 @@ public partial class NodePicker : TemplatedControl
             {
                 return;
             }
-            
+
             int indexOfFirstItemInCategory = nodePicker.FilteredNodeTypeInfos
                 .Select((x, i) => (x, i))
                 .FirstOrDefault(x => x.x.Category == nodePicker.SelectedCategory).i;
 
             double normalizedY = indexOfFirstItemInCategory / (double)nodePicker.FilteredNodeTypeInfos.Count;
+
+            double y = normalizedY * nodePicker._scrollViewer.ScrollBarMaximum.Y;
             
-            nodePicker.ScrollOffset = new Vector(0, normalizedY * nodePicker._scrollViewer.ScrollBarMaximum.Y);
+            if(double.IsNaN(y)) return;
+
+            nodePicker.ScrollOffset = new Vector(0, y);
         }
     }
 }
