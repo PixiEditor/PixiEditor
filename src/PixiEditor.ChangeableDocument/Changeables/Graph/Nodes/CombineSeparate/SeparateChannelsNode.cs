@@ -5,7 +5,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
-[NodeInfo("SeparateChannels", "SEPARATE_CHANNELS_NODE", Category = "COLOR")]
+[NodeInfo("SeparateChannels", "SEPARATE_CHANNELS_NODE", Category = "IMAGE")]
 public class SeparateChannelsNode : Node
 {
     private readonly Paint _paint = new();

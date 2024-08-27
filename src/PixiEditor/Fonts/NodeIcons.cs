@@ -26,6 +26,17 @@ public static class NodeIcons
             { typeof(LerpColorNode), "\ue90b" },
             { typeof(NoiseNode), "\ue90c" },
             { typeof(EllipseNode), "\ue90d" },
-            { typeof(MathNode), "\ue90e" }
+            { typeof(MathNode), "\ue90e" },
+            { typeof(KernelFilterNode), "\ue90f" },
+            { typeof(CombineChannelsNode), "\ue910" },
+            { typeof(ColorMatrixFilterNode), "\ue911" },
+            { typeof(GrayscaleNode), "\ue912" },
+            { typeof(SeparateColorNode), "\ue913" },
+            { typeof(RemoveClosePointsNode), "\ue914" },
+            { typeof(SeparateChannelsNode), "\ue910" },
+            { typeof(CombineVecDNode), "\ue916" },
+            { typeof(CombineVecINode), "\ue917" },
+            { typeof(SeparateVecDNode), "\ue918" },
+            { typeof(SeparateVecINode), "\ue919" }
         });
 }
