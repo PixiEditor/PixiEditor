@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Threading;
 using PixiEditor.Helpers.Nodes;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.Views.Input;
@@ -95,6 +96,7 @@ public partial class NodePicker : TemplatedControl
 
     private ItemsControl? _itemsControl;
     private ScrollViewer? _scrollViewer;
+    private InputBox? _inputBox;
 
     private const string MiscCategory = "MISC";
 
@@ -109,13 +111,19 @@ public partial class NodePicker : TemplatedControl
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
-        var inputBox = e.NameScope.Find<InputBox>("PART_InputBox");
+        _inputBox = e.NameScope.Find<InputBox>("PART_InputBox");
 
-        inputBox.KeyDown += OnInputBoxKeyDown;
+        _inputBox.KeyDown += OnInputBoxKeyDown;
 
         _itemsControl = e.NameScope.Find<ItemsControl>("PART_NodeList");
         _scrollViewer = e.NameScope.Find<ScrollViewer>("PART_ScrollViewer");
         _scrollViewer.ScrollChanged += Scrolled;
+    }
+
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        Dispatcher.UIThread.Post(() => _inputBox?.Focus(), DispatcherPriority.Input);
     }
 
     private void Scrolled(object? sender, ScrollChangedEventArgs e)
@@ -168,6 +176,8 @@ public partial class NodePicker : TemplatedControl
                 FilterCategories(nodePicker);
             }
         }
+        
+        nodePicker.SelectedCategory = nodePicker.FilteredCategories.FirstOrDefault();
     }
 
 
@@ -255,6 +265,8 @@ public partial class NodePicker : TemplatedControl
 
             nodePicker.FilteredNodeGroups = nodePicker.NodeTypeGroupsFromQuery(null); 
             FilterCategories(nodePicker);
+            
+            nodePicker.SelectedCategory = nodePicker.FilteredCategories.FirstOrDefault();
         }
     }
 
@@ -274,7 +286,7 @@ public partial class NodePicker : TemplatedControl
     {
         if (e.Sender is NodePicker nodePicker)
         {
-            if (nodePicker.SuppressCategoryChanged)
+            if (nodePicker.SuppressCategoryChanged || nodePicker._scrollViewer == null)
             {
                 return;
             }

@@ -23,6 +23,7 @@
                                     Name="PART_InputBox" />
 
                     <ListBox Grid.Column="0" Grid.Row="1" ItemsSource="{TemplateBinding FilteredCategories}"
+                             BorderBrush="{DynamicResource ThemeBorderLowBrush}" BorderThickness="0 0 1 0"
                              SelectedItem="{Binding SelectedCategory, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
@@ -32,7 +33,7 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-
+                    
                     <ScrollViewer Grid.Row="1" Grid.Column="1" Name="PART_ScrollViewer"
                                   Offset="{Binding ScrollOffset, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
                         <ItemsControl MinHeight="200" Name="PART_NodeList"
