@@ -142,7 +142,7 @@ public class InputProperty : IInputProperty
             return new InputProperty(forNode, InternalPropertyName, DisplayName, enumVal, ValueType);
         }
 
-        if (NonOverridenValue is null)
+        if (NonOverridenValue is null || (!NonOverridenValue.GetType().IsValueType && NonOverridenValue.GetType() != typeof(string)))
         {
             object? nullValue = null;
             if (ValueType.IsValueType)
@@ -153,8 +153,13 @@ public class InputProperty : IInputProperty
             return new InputProperty(forNode, InternalPropertyName, DisplayName, nullValue, ValueType);
         }
         
-        if(!NonOverridenValue.GetType().IsValueType && NonOverridenValue.GetType() != typeof(string))
-            throw new InvalidOperationException("Value is not cloneable and not a primitive type");
+        /*if(!NonOverridenValue.GetType().IsValueType && NonOverridenValue.GetType() != typeof(string))
+            throw new InvalidOperationException($"Value of type {NonOverridenValue.GetType()} is not cloneable and not a primitive type");*/
+
+        if (!NonOverridenValue.GetType().IsValueType && NonOverridenValue.GetType() != typeof(string))
+        {
+            
+        }
         
         return new InputProperty(forNode, InternalPropertyName, DisplayName, NonOverridenValue, ValueType);
     }
