@@ -3,7 +3,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
-[NodeInfo("GrayscaleFilter", "GRAYSCALE_FILTER_NODE")]
+[NodeInfo("GrayscaleFilter", "GRAYSCALE_FILTER_NODE", Category = "FILTERS")]
 public class GrayscaleNode : FilterNode
 {
     private static readonly ColorMatrix WeightedMatrix = ColorMatrix.WeightedWavelengthGrayscale + ColorMatrix.UseAlpha;

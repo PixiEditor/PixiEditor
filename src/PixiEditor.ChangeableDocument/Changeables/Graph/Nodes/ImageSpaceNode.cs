@@ -6,7 +6,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("ImageSpace", "IMAGE_SPACE_NODE")]
+[NodeInfo("ImageSpace", "IMAGE_SPACE_NODE", Category = "IMAGE")]
 public class ImageSpaceNode : Node
 {
     public FuncOutputProperty<VecD> SpacePosition { get; }

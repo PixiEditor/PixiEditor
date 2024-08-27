@@ -5,7 +5,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Points;
 
-[NodeInfo("DistributePoints", "DISTRIBUTE_POINTS")]
+[NodeInfo("DistributePoints", "DISTRIBUTE_POINTS", Category = "GENERATION")]
 public class DistributePointsNode : Node
 {
     public OutputProperty<PointList> Points { get; }

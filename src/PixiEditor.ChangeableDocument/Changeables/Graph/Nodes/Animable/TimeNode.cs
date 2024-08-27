@@ -3,7 +3,7 @@ using PixiEditor.DrawingApi.Core;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Animable;
 
-[NodeInfo("Time", "TIME_NODE")]
+[NodeInfo("Time", "TIME_NODE", Category = "ANIMATION")]
 public class TimeNode : Node
 {
     public OutputProperty<int> ActiveFrame { get; set; }

@@ -12,6 +12,8 @@ public class NodeTypeInfo
     
     public string? PickerName { get; }
 
+    public string Category { get; }
+
     public LocalizedString FinalPickerName { get; }
 
     public bool Hidden => PickerName is { Length: 0 };
@@ -27,7 +29,8 @@ public class NodeTypeInfo
         UniqueName = attribute.UniqueName;
         DisplayName = attribute.DisplayName;
         PickerName = attribute.PickerName;
+        Category = attribute.Category ?? "";
 
-        FinalPickerName = PickerName ?? DisplayName;
+        FinalPickerName = (PickerName ?? DisplayName);
     }
 }

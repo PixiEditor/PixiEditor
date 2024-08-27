@@ -8,26 +8,46 @@
     <ControlTheme TargetType="nodes:NodePicker" x:Key="{x:Type nodes:NodePicker}">
         <Setter Property="Template">
             <ControlTemplate>
-                <Grid MinWidth="200">
+                <Grid MinWidth="200" MaxHeight="400">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="300" />
+                    </Grid.ColumnDefinitions>
 
-                    <input:InputBox
+                    <input:InputBox Grid.ColumnSpan="2"
                         Text="{Binding SearchQuery, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
                         Name="PART_InputBox" />
-                    <ItemsControl MinHeight="200" Grid.Row="1" ItemsSource="{TemplateBinding FilteredNodeTypeInfos}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="nodeModels:NodeTypeInfo">
-                                <Button Command="{Binding SelectNodeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodePicker}}"
-                                        CommandParameter="{Binding}"
-                                        Margin="0,1"
-                                        IsVisible="{Binding !Hidden}"
-                                        ui:Translator.LocalizedString="{Binding FinalPickerName}" />
+                    
+                    <ListBox Grid.Column="0" Grid.Row="1" ItemsSource="{TemplateBinding AllCategories}" 
+                             SelectedItem="{Binding SelectedCategory, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    ui:Translator.Key="{Binding .}" />
                             </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    
+                    <ScrollViewer Grid.Row="1" Grid.Column="1" Name="PART_ScrollViewer"
+                                  Offset="{Binding ScrollOffset, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                        <ItemsControl MinHeight="200" Name="PART_NodeList"
+                                      ItemsSource="{TemplateBinding FilteredNodeTypeInfos}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="nodeModels:NodeTypeInfo">
+                                    <Button
+                                        Command="{Binding SelectNodeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodePicker}}"
+                                        CommandParameter="{Binding}"
+                                        IsVisible="{Binding !Hidden}"
+                                        ui:Translator.Key="{Binding FinalPickerName}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                 </Grid>
             </ControlTemplate>
         </Setter>

@@ -4,7 +4,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Points;
 
-[NodeInfo("RemoveClosePoints", "REMOVE_CLOSE_POINTS")]
+[NodeInfo("RemoveClosePoints", "REMOVE_CLOSE_POINTS", Category = "OPERATIONS")]
 public class RemoveClosePointsNode : Node
 {
     public OutputProperty<PointList> Output { get; }

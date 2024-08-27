@@ -8,6 +8,8 @@ public class NodeInfoAttribute : Attribute
     public string DisplayName { get; }
     
     public string? PickerName { get; set; }
+    
+    public string? Category { get; set; }
 
     public NodeInfoAttribute(string uniqueName, string displayName)
     {
