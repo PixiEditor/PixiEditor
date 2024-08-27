@@ -1,5 +1,5 @@
 ﻿using System.Buffers;
-using PixiEditor.Models.Nodes;
+using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Helpers.Nodes;
 

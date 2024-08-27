@@ -4,7 +4,7 @@
                     xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
                     xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
                     xmlns:input="clr-namespace:PixiEditor.Views.Input"
-                    xmlns:nodeModels="clr-namespace:PixiEditor.Models.Nodes">
+                    xmlns:nodes1="clr-namespace:PixiEditor.ViewModels.Nodes">
     <ControlTheme TargetType="nodes:NodePicker" x:Key="{x:Type nodes:NodePicker}">
         <Setter Property="Template">
             <ControlTemplate>
@@ -19,10 +19,10 @@
                     </Grid.ColumnDefinitions>
 
                     <input:InputBox Grid.ColumnSpan="2"
-                        Text="{Binding SearchQuery, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
-                        Name="PART_InputBox" />
-                    
-                    <ListBox Grid.Column="0" Grid.Row="1" ItemsSource="{TemplateBinding FilteredCategories}" 
+                                    Text="{Binding SearchQuery, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                    Name="PART_InputBox" />
+
+                    <ListBox Grid.Column="0" Grid.Row="1" ItemsSource="{TemplateBinding FilteredCategories}"
                              SelectedItem="{Binding SelectedCategory, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
@@ -32,18 +32,38 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                    
+
                     <ScrollViewer Grid.Row="1" Grid.Column="1" Name="PART_ScrollViewer"
                                   Offset="{Binding ScrollOffset, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
                         <ItemsControl MinHeight="200" Name="PART_NodeList"
-                                      ItemsSource="{TemplateBinding FilteredNodeTypeInfos}">
+                                      ItemsSource="{TemplateBinding FilteredNodeGroups}">
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="nodeModels:NodeTypeInfo">
-                                    <Button
-                                        Command="{Binding SelectNodeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodePicker}}"
-                                        CommandParameter="{Binding}"
-                                        IsVisible="{Binding !Hidden}"
-                                        ui:Translator.Key="{Binding FinalPickerName}" />
+                                <DataTemplate DataType="nodes1:NodeTypeGroup">
+                                    <StackPanel>
+                                        <TextBlock
+                                            ui:Translator.Key="{Binding Name}"
+                                            FontWeight="Bold"
+                                            Margin="5" />
+                                        <ItemsControl ItemsSource="{Binding NodeTypes}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate DataType="nodes1:NodeTypeInfo">
+                                                        <Button
+                                                            Background="Transparent"
+                                                            Command="{Binding SelectNodeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodePicker}}"
+                                                            CommandParameter="{Binding}"
+                                                            HorizontalContentAlignment="Left"
+                                                            IsVisible="{Binding !Hidden}">
+                                                            <TextBlock Margin="10 0 0 0">
+                                                                <Run Classes="node-icon"
+                                                                     BaselineAlignment="Center"
+                                                                     Text="{Binding Icon}" />
+                                                                <Run ui:Translator.Key="{Binding FinalPickerName}" />
+                                                            </TextBlock>
+                                                        </Button>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>

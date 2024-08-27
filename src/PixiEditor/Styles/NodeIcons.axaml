@@ -1,0 +1,22 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <!-- Add Controls for Previewer Here -->
+        </Border>
+    </Design.PreviewWith>
+
+    <Styles.Resources>
+        <ResourceDictionary>
+            <FontFamily x:Key="NodeIcons">avares://PixiEditor/Fonts/nodeicons.ttf#nodeicons</FontFamily>
+        </ResourceDictionary>
+    </Styles.Resources>
+    
+    <Style Selector="TextBlock.node-icon">
+        <Setter Property="FontFamily" Value="{DynamicResource NodeIcons}" />
+    </Style>
+
+    <Style Selector="Run.node-icon">
+        <Setter Property="FontFamily" Value="{DynamicResource NodeIcons}" />
+    </Style>
+</Styles>

@@ -729,5 +729,13 @@
   "CHANGE_ACTIVE_FRAME_NEXT": "Change active frame to next",
   "TOGGLE_ANIMATION": "Toggle animation",
   "NEW_FROM_CLIPBOARD": "New from clipboard",
-  "OFFSET": "Offset"
+  "OFFSET": "Offset",
+  "SHAPE": "Shape",
+  "STRUCTURE": "Structure",
+  "NUMBERS": "Numbers",
+  "OPERATIONS": "Operations",
+  "GENERATION": "Generation",
+  "NUMBER": "Number",
+  "ANIMATION": "Animation",
+  "SAMPLE_IMAGE": "Sample Image"
 }

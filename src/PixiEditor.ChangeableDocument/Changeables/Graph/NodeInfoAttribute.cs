@@ -10,6 +10,7 @@ public class NodeInfoAttribute : Attribute
     public string? PickerName { get; set; }
     
     public string? Category { get; set; }
+    public string? Icon { get; set; }
 
     public NodeInfoAttribute(string uniqueName, string displayName)
     {
