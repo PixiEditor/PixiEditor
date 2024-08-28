@@ -15,10 +15,15 @@ public class NodeMetadata
     
     public string? Category { get; private set; }
 
-    public void AddAttributes(IReadOnlyNode node)
+    public NodeMetadata(Type type)
     {
-        Type type = node.GetType();
-        
+        AddAttributes(type);
+    }
+    
+    public NodeMetadata(IReadOnlyNode node) : this(node.GetType()) { }
+
+    private void AddAttributes(Type type)
+    {
         AddNodeInfoAttribute(type);
         AddPairAttributes(type);
     }

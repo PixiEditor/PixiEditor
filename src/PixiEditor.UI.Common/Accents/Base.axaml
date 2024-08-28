@@ -67,6 +67,7 @@
             
             <!-- Categories -->
             <Color x:Key="ImageCategoryBackgroundColor">#5B7348</Color>
+            <Color x:Key="StructureCategoryBackgroundColor">#735C39</Color>
             <Color x:Key="FiltersCategoryBackgroundColor">#733535</Color>
             <Color x:Key="ShapeCategoryBackgroundColor">#654266</Color>
             <Color x:Key="NumbersCategoryBackgroundColor">#666666</Color>
@@ -146,6 +147,7 @@
             
             <!-- Categories -->
             <SolidColorBrush x:Key="ImageCategoryBackgroundBrush" Color="{StaticResource ImageCategoryBackgroundColor}" />
+            <SolidColorBrush x:Key="StructureCategoryBackgroundBrush" Color="{StaticResource StructureCategoryBackgroundColor}" />
             <SolidColorBrush x:Key="FiltersCategoryBackgroundBrush" Color="{StaticResource FiltersCategoryBackgroundColor}" />
             <SolidColorBrush x:Key="ShapeCategoryBackgroundBrush" Color="{StaticResource ShapeCategoryBackgroundColor}" />
             <SolidColorBrush x:Key="NumbersCategoryBackgroundBrush" Color="{StaticResource NumbersCategoryBackgroundColor}" />

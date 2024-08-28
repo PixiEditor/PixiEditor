@@ -55,8 +55,7 @@ public record CreateNode_ChangeInfo(
             pairNodeGuid = pairNode.OtherNode;
         }
         
-        NodeMetadata metadata = new NodeMetadata() { PairNodeGuid = pairNodeGuid };
-        metadata.AddAttributes(node);
+        NodeMetadata metadata = new NodeMetadata(node) { PairNodeGuid = pairNodeGuid };
 
         return new CreateNode_ChangeInfo(internalName, node.DisplayName, node.Position,
             node.Id,
