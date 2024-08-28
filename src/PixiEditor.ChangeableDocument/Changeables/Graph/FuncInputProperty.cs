@@ -57,7 +57,7 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
                 }
                 else if (sourceObj is Expression expression)
                 {
-                    ((ShaderExpressionVariable)toReturn).OverrideExpression = expression;
+                    ((ShaderExpressionVariable)toReturn).OverrideExpression = Adjust(expression, toReturn);
                 }
 
                 return (T)toReturn;
@@ -66,6 +66,16 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
             return result == null ? default : (T)result; 
         };
         return func;
+    }
+    
+    private Expression Adjust(Expression expression, object toReturn)
+    {
+        if (expression is IMultiValueVariable multiVal && toReturn is not IMultiValueVariable)
+        {
+            return multiVal.GetValueAt(0);
+        }
+
+        return expression;
     }
 
     object? IFuncInputProperty.GetFuncConstantValue() => constantNonOverrideValue;

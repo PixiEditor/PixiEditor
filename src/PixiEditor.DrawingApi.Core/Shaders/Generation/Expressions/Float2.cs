@@ -1,8 +1,9 @@
-﻿using PixiEditor.Numerics;
+﻿using System;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 
-public class Float2(string name) : ShaderExpressionVariable<VecD>(name)
+public class Float2(string name) : ShaderExpressionVariable<VecD>(name), IMultiValueVariable
 {
     private Expression? _overrideExpression;
     public override string ConstantValueString
@@ -44,4 +45,13 @@ public class Float2(string name) : ShaderExpressionVariable<VecD>(name)
     
     public static implicit operator Float2(VecD value) => new Float2("") { ConstantValue = value };
     public static explicit operator VecD(Float2 value) => value.ConstantValue;
+    public ShaderExpressionVariable GetValueAt(int index)
+    {
+        return index switch
+        {
+            0 => X,
+            1 => Y,
+            _ => throw new IndexOutOfRangeException()
+        };
+    }
 }
