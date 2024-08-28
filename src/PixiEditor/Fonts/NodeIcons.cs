@@ -28,7 +28,7 @@ public static class NodeIcons
             { typeof(EllipseNode), "\ue90d" },
             { typeof(MathNode), "\ue90e" },
             { typeof(KernelFilterNode), "\ue90f" },
-            { typeof(CombineChannelsNode), "\ue910" },
+            { typeof(CombineChannelsNode), "\ue915" },
             { typeof(ColorMatrixFilterNode), "\ue911" },
             { typeof(GrayscaleNode), "\ue912" },
             { typeof(SeparateColorNode), "\ue913" },
