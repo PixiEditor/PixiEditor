@@ -45,6 +45,7 @@
             <!-- Sockets -->
             <Color x:Key="DefaultSocketColor">#c0334e</Color>
             <Color x:Key="ImageSocketColor">#99c47a</Color>
+            <Color x:Key="FilterSocketColor">#CC5C5C</Color>
             <Color x:Key="BoolSocketColor">#68abdf</Color>
             <Color x:Key="FloatSocketColor">#ffc66d</Color>
             <Color x:Key="DoubleSocketColor">#efb66d</Color>
@@ -66,6 +67,7 @@
             
             <!-- Categories -->
             <Color x:Key="ImageCategoryBackgroundColor">#5B7348</Color>
+            <Color x:Key="FiltersCategoryBackgroundColor">#733535</Color>
             <Color x:Key="ShapeCategoryBackgroundColor">#654266</Color>
             <Color x:Key="NumbersCategoryBackgroundColor">#666666</Color>
             <Color x:Key="ColorCategoryBackgroundColor">#3B665D</Color>
@@ -112,6 +114,7 @@
             <!-- Sockets -->
             <SolidColorBrush x:Key="DefaultSocketBrush" Color="{StaticResource DefaultSocketColor}"/>
             <SolidColorBrush x:Key="TextureSocketBrush" Color="{StaticResource ImageSocketColor}"/>
+            <SolidColorBrush x:Key="FilterSocketBrush" Color="{StaticResource FilterSocketColor}"/>
             <SolidColorBrush x:Key="TextureSamplerSocketBrush" Color="{StaticResource ImageSocketColor}"/>
             <SolidColorBrush x:Key="BooleanSocketBrush" Color="{StaticResource BoolSocketColor}"/>
             <SolidColorBrush x:Key="SingleSocketBrush" Color="{StaticResource FloatSocketColor}"/>
@@ -143,6 +146,7 @@
             
             <!-- Categories -->
             <SolidColorBrush x:Key="ImageCategoryBackgroundBrush" Color="{StaticResource ImageCategoryBackgroundColor}" />
+            <SolidColorBrush x:Key="FiltersCategoryBackgroundBrush" Color="{StaticResource FiltersCategoryBackgroundColor}" />
             <SolidColorBrush x:Key="ShapeCategoryBackgroundBrush" Color="{StaticResource ShapeCategoryBackgroundColor}" />
             <SolidColorBrush x:Key="NumbersCategoryBackgroundBrush" Color="{StaticResource NumbersCategoryBackgroundColor}" />
             <SolidColorBrush x:Key="ColorCategoryBackgroundBrush" Color="{StaticResource ColorCategoryBackgroundColor}" />
