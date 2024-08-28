@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using Avalonia;
+using Avalonia.Media;
 using ChunkyImageLib;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.ChangeableDocument.Actions.Generated;
@@ -17,6 +18,7 @@ using PixiEditor.ViewModels.Document;
 namespace PixiEditor.ViewModels.Nodes;
 internal class NodeViewModel : ObservableObject, INodeHandler
 {
+    private IBrush? categoryBrush;
     private string nodeNameBindable;
     private VecD position;
     private ObservableRangeCollection<INodePropertyHandler> inputs = new();
@@ -46,6 +48,25 @@ internal class NodeViewModel : ObservableObject, INodeHandler
     }
 
     public string InternalName { get; init; }
+
+    public IBrush CategoryBackgroundBrush
+    {
+        get
+        {
+            if (categoryBrush == null)
+            {
+                if (Metadata?.Category != null && Application.Current.Styles.TryGetResource($"{Stylize(Metadata.Category)}CategoryBackgroundBrush", App.Current.ActualThemeVariant, out var brushObj) && brushObj is IBrush brush)
+                {
+                    categoryBrush = brush;
+                }
+
+            }
+
+            return categoryBrush;
+
+            string Stylize(string input) => string.Concat(input[0].ToString().ToUpper(), input.ToLower().AsSpan(1));
+        }
+    }
     
     public NodeMetadata? Metadata { get; set; }
 

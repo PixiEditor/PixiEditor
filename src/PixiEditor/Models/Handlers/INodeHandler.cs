@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using Avalonia.Media;
 using ChunkyImageLib;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
@@ -13,6 +14,7 @@ public interface INodeHandler : INotifyPropertyChanged
 {
     public Guid Id { get; }
     public string NodeNameBindable { get; set; }
+    public IBrush CategoryBackgroundBrush { get; }
     public string InternalName { get; }
     public NodeMetadata Metadata { get; set; }
     public ObservableRangeCollection<INodePropertyHandler> Inputs { get; }

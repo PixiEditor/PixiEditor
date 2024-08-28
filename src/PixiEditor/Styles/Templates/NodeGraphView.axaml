@@ -39,6 +39,7 @@
                                     <nodes:NodeView
                                         Node="{Binding}"
                                         DisplayName="{Binding NodeNameBindable}"
+                                        CategoryBackgroundBrush="{Binding CategoryBackgroundBrush}"
                                         Inputs="{Binding Inputs}"
                                         BorderBrush="{Binding InternalName, Converter={converters:NodeInternalNameToStyleConverter}, ConverterParameter='BorderBrush'}"
                                         BorderThickness="2"
