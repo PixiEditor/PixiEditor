@@ -9,7 +9,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("Noise", "NOISE_NODE", Category = "GENERATION")]
+[NodeInfo("Noise", "NOISE_NODE", Category = "IMAGE")]
 public class NoiseNode : Node
 {
     private double previousScale = double.NaN;

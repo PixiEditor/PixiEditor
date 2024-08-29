@@ -12,11 +12,35 @@ public class NodeMetadata
 
     public Guid? PairNodeGuid { get; set; }
     public string? ZoneUniqueName { get; private set; }
+    
+    public string? Category { get; private set; }
 
-    public void AddAttributes(IReadOnlyNode node)
+    public NodeMetadata(Type type)
     {
-        Type type = node.GetType();
-        PairNodeAttribute? attribute = type.GetCustomAttribute<PairNodeAttribute>();
+        AddAttributes(type);
+    }
+    
+    public NodeMetadata(IReadOnlyNode node) : this(node.GetType()) { }
+
+    private void AddAttributes(Type type)
+    {
+        AddNodeInfoAttribute(type);
+        AddPairAttributes(type);
+    }
+
+    private void AddNodeInfoAttribute(Type type)
+    {
+        var attribute = type.GetCustomAttribute<NodeInfoAttribute>();
+
+        if (attribute == null)
+            return;
+
+        Category = attribute.Category;
+    }
+
+    private void AddPairAttributes(Type type)
+    {
+        var attribute = type.GetCustomAttribute<PairNodeAttribute>();
 
         if (attribute == null)
             return;

@@ -7,7 +7,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
-[NodeInfo("CombineVecD", "COMBINE_VECD_NODE", Category = "NUMBER")]
+[NodeInfo("CombineVecD", "COMBINE_VECD_NODE", Category = "NUMBERS")]
 public class CombineVecDNode : Node
 {
     public FuncOutputProperty<Float2> Vector { get; }

@@ -18,9 +18,10 @@ public record class CreateFolder_ChangeInfo : CreateStructureMember_ChangeInfo
         bool hasMask,
         bool maskIsVisible,
         ImmutableArray<NodePropertyInfo> Inputs,
-        ImmutableArray<NodePropertyInfo> Outputs
+        ImmutableArray<NodePropertyInfo> Outputs,
+        NodeMetadata metadata
     ) : base(internalName, opacity, isVisible, clipToMemberBelow, name, blendMode, guidValue, hasMask,
-        maskIsVisible, Inputs, Outputs)
+        maskIsVisible, Inputs, Outputs, metadata)
     {
     }
 
@@ -36,6 +37,7 @@ public record class CreateFolder_ChangeInfo : CreateStructureMember_ChangeInfo
             folder.Id,
             folder.Mask.Value is not null,
             folder.MaskIsVisible.Value, CreatePropertyInfos(folder.InputProperties, true, folder.Id),
-            CreatePropertyInfos(folder.OutputProperties, false, folder.Id));
+            CreatePropertyInfos(folder.OutputProperties, false, folder.Id),
+            new NodeMetadata(folder));
     }
 }

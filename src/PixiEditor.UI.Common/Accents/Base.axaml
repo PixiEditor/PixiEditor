@@ -38,8 +38,14 @@
 
             <Color x:Key="NotificationCardBackgroundColor">#303030</Color>
             
+            <!--                          -->
+            <!--     <| Node Colors |>    -->
+            <!--                          -->
+            
+            <!-- Sockets -->
             <Color x:Key="DefaultSocketColor">#c0334e</Color>
             <Color x:Key="ImageSocketColor">#99c47a</Color>
+            <Color x:Key="FilterSocketColor">#CC5C5C</Color>
             <Color x:Key="BoolSocketColor">#68abdf</Color>
             <Color x:Key="FloatSocketColor">#ffc66d</Color>
             <Color x:Key="DoubleSocketColor">#efb66d</Color>
@@ -49,6 +55,7 @@
             <Color x:Key="IntSocketColor">#4C64B1</Color>
             <Color x:Key="PointListSocketColor">#7f5280</Color>
             
+            <!-- Zones & Frames -->
             <Color x:Key="PixiEditorModifyImageBorderColor">#68abdf</Color>
             <Color x:Key="PixiEditorModifyImageNodeBackgroundColor">#4068abdf</Color>
 
@@ -57,6 +64,15 @@
 
             <Color x:Key="NodeFrameBorderColor">#101010</Color>
             <Color x:Key="NodeFrameBackgroundColor">#40101010</Color>
+            
+            <!-- Categories -->
+            <Color x:Key="ImageCategoryBackgroundColor">#5B7348</Color>
+            <Color x:Key="StructureCategoryBackgroundColor">#735C39</Color>
+            <Color x:Key="FiltersCategoryBackgroundColor">#733535</Color>
+            <Color x:Key="ShapeCategoryBackgroundColor">#654266</Color>
+            <Color x:Key="NumbersCategoryBackgroundColor">#666666</Color>
+            <Color x:Key="ColorCategoryBackgroundColor">#3B665D</Color>
+            <Color x:Key="AnimationCategoryBackgroundColor">#4D4466</Color>
 
             <system:Double x:Key="ThemeDisabledOpacity">0.4</system:Double>
 
@@ -92,8 +108,14 @@
             
             <SolidColorBrush x:Key="SelectionFillBrush" Color="{StaticResource SelectionFillColor}"/>
             
+            <!--                           -->
+            <!--     <| Node Brushes |>    -->
+            <!--                           -->
+            
+            <!-- Sockets -->
             <SolidColorBrush x:Key="DefaultSocketBrush" Color="{StaticResource DefaultSocketColor}"/>
             <SolidColorBrush x:Key="TextureSocketBrush" Color="{StaticResource ImageSocketColor}"/>
+            <SolidColorBrush x:Key="FilterSocketBrush" Color="{StaticResource FilterSocketColor}"/>
             <SolidColorBrush x:Key="TextureSamplerSocketBrush" Color="{StaticResource ImageSocketColor}"/>
             <SolidColorBrush x:Key="BooleanSocketBrush" Color="{StaticResource BoolSocketColor}"/>
             <SolidColorBrush x:Key="SingleSocketBrush" Color="{StaticResource FloatSocketColor}"/>
@@ -109,6 +131,7 @@
             <SolidColorBrush x:Key="Int1SocketBrush" Color="{StaticResource IntSocketColor}"/>
             <SolidColorBrush x:Key="PointListSocketBrush" Color="{StaticResource PointListSocketColor}"/>
             
+            <!-- Zones & Frames -->
             <SolidColorBrush x:Key="PixiEditorModifyImageLeftBorderBrush" Color="{StaticResource PixiEditorModifyImageBorderColor}"/>
             <SolidColorBrush x:Key="PixiEditorModifyImageRightBorderBrush" Color="{StaticResource PixiEditorModifyImageBorderColor}"/>
             <SolidColorBrush x:Key="PixiEditorModifyImageZoneBorderBrush" Color="{StaticResource PixiEditorModifyImageBorderColor}"/>
@@ -121,6 +144,15 @@
 
             <SolidColorBrush x:Key="NodeFrameBorderBrush" Color="{StaticResource NodeFrameBorderColor}"/>
             <SolidColorBrush x:Key="NodeFrameBackgroundBrush" Color="{StaticResource NodeFrameBackgroundColor}"/>
+            
+            <!-- Categories -->
+            <SolidColorBrush x:Key="ImageCategoryBackgroundBrush" Color="{StaticResource ImageCategoryBackgroundColor}" />
+            <SolidColorBrush x:Key="StructureCategoryBackgroundBrush" Color="{StaticResource StructureCategoryBackgroundColor}" />
+            <SolidColorBrush x:Key="FiltersCategoryBackgroundBrush" Color="{StaticResource FiltersCategoryBackgroundColor}" />
+            <SolidColorBrush x:Key="ShapeCategoryBackgroundBrush" Color="{StaticResource ShapeCategoryBackgroundColor}" />
+            <SolidColorBrush x:Key="NumbersCategoryBackgroundBrush" Color="{StaticResource NumbersCategoryBackgroundColor}" />
+            <SolidColorBrush x:Key="ColorCategoryBackgroundBrush" Color="{StaticResource ColorCategoryBackgroundColor}" />
+            <SolidColorBrush x:Key="AnimationCategoryBackgroundBrush" Color="{StaticResource AnimationCategoryBackgroundColor}" />
 
             <CornerRadius x:Key="ControlCornerRadius">5</CornerRadius>
             <CornerRadius x:Key="ControlCornerRadiusTop">5, 5, 0, 0</CornerRadius>

@@ -14,7 +14,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("ModifyImageRight", "MODIFY_IMAGE_RIGHT_NODE", PickerName = "")]
+[NodeInfo("ModifyImageRight", "MODIFY_IMAGE_RIGHT_NODE", PickerName = "", Category = "IMAGE")]
 [PairNode(typeof(ModifyImageLeftNode), "ModifyImageZone")]
 public class ModifyImageRightNode : Node, IPairNode, ICustomShaderNode
 {
