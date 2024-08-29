@@ -12,9 +12,33 @@ public class Float1(string name) : ShaderExpressionVariable<double>(name)
 
     public override Expression? OverrideExpression { get; set; }
 
-    public static implicit operator Float1(double value) => new Float1("") { ConstantValue = value };
+    public static implicit operator Float1(double value) => new("") { ConstantValue = value };
 
     public static explicit operator double(Float1 value) => value.ConstantValue;
 
     public byte FullSizeByteConstant => (byte)(ConstantValue * 255);
+}
+
+public class Half4Float1Accessor : Float1
+{
+    public Half4Float1Accessor(Half4 accessTo, char name) : base(string.IsNullOrEmpty(accessTo.VariableName) ? string.Empty : $"{accessTo.VariableName}.{name}")
+    {
+        Accesses = accessTo;
+    }
+    
+    public Half4 Accesses { get; }
+
+    public static bool AllAccessSame(Expression r, Expression g, Expression b, Expression a, out Half4? half4)
+    {
+        if (r is Half4Float1Accessor rA && g is Half4Float1Accessor gA &&
+            b is Half4Float1Accessor bA && a is Half4Float1Accessor aA &&
+            rA.Accesses == gA.Accesses && bA.Accesses == aA.Accesses && rA.Accesses == bA.Accesses)
+        {
+            half4 = rA.Accesses;
+            return true;
+        }
+
+        half4 = null;
+        return false;
+    }
 }

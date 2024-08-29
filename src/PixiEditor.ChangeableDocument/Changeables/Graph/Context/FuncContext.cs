@@ -122,6 +122,11 @@ public class FuncContext
             constantHalf4.ConstantValue = Color.FromHsl((float)hValue, (float)sValue, (float)lValue, aByte);
             return constantHalf4;
         }
+
+        if (Half4Float1Accessor.AllAccessSame(h, s, l, a, out var half4))
+        {
+            return Builder.AssignNewHalf4(Builder.Functions.GetHslToRgb(half4));
+        }
         
         return Builder.AssignNewHalf4(Builder.Functions.GetHslToRgb(h, s, l, a));
     }
