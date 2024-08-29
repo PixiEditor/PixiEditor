@@ -87,7 +87,14 @@
                                         InputNodePosition="{Binding InputNode.PositionBindable}"
                                         OutputNodePosition="{Binding OutputNode.PositionBindable}"
                                         InputProperty="{Binding InputProperty}"
-                                        OutputProperty="{Binding OutputProperty}" />
+                                        OutputProperty="{Binding OutputProperty}">
+                                        <nodes:ConnectionView.IsVisible>
+                                            <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                                <Binding Path="InputProperty.IsVisible" />
+                                                <Binding Path="OutputProperty.IsVisible" />
+                                            </MultiBinding>
+                                        </nodes:ConnectionView.IsVisible>
+                                    </nodes:ConnectionView>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
