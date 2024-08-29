@@ -4,5 +4,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("MATH_NODE", "NUMBERS")]
+[NodeViewModel("MATH_NODE", "NUMBERS", "\ue90e")]
 internal class MathNodeViewModel : NodeViewModel<MathNode>;

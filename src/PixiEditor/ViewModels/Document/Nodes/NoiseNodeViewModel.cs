@@ -4,5 +4,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("NOISE_NODE", "IMAGE")]
+[NodeViewModel("NOISE_NODE", "IMAGE", "\ue90c")]
 internal class NoiseNodeViewModel : NodeViewModel<NoiseNode>;

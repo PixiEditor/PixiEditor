@@ -2,7 +2,6 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Fonts;
 using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.ViewModels.Nodes;
@@ -35,11 +34,7 @@ public class NodeTypeInfo
         DisplayName = attribute.DisplayName;
         PickerName = attribute.PickerName;
         Category = attribute.Category ?? "";
-
-        if (NodeIcons.IconMap.TryGetValue(NodeType, out var icon))
-        {
-            Icon = icon;
-        }
+        Icon = attribute.Icon;
 
         FinalPickerName = (PickerName ?? DisplayName);
     }

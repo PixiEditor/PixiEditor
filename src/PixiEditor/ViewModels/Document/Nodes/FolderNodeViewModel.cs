@@ -6,7 +6,7 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("FOLDER_NODE", "STRUCTURE")]
+[NodeViewModel("FOLDER_NODE", "STRUCTURE", "\ue901")]
 internal class FolderNodeViewModel : StructureMemberViewModel<FolderNode>, IFolderHandler
 {
     public ObservableCollection<IStructureMemberHandler> Children { get; } = new();

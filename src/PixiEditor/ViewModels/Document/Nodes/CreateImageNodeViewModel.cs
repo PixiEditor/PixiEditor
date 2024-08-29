@@ -3,5 +3,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("CREATE_IMAGE_NODE", "IMAGE")]
+[NodeViewModel("CREATE_IMAGE_NODE", "IMAGE", "\ue902")]
 internal class CreateImageNodeViewModel : NodeViewModel<CreateImageNode>;

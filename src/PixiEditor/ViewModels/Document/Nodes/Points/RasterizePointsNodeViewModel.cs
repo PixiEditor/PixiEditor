@@ -3,5 +3,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.Points;
 
-[NodeViewModel("RASTERIZE_POINTS", "SHAPE")]
+[NodeViewModel("RASTERIZE_POINTS", "SHAPE", "\ue906")]
 internal class RasterizePointsNodeViewModel : NodeViewModel<RasterizePointsNode>;

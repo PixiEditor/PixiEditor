@@ -4,5 +4,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("MODIFY_IMAGE_LEFT_NODE", "IMAGE")]
+[NodeViewModel("MODIFY_IMAGE_LEFT_NODE", "IMAGE", "\ue904")]
 internal class ModifyImageLeftNodeViewModel : NodeViewModel<ModifyImageLeftNode>;
