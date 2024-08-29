@@ -126,7 +126,7 @@ internal class DocumentOperationsModule : IDocumentOperations
         RectI maxSize = new RectI(VecI.Zero, Document.SizeBindable);
         foreach (var imageWithName in images)
         {
-            maxSize = maxSize.Union(new RectI(imageWithName.position, imageWithName.image.Size));
+            maxSize = maxSize.Union(new RectI(imageWithName.Position, imageWithName.Image.Size));
         }
 
         if (maxSize.Size != Document.SizeBindable)
@@ -134,8 +134,8 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         foreach (var imageWithName in images)
         {
-            var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.Layer, Path.GetFileName(imageWithName.name));
-            DrawImage(imageWithName.image, new ShapeCorners(new RectD(imageWithName.position, imageWithName.image.Size)),
+            var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.Layer, Path.GetFileName(imageWithName.Name));
+            DrawImage(imageWithName.Image, new ShapeCorners(new RectD(imageWithName.Position, imageWithName.Image.Size)),
                 layerGuid, true, false, frame, false);
         }
         Internals.ActionAccumulator.AddFinishedActions();

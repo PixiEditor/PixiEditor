@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Helpers;
+using PixiEditor.Helpers.UI;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Numerics;
@@ -91,18 +92,6 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         set => SetProperty(ref coverWholeScreen, value);
     }
 
-    private ShapeCorners requestedCorners;
-    public ShapeCorners RequestedCorners
-    {
-        get => requestedCorners;
-        set
-        {
-            // The event must be raised even if the value hasn't changed, so I'm not using SetProperty
-            requestedCorners = value;
-            OnPropertyChanged(nameof(RequestedCorners));
-        }
-    }
-
     private ShapeCorners corners;
     public ShapeCorners Corners
     {
@@ -112,6 +101,13 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
             SetProperty(ref corners, value);
             TransformMoved?.Invoke(this, value);
         }
+    }
+    
+    private ExecutionTrigger<ShapeCorners> requestedCornersExecutor;
+    public ExecutionTrigger<ShapeCorners> RequestCornersExecutor
+    {
+        get => requestedCornersExecutor;
+        set => SetProperty(ref requestedCornersExecutor, value);
     }
 
     private ICommand? actionCompletedCommand = null;
@@ -139,6 +135,8 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
 
             undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Move);
         });
+
+        RequestCornersExecutor = new ExecutionTrigger<ShapeCorners>();
     }
 
     public bool Undo()
@@ -194,12 +192,12 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         CornerFreedom = TransformCornerFreedom.Scale;
         SideFreedom = TransformSideFreedom.Stretch;
         LockRotation = mode == DocumentTransformMode.Scale_NoRotate_NoShear_NoPerspective;
-        RequestedCorners = initPos;
         CoverWholeScreen = coverWholeScreen;
         TransformActive = true;
         ShowTransformControls = showApplyButton;
 
         undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Initial);
+        RequestCornersExecutor?.Execute(this, initPos);
     }
 
     public void KeyModifiersInlet(bool isShiftDown, bool isCtrlDown, bool isAltDown)
