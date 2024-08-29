@@ -5,14 +5,13 @@ using ShapeData = PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.D
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes;
 
-public abstract class ShapeNode : Node
+public abstract class ShapeNode<T> : Node where T : ShapeData
 {
-    public OutputProperty<ShapeData> Output { get; }
-    private const int PreviewSize = 150;
+    public OutputProperty<T> Output { get; }
     
     public ShapeNode()
     {
-        Output = CreateOutput<ShapeData>("Output", "OUTPUT", null);
+        Output = CreateOutput<T>("Output", "OUTPUT", null);
     }
 
     protected override Texture? OnExecute(RenderingContext context)
@@ -24,14 +23,14 @@ public abstract class ShapeNode : Node
         if (data == null || !data.IsValid())
             return null;
 
-        return RasterizePreview(data);
+        return RasterizePreview(data, context.DocumentSize);
     }
     
-    protected abstract ShapeData? GetShapeData(RenderingContext context);
+    protected abstract T? GetShapeData(RenderingContext context);
 
-    public Texture RasterizePreview(ShapeData data)
+    public Texture RasterizePreview(ShapeData data, VecI size)
     {
-        Texture texture = RequestTexture(0, new VecI(PreviewSize, PreviewSize));
+        Texture texture = RequestTexture(0, size);
         
         data.Rasterize(texture.DrawingSurface);
         

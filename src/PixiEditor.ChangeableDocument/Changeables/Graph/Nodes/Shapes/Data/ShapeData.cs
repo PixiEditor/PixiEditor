@@ -6,9 +6,9 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
 public abstract class ShapeData : ICacheable, ICloneable
 {
-    public Color StrokeColor { get; set; }
-    public Color FillColor { get; set; }
-    public int StrokeWidth { get; set; }
+    public Color StrokeColor { get; set; } = Colors.White;
+    public Color FillColor { get; set; } = Colors.White;
+    public int StrokeWidth { get; set; } = 1;
 
     public abstract void Rasterize(DrawingSurface drawingSurface);
     public abstract bool IsValid();

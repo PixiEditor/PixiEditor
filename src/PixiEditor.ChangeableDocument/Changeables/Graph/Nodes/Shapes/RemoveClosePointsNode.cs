@@ -7,9 +7,9 @@ using ShapeData = PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.D
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes;
 
 [NodeInfo("RemoveClosePoints", "REMOVE_CLOSE_POINTS", Category = "SHAPE")]
-public class RemoveClosePointsNode : ShapeNode
+public class RemoveClosePointsNode : ShapeNode<PointsData>
 {
-    public InputProperty<ShapeData> Input { get; }
+    public InputProperty<PointsData> Input { get; }
 
     public InputProperty<double> MinDistance { get; }
 
@@ -17,28 +17,23 @@ public class RemoveClosePointsNode : ShapeNode
 
     public RemoveClosePointsNode()
     {
-        Input = CreateInput<ShapeData>("Input", "POINTS", null);
+        Input = CreateInput<PointsData>("Input", "POINTS", null);
         MinDistance = CreateInput("MinDistance", "MIN_DISTANCE", 0d);
         Seed = CreateInput("Seed", "SEED", 0);
     }
 
-    protected override ShapeData? GetShapeData(RenderingContext context)
+    protected override PointsData? GetShapeData(RenderingContext context)
     {
         var data = Input.Value;
 
-        if (data is not PointsData pointsData)
-        {
-            return data;
-        }
-
         var distance = MinDistance.Value;
 
-        if (distance == 0)
+        if (distance == 0 || data == null || data.Points == null)
         {
             return null;
         }
 
-        var availablePoints = pointsData.Points.Distinct().ToList();
+        var availablePoints = data.Points.Distinct().ToList();
         List<VecD> newPoints = new List<VecD>();
         
         var minDistance = MinDistance.Value;
@@ -61,7 +56,7 @@ public class RemoveClosePointsNode : ShapeNode
             continue;
 
             bool InRange(VecD other) =>
-                (other.Multiply(documentSize) - point.Multiply(documentSize)).Length <= minDistance;
+                (other - point).Length <= minDistance;
         }
 
         if (availablePoints.Count == 1)

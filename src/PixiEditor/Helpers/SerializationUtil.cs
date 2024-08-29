@@ -26,6 +26,10 @@ public static class SerializationUtil
         }
 
         var factory = allFactories.FirstOrDefault(x => x.OriginalType == value.GetType());
+        if (factory == null)
+        {
+            factory = allFactories.FirstOrDefault(x => value.GetType().IsAssignableTo(x.OriginalType));
+        }
 
         if (factory != null)
         {

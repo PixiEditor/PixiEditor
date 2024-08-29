@@ -17,6 +17,7 @@ public class PointsData : ShapeData
     {
         using Paint paint = new Paint();
         paint.Color = FillColor;
+        paint.StrokeWidth = StrokeWidth;
         
         drawingSurface.Canvas.DrawPoints(PointMode.Points, Points.Select(p => new Point((int)p.X, (int)p.Y)).ToArray(), paint);
     }

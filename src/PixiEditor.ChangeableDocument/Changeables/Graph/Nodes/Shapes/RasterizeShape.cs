@@ -19,7 +19,7 @@ public class RasterizeShape : Node
     public RasterizeShape()
     {
         Image = CreateOutput<Texture>("Image", "IMAGE", null);
-        Data = CreateInput<ShapeData>("Points", "POINTS", null);
+        Data = CreateInput<ShapeData>("Points", "SHAPE", null);
     }
 
     protected override Texture? OnExecute(RenderingContext context)
