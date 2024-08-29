@@ -55,20 +55,6 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         return true;
     }
 
-    [Command.Basic("PixiEditor.Layer.DeleteSelected", "LAYER_DELETE_SELECTED", 
-        "LAYER_DELETE_SELECTED_DESCRIPTIVE", 
-        CanExecute = "PixiEditor.Layer.CanDeleteSelected", Key = Key.Delete, 
-        ShortcutContext = typeof(LayersDockViewModel),
-        Icon = PixiPerfectIcons.Trash, AnalyticsTrack = true)]
-    public void DeleteSelected()
-    {
-        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
-        if (member is null)
-            return;
-
-        member.Document.Operations.DeleteStructureMember(member.Id);
-    }
-
     [Evaluator.CanExecute("PixiEditor.Layer.HasSelectedMembers")]
     public bool HasSelectedMembers()
     {
@@ -103,7 +89,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Layer.DeleteAllSelected", "LAYER_DELETE_ALL_SELECTED", "LAYER_DELETE_ALL_SELECTED_DESCRIPTIVE", CanExecute = "PixiEditor.Layer.HasSelectedMembers", 
-        Icon = PixiPerfectIcons.Trash, AnalyticsTrack = true)]
+        Icon = PixiPerfectIcons.Trash, AnalyticsTrack = true, Key = Key.Delete, 
+        ShortcutContext = typeof(LayersDockViewModel))]
     public void DeleteAllSelected()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -111,7 +98,9 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             return;
         var selected = GetSelected();
         if (selected.Count > 0)
+        {
             doc.Operations.DeleteStructureMembers(selected);
+        }
     }
 
     [Command.Basic("PixiEditor.Layer.NewFolder", "NEW_FOLDER", "CREATE_NEW_FOLDER", CanExecute = "PixiEditor.Layer.CanCreateNewMember",
