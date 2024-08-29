@@ -38,7 +38,7 @@ internal abstract class ImageFileType : IoFileType
                 return SaveResult.ConcurrencyError;
 
             finalSurface = maybeBitmap.AsT1;
-            if (maybeBitmap.AsT1.Size != exportConfig.ExportSize)
+            if (maybeBitmap.AsT1.Size != exportConfig.ExportSize && exportConfig.ExportSize.X > 0 && exportConfig.ExportSize.Y > 0)
             {
                 finalSurface = finalSurface.ResizeNearestNeighbor(exportConfig.ExportSize);
                 maybeBitmap.AsT1.Dispose();
