@@ -36,6 +36,15 @@ public class CombineColorNode : Node
     {
         var a = ctx.GetValue(A);
         
+        if (Mode.Value == CombineSeparateColorMode.HSV)
+        {
+            var h = ctx.GetValue(R);
+            var s = ctx.GetValue(G);
+            var v = ctx.GetValue(B);
+
+            return ctx.HsvaToRgba(h, s, v, a);
+        }
+
         if (Mode.Value == CombineSeparateColorMode.HSL)
         {
             var h = ctx.GetValue(R);
@@ -44,7 +53,7 @@ public class CombineColorNode : Node
 
             return ctx.HslaToRgba(h, s, l, a);
         }
-        
+
         var r = ctx.GetValue(R);
         var g = ctx.GetValue(G);
         var b = ctx.GetValue(B);
