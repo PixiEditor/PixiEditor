@@ -34,10 +34,20 @@ public class CombineColorNode : Node
 
     private Half4 GetColor(FuncContext ctx)
     {
+        var a = ctx.GetValue(A);
+        
+        if (Mode.Value == CombineSeparateColorMode.HSL)
+        {
+            var h = ctx.GetValue(R);
+            var s = ctx.GetValue(G);
+            var l = ctx.GetValue(B);
+
+            return ctx.HslaToRgba(h, s, l, a);
+        }
+        
         var r = ctx.GetValue(R);
         var g = ctx.GetValue(G);
         var b = ctx.GetValue(B);
-        var a = ctx.GetValue(A);
 
         return ctx.NewHalf4(r, g, b, a); 
     }

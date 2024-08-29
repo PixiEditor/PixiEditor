@@ -36,4 +36,10 @@ public class Half4(string name) : ShaderExpressionVariable<Color>(name), IMultiV
             _ => throw new IndexOutOfRangeException()
         };
     }
+
+    public static string ConstructorText(Expression r, Expression g, Expression b, Expression a) =>
+        $"half4({r.ExpressionValue}, {g.ExpressionValue}, {b.ExpressionValue}, {a.ExpressionValue})";
+
+    public static Expression Constructor(Expression r, Expression g, Expression b, Expression a) =>
+        new Expression(ConstructorText(r, g, b, a));
 }

@@ -16,6 +16,8 @@ public class ShaderBuilder
 
     private Dictionary<Texture, TextureSampler> _samplers = new Dictionary<Texture, TextureSampler>();
 
+    public BuiltInFunctions Functions { get; } = new();
+
     public Shader BuildShader()
     {
         string generatedSksl = ToSkSl();
@@ -26,6 +28,9 @@ public class ShaderBuilder
     {
         StringBuilder sb = new StringBuilder();
         AppendUniforms(sb);
+
+        sb.AppendLine(Functions.BuildFunctions());
+        
         sb.AppendLine("half4 main(float2 coords)");
         sb.AppendLine("{");
         sb.Append(_bodyBuilder);
@@ -152,12 +157,7 @@ public class ShaderBuilder
         Half4 result = new Half4(name);
         _variables.Add(result);
 
-        string rExpression = r.ExpressionValue;
-        string gExpression = g.ExpressionValue;
-        string bExpression = b.ExpressionValue;
-        string aExpression = a.ExpressionValue;
-
-        _bodyBuilder.AppendLine($"half4 {name} = half4({rExpression}, {gExpression}, {bExpression}, {aExpression});");
+        _bodyBuilder.AppendLine($"half4 {name} = {Half4.ConstructorText(r, g, b, a)};");
         return result;
     }
 

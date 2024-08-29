@@ -109,6 +109,21 @@ public class FuncContext
         return Builder.ConstructHalf4(r, g, b, a);
     }
 
+    public Half4 HslaToRgba(Expression h, Expression s, Expression l, Expression a)
+    {
+        if (!HasContext && h is Float1 firstFloat && s is Float1 secondFloat && l is Float1 thirdFloat && a is Float1 fourthFloat)
+        {
+            Half4 constantHalf4 = new Half4("");
+            var hValue = firstFloat.ConstantValue * 360;
+            var sValue = secondFloat.ConstantValue * 100;
+            var lValue = thirdFloat.ConstantValue * 100;
+            byte aByte = (byte)(fourthFloat.ConstantValue * 255);
+            constantHalf4.ConstantValue = Color.FromHsl((float)hValue, (float)sValue, (float)lValue, aByte);
+            return constantHalf4;
+        }
+        
+        return Builder.AssignNewHalf4(Builder.Functions.GetHslToRgb(h, s, l, a));
+    }
 
     public Half4 NewHalf4(Expression assignment)
     {
