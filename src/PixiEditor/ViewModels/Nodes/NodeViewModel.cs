@@ -335,9 +335,19 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         return Inputs.FirstOrDefault(x => x.PropertyName == propName) as NodePropertyViewModel;
     }
     
+    public NodePropertyViewModel<T> FindInputProperty<T>(string propName)
+    {
+        return Inputs.FirstOrDefault(x => x.PropertyName == propName) as NodePropertyViewModel<T>;
+    }
+
     public NodePropertyViewModel FindOutputProperty(string propName)
     {
         return Outputs.FirstOrDefault(x => x.PropertyName == propName) as NodePropertyViewModel;
+    }
+
+    public NodePropertyViewModel<T> FindOutputProperty<T>(string propName)
+    {
+        return Outputs.FirstOrDefault(x => x.PropertyName == propName) as NodePropertyViewModel<T>;
     }
 }
 
