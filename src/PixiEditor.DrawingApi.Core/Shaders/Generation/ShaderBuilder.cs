@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
@@ -162,14 +164,29 @@ public class ShaderBuilder
     }
 
 
-    public Half4 AssignNewHalf4(Expression assignment)
+    public Half4 AssignNewHalf4(Expression assignment) => AssignNewHalf4($"color_{GetUniqueNameNumber()}", assignment);
+
+    public Half4 AssignNewHalf4(string name, Expression assignment)
     {
-        string name = $"color_{GetUniqueNameNumber()}";
         Half4 result = new Half4(name);
         _variables.Add(result);
 
         _bodyBuilder.AppendLine($"half4 {name} = {assignment.ExpressionValue};");
         return result;
+    }
+
+    public Half4 GetOrNewAttachedHalf4(int hash1, int hash2, Func<Expression> assignment)
+    {
+        var name = $"color_attached_{hash1}_{hash2}";
+        
+        var result = _variables.FirstOrDefault(x => x.VariableName == name);
+
+        if (result == null)
+        {
+            return AssignNewHalf4(name, assignment());
+        }
+
+        return (Half4)result;
     }
 
     public void Dispose()
