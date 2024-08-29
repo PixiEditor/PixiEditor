@@ -6,7 +6,7 @@ using ShapeData = PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.D
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes;
 
-[NodeInfo("Ellipse", "ELLIPSE_NODE", Category = "SHAPE")]
+[NodeInfo("Ellipse")]
 public class EllipseNode : ShapeNode<EllipseData>
 {
     public InputProperty<VecD> Position { get; }
