@@ -14,9 +14,12 @@ public class NodeMetadata
     public string? ZoneUniqueName { get; private set; }
     
     public string? Category { get; private set; }
+    
+    public Type NodeType { get; private set; }
 
     public NodeMetadata(Type type)
     {
+        NodeType = type;
         AddAttributes(type);
     }
     

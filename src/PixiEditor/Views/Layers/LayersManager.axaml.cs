@@ -228,7 +228,7 @@ internal partial class LayersManager : UserControl
         var reversed = root.Reverse();
         foreach (var child in reversed)
         {
-            if (child is FolderViewModel innerFolder)
+            if (child is FolderNodeViewModel innerFolder)
             {
                 matches = TraverseRange(bound1, bound2, innerFolder.Children, action, matches);
             }

@@ -138,14 +138,14 @@
 
                 </TreeView.Resources>
                 <TreeView.DataTemplates>
-                    <TreeDataTemplate DataType="nodes:FolderViewModel" ItemsSource="{Binding Children}">
+                    <TreeDataTemplate DataType="nodes:FolderNodeViewModel" ItemsSource="{Binding Children}">
                         <layers:FolderControl
                                 Folder="{Binding}"
                                 Manager="{Binding ElementName=layersManager}"
                                 PointerPressed="FolderControl_MouseDown"
                                 PointerReleased="FolderControl_MouseUp"/>
                     </TreeDataTemplate>
-                    <DataTemplate DataType="{x:Type nodes:LayerViewModel}">
+                    <DataTemplate DataType="{x:Type nodes:ImageLayerNodeViewModel}">
                         <layers:LayerControl
                             Layer="{Binding}"
                             Manager="{Binding ElementName=layersManager}"

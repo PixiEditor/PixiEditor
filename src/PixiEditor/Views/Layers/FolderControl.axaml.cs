@@ -13,10 +13,10 @@ namespace PixiEditor.Views.Layers;
 internal partial class FolderControl : UserControl
 {
 
-    public static readonly StyledProperty<FolderViewModel> FolderProperty =
-        AvaloniaProperty.Register<FolderControl, FolderViewModel>(nameof(Folder));
+    public static readonly StyledProperty<FolderNodeViewModel> FolderProperty =
+        AvaloniaProperty.Register<FolderControl, FolderNodeViewModel>(nameof(Folder));
 
-    public FolderViewModel Folder
+    public FolderNodeViewModel Folder
     {
         get => GetValue(FolderProperty);
         set => SetValue(FolderProperty, value);

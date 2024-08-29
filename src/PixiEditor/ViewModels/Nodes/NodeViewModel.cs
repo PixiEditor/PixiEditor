@@ -18,10 +18,10 @@ using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.ViewModels.Nodes;
 
-internal class NodeViewModel : ObservableObject, INodeHandler
+internal abstract class NodeViewModel : ObservableObject, INodeHandler
 {
     private IBrush? categoryBrush;
-    private string nodeNameBindable;
+    private string? nodeNameBindable;
     private VecD position;
     private ObservableRangeCollection<INodePropertyHandler> inputs = new();
     private ObservableRangeCollection<INodePropertyHandler> outputs = new();
@@ -30,15 +30,17 @@ internal class NodeViewModel : ObservableObject, INodeHandler
 
     protected Guid id;
 
-    public Guid Id
-    {
-        get => id;
-        init => id = value;
-    }
+    public Guid Id { get => id; private set => id = value; }
+    
+    public abstract LocalizedString DisplayName { get; }
+    
+    public abstract LocalizedString Category { get; }
+
+    public virtual LocalizedString? PickerName { get; }
 
     public string NodeNameBindable
     {
-        get => nodeNameBindable;
+        get => nodeNameBindable ?? DisplayName;
         set
         {
             if (!Document.UpdateableChangeActive)
@@ -49,7 +51,7 @@ internal class NodeViewModel : ObservableObject, INodeHandler
         } 
     }
 
-    public string InternalName { get; init; }
+    public string InternalName { get; private set; }
 
     public IBrush CategoryBackgroundBrush
     {
@@ -110,9 +112,18 @@ internal class NodeViewModel : ObservableObject, INodeHandler
         set => SetProperty(ref isSelected, value);
     }
 
-    internal DocumentViewModel Document { get; init; }
-    internal DocumentInternalParts Internals { get; init; }
+    internal DocumentViewModel Document { get; private set; }
+    internal DocumentInternalParts Internals { get; private set; }
+
+    public void Initialize(Guid id, string internalName, DocumentViewModel document, DocumentInternalParts internals)
+    {
+        Id = id;
+        InternalName = internalName;
+        Document = document;
+        Internals = internals;
+    }
     
+    public virtual void OnInitialized() { }
     
     public NodeViewModel()
     {

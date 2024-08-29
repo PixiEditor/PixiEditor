@@ -210,8 +210,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     IDocumentOperations IDocument.Operations => Operations;
     ITransformHandler IDocument.TransformHandler => TransformViewModel;
     ILineOverlayHandler IDocument.LineToolOverlayHandler => LineToolOverlayViewModel;
-    public ILayerHandlerFactory LayerHandlerFactory { get; }
-    public IFolderHandlerFactory FolderHandlerFactory { get; }
+    //public ILayerHandlerFactory LayerHandlerFactory { get; }
+    //public IFolderHandlerFactory FolderHandlerFactory { get; }
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
     IAnimationHandler IDocument.AnimationHandler => AnimationDataViewModel;
 
@@ -225,8 +225,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         EventInlet = new DocumentEventsModule(this, Internals);
         Operations = new DocumentOperationsModule(this, Internals);
 
-        LayerHandlerFactory = new LayerHandlerFactory(this);
-        FolderHandlerFactory = new FolderHandlerFactory(this);
+        //LayerHandlerFactory = new LayerHandlerFactory(this);
+        //FolderHandlerFactory = new FolderHandlerFactory(this);
         AnimationDataViewModel = new(this, Internals);
 
         NodeGraph = new NodeGraphViewModel(this, Internals);
@@ -538,7 +538,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         IStructureMemberHandler? layerToExtractFrom = null)
     {
         layerToExtractFrom ??= SelectedStructureMember;
-        if (layerToExtractFrom is not LayerViewModel layerVm)
+        if (layerToExtractFrom is not ImageLayerNodeViewModel layerVm)
             return new Error();
         if (SelectionPathBindable.IsEmpty)
             return new None();
@@ -668,7 +668,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                         _ => Colors.Transparent);
             }
 
-            if (SelectedStructureMember is not LayerViewModel layerVm)
+            if (SelectedStructureMember is not ImageLayerNodeViewModel layerVm)
                 return Colors.Transparent;
             IReadOnlyStructureNode? maybeMember = Internals.Tracker.Document.FindMember(layerVm.Id);
             if (maybeMember is not IReadOnlyImageNode layer)
@@ -788,12 +788,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             var foundMember = StructureHelper.Find(member);
             if (foundMember != null)
             {
-                if (foundMember is LayerViewModel layer && selectedMembers.Contains(foundMember.Id) &&
+                if (foundMember is ImageLayerNodeViewModel layer && selectedMembers.Contains(foundMember.Id) &&
                     !result.Contains(layer.Id))
                 {
                     result.Add(layer.Id);
                 }
-                else if (foundMember is FolderViewModel folder && selectedMembers.Contains(foundMember.Id))
+                else if (foundMember is FolderNodeViewModel folder && selectedMembers.Contains(foundMember.Id))
                 {
                     if (includeFoldersWithMask && folder.HasMaskBindable && !result.Contains(folder.Id))
                         result.Add(folder.Id);
@@ -810,16 +810,16 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         OnPropertyChanged(nameof(AllChangesSaved));
     }
 
-    private void ExtractSelectedLayers(FolderViewModel folder, List<Guid> list,
+    private void ExtractSelectedLayers(FolderNodeViewModel folder, List<Guid> list,
         bool includeFoldersWithMask)
     {
         foreach (var member in folder.Children)
         {
-            if (member is LayerViewModel layer && !list.Contains(layer.Id))
+            if (member is ImageLayerNodeViewModel layer && !list.Contains(layer.Id))
             {
                 list.Add(layer.Id);
             }
-            else if (member is FolderViewModel childFolder)
+            else if (member is FolderNodeViewModel childFolder)
             {
                 if (includeFoldersWithMask && childFolder.HasMaskBindable && !list.Contains(childFolder.Id))
                     list.Add(childFolder.Id);

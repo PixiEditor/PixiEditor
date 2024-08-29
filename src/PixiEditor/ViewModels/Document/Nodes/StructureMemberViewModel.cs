@@ -154,23 +154,13 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
     }
 
     IDocument IStructureMemberHandler.Document => Document;
-
-    /// <summary>
-    /// Calculates the size of a scaled-down preview for a given size of layer tight bounds.
-    /// </summary>
-
-    public StructureMemberViewModel(DocumentViewModel doc, DocumentInternalParts internals, Guid id)
-    {
-        Document = doc;
-        Internals = internals;
-
-        this.id = id;
-        PreviewSurface = null;
-    }
 }
 
 public static class StructureMemberViewModel
 {
+    /// <summary>
+    /// Calculates the size of a scaled-down preview for a given size of layer tight bounds.
+    /// </summary>
     public static VecI CalculatePreviewSize(VecI tightBoundsSize)
     {
         double proportions = tightBoundsSize.Y / (double)tightBoundsSize.X;

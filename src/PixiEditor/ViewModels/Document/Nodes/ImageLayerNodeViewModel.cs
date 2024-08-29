@@ -1,17 +1,13 @@
 ﻿using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
-#nullable enable
-internal class LayerViewModel : StructureMemberViewModel<LayerNode>, ILayerHandler
+
+internal class ImageLayerNodeViewModel : StructureMemberViewModel<LayerNode>, ILayerHandler
 {
-    public LayerViewModel()
-    {
-        
-    }
-    
     bool lockTransparency;
     public void SetLockTransparency(bool lockTransparency)
     {
@@ -41,7 +37,8 @@ internal class LayerViewModel : StructureMemberViewModel<LayerNode>, ILayerHandl
         }
     }
 
-    public LayerViewModel(DocumentViewModel doc, DocumentInternalParts internals, Guid id) : base(doc, internals, id)
-    {
-    }
+    // Dependent on layer name
+    public override LocalizedString DisplayName => "";
+
+    public override LocalizedString Category => "STRUCTURE";
 }

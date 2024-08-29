@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Reflection;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Exceptions;
@@ -56,15 +57,7 @@ internal class DocumentUpdater
         switch (arbitraryInfo)
         {
             case CreateStructureMember_ChangeInfo info:
-                if (info is CreateLayer_ChangeInfo layerChangeInfo)
-                {
-                    ProcessCreateNode<LayerViewModel>(info);
-                }
-                else if (info is CreateFolder_ChangeInfo folderChangeInfo)
-                {
-                    ProcessCreateNode<FolderViewModel>(info);
-                }
-
+                ProcessCreateNode(info);
                 ProcessCreateStructureMember(info);
                 break;
             case DeleteStructureMember_ChangeInfo info:
@@ -171,7 +164,7 @@ internal class DocumentUpdater
                 ClearSelectedKeyFrames(info);
                 break;
             case CreateNode_ChangeInfo info:
-                ProcessCreateNode<NodeViewModel>(info);
+                ProcessCreateNode(info);
                 break;
             case DeleteNode_ChangeInfo info:
                 ProcessDeleteNode(info);
@@ -512,28 +505,40 @@ internal class DocumentUpdater
         doc.AnimationHandler.ClearSelectedKeyFrames();
     }
 
-    private void ProcessCreateNode<T>(CreateNode_ChangeInfo info) where T : NodeViewModel, new()
+    private void ProcessCreateNode(CreateNode_ChangeInfo info)
     {
-        T node = new T()
-        {
-            InternalName = info.InternalName, Id = info.Id, Document = (DocumentViewModel)doc, Internals = helper
-        };
+        var nodeType = info.Metadata.NodeType;
+        
+        var ns = nodeType.Namespace.Replace("PixiEditor.ChangeableDocument.Changeables.Graph.Nodes", "PixiEditor.ViewModels.Document.Nodes");
+        var name = nodeType.Name.Replace("Node", "NodeViewModel");
+        var nodeViewModelType = Type.GetType($"{ns}.{name}");
 
-        node.SetName(info.NodeName);
-        node.SetPosition(info.Position);
+        var viewModel = (NodeViewModel)Activator.CreateInstance(nodeViewModelType);
 
-        List<INodePropertyHandler> inputs = CreateProperties(info.Inputs, node, true);
-        List<INodePropertyHandler> outputs = CreateProperties(info.Outputs, node, false);
-        node.Inputs.AddRange(inputs);
-        node.Outputs.AddRange(outputs);
-        doc.NodeGraphHandler.AddNode(node);
-
-        node.Metadata = info.Metadata;
-
-        AddZoneIfNeeded(info, node);
+        InitializeNodeViewModel(info, viewModel);
     }
 
-    private void AddZoneIfNeeded<T>(CreateNode_ChangeInfo info, T node) where T : NodeViewModel, new()
+    private void InitializeNodeViewModel(CreateNode_ChangeInfo info, NodeViewModel viewModel)
+    {
+        viewModel.Initialize(info.Id, info.InternalName, (DocumentViewModel)doc, helper);
+        
+        viewModel.SetName(info.NodeName);
+        viewModel.SetPosition(info.Position);
+        
+        var inputs = CreateProperties(info.Inputs, viewModel, true);
+        var outputs = CreateProperties(info.Outputs, viewModel, false);
+        viewModel.Inputs.AddRange(inputs);
+        viewModel.Outputs.AddRange(outputs);
+        doc.NodeGraphHandler.AddNode(viewModel);
+
+        viewModel.Metadata = info.Metadata;
+
+        AddZoneIfNeeded(info, viewModel);
+        
+        viewModel.OnInitialized();
+    }
+
+    private void AddZoneIfNeeded(CreateNode_ChangeInfo info, NodeViewModel node)
     {
         if (node.Metadata?.PairNodeGuid != null)
         {

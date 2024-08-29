@@ -132,7 +132,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public void ToggleLockTransparency()
     {
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
-        if (member is not LayerViewModel layerVm)
+        if (member is not ImageLayerNodeViewModel layerVm)
             return;
         layerVm.LockTransparencyBindable = !layerVm.LockTransparencyBindable;
     }
@@ -172,7 +172,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public void DuplicateLayer()
     {
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
-        if (member is not LayerViewModel layerVM)
+        if (member is not ImageLayerNodeViewModel layerVM)
             return;
         member.Document.Operations.DuplicateLayer(member.Id);
     }
@@ -181,7 +181,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public bool SelectedMemberIsLayer(object property)
     {
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
-        return member is LayerViewModel;
+        return member is ImageLayerNodeViewModel;
     }
 
     private bool HasSelectedMember(bool above)
@@ -207,7 +207,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var path = doc!.StructureHelper.FindPath(member.Id);
         if (path.Count < 2)
             return;
-        var parent = (FolderViewModel)path[1];
+        var parent = (FolderNodeViewModel)path[1];
         int curIndex = parent.Children.IndexOf(path[0]);
         if (upwards)
         {
