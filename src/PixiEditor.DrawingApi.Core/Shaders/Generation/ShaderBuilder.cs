@@ -20,6 +20,11 @@ public class ShaderBuilder
 
     public BuiltInFunctions Functions { get; } = new();
 
+    public ShaderBuilder(VecI resolution)
+    {
+        AddUniform("iResolution", resolution);
+    }
+    
     public Shader BuildShader()
     {
         string generatedSksl = ToSkSl();
@@ -35,6 +40,7 @@ public class ShaderBuilder
         
         sb.AppendLine("half4 main(float2 coords)");
         sb.AppendLine("{");
+        sb.AppendLine("coords = coords / iResolution;");
         sb.Append(_bodyBuilder);
         sb.AppendLine("}");
 
@@ -71,7 +77,7 @@ public class ShaderBuilder
         string resultName = $"color_{GetUniqueNameNumber()}";
         Half4 result = new Half4(resultName);
         _variables.Add(result);
-        _bodyBuilder.AppendLine($"half4 {resultName} = sample({texName.VariableName}, {pos.VariableName});");
+        _bodyBuilder.AppendLine($"half4 {resultName} = sample({texName.VariableName}, {pos.VariableName} * iResolution);");
         return result;
     }
 
