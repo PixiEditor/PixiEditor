@@ -4,9 +4,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-internal class MathNodeViewModel : NodeViewModel<MathNode>
-{
-    public override LocalizedString DisplayName => "MATH_NODE";
-    
-    public override LocalizedString Category => "NUMBERS";
-}
+[NodeViewModel("MATH_NODE", "NUMBERS")]
+internal class MathNodeViewModel : NodeViewModel<MathNode>;

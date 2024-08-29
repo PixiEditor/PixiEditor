@@ -4,9 +4,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-internal class EllipseNodeViewModel : NodeViewModel<EllipseNode>
-{
-    public override LocalizedString DisplayName => "ELLIPSE_NODE";
-    
-    public override LocalizedString Category => "SHAPE";
-}
+[NodeViewModel("ELLIPSE_NODE", "SHAPE")]
+internal class EllipseNodeViewModel : NodeViewModel<EllipseNode>;

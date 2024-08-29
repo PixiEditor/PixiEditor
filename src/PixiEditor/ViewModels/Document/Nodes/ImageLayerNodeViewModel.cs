@@ -1,12 +1,12 @@
 ﻿using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
+using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-internal class ImageLayerNodeViewModel : StructureMemberViewModel<LayerNode>, ILayerHandler
+[NodeViewModel("IMAGE_LAYER_NODE", "STRUCTURE")]
+internal class ImageLayerNodeViewModel : StructureMemberViewModel<ImageLayerNode>, ILayerHandler
 {
     bool lockTransparency;
     public void SetLockTransparency(bool lockTransparency)
@@ -36,9 +36,4 @@ internal class ImageLayerNodeViewModel : StructureMemberViewModel<LayerNode>, IL
             OnPropertyChanged(nameof(ShouldDrawOnMask));
         }
     }
-
-    // Dependent on layer name
-    public override LocalizedString DisplayName => "";
-
-    public override LocalizedString Category => "STRUCTURE";
 }

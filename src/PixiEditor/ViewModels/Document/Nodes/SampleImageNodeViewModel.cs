@@ -4,9 +4,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-internal class SampleImageNodeViewModel : NodeViewModel<SampleImageNode>
-{
-    public override LocalizedString DisplayName => "SAMPLE_IMAGE";
-    
-    public override LocalizedString Category => "IMAGE";
-}
+[NodeViewModel("SAMPLE_IMAGE", "IMAGE")]
+internal class SampleImageNodeViewModel : NodeViewModel<SampleImageNode>;

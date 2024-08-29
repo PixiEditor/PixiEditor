@@ -4,9 +4,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-internal class LerpColorNodeViewModel : NodeViewModel<LerpColorNode>
-{
-    public override LocalizedString DisplayName => "LERP_NODE";
-    
-    public override LocalizedString Category => "NUMBERS";
-}
+[NodeViewModel("LERP_NODE", "NUMBERS")]
+internal class LerpColorNodeViewModel : NodeViewModel<LerpColorNode>;

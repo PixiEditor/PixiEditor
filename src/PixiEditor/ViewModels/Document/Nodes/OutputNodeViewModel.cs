@@ -4,9 +4,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-internal class OutputNodeViewModel : NodeViewModel<OutputNode>
-{
-    public override LocalizedString DisplayName => "OUTPUT_NODE";
-    
-    public override LocalizedString Category => "";
-}
+[NodeViewModel("OUTPUT_NODE", "", PickerName = "")]
+internal class OutputNodeViewModel : NodeViewModel<OutputNode>;

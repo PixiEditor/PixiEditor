@@ -4,9 +4,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-internal class NoiseNodeViewModel : NodeViewModel<NoiseNode>
-{
-    public override LocalizedString DisplayName => "NOISE_NODE";
-    
-    public override LocalizedString Category => "IMAGE";
-}
+[NodeViewModel("NOISE_NODE", "IMAGE")]
+internal class NoiseNodeViewModel : NodeViewModel<NoiseNode>;

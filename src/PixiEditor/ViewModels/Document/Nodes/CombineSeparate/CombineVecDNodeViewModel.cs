@@ -1,12 +1,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.CombineSeparate;
 
-internal class CombineVecDNodeViewModel : NodeViewModel<CombineVecDNode>
-{
-    public override LocalizedString DisplayName => "COMBINE_VECD_NODE";
-    
-    public override LocalizedString Category => "NUMBERS";
-}
+[NodeViewModel("COMBINE_VECD_NODE", "NUMBERS")]
+internal class CombineVecDNodeViewModel : NodeViewModel<CombineVecDNode>;

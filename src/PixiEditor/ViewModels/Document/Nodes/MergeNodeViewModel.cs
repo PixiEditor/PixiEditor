@@ -4,9 +4,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-internal class MergeNodeViewModel : NodeViewModel<MergeNode>
-{
-    public override LocalizedString DisplayName => "MERGE_NODE";
-    
-    public override LocalizedString Category => "IMAGE";
-}
+[NodeViewModel("MERGE_NODE", "IMAGE")]
+internal class MergeNodeViewModel : NodeViewModel<MergeNode>;

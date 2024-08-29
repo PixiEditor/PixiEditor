@@ -32,11 +32,11 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
 
     public Guid Id { get => id; private set => id = value; }
     
-    public abstract LocalizedString DisplayName { get; }
+    public LocalizedString DisplayName { get; set; }
     
-    public abstract LocalizedString Category { get; }
+    public LocalizedString Category { get; }
 
-    public virtual LocalizedString? PickerName { get; }
+    public LocalizedString? PickerName { get; }
 
     public string NodeNameBindable
     {
@@ -127,7 +127,6 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
     
     public NodeViewModel()
     {
-        
     }
 
     public NodeViewModel(string nodeNameBindable, Guid id, VecD position, DocumentViewModel document, DocumentInternalParts internals)
