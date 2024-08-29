@@ -19,6 +19,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using PixiEditor.Numerics;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Models.DocumentModels;

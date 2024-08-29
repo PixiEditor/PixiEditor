@@ -6,6 +6,7 @@ using Avalonia.Media;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Layers;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.Views.Layers;
 #nullable enable

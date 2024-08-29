@@ -10,6 +10,7 @@ using PixiEditor.Models.Layers;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Views.Layers;
@@ -180,7 +181,7 @@ internal partial class LayersManager : UserControl
         ((Border)sender).BorderBrush = Brushes.Transparent;
     }
 
-    private void HandleMouseDown(StructureMemberViewModel memberVM, PointerPressedEventArgs pointerPressedEventArgs)
+    private void HandleMouseDown(IStructureMemberHandler memberVM, PointerPressedEventArgs pointerPressedEventArgs)
     {
         if (ActiveDocument is null)
             return;

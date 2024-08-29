@@ -25,6 +25,7 @@ using PixiEditor.Numerics;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 #nullable enable

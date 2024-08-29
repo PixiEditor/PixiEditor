@@ -46,6 +46,7 @@ using PixiEditor.Models.Structures;
 using PixiEditor.Models.Tools;
 using PixiEditor.Numerics;
 using PixiEditor.Parser.Skia;
+using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
@@ -147,7 +148,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     private double verticalSymmetryAxisX;
     public double VerticalSymmetryAxisXBindable => verticalSymmetryAxisX;
 
-    private readonly HashSet<StructureMemberViewModel> softSelectedStructureMembers = new();
+    private readonly HashSet<IStructureMemberHandler> softSelectedStructureMembers = new();
 
     public bool UpdateableChangeActive => Internals.ChangeController.IsChangeActive;
 
@@ -714,8 +715,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         OnPropertyChanged(nameof(VerticalSymmetryAxisXBindable));
     }
 
-    public void SetSelectedMember(IStructureMemberHandler member) =>
-        SetSelectedMember((StructureMemberViewModel)member);
+    public void SetSelectedMember(IStructureMemberHandler member)
+    {
+        SelectedStructureMember = member;
+        OnPropertyChanged(nameof(SelectedStructureMember));
+    }
 
     public void SetHorizontalSymmetryAxisY(double horizontalSymmetryAxisY)
     {
@@ -742,24 +746,18 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         OnPropertyChanged(nameof(SelectionPathBindable));
     }
 
-    public void SetSelectedMember(StructureMemberViewModel? member)
+    public void AddSoftSelectedMember(IStructureMemberHandler member)
     {
-        SelectedStructureMember = member;
-        OnPropertyChanged(nameof(SelectedStructureMember));
+        softSelectedStructureMembers.Add(member);
     }
 
     public void RemoveSoftSelectedMember(IStructureMemberHandler member)
     {
         SelectedStructureMember = member;
+        softSelectedStructureMembers.Remove(member);
     }
 
     public void ClearSoftSelectedMembers() => softSelectedStructureMembers.Clear();
-
-    public void AddSoftSelectedMember(IStructureMemberHandler member) =>
-        softSelectedStructureMembers.Add((StructureMemberViewModel)member);
-
-    public void RemoveSoftSelectedMember(StructureMemberViewModel member) =>
-        softSelectedStructureMembers.Remove(member);
 
     #endregion
 

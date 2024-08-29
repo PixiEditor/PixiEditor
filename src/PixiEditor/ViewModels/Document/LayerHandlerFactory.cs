@@ -1,6 +1,7 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
+using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.ViewModels.Document;
 

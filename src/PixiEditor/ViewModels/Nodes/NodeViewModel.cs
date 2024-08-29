@@ -5,6 +5,7 @@ using ChunkyImageLib;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.DrawingApi.Core;
@@ -16,6 +17,7 @@ using PixiEditor.Numerics;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.ViewModels.Nodes;
+
 internal class NodeViewModel : ObservableObject, INodeHandler
 {
     private IBrush? categoryBrush;
@@ -328,3 +330,5 @@ internal class NodeViewModel : ObservableObject, INodeHandler
         return Outputs.FirstOrDefault(x => x.PropertyName == propName) as NodePropertyViewModel;
     }
 }
+
+internal abstract class NodeViewModel<T> : NodeViewModel where T : Node { }

@@ -1,10 +1,11 @@
 ﻿using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 
-namespace PixiEditor.ViewModels.Document;
+namespace PixiEditor.ViewModels.Document.Nodes;
 #nullable enable
-internal class LayerViewModel : StructureMemberViewModel, ILayerHandler
+internal class LayerViewModel : StructureMemberViewModel<LayerNode>, ILayerHandler
 {
     public LayerViewModel()
     {
