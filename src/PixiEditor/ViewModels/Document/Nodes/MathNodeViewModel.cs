@@ -1,6 +1,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Helpers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Nodes;
@@ -27,7 +28,8 @@ internal class MathNodeViewModel : NodeViewModel<MathNode>
     {
         if (Mode.Value is not MathNodeMode mode)
             return;
-        
+
+        DisplayName = mode.GetDescription();
         Y.IsVisible = mode.UsesYValue();
     }
 }
