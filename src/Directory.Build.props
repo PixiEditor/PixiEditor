@@ -10,30 +10,30 @@
         <AdditionalFiles Include="$(SolutionDir)/stylecop.json" />
     </ItemGroup>
 
-  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Windows')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'X64'">
+  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Windows')) AND '$(Platform)' == 'x64'">
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
-  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Windows')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'Arm64'">
+  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Windows')) AND '$(Platform)' == 'ARM64'">
     <RuntimeIdentifier>win-arm64</RuntimeIdentifier>
   </PropertyGroup>
-  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Linux')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'X64'">
+  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Linux')) AND '$(Platform)' == 'x64'">
     <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
   </PropertyGroup>
-  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Linux')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'Arm64'">
+  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Linux')) AND '$(Platform)' == 'ARM64'">
     <RuntimeIdentifier>linux-arm64</RuntimeIdentifier>
   </PropertyGroup>
-  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('OSX')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'X64'">
+  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('OSX')) AND '$(Platform)' == 'x64'">
     <RuntimeIdentifier>osx-x64</RuntimeIdentifier>
   </PropertyGroup>
-  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('OSX')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'Arm64'">
+  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('OSX')) AND '$(Platform)' == 'ARM64'">
     <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Platform)'=='x64'">
+  <PropertyGroup Condition="'$(Platform)'=='X64'">
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Platform)'=='arm64'">
+  <PropertyGroup Condition="'$(Platform)'=='ARM64'">
     <PlatformTarget>arm64</PlatformTarget>
   </PropertyGroup>
 

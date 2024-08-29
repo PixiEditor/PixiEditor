@@ -1,12 +1,12 @@
 {
   "runtimeTarget": {
-    "name": ".NETStandard,Version=v2.0/win-x64",
+    "name": ".NETStandard,Version=v2.0/",
     "signature": ""
   },
   "compilationOptions": {},
   "targets": {
     ".NETStandard,Version=v2.0": {},
-    ".NETStandard,Version=v2.0/win-x64": {
+    ".NETStandard,Version=v2.0/": {
       "PixiEditor.Api.CGlueMSBuild/1.0.0": {
         "dependencies": {
           "Microsoft.Build.Utilities.Core": "17.9.5",
