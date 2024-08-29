@@ -513,6 +513,9 @@ internal class DocumentUpdater
         var name = nodeType.Name.Replace("Node", "NodeViewModel");
         var nodeViewModelType = Type.GetType($"{ns}.{name}");
 
+        if (nodeViewModelType == null)
+            throw new NullReferenceException($"No ViewModel found for {nodeType}. Looking for {name}");
+        
         var viewModel = (NodeViewModel)Activator.CreateInstance(nodeViewModelType);
 
         InitializeNodeViewModel(info, viewModel);
