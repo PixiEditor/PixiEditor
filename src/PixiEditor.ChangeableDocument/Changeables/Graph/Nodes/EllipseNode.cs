@@ -7,7 +7,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("Ellipse", "ELLIPSE_NODE", Category = "SHAPE")]
+[NodeInfo("Ellipse")]
 public class EllipseNode : Node
 {
     public InputProperty<VecI> Radius { get; }

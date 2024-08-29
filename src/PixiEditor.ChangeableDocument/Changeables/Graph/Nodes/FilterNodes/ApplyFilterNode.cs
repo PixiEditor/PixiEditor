@@ -5,7 +5,7 @@ using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
-[NodeInfo("ApplyFilter", "APPLY_FILTER_NODE", Category = "FILTERS")]
+[NodeInfo("ApplyFilter")]
 public class ApplyFilterNode : Node
 {
     private Paint _paint = new();

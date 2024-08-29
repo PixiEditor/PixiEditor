@@ -45,11 +45,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     protected virtual bool AffectedByChunkToUpdate { get; }
 
-    protected Node()
-    {
-        displayName = GetType().GetCustomAttribute<NodeInfoAttribute>().DisplayName;
-    }
-
     IReadOnlyList<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyList<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
     IReadOnlyList<IReadOnlyKeyFrameData> IReadOnlyNode.KeyFrames => keyFrames;

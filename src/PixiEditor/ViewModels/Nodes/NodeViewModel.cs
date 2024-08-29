@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Reflection;
 using Avalonia;
 using Avalonia.Media;
 using ChunkyImageLib;
@@ -20,6 +21,7 @@ namespace PixiEditor.ViewModels.Nodes;
 
 internal abstract class NodeViewModel : ObservableObject, INodeHandler
 {
+    private LocalizedString displayName;
     private IBrush? categoryBrush;
     private string? nodeNameBindable;
     private VecD position;
@@ -31,12 +33,20 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
     protected Guid id;
 
     public Guid Id { get => id; private set => id = value; }
-    
-    public LocalizedString DisplayName { get; set; }
-    
-    public LocalizedString Category { get; }
 
-    public LocalizedString? PickerName { get; }
+    public LocalizedString DisplayName
+    {
+        get => displayName;
+        set
+        {
+            if (SetProperty(ref displayName, value) && nodeNameBindable == null)
+            {
+                OnPropertyChanged(nameof(NodeNameBindable));
+            }
+        }
+    }
+    
+    public string Category { get; }
 
     public string NodeNameBindable
     {
@@ -59,7 +69,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         {
             if (categoryBrush == null)
             {
-                if (Metadata?.Category != null && Application.Current.Styles.TryGetResource($"{Stylize(Metadata.Category)}CategoryBackgroundBrush", App.Current.ActualThemeVariant, out var brushObj) && brushObj is IBrush brush)
+                if (!string.IsNullOrWhiteSpace(Category) && Application.Current.Styles.TryGetResource($"{Stylize(Category)}CategoryBackgroundBrush", App.Current.ActualThemeVariant, out var brushObj) && brushObj is IBrush brush)
                 {
                     categoryBrush = brush;
                 }
@@ -127,6 +137,10 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
     
     public NodeViewModel()
     {
+        var attribute = GetType().GetCustomAttribute<NodeViewModelAttribute>();
+        
+        displayName = attribute.DisplayName;
+        Category = attribute.Category;
     }
 
     public NodeViewModel(string nodeNameBindable, Guid id, VecD position, DocumentViewModel document, DocumentInternalParts internals)

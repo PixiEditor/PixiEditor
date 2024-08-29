@@ -10,7 +10,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Points;
 
-[NodeInfo("RasterizePoints", "RASTERIZE_POINTS", Category = "SHAPE")]
+[NodeInfo("RasterizePoints")]
 public class RasterizePointsNode : Node
 {
     private Paint _paint = new() { Color = Colors.White };
