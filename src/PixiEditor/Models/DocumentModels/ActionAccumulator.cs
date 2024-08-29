@@ -3,6 +3,7 @@ using System.Linq;
 using Avalonia.Platform;
 using Avalonia.Threading;
 using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.DrawingApi.Core.Bridge;
