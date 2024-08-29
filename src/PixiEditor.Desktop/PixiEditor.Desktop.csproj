@@ -30,13 +30,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PixiEditor\PixiEditor.csproj"/>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="..\PixiEditor\Images\favicon.ico">
       <Link>favicon.ico</Link>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PixiEditor\PixiEditor.csproj" />
   </ItemGroup>
 
   <Target Name="Rename" AfterTargets="AfterBuild">

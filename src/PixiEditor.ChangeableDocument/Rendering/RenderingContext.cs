@@ -1,4 +1,6 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using System;
+using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core.ColorsImpl;

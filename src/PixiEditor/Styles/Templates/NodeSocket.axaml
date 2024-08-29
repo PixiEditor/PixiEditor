@@ -8,7 +8,7 @@
                     <Grid Name="PART_ConnectPort">
                         <Panel Width="20" Height="20" Margin="-5, 0" Background="Transparent"
                                IsVisible="{Binding !IsFunc, RelativeSource={RelativeSource TemplatedParent}}">
-                            <Ellipse Width="10" Height="10"
+                            <Ellipse Width="10" Height="10" RenderTransform="rotate(90deg)"
                                      Fill="{TemplateBinding SocketBrush}" />
                         </Panel>
                         <Panel Margin="-5, 0" Width="20" Height="20" Background="Transparent"
