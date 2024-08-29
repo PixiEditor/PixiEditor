@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
@@ -21,10 +22,6 @@ public class SeparateColorNode : Node
     
     public FuncOutputProperty<Float1> A { get; }
     
-    
-    private FuncContext lastContext;
-    private Half4 lastColor;
-
     public SeparateColorNode()
     {
         R = CreateFuncOutput<Float1>(nameof(R), "R", ctx => GetColor(ctx).R);
@@ -40,31 +37,30 @@ public class SeparateColorNode : Node
         return null;
     }
     
-    private Half4 GetColor(FuncContext ctx)
+    private Half4 GetColor(FuncContext ctx) =>
+        Mode.Value switch
+        {
+            CombineSeparateColorMode.RGB => GetRgba(ctx),
+            CombineSeparateColorMode.HSV => GetHsva(ctx),
+            CombineSeparateColorMode.HSL => GetHsla(ctx)
+        };
+
+    private Half4 GetRgba(FuncContext ctx) => ctx.Builder.GetOrNewAttachedHalf4(this.GetHashCode(), Color.GetHashCode(), () => Color.Value(ctx));
+
+    private Half4 GetHsva(FuncContext ctx)
     {
-        if (Mode.Value == CombineSeparateColorMode.HSV)
+        if (!ctx.HasContext && ctx.GetValue(Color) is Half4 constantColor)
         {
-            return GetHsva(ctx);
+            var variable = new Half4(string.Empty);
+            constantColor.ConstantValue.ToHsv(out float h, out float s, out float l);
+            variable.ConstantValue = new Color((byte)(h * 255), (byte)(s * 255), (byte)(l * 255), constantColor.ConstantValue.A);
+            
+            return variable;
         }
 
-        if (Mode.Value == CombineSeparateColorMode.HSL)
-        {
-            return GetHsla(ctx);
-        }
+        return ctx.Builder.GetOrNewAttachedHalf4(this.GetHashCode(), Color.GetHashCode(), RgbToHsvGetter);
 
-        Half4 target = null;
-        if (lastContext == ctx)
-        {
-            target = lastColor;
-        }
-        else
-        {
-            target = Color.Value(ctx);
-        }
-        
-        lastColor = target;
-        lastContext = ctx;
-        return lastColor;
+        Expression RgbToHsvGetter() => ctx.Builder.Functions.GetRgbToHsv(ctx.GetValue(Color));
     }
 
     private Half4 GetHsla(FuncContext ctx)
@@ -81,22 +77,6 @@ public class SeparateColorNode : Node
         return ctx.Builder.GetOrNewAttachedHalf4(this.GetHashCode(), Color.GetHashCode(), RgbToHslGetter);
 
         Expression RgbToHslGetter() => ctx.Builder.Functions.GetRgbToHsl(ctx.GetValue(Color));
-    }
-
-    private Half4 GetHsva(FuncContext ctx)
-    {
-        if (!ctx.HasContext && ctx.GetValue(Color) is Half4 constantColor)
-        {
-            var variable = new Half4(string.Empty);
-            constantColor.ConstantValue.ToHsv(out float h, out float s, out float l);
-            variable.ConstantValue = new Color((byte)(h * 255), (byte)(s * 255), (byte)(l * 255), constantColor.ConstantValue.A);
-            
-            return variable;
-        }
-
-        return ctx.Builder.GetOrNewAttachedHalf4(this.GetHashCode(), Color.GetHashCode(), RgbToHsvGetter);
-
-        Expression RgbToHsvGetter() => ctx.Builder.Functions.GetRgbToHsv(ctx.GetValue(Color));
     }
 
     public override Node CreateCopy() => new SeparateColorNode();

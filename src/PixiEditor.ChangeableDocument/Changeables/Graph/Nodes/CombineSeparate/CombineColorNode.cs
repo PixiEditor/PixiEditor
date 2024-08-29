@@ -32,35 +32,43 @@ public class CombineColorNode : Node
         A = CreateFuncInput<Float1>("A", "A", 0d);
     }
 
-    private Half4 GetColor(FuncContext ctx)
+    private Half4 GetColor(FuncContext ctx) =>
+        Mode.Value switch
+        {
+            CombineSeparateColorMode.RGB => GetRgb(ctx),
+            CombineSeparateColorMode.HSV => GetHsv(ctx),
+            CombineSeparateColorMode.HSL => GetHsl(ctx)
+        };
+
+    private Half4 GetRgb(FuncContext ctx)
     {
-        var a = ctx.GetValue(A);
-        
-        if (Mode.Value == CombineSeparateColorMode.HSV)
-        {
-            var h = ctx.GetValue(R);
-            var s = ctx.GetValue(G);
-            var v = ctx.GetValue(B);
-
-            return ctx.HsvaToRgba(h, s, v, a);
-        }
-
-        if (Mode.Value == CombineSeparateColorMode.HSL)
-        {
-            var h = ctx.GetValue(R);
-            var s = ctx.GetValue(G);
-            var l = ctx.GetValue(B);
-
-            return ctx.HslaToRgba(h, s, l, a);
-        }
-
         var r = ctx.GetValue(R);
         var g = ctx.GetValue(G);
         var b = ctx.GetValue(B);
+        var a = ctx.GetValue(A);
 
         return ctx.NewHalf4(r, g, b, a); 
     }
 
+    private Half4 GetHsv(FuncContext ctx)
+    {
+        var h = ctx.GetValue(R);
+        var s = ctx.GetValue(G);
+        var v = ctx.GetValue(B);
+        var a = ctx.GetValue(A);
+
+        return ctx.HsvaToRgba(h, s, v, a);
+    }
+    
+    private Half4 GetHsl(FuncContext ctx)
+    {
+        var h = ctx.GetValue(R);
+        var s = ctx.GetValue(G);
+        var l = ctx.GetValue(B);
+        var a = ctx.GetValue(A);
+
+        return ctx.HslaToRgba(h, s, l, a);
+    }
 
     protected override Texture? OnExecute(RenderingContext context)
     {
