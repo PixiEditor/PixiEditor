@@ -98,10 +98,10 @@ public class FuncContext
         if (!HasContext && r is Float1 firstFloat && g is Float1 secondFloat && b is Float1 thirdFloat && a is Float1 fourthFloat)
         {
             Half4 constantHalf4 = new Half4("");
-            byte rByte = (byte)firstFloat.ConstantValue;
-            byte gByte = (byte)secondFloat.ConstantValue;
-            byte bByte = (byte)thirdFloat.ConstantValue;
-            byte aByte = (byte)fourthFloat.ConstantValue;
+            byte rByte = firstFloat.FullSizeByteConstant;
+            byte gByte = secondFloat.FullSizeByteConstant;
+            byte bByte = thirdFloat.FullSizeByteConstant;
+            byte aByte = fourthFloat.FullSizeByteConstant;
             constantHalf4.ConstantValue = new Color(rByte, gByte, bByte, aByte);
             return constantHalf4;
         }
@@ -117,7 +117,7 @@ public class FuncContext
             var hValue = firstFloat.ConstantValue * 360;
             var sValue = secondFloat.ConstantValue * 100;
             var lValue = thirdFloat.ConstantValue * 100;
-            byte aByte = (byte)(fourthFloat.ConstantValue * 255);
+            byte aByte = fourthFloat.FullSizeByteConstant;
             constantHalf4.ConstantValue = Color.FromHsl((float)hValue, (float)sValue, (float)lValue, aByte);
             return constantHalf4;
         }
