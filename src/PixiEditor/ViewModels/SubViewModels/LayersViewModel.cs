@@ -57,8 +57,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
     [Command.Basic("PixiEditor.Layer.DeleteSelected", "LAYER_DELETE_SELECTED", 
         "LAYER_DELETE_SELECTED_DESCRIPTIVE", 
-        CanExecute = "PixiEditor.Layer.CanDeleteSelected", Key = Key.Delete, 
-        ShortcutContext = typeof(LayersDockViewModel),
+        CanExecute = "PixiEditor.Layer.CanDeleteSelected", 
         Icon = PixiPerfectIcons.Trash, AnalyticsTrack = true)]
     public void DeleteSelected()
     {
@@ -103,7 +102,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Layer.DeleteAllSelected", "LAYER_DELETE_ALL_SELECTED", "LAYER_DELETE_ALL_SELECTED_DESCRIPTIVE", CanExecute = "PixiEditor.Layer.HasSelectedMembers", 
-        Icon = PixiPerfectIcons.Trash, AnalyticsTrack = true)]
+        Icon = PixiPerfectIcons.Trash, AnalyticsTrack = true, Key = Key.Delete, 
+        ShortcutContext = typeof(LayersDockViewModel))]
     public void DeleteAllSelected()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
