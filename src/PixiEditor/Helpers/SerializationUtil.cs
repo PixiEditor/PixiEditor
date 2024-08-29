@@ -55,9 +55,17 @@ public static class SerializationUtil
             if (factory != null)
             {
                 factory.Config = config;
-                return factory.Deserialize(data is Dictionary<object, object> processableDict
+                try
+                {
+                    return factory.Deserialize(data is Dictionary<object, object> processableDict
                     ? ToDictionary(processableDict)
                     : data);
+                }
+                catch (Exception e)
+                {
+                    return value;
+                }
+                
             }
         }
 

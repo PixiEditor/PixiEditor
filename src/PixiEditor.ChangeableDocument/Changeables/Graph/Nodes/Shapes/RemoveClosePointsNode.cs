@@ -1,41 +1,46 @@
-﻿using PixiEditor.ChangeableDocument.Rendering;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.Numerics;
+using ShapeData = PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data.ShapeData;
 
-namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Points;
+namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes;
 
 [NodeInfo("RemoveClosePoints", "REMOVE_CLOSE_POINTS", Category = "SHAPE")]
-public class RemoveClosePointsNode : Node
+public class RemoveClosePointsNode : ShapeNode
 {
-    public OutputProperty<PointList> Output { get; }
-    
-    public InputProperty<PointList> Input { get; }
-    
+    public InputProperty<ShapeData> Input { get; }
+
     public InputProperty<double> MinDistance { get; }
 
     public InputProperty<int> Seed { get; }
 
     public RemoveClosePointsNode()
     {
-        Output = CreateOutput("Output", "POINTS", PointList.Empty);
-        Input = CreateInput("Input", "POINTS", PointList.Empty);
+        Input = CreateInput<ShapeData>("Input", "POINTS", null);
         MinDistance = CreateInput("MinDistance", "MIN_DISTANCE", 0d);
         Seed = CreateInput("Seed", "SEED", 0);
     }
-    
-    protected override Texture? OnExecute(RenderingContext context)
+
+    protected override ShapeData? GetShapeData(RenderingContext context)
     {
+        var data = Input.Value;
+
+        if (data is not PointsData pointsData)
+        {
+            return data;
+        }
+
         var distance = MinDistance.Value;
 
         if (distance == 0)
         {
-            Output.Value = Input.Value;
             return null;
         }
 
-        var availablePoints = Input.Value.Distinct().ToList();
-        var newPoints = new PointList(availablePoints.Count) { HashValue = HashCode.Combine(Input.Value.HashValue, MinDistance.Value, Seed.Value) };
-
+        var availablePoints = pointsData.Points.Distinct().ToList();
+        List<VecD> newPoints = new List<VecD>();
+        
         var minDistance = MinDistance.Value;
         var documentSize = context.DocumentSize;
 
@@ -54,18 +59,19 @@ public class RemoveClosePointsNode : Node
             }
 
             continue;
-            bool InRange(VecD other) => (other.Multiply(documentSize) - point.Multiply(documentSize)).Length <= minDistance;
+
+            bool InRange(VecD other) =>
+                (other.Multiply(documentSize) - point.Multiply(documentSize)).Length <= minDistance;
         }
 
         if (availablePoints.Count == 1)
         {
             newPoints.Add(availablePoints[0]);
         }
-        
-        Output.Value = newPoints;
-        
-        return null;
 
+        var finalData = new PointsData(newPoints);
+
+        return finalData;
     }
 
     public override Node CreateCopy() => new RemoveClosePointsNode();

@@ -3,7 +3,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Animable;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Points;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes;
 
 namespace PixiEditor.Fonts;
 
@@ -18,7 +18,7 @@ public static class NodeIcons
             { typeof(MergeNode), "\ue903" },
             { typeof(ModifyImageLeftNode), "\ue904" },
             { typeof(ImageLayerNode), "\ue905" },
-            { typeof(RasterizePointsNode), "\ue906" },
+            { typeof(RasterizeShape), "\ue906" },
             { typeof(SampleImageNode), "\ue907" },
             { typeof(CombineColorNode), "\ue908" },
             { typeof(ApplyFilterNode), "\ue909" },
