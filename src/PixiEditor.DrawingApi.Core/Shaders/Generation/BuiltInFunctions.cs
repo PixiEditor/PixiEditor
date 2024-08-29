@@ -20,21 +20,6 @@ public class BuiltInFunctions
     public Expression GetHslToRgb(Expression h, Expression s, Expression l, Expression a) =>
         GetHslToRgb(Half4.Constructor(h, s, l, a));
     
-    private void Require(BuiltInFunctionType type)
-    {
-        if (usedFunctions.Contains(type))
-        {
-            return;
-        }
-
-        if (type is BuiltInFunctionType.HslToRgb)
-        {
-            Require(BuiltInFunctionType.HueToRgb);
-        }
-            
-        usedFunctions.Add(type);
-    }
-
     public string BuildFunctions()
     {
         var builder = new StringBuilder();
@@ -52,7 +37,22 @@ public class BuiltInFunctions
             }
         }
     }
-    
+
+    private void Require(BuiltInFunctionType type)
+    {
+        if (usedFunctions.Contains(type))
+        {
+            return;
+        }
+
+        if (type is BuiltInFunctionType.HslToRgb)
+        {
+            Require(BuiltInFunctionType.HueToRgb);
+        }
+            
+        usedFunctions.Add(type);
+    }
+
     // Taken from here https://www.shadertoy.com/view/4dKcWK
     private const string HueToRgb =
         $$"""
@@ -96,4 +96,13 @@ public class BuiltInFunctions
     //         return half4(hcv.x, s, z, rgba.w);
     //     }
     //     """;
+    
+    enum BuiltInFunctionType
+    {
+        HueToRgb,
+        RgbToHsl,
+        HslToRgb,
+        RgbToHsv,
+        HsvToRgb
+    }
 }
