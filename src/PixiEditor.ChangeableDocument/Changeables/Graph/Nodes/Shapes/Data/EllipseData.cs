@@ -16,7 +16,14 @@ public class EllipseData : ShapeData
     
     public override void Rasterize(DrawingSurface drawingSurface)
     {
-        using ChunkyImage img = new ChunkyImage(new VecI((int)Radius.X * 2, (int)Radius.Y * 2));
+        var imageSize = new VecI((int)Radius.X * 2, (int)Radius.Y * 2) + (VecI)Center;
+
+        if (imageSize.HasNegativeComponent())
+        {
+            return;
+        }
+        
+        using ChunkyImage img = new ChunkyImage(imageSize);
         RectI rect = new RectI((int)Center.X - (int)Radius.X, (int)Center.Y - (int)Radius.Y, (int)Radius.X * 2, (int)Radius.Y * 2);
         
         img.EnqueueDrawEllipse(rect, StrokeColor, FillColor, StrokeWidth);

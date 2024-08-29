@@ -86,6 +86,8 @@ public struct VecI : IEquatable<VecI>, IComparable<VecI>
         return new VecI(Math.Clamp(X, rect.Left, rect.Right), Math.Clamp(Y, rect.Top, rect.Bottom));
     }
 
+    public bool HasNegativeComponent() => X < 0 || Y < 0;
+
     public byte[] ToByteArray()
     {
         var data = new byte[sizeof(int) * 2];
