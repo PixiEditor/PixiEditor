@@ -704,7 +704,7 @@
   "PROBABILITY": "Probability",
   "DISTRIBUTE_POINTS": "Distribute points",
   "REMOVE_CLOSE_POINTS": "Remove close points",
-  "RASTERIZE_POINTS": "Rasterize Points",
+  "RASTERIZE_SHAPE": "Rasterize Shape",
   "BEGIN_COLOR_EVALUATOR_NODE": "Begin evaluating color",
   "FINISH_COLOR_EVALUATOR_NODE": "Finish evaluating color",
   "COLOR_EVALUATOR_NODE_PAIR": "Color Evaluator",
@@ -737,5 +737,6 @@
   "GENERATION": "Generation",
   "NUMBER": "Number",
   "ANIMATION": "Animation",
-  "SAMPLE_IMAGE": "Sample Image"
+  "SAMPLE_IMAGE": "Sample Image",
+  "POSITION": "Position"
 }

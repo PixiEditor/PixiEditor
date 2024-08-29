@@ -123,7 +123,6 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<SerializationFactory, VecISerializationFactory>()
             .AddSingleton<SerializationFactory, ColorSerializationFactory>()
             .AddSingleton<SerializationFactory, ColorMatrixSerializationFactory>()
-            .AddSingleton<SerializationFactory, PointListSerializationFactory>()
             .AddSingleton<SerializationFactory, VecD3SerializationFactory>()
             .AddSingleton<SerializationFactory, TextureSerializationFactory>()
             // Palette Parsers

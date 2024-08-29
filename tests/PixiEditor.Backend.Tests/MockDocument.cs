@@ -61,12 +61,7 @@ public class MockDocument : IReadOnlyDocument
         throw new NotImplementedException();
     }
 
-    (IReadOnlyStructureNode, IReadOnlyNode) IReadOnlyDocument.FindChildAndParentOrThrow(Guid childGuid)
-    {
-        return FindChildAndParentOrThrow(childGuid);
-    }
-
-    public (IReadOnlyStructureNode, IReadOnlyFolderNode) FindChildAndParentOrThrow(Guid childGuid)
+    public (IReadOnlyStructureNode, IReadOnlyNode) FindChildAndParentOrThrow(Guid childGuid)
     {
         throw new NotImplementedException();
     }

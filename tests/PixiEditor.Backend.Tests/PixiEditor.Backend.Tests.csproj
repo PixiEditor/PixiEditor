@@ -21,9 +21,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\PixiEditor\PixiEditor.csproj" />
       <ProjectReference Include="..\..\src\PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj" />
       <ProjectReference Include="..\..\src\PixiEditor.DrawingApi.Skia\PixiEditor.DrawingApi.Skia.csproj" />
+      <ProjectReference Include="..\..\src\PixiEditor\PixiEditor.csproj" />
     </ItemGroup>
 
 </Project>

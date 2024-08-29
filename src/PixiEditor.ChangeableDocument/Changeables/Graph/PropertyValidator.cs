@@ -44,39 +44,6 @@ public class PropertyValidator
         return min;
     }
 
-    /*public PropertyValidator Select<T>(Func<T, object> selector)
-    {
-        PropertyValidator newValidator = new();
-
-        newValidator.Rules.Add(v =>
-        {
-            if (v is T val)
-            {
-                return (true, selector(val));
-            }
-
-            return (false, v);
-        });
-
-        return newValidator;
-    }
-
-    public void All(params PropertyValidator[] validators)
-    {
-        Rules.Add(v =>
-        {
-            foreach (var validator in validators)
-            {
-                if (!validator.Validate(v))
-                {
-                    return (false, validator.GetClosestValidValue(v));
-                }
-            }
-
-            return (true, v);
-        });
-    }*/
-
     public bool Validate(object? value)
     {
         object lastValue = value;

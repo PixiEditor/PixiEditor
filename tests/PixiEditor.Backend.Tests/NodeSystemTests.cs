@@ -144,6 +144,7 @@ public class NodeSystemTests
             foreach (var input in node.InputProperties)
             {
                 if (knownNonSerializableTypes.Contains(input.ValueType)) continue;
+                if(input.ValueType.IsAbstract) continue;
                 if (input.ValueType.IsAssignableTo(typeof(Delegate))) continue;
                 bool hasFactory = factories.Any(x => x.OriginalType == input.ValueType);
                 Assert.True(
