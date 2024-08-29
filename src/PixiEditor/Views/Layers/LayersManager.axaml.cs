@@ -5,10 +5,12 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Views.Layers;
 #nullable enable
@@ -16,6 +18,7 @@ internal partial class LayersManager : UserControl
 {
     public DocumentViewModel ActiveDocument => DataContext is LayersDockViewModel vm ? vm.ActiveDocument : null;
     private readonly IBrush? highlightColor;
+
     public LayersManager()
     {
         InitializeComponent();
@@ -43,7 +46,7 @@ internal partial class LayersManager : UserControl
             }
         }
     }
-    
+
     public void LayerControl_MouseMove(PointerEventArgs e)
     {
         if (e is null)
@@ -66,7 +69,7 @@ internal partial class LayersManager : UserControl
 
         e.Pointer.Capture(null);
     }
-    
+
     private void FolderControl_MouseDown(object sender, PointerPressedEventArgs e)
     {
         FolderControl control = (FolderControl)sender;
@@ -99,7 +102,7 @@ internal partial class LayersManager : UserControl
             Dispatcher.UIThread.InvokeAsync(() => DragDrop.DoDragDrop(e, data, DragDropEffects.Move));
         }
     }
-    
+
     private void FolderControl_MouseUp(object sender, PointerReleasedEventArgs e)
     {
         if (sender is not FolderControl folderControl)
@@ -121,7 +124,7 @@ internal partial class LayersManager : UserControl
     private void Grid_Drop(object sender, DragEventArgs e)
     {
         ViewModelMain.Current.ActionDisplays[nameof(LayersManager)] = null;
-        
+
         if (ActiveDocument == null)
         {
             return;
@@ -137,7 +140,7 @@ internal partial class LayersManager : UserControl
             e.Handled = true;
         }
 
-        if (ClipboardController.TryPaste(ActiveDocument, new [] { (IDataObject)e.Data }, true))
+        if (ClipboardController.TryPaste(ActiveDocument, new[] { (IDataObject)e.Data }, true))
         {
             e.Handled = true;
         }
@@ -149,7 +152,7 @@ internal partial class LayersManager : UserControl
         {
             return;
         }
-        
+
         var member = LayerControl.ExtractMemberGuid(e.Data);
 
         if (member == null)
@@ -166,7 +169,7 @@ internal partial class LayersManager : UserControl
         {
             e.DragEffects = DragDropEffects.Move;
         }
-        
+
         ((Border)sender).BorderBrush = highlightColor;
         e.Handled = true;
     }
@@ -175,32 +178,6 @@ internal partial class LayersManager : UserControl
     {
         ViewModelMain.Current.ActionDisplays[nameof(LayersManager)] = null;
         ((Border)sender).BorderBrush = Brushes.Transparent;
-    }
-
-    private static int TraverseRange(Guid bound1, Guid bound2, FolderViewModel root, Action<StructureMemberViewModel> action, int matches = 0)
-    {
-        if (matches == 2)
-            return 2;
-        foreach (StructureMemberViewModel child in root.Children)
-        {
-            if (child is FolderViewModel innerFolder)
-            {
-                matches = TraverseRange(bound1, bound2, innerFolder, action, matches);
-            }
-            if (matches == 1)
-                action(child);
-            if (matches == 2)
-                return 2;
-            if (child.Id == bound1 || child.Id == bound2)
-            {
-                matches++;
-                if (matches == 1)
-                    action(child);
-                if (matches == 2)
-                    return 2;
-            }
-        }
-        return matches;
     }
 
     private void HandleMouseDown(StructureMemberViewModel memberVM, PointerPressedEventArgs pointerPressedEventArgs)
@@ -219,24 +196,56 @@ internal partial class LayersManager : UserControl
         }
         else if (pointerPressedEventArgs.KeyModifiers.HasFlag(KeyModifiers.Shift))
         {
-            // TODO: Implement this
-            /*if (ActiveDocument.SelectedStructureMember is null || ActiveDocument.SelectedStructureMember.GuidValue == memberVM.GuidValue)
+            if (ActiveDocument.SelectedStructureMember is null ||
+                ActiveDocument.SelectedStructureMember.Id == memberVM.Id)
                 return;
             ActiveDocument.Operations.ClearSoftSelectedMembers();
+
             TraverseRange(
-                ActiveDocument.SelectedStructureMember.GuidValue,
-                memberVM.GuidValue,
-                ActiveDocument.NodeGraph,
+                ActiveDocument.SelectedStructureMember.Id,
+                memberVM.Id,
+                ActiveDocument.NodeGraph.StructureTree.Members,
                 static member =>
                 {
                     if (member.Selection == StructureMemberSelectionType.None)
-                        member.Document.Operations.AddSoftSelectedMember(member.GuidValue);
-                });*/
+                        member.Document.Operations.AddSoftSelectedMember(member.Id);
+                });
         }
         else
         {
             ActiveDocument.Operations.SetSelectedMember(memberVM.Id);
             ActiveDocument.Operations.ClearSoftSelectedMembers();
         }
+    }
+
+    private static int TraverseRange(Guid bound1, Guid bound2, IEnumerable<IStructureMemberHandler> root,
+        Action<IStructureMemberHandler> action, int matches = 0)
+    {
+        if (matches == 2)
+            return 2;
+        
+        var reversed = root.Reverse();
+        foreach (var child in reversed)
+        {
+            if (child is FolderViewModel innerFolder)
+            {
+                matches = TraverseRange(bound1, bound2, innerFolder.Children, action, matches);
+            }
+
+            if (matches == 1)
+                action(child);
+            if (matches == 2)
+                return 2;
+            if (child.Id == bound1 || child.Id == bound2)
+            {
+                matches++;
+                if (matches == 1)
+                    action(child);
+                if (matches == 2)
+                    return 2;
+            }
+        }
+
+        return matches;
     }
 }
