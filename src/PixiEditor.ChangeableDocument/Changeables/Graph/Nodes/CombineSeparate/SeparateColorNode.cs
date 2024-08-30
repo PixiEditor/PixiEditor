@@ -16,20 +16,29 @@ public class SeparateColorNode : Node
     
     public InputProperty<CombineSeparateColorMode> Mode { get; }
 
-    public FuncOutputProperty<Float1> R { get; }
+    /// <summary>
+    /// Represents either Red 'R' or Hue 'H' depending on <see cref="Mode"/>
+    /// </summary>
+    public FuncOutputProperty<Float1> V1 { get; }
     
-    public FuncOutputProperty<Float1> G { get; }
+    /// <summary>
+    /// Represents either Green 'G' or Saturation 'S' depending on <see cref="Mode"/>
+    /// </summary>
+    public FuncOutputProperty<Float1> V2 { get; }
     
-    public FuncOutputProperty<Float1> B { get; }
+    /// <summary>
+    /// Represents either Blue 'B', Value 'V' or Lightness 'L' depending on <see cref="Mode"/>
+    /// </summary>
+    public FuncOutputProperty<Float1> V3 { get; }
     
     public FuncOutputProperty<Float1> A { get; }
     
     public SeparateColorNode()
     {
-        R = CreateFuncOutput<Float1>(nameof(R), "R", ctx => GetColor(ctx).R);
-        G = CreateFuncOutput<Float1>(nameof(G), "G", ctx => GetColor(ctx).G);
-        B = CreateFuncOutput<Float1>(nameof(B), "B", ctx => GetColor(ctx).B);
-        A = CreateFuncOutput<Float1>(nameof(A), "A", ctx => GetColor(ctx).A);
+        V1 = CreateFuncOutput<Float1>("R", "R", ctx => GetColor(ctx).R);
+        V2 = CreateFuncOutput<Float1>("G", "G", ctx => GetColor(ctx).G);
+        V3 = CreateFuncOutput<Float1>("B", "B", ctx => GetColor(ctx).B);
+        A = CreateFuncOutput<Float1>("A", "A", ctx => GetColor(ctx).A);
         Mode = CreateInput("Mode", "MODE", CombineSeparateColorMode.RGB);
         Color = CreateFuncInput<Half4>(nameof(Color), "COLOR", new Color());
     }
