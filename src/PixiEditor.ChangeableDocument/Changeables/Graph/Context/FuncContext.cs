@@ -109,6 +109,14 @@ public class FuncContext
         
         return Builder.ConstructHalf4(r, g, b, a);
     }
+
+    /// <summary>
+    /// Gets a Half4 that can be used multiple times by the same node.
+    /// The node and property are used to generate a unique hash. <br/>
+    /// <example>If you have one input and multiple outputs use this generate a single variable that can be accessed from the multiple output. In that case set the <see cref="property"/> parameter to the input property</example>
+    /// </summary>
+    public Half4 GetOrNewAttachedHalf4(Node node, INodeProperty property, Func<Expression> assignment) =>
+        Builder.GetOrNewAttachedHalf4(node.GetHashCode(), property.GetHashCode(), assignment);
     
     public Half4 HsvaToRgba(Expression h, Expression s, Expression v, Expression a)
     {
@@ -150,6 +158,44 @@ public class FuncContext
         }
         
         return Builder.AssignNewHalf4(Builder.Functions.GetHslToRgb(h, s, l, a));
+    }
+    
+    /// <summary>
+    /// The node parameter is used to generate a hash. <br/> See <see cref="GetOrNewAttachedHalf4"/> for more information
+    /// </summary>
+    public Half4 RgbaToHsva(Node node, FuncInputProperty<Half4> color)
+    {
+        if (!HasContext && GetValue(color) is Half4 constantColor)
+        {
+            var variable = new Half4(string.Empty);
+            constantColor.ConstantValue.ToHsv(out float h, out float s, out float l);
+            variable.ConstantValue = new Color((byte)(h * 255), (byte)(s * 255), (byte)(l * 255), constantColor.ConstantValue.A);
+            
+            return variable;
+        }
+
+        return Builder.GetOrNewAttachedHalf4(node.GetHashCode(), color.GetHashCode(), RgbToHsvGetter);
+
+        Expression RgbToHsvGetter() => Builder.Functions.GetRgbToHsv(GetValue(color));
+    }
+    
+    /// <summary>
+    /// The node parameter is used to generate a hash. <br/> See <see cref="GetOrNewAttachedHalf4"/> for more information
+    /// </summary>
+    public Half4 RgbaToHsla(Node node, FuncInputProperty<Half4> color)
+    {
+        if (!HasContext && GetValue(color) is Half4 constantColor)
+        {
+            var variable = new Half4(string.Empty);
+            constantColor.ConstantValue.ToHsl(out float h, out float s, out float l);
+            variable.ConstantValue = new Color((byte)(h * 255), (byte)(s * 255), (byte)(l * 255), constantColor.ConstantValue.A);
+            
+            return variable;
+        }
+
+        return Builder.GetOrNewAttachedHalf4(node.GetHashCode(), color.GetHashCode(), RgbToHslGetter);
+
+        Expression RgbToHslGetter() => Builder.Functions.GetRgbToHsl(GetValue(color));
     }
 
     public Half4 NewHalf4(Expression assignment)

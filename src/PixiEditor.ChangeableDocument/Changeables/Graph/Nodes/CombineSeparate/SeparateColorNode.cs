@@ -45,39 +45,11 @@ public class SeparateColorNode : Node
             CombineSeparateColorMode.HSL => GetHsla(ctx)
         };
 
-    private Half4 GetRgba(FuncContext ctx) => ctx.Builder.GetOrNewAttachedHalf4(this.GetHashCode(), Color.GetHashCode(), () => Color.Value(ctx));
+    private Half4 GetRgba(FuncContext ctx) => ctx.GetOrNewAttachedHalf4(this, Color, () => Color.Value(ctx));
 
-    private Half4 GetHsva(FuncContext ctx)
-    {
-        if (!ctx.HasContext && ctx.GetValue(Color) is Half4 constantColor)
-        {
-            var variable = new Half4(string.Empty);
-            constantColor.ConstantValue.ToHsv(out float h, out float s, out float l);
-            variable.ConstantValue = new Color((byte)(h * 255), (byte)(s * 255), (byte)(l * 255), constantColor.ConstantValue.A);
-            
-            return variable;
-        }
+    private Half4 GetHsva(FuncContext ctx) => ctx.RgbaToHsva(this, Color);
 
-        return ctx.Builder.GetOrNewAttachedHalf4(this.GetHashCode(), Color.GetHashCode(), RgbToHsvGetter);
-
-        Expression RgbToHsvGetter() => ctx.Builder.Functions.GetRgbToHsv(ctx.GetValue(Color));
-    }
-
-    private Half4 GetHsla(FuncContext ctx)
-    {
-        if (!ctx.HasContext && ctx.GetValue(Color) is Half4 constantColor)
-        {
-            var variable = new Half4(string.Empty);
-            constantColor.ConstantValue.ToHsl(out float h, out float s, out float l);
-            variable.ConstantValue = new Color((byte)(h * 255), (byte)(s * 255), (byte)(l * 255), constantColor.ConstantValue.A);
-            
-            return variable;
-        }
-
-        return ctx.Builder.GetOrNewAttachedHalf4(this.GetHashCode(), Color.GetHashCode(), RgbToHslGetter);
-
-        Expression RgbToHslGetter() => ctx.Builder.Functions.GetRgbToHsl(ctx.GetValue(Color));
-    }
+    private Half4 GetHsla(FuncContext ctx) => ctx.RgbaToHsla(this, Color);
 
     public override Node CreateCopy() => new SeparateColorNode();
 }
