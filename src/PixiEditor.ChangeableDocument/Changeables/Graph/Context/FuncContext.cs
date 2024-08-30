@@ -123,12 +123,7 @@ public class FuncContext
             return constantHalf4;
         }
 
-        if (Half4Float1Accessor.AllAccessSame(h, s, v, a, out var half4))
-        {
-            return Builder.AssignNewHalf4(Builder.Functions.GetHsvToRgb(half4));
-        }
-        
-        return Builder.AssignNewHalf4(Builder.Functions.GetHsvToRgb(h, s, v, a));
+        return Builder.AssignNewHalf4(Builder.Functions.GetHslToRgb(h, s, v, a));
     }
 
     public Half4 HslaToRgba(Expression h, Expression s, Expression l, Expression a)
@@ -144,11 +139,6 @@ public class FuncContext
             return constantHalf4;
         }
 
-        if (Half4Float1Accessor.AllAccessSame(h, s, l, a, out var half4))
-        {
-            return Builder.AssignNewHalf4(Builder.Functions.GetHslToRgb(half4));
-        }
-        
         return Builder.AssignNewHalf4(Builder.Functions.GetHslToRgb(h, s, l, a));
     }
     

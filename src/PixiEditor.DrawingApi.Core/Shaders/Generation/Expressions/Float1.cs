@@ -41,6 +41,8 @@ public class Half4Float1Accessor : Float1
         half4 = null;
         return false;
     }
+
+    public static Expression GetOrConstructorExpressionHalf4(Expression r, Expression g, Expression b, Expression a) => AllAccessSame(r, g, b, a, out var value) ? value : Half4.Constructor(r, g, b, a);
 }
 
 public class Half3Float1Accessor : Float1
@@ -64,4 +66,6 @@ public class Half3Float1Accessor : Float1
         half3 = null;
         return false;
     }
+    
+    public static Expression GetOrConstructorExpressionHalf3(Expression r, Expression g, Expression b) => AllAccessSame(r, g, b, out var value) ? value : Half3.Constructor(r, g, b);
 }

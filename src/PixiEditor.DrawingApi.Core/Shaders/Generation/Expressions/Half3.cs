@@ -33,8 +33,7 @@ public class Half3(string name) : ShaderExpressionVariable<VecD3>(name), IMultiV
     }
 
     public static string ConstructorText(Expression r, Expression g, Expression b) =>
-        $"half4({r.ExpressionValue}, {g.ExpressionValue}, {b.ExpressionValue})";
+        $"half3({r.ExpressionValue}, {g.ExpressionValue}, {b.ExpressionValue})";
 
-    public static Expression Constructor(Expression r, Expression g, Expression b) =>
-        new Expression(ConstructorText(r, g, b));
+    public static Expression Constructor(Expression r, Expression g, Expression b) => new(ConstructorText(r, g, b));
 }

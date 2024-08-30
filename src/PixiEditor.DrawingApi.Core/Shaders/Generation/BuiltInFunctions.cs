@@ -13,14 +13,14 @@ public class BuiltInFunctions
     public Expression GetRgbToHsl(Expression rgba) => Call(RgbToHsl, rgba);
 
     public Expression GetHsvToRgb(Expression hsva) => Call(HsvToRgb, hsva);
-    
+
     public Expression GetHsvToRgb(Expression h, Expression s, Expression v, Expression a) =>
-        GetHsvToRgb(Half4.Constructor(h, s, v, a));
+        GetHsvToRgb(Half4Float1Accessor.GetOrConstructorExpressionHalf4(h, s, v, a));
 
     public Expression GetHslToRgb(Expression hsla) => Call(HslToRgb, hsla);
 
     public Expression GetHslToRgb(Expression h, Expression s, Expression l, Expression a) =>
-        GetHslToRgb(Half4.Constructor(h, s, l, a));
+        GetHslToRgb(Half4Float1Accessor.GetOrConstructorExpressionHalf4(h, s, l, a));
 
     public string BuildFunctions()
     {
