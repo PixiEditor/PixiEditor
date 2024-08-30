@@ -161,11 +161,11 @@ public class FuncContext
     }
     
     /// <summary>
-    /// The node parameter is used to generate a hash. <br/> See <see cref="GetOrNewAttachedHalf4"/> for more information
+    /// The node and property parameter are used to generate a hash. <br/> See <see cref="GetOrNewAttachedHalf4"/> for more information
     /// </summary>
-    public Half4 RgbaToHsva(Node node, FuncInputProperty<Half4> color)
+    public Half4 RgbaToHsva(Node node, INodeProperty property, Func<Expression> color)
     {
-        if (!HasContext && GetValue(color) is Half4 constantColor)
+        if (!HasContext && color() is Half4 constantColor)
         {
             var variable = new Half4(string.Empty);
             constantColor.ConstantValue.ToHsv(out float h, out float s, out float l);
@@ -174,17 +174,17 @@ public class FuncContext
             return variable;
         }
 
-        return Builder.GetOrNewAttachedHalf4(node.GetHashCode(), color.GetHashCode(), RgbToHsvGetter);
+        return Builder.GetOrNewAttachedHalf4(node.GetHashCode(), property.GetHashCode(), RgbToHsvGetter);
 
-        Expression RgbToHsvGetter() => Builder.Functions.GetRgbToHsv(GetValue(color));
+        Expression RgbToHsvGetter() => Builder.Functions.GetRgbToHsv(color());
     }
     
     /// <summary>
-    /// The node parameter is used to generate a hash. <br/> See <see cref="GetOrNewAttachedHalf4"/> for more information
+    /// The node and property parameter are used to generate a hash. <br/> See <see cref="GetOrNewAttachedHalf4"/> for more information
     /// </summary>
-    public Half4 RgbaToHsla(Node node, FuncInputProperty<Half4> color)
+    public Half4 RgbaToHsla(Node node, INodeProperty property, Func<Expression> color)
     {
-        if (!HasContext && GetValue(color) is Half4 constantColor)
+        if (!HasContext && color() is Half4 constantColor)
         {
             var variable = new Half4(string.Empty);
             constantColor.ConstantValue.ToHsl(out float h, out float s, out float l);
@@ -193,9 +193,9 @@ public class FuncContext
             return variable;
         }
 
-        return Builder.GetOrNewAttachedHalf4(node.GetHashCode(), color.GetHashCode(), RgbToHslGetter);
+        return Builder.GetOrNewAttachedHalf4(node.GetHashCode(), property.GetHashCode(), RgbToHslGetter);
 
-        Expression RgbToHslGetter() => Builder.Functions.GetRgbToHsl(GetValue(color));
+        Expression RgbToHslGetter() => Builder.Functions.GetRgbToHsl(color());
     }
 
     public Half4 NewHalf4(Expression assignment)
