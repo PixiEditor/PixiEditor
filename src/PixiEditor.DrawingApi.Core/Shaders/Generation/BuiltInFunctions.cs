@@ -26,24 +26,12 @@ public class BuiltInFunctions
     {
         var builder = new StringBuilder();
 
-        AppendIf(HueToRgb);
-        AppendIf(RgbToHcv);
-        
-        AppendIf(HsvToRgb);
-        AppendIf(RgbToHsv);
-
-        AppendIf(HslToRgb);
-        AppendIf(RgbToHsl);
-        
-        return builder.ToString();
-
-        void AppendIf(IBuiltInFunction function)
+        foreach (var function in usedFunctions)
         {
-            if (usedFunctions.Contains(function))
-            {
-                builder.AppendLine(function.FullSource);
-            }
+            builder.AppendLine(function.FullSource);
         }
+
+        return builder.ToString();
     }
 
     private Expression Call(IBuiltInFunction function, Expression expression)
