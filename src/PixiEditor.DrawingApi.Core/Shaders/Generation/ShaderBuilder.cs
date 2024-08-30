@@ -181,20 +181,6 @@ public class ShaderBuilder
         return result;
     }
 
-    public Half4 GetOrNewAttachedHalf4(int hash1, int hash2, Func<Expression> assignment)
-    {
-        var name = $"color_attached_{hash1}_{hash2}";
-        
-        var result = _variables.FirstOrDefault(x => x.VariableName == name);
-
-        if (result == null)
-        {
-            return AssignNewHalf4(name, assignment());
-        }
-
-        return (Half4)result;
-    }
-
     public void Dispose()
     {
         _bodyBuilder.Clear();

@@ -10,6 +10,8 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 [NodeInfo("SeparateColor", "SEPARATE_COLOR_NODE", Category = "COLOR")]
 public class SeparateColorNode : Node
 {
+    private readonly NodeVariableAttachments contextVariables = new();
+    
     public FuncInputProperty<Half4> Color { get; }
     
     public InputProperty<CombineSeparateColorMode> Mode { get; }
@@ -45,11 +47,14 @@ public class SeparateColorNode : Node
             CombineSeparateColorMode.HSL => GetHsla(ctx)
         };
 
-    private Half4 GetRgba(FuncContext ctx) => ctx.GetOrNewAttachedHalf4(this, Color, () => Color.Value(ctx));
+    private Half4 GetRgba(FuncContext ctx) => 
+        contextVariables.GetOrAttachNew(ctx, Color, () => Color.Value(ctx));
 
-    private Half4 GetHsva(FuncContext ctx) => ctx.RgbaToHsva(this, Color, () => ctx.GetValue(Color));
+    private Half4 GetHsva(FuncContext ctx) =>
+        contextVariables.GetOrAttachNew(ctx, Color, () => ctx.RgbaToHsva(ctx.GetValue(Color)));
 
-    private Half4 GetHsla(FuncContext ctx) => ctx.RgbaToHsla(this, Color, () => ctx.GetValue(Color));
+    private Half4 GetHsla(FuncContext ctx) =>
+        contextVariables.GetOrAttachNew(ctx, Color, () => ctx.RgbaToHsla(ctx.GetValue(Color)));
 
     public override Node CreateCopy() => new SeparateColorNode();
 }
