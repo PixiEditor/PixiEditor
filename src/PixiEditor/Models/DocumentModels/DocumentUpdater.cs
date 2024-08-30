@@ -509,12 +509,13 @@ internal class DocumentUpdater
     {
         var nodeType = info.Metadata.NodeType;
         
-        var ns = nodeType.Namespace.Replace("PixiEditor.ChangeableDocument.Changeables.Graph.Nodes", "PixiEditor.ViewModels.Document.Nodes");
+        var ns = nodeType.Namespace.Replace("ChangeableDocument.Changeables.Graph.", "ViewModels.Document.");
         var name = nodeType.Name.Replace("Node", "NodeViewModel");
-        var nodeViewModelType = Type.GetType($"{ns}.{name}");
+        var fullViewModelName = $"{ns}.{name}";
+        var nodeViewModelType = Type.GetType(fullViewModelName);
 
         if (nodeViewModelType == null)
-            throw new NullReferenceException($"No ViewModel found for {nodeType}. Looking for {name}");
+            throw new NullReferenceException($"No ViewModel found for {nodeType}. Looking for '{name}'");
         
         var viewModel = (NodeViewModel)Activator.CreateInstance(nodeViewModelType);
 
