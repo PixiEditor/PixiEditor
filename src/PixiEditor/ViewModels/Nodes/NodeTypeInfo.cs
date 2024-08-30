@@ -41,7 +41,7 @@ public class NodeTypeInfo
 
     private Type GetNodeType(Type? baseType)
     {
-        while (true)
+        while (baseType != null)
         {
             if (baseType.IsGenericType)
             {
@@ -55,5 +55,7 @@ public class NodeTypeInfo
 
             baseType = baseType.BaseType;
         }
+
+        throw new NullReferenceException($"Could not find node type of '{baseType}' in base classes");
     }
 }
