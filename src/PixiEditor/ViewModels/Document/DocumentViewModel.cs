@@ -210,8 +210,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     IDocumentOperations IDocument.Operations => Operations;
     ITransformHandler IDocument.TransformHandler => TransformViewModel;
     ILineOverlayHandler IDocument.LineToolOverlayHandler => LineToolOverlayViewModel;
-    //public ILayerHandlerFactory LayerHandlerFactory { get; }
-    //public IFolderHandlerFactory FolderHandlerFactory { get; }
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
     IAnimationHandler IDocument.AnimationHandler => AnimationDataViewModel;
 
@@ -225,8 +223,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         EventInlet = new DocumentEventsModule(this, Internals);
         Operations = new DocumentOperationsModule(this, Internals);
 
-        //LayerHandlerFactory = new LayerHandlerFactory(this);
-        //FolderHandlerFactory = new FolderHandlerFactory(this);
         AnimationDataViewModel = new(this, Internals);
 
         NodeGraph = new NodeGraphViewModel(this, Internals);
