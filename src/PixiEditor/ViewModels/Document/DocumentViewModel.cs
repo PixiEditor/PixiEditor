@@ -534,7 +534,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         IStructureMemberHandler? layerToExtractFrom = null)
     {
         layerToExtractFrom ??= SelectedStructureMember;
-        if (layerToExtractFrom is not ImageLayerNodeViewModel layerVm)
+        if (layerToExtractFrom is not ILayerHandler layerVm)
             return new Error();
         if (SelectionPathBindable.IsEmpty)
             return new None();
@@ -664,7 +664,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                         _ => Colors.Transparent);
             }
 
-            if (SelectedStructureMember is not ImageLayerNodeViewModel layerVm)
+            if (SelectedStructureMember is not ILayerHandler layerVm)
                 return Colors.Transparent;
             IReadOnlyStructureNode? maybeMember = Internals.Tracker.Document.FindMember(layerVm.Id);
             if (maybeMember is not IReadOnlyImageNode layer)

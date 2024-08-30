@@ -172,7 +172,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public void DuplicateLayer()
     {
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
-        if (member is not ImageLayerNodeViewModel layerVM)
+        if (member is not ILayerHandler)
             return;
         member.Document.Operations.DuplicateLayer(member.Id);
     }
@@ -181,7 +181,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public bool SelectedMemberIsLayer(object property)
     {
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
-        return member is ImageLayerNodeViewModel;
+        return member is ILayerHandler;
     }
 
     private bool HasSelectedMember(bool above)
