@@ -7,6 +7,7 @@ namespace PixiEditor.Models.Handlers;
 internal interface INodeGraphHandler
 {
    public ObservableCollection<INodeHandler> AllNodes { get; }
+   public ObservableCollection<NodeGraphConstantViewModel> Constants { get; }
    public ObservableCollection<NodeConnectionViewModel> Connections { get; }
    public ObservableCollection<NodeFrameViewModelBase> Frames { get; }
    public INodeHandler OutputNode { get; }

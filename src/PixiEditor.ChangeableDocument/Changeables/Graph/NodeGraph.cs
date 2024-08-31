@@ -10,7 +10,10 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 public class NodeGraph : IReadOnlyNodeGraph, IDisposable
 {
     private readonly List<Node> _nodes = new();
+    private readonly List<GraphConstant> _constants = new();
+    
     public IReadOnlyCollection<Node> Nodes => _nodes;
+    public IReadOnlyCollection<IReadOnlyGraphConstant> Constants => _constants;
     public OutputNode? OutputNode => Nodes.OfType<OutputNode>().FirstOrDefault();
 
     IReadOnlyCollection<IReadOnlyNode> IReadOnlyNodeGraph.AllNodes => Nodes;
@@ -34,6 +37,26 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         }
 
         _nodes.Remove(node);
+    }
+
+    internal void AddConstant(GraphConstant constant)
+    {
+        if (_constants.Contains(constant))
+            return;
+        
+        _constants.Add(constant);
+    }
+
+    internal void RemoveConstant(Guid id) => RemoveConstant(_constants.FirstOrDefault(x => x.Id == id));
+
+    internal void RemoveConstant(GraphConstant? constant) => _constants.Remove(constant);
+
+    internal void UpdateConstantValue(Guid id, object value, out object oldValue)
+    {
+        var constant = _constants.First(x => x.Id == id);
+
+        oldValue = constant.Value;
+        constant.Value = value;
     }
 
     public Queue<IReadOnlyNode> CalculateExecutionQueue(IReadOnlyNode outputNode)

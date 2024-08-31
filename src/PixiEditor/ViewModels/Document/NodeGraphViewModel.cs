@@ -20,6 +20,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
 {
     public DocumentViewModel DocumentViewModel { get; }
     public ObservableCollection<INodeHandler> AllNodes { get; } = new();
+    public ObservableCollection<NodeGraphConstantViewModel> Constants { get; } = new();
     public ObservableCollection<NodeConnectionViewModel> Connections { get; } = new();
     public ObservableCollection<NodeFrameViewModelBase> Frames { get; } = new();
     public StructureTree StructureTree { get; } = new();
@@ -217,6 +218,21 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
     public void UpdatePropertyValue(INodeHandler node, string property, object? value)
     {
         Internals.ActionAccumulator.AddFinishedActions(new UpdatePropertyValue_Action(node.Id, property, value));
+    }
+
+    public void CreateConstant(Guid id, Type type)
+    {
+        Internals.ActionAccumulator.AddFinishedActions(new CreateGraphConstant_Action(id, type));
+    }
+
+    public void UpdateConstantValue(INodeGraphConstantHandler constant, object value)
+    {
+        Internals.ActionAccumulator.AddFinishedActions(new UpdateGraphConstantValue_Action(constant.Id, value));
+    }
+    
+    public void CreateConstantNode(Guid nodeId, Guid constantId)
+    {
+        Internals.ActionAccumulator.AddFinishedActions(new CreateConstantNode_Action(nodeId, constantId));
     }
 
     public void EndChangeNodePosition()

@@ -156,6 +156,10 @@ internal class AffectedAreasGatherer
                 case OnionFrames_ChangeInfo:
                     AddWholeCanvasToMainImage();
                     break;
+                case UpdateConstantValue_ChangeInfo:
+                    AddWholeCanvasToMainImage();
+                    AddWholeCanvasToEveryImagePreview();
+                    break;
             }
         }
     }

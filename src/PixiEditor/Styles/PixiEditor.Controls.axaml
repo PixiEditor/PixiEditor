@@ -15,6 +15,7 @@
                 <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/TimelineGroupHeader.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/NodeFrameView.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/NodeGraphView.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/NodeConstantManager.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/NodeView.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/NodeSocket.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/ConnectionView.axaml"/>

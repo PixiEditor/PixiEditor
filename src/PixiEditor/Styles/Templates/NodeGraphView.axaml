@@ -16,6 +16,8 @@
                                 />
                         </Flyout>
                         </Grid.ContextFlyout>
+                    <nodes:NodeConstantManager ZIndex="2" Width="400" Height="800" HorizontalAlignment="Left"
+                                               Constants="{Binding NodeGraph.Constants, RelativeSource={RelativeSource TemplatedParent}}"/>
                         <ItemsControl ZIndex="1" ClipToBounds="False"
                                       ItemsSource="{Binding NodeGraph.AllNodes, RelativeSource={RelativeSource TemplatedParent}}">
                             <ItemsControl.ItemsPanel>

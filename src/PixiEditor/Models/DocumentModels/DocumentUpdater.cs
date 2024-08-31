@@ -199,6 +199,12 @@ internal class DocumentUpdater
             case SetPlayingState_PassthroughAction info:
                 ProcessPlayAnimation(info);
                 break;
+            case CreateConstant_ChangeInfo info:
+                ProcessCreateConstant(info);
+                break;
+            case UpdateConstantValue_ChangeInfo info:
+                ProcessUpdateConstantValue(info);
+                break;
         }
     }
 
@@ -673,5 +679,18 @@ internal class DocumentUpdater
     private void ProcessSetOnionFrames(OnionFrames_ChangeInfo info)
     {
         doc.AnimationHandler.SetOnionFrames(info.OnionFrames, info.Opacity);
+    }
+    
+    
+    private void ProcessCreateConstant(CreateConstant_ChangeInfo info)
+    {
+        doc.NodeGraphHandler.Constants.Add(new NodeGraphConstantViewModel(info.Id, info.Type));
+    }
+
+    private void ProcessUpdateConstantValue(UpdateConstantValue_ChangeInfo info)
+    {
+        var constant = doc.NodeGraphHandler.Constants.FirstOrDefault(x => x.Id == info.Id);
+        
+        constant.SetValueInternal(info.Value);
     }
 }

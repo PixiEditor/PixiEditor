@@ -5,6 +5,7 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Numerics;
 using PixiEditor.ViewModels.Dock;
+using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 
@@ -46,6 +47,12 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
         Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.RemoveNodes(selectedNodes);
     }
 
+    [Command.Basic("PixiEditor.NodeGraph.CreateConstant", "CREATE_NODE_CONSTANT", "CREATE_NODE_CONSTANT", ShortcutContext = typeof(NodeGraphDockViewModel), AnalyticsTrack = true)]
+    public void CreateConstant()
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.CreateConstant(Guid.NewGuid(), typeof(double));
+    }
+
     // TODO: Remove this
     [Command.Debug("PixiEditor.NodeGraph.CreateNodeFrameAroundEverything", "Create node frame", "Create node frame", AnalyticsTrack = true)]
     public void CreateNodeFrameAroundEverything()
@@ -83,5 +90,16 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
     public void EndChangeNodePos()
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.EndChangeNodePosition();
+    }
+
+    [Command.Internal("PixiEditor.NodeGraph.CreateConstantNode", AnalyticsTrack = true)]
+    public void CreateConstantNode(Guid id)
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.CreateConstantNode(Guid.NewGuid(), id);
+    }
+
+    public void UpdateConstantValue((INodeGraphConstantHandler constant, object value) args)
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.UpdateConstantValue(args.constant, args.value);
     }
 }

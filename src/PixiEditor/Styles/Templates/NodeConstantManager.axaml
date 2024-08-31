@@ -1,0 +1,30 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+                    xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
+                    xmlns:document="clr-namespace:PixiEditor.ViewModels.Document"
+                    xmlns:input="clr-namespace:PixiEditor.Views.Input">
+    <ControlTheme TargetType="nodes:NodeConstantManager" x:Key="{x:Type nodes:NodeConstantManager}">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid RowDefinitions="50,*">
+                    <Button Command="{xaml:Command PixiEditor.NodeGraph.CreateConstant}">Add</Button>
+                    <ItemsControl Grid.Row="1" ItemsSource="{Binding Constants, RelativeSource={RelativeSource TemplatedParent}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="document:INodeGraphConstantHandler">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding NameBindable}"/>
+                                    <input:NumberInput Value="{Binding ValueBindable, Mode=TwoWay}" />
+                                    <Button
+                                        Content="Node"
+                                        Command="{xaml:Command PixiEditor.NodeGraph.CreateConstantNode, UseProvided=True}"
+                                        CommandParameter="{Binding Id}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>
