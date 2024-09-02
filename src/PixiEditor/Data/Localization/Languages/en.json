@@ -745,5 +745,7 @@
   "DIVIDE": "Divide",
   "SIN": "Sin",
   "COS": "Cos",
-  "TAN": "Tan"
+  "TAN": "Tan",
+  "PIXEL_ART_TOOLSET": "Pixel Art",
+  "VECTOR_TOOLSET": "Vector"
 }
