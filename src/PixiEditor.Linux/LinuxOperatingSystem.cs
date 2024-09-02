@@ -46,6 +46,7 @@ public sealed class LinuxOperatingSystem : IOperatingSystem
                 return new LinuxOSInformation(null, null, false);
             }
             
+            // Parse /etc/os-release file (e.g. 'NAME="Ubuntu"')
             var lines = File.ReadAllLines(FilePath).Select<string, (string Key, string Value)>(x =>
             {
                 var separatorIndex = x.IndexOf('=');
