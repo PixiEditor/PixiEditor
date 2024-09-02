@@ -738,5 +738,12 @@
   "NUMBER": "Number",
   "ANIMATION": "Animation",
   "SAMPLE_IMAGE": "Sample Image",
-  "POSITION": "Position"
+  "POSITION": "Position",
+  "MATH_ADD": "Add",
+  "MATH_SUBTRACT": "Subtract",
+  "MULTIPLY": "Multiply",
+  "DIVIDE": "Divide",
+  "SIN": "Sin",
+  "COS": "Cos",
+  "TAN": "Tan"
 }

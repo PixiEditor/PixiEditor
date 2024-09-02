@@ -4,6 +4,7 @@ using Avalonia.Media;
 using Avalonia.Styling;
 using PixiEditor.DrawingApi.Core.Shaders.Generation;
 using PixiEditor.Models.DocumentModels;
+using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Nodes.Properties;
 
@@ -12,6 +13,7 @@ namespace PixiEditor.ViewModels.Nodes;
 internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHandler
 {
     private string propertyName;
+    private bool isVisible = true;
     private string displayName;
     private object? _value;
     private INodeHandler node;
@@ -33,9 +35,12 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         get => _value;
         set
         {
+            var oldValue = _value;
+            
             if (SetProperty(ref _value, value))
             {
                 ViewModelMain.Current.NodeGraphManager.UpdatePropertyValue((node, PropertyName, value));
+                ValueChanged?.Invoke(this, new NodePropertyValueChangedArgs(oldValue, value));
             }
         }
     }
@@ -56,6 +61,12 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     {
         get => isFunc;
         set => SetProperty(ref isFunc, value);
+    }
+
+    public bool IsVisible
+    {
+        get => isVisible;
+        set => SetProperty(ref isVisible, value);
     }
 
     public INodePropertyHandler? ConnectedOutput
@@ -161,9 +172,18 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         
         return (NodePropertyViewModel)Activator.CreateInstance(viewModelType, node, type);
     }
-
-    public void InternalSetValue(object? value) => SetProperty(ref _value, value, nameof(Value));
     
+    public event NodePropertyValueChanged? ValueChanged;
+
+    public void InternalSetValue(object? value)
+    {
+        var oldValue = _value;
+        if (SetProperty(ref _value, value, nameof(Value)))
+        {
+            ValueChanged?.Invoke(this, new NodePropertyValueChangedArgs(oldValue, value));
+        }
+    }
+
     private static bool IsShaderType(Type type)
     {
         return type.IsAssignableTo(typeof(ShaderExpressionVariable));

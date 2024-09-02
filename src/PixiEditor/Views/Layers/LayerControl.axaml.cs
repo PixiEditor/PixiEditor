@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Layers;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.Views.Layers;
 #nullable enable
@@ -14,10 +15,10 @@ internal partial class LayerControl : UserControl
 {
     public static string? LayerControlDataName = typeof(LayerControl).FullName;
 
-    public static readonly StyledProperty<LayerViewModel> LayerProperty =
-        AvaloniaProperty.Register<LayerControl, LayerViewModel>(nameof(Layer));
+    public static readonly StyledProperty<ImageLayerNodeViewModel> LayerProperty =
+        AvaloniaProperty.Register<LayerControl, ImageLayerNodeViewModel>(nameof(Layer));
 
-    public LayerViewModel Layer
+    public ImageLayerNodeViewModel Layer
     {
         get => GetValue(LayerProperty);
         set => SetValue(LayerProperty, value);

@@ -192,7 +192,7 @@ internal class NodeGraphView : Zoombox.Zoombox
         SocketDropCommand = new RelayCommand<NodeSocket>(SocketDrop);
         CreateNodeFromContextCommand = new RelayCommand<NodeTypeInfo>(CreateNodeType);
 
-        AllNodeTypes = new ObservableCollection<Type>(GatherAssemblyTypes<Node>());
+        AllNodeTypes = new ObservableCollection<Type>(GatherAssemblyTypes<NodeViewModel>());
         AllNodeTypeInfos = new ObservableCollection<NodeTypeInfo>(AllNodeTypes.Select(x => new NodeTypeInfo(x)));
     }
     

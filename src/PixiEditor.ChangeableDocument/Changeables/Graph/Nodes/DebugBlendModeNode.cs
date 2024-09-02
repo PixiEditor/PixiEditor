@@ -7,7 +7,7 @@ using PixiEditor.Numerics;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 // TODO: Add based on debug mode, not debug build.
-[NodeInfo("DebugBlendMode", "Debug Blend Mode")]
+[NodeInfo("DebugBlendMode")]
 public class DebugBlendModeNode : Node
 {
     private Paint _paint = new();

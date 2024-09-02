@@ -6,7 +6,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
-[NodeInfo("CombineChannels", "COMBINE_CHANNELS_NODE", Category = "IMAGE")]
+[NodeInfo("CombineChannels")]
 public class CombineChannelsNode : Node
 {
     private readonly Paint _screenPaint = new() { BlendMode = BlendMode.Screen };

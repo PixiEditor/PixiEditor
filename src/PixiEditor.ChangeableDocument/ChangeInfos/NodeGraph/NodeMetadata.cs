@@ -13,10 +13,11 @@ public class NodeMetadata
     public Guid? PairNodeGuid { get; set; }
     public string? ZoneUniqueName { get; private set; }
     
-    public string? Category { get; private set; }
+    public Type NodeType { get; private set; }
 
     public NodeMetadata(Type type)
     {
+        NodeType = type;
         AddAttributes(type);
     }
     
@@ -24,18 +25,7 @@ public class NodeMetadata
 
     private void AddAttributes(Type type)
     {
-        AddNodeInfoAttribute(type);
         AddPairAttributes(type);
-    }
-
-    private void AddNodeInfoAttribute(Type type)
-    {
-        var attribute = type.GetCustomAttribute<NodeInfoAttribute>();
-
-        if (attribute == null)
-            return;
-
-        Category = attribute.Category;
     }
 
     private void AddPairAttributes(Type type)

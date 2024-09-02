@@ -1,16 +1,13 @@
 ﻿using PixiEditor.ChangeableDocument.Actions.Generated;
-using PixiEditor.Models.DocumentModels;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Handlers;
+using PixiEditor.ViewModels.Nodes;
 
-namespace PixiEditor.ViewModels.Document;
-#nullable enable
-internal class LayerViewModel : StructureMemberViewModel, ILayerHandler
+namespace PixiEditor.ViewModels.Document.Nodes;
+
+[NodeViewModel("IMAGE_LAYER_NODE", "STRUCTURE", "\ue905")]
+internal class ImageLayerNodeViewModel : StructureMemberViewModel<ImageLayerNode>, ILayerHandler
 {
-    public LayerViewModel()
-    {
-        
-    }
-    
     bool lockTransparency;
     public void SetLockTransparency(bool lockTransparency)
     {
@@ -38,9 +35,5 @@ internal class LayerViewModel : StructureMemberViewModel, ILayerHandler
             shouldDrawOnMask = value;
             OnPropertyChanged(nameof(ShouldDrawOnMask));
         }
-    }
-
-    public LayerViewModel(DocumentViewModel doc, DocumentInternalParts internals, Guid id) : base(doc, internals, id)
-    {
     }
 }

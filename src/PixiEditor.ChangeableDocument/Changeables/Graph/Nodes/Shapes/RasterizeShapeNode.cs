@@ -8,15 +8,15 @@ using ShapeData = PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.D
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes;
 
-[NodeInfo("RasterizeShape", "RASTERIZE_SHAPE", Category = "SHAPE")]
-public class RasterizeShape : Node
+[NodeInfo("RasterizeShape")]
+public class RasterizeShapeNode : Node
 {
     public OutputProperty<Texture> Image { get; }
 
     public InputProperty<ShapeData> Data { get; }
 
 
-    public RasterizeShape()
+    public RasterizeShapeNode()
     {
         Image = CreateOutput<Texture>("Image", "IMAGE", null);
         Data = CreateInput<ShapeData>("Points", "SHAPE", null);
@@ -39,5 +39,5 @@ public class RasterizeShape : Node
         return image;
     }
 
-    public override Node CreateCopy() => new RasterizeShape();
+    public override Node CreateCopy() => new RasterizeShapeNode();
 }

@@ -5,7 +5,7 @@ using ShapeData = PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.D
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes;
 
-[NodeInfo("DistributePoints", "DISTRIBUTE_POINTS", Category = "SHAPE")]
+[NodeInfo("DistributePoints")]
 public class DistributePointsNode : ShapeNode<PointsData>
 {
     public InputProperty<int> MaxPointCount { get; }

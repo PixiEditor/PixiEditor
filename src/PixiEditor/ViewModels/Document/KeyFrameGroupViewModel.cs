@@ -52,7 +52,7 @@ internal class KeyFrameGroupViewModel : KeyFrameViewModel, IKeyFrameGroupHandler
         Children.CollectionChanged += ChildrenOnCollectionChanged;
         Document.StructureHelper.Find(LayerGuid).PropertyChanged += (sender, args) =>
         {
-            if (args.PropertyName == nameof(StructureMemberViewModel.NodeNameBindable))
+            if (args.PropertyName == nameof(IStructureMemberHandler.NodeNameBindable))
             {
                 OnPropertyChanged(nameof(LayerName));
             }

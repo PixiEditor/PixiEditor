@@ -31,8 +31,6 @@ internal interface IDocument : IHandler
     public bool AllChangesSaved { get; }
     public string CoordinatesString { get; set; }
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers { get; }
-    public ILayerHandlerFactory LayerHandlerFactory { get; }
-    public IFolderHandlerFactory FolderHandlerFactory { get; }
     public ITransformHandler TransformHandler { get; }
     public bool Busy { get; set; }
     public ILineOverlayHandler LineToolOverlayHandler { get; }

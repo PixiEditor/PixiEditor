@@ -10,6 +10,7 @@ using PixiEditor.Models.Layers;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Views.Layers;
@@ -180,7 +181,7 @@ internal partial class LayersManager : UserControl
         ((Border)sender).BorderBrush = Brushes.Transparent;
     }
 
-    private void HandleMouseDown(StructureMemberViewModel memberVM, PointerPressedEventArgs pointerPressedEventArgs)
+    private void HandleMouseDown(IStructureMemberHandler memberVM, PointerPressedEventArgs pointerPressedEventArgs)
     {
         if (ActiveDocument is null)
             return;
@@ -227,7 +228,7 @@ internal partial class LayersManager : UserControl
         var reversed = root.Reverse();
         foreach (var child in reversed)
         {
-            if (child is FolderViewModel innerFolder)
+            if (child is FolderNodeViewModel innerFolder)
             {
                 matches = TraverseRange(bound1, bound2, innerFolder.Children, action, matches);
             }
