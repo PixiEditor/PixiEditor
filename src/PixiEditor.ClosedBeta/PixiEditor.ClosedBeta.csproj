@@ -10,6 +10,7 @@
     <WasmSingleFileBundle>true</WasmSingleFileBundle>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <PixiExtOutputPath>..\PixiEditor.AvaloniaUI.Desktop\bin\Debug\net8.0\win-x64\Extensions</PixiExtOutputPath>
+    <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
   </PropertyGroup>
 
   <ItemGroup>

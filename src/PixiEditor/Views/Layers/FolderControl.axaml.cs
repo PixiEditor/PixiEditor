@@ -6,16 +6,17 @@ using Avalonia.Media;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Layers;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.Views.Layers;
 #nullable enable
 internal partial class FolderControl : UserControl
 {
 
-    public static readonly StyledProperty<FolderViewModel> FolderProperty =
-        AvaloniaProperty.Register<FolderControl, FolderViewModel>(nameof(Folder));
+    public static readonly StyledProperty<FolderNodeViewModel> FolderProperty =
+        AvaloniaProperty.Register<FolderControl, FolderNodeViewModel>(nameof(Folder));
 
-    public FolderViewModel Folder
+    public FolderNodeViewModel Folder
     {
         get => GetValue(FolderProperty);
         set => SetValue(FolderProperty, value);

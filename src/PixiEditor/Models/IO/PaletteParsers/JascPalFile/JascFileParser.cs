@@ -10,7 +10,7 @@ namespace PixiEditor.Models.IO.PaletteParsers.JascPalFile;
 /// </summary>
 internal class JascFileParser : PaletteFileParser
 {
-    private static readonly string[] _supportedFileExtensions = new string[] { ".pal" };
+    private static readonly string[] _supportedFileExtensions = new string[] { ".pal", ".psppalette" };
     public override string[] SupportedFileExtensions => _supportedFileExtensions;
     public override string FileName => "Jasc Palette";
 

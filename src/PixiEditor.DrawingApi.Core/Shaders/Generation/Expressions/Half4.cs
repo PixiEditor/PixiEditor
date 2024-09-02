@@ -1,8 +1,9 @@
-﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
+﻿using System;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 
 namespace PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 
-public class Half4(string name) : ShaderExpressionVariable<Color>(name)
+public class Half4(string name) : ShaderExpressionVariable<Color>(name), IMultiValueVariable
 {
     private Expression? _overrideExpression;
     public override string ConstantValueString => $"half4({ConstantValue.R}, {ConstantValue.G}, {ConstantValue.B}, {ConstantValue.A})";
@@ -22,5 +23,17 @@ public class Half4(string name) : ShaderExpressionVariable<Color>(name)
         {
             _overrideExpression = value;
         }
+    }
+
+    public ShaderExpressionVariable GetValueAt(int index)
+    {
+        return index switch
+        {
+            0 => R,
+            1 => G,
+            2 => B,
+            3 => A,
+            _ => throw new IndexOutOfRangeException()
+        };
     }
 }

@@ -125,7 +125,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         CommandController = services.GetService<CommandController>();
 
         LocalizationProvider = services.GetRequiredService<ILocalizationProvider>();
-        LocalizationProvider.LoadData();
+        string code = Preferences.GetPreference<string>("LanguageCode", null);
+        LocalizationProvider.LoadData(code);
 
         WindowSubViewModel = services.GetService<WindowViewModel>();
         LayoutSubViewModel = services.GetService<LayoutViewModel>();

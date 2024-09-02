@@ -30,7 +30,7 @@
                             </Grid.RowDefinitions>
                             <Border Padding="{TemplateBinding Padding}" Grid.ColumnSpan="3" Grid.Row="0"
                                     CornerRadius="4.5, 4.5, 0 ,0"
-                                    Background="{DynamicResource ThemeControlHighBrush}">
+                                    Background="{TemplateBinding CategoryBackgroundBrush}">
                                 <TextBlock ui:Translator.Key="{TemplateBinding DisplayName}"
                                            FontWeight="Bold" />
                             </Border>

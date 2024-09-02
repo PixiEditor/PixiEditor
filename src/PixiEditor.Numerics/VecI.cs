@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Numerics;
 
-public struct VecI : IEquatable<VecI>
+public struct VecI : IEquatable<VecI>, IComparable<VecI>
 {
     public int X { set; get; }
     public int Y { set; get; }
@@ -85,6 +85,8 @@ public struct VecI : IEquatable<VecI>
     {
         return new VecI(Math.Clamp(X, rect.Left, rect.Right), Math.Clamp(Y, rect.Top, rect.Bottom));
     }
+
+    public bool HasNegativeComponent() => X < 0 || Y < 0;
 
     public byte[] ToByteArray()
     {
@@ -189,6 +191,17 @@ public struct VecI : IEquatable<VecI>
     public override string ToString()
     {
         return $"({X}; {Y})";
+    }
+
+    public int CompareTo(VecI other)
+    {
+        int xComparison = X.CompareTo(other.X);
+        int yComparison = Y.CompareTo(other.Y);
+        if (xComparison == 0 && yComparison == 0)
+            return 0;
+        
+        bool anyNegative = xComparison < 0 || yComparison < 0;
+        return anyNegative ? -1 : 1;
     }
 
     public override bool Equals(object? obj)

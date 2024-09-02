@@ -8,6 +8,7 @@ with solving common problems that may occur during the process.
 1. Each node needs to inherit from `Node` class
 2. Each node class needs `NodeInfoAttribute` with Unique Name and Display name, display name should be localized, unique name should be unique across all nodes.
 3. Node inputs are serialized and therefore any input should have a proper SerializationFactory class, otherwise saving fails.
+4. Run Tests to make sure node doesn't have any obvious issues.
 
 # Important notes
 

@@ -3,6 +3,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surfaces.Vector;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
 using PixiEditor.Numerics;
@@ -51,7 +52,9 @@ internal class PasteImageExecutor : UpdateableChangeExecutor
         }
 
         ShapeCorners corners = new(new RectD(pos, image.Size));
-        internals!.ActionAccumulator.AddActions(new PasteImage_Action(image, corners, memberGuid.Value, false, drawOnMask, document.AnimationHandler.ActiveFrameBindable, default));
+        internals!.ActionAccumulator.AddActions(
+            new ClearSelection_Action(),
+            new PasteImage_Action(image, corners, memberGuid.Value, false, drawOnMask, document.AnimationHandler.ActiveFrameBindable, default));
         document.TransformHandler.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, corners, true);
 
         return ExecutionState.Success;

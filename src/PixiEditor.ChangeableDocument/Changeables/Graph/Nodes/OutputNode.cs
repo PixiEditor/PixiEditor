@@ -5,7 +5,7 @@ using PixiEditor.DrawingApi.Core;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("Output", "OUTPUT_NODE", PickerName = "")]
+[NodeInfo("Output")]
 public class OutputNode : Node, IBackgroundInput
 {
     public const string InputPropertyName = "Background";

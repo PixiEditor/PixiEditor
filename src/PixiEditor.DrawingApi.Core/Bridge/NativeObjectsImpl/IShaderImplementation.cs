@@ -1,5 +1,6 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Shaders;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
@@ -17,4 +18,5 @@ public interface IShaderImplementation
     public Shader CreatePerlinFractalNoise(float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed);
     public object GetNativeShader(IntPtr objectPointer);
     public Shader WithUpdatedUniforms(IntPtr objectPointer, Uniforms uniforms);
+    public void SetLocalMatrix(IntPtr objectPointer, Matrix3X3 matrix);
 }

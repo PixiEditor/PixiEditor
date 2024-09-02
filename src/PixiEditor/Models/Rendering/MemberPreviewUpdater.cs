@@ -731,14 +731,14 @@ internal class MemberPreviewUpdater
 
     private void RenderNodePreviews(List<IRenderInfo> infos)
     {
-        using RenderingContext previewContext = new(doc.AnimationHandler.ActiveFrameTime, VecI.Zero, ChunkResolution.Full, doc.SizeBindable);
+        using RenderingContext previewContext = new(doc.AnimationHandler.ActiveFrameTime,  VecI.Zero, ChunkResolution.Full, doc.SizeBindable);
 
         var outputNode = internals.Tracker.Document.NodeGraph.OutputNode;
         
         if (outputNode is null)
             return;
-        
-        var executionQueue = internals.Tracker.Document.NodeGraph.CalculateExecutionQueue(outputNode);
+
+        var executionQueue = internals.Tracker.Document.NodeGraph.AllNodes; //internals.Tracker.Document.NodeGraph.CalculateExecutionQueue(outputNode);
         
         foreach (var node in executionQueue) 
         {

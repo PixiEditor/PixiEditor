@@ -236,8 +236,7 @@ internal class ViewportOverlays
         Binding requestedCornersBinding = new()
         {
             Source = Viewport,
-            Path = "Document.TransformViewModel.RequestedCorners",
-            Mode = BindingMode.TwoWay
+            Path = "Document.TransformViewModel.RequestCornersExecutor",
         };
 
         Binding cornerFreedomBinding = new()
@@ -292,7 +291,7 @@ internal class ViewportOverlays
         transformOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         transformOverlay.Bind(TransformOverlay.ActionCompletedProperty, actionCompletedBinding);
         transformOverlay.Bind(TransformOverlay.CornersProperty, cornersBinding);
-        transformOverlay.Bind(TransformOverlay.RequestedCornersProperty, requestedCornersBinding);
+        transformOverlay.Bind(TransformOverlay.RequestCornersExecutorProperty, requestedCornersBinding);
         transformOverlay.Bind(TransformOverlay.CornerFreedomProperty, cornerFreedomBinding);
         transformOverlay.Bind(TransformOverlay.SideFreedomProperty, sideFreedomBinding);
         transformOverlay.Bind(TransformOverlay.LockRotationProperty, lockRotationBinding);

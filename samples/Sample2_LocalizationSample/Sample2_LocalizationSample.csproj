@@ -9,15 +9,16 @@
         <PixiExtOutputPath>..\..\src\PixiEditor.AvaloniaUI.Desktop\bin\Debug\net8.0\win-x64\Extensions</PixiExtOutputPath>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <RootNamespace>LocalizationSample</RootNamespace>
+        <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Remove="extension.json" />
+        <None Remove="extension.json"/>
         <Content Include="extension.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
-    
+
     <ItemGroup>
         <Content Include="Localization\*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -26,11 +27,11 @@
 
     <!--Below is not required if you use Nuget package, this sample references project directly, so it must be here-->
     <ItemGroup>
-        <ProjectReference Include="..\..\src\PixiEditor.Extensions.Sdk\PixiEditor.Extensions.Sdk.csproj" />
+        <ProjectReference Include="..\..\src\PixiEditor.Extensions.Sdk\PixiEditor.Extensions.Sdk.csproj"/>
     </ItemGroup>
 
     <!--Below is not required if you use Nuget package, this sample references project directly, so it must be here-->
     <Import Project="..\..\src\PixiEditor.Extensions.Sdk\build\PixiEditor.Extensions.Sdk.props"/>
-    <Import Project="..\..\src\PixiEditor.Extensions.Sdk\build\PixiEditor.Extensions.Sdk.targets" />
+    <Import Project="..\..\src\PixiEditor.Extensions.Sdk\build\PixiEditor.Extensions.Sdk.targets"/>
 
 </Project>

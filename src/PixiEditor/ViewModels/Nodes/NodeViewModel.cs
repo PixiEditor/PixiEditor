@@ -1,10 +1,14 @@
 ﻿using System.Collections.ObjectModel;
+using System.Reflection;
 using Avalonia;
+using Avalonia.Media;
 using ChunkyImageLib;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.DocumentModels;
@@ -14,9 +18,12 @@ using PixiEditor.Numerics;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.ViewModels.Nodes;
-internal class NodeViewModel : ObservableObject, INodeHandler
+
+internal abstract class NodeViewModel : ObservableObject, INodeHandler
 {
-    private string nodeNameBindable;
+    private LocalizedString displayName;
+    private IBrush? categoryBrush;
+    private string? nodeNameBindable;
     private VecD position;
     private ObservableRangeCollection<INodePropertyHandler> inputs = new();
     private ObservableRangeCollection<INodePropertyHandler> outputs = new();
@@ -25,15 +32,25 @@ internal class NodeViewModel : ObservableObject, INodeHandler
 
     protected Guid id;
 
-    public Guid Id
+    public Guid Id { get => id; private set => id = value; }
+
+    public LocalizedString DisplayName
     {
-        get => id;
-        init => id = value;
+        get => displayName;
+        set
+        {
+            if (SetProperty(ref displayName, value) && nodeNameBindable == null)
+            {
+                OnPropertyChanged(nameof(NodeNameBindable));
+            }
+        }
     }
+    
+    public string Category { get; }
 
     public string NodeNameBindable
     {
-        get => nodeNameBindable;
+        get => nodeNameBindable ?? DisplayName;
         set
         {
             if (!Document.UpdateableChangeActive)
@@ -44,7 +61,28 @@ internal class NodeViewModel : ObservableObject, INodeHandler
         } 
     }
 
-    public string InternalName { get; init; }
+    public string InternalName { get; private set; }
+
+    public IBrush CategoryBackgroundBrush
+    {
+        get
+        {
+            if (categoryBrush == null)
+            {
+                if (!string.IsNullOrWhiteSpace(Category) && Application.Current.Styles.TryGetResource($"{Stylize(Category)}CategoryBackgroundBrush", App.Current.ActualThemeVariant, out var brushObj) && brushObj is IBrush brush)
+                {
+                    categoryBrush = brush;
+                }
+
+            }
+
+            return categoryBrush;
+
+            string Stylize(string input) => string.Concat(input[0].ToString().ToUpper(), input.ToLower().AsSpan(1));
+        }
+    }
+    
+    public NodeMetadata? Metadata { get; set; }
 
     public VecD PositionBindable
     {
@@ -84,13 +122,25 @@ internal class NodeViewModel : ObservableObject, INodeHandler
         set => SetProperty(ref isSelected, value);
     }
 
-    internal DocumentViewModel Document { get; init; }
-    internal DocumentInternalParts Internals { get; init; }
+    internal DocumentViewModel Document { get; private set; }
+    internal DocumentInternalParts Internals { get; private set; }
+
+    public void Initialize(Guid id, string internalName, DocumentViewModel document, DocumentInternalParts internals)
+    {
+        Id = id;
+        InternalName = internalName;
+        Document = document;
+        Internals = internals;
+    }
     
+    public virtual void OnInitialized() { }
     
     public NodeViewModel()
     {
+        var attribute = GetType().GetCustomAttribute<NodeViewModelAttribute>();
         
+        displayName = attribute.DisplayName;
+        Category = attribute.Category;
     }
 
     public NodeViewModel(string nodeNameBindable, Guid id, VecD position, DocumentViewModel document, DocumentInternalParts internals)
@@ -299,8 +349,20 @@ internal class NodeViewModel : ObservableObject, INodeHandler
         return Inputs.FirstOrDefault(x => x.PropertyName == propName) as NodePropertyViewModel;
     }
     
+    public NodePropertyViewModel<T> FindInputProperty<T>(string propName)
+    {
+        return Inputs.FirstOrDefault(x => x.PropertyName == propName) as NodePropertyViewModel<T>;
+    }
+
     public NodePropertyViewModel FindOutputProperty(string propName)
     {
         return Outputs.FirstOrDefault(x => x.PropertyName == propName) as NodePropertyViewModel;
     }
+
+    public NodePropertyViewModel<T> FindOutputProperty<T>(string propName)
+    {
+        return Outputs.FirstOrDefault(x => x.PropertyName == propName) as NodePropertyViewModel<T>;
+    }
 }
+
+internal abstract class NodeViewModel<T> : NodeViewModel where T : Node { }

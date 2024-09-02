@@ -25,6 +25,7 @@ using PixiEditor.Numerics;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 #nullable enable
@@ -53,20 +54,6 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         if (member is null)
             return false;
         return true;
-    }
-
-    [Command.Basic("PixiEditor.Layer.DeleteSelected", "LAYER_DELETE_SELECTED", 
-        "LAYER_DELETE_SELECTED_DESCRIPTIVE", 
-        CanExecute = "PixiEditor.Layer.CanDeleteSelected", Key = Key.Delete, 
-        ShortcutContext = typeof(LayersDockViewModel),
-        Icon = PixiPerfectIcons.Trash, AnalyticsTrack = true)]
-    public void DeleteSelected()
-    {
-        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
-        if (member is null)
-            return;
-
-        member.Document.Operations.DeleteStructureMember(member.Id);
     }
 
     [Evaluator.CanExecute("PixiEditor.Layer.HasSelectedMembers")]
@@ -103,7 +90,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Layer.DeleteAllSelected", "LAYER_DELETE_ALL_SELECTED", "LAYER_DELETE_ALL_SELECTED_DESCRIPTIVE", CanExecute = "PixiEditor.Layer.HasSelectedMembers", 
-        Icon = PixiPerfectIcons.Trash, AnalyticsTrack = true)]
+        Icon = PixiPerfectIcons.Trash, AnalyticsTrack = true, Key = Key.Delete, 
+        ShortcutContext = typeof(LayersDockViewModel))]
     public void DeleteAllSelected()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -111,7 +99,9 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             return;
         var selected = GetSelected();
         if (selected.Count > 0)
+        {
             doc.Operations.DeleteStructureMembers(selected);
+        }
     }
 
     [Command.Basic("PixiEditor.Layer.NewFolder", "NEW_FOLDER", "CREATE_NEW_FOLDER", CanExecute = "PixiEditor.Layer.CanCreateNewMember",
@@ -142,7 +132,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public void ToggleLockTransparency()
     {
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
-        if (member is not LayerViewModel layerVm)
+        if (member is not ImageLayerNodeViewModel layerVm)
             return;
         layerVm.LockTransparencyBindable = !layerVm.LockTransparencyBindable;
     }
@@ -182,7 +172,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public void DuplicateLayer()
     {
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
-        if (member is not LayerViewModel layerVM)
+        if (member is not ILayerHandler)
             return;
         member.Document.Operations.DuplicateLayer(member.Id);
     }
@@ -191,7 +181,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public bool SelectedMemberIsLayer(object property)
     {
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
-        return member is LayerViewModel;
+        return member is ILayerHandler;
     }
 
     private bool HasSelectedMember(bool above)
@@ -217,7 +207,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var path = doc!.StructureHelper.FindPath(member.Id);
         if (path.Count < 2)
             return;
-        var parent = (FolderViewModel)path[1];
+        var parent = (FolderNodeViewModel)path[1];
         int curIndex = parent.Children.IndexOf(path[0]);
         if (upwards)
         {

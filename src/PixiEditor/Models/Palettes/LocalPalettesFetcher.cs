@@ -7,6 +7,7 @@ using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
+using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.IO.PaletteParsers.JascPalFile;
@@ -229,6 +230,24 @@ internal class LocalPalettesFetcher : PaletteListDataSource
             default:
                 throw new ArgumentOutOfRangeException(nameof(refreshType), refreshType, null);
         }
+
+        if (refreshType is RefreshType.Created or RefreshType.Updated && updated == null)
+        {
+            await RefreshCacheAll();
+            
+            // Using try-catch to generate stack trace
+            try
+            {
+                throw new NullReferenceException($"The '{nameof(updated)}' was null even though the refresh type was '{refreshType}'.");
+            }
+            catch (Exception e)
+            {
+                await CrashHelper.SendExceptionInfoToWebhookAsync(e);
+            }
+
+            return;
+        }
+        
         CacheUpdated?.Invoke(refreshType, updated, affectedFileName);
     }
 

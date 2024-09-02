@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Media;
 using Avalonia.VisualTree;
 using ChunkyImageLib;
 using PixiEditor.Helpers;
@@ -39,6 +40,9 @@ public class NodeView : TemplatedControl
 
     public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<NodeView, bool>(
         nameof(IsSelected));
+
+    public static readonly StyledProperty<IBrush> CategoryBackgroundBrushProperty = AvaloniaProperty.Register<NodeView, IBrush>(
+        nameof(CategoryBackgroundBrush));
 
     public static readonly StyledProperty<ICommand> SelectNodeCommandProperty =
         AvaloniaProperty.Register<NodeView, ICommand>("SelectNodeCommand");
@@ -86,6 +90,12 @@ public class NodeView : TemplatedControl
     {
         get => GetValue(DisplayNameProperty);
         set => SetValue(DisplayNameProperty, value);
+    }
+
+    public IBrush CategoryBackgroundBrush
+    {
+        get => GetValue(CategoryBackgroundBrushProperty);
+        set => SetValue(CategoryBackgroundBrushProperty, value);
     }
 
     public ICommand SelectNodeCommand

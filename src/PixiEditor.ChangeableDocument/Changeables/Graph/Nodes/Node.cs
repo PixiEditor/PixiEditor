@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.Common;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Shaders;
@@ -44,11 +45,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     protected virtual bool AffectedByChunkToUpdate { get; }
 
-    protected Node()
-    {
-        displayName = GetType().GetCustomAttribute<NodeInfoAttribute>().DisplayName;
-    }
-
     IReadOnlyList<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyList<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
     IReadOnlyList<IReadOnlyKeyFrameData> IReadOnlyNode.KeyFrames => keyFrames;
@@ -66,13 +62,13 @@ public abstract class Node : IReadOnlyNode, IDisposable
     private bool _keyFramesDirty;
     private Texture? _lastCachedResult;
     private bool _isDisposed;
-    
+
     private Dictionary<int, Texture> _managedTextures = new();
 
     public Texture? Execute(RenderingContext context)
     {
         var result = ExecuteInternal(context);
-        
+
         if (result is null)
         {
             return null;
@@ -84,8 +80,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     internal Texture? ExecuteInternal(RenderingContext context)
     {
-        if(_isDisposed) throw new ObjectDisposedException("Node was disposed before execution.");
-        
+        if (_isDisposed) throw new ObjectDisposedException("Node was disposed before execution.");
+
         if (!CacheChanged(context)) return CachedResult;
 
         CachedResult = OnExecute(context);
@@ -93,7 +89,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
         {
             throw new ObjectDisposedException("Texture was disposed after execution.");
         }
-        
+
         UpdateCache(context);
         return CachedResult;
     }
@@ -133,15 +129,15 @@ public abstract class Node : IReadOnlyNode, IDisposable
                 _managedTextures[id] = texture;
                 return texture;
             }
-            
+
             if (clear)
             {
                 texture.DrawingSurface.Canvas.Clear(Colors.Transparent);
             }
-            
+
             return texture;
         }
-        
+
         _managedTextures[id] = new Texture(size);
         return _managedTextures[id];
     }
@@ -315,7 +311,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
                 keyFrame.Dispose();
             }
         }
-        
+
         foreach (var texture in _managedTextures)
         {
             texture.Value.Dispose();
@@ -370,18 +366,19 @@ public abstract class Node : IReadOnlyNode, IDisposable
         {
             var cloneOutput = outputs[i];
             var newOutput = cloneOutput.Clone(clone);
-            clone.outputs[i].Value = newOutput.Value; 
+            clone.outputs[i].Value = newOutput.Value;
         }
-        
+
         foreach (var keyFrame in keyFrames)
         {
             KeyFrameData newKeyFrame = new KeyFrameData(keyFrame.KeyFrameGuid, keyFrame.StartFrame, keyFrame.Duration,
                 keyFrame.AffectedElement)
             {
-                IsVisible = keyFrame.IsVisible, Duration = keyFrame.Duration,
+                IsVisible = keyFrame.IsVisible,
+                Duration = keyFrame.Duration,
                 Data = keyFrame.Data is ICloneable cloneable ? cloneable.Clone() : keyFrame.Data
             };
-            
+
             clone.keyFrames.Add(newKeyFrame);
         }
 

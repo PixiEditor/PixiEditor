@@ -9,7 +9,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.DrawingApi.Core;
 
-public class Texture : IDisposable
+public class Texture : IDisposable, ICloneable
 {
     public VecI Size { get; }
     public DrawingSurface DrawingSurface { get; private set; }
@@ -52,6 +52,11 @@ public class Texture : IDisposable
     ~Texture()
     {
         DrawingSurface.Changed -= DrawingSurfaceOnChanged;
+    }
+
+    public object Clone()
+    {
+        return new Texture(this);
     }
 
     private void DrawingSurfaceOnChanged(RectD? changedRect)

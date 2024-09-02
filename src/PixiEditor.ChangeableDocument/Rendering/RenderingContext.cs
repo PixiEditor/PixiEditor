@@ -1,4 +1,6 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using System;
+using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
@@ -19,6 +21,7 @@ public class RenderingContext : IDisposable
     public VecI ChunkToUpdate { get; }
     public ChunkResolution ChunkResolution { get; }
     public VecI DocumentSize { get; set; }
+    
 
     public bool IsDisposed { get; private set; }
     

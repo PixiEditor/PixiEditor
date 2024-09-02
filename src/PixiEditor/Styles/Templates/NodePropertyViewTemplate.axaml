@@ -6,7 +6,7 @@
         <Setter Property="ClipToBounds" Value="False" />
         <Setter Property="Template">
             <ControlTemplate>
-                <Grid Margin="-5, 2" ColumnDefinitions="15, *, 15" MinHeight="18">
+                <Grid Margin="-5, 2" ColumnDefinitions="15, *, 15" MinHeight="18" IsVisible="{Binding DataContext.IsVisible, RelativeSource={RelativeSource TemplatedParent}}">
                     <properties:NodeSocket Name="PART_InputSocket"
                                            ClipToBounds="False"
                                            Node="{Binding DataContext.Node, RelativeSource={RelativeSource TemplatedParent}}"

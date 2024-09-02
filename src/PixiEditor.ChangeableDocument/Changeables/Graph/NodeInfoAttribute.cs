@@ -5,11 +5,7 @@ public class NodeInfoAttribute : Attribute
 {
     public string UniqueName { get; }
     
-    public string DisplayName { get; }
-    
-    public string? PickerName { get; set; }
-
-    public NodeInfoAttribute(string uniqueName, string displayName)
+    public NodeInfoAttribute(string uniqueName)
     {
         if (!uniqueName.StartsWith("PixiEditor"))
         {
@@ -17,6 +13,5 @@ public class NodeInfoAttribute : Attribute
         }
         
         UniqueName = uniqueName;
-        DisplayName = displayName;
     }
 }

@@ -21,9 +21,10 @@ public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
         bool maskIsVisible,
         bool lockTransparency,
         ImmutableArray<NodePropertyInfo> inputs,
-        ImmutableArray<NodePropertyInfo> outputs) :
+        ImmutableArray<NodePropertyInfo> outputs,
+        NodeMetadata metadata) :
         base(internalName, opacity, isVisible, clipToMemberBelow, name, blendMode, guidValue, hasMask,
-            maskIsVisible, inputs, outputs)
+            maskIsVisible, inputs, outputs, metadata)
     {
         LockTransparency = lockTransparency;
     }
@@ -44,7 +45,8 @@ public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
             layer.MaskIsVisible.Value,
             layer is ITransparencyLockable { LockTransparency: true },
             CreatePropertyInfos(layer.InputProperties, true, layer.Id),
-            CreatePropertyInfos(layer.OutputProperties, false, layer.Id)
+            CreatePropertyInfos(layer.OutputProperties, false, layer.Id),
+            new NodeMetadata(layer.GetType())
         );
     }
 }

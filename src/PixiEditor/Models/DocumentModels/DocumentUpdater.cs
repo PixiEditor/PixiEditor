@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Reflection;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Exceptions;
@@ -19,6 +20,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using PixiEditor.Numerics;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Models.DocumentModels;
@@ -55,15 +57,7 @@ internal class DocumentUpdater
         switch (arbitraryInfo)
         {
             case CreateStructureMember_ChangeInfo info:
-                if (info is CreateLayer_ChangeInfo layerChangeInfo)
-                {
-                    ProcessCreateNode<LayerViewModel>(info);
-                }
-                else if (info is CreateFolder_ChangeInfo folderChangeInfo)
-                {
-                    ProcessCreateNode<FolderViewModel>(info);
-                }
-
+                ProcessCreateNode(info);
                 ProcessCreateStructureMember(info);
                 break;
             case DeleteStructureMember_ChangeInfo info:
@@ -170,7 +164,7 @@ internal class DocumentUpdater
                 ClearSelectedKeyFrames(info);
                 break;
             case CreateNode_ChangeInfo info:
-                ProcessCreateNode<NodeViewModel>(info);
+                ProcessCreateNode(info);
                 break;
             case DeleteNode_ChangeInfo info:
                 ProcessDeleteNode(info);
@@ -227,7 +221,7 @@ internal class DocumentUpdater
     {
         doc.ReferenceLayerHandler.SetReferenceLayer(info.ImagePbgra8888Bytes, info.ImageSize, info.Shape);
     }
-    
+
     private void ProcessReferenceLayerTopMost(ReferenceLayerTopMost_ChangeInfo info)
     {
         doc.ReferenceLayerHandler.SetReferenceLayerTopMost(info.IsTopMost);
@@ -255,6 +249,7 @@ internal class DocumentUpdater
             oldMember.Selection = StructureMemberSelectionType.None;
             //oldMember.OnPropertyChanged(nameof(oldMember.Selection));
         }
+
         doc.ClearSoftSelectedMembers();
     }
 
@@ -273,12 +268,13 @@ internal class DocumentUpdater
         IStructureMemberHandler? member = doc.StructureHelper.Find(info.Id);
         if (member is null || member.Selection == StructureMemberSelectionType.Hard)
             return;
-        
+
         if (doc.SelectedStructureMember is { } oldMember)
         {
             oldMember.Selection = StructureMemberSelectionType.None;
             //oldMember.OnPropertyChanged(nameof(oldMember.Selection));
         }
+
         member.Selection = StructureMemberSelectionType.Hard;
         //member.OnPropertyChanged(nameof(member.Selection));
         doc.SetSelectedMember(member);
@@ -394,7 +390,7 @@ internal class DocumentUpdater
         memberVM.SetHasMask(info.HasMask);
         memberVM.SetMaskIsVisible(info.MaskIsVisible);
         memberVM.SetBlendMode(info.BlendMode);
-        
+
         //parentFolderVM.Children.Insert(info.Index, memberVM);
 
         /*if (info is CreateFolder_ChangeInfo folderInfo)
@@ -454,81 +450,121 @@ internal class DocumentUpdater
 
     private void ProcessMoveStructureMember(MoveStructureMember_ChangeInfo info)
     {
-         // TODO: uh why is this empty, find out why
+        // TODO: uh why is this empty, find out why
     }
-    
+
     private void ProcessToggleOnionSkinning(ToggleOnionSkinning_PassthroughAction info)
     {
         doc.AnimationHandler.SetOnionSkinning(info.IsOnionSkinningEnabled);
     }
-    
+
     private void ProcessPlayAnimation(SetPlayingState_PassthroughAction info)
     {
         doc.AnimationHandler.SetPlayingState(info.Play);
     }
-    
+
     private void ProcessCreateRasterKeyFrame(CreateRasterKeyFrame_ChangeInfo info)
     {
-        doc.AnimationHandler.AddKeyFrame(new RasterKeyFrameViewModel(info.TargetLayerGuid, info.Frame, 1, info.KeyFrameId, 
+        doc.AnimationHandler.AddKeyFrame(new RasterKeyFrameViewModel(info.TargetLayerGuid, info.Frame, 1,
+            info.KeyFrameId,
             (DocumentViewModel)doc, helper));
     }
-    
+
     private void ProcessDeleteKeyFrame(DeleteKeyFrame_ChangeInfo info)
     {
         doc.AnimationHandler.RemoveKeyFrame(info.DeletedKeyFrameId);
     }
-    
+
     private void ProcessActiveFrame(SetActiveFrame_PassthroughAction info)
     {
         doc.AnimationHandler.SetActiveFrame(info.Frame);
     }
-    
+
     private void ProcessKeyFrameLength(KeyFrameLength_ChangeInfo info)
     {
         doc.AnimationHandler.SetFrameLength(info.KeyFrameGuid, info.StartFrame, info.Duration);
     }
-    
+
     private void ProcessKeyFrameVisibility(KeyFrameVisibility_ChangeInfo info)
     {
         doc.AnimationHandler.SetKeyFrameVisibility(info.KeyFrameId, info.IsVisible);
     }
-    
+
     private void ProcessAddSelectedKeyFrame(AddSelectedKeyFrame_PassthroughAction info)
     {
         doc.AnimationHandler.AddSelectedKeyFrame(info.KeyFrameGuid);
     }
-    
+
     private void ProcessRemoveSelectedKeyFrame(RemoveSelectedKeyFrame_PassthroughAction info)
     {
         doc.AnimationHandler.RemoveSelectedKeyFrame(info.KeyFrameGuid);
     }
-    
+
     private void ClearSelectedKeyFrames(ClearSelectedKeyFrames_PassthroughAction info)
     {
         doc.AnimationHandler.ClearSelectedKeyFrames();
     }
-    
-    private void ProcessCreateNode<T>(CreateNode_ChangeInfo info) where T : NodeViewModel, new()
-    {
-        T node = new T()
-        {
-            InternalName = info.InternalName,
-            Id = info.Id,
-            Document = (DocumentViewModel)doc,
-            Internals = helper
-        };
 
-        node.SetName(info.NodeName);
-        node.SetPosition(info.Position);
+    private void ProcessCreateNode(CreateNode_ChangeInfo info)
+    {
+        var nodeType = info.Metadata.NodeType;
         
-        List<INodePropertyHandler> inputs = CreateProperties(info.Inputs, node, true);
-        List<INodePropertyHandler> outputs = CreateProperties(info.Outputs, node, false);
-        node.Inputs.AddRange(inputs);
-        node.Outputs.AddRange(outputs);
-        doc.NodeGraphHandler.AddNode(node);
+        var ns = nodeType.Namespace.Replace("ChangeableDocument.Changeables.Graph.", "ViewModels.Document.");
+        var name = nodeType.Name.Replace("Node", "NodeViewModel");
+        var fullViewModelName = $"{ns}.{name}";
+        var nodeViewModelType = Type.GetType(fullViewModelName);
+
+        if (nodeViewModelType == null)
+            throw new NullReferenceException($"No ViewModel found for {nodeType}. Looking for '{fullViewModelName}'");
+        
+        var viewModel = (NodeViewModel)Activator.CreateInstance(nodeViewModelType);
+
+        InitializeNodeViewModel(info, viewModel);
     }
-    
-    private List<INodePropertyHandler> CreateProperties(ImmutableArray<NodePropertyInfo> source, NodeViewModel node, bool isInput)
+
+    private void InitializeNodeViewModel(CreateNode_ChangeInfo info, NodeViewModel viewModel)
+    {
+        viewModel.Initialize(info.Id, info.InternalName, (DocumentViewModel)doc, helper);
+        
+        viewModel.SetName(info.NodeName);
+        viewModel.SetPosition(info.Position);
+        
+        var inputs = CreateProperties(info.Inputs, viewModel, true);
+        var outputs = CreateProperties(info.Outputs, viewModel, false);
+        viewModel.Inputs.AddRange(inputs);
+        viewModel.Outputs.AddRange(outputs);
+        doc.NodeGraphHandler.AddNode(viewModel);
+
+        viewModel.Metadata = info.Metadata;
+
+        AddZoneIfNeeded(info, viewModel);
+        
+        viewModel.OnInitialized();
+    }
+
+    private void AddZoneIfNeeded(CreateNode_ChangeInfo info, NodeViewModel node)
+    {
+        if (node.Metadata?.PairNodeGuid != null)
+        {
+            if (node.Metadata.PairNodeGuid == Guid.Empty) return;
+            
+            INodeHandler otherNode = doc.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.Id == node.Metadata.PairNodeGuid);
+            if (otherNode != null)
+            {
+                bool zoneExists =
+                    doc.NodeGraphHandler.Frames.Any(x => x is NodeZoneViewModel zone && zone.Nodes.Contains(node));
+
+                if (!zoneExists)
+                {
+                    doc.NodeGraphHandler.AddZone(Guid.NewGuid(), $"PixiEditor.{info.Metadata.ZoneUniqueName}", node.Id,
+                        node.Metadata.PairNodeGuid.Value);
+                }
+            }
+        }
+    }
+
+    private List<INodePropertyHandler> CreateProperties(ImmutableArray<NodePropertyInfo> source, NodeViewModel node,
+        bool isInput)
     {
         List<INodePropertyHandler> inputs = new();
         foreach (var input in source)
@@ -541,16 +577,28 @@ internal class DocumentUpdater
             prop.InternalSetValue(input.InputValue);
             inputs.Add(prop);
         }
-        
+
         return inputs;
     }
-    
+
     private void ProcessDeleteNode(DeleteNode_ChangeInfo info)
     {
+        foreach (var frame in doc.NodeGraphHandler.Frames)
+        {
+            if (frame is NodeZoneViewModel zone)
+            {
+                if (zone.Nodes.Any(x => x.Id == info.Id))
+                {
+                    doc.NodeGraphHandler.RemoveFrame(zone.Id);
+                    break;
+                }
+            }
+        }
+
         doc.NodeGraphHandler.RemoveConnections(info.Id);
         doc.NodeGraphHandler.RemoveNode(info.Id);
     }
-    
+
     private void ProcessCreateNodeFrame(CreateNodeFrame_ChangeInfo info)
     {
         doc.NodeGraphHandler.AddFrame(info.Id, info.NodeIds);
@@ -568,7 +616,9 @@ internal class DocumentUpdater
 
     private void ProcessConnectProperty(ConnectProperty_ChangeInfo info)
     {
-        NodeViewModel outputNode = info.OutputNodeId.HasValue ? doc.StructureHelper.FindNode<NodeViewModel>(info.OutputNodeId.Value) : null;
+        NodeViewModel outputNode = info.OutputNodeId.HasValue
+            ? doc.StructureHelper.FindNode<NodeViewModel>(info.OutputNodeId.Value)
+            : null;
         NodeViewModel inputNode = doc.StructureHelper.FindNode<NodeViewModel>(info.InputNodeId);
 
         if (inputNode != null && outputNode != null)
@@ -580,10 +630,10 @@ internal class DocumentUpdater
                 InputProperty = inputNode.FindInputProperty(info.InputProperty),
                 OutputProperty = outputNode.FindOutputProperty(info.OutputProperty)
             };
-            
+
             doc.NodeGraphHandler.SetConnection(connection);
         }
-        else if(info.OutputProperty == null)
+        else if (info.OutputProperty == null)
         {
             doc.NodeGraphHandler.RemoveConnection(info.InputNodeId, info.InputProperty);
         }
@@ -594,32 +644,32 @@ internal class DocumentUpdater
 #endif
         }
     }
-    
+
     private void ProcessNodePosition(NodePosition_ChangeInfo info)
     {
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
         node.SetPosition(info.NewPosition);
     }
-    
+
     private void ProcessNodePropertyValueUpdated(PropertyValueUpdated_ChangeInfo info)
     {
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
         var property = node.FindInputProperty(info.Property);
-        
+
         property.InternalSetValue(info.Value);
     }
-    
+
     private void ProcessNodeName(NodeName_ChangeInfo info)
     {
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
         node.SetName(info.NewName);
     }
-    
+
     private void ProcessFrameRate(FrameRate_ChangeInfo info)
     {
         doc.AnimationHandler.SetFrameRate(info.NewFrameRate);
     }
-    
+
     private void ProcessSetOnionFrames(OnionFrames_ChangeInfo info)
     {
         doc.AnimationHandler.SetOnionFrames(info.OnionFrames, info.Opacity);

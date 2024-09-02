@@ -3,6 +3,7 @@ using PixiEditor.Extensions.FlyUI.Elements;
 
 namespace PixiEditor.Extensions.Test;
 
+[Collection("LayoutBuilderTests")]
 public class LayoutBuilderElementsTests
 {
     [Fact]

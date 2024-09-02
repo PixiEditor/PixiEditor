@@ -13,15 +13,17 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("ModifyImageLeft", "MODIFY_IMAGE_LEFT_NODE", PickerName = "MODIFY_IMAGE_PAIR_NODE")]
+[NodeInfo("ModifyImageLeft")]
 [PairNode(typeof(ModifyImageRightNode), "ModifyImageZone", true)]
-public class ModifyImageLeftNode : Node
+public class ModifyImageLeftNode : Node, IPairNode
 {
     public InputProperty<Texture?> Image { get; }
-    
+
     public FuncOutputProperty<Float2> Coordinate { get; }
-    
+
     public FuncOutputProperty<Half4> Color { get; }
+
+    public Guid OtherNode { get; set; }
 
     private ConcurrentDictionary<RenderingContext, Pixmap> pixmapCache = new();
 
@@ -53,7 +55,7 @@ public class ModifyImageLeftNode : Node
     {
         pixmapCache[forContext] = Image.Value?.PeekReadOnlyPixels();
     }
-    
+
     internal void DisposePixmap(RenderingContext forContext)
     {
         if (pixmapCache.TryRemove(forContext, out var targetPixmap))

@@ -102,7 +102,7 @@ internal static class ClipboardController
         if (images.Count == 1)
         {
             var dataImage = images[0];
-            var position = dataImage.position;
+            var position = dataImage.Position;
 
             if (document.SizeBindable.X < position.X || document.SizeBindable.Y < position.Y)
             {
@@ -119,11 +119,11 @@ internal static class ClipboardController
                 }
 
                 document.Operations.SetSelectedMember(guid.Value);
-                document.Operations.PasteImageWithTransform(dataImage.image, position, guid.Value, false);
+                document.Operations.PasteImageWithTransform(dataImage.Image, position, guid.Value, false);
             }
             else
             {
-                document.Operations.PasteImageWithTransform(dataImage.image, position);
+                document.Operations.PasteImageWithTransform(dataImage.Image, position);
             }
 
             return true;
@@ -185,13 +185,25 @@ internal static class ClipboardController
 
         if (data == null)
             return surfaces;
+        
+        VecI pos = VecI.NegativeOne;
 
         foreach (var dataObject in data)
         {
             if (TryExtractSingleImage(dataObject, out var singleImage))
             {
-                surfaces.Add(new DataImage(singleImage, dataObject.GetVecI(PositionFormat)));
+                surfaces.Add(new DataImage(singleImage, dataObject.Contains(PositionFormat) ? dataObject.GetVecI(PositionFormat) : pos));
                 continue;
+            }
+
+            if (dataObject.Contains(PositionFormat))
+            {
+                pos = dataObject.GetVecI(PositionFormat);
+                for (var i = 0; i < surfaces.Count; i++)
+                {
+                    var surface = surfaces[i];
+                    surfaces[i] = surface with { Position = pos };
+                }
             }
 
             var paths = dataObject.GetFileDropList().Select(x => x.Path.LocalPath).ToList();
@@ -360,7 +372,7 @@ internal static class ClipboardController
                     return false;
                 }
 
-                result = imgs[0].image;
+                result = imgs[0].Image;
                 return true;
             }
             else

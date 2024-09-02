@@ -14,7 +14,6 @@ using PixiEditor.ViewModels.Document;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Models.Nodes;
 using PixiEditor.Numerics;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.Views.Nodes.Properties;
@@ -193,7 +192,7 @@ internal class NodeGraphView : Zoombox.Zoombox
         SocketDropCommand = new RelayCommand<NodeSocket>(SocketDrop);
         CreateNodeFromContextCommand = new RelayCommand<NodeTypeInfo>(CreateNodeType);
 
-        AllNodeTypes = new ObservableCollection<Type>(GatherAssemblyTypes<Node>());
+        AllNodeTypes = new ObservableCollection<Type>(GatherAssemblyTypes<NodeViewModel>());
         AllNodeTypeInfos = new ObservableCollection<NodeTypeInfo>(AllNodeTypes.Select(x => new NodeTypeInfo(x)));
     }
     
@@ -251,7 +250,7 @@ internal class NodeGraphView : Zoombox.Zoombox
 
             Color gradientStopFirstColor = _startingPropColor;
             Color gradientStopSecondColor =
-                ((SolidColorBrush)nodeSocket?.SocketBrush)?.Color ?? gradientStopFirstColor;
+                GetSocketColor(nodeSocket) ?? gradientStopFirstColor;
 
             if (endPoint.X > startDragConnectionPoint.X)
             {
@@ -275,6 +274,26 @@ internal class NodeGraphView : Zoombox.Zoombox
                 }
             };
         }
+    }
+
+    private static Color? GetSocketColor(NodeSocket? nodeSocket)
+    {
+        if (nodeSocket == null)
+        {
+            return null;
+        }
+
+        if (nodeSocket.SocketBrush is SolidColorBrush solidColor)
+        {
+            return solidColor.Color;
+        }
+
+        if (nodeSocket.SocketBrush is GradientBrush gradientBrush)
+        {
+            return gradientBrush.GradientStops.FirstOrDefault()?.Color;
+        }
+        
+        return null; 
     }
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
@@ -354,7 +373,7 @@ internal class NodeGraphView : Zoombox.Zoombox
         }
 
         _previewConnectionLine.IsVisible = true;
-        _startingPropColor = ((SolidColorBrush)nodeSocket.SocketBrush).Color;
+        _startingPropColor = GetSocketColor(nodeSocket) ?? Colors.White; 
         _previewConnectionLine.LineBrush = new LinearGradientBrush()
         {
             GradientStops = new GradientStops()

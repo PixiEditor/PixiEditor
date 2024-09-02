@@ -2,7 +2,7 @@
 using Avalonia.Headless;
 using Avalonia.Platform;
 using Avalonia.Threading;
-using PixiEditor.Avalonia.Desktop;
+using PixiEditor.Desktop;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 

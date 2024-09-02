@@ -20,6 +20,7 @@
         <StyleInclude Source="/Styles/PixiEditor.Layers.axaml" />
         <StyleInclude Source="/Styles/PixiEditorPopupTemplate.axaml" />
         <StyleInclude Source="/Styles/Buttons/CaptionButtonsStyle.axaml" />
+        <StyleInclude Source="/Styles/NodeIcons.axaml"/>
     </Application.Styles>
     <Application.Resources>
         <ResourceDictionary>

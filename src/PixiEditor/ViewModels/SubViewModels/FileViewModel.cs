@@ -169,13 +169,13 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         foreach (var dataImage in images)
         {
-            if (File.Exists(dataImage.name))
+            if (File.Exists(dataImage.Name))
             {
-                OpenRegularImage(dataImage.image, null);
+                OpenRegularImage(dataImage.Image, null);
                 continue;
             }
 
-            OpenRegularImage(dataImage.image, null);
+            OpenRegularImage(dataImage.Image, null);
         }
     }
 

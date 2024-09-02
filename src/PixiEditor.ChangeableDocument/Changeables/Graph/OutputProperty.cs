@@ -68,7 +68,7 @@ public class OutputProperty : IOutputProperty
 
     public OutputProperty Clone(Node clone)
     {
-        if (Value is null)
+        if (Value is null || (Value is not ICloneable && !Value.GetType().IsPrimitive && Value.GetType() != typeof(string)))
         {
             object defaultValue = null;
             if(ValueType.IsValueType)

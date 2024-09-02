@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
@@ -41,6 +42,11 @@ internal class ConnectProperties_Change : Change
         {
             return false;
         }
+        
+        if(IsLoop(inputProp, outputProp))
+        {
+            return false;
+        }
 
         bool canConnect = CheckTypeCompatibility(inputProp, outputProp);
 
@@ -52,6 +58,20 @@ internal class ConnectProperties_Change : Change
         originalConnection = inputProp.Connection;
 
         return true;
+    }
+    
+    private bool IsLoop(InputProperty input, OutputProperty output)
+    {
+        if (input.Node == output.Node)
+        {
+            return true;
+        }
+        if(input.Node.OutputProperties.Any(x => x.Connections.Any(y => y.Node == output.Node)))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
@@ -105,8 +125,30 @@ internal class ConnectProperties_Change : Change
             {
                 return true;
             }
+            
+            var outputValue = output.Value;
+            
+            if(IsExpressionToConstant(output, input, out var result))
+            {
+                outputValue = result;
+            }
+            
+            if(IsConstantToExpression(input, outputValue, out result))
+            {
+                return ConversionTable.TryConvert(result, output.ValueType, out _);
+            }
 
-            if (ConversionTable.TryConvert(output.Value, input.ValueType, out _))
+            if (outputValue == null)
+            {
+                return true;
+            }
+            
+            if (outputValue.GetType().IsAssignableTo(input.ValueType))
+            {
+                return true;
+            }
+
+            if (ConversionTable.TryConvert(outputValue, input.ValueType, out _))
             {
                 return true;
             }
@@ -115,6 +157,55 @@ internal class ConnectProperties_Change : Change
         }
 
         return true;
+    }
+    
+    private static bool IsConstantToExpression(InputProperty input, object objValue, out object result)
+    {
+        if (input.Value is Delegate func && func.Method.ReturnType.IsAssignableTo(typeof(ShaderExpressionVariable)))
+        {
+            try
+            {
+                var actualArg = func.DynamicInvoke(FuncContext.NoContext);
+                if(actualArg is ShaderExpressionVariable variable)
+                {
+                    result = variable.GetConstant();
+                    return true;
+                }
+            }
+            catch
+            {
+                result = null;
+                return false;
+            }
+        }
+
+        result = null;
+        return false;
+    }
+
+    private static bool IsExpressionToConstant(OutputProperty output, InputProperty input, out object o)
+    {
+        if (output.Value is Delegate func && func.Method.ReturnType.IsAssignableTo(typeof(ShaderExpressionVariable)))
+        {
+            try
+            {
+                o = func.DynamicInvoke(FuncContext.NoContext);
+                if(o is ShaderExpressionVariable variable)
+                {
+                    o = variable.GetConstant();
+                }
+                
+                return true;
+            }
+            catch
+            {
+                o = null;
+                return false;
+            }
+        }
+
+        o = null;
+        return false;
     }
 
     private static bool IsCrossExpression(object first, Type secondType)

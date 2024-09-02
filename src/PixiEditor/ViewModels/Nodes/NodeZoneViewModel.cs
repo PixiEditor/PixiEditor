@@ -12,8 +12,8 @@ public sealed class NodeZoneViewModel : NodeFrameViewModelBase
     {
         InternalName = internalName;
         
-        this.start = start;
-        this.end = end;
+        this.start = start.Metadata.IsPairNodeStart ? start : end;
+        this.end = start.Metadata.IsPairNodeStart ? end : start;
         
         CalculateBounds();
     }

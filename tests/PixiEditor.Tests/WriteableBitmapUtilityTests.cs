@@ -1,9 +1,8 @@
 ﻿using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
-using PixiEditor.AvaloniaUI.Helpers;
-using PixiEditor.AvaloniaUI.Helpers.Extensions;
-using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Helpers;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.Tests;

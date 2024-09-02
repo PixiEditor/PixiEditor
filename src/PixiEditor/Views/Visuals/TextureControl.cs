@@ -22,7 +22,7 @@ public class TextureControl : Control
         nameof(Stretch), Stretch.Uniform);
 
     public static readonly StyledProperty<IBrush> BackgroundProperty = AvaloniaProperty.Register<TextureControl, IBrush>
-    (nameof(Background));
+        (nameof(Background));
 
     public Stretch Stretch
     {
@@ -100,12 +100,12 @@ public class TextureControl : Control
         {
             context.FillRectangle(Background, new Rect(Bounds.Size));
         }
-        
+
         if (Texture == null || Texture.IsDisposed)
         {
             return;
         }
-        
+
         Texture texture = Texture;
         texture.DrawingSurface.Flush();
         ICustomDrawOperation drawOperation = new DrawTextureOperation(
@@ -115,20 +115,20 @@ public class TextureControl : Control
 
         context.Custom(drawOperation);
     }
-    
+
     private void OnTextureChanged(AvaloniaPropertyChangedEventArgs<Texture> args)
     {
         if (args.OldValue.Value != null)
         {
             args.OldValue.Value.Changed -= TextureOnChanged;
         }
-        
+
         if (args.NewValue.Value != null)
         {
             args.NewValue.Value.Changed += TextureOnChanged;
         }
     }
-    
+
     private void TextureOnChanged(RectD? changedRect)
     {
         Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
@@ -153,19 +153,22 @@ internal class DrawTextureOperation : SkiaDrawOperation
 
     public override void Render(ISkiaSharpApiLease lease)
     {
-        if (Texture == null || Texture.IsDisposed)
+        lock (Texture)
         {
-            return;
+            if (Texture == null || Texture.IsDisposed)
+            {
+                return;
+            }
+
+            SKCanvas canvas = lease.SkCanvas;
+
+            using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
+
+            canvas.Save();
+            ScaleCanvas(canvas);
+            canvas.DrawSurface(Texture.DrawingSurface.Native as SKSurface, 0, 0, Paint?.Native as SKPaint ?? null);
+            canvas.Restore();
         }
-        
-        SKCanvas canvas = lease.SkCanvas;
-
-        using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
-
-        canvas.Save();
-        ScaleCanvas(canvas);
-        canvas.DrawSurface(Texture.DrawingSurface.Native as SKSurface, 0, 0, Paint?.Native as SKPaint ?? null);
-        canvas.Restore();
     }
 
     private void ScaleCanvas(SKCanvas canvas)

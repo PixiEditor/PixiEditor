@@ -24,8 +24,4 @@
       <ProjectReference Include="..\..\PixiEditor.UI.Common\PixiEditor.UI.Common.csproj" />
       <ProjectReference Include="..\..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Styles\" />
-    </ItemGroup>
 </Project>

@@ -16,7 +16,7 @@ public class ImageOperationTests
     {
         try
         {
-            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend());
+            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend(), null);
         }
         catch { }
     }

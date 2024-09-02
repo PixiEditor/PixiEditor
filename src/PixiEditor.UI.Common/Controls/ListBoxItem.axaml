@@ -5,9 +5,10 @@
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Height" Value="30"/>
         <Setter Property="Template">
             <ControlTemplate>
-                <Border Height="40" 
+                <Border MinHeight="20" 
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
                         Background="{TemplateBinding Background}"
@@ -19,7 +20,7 @@
                     </Border.Styles>
                     
                     <Grid>
-                        <Rectangle RadiusX="8" RadiusY="8" Width="16" Height="32" IsVisible="False" Fill="{DynamicResource ThemeAccentBrush}" HorizontalAlignment="Left">
+                        <Rectangle RadiusX="8" RadiusY="8" Width="16" MinHeight="20" IsVisible="False" Fill="{DynamicResource ThemeAccentBrush}" HorizontalAlignment="Left">
                             <Rectangle.Styles>
                                 <Style Selector=":selected /template/ Rectangle">
                                     <Setter Property="IsVisible" Value="True"></Setter>

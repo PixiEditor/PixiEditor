@@ -3,6 +3,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.Common;
+using PixiEditor.DrawingApi.Core.Shaders.Generation;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
@@ -10,6 +11,8 @@ public class InputProperty : IInputProperty
 {
     private object _internalValue;
     private int _lastExecuteHash = -1;
+    private PropertyValidator? validator;
+    
     public string InternalPropertyName { get; }
     public string DisplayName { get; }
 
@@ -44,6 +47,19 @@ public class InputProperty : IInputProperty
         set
         {
             _internalValue = value;
+        }
+    }
+    
+    public PropertyValidator Validator
+    {
+        get
+        {
+            if (validator is null)
+            {
+                validator = new PropertyValidator();
+            }
+
+            return validator;
         }
     }
 
@@ -126,7 +142,7 @@ public class InputProperty : IInputProperty
             return new InputProperty(forNode, InternalPropertyName, DisplayName, enumVal, ValueType);
         }
 
-        if (NonOverridenValue is null)
+        if (NonOverridenValue is null || (!NonOverridenValue.GetType().IsValueType && NonOverridenValue.GetType() != typeof(string)))
         {
             object? nullValue = null;
             if (ValueType.IsValueType)
@@ -137,8 +153,13 @@ public class InputProperty : IInputProperty
             return new InputProperty(forNode, InternalPropertyName, DisplayName, nullValue, ValueType);
         }
         
-        if(!NonOverridenValue.GetType().IsValueType && NonOverridenValue.GetType() != typeof(string))
-            throw new InvalidOperationException("Value is not cloneable and not a primitive type");
+        /*if(!NonOverridenValue.GetType().IsValueType && NonOverridenValue.GetType() != typeof(string))
+            throw new InvalidOperationException($"Value of type {NonOverridenValue.GetType()} is not cloneable and not a primitive type");*/
+
+        if (!NonOverridenValue.GetType().IsValueType && NonOverridenValue.GetType() != typeof(string))
+        {
+            
+        }
         
         return new InputProperty(forNode, InternalPropertyName, DisplayName, NonOverridenValue, ValueType);
     }
@@ -153,16 +174,27 @@ public class InputProperty<T> : InputProperty, IInputProperty<T>
         {
             object value = base.Value;
             if (value is null) return default(T);
-            
-            if(value is T tValue)
+
+            if (value is T tValue)
                 return tValue;
 
             if (value is Delegate func && typeof(T).IsAssignableTo(typeof(Delegate)))
             {
-                return (T)FuncFactoryDelegate(func); 
+                return (T)FuncFactoryDelegate(func);
+            }
+            
+            object target = value;
+            if(value is ShaderExpressionVariable shaderExpression)
+            {
+                target = shaderExpression.GetConstant();
             }
 
-            return ConversionTable.TryConvert(value, typeof(T), out object result) ? (T)result : default;
+            if (!ConversionTable.TryConvert(target, typeof(T), out object result))
+            {
+                return default;
+            }
+
+            return (T)Validator.GetClosestValidValue(result);
         }
     }
 
@@ -171,8 +203,15 @@ public class InputProperty<T> : InputProperty, IInputProperty<T>
         get => (T)(base.NonOverridenValue ?? default(T));
         set => base.NonOverridenValue = value;
     }
-    
-    internal InputProperty(Node node, string internalName, string displayName, T defaultValue) : base(node, internalName, displayName, defaultValue, typeof(T))
+
+    internal InputProperty(Node node, string internalName, string displayName, T defaultValue) : base(node,
+        internalName, displayName, defaultValue, typeof(T))
     {
+    }
+
+    public InputProperty<T> WithRules(Action<PropertyValidator> rules)
+    {
+        rules(Validator);
+        return this;
     }
 }

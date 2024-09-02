@@ -192,14 +192,6 @@
       "Parameters": []
     },
     "RemoveLayer": {
-      "Command": "PixiEditor.Layer.DeleteSelected",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
       "Command": "PixiEditor.Layer.DeleteAllSelected",
       "DefaultShortcut": {
         "key": "None",

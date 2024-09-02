@@ -8,7 +8,7 @@ using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("Math", "MATH_NODE")]
+[NodeInfo("Math")]
 public class MathNode : Node
 {
     public FuncOutputProperty<Float1> Result { get; }
@@ -34,26 +34,45 @@ public class MathNode : Node
     {
         var (x, y) = GetValues(context);
 
-        var result = Mode.Value switch
+        if (context.HasContext)
         {
-            MathNodeMode.Add => ShaderMath.Add(x, y),
-            MathNodeMode.Subtract => ShaderMath.Subtract(x, y),
-            MathNodeMode.Multiply => ShaderMath.Multiply(x, y),
-            MathNodeMode.Divide => ShaderMath.Divide(x, y),
-            MathNodeMode.Sin => ShaderMath.Sin(x),
-            MathNodeMode.Cos => ShaderMath.Cos(x),
-            MathNodeMode.Tan => ShaderMath.Tan(x),
-        };
+            var result = Mode.Value switch
+            {
+                MathNodeMode.Add => ShaderMath.Add(x, y),
+                MathNodeMode.Subtract => ShaderMath.Subtract(x, y),
+                MathNodeMode.Multiply => ShaderMath.Multiply(x, y),
+                MathNodeMode.Divide => ShaderMath.Divide(x, y),
+                MathNodeMode.Sin => ShaderMath.Sin(x),
+                MathNodeMode.Cos => ShaderMath.Cos(x),
+                MathNodeMode.Tan => ShaderMath.Tan(x),
+            };
 
-        if (Clamp.Value)
-        {
-            result = ShaderMath.Clamp(result, (Float1)0, (Float1)1);
+            if (Clamp.Value)
+            {
+                result = ShaderMath.Clamp(result, (Float1)0, (Float1)1);
+            }
+
+            return context.NewFloat1(result);
         }
-        
-        return context.NewFloat1(result);
+
+        var xConst = x.ConstantValue;
+        var yConst = y.ConstantValue;
+            
+        var constValue = Mode.Value switch
+        {
+            MathNodeMode.Add => xConst + yConst,
+            MathNodeMode.Subtract => xConst - yConst,
+            MathNodeMode.Multiply => xConst * yConst,
+            MathNodeMode.Divide => xConst / yConst,
+            MathNodeMode.Sin => Math.Sin(xConst),
+            MathNodeMode.Cos => Math.Cos(xConst),
+            MathNodeMode.Tan => Math.Tan(xConst),
+        };
+            
+        return new Float1(string.Empty) { ConstantValue = constValue };
     }
 
-    private (Float1 x, Float1 y) GetValues(FuncContext context)
+    private (Float1 xConst, Float1 y) GetValues(FuncContext context)
     {
         return (context.GetValue(X), context.GetValue(Y));
     }

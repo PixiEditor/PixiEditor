@@ -16,7 +16,7 @@ public class ChunkyImageTests
     {
         try
         {
-            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend());
+            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend(), null);
         }
         catch { }
     }
@@ -24,7 +24,7 @@ public class ChunkyImageTests
     [Fact]
     public void Dispose_ComplexImage_ReturnsAllChunks()
     {
-        ChunkyImage image = new ChunkyImage(new(ChunkyImage.FullChunkSize, ChunkyImage.FullChunkSize));
+        ChunkyImage image = new ChunkyImage(new VecI(ChunkyImage.FullChunkSize, ChunkyImage.FullChunkSize));
         image.EnqueueDrawRectangle(new(new(5, 5), new(80, 80), 0, 2, Colors.AliceBlue, Colors.Snow));
         using (Chunk target = Chunk.Create())
         {

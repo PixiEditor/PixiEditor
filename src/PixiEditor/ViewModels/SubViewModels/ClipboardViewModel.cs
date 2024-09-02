@@ -61,15 +61,15 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
 
         DataImage imageData = (data == null ? await ClipboardController.GetImagesFromClipboard() : ClipboardController.GetImage(new [] { data })).First();
-        using var surface = imageData.image;
+        using var surface = imageData.Image;
 
-        var bitmap = imageData.image.ToWriteableBitmap();
+        var bitmap = imageData.Image.ToWriteableBitmap();
 
         byte[] pixels = bitmap.ExtractPixels();
 
         doc.Operations.ImportReferenceLayer(
             pixels.ToImmutableArray(),
-            imageData.image.Size);
+            imageData.Image.Size);
 
         if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {

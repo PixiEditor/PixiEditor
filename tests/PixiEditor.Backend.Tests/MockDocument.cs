@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using PixiEditor.Numerics;
 
@@ -60,7 +61,7 @@ public class MockDocument : IReadOnlyDocument
         throw new NotImplementedException();
     }
 
-    public (IReadOnlyStructureNode, IReadOnlyFolderNode) FindChildAndParentOrThrow(Guid childGuid)
+    public (IReadOnlyStructureNode, IReadOnlyNode) FindChildAndParentOrThrow(Guid childGuid)
     {
         throw new NotImplementedException();
     }
@@ -71,4 +72,5 @@ public class MockDocument : IReadOnlyDocument
     }
 
     public IReadOnlyReferenceLayer? ReferenceLayer { get; }
+    public DocumentRenderer Renderer { get; }
 }

@@ -10,6 +10,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
+using PixiEditor.Helpers.UI;
 using PixiEditor.Numerics;
 using PixiEditor.Views.Overlays.Handles;
 using Point = Avalonia.Point;
@@ -18,15 +19,6 @@ namespace PixiEditor.Views.Overlays.TransformOverlay;
 #nullable enable
 internal class TransformOverlay : Overlay
 {
-    public static readonly StyledProperty<ShapeCorners> RequestedCornersProperty =
-        AvaloniaProperty.Register<TransformOverlay, ShapeCorners>(nameof(RequestedCorners), defaultValue: default(ShapeCorners));
-
-    public ShapeCorners RequestedCorners
-    {
-        get => GetValue(RequestedCornersProperty);
-        set => SetValue(RequestedCornersProperty, value);
-    }
-
     public static readonly StyledProperty<ShapeCorners> CornersProperty =
         AvaloniaProperty.Register<TransformOverlay, ShapeCorners>(nameof(Corners), defaultValue: default(ShapeCorners));
 
@@ -99,6 +91,15 @@ internal class TransformOverlay : Overlay
         set => SetValue(CoverWholeScreenProperty, value);
     }
 
+    public static readonly StyledProperty<ExecutionTrigger<ShapeCorners>> RequestCornersExecutorProperty = AvaloniaProperty.Register<TransformOverlay, ExecutionTrigger<ShapeCorners>>(
+        nameof(RequestCornersExecutor));
+
+    public ExecutionTrigger<ShapeCorners> RequestCornersExecutor
+    {
+        get => GetValue(RequestCornersExecutorProperty);
+        set => SetValue(RequestCornersExecutorProperty, value);
+    }
+
     public static readonly StyledProperty<ICommand?> ActionCompletedProperty =
         AvaloniaProperty.Register<TransformOverlay, ICommand?>(nameof(ActionCompleted));
 
@@ -110,14 +111,13 @@ internal class TransformOverlay : Overlay
 
     static TransformOverlay()
     {
-        AffectsRender<TransformOverlay>(RequestedCornersProperty, CornersProperty, ZoomScaleProperty, SideFreedomProperty, CornerFreedomProperty, LockRotationProperty, SnapToAnglesProperty, InternalStateProperty, ZoomboxAngleProperty, CoverWholeScreenProperty);
+        AffectsRender<TransformOverlay>(CornersProperty, ZoomScaleProperty, SideFreedomProperty, CornerFreedomProperty, LockRotationProperty, SnapToAnglesProperty, InternalStateProperty, ZoomboxAngleProperty, CoverWholeScreenProperty);
 
-        RequestedCornersProperty.Changed.Subscribe(OnRequestedCorners);
+        RequestCornersExecutorProperty.Changed.Subscribe(OnCornersExecutorChanged);
     }
 
     private const int anchorSizeMultiplierForRotation = 15;
 
-    private bool isResettingRequestedCorners = false;
     private bool isMoving = false;
     private VecD mousePosOnStartMove = new();
     private VecD originOnStartMove = new();
@@ -616,23 +616,26 @@ internal class TransformOverlay : Overlay
         return null;
     }
 
-    private static void OnRequestedCorners(AvaloniaPropertyChangedEventArgs<ShapeCorners> args)
+    private void OnRequestedCorners(object sender, ShapeCorners corners)
+    {
+        isMoving = false;
+        isRotating = false;
+        Corners = corners; 
+        InternalState = new()
+        {
+            ProportionalAngle1 = (Corners.BottomRight - Corners.TopLeft).Angle,
+            ProportionalAngle2 = (Corners.TopRight - Corners.BottomLeft).Angle,
+            OriginWasManuallyDragged = false,
+            Origin = TransformHelper.OriginFromCorners(Corners),
+        };
+    }
+    
+    private static void OnCornersExecutorChanged(AvaloniaPropertyChangedEventArgs<ExecutionTrigger<ShapeCorners>> args)
     {
         TransformOverlay overlay = (TransformOverlay)args.Sender;
-        if (overlay.isResettingRequestedCorners)
-            return;
-        overlay.isMoving = false;
-        overlay.isRotating = false;
-        overlay.Corners = args.NewValue.Value;
-        overlay.InternalState = new()
-        {
-            ProportionalAngle1 = (overlay.Corners.BottomRight - overlay.Corners.TopLeft).Angle,
-            ProportionalAngle2 = (overlay.Corners.TopRight - overlay.Corners.BottomLeft).Angle,
-            OriginWasManuallyDragged = false,
-            Origin = TransformHelper.OriginFromCorners(overlay.Corners),
-        };
-        overlay.isResettingRequestedCorners = true;
-        //overlay.RequestedCorners = new ShapeCorners();
-        overlay.isResettingRequestedCorners = false;
+        if (args.OldValue != null)
+            args.OldValue.Value.Triggered -= overlay.OnRequestedCorners;
+        if (args.NewValue != null)
+            args.NewValue.Value.Triggered += overlay.OnRequestedCorners;
     }
 }

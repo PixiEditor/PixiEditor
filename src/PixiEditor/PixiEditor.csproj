@@ -104,9 +104,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\PixiDocks\src\PixiDocks.Avalonia\PixiDocks.Avalonia.csproj"/>
-    <ProjectReference Include="..\..\..\PixiParser\src\PixiParser.Skia\PixiParser.Skia.csproj"/>
-    <ProjectReference Include="..\..\..\PixiParser\src\PixiParser\PixiParser.csproj"/>
+    <ProjectReference Include="..\PixiDocks\src\PixiDocks.Avalonia\PixiDocks.Avalonia.csproj"/>
+    <ProjectReference Include="..\PixiParser\src\PixiParser.Skia\PixiParser.Skia.csproj"/>
+    <ProjectReference Include="..\PixiParser\src\PixiParser\PixiParser.csproj"/>
     <ProjectReference Include="..\ChunkyImageLib\ChunkyImageLib.csproj"/>
     <ProjectReference Include="..\PixiEditor.AnimationRenderer.Core\PixiEditor.AnimationRenderer.Core.csproj"/>
     <ProjectReference Include="..\PixiEditor.AnimationRenderer.FFmpeg\PixiEditor.AnimationRenderer.FFmpeg.csproj"/>
