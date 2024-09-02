@@ -158,10 +158,10 @@ internal sealed class RotateImage_Change : Change
 
                 // TODO: Add support for different Layer types
 
-                if (member.Mask.NonOverridenValue is null)
+                if (member.EmbeddedMask is null)
                     return;
 
-                Resize(member.Mask.NonOverridenValue, member.Id, deletedMaskChunks, null);
+                Resize(member.EmbeddedMask, member.Id, deletedMaskChunks, null);
             }
         });
 
@@ -199,10 +199,10 @@ internal sealed class RotateImage_Change : Change
                 }
             }
 
-            if (member.Mask.NonOverridenValue is null)
+            if (member.EmbeddedMask is null)
                 return;
 
-            Resize(member.Mask.NonOverridenValue, member.Id, deletedMaskChunks, null);
+            Resize(member.EmbeddedMask, member.Id, deletedMaskChunks, null);
         });
 
         return new Size_ChangeInfo(newSize, target.VerticalSymmetryAxisX, target.HorizontalSymmetryAxisY);
@@ -257,12 +257,12 @@ internal sealed class RotateImage_Change : Change
                 }
             }
 
-            if (member.Mask.NonOverridenValue is null)
+            if (member.EmbeddedMask is null)
                 return;
-            member.Mask.NonOverridenValue.EnqueueResize(originalSize);
-            deletedMaskChunks[member.Id].ApplyChunksToImage(member.Mask.Value);
-            revertChanges.Add(new LayerImageArea_ChangeInfo(member.Id, member.Mask.Value.FindAffectedArea()));
-            member.Mask.NonOverridenValue.CommitChanges();
+            member.EmbeddedMask.EnqueueResize(originalSize);
+            deletedMaskChunks[member.Id].ApplyChunksToImage(member.EmbeddedMask);
+            revertChanges.Add(new LayerImageArea_ChangeInfo(member.Id, member.EmbeddedMask.FindAffectedArea()));
+            member.EmbeddedMask.CommitChanges();
         });
 
         DisposeDeletedChunks();

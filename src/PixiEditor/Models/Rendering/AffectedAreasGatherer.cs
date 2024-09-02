@@ -196,8 +196,8 @@ internal class AffectedAreasGatherer
             }
 
             var chunks = result.FindAllChunks();
-            if (layer.Mask.Value is not null && layer.MaskIsVisible.Value && useMask)
-                chunks.IntersectWith(layer.Mask.Value.FindAllChunks());
+            if (layer.EmbeddedMask is not null && layer.MaskIsVisible.Value && useMask)
+                chunks.IntersectWith(layer.EmbeddedMask.FindAllChunks());
             AddToMainImage(new AffectedArea(chunks));
         }
         else
@@ -210,9 +210,9 @@ internal class AffectedAreasGatherer
     {
         if (!tracker.Document.TryFindMember(memberGuid, out var member))
             return;
-        if (member.Mask.Value is not null)
+        if (member.EmbeddedMask is not null)
         {
-            var chunks = member.Mask.Value.FindAllChunks();
+            var chunks = member.EmbeddedMask.FindAllChunks();
             AddToMaskPreview(memberGuid, new AffectedArea(chunks));
         }
 
@@ -305,7 +305,7 @@ internal class AffectedAreasGatherer
     {
         tracker.Document.ForEveryReadonlyMember((member) =>
         {
-            if (member.Mask.Value is not null)
+            if (member.EmbeddedMask is not null)
                 AddWholeCanvasToMaskPreview(member.Id);
         });
     }

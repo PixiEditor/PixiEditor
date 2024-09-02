@@ -57,10 +57,10 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
 
             // TODO: Check if adding support for different Layer types is necessary
 
-            if (member.Mask.Value is null)
+            if (member.EmbeddedMask is null)
                 return;
 
-            Resize(member.Mask.Value, member.Id, newSize, offset, deletedMaskChunks);
+            Resize(member.EmbeddedMask, member.Id, newSize, offset, deletedMaskChunks);
         });
 
         ignoreInUndo = false;

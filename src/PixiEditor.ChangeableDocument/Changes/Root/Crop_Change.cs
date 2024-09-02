@@ -42,10 +42,10 @@ internal class Crop_Change : ResizeBasedChangeBase
                     Resize(frame, layer.Id, rect.Size, rect.Pos * -1, deletedChunks);
                 });
             }
-            if (member.Mask.NonOverridenValue is null)
+            if (member.EmbeddedMask is null)
                 return;
 
-            Resize(member.Mask.NonOverridenValue, member.Id, rect.Size, rect.Pos * -1, deletedMaskChunks);
+            Resize(member.EmbeddedMask, member.Id, rect.Size, rect.Pos * -1, deletedMaskChunks);
         });
         
         ignoreInUndo = false;

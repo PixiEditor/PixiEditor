@@ -17,15 +17,16 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     public InputProperty<Texture?> Background { get; }
     public InputProperty<float> Opacity { get; }
     public InputProperty<bool> IsVisible { get; }
-    public InputProperty<bool> ClipToPreviousMember { get; }
+    public bool ClipToPreviousMember { get; set; }
     public InputProperty<BlendMode> BlendMode { get; }
-    public InputProperty<ChunkyImage?> Mask { get; }
+    public InputProperty<Texture?> CustomMask { get; }
     public InputProperty<bool> MaskIsVisible { get; }
     public InputProperty<Filter> Filters { get; }
-
     public OutputProperty<Texture?> Output { get; }
 
     public OutputProperty<Texture?> FilterlessOutput { get; }
+
+    public ChunkyImage? EmbeddedMask { get; set; }
 
     public string MemberName
     {
@@ -35,15 +36,16 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     
     private Paint maskPaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.DstIn };
     protected Paint blendPaint = new Paint();
+    
+    private int maskCacheHash = 0;
 
     protected StructureNode()
     {
         Background = CreateInput<Texture?>("Background", "BACKGROUND", null);
         Opacity = CreateInput<float>("Opacity", "OPACITY", 1);
         IsVisible = CreateInput<bool>("IsVisible", "IS_VISIBLE", true);
-        ClipToPreviousMember = CreateInput<bool>("ClipToMemberBelow", "CLIP_TO_MEMBER_BELOW", false);
         BlendMode = CreateInput<BlendMode>("BlendMode", "BLEND_MODE", Enums.BlendMode.Normal);
-        Mask = CreateInput<ChunkyImage?>("Mask", "MASK", null);
+        CustomMask = CreateInput<Texture?>("Mask", "MASK", null);
         MaskIsVisible = CreateInput<bool>("MaskIsVisible", "MASK_IS_VISIBLE", true);
         Filters = CreateInput<Filter>(nameof(Filters), "FILTERS", null);
 
@@ -60,34 +62,52 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
     protected void ApplyMaskIfPresent(Texture surface, RenderingContext context)
     {
-        if (Mask.Value != null && MaskIsVisible.Value)
+        if (MaskIsVisible.Value)
         {
-            Mask.Value.DrawMostUpToDateChunkOn(
-                context.ChunkToUpdate,
-                context.ChunkResolution,
-                surface.DrawingSurface,
-                context.ChunkToUpdate * context.ChunkResolution.PixelSize(),
-                maskPaint);
+            if (CustomMask.Value != null)
+            {
+                surface.DrawingSurface.Canvas.DrawSurface(CustomMask.Value.DrawingSurface, 0, 0, maskPaint); 
+            }
+            else if (EmbeddedMask != null)
+            {
+                EmbeddedMask.DrawMostUpToDateChunkOn(
+                    context.ChunkToUpdate,
+                    context.ChunkResolution,
+                    surface.DrawingSurface,
+                    context.ChunkToUpdate * context.ChunkResolution.PixelSize(),
+                    maskPaint);
+            }
         }
+    }
+
+    protected override bool CacheChanged(RenderingContext context)
+    {
+        int cacheHash = EmbeddedMask?.GetCacheHash() ?? 0;
+        return base.CacheChanged(context) || maskCacheHash != cacheHash;
+    }
+
+    protected override void UpdateCache(RenderingContext context)
+    {
+        base.UpdateCache(context);
+        maskCacheHash = EmbeddedMask?.GetCacheHash() ?? 0;
     }
 
     protected void ApplyRasterClip(Texture toClip, Texture clipSource)
     {
-        if (ClipToPreviousMember.Value && Background.Value != null)
+        if (ClipToPreviousMember && Background.Value != null)
         {
              toClip.DrawingSurface.Canvas.DrawSurface(clipSource.DrawingSurface, 0, 0, maskPaint);
         }
     }
 
-
     protected bool IsEmptyMask()
     {
-        return Mask.Value != null && MaskIsVisible.Value && !Mask.Value.LatestOrCommittedChunkExists();
+        return EmbeddedMask != null && MaskIsVisible.Value && !EmbeddedMask.LatestOrCommittedChunkExists();
     }
 
     protected bool HasOperations()
     {
-        return (MaskIsVisible.Value && Mask.Value != null) || ClipToPreviousMember.Value;
+        return (MaskIsVisible.Value && (EmbeddedMask != null || CustomMask.Value != null)) || ClipToPreviousMember;
     }
 
     protected void DrawBackground(Texture workingSurface, RenderingContext context)

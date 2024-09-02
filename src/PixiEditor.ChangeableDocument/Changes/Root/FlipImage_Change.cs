@@ -113,12 +113,12 @@ internal sealed class FlipImage_Change : Change
                 }
                 // TODO: Add support for non-raster layers
 
-                if (member.Mask.NonOverridenValue is not null)
+                if (member.EmbeddedMask is not null)
                 {
-                    FlipImage(member.Mask.NonOverridenValue);
+                    FlipImage(member.EmbeddedMask);
                     changes.Add(
-                        new MaskArea_ChangeInfo(member.Id, member.Mask.NonOverridenValue.FindAffectedArea()));
-                    member.Mask.NonOverridenValue.CommitChanges();
+                        new MaskArea_ChangeInfo(member.Id, member.EmbeddedMask.FindAffectedArea()));
+                    member.EmbeddedMask.CommitChanges();
                 }
             }
         });

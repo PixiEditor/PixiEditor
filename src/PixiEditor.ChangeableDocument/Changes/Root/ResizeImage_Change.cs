@@ -101,12 +101,12 @@ internal class ResizeImage_Change : Change
 
             // Add support for different Layer types
 
-            if (member.Mask.Value is not null)
+            if (member.EmbeddedMask is not null)
             {
-                ScaleChunkyImage(member.Mask.Value);
-                var affected = member.Mask.Value.FindAffectedArea();
-                savedMaskChunks[member.Id] = new CommittedChunkStorage(member.Mask.Value, affected.Chunks);
-                member.Mask.Value.CommitChanges();
+                ScaleChunkyImage(member.EmbeddedMask);
+                var affected = member.EmbeddedMask.FindAffectedArea();
+                savedMaskChunks[member.Id] = new CommittedChunkStorage(member.EmbeddedMask, affected.Chunks);
+                member.EmbeddedMask.CommitChanges();
             }
         });
 
@@ -130,12 +130,12 @@ internal class ResizeImage_Change : Change
                 });
             }
 
-            if (member.Mask.Value is not null)
+            if (member.EmbeddedMask is not null)
             {
-                member.Mask.Value.EnqueueResize(originalSize);
-                member.Mask.Value.EnqueueClear();
-                savedMaskChunks[member.Id].ApplyChunksToImage(member.Mask.Value);
-                member.Mask.Value.CommitChanges();
+                member.EmbeddedMask.EnqueueResize(originalSize);
+                member.EmbeddedMask.EnqueueClear();
+                savedMaskChunks[member.Id].ApplyChunksToImage(member.EmbeddedMask);
+                member.EmbeddedMask.CommitChanges();
             }
         });
 
