@@ -10,6 +10,7 @@ using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Commands.CommandContext;
+using PixiEditor.Models.Config;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
@@ -79,8 +80,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         }
     }
 
-    ICollection<IToolHandler> IToolsHandler.ToolSet => ToolSet;
-    public ToolSetViewModel ToolSet { get; private set; }
+    public IToolSetHandler ActiveToolSet { get; private set; }
+
+    ICollection<IToolSetHandler> IToolsHandler.AllToolSets => AllToolSets;
+    
+    public ObservableCollection<IToolSetHandler> AllToolSets { get; } = new();
 
     public event EventHandler<SelectedToolEventArgs>? SelectedToolChanged;
 
@@ -89,21 +93,32 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     private bool altIsDown;
 
     private ToolViewModel _preTransientTool;
-
+    
+    private List<IToolHandler> allTools = new();
 
     public ToolsViewModel(ViewModelMain owner)
         : base(owner)
     {
     }
 
-    public void SetupTools(IServiceProvider services)
+    public void SetupTools(IServiceProvider services, ToolSetsConfig toolSetConfig)
     {
-        ToolSet = new ObservableCollection<IToolHandler>(services.GetServices<IToolHandler>());
+        allTools = services.GetServices<IToolHandler>().ToList();
+        
+        ToolSetConfig activeToolSetConfig = toolSetConfig.FirstOrDefault();
+        
+        if (activeToolSetConfig is null)
+        {
+            throw new InvalidOperationException("No tool set configuration found.");
+        }
+        
+        List<IToolHandler> tools = activeToolSetConfig.Tools.Select(toolName => allTools.FirstOrDefault(tool => tool.ToolName == toolName)).Where(x => x != null).ToList();
+        ActiveToolSet = new ToolSetViewModel(activeToolSetConfig.Name, tools); 
     }
 
     public void SetupToolsTooltipShortcuts(IServiceProvider services)
     {
-        foreach (ToolViewModel tool in ToolSet!)
+        foreach (ToolViewModel tool in ActiveToolSet.Tools!)
         {
             tool.Shortcut = Owner.ShortcutController.GetToolShortcut(tool.GetType());
         }
@@ -112,7 +127,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     public T? GetTool<T>()
         where T : IToolHandler
     {
-        return (T?)ToolSet?.Where(static tool => tool is T).FirstOrDefault();
+        return (T?)ActiveToolSet?.Tools.Where(static tool => tool is T).FirstOrDefault();
     }
 
     public void SetActiveTool<T>(bool transient)
@@ -235,7 +250,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     {
         if (!typeof(ToolViewModel).IsAssignableFrom(toolType))
             throw new ArgumentException($"'{toolType}' does not inherit from {typeof(ToolViewModel)}");
-        IToolHandler foundTool = ToolSet!.First(x => x.GetType().IsAssignableFrom(toolType));
+        IToolHandler foundTool = ActiveToolSet!.Tools.First(x => x.GetType().IsAssignableFrom(toolType));
         SetActiveTool(foundTool, transient, sourceInfo);
     }
     

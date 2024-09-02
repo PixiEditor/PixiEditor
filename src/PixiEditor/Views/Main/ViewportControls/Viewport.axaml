@@ -117,7 +117,7 @@
                            Margin="10 55 0 0"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Top"
-                           Tools="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolSet}" />
+                           Tools="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Tools}" />
         <rendering:Scene
             Focusable="False" Name="scene"
             ZIndex="1"

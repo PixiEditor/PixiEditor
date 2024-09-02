@@ -10,6 +10,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands;
+using PixiEditor.Models.Config;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.DocumentModels;
@@ -32,59 +33,37 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public Action CloseAction { get; set; }
     public event EventHandler OnStartupEvent;
     public FileViewModel FileSubViewModel { get; set; }
-
     public UpdateViewModel UpdateSubViewModel { get; set; }
-
     public IToolsHandler ToolsSubViewModel { get; set; }
-
     public IoViewModel IoSubViewModel { get; set; }
-
     public LayersViewModel LayersSubViewModel { get; set; }
-
     public ClipboardViewModel ClipboardSubViewModel { get; set; }
-
     public UndoViewModel UndoSubViewModel { get; set; }
-
     public SelectionViewModel SelectionSubViewModel { get; set; }
-
     public ViewOptionsViewModel ViewportSubViewModel { get; set; }
-
     public ColorsViewModel ColorsSubViewModel { get; set; }
-
     public MiscViewModel MiscSubViewModel { get; set; }
-
     public DiscordViewModel DiscordViewModel { get; set; }
-
     public DebugViewModel DebugSubViewModel { get; set; }
-
     public DocumentManagerViewModel DocumentManagerSubViewModel { get; set; }
-
     public CommandController CommandController { get; set; }
-
     public ShortcutController ShortcutController { get; set; }
-
     public StylusViewModel StylusSubViewModel { get; set; }
-
     public WindowViewModel WindowSubViewModel { get; set; }
-
     public SearchViewModel SearchSubViewModel { get; set; }
-
     public RegistryViewModel RegistrySubViewModel { get; set; }
-
     public AdditionalContentViewModel AdditionalContentSubViewModel { get; set; }
-
     public ExtensionsViewModel ExtensionsSubViewModel { get; set; }
-
     public LayoutViewModel LayoutSubViewModel { get; set; }
-
     public MenuBarViewModel MenuBarViewModel { get; set; }
     public AnimationsViewModel AnimationsSubViewModel { get; set; }
-    
     public NodeGraphManagerViewModel NodeGraphManager { get; set; }
 
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
 
+    public ConfigManager Config { get; set; }    
+    
     public LocalizedString ActiveActionDisplay
     {
         get
@@ -117,6 +96,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     {
         Services = services;
 
+        Config = new ConfigManager(); 
+
         Preferences = services.GetRequiredService<IPreferences>();
         Preferences.Init();
         
@@ -146,7 +127,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         ColorsSubViewModel = services.GetService<ColorsViewModel>();
         ColorsSubViewModel?.SetupPaletteProviders(services);
 
-        ToolsSubViewModel?.SetupTools(services);
+        ToolSetsConfig toolSetConfig = Config.GetConfig<ToolSetsConfig>("ToolSetsConfig");
+        ToolsSubViewModel?.SetupTools(services, toolSetConfig);
 
         DiscordViewModel = services.GetService<DiscordViewModel>();
         UpdateSubViewModel = services.GetService<UpdateViewModel>();

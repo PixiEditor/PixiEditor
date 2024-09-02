@@ -1,0 +1,22 @@
+﻿[
+  {
+    "Name": "PIXEL_ART_TOOLSET",
+    "Tools": [
+      "MoveViewport",
+      "RotateViewport",
+      "Move",
+      "Pen",
+      "Select",
+      "MagicWand",
+      "Lasso",
+      "FloodFill",
+      "Line",
+      "Ellipse",
+      "Rectangle",
+      "Eraser",
+      "ColorPicker",
+      "Brightness",
+      "Zoom"
+    ]
+  }
+]
