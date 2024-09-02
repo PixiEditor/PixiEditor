@@ -10,6 +10,7 @@ using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Commands.CommandContext;
+using PixiEditor.Models.Config;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
@@ -79,8 +80,15 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         }
     }
 
-    ICollection<IToolHandler> IToolsHandler.ToolSet => ToolSet;
-    public ObservableCollection<IToolHandler> ToolSet { get; private set; }
+    public IToolSetHandler ActiveToolSet
+    {
+        get => _activeToolSet!;
+        private set => SetProperty(ref _activeToolSet, value);
+    }
+
+    ICollection<IToolSetHandler> IToolsHandler.AllToolSets => AllToolSets;
+    
+    public ObservableCollection<IToolSetHandler> AllToolSets { get; } = new();
 
     public event EventHandler<SelectedToolEventArgs>? SelectedToolChanged;
 
@@ -89,21 +97,39 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     private bool altIsDown;
 
     private ToolViewModel _preTransientTool;
-
+    
+    private List<IToolHandler> allTools = new();
+    private IToolSetHandler? _activeToolSet;
 
     public ToolsViewModel(ViewModelMain owner)
         : base(owner)
     {
     }
 
-    public void SetupTools(IServiceProvider services)
+    public void SetupTools(IServiceProvider services, ToolSetsConfig toolSetConfig)
     {
-        ToolSet = new ObservableCollection<IToolHandler>(services.GetServices<IToolHandler>());
+        allTools = services.GetServices<IToolHandler>().ToList();
+        
+        ToolSetConfig activeToolSetConfig = toolSetConfig.FirstOrDefault();
+        
+        if (activeToolSetConfig is null)
+        {
+            throw new InvalidOperationException("No tool set configuration found.");
+        }
+        
+        AllToolSets.Clear();
+        AddToolSets(toolSetConfig);
+        SetActiveToolSet(AllToolSets.First());
+    }
+
+    public void SetActiveToolSet(IToolSetHandler toolSetHandler)
+    {
+        ActiveToolSet = toolSetHandler;
     }
 
     public void SetupToolsTooltipShortcuts(IServiceProvider services)
     {
-        foreach (ToolViewModel tool in ToolSet!)
+        foreach (ToolViewModel tool in ActiveToolSet.Tools!)
         {
             tool.Shortcut = Owner.ShortcutController.GetToolShortcut(tool.GetType());
         }
@@ -112,7 +138,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     public T? GetTool<T>()
         where T : IToolHandler
     {
-        return (T?)ToolSet?.Where(static tool => tool is T).FirstOrDefault();
+        return (T?)ActiveToolSet?.Tools.Where(static tool => tool is T).FirstOrDefault();
     }
 
     public void SetActiveTool<T>(bool transient)
@@ -131,6 +157,36 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             return;
         doc.EventInlet.OnApplyTransform();
     }
+    
+    [Command.Internal("PixiEditor.Tools.SwitchToolSet", AnalyticsTrack = true, CanExecute = "PixiEditor.HasNextToolSet")]
+    [Command.Basic("PixiEditor.Tools.NextToolSet", true, "NEXT_TOOL_SET", "NEXT_TOOL_SET", Modifiers = KeyModifiers.Shift, 
+        Key = Key.E, AnalyticsTrack = true)]
+    [Command.Basic("PixiEditor.Tools.PreviousToolSet", false, "PREVIOUS_TOOL_SET", "PREVIOUS_TOOL_SET", Modifiers = KeyModifiers.Shift,
+        Key = Key.Q, AnalyticsTrack = true)]
+    public void SwitchToolSet(bool forward)
+    {
+        int currentIndex = AllToolSets.IndexOf(ActiveToolSet);
+        int nextIndex = currentIndex + (forward ? 1 : -1);
+        if (nextIndex >= AllToolSets.Count || nextIndex < 0)
+        {
+            nextIndex = 0;
+        }
+
+        SetActiveToolSet(AllToolSets.ElementAt(nextIndex));
+    }
+
+    [Evaluator.CanExecute("PixiEditor.HasNextToolSet")]
+    public bool HasNextToolSet(bool next)
+    {
+        int currentIndex = AllToolSets.IndexOf(ActiveToolSet);
+        int nextIndex = currentIndex + (next ? 1 : -1);
+        if (nextIndex < 0 || nextIndex >= AllToolSets.Count)
+        {
+            return false;
+        }
+
+        return AllToolSets.ElementAt(nextIndex) != ActiveToolSet;
+    } 
 
     [Command.Internal("PixiEditor.Tools.SelectTool", CanExecute = "PixiEditor.HasDocument")]
     public void SetActiveTool(ToolViewModel tool)
@@ -235,7 +291,9 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     {
         if (!typeof(ToolViewModel).IsAssignableFrom(toolType))
             throw new ArgumentException($"'{toolType}' does not inherit from {typeof(ToolViewModel)}");
-        IToolHandler foundTool = ToolSet!.First(x => x.GetType().IsAssignableFrom(toolType));
+        IToolHandler foundTool = ActiveToolSet!.Tools.FirstOrDefault(x => x.GetType().IsAssignableFrom(toolType));
+        if (foundTool == null) return;
+        
         SetActiveTool(foundTool, transient, sourceInfo);
     }
     
@@ -302,5 +360,26 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     public void ConvertedKeyUpInlet(FilteredKeyEventArgs args)
     {
         ActiveTool?.ModifierKeyChanged(args.IsCtrlDown, args.IsShiftDown, args.IsAltDown);
+    }
+    
+    private void AddToolSets(ToolSetsConfig toolSetConfig)
+    {
+        foreach (ToolSetConfig toolSet in toolSetConfig)
+        {
+            List<IToolHandler> tools = new List<IToolHandler>();
+            
+            foreach (string toolName in toolSet.Tools)
+            {
+                IToolHandler? tool = allTools.FirstOrDefault(tool => tool.ToolName == toolName);
+                if (tool is null)
+                {
+                    throw new InvalidOperationException($"Tool '{toolName}' not found.");
+                }
+                
+                tools.Add(tool);
+            }
+            
+            AllToolSets.Add(new ToolSetViewModel(toolSet.Name, tools));
+        }
     }
 }

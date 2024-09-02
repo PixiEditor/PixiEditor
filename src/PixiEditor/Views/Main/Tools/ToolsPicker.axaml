@@ -4,26 +4,52 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:tools="clr-namespace:PixiEditor.ViewModels.Tools"
              xmlns:tools1="clr-namespace:PixiEditor.Views.Main.Tools"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:system="clr-namespace:System;assembly=System.Runtime"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             ClipToBounds="False"
              x:Class="PixiEditor.Views.Main.Tools.ToolsPicker" Name="picker">
     <Border CornerRadius="{DynamicResource ControlCornerRadius}"
             BorderBrush="{DynamicResource ThemeBorderMidBrush}"
             BorderThickness="{DynamicResource ThemeBorderThickness}"
             Cursor="Arrow"
+            Width="48"
             Background="{DynamicResource ThemeBackgroundBrush1}">
-        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-        <ItemsControl ItemsSource="{Binding ElementName=picker, Path=Tools}" Padding="0 2">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="tools:ToolViewModel">
-                    <tools1:ToolPickerButton DataContext="{Binding}" IsSelected="{Binding IsActive}"/>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Vertical"/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl>
-        </ScrollViewer>
+        <StackPanel>
+            <Border Background="{DynamicResource ThemeBackgroundBrush2}">
+                <StackPanel Orientation="Horizontal">
+                    <Button Classes="pixi-icon" Content="{DynamicResource icon-chevron-left}"
+                            Command="{Binding SwitchToolSetCommand, ElementName=picker}">
+                        <Button.CommandParameter>
+                            <system:Boolean>False</system:Boolean>
+                        </Button.CommandParameter>
+                    </Button>
+                    <Button Classes="pixi-icon" Content="{DynamicResource icon-chevron-right}"
+                            Command="{Binding SwitchToolSetCommand, ElementName=picker}">
+                        <Button.CommandParameter>
+                            <system:Boolean>True</system:Boolean>
+                        </Button.CommandParameter>
+                    </Button>
+                    <Border Padding="5" Margin="5 0" ClipToBounds="False" Background="{DynamicResource ThemeBackgroundBrush2}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}">
+                       <TextBlock ui:Translator.Key="{Binding ElementName=picker, Path=ToolSet.Name}" VerticalAlignment="Center"/> 
+                    </Border>
+                </StackPanel>
+            </Border>
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding ElementName=picker, Path=ToolSet.Tools}" Padding="0 2">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="tools:ToolViewModel">
+                            <tools1:ToolPickerButton DataContext="{Binding}" IsSelected="{Binding IsActive}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </ScrollViewer>
+        </StackPanel>
     </Border>
 </UserControl>
