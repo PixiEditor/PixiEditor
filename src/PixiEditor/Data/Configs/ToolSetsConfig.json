@@ -18,5 +18,16 @@
       "Brightness",
       "Zoom"
     ]
+  },
+  {
+    "Name": "VECTOR_TOOLSET",
+    "Tools": [
+      "MoveViewport",
+      "RotateViewport",
+      "Move",
+      "Line",
+      "Ellipse",
+      "Rectangle"
+    ]
   }
 ]

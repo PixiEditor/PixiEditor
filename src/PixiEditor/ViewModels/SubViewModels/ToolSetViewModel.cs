@@ -7,13 +7,13 @@ namespace PixiEditor.ViewModels.SubViewModels;
 
 internal class ToolSetViewModel : PixiObservableObject, IToolSetHandler
 {
-    public LocalizedString ToolSetName { get; }
+    public string Name { get; }
     ICollection<IToolHandler> IToolSetHandler.Tools => Tools;
     public ObservableCollection<IToolHandler> Tools { get; } = new();
     
     public ToolSetViewModel(string setName, List<IToolHandler> tools)
     {
-        ToolSetName = setName;
+        Name = setName;
         foreach (var tool in tools)
         {
             Tools.Add(tool);

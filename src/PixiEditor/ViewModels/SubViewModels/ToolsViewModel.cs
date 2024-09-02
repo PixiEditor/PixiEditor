@@ -80,7 +80,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         }
     }
 
-    public IToolSetHandler ActiveToolSet { get; private set; }
+    public IToolSetHandler ActiveToolSet
+    {
+        get => _activeToolSet!;
+        private set => SetProperty(ref _activeToolSet, value);
+    }
 
     ICollection<IToolSetHandler> IToolsHandler.AllToolSets => AllToolSets;
     
@@ -95,6 +99,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     private ToolViewModel _preTransientTool;
     
     private List<IToolHandler> allTools = new();
+    private IToolSetHandler? _activeToolSet;
 
     public ToolsViewModel(ViewModelMain owner)
         : base(owner)
@@ -112,8 +117,14 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             throw new InvalidOperationException("No tool set configuration found.");
         }
         
-        List<IToolHandler> tools = activeToolSetConfig.Tools.Select(toolName => allTools.FirstOrDefault(tool => tool.ToolName == toolName)).Where(x => x != null).ToList();
-        ActiveToolSet = new ToolSetViewModel(activeToolSetConfig.Name, tools); 
+        AllToolSets.Clear();
+        AddToolSets(toolSetConfig);
+        SetActiveToolSet(AllToolSets.First());
+    }
+
+    public void SetActiveToolSet(IToolSetHandler toolSetHandler)
+    {
+        ActiveToolSet = toolSetHandler;
     }
 
     public void SetupToolsTooltipShortcuts(IServiceProvider services)
@@ -146,6 +157,36 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             return;
         doc.EventInlet.OnApplyTransform();
     }
+    
+    [Command.Internal("PixiEditor.Tools.SwitchToolSet", AnalyticsTrack = true, CanExecute = "PixiEditor.HasNextToolSet")]
+    [Command.Basic("PixiEditor.Tools.NextToolSet", true, "NEXT_TOOL_SET", "NEXT_TOOL_SET", Modifiers = KeyModifiers.Shift, 
+        Key = Key.E, AnalyticsTrack = true)]
+    [Command.Basic("PixiEditor.Tools.PreviousToolSet", false, "PREVIOUS_TOOL_SET", "PREVIOUS_TOOL_SET", Modifiers = KeyModifiers.Shift,
+        Key = Key.Q, AnalyticsTrack = true)]
+    public void SwitchToolSet(bool forward)
+    {
+        int currentIndex = AllToolSets.IndexOf(ActiveToolSet);
+        int nextIndex = currentIndex + (forward ? 1 : -1);
+        if (nextIndex >= AllToolSets.Count || nextIndex < 0)
+        {
+            nextIndex = 0;
+        }
+
+        SetActiveToolSet(AllToolSets.ElementAt(nextIndex));
+    }
+
+    [Evaluator.CanExecute("PixiEditor.HasNextToolSet")]
+    public bool HasNextToolSet(bool next)
+    {
+        int currentIndex = AllToolSets.IndexOf(ActiveToolSet);
+        int nextIndex = currentIndex + (next ? 1 : -1);
+        if (nextIndex < 0 || nextIndex >= AllToolSets.Count)
+        {
+            return false;
+        }
+
+        return AllToolSets.ElementAt(nextIndex) != ActiveToolSet;
+    } 
 
     [Command.Internal("PixiEditor.Tools.SelectTool", CanExecute = "PixiEditor.HasDocument")]
     public void SetActiveTool(ToolViewModel tool)
@@ -250,7 +291,9 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     {
         if (!typeof(ToolViewModel).IsAssignableFrom(toolType))
             throw new ArgumentException($"'{toolType}' does not inherit from {typeof(ToolViewModel)}");
-        IToolHandler foundTool = ActiveToolSet!.Tools.First(x => x.GetType().IsAssignableFrom(toolType));
+        IToolHandler foundTool = ActiveToolSet!.Tools.FirstOrDefault(x => x.GetType().IsAssignableFrom(toolType));
+        if (foundTool == null) return;
+        
         SetActiveTool(foundTool, transient, sourceInfo);
     }
     
@@ -317,5 +360,26 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     public void ConvertedKeyUpInlet(FilteredKeyEventArgs args)
     {
         ActiveTool?.ModifierKeyChanged(args.IsCtrlDown, args.IsShiftDown, args.IsAltDown);
+    }
+    
+    private void AddToolSets(ToolSetsConfig toolSetConfig)
+    {
+        foreach (ToolSetConfig toolSet in toolSetConfig)
+        {
+            List<IToolHandler> tools = new List<IToolHandler>();
+            
+            foreach (string toolName in toolSet.Tools)
+            {
+                IToolHandler? tool = allTools.FirstOrDefault(tool => tool.ToolName == toolName);
+                if (tool is null)
+                {
+                    throw new InvalidOperationException($"Tool '{toolName}' not found.");
+                }
+                
+                tools.Add(tool);
+            }
+            
+            AllToolSets.Add(new ToolSetViewModel(toolSet.Name, tools));
+        }
     }
 }
