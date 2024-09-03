@@ -3,12 +3,14 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Numerics;
 
 namespace ChunkyImageLib.Operations;
+
 public class EllipseHelper
 {
     /// <summary>
     /// Separates the ellipse's inner area into a bunch of horizontal lines and one big rectangle for drawing.
     /// </summary>
-    public static (List<VecI> lines, RectI rect) SplitEllipseFillIntoRegions(IReadOnlyList<VecI> ellipse, RectI ellipseBounds)
+    public static (List<VecI> lines, RectI rect) SplitEllipseFillIntoRegions(IReadOnlyList<VecI> ellipse,
+        RectI ellipseBounds)
     {
         if (ellipse.Count == 0)
             return (new(), RectI.Empty);
@@ -51,9 +53,10 @@ public class EllipseHelper
                 }
             }
         }
+
         return (lines, inscribedRect);
     }
-    
+
     /// <summary>
     /// Splits the ellipse into a bunch of horizontal lines.
     /// The resulting list contains consecutive pairs of <see cref="VecI"/>s, each pair has one for the start of the line and one for the end.
@@ -79,24 +82,28 @@ public class EllipseHelper
                 minX = int.MaxValue;
                 maxX = int.MinValue;
             }
+
             minX = Math.Min(point.X, minX);
             maxX = Math.Max(point.X, maxX);
             prev = point;
         }
+
         if (prev != null)
         {
             lines.Add(new(minX, prev.Value.Y));
             lines.Add(new(maxX, prev.Value.Y));
         }
+
         return lines;
     }
-    
-    public static List<VecI> GenerateEllipseFromRect(RectI rect)
+
+    public static List<VecI> GenerateEllipseFromRect(RectI rect, double rotationRad = 0)
     {
         if (rect.IsZeroOrNegativeArea)
             return new();
         float radiusX = (rect.Width - 1) / 2.0f;
         float radiusY = (rect.Height - 1) / 2.0f;
+        //TODO: Implement rotation
         return GenerateMidpointEllipse(radiusX, radiusY, rect.Center.X, rect.Center.Y);
     }
 
@@ -156,8 +163,7 @@ public class EllipseHelper
             double derivativeX = 2 * Math.Pow(halfHeight, 2) * (currentX - centerX);
             double derivativeY = 2 * Math.Pow(halfWidth, 2) * (currentY - centerY);
             currentSlope = -(derivativeX / derivativeY);
-        }
-        while (currentSlope > -1 && currentY - centerY > 0.5);
+        } while (currentSlope > -1 && currentY - centerY > 0.5);
 
         // from PI/4 to 0
         while (currentY - centerY >= 0)
@@ -176,7 +182,26 @@ public class EllipseHelper
         return listToFill;
     }
 
-    private static void AddFallbackRectangle(double halfWidth, double halfHeight, double centerX, double centerY, List<VecI> coordinates)
+    /*private static List<VecI> GenerateMidpointEllipseRotated(double halfWidth, double halfHeight, double centerX,
+        double centerY, double rotationRad)
+    {
+        var listToFill = new List<VecI>();
+        if (halfWidth < 1 || halfHeight < 1)
+        {
+            AddFallbackRectangle(halfWidth, halfHeight, centerX, centerY, listToFill);
+            return listToFill;
+        }
+        
+        // formula ((x - h)cos(tetha) + (y - k)sin(tetha))^2 / a^2 + (-(x-h)sin(tetha)+(y-k)cos(tetha))^2 / b^2 = 1
+        
+        double cos = Math.Cos(rotationRad);
+        double sin = Math.Sin(rotationRad);
+        
+        
+    }*/
+
+    private static void AddFallbackRectangle(double halfWidth, double halfHeight, double centerX, double centerY,
+        List<VecI> coordinates)
     {
         int left = (int)Math.Floor(centerX - halfWidth);
         int top = (int)Math.Floor(centerY - halfHeight);

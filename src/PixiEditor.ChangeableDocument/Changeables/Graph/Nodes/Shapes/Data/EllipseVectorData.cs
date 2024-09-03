@@ -28,18 +28,12 @@ public class EllipseVectorData : ShapeVectorData
         using ChunkyImage img = new ChunkyImage(imageSize);
         RectI rect = new RectI(0, 0, imageSize.X, imageSize.Y); 
         
-        img.EnqueueDrawEllipse(rect, StrokeColor, FillColor, StrokeWidth);
+        img.EnqueueDrawEllipse(rect, StrokeColor, FillColor, StrokeWidth, RotationRadians);
         img.CommitChanges();
         
         VecI topLeft = new VecI((int)(Position.X - Radius.X), (int)(Position.Y - Radius.Y));
 
-        drawingSurface.Canvas.Save();
-        
-        drawingSurface.Canvas.RotateRadians((float)RotationRadians, (float)Position.X, (float)Position.Y);
-        
         img.DrawMostUpToDateRegionOn(rect, ChunkResolution.Full, drawingSurface, topLeft);
-        
-        drawingSurface.Canvas.Restore();
     }
 
     public override bool IsValid()

@@ -165,7 +165,7 @@ internal class BrushShapeOverlay : Overlay
     private static PathGeometry ConstructEllipseOutline(RectI rectangle)
     {
         var center = rectangle.Center;
-        var points = EllipseHelper.GenerateEllipseFromRect(rectangle);
+        var points = EllipseHelper.GenerateEllipseFromRect(rectangle, 0);
         points.Sort((vec, vec2) => Math.Sign((vec - center).Angle - (vec2 - center).Angle));
         List<VecI> finalPoints = new();
         for (int i = 0; i < points.Count; i++)

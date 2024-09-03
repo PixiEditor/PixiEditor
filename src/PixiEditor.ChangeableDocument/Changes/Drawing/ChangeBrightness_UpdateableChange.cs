@@ -31,7 +31,7 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
         this.frame = frame;
         // TODO: pos is unused, check if it should be added to positions
         
-        ellipseLines = EllipseHelper.SplitEllipseIntoLines((EllipseHelper.GenerateEllipseFromRect(new RectI(0, 0, strokeWidth, strokeWidth))));
+        ellipseLines = EllipseHelper.SplitEllipseIntoLines((EllipseHelper.GenerateEllipseFromRect(new RectI(0, 0, strokeWidth, strokeWidth), 0)));
     }
 
     [UpdateChangeMethod]

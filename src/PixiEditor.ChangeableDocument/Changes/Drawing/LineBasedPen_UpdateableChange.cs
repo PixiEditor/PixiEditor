@@ -1,4 +1,5 @@
-﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
+﻿using ChunkyImageLib.Operations;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
@@ -63,10 +64,19 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         {
             image.EnqueueDrawBresenhamLine(from, to, color, BlendMode.Src);
         }
+        else if (strokeWidth <= 10)
+        {
+            var bresenham = BresenhamLineHelper.GetBresenhamLine(from, to);
+            foreach (var point in bresenham)
+            {
+                var rect = new RectI(point - new VecI(strokeWidth / 2), new VecI(strokeWidth));
+                image.EnqueueDrawEllipse(rect, color, color, 1, 0, srcPaint);
+            }
+        }
         else
         {
             var rect = new RectI(to - new VecI(strokeWidth / 2), new VecI(strokeWidth));
-            image.EnqueueDrawEllipse(rect, color, color, 1, srcPaint);
+            image.EnqueueDrawEllipse(rect, color, color, 1, 0, srcPaint);
             image.EnqueueDrawSkiaLine(from, to, StrokeCap.Butt, strokeWidth, color, BlendMode.Src);
         }
         var affChunks = image.FindAffectedArea(opCount);
@@ -85,13 +95,13 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             else
             {
                 var rect = new RectI(points[0] - new VecI(strokeWidth / 2), new VecI(strokeWidth));
-                targetImage.EnqueueDrawEllipse(rect, color, color, 1, srcPaint);
+                targetImage.EnqueueDrawEllipse(rect, color, color, 1, 0, srcPaint);
             }
             return;
         }
 
         var firstRect = new RectI(points[0] - new VecI(strokeWidth / 2), new VecI(strokeWidth));
-        targetImage.EnqueueDrawEllipse(firstRect, color, color, 1, srcPaint);
+        targetImage.EnqueueDrawEllipse(firstRect, color, color, 1, 0, srcPaint);
 
         for (int i = 1; i < points.Count; i++)
         {
@@ -102,7 +112,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             else
             {
                 var rect = new RectI(points[i] - new VecI(strokeWidth / 2), new VecI(strokeWidth));
-                targetImage.EnqueueDrawEllipse(rect, color, color, 1, srcPaint);
+                targetImage.EnqueueDrawEllipse(rect, color, color, 1, 0, srcPaint);
                 targetImage.EnqueueDrawSkiaLine(points[i - 1], points[i], StrokeCap.Butt, strokeWidth, color, BlendMode.Src);
             }
         }

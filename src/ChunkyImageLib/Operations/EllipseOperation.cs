@@ -15,6 +15,7 @@ internal class EllipseOperation : IMirroredDrawOperation
     private readonly Color strokeColor;
     private readonly Color fillColor;
     private readonly int strokeWidth;
+    private readonly double rotation;
     private readonly Paint paint;
     private bool init = false;
     private VectorPath? outerPath;
@@ -23,12 +24,13 @@ internal class EllipseOperation : IMirroredDrawOperation
     private Point[]? ellipseFill;
     private RectI? ellipseFillRect;
 
-    public EllipseOperation(RectI location, Color strokeColor, Color fillColor, int strokeWidth, Paint? paint = null)
+    public EllipseOperation(RectI location, Color strokeColor, Color fillColor, int strokeWidth, double rotationRad, Paint? paint = null)
     {
         this.location = location;
         this.strokeColor = strokeColor;
         this.fillColor = fillColor;
         this.strokeWidth = strokeWidth;
+        this.rotation = rotationRad;
         this.paint = paint?.Clone() ?? new Paint();
     }
 
@@ -37,7 +39,7 @@ internal class EllipseOperation : IMirroredDrawOperation
         init = true;
         if (strokeWidth == 1)
         {
-            var ellipseList = EllipseHelper.GenerateEllipseFromRect(location);
+            var ellipseList = EllipseHelper.GenerateEllipseFromRect(location, rotation);
             ellipse = ellipseList.Select(a => new Point(a)).ToArray();
             if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
             {
@@ -113,7 +115,7 @@ internal class EllipseOperation : IMirroredDrawOperation
             newLocation = (RectI)newLocation.ReflectX((double)verAxisX).Round();
         if (horAxisY is not null)
             newLocation = (RectI)newLocation.ReflectY((double)horAxisY).Round();
-        return new EllipseOperation(newLocation, strokeColor, fillColor, strokeWidth, paint);
+        return new EllipseOperation(newLocation, strokeColor, fillColor, strokeWidth, rotation, paint);
     }
 
     public void Dispose()

@@ -612,6 +612,9 @@ internal class MemberPreviewUpdater
     {
         QueueRender(() =>
         {
+            if(surface.IsDisposed)
+                return;
+            
             surface.DrawingSurface.Canvas.Save();
             surface.DrawingSurface.Canvas.Scale(scaling);
             surface.DrawingSurface.Canvas.Translate(-position);
