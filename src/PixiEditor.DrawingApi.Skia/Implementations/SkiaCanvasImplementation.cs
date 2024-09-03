@@ -112,9 +112,10 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public void DrawPoints(IntPtr objPtr, PointMode pointMode, Point[] points, Paint paint)
         {
+            SKPoint[] skPoints = CastUtility.UnsafeArrayCast<Point, SKPoint>(points);
             ManagedInstances[objPtr].DrawPoints(
                 (SKPointMode)pointMode,
-                CastUtility.UnsafeArrayCast<Point, SKPoint>(points),
+                skPoints,
                 _paintImpl[paint.ObjectPointer]);
         }
 

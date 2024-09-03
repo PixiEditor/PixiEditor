@@ -4,15 +4,17 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
-public class PointsData : ShapeData
+public class PointsVectorData : ShapeVectorData
 {
     public List<VecD> Points { get; set; } = new();
     
-    public PointsData(IEnumerable<VecD> points)
+    public PointsVectorData(IEnumerable<VecD> points)
     {
         Points = new List<VecD>(points);
     }
-    
+
+    public override RectD AABB => new RectD(Points.Min(p => p.X), Points.Min(p => p.Y), Points.Max(p => p.X), Points.Max(p => p.Y));
+
     public override void Rasterize(DrawingSurface drawingSurface)
     {
         using Paint paint = new Paint();
@@ -39,7 +41,7 @@ public class PointsData : ShapeData
 
     public override object Clone()
     {
-        return new PointsData(Points)
+        return new PointsVectorData(Points)
         {
             StrokeColor = StrokeColor,
             FillColor = FillColor,

@@ -54,6 +54,11 @@ public struct Matrix3X3 : IEquatable<Matrix3X3>
     /// <summary>Gets or sets the z-perspective.</summary>
     /// <value />
     public float Persp2 { get; set; }
+    
+    public VecD Position => new VecD(TransX, TransY);
+    public VecD Scale => new VecD(ScaleX, ScaleY);
+    public VecD Skew => new VecD(SkewX, SkewY);
+    public VecD Perspective => new VecD(Persp0, Persp1);
 
     public readonly bool Equals(Matrix3X3 obj)
     {

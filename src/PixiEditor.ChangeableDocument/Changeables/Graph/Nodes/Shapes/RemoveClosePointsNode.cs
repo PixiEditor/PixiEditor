@@ -2,14 +2,13 @@
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.Numerics;
-using ShapeData = PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data.ShapeData;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes;
 
 [NodeInfo("RemoveClosePoints")]
-public class RemoveClosePointsNode : ShapeNode<PointsData>
+public class RemoveClosePointsNode : ShapeNode<PointsVectorData>
 {
-    public InputProperty<PointsData> Input { get; }
+    public InputProperty<PointsVectorData> Input { get; }
 
     public InputProperty<double> MinDistance { get; }
 
@@ -17,12 +16,12 @@ public class RemoveClosePointsNode : ShapeNode<PointsData>
 
     public RemoveClosePointsNode()
     {
-        Input = CreateInput<PointsData>("Input", "POINTS", null);
+        Input = CreateInput<PointsVectorData>("Input", "POINTS", null);
         MinDistance = CreateInput("MinDistance", "MIN_DISTANCE", 0d);
         Seed = CreateInput("Seed", "SEED", 0);
     }
 
-    protected override PointsData? GetShapeData(RenderingContext context)
+    protected override PointsVectorData? GetShapeData(RenderingContext context)
     {
         var data = Input.Value;
 
@@ -64,7 +63,7 @@ public class RemoveClosePointsNode : ShapeNode<PointsData>
             newPoints.Add(availablePoints[0]);
         }
 
-        var finalData = new PointsData(newPoints);
+        var finalData = new PointsVectorData(newPoints);
 
         return finalData;
     }

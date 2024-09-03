@@ -482,8 +482,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     public void TransformSelectedArea(bool toolLinked)
     {
         if (Document.SelectedStructureMember is null ||
-            Internals.ChangeController.IsChangeActive && !toolLinked ||
-            Document.SelectionPathBindable.IsEmpty)
+            Internals.ChangeController.IsChangeActive && !toolLinked)
             return;
         Internals.ChangeController.TryStartExecutor(new TransformSelectedAreaExecutor(toolLinked));
     }

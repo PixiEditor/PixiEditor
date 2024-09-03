@@ -1,4 +1,7 @@
 ﻿using ChunkyImageLib.Operations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.Objects;
 using PixiEditor.ChangeableDocument.Changes.Selection;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -8,6 +11,7 @@ using PixiEditor.DrawingApi.Core.Surfaces.Vector;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
+
 internal class TransformSelectedArea_UpdateableChange : UpdateableChange
 {
     private readonly Guid[] membersToTransform;
@@ -16,6 +20,7 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
     private ShapeCorners corners;
 
     private Dictionary<Guid, (Surface surface, VecI pos)>? images;
+    private Dictionary<Guid, (ITransformableObject, ShapeCorners original)>? transformableObjectMembers;
     private Matrix3X3 globalMatrix;
     private Dictionary<Guid, CommittedChunkStorage>? savedChunks;
 
@@ -26,7 +31,7 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
     private bool hasEnqueudImages = false;
     private int frame;
 
-    private static Paint RegularPaint { get; } = new () { BlendMode = BlendMode.SrcOver };
+    private static Paint RegularPaint { get; } = new() { BlendMode = BlendMode.SrcOver };
 
     [GenerateUpdateableChangeActions]
     public TransformSelectedArea_UpdateableChange(
@@ -45,36 +50,54 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
 
     public override bool InitializeAndValidate(Document target)
     {
-        if (membersToTransform.Length == 0 || target.Selection.SelectionPath.IsEmpty)
+        if (membersToTransform.Length == 0)
             return false;
 
-        foreach (var guid in membersToTransform)
-        {
-            if (!DrawingChangeHelper.IsValidForDrawing(target, guid, drawOnMask))
-                return false;
-        }
+        VectorPath path = !target.Selection.SelectionPath.IsEmpty
+            ? target.Selection.SelectionPath
+            : GetSelectionFromMembers(target, membersToTransform);
 
-        originalPath = new VectorPath(target.Selection.SelectionPath) { FillType = PathFillType.EvenOdd };
-        
+        if (path.IsEmpty)
+            return false;
+
+        originalPath = new VectorPath(path) { FillType = PathFillType.EvenOdd };
+
         originalTightBounds = originalPath.TightBounds;
         roundedTightBounds = (RectI)originalTightBounds.RoundOutwards();
         //boundsRoundingOffset = bounds.TopLeft - roundedBounds.TopLeft;
 
-        images = new();
         foreach (var guid in membersToTransform)
         {
-            ChunkyImage image = DrawingChangeHelper.GetTargetImageOrThrow(target, guid, drawOnMask, frame);
-            var extracted = ExtractArea(image, originalPath, roundedTightBounds);
-            if (extracted.IsT0)
-                continue;
-            images.Add(guid, (extracted.AsT1.image, extracted.AsT1.extractedRect.Pos));
+            StructureNode layer = target.FindMemberOrThrow(guid);
+
+            if (layer is ImageLayerNode)
+            {
+                ChunkyImage image = DrawingChangeHelper.GetTargetImageOrThrow(target, guid, drawOnMask, frame);
+                var extracted = ExtractArea(image, originalPath, roundedTightBounds);
+                if (extracted.IsT0)
+                    continue;
+                
+                if (images is null)
+                    images = new();
+                
+                images.Add(guid, (extracted.AsT1.image, extracted.AsT1.extractedRect.Pos));
+            }
+            else if (layer is ITransformableObject transformable)
+            {
+                transformableObjectMembers ??= new();
+                transformableObjectMembers.Add(guid, (transformable, new ShapeCorners(transformable.Position, transformable.Size).AsRotated(transformable.RotationRadians, transformable.Position)));
+            } 
         }
+        
+        if (images is null && transformableObjectMembers is null)
+            return false;
 
         globalMatrix = OperationHelper.CreateMatrixFromPoints(corners, originalTightBounds.Size);
         return true;
     }
 
-    public OneOf<None, (Surface image, RectI extractedRect)> ExtractArea(ChunkyImage image, VectorPath path, RectI pathBounds)
+    public OneOf<None, (Surface image, RectI extractedRect)> ExtractArea(ChunkyImage image, VectorPath path,
+        RectI pathBounds)
     {
         // get rid of transparent areas on edges
         var memberImageBounds = image.FindChunkAlignedMostUpToDateBounds();
@@ -107,42 +130,41 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
         globalMatrix = OperationHelper.CreateMatrixFromPoints(corners, originalTightBounds.Size);
     }
 
-    private AffectedArea DrawImage(Document doc, Guid memberGuid, Surface image, VecI originalPos, ChunkyImage memberImage)
-    {
-        var prevAffArea = memberImage.FindAffectedArea();
-
-        memberImage.CancelChanges();
-
-        if (!keepOriginal)
-            memberImage.EnqueueClearPath(originalPath!, roundedTightBounds);
-        Matrix3X3 localMatrix = Matrix3X3.CreateTranslation(originalPos.X - (float)originalTightBounds.Left, originalPos.Y - (float)originalTightBounds.Top);
-        localMatrix = localMatrix.PostConcat(globalMatrix);
-        memberImage.EnqueueDrawImage(localMatrix, image, RegularPaint, false);
-        hasEnqueudImages = true;
-
-        var affectedArea = memberImage.FindAffectedArea();
-        affectedArea.UnionWith(prevAffArea);
-        return affectedArea;
-    }
-
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
+        out bool ignoreInUndo)
     {
         if (savedChunks is not null)
             throw new InvalidOperationException("Apply called twice");
         savedChunks = new();
 
         List<IChangeInfo> infos = new();
-        foreach (var (guid, (image, pos)) in images!)
+        if (images != null)
         {
-            ChunkyImage memberImage = DrawingChangeHelper.GetTargetImageOrThrow(target, guid, drawOnMask, frame);
-            var area = DrawImage(target, guid, image, pos, memberImage);
-            savedChunks[guid] = new(memberImage, memberImage.FindAffectedArea().Chunks);
-            memberImage.CommitChanges();
-            infos.Add(DrawingChangeHelper.CreateAreaChangeInfo(guid, area, drawOnMask).AsT1);
+            foreach (var (guid, (image, pos)) in images)
+            {
+                ChunkyImage memberImage = DrawingChangeHelper.GetTargetImageOrThrow(target, guid, drawOnMask, frame);
+                var area = DrawImage(image, pos, memberImage);
+                savedChunks[guid] = new(memberImage, memberImage.FindAffectedArea().Chunks);
+                memberImage.CommitChanges();
+                infos.Add(DrawingChangeHelper.CreateAreaChangeInfo(guid, area, drawOnMask).AsT1);
+            }
+        }
+
+        if (transformableObjectMembers != null)
+        {
+            foreach (var (guid, (transformable, pos)) in transformableObjectMembers!)
+            {
+                transformable.Position = corners.RectCenter;
+                transformable.Size = corners.RectSize;
+                transformable.RotationRadians = corners.RectRotation;
+                
+                AffectedArea area = GetTranslationAffectedArea();
+                infos.Add(new TransformObject_ChangeInfo(guid, area));
+            }
         }
 
         infos.Add(SelectionChangeHelper.DoSelectionTransform(target, originalPath!, originalTightBounds, corners));
-
+        
         hasEnqueudImages = false;
         ignoreInUndo = false;
         return infos;
@@ -151,11 +173,30 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
         List<IChangeInfo> infos = new();
-        foreach (var (guid, (image, pos)) in images!)
+        if (images != null)
         {
-            ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, guid, drawOnMask, frame);
-            infos.Add(DrawingChangeHelper.CreateAreaChangeInfo(guid, DrawImage(target, guid, image, pos, targetImage), drawOnMask).AsT1);
+            foreach (var (guid, (image, pos)) in images)
+            {
+                ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, guid, drawOnMask, frame);
+                infos.Add(DrawingChangeHelper.CreateAreaChangeInfo(guid, DrawImage(image, pos, targetImage), drawOnMask)
+                    .AsT1);
+            }
         }
+
+        if (transformableObjectMembers != null)
+        {
+            foreach (var (guid, (transformable, pos)) in transformableObjectMembers)
+            {
+                VecD translated = corners.RectCenter; 
+                transformable.Position = translated;
+                transformable.Size = corners.RectSize; 
+                transformable.RotationRadians = corners.RectRotation;
+                
+                AffectedArea translationAffectedArea = GetTranslationAffectedArea();
+                infos.Add(new TransformObject_ChangeInfo(guid, translationAffectedArea));
+            }
+        }
+
         infos.Add(SelectionChangeHelper.DoSelectionTransform(target, originalPath!, originalTightBounds, corners));
         return infos;
     }
@@ -166,11 +207,27 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
         foreach (var (guid, storage) in savedChunks!)
         {
             var storageCopy = storage;
-            var chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, guid, drawOnMask, frame, ref storageCopy);
+            var chunks =
+                DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, guid, drawOnMask, frame,
+                    ref storageCopy);
             infos.Add(DrawingChangeHelper.CreateAreaChangeInfo(guid, chunks, drawOnMask).AsT1);
         }
 
-        (var toDispose, target.Selection.SelectionPath) = (target.Selection.SelectionPath, new VectorPath(originalPath!));
+        if (transformableObjectMembers != null)
+        {
+            foreach (var (guid, (transformable, original)) in transformableObjectMembers)
+            {
+                transformable.Position = original.RectCenter;
+                transformable.Size = original.RectSize;
+                transformable.RotationRadians = original.RectRotation;
+                
+                AffectedArea area = GetTranslationAffectedArea();
+                infos.Add(new TransformObject_ChangeInfo(guid, area));
+            }
+        }
+
+        (var toDispose, target.Selection.SelectionPath) =
+            (target.Selection.SelectionPath, new VectorPath(originalPath!));
         toDispose.Dispose();
         infos.Add(new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath)));
 
@@ -181,7 +238,8 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
     public override void Dispose()
     {
         if (hasEnqueudImages)
-            throw new InvalidOperationException("Attempted to dispose the change while it's internally stored image is still used enqueued in some ChunkyImage. Most likely someone tried to dispose a change after ApplyTemporarily was called but before the subsequent call to Apply. Don't do that.");
+            throw new InvalidOperationException(
+                "Attempted to dispose the change while it's internally stored image is still used enqueued in some ChunkyImage. Most likely someone tried to dispose a change after ApplyTemporarily was called but before the subsequent call to Apply. Don't do that.");
 
         if (images is not null)
         {
@@ -198,5 +256,58 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
                 chunks.Dispose();
             }
         }
+    }
+    
+    private AffectedArea GetTranslationAffectedArea()
+    {
+        RectD oldBounds = originalTightBounds;
+        
+        HashSet<VecI> chunks = new();
+        VecI topLeftChunk = new VecI((int)oldBounds.Left / ChunkyImage.FullChunkSize, (int)oldBounds.Top / ChunkyImage.FullChunkSize);
+        VecI bottomRightChunk = new VecI((int)oldBounds.Right / ChunkyImage.FullChunkSize, (int)oldBounds.Bottom / ChunkyImage.FullChunkSize);
+        
+        for (int x = topLeftChunk.X; x <= bottomRightChunk.X; x++)
+        {
+            for (int y = topLeftChunk.Y; y <= bottomRightChunk.Y; y++)
+            {
+                chunks.Add(new VecI(x, y));
+            }
+        }
+
+        return new AffectedArea(chunks);
+    }
+
+    private AffectedArea DrawImage(Surface image, VecI originalPos, ChunkyImage memberImage)
+    {
+        var prevAffArea = memberImage.FindAffectedArea();
+
+        memberImage.CancelChanges();
+
+        if (!keepOriginal)
+            memberImage.EnqueueClearPath(originalPath!, roundedTightBounds);
+        Matrix3X3 localMatrix = Matrix3X3.CreateTranslation(originalPos.X - (float)originalTightBounds.Left,
+            originalPos.Y - (float)originalTightBounds.Top);
+        localMatrix = localMatrix.PostConcat(globalMatrix);
+        memberImage.EnqueueDrawImage(localMatrix, image, RegularPaint, false);
+        hasEnqueudImages = true;
+
+        var affectedArea = memberImage.FindAffectedArea();
+        affectedArea.UnionWith(prevAffArea);
+        return affectedArea;
+    }
+
+    private VectorPath GetSelectionFromMembers(Document target, IEnumerable<Guid> members)
+    {
+        VectorPath path = new VectorPath();
+        foreach (var guid in members)
+        {
+            var bounds = target.FindMember(guid).GetTightBounds(frame);
+            if (bounds.HasValue)
+            {
+                path.AddRect(bounds.Value);
+            }
+        }
+
+        return path;
     }
 }

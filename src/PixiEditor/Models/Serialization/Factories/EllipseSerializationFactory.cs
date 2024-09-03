@@ -4,13 +4,13 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.Serialization.Factories;
 
-public class EllipseSerializationFactory : SerializationFactory<byte[], EllipseData>
+public class EllipseSerializationFactory : SerializationFactory<byte[], EllipseVectorData>
 {
     public override string DeserializationId { get; } = "PixiEditor.EllipseData";
-    public override byte[] Serialize(EllipseData original)
+    public override byte[] Serialize(EllipseVectorData original)
     {
         ByteBuilder builder = new ByteBuilder();
-        builder.AddVecD(original.Center);
+        builder.AddVecD(original.Position);
         builder.AddVecD(original.Radius);
         builder.AddColor(original.StrokeColor);
         builder.AddColor(original.FillColor);
@@ -19,7 +19,7 @@ public class EllipseSerializationFactory : SerializationFactory<byte[], EllipseD
         return builder.Build();
     }
 
-    public override bool TryDeserialize(object serialized, out EllipseData original)
+    public override bool TryDeserialize(object serialized, out EllipseVectorData original)
     {
         if (serialized is not byte[] data)
         {
@@ -35,7 +35,7 @@ public class EllipseSerializationFactory : SerializationFactory<byte[], EllipseD
         Color fillColor = extractor.GetColor();
         int strokeWidth = extractor.GetInt();
         
-        original = new EllipseData(center, radius)
+        original = new EllipseVectorData(center, radius)
         {
             StrokeColor = strokeColor,
             FillColor = fillColor,

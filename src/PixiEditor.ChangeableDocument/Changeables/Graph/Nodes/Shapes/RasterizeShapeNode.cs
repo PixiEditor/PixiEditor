@@ -1,10 +1,10 @@
-﻿using PixiEditor.ChangeableDocument.Rendering;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
-using ShapeData = PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data.ShapeData;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes;
 
@@ -13,13 +13,13 @@ public class RasterizeShapeNode : Node
 {
     public OutputProperty<Texture> Image { get; }
 
-    public InputProperty<ShapeData> Data { get; }
+    public InputProperty<ShapeVectorData> Data { get; }
 
 
     public RasterizeShapeNode()
     {
         Image = CreateOutput<Texture>("Image", "IMAGE", null);
-        Data = CreateInput<ShapeData>("Points", "SHAPE", null);
+        Data = CreateInput<ShapeVectorData>("Points", "SHAPE", null);
     }
 
     protected override Texture? OnExecute(RenderingContext context)

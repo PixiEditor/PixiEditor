@@ -316,7 +316,8 @@ internal class DocumentUpdater
     private void ProcessLayerLockTransparency(LayerLockTransparency_ChangeInfo info)
     {
         ILayerHandler? layer = (ILayerHandler)doc.StructureHelper.FindOrThrow(info.Id);
-        layer.SetLockTransparency(info.LockTransparency);
+        if (layer is ITransparencyLockableMember transparencyLockableLayer)
+            transparencyLockableLayer.SetLockTransparency(info.LockTransparency);
     }
 
     private void ProcessStructureMemberBlendMode(StructureMemberBlendMode_ChangeInfo info)
@@ -372,7 +373,10 @@ internal class DocumentUpdater
         if (info is CreateLayer_ChangeInfo layerInfo)
         {
             memberVM = doc.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.Id == info.Id) as ILayerHandler;
-            ((ILayerHandler)memberVM).SetLockTransparency(layerInfo.LockTransparency);
+            if (memberVM is ITransparencyLockableMember transparencyLockableMember)
+            {
+                transparencyLockableMember.SetLockTransparency(layerInfo.LockTransparency);        
+            }
         }
         else if (info is CreateFolder_ChangeInfo)
         {

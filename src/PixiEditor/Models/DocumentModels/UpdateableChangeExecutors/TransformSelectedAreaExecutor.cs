@@ -24,7 +24,7 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
     public override ExecutionState Start()
     {
         tool = GetHandler<IMoveToolHandler>();
-        if (tool is null || document!.SelectedStructureMember is null || document!.SelectionPathBindable.IsEmpty)
+        if (tool is null || document!.SelectedStructureMember is null)
             return ExecutionState.Error;
 
         tool.TransformingSelectedArea = true;
@@ -36,13 +36,34 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
         
         if (!members.Any())
             return ExecutionState.Error;
+        
+        RectD rect = !document.SelectionPathBindable.IsEmpty ? document.SelectionPathBindable.TightBounds : GetMembersTightBounds(members);
+        
+        if (rect.IsZeroOrNegativeArea)
+            return ExecutionState.Error;
 
-        ShapeCorners corners = new(document.SelectionPathBindable.TightBounds);
+        ShapeCorners corners = new(rect);
         document.TransformHandler.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, corners, Type == ExecutorType.Regular);
         membersToTransform = members.Select(static a => a.Id).ToArray();
         internals!.ActionAccumulator.AddActions(
             new TransformSelectedArea_Action(membersToTransform, corners, tool.KeepOriginalImage, false, document.AnimationHandler.ActiveFrameBindable));
         return ExecutionState.Success;
+    }
+
+    private RectD GetMembersTightBounds(List<IStructureMemberHandler> members)
+    {
+        RectI rect = members[0].TightBounds ?? RectI.Empty;
+        
+        for (int i = 1; i < members.Count; i++)
+        {
+            RectI? memberRect = members[i].TightBounds;
+            if (memberRect is not null)
+            {
+                rect = rect.Union(memberRect.Value);
+            } 
+        }
+
+        return (RectD)rect;
     }
 
     public override void OnTransformMoved(ShapeCorners corners)

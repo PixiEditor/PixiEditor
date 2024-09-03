@@ -15,6 +15,5 @@ public interface IReadOnlyStructureNode : IReadOnlyNode
     public InputProperty<bool> MaskIsVisible { get; }
     public string MemberName { get; set; }
     public RectI? GetTightBounds(KeyFrameTime frameTime);
-    
     public ChunkyImage? EmbeddedMask { get; }
 }

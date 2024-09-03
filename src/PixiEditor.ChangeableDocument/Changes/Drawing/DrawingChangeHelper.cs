@@ -111,7 +111,7 @@ internal static class DrawingChangeHelper
             // If it should draw on the mask, the mask can't be null
             true when member.EmbeddedMask is null => false,
             // If it should not draw on the mask, the member can't be a folder
-            false when member is FolderNode => false,
+            false when member is not ImageLayerNode => false,
             _ => true
         };
     }

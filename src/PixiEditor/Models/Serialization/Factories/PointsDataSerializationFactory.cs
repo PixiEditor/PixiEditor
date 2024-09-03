@@ -4,10 +4,10 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.Serialization.Factories;
 
-public class PointsDataSerializationFactory : SerializationFactory<byte[], PointsData>
+public class PointsDataSerializationFactory : SerializationFactory<byte[], PointsVectorData>
 {
     public override string DeserializationId { get; } = "PixiEditor.PointsData";
-    public override byte[] Serialize(PointsData original)
+    public override byte[] Serialize(PointsVectorData original)
     {
         ByteBuilder builder = new ByteBuilder();
         builder.AddVecDList(original.Points);
@@ -17,7 +17,7 @@ public class PointsDataSerializationFactory : SerializationFactory<byte[], Point
         return builder.Build();
     }
 
-    public override bool TryDeserialize(object serialized, out PointsData original)
+    public override bool TryDeserialize(object serialized, out PointsVectorData original)
     {
         if (serialized is not byte[] data)
         {
@@ -31,7 +31,7 @@ public class PointsDataSerializationFactory : SerializationFactory<byte[], Point
         Color fillColor = extractor.GetColor();
         int strokeWidth = extractor.GetInt();
         
-        original = new PointsData(points)
+        original = new PointsVectorData(points)
         {
             FillColor = fillColor,
             StrokeWidth = strokeWidth

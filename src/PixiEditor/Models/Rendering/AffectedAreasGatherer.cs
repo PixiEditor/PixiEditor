@@ -11,6 +11,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
+using PixiEditor.ChangeableDocument.ChangeInfos.Objects;
 using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
@@ -66,6 +67,10 @@ internal class AffectedAreasGatherer
                         throw new InvalidOperationException("Chunks must not be null");
                     AddToMainImage(info.Area);
                     AddToImagePreviews(info.Id, info.Area);
+                    break;
+                case TransformObject_ChangeInfo info:
+                    AddToMainImage(info.Area);
+                    AddToImagePreviews(info.NodeGuid, info.Area);
                     break;
                 case CreateStructureMember_ChangeInfo info:
                     AddAllToMainImage(info.Id, 0);
