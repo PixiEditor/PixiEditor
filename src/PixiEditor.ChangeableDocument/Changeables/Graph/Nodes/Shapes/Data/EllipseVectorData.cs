@@ -12,7 +12,7 @@ public class EllipseVectorData : ShapeVectorData
     } 
 
     public override RectD AABB =>
-        new ShapeCorners(Position, Size)
+        new ShapeCorners(Position, Size).AsRotated(RotationRadians, Position)
             .AABBBounds;
     
     public EllipseVectorData(VecD center, VecD radius)
@@ -23,17 +23,24 @@ public class EllipseVectorData : ShapeVectorData
 
     public override void Rasterize(DrawingSurface drawingSurface)
     {
-        var imageSize = (VecI)Size; 
-
-        using ChunkyImage img = new ChunkyImage(imageSize);
-        RectI rect = new RectI(0, 0, imageSize.X, imageSize.Y); 
+        var imageSize = (VecI)Size;
         
-        img.EnqueueDrawEllipse(rect, StrokeColor, FillColor, StrokeWidth, RotationRadians);
+        using ChunkyImage img = new ChunkyImage((VecI)AABB.Size);
+
+        RectD rotated = new ShapeCorners(RectD.FromTwoPoints(VecD.Zero, imageSize))
+            .AsRotated(RotationRadians, imageSize / 2f).AABBBounds;
+
+        VecI shift = new VecI(-(int)rotated.Left, -(int)rotated.Top);
+        RectI drawRect = new(shift, imageSize);
+        
+        img.EnqueueDrawEllipse(drawRect, StrokeColor, FillColor, StrokeWidth, RotationRadians);
         img.CommitChanges();
-        
-        VecI topLeft = new VecI((int)(Position.X - Radius.X), (int)(Position.Y - Radius.Y));
 
-        img.DrawMostUpToDateRegionOn(rect, ChunkResolution.Full, drawingSurface, topLeft);
+        VecI topLeft = new VecI((int)(Position.X - Radius.X), (int)(Position.Y - Radius.Y)) - shift;
+        
+        RectI region = new(VecI.Zero, (VecI)AABB.Size);
+
+        img.DrawMostUpToDateRegionOn(region, ChunkResolution.Full, drawingSurface, topLeft);
     }
 
     public override bool IsValid()

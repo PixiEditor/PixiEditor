@@ -103,8 +103,7 @@ public class EllipseHelper
             return new();
         float radiusX = (rect.Width - 1) / 2.0f;
         float radiusY = (rect.Height - 1) / 2.0f;
-        //TODO: Implement rotation
-        return GenerateMidpointEllipse(radiusX, radiusY, rect.Center.X, rect.Center.Y);
+        return GenerateMidpointEllipse(radiusX, radiusY, rect.Center.X, rect.Center.Y, rotationRad);
     }
 
     /// <summary>
@@ -182,7 +181,7 @@ public class EllipseHelper
         return listToFill;
     }
 
-    /*private static List<VecI> GenerateMidpointEllipseRotated(double halfWidth, double halfHeight, double centerX,
+    private static List<VecI> GenerateMidpointEllipse(double halfWidth, double halfHeight, double centerX,
         double centerY, double rotationRad)
     {
         var listToFill = new List<VecI>();
@@ -193,12 +192,60 @@ public class EllipseHelper
         }
         
         // formula ((x - h)cos(tetha) + (y - k)sin(tetha))^2 / a^2 + (-(x-h)sin(tetha)+(y-k)cos(tetha))^2 / b^2 = 1
+
+        //double topMostTetha = GetTopMostAlpha(halfWidth, halfHeight, rotationRad);
+
+        //VecD possiblyTopmostPoint = GetTethaPoint(topMostTetha, halfWidth, halfHeight, rotationRad);
+        //VecD possiblyMinPoint = GetTethaPoint(topMostTetha + Math.PI, halfWidth, halfHeight, rotationRad);
         
-        double cos = Math.Cos(rotationRad);
-        double sin = Math.Sin(rotationRad);
+        // less than, because y grows downwards
+        //VecD actualTopmost = possiblyTopmostPoint.Y < possiblyMinPoint.Y ? possiblyTopmostPoint : possiblyMinPoint;
+
+        double currentTetha = 0; 
+
+        do
+        {
+            VecD point = GetTethaPoint(currentTetha, halfWidth, halfHeight, rotationRad);
+            listToFill.Add(new VecI((int)Math.Round(point.X + centerX), (int)Math.Round(point.Y + centerY)));
+
+            currentTetha += 0.001;
+        } while (currentTetha < Math.PI * 2);
         
+        return listToFill;
+    }
+    
+    private static bool IsInsideEllipse(double x, double y, double centerX, double centerY, double halfWidth, double halfHeight, double rotationRad)
+    {
+        double lhs = Math.Pow(x * Math.Cos(rotationRad) + y * Math.Sin(rotationRad), 2) / Math.Pow(halfWidth, 2);
+        double rhs = Math.Pow(-x * Math.Sin(rotationRad) + y * Math.Cos(rotationRad), 2) / Math.Pow(halfHeight, 2);
         
-    }*/
+        return lhs + rhs <= 1;
+    }
+    
+    private static VecD GetDerivative(double x,  double halfWidth, double halfHeight, double rotationRad, double tetha)
+    {
+        double xDerivative = halfWidth * Math.Cos(tetha) * Math.Cos(rotationRad) - halfHeight * Math.Sin(tetha) * Math.Sin(rotationRad);
+        double yDerivative = halfWidth * Math.Cos(tetha) * Math.Sin(rotationRad) + halfHeight * Math.Sin(tetha) * Math.Cos(rotationRad);
+        
+        return new VecD(xDerivative, yDerivative);
+    }
+    
+    private static VecD GetTethaPoint(double alpha, double halfWidth, double halfHeight, double rotation)
+    {
+        double x =
+            (halfWidth * Math.Cos(alpha) * Math.Cos(rotation) - halfHeight * Math.Sin(alpha) * Math.Sin(rotation));
+        double y = halfWidth * Math.Cos(alpha) * Math.Sin(rotation) + halfHeight * Math.Sin(alpha) * Math.Cos(rotation);
+        
+        return new VecD(x, y);
+    }
+    
+    private static double GetTopMostAlpha(double halfWidth, double halfHeight, double rotationRad)
+    {
+        if(rotationRad == 0)
+            return 0;
+        double tethaRot = Math.Cos(rotationRad) / Math.Sin(rotationRad);
+        return Math.Atan((halfHeight * tethaRot) / halfWidth);
+    }
 
     private static void AddFallbackRectangle(double halfWidth, double halfHeight, double centerX, double centerY,
         List<VecI> coordinates)

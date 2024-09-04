@@ -40,11 +40,12 @@ internal class EllipseOperation : IMirroredDrawOperation
         if (strokeWidth == 1)
         {
             var ellipseList = EllipseHelper.GenerateEllipseFromRect(location, rotation);
-            ellipse = ellipseList.Select(a => new Point(a)).ToArray();
+
+            ellipse = ellipseList.Select(a => new Point(a)).Distinct().ToArray();
             if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
             {
-                (var fill, ellipseFillRect) = EllipseHelper.SplitEllipseFillIntoRegions(ellipseList, location);
-                ellipseFill = fill.Select(a => new Point(a)).ToArray();
+                /*(var fill, ellipseFillRect) = EllipseHelper.SplitEllipseFillIntoRegions(ellipseList, location);
+                ellipseFill = fill.Select(a => new Point(a)).ToArray();*/
             }
         }
         else
@@ -71,9 +72,9 @@ internal class EllipseOperation : IMirroredDrawOperation
         {
             if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
             {
-                paint.Color = fillColor;
+                /*paint.Color = fillColor;
                 surf.Canvas.DrawPoints(PointMode.Lines, ellipseFill!, paint);
-                surf.Canvas.DrawRect(ellipseFillRect!.Value, paint);
+                surf.Canvas.DrawRect(ellipseFillRect!.Value, paint);*/
             }
             paint.Color = strokeColor;
             surf.Canvas.DrawPoints(PointMode.Points, ellipse!, paint);
@@ -98,14 +99,23 @@ internal class EllipseOperation : IMirroredDrawOperation
 
     public AffectedArea FindAffectedArea(VecI imageSize)
     {
-        var chunks = OperationHelper.FindChunksTouchingEllipse
-            (location.Center, location.Width / 2.0, location.Height / 2.0, ChunkyImage.FullChunkSize);
+        ShapeCorners corners = new((RectD)location);
+        corners = corners.AsRotated(rotation, (VecD)location.Center);
+        RectI bounds = (RectI)corners.AABBBounds;
+        
+        /*VecI shift = new VecI(Math.Max(0, -aabb.X), Math.Max(0, -aabb.Y));
+        aabb = aabb.Offset(shift);*/
+        
+        var chunks = OperationHelper.FindChunksTouchingRectangle(bounds, ChunkyImage.FullChunkSize);
         if (fillColor.A == 0)
         {
+            // TODO: Implement ellipse fill optimization for rotated ellipses
+            /*
             chunks.ExceptWith(OperationHelper.FindChunksFullyInsideEllipse
                 (location.Center, location.Width / 2.0 - strokeWidth * 2, location.Height / 2.0 - strokeWidth * 2, ChunkyImage.FullChunkSize));
+        */
         }
-        return new AffectedArea(chunks, location);
+        return new AffectedArea(chunks, bounds);
     }
 
     public IDrawOperation AsMirrored(double? verAxisX, double? horAxisY)
