@@ -20,6 +20,8 @@ internal class EllipseOperation : IMirroredDrawOperation
     private bool init = false;
     private VectorPath? outerPath;
     private VectorPath? innerPath;
+    
+    private VectorPath ellipseOutline;
     private Point[]? ellipse;
     private Point[]? ellipseFill;
     private RectI? ellipseFillRect;
@@ -39,13 +41,21 @@ internal class EllipseOperation : IMirroredDrawOperation
         init = true;
         if (strokeWidth == 1)
         {
-            var ellipseList = EllipseHelper.GenerateEllipseFromRect(location, rotation);
-
-            ellipse = ellipseList.Select(a => new Point(a)).ToArray();
-            if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
+            if (Math.Abs(rotation) < 0.001)
             {
-                /*(var fill, ellipseFillRect) = EllipseHelper.SplitEllipseFillIntoRegions(ellipseList, location);
-                ellipseFill = fill.Select(a => new Point(a)).ToArray();*/
+                var ellipseList = EllipseHelper.GenerateEllipseFromRect(location);
+
+                ellipse = ellipseList.Select(a => new Point(a)).ToArray();
+
+                if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
+                {
+                    (var fill, ellipseFillRect) = EllipseHelper.SplitEllipseFillIntoRegions(ellipseList.ToList(), location);
+                    ellipseFill = fill.Select(a => new Point(a)).ToArray();
+                }
+            }
+            else
+            {
+                ellipseOutline = EllipseHelper.GenerateEllipseVectorFromRect(location);
             }
         }
         else
@@ -70,14 +80,39 @@ internal class EllipseOperation : IMirroredDrawOperation
 
         if (strokeWidth == 1)
         {
-            if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
+            if (Math.Abs(rotation) < 0.001)
             {
-                /*paint.Color = fillColor;
-                surf.Canvas.DrawPoints(PointMode.Lines, ellipseFill!, paint);
-                surf.Canvas.DrawRect(ellipseFillRect!.Value, paint);*/
+                if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
+                {
+                    paint.Color = fillColor;
+                    surf.Canvas.DrawPoints(PointMode.Lines, ellipseFill!, paint);
+                    surf.Canvas.DrawRect(ellipseFillRect!.Value, paint);
+                }
+                
+                paint.Color = strokeColor;
+                paint.StrokeWidth = 1f;
+                surf.Canvas.DrawPoints(PointMode.Points, ellipse!, paint);
             }
-            paint.Color = strokeColor;
-            surf.Canvas.DrawPoints(PointMode.Points, ellipse!, paint);
+            else
+            {
+                surf.Canvas.Save();
+                surf.Canvas.RotateRadians((float)rotation, (float)location.Center.X, (float)location.Center.Y);
+                
+                if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
+                {
+                    paint.Color = fillColor;
+                    paint.Style = PaintStyle.Fill;
+                    surf.Canvas.DrawPath(ellipseOutline, paint);
+                }
+                
+                paint.Color = strokeColor;
+                paint.Style = PaintStyle.Stroke;
+                paint.StrokeWidth = 1f;
+                
+                surf.Canvas.DrawPath(ellipseOutline, paint);
+
+                surf.Canvas.Restore();
+            }
         }
         else
         {

@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surfaces.Vector;
 using PixiEditor.Numerics;
 
 namespace ChunkyImageLib.Operations;
@@ -103,6 +104,9 @@ public class EllipseHelper
             return new();
         float radiusX = (rect.Width - 1) / 2.0f;
         float radiusY = (rect.Height - 1) / 2.0f;
+        if (rotationRad == 0)
+            return GenerateMidpointEllipse(radiusX, radiusY, rect.Center.X, rect.Center.Y);
+        
         return GenerateMidpointEllipse(radiusX, radiusY, rect.Center.X, rect.Center.Y, rotationRad);
     }
 
@@ -181,6 +185,10 @@ public class EllipseHelper
         return listToFill;
     }
 
+    // This function works, but honestly Skia produces better results, and it doesn't require so much
+    // computation on the CPU. I'm leaving this, because once I (or someone else) figure out how to
+    // make it better, and it will be useful.
+    // Desmos with all the math https://www.desmos.com/calculator/m9lgg7s9zu
     private static HashSet<VecI> GenerateMidpointEllipse(double halfWidth, double halfHeight, double centerX,
         double centerY, double rotationRad)
     {
@@ -335,5 +343,15 @@ public class EllipseHelper
             coordinates.Add(new VecI(xFloorInv, yFloorInv));
             coordinates.Add(new VecI(xFloor, yFloorInv));
         }
+    }
+
+    public static VectorPath GenerateEllipseVectorFromRect(RectI location)
+    {
+        VectorPath path = new();
+        path.AddOval(location);
+       
+        path.Close();
+        
+        return path;
     }
 }
