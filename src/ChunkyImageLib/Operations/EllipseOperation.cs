@@ -41,7 +41,7 @@ internal class EllipseOperation : IMirroredDrawOperation
         {
             var ellipseList = EllipseHelper.GenerateEllipseFromRect(location, rotation);
 
-            ellipse = ellipseList.Select(a => new Point(a)).Distinct().ToArray();
+            ellipse = ellipseList.Select(a => new Point(a)).ToArray();
             if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
             {
                 /*(var fill, ellipseFillRect) = EllipseHelper.SplitEllipseFillIntoRegions(ellipseList, location);
@@ -101,10 +101,7 @@ internal class EllipseOperation : IMirroredDrawOperation
     {
         ShapeCorners corners = new((RectD)location);
         corners = corners.AsRotated(rotation, (VecD)location.Center);
-        RectI bounds = (RectI)corners.AABBBounds;
-        
-        /*VecI shift = new VecI(Math.Max(0, -aabb.X), Math.Max(0, -aabb.Y));
-        aabb = aabb.Offset(shift);*/
+        RectI bounds = (RectI)corners.AABBBounds.RoundOutwards();
         
         var chunks = OperationHelper.FindChunksTouchingRectangle(bounds, ChunkyImage.FullChunkSize);
         if (fillColor.A == 0)
