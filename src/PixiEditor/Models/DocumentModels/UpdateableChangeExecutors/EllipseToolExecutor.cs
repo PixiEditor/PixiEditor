@@ -22,15 +22,15 @@ internal class EllipseToolExecutor : ShapeToolExecutor<IEllipseToolHandler>
 
         lastRect = rect;
 
-        internals!.ActionAccumulator.AddActions(new DrawEllipse_Action(memberGuid, rect, strokeColor, fillColor, strokeWidth, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
+        internals!.ActionAccumulator.AddActions(new DrawEllipse_Action(memberGuid, rect, 0, strokeColor, fillColor, strokeWidth, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     public override ExecutorType Type => ExecutorType.ToolLinked;
-    protected override DocumentTransformMode TransformMode => DocumentTransformMode.Scale_NoRotate_NoShear_NoPerspective;
+    protected override DocumentTransformMode TransformMode => DocumentTransformMode.Scale_Rotate_Shear_NoPerspective;
     protected override void DrawShape(VecI currentPos, bool firstDraw) => DrawEllipseOrCircle(currentPos, firstDraw);
 
     protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners) =>
-        new DrawEllipse_Action(memberGuid, (RectI)RectD.FromCenterAndSize(data.Center, data.Size), strokeColor,
+        new DrawEllipse_Action(memberGuid, (RectI)RectD.FromCenterAndSize(data.Center, data.Size), corners.RectRotation, strokeColor,
             fillColor, strokeWidth, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
 
     protected override IAction EndDrawAction() => new EndDrawEllipse_Action();

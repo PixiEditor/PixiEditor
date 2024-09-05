@@ -7,6 +7,7 @@ internal class DrawEllipse_UpdateableChange : UpdateableChange
 {
     private readonly Guid memberGuid;
     private RectI location;
+    private double rotation;
     private readonly Color strokeColor;
     private readonly Color fillColor;
     private readonly int strokeWidth;
@@ -16,10 +17,11 @@ internal class DrawEllipse_UpdateableChange : UpdateableChange
     private CommittedChunkStorage? storedChunks;
 
     [GenerateUpdateableChangeActions]
-    public DrawEllipse_UpdateableChange(Guid memberGuid, RectI location, Color strokeColor, Color fillColor, int strokeWidth, bool drawOnMask, int frame)
+    public DrawEllipse_UpdateableChange(Guid memberGuid, RectI location, double rotationRad, Color strokeColor, Color fillColor, int strokeWidth, bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.location = location;
+        this.rotation = rotationRad;
         this.strokeColor = strokeColor;
         this.fillColor = fillColor;
         this.strokeWidth = strokeWidth;
@@ -28,9 +30,10 @@ internal class DrawEllipse_UpdateableChange : UpdateableChange
     }
 
     [UpdateChangeMethod]
-    public void Update(RectI location)
+    public void Update(RectI location, double rotationRad)
     {
         this.location = location;
+        rotation = rotationRad;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -47,7 +50,7 @@ internal class DrawEllipse_UpdateableChange : UpdateableChange
         if (!location.IsZeroOrNegativeArea)
         {
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, targetImage, memberGuid, drawOnMask);
-            targetImage.EnqueueDrawEllipse(location, strokeColor, fillColor, strokeWidth);
+            targetImage.EnqueueDrawEllipse(location, strokeColor, fillColor, strokeWidth, rotation);
         }
 
         var affectedArea = targetImage.FindAffectedArea();
