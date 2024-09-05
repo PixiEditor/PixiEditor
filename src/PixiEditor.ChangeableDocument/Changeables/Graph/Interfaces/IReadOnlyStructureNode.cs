@@ -16,4 +16,5 @@ public interface IReadOnlyStructureNode : IReadOnlyNode
     public string MemberName { get; set; }
     public RectI? GetTightBounds(KeyFrameTime frameTime);
     public ChunkyImage? EmbeddedMask { get; }
+    public ShapeCorners GetTransformationCorners(KeyFrameTime frameTime);
 }

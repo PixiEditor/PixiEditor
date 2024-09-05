@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using Avalonia.Media.Imaging;
 using ChunkyImageLib;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Layers;
@@ -20,6 +21,7 @@ internal interface IStructureMemberHandler : INodeHandler
     public IDocument Document { get; }
     public bool IsVisibleBindable { get; set; }
     public RectI? TightBounds { get; }
+    public ShapeCorners TransformationCorners { get; }
     public void SetMaskIsVisible(bool infoIsVisible);
     public void SetClipToMemberBelowEnabled(bool infoClipToMemberBelow);
     public void SetBlendMode(BlendMode infoBlendMode);

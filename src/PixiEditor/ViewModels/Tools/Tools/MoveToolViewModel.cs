@@ -24,8 +24,6 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
     private bool transformingSelectedArea = false;
     public bool MoveAllLayers { get; set; }
 
-    private bool removeSelection = false;
-
     public override string Icon => PixiPerfectIcons.MousePointer;
 
     public MoveToolViewModel()
@@ -79,30 +77,12 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
 
     public override void OnSelected()
     {
-        RectI? bounds = GetSelectedLayersBounds();
-        bool? isEmpty = ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.SelectionPathBindable
-            ?.IsEmpty;
-        if ((!isEmpty.HasValue || isEmpty.Value) && bounds.HasValue)
-        {
-            ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.Operations.Select(bounds.Value);
-            VectorPath path = new VectorPath();
-            path.AddRect(bounds.Value);
-            ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.UpdateSelectionPath(path);
-            removeSelection = true;
-        }
-
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(true);
     }
 
     public override void OnDeselecting()
     {
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
-
-        if (removeSelection)
-        {
-            ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.ClearSelection();
-            removeSelection = false;
-        }
     }
 
     private static RectI? GetSelectedLayersBounds()

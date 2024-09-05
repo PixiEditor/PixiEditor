@@ -3,20 +3,22 @@ using System.Linq;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surfaces.Vector;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using PixiEditor.Numerics;
+using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
-internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
+internal class TransformSelectedExecutor : UpdateableChangeExecutor
 {
-    private Guid[]? membersToTransform;
+    private Dictionary<Guid, ShapeCorners> memberCorners = new(); 
     private IMoveToolHandler? tool;
     public override ExecutorType Type { get; }
 
-    public TransformSelectedAreaExecutor(bool toolLinked)
+    public TransformSelectedExecutor(bool toolLinked)
     {
         Type = toolLinked ? ExecutorType.ToolLinked : ExecutorType.Regular;
     }
@@ -36,40 +38,32 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
         
         if (!members.Any())
             return ExecutionState.Error;
-        
-        RectD rect = !document.SelectionPathBindable.IsEmpty ? document.SelectionPathBindable.TightBounds : GetMembersTightBounds(members);
-        
-        if (rect.IsZeroOrNegativeArea)
-            return ExecutionState.Error;
 
-        ShapeCorners corners = new(rect);
-        document.TransformHandler.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, corners, Type == ExecutorType.Regular);
-        membersToTransform = members.Select(static a => a.Id).ToArray();
-        internals!.ActionAccumulator.AddActions(
-            new TransformSelectedArea_Action(membersToTransform, corners, tool.KeepOriginalImage, false, document.AnimationHandler.ActiveFrameBindable));
-        return ExecutionState.Success;
-    }
-
-    private RectD GetMembersTightBounds(List<IStructureMemberHandler> members)
-    {
-        RectI rect = members[0].TightBounds ?? RectI.Empty;
-        
-        for (int i = 1; i < members.Count; i++)
+        memberCorners = new();
+        foreach (IStructureMemberHandler member in members)
         {
-            RectI? memberRect = members[i].TightBounds;
-            if (memberRect is not null)
-            {
-                rect = rect.Union(memberRect.Value);
-            } 
-        }
+            ShapeCorners targetCorners = member.TransformationCorners;
 
-        return (RectD)rect;
+            if (member is IRasterLayerHandler && !document.SelectionPathBindable.IsEmpty)
+            {
+                targetCorners = new ShapeCorners(document.SelectionPathBindable.TightBounds);
+            }
+            
+            memberCorners.Add(member.Id, targetCorners);
+        }
+        
+        ShapeCorners masterCorners = new ShapeCorners(memberCorners.Values.Select(static c => c.AABBBounds).Aggregate((a, b) => a.Union(b)));
+        
+        document.TransformHandler.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, masterCorners, Type == ExecutorType.Regular);
+        internals!.ActionAccumulator.AddActions(
+            new TransformSelected_Action(masterCorners, tool.KeepOriginalImage, memberCorners, false, document.AnimationHandler.ActiveFrameBindable));
+        return ExecutionState.Success;
     }
 
     public override void OnTransformMoved(ShapeCorners corners)
     {
         internals!.ActionAccumulator.AddActions(
-            new TransformSelectedArea_Action(membersToTransform!, corners, tool!.KeepOriginalImage, false, document!.AnimationHandler.ActiveFrameBindable));
+            new TransformSelected_Action(corners, tool!.KeepOriginalImage, memberCorners, false, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     public override void OnSelectedObjectNudged(VecI distance) => document!.TransformHandler.Nudge(distance);
@@ -85,7 +79,7 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
             tool.TransformingSelectedArea = false;
         }
         
-        internals!.ActionAccumulator.AddActions(new EndTransformSelectedArea_Action());
+        internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();
         onEnded!.Invoke(this);
@@ -103,7 +97,7 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
             tool.TransformingSelectedArea = false;
         }
         
-        internals!.ActionAccumulator.AddActions(new EndTransformSelectedArea_Action());
+        internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();
     }

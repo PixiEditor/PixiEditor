@@ -484,7 +484,7 @@ internal class DocumentOperationsModule : IDocumentOperations
         if (Document.SelectedStructureMember is null ||
             Internals.ChangeController.IsChangeActive && !toolLinked)
             return;
-        Internals.ChangeController.TryStartExecutor(new TransformSelectedAreaExecutor(toolLinked));
+        Internals.ChangeController.TryStartExecutor(new TransformSelectedExecutor(toolLinked));
     }
 
     /// <summary>

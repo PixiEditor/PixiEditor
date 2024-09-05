@@ -59,6 +59,11 @@ public class VectorLayerNode : LayerNode, ITransformableObject
         return (RectI)ShapeData.AABB;
     }
 
+    public override ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
+    {
+        return new ShapeCorners(ShapeData.Position, ShapeData.Size).AsRotated(RotationRadians, ShapeData.Position);
+    }
+
     public override Node CreateCopy()
     {
         return new VectorLayerNode();

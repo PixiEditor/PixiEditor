@@ -27,6 +27,10 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     public OutputProperty<Texture?> FilterlessOutput { get; }
 
     public ChunkyImage? EmbeddedMask { get; set; }
+    public virtual ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
+    {
+        return new ShapeCorners((RectD)GetTightBounds(frameTime).Value);
+    }
 
     public string MemberName
     {
