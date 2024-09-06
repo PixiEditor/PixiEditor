@@ -356,6 +356,11 @@ public struct Matrix3X3 : IEquatable<Matrix3X3>
     {
         return DrawingBackendApi.Current.MatrixImplementation.PostConcat(in this, in globalMatrix);
     }
+    
+    public Matrix3X3 Concat(Matrix3X3 localMatrix)
+    {
+        return DrawingBackendApi.Current.MatrixImplementation.Concat(in this, in localMatrix);
+    }
 
     public VecD MapPoint(int p0, int p1)
     {

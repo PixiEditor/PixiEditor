@@ -45,7 +45,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject
 
     public override RectI? GetTightBounds(KeyFrameTime frameTime)
     {
-        return (RectI)ShapeData.GeometryAABB;
+        return (RectI)ShapeData.TransformedAABB;
     }
 
     public override ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
