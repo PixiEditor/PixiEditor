@@ -59,8 +59,9 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
             return false;
 
         RectD originalTightBounds = default;
+        bool hasSelection = target.Selection.SelectionPath is { IsEmpty: false };
         
-        if (target.Selection.SelectionPath is { IsEmpty: false })
+        if (hasSelection)
         {
             originalPath = new VectorPath(target.Selection.SelectionPath) { FillType = PathFillType.EvenOdd };
             originalTightBounds = originalPath.TightBounds;
@@ -68,46 +69,66 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
             originalSize = originalTightBounds.Size;
             isTransformingSelection = true;
         }
+        else
+        {
+            StructureNode firstLayer = target.FindMemberOrThrow(memberData[0].MemberId);
+            originalTightBounds = (RectD)firstLayer.GetTightBounds(frame).Value; 
+            for (var i = 1; i < memberData.Count; i++)
+            {
+                StructureNode layer = target.FindMemberOrThrow(memberData[i].MemberId);
+                originalTightBounds = originalTightBounds.Union((RectD)layer.GetTightBounds(frame).Value);
+            }
 
+            originalSize = originalTightBounds.Size;
+        }
+        
         foreach (var member in memberData)
         {
             StructureNode layer = target.FindMemberOrThrow(member.MemberId);
 
             if (layer is IReadOnlyImageNode)
             {
-                ChunkyImage image =
-                    DrawingChangeHelper.GetTargetImageOrThrow(target, member.MemberId, drawOnMask, frame);
-                VectorPath pathToExtract = originalPath;
-                RectD targetBounds = originalTightBounds;
-
-                if (pathToExtract == null)
-                {
-                    RectI tightBounds = layer.GetTightBounds(frame).GetValueOrDefault();
-                    pathToExtract = new VectorPath();
-                    pathToExtract.AddRect(tightBounds);
-                    targetBounds = pathToExtract.Bounds;
-                    originalSize = tightBounds.Size;
-                }
-
-                member.OriginalPath = pathToExtract;
-                member.OriginalBounds = targetBounds;
-                var extracted = ExtractArea(image, pathToExtract, member.RoundedOriginalBounds.Value);
-                if (extracted.IsT0)
-                    continue;
-                
-                member.AddImage(extracted.AsT1.image, extracted.AsT1.extractedRect.Pos);
+                SetImageMember(target, member, originalTightBounds, layer);
             }
             else if (layer is ITransformableObject transformable)
             {
-                RectI tightBounds = layer.GetTightBounds(frame).Value;
-                member.OriginalBounds = (RectD)tightBounds;
-                originalSize = tightBounds.Size;
-                
-                member.AddTransformableObject(transformable, transformable.TransformationMatrix);
+                SetTransformableMember(layer, member, transformable);
             }
         }
         
         return true;
+    }
+
+    private void SetTransformableMember(StructureNode layer, MemberTransformationData member,
+        ITransformableObject transformable)
+    {
+        RectI tightBounds = layer.GetTightBounds(frame).Value;
+        member.OriginalBounds = (RectD)tightBounds;
+        member.AddTransformableObject(transformable, transformable.TransformationMatrix);
+    }
+
+    private void SetImageMember(Document target, MemberTransformationData member, RectD originalTightBounds,
+        StructureNode layer)
+    {
+        ChunkyImage image =
+            DrawingChangeHelper.GetTargetImageOrThrow(target, member.MemberId, drawOnMask, frame);
+        VectorPath pathToExtract = originalPath;
+        RectD targetBounds = originalTightBounds;
+
+        if (pathToExtract == null)
+        {
+            RectI tightBounds = layer.GetTightBounds(frame).GetValueOrDefault();
+            pathToExtract = new VectorPath();
+            pathToExtract.AddRect(tightBounds);
+        }
+
+        member.OriginalPath = pathToExtract;
+        member.OriginalBounds = targetBounds;
+        var extracted = ExtractArea(image, pathToExtract, member.RoundedOriginalBounds.Value);
+        if (extracted.IsT0)
+            return;
+                
+        member.AddImage(extracted.AsT1.image, extracted.AsT1.extractedRect.Pos);
     }
 
     [UpdateChangeMethod]
