@@ -1,4 +1,5 @@
 ﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.Serialization.Factories;
@@ -13,6 +14,16 @@ public class ByteBuilder
     {
         _data.AddRange(BitConverter.GetBytes(vec.X));
         _data.AddRange(BitConverter.GetBytes(vec.Y));
+        
+        return this;
+    }
+    
+    public ByteBuilder AddMatrix3X3(Matrix3X3 matrix)
+    {
+        foreach (var value in matrix.Values)
+        {
+            _data.AddRange(BitConverter.GetBytes(value));
+        } 
         
         return this;
     }

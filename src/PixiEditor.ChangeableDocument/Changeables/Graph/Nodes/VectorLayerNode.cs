@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using ChunkyImageLib.Operations;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -11,24 +12,12 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("VectorLayer")]
 public class VectorLayerNode : LayerNode, ITransformableObject
 {
-    public VecD Position
+    public Matrix3X3 TransformationMatrix
     {
-        get => ShapeData.Position;
-        set => ShapeData.Position = value;
+        get => ShapeData.TransformationMatrix;
+        set => ShapeData.TransformationMatrix = value;
     }
-
-    public VecD Size
-    {
-        get => ShapeData.Size;
-        set => ShapeData.Size = value;
-    }
-
-    public double RotationRadians
-    {
-        get => ShapeData.RotationRadians;
-        set => ShapeData.RotationRadians = value;
-    }
-
+    
     public ShapeVectorData ShapeData { get; } = new EllipseVectorData(new VecI(32), new VecI(32));
     
     private int lastCacheHash;
@@ -56,12 +45,12 @@ public class VectorLayerNode : LayerNode, ITransformableObject
 
     public override RectI? GetTightBounds(KeyFrameTime frameTime)
     {
-        return (RectI)ShapeData.AABB;
+        return (RectI)ShapeData.GeometryAABB;
     }
 
     public override ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
     {
-        return new ShapeCorners(ShapeData.Position, ShapeData.Size).AsRotated(RotationRadians, ShapeData.Position);
+        return ShapeData.TransformationCorners;
     }
 
     public override Node CreateCopy()

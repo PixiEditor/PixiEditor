@@ -29,5 +29,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             var mapped = matrix.ToSkMatrix().MapPoint(p0, p1);
             return new VecD(mapped.X, mapped.Y);
         }
+
+        public VecD MapPoint(Matrix3X3 matrix, VecD point)
+        {
+            var mapped = matrix.ToSkMatrix().MapPoint((float)point.X, (float)point.Y);
+            return new VecD(mapped.X, mapped.Y);
+        }
     }
 }

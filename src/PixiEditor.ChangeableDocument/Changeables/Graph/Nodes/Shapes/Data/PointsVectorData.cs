@@ -13,7 +13,10 @@ public class PointsVectorData : ShapeVectorData
         Points = new List<VecD>(points);
     }
 
-    public override RectD AABB => new RectD(Points.Min(p => p.X), Points.Min(p => p.Y), Points.Max(p => p.X), Points.Max(p => p.Y));
+    public override RectD GeometryAABB => new RectD(Points.Min(p => p.X), Points.Min(p => p.Y), Points.Max(p => p.X),
+        Points.Max(p => p.Y));
+    public override ShapeCorners TransformationCorners => new ShapeCorners(
+        GeometryAABB).WithMatrix(TransformationMatrix); 
 
     public override void Rasterize(DrawingSurface drawingSurface)
     {

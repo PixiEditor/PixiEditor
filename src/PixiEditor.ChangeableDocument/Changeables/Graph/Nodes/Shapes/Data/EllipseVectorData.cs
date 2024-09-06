@@ -6,27 +6,29 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
 public class EllipseVectorData : ShapeVectorData
 {
-    public VecD Radius
-    {
-        get => Size / 2;
-        set => Size = value * 2;
-    } 
-
-    public override RectD AABB =>
-        new ShapeCorners(Position, Size).AsRotated(RotationRadians, Position)
-            .AABBBounds;
+    public VecD Radius { get; set; }
+    public VecD Center { get; set; }
     
+    public double RotationRadians { get; set; } = 0;
+
+    public override RectD GeometryAABB =>
+        new ShapeCorners(Center, Radius * 2).AsRotated(RotationRadians, Center).AABBBounds;
+
+    public override ShapeCorners TransformationCorners =>
+        new ShapeCorners(Center, Radius * 2).AsRotated(RotationRadians, Center).WithMatrix(TransformationMatrix);
+
+
     public EllipseVectorData(VecD center, VecD radius)
     {
-        Position = center;
+        Center = center;
         Radius = radius;
     }
 
     public override void Rasterize(DrawingSurface drawingSurface)
     {
-        var imageSize = (VecI)Size;
+        var imageSize = (VecI)(Radius * 2);
         
-        using ChunkyImage img = new ChunkyImage((VecI)AABB.Size);
+        using ChunkyImage img = new ChunkyImage((VecI)GeometryAABB.Size);
 
         RectD rotated = new ShapeCorners(RectD.FromTwoPoints(VecD.Zero, imageSize))
             .AsRotated(RotationRadians, imageSize / 2f).AABBBounds;
@@ -37,11 +39,16 @@ public class EllipseVectorData : ShapeVectorData
         img.EnqueueDrawEllipse(drawRect, StrokeColor, FillColor, StrokeWidth, RotationRadians);
         img.CommitChanges();
 
-        VecI topLeft = new VecI((int)Math.Round(Position.X - Radius.X), (int)Math.Round(Position.Y - Radius.Y)) - shift;
+        VecI topLeft = new VecI((int)Math.Round(Center.X - Radius.X), (int)Math.Round(Center.Y - Radius.Y)) - shift;
         
-        RectI region = new(VecI.Zero, (VecI)AABB.Size);
+        RectI region = new(VecI.Zero, (VecI)GeometryAABB.Size);
+
+        drawingSurface.Canvas.Save();
+        drawingSurface.Canvas.SetMatrix(TransformationMatrix);
 
         img.DrawMostUpToDateRegionOn(region, ChunkResolution.Full, drawingSurface, topLeft);
+        
+        drawingSurface.Canvas.Restore();
     }
 
     public override bool IsValid()
@@ -51,7 +58,7 @@ public class EllipseVectorData : ShapeVectorData
 
     public override int CalculateHash()
     {
-        return HashCode.Combine(Position, Radius);
+        return HashCode.Combine(Center, Radius, StrokeColor, FillColor, StrokeWidth, RotationRadians, TransformationMatrix);
     }
 
     public override int GetCacheHash()
@@ -61,11 +68,13 @@ public class EllipseVectorData : ShapeVectorData
 
     public override object Clone()
     {
-        return new EllipseVectorData(Position, Radius)
+        return new EllipseVectorData(Center, Radius)
         {
             StrokeColor = StrokeColor,
             FillColor = FillColor,
-            StrokeWidth = StrokeWidth
+            StrokeWidth = StrokeWidth,
+            RotationRadians = RotationRadians,
+            TransformationMatrix = TransformationMatrix
         };
     }
 }

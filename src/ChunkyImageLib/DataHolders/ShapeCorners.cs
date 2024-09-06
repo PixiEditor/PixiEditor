@@ -245,4 +245,17 @@ public struct ShapeCorners
         // All projections overlap, so the shapes intersect
         return true;
     }
+
+    public ShapeCorners WithMatrix(Matrix3X3 transformationMatrix)
+    {
+        ShapeCorners corners = new ShapeCorners
+        {
+            TopLeft = transformationMatrix.MapPoint(TopLeft),
+            TopRight = transformationMatrix.MapPoint(TopRight),
+            BottomLeft = transformationMatrix.MapPoint(BottomLeft),
+            BottomRight = transformationMatrix.MapPoint(BottomRight)
+        };
+        
+        return corners;
+    }
 }
