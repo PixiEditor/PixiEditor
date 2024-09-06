@@ -17,18 +17,20 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
     private readonly bool drawOnMask;
     private bool keepOriginal;
     private ShapeCorners masterCorners;
-    private VecD originalMasterCornersSize;
 
     private List<MemberTransformationData> memberData;
 
     private VectorPath? originalPath;
     private RectD originalSelectionBounds;
+    private VecD originalSize;
 
     private bool isTransformingSelection;
     private bool hasEnqueudImages = false;
     private int frame;
-    private ShapeCorners lastCorners;
     private bool appliedOnce;
+    
+    private Matrix3X3 globalMatrix;
+    
     private static Paint RegularPaint { get; } = new() { BlendMode = BlendMode.SrcOver };
 
     [GenerateUpdateableChangeActions]
@@ -46,7 +48,6 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
         }
 
         this.masterCorners = masterCorners;
-        lastCorners = masterCorners;
         this.keepOriginal = keepOriginal;
         this.drawOnMask = transformMask;
         this.frame = frame;
@@ -58,19 +59,19 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
             return false;
 
         RectD originalTightBounds = default;
-
+        
         if (target.Selection.SelectionPath is { IsEmpty: false })
         {
             originalPath = new VectorPath(target.Selection.SelectionPath) { FillType = PathFillType.EvenOdd };
             originalTightBounds = originalPath.TightBounds;
-            originalSelectionBounds = masterCorners.AABBBounds;
+            originalSelectionBounds = originalTightBounds;
+            originalSize = originalTightBounds.Size;
             isTransformingSelection = true;
         }
 
         foreach (var member in memberData)
         {
             StructureNode layer = target.FindMemberOrThrow(member.MemberId);
-            originalMasterCornersSize = masterCorners.RectSize;
 
             if (layer is IReadOnlyImageNode)
             {
@@ -81,31 +82,31 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
 
                 if (pathToExtract == null)
                 {
-                    RectI tightBounds = layer.GetTightBounds(frame).Value;
+                    RectI tightBounds = layer.GetTightBounds(frame).GetValueOrDefault();
                     pathToExtract = new VectorPath();
                     pathToExtract.AddRect(tightBounds);
                     targetBounds = pathToExtract.Bounds;
+                    originalSize = tightBounds.Size;
                 }
 
                 member.OriginalPath = pathToExtract;
                 member.OriginalBounds = targetBounds;
-                member.LocalMatrix = OperationHelper.CreateMatrixFromPoints(member.MemberCorners, targetBounds.Size);
                 var extracted = ExtractArea(image, pathToExtract, member.RoundedOriginalBounds.Value);
                 if (extracted.IsT0)
                     continue;
-
+                
                 member.AddImage(extracted.AsT1.image, extracted.AsT1.extractedRect.Pos);
             }
             else if (layer is ITransformableObject transformable)
             {
-                member.LocalMatrix = transformable.TransformationMatrix;
                 RectI tightBounds = layer.GetTightBounds(frame).Value;
                 member.OriginalBounds = (RectD)tightBounds;
+                originalSize = tightBounds.Size;
                 
                 member.AddTransformableObject(transformable, transformable.TransformationMatrix);
             }
         }
-
+        
         return true;
     }
 
@@ -113,15 +114,13 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
     public void Update(ShapeCorners masterCorners, bool keepOriginal)
     {
         this.keepOriginal = keepOriginal;
-        lastCorners = this.masterCorners;
         this.masterCorners = masterCorners;
         
-        Matrix3X3 masterMatrix = OperationHelper.CreateMatrixFromPoints(masterCorners, originalMasterCornersSize);
+        globalMatrix = OperationHelper.CreateMatrixFromPoints(masterCorners, originalSize);
 
         foreach (var member in memberData)
         {
-            ShapeCorners localCorners = MasterToMemberCoords(member.MemberCorners);
-            member.LocalMatrix = OperationHelper.CreateMatrixFromPoints(localCorners, member.OriginalBounds!.Value.Size);
+            member.LocalMatrix = globalMatrix;
         }
     }
 
@@ -173,16 +172,10 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
             }
             else if (member.IsTransformable)
             {
-                ShapeCorners localCorners = MasterToMemberCoords(member.MemberCorners);
-
-                var localMatrix =
-                    OperationHelper.CreateMatrixFromPoints(localCorners, member.OriginalBounds!.Value.Size);
-                member.TransformableObject.TransformationMatrix = localMatrix;
-
-                member.MemberCorners = localCorners;
+                member.TransformableObject.TransformationMatrix = member.LocalMatrix;
 
                 // TODO: this is probably wrong
-                AffectedArea area = GetTranslationAffectedArea(localCorners);
+                AffectedArea area = GetTranslationAffectedArea();
                 infos.Add(new TransformObject_ChangeInfo(member.MemberId, area));
             }
         }
@@ -204,14 +197,10 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
 
         foreach (var member in memberData)
         {
-            ShapeCorners localCorners = MasterToMemberCoords(member.MemberCorners);
-
             if (member.IsImage)
             {
                 ChunkyImage targetImage =
                     DrawingChangeHelper.GetTargetImageOrThrow(target, member.MemberId, drawOnMask, frame);
-
-                member.MemberCorners = localCorners;
 
                 infos.Add(DrawingChangeHelper.CreateAreaChangeInfo(member.MemberId,
                         DrawImage(member, targetImage), drawOnMask)
@@ -219,18 +208,13 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
             }
             else if (member.IsTransformable)
             {
-                var localMatrix =
-                    OperationHelper.CreateMatrixFromPoints(localCorners, member.OriginalBounds!.Value.Size);
-                member.TransformableObject.TransformationMatrix = localMatrix;
-
-                member.MemberCorners = localCorners;
+                member.TransformableObject.TransformationMatrix = member.LocalMatrix; 
 
                 // TODO: this is probably wrong
-                AffectedArea translationAffectedArea = GetTranslationAffectedArea(localCorners);
+                AffectedArea translationAffectedArea = GetTranslationAffectedArea();
                 infos.Add(new TransformObject_ChangeInfo(member.MemberId, translationAffectedArea));
             }
         }
-
 
         if (isTransformingSelection)
         {
@@ -239,34 +223,6 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
         }
 
         return infos;
-    }
-
-    private ShapeCorners MasterToMemberCoords(ShapeCorners memberCorner)
-    {
-        VecD posDiff = masterCorners.RectCenter - lastCorners.RectCenter;
-        VecD sizeDiff = masterCorners.RectSize - lastCorners.RectSize;
-        double rotDiff = masterCorners.RectRotation - lastCorners.RectRotation;
-
-        ShapeCorners rotatedCorners =
-            new ShapeCorners(memberCorner.RectCenter + posDiff, memberCorner.RectSize + sizeDiff)
-                .AsRotated(memberCorner.RectRotation, memberCorner.RectCenter + posDiff)
-                .AsRotated(rotDiff, masterCorners.RectCenter);
-
-        /*VecD[] cornersDiff = new VecD[]
-        {
-            masterCorners.TopLeft - lastCorners.TopLeft, masterCorners.TopRight - lastCorners.TopRight,
-            masterCorners.BottomLeft - lastCorners.BottomLeft, masterCorners.BottomRight - lastCorners.BottomRight
-        };
-        
-        ShapeCorners rotatedCorners = new ShapeCorners()
-        {
-            TopLeft = memberCorner.TopLeft + cornersDiff[0],
-            TopRight = memberCorner.TopRight + cornersDiff[1],
-            BottomLeft = memberCorner.BottomLeft + cornersDiff[2],
-            BottomRight = memberCorner.BottomRight + cornersDiff[3]
-        };*/
-
-        return rotatedCorners;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
@@ -290,7 +246,7 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
                 member.TransformableObject.TransformationMatrix = member.OriginalMatrix!.Value;
 
                 //TODO this is probably wrong
-                AffectedArea area = GetTranslationAffectedArea(member.MemberCorners);
+                AffectedArea area = GetTranslationAffectedArea();
                 infos.Add(new TransformObject_ChangeInfo(member.MemberId, area));
             }
         }
@@ -319,9 +275,9 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
         }
     }
 
-    private AffectedArea GetTranslationAffectedArea(ShapeCorners originalCorners)
+    private AffectedArea GetTranslationAffectedArea()
     {
-        RectI oldBounds = (RectI)originalCorners.AABBBounds.RoundOutwards();
+        RectI oldBounds = (RectI)masterCorners.AABBBounds.RoundOutwards();
 
         HashSet<VecI> chunks = new();
         VecI topLeftChunk = new VecI((int)oldBounds.Left / ChunkyImage.FullChunkSize,
@@ -346,8 +302,6 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
 
         memberImage.CancelChanges();
 
-        Matrix3X3 globalMatrix = data.LocalMatrix!.Value;
-
         var originalPos = data.ImagePos!.Value;
 
         if (!keepOriginal)
@@ -367,7 +321,7 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
 class MemberTransformationData : IDisposable
 {
     public Guid MemberId { get; }
-    public ShapeCorners MemberCorners { get; set; }
+    public ShapeCorners MemberCorners { get; init; }
 
     public ITransformableObject? TransformableObject { get; private set; }
     public Matrix3X3? OriginalMatrix { get; private set; }
@@ -380,7 +334,7 @@ class MemberTransformationData : IDisposable
     public bool IsImage => Image != null;
     public bool IsTransformable => TransformableObject != null;
     public RectI? RoundedOriginalBounds => (RectI?)OriginalBounds?.RoundOutwards();
-    public Matrix3X3? LocalMatrix { get; set; }
+    public Matrix3X3 LocalMatrix { get; set; }
 
     public MemberTransformationData(Guid memberId)
     {
@@ -391,6 +345,7 @@ class MemberTransformationData : IDisposable
     {
         TransformableObject = transformableObject;
         OriginalMatrix = originalMatrix;
+        LocalMatrix = originalMatrix;
     }
 
     public void AddImage(Surface img, VecI extractedRectPos)
