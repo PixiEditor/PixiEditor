@@ -318,6 +318,8 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
         }
 
         infos.Add(new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath)));
+        
+        appliedOnce = false;
 
         return infos;
     }
