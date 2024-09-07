@@ -160,6 +160,9 @@ internal partial class CrashHelper
         catch { }
     }
 
+    /// <summary>
+    /// Matches file paths with spaces when in quotes, otherwise not
+    /// </summary>
     [GeneratedRegex(@"'([^']*[\/\\][^']*)'|(\S*[\/\\]\S*)")]
     private static partial Regex FilePathRegex();
 }
