@@ -193,7 +193,7 @@ internal class MemberPreviewUpdater
             if (member is null)
                 continue;
 
-            if (forMasks && member.Mask.NonOverridenValue is null)
+            if (forMasks && member.EmbeddedMask is null)
             {
                 newPreviewBitmapSizes.Add(guid, null);
                 continue;
@@ -274,7 +274,7 @@ internal class MemberPreviewUpdater
     private RectI? GetOrFindMemberTightBounds(IReadOnlyStructureNode member, int atFrame,
         AffectedArea currentlyAffectedArea, bool forMask)
     {
-        if (forMask && member.Mask.NonOverridenValue is null)
+        if (forMask && member.EmbeddedMask is null)
             throw new InvalidOperationException();
 
         RectI? prevTightBounds = null;
@@ -304,11 +304,11 @@ internal class MemberPreviewUpdater
     /// </summary>
     private RectI? FindLayerTightBounds(IReadOnlyLayerNode layer, int frame, bool forMask)
     {
-        if (layer.Mask.NonOverridenValue is null && forMask)
+        if (layer.EmbeddedMask is null && forMask)
             throw new InvalidOperationException();
 
-        if (layer.Mask.NonOverridenValue is not null && forMask)
-            return FindImageTightBoundsFast(layer.Mask.Value);
+        if (layer.EmbeddedMask is not null && forMask)
+            return FindImageTightBoundsFast(layer.EmbeddedMask);
 
         if (layer is IReadOnlyImageNode raster)
         {
@@ -325,9 +325,9 @@ internal class MemberPreviewUpdater
     {
         if (forMask)
         {
-            if (folder.Mask.Value is null)
+            if (folder.EmbeddedMask is null)
                 throw new InvalidOperationException();
-            return FindImageTightBoundsFast(folder.Mask.Value);
+            return FindImageTightBoundsFast(folder.EmbeddedMask);
         }
 
         /*RectI? combinedBounds = null;
@@ -717,7 +717,7 @@ internal class MemberPreviewUpdater
                 foreach (var chunk in affArea.Value.Chunks)
                 {
                     var pos = chunk * ChunkResolution.Full.PixelSize();
-                    member.Mask!.Value.DrawMostUpToDateChunkOn
+                    member.EmbeddedMask!.DrawMostUpToDateChunkOn
                     (chunk, ChunkResolution.Full, memberVM.MaskPreviewSurface.DrawingSurface, pos,
                         scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint);
                 }

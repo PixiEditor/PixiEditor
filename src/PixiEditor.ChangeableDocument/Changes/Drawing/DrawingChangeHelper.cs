@@ -40,9 +40,9 @@ internal static class DrawingChangeHelper
 
         if (drawOnMask)
         {
-            if (member.Mask is null)
+            if (member.EmbeddedMask is null)
                 throw new InvalidOperationException("Trying to draw on a mask that doesn't exist");
-            return member.Mask.Value;
+            return member.EmbeddedMask;
         }
 
         if (member is FolderNode)
@@ -65,9 +65,9 @@ internal static class DrawingChangeHelper
 
         if (drawOnMask)
         {
-            if (member.Mask.NonOverridenValue is null)
+            if (member.EmbeddedMask is null)
                 throw new InvalidOperationException("Trying to draw on a mask that doesn't exist");
-            return member.Mask.NonOverridenValue;
+            return member.EmbeddedMask;
         }
 
         if (member is FolderNode)
@@ -109,7 +109,7 @@ internal static class DrawingChangeHelper
         return drawOnMask switch
         {
             // If it should draw on the mask, the mask can't be null
-            true when member.Mask.NonOverridenValue is null => false,
+            true when member.EmbeddedMask is null => false,
             // If it should not draw on the mask, the member can't be a folder
             false when member is FolderNode => false,
             _ => true

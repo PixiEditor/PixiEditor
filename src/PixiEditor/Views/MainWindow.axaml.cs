@@ -55,7 +55,7 @@ internal partial class MainWindow : Window
         }
     }
 
-    public MainWindow(ExtensionLoader extensionLoader)
+    public MainWindow(ExtensionLoader extensionLoader, Guid? analyticsSessionId = null)
     {
         StartupPerformance.ReportToMainWindow();
         
@@ -83,7 +83,7 @@ internal partial class MainWindow : Window
         StartupPerformance.ReportToMainViewModel();
 
         var analytics = services.GetService<AnalyticsPeriodicReporter>();
-        analytics?.Start();
+        analytics?.Start(analyticsSessionId);
         
         InitializeComponent();
     }
@@ -115,14 +115,14 @@ internal partial class MainWindow : Window
 
     public static MainWindow CreateWithRecoveredDocuments(CrashReport report, out bool showMissingFilesDialog)
     {
-        var window = GetMainWindow();
-        var fileVM = window.services.GetRequiredService<FileViewModel>();
-
-        if (!report.TryRecoverDocuments(out var documents))
+        if (!report.TryRecoverDocuments(out var documents, out var sessionInfo))
         {
             showMissingFilesDialog = true;
-            return window;
+            return GetMainWindow(null);
         }
+
+        var window = GetMainWindow(sessionInfo?.AnalyticsSessionId);
+        var fileVM = window.services.GetRequiredService<FileViewModel>();
 
         var i = 0;
 
@@ -143,13 +143,13 @@ internal partial class MainWindow : Window
 
         return window;
 
-        MainWindow GetMainWindow()
+        MainWindow GetMainWindow(Guid? analyticsSession)
         {
             try
             {
                 var app = (App)Application.Current;
                 ClassicDesktopEntry entry = new(app.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime);
-                return new MainWindow(entry.InitApp());
+                return new MainWindow(entry.InitApp(), analyticsSession);
             }
             catch (Exception e)
             {

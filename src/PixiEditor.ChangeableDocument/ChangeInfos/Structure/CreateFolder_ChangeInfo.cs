@@ -31,11 +31,11 @@ public record class CreateFolder_ChangeInfo : CreateStructureMember_ChangeInfo
             folder.GetNodeTypeUniqueName(),
             folder.Opacity.Value,
             folder.IsVisible.Value,
-            folder.ClipToPreviousMember.Value,
+            folder.ClipToPreviousMember,
             folder.MemberName,
             folder.BlendMode.Value,
             folder.Id,
-            folder.Mask.Value is not null,
+            folder.EmbeddedMask is not null,
             folder.MaskIsVisible.Value, CreatePropertyInfos(folder.InputProperties, true, folder.Id),
             CreatePropertyInfos(folder.OutputProperties, false, folder.Id),
             new NodeMetadata(folder));

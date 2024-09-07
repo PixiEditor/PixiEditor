@@ -1,15 +1,13 @@
 ﻿using System.Reflection;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Fonts;
 using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.ViewModels.Nodes;
 
 public class NodeTypeInfo
 {
-    public string UniqueName { get; }
-    
     public string DisplayName { get; }
     
     public string? PickerName { get; }
@@ -20,26 +18,44 @@ public class NodeTypeInfo
 
     public bool Hidden => PickerName is { Length: 0 };
     
+    public Type NodeViewModelType { get; }
+    
     public Type NodeType { get; }
     
     public string Icon { get; }
 
-    public NodeTypeInfo(Type type)
+    public NodeTypeInfo(Type viewModelType)
     {
-        NodeType = type;
+        NodeViewModelType = viewModelType;
+        NodeType = GetNodeType(NodeViewModelType.BaseType);
+        
+        var attribute = viewModelType.GetCustomAttribute<NodeViewModelAttribute>();
 
-        var attribute = type.GetCustomAttribute<NodeInfoAttribute>();
-
-        UniqueName = attribute.UniqueName;
         DisplayName = attribute.DisplayName;
         PickerName = attribute.PickerName;
         Category = attribute.Category ?? "";
-
-        if (NodeIcons.IconMap.TryGetValue(type, out var icon))
-        {
-            Icon = icon;
-        }
+        Icon = attribute.Icon;
 
         FinalPickerName = (PickerName ?? DisplayName);
+    }
+
+    private Type GetNodeType(Type? baseType)
+    {
+        while (baseType != null)
+        {
+            if (baseType.IsGenericType)
+            {
+                var genericArgument = baseType.GetGenericArguments()[0];
+
+                if (genericArgument.IsAssignableTo(typeof(Node)))
+                {
+                    return genericArgument;
+                }
+            }
+
+            baseType = baseType.BaseType;
+        }
+
+        throw new NullReferenceException($"Could not find node type of '{baseType}' in base classes");
     }
 }

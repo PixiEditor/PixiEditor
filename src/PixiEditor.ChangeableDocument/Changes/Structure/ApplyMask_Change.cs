@@ -21,7 +21,7 @@ internal sealed class ApplyMask_Change : Change
     public override bool InitializeAndValidate(Document target)
     {
         var member = target.FindMember(structureMemberGuid);
-        bool isValid = member is not (null or FolderNode) && member.Mask.Value is not null;
+        bool isValid = member is not (null or FolderNode) && member.EmbeddedMask is not null;
 
         return isValid;
     }
@@ -31,7 +31,7 @@ internal sealed class ApplyMask_Change : Change
     {
         var layer = target.FindMemberOrThrow<ImageLayerNode>(structureMemberGuid)!;
         var layerImage = layer.GetLayerImageAtFrame(frame);
-        layerImage.EnqueueApplyMask(layer.Mask.Value!);
+        layerImage.EnqueueApplyMask(layer.EmbeddedMask);
         ignoreInUndo = false;
         var layerInfo = new LayerImageArea_ChangeInfo(structureMemberGuid, layerImage.FindAffectedArea());
         savedChunks = new CommittedChunkStorage(layerImage, layerInfo.Area.Chunks);

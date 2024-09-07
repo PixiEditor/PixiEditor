@@ -10,18 +10,18 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("ImageLayer", "IMAGE_LAYER_NODE", Category = "STRUCTURE")]
+[NodeInfo("ImageLayer")]
 public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 {
     public const string ImageFramesKey = "Frames";
     public const string ImageLayerKey = "LayerImage";
-
     public OutputProperty<Texture> RawOutput { get; }
 
-    public InputProperty<bool> LockTransparency { get; }
+    public bool LockTransparency { get; set; }
 
     private VecI size;
     private ChunkyImage layerImage => keyFrames[0]?.Data as ChunkyImage;
+    
 
     protected Dictionary<(ChunkResolution, int), Texture> workingSurfaces =
         new Dictionary<(ChunkResolution, int), Texture>();
@@ -42,8 +42,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     public ImageLayerNode(VecI size)
     {
         RawOutput = CreateOutput<Texture>(nameof(RawOutput), "RAW_LAYER_OUTPUT", null);
-
-        LockTransparency = CreateInput<bool>("LockTransparency", "LOCK_TRANSPARENCY", false);
 
         if (keyFrames.Count == 0)
         {
@@ -315,6 +313,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     protected override bool CacheChanged(RenderingContext context)
     {
         var frame = GetFrameWithImage(context.FrameTime);
+        
         return base.CacheChanged(context) || frame?.RequiresUpdate == true;
     }
 
@@ -357,13 +356,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         SetLayerImageAtFrame(frame, (ChunkyImage)newLayerImage);
 
     void IReadOnlyImageNode.ForEveryFrame(Action<IReadOnlyChunkyImage> action) => ForEveryFrame(action);
-
-    bool ITransparencyLockable.LockTransparency
-    {
-        get => LockTransparency.Value; // TODO: I wonder if it should be NonOverridenValue
-        set => LockTransparency.NonOverridenValue = value;
-    }
-
 
     public void ForEveryFrame(Action<ChunkyImage> action)
     {

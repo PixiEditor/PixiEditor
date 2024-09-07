@@ -1,12 +1,6 @@
-﻿using System.Collections.ObjectModel;
-using Avalonia.Media.Imaging;
-using ChunkyImageLib;
-using CommunityToolkit.Mvvm.ComponentModel;
-using PixiEditor.Views.Nodes;
-using PixiEditor.ChangeableDocument.Actions.Generated;
+﻿using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Extensions.FlyUI.Elements;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
@@ -15,9 +9,9 @@ using PixiEditor.Numerics;
 using PixiEditor.ViewModels.Nodes;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
-namespace PixiEditor.ViewModels.Document;
+namespace PixiEditor.ViewModels.Document.Nodes;
 #nullable enable
-internal abstract class StructureMemberViewModel : NodeViewModel, IStructureMemberHandler
+internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructureMemberHandler where T : Node
 {
     public StructureMemberViewModel()
     {
@@ -160,7 +154,10 @@ internal abstract class StructureMemberViewModel : NodeViewModel, IStructureMemb
     }
 
     IDocument IStructureMemberHandler.Document => Document;
+}
 
+public static class StructureMemberViewModel
+{
     /// <summary>
     /// Calculates the size of a scaled-down preview for a given size of layer tight bounds.
     /// </summary>
@@ -171,14 +168,5 @@ internal abstract class StructureMemberViewModel : NodeViewModel, IStructureMemb
         return proportions > 1
             ? new VecI(Math.Max((int)Math.Round(prSize / proportions), 1), prSize)
             : new VecI(prSize, Math.Max((int)Math.Round(prSize * proportions), 1));
-    }
-
-    public StructureMemberViewModel(DocumentViewModel doc, DocumentInternalParts internals, Guid id)
-    {
-        Document = doc;
-        Internals = internals;
-
-        this.id = id;
-        PreviewSurface = null;
     }
 }

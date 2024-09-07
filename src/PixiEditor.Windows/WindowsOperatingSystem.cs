@@ -9,6 +9,9 @@ namespace PixiEditor.Windows;
 public sealed class WindowsOperatingSystem : IOperatingSystem
 {
     public string Name => "Windows";
+    
+    public string AnalyticsId => "Windows";
+    
     public IInputKeys InputKeys { get; } = new WindowsInputKeys();
     public IProcessUtility ProcessUtility { get; } = new WindowsProcessUtility();
     

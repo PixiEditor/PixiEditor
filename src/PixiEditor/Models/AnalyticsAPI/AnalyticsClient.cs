@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Input;
 using PixiEditor.Numerics;
+using PixiEditor.OperatingSystem;
 
 namespace PixiEditor.Models.AnalyticsAPI;
 
@@ -31,9 +32,10 @@ public class AnalyticsClient
 
     public async Task<Guid?> CreateSessionAsync(CancellationToken cancellationToken = default)
     {
-        var session = new AnalyticSessionInfo()
+        var session = new AnalyticSessionInfo(IOperatingSystem.Current)
         {
-            Version = VersionHelpers.GetCurrentAssemblyVersion(), BuildId = VersionHelpers.GetBuildId()
+            Version = VersionHelpers.GetCurrentAssemblyVersion(),
+            BuildId = VersionHelpers.GetBuildId(),
         };
         
         var response = await _client.PostAsJsonAsync("sessions/new", session, _options, cancellationToken);

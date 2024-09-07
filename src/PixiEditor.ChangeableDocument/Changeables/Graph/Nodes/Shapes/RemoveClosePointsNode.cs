@@ -6,7 +6,7 @@ using ShapeData = PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.D
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes;
 
-[NodeInfo("RemoveClosePoints", "REMOVE_CLOSE_POINTS", Category = "SHAPE")]
+[NodeInfo("RemoveClosePoints")]
 public class RemoveClosePointsNode : ShapeNode<PointsData>
 {
     public InputProperty<PointsData> Input { get; }

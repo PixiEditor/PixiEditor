@@ -4,7 +4,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
-[NodeInfo("KernelFilter", "KERNEL_FILTER_NODE", Category = "FILTERS")]
+[NodeInfo("KernelFilter")]
 public class KernelFilterNode : FilterNode
 {
     private readonly Paint _paint = new();

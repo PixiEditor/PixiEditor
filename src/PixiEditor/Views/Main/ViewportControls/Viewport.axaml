@@ -117,7 +117,8 @@
                            Margin="10 55 0 0"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Top"
-                           Tools="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolSet}" />
+                           ToolSet="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet}" 
+                           SwitchToolSetCommand="{xaml:Command Name=PixiEditor.Tools.SwitchToolSet, UseProvided=True}"/>
         <rendering:Scene
             Focusable="False" Name="scene"
             ZIndex="1"

@@ -60,11 +60,11 @@ internal abstract class ResizeBasedChangeBase : Change
 
             // TODO: Add support for different Layer types?
 
-            if (member.Mask.NonOverridenValue is null)
+            if (member.EmbeddedMask is null)
                 return;
-            member.Mask.NonOverridenValue.EnqueueResize(_originalSize);
-            deletedMaskChunks[member.Id][0].ApplyChunksToImage(member.Mask.NonOverridenValue);
-            member.Mask.NonOverridenValue.CommitChanges();
+            member.EmbeddedMask.EnqueueResize(_originalSize);
+            deletedMaskChunks[member.Id][0].ApplyChunksToImage(member.EmbeddedMask);
+            member.EmbeddedMask.CommitChanges();
         });
 
         target.HorizontalSymmetryAxisY = _originalHorAxisY;

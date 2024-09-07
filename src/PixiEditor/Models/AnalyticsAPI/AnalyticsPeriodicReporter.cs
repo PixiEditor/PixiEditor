@@ -5,6 +5,7 @@ namespace PixiEditor.Models.AnalyticsAPI;
 public class AnalyticsPeriodicReporter
 {
     private int _sendExceptions = 0;
+    private bool _resumeSession;
     
     private readonly SemaphoreSlim _semaphore = new(1, 1);
     private readonly AnalyticsClient _client;
@@ -28,8 +29,16 @@ public class AnalyticsPeriodicReporter
         _client = client;
     }
 
-    public void Start()
+    public void Start(Guid? sessionId)
     {
+        if (sessionId != null)
+        {
+            SessionId = sessionId.Value;
+            _resumeSession = true;
+            
+            _backlog.Add(new AnalyticEvent { Time = DateTime.UtcNow, EventType = AnalyticEventTypes.ResumeSession });
+        }
+
         Task.Run(RunAsync);
     }
 
@@ -42,6 +51,12 @@ public class AnalyticsPeriodicReporter
 
     public void AddEvent(AnalyticEvent value)
     {
+        // Don't send startup as it gives invalid results for crash resumed sessions
+        if (value.EventType == AnalyticEventTypes.Startup && _resumeSession)
+        {
+            return;
+        }
+        
         Task.Run(() =>
         {
             _semaphore.Wait();
@@ -59,14 +74,17 @@ public class AnalyticsPeriodicReporter
 
     private async Task RunAsync()
     {
-        var createSession = await _client.CreateSessionAsync(_cancellationToken.Token);
-
-        if (!createSession.HasValue)
+        if (!_resumeSession)
         {
-            return;
-        }
+            var createSession = await _client.CreateSessionAsync(_cancellationToken.Token);
 
-        SessionId = createSession.Value;
+            if (!createSession.HasValue)
+            {
+                return;
+            }
+
+            SessionId = createSession.Value;
+        }
 
         Task.Run(RunHeartbeatAsync);
 

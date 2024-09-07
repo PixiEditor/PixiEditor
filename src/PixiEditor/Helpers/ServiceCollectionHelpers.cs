@@ -81,33 +81,21 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<CommandController>()
             .AddSingleton<DocumentManagerViewModel>()
             // Tools
-            .AddSingleton<IToolHandler, MoveViewportToolViewModel>()
-            .AddSingleton<IToolHandler, RotateViewportToolViewModel>()
-            .AddSingleton<IMoveToolHandler, MoveToolViewModel>()
-            .AddSingleton<IToolHandler, MoveToolViewModel>(x => (MoveToolViewModel)x.GetService<IMoveToolHandler>())
-            .AddSingleton<IPenToolHandler, PenToolViewModel>()
-            .AddSingleton<IToolHandler, PenToolViewModel>(x => (PenToolViewModel)x.GetService<IPenToolHandler>())
-            .AddSingleton<ISelectToolHandler, SelectToolViewModel>()
-            .AddSingleton<IToolHandler, SelectToolViewModel>(x => (SelectToolViewModel)x.GetService<ISelectToolHandler>())
-            .AddSingleton<IMagicWandToolHandler, MagicWandToolViewModel>()
-            .AddSingleton<IToolHandler, MagicWandToolViewModel>(x => (MagicWandToolViewModel)x.GetService<IMagicWandToolHandler>())
-            .AddSingleton<ILassoToolHandler, LassoToolViewModel>()
-            .AddSingleton<IToolHandler, LassoToolViewModel>(x => (LassoToolViewModel)x.GetService<ILassoToolHandler>())
-            .AddSingleton<IFloodFillToolHandler, FloodFillToolViewModel>()
-            .AddSingleton<IToolHandler, FloodFillToolViewModel>(x => (FloodFillToolViewModel)x.GetService<IFloodFillToolHandler>())
-            .AddSingleton<ILineToolHandler, LineToolViewModel>()
-            .AddSingleton<IToolHandler, LineToolViewModel>(x => (LineToolViewModel)x.GetService<ILineToolHandler>())
-            .AddSingleton<IEllipseToolHandler, EllipseToolViewModel>()
-            .AddSingleton<IToolHandler, EllipseToolViewModel>(x => (EllipseToolViewModel)x.GetService<IEllipseToolHandler>())
-            .AddSingleton<IRectangleToolHandler, RectangleToolViewModel>()
-            .AddSingleton<IToolHandler, RectangleToolViewModel>(x => (RectangleToolViewModel)x.GetService<IRectangleToolHandler>())
-            .AddSingleton<IEraserToolHandler, EraserToolViewModel>()
-            .AddSingleton<IToolHandler, EraserToolViewModel>(x => (EraserToolViewModel)x.GetService<IEraserToolHandler>())
-            .AddSingleton<IColorPickerHandler, ColorPickerToolViewModel>()
-            .AddSingleton<IToolHandler, ColorPickerToolViewModel>(x => (ColorPickerToolViewModel)x.GetService<IColorPickerHandler>())
-            .AddSingleton<IBrightnessToolHandler, BrightnessToolViewModel>()
-            .AddSingleton<IToolHandler, BrightnessToolViewModel>(x => (BrightnessToolViewModel)x.GetService<IBrightnessToolHandler>())
-            .AddSingleton<IToolHandler, ZoomToolViewModel>()
+            .AddTool<MoveViewportToolViewModel>()
+            .AddTool<RotateViewportToolViewModel>()
+            .AddTool<IMoveToolHandler, MoveToolViewModel>()
+            .AddTool<IPenToolHandler, PenToolViewModel>()
+            .AddTool<ISelectToolHandler, SelectToolViewModel>()
+            .AddTool<IMagicWandToolHandler, MagicWandToolViewModel>()
+            .AddTool<ILassoToolHandler, LassoToolViewModel>()
+            .AddTool<IFloodFillToolHandler, FloodFillToolViewModel>()
+            .AddTool<ILineToolHandler, LineToolViewModel>()
+            .AddTool<IEllipseToolHandler, EllipseToolViewModel>()
+            .AddTool<IRectangleToolHandler, RectangleToolViewModel>()
+            .AddTool<IEraserToolHandler, EraserToolViewModel>()
+            .AddTool<IColorPickerHandler, ColorPickerToolViewModel>()
+            .AddTool<IBrightnessToolHandler, BrightnessToolViewModel>()
+            .AddTool<ZoomToolViewModel>()
             // File types
             .AddSingleton<IoFileType, PixiFileType>()
             .AddSingleton<IoFileType, PngFileType>()
@@ -166,6 +154,19 @@ internal static class ServiceCollectionHelpers
         {
             url = Environment.GetEnvironmentVariable("PixiEditorAnalytics");
         }
+    }
+    
+    private static IServiceCollection AddTool<T, T1>(this IServiceCollection collection)
+        where T : class, IToolHandler where T1 : class, T
+    {
+        return collection.AddSingleton<T, T1>()
+            .AddSingleton<IToolHandler, T1>(x => (T1)x.GetRequiredService<T>());
+    }
+    
+    private static IServiceCollection AddTool<T>(this IServiceCollection collection)
+        where T : class, IToolHandler
+    {
+        return collection.AddSingleton<IToolHandler, T>();
     }
 
     private static IServiceCollection AddMenuBuilders(this IServiceCollection collection)
