@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ByteSizeLib;
 using Hardware.Info;
@@ -12,7 +13,7 @@ using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Helpers;
 
-internal class CrashHelper
+internal partial class CrashHelper
 {
     private readonly IHardwareInfo hwInfo;
 
@@ -84,7 +85,7 @@ internal class CrashHelper
             .AppendLine("\n-------Crash message-------")
             .Append(e.GetType().ToString())
             .Append(": ")
-            .AppendLine(e.Message);
+            .AppendLine(TrimFilePaths(e.Message));
         {
             var innerException = e.InnerException;
             while (innerException != null)
@@ -93,7 +94,7 @@ internal class CrashHelper
                     .Append("\n-----Inner exception-----\n")
                     .Append(innerException.GetType().ToString())
                     .Append(": ")
-                    .Append(innerException.Message);
+                    .Append(TrimFilePaths(innerException.Message));
                 innerException = innerException.InnerException;
             }
         }
@@ -112,6 +113,8 @@ internal class CrashHelper
             }
         }
     }
+
+    private static string TrimFilePaths(string text) => FilePathRegex().Replace(text, "{{ FILE PATH }}");
     
     public static void SendExceptionInfoToWebhook(Exception e, bool wait = false,
         [CallerFilePath] string filePath = "<unknown>", [CallerMemberName] string memberName = "<unknown>")
@@ -156,4 +159,7 @@ internal class CrashHelper
         }
         catch { }
     }
+
+    [GeneratedRegex(@"'([^']*[\/\\][^']*)'|(\S*[\/\\]\S*)")]
+    private static partial Regex FilePathRegex();
 }
