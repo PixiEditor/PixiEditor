@@ -7,6 +7,9 @@ namespace PixiEditor.MacOs;
 public sealed class MacOperatingSystem : IOperatingSystem
 {
     public string Name { get; } = "MacOS";
+
+    public string AnalyticsId => "macOS";
+    
     public IInputKeys InputKeys { get; }
     public IProcessUtility ProcessUtility { get; }
     public void OpenUri(string uri)
