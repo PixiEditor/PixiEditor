@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
+﻿using System;
+
+namespace PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 
 /// <summary>
 ///     This is a shader type that represents a high precision floating point value. For medium precision see Short type.
@@ -16,5 +18,5 @@ public class Float1(string name) : ShaderExpressionVariable<double>(name)
 
     public static explicit operator double(Float1 value) => value.ConstantValue;
 
-    public byte FullSizeByteConstant => (byte)(ConstantValue * 255);
+    public byte AsConstantColorByte() => (byte)(Math.Clamp(ConstantValue, 0, 1) * 255);
 }
