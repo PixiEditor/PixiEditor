@@ -22,14 +22,15 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
 
     private VectorPath? originalPath;
     private RectD originalSelectionBounds;
-    private VecD originalSize;
+    private VecD selectionAwareSize;
+    private VecD tightBoundsSize;
+    private RectD cornersToSelectionOffset;
+    private VecD originalCornersSize;
 
     private bool isTransformingSelection;
     private bool hasEnqueudImages = false;
     private int frame;
     private bool appliedOnce;
-
-    private Matrix3X3 globalMatrix;
 
     private static Paint RegularPaint { get; } = new() { BlendMode = BlendMode.SrcOver };
 
@@ -57,37 +58,39 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
     {
         if (memberData.Count == 0)
             return false;
-
-        RectD originalTightBounds = default;
+        
+        originalCornersSize = masterCorners.RectSize;
+        RectD tightBoundsWithSelection = default;
         bool hasSelection = target.Selection.SelectionPath is { IsEmpty: false };
 
         if (hasSelection)
         {
             originalPath = new VectorPath(target.Selection.SelectionPath) { FillType = PathFillType.EvenOdd };
-            originalTightBounds = originalPath.TightBounds;
-            originalSelectionBounds = originalTightBounds;
-            originalSize = originalTightBounds.Size;
+            tightBoundsWithSelection = originalPath.TightBounds;
+            originalSelectionBounds = tightBoundsWithSelection;
+            selectionAwareSize = tightBoundsWithSelection.Size;
             isTransformingSelection = true;
+            
+            tightBoundsSize = tightBoundsWithSelection.Size;
+            cornersToSelectionOffset = new RectD(masterCorners.TopLeft - tightBoundsWithSelection.TopLeft, 
+                tightBoundsSize - masterCorners.RectSize);
         }
-        else
-        {
-            StructureNode firstLayer = target.FindMemberOrThrow(memberData[0].MemberId);
-            originalTightBounds = (RectD)firstLayer.GetTightBounds(frame).Value;
-            
-            if(memberData.Count == 1 && firstLayer is VectorLayerNode vectorLayer)
-            {
-                originalTightBounds = vectorLayer.ShapeData.GeometryAABB;
-                // TODO: still some issues in multiple selection
-            }
-            
-            for (var i = 1; i < memberData.Count; i++)
-            {
-                StructureNode layer = target.FindMemberOrThrow(memberData[i].MemberId);
-                originalTightBounds = originalTightBounds.Union((RectD)layer.GetTightBounds(frame).Value);
-            }
 
-            originalSize = originalTightBounds.Size;
+        StructureNode firstLayer = target.FindMemberOrThrow(memberData[0].MemberId);
+        RectD tightBounds = firstLayer.GetTightBounds(frame).Value;
+
+        if (memberData.Count == 1 && firstLayer is VectorLayerNode vectorLayer)
+        {
+            tightBounds = vectorLayer.ShapeData.GeometryAABB;
         }
+
+        for (var i = 1; i < memberData.Count; i++)
+        {
+            StructureNode layer = target.FindMemberOrThrow(memberData[i].MemberId);
+            tightBounds = tightBounds.Union((RectD)layer.GetTightBounds(frame).Value);
+        }
+
+        tightBoundsSize = tightBounds.Size;
 
         foreach (var member in memberData)
         {
@@ -95,7 +98,8 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
 
             if (layer is IReadOnlyImageNode)
             {
-                SetImageMember(target, member, originalTightBounds, layer);
+                var targetBounds = tightBoundsWithSelection != default ? tightBoundsWithSelection : tightBounds;
+                SetImageMember(target, member, targetBounds, layer);
             }
             else if (layer is ITransformableObject transformable)
             {
@@ -109,9 +113,10 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
     private void SetTransformableMember(StructureNode layer, MemberTransformationData member,
         ITransformableObject transformable)
     {
-        member.OriginalBounds = (RectD)layer.GetTightBounds(frame).Value;
-        VecD posRelativeToMaster = member.MemberCorners.TopLeft - masterCorners.TopLeft;
-        member.OriginalPos = (VecI)posRelativeToMaster; 
+        member.OriginalBounds = layer.GetTightBounds(frame).Value;
+        VecD posRelativeToMaster = member.OriginalBounds.Value.TopLeft - masterCorners.TopLeft;
+
+        member.OriginalPos = (VecI)posRelativeToMaster;
         member.AddTransformableObject(transformable, transformable.TransformationMatrix);
     }
 
@@ -125,9 +130,9 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
 
         if (pathToExtract == null)
         {
-            RectI tightBounds = layer.GetTightBounds(frame).GetValueOrDefault();
+            RectD tightBounds = layer.GetTightBounds(frame).GetValueOrDefault();
             pathToExtract = new VectorPath();
-            pathToExtract.AddRect(tightBounds);
+            pathToExtract.AddRect((RectI)tightBounds);
         }
 
         member.OriginalPath = pathToExtract;
@@ -145,18 +150,24 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
         this.keepOriginal = keepOriginal;
         this.masterCorners = masterCorners;
 
-        globalMatrix = OperationHelper.CreateMatrixFromPoints(masterCorners, originalSize);
+        var globalMatrixWithSelection = OperationHelper.CreateMatrixFromPoints(masterCorners, originalCornersSize);
+        var tightBoundsGlobalMatrix = OperationHelper.CreateMatrixFromPoints(masterCorners, tightBoundsSize);
 
         foreach (var member in memberData)
         {
-            Matrix3X3 localMatrix = globalMatrix; 
-            
+            Matrix3X3 localMatrix = tightBoundsGlobalMatrix;
+
             if (member.IsImage)
             {
-                localMatrix = Matrix3X3.CreateTranslation(
-                    member.OriginalPos.Value.X - (float)member.OriginalBounds.Value.Left,
-                    member.OriginalPos.Value.Y - (float)member.OriginalBounds.Value.Top);
-                localMatrix = localMatrix.PostConcat(globalMatrix);
+                localMatrix = 
+                    Matrix3X3.CreateTranslation(
+                        (float)-cornersToSelectionOffset.TopLeft.X, (float)-cornersToSelectionOffset.TopLeft.Y)
+                        .PostConcat(
+                    Matrix3X3.CreateTranslation(
+                    (float)member.OriginalPos.Value.X - (float)member.OriginalBounds.Value.Left,
+                    (float)member.OriginalPos.Value.Y - (float)member.OriginalBounds.Value.Top));
+                
+                localMatrix = localMatrix.PostConcat(selectionAwareSize.Length > 0 ? globalMatrixWithSelection : tightBoundsGlobalMatrix);
             }
             else if (member.OriginalMatrix is not null)
             {
@@ -164,9 +175,9 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
                 {
                     localMatrix = member.OriginalMatrix.Value;
                     localMatrix = localMatrix.PostConcat(Matrix3X3.CreateTranslation(
-                        member.OriginalPos.Value.X - (float)member.OriginalBounds.Value.Left,
-                        member.OriginalPos.Value.Y - (float)member.OriginalBounds.Value.Top))
-                        .PostConcat(globalMatrix);
+                            (float)member.OriginalPos.Value.X - (float)member.OriginalBounds.Value.Left,
+                            (float)member.OriginalPos.Value.Y - (float)member.OriginalBounds.Value.Top))
+                        .PostConcat(tightBoundsGlobalMatrix);
                 }
             }
 
@@ -224,7 +235,6 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
             {
                 member.TransformableObject.TransformationMatrix = member.LocalMatrix;
 
-                // TODO: this is probably wrong
                 AffectedArea area = GetTranslationAffectedArea();
                 infos.Add(new TransformObject_ChangeInfo(member.MemberId, area));
             }
@@ -233,7 +243,7 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
         if (isTransformingSelection)
         {
             infos.Add(SelectionChangeHelper.DoSelectionTransform(target, originalPath!, originalSelectionBounds,
-                masterCorners));
+                masterCorners, cornersToSelectionOffset, originalCornersSize));
         }
 
         hasEnqueudImages = false;
@@ -260,7 +270,6 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
             {
                 member.TransformableObject.TransformationMatrix = member.LocalMatrix;
 
-                // TODO: this is probably wrong
                 AffectedArea translationAffectedArea = GetTranslationAffectedArea();
                 infos.Add(new TransformObject_ChangeInfo(member.MemberId, translationAffectedArea));
             }
@@ -269,7 +278,7 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
         if (isTransformingSelection)
         {
             infos.Add(SelectionChangeHelper.DoSelectionTransform(target, originalPath!, originalSelectionBounds,
-                masterCorners));
+                masterCorners, cornersToSelectionOffset, originalCornersSize));
         }
 
         return infos;
@@ -375,7 +384,7 @@ class MemberTransformationData : IDisposable
     public VectorPath? OriginalPath { get; set; }
     public Surface? Image { get; set; }
     public RectD? OriginalBounds { get; set; }
-    public VecI? OriginalPos { get; set; }
+    public VecD? OriginalPos { get; set; }
     public bool IsImage => Image != null;
     public bool IsTransformable => TransformableObject != null;
     public RectI? RoundedOriginalBounds => (RectI)OriginalBounds?.RoundOutwards();

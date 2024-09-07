@@ -95,7 +95,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
             {
                 var foundLayer =
                     ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.StructureHelper.Find(layer);
-                RectI? layerBounds = foundLayer?.TightBounds;
+                RectI? layerBounds = (RectI?)foundLayer?.TightBounds;
                 if (layerBounds != null)
                 {
                     if (bounds == null)

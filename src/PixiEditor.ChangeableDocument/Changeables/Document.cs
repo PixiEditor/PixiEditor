@@ -76,7 +76,7 @@ internal class Document : IChangeable, IReadOnlyDocument
             throw new ArgumentException(@"The given guid does not belong to a layer.", nameof(layerGuid));
 
 
-        RectI? tightBounds = layer.GetTightBounds(frame);
+        RectI? tightBounds = (RectI)layer.GetTightBounds(frame);
 
         if (tightBounds is null)
             return null;
@@ -126,7 +126,7 @@ internal class Document : IChangeable, IReadOnlyDocument
             throw new ArgumentException(@"The given guid does not belong to a layer.", nameof(layerGuid));
 
 
-        return layer.GetTightBounds(frame);
+        return (RectI)layer.GetTightBounds(frame);
     }
 
     public void ForEveryReadonlyMember(Action<IReadOnlyStructureNode> action) =>

@@ -315,7 +315,7 @@ internal class MemberPreviewUpdater
             return FindImageTightBoundsFast(raster.GetLayerImageAtFrame(frame));
         }
 
-        return layer.GetTightBounds(frame);
+        return (RectI)layer.GetTightBounds(frame);
     }
 
     /// <summary>
@@ -347,7 +347,7 @@ internal class MemberPreviewUpdater
         }
 
         return combinedBounds;*/
-        return folder.GetTightBounds(frame);
+        return (RectI)folder.GetTightBounds(frame);
     }
 
     /// <summary>

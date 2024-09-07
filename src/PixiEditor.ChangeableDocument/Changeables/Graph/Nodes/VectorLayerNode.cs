@@ -43,9 +43,9 @@ public class VectorLayerNode : LayerNode, ITransformableObject
         lastCacheHash = ShapeData.GetCacheHash();
     }
 
-    public override RectI? GetTightBounds(KeyFrameTime frameTime)
+    public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
-        return (RectI)ShapeData.TransformedAABB;
+        return ShapeData.TransformedAABB;
     }
 
     public override ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)

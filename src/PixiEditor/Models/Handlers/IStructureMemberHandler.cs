@@ -20,7 +20,7 @@ internal interface IStructureMemberHandler : INodeHandler
     public float OpacityBindable { get; set; }
     public IDocument Document { get; }
     public bool IsVisibleBindable { get; set; }
-    public RectI? TightBounds { get; }
+    public RectD? TightBounds { get; }
     public ShapeCorners TransformationCorners { get; }
     public void SetMaskIsVisible(bool infoIsVisible);
     public void SetClipToMemberBelowEnabled(bool infoClipToMemberBelow);

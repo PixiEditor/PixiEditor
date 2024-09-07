@@ -167,7 +167,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         return new RectI(x, y, width, height);
     }
 
-    public abstract RectI? GetTightBounds(KeyFrameTime frameTime);
+    public abstract RectD? GetTightBounds(KeyFrameTime frameTime);
 
     public override void Dispose()
     {
