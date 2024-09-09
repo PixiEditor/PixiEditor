@@ -18,7 +18,7 @@ public class PointsVectorData : ShapeVectorData
     public override ShapeCorners TransformationCorners => new ShapeCorners(
         GeometryAABB).WithMatrix(TransformationMatrix); 
 
-    public override void Rasterize(DrawingSurface drawingSurface)
+    public override void Rasterize(DrawingSurface drawingSurface, ChunkResolution resolution)
     {
         using Paint paint = new Paint();
         paint.Color = FillColor;

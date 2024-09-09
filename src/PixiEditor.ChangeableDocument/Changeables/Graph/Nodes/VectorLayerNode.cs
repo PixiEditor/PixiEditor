@@ -19,13 +19,16 @@ public class VectorLayerNode : LayerNode, ITransformableObject
     }
     
     public ShapeVectorData ShapeData { get; } = new EllipseVectorData(new VecI(32), new VecI(32));
-    
+
+    protected override bool AffectedByChunkResolution => true;
+
     private int lastCacheHash;
     
     protected override Texture? OnExecute(RenderingContext context)
     {
-        Texture texture = RequestTexture(0, context.DocumentSize);
-        ShapeData.Rasterize(texture.DrawingSurface);
+        Texture texture = RequestTexture(0, (VecI)(context.DocumentSize /** context.ChunkResolution.Multiplier()*/));
+
+        ShapeData.Rasterize(texture.DrawingSurface, context.ChunkResolution);
         
         Output.Value = texture;
         

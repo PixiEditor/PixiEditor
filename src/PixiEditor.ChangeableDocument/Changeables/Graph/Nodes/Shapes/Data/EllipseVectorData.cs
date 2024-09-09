@@ -24,7 +24,7 @@ public class EllipseVectorData : ShapeVectorData
         Radius = radius;
     }
 
-    public override void Rasterize(DrawingSurface drawingSurface)
+    public override void Rasterize(DrawingSurface drawingSurface, ChunkResolution resolution)
     {
         var imageSize = (VecI)(Radius * 2);
         
@@ -43,12 +43,12 @@ public class EllipseVectorData : ShapeVectorData
         
         RectI region = new(VecI.Zero, (VecI)GeometryAABB.Size);
 
-        drawingSurface.Canvas.Save();
+        int num = drawingSurface.Canvas.Save();
         drawingSurface.Canvas.SetMatrix(TransformationMatrix);
 
-        img.DrawMostUpToDateRegionOn(region, ChunkResolution.Full, drawingSurface, topLeft);
+        img.DrawMostUpToDateRegionOn(region, resolution, drawingSurface, topLeft);
         
-        drawingSurface.Canvas.Restore();
+        drawingSurface.Canvas.RestoreToCount(num);
     }
 
     public override bool IsValid()

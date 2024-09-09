@@ -16,6 +16,9 @@ public class RasterizeShapeNode : Node
     public InputProperty<ShapeVectorData> Data { get; }
 
 
+    protected override bool AffectedByChunkResolution => true;
+
+
     public RasterizeShapeNode()
     {
         Image = CreateOutput<Texture>("Image", "IMAGE", null);
@@ -32,7 +35,7 @@ public class RasterizeShapeNode : Node
         var size = context.DocumentSize;
         var image = RequestTexture(0, size);
         
-        shape.Rasterize(image.DrawingSurface);
+        shape.Rasterize(image.DrawingSurface, context.ChunkResolution);
 
         Image.Value = image;
         
