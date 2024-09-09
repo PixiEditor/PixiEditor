@@ -61,6 +61,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 {
     public event EventHandler<LayersChangedEventArgs>? LayersChanged;
     public event EventHandler<DocumentSizeChangedEventArgs>? SizeChanged;
+    public event Action FinishedChange;
 
     private bool busy = false;
 
@@ -218,6 +219,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         var serviceProvider = ViewModelMain.Current.Services;
         Internals = new DocumentInternalParts(this, serviceProvider);
+        Internals.ChangeController.ChangeFinished += () => FinishedChange?.Invoke();
+        
         Tools = new DocumentToolsModule(this, Internals);
         StructureHelper = new DocumentStructureModule(this);
         EventInlet = new DocumentEventsModule(this, Internals);
@@ -951,4 +954,5 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         Internals.Tracker.Dispose();
         Internals.Tracker.Document.Dispose();
     }
+
 }

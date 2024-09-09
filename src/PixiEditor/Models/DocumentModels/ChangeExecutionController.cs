@@ -18,6 +18,8 @@ internal class ChangeExecutionController
     public VecI LastPixelPosition => lastPixelPos;
     public VecD LastPrecisePosition => lastPrecisePos;
     public bool IsChangeActive => currentSession is not null;
+    
+    public event Action ChangeFinished;
 
     private readonly IDocument document;
     private readonly IServiceProvider services;
@@ -101,6 +103,8 @@ internal class ChangeExecutionController
             throw new InvalidOperationException();
         currentSession = null;
         _queuedExecutor = null;
+        
+        ChangeFinished?.Invoke();
     }
 
     public bool TryStopActiveExecutor()
@@ -109,6 +113,8 @@ internal class ChangeExecutionController
             return false;
         currentSession.ForceStop();
         currentSession = null;
+        
+        ChangeFinished?.Invoke();
         return true;
     }
 
@@ -216,4 +222,5 @@ internal class ChangeExecutionController
     {
         currentSession?.OnColorChanged(color, false);
     }
+
 }

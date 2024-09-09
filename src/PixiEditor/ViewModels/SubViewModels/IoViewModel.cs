@@ -74,13 +74,13 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     {
         window.KeyDown += MainWindowKeyDown;
         window.KeyUp += MainWindowKeyUp;
-        
+
         window.Deactivated += keyboardFilter.DeactivatedInlet;
         window.Deactivated += mouseFilter.DeactivatedInlet;
-        
+
         window.Closing += HostWindowOnClosing;
     }
-    
+
     private void HostWindowOnClosing(object? sender, WindowClosingEventArgs e)
     {
         if (sender is not HostWindow hostWindow)
@@ -301,12 +301,27 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
                                          }
                                         ):
 
-                Owner.ColorsSubViewModel.SwapColors(null);
+                if (!Owner.DocumentManagerSubViewModel.ActiveDocument.UpdateableChangeActive)
+                {
+                    Owner.ColorsSubViewModel.SwapColors(null);
+                }
+                else
+                {
+                    Owner.DocumentManagerSubViewModel.ActiveDocument.FinishedChange +=
+                        FinishedChange;
+                }
+
                 break;
             case MouseButton.Right when tools.RightClickMode == RightClickMode.Erase:
                 HandleRightMouseEraseUp(tools);
                 break;
         }
+    }
+    
+    private void FinishedChange()
+    {
+        Owner.ColorsSubViewModel.SwapColors(null);
+        Owner.DocumentManagerSubViewModel.ActiveDocument.FinishedChange -= FinishedChange;
     }
 
     private void HandleRightMouseEraseUp(IToolsHandler tools)
