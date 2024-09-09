@@ -4,4 +4,4 @@ using PixiEditor.ViewModels.Nodes;
 namespace PixiEditor.ViewModels.Document.Nodes.CombineSeparate;
 
 [NodeViewModel("SEPARATE_COLOR_NODE", "COLOR", "\ue913")]
-internal class SeparateColorNodeViewModel : NodeViewModel<SeparateColorNode>;
+internal class SeparateColorNodeViewModel() : CombineSeparateColorNodeViewModel<SeparateColorNode>(false);

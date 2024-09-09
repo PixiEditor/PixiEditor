@@ -4,4 +4,4 @@ namespace PixiEditor.Models.Events;
 
 public delegate void NodePropertyValueChanged(INodePropertyHandler property, NodePropertyValueChangedArgs args);
 
-public record NodePropertyValueChangedArgs(object OldValue, object NewValue);
+public record NodePropertyValueChangedArgs(object? OldValue, object? NewValue);
