@@ -1,6 +1,7 @@
 ﻿using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.Handlers;
@@ -188,8 +189,13 @@ internal class ChangeExecutionController
         LastTransformState = corners;
         currentSession?.OnTransformMoved(corners);
     }
-
+    
     public void TransformAppliedInlet() => currentSession?.OnTransformApplied();
+    
+    public void SettingsChangedInlet(string name, object value)
+    {
+        currentSession?.OnSettingsChanged(name, value);
+    }
 
     public void LineOverlayMovedInlet(VecD start, VecD end)
     {
@@ -199,5 +205,15 @@ internal class ChangeExecutionController
     public void SelectedObjectNudgedInlet(VecI distance)
     {
         currentSession?.OnSelectedObjectNudged(distance);
+    }
+
+    public void PrimaryColorChangedInlet(Color color)
+    {
+        currentSession?.OnColorChanged(color, true);
+    }
+
+    public void SecondaryColorChangedInlet(Color color)
+    {
+        currentSession?.OnColorChanged(color, false);
     }
 }

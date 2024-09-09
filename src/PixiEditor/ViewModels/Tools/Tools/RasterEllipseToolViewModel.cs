@@ -9,12 +9,12 @@ using PixiEditor.UI.Common.Fonts;
 namespace PixiEditor.ViewModels.Tools.Tools;
 
 [Command.Tool(Key = Key.C)]
-internal class EllipseToolViewModel : ShapeTool, IEllipseToolHandler
+internal class RasterEllipseToolViewModel : ShapeTool, IRasterEllipseToolHandler
 {
     private string defaultActionDisplay = "ELLIPSE_TOOL_ACTION_DISPLAY_DEFAULT";
     public override string ToolNameLocalizationKey => "ELLIPSE_TOOL";
 
-    public EllipseToolViewModel()
+    public RasterEllipseToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
     }
@@ -40,6 +40,6 @@ internal class EllipseToolViewModel : ShapeTool, IEllipseToolHandler
 
     public override void UseTool(VecD pos)
     {
-        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseEllipseTool();
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseRasterEllipseTool();
     }
 }

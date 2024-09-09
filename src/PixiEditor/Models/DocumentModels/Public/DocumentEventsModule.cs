@@ -1,5 +1,6 @@
 ﻿using Avalonia.Input;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
@@ -43,6 +44,9 @@ internal class DocumentEventsModule
     public void OnOpacitySliderDragged(float newValue) => Internals.ChangeController.OpacitySliderDraggedInlet(newValue);
     public void OnOpacitySliderDragEnded() => Internals.ChangeController.OpacitySliderDragEndedInlet();
     public void OnApplyTransform() => Internals.ChangeController.TransformAppliedInlet();
+    public void SettingsChanged(string name, object value) => Internals.ChangeController.SettingsChangedInlet(name, value);
+    public void PrimaryColorChanged(Color color) => Internals.ChangeController.PrimaryColorChangedInlet(color);
+    public void SecondaryColorChanged(Color color) => Internals.ChangeController.SecondaryColorChangedInlet(color);
     public void OnSymmetryDragStarted(SymmetryAxisDirection dir) => Internals.ChangeController.SymmetryDragStartedInlet(dir);
     public void OnSymmetryDragged(SymmetryAxisDragInfo info) => Internals.ChangeController.SymmetryDraggedInlet(info);
     public void OnSymmetryDragEnded(SymmetryAxisDirection dir) => Internals.ChangeController.SymmetryDragEndedInlet(dir);

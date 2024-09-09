@@ -7,6 +7,7 @@ namespace PixiEditor.Models.Config;
 
 public class ConfigManager
 {
+    // TODO: Copy config to local folder so it can be modified
     public T GetConfig<T>(string configName)
     {
         string path = $"avares://{Assembly.GetExecutingAssembly().GetName().Name}/Data/Configs/{configName}.json";

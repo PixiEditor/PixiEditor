@@ -16,9 +16,9 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
 internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T : IShapeToolHandler
 {
-    protected int strokeWidth;
-    protected Color fillColor;
-    protected Color strokeColor;
+    protected int StrokeWidth => toolbar.ToolSize;
+    protected Color FillColor => toolbar.Fill ? toolbar.FillColor.ToColor() : DrawingApi.Core.ColorsImpl.Colors.Transparent;
+    protected Color StrokeColor => toolbar.StrokeColor.ToColor();
     protected Guid memberGuid;
     protected bool drawOnMask;
 
@@ -26,14 +26,17 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     protected T? toolViewModel;
     protected VecI startPos;
     protected RectI lastRect;
-
+    protected double lastRadians;
+    
     private bool noMovement = true;
+    private IBasicShapeToolbar toolbar;
+    private IColorsHandler? colorsVM;
 
     public override ExecutionState Start()
     {
-        IColorsHandler? colorsVM = GetHandler<IColorsHandler>();
+        colorsVM = GetHandler<IColorsHandler>();
         toolViewModel = GetHandler<T>();
-        IBasicShapeToolbar? toolbar = (IBasicShapeToolbar?)toolViewModel?.Toolbar;
+        toolbar = (IBasicShapeToolbar?)toolViewModel?.Toolbar;
         IStructureMemberHandler? member = document?.SelectedStructureMember;
         if (colorsVM is null || toolbar is null || member is null)
             return ExecutionState.Error;
@@ -43,18 +46,17 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
         if (!drawOnMask && member is not ILayerHandler)
             return ExecutionState.Error;
 
-        fillColor = toolbar.Fill ? toolbar.FillColor.ToColor() : DrawingApi.Core.ColorsImpl.Colors.Transparent;
         startPos = controller!.LastPixelPosition;
-        strokeColor = colorsVM.PrimaryColor;
-        strokeWidth = toolbar.ToolSize;
         memberGuid = member.Id;
-
-        colorsVM.AddSwatch(new PaletteColor(strokeColor.R, strokeColor.G, strokeColor.B));
-        DrawShape(startPos, true);
+        
+        OnColorChanged(colorsVM.PrimaryColor, true);
+        
+        DrawShape(startPos, 0, true);
         return ExecutionState.Success;
     }
 
-    protected abstract void DrawShape(VecI currentPos, bool firstDraw);
+    protected abstract void DrawShape(VecI currentPos, double rotationRad, bool firstDraw);
+    protected abstract IAction SettingsChangedAction();
     protected abstract IAction TransformMovedAction(ShapeData data, ShapeCorners corners);
     protected abstract IAction EndDrawAction();
     protected virtual DocumentTransformMode TransformMode => DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective;
@@ -103,8 +105,8 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
             return;
 
         var rect = RectD.FromCenterAndSize(corners.RectCenter, corners.RectSize);
-        ShapeData shapeData = new ShapeData(rect.Center, rect.Size, corners.RectRotation, strokeWidth, strokeColor,
-            fillColor);
+        ShapeData shapeData = new ShapeData(rect.Center, rect.Size, corners.RectRotation, StrokeWidth, StrokeColor,
+            FillColor);
         IAction drawAction = TransformMovedAction(shapeData, corners);
 
         internals!.ActionAccumulator.AddActions(drawAction);
@@ -115,6 +117,18 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
         internals!.ActionAccumulator.AddFinishedActions(EndDrawAction());
         document!.TransformHandler.HideTransform();
         onEnded?.Invoke(this);
+        
+        colorsVM.AddSwatch(StrokeColor.ToPaletteColor());
+        colorsVM.AddSwatch(FillColor.ToPaletteColor());
+    }
+    
+    public override void OnColorChanged(Color color, bool primary)
+    {
+        if (primary && toolbar.SyncWithPrimaryColor)
+        {
+            toolbar.StrokeColor = color.ToColor();
+            toolbar.FillColor = color.ToColor();
+        }
     }
 
     public override void OnSelectedObjectNudged(VecI distance)
@@ -143,7 +157,12 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
         if (transforming)
             return;
         noMovement = false;
-        DrawShape(pos, false);
+        DrawShape(pos, lastRadians, false);
+    }
+
+    public override void OnSettingsChanged(string name, object value)
+    {
+        internals!.ActionAccumulator.AddActions(SettingsChangedAction());
     }
 
     public override void OnLeftMouseButtonUp()

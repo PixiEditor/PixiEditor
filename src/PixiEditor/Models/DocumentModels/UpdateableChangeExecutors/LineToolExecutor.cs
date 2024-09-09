@@ -16,7 +16,7 @@ internal class LineToolExecutor : UpdateableChangeExecutor
 
     private VecI startPos;
     private Color strokeColor;
-    private int strokeWidth;
+    private int StrokeWidth => toolViewModel!.ToolSize;
     private Guid memberGuid;
     private bool drawOnMask;
 
@@ -24,10 +24,11 @@ internal class LineToolExecutor : UpdateableChangeExecutor
     private bool started = false;
     private bool transforming = false;
     private ILineToolHandler? toolViewModel;
+    private IColorsHandler? colorsVM;
 
     public override ExecutionState Start()
     {
-        IColorsHandler? colorsVM = GetHandler<IColorsHandler>();
+        colorsVM = GetHandler<IColorsHandler>();
         toolViewModel = GetHandler<ILineToolHandler>();
         IStructureMemberHandler? member = document?.SelectedStructureMember;
         if (colorsVM is null || toolViewModel is null || member is null)
@@ -41,11 +42,8 @@ internal class LineToolExecutor : UpdateableChangeExecutor
 
         startPos = controller!.LastPixelPosition;
         strokeColor = colorsVM.PrimaryColor;
-        strokeWidth = toolViewModel.ToolSize;
         memberGuid = member.Id;
-
-        colorsVM.AddSwatch(new PaletteColor(strokeColor.R, strokeColor.G, strokeColor.B));
-
+        
         return ExecutionState.Success;
     }
 
@@ -58,7 +56,7 @@ internal class LineToolExecutor : UpdateableChangeExecutor
         if (toolViewModel!.Snap)
             pos = ShapeToolExecutor<IShapeToolHandler>.Get45IncrementedPosition(startPos, pos);
         curPos = pos;
-        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, startPos, pos, strokeWidth, strokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
+        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, startPos, pos, StrokeWidth, strokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     public override void OnLeftMouseButtonUp()
@@ -77,7 +75,19 @@ internal class LineToolExecutor : UpdateableChangeExecutor
     {
         if (!transforming)
             return;
-        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, (VecI)start, (VecI)end, strokeWidth, strokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
+        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, (VecI)start, (VecI)end, StrokeWidth, strokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
+        
+        startPos = (VecI)start;
+        curPos = (VecI)end;
+    }
+
+    public override void OnColorChanged(Color color, bool primary)
+    {
+        if (!primary)
+            return;
+        
+        strokeColor = color;
+        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, startPos, curPos, StrokeWidth, strokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     public override void OnSelectedObjectNudged(VecI distance)
@@ -85,6 +95,11 @@ internal class LineToolExecutor : UpdateableChangeExecutor
         if (!transforming)
             return;
         document!.LineToolOverlayHandler.Nudge(distance);
+    }
+
+    public override void OnSettingsChanged(string name, object value)
+    {
+        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, startPos, curPos, StrokeWidth, strokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     public override void OnMidChangeUndo()
@@ -109,6 +124,8 @@ internal class LineToolExecutor : UpdateableChangeExecutor
         document!.LineToolOverlayHandler.Hide();
         internals!.ActionAccumulator.AddFinishedActions(new EndDrawLine_Action());
         onEnded!(this);
+
+        colorsVM.AddSwatch(new PaletteColor(strokeColor.R, strokeColor.G, strokeColor.B));
     }
 
     public override void ForceStop()

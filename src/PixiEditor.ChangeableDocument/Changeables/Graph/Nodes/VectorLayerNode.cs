@@ -26,7 +26,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject
     
     protected override Texture? OnExecute(RenderingContext context)
     {
-        Texture texture = RequestTexture(0, (VecI)(context.DocumentSize /** context.ChunkResolution.Multiplier()*/));
+        Texture texture = RequestTexture(0, context.DocumentSize);
 
         ShapeData.Rasterize(texture.DrawingSurface, context.ChunkResolution);
         

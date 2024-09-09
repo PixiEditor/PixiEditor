@@ -77,7 +77,7 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
         }
 
         StructureNode firstLayer = target.FindMemberOrThrow(memberData[0].MemberId);
-        RectD tightBounds = firstLayer.GetTightBounds(frame).Value;
+        RectD tightBounds = firstLayer.GetTightBounds(frame) ?? default;
 
         if (memberData.Count == 1 && firstLayer is VectorLayerNode vectorLayer)
         {
@@ -87,7 +87,18 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
         for (var i = 1; i < memberData.Count; i++)
         {
             StructureNode layer = target.FindMemberOrThrow(memberData[i].MemberId);
-            tightBounds = tightBounds.Union((RectD)layer.GetTightBounds(frame).Value);
+            
+            var layerTightBounds = layer.GetTightBounds(frame);
+            
+            if (tightBounds == default)
+            {
+                tightBounds = layerTightBounds.GetValueOrDefault();
+            }
+
+            if (layerTightBounds is not null)
+            {
+                tightBounds = tightBounds.Union(layerTightBounds.Value);
+            }
         }
 
         tightBoundsSize = tightBounds.Size;

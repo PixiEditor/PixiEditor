@@ -11,7 +11,18 @@ internal abstract class Toolbar : ObservableObject, IToolbar
 {
     private static readonly List<Setting> SharedSettings = new List<Setting>();
 
-    public ObservableCollection<Setting> Settings { get; set; } = new ObservableCollection<Setting>();
+    private ObservableCollection<Setting> settings = new();
+    public IReadOnlyList<Setting> Settings => settings; 
+
+    public void AddSetting(Setting setting)
+    {
+        setting.ValueChanged += (sender, args) =>
+        {
+            SettingChanged?.Invoke(setting.Name, setting.Value);
+        };
+        
+        settings.Add(setting);
+    }
 
     /// <summary>
     ///     Gets setting in toolbar by name.
@@ -74,6 +85,8 @@ internal abstract class Toolbar : ObservableObject, IToolbar
 
         OnLoadedSettings();
     }
+
+    public event SettingChange? SettingChanged;
 
     public virtual void OnLoadedSettings()
     {

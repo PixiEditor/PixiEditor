@@ -747,5 +747,8 @@
   "COS": "Cos",
   "TAN": "Tan",
   "PIXEL_ART_TOOLSET": "Pixel Art",
-  "VECTOR_TOOLSET": "Vector"
+  "VECTOR_TOOLSET": "Vector",
+  "VECTOR_LAYER": "Vector Layer",
+  "STROKE_COLOR_LABEL": "Stroke",
+  "SYNC_WITH_PRIMARY_COLOR_LABEL": "Sync with primary color"
 }

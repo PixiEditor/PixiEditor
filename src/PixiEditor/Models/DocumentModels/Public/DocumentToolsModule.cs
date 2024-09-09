@@ -30,13 +30,19 @@ internal class DocumentToolsModule
     public void UseRectangleTool()
     {
         bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
-        Internals.ChangeController.TryStartExecutor<RectangleToolExecutor>(force);
+        Internals.ChangeController.TryStartExecutor<RasterRectangleToolExecutor>(force);
     }
 
-    public void UseEllipseTool()
+    public void UseRasterEllipseTool()
     {
         bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
-        Internals.ChangeController.TryStartExecutor<EllipseToolExecutor>(force);
+        Internals.ChangeController.TryStartExecutor<RasterEllipseToolExecutor>(force);
+    }
+    
+    public void UseVectorEllipseTool()
+    {
+        bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
+        Internals.ChangeController.TryStartExecutor<VectorEllipseToolExecutor>(force);
     }
 
     public void UseLineTool()

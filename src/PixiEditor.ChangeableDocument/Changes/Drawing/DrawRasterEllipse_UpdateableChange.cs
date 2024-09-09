@@ -3,21 +3,21 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
-internal class DrawEllipse_UpdateableChange : UpdateableChange
+internal class DrawRasterEllipse_UpdateableChange : UpdateableChange
 {
     private readonly Guid memberGuid;
     private RectI location;
     private double rotation;
-    private readonly Color strokeColor;
-    private readonly Color fillColor;
-    private readonly int strokeWidth;
+    private Color strokeColor;
+    private Color fillColor;
+    private int strokeWidth;
     private readonly bool drawOnMask;
     private int frame;
 
     private CommittedChunkStorage? storedChunks;
 
     [GenerateUpdateableChangeActions]
-    public DrawEllipse_UpdateableChange(Guid memberGuid, RectI location, double rotationRad, Color strokeColor, Color fillColor, int strokeWidth, bool drawOnMask, int frame)
+    public DrawRasterEllipse_UpdateableChange(Guid memberGuid, RectI location, double rotationRad, Color strokeColor, Color fillColor, int strokeWidth, bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.location = location;
@@ -30,10 +30,13 @@ internal class DrawEllipse_UpdateableChange : UpdateableChange
     }
 
     [UpdateChangeMethod]
-    public void Update(RectI location, double rotationRad)
+    public void Update(RectI location, double rotationRad, Color strokeColor, Color fillColor, int strokeWidth)
     {
         this.location = location;
         rotation = rotationRad;
+        this.strokeColor = strokeColor;
+        this.fillColor = fillColor;
+        this.strokeWidth = strokeWidth;
     }
 
     public override bool InitializeAndValidate(Document target)

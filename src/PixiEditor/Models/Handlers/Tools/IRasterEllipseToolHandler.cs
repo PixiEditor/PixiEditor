@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Models.Handlers.Tools;
 
-internal interface IEllipseToolHandler : IShapeToolHandler
+internal interface IRasterEllipseToolHandler : IShapeToolHandler
 {
     public bool DrawCircle { get; }
 }

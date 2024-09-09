@@ -119,11 +119,13 @@ internal class EllipseOperation : IMirroredDrawOperation
             if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
             {
                 surf.Canvas.Save();
+                surf.Canvas.RotateRadians((float)rotation, (float)location.Center.X, (float)location.Center.Y);
                 surf.Canvas.ClipPath(innerPath!);
                 surf.Canvas.DrawColor(fillColor, paint.BlendMode);
                 surf.Canvas.Restore();
             }
             surf.Canvas.Save();
+            surf.Canvas.RotateRadians((float)rotation, (float)location.Center.X, (float)location.Center.Y);
             surf.Canvas.ClipPath(outerPath!);
             surf.Canvas.ClipPath(innerPath!, ClipOperation.Difference);
             surf.Canvas.DrawColor(strokeColor, paint.BlendMode);

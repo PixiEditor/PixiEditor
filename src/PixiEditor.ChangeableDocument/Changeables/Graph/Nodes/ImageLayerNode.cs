@@ -53,7 +53,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
-        return (RectD)GetLayerImageAtFrame(frameTime.Frame).FindTightCommittedBounds();
+        return (RectD?)GetLayerImageAtFrame(frameTime.Frame).FindTightCommittedBounds();
     }
 
     protected override Texture? OnExecute(RenderingContext context)

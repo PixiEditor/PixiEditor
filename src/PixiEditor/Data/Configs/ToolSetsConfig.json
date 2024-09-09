@@ -11,7 +11,7 @@
       "Lasso",
       "FloodFill",
       "Line",
-      "Ellipse",
+      "RasterEllipse",
       "Rectangle",
       "Eraser",
       "ColorPicker",
@@ -26,7 +26,7 @@
       "RotateViewport",
       "Move",
       "Line",
-      "Ellipse",
+      "VectorEllipse",
       "Rectangle"
     ]
   }

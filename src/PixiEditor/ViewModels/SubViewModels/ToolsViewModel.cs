@@ -206,7 +206,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             return;
         }
 
-        ActiveTool?.OnDeselecting();
+        if (ActiveTool != null)
+        {
+            ActiveTool.OnDeselecting();
+            ActiveTool.Toolbar.SettingChanged -= ToolbarSettingChanged;
+        }
 
         if (ActiveTool != null) ActiveTool.IsTransient = false;
         bool shareToolbar = EnableSharedToolbar;
@@ -219,6 +223,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
         LastActionTool = ActiveTool;
         ActiveTool = tool;
+        
+        ActiveTool.Toolbar.SettingChanged += ToolbarSettingChanged;
 
         if (shareToolbar)
         {
@@ -362,6 +368,15 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         ActiveTool?.ModifierKeyChanged(args.IsCtrlDown, args.IsShiftDown, args.IsAltDown);
     }
     
+    private void ToolbarSettingChanged(string settingName, object value)
+    {
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (document is null)
+            return;
+        
+        document.EventInlet.SettingsChanged(settingName, value);
+    }
+    
     private void AddToolSets(ToolSetsConfig toolSetConfig)
     {
         foreach (ToolSetConfig toolSet in toolSetConfig)
@@ -373,7 +388,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                 IToolHandler? tool = allTools.FirstOrDefault(tool => tool.ToolName == toolName);
                 if (tool is null)
                 {
+                    #if DEBUG
                     throw new InvalidOperationException($"Tool '{toolName}' not found.");
+                    #endif
+                    
+                    continue;
                 }
                 
                 tools.Add(tool);

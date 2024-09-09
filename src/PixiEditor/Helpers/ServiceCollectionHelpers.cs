@@ -90,11 +90,12 @@ internal static class ServiceCollectionHelpers
             .AddTool<ILassoToolHandler, LassoToolViewModel>()
             .AddTool<IFloodFillToolHandler, FloodFillToolViewModel>()
             .AddTool<ILineToolHandler, LineToolViewModel>()
-            .AddTool<IEllipseToolHandler, EllipseToolViewModel>()
+            .AddTool<IRasterEllipseToolHandler, RasterEllipseToolViewModel>()
             .AddTool<IRectangleToolHandler, RectangleToolViewModel>()
             .AddTool<IEraserToolHandler, EraserToolViewModel>()
             .AddTool<IColorPickerHandler, ColorPickerToolViewModel>()
             .AddTool<IBrightnessToolHandler, BrightnessToolViewModel>()
+            .AddTool<IVectorEllipseToolHandler, VectorEllipseToolViewModel>()
             .AddTool<ZoomToolViewModel>()
             // File types
             .AddSingleton<IoFileType, PixiFileType>()

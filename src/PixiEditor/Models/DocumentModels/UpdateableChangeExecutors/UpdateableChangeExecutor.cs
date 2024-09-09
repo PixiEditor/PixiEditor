@@ -2,6 +2,7 @@
 using ChunkyImageLib.DataHolders;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
@@ -62,4 +63,7 @@ internal abstract class UpdateableChangeExecutor
     public virtual void OnMidChangeUndo() { }
     public virtual void OnMidChangeRedo() { }
     public virtual void OnSelectedObjectNudged(VecI distance) { }
+
+    public virtual void OnSettingsChanged(string name, object value) { }
+    public virtual void OnColorChanged(Color color, bool primary) { }
 }
