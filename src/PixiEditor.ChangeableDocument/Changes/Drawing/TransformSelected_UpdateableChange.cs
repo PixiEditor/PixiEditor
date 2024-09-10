@@ -114,7 +114,7 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
             }
             else if (layer is ITransformableObject transformable)
             {
-                SetTransformableMember(layer, member, transformable);
+                SetTransformableMember(layer, member, transformable, tightBounds);
             }
         }
 
@@ -122,9 +122,9 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
     }
 
     private void SetTransformableMember(StructureNode layer, MemberTransformationData member,
-        ITransformableObject transformable)
+        ITransformableObject transformable, RectD tightBounds)
     {
-        member.OriginalBounds = layer.GetTightBounds(frame).Value;
+        member.OriginalBounds = tightBounds; 
         VecD posRelativeToMaster = member.OriginalBounds.Value.TopLeft - masterCorners.TopLeft;
 
         member.OriginalPos = (VecI)posRelativeToMaster;
@@ -189,6 +189,13 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
                             (float)member.OriginalPos.Value.X - (float)member.OriginalBounds.Value.Left,
                             (float)member.OriginalPos.Value.Y - (float)member.OriginalBounds.Value.Top))
                         .PostConcat(tightBoundsGlobalMatrix);
+                }
+                else
+                {
+                    localMatrix = Matrix3X3.CreateTranslation(
+                        (float)-member.OriginalBounds.Value.X,
+                        (float)-member.OriginalBounds.Value.Y);
+                    localMatrix = localMatrix.PostConcat(tightBoundsGlobalMatrix);
                 }
             }
 
