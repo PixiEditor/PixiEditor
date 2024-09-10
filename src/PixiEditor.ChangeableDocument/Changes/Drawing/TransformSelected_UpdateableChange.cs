@@ -81,7 +81,7 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
 
         if (memberData.Count == 1 && firstLayer is VectorLayerNode vectorLayer)
         {
-            tightBounds = vectorLayer.ShapeData.GeometryAABB;
+            tightBounds = vectorLayer.ShapeData?.GeometryAABB ?? default;
         }
 
         for (var i = 1; i < memberData.Count; i++)
@@ -100,6 +100,9 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
                 tightBounds = tightBounds.Union(layerTightBounds.Value);
             }
         }
+        
+        if (tightBounds == default)
+            return false;
 
         tightBoundsSize = tightBounds.Size;
 

@@ -54,6 +54,9 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor
         
         ShapeCorners masterCorners = memberCorners.Count == 1 ? memberCorners.FirstOrDefault().Value : new ShapeCorners(memberCorners.Values.Select(static c => c.AABBBounds).Aggregate((a, b) => a.Union(b)));
         
+        if (masterCorners.AABBBounds.Width == 0 || masterCorners.AABBBounds.Height == 0)
+            return ExecutionState.Error;
+        
         document.TransformHandler.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, masterCorners, Type == ExecutorType.Regular);
         internals!.ActionAccumulator.AddActions(
             new TransformSelected_Action(masterCorners, tool.KeepOriginalImage, memberCorners, false, document.AnimationHandler.ActiveFrameBindable));

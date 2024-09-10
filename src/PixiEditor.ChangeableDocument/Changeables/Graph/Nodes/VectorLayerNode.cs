@@ -14,10 +14,18 @@ public class VectorLayerNode : LayerNode, ITransformableObject
 {
     public Matrix3X3 TransformationMatrix
     {
-        get => ShapeData.TransformationMatrix;
-        set => ShapeData.TransformationMatrix = value;
+        get => ShapeData?.TransformationMatrix ?? Matrix3X3.Identity;
+        set
+        {
+            if (ShapeData == null)
+            {
+                return;
+            }
+            
+            ShapeData.TransformationMatrix = value;
+        }
     }
-    
+
     public ShapeVectorData? ShapeData { get; set; }
 
     protected override bool AffectedByChunkResolution => true;
@@ -59,7 +67,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject
 
     public override ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
     {
-        return ShapeData.TransformationCorners;
+        return ShapeData?.TransformationCorners ?? new ShapeCorners();
     }
 
     public override Node CreateCopy()
