@@ -2,8 +2,6 @@
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
@@ -31,7 +29,7 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     private bool noMovement = true;
     private IBasicShapeToolbar toolbar;
     private IColorsHandler? colorsVM;
-
+    
     public override ExecutionState Start()
     {
         colorsVM = GetHandler<IColorsHandler>();

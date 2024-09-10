@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using PixiDocks.Avalonia.Controls;
 using PixiEditor.Models.Preferences;
@@ -208,7 +209,15 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         {
             case RightClickMode.SecondaryColor when tools.ActiveTool.UsesColor:
             case RightClickMode.Erase when tools.ActiveTool is ColorPickerToolViewModel:
-                Owner.ColorsSubViewModel.SwapColors(null);
+                if (!Owner.DocumentManagerSubViewModel.ActiveDocument.UpdateableChangeActive)
+                {
+                    Owner.ColorsSubViewModel.SwapColors(null);
+                }
+                else
+                {
+                    Owner.DocumentManagerSubViewModel.ActiveDocument.FinishedChange += FinishedChange;
+                }
+
                 hadSwapped = true;
                 return true;
             case RightClickMode.Erase when tools.ActiveTool.IsErasable:
