@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
@@ -15,6 +16,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Objects;
 using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Numerics;
@@ -161,6 +163,10 @@ internal class AffectedAreasGatherer
                 case OnionFrames_ChangeInfo:
                     AddWholeCanvasToMainImage();
                     break;
+                case VectorShape_ChangeInfo info:
+                    AddAllToMainImage(info.LayerId, ActiveFrame, false);
+                    AddAllToImagePreviews(info.LayerId, ActiveFrame, false);
+                    break;
             }
         }
     }
@@ -186,6 +192,20 @@ internal class AffectedAreasGatherer
             /*foreach (var child in folder.Children)
                 AddAllToImagePreviews(child.Id, frame);*/
         }
+        else if (member is IReadOnlyLayerNode genericLayerNode)
+        {
+            var tightBounds = genericLayerNode.GetTightBounds(frame);
+            if (tightBounds is not null)
+            {
+                var affectedArea = new AffectedArea(
+                    OperationHelper.FindChunksTouchingRectangle((RectI)tightBounds.Value, ChunkyImage.FullChunkSize));
+                AddToImagePreviews(memberGuid, affectedArea, ignoreSelf);
+            }
+            else
+            {
+                AddWholeCanvasToImagePreviews(memberGuid, ignoreSelf);
+            }
+        }
     }
 
     private void AddAllToMainImage(Guid memberGuid, KeyFrameTime frame, bool useMask = true)
@@ -204,6 +224,26 @@ internal class AffectedAreasGatherer
             if (layer.EmbeddedMask is not null && layer.MaskIsVisible.Value && useMask)
                 chunks.IntersectWith(layer.EmbeddedMask.FindAllChunks());
             AddToMainImage(new AffectedArea(chunks));
+        }
+        else if (member is IReadOnlyLayerNode genericLayer)
+        {
+            var tightBounds = genericLayer.GetTightBounds(frame);
+            if (tightBounds is not null)
+            {
+                var affectedArea = new AffectedArea(
+                    OperationHelper.FindChunksTouchingRectangle((RectI)tightBounds.Value, ChunkyImage.FullChunkSize));
+                AddToMainImage(affectedArea);
+            }
+            else
+            {
+                AddWholeCanvasToMainImage();
+            }
+        }
+        else if (member is IReadOnlyFolderNode folder)
+        {
+            AddWholeCanvasToMainImage();
+            /*foreach (var child in folder.Children)
+                AddAllToMainImage(child.Id, frame);*/
         }
         else
         {

@@ -48,7 +48,7 @@ internal class DocumentToolsModule
     public void UseLineTool()
     {
         bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
-        Internals.ChangeController.TryStartExecutor<LineToolExecutor>(force);
+        Internals.ChangeController.TryStartExecutor<RasterLineToolExecutor>(force);
     }
 
     public void UseSelectTool() => Internals.ChangeController.TryStartExecutor<SelectToolExecutor>();

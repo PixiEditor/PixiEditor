@@ -9,10 +9,10 @@ using PixiEditor.UI.Common.Fonts;
 namespace PixiEditor.ViewModels.Tools.Tools;
 
 [Command.Tool(Key = Key.R)]
-internal class RectangleToolViewModel : ShapeTool, IRectangleToolHandler
+internal class RasterRectangleToolViewModel : ShapeTool, IRasterRectangleToolHandler
 {
     private string defaultActionDisplay = "RECTANGLE_TOOL_ACTION_DISPLAY_DEFAULT";
-    public RectangleToolViewModel()
+    public RasterRectangleToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
     }

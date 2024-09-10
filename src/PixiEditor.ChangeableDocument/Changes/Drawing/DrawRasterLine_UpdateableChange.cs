@@ -5,7 +5,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
-internal class DrawLine_UpdateableChange : UpdateableChange
+internal class DrawRasterLine_UpdateableChange : UpdateableChange
 {
     private readonly Guid memberGuid;
     private VecI from;
@@ -18,7 +18,7 @@ internal class DrawLine_UpdateableChange : UpdateableChange
     private int frame;
 
     [GenerateUpdateableChangeActions]
-    public DrawLine_UpdateableChange
+    public DrawRasterLine_UpdateableChange
         (Guid memberGuid, VecI from, VecI to, int strokeWidth, Color color, StrokeCap caps, bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;

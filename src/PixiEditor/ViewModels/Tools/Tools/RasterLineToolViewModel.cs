@@ -11,14 +11,14 @@ using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 namespace PixiEditor.ViewModels.Tools.Tools;
 
 [Command.Tool(Key = Key.L)]
-internal class LineToolViewModel : ShapeTool, ILineToolHandler
+internal class RasterLineToolViewModel : ShapeTool, IRasterLineToolHandler
 {
     private string defaultActionDisplay = "LINE_TOOL_ACTION_DISPLAY_DEFAULT";
 
-    public LineToolViewModel()
+    public RasterLineToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
-        Toolbar = ToolbarFactory.Create<LineToolViewModel, BasicToolbar>(this);
+        Toolbar = ToolbarFactory.Create<RasterLineToolViewModel, BasicToolbar>(this);
     }
 
     public override string ToolNameLocalizationKey => "LINE_TOOL";

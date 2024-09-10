@@ -8,7 +8,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
-internal class RasterRectangleToolExecutor : ShapeToolExecutor<IRectangleToolHandler>
+internal class RasterRectangleToolExecutor : ShapeToolExecutor<IRasterRectangleToolHandler>
 {
     private ShapeData lastData;
     public override ExecutorType Type => ExecutorType.ToolLinked;
@@ -26,14 +26,14 @@ internal class RasterRectangleToolExecutor : ShapeToolExecutor<IRectangleToolHan
         
         lastData = new ShapeData(rect.Center, rect.Size, rotationRad, StrokeWidth, StrokeColor, FillColor);
 
-        internals!.ActionAccumulator.AddActions(new DrawRectangle_Action(memberGuid, lastData, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
+        internals!.ActionAccumulator.AddActions(new DrawRasterRectangle_Action(memberGuid, lastData, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     protected override void DrawShape(VecI currentPos, double rotationRad, bool first) => DrawRectangle(currentPos, rotationRad, first);
     protected override IAction SettingsChangedAction()
     {
         lastData = new ShapeData(lastData.Center, lastData.Size, lastRadians, StrokeWidth, StrokeColor, FillColor);
-        return new DrawRectangle_Action(memberGuid, lastData, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);   
+        return new DrawRasterRectangle_Action(memberGuid, lastData, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);   
     }
 
     protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners)
@@ -42,8 +42,8 @@ internal class RasterRectangleToolExecutor : ShapeToolExecutor<IRectangleToolHan
         
         lastRadians = corners.RectRotation;
         
-        return new DrawRectangle_Action(memberGuid, data, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+        return new DrawRasterRectangle_Action(memberGuid, data, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
     }
 
-    protected override IAction EndDrawAction() => new EndDrawRectangle_Action();
+    protected override IAction EndDrawAction() => new EndDrawRasterRectangle_Action();
 }

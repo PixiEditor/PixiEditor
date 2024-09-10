@@ -18,7 +18,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject
         set => ShapeData.TransformationMatrix = value;
     }
     
-    public ShapeVectorData ShapeData { get; } = new EllipseVectorData(new VecI(32), new VecI(32));
+    public ShapeVectorData? ShapeData { get; set; }
 
     protected override bool AffectedByChunkResolution => true;
 
@@ -26,6 +26,12 @@ public class VectorLayerNode : LayerNode, ITransformableObject
     
     protected override Texture? OnExecute(RenderingContext context)
     {
+        if (ShapeData == null)
+        {
+            Output.Value = null;
+            return null;
+        }
+        
         Texture texture = RequestTexture(0, context.DocumentSize);
 
         ShapeData.Rasterize(texture.DrawingSurface, context.ChunkResolution);
@@ -37,18 +43,18 @@ public class VectorLayerNode : LayerNode, ITransformableObject
 
     protected override bool CacheChanged(RenderingContext context)
     {
-        return base.CacheChanged(context) || ShapeData.GetCacheHash() != lastCacheHash;
+        return base.CacheChanged(context) || (ShapeData?.GetCacheHash() ?? -1) != lastCacheHash;
     }
 
     protected override void UpdateCache(RenderingContext context)
     {
         base.UpdateCache(context);
-        lastCacheHash = ShapeData.GetCacheHash();
+        lastCacheHash = ShapeData?.GetCacheHash() ?? -1;
     }
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
-        return ShapeData.TransformedAABB;
+        return ShapeData?.TransformedAABB ?? null;
     }
 
     public override ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)

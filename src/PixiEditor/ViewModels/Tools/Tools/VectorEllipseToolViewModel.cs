@@ -22,6 +22,6 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
 
     public override void UseTool(VecD pos)
     {
-        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseRasterEllipseTool();
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorEllipseTool();
     }
 }

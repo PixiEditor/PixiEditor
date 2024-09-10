@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Models.Handlers.Tools;
 
-internal interface IRectangleToolHandler : IShapeToolHandler
+internal interface IRasterRectangleToolHandler : IShapeToolHandler
 {
     public bool DrawSquare { get; }
 }

@@ -10,7 +10,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
-internal class LineToolExecutor : UpdateableChangeExecutor
+internal class RasterLineToolExecutor : UpdateableChangeExecutor
 {
     public override ExecutorType Type => ExecutorType.ToolLinked;
 
@@ -23,13 +23,13 @@ internal class LineToolExecutor : UpdateableChangeExecutor
     private VecI curPos;
     private bool started = false;
     private bool transforming = false;
-    private ILineToolHandler? toolViewModel;
+    private IRasterLineToolHandler? toolViewModel;
     private IColorsHandler? colorsVM;
 
     public override ExecutionState Start()
     {
         colorsVM = GetHandler<IColorsHandler>();
-        toolViewModel = GetHandler<ILineToolHandler>();
+        toolViewModel = GetHandler<IRasterLineToolHandler>();
         IStructureMemberHandler? member = document?.SelectedStructureMember;
         if (colorsVM is null || toolViewModel is null || member is null)
             return ExecutionState.Error;
@@ -56,7 +56,7 @@ internal class LineToolExecutor : UpdateableChangeExecutor
         if (toolViewModel!.Snap)
             pos = ShapeToolExecutor<IShapeToolHandler>.Get45IncrementedPosition(startPos, pos);
         curPos = pos;
-        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, startPos, pos, StrokeWidth, strokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
+        internals!.ActionAccumulator.AddActions(new DrawRasterLine_Action(memberGuid, startPos, pos, StrokeWidth, strokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     public override void OnLeftMouseButtonUp()
@@ -75,7 +75,7 @@ internal class LineToolExecutor : UpdateableChangeExecutor
     {
         if (!transforming)
             return;
-        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, (VecI)start, (VecI)end, StrokeWidth, strokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
+        internals!.ActionAccumulator.AddActions(new DrawRasterLine_Action(memberGuid, (VecI)start, (VecI)end, StrokeWidth, strokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
         
         startPos = (VecI)start;
         curPos = (VecI)end;
@@ -87,7 +87,7 @@ internal class LineToolExecutor : UpdateableChangeExecutor
             return;
         
         strokeColor = color;
-        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, startPos, curPos, StrokeWidth, strokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
+        internals!.ActionAccumulator.AddActions(new DrawRasterLine_Action(memberGuid, startPos, curPos, StrokeWidth, strokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     public override void OnSelectedObjectNudged(VecI distance)
@@ -99,7 +99,7 @@ internal class LineToolExecutor : UpdateableChangeExecutor
 
     public override void OnSettingsChanged(string name, object value)
     {
-        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, startPos, curPos, StrokeWidth, strokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
+        internals!.ActionAccumulator.AddActions(new DrawRasterLine_Action(memberGuid, startPos, curPos, StrokeWidth, strokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     public override void OnMidChangeUndo()
@@ -122,7 +122,7 @@ internal class LineToolExecutor : UpdateableChangeExecutor
             return;
 
         document!.LineToolOverlayHandler.Hide();
-        internals!.ActionAccumulator.AddFinishedActions(new EndDrawLine_Action());
+        internals!.ActionAccumulator.AddFinishedActions(new EndDrawRasterLine_Action());
         onEnded!(this);
 
         colorsVM.AddSwatch(new PaletteColor(strokeColor.R, strokeColor.G, strokeColor.B));
@@ -133,6 +133,6 @@ internal class LineToolExecutor : UpdateableChangeExecutor
         if (transforming)
             document!.LineToolOverlayHandler.Hide();
 
-        internals!.ActionAccumulator.AddFinishedActions(new EndDrawLine_Action());
+        internals!.ActionAccumulator.AddFinishedActions(new EndDrawRasterLine_Action());
     }
 }

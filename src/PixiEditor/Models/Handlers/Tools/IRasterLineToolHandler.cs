@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Models.Handlers.Tools;
 
-internal interface ILineToolHandler : IToolHandler
+internal interface IRasterLineToolHandler : IToolHandler
 {
     public int ToolSize { get; }
     public bool Snap { get; }

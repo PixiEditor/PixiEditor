@@ -2,5 +2,5 @@
 
 internal interface IVectorEllipseToolHandler : IShapeToolHandler
 {
-    
+    public bool DrawCircle { get; }
 }

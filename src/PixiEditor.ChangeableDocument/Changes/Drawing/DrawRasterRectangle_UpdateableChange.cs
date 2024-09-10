@@ -2,7 +2,7 @@
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
-internal class DrawRectangle_UpdateableChange : UpdateableChange
+internal class DrawRasterRectangle_UpdateableChange : UpdateableChange
 {
     private readonly Guid memberGuid;
     private ShapeData rect;
@@ -11,7 +11,7 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
     private int frame;
     
     [GenerateUpdateableChangeActions]
-    public DrawRectangle_UpdateableChange(Guid memberGuid, ShapeData rectangle, bool drawOnMask, int frame)
+    public DrawRasterRectangle_UpdateableChange(Guid memberGuid, ShapeData rectangle, bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.rect = rectangle;
