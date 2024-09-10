@@ -16,7 +16,8 @@ internal class FileTypeDialogDataSet
         Pixi = 1 << 0,
         Image = 1 << 1,
         Video = 1 << 2,
-        Any = ~0
+        Vector = 1 << 3,
+        Any = ~0,
     }
     IEnumerable<IoFileType> fileTypes;
     string displayName;
