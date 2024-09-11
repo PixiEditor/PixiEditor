@@ -39,6 +39,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor
         if (!members.Any())
             return ExecutionState.Error;
 
+        bool allRaster = true; 
+
         memberCorners = new();
         foreach (IStructureMemberHandler member in members)
         {
@@ -48,6 +50,10 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor
             {
                 targetCorners = new ShapeCorners(document.SelectionPathBindable.TightBounds);
             }
+            else if(member is not IRasterLayerHandler)
+            {
+                allRaster = false;
+            }
             
             memberCorners.Add(member.Id, targetCorners);
         }
@@ -56,8 +62,11 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor
         
         if (masterCorners.AABBBounds.Width == 0 || masterCorners.AABBBounds.Height == 0)
             return ExecutionState.Error;
-        
-        document.TransformHandler.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, masterCorners, Type == ExecutorType.Regular);
+
+        DocumentTransformMode mode = allRaster
+            ? DocumentTransformMode.Scale_Rotate_Shear_Perspective
+            : DocumentTransformMode.Scale_Rotate_Shear_NoPerspective;
+        document.TransformHandler.ShowTransform(mode, true, masterCorners, Type == ExecutorType.Regular);
         internals!.ActionAccumulator.AddActions(
             new TransformSelected_Action(masterCorners, tool.KeepOriginalImage, memberCorners, false, document.AnimationHandler.ActiveFrameBindable));
         return ExecutionState.Success;

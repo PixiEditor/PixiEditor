@@ -11,7 +11,7 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 internal class VectorEllipseToolExecutor : ShapeToolExecutor<IVectorEllipseToolHandler>
 {
     public override ExecutorType Type => ExecutorType.ToolLinked;
-    protected override DocumentTransformMode TransformMode => DocumentTransformMode.Scale_Rotate_Shear_Perspective;
+    protected override DocumentTransformMode TransformMode => DocumentTransformMode.Scale_Rotate_Shear_NoPerspective;
 
     protected override void DrawShape(VecI curPos, double rotationRad, bool firstDraw)
     {

@@ -4,5 +4,5 @@ namespace PixiEditor.SVG.Features;
 
 public interface ITransformable
 {
-    public SvgProperty<SvgTransform> Transform { get; }
+    public SvgProperty<SvgTransformUnit> Transform { get; }
 }

@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.SVG.Units;
+﻿using System.Globalization;
+
+namespace PixiEditor.SVG.Units;
 
 public struct SvgNumericUnit(double value, string postFix) : ISvgUnit
 {
@@ -37,6 +39,7 @@ public struct SvgNumericUnit(double value, string postFix) : ISvgUnit
 
     public string ToXml()
     {
-        return $"{Value}{PostFix}";
+        string invariantValue = Value.ToString(CultureInfo.InvariantCulture);
+        return $"{invariantValue}{PostFix}";
     }
 }

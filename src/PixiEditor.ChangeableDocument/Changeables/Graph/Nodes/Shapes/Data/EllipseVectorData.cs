@@ -1,10 +1,11 @@
-﻿using PixiEditor.DrawingApi.Core.Surfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.Vector;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
-public class EllipseVectorData : ShapeVectorData
+public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
 {
     public VecD Radius { get; set; }
     public VecD Center { get; set; }

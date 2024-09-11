@@ -10,7 +10,7 @@ using PixiEditor.Numerics;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("VectorLayer")]
-public class VectorLayerNode : LayerNode, ITransformableObject
+public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorNode
 {
     public Matrix3X3 TransformationMatrix
     {
@@ -27,6 +27,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject
     }
 
     public ShapeVectorData? ShapeData { get; set; }
+    IReadOnlyShapeVectorData IReadOnlyVectorNode.ShapeData => ShapeData;
 
     protected override bool AffectedByChunkResolution => true;
 

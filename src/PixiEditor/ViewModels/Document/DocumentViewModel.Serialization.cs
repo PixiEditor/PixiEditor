@@ -8,6 +8,8 @@ using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.IO.FileEncoders;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Bridge;
@@ -35,6 +37,7 @@ using BlendMode = PixiEditor.DrawingApi.Core.Surfaces.BlendMode;
 using Color = System.Drawing.Color;
 using IKeyFrameChildrenContainer = PixiEditor.ChangeableDocument.Changeables.Interfaces.IKeyFrameChildrenContainer;
 using KeyFrameData = PixiEditor.Parser.KeyFrameData;
+using Node = PixiEditor.Parser.Graph.Node;
 using PixiDocument = PixiEditor.Parser.Document;
 using ReferenceLayer = PixiEditor.Parser.ReferenceLayer;
 
@@ -104,6 +107,30 @@ internal partial class DocumentViewModel
             {
                 AddSvgImage(elementContainer, atTime, member, resizeFactor);
             }
+            else if (member is IVectorLayerHandler vectorLayerHandler)
+            {
+                AddSvgShape(elementContainer, atTime, vectorLayerHandler, resizeFactor);
+            }
+        }
+    }
+
+    private void AddSvgShape(IElementContainer elementContainer, KeyFrameTime atTime, IVectorLayerHandler vectorLayerHandler, VecD resizeFactor)
+    {
+        IReadOnlyVectorNode vectorNode = (IReadOnlyVectorNode)Internals.Tracker.Document.FindNode(vectorLayerHandler.Id);
+
+        if (vectorNode.ShapeData is IReadOnlyEllipseData ellipseData)
+        {
+            SvgEllipse ellipse = new SvgEllipse();
+            ellipse.Cx.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Center.X);
+            ellipse.Cy.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Center.Y);
+            ellipse.Rx.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Radius.X);
+            ellipse.Ry.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Radius.Y);
+            ellipse.Fill.Unit = SvgColorUnit.FromRgba(ellipseData.FillColor.R, ellipseData.FillColor.G, ellipseData.FillColor.B, ellipseData.FillColor.A);
+            ellipse.Stroke.Unit = SvgColorUnit.FromRgba(ellipseData.StrokeColor.R, ellipseData.StrokeColor.G, ellipseData.StrokeColor.B, ellipseData.StrokeColor.A);
+            ellipse.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(ellipseData.StrokeWidth);
+            ellipse.Transform.Unit = new SvgTransformUnit(ellipseData.TransformationMatrix);
+            
+            elementContainer.Children.Add(ellipse);
         }
     }
 
@@ -127,7 +154,6 @@ internal partial class DocumentViewModel
             toSave = surface.DrawingSurface.Snapshot((RectI)tightBounds.Value);
         });
 
-        //var imgToSerialize = imageNode.GetLayerImageAtFrame(atTime.Frame);
         var image = CreateImageElement(resizeFactor, tightBounds.Value, toSave);
 
         elementContainer.Children.Add(image);
