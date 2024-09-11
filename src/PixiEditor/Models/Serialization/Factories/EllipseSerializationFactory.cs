@@ -13,7 +13,6 @@ public class EllipseSerializationFactory : SerializationFactory<byte[], EllipseV
         ByteBuilder builder = new ByteBuilder();
         builder.AddVecD(original.Center);
         builder.AddVecD(original.Radius);
-        builder.AddDouble(original.RotationRadians);
         builder.AddMatrix3X3(original.TransformationMatrix);
         builder.AddColor(original.StrokeColor);
         builder.AddColor(original.FillColor);
@@ -34,7 +33,6 @@ public class EllipseSerializationFactory : SerializationFactory<byte[], EllipseV
         
         VecD center = extractor.GetVecD();
         VecD radius = extractor.GetVecD();
-        double rotationRadians = extractor.GetDouble();
         Matrix3X3 matrix = extractor.GetMatrix3X3();
         Color strokeColor = extractor.GetColor();
         Color fillColor = extractor.GetColor();

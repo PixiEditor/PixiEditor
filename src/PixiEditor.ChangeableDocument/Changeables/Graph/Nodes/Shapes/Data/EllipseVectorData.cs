@@ -10,13 +10,11 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
     public VecD Radius { get; set; }
     public VecD Center { get; set; }
     
-    public double RotationRadians { get; set; } = 0;
-
     public override RectD GeometryAABB =>
-        new ShapeCorners(Center, Radius * 2).AsRotated(RotationRadians, Center).AABBBounds;
+        new ShapeCorners(Center, Radius * 2).AABBBounds;
 
     public override ShapeCorners TransformationCorners =>
-        new ShapeCorners(Center, Radius * 2).AsRotated(RotationRadians, Center).WithMatrix(TransformationMatrix);
+        new ShapeCorners(Center, Radius * 2).WithMatrix(TransformationMatrix);
 
 
     public EllipseVectorData(VecD center, VecD radius)
@@ -31,13 +29,12 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
         
         using ChunkyImage img = new ChunkyImage((VecI)GeometryAABB.Size);
 
-        RectD rotated = new ShapeCorners(RectD.FromTwoPoints(VecD.Zero, imageSize))
-            .AsRotated(RotationRadians, imageSize / 2f).AABBBounds;
+        RectD rotated = new ShapeCorners(RectD.FromTwoPoints(VecD.Zero, imageSize)).AABBBounds;
 
         VecI shift = new VecI((int)Math.Floor(-rotated.Left), (int)Math.Floor(-rotated.Top));
         RectI drawRect = new(shift, imageSize);
         
-        img.EnqueueDrawEllipse(drawRect, StrokeColor, FillColor, StrokeWidth, RotationRadians);
+        img.EnqueueDrawEllipse(drawRect, StrokeColor, FillColor, StrokeWidth);
         img.CommitChanges();
 
         VecI topLeft = new VecI((int)Math.Round(Center.X - Radius.X), (int)Math.Round(Center.Y - Radius.Y)) - shift;
@@ -59,7 +56,7 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
 
     public override int CalculateHash()
     {
-        return HashCode.Combine(Center, Radius, StrokeColor, FillColor, StrokeWidth, RotationRadians, TransformationMatrix);
+        return HashCode.Combine(Center, Radius, StrokeColor, FillColor, StrokeWidth,  TransformationMatrix);
     }
 
     public override int GetCacheHash()
@@ -74,7 +71,6 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
             StrokeColor = StrokeColor,
             FillColor = FillColor,
             StrokeWidth = StrokeWidth,
-            RotationRadians = RotationRadians,
             TransformationMatrix = TransformationMatrix
         };
     }
