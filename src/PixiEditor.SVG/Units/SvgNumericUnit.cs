@@ -5,6 +5,11 @@ public struct SvgNumericUnit(double value, string postFix) : ISvgUnit
     public string PostFix { get; } = postFix;
     public double Value { get; set; } = value;
 
+    public static SvgNumericUnit FromUserUnits(double value)
+    {
+        return new SvgNumericUnit(value, string.Empty);
+    }
+    
     public static SvgNumericUnit FromPixels(double value)
     {
         return new SvgNumericUnit(value, "px");
@@ -28,5 +33,10 @@ public struct SvgNumericUnit(double value, string postFix) : ISvgUnit
     public static SvgNumericUnit FromPercent(double value)
     {
         return new SvgNumericUnit(value, "%");
+    }
+
+    public string ToXml()
+    {
+        return $"{Value}{PostFix}";
     }
 }

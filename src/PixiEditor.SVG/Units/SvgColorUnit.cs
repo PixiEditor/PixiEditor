@@ -33,4 +33,9 @@ public struct SvgColorUnit : ISvgUnit
     {
         return new SvgColorUnit($"hsla({h},{s}%,{l}%,{a})");
     }
+
+    public string ToXml()
+    {
+        return Value;
+    }
 }

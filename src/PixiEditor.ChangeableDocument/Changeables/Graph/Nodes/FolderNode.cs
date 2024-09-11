@@ -111,7 +111,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
             {
                 if (n is ImageLayerNode imageLayerNode)
                 {
-                    RectI? imageBounds = (RectI)imageLayerNode.GetTightBounds(frameTime);
+                    RectI? imageBounds = (RectI?)imageLayerNode.GetTightBounds(frameTime);
                     if (imageBounds != null)
                     {
                         bounds = bounds.Union(imageBounds.Value);

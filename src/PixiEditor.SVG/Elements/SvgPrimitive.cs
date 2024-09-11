@@ -3,7 +3,7 @@ using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG.Elements;
 
-public class SvgPrimitive : SvgElement, ITransformable, IFillable, IStrokable
+public class SvgPrimitive(string tagName) : SvgElement(tagName), ITransformable, IFillable, IStrokable
 {
     public SvgProperty<SvgTransform> Transform { get; } = new("transform");
     public SvgProperty<SvgColorUnit> Fill { get; } = new("fill");

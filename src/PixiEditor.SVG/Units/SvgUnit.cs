@@ -2,5 +2,5 @@
 
 public interface ISvgUnit
 {
-    
+    public string ToXml();
 }

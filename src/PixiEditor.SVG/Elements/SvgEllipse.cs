@@ -3,7 +3,7 @@ using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG.Elements;
 
-public class SvgEllipse : SvgPrimitive 
+public class SvgEllipse() : SvgPrimitive("ellipse")
 {
     public SvgProperty<SvgNumericUnit> Cx { get; } = new("cx");
     public SvgProperty<SvgNumericUnit> Cy { get; } = new("cy"); 

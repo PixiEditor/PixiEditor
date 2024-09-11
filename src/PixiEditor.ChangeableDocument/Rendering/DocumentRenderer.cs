@@ -66,7 +66,7 @@ public class DocumentRenderer
 
         return toDrawOn;
     }
-
+    
     public OneOf<Chunk, EmptyChunk> RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime,
         RectI? globalClippingRect = null)
     {
@@ -125,7 +125,7 @@ public class DocumentRenderer
         HashSet<Guid> layersToCombine, RectI? globalClippingRect)
     {
         using RenderingContext context = new(frame, chunkPos, resolution, Document.Size);
-        NodeGraph membersOnlyGraph = ConstructMembersOnlyGraph(layersToCombine, Document.NodeGraph);
+        IReadOnlyNodeGraph membersOnlyGraph = ConstructMembersOnlyGraph(layersToCombine, Document.NodeGraph);
         try
         {
             return RenderChunkOnGraph(chunkPos, resolution, globalClippingRect, membersOnlyGraph, context);
@@ -187,7 +187,13 @@ public class DocumentRenderer
         return chunk;
     }
 
-    private NodeGraph ConstructMembersOnlyGraph(HashSet<Guid> layersToCombine, IReadOnlyNodeGraph fullGraph)
+    public static IReadOnlyNodeGraph ConstructMembersOnlyGraph(IReadOnlyNodeGraph fullGraph)
+    {
+        return ConstructMembersOnlyGraph(null, fullGraph); 
+    }
+
+    public static IReadOnlyNodeGraph ConstructMembersOnlyGraph(HashSet<Guid>? layersToCombine,
+        IReadOnlyNodeGraph fullGraph)
     {
         NodeGraph membersOnlyGraph = new();
 
@@ -199,7 +205,7 @@ public class DocumentRenderer
 
         fullGraph.TryTraverse(node =>
         {
-            if (node is LayerNode layer && layersToCombine.Contains(layer.Id))
+            if (node is LayerNode layer && (layersToCombine == null || layersToCombine.Contains(layer.Id)))
             {
                 layersInOrder.Insert(0, layer);
             }

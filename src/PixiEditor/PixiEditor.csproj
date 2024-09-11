@@ -106,6 +106,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PixiDocks\src\PixiDocks.Avalonia\PixiDocks.Avalonia.csproj"/>
+    <ProjectReference Include="..\PixiEditor.SVG\PixiEditor.SVG.csproj" />
     <ProjectReference Include="..\PixiParser\src\PixiParser.Skia\PixiParser.Skia.csproj"/>
     <ProjectReference Include="..\PixiParser\src\PixiParser\PixiParser.csproj"/>
     <ProjectReference Include="..\ChunkyImageLib\ChunkyImageLib.csproj"/>

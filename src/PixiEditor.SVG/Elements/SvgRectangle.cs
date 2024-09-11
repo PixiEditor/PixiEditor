@@ -2,7 +2,7 @@
 
 namespace PixiEditor.SVG.Elements;
 
-public class SvgRectangle : SvgPrimitive
+public class SvgRectangle() : SvgPrimitive("rect")
 {
     public SvgProperty<SvgNumericUnit> X { get; } = new("x");
     public SvgProperty<SvgNumericUnit> Y { get; } = new("y");

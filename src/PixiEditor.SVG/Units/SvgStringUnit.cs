@@ -8,4 +8,8 @@ public struct SvgStringUnit : ISvgUnit
     }
 
     public string Value { get; set; }
+    public string ToXml()
+    {
+        return Value;
+    }
 }

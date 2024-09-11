@@ -104,6 +104,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IoFileType, BmpFileType>()
             .AddSingleton<IoFileType, GifFileType>()
             .AddSingleton<IoFileType, Mp4FileType>()
+            .AddSingleton<IoFileType, SvgFileType>()
             // Serialization Factories
             .AddSingleton<SerializationFactory, SurfaceSerializationFactory>()
             .AddSingleton<SerializationFactory, ChunkyImageSerializationFactory>()

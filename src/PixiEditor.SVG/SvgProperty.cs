@@ -10,15 +10,15 @@ public abstract class SvgProperty
     }
 
     public string SvgName { get; set; }
-    public ISvgUnit Value { get; set; }
+    public ISvgUnit? Unit { get; set; }
 }
 
 public class SvgProperty<T> : SvgProperty where T : ISvgUnit
 {
-    public new T Value
+    public new T? Unit
     {
-        get => (T)base.Value;
-        set => base.Value = value;
+        get => (T?)base.Unit;
+        set => base.Unit = value;
     }
 
     public SvgProperty(string svgName) : base(svgName)

@@ -3,7 +3,7 @@ using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG.Elements;
 
-public class SvgG : SvgElement, ITransformable, IFillable, IStrokable
+public class SvgGroup() : SvgElement("g"), ITransformable, IFillable, IStrokable, IElementContainer
 {
     public List<SvgElement> Children { get; } = new();
     public SvgProperty<SvgTransform> Transform { get; } = new("transform");
