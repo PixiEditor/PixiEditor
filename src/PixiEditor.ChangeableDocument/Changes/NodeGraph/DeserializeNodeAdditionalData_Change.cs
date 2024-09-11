@@ -23,9 +23,9 @@ internal class DeserializeNodeAdditionalData_Change : Change
     {
         Node node = target.FindNode<Node>(nodeId);
         
-        node.DeserializeData(target, data);
+        var changeInfos = node.DeserializeAdditionalData(target, data);
         ignoreInUndo = false;
-        return new None();
+        return changeInfos;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)

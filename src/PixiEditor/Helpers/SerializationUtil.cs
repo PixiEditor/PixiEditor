@@ -86,16 +86,23 @@ public static class SerializationUtil
         {
             if (value is object[] objArr && objArr.Length > 0)
             {
-                var deserialized = Deserialize(objArr[0], config, allFactories);
-                var targetArr = Array.CreateInstance(deserialized.GetType(), objArr.Length);
-                targetArr.SetValue(deserialized, 0);
-                
-                for (int i = 1; i < objArr.Length; i++)
+                if (IsComplexObject(value))
                 {
-                    targetArr.SetValue(Deserialize(objArr[i], config, allFactories), i);
+                    dict[key] = Deserialize(value, config, allFactories);
                 }
-                
-                dict[key] = targetArr;
+                else
+                {
+                    var deserialized = Deserialize(objArr[0], config, allFactories);
+                    var targetArr = Array.CreateInstance(deserialized.GetType(), objArr.Length);
+                    targetArr.SetValue(deserialized, 0);
+
+                    for (int i = 1; i < objArr.Length; i++)
+                    {
+                        targetArr.SetValue(Deserialize(objArr[i], config, allFactories), i);
+                    }
+
+                    dict[key] = targetArr;
+                }
             }
             else
             {
