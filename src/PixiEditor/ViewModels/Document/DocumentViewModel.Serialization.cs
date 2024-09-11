@@ -20,6 +20,7 @@ using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.IO;
 using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
 using PixiEditor.Numerics;
@@ -30,6 +31,7 @@ using PixiEditor.Parser.Skia;
 using PixiEditor.Parser.Skia.Encoders;
 using PixiEditor.SVG;
 using PixiEditor.SVG.Elements;
+using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
 using PixiEditor.ViewModels.Document.Nodes;
@@ -77,7 +79,7 @@ internal partial class DocumentViewModel
         return document;
     }
 
-    public SvgDocument ToSvgDocument(KeyFrameTime atTime, VecI exportSize)
+    public SvgDocument ToSvgDocument(KeyFrameTime atTime, VecI exportSize, VectorExportConfig? vectorExportConfig)
     {
         SvgDocument svgDocument = new(new RectD(0, 0, exportSize.X, exportSize.Y));
 
@@ -85,13 +87,13 @@ internal partial class DocumentViewModel
         float resizeFactorY = (float)exportSize.Y / Height;
         VecD resizeFactor = new VecD(resizeFactorX, resizeFactorY);
 
-        AddElements(NodeGraph.StructureTree.Members, svgDocument, atTime, resizeFactor);
+        AddElements(NodeGraph.StructureTree.Members, svgDocument, atTime, resizeFactor, vectorExportConfig);
 
         return svgDocument;
     }
 
     private void AddElements(IEnumerable<INodeHandler> root, IElementContainer elementContainer, KeyFrameTime atTime,
-        VecD resizeFactor)
+        VecD resizeFactor, VectorExportConfig? vectorExportConfig)
     {
         foreach (var member in root)
         {
@@ -99,32 +101,33 @@ internal partial class DocumentViewModel
             {
                 var group = new SvgGroup();
 
-                AddElements(folderNodeViewModel.Children, group, atTime, resizeFactor);
+                AddElements(folderNodeViewModel.Children, group, atTime, resizeFactor, vectorExportConfig);
                 elementContainer.Children.Add(group);
             }
 
             if (member is IRasterLayerHandler)
             {
-                AddSvgImage(elementContainer, atTime, member, resizeFactor);
+                AddSvgImage(elementContainer, atTime, member, resizeFactor, 
+                    vectorExportConfig?.UseNearestNeighborForImageUpscaling ?? false);
             }
             else if (member is IVectorLayerHandler vectorLayerHandler)
             {
-                AddSvgShape(elementContainer, atTime, vectorLayerHandler, resizeFactor);
+                AddSvgShape(elementContainer, vectorLayerHandler, resizeFactor);
             }
         }
     }
 
-    private void AddSvgShape(IElementContainer elementContainer, KeyFrameTime atTime, IVectorLayerHandler vectorLayerHandler, VecD resizeFactor)
+    private void AddSvgShape(IElementContainer elementContainer, IVectorLayerHandler vectorLayerHandler, VecD resizeFactor)
     {
         IReadOnlyVectorNode vectorNode = (IReadOnlyVectorNode)Internals.Tracker.Document.FindNode(vectorLayerHandler.Id);
 
         if (vectorNode.ShapeData is IReadOnlyEllipseData ellipseData)
         {
             SvgEllipse ellipse = new SvgEllipse();
-            ellipse.Cx.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Center.X);
-            ellipse.Cy.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Center.Y);
-            ellipse.Rx.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Radius.X);
-            ellipse.Ry.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Radius.Y);
+            ellipse.Cx.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Center.X * resizeFactor.X);
+            ellipse.Cy.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Center.Y * resizeFactor.Y);
+            ellipse.Rx.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Radius.X * resizeFactor.X);
+            ellipse.Ry.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Radius.Y * resizeFactor.Y);
             ellipse.Fill.Unit = SvgColorUnit.FromRgba(ellipseData.FillColor.R, ellipseData.FillColor.G, ellipseData.FillColor.B, ellipseData.FillColor.A);
             ellipse.Stroke.Unit = SvgColorUnit.FromRgba(ellipseData.StrokeColor.R, ellipseData.StrokeColor.G, ellipseData.StrokeColor.B, ellipseData.StrokeColor.A);
             ellipse.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(ellipseData.StrokeWidth);
@@ -135,7 +138,7 @@ internal partial class DocumentViewModel
     }
 
     private void AddSvgImage(IElementContainer elementContainer, KeyFrameTime atTime, INodeHandler member,
-        VecD resizeFactor)
+        VecD resizeFactor, bool useNearestNeighborForImageUpscaling) 
     {
         IReadOnlyImageNode imageNode = (IReadOnlyImageNode)Internals.Tracker.Document.FindNode(member.Id);
 
@@ -153,14 +156,14 @@ internal partial class DocumentViewModel
 
             toSave = surface.DrawingSurface.Snapshot((RectI)tightBounds.Value);
         });
-
-        var image = CreateImageElement(resizeFactor, tightBounds.Value, toSave);
+        
+        var image = CreateImageElement(resizeFactor, tightBounds.Value, toSave, useNearestNeighborForImageUpscaling);
 
         elementContainer.Children.Add(image);
     }
 
     private static SvgImage CreateImageElement(VecD resizeFactor, RectD tightBounds,
-        Image toSerialize)
+        Image toSerialize, bool useNearestNeighborForImageUpscaling)
     {
         SvgImage image = new SvgImage();
 
@@ -195,6 +198,12 @@ internal partial class DocumentViewModel
         image.Width.Unit = SvgNumericUnit.FromUserUnits(targetBounds.Width);
         image.Height.Unit = SvgNumericUnit.FromUserUnits(targetBounds.Height);
         image.Href.Unit = new SvgStringUnit($"data:image/png;base64,{Convert.ToBase64String(targetBytes)}");
+        
+        if (useNearestNeighborForImageUpscaling)
+        {
+            image.ImageRendering.Unit = new SvgEnumUnit<SvgImageRenderingType>(SvgImageRenderingType.Pixelated);
+        }
+        
         return image;
     }
 

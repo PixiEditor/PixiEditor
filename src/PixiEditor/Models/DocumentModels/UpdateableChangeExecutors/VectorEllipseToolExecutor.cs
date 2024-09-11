@@ -17,6 +17,8 @@ internal class VectorEllipseToolExecutor : ShapeToolExecutor<IVectorEllipseToolH
 
     private VecD firstRadius;
     private VecD firstCenter;
+    
+    private Matrix3X3 lastMatrix = Matrix3X3.Identity;
 
     protected override void DrawShape(VecI curPos, double rotationRad, bool firstDraw)
     {
@@ -46,7 +48,8 @@ internal class VectorEllipseToolExecutor : ShapeToolExecutor<IVectorEllipseToolH
         return new SetShapeGeometry_Action(memberGuid,
             new EllipseVectorData(firstCenter, firstRadius)
             {
-                StrokeColor = StrokeColor, FillColor = FillColor, StrokeWidth = StrokeWidth
+                StrokeColor = StrokeColor, FillColor = FillColor, StrokeWidth = StrokeWidth,
+                TransformationMatrix = lastMatrix
             });
     }
 
@@ -66,6 +69,7 @@ internal class VectorEllipseToolExecutor : ShapeToolExecutor<IVectorEllipseToolH
         };
 
         lastRect = rect;
+        lastMatrix = matrix;
 
         return new SetShapeGeometry_Action(memberGuid, ellipseData);
     }

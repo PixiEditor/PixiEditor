@@ -19,7 +19,7 @@ internal class SvgFileType : IoFileType
     public override async Task<SaveResult> TrySave(string pathWithExtension, DocumentViewModel document, ExportConfig config, ExportJob? job)
     {
         job?.Report(0, string.Empty);
-        SvgDocument svgDocument = document.ToSvgDocument(0, config.ExportSize);
+        SvgDocument svgDocument = document.ToSvgDocument(0, config.ExportSize, config.VectorExportConfig);
 
         job?.Report(0.5, string.Empty); 
         string xml = svgDocument.ToXml();

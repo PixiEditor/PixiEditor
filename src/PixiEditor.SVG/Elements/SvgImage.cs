@@ -1,4 +1,5 @@
-﻿using PixiEditor.SVG.Units;
+﻿using PixiEditor.SVG.Enums;
+using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG.Elements;
 
@@ -12,6 +13,7 @@ public class SvgImage : SvgElement
         
     public SvgProperty<SvgStringUnit> Href { get; } = new("xlink:href");
     public SvgProperty<SvgLinkUnit> Mask { get; } = new("mask");
+    public SvgProperty<SvgEnumUnit<SvgImageRenderingType>> ImageRendering { get; } = new("image-rendering");
 
     public SvgImage() : base("image")
     {

@@ -116,6 +116,15 @@ internal class ExportFileDialog : CustomDialog
             ExportConfig.ExportAsSpriteSheet = popup.IsSpriteSheetExport;
             ExportConfig.SpriteSheetColumns = popup.SpriteSheetColumns;
             ExportConfig.SpriteSheetRows = popup.SpriteSheetRows;
+            
+            if (ChosenFormat is SvgFileType)
+            {
+                ExportConfig.VectorExportConfig = new VectorExportConfig()
+                {
+                    UseNearestNeighborForImageUpscaling =
+                        ExportConfig.ExportSize.X < 512 || ExportConfig.ExportSize.Y < 512
+                };
+            }
         }
 
         return result;
