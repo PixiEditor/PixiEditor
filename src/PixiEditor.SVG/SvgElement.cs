@@ -1,10 +1,12 @@
 ﻿using System.Text;
 using PixiEditor.SVG.Features;
+using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG;
 
 public class SvgElement(string tagName)
 {
+    public SvgProperty<SvgStringUnit> Id { get; } = new("id");
     public Dictionary<string, string> RequiredNamespaces { get; } = new();
     public string TagName { get; } = tagName;
 

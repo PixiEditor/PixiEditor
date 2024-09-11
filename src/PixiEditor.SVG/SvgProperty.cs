@@ -13,7 +13,7 @@ public abstract class SvgProperty
     public ISvgUnit? Unit { get; set; }
 }
 
-public class SvgProperty<T> : SvgProperty where T : ISvgUnit
+public class SvgProperty<T> : SvgProperty where T : struct, ISvgUnit
 {
     public new T? Unit
     {

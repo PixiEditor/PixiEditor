@@ -135,6 +135,46 @@ public class DocumentRenderer
             return new EmptyChunk();
         }
     }
+    
+    public Texture? RenderLayer(Guid nodeId, ChunkResolution resolution, KeyFrameTime frameTime)
+    {
+        var node = Document.FindNode(nodeId);
+        
+        if (node is null)
+        {
+            return null;
+        }
+        
+        VecI sizeInChunks = Document.Size / resolution.PixelSize();
+        
+        sizeInChunks = new VecI(
+            Math.Max(1, sizeInChunks.X),
+            Math.Max(1, sizeInChunks.Y));
+        
+        VecI size = new VecI(
+            Math.Min(Document.Size.X, resolution.PixelSize() * sizeInChunks.X),
+            Math.Min(Document.Size.Y, resolution.PixelSize() * sizeInChunks.Y));
+        
+        Texture texture = new(size);
+        
+        for (int x = 0; x < sizeInChunks.X; x++)
+        {
+            for (int y = 0; y < sizeInChunks.Y; y++)
+            {
+                VecI chunkPos = new(x, y);
+                OneOf<Chunk, EmptyChunk> chunk = RenderChunk(chunkPos, resolution, node, frameTime);
+                if (chunk.IsT0)
+                {
+                    VecI pos = chunkPos * resolution.PixelSize(); 
+                    texture.DrawingSurface.Canvas.DrawSurface(
+                        chunk.AsT0.Surface.DrawingSurface,
+                        pos.X, pos.Y, null);
+                }
+            }
+        }
+        
+        return texture;
+    }
 
     private static OneOf<Chunk, EmptyChunk> RenderChunkOnGraph(VecI chunkPos, ChunkResolution resolution,
         RectI? globalClippingRect,

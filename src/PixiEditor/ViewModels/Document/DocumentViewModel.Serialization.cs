@@ -1,5 +1,6 @@
 ﻿using System.Collections;
-using System.Drawing;
+using System.Diagnostics.CodeAnalysis;
+using Avalonia.Threading;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,8 +11,10 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Bridge;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Handlers;
@@ -28,6 +31,8 @@ using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
 using PixiEditor.ViewModels.Document.Nodes;
+using BlendMode = PixiEditor.DrawingApi.Core.Surfaces.BlendMode;
+using Color = System.Drawing.Color;
 using IKeyFrameChildrenContainer = PixiEditor.ChangeableDocument.Changeables.Interfaces.IKeyFrameChildrenContainer;
 using KeyFrameData = PixiEditor.Parser.KeyFrameData;
 using PixiDocument = PixiEditor.Parser.Document;
@@ -111,17 +116,36 @@ internal partial class DocumentViewModel
 
         if (tightBounds == null || tightBounds.Value.IsZeroArea) return;
 
+        Image toSave = null;
+        DrawingBackendApi.Current.RenderingServer.Invoke(() =>
+        {
+            using Texture rendered = Renderer.RenderLayer(imageNode.Id, ChunkResolution.Full, atTime.Frame);
+            
+            using Surface surface = new Surface(rendered.Size);
+            surface.DrawingSurface.Canvas.DrawImage(rendered.DrawingSurface.Snapshot(), 0, 0);
+
+            toSave = surface.DrawingSurface.Snapshot((RectI)tightBounds.Value);
+        });
+
+        //var imgToSerialize = imageNode.GetLayerImageAtFrame(atTime.Frame);
+        var image = CreateImageElement(resizeFactor, tightBounds.Value, toSave);
+
+        elementContainer.Children.Add(image);
+    }
+
+    private static SvgImage CreateImageElement(VecD resizeFactor, RectD tightBounds,
+        Image toSerialize)
+    {
         SvgImage image = new SvgImage();
 
-        RectI bounds = (RectI)tightBounds.Value;
+        RectI bounds = (RectI)tightBounds;
 
         using Surface surface = new Surface(bounds.Size);
-        imageNode.GetLayerImageAtFrame(atTime.Frame).DrawMostUpToDateRegionOn(
-            (RectI)tightBounds.Value, ChunkResolution.Full, surface.DrawingSurface, VecI.Zero);
+        surface.DrawingSurface.Canvas.DrawImage(toSerialize, 0, 0);
 
         byte[] targetBytes;
 
-        RectD targetBounds = tightBounds.Value;
+        RectD targetBounds = tightBounds;
 
         if (!resizeFactor.AlmostEquals(new VecD(1, 1)))
         {
@@ -129,12 +153,14 @@ internal partial class DocumentViewModel
             using var resized = surface.Resize(newSize, ResizeMethod.NearestNeighbor);
             using var snapshot = resized.DrawingSurface.Snapshot();
             targetBytes = snapshot.Encode().AsSpan().ToArray();
-            
-            targetBounds = new RectD(targetBounds.X * resizeFactor.X, targetBounds.Y * resizeFactor.Y, newSize.X, newSize.Y);
+
+            targetBounds = new RectD(targetBounds.X * resizeFactor.X, targetBounds.Y * resizeFactor.Y, newSize.X,
+                newSize.Y);
         }
         else
         {
             using var snapshot = surface.DrawingSurface.Snapshot();
+
             targetBytes = snapshot.Encode().AsSpan().ToArray();
         }
 
@@ -143,8 +169,7 @@ internal partial class DocumentViewModel
         image.Width.Unit = SvgNumericUnit.FromUserUnits(targetBounds.Width);
         image.Height.Unit = SvgNumericUnit.FromUserUnits(targetBounds.Height);
         image.Href.Unit = new SvgStringUnit($"data:image/png;base64,{Convert.ToBase64String(targetBytes)}");
-
-        elementContainer.Children.Add(image);
+        return image;
     }
 
     private static void AddNodes(IReadOnlyNodeGraph graph, NodeGraph targetGraph,

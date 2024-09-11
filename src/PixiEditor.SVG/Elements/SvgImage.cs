@@ -9,9 +9,10 @@ public class SvgImage : SvgElement
     
     public SvgProperty<SvgNumericUnit> Width { get; } = new("width");
     public SvgProperty<SvgNumericUnit> Height { get; } = new("height");
-    
+        
     public SvgProperty<SvgStringUnit> Href { get; } = new("xlink:href");
-    
+    public SvgProperty<SvgLinkUnit> Mask { get; } = new("mask");
+
     public SvgImage() : base("image")
     {
         RequiredNamespaces.Add("xlink", "http://www.w3.org/1999/xlink");
