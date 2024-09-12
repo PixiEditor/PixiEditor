@@ -2,6 +2,7 @@
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using PixiEditor.Numerics;
@@ -30,6 +31,11 @@ internal class BrightnessToolViewModel : ToolViewModel, IBrightnessToolHandler
     public override BrushShape BrushShape => BrushShape.Circle;
 
     public override string Icon => PixiPerfectIcons.Sun;
+
+    public override Type[] SupportedLayerTypes { get; } =
+    {
+        typeof(IRasterLayerHandler)
+    };
 
     BrightnessMode IBrightnessToolHandler.BrightnessMode
     {

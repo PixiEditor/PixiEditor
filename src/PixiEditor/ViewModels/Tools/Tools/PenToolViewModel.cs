@@ -4,6 +4,7 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Input;
 using PixiEditor.Numerics;
@@ -21,6 +22,8 @@ namespace PixiEditor.ViewModels.Tools.Tools
 
         public override string ToolNameLocalizationKey => "PEN_TOOL";
         public override BrushShape BrushShape => BrushShape.Circle;
+        
+        public override Type[] SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
 
         public PenToolViewModel()
         {

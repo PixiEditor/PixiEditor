@@ -47,6 +47,7 @@ internal interface IToolHandler : IHandler
     public LocalizedString ActionDisplay { get; set; }
     public bool IsActive { get; set; }
     public Cursor Cursor { get; set; }
+    public bool CanBeUsed { get; }
     //public Toolbar Toolbar { get; set; }
 
     public void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown);

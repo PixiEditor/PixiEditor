@@ -9,13 +9,14 @@
              xmlns:markupExtensions="clr-namespace:PixiEditor.Helpers.MarkupExtensions"
              xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             d:DataContext="{tools:ToolViewModel}"
+             d:DataContext="{tools:ToolViewModel}" Name="Uc"
              x:Class="PixiEditor.Views.Main.Tools.ToolPickerButton">
     <Design.DataContext>
         <tools:ToolViewModel />
     </Design.DataContext>
     <Button Command="{xaml:Command PixiEditor.Tools.SelectTool, UseProvided=true}"
             CommandParameter="{Binding}"
+            IsEnabled="{Binding CanBeUsed}"
             Width="44" Height="34"
             ui:Translator.TooltipKey="{Binding DisplayName}"
             Background="{DynamicResource ThemeBackgroundBrush1}">

@@ -15,6 +15,7 @@ namespace PixiEditor.ViewModels.Tools;
 
 internal abstract class ToolViewModel : ObservableObject, IToolHandler
 {
+    private bool canBeSelected = true;
     public bool IsTransient { get; set; } = false;
     public KeyCombination Shortcut { get; set; }
 
@@ -26,6 +27,18 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     public virtual string Icon => $"\u25a1";
 
     public virtual BrushShape BrushShape => BrushShape.Square;
+    
+    public abstract Type[] SupportedLayerTypes { get; }
+
+    public bool CanBeUsed
+    {
+        get => canBeSelected;
+        private set
+        {
+            canBeSelected = value;
+            OnPropertyChanged(nameof(CanBeUsed));
+        }
+    }
 
     public virtual bool HideHighlight { get; }
 
@@ -78,6 +91,29 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     internal ToolViewModel()
     {
         ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
+    }
+    
+    internal void SelectedLayersChanged(IStructureMemberHandler[] layers)
+    {
+        foreach (var layer in layers)
+        {
+            if(SupportedLayerTypes == null || SupportedLayerTypes.Length == 0)
+            {
+                CanBeUsed = true;
+                return;
+            }
+            
+            foreach (var type in SupportedLayerTypes)
+            {
+                if (type.IsInstanceOfType(layer))
+                {
+                    CanBeUsed = true;
+                    return;
+                }
+            }
+        }
+        
+        CanBeUsed = false;
     }
 
     private void OnLanguageChanged(Language obj)

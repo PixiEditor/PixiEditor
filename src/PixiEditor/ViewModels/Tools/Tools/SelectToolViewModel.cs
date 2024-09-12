@@ -56,6 +56,7 @@ internal class SelectToolViewModel : ToolViewModel, ISelectToolHandler
     public SelectionShape SelectShape => GetValue<SelectionShape>();
 
     public override BrushShape BrushShape => BrushShape.Pixel;
+    public override Type[] SupportedLayerTypes { get; } = [];
 
     public override LocalizedString Tooltip => new LocalizedString("SELECT_TOOL_TOOLTIP", Shortcut);
 

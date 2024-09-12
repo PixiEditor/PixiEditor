@@ -1,10 +1,14 @@
-﻿using PixiEditor.Extensions.Common.Localization;
+﻿using Avalonia.Input;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Numerics;
 using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.ViewModels.Tools.Tools;
 
+[Command.Tool(Key = Key.R)]
 internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHandler
 {
     private string defaultActionDisplay = "RECTANGLE_TOOL_ACTION_DISPLAY_DEFAULT";
@@ -15,6 +19,7 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
         ActionDisplay = defaultActionDisplay;
     }
 
+    public override Type[] SupportedLayerTypes { get; } = { typeof(IVectorLayerHandler) };
     public override LocalizedString Tooltip => new LocalizedString("RECTANGLE_TOOL_TOOLTIP", Shortcut);
     public bool DrawSquare { get; private set; }
 

@@ -3,6 +3,7 @@ using Avalonia.Input;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using PixiEditor.Numerics;
@@ -18,9 +19,9 @@ namespace PixiEditor.ViewModels.Tools.Tools;
 internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
 {
     private readonly string defaultReferenceActionDisplay = "COLOR_PICKER_ACTION_DISPLAY_DEFAULT";
-    
+
     private readonly string defaultActionDisplay = "COLOR_PICKER_ACTION_DISPLAY_CANVAS_ONLY";
-    
+
     public override bool HideHighlight => true;
 
     public override bool UsesColor => true;
@@ -30,9 +31,12 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
 
     public override string Icon => PixiPerfectIcons.Picker;
 
+    public override Type[] SupportedLayerTypes { get; } = [];  // all layer types are supported
+
     public override LocalizedString Tooltip => new("COLOR_PICKER_TOOLTIP", Shortcut);
 
     private bool pickFromCanvas = true;
+
     public bool PickFromCanvas
     {
         get => pickFromCanvas;
@@ -44,8 +48,9 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
             }
         }
     }
-    
+
     private bool pickFromReferenceLayer = true;
+
     public bool PickFromReferenceLayer
     {
         get => pickFromReferenceLayer;
@@ -97,7 +102,8 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
 
     private void ReferenceLayerChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(ReferenceLayerViewModel.ReferenceBitmap) or nameof(ReferenceLayerViewModel.ReferenceShapeBindable))
+        if (e.PropertyName is nameof(ReferenceLayerViewModel.ReferenceBitmap)
+            or nameof(ReferenceLayerViewModel.ReferenceShapeBindable))
         {
             UpdateActionDisplay();
         }
@@ -108,10 +114,10 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
         // TODO: We probably need to create keyboard service to handle this
         /*bool ctrlDown = (Keyboard.Modifiers & KeyModifiers.Control) != 0;
         bool shiftDown = (Keyboard.Modifiers & KeyModifiers.Shift) != 0;*/
-        
+
         UpdateActionDisplay(false, false);
     }
-    
+
     private void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown)
     {
         var document = ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument;
@@ -123,15 +129,16 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
 
         var documentBounds = new RectD(default, document.SizeBindable);
         var referenceLayer = document.ReferenceLayerViewModel;
-        
-        if (referenceLayer.ReferenceBitmap == null || document.TransformViewModel.TransformActive || !referenceLayer.ReferenceShapeBindable.Intersects(documentBounds))
+
+        if (referenceLayer.ReferenceBitmap == null || document.TransformViewModel.TransformActive ||
+            !referenceLayer.ReferenceShapeBindable.Intersects(documentBounds))
         {
             PickFromCanvas = true;
             PickFromReferenceLayer = true;
             ActionDisplay = defaultActionDisplay;
             return;
         }
-    
+
         if (ctrlIsDown)
         {
             PickFromCanvas = false;

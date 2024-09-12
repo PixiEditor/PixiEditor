@@ -49,6 +49,8 @@ internal class LassoToolViewModel : ToolViewModel, ILassoToolHandler
     public override string ToolNameLocalizationKey => "LASSO_TOOL";
     public string Icon => PixiPerfectIcons.Lasso;
     public override BrushShape BrushShape => BrushShape.Pixel;
+    
+    public override Type[] SupportedLayerTypes { get; } = []; // all layer types are supported
 
     [Settings.Enum("MODE_LABEL")]
     public SelectionMode SelectMode => GetValue<SelectionMode>();

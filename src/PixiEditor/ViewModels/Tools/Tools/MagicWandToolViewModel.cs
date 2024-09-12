@@ -3,6 +3,7 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using PixiEditor.Numerics;
@@ -19,6 +20,7 @@ internal class MagicWandToolViewModel : ToolViewModel, IMagicWandToolHandler
 
     public override string ToolNameLocalizationKey => "MAGIC_WAND_TOOL";
     public override BrushShape BrushShape => BrushShape.Pixel;
+    public override Type[] SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) }; 
 
     [Settings.Enum("MODE_LABEL")]
     public SelectionMode SelectMode => GetValue<SelectionMode>();

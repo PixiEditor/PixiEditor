@@ -3,6 +3,7 @@ using PixiEditor.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Numerics;
 using PixiEditor.UI.Common.Fonts;
@@ -25,6 +26,7 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
     public override LocalizedString Tooltip => new LocalizedString("LINE_TOOL_TOOLTIP", Shortcut);
 
     public override string Icon => PixiPerfectIcons.Line;
+    public override Type[] SupportedLayerTypes { get; } = { typeof(IVectorLayerHandler) };
 
     [Settings.Inherited]
     public int ToolSize => GetValue<int>();

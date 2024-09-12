@@ -3,6 +3,7 @@ using PixiEditor.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Numerics;
 using PixiEditor.UI.Common.Fonts;
@@ -24,10 +25,10 @@ internal class RasterLineToolViewModel : ShapeTool, ILineToolHandler
     public override string ToolNameLocalizationKey => "LINE_TOOL";
     public override LocalizedString Tooltip => new LocalizedString("LINE_TOOL_TOOLTIP", Shortcut);
 
+    public override Type[] SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
     public override string Icon => PixiPerfectIcons.Line;
 
-    [Settings.Inherited]
-    public int ToolSize => GetValue<int>();
+    [Settings.Inherited] public int ToolSize => GetValue<int>();
 
     public bool Snap { get; private set; }
 

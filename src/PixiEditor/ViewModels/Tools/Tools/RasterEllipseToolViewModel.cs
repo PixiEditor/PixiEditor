@@ -2,6 +2,7 @@
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Numerics;
 using PixiEditor.UI.Common.Fonts;
@@ -19,6 +20,7 @@ internal class RasterEllipseToolViewModel : ShapeTool, IRasterEllipseToolHandler
         ActionDisplay = defaultActionDisplay;
     }
 
+    public override Type[] SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
     public override LocalizedString Tooltip => new LocalizedString("ELLIPSE_TOOL_TOOLTIP", Shortcut);
     public bool DrawCircle { get; private set; }
 

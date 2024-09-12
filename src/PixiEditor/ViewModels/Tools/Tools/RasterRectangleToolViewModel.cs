@@ -2,6 +2,7 @@
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Numerics;
 using PixiEditor.UI.Common.Fonts;
@@ -18,6 +19,7 @@ internal class RasterRectangleToolViewModel : ShapeTool, IRasterRectangleToolHan
     }
 
     public override string ToolNameLocalizationKey => "RECTANGLE_TOOL";
+    public override Type[] SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
     public override LocalizedString Tooltip => new LocalizedString("RECTANGLE_TOOL_TOOLTIP", Shortcut);
 
     public bool Filled { get; set; } = false;
