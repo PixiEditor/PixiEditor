@@ -89,7 +89,7 @@ internal static class ServiceCollectionHelpers
             .AddTool<IMagicWandToolHandler, MagicWandToolViewModel>()
             .AddTool<ILassoToolHandler, LassoToolViewModel>()
             .AddTool<IFloodFillToolHandler, FloodFillToolViewModel>()
-            .AddTool<IRasterLineToolHandler, RasterLineToolViewModel>()
+            .AddTool<ILineToolHandler, RasterLineToolViewModel>()
             .AddTool<IRasterEllipseToolHandler, RasterEllipseToolViewModel>()
             .AddTool<IRasterRectangleToolHandler, RasterRectangleToolViewModel>()
             .AddTool<IEraserToolHandler, EraserToolViewModel>()
@@ -97,6 +97,7 @@ internal static class ServiceCollectionHelpers
             .AddTool<IBrightnessToolHandler, BrightnessToolViewModel>()
             .AddTool<IVectorEllipseToolHandler, VectorEllipseToolViewModel>()
             .AddTool<IVectorRectangleToolHandler, VectorRectangleToolViewModel>()
+            .AddTool<IVectorLineToolHandler, VectorLineToolViewModel>()
             .AddTool<ZoomToolViewModel>()
             // File types
             .AddSingleton<IoFileType, PixiFileType>()

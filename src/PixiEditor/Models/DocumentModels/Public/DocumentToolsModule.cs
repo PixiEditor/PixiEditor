@@ -4,6 +4,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
 
 namespace PixiEditor.Models.DocumentModels.Public;
+
 internal class DocumentToolsModule
 {
     private IDocument Document { get; set; }
@@ -15,7 +16,8 @@ internal class DocumentToolsModule
         this.Internals = internals;
     }
 
-    public void UseSymmetry(SymmetryAxisDirection dir) => Internals.ChangeController.TryStartExecutor(new SymmetryExecutor(dir));
+    public void UseSymmetry(SymmetryAxisDirection dir) =>
+        Internals.ChangeController.TryStartExecutor(new SymmetryExecutor(dir));
 
     public void UseOpacitySlider() => Internals.ChangeController.TryStartExecutor<StructureMemberOpacityExecutor>();
 
@@ -38,23 +40,29 @@ internal class DocumentToolsModule
         bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
         Internals.ChangeController.TryStartExecutor<RasterEllipseToolExecutor>(force);
     }
-    
+
+    public void UseRasterLineTool()
+    {
+        bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
+        Internals.ChangeController.TryStartExecutor<RasterLineToolExecutor>(force);
+    }
+
     public void UseVectorEllipseTool()
     {
         bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
         Internals.ChangeController.TryStartExecutor<VectorEllipseToolExecutor>(force);
     }
-    
+
     public void UseVectorRectangleTool()
     {
         bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
         Internals.ChangeController.TryStartExecutor<VectorRectangleToolExecutor>(force);
     }
-
-    public void UseLineTool()
+    
+    public void UseVectorLineTool()
     {
         bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
-        Internals.ChangeController.TryStartExecutor<RasterLineToolExecutor>(force);
+        Internals.ChangeController.TryStartExecutor<VectorLineToolExecutor>(force);
     }
 
     public void UseSelectTool() => Internals.ChangeController.TryStartExecutor<SelectToolExecutor>();

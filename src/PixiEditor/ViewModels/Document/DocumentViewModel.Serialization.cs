@@ -132,12 +132,32 @@ internal partial class DocumentViewModel
         else if (vectorNode.ShapeData is IReadOnlyRectangleData rectangleData)
         {
             elementToAdd = AddRectangle(resizeFactor, rectangleData);
-        } 
+        }
+        else if (vectorNode.ShapeData is IReadOnlyLineData lineData)
+        {
+            elementToAdd = AddLine(resizeFactor, lineData);
+        }
 
         if (elementToAdd != null)
         {
             elementContainer.Children.Add(elementToAdd);
         }
+    }
+
+    private static SvgLine AddLine(VecD resizeFactor, IReadOnlyLineData lineData)
+    {
+        SvgLine line = new SvgLine();
+        line.X1.Unit = SvgNumericUnit.FromUserUnits(lineData.Start.X * resizeFactor.X);
+        line.Y1.Unit = SvgNumericUnit.FromUserUnits(lineData.Start.Y * resizeFactor.Y);
+        line.X2.Unit = SvgNumericUnit.FromUserUnits(lineData.End.X * resizeFactor.X);
+        line.Y2.Unit = SvgNumericUnit.FromUserUnits(lineData.End.Y * resizeFactor.Y);
+        
+        line.Stroke.Unit = SvgColorUnit.FromRgba(lineData.StrokeColor.R, lineData.StrokeColor.G,
+            lineData.StrokeColor.B, lineData.StrokeColor.A);
+        line.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(lineData.StrokeWidth * resizeFactor.X);
+        line.Transform.Unit = new SvgTransformUnit(lineData.TransformationMatrix);
+        
+        return line;
     }
 
     private static SvgEllipse AddEllipse(VecD resizeFactor, IReadOnlyEllipseData ellipseData)

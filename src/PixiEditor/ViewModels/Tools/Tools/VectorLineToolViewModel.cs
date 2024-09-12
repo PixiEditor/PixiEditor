@@ -11,14 +11,14 @@ using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 namespace PixiEditor.ViewModels.Tools.Tools;
 
 [Command.Tool(Key = Key.L)]
-internal class RasterLineToolViewModel : ShapeTool, ILineToolHandler
+internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
 {
     private string defaultActionDisplay = "LINE_TOOL_ACTION_DISPLAY_DEFAULT";
 
-    public RasterLineToolViewModel()
+    public VectorLineToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
-        Toolbar = ToolbarFactory.Create<RasterLineToolViewModel, BasicToolbar>(this);
+        Toolbar = ToolbarFactory.Create<VectorLineToolViewModel, BasicToolbar>(this);
     }
 
     public override string ToolNameLocalizationKey => "LINE_TOOL";
@@ -47,6 +47,6 @@ internal class RasterLineToolViewModel : ShapeTool, ILineToolHandler
 
     public override void UseTool(VecD pos)
     {
-        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseRasterLineTool();
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorLineTool();
     }
 }
