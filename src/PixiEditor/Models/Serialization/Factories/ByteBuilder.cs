@@ -22,7 +22,7 @@ public class ByteBuilder
     {
         foreach (var value in matrix.Values)
         {
-            _data.AddRange(BitConverter.GetBytes(value));
+            _data.AddRange(BitConverter.GetBytes((double)value));
         } 
         
         return this;

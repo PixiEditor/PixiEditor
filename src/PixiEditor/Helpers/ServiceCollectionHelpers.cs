@@ -108,15 +108,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IoFileType, Mp4FileType>()
             .AddSingleton<IoFileType, SvgFileType>()
             // Serialization Factories
-            .AddSingleton<SerializationFactory, SurfaceSerializationFactory>()
-            .AddSingleton<SerializationFactory, ChunkyImageSerializationFactory>()
-            .AddSingleton<SerializationFactory, KernelSerializationFactory>()
-            .AddSingleton<SerializationFactory, VecDSerializationFactory>()
-            .AddSingleton<SerializationFactory, VecISerializationFactory>()
-            .AddSingleton<SerializationFactory, ColorSerializationFactory>()
-            .AddSingleton<SerializationFactory, ColorMatrixSerializationFactory>()
-            .AddSingleton<SerializationFactory, VecD3SerializationFactory>()
-            .AddSingleton<SerializationFactory, TextureSerializationFactory>()
+            .AddAssemblyTypes<SerializationFactory>()
             // Palette Parsers
             .AddSingleton<IPalettesProvider, PaletteProvider>()
             .AddSingleton<PaletteFileParser, JascFileParser>()
@@ -158,6 +150,19 @@ internal static class ServiceCollectionHelpers
         {
             url = Environment.GetEnvironmentVariable("PixiEditorAnalytics");
         }
+    }
+    
+    private static IServiceCollection AddAssemblyTypes<T>(this IServiceCollection collection)
+    {
+        Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        IEnumerable<Type> types = assemblies.SelectMany(x => x.GetTypes())
+            .Where(x => typeof(T).IsAssignableFrom(x) && x is { IsInterface: false, IsAbstract: false });
+        foreach (Type type in types)
+        {
+            collection.AddSingleton(typeof(T), type);
+        }
+
+        return collection;
     }
     
     private static IServiceCollection AddTool<T, T1>(this IServiceCollection collection)

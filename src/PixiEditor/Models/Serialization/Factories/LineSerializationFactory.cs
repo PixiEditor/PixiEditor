@@ -5,23 +5,23 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.Serialization.Factories;
 
-public class EllipseSerializationFactory : VectorShapeSerializationFactory<EllipseVectorData> 
+internal class LineSerializationFactory : VectorShapeSerializationFactory<LineVectorData> 
 {
-    public override string DeserializationId { get; } = "PixiEditor.EllipseData";
+    public override string DeserializationId { get; } = "PixiEditor.LineData";
 
-    protected override void AddSpecificData(ByteBuilder builder, EllipseVectorData original)
+    protected override void AddSpecificData(ByteBuilder builder, LineVectorData original)
     {
-        builder.AddVecD(original.Center);
-        builder.AddVecD(original.Radius);
+        builder.AddVecD(original.Start);
+        builder.AddVecD(original.End);
     }
 
     protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor, Color fillColor,
-        int strokeWidth, out EllipseVectorData original)
+        int strokeWidth, out LineVectorData original)
     {
-        VecD center = extractor.GetVecD();
-        VecD radius = extractor.GetVecD();
+        VecD start = extractor.GetVecD();
+        VecD end = extractor.GetVecD();
 
-        original = new EllipseVectorData(center, radius)
+        original = new LineVectorData(start, end)
         {
             StrokeColor = strokeColor,
             FillColor = fillColor,
