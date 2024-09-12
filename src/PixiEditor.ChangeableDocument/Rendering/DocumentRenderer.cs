@@ -162,7 +162,8 @@ public class DocumentRenderer
             for (int y = 0; y < sizeInChunks.Y; y++)
             {
                 VecI chunkPos = new(x, y);
-                OneOf<Chunk, EmptyChunk> chunk = RenderChunk(chunkPos, resolution, node, frameTime);
+                RectI globalClippingRect = new(0, 0, Document.Size.X, Document.Size.Y);
+                OneOf<Chunk, EmptyChunk> chunk = RenderChunk(chunkPos, resolution, node, frameTime, globalClippingRect);
                 if (chunk.IsT0)
                 {
                     VecI pos = chunkPos * resolution.PixelSize(); 
