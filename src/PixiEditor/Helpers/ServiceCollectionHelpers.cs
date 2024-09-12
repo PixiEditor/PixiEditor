@@ -96,6 +96,7 @@ internal static class ServiceCollectionHelpers
             .AddTool<IColorPickerHandler, ColorPickerToolViewModel>()
             .AddTool<IBrightnessToolHandler, BrightnessToolViewModel>()
             .AddTool<IVectorEllipseToolHandler, VectorEllipseToolViewModel>()
+            .AddTool<IVectorRectangleToolHandler, VectorRectangleToolViewModel>()
             .AddTool<ZoomToolViewModel>()
             // File types
             .AddSingleton<IoFileType, PixiFileType>()

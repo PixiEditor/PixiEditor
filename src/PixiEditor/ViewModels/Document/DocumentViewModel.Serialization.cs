@@ -107,7 +107,7 @@ internal partial class DocumentViewModel
 
             if (member is IRasterLayerHandler)
             {
-                AddSvgImage(elementContainer, atTime, member, resizeFactor, 
+                AddSvgImage(elementContainer, atTime, member, resizeFactor,
                     vectorExportConfig?.UseNearestNeighborForImageUpscaling ?? false);
             }
             else if (member is IVectorLayerHandler vectorLayerHandler)
@@ -117,28 +117,69 @@ internal partial class DocumentViewModel
         }
     }
 
-    private void AddSvgShape(IElementContainer elementContainer, IVectorLayerHandler vectorLayerHandler, VecD resizeFactor)
+    private void AddSvgShape(IElementContainer elementContainer, IVectorLayerHandler vectorLayerHandler,
+        VecD resizeFactor)
     {
-        IReadOnlyVectorNode vectorNode = (IReadOnlyVectorNode)Internals.Tracker.Document.FindNode(vectorLayerHandler.Id);
+        IReadOnlyVectorNode vectorNode =
+            (IReadOnlyVectorNode)Internals.Tracker.Document.FindNode(vectorLayerHandler.Id);
+
+        SvgElement? elementToAdd = null;
 
         if (vectorNode.ShapeData is IReadOnlyEllipseData ellipseData)
         {
-            SvgEllipse ellipse = new SvgEllipse();
-            ellipse.Cx.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Center.X * resizeFactor.X);
-            ellipse.Cy.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Center.Y * resizeFactor.Y);
-            ellipse.Rx.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Radius.X * resizeFactor.X);
-            ellipse.Ry.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Radius.Y * resizeFactor.Y);
-            ellipse.Fill.Unit = SvgColorUnit.FromRgba(ellipseData.FillColor.R, ellipseData.FillColor.G, ellipseData.FillColor.B, ellipseData.FillColor.A);
-            ellipse.Stroke.Unit = SvgColorUnit.FromRgba(ellipseData.StrokeColor.R, ellipseData.StrokeColor.G, ellipseData.StrokeColor.B, ellipseData.StrokeColor.A);
-            ellipse.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(ellipseData.StrokeWidth);
-            ellipse.Transform.Unit = new SvgTransformUnit(ellipseData.TransformationMatrix);
-            
-            elementContainer.Children.Add(ellipse);
+            elementToAdd = AddEllipse(resizeFactor, ellipseData);
+        }
+        else if (vectorNode.ShapeData is IReadOnlyRectangleData rectangleData)
+        {
+            elementToAdd = AddRectangle(resizeFactor, rectangleData);
+        } 
+
+        if (elementToAdd != null)
+        {
+            elementContainer.Children.Add(elementToAdd);
         }
     }
 
+    private static SvgEllipse AddEllipse(VecD resizeFactor, IReadOnlyEllipseData ellipseData)
+    {
+        SvgEllipse ellipse = new SvgEllipse();
+        ellipse.Cx.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Center.X * resizeFactor.X);
+        ellipse.Cy.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Center.Y * resizeFactor.Y);
+        ellipse.Rx.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Radius.X * resizeFactor.X);
+        ellipse.Ry.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Radius.Y * resizeFactor.Y);
+        ellipse.Fill.Unit = SvgColorUnit.FromRgba(ellipseData.FillColor.R, ellipseData.FillColor.G,
+            ellipseData.FillColor.B, ellipseData.FillColor.A);
+        ellipse.Stroke.Unit = SvgColorUnit.FromRgba(ellipseData.StrokeColor.R, ellipseData.StrokeColor.G,
+            ellipseData.StrokeColor.B, ellipseData.StrokeColor.A);
+        ellipse.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(ellipseData.StrokeWidth);
+        ellipse.Transform.Unit = new SvgTransformUnit(ellipseData.TransformationMatrix);
+
+        return ellipse;
+    }
+
+    private SvgRectangle AddRectangle(VecD resizeFactor, IReadOnlyRectangleData rectangleData)
+    {
+        SvgRectangle rect = new SvgRectangle();
+        rect.X.Unit =
+            SvgNumericUnit.FromUserUnits(rectangleData.Center.X * resizeFactor.X -
+                                         rectangleData.Size.X / 2 * resizeFactor.X);
+        rect.Y.Unit =
+            SvgNumericUnit.FromUserUnits(rectangleData.Center.Y * resizeFactor.Y -
+                                         rectangleData.Size.Y / 2 * resizeFactor.Y);
+        rect.Width.Unit = SvgNumericUnit.FromUserUnits(rectangleData.Size.X * resizeFactor.X);
+        rect.Height.Unit = SvgNumericUnit.FromUserUnits(rectangleData.Size.Y * resizeFactor.Y);
+        rect.Fill.Unit = SvgColorUnit.FromRgba(rectangleData.FillColor.R, rectangleData.FillColor.G,
+            rectangleData.FillColor.B, rectangleData.FillColor.A);
+        rect.Stroke.Unit = SvgColorUnit.FromRgba(rectangleData.StrokeColor.R, rectangleData.StrokeColor.G,
+            rectangleData.StrokeColor.B, rectangleData.StrokeColor.A);
+        rect.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(rectangleData.StrokeWidth);
+        rect.Transform.Unit = new SvgTransformUnit(rectangleData.TransformationMatrix);
+        
+        return rect;
+    }
+
     private void AddSvgImage(IElementContainer elementContainer, KeyFrameTime atTime, INodeHandler member,
-        VecD resizeFactor, bool useNearestNeighborForImageUpscaling) 
+        VecD resizeFactor, bool useNearestNeighborForImageUpscaling)
     {
         IReadOnlyImageNode imageNode = (IReadOnlyImageNode)Internals.Tracker.Document.FindNode(member.Id);
 
@@ -150,13 +191,13 @@ internal partial class DocumentViewModel
         DrawingBackendApi.Current.RenderingServer.Invoke(() =>
         {
             using Texture rendered = Renderer.RenderLayer(imageNode.Id, ChunkResolution.Full, atTime.Frame);
-            
+
             using Surface surface = new Surface(rendered.Size);
             surface.DrawingSurface.Canvas.DrawImage(rendered.DrawingSurface.Snapshot(), 0, 0);
 
             toSave = surface.DrawingSurface.Snapshot((RectI)tightBounds.Value);
         });
-        
+
         var image = CreateImageElement(resizeFactor, tightBounds.Value, toSave, useNearestNeighborForImageUpscaling);
 
         elementContainer.Children.Add(image);
@@ -198,12 +239,12 @@ internal partial class DocumentViewModel
         image.Width.Unit = SvgNumericUnit.FromUserUnits(targetBounds.Width);
         image.Height.Unit = SvgNumericUnit.FromUserUnits(targetBounds.Height);
         image.Href.Unit = new SvgStringUnit($"data:image/png;base64,{Convert.ToBase64String(targetBytes)}");
-        
+
         if (useNearestNeighborForImageUpscaling)
         {
             image.ImageRendering.Unit = new SvgEnumUnit<SvgImageRenderingType>(SvgImageRenderingType.Pixelated);
         }
-        
+
         return image;
     }
 

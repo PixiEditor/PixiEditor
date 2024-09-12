@@ -27,7 +27,7 @@
       "Move",
       "RasterLine",
       "VectorEllipse",
-      "RasterRectangle"
+      "VectorRectangle"
     ]
   }
 ]

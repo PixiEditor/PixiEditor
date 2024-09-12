@@ -27,7 +27,7 @@ internal class DocumentToolsModule
 
     public void UseColorPickerTool() => Internals.ChangeController.TryStartExecutor<ColorPickerToolExecutor>();
 
-    public void UseRectangleTool()
+    public void UseRasterRectangleTool()
     {
         bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
         Internals.ChangeController.TryStartExecutor<RasterRectangleToolExecutor>(force);
@@ -43,6 +43,12 @@ internal class DocumentToolsModule
     {
         bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
         Internals.ChangeController.TryStartExecutor<VectorEllipseToolExecutor>(force);
+    }
+    
+    public void UseVectorRectangleTool()
+    {
+        bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
+        Internals.ChangeController.TryStartExecutor<VectorRectangleToolExecutor>(force);
     }
 
     public void UseLineTool()

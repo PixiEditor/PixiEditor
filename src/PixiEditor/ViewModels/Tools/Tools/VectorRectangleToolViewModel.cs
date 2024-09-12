@@ -1,27 +1,22 @@
-﻿using Avalonia.Input;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Models.Commands.Attributes.Commands;
+﻿using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Numerics;
 using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.ViewModels.Tools.Tools;
 
-[Command.Tool(Key = Key.R)]
-internal class RasterRectangleToolViewModel : ShapeTool, IRasterRectangleToolHandler
+internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHandler
 {
     private string defaultActionDisplay = "RECTANGLE_TOOL_ACTION_DISPLAY_DEFAULT";
-    public RasterRectangleToolViewModel()
+    public override string ToolNameLocalizationKey => "RECTANGLE_TOOL";
+
+    public VectorRectangleToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
     }
 
-    public override string ToolNameLocalizationKey => "RECTANGLE_TOOL";
     public override LocalizedString Tooltip => new LocalizedString("RECTANGLE_TOOL_TOOLTIP", Shortcut);
-
-    public bool Filled { get; set; } = false;
-    public bool DrawSquare { get; private set; } = false;
+    public bool DrawSquare { get; private set; }
 
     public override string Icon => PixiPerfectIcons.Square;
 
@@ -41,6 +36,6 @@ internal class RasterRectangleToolViewModel : ShapeTool, IRasterRectangleToolHan
 
     public override void UseTool(VecD pos)
     {
-        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseRasterRectangleTool();
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorRectangleTool();
     }
 }
