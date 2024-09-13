@@ -35,7 +35,7 @@ public class RasterizeShapeNode : Node
         var size = context.DocumentSize;
         var image = RequestTexture(0, size);
         
-        shape.Rasterize(image.DrawingSurface, context.ChunkResolution);
+        shape.Rasterize(image.DrawingSurface, context.ChunkResolution, null);
 
         Image.Value = image;
         

@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.DrawingApi.Core.Surfaces.Vector;
 using PixiEditor.Numerics;
 
@@ -22,7 +23,7 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         Size = size;
     }
     
-    public override void Rasterize(DrawingSurface drawingSurface, ChunkResolution resolution)
+    public override void Rasterize(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint)
     {
         var imageSize = (VecI)Size; 
 
@@ -41,7 +42,7 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         int num = drawingSurface.Canvas.Save();
         drawingSurface.Canvas.SetMatrix(TransformationMatrix);
 
-        img.DrawMostUpToDateRegionOn(region, resolution, drawingSurface, topLeft);
+        img.DrawMostUpToDateRegionOn(region, resolution, drawingSurface, topLeft, paint);
 
         drawingSurface.Canvas.RestoreToCount(num);
     }

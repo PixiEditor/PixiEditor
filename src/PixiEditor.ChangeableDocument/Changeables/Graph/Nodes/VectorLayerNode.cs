@@ -8,6 +8,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -44,13 +45,35 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return null;
         }
         
-        Texture texture = RequestTexture(0, context.DocumentSize);
+        var rendered = base.OnExecute(context);
+        Output.Value = rendered;
+        
+        return rendered;
+    }
 
-        ShapeData.Rasterize(texture.DrawingSurface, context.ChunkResolution);
+    protected override VecI GetTargetSize(RenderingContext ctx)
+    {
+        return ctx.DocumentSize;
+    }
+
+    protected override void DrawWithoutFilters(RenderingContext ctx, Texture workingSurface, bool shouldClear, Paint paint)
+    {
+        if(shouldClear)
+        {
+            workingSurface.DrawingSurface.Canvas.Clear();
+        }
         
-        Output.Value = texture;
+        Rasterize(workingSurface.DrawingSurface, ctx.ChunkResolution, paint);
+    }
+
+    protected override void DrawWithFilters(RenderingContext ctx, Texture workingSurface, bool shouldClear, Paint paint)
+    {
+        if(shouldClear)
+        {
+            workingSurface.DrawingSurface.Canvas.Clear();
+        }
         
-        return texture;
+        Rasterize(workingSurface.DrawingSurface, ctx.ChunkResolution, paint);
     }
 
     public override void SerializeAdditionalData(Dictionary<string, object> additionalData)
@@ -87,9 +110,9 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return ShapeData?.TransformationCorners ?? new ShapeCorners();
     }
 
-    public void Rasterize(DrawingSurface surface, ChunkResolution resolution)
+    public void Rasterize(DrawingSurface surface, ChunkResolution resolution, Paint paint)
     {
-        ShapeData?.Rasterize(surface, resolution);
+        ShapeData?.Rasterize(surface, resolution, paint);
     }
 
     public override Node CreateCopy()

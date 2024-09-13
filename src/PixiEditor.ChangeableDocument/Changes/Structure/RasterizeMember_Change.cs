@@ -48,7 +48,7 @@ internal class RasterizeMember_Change : Change
         target.NodeGraph.AddNode(imageLayer);
         
         using Surface surface = new Surface(target.Size);
-        rasterizable.Rasterize(surface.DrawingSurface, ChunkResolution.Full);
+        rasterizable.Rasterize(surface.DrawingSurface, ChunkResolution.Full, null);
         
         var image = imageLayer.GetLayerImageAtFrame(0);
         image.EnqueueDrawImage(VecI.Zero, surface);

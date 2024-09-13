@@ -31,7 +31,7 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
     public override ShapeCorners TransformationCorners => new ShapeCorners(GeometryAABB)
         .WithMatrix(TransformationMatrix);
 
-    public override void Rasterize(DrawingSurface drawingSurface, ChunkResolution resolution)
+    public override void Rasterize(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint)
     {
         RectD adjustedAABB = GeometryAABB.RoundOutwards().Inflate(1);
         var imageSize = (VecI)adjustedAABB.Size;
@@ -60,7 +60,7 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
         int num = drawingSurface.Canvas.Save();
         drawingSurface.Canvas.SetMatrix(TransformationMatrix);
         
-        img.DrawMostUpToDateRegionOn(region, resolution, drawingSurface, topLeft);
+        img.DrawMostUpToDateRegionOn(region, resolution, drawingSurface, topLeft, paint);
         
         drawingSurface.Canvas.RestoreToCount(num);
     }
