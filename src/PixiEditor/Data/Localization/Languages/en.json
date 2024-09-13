@@ -750,5 +750,8 @@
   "VECTOR_TOOLSET": "Vector",
   "VECTOR_LAYER": "Vector Layer",
   "STROKE_COLOR_LABEL": "Stroke",
-  "SYNC_WITH_PRIMARY_COLOR_LABEL": "Sync with primary color"
+  "SYNC_WITH_PRIMARY_COLOR_LABEL": "Sync with primary color",
+  "RASTERIZE": "Rasterize",
+  "RASTERIZE_ACTIVE_LAYER": "Rasterize active layer",
+  "RASTERIZE_ACTIVE_LAYER_DESCRIPTIVE": "Convert/Rasterize the active layer into a image (raster) layer."
 }
