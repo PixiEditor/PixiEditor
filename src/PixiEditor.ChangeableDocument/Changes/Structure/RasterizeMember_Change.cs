@@ -1,0 +1,108 @@
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
+using PixiEditor.ChangeableDocument.Changes.NodeGraph;
+using PixiEditor.DrawingApi.Core;
+using PixiEditor.Numerics;
+
+namespace PixiEditor.ChangeableDocument.Changes.Structure;
+
+internal class RasterizeMember_Change : Change
+{
+    private Guid memberId;
+    
+    private Node originalNode;
+    private Guid createdNodeId;
+    
+    private ConnectionsData originalConnections;
+    
+    [GenerateMakeChangeAction]
+    public RasterizeMember_Change(Guid memberId)
+    {
+        this.memberId = memberId;
+    }
+    
+    public override bool InitializeAndValidate(Document target)
+    {
+        if (target.TryFindMember(memberId, out var member) 
+            && member is not IReadOnlyImageNode && member is IRasterizable)
+        {
+            originalNode = member.Clone();
+            originalConnections = NodeOperations.CreateConnectionsData(member);
+            return true;
+        }
+        
+        return false;
+    }
+
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
+    {
+        Node node = target.FindMember(memberId);
+        
+        IRasterizable rasterizable = (IRasterizable)node;
+        
+        ImageLayerNode imageLayer = new ImageLayerNode(target.Size);
+
+        target.NodeGraph.AddNode(imageLayer);
+        
+        using Surface surface = new Surface(target.Size);
+        rasterizable.Rasterize(surface.DrawingSurface, ChunkResolution.Full);
+        
+        var image = imageLayer.GetLayerImageAtFrame(0);
+        image.EnqueueDrawImage(VecI.Zero, surface);
+        image.CommitChanges();
+
+        OutputProperty<Texture>? outputConnection = node.OutputProperties.FirstOrDefault(x => x is OutputProperty<Texture>) as OutputProperty<Texture>;
+        InputProperty<Texture>? outputConnectedInput =
+            outputConnection?.Connections.FirstOrDefault(x => x is InputProperty<Texture>) as InputProperty<Texture>;
+
+        InputProperty<Texture> backgroundInput = imageLayer.Background;
+        OutputProperty<Texture> toAddOutput = imageLayer.Output;
+
+        List<IChangeInfo> changeInfos = new();
+        changeInfos.Add(CreateNode_ChangeInfo.CreateFromNode(imageLayer));
+        changeInfos.AddRange(NodeOperations.AppendMember(outputConnectedInput, toAddOutput, backgroundInput, imageLayer.Id));
+        changeInfos.AddRange(NodeOperations.DetachNode(target.NodeGraph, node));
+        
+        node.Dispose();
+        target.NodeGraph.RemoveNode(node);
+        
+        changeInfos.Add(new DeleteNode_ChangeInfo(node.Id));
+        
+        createdNodeId = imageLayer.Id;
+        
+        ignoreInUndo = false;
+        return changeInfos;
+    }
+
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
+    {
+        Node node = target.FindMember(createdNodeId);
+        
+        List<IChangeInfo> changeInfos = new();
+        changeInfos.AddRange(NodeOperations.DetachNode(target.NodeGraph, node));
+        
+        node.Dispose();
+        target.NodeGraph.RemoveNode(node);
+        
+        changeInfos.Add(new DeleteNode_ChangeInfo(node.Id));
+        
+        var restoredNode = originalNode.Clone();
+        restoredNode.Id = memberId;
+        
+        target.NodeGraph.AddNode(restoredNode);
+        
+        changeInfos.Add(CreateNode_ChangeInfo.CreateFromNode(restoredNode));
+        
+        changeInfos.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, restoredNode, target.NodeGraph));
+        
+        return changeInfos;   
+    }
+
+    public override void Dispose()
+    {
+        originalNode.Dispose();
+    }
+}

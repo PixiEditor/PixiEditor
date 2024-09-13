@@ -716,4 +716,12 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         return parent.Id;
     }
+
+    public void Rasterize(Guid memberId)
+    {
+        if (Internals.ChangeController.IsChangeActive)
+            return;
+
+        Internals.ActionAccumulator.AddFinishedActions(new RasterizeMember_Action(memberId));    
+    }
 }

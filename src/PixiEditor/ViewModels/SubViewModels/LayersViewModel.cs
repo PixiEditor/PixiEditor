@@ -431,6 +431,17 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
         doc.Operations.ResetReferenceLayerPosition();
     }
+    
+    [Command.Basic("PixiEditor.Layer.RasterizeActiveLayer", "RASTERIZE_ACTIVE_LAYER", "RASTERIZE_ACTIVE_LAYER", CanExecute = "PixiEditor.Layer.SelectedMemberIsLayer")]
+    public void RasterizeActiveLayer()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        var member = doc?.SelectedStructureMember;
+        if (member is null)
+            return;
+        
+        doc!.Operations.Rasterize(member.Id);
+    }
 
     [Evaluator.Icon("PixiEditor.Layer.ToggleReferenceLayerTopMostIcon")]
     public IImage GetAboveEverythingReferenceLayerIcon()

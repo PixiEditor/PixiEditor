@@ -7,12 +7,13 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("VectorLayer")]
-public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorNode
+public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorNode, IRasterizable
 {
     public Matrix3X3 TransformationMatrix
     {
@@ -86,9 +87,16 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return ShapeData?.TransformationCorners ?? new ShapeCorners();
     }
 
-    public override Node CreateCopy()
+    public void Rasterize(DrawingSurface surface, ChunkResolution resolution)
     {
-        return new VectorLayerNode();
+        ShapeData?.Rasterize(surface, resolution);
     }
 
+    public override Node CreateCopy()
+    {
+        return new VectorLayerNode()
+        {
+            ShapeData = (ShapeVectorData?)ShapeData?.Clone(),
+        };
+    }
 }
