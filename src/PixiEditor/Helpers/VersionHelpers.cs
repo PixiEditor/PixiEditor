@@ -45,7 +45,7 @@ internal static class VersionHelpers
 #elif RELEASE
         return "ClosedBetaRelease";
 #elif STEAM
-        return "ClosedBetaStream";
+        return "ClosedBetaSteam";
 #elif MSIX
         return "ClosedBetaMSIX";
 #else
