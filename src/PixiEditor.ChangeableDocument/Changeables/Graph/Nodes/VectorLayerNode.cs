@@ -25,7 +25,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             {
                 return;
             }
-            
+
             ShapeData.TransformationMatrix = value;
         }
     }
@@ -36,18 +36,13 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     protected override bool AffectedByChunkResolution => true;
 
     private int lastCacheHash;
-    
+
     protected override Texture? OnExecute(RenderingContext context)
     {
-        if (ShapeData == null)
-        {
-            Output.Value = null;
-            return null;
-        }
-        
         var rendered = base.OnExecute(context);
+
         Output.Value = rendered;
-        
+
         return rendered;
     }
 
@@ -56,23 +51,34 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return ctx.DocumentSize;
     }
 
-    protected override void DrawWithoutFilters(RenderingContext ctx, Texture workingSurface, bool shouldClear, Paint paint)
+    protected override void DrawWithoutFilters(RenderingContext ctx, Texture workingSurface, bool shouldClear,
+        Paint paint)
     {
-        if(shouldClear)
+        if (ShapeData == null)
+        {
+            return;
+        }
+
+        if (shouldClear)
         {
             workingSurface.DrawingSurface.Canvas.Clear();
         }
-        
+
         Rasterize(workingSurface.DrawingSurface, ctx.ChunkResolution, paint);
     }
 
     protected override void DrawWithFilters(RenderingContext ctx, Texture workingSurface, bool shouldClear, Paint paint)
     {
-        if(shouldClear)
+        if (ShapeData == null)
+        {
+            return;
+        }
+
+        if (shouldClear)
         {
             workingSurface.DrawingSurface.Canvas.Clear();
         }
-        
+
         Rasterize(workingSurface.DrawingSurface, ctx.ChunkResolution, paint);
     }
 
@@ -82,7 +88,8 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         additionalData["ShapeData"] = ShapeData;
     }
 
-    internal override OneOf<None, IChangeInfo, List<IChangeInfo>> DeserializeAdditionalData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data)
+    internal override OneOf<None, IChangeInfo, List<IChangeInfo>> DeserializeAdditionalData(IReadOnlyDocument target,
+        IReadOnlyDictionary<string, object> data)
     {
         base.DeserializeAdditionalData(target, data);
         ShapeData = (ShapeVectorData)data["ShapeData"];
@@ -117,9 +124,6 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
     public override Node CreateCopy()
     {
-        return new VectorLayerNode()
-        {
-            ShapeData = (ShapeVectorData?)ShapeData?.Clone(),
-        };
+        return new VectorLayerNode() { ShapeData = (ShapeVectorData?)ShapeData?.Clone(), };
     }
 }

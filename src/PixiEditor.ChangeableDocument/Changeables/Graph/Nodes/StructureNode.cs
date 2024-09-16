@@ -150,8 +150,8 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         int width = (int)(chunkSize);
         int height = (int)(chunkSize);
 
-        x = Math.Max(0, x);
-        y = Math.Max(0, y);
+        x = Math.Clamp(x, 0, Math.Max(sourceSize.X - width, 0));
+        y = Math.Clamp(y, 0, Math.Max(sourceSize.Y - height, 0));
         
         return new RectI(x, y, width, height);
     }
