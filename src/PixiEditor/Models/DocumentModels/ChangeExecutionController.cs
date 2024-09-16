@@ -19,7 +19,7 @@ internal class ChangeExecutionController
     public VecD LastPrecisePosition => lastPrecisePos;
     public bool IsChangeActive => currentSession is not null;
     
-    public event Action ChangeFinished;
+    public event Action ToolSessionFinished;
 
     private readonly IDocument document;
     private readonly IServiceProvider services;
@@ -104,7 +104,7 @@ internal class ChangeExecutionController
         currentSession = null;
         _queuedExecutor = null;
         
-        ChangeFinished?.Invoke();
+        ToolSessionFinished?.Invoke();
     }
 
     public bool TryStopActiveExecutor()
@@ -114,7 +114,7 @@ internal class ChangeExecutionController
         currentSession.ForceStop();
         currentSession = null;
         
-        ChangeFinished?.Invoke();
+        ToolSessionFinished?.Invoke();
         return true;
     }
 

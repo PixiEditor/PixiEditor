@@ -11,7 +11,8 @@ internal class RotateViewportToolViewModel : ToolViewModel
 {
     public override string ToolNameLocalizationKey => "ROTATE_VIEWPORT_TOOL";
     public override BrushShape BrushShape => BrushShape.Hidden;
-    public override Type[] SupportedLayerTypes { get; } = [];
+    public override Type[]? SupportedLayerTypes { get; } = null; // null = all
+    public override Type LayerTypeToCreateOnEmptyUse { get; } = null;
     public override bool HideHighlight => true;
     public override bool StopsLinkedToolOnUse => false;
     public override LocalizedString Tooltip => new LocalizedString("ROTATE_VIEWPORT_TOOLTIP", Shortcut);

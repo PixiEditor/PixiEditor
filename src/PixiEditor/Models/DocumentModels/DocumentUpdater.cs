@@ -15,6 +15,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.Helpers;
+using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
@@ -56,6 +57,9 @@ internal class DocumentUpdater
         //TODO: Find a more elegant way to do this
         switch (arbitraryInfo)
         {
+            case InvokeAction_PassthroughAction info:
+                ProcessInvokeAction(info);
+                break;
             case CreateStructureMember_ChangeInfo info:
                 ProcessCreateNode(info);
                 ProcessCreateStructureMember(info);
@@ -200,6 +204,11 @@ internal class DocumentUpdater
                 ProcessPlayAnimation(info);
                 break;
         }
+    }
+
+    private void ProcessInvokeAction(InvokeAction_PassthroughAction info)
+    {
+        info.Action.Invoke();
     }
 
     private void ProcessReferenceLayerIsVisible(ReferenceLayerIsVisible_ChangeInfo info)

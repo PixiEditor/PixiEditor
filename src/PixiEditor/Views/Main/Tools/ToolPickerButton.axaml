@@ -16,21 +16,26 @@
     </Design.DataContext>
     <Button Command="{xaml:Command PixiEditor.Tools.SelectTool, UseProvided=true}"
             CommandParameter="{Binding}"
-            IsEnabled="{Binding CanBeUsed}"
             Width="44" Height="34"
             ui:Translator.TooltipKey="{Binding DisplayName}"
             Background="{DynamicResource ThemeBackgroundBrush1}">
         <Button.Template>
             <ControlTemplate>
-                <Border Height="34" Width="34" 
+                <Border Height="34" Width="34"
                         Background="{DynamicResource ThemeBackgroundBrush1}">
-                    <ContentPresenter Content="{TemplateBinding Content}"/>
+                    <ContentPresenter Content="{TemplateBinding Content}" />
                 </Border>
             </ControlTemplate>
         </Button.Template>
         <Button.Content>
-            <TextBlock Classes="pixi-icon" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"
-                       Text="{Binding Path=Icon}"/>
+            <Grid>
+                <TextBlock Classes="pixi-icon" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Text="{Binding Path=Icon}" />
+                <TextBlock Background="{DynamicResource ThemeBorderLowBrush}"
+                           IsVisible="{Binding !CanBeUsedOnActiveLayer}"
+                           Classes="pixi-icon" FontSize="12" Text="{DynamicResource icon-plus-square}" 
+                           HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            </Grid>
         </Button.Content>
     </Button>
 </UserControl>

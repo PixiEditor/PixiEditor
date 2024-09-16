@@ -15,7 +15,7 @@ namespace PixiEditor.ViewModels.Tools;
 
 internal abstract class ToolViewModel : ObservableObject, IToolHandler
 {
-    private bool canBeSelected = true;
+    private bool canBeUsedOnActiveLayerOnActiveLayer = true;
     public bool IsTransient { get; set; } = false;
     public KeyCombination Shortcut { get; set; }
 
@@ -27,18 +27,20 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     public virtual string Icon => $"\u25a1";
 
     public virtual BrushShape BrushShape => BrushShape.Square;
-    
-    public abstract Type[] SupportedLayerTypes { get; }
 
-    public bool CanBeUsed
+    public abstract Type[]? SupportedLayerTypes { get; }
+
+    public bool CanBeUsedOnActiveLayer
     {
-        get => canBeSelected;
+        get => canBeUsedOnActiveLayerOnActiveLayer;
         private set
         {
-            canBeSelected = value;
-            OnPropertyChanged(nameof(CanBeUsed));
+            canBeUsedOnActiveLayerOnActiveLayer = value;
+            OnPropertyChanged(nameof(CanBeUsedOnActiveLayer));
         }
     }
+
+    public abstract Type LayerTypeToCreateOnEmptyUse { get; }
 
     public virtual bool HideHighlight { get; }
 
@@ -49,12 +51,12 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     /// </summary>
     public virtual bool UsesColor => false;
 
-   /// <summary>
-   /// Determines if PixiEditor should switch to the Eraser when right click mode is set to erase
-   /// </summary>
+    /// <summary>
+    /// Determines if PixiEditor should switch to the Eraser when right click mode is set to erase
+    /// </summary>
     public virtual bool IsErasable => false;
 
-   /// <inheritdoc cref="IToolHandler.StopsLinkedToolOnUse"/>
+    /// <inheritdoc cref="IToolHandler.StopsLinkedToolOnUse"/>
     public virtual bool StopsLinkedToolOnUse => true;
 
     /// <summary>
@@ -63,6 +65,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     public MouseButton UsedWith { get; set; }
 
     private LocalizedString actionDisplay = string.Empty;
+
     public LocalizedString ActionDisplay
     {
         get => actionDisplay;
@@ -74,6 +77,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     }
 
     private bool isActive;
+
     public bool IsActive
     {
         get => isActive;
@@ -92,28 +96,33 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     {
         ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
     }
-    
+
     internal void SelectedLayersChanged(IStructureMemberHandler[] layers)
     {
-        foreach (var layer in layers)
+        if (layers.Length is > 1 or 0)
         {
-            if(SupportedLayerTypes == null || SupportedLayerTypes.Length == 0)
-            {
-                CanBeUsed = true;
-                return;
-            }
-            
-            foreach (var type in SupportedLayerTypes)
-            {
-                if (type.IsInstanceOfType(layer))
-                {
-                    CanBeUsed = true;
-                    return;
-                }
-            }
+            CanBeUsedOnActiveLayer = false;
+            return;
         }
         
-        CanBeUsed = false;
+        var layer = layers[0];
+
+        if (SupportedLayerTypes == null)
+        {
+            CanBeUsedOnActiveLayer = true;
+            return;
+        }
+
+        foreach (var type in SupportedLayerTypes)
+        {
+            if (type.IsInstanceOfType(layer))
+            {
+                CanBeUsedOnActiveLayer = true;
+                return;
+            }
+        }
+
+        CanBeUsedOnActiveLayer = false;
     }
 
     private void OnLanguageChanged(Language obj)
@@ -127,7 +136,8 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     public virtual void OnSelected() { }
 
     public virtual void OnDeselecting()
-    { }
+    {
+    }
 
     protected T GetValue<T>([CallerMemberName] string name = null)
     {
@@ -135,7 +145,8 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
         if (setting.GetSettingType().IsAssignableTo(typeof(Enum)))
         {
-            var property = setting.GetType().GetProperty("Value",  BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+            var property = setting.GetType().GetProperty("Value",
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
             return (T)property!.GetValue(setting);
         }
 

@@ -1,4 +1,5 @@
 ﻿using Avalonia.Input;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
@@ -25,12 +26,14 @@ internal class RasterLineToolViewModel : ShapeTool, ILineToolHandler
     public override string ToolNameLocalizationKey => "LINE_TOOL";
     public override LocalizedString Tooltip => new LocalizedString("LINE_TOOL_TOOLTIP", Shortcut);
 
-    public override Type[] SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
+    public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
     public override string Icon => PixiPerfectIcons.Line;
 
     [Settings.Inherited] public int ToolSize => GetValue<int>();
 
     public bool Snap { get; private set; }
+
+    public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {

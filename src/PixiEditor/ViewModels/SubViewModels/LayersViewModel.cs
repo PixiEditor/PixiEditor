@@ -122,7 +122,16 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is not { } doc)
             return;
+        
         doc.Operations.CreateStructureMember(StructureMemberType.Layer);
+    }
+
+    public Guid? NewLayer(Type layerType, string? name = null, bool finish = true)
+    {
+        if (Owner.DocumentManagerSubViewModel.ActiveDocument is not { } doc)
+            return null;
+        
+        return doc.Operations.CreateStructureMember(layerType, name, finish);
     }
 
     [Evaluator.CanExecute("PixiEditor.Layer.CanCreateNewMember")]

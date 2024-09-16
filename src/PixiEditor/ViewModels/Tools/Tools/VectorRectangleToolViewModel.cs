@@ -1,4 +1,5 @@
 ﻿using Avalonia.Input;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
@@ -19,11 +20,13 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
         ActionDisplay = defaultActionDisplay;
     }
 
-    public override Type[] SupportedLayerTypes { get; } = { typeof(IVectorLayerHandler) };
+    public override Type[]? SupportedLayerTypes { get; } = [];
     public override LocalizedString Tooltip => new LocalizedString("RECTANGLE_TOOL_TOOLTIP", Shortcut);
     public bool DrawSquare { get; private set; }
 
     public override string Icon => PixiPerfectIcons.Square;
+
+    public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {

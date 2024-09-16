@@ -39,7 +39,8 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
     public bool KeepOriginalImage => GetValue<bool>();
 
     public override BrushShape BrushShape => BrushShape.Hidden;
-    public override Type[] SupportedLayerTypes { get; } = [];
+    public override Type[]? SupportedLayerTypes { get; } = null;
+    public override Type LayerTypeToCreateOnEmptyUse { get; } = null;
     public override bool HideHighlight => true;
 
     public bool TransformingSelectedArea

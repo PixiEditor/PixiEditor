@@ -1,4 +1,5 @@
 ﻿using Avalonia.Input;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
@@ -18,12 +19,15 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
     {
         ActionDisplay = defaultActionDisplay;
     }
-
-    public override Type[] SupportedLayerTypes { get; } = { typeof(IVectorLayerHandler) };
+    
+    // This doesn't include a Vector layer because it is designed to create new layer each use
+    public override Type[]? SupportedLayerTypes { get; } = []; 
     public override LocalizedString Tooltip => new LocalizedString("ELLIPSE_TOOL_TOOLTIP", Shortcut);
     public bool DrawCircle { get; private set; }
 
     public override string Icon => PixiPerfectIcons.Circle;
+
+    public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
 
     public override void UseTool(VecD pos)
     {

@@ -215,7 +215,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
                 }
                 else
                 {
-                    Owner.DocumentManagerSubViewModel.ActiveDocument.FinishedChange += FinishedChange;
+                    Owner.DocumentManagerSubViewModel.ActiveDocument.ToolSessionFinished += ToolSessionFinished;
                 }
 
                 hadSwapped = true;
@@ -316,8 +316,8 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
                 }
                 else
                 {
-                    Owner.DocumentManagerSubViewModel.ActiveDocument.FinishedChange +=
-                        FinishedChange;
+                    Owner.DocumentManagerSubViewModel.ActiveDocument.ToolSessionFinished +=
+                        ToolSessionFinished;
                 }
 
                 break;
@@ -327,10 +327,10 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         }
     }
     
-    private void FinishedChange()
+    private void ToolSessionFinished()
     {
         Owner.ColorsSubViewModel.SwapColors(null);
-        Owner.DocumentManagerSubViewModel.ActiveDocument.FinishedChange -= FinishedChange;
+        Owner.DocumentManagerSubViewModel.ActiveDocument.ToolSessionFinished -= ToolSessionFinished;
     }
 
     private void HandleRightMouseEraseUp(IToolsHandler tools)

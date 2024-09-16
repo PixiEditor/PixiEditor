@@ -1,4 +1,5 @@
 ﻿using Avalonia.Input;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
@@ -26,12 +27,14 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
     public override LocalizedString Tooltip => new LocalizedString("LINE_TOOL_TOOLTIP", Shortcut);
 
     public override string Icon => PixiPerfectIcons.Line;
-    public override Type[] SupportedLayerTypes { get; } = { typeof(IVectorLayerHandler) };
+    public override Type[]? SupportedLayerTypes { get; } = [];
 
     [Settings.Inherited]
     public int ToolSize => GetValue<int>();
 
     public bool Snap { get; private set; }
+
+    public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {

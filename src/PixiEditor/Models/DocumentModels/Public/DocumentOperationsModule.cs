@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Surfaces.Vector;
@@ -153,6 +154,14 @@ internal class DocumentOperationsModule : IDocumentOperations
         if (Internals.ChangeController.IsChangeActive)
             return null;
         return Internals.StructureHelper.CreateNewStructureMember(type, name, finish);
+    }
+
+    public Guid? CreateStructureMember(Type structureMemberType, string? name = null, bool finish = true)
+    {
+        if (Internals.ChangeController.IsChangeActive)
+            return null;
+        
+        return Internals.StructureHelper.CreateNewStructureMember(structureMemberType, name, finish);
     }
 
     /// <summary>
@@ -444,7 +453,7 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         //make a new layer, put combined image onto it, delete layers that were merged
         Internals.ActionAccumulator.AddActions(
-            new CreateStructureMember_Action(parent.Id, newGuid, StructureMemberType.Layer),
+            new CreateStructureMember_Action(parent.Id, newGuid, typeof(ImageLayerNode)),
             new StructureMemberName_Action(newGuid, node.NodeNameBindable),
             new CombineStructureMembersOnto_Action(members.ToHashSet(), newGuid,
                 Document.AnimationHandler.ActiveFrameBindable));
@@ -723,5 +732,15 @@ internal class DocumentOperationsModule : IDocumentOperations
             return;
 
         Internals.ActionAccumulator.AddFinishedActions(new RasterizeMember_Action(memberId));    
+    }
+
+    public void InvokeCustomAction(Action action)
+    {
+        if (Internals.ChangeController.IsChangeActive)
+            return;
+
+        IAction targetAction = new InvokeAction_PassthroughAction(action);
+        
+        Internals.ActionAccumulator.AddActions(targetAction);
     }
 }

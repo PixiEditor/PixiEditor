@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using Avalonia.Input;
 using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Preferences;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
@@ -179,7 +180,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         {
             nextIndex = 0;
         }
-        
+
         if (nextIndex < 0)
         {
             nextIndex = AllToolSets.Count - 1;
@@ -313,7 +314,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         if (!typeof(ToolViewModel).IsAssignableFrom(toolType))
             throw new ArgumentException($"'{toolType}' does not inherit from {typeof(ToolViewModel)}");
         IToolHandler foundTool = ActiveToolSet!.Tools.FirstOrDefault(x => x.GetType().IsAssignableFrom(toolType));
-        if (foundTool == null || !foundTool.CanBeUsed) return;
+        if (foundTool == null) return;
 
         SetActiveTool(foundTool, transient, sourceInfo);
     }
@@ -362,15 +363,34 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     public void UseToolEventInlet(VecD canvasPos, MouseButton button)
     {
-        if (ActiveTool is not { CanBeUsed: true }) return;
-
         ActiveTool.UsedWith = button;
         if (ActiveTool.StopsLinkedToolOnUse)
         {
             ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
         }
 
-        ActiveTool.UseTool(canvasPos);
+        bool waitForChange = false;
+
+        if (ActiveTool is not { CanBeUsedOnActiveLayer: true })
+        {
+            Guid? createdLayer = Owner.LayersSubViewModel.NewLayer(ActiveTool.LayerTypeToCreateOnEmptyUse);
+            if (createdLayer is not null)
+            {
+                Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.SetSelectedMember(createdLayer.Value);
+            }
+
+            waitForChange = true;
+        }
+
+        if (waitForChange)
+        {
+            Owner.DocumentManagerSubViewModel.ActiveDocument.Operations
+                .InvokeCustomAction(() => ActiveTool.UseTool(canvasPos));
+        }
+        else
+        {
+            ActiveTool.UseTool(canvasPos);
+        }
     }
 
     public void ConvertedKeyDownInlet(FilteredKeyEventArgs args)
@@ -444,7 +464,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
             return;
-        
+
         foreach (var toolHandler in ActiveToolSet.Tools)
         {
             if (toolHandler is ToolViewModel tool)

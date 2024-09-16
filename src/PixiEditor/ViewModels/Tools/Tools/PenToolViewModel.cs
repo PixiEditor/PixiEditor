@@ -1,6 +1,5 @@
-﻿using System.Linq;
-using Avalonia.Input;
-using PixiEditor.DrawingApi.Core.Numerics;
+﻿using Avalonia.Input;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.Commands.Attributes.Commands;
@@ -23,7 +22,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
         public override string ToolNameLocalizationKey => "PEN_TOOL";
         public override BrushShape BrushShape => BrushShape.Circle;
         
-        public override Type[] SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
+        public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
 
         public PenToolViewModel()
         {
@@ -42,6 +41,8 @@ namespace PixiEditor.ViewModels.Tools.Tools
         public bool PixelPerfectEnabled => GetValue<bool>();
 
         public override string Icon => PixiPerfectIcons.Pen;
+
+        public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
 
         public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
         {

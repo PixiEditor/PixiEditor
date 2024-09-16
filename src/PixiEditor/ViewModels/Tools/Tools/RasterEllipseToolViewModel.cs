@@ -1,4 +1,5 @@
 ﻿using Avalonia.Input;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
@@ -20,11 +21,13 @@ internal class RasterEllipseToolViewModel : ShapeTool, IRasterEllipseToolHandler
         ActionDisplay = defaultActionDisplay;
     }
 
-    public override Type[] SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
+    public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
     public override LocalizedString Tooltip => new LocalizedString("ELLIPSE_TOOL_TOOLTIP", Shortcut);
     public bool DrawCircle { get; private set; }
 
     public override string Icon => PixiPerfectIcons.Circle;
+
+    public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {

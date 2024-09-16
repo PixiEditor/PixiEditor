@@ -15,32 +15,30 @@ internal class CreateStructureMember_Change : Change
     private Guid newMemberGuid;
 
     private Guid parentGuid;
-    private StructureMemberType type;
+    private Type structureMemberOfType;
 
     [GenerateMakeChangeAction]
     public CreateStructureMember_Change(Guid parent, Guid newGuid,
-        StructureMemberType type)
+        Type ofType)
     {
         this.parentGuid = parent;
-        this.type = type;
+        this.structureMemberOfType = ofType;
         newMemberGuid = newGuid;
     }
 
     public override bool InitializeAndValidate(Document target)
     {
+        if(structureMemberOfType.IsAbstract || structureMemberOfType.IsInterface || !structureMemberOfType.IsAssignableTo(typeof(StructureNode)))
+            return false;
+        
         return target.TryFindNode<Node>(parentGuid, out _);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document document, bool firstApply,
         out bool ignoreInUndo)
     {
-        StructureNode member = type switch
-        {
-            // TODO: Add support for other types
-            StructureMemberType.Layer => new ImageLayerNode(document.Size) { Id = newMemberGuid },
-            StructureMemberType.Folder => new FolderNode() { Id = newMemberGuid },
-            _ => throw new NotSupportedException(),
-        };
+        StructureNode member = (StructureNode)NodeOperations.CreateNode(structureMemberOfType, document); 
+        member.Id = newMemberGuid;
 
         document.TryFindNode<Node>(parentGuid, out var parentNode);
 
@@ -71,10 +69,10 @@ internal class CreateStructureMember_Change : Change
 
     private IChangeInfo CreateChangeInfo(StructureNode member)
     {
-        return type switch
+        return member switch
         {
-            StructureMemberType.Layer => CreateLayer_ChangeInfo.FromLayer((LayerNode)member),
-            StructureMemberType.Folder => CreateFolder_ChangeInfo.FromFolder((FolderNode)member),
+            LayerNode layer => CreateLayer_ChangeInfo.FromLayer(layer),
+            FolderNode folderNode => CreateFolder_ChangeInfo.FromFolder(folderNode),
             _ => throw new NotSupportedException(),
         };
     }

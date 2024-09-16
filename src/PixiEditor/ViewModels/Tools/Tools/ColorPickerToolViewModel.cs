@@ -22,6 +22,7 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
 
     private readonly string defaultActionDisplay = "COLOR_PICKER_ACTION_DISPLAY_CANVAS_ONLY";
 
+    public override Type LayerTypeToCreateOnEmptyUse { get; } = null;
     public override bool HideHighlight => true;
 
     public override bool UsesColor => true;
@@ -31,7 +32,7 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
 
     public override string Icon => PixiPerfectIcons.Picker;
 
-    public override Type[] SupportedLayerTypes { get; } = [];  // all layer types are supported
+    public override Type[]? SupportedLayerTypes { get; } = null;  // all layer types are supported
 
     public override LocalizedString Tooltip => new("COLOR_PICKER_TOOLTIP", Shortcut);
 
