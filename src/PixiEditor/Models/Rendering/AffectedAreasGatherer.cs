@@ -164,8 +164,8 @@ internal class AffectedAreasGatherer
                     AddWholeCanvasToMainImage();
                     break;
                 case VectorShape_ChangeInfo info:
-                    AddAllToMainImage(info.LayerId, ActiveFrame, false);
-                    AddAllToImagePreviews(info.LayerId, ActiveFrame, false);
+                    AddToMainImage(info.Affected);
+                    AddToImagePreviews(info.LayerId, info.Affected);
                     break;
             }
         }
@@ -232,6 +232,9 @@ internal class AffectedAreasGatherer
             {
                 var affectedArea = new AffectedArea(
                     OperationHelper.FindChunksTouchingRectangle((RectI)tightBounds.Value, ChunkyImage.FullChunkSize));
+                
+                var lastArea = new AffectedArea(affectedArea);
+                
                 AddToMainImage(affectedArea);
             }
             else

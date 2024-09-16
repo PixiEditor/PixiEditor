@@ -31,6 +31,7 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
     private bool hasEnqueudImages = false;
     private int frame;
     private bool appliedOnce;
+    private AffectedArea lastAffectedArea;
 
     private static Paint RegularPaint { get; } = new() { BlendMode = BlendMode.SrcOver };
 
@@ -292,6 +293,13 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
                 member.TransformableObject.TransformationMatrix = member.LocalMatrix;
 
                 AffectedArea translationAffectedArea = GetTranslationAffectedArea();
+                var tmp = new AffectedArea(translationAffectedArea);
+                if (lastAffectedArea.Chunks != null)
+                {
+                    translationAffectedArea.UnionWith(lastAffectedArea);
+                }
+
+                lastAffectedArea = tmp;
                 infos.Add(new TransformObject_ChangeInfo(member.MemberId, translationAffectedArea));
             }
         }
@@ -375,7 +383,8 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
             }
         }
 
-        return new AffectedArea(chunks);
+        var final = new AffectedArea(chunks);
+        return final;
     }
 
     private AffectedArea DrawImage(MemberTransformationData data, ChunkyImage memberImage)

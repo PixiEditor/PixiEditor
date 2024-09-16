@@ -93,7 +93,10 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     {
         base.DeserializeAdditionalData(target, data);
         ShapeData = (ShapeVectorData)data["ShapeData"];
-        return new VectorShape_ChangeInfo(Id);
+        var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
+            (RectI)ShapeData.TransformedAABB, ChunkyImage.FullChunkSize));
+        
+        return new VectorShape_ChangeInfo(Id, affected);
     }
 
     protected override bool CacheChanged(RenderingContext context)

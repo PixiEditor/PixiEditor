@@ -1,6 +1,8 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+﻿using ChunkyImageLib.Operations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Vectors;
 
@@ -10,6 +12,8 @@ internal class SetShapeGeometry_UpdateableChange : UpdateableChange
     public ShapeVectorData Data { get; set; }
 
     private ShapeVectorData? originalData;
+    
+    private AffectedArea lastAffectedArea;
 
     [GenerateUpdateableChangeActions]
     public SetShapeGeometry_UpdateableChange(Guid targetId, ShapeVectorData data)
@@ -40,7 +44,19 @@ internal class SetShapeGeometry_UpdateableChange : UpdateableChange
         var node = target.FindNode<VectorLayerNode>(TargetId);
         node.ShapeData = Data;
 
-        return new VectorShape_ChangeInfo(node.Id);
+        var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
+            (RectI)node.ShapeData.TransformedAABB, ChunkyImage.FullChunkSize));
+
+        var tmp = new AffectedArea(affected);
+        
+        if (lastAffectedArea.Chunks != null)
+        {
+            affected.UnionWith(lastAffectedArea);
+        }
+        
+        lastAffectedArea = tmp;
+        
+        return new VectorShape_ChangeInfo(node.Id, affected);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
@@ -49,8 +65,11 @@ internal class SetShapeGeometry_UpdateableChange : UpdateableChange
         ignoreInUndo = false;
         var node = target.FindNode<VectorLayerNode>(TargetId);
         node.ShapeData = Data;
+        
+        var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
+            (RectI)node.ShapeData.TransformedAABB, ChunkyImage.FullChunkSize));
 
-        return new VectorShape_ChangeInfo(node.Id);
+        return new VectorShape_ChangeInfo(node.Id, affected);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
@@ -58,6 +77,9 @@ internal class SetShapeGeometry_UpdateableChange : UpdateableChange
         var node = target.FindNode<VectorLayerNode>(TargetId);
         node.ShapeData = originalData;
 
-        return new VectorShape_ChangeInfo(node.Id);
+        var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
+            (RectI)node.ShapeData.TransformedAABB, ChunkyImage.FullChunkSize));
+        
+        return new VectorShape_ChangeInfo(node.Id, affected);
     }
 }

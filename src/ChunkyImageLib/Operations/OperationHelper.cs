@@ -176,15 +176,19 @@ public static class OperationHelper
         return chunks;
     }
 
-    public static HashSet<VecI> FindChunksFullyInsideEllipse(VecD pos, double radiusX, double radiusY, int chunkSize)
+    public static HashSet<VecI> FindChunksFullyInsideEllipse(VecD pos, double radiusX, double radiusY, int chunkSize,
+        double rotation)
     {
         double stretchX = radiusX / radiusY;
         var (left, right) = CreateStretchedHexagon(pos, radiusY, stretchX);
+        left = left.AsRotated(rotation, pos);
+        right = right.AsRotated(rotation, pos);
+        
         var chunks = FindChunksFullyInsideQuadrilateral(left, chunkSize);
         chunks.UnionWith(FindChunksFullyInsideQuadrilateral(right, chunkSize));
         return chunks;
     }
-
+    
     public static HashSet<VecI> FindChunksTouchingQuadrilateral(ShapeCorners corners, int chunkSize)
     {
         if (corners.IsRect && Math.Abs(corners.RectRotation) < 0.0001)

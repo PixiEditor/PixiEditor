@@ -143,12 +143,10 @@ internal class EllipseOperation : IMirroredDrawOperation
         var chunks = OperationHelper.FindChunksTouchingRectangle(bounds, ChunkyImage.FullChunkSize);
         if (fillColor.A == 0)
         {
-            // TODO: Implement ellipse fill optimization for rotated ellipses
-            /*
-            chunks.ExceptWith(OperationHelper.FindChunksFullyInsideEllipse
-                (location.Center, location.Width / 2.0 - strokeWidth * 2, location.Height / 2.0 - strokeWidth * 2, ChunkyImage.FullChunkSize));
-        */
+             chunks.ExceptWith(OperationHelper.FindChunksFullyInsideEllipse
+                (location.Center, location.Width / 2.0 - strokeWidth * 2, location.Height / 2.0 - strokeWidth * 2, ChunkyImage.FullChunkSize, rotation));
         }
+        
         return new AffectedArea(chunks, bounds);
     }
 
