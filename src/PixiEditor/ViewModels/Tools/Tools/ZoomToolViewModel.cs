@@ -20,7 +20,7 @@ internal class ZoomToolViewModel : ToolViewModel
 
     public override string ToolNameLocalizationKey => "ZOOM_TOOL";
     public override BrushShape BrushShape => BrushShape.Hidden;
-    public override Type[]? SupportedLayerTypes { get; } = [];
+    public override Type[]? SupportedLayerTypes { get; } = null;
 
     public override bool StopsLinkedToolOnUse => false;
 
