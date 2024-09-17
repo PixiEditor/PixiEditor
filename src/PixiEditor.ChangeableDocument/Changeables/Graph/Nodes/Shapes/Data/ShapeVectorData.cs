@@ -19,7 +19,8 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
     public RectD TransformedAABB => new ShapeCorners(GeometryAABB).WithMatrix(TransformationMatrix).AABBBounds;
     public abstract ShapeCorners TransformationCorners { get; } 
 
-    public abstract void Rasterize(DrawingSurface drawingSurface, ChunkResolution resolution, Paint? paint);
+    public abstract void RasterizeGeometry(DrawingSurface drawingSurface, ChunkResolution resolution, Paint? paint);
+    public abstract void RasterizeTransformed(DrawingSurface drawingSurface, ChunkResolution resolution, Paint? paint);
     public abstract bool IsValid();
     public abstract int GetCacheHash();
     public abstract int CalculateHash();

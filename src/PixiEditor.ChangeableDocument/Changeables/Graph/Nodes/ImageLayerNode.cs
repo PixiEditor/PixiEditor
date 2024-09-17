@@ -51,6 +51,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         this.size = size;
     }
 
+
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
         return (RectD?)GetLayerImageAtFrame(frameTime.Frame).FindTightCommittedBounds();
@@ -188,6 +189,26 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         workingSurface.DrawingSurface.Canvas.DrawSurface(tempSurface.DrawingSurface, VecI.Zero, paint);
     }
+
+    public override bool RenderPreview(Texture renderOn, VecI chunk, ChunkResolution resolution, int frame)
+    {
+        var img = GetLayerImageAtFrame(frame);
+        
+        if (img is null)
+        {
+            return false;
+        }
+        
+        img.DrawMostUpToDateChunkOn(
+            chunk,
+            resolution,
+            renderOn.DrawingSurface,
+            chunk * resolution.PixelSize(),
+            blendPaint);
+        
+        return true;
+    }
+
 
     private void DrawChunk(ChunkyImage frameImage, RenderingContext context, Texture tempSurface, VecI vecI,
         Paint paint)

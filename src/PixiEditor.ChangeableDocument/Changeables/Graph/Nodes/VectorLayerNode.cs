@@ -82,6 +82,34 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         Rasterize(workingSurface.DrawingSurface, ctx.ChunkResolution, paint);
     }
 
+    public override bool RenderPreview(Texture renderOn, VecI chunk, ChunkResolution resolution, int frame)
+    {
+        if (ShapeData == null)
+        {
+            return false;
+        }
+
+        using var paint = new Paint();
+
+        VecI tightBoundsSize = (VecI)ShapeData.TransformedAABB.Size;
+
+        VecI translation = new VecI(
+            (int)Math.Max(ShapeData.TransformedAABB.TopLeft.X, 0),
+            (int)Math.Max(ShapeData.TransformedAABB.TopLeft.Y, 0));
+
+        using Texture toRasterizeOn = new(tightBoundsSize + translation);
+
+        int save = toRasterizeOn.DrawingSurface.Canvas.Save();
+
+        Matrix3X3 matrix = ShapeData.TransformationMatrix;
+        Rasterize(toRasterizeOn.DrawingSurface, resolution, paint);
+
+        renderOn.DrawingSurface.Canvas.DrawSurface(toRasterizeOn.DrawingSurface, 0, 0, paint);
+
+        toRasterizeOn.DrawingSurface.Canvas.RestoreToCount(save);
+        return true;
+    }
+
     public override void SerializeAdditionalData(Dictionary<string, object> additionalData)
     {
         base.SerializeAdditionalData(additionalData);
@@ -95,7 +123,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         ShapeData = (ShapeVectorData)data["ShapeData"];
         var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
             (RectI)ShapeData.TransformedAABB, ChunkyImage.FullChunkSize));
-        
+
         return new VectorShape_ChangeInfo(Id, affected);
     }
 
@@ -122,7 +150,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
     public void Rasterize(DrawingSurface surface, ChunkResolution resolution, Paint paint)
     {
-        ShapeData?.Rasterize(surface, resolution, paint);
+        ShapeData?.RasterizeTransformed(surface, resolution, paint);
     }
 
     public override Node CreateCopy()

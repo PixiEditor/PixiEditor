@@ -131,4 +131,6 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
 
         return workingSurface;
     }
+
+    public abstract bool RenderPreview(Texture renderOn, VecI chunk, ChunkResolution resolution, int frame);
 }

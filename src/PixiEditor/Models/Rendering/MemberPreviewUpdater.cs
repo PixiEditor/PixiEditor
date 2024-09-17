@@ -623,16 +623,13 @@ internal class MemberPreviewUpdater
             foreach (var chunk in area.Chunks)
             {
                 var pos = chunk * ChunkResolution.Full.PixelSize();
-                if (layer is not IReadOnlyImageNode raster) return;
-                IReadOnlyChunkyImage? result = raster.GetLayerImageAtFrame(frame);
-
-                if (!result.DrawCommittedChunkOn(
-                        chunk,
-                        ChunkResolution.Full, surface.DrawingSurface, pos,
-                        scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint))
+                if (layer is IPreviewRenderable renderable)
                 {
-                    surface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize,
-                        ChunkyImage.FullChunkSize, ClearPaint);
+                    if (!renderable.RenderPreview(surface, chunk, ChunkResolution.Full, frame))
+                    {
+                        surface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkResolution.Full.PixelSize(),
+                            ChunkResolution.Full.PixelSize(), ClearPaint);
+                    }
                 }
             }
 

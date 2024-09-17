@@ -31,7 +31,17 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
     public override ShapeCorners TransformationCorners => new ShapeCorners(GeometryAABB)
         .WithMatrix(TransformationMatrix);
 
-    public override void Rasterize(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint)
+    public override void RasterizeGeometry(DrawingSurface drawingSurface, ChunkResolution resolution, Paint? paint)
+    {
+        Rasterize(drawingSurface, resolution, paint, false);
+    }
+
+    public override void RasterizeTransformed(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint)
+    {
+        Rasterize(drawingSurface, resolution, paint, true);
+    }
+
+    private void Rasterize(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint, bool applyTransform)
     {
         RectD adjustedAABB = GeometryAABB.RoundOutwards().Inflate(1);
         var imageSize = (VecI)adjustedAABB.Size;
@@ -57,12 +67,20 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
         
         RectI region = new(VecI.Zero, imageSize);
         
-        int num = drawingSurface.Canvas.Save();
-        drawingSurface.Canvas.SetMatrix(TransformationMatrix);
-        
+        int num = 0;
+
+        if (applyTransform)
+        {
+            num = drawingSurface.Canvas.Save();
+            drawingSurface.Canvas.SetMatrix(TransformationMatrix);
+        }
+
         img.DrawMostUpToDateRegionOn(region, resolution, drawingSurface, topLeft, paint);
         
-        drawingSurface.Canvas.RestoreToCount(num);
+        if (applyTransform)
+        {
+            drawingSurface.Canvas.RestoreToCount(num);
+        }
     }
 
     public override bool IsValid()

@@ -16,14 +16,36 @@ public class PointsVectorData : ShapeVectorData
     public override RectD GeometryAABB => new RectD(Points.Min(p => p.X), Points.Min(p => p.Y), Points.Max(p => p.X),
         Points.Max(p => p.Y));
     public override ShapeCorners TransformationCorners => new ShapeCorners(
-        GeometryAABB).WithMatrix(TransformationMatrix); 
+        GeometryAABB).WithMatrix(TransformationMatrix);
 
-    public override void Rasterize(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint)
+    public override void RasterizeGeometry(DrawingSurface drawingSurface, ChunkResolution resolution, Paint? paint)
+    {
+        Rasterize(drawingSurface, paint, false);
+    }
+
+    public override void RasterizeTransformed(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint)
+    {
+        Rasterize(drawingSurface, paint, true);
+    }
+
+    private void Rasterize(DrawingSurface drawingSurface, Paint paint, bool applyTransform)
     {
         paint.Color = FillColor;
         paint.StrokeWidth = StrokeWidth;
         
+        int num = 0;
+        if (applyTransform)
+        {
+            num = drawingSurface.Canvas.Save();
+            drawingSurface.Canvas.SetMatrix(TransformationMatrix);
+        }
+        
         drawingSurface.Canvas.DrawPoints(PointMode.Points, Points.Select(p => new Point((int)p.X, (int)p.Y)).ToArray(), paint);
+        
+        if (applyTransform)
+        {
+            drawingSurface.Canvas.RestoreToCount(num);
+        }
     }
 
     public override bool IsValid()
