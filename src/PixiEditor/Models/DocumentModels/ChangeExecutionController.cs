@@ -196,6 +196,11 @@ internal class ChangeExecutionController
         currentSession?.OnTransformMoved(corners);
     }
     
+    public void MembersSelectedInlet(List<Guid> memberGuids)
+    {
+        currentSession?.OnMembersSelected(memberGuids);
+    }
+    
     public void TransformAppliedInlet() => currentSession?.OnTransformApplied();
     
     public void SettingsChangedInlet(string name, object value)

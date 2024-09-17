@@ -31,7 +31,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     public ChunkyImage? EmbeddedMask { get; set; }
     public virtual ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
     {
-        return new ShapeCorners((RectD)GetTightBounds(frameTime).GetValueOrDefault());
+        return new ShapeCorners(GetTightBounds(frameTime).GetValueOrDefault());
     }
 
     public string MemberName

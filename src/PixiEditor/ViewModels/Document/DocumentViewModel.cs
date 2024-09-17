@@ -717,6 +717,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public void SetSelectedMember(IStructureMemberHandler member)
     {
         SelectedStructureMember = member;
+        Internals.ChangeController.MembersSelectedInlet(GetSelectedMembers());
         OnPropertyChanged(nameof(SelectedStructureMember));
     }
 
@@ -748,15 +749,21 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public void AddSoftSelectedMember(IStructureMemberHandler member)
     {
         softSelectedStructureMembers.Add(member);
+        Internals.ChangeController.MembersSelectedInlet(GetSelectedMembers());
     }
 
     public void RemoveSoftSelectedMember(IStructureMemberHandler member)
     {
         SelectedStructureMember = member;
+        Internals.ChangeController.MembersSelectedInlet(GetSelectedMembers());
         softSelectedStructureMembers.Remove(member);
     }
 
-    public void ClearSoftSelectedMembers() => softSelectedStructureMembers.Clear();
+    public void ClearSoftSelectedMembers()
+    {
+        softSelectedStructureMembers.Clear();
+        Internals.ChangeController.MembersSelectedInlet(GetSelectedMembers());
+    }
 
     #endregion
 

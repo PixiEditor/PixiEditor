@@ -77,9 +77,14 @@ internal class SetShapeGeometry_UpdateableChange : UpdateableChange
         var node = target.FindNode<VectorLayerNode>(TargetId);
         node.ShapeData = originalData;
 
-        var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
-            (RectI)node.ShapeData.TransformedAABB, ChunkyImage.FullChunkSize));
+        AffectedArea affected = default;
         
+        if (node.ShapeData != null)
+        {
+            affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
+                (RectI)node.ShapeData.TransformedAABB, ChunkyImage.FullChunkSize));
+        }
+
         return new VectorShape_ChangeInfo(node.Id, affected);
     }
 }

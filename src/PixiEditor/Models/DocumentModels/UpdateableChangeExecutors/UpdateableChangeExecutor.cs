@@ -66,4 +66,5 @@ internal abstract class UpdateableChangeExecutor
 
     public virtual void OnSettingsChanged(string name, object value) { }
     public virtual void OnColorChanged(Color color, bool primary) { }
+    public virtual void OnMembersSelected(List<Guid> memberGuids) { }
 }
