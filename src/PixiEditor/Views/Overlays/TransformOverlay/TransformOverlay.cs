@@ -113,7 +113,6 @@ internal class TransformOverlay : Overlay
     static TransformOverlay()
     {
         AffectsRender<TransformOverlay>(CornersProperty, ZoomScaleProperty, SideFreedomProperty, CornerFreedomProperty, LockRotationProperty, SnapToAnglesProperty, InternalStateProperty, ZoomboxAngleProperty, CoverWholeScreenProperty);
-
         RequestCornersExecutorProperty.Changed.Subscribe(OnCornersExecutorChanged);
     }
 

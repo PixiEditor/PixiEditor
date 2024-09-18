@@ -67,4 +67,10 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
     {
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
     }
+    
+    protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
+    {
+        OnDeselecting();
+        OnSelected();
+    }
 }

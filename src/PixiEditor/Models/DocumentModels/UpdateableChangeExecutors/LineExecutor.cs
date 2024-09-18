@@ -104,7 +104,7 @@ internal abstract class LineExecutor<T> : UpdateableChangeExecutor where T : ILi
             return;
         }
 
-        document!.LineToolOverlayHandler.Show(startPos + new VecD(0.5), curPos + new VecD(0.5));
+        document!.LineToolOverlayHandler.Show(startPos + new VecD(0.5), curPos + new VecD(0.5), true);
         transforming = true;
     }
 

@@ -11,6 +11,7 @@ using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Numerics;
 using PixiEditor.Views.Overlays.Handles;
 using PixiEditor.Views.Overlays.TransformOverlay;
+using Point = Avalonia.Point;
 
 namespace PixiEditor.Views.Overlays.LineToolOverlay;
 internal class LineToolOverlay : Overlay
@@ -49,6 +50,8 @@ internal class LineToolOverlay : Overlay
     }
 
     private Pen blackPen = new Pen(Brushes.Black, 1);
+    private Pen blackDashedPen = new Pen(Brushes.Black, 1) { DashStyle = new DashStyle(new double[] { 2, 4 }, 0) };
+    private Pen whiteDashedPen = new Pen(Brushes.White, 1) { DashStyle = new DashStyle(new double[] { 2, 4 }, 2) };
 
     private VecD mouseDownPos = VecD.Zero;
     private VecD lineStartOnMouseDown = VecD.Zero;
@@ -70,7 +73,7 @@ internal class LineToolOverlay : Overlay
         AddHandle(startHandle);
 
         endHandle = new AnchorHandle(this);
-        startHandle.HandlePen = blackPen;
+        endHandle.HandlePen = blackPen;
         endHandle.OnDrag += EndHandleOnDrag;
         AddHandle(endHandle);
 
@@ -83,6 +86,8 @@ internal class LineToolOverlay : Overlay
     protected override void ZoomChanged(double newZoom)
     {
         blackPen.Thickness = 1.0 / newZoom;
+        blackDashedPen.Thickness = 2.0 / newZoom;
+        whiteDashedPen.Thickness = 2.0 / newZoom;
     }
 
     public override void RenderOverlay(DrawingContext context, RectD canvasBounds)
@@ -93,6 +98,8 @@ internal class LineToolOverlay : Overlay
         VecD size = LineEnd - LineStart;
         moveHandle.Position = TransformHelper.GetHandlePos(new ShapeCorners(center, size), ZoomScale, moveHandle.Size);
 
+        context.DrawLine(blackDashedPen, new Point(LineStart.X, LineStart.Y), new Point(LineEnd.X, LineEnd.Y));
+        context.DrawLine(whiteDashedPen, new Point(LineStart.X, LineStart.Y), new Point(LineEnd.X, LineEnd.Y));
         startHandle.Draw(context);
         endHandle.Draw(context);
         moveHandle.Draw(context);

@@ -21,9 +21,9 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
     {
         ActionDisplay = defaultActionDisplay;
     }
-    
+
     // This doesn't include a Vector layer because it is designed to create new layer each use
-    public override Type[]? SupportedLayerTypes { get; } = []; 
+    public override Type[]? SupportedLayerTypes { get; } = [];
     public override LocalizedString Tooltip => new LocalizedString("ELLIPSE_TOOL_TOOLTIP", Shortcut);
     public bool DrawCircle { get; private set; }
 
@@ -31,7 +31,7 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
 
-    public string? DefaultNewLayerName { get; } = new LocalizedString("NEW_ELLIPSE_LAYER_NAME"); 
+    public string? DefaultNewLayerName { get; } = new LocalizedString("NEW_ELLIPSE_LAYER_NAME");
 
     public override void UseTool(VecD pos)
     {
@@ -47,12 +47,18 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
             ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument.TransformViewModel.ShowTransform(
                 DocumentTransformMode.Scale_Rotate_Shear_NoPerspective, false, corners, false);
         }
-        
+
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorEllipseTool();
     }
 
     public override void OnDeselecting()
     {
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
+    }
+
+    protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
+    {
+        OnDeselecting();
+        OnSelected();
     }
 }

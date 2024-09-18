@@ -6,6 +6,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ViewModels.Document.TransformOverlays;
+
 internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
 {
     public event EventHandler<(VecD, VecD)>? LineMoved;
@@ -13,6 +14,7 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
     private TransformOverlayUndoStack<(VecD, VecD)>? undoStack = null;
 
     private VecD lineStart;
+
     public VecD LineStart
     {
         get => lineStart;
@@ -24,6 +26,7 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
     }
 
     private VecD lineEnd;
+
     public VecD LineEnd
     {
         get => lineEnd;
@@ -35,6 +38,7 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
     }
 
     private bool isEnabled;
+
     public bool IsEnabled
     {
         get => isEnabled;
@@ -42,18 +46,28 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
     }
 
     private ICommand? actionCompletedCommand = null;
+
     public ICommand? ActionCompletedCommand
     {
         get => actionCompletedCommand;
         set => SetProperty(ref actionCompletedCommand, value);
     }
 
-    public LineToolOverlayViewModel()
+    private bool showApplyButton;
+
+    public bool ShowApplyButton
     {
-        ActionCompletedCommand = new RelayCommand(() => undoStack?.AddState((LineStart, LineEnd), TransformOverlayStateType.Move));
+        get => showApplyButton;
+        set => SetProperty(ref showApplyButton, value);
     }
 
-    public void Show(VecD lineStart, VecD lineEnd)
+    public LineToolOverlayViewModel()
+    {
+        ActionCompletedCommand =
+            new RelayCommand(() => undoStack?.AddState((LineStart, LineEnd), TransformOverlayStateType.Move));
+    }
+
+    public void Show(VecD lineStart, VecD lineEnd, bool showApplyButton)
     {
         if (undoStack is not null)
             return;
@@ -63,6 +77,7 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
         LineStart = lineStart;
         LineEnd = lineEnd;
         IsEnabled = true;
+        ShowApplyButton = showApplyButton;
     }
 
     public void Hide()
@@ -71,6 +86,7 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
             return;
         undoStack = null;
         IsEnabled = false;
+        ShowApplyButton = false;
     }
 
     public bool Nudge(VecD distance)

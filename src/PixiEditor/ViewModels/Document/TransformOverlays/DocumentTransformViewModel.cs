@@ -184,7 +184,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
 
     public void ShowTransform(DocumentTransformMode mode, bool coverWholeScreen, ShapeCorners initPos, bool showApplyButton)
     {
-        if (undoStack is not null)
+        if (undoStack is not null || initPos.IsPartiallyDegenerate)
             return;
         undoStack = new();
 

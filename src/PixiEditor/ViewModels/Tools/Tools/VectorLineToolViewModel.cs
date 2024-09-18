@@ -68,12 +68,18 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
             IReadOnlyLineData? lineVectorData = vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) as IReadOnlyLineData;
             if (lineVectorData is null) return;
             
-            document.LineToolOverlayViewModel.Show(lineVectorData.Start, lineVectorData.End);
+            document.LineToolOverlayViewModel.Show(lineVectorData.Start, lineVectorData.End, false);
         }
 
         document.Tools.UseVectorLineTool();
     }
-    
+
+    protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
+    {
+        OnDeselecting();
+        OnSelected();
+    }
+
     public override void OnDeselecting()
     {
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();

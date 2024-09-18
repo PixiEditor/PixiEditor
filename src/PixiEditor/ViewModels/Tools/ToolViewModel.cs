@@ -107,6 +107,11 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
         
         var layer = layers[0];
 
+        if (IsActive)
+        {
+            OnSelectedLayersChanged(layers);
+        }
+
         if (SupportedLayerTypes == null)
         {
             CanBeUsedOnActiveLayer = true;
@@ -134,6 +139,8 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
     public virtual void UseTool(VecD pos) { }
     public virtual void OnSelected() { }
+    
+    protected virtual void OnSelectedLayersChanged(IStructureMemberHandler[] layers) { }
 
     public virtual void OnDeselecting()
     {

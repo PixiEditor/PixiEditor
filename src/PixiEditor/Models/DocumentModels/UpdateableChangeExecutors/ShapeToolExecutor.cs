@@ -192,14 +192,18 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     {
         if (transforming)
             return;
+        
         if (noMovement)
         {
             internals!.ActionAccumulator.AddFinishedActions(EndDrawAction());
             onEnded?.Invoke(this);
             return;
         }
-        transforming = true;
+        
+        
+        document!.TransformHandler.HideTransform();
         document!.TransformHandler.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect), true);
+        transforming = true;
     }
 
     public override void ForceStop()
