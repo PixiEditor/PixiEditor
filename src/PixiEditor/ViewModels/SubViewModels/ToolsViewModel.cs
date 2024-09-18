@@ -373,7 +373,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
         if (ActiveTool is not { CanBeUsedOnActiveLayer: true })
         {
-            Guid? createdLayer = Owner.LayersSubViewModel.NewLayer(ActiveTool.LayerTypeToCreateOnEmptyUse);
+            Guid? createdLayer = Owner.LayersSubViewModel.NewLayer(ActiveTool.LayerTypeToCreateOnEmptyUse, 
+                ActiveTool.DefaultNewLayerName);
             if (createdLayer is not null)
             {
                 Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.SetSelectedMember(createdLayer.Value);

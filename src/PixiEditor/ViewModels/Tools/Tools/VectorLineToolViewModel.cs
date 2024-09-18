@@ -28,6 +28,7 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
 
     public override string Icon => PixiPerfectIcons.Line;
     public override Type[]? SupportedLayerTypes { get; } = [];
+    public string? DefaultNewLayerName { get; } = new LocalizedString("NEW_LINE_LAYER_NAME"); 
 
     [Settings.Inherited]
     public int ToolSize => GetValue<int>();

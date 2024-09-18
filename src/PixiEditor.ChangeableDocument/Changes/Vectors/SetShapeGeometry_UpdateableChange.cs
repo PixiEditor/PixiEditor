@@ -77,7 +77,7 @@ internal class SetShapeGeometry_UpdateableChange : UpdateableChange
         var node = target.FindNode<VectorLayerNode>(TargetId);
         node.ShapeData = originalData;
 
-        AffectedArea affected = default;
+        AffectedArea affected = new AffectedArea();
         
         if (node.ShapeData != null)
         {

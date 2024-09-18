@@ -104,7 +104,8 @@ internal class DocumentStructureHelper
         var selectedMember = doc.SelectedStructureMember;
         
         //put member above the layer
-        INodeHandler parent = doc.StructureHelper.GetFirstForwardNode(selectedMember);
+        INodeHandler parent = selectedMember != null ? doc.StructureHelper.GetFirstForwardNode(selectedMember)
+                : doc.NodeGraphHandler.OutputNode;
         if (parent is null)
             parent = doc.NodeGraphHandler.OutputNode;
 

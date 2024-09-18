@@ -54,6 +54,8 @@ internal interface IToolHandler : IHandler
     /// </summary>
     public Type LayerTypeToCreateOnEmptyUse { get; }
 
+    public virtual string? DefaultNewLayerName => null;
+
     public void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown);
     public void UseTool(VecD pos);
     public void OnSelected();

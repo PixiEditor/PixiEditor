@@ -27,6 +27,7 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
     public override string Icon => PixiPerfectIcons.Square;
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
+    public string? DefaultNewLayerName { get; } = new LocalizedString("NEW_RECTANGLE_LAYER_NAME");
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
