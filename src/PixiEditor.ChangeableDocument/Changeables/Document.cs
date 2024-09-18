@@ -263,7 +263,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     /// <returns>True if the node could be found, otherwise false.</returns>
     public bool TryFindNode<T>(Guid id, out T node) where T : Node
     {
-        node = (T?)NodeGraph.Nodes.FirstOrDefault(x => x.Id == id) ?? default;
+        node = (T?)NodeGraph.Nodes.FirstOrDefault(x => x.Id == id && x is T) ?? default;
         return node != null;
     }
 

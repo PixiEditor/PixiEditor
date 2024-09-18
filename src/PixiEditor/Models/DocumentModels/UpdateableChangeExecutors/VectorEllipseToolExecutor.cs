@@ -20,6 +20,18 @@ internal class VectorEllipseToolExecutor : ShapeToolExecutor<IVectorEllipseToolH
     
     private Matrix3X3 lastMatrix = Matrix3X3.Identity;
 
+    protected override bool InitShapeData(ShapeVectorData data)
+    {
+        if (data is not EllipseVectorData ellipseData)
+            return false;
+        
+        firstCenter = ellipseData.Center;
+        firstRadius = ellipseData.Radius;
+        lastMatrix = ellipseData.TransformationMatrix;
+        
+        return true;
+    }
+
     protected override void DrawShape(VecI curPos, double rotationRad, bool firstDraw)
     {
         RectI rect;

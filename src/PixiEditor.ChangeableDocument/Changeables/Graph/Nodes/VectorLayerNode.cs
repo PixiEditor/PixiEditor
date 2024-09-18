@@ -96,8 +96,15 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         VecI translation = new VecI(
             (int)Math.Max(ShapeData.TransformedAABB.TopLeft.X, 0),
             (int)Math.Max(ShapeData.TransformedAABB.TopLeft.Y, 0));
+        
+        VecI size = tightBoundsSize + translation;
+        
+        if (size.X == 0 || size.Y == 0)
+        {
+            return false;
+        }
 
-        using Texture toRasterizeOn = new(tightBoundsSize + translation);
+        using Texture toRasterizeOn = new(size);
 
         int save = toRasterizeOn.DrawingSurface.Canvas.Save();
 

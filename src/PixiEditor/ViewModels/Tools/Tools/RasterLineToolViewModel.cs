@@ -20,7 +20,7 @@ internal class RasterLineToolViewModel : ShapeTool, ILineToolHandler
     public RasterLineToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
-        Toolbar = ToolbarFactory.Create<RasterLineToolViewModel, BasicToolbar>(this);
+        Toolbar = ToolbarFactory.Create<RasterLineToolViewModel, LineToolbar>(this);
     }
 
     public override string ToolNameLocalizationKey => "LINE_TOOL";

@@ -1,6 +1,7 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Numerics;
@@ -11,6 +12,18 @@ internal class VectorLineToolExecutor : LineExecutor<IVectorLineToolHandler>
 {
     private VecD startPoint;
     private VecD endPoint;
+
+    protected override bool InitShapeData(IReadOnlyLineData? data)
+    {
+        if (data is null)
+            return false;
+
+        startPoint = data.Start;
+        endPoint = data.End;
+
+        return true;
+    }
+
     protected override IAction DrawLine(VecI pos)
     {
         LineVectorData data = new LineVectorData(startPos, pos)

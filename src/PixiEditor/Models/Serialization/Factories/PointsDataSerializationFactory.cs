@@ -5,7 +5,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.Serialization.Factories;
 
-public class PointsDataSerializationFactory : VectorShapeSerializationFactory<PointsVectorData> 
+internal class PointsDataSerializationFactory : VectorShapeSerializationFactory<PointsVectorData> 
 {
     public override string DeserializationId { get; } = "PixiEditor.PointsData";
     protected override void AddSpecificData(ByteBuilder builder, PointsVectorData original)

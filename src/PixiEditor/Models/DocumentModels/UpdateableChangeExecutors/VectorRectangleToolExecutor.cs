@@ -20,6 +20,18 @@ internal class VectorRectangleToolExecutor : ShapeToolExecutor<IVectorRectangleT
 
     private Matrix3X3 lastMatrix = Matrix3X3.Identity;
 
+    protected override bool InitShapeData(ShapeVectorData data)
+    {
+        if (data is not RectangleVectorData rectData)
+            return false;
+        
+        firstCenter = rectData.Center;
+        firstSize = rectData.Size;
+        lastMatrix = rectData.TransformationMatrix;
+        
+        return true;
+    }
+
     protected override void DrawShape(VecI curPos, double rotationRad, bool firstDraw)
     {
         RectI rect;
@@ -55,7 +67,12 @@ internal class VectorRectangleToolExecutor : ShapeToolExecutor<IVectorRectangleT
 
     protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners)
     {
-        RectI rect = (RectI)RectD.FromCenterAndSize(data.Center, data.Size);
+        if (firstCenter == default || firstSize == default)
+        {
+            firstCenter = data.Center;
+            firstSize = data.Size;
+        }
+
         RectD firstRect = RectD.FromCenterAndSize(firstCenter, firstSize);
         Matrix3X3 matrix = OperationHelper.CreateMatrixFromPoints(corners, firstSize);
         matrix = matrix.Concat(Matrix3X3.CreateTranslation(-(float)firstRect.TopLeft.X, -(float)firstRect.TopLeft.Y));

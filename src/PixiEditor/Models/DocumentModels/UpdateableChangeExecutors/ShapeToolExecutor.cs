@@ -1,6 +1,8 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
@@ -38,24 +40,47 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
         IStructureMemberHandler? member = document?.SelectedStructureMember;
         if (colorsVM is null || toolbar is null || member is null)
             return ExecutionState.Error;
-        drawOnMask = member is ILayerHandler layer ? layer.ShouldDrawOnMask : true;
+        drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
         if (drawOnMask && !member.HasMaskBindable)
             return ExecutionState.Error;
         if (!drawOnMask && member is not ILayerHandler)
             return ExecutionState.Error;
 
-        startPos = controller!.LastPixelPosition;
         memberGuid = member.Id;
         
-        OnColorChanged(colorsVM.PrimaryColor, true);
+        if (controller.LeftMousePressed || member is not IVectorLayerHandler)
+        {
+            startPos = controller!.LastPixelPosition;
+            OnColorChanged(colorsVM.PrimaryColor, true);
+            DrawShape(startPos, 0, true);
+        }
+        else
+        {
+            transforming = true;
+            if (member is IVectorLayerHandler)
+            {
+                var node = (VectorLayerNode)internals.Tracker.Document.FindMember(member.Id);
+                if (!InitShapeData(node.ShapeData))
+                {
+                    document.TransformHandler.HideTransform();
+                    return ExecutionState.Error;
+                }
+                
+                toolbar.StrokeColor = node.ShapeData.StrokeColor.ToColor();
+                toolbar.FillColor = node.ShapeData.FillColor.ToColor();
+                toolbar.ToolSize = node.ShapeData.StrokeWidth;
+                toolbar.Fill = node.ShapeData.FillColor != Colors.Transparent;
+            }
+        }
         
-        DrawShape(startPos, 0, true);
+        
         return ExecutionState.Success;
     }
 
     protected abstract void DrawShape(VecI currentPos, double rotationRad, bool firstDraw);
     protected abstract IAction SettingsChangedAction();
     protected abstract IAction TransformMovedAction(ShapeData data, ShapeCorners corners);
+    protected virtual bool InitShapeData(ShapeVectorData data) { return true; }
     protected abstract IAction EndDrawAction();
     protected virtual DocumentTransformMode TransformMode => DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective;
 

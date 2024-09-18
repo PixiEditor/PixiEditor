@@ -1,9 +1,13 @@
 ﻿using Avalonia.Input;
+using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Numerics;
@@ -20,7 +24,7 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
     public VectorLineToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
-        Toolbar = ToolbarFactory.Create<VectorLineToolViewModel, BasicToolbar>(this);
+        Toolbar = ToolbarFactory.Create<VectorLineToolViewModel, LineToolbar>(this);
     }
 
     public override string ToolNameLocalizationKey => "LINE_TOOL";
@@ -28,10 +32,9 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
 
     public override string Icon => PixiPerfectIcons.Line;
     public override Type[]? SupportedLayerTypes { get; } = [];
-    public string? DefaultNewLayerName { get; } = new LocalizedString("NEW_LINE_LAYER_NAME"); 
+    public string? DefaultNewLayerName { get; } = new LocalizedString("NEW_LINE_LAYER_NAME");
 
-    [Settings.Inherited]
-    public int ToolSize => GetValue<int>();
+    [Settings.Inherited] public int ToolSize => GetValue<int>();
 
     public bool Snap { get; private set; }
 
@@ -54,5 +57,25 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
     public override void UseTool(VecD pos)
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorLineTool();
+    }
+
+    public override void OnSelected()
+    {
+        var document = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
+        var layer = document.SelectedStructureMember;
+        if (layer is IVectorLayerHandler vectorLayer)
+        {
+            IReadOnlyLineData? lineVectorData = vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) as IReadOnlyLineData;
+            if (lineVectorData is null) return;
+            
+            document.LineToolOverlayViewModel.Show(lineVectorData.Start, lineVectorData.End);
+        }
+
+        document.Tools.UseVectorLineTool();
+    }
+    
+    public override void OnDeselecting()
+    {
+        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
     }
 }

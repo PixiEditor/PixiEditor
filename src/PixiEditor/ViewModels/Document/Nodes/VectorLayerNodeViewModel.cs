@@ -1,4 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Nodes;
@@ -35,5 +37,10 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
             shouldDrawOnMask = value;
             OnPropertyChanged(nameof(ShouldDrawOnMask));
         }
+    }
+
+    public IReadOnlyShapeVectorData? GetShapeData(KeyFrameTime frameTime)
+    {
+        return ((IReadOnlyVectorNode)Internals.Tracker.Document.FindMember(Id))?.ShapeData;
     }
 }

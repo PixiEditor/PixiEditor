@@ -1,7 +1,9 @@
 ﻿using Avalonia.Input;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Numerics;
@@ -46,5 +48,23 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
     public override void UseTool(VecD pos)
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorRectangleTool();
+    }
+
+    public override void OnSelected()
+    {
+        var layer = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
+        if (layer is IVectorLayerHandler vectorLayer)
+        {
+            ShapeCorners corners = vectorLayer.TransformationCorners;
+            ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument.TransformViewModel.ShowTransform(
+                DocumentTransformMode.Scale_Rotate_Shear_NoPerspective, false, corners, false);
+        }
+        
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorRectangleTool();
+    }
+
+    public override void OnDeselecting()
+    {
+        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
     }
 }

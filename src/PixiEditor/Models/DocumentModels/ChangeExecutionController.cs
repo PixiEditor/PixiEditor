@@ -76,7 +76,7 @@ internal class ChangeExecutionController
     private bool TryStartExecutorInternal(UpdateableChangeExecutor executor)
     {
         executor.Initialize(document, internals, services, this, EndExecutor);
-
+        
         if (executor.StartMode == ExecutorStartMode.OnMouseLeftButtonDown)
         {
             _queuedExecutor = executor;

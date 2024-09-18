@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.Helpers;
@@ -44,7 +45,7 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
     
     public ShapeCorners TransformationCorners => Internals.Tracker.Document.FindMember(Id)
         ?.GetTransformationCorners(Document.AnimationDataViewModel.ActiveFrameBindable) ?? new ShapeCorners();
-
+    
     public void SetMaskIsVisible(bool maskIsVisible)
     {
         this.maskIsVisible = maskIsVisible;

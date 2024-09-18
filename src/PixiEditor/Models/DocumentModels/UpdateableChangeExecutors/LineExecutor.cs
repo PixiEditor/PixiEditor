@@ -1,9 +1,13 @@
 ﻿using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Extensions.CommonApi.Palettes;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using PixiEditor.Numerics;
@@ -15,7 +19,7 @@ internal abstract class LineExecutor<T> : UpdateableChangeExecutor where T : ILi
     public override ExecutorType Type => ExecutorType.ToolLinked;
 
     protected VecI startPos;
-    protected Color StrokeColor => colorsVM!.PrimaryColor;
+    protected Color StrokeColor => toolbar!.StrokeColor.ToColor();
     protected int StrokeWidth => toolViewModel!.ToolSize;
     protected Guid memberGuid;
     protected bool drawOnMask;
@@ -25,12 +29,14 @@ internal abstract class LineExecutor<T> : UpdateableChangeExecutor where T : ILi
     private bool transforming = false;
     private T? toolViewModel;
     private IColorsHandler? colorsVM;
+    private ILineToolbar? toolbar;
 
     public override ExecutionState Start()
     {
         colorsVM = GetHandler<IColorsHandler>();
         toolViewModel = GetHandler<T>();
         IStructureMemberHandler? member = document?.SelectedStructureMember;
+        toolbar = (ILineToolbar?)toolViewModel?.Toolbar;
         if (colorsVM is null || toolViewModel is null || member is null)
             return ExecutionState.Error;
 
@@ -40,12 +46,38 @@ internal abstract class LineExecutor<T> : UpdateableChangeExecutor where T : ILi
         if (!drawOnMask && member is not ILayerHandler)
             return ExecutionState.Error;
 
-        startPos = controller!.LastPixelPosition;
         memberGuid = member.Id;
+
+        if (controller.LeftMousePressed || member is not IVectorLayerHandler)
+        {
+            startPos = controller!.LastPixelPosition;
+            OnColorChanged(colorsVM.PrimaryColor, true);
+        }
+        else
+        {
+            transforming = true;
+            var node = (VectorLayerNode)internals.Tracker.Document.FindMember(member.Id);
+            IReadOnlyLineData data = node.ShapeData as IReadOnlyLineData;
+            
+            if(data is null)
+            {
+                document.TransformHandler.HideTransform();
+                return ExecutionState.Error;
+            }
+
+            toolbar.StrokeColor = data.StrokeColor.ToColor();
+            
+            if (!InitShapeData(node.ShapeData as IReadOnlyLineData))
+            {
+                document.TransformHandler.HideTransform();
+                return ExecutionState.Error;
+            }
+        }
 
         return ExecutionState.Success;
     }
 
+    protected abstract bool InitShapeData(IReadOnlyLineData? data);
     protected abstract IAction DrawLine(VecI pos);
     protected abstract IAction TransformOverlayMoved(VecD start, VecD end);
     protected abstract IAction SettingsChange();
@@ -94,6 +126,7 @@ internal abstract class LineExecutor<T> : UpdateableChangeExecutor where T : ILi
         if (!primary)
             return;
 
+        toolbar!.StrokeColor = color.ToColor();
         var colorChangedAction = SettingsChange();
         internals!.ActionAccumulator.AddActions(colorChangedAction);
     }
