@@ -1,4 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
+using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.DrawingApi.Core.Surfaces.Vector;
@@ -44,16 +46,20 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         ShapeData data = new ShapeData(drawRect.Center, drawRect.Size, 0, StrokeWidth, StrokeColor, FillColor);
         img.EnqueueDrawRectangle(data);
         img.CommitChanges();
-
-        VecI topLeft = (VecI)(Center - Size / 2); 
-
+        
+        VecI topLeft = (VecI)((Center - Size / 2) * resolution.Multiplier());
         RectI region = new(VecI.Zero, (VecI)GeometryAABB.Size);
 
         int num = 0;
         if (applyTransform)
         {
             num = drawingSurface.Canvas.Save();
-            drawingSurface.Canvas.SetMatrix(TransformationMatrix);
+            Matrix3X3 final = TransformationMatrix with
+            {
+                TransX = TransformationMatrix.TransX * (float)resolution.Multiplier(),
+                TransY = TransformationMatrix.TransY * (float)resolution.Multiplier()
+            };
+            drawingSurface.Canvas.SetMatrix(final);
         }
 
         img.DrawMostUpToDateRegionOn(region, resolution, drawingSurface, topLeft, paint);

@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
@@ -63,7 +64,7 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
 
         img.CommitChanges();
         
-        VecI topLeft = (VecI)adjustedAABB.TopLeft; 
+        VecI topLeft = (VecI)(adjustedAABB.TopLeft * resolution.Multiplier()); 
         
         RectI region = new(VecI.Zero, imageSize);
         
@@ -72,7 +73,12 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
         if (applyTransform)
         {
             num = drawingSurface.Canvas.Save();
-            drawingSurface.Canvas.SetMatrix(TransformationMatrix);
+            Matrix3X3 final = TransformationMatrix with
+            {
+                TransX = TransformationMatrix.TransX * (float)resolution.Multiplier(),
+                TransY = TransformationMatrix.TransY * (float)resolution.Multiplier()
+            };
+            drawingSurface.Canvas.SetMatrix(final);
         }
 
         img.DrawMostUpToDateRegionOn(region, resolution, drawingSurface, topLeft, paint);

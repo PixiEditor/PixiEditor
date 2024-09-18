@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.DrawingApi.Core.Surfaces.Vector;
@@ -49,6 +50,7 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
         img.CommitChanges();
 
         VecI topLeft = new VecI((int)Math.Round(Center.X - Radius.X), (int)Math.Round(Center.Y - Radius.Y)) - shift;
+        topLeft = (VecI)(topLeft * resolution.Multiplier());
         
         RectI region = new(VecI.Zero, (VecI)GeometryAABB.Size);
 
@@ -56,7 +58,12 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
         if (applyTransform)
         {
             num = drawingSurface.Canvas.Save();
-            drawingSurface.Canvas.SetMatrix(TransformationMatrix);
+            Matrix3X3 final = TransformationMatrix with
+            {
+                TransX = TransformationMatrix.TransX * (float)resolution.Multiplier(),
+                TransY = TransformationMatrix.TransY * (float)resolution.Multiplier()
+            };
+            drawingSurface.Canvas.SetMatrix(final);
         }
 
         img.DrawMostUpToDateRegionOn(region, resolution, drawingSurface, topLeft, paint);
