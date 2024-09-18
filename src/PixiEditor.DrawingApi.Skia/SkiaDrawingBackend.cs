@@ -29,7 +29,7 @@ namespace PixiEditor.DrawingApi.Skia
         
         public bool IsHardwareAccelerated => GraphicsContext != null;
         
-        public IRenderingServer RenderingServer { get; set; }
+        public IRenderingServer RenderingDispatcher { get; set; }
 
         public IColorImplementation ColorImplementation { get; }
         public IImageImplementation ImageImplementation { get; }

@@ -208,7 +208,7 @@ internal partial class DocumentViewModel
         if (tightBounds == null || tightBounds.Value.IsZeroArea) return;
 
         Image toSave = null;
-        DrawingBackendApi.Current.RenderingServer.Invoke(() =>
+        DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
         {
             using Texture rendered = Renderer.RenderLayer(imageNode.Id, ChunkResolution.Full, atTime.Frame);
 

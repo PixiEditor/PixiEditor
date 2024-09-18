@@ -504,7 +504,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             Surface finalSurface = new Surface(SizeBindable);
             VecI sizeInChunks = (VecI)((VecD)SizeBindable / ChunkyImage.FullChunkSize).Ceiling();
-            DrawingBackendApi.Current.RenderingServer.Invoke(() =>
+            DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
             {
                 for (int i = 0; i < sizeInChunks.X; i++)
                 {

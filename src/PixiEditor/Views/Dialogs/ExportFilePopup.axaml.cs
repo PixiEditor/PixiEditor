@@ -301,7 +301,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
                             int x = index % clampedColumns;
                             int y = index / clampedColumns;
                             var resized = frame.ResizeNearestNeighbor(new VecI(singleFrameSize.X, singleFrameSize.Y));
-                            DrawingBackendApi.Current.RenderingServer.Invoke(() =>
+                            DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
                             {
                                 if (ExportPreview.IsDisposed) return;
                                 ExportPreview!.DrawingSurface.Canvas.DrawSurface(resized.DrawingSurface,
