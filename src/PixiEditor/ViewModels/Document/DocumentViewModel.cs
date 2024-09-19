@@ -200,6 +200,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public VectorPath SelectionPathBindable => selectionPath;
     public ObservableCollection<PaletteColor> Swatches { get; set; } = new();
     public ObservableRangeCollection<PaletteColor> Palette { get; set; } = new();
+    public SnappingViewModel SnappingViewModel { get; }
     public DocumentTransformViewModel TransformViewModel { get; }
     public ReferenceLayerViewModel ReferenceLayerViewModel { get; }
     public LineToolOverlayViewModel LineToolOverlayViewModel { get; }
@@ -236,6 +237,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         LineToolOverlayViewModel = new();
         LineToolOverlayViewModel.LineMoved += (_, args) =>
             Internals.ChangeController.LineOverlayMovedInlet(args.Item1, args.Item2);
+        
+        SnappingViewModel = new();
+        SnappingViewModel.AddFromDocumentSize(SizeBindable);
+        SizeChanged += (_, args) =>
+        {
+            SnappingViewModel.AddFromDocumentSize(args.NewSize);
+        };
 
         VecI previewSize = StructureMemberViewModel.CalculatePreviewSize(SizeBindable);
         PreviewSurface = new Texture(new VecI(previewSize.X, previewSize.Y));

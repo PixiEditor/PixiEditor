@@ -103,6 +103,13 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         }
     }
     
+    private bool enableSnapping = true;
+    public bool EnableSnapping
+    {
+        get => enableSnapping;
+        set => SetProperty(ref enableSnapping, value);
+    }
+    
     private ExecutionTrigger<ShapeCorners> requestedCornersExecutor;
     public ExecutionTrigger<ShapeCorners> RequestCornersExecutor
     {

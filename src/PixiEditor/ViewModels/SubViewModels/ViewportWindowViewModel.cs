@@ -6,6 +6,7 @@ using PixiDocks.Core.Docking;
 using PixiDocks.Core.Docking.Events;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers.UI;
+using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Numerics;
 using PixiEditor.ViewModels.Dock;

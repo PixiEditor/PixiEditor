@@ -12,6 +12,7 @@ using PixiEditor.Helpers.Extensions;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Helpers.UI;
+using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Numerics;
 using PixiEditor.Views.Overlays.Handles;
 using Point = Avalonia.Point;
@@ -108,6 +109,24 @@ internal class TransformOverlay : Overlay
     {
         get => GetValue(ActionCompletedProperty);
         set => SetValue(ActionCompletedProperty, value);
+    }
+
+    public static readonly StyledProperty<bool> SnappingEnabledProperty = AvaloniaProperty.Register<TransformOverlay, bool>(
+        nameof(SnappingEnabled), defaultValue: true);
+
+    public bool SnappingEnabled
+    {
+        get => GetValue(SnappingEnabledProperty);
+        set => SetValue(SnappingEnabledProperty, value);
+    }
+
+    public static readonly StyledProperty<SnappingController> SnappingControllerProperty = AvaloniaProperty.Register<TransformOverlay, SnappingController>(
+        nameof(SnappingController));
+
+    public SnappingController SnappingController
+    {
+        get => GetValue(SnappingControllerProperty);
+        set => SetValue(SnappingControllerProperty, value);
     }
 
     static TransformOverlay()
@@ -459,15 +478,71 @@ internal class TransformOverlay : Overlay
         if (Corners.IsSnappedToPixels)
             delta = delta.Round();
 
-        Corners = new ShapeCorners()
+        ShapeCorners rawCorners = new ShapeCorners()
         {
             BottomLeft = cornersOnStartMove.BottomLeft + delta,
             BottomRight = cornersOnStartMove.BottomRight + delta,
             TopLeft = cornersOnStartMove.TopLeft + delta,
             TopRight = cornersOnStartMove.TopRight + delta,
         };
+        
+        VecD snapDelta = TrySnapCorners(rawCorners);
+        
+        Corners = new ShapeCorners()
+        {
+            BottomLeft = cornersOnStartMove.BottomLeft + delta + snapDelta,
+            BottomRight = cornersOnStartMove.BottomRight + delta + snapDelta,
+            TopLeft = cornersOnStartMove.TopLeft + delta + snapDelta,
+            TopRight = cornersOnStartMove.TopRight + delta + snapDelta,
+        };
 
-        InternalState = InternalState with { Origin = originOnStartMove + delta };
+        InternalState = InternalState with { Origin = originOnStartMove + delta + snapDelta };
+    }
+
+    private VecD TrySnapCorners(ShapeCorners rawCorners)
+    {
+        if (!SnappingEnabled || SnappingController is null)
+        {
+            return VecD.Zero;
+        }
+        
+        VecD[] pointsToTest = new VecD[]
+        {
+            rawCorners.RectCenter,
+            rawCorners.TopLeft, 
+            rawCorners.TopRight, 
+            rawCorners.BottomLeft, 
+            rawCorners.BottomRight
+        };
+        
+        VecD snapDelta = new();
+        bool hasXSnap = false;
+        bool hasYSnap = false;
+        
+        foreach (var point in pointsToTest)
+        {
+            double? snapX = SnappingController.SnapToHorizontal(point.X);
+            double? snapY = SnappingController.SnapToVertical(point.Y);
+            
+            if (snapX is not null && !hasXSnap)
+            {
+                snapDelta += new VecD(snapX.Value - point.X, 0);
+                hasXSnap = true;
+            }
+            
+            if (snapY is not null && !hasYSnap)
+            {
+                snapDelta += new VecD(0, snapY.Value - point.Y);
+                hasYSnap = true;
+            }
+            
+            if (hasXSnap && hasYSnap)
+            {
+                break;
+            }
+        }
+        
+        return snapDelta;
     }
 
     private Cursor HandleRotate(VecD pos)

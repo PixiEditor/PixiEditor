@@ -125,6 +125,8 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         remove => RemoveHandler(ViewportMovedEvent, value);
     }
 
+    public event Action<double> ScaleChanged;
+
     public VecD CanvasPos => ToScreenSpace(VecD.Zero);
     public double CanvasX => ToScreenSpace(VecD.Zero).X;
     public double CanvasY => ToScreenSpace(VecD.Zero).Y;
@@ -293,6 +295,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
     {
         VecD realDim = new VecD(Bounds.Width, Bounds.Height);
         RealDimensions = realDim;
+        ScaleChanged?.Invoke(Scale);
         RaiseEvent(new ViewportRoutedEventArgs(
             ViewportMovedEvent,
             Center,

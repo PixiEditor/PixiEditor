@@ -104,6 +104,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         set => SetValue(ChannelsProperty, value);
     }
 
+
     private Bitmap? checkerBitmap;
 
     private Overlay? capturedOverlay;

@@ -218,6 +218,13 @@ internal class ViewportOverlays
             Path = "Document.TransformViewModel.TransformActive",
             Mode = BindingMode.OneWay
         };
+        
+        Binding snappingBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.SnappingViewModel.SnappingController",
+            Mode = BindingMode.OneWay
+        };
 
         Binding actionCompletedBinding = new()
         {
@@ -290,6 +297,7 @@ internal class ViewportOverlays
 
         transformOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         transformOverlay.Bind(TransformOverlay.ActionCompletedProperty, actionCompletedBinding);
+        transformOverlay.Bind(TransformOverlay.SnappingControllerProperty, snappingBinding);
         transformOverlay.Bind(TransformOverlay.CornersProperty, cornersBinding);
         transformOverlay.Bind(TransformOverlay.RequestCornersExecutorProperty, requestedCornersBinding);
         transformOverlay.Bind(TransformOverlay.CornerFreedomProperty, cornerFreedomBinding);

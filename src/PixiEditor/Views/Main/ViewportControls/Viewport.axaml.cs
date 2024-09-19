@@ -93,6 +93,15 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     public static readonly StyledProperty<bool> IsOverCanvasProperty = AvaloniaProperty.Register<Viewport, bool>(
         "IsOverCanvas");
 
+    public static readonly StyledProperty<SnappingController> SnappingControllerProperty = AvaloniaProperty.Register<Viewport, SnappingController>(
+        nameof(SnappingController));
+
+    public SnappingController SnappingController
+    {
+        get => GetValue(SnappingControllerProperty);
+        set => SetValue(SnappingControllerProperty, value);
+    }
+
     public bool IsOverCanvas
     {
         get => GetValue(IsOverCanvasProperty);
@@ -317,6 +326,12 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         
         Scene.PointerExited += (sender, args) => IsOverCanvas = false;
         Scene.PointerEntered += (sender, args) => IsOverCanvas = true;
+        Scene.ScaleChanged += OnScaleChanged;
+    }
+
+    private void OnScaleChanged(double newScale)
+    {
+        SnappingController.SnapDistance = SnappingController.DefaultSnapDistance / newScale;
     }
 
     private void OnAttachedToVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
