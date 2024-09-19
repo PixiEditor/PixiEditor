@@ -25,6 +25,7 @@ internal class ViewportOverlays
     private LineToolOverlay lineToolOverlay;
     private TransformOverlay transformOverlay;
     private ReferenceLayerOverlay referenceLayerOverlay;
+    private SnappingOverlay snappingOverlay;
 
     public void Init(Viewport viewport)
     {
@@ -46,6 +47,10 @@ internal class ViewportOverlays
 
         referenceLayerOverlay = new ReferenceLayerOverlay();
         BindReferenceLayerOverlay();
+        
+        snappingOverlay = new SnappingOverlay();
+        BindSnappingOverlay();
+        
 
         Viewport.ActiveOverlays.Add(gridLinesOverlay);
         Viewport.ActiveOverlays.Add(referenceLayerOverlay);
@@ -53,6 +58,7 @@ internal class ViewportOverlays
         Viewport.ActiveOverlays.Add(symmetryOverlay);
         Viewport.ActiveOverlays.Add(lineToolOverlay);
         Viewport.ActiveOverlays.Add(transformOverlay);
+        Viewport.ActiveOverlays.Add(snappingOverlay);
     }
 
     private void BindReferenceLayerOverlay()
@@ -307,5 +313,17 @@ internal class ViewportOverlays
         transformOverlay.Bind(TransformOverlay.SnapToAnglesProperty, snapToAnglesBinding);
         transformOverlay.Bind(TransformOverlay.InternalStateProperty, internalStateBinding);
         transformOverlay.Bind(TransformOverlay.ZoomboxAngleProperty, zoomboxAngleBinding);
+    }
+
+    private void BindSnappingOverlay()
+    {
+        Binding snappingControllerBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.SnappingViewModel.SnappingController",
+            Mode = BindingMode.OneWay
+        };
+        
+        snappingOverlay.Bind(SnappingOverlay.SnappingControllerProperty, snappingControllerBinding);
     }
 }

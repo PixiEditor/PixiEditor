@@ -31,7 +31,8 @@ internal class TransformOverlay : Overlay
     }
 
     public static readonly StyledProperty<TransformSideFreedom> SideFreedomProperty =
-        AvaloniaProperty.Register<TransformOverlay, TransformSideFreedom>(nameof(SideFreedom), defaultValue: TransformSideFreedom.Locked);
+        AvaloniaProperty.Register<TransformOverlay, TransformSideFreedom>(nameof(SideFreedom),
+            defaultValue: TransformSideFreedom.Locked);
 
     public TransformSideFreedom SideFreedom
     {
@@ -40,7 +41,8 @@ internal class TransformOverlay : Overlay
     }
 
     public static readonly StyledProperty<TransformCornerFreedom> CornerFreedomProperty =
-        AvaloniaProperty.Register<TransformOverlay, TransformCornerFreedom>(nameof(CornerFreedom), defaultValue: TransformCornerFreedom.Locked);
+        AvaloniaProperty.Register<TransformOverlay, TransformCornerFreedom>(nameof(CornerFreedom),
+            defaultValue: TransformCornerFreedom.Locked);
 
     public TransformCornerFreedom CornerFreedom
     {
@@ -67,7 +69,8 @@ internal class TransformOverlay : Overlay
     }
 
     public static readonly StyledProperty<TransformState> InternalStateProperty =
-        AvaloniaProperty.Register<TransformOverlay, TransformState>(nameof(InternalState), defaultValue: default(TransformState));
+        AvaloniaProperty.Register<TransformOverlay, TransformState>(nameof(InternalState),
+            defaultValue: default(TransformState));
 
     public TransformState InternalState
     {
@@ -93,8 +96,9 @@ internal class TransformOverlay : Overlay
         set => SetValue(CoverWholeScreenProperty, value);
     }
 
-    public static readonly StyledProperty<ExecutionTrigger<ShapeCorners>> RequestCornersExecutorProperty = AvaloniaProperty.Register<TransformOverlay, ExecutionTrigger<ShapeCorners>>(
-        nameof(RequestCornersExecutor));
+    public static readonly StyledProperty<ExecutionTrigger<ShapeCorners>> RequestCornersExecutorProperty =
+        AvaloniaProperty.Register<TransformOverlay, ExecutionTrigger<ShapeCorners>>(
+            nameof(RequestCornersExecutor));
 
     public ExecutionTrigger<ShapeCorners> RequestCornersExecutor
     {
@@ -111,8 +115,9 @@ internal class TransformOverlay : Overlay
         set => SetValue(ActionCompletedProperty, value);
     }
 
-    public static readonly StyledProperty<bool> SnappingEnabledProperty = AvaloniaProperty.Register<TransformOverlay, bool>(
-        nameof(SnappingEnabled), defaultValue: true);
+    public static readonly StyledProperty<bool> SnappingEnabledProperty =
+        AvaloniaProperty.Register<TransformOverlay, bool>(
+            nameof(SnappingEnabled), defaultValue: true);
 
     public bool SnappingEnabled
     {
@@ -120,8 +125,9 @@ internal class TransformOverlay : Overlay
         set => SetValue(SnappingEnabledProperty, value);
     }
 
-    public static readonly StyledProperty<SnappingController> SnappingControllerProperty = AvaloniaProperty.Register<TransformOverlay, SnappingController>(
-        nameof(SnappingController));
+    public static readonly StyledProperty<SnappingController> SnappingControllerProperty =
+        AvaloniaProperty.Register<TransformOverlay, SnappingController>(
+            nameof(SnappingController));
 
     public SnappingController SnappingController
     {
@@ -131,7 +137,9 @@ internal class TransformOverlay : Overlay
 
     static TransformOverlay()
     {
-        AffectsRender<TransformOverlay>(CornersProperty, ZoomScaleProperty, SideFreedomProperty, CornerFreedomProperty, LockRotationProperty, SnapToAnglesProperty, InternalStateProperty, ZoomboxAngleProperty, CoverWholeScreenProperty);
+        AffectsRender<TransformOverlay>(CornersProperty, ZoomScaleProperty, SideFreedomProperty, CornerFreedomProperty,
+            LockRotationProperty, SnapToAnglesProperty, InternalStateProperty, ZoomboxAngleProperty,
+            CoverWholeScreenProperty);
         RequestCornersExecutorProperty.Changed.Subscribe(OnCornersExecutorChanged);
     }
 
@@ -195,7 +203,9 @@ internal class TransformOverlay : Overlay
 
         originHandle = new(this)
         {
-            HandlePen = blackFreqDashedPen, SecondaryHandlePen = whiteFreqDashedPen, HandleBrush = Brushes.Transparent
+            HandlePen = blackFreqDashedPen,
+            SecondaryHandlePen = whiteFreqDashedPen,
+            HandleBrush = Brushes.Transparent
         };
 
         AddHandle(originHandle);
@@ -248,7 +258,8 @@ internal class TransformOverlay : Overlay
     {
         if (CoverWholeScreen)
         {
-            context.DrawRectangle(Brushes.Transparent, null, new Rect(new Point(-size.X * 50, -size.Y * 50), new Size(size.X * 101, size.Y * 101)));
+            context.DrawRectangle(Brushes.Transparent, null,
+                new Rect(new Point(-size.X * 50, -size.Y * 50), new Size(size.X * 101, size.Y * 101)));
             return;
         }
 
@@ -295,7 +306,7 @@ internal class TransformOverlay : Overlay
         context.DrawLine(whiteDashedPen, TransformHelper.ToPoint(bottomRight), TransformHelper.ToPoint(bottomLeft));
         context.DrawLine(blackDashedPen, TransformHelper.ToPoint(bottomRight), TransformHelper.ToPoint(topRight));
         context.DrawLine(whiteDashedPen, TransformHelper.ToPoint(bottomRight), TransformHelper.ToPoint(topRight));
-        
+
         // corner anchors
 
         centerHandle.Position = VecD.Zero;
@@ -360,7 +371,7 @@ internal class TransformOverlay : Overlay
         if (args.PointerButton != MouseButton.Left)
             return;
 
-        if(Handles.Any(x => x.IsWithinHandle(x.Position, args.Point, ZoomScale))) return;
+        if (Handles.Any(x => x.IsWithinHandle(x.Position, args.Point, ZoomScale))) return;
 
         if (!CanRotate(args.Point))
         {
@@ -378,7 +389,7 @@ internal class TransformOverlay : Overlay
         {
             return;
         }
-        
+
         args.Pointer.Capture(this);
         args.Handled = true;
     }
@@ -407,7 +418,8 @@ internal class TransformOverlay : Overlay
             finalCursor = new Cursor(StandardCursorType.None);
         }
 
-        Anchor? anchor = TransformHelper.GetAnchorInPosition(pos, Corners, InternalState.Origin, ZoomScale, topLeftHandle.Size);
+        Anchor? anchor =
+            TransformHelper.GetAnchorInPosition(pos, Corners, InternalState.Origin, ZoomScale, topLeftHandle.Size);
 
         if (isRotating)
         {
@@ -461,6 +473,9 @@ internal class TransformOverlay : Overlay
 
         if (ActionCompleted is not null && ActionCompleted.CanExecute(null))
             ActionCompleted.Execute(null);
+        
+        SnappingController.HighlightedXAxis = string.Empty;
+        SnappingController.HighlightedYAxis = string.Empty;
     }
 
     private void StartMoving(VecD position)
@@ -485,9 +500,14 @@ internal class TransformOverlay : Overlay
             TopLeft = cornersOnStartMove.TopLeft + delta,
             TopRight = cornersOnStartMove.TopRight + delta,
         };
-        
-        VecD snapDelta = TrySnapCorners(rawCorners);
-        
+
+        ((string, string), VecD) snapDeltaResult = TrySnapCorners(rawCorners);
+
+        VecD snapDelta = snapDeltaResult.Item2;
+
+        SnappingController.HighlightedXAxis = snapDeltaResult.Item1.Item1;
+        SnappingController.HighlightedYAxis = snapDeltaResult.Item1.Item2;
+
         Corners = new ShapeCorners()
         {
             BottomLeft = cornersOnStartMove.BottomLeft + delta + snapDelta,
@@ -499,50 +519,52 @@ internal class TransformOverlay : Overlay
         InternalState = InternalState with { Origin = originOnStartMove + delta + snapDelta };
     }
 
-    private VecD TrySnapCorners(ShapeCorners rawCorners)
+    private ((string, string), VecD) TrySnapCorners(ShapeCorners rawCorners)
     {
         if (!SnappingEnabled || SnappingController is null)
         {
-            return VecD.Zero;
+            return ((string.Empty, string.Empty), VecD.Zero);
         }
-        
+
         VecD[] pointsToTest = new VecD[]
         {
-            rawCorners.RectCenter,
-            rawCorners.TopLeft, 
-            rawCorners.TopRight, 
-            rawCorners.BottomLeft, 
+            rawCorners.RectCenter, rawCorners.TopLeft, rawCorners.TopRight, rawCorners.BottomLeft,
             rawCorners.BottomRight
         };
-        
+
         VecD snapDelta = new();
         bool hasXSnap = false;
         bool hasYSnap = false;
-        
+
+        string snapAxisX = string.Empty;
+        string snapAxisY = string.Empty;
+
         foreach (var point in pointsToTest)
         {
-            double? snapX = SnappingController.SnapToHorizontal(point.X);
-            double? snapY = SnappingController.SnapToVertical(point.Y);
-            
+            double? snapX = SnappingController.SnapToHorizontal(point.X, out string newSnapAxisX);
+            double? snapY = SnappingController.SnapToVertical(point.Y, out string newSnapAxisY);
+
             if (snapX is not null && !hasXSnap)
             {
                 snapDelta += new VecD(snapX.Value - point.X, 0);
+                snapAxisX = newSnapAxisX;
                 hasXSnap = true;
             }
-            
+
             if (snapY is not null && !hasYSnap)
             {
                 snapDelta += new VecD(0, snapY.Value - point.Y);
+                snapAxisY = newSnapAxisY;
                 hasYSnap = true;
             }
-            
+
             if (hasXSnap && hasYSnap)
             {
                 break;
             }
         }
-        
-        return snapDelta;
+
+        return ((snapAxisX, snapAxisY), snapDelta);
     }
 
     private Cursor HandleRotate(VecD pos)
@@ -554,7 +576,8 @@ internal class TransformOverlay : Overlay
             angle = TransformHelper.FindSnappingAngle(cornersOnStartRotate, angle);
         InternalState = InternalState with
         {
-            ProportionalAngle1 = propAngle1OnStartRotate + angle, ProportionalAngle2 = propAngle2OnStartRotate + angle,
+            ProportionalAngle1 = propAngle1OnStartRotate + angle,
+            ProportionalAngle2 = propAngle2OnStartRotate + angle,
         };
 
         Corners = TransformUpdateHelper.UpdateShapeFromRotation(cornersOnStartRotate, InternalState.Origin, angle);
@@ -564,7 +587,8 @@ internal class TransformOverlay : Overlay
 
     private bool CanRotate(VecD mousePos)
     {
-        return !Corners.IsPointInside(mousePos) && Handles.All(x => !x.IsWithinHandle(x.Position, mousePos, ZoomScale)) && TestHit(mousePos);
+        return !Corners.IsPointInside(mousePos) &&
+               Handles.All(x => !x.IsWithinHandle(x.Position, mousePos, ZoomScale)) && TestHit(mousePos);
     }
 
     private bool UpdateRotationCursor(VecD mousePos)
@@ -596,26 +620,40 @@ internal class TransformOverlay : Overlay
 
         if (TransformHelper.IsCorner((Anchor)capturedAnchor))
         {
-            VecD targetPos = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, (Anchor)capturedAnchor) + pos - mousePosOnStartAnchorDrag;
+            VecD targetPos = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, (Anchor)capturedAnchor) + pos -
+                             mousePosOnStartAnchorDrag;
             ShapeCorners? newCorners = TransformUpdateHelper.UpdateShapeFromCorner
-                ((Anchor)capturedAnchor, CornerFreedom, InternalState.ProportionalAngle1, InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos);
+            ((Anchor)capturedAnchor, CornerFreedom, InternalState.ProportionalAngle1,
+                InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos);
             if (newCorners is not null)
             {
-                bool shouldSnap = (CornerFreedom is TransformCornerFreedom.ScaleProportionally or TransformCornerFreedom.Scale) && Corners.IsSnappedToPixels;
-                Corners = shouldSnap ? TransformHelper.SnapToPixels((ShapeCorners)newCorners) : (ShapeCorners)newCorners;
+                bool shouldSnap =
+                    (CornerFreedom is TransformCornerFreedom.ScaleProportionally or TransformCornerFreedom.Scale) &&
+                    Corners.IsSnappedToPixels;
+                Corners = shouldSnap
+                    ? TransformHelper.SnapToPixels((ShapeCorners)newCorners)
+                    : (ShapeCorners)newCorners;
             }
+
             UpdateOriginPos();
         }
         else if (TransformHelper.IsSide((Anchor)capturedAnchor))
         {
-            VecD targetPos = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, (Anchor)capturedAnchor) + pos - mousePosOnStartAnchorDrag;
+            VecD targetPos = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, (Anchor)capturedAnchor) + pos -
+                             mousePosOnStartAnchorDrag;
             ShapeCorners? newCorners = TransformUpdateHelper.UpdateShapeFromSide
-                ((Anchor)capturedAnchor, SideFreedom, InternalState.ProportionalAngle1, InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos);
+            ((Anchor)capturedAnchor, SideFreedom, InternalState.ProportionalAngle1,
+                InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos);
             if (newCorners is not null)
             {
-                bool shouldSnap = (SideFreedom is TransformSideFreedom.ScaleProportionally or TransformSideFreedom.Stretch) && Corners.IsSnappedToPixels;
-                Corners = shouldSnap ? TransformHelper.SnapToPixels((ShapeCorners)newCorners) : (ShapeCorners)newCorners;
+                bool shouldSnap =
+                    (SideFreedom is TransformSideFreedom.ScaleProportionally or TransformSideFreedom.Stretch) &&
+                    Corners.IsSnappedToPixels;
+                Corners = shouldSnap
+                    ? TransformHelper.SnapToPixels((ShapeCorners)newCorners)
+                    : (ShapeCorners)newCorners;
             }
+
             UpdateOriginPos();
         }
         else if (capturedAnchor == Anchor.Origin)
@@ -665,7 +703,7 @@ internal class TransformOverlay : Overlay
     {
         capturedAnchor = null;
 
-        if(source == originHandle)
+        if (source == originHandle)
         {
             snapHandleOfOrigin = GetSnapHandleOfOrigin();
             InternalState = InternalState with { OriginWasManuallyDragged = snapHandleOfOrigin is null };
@@ -695,7 +733,7 @@ internal class TransformOverlay : Overlay
     {
         isMoving = false;
         isRotating = false;
-        Corners = corners; 
+        Corners = corners;
         InternalState = new()
         {
             ProportionalAngle1 = (Corners.BottomRight - Corners.TopLeft).Angle,
@@ -704,7 +742,7 @@ internal class TransformOverlay : Overlay
             Origin = TransformHelper.OriginFromCorners(Corners),
         };
     }
-    
+
     private static void OnCornersExecutorChanged(AvaloniaPropertyChangedEventArgs<ExecutionTrigger<ShapeCorners>> args)
     {
         TransformOverlay overlay = (TransformOverlay)args.Sender;

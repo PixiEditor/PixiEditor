@@ -80,6 +80,9 @@
             <Color x:Key="NumbersCategoryBackgroundColor">#666666</Color>
             <Color x:Key="ColorCategoryBackgroundColor">#3B665D</Color>
             <Color x:Key="AnimationCategoryBackgroundColor">#4D4466</Color>
+            
+            <Color x:Key="HorizontalSnapAxisColor">#B00022</Color>
+            <Color x:Key="VerticalSnapAxisColor">#5fad65</Color>
 
             <system:Double x:Key="ThemeDisabledOpacity">0.4</system:Double>
 
@@ -163,6 +166,9 @@
             <SolidColorBrush x:Key="ColorCategoryBackgroundBrush" Color="{StaticResource ColorCategoryBackgroundColor}" />
             <SolidColorBrush x:Key="AnimationCategoryBackgroundBrush" Color="{StaticResource AnimationCategoryBackgroundColor}" />
 
+            <SolidColorBrush x:Key="HorizontalSnapAxisBrush" Color="{StaticResource HorizontalSnapAxisColor}"/>
+            <SolidColorBrush x:Key="VerticalSnapAxisBrush" Color="{StaticResource VerticalSnapAxisColor}"/>
+            
             <CornerRadius x:Key="ControlCornerRadius">5</CornerRadius>
             <CornerRadius x:Key="ControlCornerRadiusTop">5, 5, 0, 0</CornerRadius>
             <system:Double x:Key="ControlCornerRadiusValue">5</system:Double>
