@@ -188,6 +188,13 @@ internal class ViewportOverlays
             Path = "Document.LineToolOverlayViewModel.IsEnabled",
             Mode = BindingMode.OneWay
         };
+        
+        Binding snappingBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.SnappingViewModel.SnappingController",
+            Mode = BindingMode.OneWay
+        };
 
         Binding actionCompletedBinding = new()
         {
@@ -211,6 +218,7 @@ internal class ViewportOverlays
         };
 
         lineToolOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
+        lineToolOverlay.Bind(LineToolOverlay.SnappingControllerProperty, snappingBinding);
         lineToolOverlay.Bind(LineToolOverlay.ActionCompletedProperty, actionCompletedBinding);
         lineToolOverlay.Bind(LineToolOverlay.LineStartProperty, lineStartBinding);
         lineToolOverlay.Bind(LineToolOverlay.LineEndProperty, lineEndBinding);

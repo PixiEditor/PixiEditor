@@ -40,6 +40,7 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
 using PixiEditor.Models.Structures;
@@ -201,6 +202,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public ObservableCollection<PaletteColor> Swatches { get; set; } = new();
     public ObservableRangeCollection<PaletteColor> Palette { get; set; } = new();
     public SnappingViewModel SnappingViewModel { get; }
+    ISnappingHandler IDocument.SnappingHandler => SnappingViewModel;
     public DocumentTransformViewModel TransformViewModel { get; }
     public ReferenceLayerViewModel ReferenceLayerViewModel { get; }
     public LineToolOverlayViewModel LineToolOverlayViewModel { get; }
@@ -221,7 +223,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         var serviceProvider = ViewModelMain.Current.Services;
         Internals = new DocumentInternalParts(this, serviceProvider);
         Internals.ChangeController.ToolSessionFinished += () => ToolSessionFinished?.Invoke();
-        
+
         Tools = new DocumentToolsModule(this, Internals);
         StructureHelper = new DocumentStructureModule(this);
         EventInlet = new DocumentEventsModule(this, Internals);
@@ -237,12 +239,25 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         LineToolOverlayViewModel = new();
         LineToolOverlayViewModel.LineMoved += (_, args) =>
             Internals.ChangeController.LineOverlayMovedInlet(args.Item1, args.Item2);
-        
+
         SnappingViewModel = new();
         SnappingViewModel.AddFromDocumentSize(SizeBindable);
         SizeChanged += (_, args) =>
         {
             SnappingViewModel.AddFromDocumentSize(args.NewSize);
+        };
+        LayersChanged += (sender, args) =>
+        {
+            if (args.LayerChangeType == LayerAction.Add)
+            {
+                IReadOnlyStructureNode layer = Internals.Tracker.Document.FindMember(args.LayerAffectedGuid);
+                SnappingViewModel.AddFromBounds(layer.Id.ToString(),
+                    () => layer.GetTightBounds(AnimationDataViewModel.ActiveFrameTime) ?? RectD.Empty);
+            }
+            else if (args.LayerChangeType == LayerAction.Remove)
+            {
+                SnappingViewModel.Remove(args.LayerAffectedGuid.ToString());
+            }
         };
 
         VecI previewSize = StructureMemberViewModel.CalculatePreviewSize(SizeBindable);
@@ -692,7 +707,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     // these are intended to only be called from DocumentUpdater
 
-    public void RaiseLayersChanged(LayersChangedEventArgs args) => LayersChanged?.Invoke(this, args);
+    public void InternalRaiseLayersChanged(LayersChangedEventArgs args) => LayersChanged?.Invoke(this, args);
 
     public void RaiseSizeChanged(DocumentSizeChangedEventArgs args) => SizeChanged?.Invoke(this, args);
 
@@ -969,5 +984,4 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         Internals.Tracker.Dispose();
         Internals.Tracker.Document.Dispose();
     }
-
 }

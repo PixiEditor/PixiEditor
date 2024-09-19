@@ -17,7 +17,10 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T : IShapeToolHandler
 {
     protected int StrokeWidth => toolbar.ToolSize;
-    protected Color FillColor => toolbar.Fill ? toolbar.FillColor.ToColor() : DrawingApi.Core.ColorsImpl.Colors.Transparent;
+
+    protected Color FillColor =>
+        toolbar.Fill ? toolbar.FillColor.ToColor() : DrawingApi.Core.ColorsImpl.Colors.Transparent;
+
     protected Color StrokeColor => toolbar.StrokeColor.ToColor();
     protected Guid memberGuid;
     protected bool drawOnMask;
@@ -27,11 +30,11 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     protected VecI startPos;
     protected RectI lastRect;
     protected double lastRadians;
-    
+
     private bool noMovement = true;
     private IBasicShapeToolbar toolbar;
     private IColorsHandler? colorsVM;
-    
+
     public override ExecutionState Start()
     {
         colorsVM = GetHandler<IColorsHandler>();
@@ -47,7 +50,7 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
             return ExecutionState.Error;
 
         memberGuid = member.Id;
-        
+
         if (controller.LeftMousePressed || member is not IVectorLayerHandler)
         {
             startPos = controller!.LastPixelPosition;
@@ -65,15 +68,16 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
                     document.TransformHandler.HideTransform();
                     return ExecutionState.Error;
                 }
-                
+
                 toolbar.StrokeColor = node.ShapeData.StrokeColor.ToColor();
                 toolbar.FillColor = node.ShapeData.FillColor.ToColor();
                 toolbar.ToolSize = node.ShapeData.StrokeWidth;
                 toolbar.Fill = node.ShapeData.FillColor != Colors.Transparent;
             }
         }
-        
-        
+
+        document.SnappingHandler.Remove(member.Id.ToString());
+
         return ExecutionState.Success;
     }
 
@@ -88,10 +92,14 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     {
         Span<VecI> positions = stackalloc VecI[]
         {
-            (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(1, 1)) - new VecD(0.25).Multiply((curPos - startPos).Signs())).Round(),
-            (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(1, -1)) - new VecD(0.25).Multiply((curPos - startPos).Signs())).Round(),
-            (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(1, 0)) - new VecD(0.25).Multiply((curPos - startPos).Signs())).Round(),
-            (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(0, 1)) - new VecD(0.25).Multiply((curPos - startPos).Signs())).Round()
+            (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(1, 1)) -
+                   new VecD(0.25).Multiply((curPos - startPos).Signs())).Round(),
+            (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(1, -1)) -
+                   new VecD(0.25).Multiply((curPos - startPos).Signs())).Round(),
+            (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(1, 0)) -
+                   new VecD(0.25).Multiply((curPos - startPos).Signs())).Round(),
+            (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(0, 1)) -
+                   new VecD(0.25).Multiply((curPos - startPos).Signs())).Round()
         };
         VecI max = positions[0];
         double maxLength = double.MaxValue;
@@ -104,13 +112,16 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
                 max = pos;
             }
         }
+
         return max;
     }
 
     public static VecI GetSquaredPosition(VecI startPos, VecI curPos)
     {
-        VecI pos1 = (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(1, 1)) - new VecD(0.25).Multiply((curPos - startPos).Signs())).Round();
-        VecI pos2 = (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(1, -1)) - new VecD(0.25).Multiply((curPos - startPos).Signs())).Round();
+        VecI pos1 = (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(1, 1)) -
+                           new VecD(0.25).Multiply((curPos - startPos).Signs())).Round();
+        VecI pos2 = (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(1, -1)) -
+                           new VecD(0.25).Multiply((curPos - startPos).Signs())).Round();
         if ((pos1 - curPos).LengthSquared > (pos2 - curPos).LengthSquared)
             return (VecI)pos2;
         return (VecI)pos1;
@@ -139,12 +150,14 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     {
         internals!.ActionAccumulator.AddFinishedActions(EndDrawAction());
         document!.TransformHandler.HideTransform();
+
+        AddToSnapController();
         onEnded?.Invoke(this);
-        
+
         colorsVM.AddSwatch(StrokeColor.ToPaletteColor());
         colorsVM.AddSwatch(FillColor.ToPaletteColor());
     }
-    
+
     public override void OnColorChanged(Color color, bool primary)
     {
         if (primary && toolbar.SyncWithPrimaryColor)
@@ -192,15 +205,16 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     {
         if (transforming)
             return;
-        
+
         if (noMovement)
         {
             internals!.ActionAccumulator.AddFinishedActions(EndDrawAction());
+            AddToSnapController();
+            
             onEnded?.Invoke(this);
             return;
         }
-        
-        
+
         document!.TransformHandler.HideTransform();
         document!.TransformHandler.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect), true);
         transforming = true;
@@ -211,5 +225,13 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
         if (transforming)
             document!.TransformHandler.HideTransform();
         internals!.ActionAccumulator.AddFinishedActions(EndDrawAction());
+
+        AddToSnapController();
+    }
+
+    private void AddToSnapController()
+    {
+        var member = document!.StructureHelper.Find(memberGuid);
+        document.SnappingHandler.AddFromBounds(member.Id.ToString(), () => member.TightBounds ?? RectD.Empty);
     }
 }

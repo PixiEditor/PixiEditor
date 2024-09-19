@@ -532,38 +532,9 @@ internal class TransformOverlay : Overlay
             rawCorners.BottomRight
         };
 
-        VecD snapDelta = new();
-        bool hasXSnap = false;
-        bool hasYSnap = false;
-
-        string snapAxisX = string.Empty;
-        string snapAxisY = string.Empty;
-
-        foreach (var point in pointsToTest)
-        {
-            double? snapX = SnappingController.SnapToHorizontal(point.X, out string newSnapAxisX);
-            double? snapY = SnappingController.SnapToVertical(point.Y, out string newSnapAxisY);
-
-            if (snapX is not null && !hasXSnap)
-            {
-                snapDelta += new VecD(snapX.Value - point.X, 0);
-                snapAxisX = newSnapAxisX;
-                hasXSnap = true;
-            }
-
-            if (snapY is not null && !hasYSnap)
-            {
-                snapDelta += new VecD(0, snapY.Value - point.Y);
-                snapAxisY = newSnapAxisY;
-                hasYSnap = true;
-            }
-
-            if (hasXSnap && hasYSnap)
-            {
-                break;
-            }
-        }
-
+        VecD snapDelta = SnappingController.GetSnapDeltaForPoints(pointsToTest, out string snapAxisX,
+            out string snapAxisY);
+        
         return ((snapAxisX, snapAxisY), snapDelta);
     }
 

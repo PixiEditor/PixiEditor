@@ -76,6 +76,12 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor
         DocumentTransformMode mode = allRaster
             ? DocumentTransformMode.Scale_Rotate_Shear_Perspective
             : DocumentTransformMode.Scale_Rotate_Shear_NoPerspective;
+        
+        foreach (var structureMemberHandler in members)
+        {
+            document.SnappingHandler.Remove(structureMemberHandler.Id.ToString());
+        }
+        
         document.TransformHandler.ShowTransform(mode, true, masterCorners, Type == ExecutorType.Regular);
         internals!.ActionAccumulator.AddActions(
             new TransformSelected_Action(masterCorners, tool.KeepOriginalImage, memberCorners, false,
@@ -91,6 +97,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor
         {
             internals.ActionAccumulator.AddActions(new EndTransformSelected_Action());
             document!.TransformHandler.HideTransform();
+            AddSnappingForMembers(memberGuids);
+            
             memberCorners.Clear();
             isInProgress = false;
         }
@@ -129,6 +137,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor
         internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();
+        AddSnappingForMembers(memberCorners.Keys.ToList());
         onEnded!.Invoke(this);
 
         if (Type == ExecutorType.ToolLinked)
@@ -149,7 +158,25 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor
         internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();
+        AddSnappingForMembers(memberCorners.Keys.ToList());
 
         isInProgress = false;
+    }
+    
+    private void AddSnappingForMembers(List<Guid> memberGuids)
+    {
+        foreach (Guid memberGuid in memberGuids)
+        {
+            IStructureMemberHandler? member = document!.StructureHelper.Find(memberGuid);
+            if (member is null)
+            {
+                continue;
+            }
+
+            if (member is ILayerHandler layer)
+            {
+                document!.SnappingHandler.AddFromBounds(layer.Id.ToString(), () => layer.TightBounds ?? RectD.Empty);
+            }
+        }
     }
 }

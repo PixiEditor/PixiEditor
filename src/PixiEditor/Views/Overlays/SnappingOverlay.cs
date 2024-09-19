@@ -41,7 +41,7 @@ internal class SnappingOverlay : Overlay
             {
                 if (snapPoint.Key == SnappingController.HighlightedXAxis)
                 {
-                    context.DrawLine(horizontalAxisPen, new Point(snapPoint.Value, 0), new Point(snapPoint.Value, canvasBounds.Height));
+                    context.DrawLine(horizontalAxisPen, new Point(snapPoint.Value(), 0), new Point(snapPoint.Value(), canvasBounds.Height));
                 }
             }
         }
@@ -52,7 +52,7 @@ internal class SnappingOverlay : Overlay
             {
                 if (snapPoint.Key == SnappingController.HighlightedYAxis)
                 {
-                    context.DrawLine(verticalAxisPen, new Point(0, snapPoint.Value), new Point(canvasBounds.Width, snapPoint.Value));
+                    context.DrawLine(verticalAxisPen, new Point(0, snapPoint.Value()), new Point(canvasBounds.Width, snapPoint.Value()));
                 }
             }
         }

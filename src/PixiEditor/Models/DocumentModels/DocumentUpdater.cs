@@ -15,6 +15,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Handlers;
@@ -429,7 +430,7 @@ internal class DocumentUpdater
         /*doc.OnPropertyChanged(nameof(doc.SelectedStructureMember));
         doc.OnPropertyChanged(nameof(memberVM.Selection));*/
 
-        //doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.Id, LayerAction.Add));
+        doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.Id, LayerAction.Add));
     }
 
     private void ProcessDeleteStructureMember(DeleteStructureMember_ChangeInfo info)
@@ -439,8 +440,7 @@ internal class DocumentUpdater
         if (doc.SelectedStructureMember == memberVM)
             doc.SetSelectedMember(null);
         doc.ClearSoftSelectedMembers();
-        // TODO: Make sure property changed events are raised internally
-        //doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.Id, LayerAction.Remove));
+        doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.Id, LayerAction.Remove));
     }
 
     private void ProcessUpdateStructureMemberIsVisible(StructureMemberIsVisible_ChangeInfo info)

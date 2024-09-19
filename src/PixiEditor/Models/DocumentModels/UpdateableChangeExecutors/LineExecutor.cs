@@ -74,6 +74,8 @@ internal abstract class LineExecutor<T> : UpdateableChangeExecutor where T : ILi
             }
         }
 
+        document.SnappingHandler.Remove(memberGuid.ToString());
+        
         return ExecutionState.Success;
     }
 
@@ -166,6 +168,7 @@ internal abstract class LineExecutor<T> : UpdateableChangeExecutor where T : ILi
         document!.LineToolOverlayHandler.Hide();
         var endDrawAction = EndDraw();
         internals!.ActionAccumulator.AddFinishedActions(endDrawAction);
+        AddMemberToSnapping();
         onEnded!(this);
 
         colorsVM.AddSwatch(new PaletteColor(StrokeColor.R, StrokeColor.G, StrokeColor.B));
@@ -178,5 +181,12 @@ internal abstract class LineExecutor<T> : UpdateableChangeExecutor where T : ILi
 
         var endDrawAction = EndDraw();
         internals!.ActionAccumulator.AddFinishedActions(endDrawAction);
+        AddMemberToSnapping();
+    }
+    
+    private void AddMemberToSnapping()
+    {
+        var member = document.StructureHelper.Find(memberGuid);
+        document!.SnappingHandler.AddFromBounds(memberGuid.ToString(), () => member!.TightBounds ?? RectD.Empty);
     }
 }
