@@ -122,6 +122,8 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
         ChunkResolution targetResolution = context.ChunkResolution;
         bool hasSurface = workingSurfaces.TryGetValue((targetResolution, id), out Texture workingSurface);
         VecI targetSize = (VecI)(imageSize * targetResolution.Multiplier());
+        
+        targetSize = new VecI(Math.Max(1, targetSize.X), Math.Max(1, targetSize.Y));
 
         if (!hasSurface || workingSurface.Size != targetSize || workingSurface.IsDisposed)
         {
