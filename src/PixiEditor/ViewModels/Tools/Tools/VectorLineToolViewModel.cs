@@ -68,7 +68,7 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
             IReadOnlyLineData? lineVectorData = vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) as IReadOnlyLineData;
             if (lineVectorData is null) return;
             
-            document.LineToolOverlayViewModel.Show(lineVectorData.TransformedStart, lineVectorData.TransformedEnd, lineVectorData.TransformationMatrix, false);
+            document.LineToolOverlayViewModel.Show(lineVectorData.TransformedStart, lineVectorData.TransformedEnd, false);
         }
 
         document.Tools.UseVectorLineTool();

@@ -1,7 +1,6 @@
 ﻿using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Numerics;
 
@@ -14,7 +13,6 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
     private TransformOverlayUndoStack<(VecD, VecD)>? undoStack = null;
 
     private VecD lineStart;
-    private Matrix3X3 transformationMatrix;
 
     public VecD LineStart
     {
@@ -36,12 +34,6 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
             if (SetProperty(ref lineEnd, value))
                 LineMoved?.Invoke(this, (lineStart, lineEnd));
         }
-    }
-
-    public Matrix3X3 TransformationMatrix
-    {
-        get => transformationMatrix;
-        set => SetProperty(ref transformationMatrix, value);
     }
     
     private bool isEnabled;
@@ -74,7 +66,7 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
             new RelayCommand(() => undoStack?.AddState((LineStart, LineEnd), TransformOverlayStateType.Move));
     }
 
-    public void Show(VecD lineStart, VecD endPos, Matrix3X3 transformationMatrix, bool showApplyButton)
+    public void Show(VecD lineStart, VecD endPos, bool showApplyButton)
     {
         if (undoStack is not null)
             return;
@@ -84,7 +76,6 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
 
         LineStart = lineStart;
         LineEnd = endPos; 
-        TransformationMatrix = transformationMatrix;
         IsEnabled = true;
         ShowApplyButton = showApplyButton;
     }

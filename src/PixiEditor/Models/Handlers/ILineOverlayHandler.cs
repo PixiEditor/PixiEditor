@@ -9,5 +9,5 @@ internal interface ILineOverlayHandler
     public bool Nudge(VecD distance);
     public bool Undo();
     public bool Redo();
-    public void Show(VecD startPos, VecD endPos, Matrix3X3 transformation, bool showApplyButton);
+    public void Show(VecD startPos, VecD endPos, bool showApplyButton);
 }

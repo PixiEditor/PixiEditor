@@ -32,15 +32,6 @@ internal class LineToolOverlay : Overlay
         set => SetValue(LineEndProperty, value);
     }
 
-    public static readonly StyledProperty<Matrix3X3> TransformationMatrixProperty = AvaloniaProperty.Register<LineToolOverlay, Matrix3X3>(
-        nameof(TransformationMatrix));
-
-    public Matrix3X3 TransformationMatrix
-    {
-        get => GetValue(TransformationMatrixProperty);
-        set => SetValue(TransformationMatrixProperty, value);
-    }
-
     public static readonly StyledProperty<ICommand?> ActionCompletedProperty =
         AvaloniaProperty.Register<LineToolOverlay, ICommand?>(nameof(ActionCompleted));
 
@@ -124,8 +115,8 @@ internal class LineToolOverlay : Overlay
 
     public override void RenderOverlay(DrawingContext context, RectD canvasBounds)
     {
-        VecD mappedStart = LineStart; //TransformationMatrix.MapPoint(LineStart); 
-        VecD mappedEnd = LineEnd; //TransformationMatrix.MapPoint(LineEnd);
+        VecD mappedStart = LineStart;
+        VecD mappedEnd = LineEnd;
         
         startHandle.Position = mappedStart;
         endHandle.Position = mappedEnd; 
