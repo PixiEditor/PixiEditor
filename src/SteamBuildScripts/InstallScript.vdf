@@ -1,0 +1,81 @@
+"InstallScript"
+{
+	"Registry"
+	{
+		"HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\PixiEditor\\shell\\open\\command"
+		{
+			"string"
+			{
+				"(default)"		"\"%INSTALLDIR%\\PixiEditor.exe\" \"%1\""
+			}
+		}
+		"HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\PixiEditor\\DefaultIcon"
+		{
+			"string"
+			{
+				"(default)"		"%INSTALLDIR%\\PixiEditor.exe,0"
+			}
+		}
+		"HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\.pixi"
+		{
+			"string"
+			{
+				"(default)"		"PixiEditor"
+			}
+		}
+		"HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\.png\\OpenWithProgids"
+		{
+			"string"
+			{
+				"PixiEditor"		""
+			}
+		}
+		"HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\.jpg\\OpenWithProgids"
+		{
+			"string"
+			{
+				"PixiEditor"		""
+			}
+		}
+		"HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\.jpeg\\OpenWithProgids"
+		{
+			"string"
+			{
+				"PixiEditor"		""
+			}
+		}
+		"HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\.bmp\\OpenWithProgids"
+		{
+			"string"
+			{
+				"PixiEditor"		""
+			}
+		}
+		"HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\.gif\\OpenWithProgids"
+		{
+			"string"
+			{
+				"PixiEditor"		""
+			}
+		}
+		"HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\lospec-palette"
+		{
+			"string"
+			{
+				"(default)"		"PixiEditor"
+				"URL Protocol"		""
+			}
+		}
+		"HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\lospec-palette\\shell\\open\\command"
+		{
+			"string"
+			{
+				"(default)"		"\"%INSTALLDIR%\\PixiEditor.exe\" \"%1\""
+			}
+		}
+	}
+}
+"kvsignatures"
+{
+	"InstallScript"		"a0ae3ad1777e55111d11bff367dd52a7d6cb1e9cc6b3da8988bcfd28fccc4bbd7ae6f048d0ffa927c896a041751d8de4dce7d6f36b2bc31f893a2b97ad645e395a536f19e47063c7e508bcb834bdc7eb048f7d1c5476aa07ec7341168f89e7b0828b359996b29e745bb48686a3e6080dec53227ac262f260c108b4a77fc7970e"
+}
