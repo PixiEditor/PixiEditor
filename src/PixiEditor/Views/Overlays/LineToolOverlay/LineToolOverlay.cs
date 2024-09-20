@@ -1,10 +1,8 @@
 ﻿using System.Windows.Input;
 using Avalonia;
 using Avalonia.Input;
-using Avalonia.Interactivity;
 using Avalonia.Media;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
@@ -32,6 +30,15 @@ internal class LineToolOverlay : Overlay
     {
         get => GetValue(LineEndProperty);
         set => SetValue(LineEndProperty, value);
+    }
+
+    public static readonly StyledProperty<Matrix3X3> TransformationMatrixProperty = AvaloniaProperty.Register<LineToolOverlay, Matrix3X3>(
+        nameof(TransformationMatrix));
+
+    public Matrix3X3 TransformationMatrix
+    {
+        get => GetValue(TransformationMatrixProperty);
+        set => SetValue(TransformationMatrixProperty, value);
     }
 
     public static readonly StyledProperty<ICommand?> ActionCompletedProperty =
@@ -71,6 +78,9 @@ internal class LineToolOverlay : Overlay
     private RectangleHandle startHandle;
     private RectangleHandle endHandle;
     private TransformHandle moveHandle;
+
+    private VecD startPos;
+    private VecD endPos;
 
     public LineToolOverlay()
     {
@@ -114,14 +124,20 @@ internal class LineToolOverlay : Overlay
 
     public override void RenderOverlay(DrawingContext context, RectD canvasBounds)
     {
-        startHandle.Position = LineStart;
-        endHandle.Position = LineEnd;
-        VecD center = (LineStart + LineEnd) / 2;
-        VecD size = LineEnd - LineStart;
+        VecD mappedStart = LineStart; //TransformationMatrix.MapPoint(LineStart); 
+        VecD mappedEnd = LineEnd; //TransformationMatrix.MapPoint(LineEnd);
+        
+        startHandle.Position = mappedStart;
+        endHandle.Position = mappedEnd; 
+        
+        VecD center = (mappedStart + mappedEnd) / 2;
+        VecD size = mappedEnd - mappedStart;
+        
         moveHandle.Position = TransformHelper.GetHandlePos(new ShapeCorners(center, size), ZoomScale, moveHandle.Size);
 
-        context.DrawLine(blackDashedPen, new Point(LineStart.X, LineStart.Y), new Point(LineEnd.X, LineEnd.Y));
-        context.DrawLine(whiteDashedPen, new Point(LineStart.X, LineStart.Y), new Point(LineEnd.X, LineEnd.Y));
+        context.DrawLine(blackDashedPen, new Point(mappedStart.X, mappedStart.Y), new Point(mappedEnd.X, mappedEnd.Y));
+        context.DrawLine(whiteDashedPen, new Point(mappedStart.X, mappedStart.Y), new Point(mappedEnd.X, mappedEnd.Y));
+        
         startHandle.Draw(context);
         endHandle.Draw(context);
         moveHandle.Draw(context);
@@ -142,13 +158,15 @@ internal class LineToolOverlay : Overlay
 
     private void StartHandleOnDrag(Handle source, VecD position)
     {
-        LineStart = SnapAndHighlight(position);
+        VecD delta = position - mouseDownPos;
+        LineStart = SnapAndHighlight(lineStartOnMouseDown + delta);
         movedWhileMouseDown = true;
     }
 
     private void EndHandleOnDrag(Handle source, VecD position)
     {
-        var final = SnapAndHighlight(position);
+        VecD delta = position - mouseDownPos;
+        VecD final = SnapAndHighlight(lineEndOnMouseDown + delta);
         
         LineEnd = final;
         movedWhileMouseDown = true;
@@ -182,8 +200,11 @@ internal class LineToolOverlay : Overlay
     private void MoveHandleOnDrag(Handle source, VecD position)
     {
         var delta = position - mouseDownPos;
+        
+        VecD mappedStart = LineStart;
+        VecD mappedEnd = LineEnd;
 
-        ((string, string), VecD) snapDeltaResult = TrySnapLine(LineStart, LineEnd, delta);
+        ((string, string), VecD) snapDeltaResult = TrySnapLine(mappedStart, mappedEnd, delta);
 
         if (SnappingController != null)
         {

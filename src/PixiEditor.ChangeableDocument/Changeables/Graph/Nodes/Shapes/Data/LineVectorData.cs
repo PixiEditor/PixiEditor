@@ -11,7 +11,19 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
 {
     public VecD Start { get; set; } = startPos;
     public VecD End { get; set; } = pos;
-    
+
+    public VecD TransformedStart
+    {
+        get => TransformationMatrix.MapPoint(Start);
+        set => Start = TransformationMatrix.Invert().MapPoint(value);
+    }
+
+    public VecD TransformedEnd
+    {
+        get => TransformationMatrix.MapPoint(End);
+        set => End = TransformationMatrix.Invert().MapPoint(value);
+    }
+
     public override RectD GeometryAABB
     {
         get

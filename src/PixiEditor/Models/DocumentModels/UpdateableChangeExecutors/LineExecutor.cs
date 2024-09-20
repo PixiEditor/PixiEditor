@@ -3,6 +3,7 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers.Extensions;
@@ -106,7 +107,7 @@ internal abstract class LineExecutor<T> : UpdateableChangeExecutor where T : ILi
             return;
         }
 
-        document!.LineToolOverlayHandler.Show(startPos + new VecD(0.5), curPos + new VecD(0.5), true);
+        document!.LineToolOverlayHandler.Show(startPos + new VecD(0.5), curPos + new VecD(0.5), Matrix3X3.Identity, true);
         transforming = true;
     }
 
@@ -114,8 +115,7 @@ internal abstract class LineExecutor<T> : UpdateableChangeExecutor where T : ILi
     {
         if (!transforming)
             return;
-
-
+        
         var moveOverlayAction = TransformOverlayMoved(start, end);
         internals!.ActionAccumulator.AddActions(moveOverlayAction);
 

@@ -40,7 +40,7 @@ internal class VectorLineToolExecutor : LineExecutor<IVectorLineToolHandler>
 
     protected override IAction TransformOverlayMoved(VecD start, VecD end)
     {
-        LineVectorData data = new LineVectorData((VecD)start, (VecD)end)
+        LineVectorData data = new LineVectorData(start, end)
         {
             StrokeColor = StrokeColor,
             StrokeWidth = StrokeWidth,

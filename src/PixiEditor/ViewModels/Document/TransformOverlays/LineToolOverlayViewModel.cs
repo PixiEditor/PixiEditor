@@ -14,6 +14,7 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
     private TransformOverlayUndoStack<(VecD, VecD)>? undoStack = null;
 
     private VecD lineStart;
+    private Matrix3X3 transformationMatrix;
 
     public VecD LineStart
     {
@@ -37,6 +38,12 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
         }
     }
 
+    public Matrix3X3 TransformationMatrix
+    {
+        get => transformationMatrix;
+        set => SetProperty(ref transformationMatrix, value);
+    }
+    
     private bool isEnabled;
 
     public bool IsEnabled
@@ -67,15 +74,17 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
             new RelayCommand(() => undoStack?.AddState((LineStart, LineEnd), TransformOverlayStateType.Move));
     }
 
-    public void Show(VecD lineStart, VecD lineEnd, bool showApplyButton)
+    public void Show(VecD lineStart, VecD endPos, Matrix3X3 transformationMatrix, bool showApplyButton)
     {
         if (undoStack is not null)
             return;
         undoStack = new();
-        undoStack.AddState((lineStart, lineEnd), TransformOverlayStateType.Initial);
+        
+        undoStack.AddState((lineStart, endPos), TransformOverlayStateType.Initial);
 
         LineStart = lineStart;
-        LineEnd = lineEnd;
+        LineEnd = endPos; 
+        TransformationMatrix = transformationMatrix;
         IsEnabled = true;
         ShowApplyButton = showApplyButton;
     }

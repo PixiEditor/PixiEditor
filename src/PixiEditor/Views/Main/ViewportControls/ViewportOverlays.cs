@@ -216,12 +216,20 @@ internal class ViewportOverlays
             Path = "Document.LineToolOverlayViewModel.LineEnd",
             Mode = BindingMode.TwoWay
         };
+        
+        Binding transformationMatrixBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.LineToolOverlayViewModel.TransformationMatrix",
+            Mode = BindingMode.TwoWay
+        };
 
         lineToolOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         lineToolOverlay.Bind(LineToolOverlay.SnappingControllerProperty, snappingBinding);
         lineToolOverlay.Bind(LineToolOverlay.ActionCompletedProperty, actionCompletedBinding);
         lineToolOverlay.Bind(LineToolOverlay.LineStartProperty, lineStartBinding);
         lineToolOverlay.Bind(LineToolOverlay.LineEndProperty, lineEndBinding);
+        lineToolOverlay.Bind(LineToolOverlay.TransformationMatrixProperty, transformationMatrixBinding);
     }
 
     private void BindTransformOverlay()
