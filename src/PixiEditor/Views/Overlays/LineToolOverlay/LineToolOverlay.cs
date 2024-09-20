@@ -80,18 +80,23 @@ internal class LineToolOverlay : Overlay
         startHandle = new AnchorHandle(this);
         startHandle.HandlePen = blackPen;
         startHandle.OnDrag += StartHandleOnDrag;
+        startHandle.OnHover += handle => Refresh();
         startHandle.OnRelease += OnHandleRelease;
         AddHandle(startHandle);
 
         endHandle = new AnchorHandle(this);
         endHandle.HandlePen = blackPen;
         endHandle.OnDrag += EndHandleOnDrag;
+        endHandle.Cursor = new Cursor(StandardCursorType.Arrow);
+        endHandle.OnHover += handle => Refresh();
         endHandle.OnRelease += OnHandleRelease;
         AddHandle(endHandle);
 
         moveHandle = new TransformHandle(this);
         moveHandle.HandlePen = blackPen;
         moveHandle.OnDrag += MoveHandleOnDrag;
+        endHandle.Cursor = new Cursor(StandardCursorType.Arrow);
+        moveHandle.OnHover += handle => Refresh();
         moveHandle.OnRelease += OnHandleRelease;
         AddHandle(moveHandle);
     }
@@ -192,8 +197,8 @@ internal class LineToolOverlay : Overlay
     {
         var delta = position - mouseDownPos;
         
-        VecD mappedStart = LineStart;
-        VecD mappedEnd = LineEnd;
+        VecD mappedStart = lineStartOnMouseDown;
+        VecD mappedEnd = lineEndOnMouseDown;
 
         ((string, string), VecD) snapDeltaResult = TrySnapLine(mappedStart, mappedEnd, delta);
 

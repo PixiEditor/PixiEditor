@@ -26,6 +26,7 @@ internal class SnappingOverlay : Overlay
         /*TODO: Theme variant is not present, that's why Dark is hardcoded*/        
         horizontalAxisPen = Application.Current.Styles.TryGetResource("HorizontalSnapAxisBrush", ThemeVariant.Dark, out var horizontalAxisBrush) ? new Pen((IBrush)horizontalAxisBrush, 0.2f) : new Pen(Brushes.Red, 0.2f);
         verticalAxisPen = Application.Current.Styles.TryGetResource("VerticalSnapAxisBrush", ThemeVariant.Dark, out var verticalAxisBrush) ? new Pen((IBrush)verticalAxisBrush, 0.2f) : new Pen(Brushes.Green, 0.2f);
+        IsHitTestVisible = false;
     }
 
     public override void RenderOverlay(DrawingContext context, RectD canvasBounds)
