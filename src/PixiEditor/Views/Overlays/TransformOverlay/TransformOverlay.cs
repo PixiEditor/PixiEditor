@@ -731,6 +731,11 @@ internal class TransformOverlay : Overlay
     private VecD FindHorizontalIntersection(VecD p1, VecD p2, double y)
     {
         double slope = (p2.Y - p1.Y) / (p2.X - p1.X);
+        if (slope == 0 || double.IsInfinity(slope))
+        {
+            return new VecD(p2.X, y);
+        }
+        
         double yIntercept = p1.Y - slope * p1.X;
         double x = (y - yIntercept) / slope;
 
@@ -740,6 +745,11 @@ internal class TransformOverlay : Overlay
     private VecD FindVerticalIntersection(VecD p1, VecD p2, double x)
     {
         double slope = (p2.Y - p1.Y) / (p2.X - p1.X);
+        if (slope == 0 || double.IsInfinity(slope))
+        {
+            return new VecD(x, p2.Y);
+        }
+        
         double yIntercept = p1.Y - slope * p1.X;
         double y = slope * x + yIntercept;
 
