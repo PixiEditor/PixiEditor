@@ -245,6 +245,8 @@ internal class TransformOverlay : Overlay
         moveHandle.OnRelease += OnMoveHandleReleased;
     }
 
+    private VecD pos;
+
     public override void RenderOverlay(DrawingContext drawingContext, RectD canvasBounds)
     {
         base.Render(drawingContext);
@@ -473,7 +475,7 @@ internal class TransformOverlay : Overlay
 
         if (ActionCompleted is not null && ActionCompleted.CanExecute(null))
             ActionCompleted.Execute(null);
-        
+
         SnappingController.HighlightedXAxis = string.Empty;
         SnappingController.HighlightedYAxis = string.Empty;
     }
@@ -501,12 +503,12 @@ internal class TransformOverlay : Overlay
             TopRight = cornersOnStartMove.TopRight + delta,
         };
 
-        ((string, string), VecD) snapDeltaResult = TrySnapCorners(rawCorners);
+        var snapDeltaResult = TrySnapCorners(rawCorners);
 
-        VecD snapDelta = snapDeltaResult.Item2;
+        VecD snapDelta = snapDeltaResult.Delta;
 
-        SnappingController.HighlightedXAxis = snapDeltaResult.Item1.Item1;
-        SnappingController.HighlightedYAxis = snapDeltaResult.Item1.Item2;
+        SnappingController.HighlightedXAxis = snapDeltaResult.SnapAxisXName;
+        SnappingController.HighlightedYAxis = snapDeltaResult.SnapAxisYName;
 
         Corners = new ShapeCorners()
         {
@@ -519,11 +521,11 @@ internal class TransformOverlay : Overlay
         InternalState = InternalState with { Origin = originOnStartMove + delta + snapDelta };
     }
 
-    private ((string, string), VecD) TrySnapCorners(ShapeCorners rawCorners)
+    private SnapData TrySnapCorners(ShapeCorners rawCorners)
     {
         if (!SnappingEnabled || SnappingController is null)
         {
-            return ((string.Empty, string.Empty), VecD.Zero);
+            return new SnapData();
         }
 
         VecD[] pointsToTest = new VecD[]
@@ -534,8 +536,8 @@ internal class TransformOverlay : Overlay
 
         VecD snapDelta = SnappingController.GetSnapDeltaForPoints(pointsToTest, out string snapAxisX,
             out string snapAxisY);
-        
-        return ((snapAxisX, snapAxisY), snapDelta);
+
+        return new SnapData() { Delta = snapDelta, SnapAxisXName = snapAxisX, SnapAxisYName = snapAxisY };
     }
 
     private Cursor HandleRotate(VecD pos)
@@ -587,22 +589,29 @@ internal class TransformOverlay : Overlay
             (TransformHelper.IsSide((Anchor)capturedAnchor) && SideFreedom == TransformSideFreedom.Locked))
             return;
 
-        VecD pos = e.Point;
+        pos = e.Point;
 
         if (TransformHelper.IsCorner((Anchor)capturedAnchor))
         {
             VecD targetPos = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, (Anchor)capturedAnchor) + pos -
                              mousePosOnStartAnchorDrag;
+
+            var snapped = TrySnapAnchor(targetPos);
+
             ShapeCorners? newCorners = TransformUpdateHelper.UpdateShapeFromCorner
             ((Anchor)capturedAnchor, CornerFreedom, InternalState.ProportionalAngle1,
-                InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos);
+                InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos + snapped.Delta);
+
+            HighlightSnappedAxis(snapped.SnapAxisXName, snapped.SnapAxisYName);
+
             if (newCorners is not null)
             {
-                bool shouldSnap =
+                bool shouldAlign =
                     (CornerFreedom is TransformCornerFreedom.ScaleProportionally or TransformCornerFreedom.Scale) &&
                     Corners.IsSnappedToPixels;
-                Corners = shouldSnap
-                    ? TransformHelper.SnapToPixels((ShapeCorners)newCorners)
+
+                Corners = shouldAlign
+                    ? TransformHelper.AlignToPixels((ShapeCorners)newCorners)
                     : (ShapeCorners)newCorners;
             }
 
@@ -610,18 +619,36 @@ internal class TransformOverlay : Overlay
         }
         else if (TransformHelper.IsSide((Anchor)capturedAnchor))
         {
-            VecD targetPos = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, (Anchor)capturedAnchor) + pos -
-                             mousePosOnStartAnchorDrag;
+            // Mouse position is projected onto the line from the rect origin to the anchor being dragged,
+            // otherwise mouse could be somewhere else and delta wouldn't be a straight line.
+            VecD originalAnchorPos =
+                TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, (Anchor)capturedAnchor);
+            VecD targetPos = originalAnchorPos + pos - mousePosOnStartAnchorDrag;
+
+            VecD projected = targetPos.ProjectOntoLine(originalAnchorPos, InternalState.Origin);
+            VecD anchorRelativeDelta = projected - originalAnchorPos;
+
+            var adjacentAnchors = TransformHelper.GetAdjacentAnchors((Anchor)capturedAnchor);
+            SnapData snapped = FindProjectedAnchorSnap(projected);
+            
+            if (snapped.Delta == VecI.Zero)
+            {
+                snapped = FindAdjacentCornersSnap(adjacentAnchors, anchorRelativeDelta);
+            }
+
             ShapeCorners? newCorners = TransformUpdateHelper.UpdateShapeFromSide
             ((Anchor)capturedAnchor, SideFreedom, InternalState.ProportionalAngle1,
-                InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos);
+                InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos + snapped.Delta);
+
+            HighlightSnappedAxis(snapped.SnapAxisXName, snapped.SnapAxisYName);
+
             if (newCorners is not null)
             {
                 bool shouldSnap =
                     (SideFreedom is TransformSideFreedom.ScaleProportionally or TransformSideFreedom.Stretch) &&
                     Corners.IsSnappedToPixels;
                 Corners = shouldSnap
-                    ? TransformHelper.SnapToPixels((ShapeCorners)newCorners)
+                    ? TransformHelper.AlignToPixels((ShapeCorners)newCorners)
                     : (ShapeCorners)newCorners;
             }
 
@@ -634,6 +661,110 @@ internal class TransformOverlay : Overlay
         }
 
         Refresh();
+    }
+
+    private SnapData FindAdjacentCornersSnap((Anchor, Anchor) adjacentAnchors, VecD anchorRelativeDelta)
+    {
+        VecD adjacentAnchorPos =
+            TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, adjacentAnchors.Item1) +
+            anchorRelativeDelta;
+
+        var originAdj = TransformHelper.GetAdjacentAnchors(adjacentAnchors.Item1);
+        var adjacent = originAdj.Item1 == capturedAnchor ? originAdj.Item2 : originAdj.Item1;
+
+        VecD snapOrigin = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, adjacent) + anchorRelativeDelta;
+        var snapped = TrySnapAnchorAlongLine(adjacentAnchorPos, snapOrigin);
+
+        if (snapped.Delta == VecI.Zero)
+        {
+            adjacentAnchorPos = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, adjacentAnchors.Item2) +
+                                anchorRelativeDelta;
+            originAdj = TransformHelper.GetAdjacentAnchors(adjacentAnchors.Item2);
+            adjacent = originAdj.Item1 == capturedAnchor ? originAdj.Item2 : originAdj.Item1;
+            snapOrigin = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, adjacent) + anchorRelativeDelta;
+
+            snapped = TrySnapAnchorAlongLine(adjacentAnchorPos, snapOrigin);
+        }
+
+        return snapped;
+    }
+    
+    private SnapData FindProjectedAnchorSnap(VecD projected)
+    {
+        VecD origin = InternalState.Origin;
+        var snapped = TrySnapAnchorAlongLine(projected, origin);
+        
+        return snapped;
+    }
+
+    // https://www.desmos.com/calculator/drdxuriovg
+    private SnapData TrySnapAnchorAlongLine(VecD anchor, VecD origin)
+    {
+        if (!SnappingEnabled || SnappingController is null)
+        {
+            return new SnapData();
+        }
+
+        VecD[] pointsToTest = new VecD[] { anchor };
+
+        VecD snapDelta = SnappingController.GetSnapDeltaForPoints(pointsToTest, out string snapAxisX,
+            out string snapAxisY);
+
+        // snap delta is a straight line from the anchor to the snapped point, we need to find intersection between snap point axis and line starting from projectLineStart going through transformed
+        VecD snapPoint = anchor + snapDelta;
+
+        VecD horizontalIntersection = FindHorizontalIntersection(origin, anchor, snapPoint.Y);
+        VecD verticalIntersection = FindVerticalIntersection(origin, anchor, snapPoint.X);
+
+        snapPoint = string.IsNullOrEmpty(snapAxisX) ? horizontalIntersection : verticalIntersection;
+
+        snapDelta = snapPoint - anchor;
+
+        if (string.IsNullOrEmpty(snapAxisY) && string.IsNullOrEmpty(snapAxisX))
+        {
+            snapDelta = VecD.Zero;
+        }
+
+        return new SnapData() { Delta = snapDelta, SnapAxisXName = snapAxisX, SnapAxisYName = snapAxisY };
+    }
+
+    private VecD FindHorizontalIntersection(VecD p1, VecD p2, double y)
+    {
+        double slope = (p2.Y - p1.Y) / (p2.X - p1.X);
+        double yIntercept = p1.Y - slope * p1.X;
+        double x = (y - yIntercept) / slope;
+
+        return new VecD(x, y);
+    }
+
+    private VecD FindVerticalIntersection(VecD p1, VecD p2, double x)
+    {
+        double slope = (p2.Y - p1.Y) / (p2.X - p1.X);
+        double yIntercept = p1.Y - slope * p1.X;
+        double y = slope * x + yIntercept;
+
+        return new VecD(x, y);
+    }
+
+    private SnapData TrySnapAnchor(VecD anchorPos)
+    {
+        if (!SnappingEnabled || SnappingController is null)
+        {
+            return new SnapData();
+        }
+
+        VecD[] pointsToTest = new VecD[] { anchorPos };
+
+        VecD snapDelta = SnappingController.GetSnapDeltaForPoints(pointsToTest, out string snapAxisX,
+            out string snapAxisY);
+
+        return new SnapData() { Delta = snapDelta, SnapAxisXName = snapAxisX, SnapAxisYName = snapAxisY };
+    }
+
+    private void HighlightSnappedAxis(string snapAxisXName, string snapAxisYName)
+    {
+        SnappingController.HighlightedXAxis = snapAxisXName;
+        SnappingController.HighlightedYAxis = snapAxisYName;
     }
 
     private void UpdateOriginPos()
@@ -722,4 +853,11 @@ internal class TransformOverlay : Overlay
         if (args.NewValue != null)
             args.NewValue.Value.Triggered += overlay.OnRequestedCorners;
     }
+}
+
+struct SnapData
+{
+    public VecD Delta { get; set; }
+    public string SnapAxisXName { get; set; }
+    public string SnapAxisYName { get; set; }
 }
