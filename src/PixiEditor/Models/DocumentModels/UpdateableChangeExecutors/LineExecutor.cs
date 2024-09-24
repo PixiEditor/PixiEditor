@@ -48,7 +48,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         {
             return ExecutionState.Success;
         }
-        
+
         if (member is IVectorLayerHandler)
         {
             var node = (VectorLayerNode)internals.Tracker.Document.FindMember(member.Id);
@@ -66,7 +66,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
                 ActiveMode = ShapeToolMode.Preview;
                 return ExecutionState.Success;
             }
-            
+
             ActiveMode = ShapeToolMode.Transform;
         }
         else
@@ -82,7 +82,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
     protected abstract IAction TransformOverlayMoved(VecD start, VecD end);
     protected abstract IAction SettingsChange();
     protected abstract IAction EndDraw();
-    
+
     protected override void PrecisePositionChangeTransformMode(VecD pos)
     {
     }
@@ -90,9 +90,6 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
     protected override void PrecisePositionChangeDrawingMode(VecD pos)
     {
         startedDrawing = true;
-
-        if (toolViewModel!.Snap)
-            pos = ComplexShapeToolExecutor<IShapeToolHandler>.Get45IncrementedPosition(startDrawingPos, pos);
 
         VecD snapped =
             document!.SnappingHandler.SnappingController.GetSnapPoint(pos, out string snapX, out string snapY);
@@ -108,6 +105,11 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
             {
                 snapped -= new VecI(0, 1);
             }
+        }
+
+        if (toolViewModel!.Snap)
+        {
+            snapped = ComplexShapeToolExecutor<IShapeToolHandler>.Get45IncrementedPosition(startDrawingPos, pos);
         }
 
         HighlightSnapping(snapX, snapY);
@@ -156,7 +158,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
     {
         if (ActiveMode != ShapeToolMode.Transform)
             return;
-        
+
         document!.LineToolOverlayHandler.Nudge(distance);
     }
 
@@ -170,7 +172,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
     {
         if (ActiveMode != ShapeToolMode.Transform)
             return;
-        
+
         document!.LineToolOverlayHandler.Undo();
     }
 
@@ -178,7 +180,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
     {
         if (ActiveMode != ShapeToolMode.Transform)
             return;
-        
+
         document!.LineToolOverlayHandler.Redo();
     }
 
