@@ -94,19 +94,6 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         VecD snapped =
             document!.SnappingHandler.SnappingController.GetSnapPoint(pos, out string snapX, out string snapY);
 
-        if (snapped != VecI.Zero)
-        {
-            if (startDrawingPos.X < pos.X)
-            {
-                snapped -= new VecI(1, 0);
-            }
-
-            if (startDrawingPos.Y < pos.Y)
-            {
-                snapped -= new VecI(0, 1);
-            }
-        }
-
         if (toolViewModel!.Snap)
         {
             snapped = ComplexShapeToolExecutor<IShapeToolHandler>.Get45IncrementedPosition(startDrawingPos, pos);
@@ -128,7 +115,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
             return;
         }
 
-        document!.LineToolOverlayHandler.Show(startDrawingPos + new VecD(0.5), curPos + new VecD(0.5), true);
+        document!.LineToolOverlayHandler.Show(startDrawingPos, curPos, true);
         base.OnLeftMouseButtonUp();
     }
 
