@@ -44,8 +44,11 @@ internal class SetShapeGeometry_UpdateableChange : UpdateableChange
         var node = target.FindNode<VectorLayerNode>(TargetId);
         node.ShapeData = Data;
 
+        RectD aabb = node.ShapeData.TransformedAABB.RoundOutwards();
+        aabb = aabb with { Size = new VecD(Math.Max(1, aabb.Size.X), Math.Max(1, aabb.Size.Y)) };
+
         var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
-            (RectI)node.ShapeData.TransformedAABB, ChunkyImage.FullChunkSize));
+            (RectI)aabb, ChunkyImage.FullChunkSize));
 
         var tmp = new AffectedArea(affected);
         
@@ -66,8 +69,11 @@ internal class SetShapeGeometry_UpdateableChange : UpdateableChange
         var node = target.FindNode<VectorLayerNode>(TargetId);
         node.ShapeData = Data;
         
+        RectD aabb = node.ShapeData.TransformedAABB.RoundOutwards();
+        aabb = aabb with { Size = new VecD(Math.Max(1, aabb.Size.X), Math.Max(1, aabb.Size.Y)) };
+
         var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
-            (RectI)node.ShapeData.TransformedAABB, ChunkyImage.FullChunkSize));
+            (RectI)aabb, ChunkyImage.FullChunkSize));
 
         return new VectorShape_ChangeInfo(node.Id, affected);
     }
@@ -80,9 +86,12 @@ internal class SetShapeGeometry_UpdateableChange : UpdateableChange
         AffectedArea affected = new AffectedArea();
         
         if (node.ShapeData != null)
-        {
+        { 
+            RectD aabb = node.ShapeData.TransformedAABB.RoundOutwards();
+            aabb = aabb with { Size = new VecD(Math.Max(1, aabb.Size.X), Math.Max(1, aabb.Size.Y)) };
+         
             affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
-                (RectI)node.ShapeData.TransformedAABB, ChunkyImage.FullChunkSize));
+                (RectI)aabb, ChunkyImage.FullChunkSize));
         }
 
         return new VectorShape_ChangeInfo(node.Id, affected);

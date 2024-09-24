@@ -8,7 +8,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
-internal class RasterRectangleToolExecutor : ShapeToolExecutor<IRasterRectangleToolHandler>
+internal class RasterRectangleToolExecutor : ComplexShapeToolExecutor<IRasterRectangleToolHandler>
 {
     private ShapeData lastData;
     public override ExecutorType Type => ExecutorType.ToolLinked;

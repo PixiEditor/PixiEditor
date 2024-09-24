@@ -1,10 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Actions;
-using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Handlers;
@@ -15,25 +12,25 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
-internal abstract class LineExecutor<T> : UpdateableChangeExecutor where T : ILineToolHandler
+internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILineToolHandler
 {
     public override ExecutorType Type => ExecutorType.ToolLinked;
 
-    protected VecI startPos;
     protected Color StrokeColor => toolbar!.StrokeColor.ToColor();
     protected int StrokeWidth => toolViewModel!.ToolSize;
-    protected Guid memberGuid;
     protected bool drawOnMask;
 
-    protected VecI curPos;
-    private bool started = false;
-    private bool transforming = false;
+    protected VecD curPos;
+    private bool startedDrawing = false;
     private T? toolViewModel;
     private IColorsHandler? colorsVM;
     private ILineToolbar? toolbar;
 
     public override ExecutionState Start()
     {
+        if (base.Start() == ExecutionState.Error)
+            return ExecutionState.Error;
+
         colorsVM = GetHandler<IColorsHandler>();
         toolViewModel = GetHandler<T>();
         IStructureMemberHandler? member = document?.SelectedStructureMember;
@@ -47,79 +44,101 @@ internal abstract class LineExecutor<T> : UpdateableChangeExecutor where T : ILi
         if (!drawOnMask && member is not ILayerHandler)
             return ExecutionState.Error;
 
-        memberGuid = member.Id;
-
-        if (controller.LeftMousePressed || member is not IVectorLayerHandler)
+        if (ActiveMode == ShapeToolMode.Drawing)
         {
-            startPos = controller!.LastPixelPosition;
-            OnColorChanged(colorsVM.PrimaryColor, true);
+            return ExecutionState.Success;
         }
-        else
+        
+        if (member is IVectorLayerHandler)
         {
-            transforming = true;
             var node = (VectorLayerNode)internals.Tracker.Document.FindMember(member.Id);
-            IReadOnlyLineData data = node.ShapeData as IReadOnlyLineData;
-            
-            if(data is null)
+
+            if (node.ShapeData is not IReadOnlyLineData data)
             {
-                document.TransformHandler.HideTransform();
-                return ExecutionState.Error;
+                ActiveMode = ShapeToolMode.Preview;
+                return ExecutionState.Success;
             }
 
             toolbar.StrokeColor = data.StrokeColor.ToColor();
-            
-            if (!InitShapeData(node.ShapeData as IReadOnlyLineData))
+
+            if (!InitShapeData(data))
             {
-                document.TransformHandler.HideTransform();
-                return ExecutionState.Error;
+                ActiveMode = ShapeToolMode.Preview;
+                return ExecutionState.Success;
             }
+            
+            ActiveMode = ShapeToolMode.Transform;
+        }
+        else
+        {
+            ActiveMode = ShapeToolMode.Preview;
         }
 
-        document.SnappingHandler.Remove(memberGuid.ToString());
-        
         return ExecutionState.Success;
     }
 
     protected abstract bool InitShapeData(IReadOnlyLineData? data);
-    protected abstract IAction DrawLine(VecI pos);
+    protected abstract IAction DrawLine(VecD pos);
     protected abstract IAction TransformOverlayMoved(VecD start, VecD end);
     protected abstract IAction SettingsChange();
     protected abstract IAction EndDraw();
-
-    public override void OnPixelPositionChange(VecI pos)
+    
+    protected override void PrecisePositionChangeTransformMode(VecD pos)
     {
-        if (transforming)
-            return;
-        started = true;
+    }
+
+    protected override void PrecisePositionChangeDrawingMode(VecD pos)
+    {
+        startedDrawing = true;
 
         if (toolViewModel!.Snap)
-            pos = ShapeToolExecutor<IShapeToolHandler>.Get45IncrementedPosition(startPos, pos);
-        curPos = pos;
-        var drawLineAction = DrawLine(pos);
+            pos = ComplexShapeToolExecutor<IShapeToolHandler>.Get45IncrementedPosition(startDrawingPos, pos);
+
+        VecD snapped =
+            document!.SnappingHandler.SnappingController.GetSnapPoint(pos, out string snapX, out string snapY);
+
+        if (snapped != VecI.Zero)
+        {
+            if (startDrawingPos.X < pos.X)
+            {
+                snapped -= new VecI(1, 0);
+            }
+
+            if (startDrawingPos.Y < pos.Y)
+            {
+                snapped -= new VecI(0, 1);
+            }
+        }
+
+        HighlightSnapping(snapX, snapY);
+
+        curPos = snapped;
+
+        var drawLineAction = DrawLine(curPos);
         internals!.ActionAccumulator.AddActions(drawLineAction);
     }
 
     public override void OnLeftMouseButtonUp()
     {
-        if (!started)
+        if (!startedDrawing)
         {
             onEnded!(this);
             return;
         }
 
-        document!.LineToolOverlayHandler.Show(startPos + new VecD(0.5), curPos + new VecD(0.5), true);
-        transforming = true;
+        document!.LineToolOverlayHandler.Show(startDrawingPos + new VecD(0.5), curPos + new VecD(0.5), true);
+        base.OnLeftMouseButtonUp();
     }
 
     public override void OnLineOverlayMoved(VecD start, VecD end)
     {
-        if (!transforming)
+        if (ActiveMode != ShapeToolMode.Transform)
             return;
-        
+
         var moveOverlayAction = TransformOverlayMoved(start, end);
         internals!.ActionAccumulator.AddActions(moveOverlayAction);
 
-        startPos = (VecI)start;
+        startDrawingPos = (VecI)start;
         curPos = (VecI)end;
     }
 
@@ -135,8 +154,9 @@ internal abstract class LineExecutor<T> : UpdateableChangeExecutor where T : ILi
 
     public override void OnSelectedObjectNudged(VecI distance)
     {
-        if (!transforming)
+        if (ActiveMode != ShapeToolMode.Transform)
             return;
+        
         document!.LineToolOverlayHandler.Nudge(distance);
     }
 
@@ -148,45 +168,34 @@ internal abstract class LineExecutor<T> : UpdateableChangeExecutor where T : ILi
 
     public override void OnMidChangeUndo()
     {
-        if (!transforming)
+        if (ActiveMode != ShapeToolMode.Transform)
             return;
+        
         document!.LineToolOverlayHandler.Undo();
     }
 
     public override void OnMidChangeRedo()
     {
-        if (!transforming)
+        if (ActiveMode != ShapeToolMode.Transform)
             return;
+        
         document!.LineToolOverlayHandler.Redo();
     }
 
     public override void OnTransformApplied()
     {
-        if (!transforming)
-            return;
-
-        document!.LineToolOverlayHandler.Hide();
+        base.OnTransformApplied();
         var endDrawAction = EndDraw();
         internals!.ActionAccumulator.AddFinishedActions(endDrawAction);
-        AddMemberToSnapping();
-        onEnded!(this);
+        //onEnded!(this);
 
         colorsVM.AddSwatch(new PaletteColor(StrokeColor.R, StrokeColor.G, StrokeColor.B));
     }
 
     public override void ForceStop()
     {
-        if (transforming)
-            document!.LineToolOverlayHandler.Hide();
-
+        base.ForceStop();
         var endDrawAction = EndDraw();
         internals!.ActionAccumulator.AddFinishedActions(endDrawAction);
-        AddMemberToSnapping();
-    }
-    
-    private void AddMemberToSnapping()
-    {
-        var member = document.StructureHelper.Find(memberGuid);
-        document!.SnappingHandler.AddFromBounds(memberGuid.ToString(), () => member!.TightBounds ?? RectD.Empty);
     }
 }

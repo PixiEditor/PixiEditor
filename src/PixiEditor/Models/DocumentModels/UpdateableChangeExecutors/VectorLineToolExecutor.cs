@@ -24,18 +24,18 @@ internal class VectorLineToolExecutor : LineExecutor<IVectorLineToolHandler>
         return true;
     }
 
-    protected override IAction DrawLine(VecI pos)
+    protected override IAction DrawLine(VecD pos)
     {
-        LineVectorData data = new LineVectorData(startPos, pos)
+        LineVectorData data = new LineVectorData(startDrawingPos, pos)
         {
             StrokeColor = StrokeColor,
             StrokeWidth = StrokeWidth,
         };
         
-        startPoint = startPos;
+        startPoint = startDrawingPos;
         endPoint = pos;
 
-        return new SetShapeGeometry_Action(memberGuid, data);
+        return new SetShapeGeometry_Action(memberId, data);
     }
 
     protected override IAction TransformOverlayMoved(VecD start, VecD end)
@@ -49,7 +49,7 @@ internal class VectorLineToolExecutor : LineExecutor<IVectorLineToolHandler>
         startPoint = start;
         endPoint = end;
 
-        return new SetShapeGeometry_Action(memberGuid, data);
+        return new SetShapeGeometry_Action(memberId, data);
     }
 
     protected override IAction SettingsChange()

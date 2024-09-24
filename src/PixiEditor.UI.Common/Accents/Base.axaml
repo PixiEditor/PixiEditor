@@ -83,6 +83,7 @@
             
             <Color x:Key="HorizontalSnapAxisColor">#B00022</Color>
             <Color x:Key="VerticalSnapAxisColor">#5fad65</Color>
+            <Color x:Key="SnapPointPreviewColor">#68abdf</Color>
 
             <system:Double x:Key="ThemeDisabledOpacity">0.4</system:Double>
 
@@ -168,6 +169,7 @@
 
             <SolidColorBrush x:Key="HorizontalSnapAxisBrush" Color="{StaticResource HorizontalSnapAxisColor}"/>
             <SolidColorBrush x:Key="VerticalSnapAxisBrush" Color="{StaticResource VerticalSnapAxisColor}"/>
+            <SolidColorBrush x:Key="SnapPointPreviewBrush" Color="{StaticResource SnapPointPreviewColor}"/>
             
             <CornerRadius x:Key="ControlCornerRadius">5</CornerRadius>
             <CornerRadius x:Key="ControlCornerRadiusTop">5, 5, 0, 0</CornerRadius>

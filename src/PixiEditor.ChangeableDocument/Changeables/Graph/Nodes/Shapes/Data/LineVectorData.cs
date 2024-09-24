@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
+﻿using System.Diagnostics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces;
@@ -56,22 +57,25 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
 
     private void Rasterize(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint, bool applyTransform)
     {
-        RectD adjustedAABB = GeometryAABB.RoundOutwards().Inflate(1);
+        RectD adjustedAABB = GeometryAABB.RoundOutwards();
+        adjustedAABB = adjustedAABB with { Size = adjustedAABB.Size + new VecD(1, 1) };
         var imageSize = (VecI)adjustedAABB.Size;
         
         using ChunkyImage img = new ChunkyImage(imageSize);
 
         if (StrokeWidth == 1)
         {
+            VecD adjustment = new VecD(0.5, 0.5); 
+            
             img.EnqueueDrawBresenhamLine(
-                (VecI)Start - (VecI)adjustedAABB.TopLeft,
-                (VecI)End - (VecI)adjustedAABB.TopLeft, StrokeColor, BlendMode.SrcOver);
+                (VecI)(Start - adjustedAABB.TopLeft - adjustment),
+                (VecI)(End - adjustedAABB.TopLeft - adjustment), StrokeColor, BlendMode.SrcOver); 
         }
         else
         {
             img.EnqueueDrawSkiaLine(
-                (VecI)Start - (VecI)adjustedAABB.TopLeft,
-                (VecI)End - (VecI)adjustedAABB.TopLeft, StrokeCap.Butt, StrokeWidth, StrokeColor, BlendMode.SrcOver);
+                (VecI)Start.Round() - (VecI)adjustedAABB.TopLeft,
+                (VecI)End.Round() - (VecI)adjustedAABB.TopLeft, StrokeCap.Butt, StrokeWidth, StrokeColor, BlendMode.SrcOver);
         }
 
         img.CommitChanges();

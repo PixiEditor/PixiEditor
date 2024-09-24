@@ -14,21 +14,21 @@ internal class RasterLineToolExecutor : LineExecutor<ILineToolHandler>
         return false;
     }
 
-    protected override IAction DrawLine(VecI pos)
+    protected override IAction DrawLine(VecD pos)
     {
-        return new DrawRasterLine_Action(memberGuid, startPos, pos, StrokeWidth,
+        return new DrawRasterLine_Action(memberId, (VecI)startDrawingPos.Floor(), (VecI)pos.Floor(), StrokeWidth,
             StrokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
     }
 
     protected override IAction TransformOverlayMoved(VecD start, VecD end)
     {
-        return new DrawRasterLine_Action(memberGuid, (VecI)start, (VecI)end,
+        return new DrawRasterLine_Action(memberId, (VecI)start, (VecI)end,
             StrokeWidth, StrokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
     }
 
     protected override IAction SettingsChange()
     {
-        return new DrawRasterLine_Action(memberGuid, startPos, curPos, StrokeWidth,
+        return new DrawRasterLine_Action(memberId, (VecI)startDrawingPos.Floor(), (VecI)curPos.Floor(), StrokeWidth,
             StrokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
     }
 

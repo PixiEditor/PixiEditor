@@ -14,7 +14,7 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
 #nullable enable
 
-internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T : IShapeToolHandler
+internal abstract class ComplexShapeToolExecutor<T> : UpdateableChangeExecutor where T : IShapeToolHandler
 {
     protected int StrokeWidth => toolbar.ToolSize;
 
@@ -28,12 +28,14 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     protected bool transforming = false;
     protected T? toolViewModel;
     protected VecI startPos;
+    protected VecI unsnappedStartPos;
     protected RectI lastRect;
     protected double lastRadians;
 
     private bool noMovement = true;
     private IBasicShapeToolbar toolbar;
     private IColorsHandler? colorsVM;
+    private bool previewMode = false;
 
     public override ExecutionState Start()
     {
@@ -54,25 +56,31 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
         if (controller.LeftMousePressed || member is not IVectorLayerHandler)
         {
             startPos = controller!.LastPixelPosition;
+            unsnappedStartPos = startPos;
             OnColorChanged(colorsVM.PrimaryColor, true);
             DrawShape(startPos, 0, true);
         }
         else
         {
-            transforming = true;
             if (member is IVectorLayerHandler)
             {
                 var node = (VectorLayerNode)internals.Tracker.Document.FindMember(member.Id);
                 if (!InitShapeData(node.ShapeData))
                 {
                     document.TransformHandler.HideTransform();
-                    return ExecutionState.Error;
+                    previewMode = true;
+                    return ExecutionState.Success;
                 }
 
+                transforming = true;
                 toolbar.StrokeColor = node.ShapeData.StrokeColor.ToColor();
                 toolbar.FillColor = node.ShapeData.FillColor.ToColor();
                 toolbar.ToolSize = node.ShapeData.StrokeWidth;
                 toolbar.Fill = node.ShapeData.FillColor != Colors.Transparent;
+            }
+            else
+            {
+                previewMode = true;
             }
         }
 
@@ -88,17 +96,17 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     protected abstract IAction EndDrawAction();
     protected virtual DocumentTransformMode TransformMode => DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective;
 
-    public static VecI Get45IncrementedPosition(VecI startPos, VecI curPos)
+    public static VecI Get45IncrementedPosition(VecD startPos, VecD curPos)
     {
         Span<VecI> positions = stackalloc VecI[]
         {
-            (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(1, 1)) -
+            (VecI)(curPos.ProjectOntoLine(startPos, startPos + new VecD(1, 1)) -
                    new VecD(0.25).Multiply((curPos - startPos).Signs())).Round(),
-            (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(1, -1)) -
+            (VecI)(curPos.ProjectOntoLine(startPos, startPos + new VecD(1, -1)) -
                    new VecD(0.25).Multiply((curPos - startPos).Signs())).Round(),
-            (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(1, 0)) -
+            (VecI)(curPos.ProjectOntoLine(startPos, startPos + new VecD(1, 0)) -
                    new VecD(0.25).Multiply((curPos - startPos).Signs())).Round(),
-            (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(0, 1)) -
+            (VecI)(curPos.ProjectOntoLine(startPos, startPos + new VecD(0, 1)) -
                    new VecD(0.25).Multiply((curPos - startPos).Signs())).Round()
         };
         VecI max = positions[0];
@@ -148,14 +156,19 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
 
     public override void OnTransformApplied()
     {
+        if (!transforming)
+            return;
+        
         internals!.ActionAccumulator.AddFinishedActions(EndDrawAction());
         document!.TransformHandler.HideTransform();
 
         AddToSnapController();
-        onEnded?.Invoke(this);
+        HighlightSnapAxis(null, null);
 
         colorsVM.AddSwatch(StrokeColor.ToPaletteColor());
         colorsVM.AddSwatch(FillColor.ToPaletteColor());
+
+        previewMode = true;
     }
 
     public override void OnColorChanged(Color color, bool primary)
@@ -190,10 +203,63 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        if (transforming)
+        if (previewMode)
+        {
+            VecD mouseSnap = document.SnappingHandler.SnappingController.GetSnapPoint(pos, out string snapXAxis, out string snapYAxis);
+            HighlightSnapAxis(snapXAxis, snapYAxis);
+            
+            if (!string.IsNullOrEmpty(snapXAxis) || !string.IsNullOrEmpty(snapYAxis))
+            {
+                document.SnappingHandler.SnappingController.HighlightedPoint = mouseSnap;
+            }
+            else
+            {
+                document.SnappingHandler.SnappingController.HighlightedPoint = null;
+            }
+        }
+
+        if (transforming || previewMode)
             return;
+
+        startPos = Snap(unsnappedStartPos, pos);
+        var snapped = Snap(pos, startPos);
+        
         noMovement = false;
+
+        pos = snapped;
+
         DrawShape(pos, lastRadians, false);
+    }
+
+    private VecI Snap(VecI pos, VecD adjustPos)
+    {
+        VecI snapped =
+            (VecI)document.SnappingHandler.SnappingController.GetSnapPoint(pos, out string snapXAxis,
+                out string snapYAxis);
+
+        HighlightSnapAxis(snapXAxis, snapYAxis);
+
+        if (snapped != VecI.Zero)
+        {
+            if (adjustPos.X < pos.X)
+            {
+                snapped -= new VecI(1, 0);
+            }
+
+            if (adjustPos.Y < pos.Y)
+            {
+                snapped -= new VecI(0, 1);
+            }
+        }
+
+        return snapped;
+    }
+
+    private void HighlightSnapAxis(string snapXAxis, string snapYAxis)
+    {
+        document.SnappingHandler.SnappingController.HighlightedXAxis = snapXAxis;
+        document.SnappingHandler.SnappingController.HighlightedYAxis = snapYAxis;
+        document.SnappingHandler.SnappingController.HighlightedPoint = null;
     }
 
     public override void OnSettingsChanged(string name, object value)
@@ -203,6 +269,8 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
 
     public override void OnLeftMouseButtonUp()
     {
+        HighlightSnapAxis(null, null);
+
         if (transforming)
             return;
 
@@ -210,7 +278,7 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
         {
             internals!.ActionAccumulator.AddFinishedActions(EndDrawAction());
             AddToSnapController();
-            
+
             onEnded?.Invoke(this);
             return;
         }
@@ -227,6 +295,7 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
         internals!.ActionAccumulator.AddFinishedActions(EndDrawAction());
 
         AddToSnapController();
+        HighlightSnapAxis(null, null);
     }
 
     private void AddToSnapController()

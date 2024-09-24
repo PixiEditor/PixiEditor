@@ -10,7 +10,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
-internal class VectorRectangleToolExecutor : ShapeToolExecutor<IVectorRectangleToolHandler>
+internal class VectorRectangleToolExecutor : ComplexShapeToolExecutor<IVectorRectangleToolHandler>
 {
     public override ExecutorType Type => ExecutorType.ToolLinked;
     protected override DocumentTransformMode TransformMode => DocumentTransformMode.Scale_Rotate_Shear_NoPerspective;
