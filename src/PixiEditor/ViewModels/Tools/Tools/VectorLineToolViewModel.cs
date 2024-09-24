@@ -65,10 +65,12 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
         var layer = document.SelectedStructureMember;
         if (layer is IVectorLayerHandler vectorLayer)
         {
-            IReadOnlyLineData? lineVectorData = vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) as IReadOnlyLineData;
+            IReadOnlyLineData? lineVectorData =
+                vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) as IReadOnlyLineData;
             if (lineVectorData is null) return;
-            
-            document.LineToolOverlayViewModel.Show(lineVectorData.TransformedStart, lineVectorData.TransformedEnd, false);
+
+            document.LineToolOverlayViewModel.Show(lineVectorData.TransformedStart, lineVectorData.TransformedEnd,
+                false);
         }
 
         document.Tools.UseVectorLineTool();
@@ -78,10 +80,5 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
     {
         OnDeselecting();
         OnSelected();
-    }
-
-    public override void OnDeselecting()
-    {
-        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
     }
 }

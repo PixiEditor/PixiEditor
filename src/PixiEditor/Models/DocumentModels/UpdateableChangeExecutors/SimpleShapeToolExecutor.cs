@@ -138,7 +138,7 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor
         AddMemberToSnapping();
         HighlightSnapping(null, null);
     }
-
+    
     public override void ForceStop()
     {
         StopMode(activeMode);
