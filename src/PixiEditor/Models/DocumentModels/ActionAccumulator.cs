@@ -99,12 +99,14 @@ internal class ActionAccumulator
             List<IRenderInfo> renderResult = new();
             if (DrawingBackendApi.Current.IsHardwareAccelerated)
             {
-                renderResult.AddRange(canvasUpdater.UpdateGatheredChunksSync(affectedAreas, undoBoundaryPassed || viewportRefreshRequest));
+                renderResult.AddRange(canvasUpdater.UpdateGatheredChunksSync(affectedAreas,
+                    undoBoundaryPassed || viewportRefreshRequest));
                 renderResult.AddRange(previewUpdater.UpdateGatheredChunksSync(affectedAreas, undoBoundaryPassed));
             }
             else
             {
-                renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed || viewportRefreshRequest));
+                renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas,
+                    undoBoundaryPassed || viewportRefreshRequest));
                 renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
             }
 
@@ -156,7 +158,7 @@ internal class ActionAccumulator
                     RectI dirtyRect = new RectI(info.Pos, info.Size).Intersect(finalRect);
                     bitmap.AddDirtyRect(dirtyRect);
                 }
-                    break;
+                break;
                 case PreviewDirty_RenderInfo info:
                 {
                     var bitmap = document.StructureHelper.Find(info.GuidValue)?.PreviewSurface;
@@ -164,7 +166,7 @@ internal class ActionAccumulator
                         continue;
                     bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
                 }
-                    break;
+                break;
                 case MaskPreviewDirty_RenderInfo info:
                 {
                     var bitmap = document.StructureHelper.Find(info.GuidValue)?.MaskPreviewSurface;
@@ -172,13 +174,13 @@ internal class ActionAccumulator
                         continue;
                     bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
                 }
-                    break;
+                break;
                 case CanvasPreviewDirty_RenderInfo:
                 {
                     document.PreviewSurface.AddDirtyRect(new RectI(0, 0, document.PreviewSurface.Size.X,
                         document.PreviewSurface.Size.Y));
                 }
-                    break;
+                break;
                 case NodePreviewDirty_RenderInfo info:
                 {
                     var node = document.StructureHelper.Find(info.NodeId);
@@ -187,7 +189,7 @@ internal class ActionAccumulator
                     node.PreviewSurface.AddDirtyRect(new RectI(0, 0, node.PreviewSurface.Size.X,
                         node.PreviewSurface.Size.Y));
                 }
-                    break;
+                break;
             }
         }
     }

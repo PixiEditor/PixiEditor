@@ -245,8 +245,6 @@ internal class DocumentUpdater
         if (member.Selection != StructureMemberSelectionType.Soft)
             return;
         member.Selection = StructureMemberSelectionType.None;
-        // TODO: Make sure Selection raises property changed internally
-        //member.OnPropertyChanged(nameof(member.Selection));
         doc.RemoveSoftSelectedMember(member);
     }
 
@@ -257,7 +255,6 @@ internal class DocumentUpdater
             if (oldMember.Selection == StructureMemberSelectionType.Hard)
                 continue;
             oldMember.Selection = StructureMemberSelectionType.None;
-            //oldMember.OnPropertyChanged(nameof(oldMember.Selection));
         }
 
         doc.ClearSoftSelectedMembers();
@@ -269,7 +266,6 @@ internal class DocumentUpdater
         if (member is null || member.Selection == StructureMemberSelectionType.Hard)
             return;
         member.Selection = StructureMemberSelectionType.Soft;
-        //member.OnPropertyChanged(nameof(member.Selection));
         doc.AddSoftSelectedMember(member);
     }
 
@@ -282,11 +278,9 @@ internal class DocumentUpdater
         if (doc.SelectedStructureMember is { } oldMember)
         {
             oldMember.Selection = StructureMemberSelectionType.None;
-            //oldMember.OnPropertyChanged(nameof(oldMember.Selection));
         }
 
         member.Selection = StructureMemberSelectionType.Hard;
-        //member.OnPropertyChanged(nameof(member.Selection));
         doc.SetSelectedMember(member);
     }
 
@@ -419,16 +413,10 @@ internal class DocumentUpdater
         if (doc.SelectedStructureMember is not null)
         {
             doc.SelectedStructureMember.Selection = StructureMemberSelectionType.None;
-            // TODO: Make sure property changed events are raised internally
-            //doc.SelectedStructureMember.OnPropertyChanged(nameof(doc.SelectedStructureMember.Selection));
         }
 
         doc.SetSelectedMember(memberVM);
         memberVM.Selection = StructureMemberSelectionType.Hard;
-
-        // TODO: Make sure property changed events are raised internally
-        /*doc.OnPropertyChanged(nameof(doc.SelectedStructureMember));
-        doc.OnPropertyChanged(nameof(memberVM.Selection));*/
 
         doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.Id, LayerAction.Add));
     }
@@ -436,9 +424,20 @@ internal class DocumentUpdater
     private void ProcessDeleteStructureMember(DeleteStructureMember_ChangeInfo info)
     {
         IStructureMemberHandler memberVM = doc.StructureHelper.Find(info.Id);
-        //folderVM.Children.Remove(memberVM);
         if (doc.SelectedStructureMember == memberVM)
-            doc.SetSelectedMember(null);
+        {
+            var closestId = doc.StructureHelper.FindClosestMember(new[] { info.Id });
+            var closestMember = doc.StructureHelper.Find(closestId);
+
+            if (closestMember != null)
+            {
+                closestMember.Selection = StructureMemberSelectionType.Hard;
+            }
+
+            
+            doc.SetSelectedMember(closestMember);
+        }
+
         doc.ClearSoftSelectedMembers();
         doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.Id, LayerAction.Remove));
     }

@@ -176,7 +176,7 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
     protected void AddMemberToSnapping()
     {
         var member = document.StructureHelper.Find(memberId);
-        document!.SnappingHandler.AddFromBounds(memberId.ToString(), () => member!.TightBounds ?? RectD.Empty);
+        document!.SnappingHandler.AddFromBounds(memberId.ToString(), () => member?.TightBounds ?? RectD.Empty);
     }
     
     protected VecD SnapAndHighlight(VecD pos)

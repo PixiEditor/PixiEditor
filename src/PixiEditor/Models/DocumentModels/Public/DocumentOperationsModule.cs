@@ -196,7 +196,7 @@ internal class DocumentOperationsModule : IDocumentOperations
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
-        Guid closestMember = FindClosestMember(guids);
+        Guid closestMember = Document.StructureHelper.FindClosestMember(guids);
         
         IAction[] actions = new IAction[guids.Count + (selectNext ? 1 : 0)];
         for (int i = 0; i < guids.Count; i++)
@@ -683,50 +683,7 @@ internal class DocumentOperationsModule : IDocumentOperations
         Internals.ActionAccumulator.AddFinishedActions(
             new SetSelection_Action(inverse.Op(selection, VectorPathOp.Difference)));
     }
-
-    private Guid FindClosestMember(IReadOnlyList<Guid> guids)
-    {
-        IStructureMemberHandler? firstNode = Document.StructureHelper.FindNode<IStructureMemberHandler>(guids[0]);
-        if (firstNode is null)
-            return Guid.Empty;
-
-        INodeHandler? parent = null;
-
-        firstNode.TraverseForwards(traversedNode =>
-        {
-            if (!guids.Contains(traversedNode.Id) && traversedNode is IStructureMemberHandler)
-            {
-                parent = traversedNode;
-                return false;
-            }
-
-            return true;
-        });
-
-        if (parent is null)
-        {
-            var lastNode = Document.StructureHelper.FindNode<IStructureMemberHandler>(guids[^1]);
-            if (lastNode is null)
-                return Guid.Empty;
-            
-            lastNode.TraverseBackwards(traversedNode =>
-            {
-                if (!guids.Contains(traversedNode.Id) && traversedNode is IStructureMemberHandler)
-                {
-                    parent = traversedNode;
-                    return false;
-                }
-
-                return true;
-            });
-        }
-        
-        if (parent is null)
-            return Guid.Empty;
-
-        return parent.Id;
-    }
-
+    
     public void Rasterize(Guid memberId)
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
