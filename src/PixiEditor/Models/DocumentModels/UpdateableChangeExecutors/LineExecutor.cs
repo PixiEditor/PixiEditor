@@ -83,10 +83,6 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
     protected abstract IAction SettingsChange();
     protected abstract IAction EndDraw();
 
-    protected override void PrecisePositionChangeTransformMode(VecD pos)
-    {
-    }
-
     protected override void PrecisePositionChangeDrawingMode(VecD pos)
     {
         startedDrawing = true;
@@ -176,7 +172,6 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         base.OnTransformApplied();
         var endDrawAction = EndDraw();
         internals!.ActionAccumulator.AddFinishedActions(endDrawAction);
-        //onEnded!(this);
 
         colorsVM.AddSwatch(new PaletteColor(StrokeColor.R, StrokeColor.G, StrokeColor.B));
     }

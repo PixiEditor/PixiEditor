@@ -35,6 +35,7 @@ internal class VectorEllipseToolExecutor : ComplexShapeToolExecutor<IVectorEllip
     protected override void DrawShape(VecI curPos, double rotationRad, bool firstDraw)
     {
         RectI rect;
+        VecI startPos = (VecI)Snap(startDrawingPos, curPos).Floor();
         if (firstDraw)
             rect = new RectI(curPos, VecI.Zero);
         else if (toolViewModel!.DrawCircle)
@@ -52,12 +53,12 @@ internal class VectorEllipseToolExecutor : ComplexShapeToolExecutor<IVectorEllip
 
         lastRect = rect;
 
-        internals!.ActionAccumulator.AddActions(new SetShapeGeometry_Action(memberGuid, data));
+        internals!.ActionAccumulator.AddActions(new SetShapeGeometry_Action(memberId, data));
     }
 
     protected override IAction SettingsChangedAction()
     {
-        return new SetShapeGeometry_Action(memberGuid,
+        return new SetShapeGeometry_Action(memberId,
             new EllipseVectorData(firstCenter, firstRadius)
             {
                 StrokeColor = StrokeColor, FillColor = FillColor, StrokeWidth = StrokeWidth,
@@ -83,7 +84,7 @@ internal class VectorEllipseToolExecutor : ComplexShapeToolExecutor<IVectorEllip
         lastRect = rect;
         lastMatrix = matrix;
 
-        return new SetShapeGeometry_Action(memberGuid, ellipseData);
+        return new SetShapeGeometry_Action(memberId, ellipseData);
     }
 
     protected override IAction EndDrawAction()

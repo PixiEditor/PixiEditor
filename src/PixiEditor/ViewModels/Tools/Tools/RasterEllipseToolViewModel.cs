@@ -47,4 +47,9 @@ internal class RasterEllipseToolViewModel : ShapeTool, IRasterEllipseToolHandler
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseRasterEllipseTool();
     }
+    
+    public override void OnSelected()
+    {
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseRasterEllipseTool();
+    }
 }

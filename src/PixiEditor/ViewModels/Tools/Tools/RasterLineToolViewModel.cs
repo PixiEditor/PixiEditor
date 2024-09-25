@@ -53,4 +53,10 @@ internal class RasterLineToolViewModel : ShapeTool, ILineToolHandler
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseRasterLineTool();
     }
+
+    public override void OnSelected()
+    {
+        var document = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
+        document.Tools.UseRasterLineTool();
+    }
 }

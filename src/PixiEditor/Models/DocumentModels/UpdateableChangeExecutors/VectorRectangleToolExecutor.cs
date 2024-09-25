@@ -35,6 +35,7 @@ internal class VectorRectangleToolExecutor : ComplexShapeToolExecutor<IVectorRec
     protected override void DrawShape(VecI curPos, double rotationRad, bool firstDraw)
     {
         RectI rect;
+        VecI startPos = (VecI)Snap(startDrawingPos, curPos).Floor();
         if (firstDraw)
             rect = new RectI(curPos, VecI.Zero);
         else if (toolViewModel!.DrawSquare)
@@ -52,12 +53,12 @@ internal class VectorRectangleToolExecutor : ComplexShapeToolExecutor<IVectorRec
 
         lastRect = rect;
 
-        internals!.ActionAccumulator.AddActions(new SetShapeGeometry_Action(memberGuid, data));
+        internals!.ActionAccumulator.AddActions(new SetShapeGeometry_Action(memberId, data));
     }
 
     protected override IAction SettingsChangedAction()
     {
-        return new SetShapeGeometry_Action(memberGuid,
+        return new SetShapeGeometry_Action(memberId,
             new RectangleVectorData(firstCenter, firstSize)
             {
                 StrokeColor = StrokeColor, FillColor = FillColor, StrokeWidth = StrokeWidth,
@@ -85,7 +86,7 @@ internal class VectorRectangleToolExecutor : ComplexShapeToolExecutor<IVectorRec
 
         lastMatrix = matrix;
 
-        return new SetShapeGeometry_Action(memberGuid, newData);
+        return new SetShapeGeometry_Action(memberId, newData);
     }
 
     protected override IAction EndDrawAction()

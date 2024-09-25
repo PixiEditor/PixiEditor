@@ -1,5 +1,6 @@
 ﻿using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
@@ -52,8 +53,10 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
 
     public override void OnSelected()
     {
-        var layer = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
-        if (layer is IVectorLayerHandler vectorLayer)
+        var document = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
+        var layer = document.SelectedStructureMember;
+        if (layer is IVectorLayerHandler vectorLayer && 
+            vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) is IReadOnlyRectangleData)
         {
             ShapeCorners corners = vectorLayer.TransformationCorners;
             ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument.TransformViewModel.ShowTransform(
@@ -63,11 +66,6 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorRectangleTool();
     }
 
-    public override void OnDeselecting()
-    {
-        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
-    }
-    
     protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
     {
         OnDeselecting();

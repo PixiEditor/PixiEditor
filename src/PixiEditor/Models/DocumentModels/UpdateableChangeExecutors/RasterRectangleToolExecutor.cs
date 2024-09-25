@@ -15,6 +15,7 @@ internal class RasterRectangleToolExecutor : ComplexShapeToolExecutor<IRasterRec
     private void DrawRectangle(VecI curPos, double rotationRad, bool firstDraw)
     {
         RectI rect;
+        VecI startPos = (VecI)Snap(startDrawingPos, curPos).Floor();
         if (firstDraw)
             rect = new RectI(curPos, VecI.Zero);
         else if (toolViewModel!.DrawSquare)
@@ -26,14 +27,14 @@ internal class RasterRectangleToolExecutor : ComplexShapeToolExecutor<IRasterRec
         
         lastData = new ShapeData(rect.Center, rect.Size, rotationRad, StrokeWidth, StrokeColor, FillColor);
 
-        internals!.ActionAccumulator.AddActions(new DrawRasterRectangle_Action(memberGuid, lastData, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
+        internals!.ActionAccumulator.AddActions(new DrawRasterRectangle_Action(memberId, lastData, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     protected override void DrawShape(VecI currentPos, double rotationRad, bool first) => DrawRectangle(currentPos, rotationRad, first);
     protected override IAction SettingsChangedAction()
     {
         lastData = new ShapeData(lastData.Center, lastData.Size, lastRadians, StrokeWidth, StrokeColor, FillColor);
-        return new DrawRasterRectangle_Action(memberGuid, lastData, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);   
+        return new DrawRasterRectangle_Action(memberId, lastData, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);   
     }
 
     protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners)
@@ -42,7 +43,7 @@ internal class RasterRectangleToolExecutor : ComplexShapeToolExecutor<IRasterRec
         
         lastRadians = corners.RectRotation;
         
-        return new DrawRasterRectangle_Action(memberGuid, data, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+        return new DrawRasterRectangle_Action(memberId, data, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
     }
 
     protected override IAction EndDrawAction() => new EndDrawRasterRectangle_Action();
