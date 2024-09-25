@@ -352,6 +352,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public Node Clone()
     {
         var clone = CreateCopy();
+        clone.DisplayName = DisplayName;
         clone.Id = Guid.NewGuid();
         clone.Position = Position;
 

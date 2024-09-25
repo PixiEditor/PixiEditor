@@ -44,6 +44,7 @@ internal class RasterizeMember_Change : Change
         IRasterizable rasterizable = (IRasterizable)node;
         
         ImageLayerNode imageLayer = new ImageLayerNode(target.Size);
+        imageLayer.MemberName = node.DisplayName;
 
         target.NodeGraph.AddNode(imageLayer);
         
@@ -64,6 +65,25 @@ internal class RasterizeMember_Change : Change
         List<IChangeInfo> changeInfos = new();
         changeInfos.Add(CreateNode_ChangeInfo.CreateFromNode(imageLayer));
         changeInfos.AddRange(NodeOperations.AppendMember(outputConnectedInput, toAddOutput, backgroundInput, imageLayer.Id));
+
+        List<(string inputPropName, IOutputProperty connection)> connections = new();
+        
+        foreach (var inputProp in node.InputProperties)
+        {
+            if(inputProp.Connection == null) continue;
+            
+            connections.Add((inputProp.InternalPropertyName, inputProp.Connection));
+        }
+
+        foreach (var conn in connections)
+        {
+            InputProperty? targetInput = imageLayer.GetInputProperty(conn.inputPropName);
+            if (targetInput == null) continue;
+            
+            conn.connection.ConnectTo(targetInput);
+            changeInfos.Add(new ConnectProperty_ChangeInfo(conn.connection.Node.Id, imageLayer.Id, conn.connection.InternalPropertyName, conn.inputPropName));
+        }
+        
         changeInfos.AddRange(NodeOperations.DetachNode(target.NodeGraph, node));
         
         node.Dispose();

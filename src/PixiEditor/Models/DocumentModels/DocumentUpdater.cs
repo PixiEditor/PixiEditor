@@ -610,6 +610,8 @@ internal class DocumentUpdater
 
         doc.NodeGraphHandler.RemoveConnections(info.Id);
         doc.NodeGraphHandler.RemoveNode(info.Id);
+        
+        doc.SnappingHandler.SnappingController.RemoveAll(info.Id.ToString());
     }
 
     private void ProcessCreateNodeFrame(CreateNodeFrame_ChangeInfo info)
