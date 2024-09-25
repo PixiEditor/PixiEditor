@@ -93,7 +93,7 @@ public struct ShapeCorners
             ? RectSize.CCWAngleTo(BottomRight - TopLeft)
             : RectSize.CCWAngleTo(BottomLeft - TopRight);
 
-    public bool IsSnappedToPixels
+    public bool IsAlignedToPixels
     {
         get
         {

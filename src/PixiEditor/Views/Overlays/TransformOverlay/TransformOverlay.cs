@@ -492,7 +492,7 @@ internal class TransformOverlay : Overlay
     {
         VecD delta = pos - mousePosOnStartMove;
 
-        if (Corners.IsSnappedToPixels)
+        if (Corners.IsAlignedToPixels)
             delta = delta.Round();
 
         ShapeCorners rawCorners = new ShapeCorners()
@@ -608,7 +608,7 @@ internal class TransformOverlay : Overlay
             {
                 bool shouldAlign =
                     (CornerFreedom is TransformCornerFreedom.ScaleProportionally or TransformCornerFreedom.Scale) &&
-                    Corners.IsSnappedToPixels;
+                    Corners.IsAlignedToPixels;
 
                 Corners = shouldAlign
                     ? TransformHelper.AlignToPixels((ShapeCorners)newCorners)
@@ -629,11 +629,32 @@ internal class TransformOverlay : Overlay
             VecD anchorRelativeDelta = projected - originalAnchorPos;
 
             var adjacentAnchors = TransformHelper.GetAdjacentAnchors((Anchor)capturedAnchor);
-            SnapData snapped = FindProjectedAnchorSnap(projected);
-            
-            if (snapped.Delta == VecI.Zero)
+            SnapData snapped;
+
+            if (SideFreedom is TransformSideFreedom.Shear or TransformSideFreedom.Free)
             {
-                snapped = FindAdjacentCornersSnap(adjacentAnchors, anchorRelativeDelta);
+                VecD rawDelta = targetPos - originalAnchorPos;
+                VecD adjacentPos = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, adjacentAnchors.Item1);
+                snapped = TrySnapAnchor(adjacentPos + rawDelta);
+
+                if (snapped.Delta == VecD.Zero)
+                {
+                    snapped = TrySnapAnchor(targetPos);
+                }
+                
+                if (snapped.Delta == VecD.Zero)
+                {
+                    adjacentPos = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, adjacentAnchors.Item2);
+                    snapped = TrySnapAnchor(adjacentPos + rawDelta);
+                }
+            }
+            else
+            {
+                snapped = FindProjectedAnchorSnap(projected);
+                if (snapped.Delta == VecI.Zero)
+                {
+                    snapped = FindAdjacentCornersSnap(adjacentAnchors, anchorRelativeDelta);
+                }
             }
 
             ShapeCorners? newCorners = TransformUpdateHelper.UpdateShapeFromSide
@@ -644,10 +665,10 @@ internal class TransformOverlay : Overlay
 
             if (newCorners is not null)
             {
-                bool shouldSnap =
+                bool shouldAlign =
                     (SideFreedom is TransformSideFreedom.ScaleProportionally or TransformSideFreedom.Stretch) &&
-                    Corners.IsSnappedToPixels;
-                Corners = shouldSnap
+                    Corners.IsAlignedToPixels;
+                Corners = shouldAlign
                     ? TransformHelper.AlignToPixels((ShapeCorners)newCorners)
                     : (ShapeCorners)newCorners;
             }
