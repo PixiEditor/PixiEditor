@@ -34,7 +34,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         get => _activeFrameBindable;
         set
         {
-            if (Document.UpdateableChangeActive)
+            if (Document.BlockingUpdateableChangeActive)
                 return;
 
             Internals.ActionAccumulator.AddActions(new SetActiveFrame_PassthroughAction(value));
@@ -48,7 +48,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         get => frameRateBindable;
         set
         {
-            if (Document.UpdateableChangeActive)
+            if (Document.BlockingUpdateableChangeActive)
                 return;
 
             Internals.ActionAccumulator.AddFinishedActions(new SetFrameRate_Action(value));
@@ -60,7 +60,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         get => onionSkinningEnabled;
         set
         {
-            if (Document.UpdateableChangeActive)
+            if (Document.BlockingUpdateableChangeActive)
                 return;
 
             Internals.ActionAccumulator.AddFinishedActions(new ToggleOnionSkinning_PassthroughAction(value));
@@ -72,7 +72,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         get => onionFrames;
         set
         {
-            if (Document.UpdateableChangeActive)
+            if (Document.BlockingUpdateableChangeActive)
                 return;
 
             Internals.ActionAccumulator.AddFinishedActions(new SetOnionSettings_Action(value, OnionOpacityBindable));
@@ -84,7 +84,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         get => onionOpacity;
         set
         {
-            if (Document.UpdateableChangeActive)
+            if (Document.BlockingUpdateableChangeActive)
                 return;
 
             Internals.ActionAccumulator.AddFinishedActions(new SetOnionSettings_Action(OnionFramesBindable, value)); 
@@ -96,7 +96,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         get => isPlayingBindable;
         set
         {
-            if (Document.UpdateableChangeActive)
+            if (Document.BlockingUpdateableChangeActive)
                 return;
 
             Internals.ActionAccumulator.AddFinishedActions(new SetPlayingState_PassthroughAction(value));
@@ -126,7 +126,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     public void CreateRasterKeyFrame(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null,
         int? frameToCopyFrom = null)
     {
-        if (!Document.UpdateableChangeActive)
+        if (!Document.BlockingUpdateableChangeActive)
         {
             Internals.ActionAccumulator.AddFinishedActions(new CreateRasterKeyFrame_Action(targetLayerGuid,
                 Guid.NewGuid(), Math.Max(1, frame),
@@ -136,7 +136,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public void DeleteKeyFrames(List<Guid> keyFrameIds)
     {
-        if (!Document.UpdateableChangeActive)
+        if (!Document.BlockingUpdateableChangeActive)
         {
             for (var i = 0; i < keyFrameIds.Count; i++)
             {
@@ -155,7 +155,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public void ChangeKeyFramesStartPos(Guid[] infoIds, int infoDelta)
     {
-        if (!Document.UpdateableChangeActive)
+        if (!Document.BlockingUpdateableChangeActive)
         {
             Internals.ActionAccumulator.AddActions(new KeyFramesStartPos_Action(infoIds.ToList(), infoDelta));
         }
@@ -163,7 +163,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public void ToggleOnionSkinning(bool value)
     {
-        if (!Document.UpdateableChangeActive)
+        if (!Document.BlockingUpdateableChangeActive)
         {
             Internals.ActionAccumulator.AddFinishedActions(new ToggleOnionSkinning_PassthroughAction(value));
         }
@@ -171,7 +171,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public void EndKeyFramesStartPos()
     {
-        if (!Document.UpdateableChangeActive)
+        if (!Document.BlockingUpdateableChangeActive)
         {
             Internals.ActionAccumulator.AddFinishedActions(new EndKeyFramesStartPos_Action());
         }

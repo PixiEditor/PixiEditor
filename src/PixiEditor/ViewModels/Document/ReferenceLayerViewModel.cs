@@ -34,7 +34,7 @@ internal class ReferenceLayerViewModel : ObservableObject, IReferenceLayerHandle
         get => referenceShape; 
         set
         {
-            if (!doc.UpdateableChangeActive)
+            if (!doc.BlockingUpdateableChangeActive)
                 internals.ActionAccumulator.AddFinishedActions(new TransformReferenceLayer_Action(value));
         }
     }
@@ -57,7 +57,7 @@ internal class ReferenceLayerViewModel : ObservableObject, IReferenceLayerHandle
         get => isVisible;
         set
         {
-            if (!doc.UpdateableChangeActive)
+            if (!doc.BlockingUpdateableChangeActive)
                 internals.ActionAccumulator.AddFinishedActions(new ReferenceLayerIsVisible_Action(value));
         }
     }
@@ -80,7 +80,7 @@ internal class ReferenceLayerViewModel : ObservableObject, IReferenceLayerHandle
         get => isTopMost;
         set
         {
-            if (!doc.UpdateableChangeActive)
+            if (!doc.BlockingUpdateableChangeActive)
                 internals.ActionAccumulator.AddFinishedActions(new ReferenceLayerTopMost_Action(value));
         }
     }

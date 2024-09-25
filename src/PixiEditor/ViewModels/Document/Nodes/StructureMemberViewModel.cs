@@ -33,7 +33,7 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
         get => isVisible;
         set
         {
-            if (!Document.UpdateableChangeActive)
+            if (!Document.BlockingUpdateableChangeActive)
                 Internals.ActionAccumulator.AddFinishedActions(new StructureMemberIsVisible_Action(value, Id));
         }
     }
@@ -57,7 +57,7 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
         get => maskIsVisible;
         set
         {
-            if (!Document.UpdateableChangeActive)
+            if (!Document.BlockingUpdateableChangeActive)
                 Internals.ActionAccumulator.AddFinishedActions(
                     new StructureMemberMaskIsVisible_Action(value, Id));
         }
@@ -76,7 +76,7 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
         get => blendMode;
         set
         {
-            if (!Document.UpdateableChangeActive)
+            if (!Document.BlockingUpdateableChangeActive)
                 Internals.ActionAccumulator.AddFinishedActions(new StructureMemberBlendMode_Action(value, Id));
         }
     }
@@ -94,7 +94,7 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
         get => clipToMemberBelowEnabled;
         set
         {
-            if (!Document.UpdateableChangeActive)
+            if (!Document.BlockingUpdateableChangeActive)
                 Internals.ActionAccumulator.AddFinishedActions(
                     new StructureMemberClipToMemberBelow_Action(value, Id));
         }
@@ -126,7 +126,7 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
         get => opacity;
         set
         {
-            if (Document.UpdateableChangeActive)
+            if (Document.BlockingUpdateableChangeActive)
                 return;
             float newValue = Math.Clamp(value, 0, 1);
             Internals.ActionAccumulator.AddFinishedActions(

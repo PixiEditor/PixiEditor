@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces.Vector;
 using PixiEditor.Models.DocumentModels.Public;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
@@ -13,7 +14,7 @@ using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
-internal class TransformSelectedExecutor : UpdateableChangeExecutor
+internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransformableExecutor, IMidChangeUndoableExecutor
 {
     private Dictionary<Guid, ShapeCorners> memberCorners = new();
     private IMoveToolHandler? tool;
@@ -111,7 +112,9 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor
         }));
     }
 
-    public override void OnTransformMoved(ShapeCorners corners)
+    public bool IsTransforming => isInProgress;
+
+    public void OnTransformMoved(ShapeCorners corners)
     {
         if (!isInProgress)
             return;
@@ -121,13 +124,15 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor
                 document!.AnimationHandler.ActiveFrameBindable));
     }
 
-    public override void OnSelectedObjectNudged(VecI distance) => document!.TransformHandler.Nudge(distance);
+    public void OnLineOverlayMoved(VecD start, VecD end) { }
 
-    public override void OnMidChangeUndo() => document!.TransformHandler.Undo();
+    public void OnSelectedObjectNudged(VecI distance) => document!.TransformHandler.Nudge(distance);
 
-    public override void OnMidChangeRedo() => document!.TransformHandler.Redo();
+    public void OnMidChangeUndo() => document!.TransformHandler.Undo();
 
-    public override void OnTransformApplied()
+    public void OnMidChangeRedo() => document!.TransformHandler.Redo();
+
+    public void OnTransformApplied()
     {
         if (tool is not null)
         {
@@ -178,5 +183,10 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor
                 document!.SnappingHandler.AddFromBounds(layer.Id.ToString(), () => layer.TightBounds ?? RectD.Empty);
             }
         }
+    }
+
+    public bool IsFeatureEnabled(IExecutorFeature feature)
+    {
+        return feature is ITransformableExecutor && IsTransforming;
     }
 }

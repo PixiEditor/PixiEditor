@@ -11,6 +11,7 @@ using PixiEditor.DrawingApi.Core.Surfaces.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Models.Clipboard;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
@@ -375,7 +376,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void Undo()
     {
-        if (Internals.ChangeController.IsBlockingChangeActive)
+        if (Internals.ChangeController.IsChangeOfTypeActive<IMidChangeUndoableExecutor>())
         {
             Internals.ChangeController.MidChangeUndoInlet();
             return;
@@ -389,7 +390,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void Redo()
     {
-        if (Internals.ChangeController.IsBlockingChangeActive)
+        if (Internals.ChangeController.IsChangeOfTypeActive<IMidChangeUndoableExecutor>())
         {
             Internals.ChangeController.MidChangeRedoInlet();
             return;
@@ -400,7 +401,7 @@ internal class DocumentOperationsModule : IDocumentOperations
 
     public void NudgeSelectedObject(VecI distance)
     {
-        if (Internals.ChangeController.IsBlockingChangeActive)
+        if (Internals.ChangeController.IsChangeOfTypeActive<ITransformableExecutor>())
         {
             Internals.ChangeController.SelectedObjectNudgedInlet(distance);
         }

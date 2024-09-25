@@ -4,13 +4,14 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces.Vector;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
-internal class PasteImageExecutor : UpdateableChangeExecutor
+internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExecutor, IMidChangeUndoableExecutor
 {
     private readonly Surface image;
     private readonly VecI pos;
@@ -60,18 +61,22 @@ internal class PasteImageExecutor : UpdateableChangeExecutor
         return ExecutionState.Success;
     }
 
-    public override void OnTransformMoved(ShapeCorners corners)
+    public bool IsTransforming => true; 
+
+    public void OnTransformMoved(ShapeCorners corners)
     {
         internals!.ActionAccumulator.AddActions(new PasteImage_Action(image, corners, memberGuid.Value, false, drawOnMask, document!.AnimationHandler.ActiveFrameBindable, default));
     }
 
-    public override void OnSelectedObjectNudged(VecI distance) => document!.TransformHandler.Nudge(distance);
+    public void OnLineOverlayMoved(VecD start, VecD end) { }
 
-    public override void OnMidChangeUndo() => document!.TransformHandler.Undo();
+    public void OnSelectedObjectNudged(VecI distance) => document!.TransformHandler.Nudge(distance);
 
-    public override void OnMidChangeRedo() => document!.TransformHandler.Redo();
+    public void OnMidChangeUndo() => document!.TransformHandler.Undo();
 
-    public override void OnTransformApplied()
+    public void OnMidChangeRedo() => document!.TransformHandler.Redo();
+
+    public void OnTransformApplied()
     {
         internals!.ActionAccumulator.AddFinishedActions(new EndPasteImage_Action());
         document!.TransformHandler.HideTransform();
@@ -82,5 +87,16 @@ internal class PasteImageExecutor : UpdateableChangeExecutor
     {
         document!.TransformHandler.HideTransform();
         internals!.ActionAccumulator.AddActions(new EndPasteImage_Action());
+    }
+
+    public bool IsFeatureEnabled(IExecutorFeature feature)
+    {
+        if (feature is ITransformableExecutor)
+            return IsTransforming;
+        
+        if (feature is IMidChangeUndoableExecutor)
+            return true;
+
+        return false;
     }
 }

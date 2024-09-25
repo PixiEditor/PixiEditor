@@ -19,7 +19,7 @@ internal class ImageLayerNodeViewModel : StructureMemberViewModel<ImageLayerNode
         get => lockTransparency;
         set
         {
-            if (!Document.UpdateableChangeActive)
+            if (!Document.BlockingUpdateableChangeActive)
                 Internals.ActionAccumulator.AddFinishedActions(new LayerLockTransparency_Action(Id, value));
         }
     }

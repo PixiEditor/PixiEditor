@@ -39,6 +39,7 @@ using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.Public;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Serialization;
@@ -152,7 +153,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     private readonly HashSet<IStructureMemberHandler> softSelectedStructureMembers = new();
 
-    public bool UpdateableChangeActive => Internals.ChangeController.IsBlockingChangeActive;
+    public bool BlockingUpdateableChangeActive => Internals.ChangeController.IsBlockingChangeActive;
+    public bool IsChangeFeatureActive<T>() where T : IExecutorFeature => Internals.ChangeController.IsChangeOfTypeActive<T>();
 
     public bool PointerDragChangeInProgress =>
         Internals.ChangeController.IsBlockingChangeActive && Internals.ChangeController.LeftMousePressed;

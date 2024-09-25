@@ -1,4 +1,6 @@
-﻿using PixiEditor.Models.Handlers;
+﻿using ChunkyImageLib.DataHolders;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
 using PixiEditor.Numerics;
 
@@ -22,7 +24,8 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 ///         - Transform -> Preview (when user applies the transform)
 ///         - Transform -> Drawing (when user clicks outside of shape transform bounds)
 /// </summary>
-internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor
+internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor, 
+    ITransformableExecutor, IMidChangeUndoableExecutor
 {
     private ShapeToolMode activeMode;
 
@@ -134,13 +137,28 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor
         ActiveMode = ShapeToolMode.Transform;
     }
 
-    public override void OnTransformApplied()
+    public bool IsTransforming => ActiveMode == ShapeToolMode.Transform; 
+
+    public virtual void OnTransformMoved(ShapeCorners corners)
+    {
+        
+    }
+
+    public virtual void OnTransformApplied()
     {
         ActiveMode = ShapeToolMode.Preview;
         AddMemberToSnapping();
         HighlightSnapping(null, null);
     }
-    
+
+    public virtual void OnLineOverlayMoved(VecD start, VecD end)
+    {
+    }
+
+    public virtual void OnSelectedObjectNudged(VecI distance)
+    {
+    }
+
     public override void ForceStop()
     {
         StopMode(activeMode);
@@ -187,6 +205,22 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor
     
     protected virtual void PrecisePositionChangeDrawingMode(VecD pos) { }
     protected virtual void PrecisePositionChangeTransformMode(VecD pos) { }
+    public abstract void OnMidChangeUndo();
+    public abstract void OnMidChangeRedo();
+    public bool IsFeatureEnabled(IExecutorFeature feature)
+    {
+        if (feature is ITransformableExecutor)
+        {
+            return IsTransforming;
+        }
+        
+        if (feature is IMidChangeUndoableExecutor)
+        {
+            return ActiveMode == ShapeToolMode.Transform;
+        }
+        
+        return false;
+    }
 }
 
 enum ShapeToolMode

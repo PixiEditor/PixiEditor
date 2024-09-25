@@ -21,7 +21,7 @@ internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNo
         get => lockTransparency;
         set
         {
-            if (!Document.UpdateableChangeActive)
+            if (!Document.BlockingUpdateableChangeActive)
                 Internals.ActionAccumulator.AddFinishedActions(new LayerLockTransparency_Action(Id, value));
         }
     }

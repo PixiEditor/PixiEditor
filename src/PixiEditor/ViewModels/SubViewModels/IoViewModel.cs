@@ -209,7 +209,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         {
             case RightClickMode.SecondaryColor when tools.ActiveTool.UsesColor:
             case RightClickMode.Erase when tools.ActiveTool is ColorPickerToolViewModel:
-                if (!Owner.DocumentManagerSubViewModel.ActiveDocument.UpdateableChangeActive)
+                if (!Owner.DocumentManagerSubViewModel.ActiveDocument.BlockingUpdateableChangeActive)
                 {
                     Owner.ColorsSubViewModel.SwapColors(null);
                 }
@@ -310,7 +310,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
                                          }
                                         ):
 
-                if (!Owner.DocumentManagerSubViewModel.ActiveDocument.UpdateableChangeActive)
+                if (!Owner.DocumentManagerSubViewModel.ActiveDocument.BlockingUpdateableChangeActive)
                 {
                     Owner.ColorsSubViewModel.SwapColors(null);
                 }
