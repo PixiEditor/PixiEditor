@@ -17,7 +17,7 @@ internal class ChangeExecutionController
     public ShapeCorners LastTransformState { get; private set; }
     public VecI LastPixelPosition => lastPixelPos;
     public VecD LastPrecisePosition => lastPrecisePos;
-    public bool IsChangeActive => currentSession is not null;
+    public bool IsBlockingChangeActive => currentSession is not null && currentSession.BlocksOtherActions;
     
     public event Action ToolSessionFinished;
 

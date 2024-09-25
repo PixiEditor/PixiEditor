@@ -117,7 +117,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         get => horizontalSymmetryAxisEnabled;
         set
         {
-            if (!Internals.ChangeController.IsChangeActive)
+            if (!Internals.ChangeController.IsBlockingChangeActive)
                 Internals.ActionAccumulator.AddFinishedActions(
                     new SymmetryAxisState_Action(SymmetryAxisDirection.Horizontal, value));
         }
@@ -130,7 +130,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         get => verticalSymmetryAxisEnabled;
         set
         {
-            if (!Internals.ChangeController.IsChangeActive)
+            if (!Internals.ChangeController.IsBlockingChangeActive)
                 Internals.ActionAccumulator.AddFinishedActions(
                     new SymmetryAxisState_Action(SymmetryAxisDirection.Vertical, value));
         }
@@ -152,10 +152,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     private readonly HashSet<IStructureMemberHandler> softSelectedStructureMembers = new();
 
-    public bool UpdateableChangeActive => Internals.ChangeController.IsChangeActive;
+    public bool UpdateableChangeActive => Internals.ChangeController.IsBlockingChangeActive;
 
     public bool PointerDragChangeInProgress =>
-        Internals.ChangeController.IsChangeActive && Internals.ChangeController.LeftMousePressed;
+        Internals.ChangeController.IsBlockingChangeActive && Internals.ChangeController.LeftMousePressed;
 
     public bool HasSavedUndo => Internals.Tracker.HasSavedUndo;
     public bool HasSavedRedo => Internals.Tracker.HasSavedRedo;

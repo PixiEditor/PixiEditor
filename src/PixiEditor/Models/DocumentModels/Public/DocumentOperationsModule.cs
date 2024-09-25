@@ -41,7 +41,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void Select(RectI rect, SelectionMode mode = SelectionMode.New)
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return;
         Internals.ActionAccumulator.AddFinishedActions(
             new SelectRectangle_Action(rect, mode),
@@ -53,7 +53,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void ClearSelection()
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return;
         Internals.ActionAccumulator.AddFinishedActions(new ClearSelection_Action());
     }
@@ -65,7 +65,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     public void DeleteSelectedPixels(int frame, bool clearSelection = false)
     {
         var member = Document.SelectedStructureMember;
-        if (Internals.ChangeController.IsChangeActive || member is null)
+        if (Internals.ChangeController.IsBlockingChangeActive || member is null)
             return;
         bool drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
         if (drawOnMask && !member.HasMaskBindable)
@@ -83,7 +83,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="value">A value between 0 and 1</param>
     public void SetMemberOpacity(Guid memberGuid, float value)
     {
-        if (Internals.ChangeController.IsChangeActive || value is > 1 or < 0)
+        if (Internals.ChangeController.IsBlockingChangeActive || value is > 1 or < 0)
             return;
         Internals.ActionAccumulator.AddFinishedActions(
             new StructureMemberOpacity_Action(memberGuid, value),
@@ -108,7 +108,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void ClearUndo()
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return;
         Internals.ActionAccumulator.AddActions(new DeleteRecordedChanges_Action());
     }
@@ -119,7 +119,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="images">The images to paste</param>
     public void PasteImagesAsLayers(List<DataImage> images, int frame)
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
         RectI maxSize = new RectI(VecI.Zero, Document.SizeBindable);
@@ -151,14 +151,14 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <returns>The Guid of the new structure member or null if there is already an active change</returns>
     public Guid? CreateStructureMember(StructureMemberType type, string? name = null, bool finish = true)
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return null;
         return Internals.StructureHelper.CreateNewStructureMember(type, name, finish);
     }
 
     public Guid? CreateStructureMember(Type structureMemberType, string? name = null, bool finish = true)
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return null;
         
         return Internals.StructureHelper.CreateNewStructureMember(structureMemberType, name, finish);
@@ -170,7 +170,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="guidValue">The Guid of the layer</param>
     public void DuplicateLayer(Guid guidValue)
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return;
         Internals.ActionAccumulator.AddFinishedActions(new DuplicateLayer_Action(guidValue));
     }
@@ -181,7 +181,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="guidValue">The Guid of the layer</param>
     public void DeleteStructureMember(Guid guidValue)
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return;
         Internals.ActionAccumulator.AddFinishedActions(new DeleteStructureMember_Action(guidValue));
     }
@@ -192,7 +192,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="guids">The Guids of the layers to delete</param>
     public void DeleteStructureMembers(IReadOnlyList<Guid> guids, bool selectNext = true)
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
         Guid closestMember = FindClosestMember(guids);
@@ -221,7 +221,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="anchor">Where the existing content should be put</param>
     public void ResizeCanvas(VecI newSize, ResizeAnchor anchor)
     {
-        if (Internals.ChangeController.IsChangeActive || newSize.X > 9999 || newSize.Y > 9999 || newSize.X < 1 ||
+        if (Internals.ChangeController.IsBlockingChangeActive || newSize.X > 9999 || newSize.Y > 9999 || newSize.X < 1 ||
             newSize.Y < 1)
             return;
 
@@ -250,7 +250,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="resampling">The resampling method to use</param>
     public void ResizeImage(VecI newSize, ResamplingMethod resampling)
     {
-        if (Internals.ChangeController.IsChangeActive || newSize.X > 9999 || newSize.Y > 9999 || newSize.X < 1 ||
+        if (Internals.ChangeController.IsBlockingChangeActive || newSize.X > 9999 || newSize.Y > 9999 || newSize.X < 1 ||
             newSize.Y < 1)
             return;
 
@@ -279,7 +279,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="newColor">The new color</param>
     public void ReplaceColor(PaletteColor oldColor, PaletteColor newColor, int frame)
     {
-        if (Internals.ChangeController.IsChangeActive || oldColor == newColor)
+        if (Internals.ChangeController.IsBlockingChangeActive || oldColor == newColor)
             return;
 
         Internals.ActionAccumulator.AddFinishedActions(new ReplaceColor_Action(oldColor.ToColor(), newColor.ToColor(),
@@ -302,7 +302,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void CreateMask(IStructureMemberHandler member)
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return;
         if (!member.MaskIsVisibleBindable)
             Internals.ActionAccumulator.AddActions(new StructureMemberMaskIsVisible_Action(true, member.Id));
@@ -314,7 +314,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void DeleteMask(IStructureMemberHandler member)
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return;
         Internals.ActionAccumulator.AddFinishedActions(new DeleteStructureMemberMask_Action(member.Id));
     }
@@ -324,7 +324,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void ApplyMask(IStructureMemberHandler member, int frame)
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
         Internals.ActionAccumulator.AddFinishedActions(new ApplyMask_Action(member.Id, frame),
@@ -375,7 +375,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void Undo()
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
         {
             Internals.ChangeController.MidChangeUndoInlet();
             return;
@@ -389,7 +389,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void Redo()
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
         {
             Internals.ChangeController.MidChangeRedoInlet();
             return;
@@ -400,7 +400,7 @@ internal class DocumentOperationsModule : IDocumentOperations
 
     public void NudgeSelectedObject(VecI distance)
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
         {
             Internals.ChangeController.SelectedObjectNudgedInlet(distance);
         }
@@ -415,7 +415,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     public void MoveStructureMember(Guid memberToMove, Guid memberToMoveIntoOrNextTo,
         StructureMemberPlacement placement)
     {
-        if (Internals.ChangeController.IsChangeActive || memberToMove == memberToMoveIntoOrNextTo)
+        if (Internals.ChangeController.IsBlockingChangeActive || memberToMove == memberToMoveIntoOrNextTo)
             return;
         Internals.StructureHelper.TryMoveStructureMember(memberToMove, memberToMoveIntoOrNextTo, placement);
     }
@@ -425,7 +425,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void MergeStructureMembers(IReadOnlyList<Guid> members)
     {
-        if (Internals.ChangeController.IsChangeActive || members.Count < 2)
+        if (Internals.ChangeController.IsBlockingChangeActive || members.Count < 2)
             return;
 
         IStructureMemberHandler? node = Document.StructureHelper.FindNode<IStructureMemberHandler>(members[0]);
@@ -491,7 +491,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     public void TransformSelectedArea(bool toolLinked)
     {
         if (Document.SelectedStructureMember is null ||
-            Internals.ChangeController.IsChangeActive && !toolLinked)
+            Internals.ChangeController.IsBlockingChangeActive && !toolLinked)
             return;
         Internals.ChangeController.TryStartExecutor(new TransformSelectedExecutor(toolLinked));
     }
@@ -521,7 +521,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     private void DrawImage(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipSymmetriesEtc,
         bool drawOnMask, int atFrame, bool finish)
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return;
         Internals.ActionAccumulator.AddActions(
             new PasteImage_Action(image, corners, memberGuid, ignoreClipSymmetriesEtc, drawOnMask, atFrame, default),
@@ -535,7 +535,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void ClipCanvas()
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return;
         Internals.ActionAccumulator.AddFinishedActions(
             new ClipCanvas_Action(Document.AnimationHandler.ActiveFrameBindable));
@@ -551,7 +551,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void FlipImage(FlipType flipType, List<Guid> membersToFlip, int frame)
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
         Internals.ActionAccumulator.AddFinishedActions(new FlipImage_Action(flipType, frame, membersToFlip));
@@ -569,7 +569,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="rotation">The degrees to rotate the members by</param>
     public void RotateImage(RotationAngle rotation, List<Guid> membersToRotate, int frame)
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
         Internals.ActionAccumulator.AddFinishedActions(new RotateImage_Action(rotation, membersToRotate, frame));
@@ -580,7 +580,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void CenterContent(IReadOnlyList<Guid> structureMembers, int frame)
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
         Internals.ActionAccumulator.AddFinishedActions(new CenterContent_Action(structureMembers.ToList(), frame));
@@ -592,7 +592,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="imageSize">The size of the image</param>
     public void ImportReferenceLayer(ImmutableArray<byte> imageBgra8888Bytes, VecI imageSize)
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
         RectD referenceImageRect =
@@ -607,7 +607,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void DeleteReferenceLayer()
     {
-        if (Internals.ChangeController.IsChangeActive || Document.ReferenceLayerHandler.ReferenceBitmap is null)
+        if (Internals.ChangeController.IsBlockingChangeActive || Document.ReferenceLayerHandler.ReferenceBitmap is null)
             return;
 
         Internals.ActionAccumulator.AddFinishedActions(new DeleteReferenceLayer_Action());
@@ -618,7 +618,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void TransformReferenceLayer()
     {
-        if (Document.ReferenceLayerHandler.ReferenceBitmap is null || Internals.ChangeController.IsChangeActive)
+        if (Document.ReferenceLayerHandler.ReferenceBitmap is null || Internals.ChangeController.IsBlockingChangeActive)
             return;
         Internals.ChangeController.TryStartExecutor(new TransformReferenceLayerExecutor());
     }
@@ -628,7 +628,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void ResetReferenceLayerPosition()
     {
-        if (Document.ReferenceLayerHandler.ReferenceBitmap is null || Internals.ChangeController.IsChangeActive)
+        if (Document.ReferenceLayerHandler.ReferenceBitmap is null || Internals.ChangeController.IsBlockingChangeActive)
             return;
 
 
@@ -728,7 +728,7 @@ internal class DocumentOperationsModule : IDocumentOperations
 
     public void Rasterize(Guid memberId)
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
         Internals.ActionAccumulator.AddFinishedActions(new RasterizeMember_Action(memberId));    
@@ -736,7 +736,7 @@ internal class DocumentOperationsModule : IDocumentOperations
 
     public void InvokeCustomAction(Action action)
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
         IAction targetAction = new InvokeAction_PassthroughAction(action);

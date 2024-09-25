@@ -40,6 +40,8 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor
     protected Guid memberId;
     protected VecD startDrawingPos;
 
+    public override bool BlocksOtherActions => ActiveMode == ShapeToolMode.Drawing;
+
     public override ExecutionState Start()
     {
         IStructureMemberHandler? member = document?.SelectedStructureMember;
