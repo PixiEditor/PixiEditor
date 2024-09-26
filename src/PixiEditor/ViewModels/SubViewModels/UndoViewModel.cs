@@ -35,7 +35,7 @@ internal class UndoViewModel : SubViewModel<ViewModelMain>
     public void Undo()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        if (doc is null || (!doc.BlockingUpdateableChangeActive && !doc.HasSavedUndo))
+        if (doc is null || (!doc.IsChangeFeatureActive<IMidChangeUndoableExecutor>() && !doc.HasSavedUndo))
             return;
         doc.Operations.Undo();
     }
@@ -51,7 +51,7 @@ internal class UndoViewModel : SubViewModel<ViewModelMain>
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
             return false;
-        return doc.BlockingUpdateableChangeActive || doc.HasSavedUndo;
+        return doc.IsChangeFeatureActive<IMidChangeUndoableExecutor>() || doc.HasSavedUndo;
     }
 
     /// <summary>

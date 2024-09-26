@@ -47,7 +47,7 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
             vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) is IReadOnlyEllipseData)
         {
             ShapeCorners corners = vectorLayer.TransformationCorners;
-            ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument.TransformViewModel.ShowTransform(
+            document.TransformViewModel.ShowTransform(
                 DocumentTransformMode.Scale_Rotate_Shear_NoPerspective, false, corners, false);
         }
 

@@ -203,8 +203,8 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         TransformActive = true;
         ShowTransformControls = showApplyButton;
 
-        undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Initial);
         RequestCornersExecutor?.Execute(this, initPos);
+        undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Initial);
     }
 
     public void KeyModifiersInlet(bool isShiftDown, bool isCtrlDown, bool isAltDown)
