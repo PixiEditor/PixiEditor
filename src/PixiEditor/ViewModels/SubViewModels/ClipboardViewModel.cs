@@ -207,7 +207,8 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     {
         return Owner.DocumentManagerSubViewModel.ActiveDocument != null &&
                (Owner.SelectionSubViewModel.SelectionIsNotEmpty() ||
-                Owner.DocumentManagerSubViewModel.ActiveDocument.TransformViewModel.TransformActive);
+                Owner.DocumentManagerSubViewModel.ActiveDocument.TransformViewModel.TransformActive
+                || Owner.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember != null);
     }
 
     [Evaluator.Icon("PixiEditor.Clipboard.PasteColorIcon")]

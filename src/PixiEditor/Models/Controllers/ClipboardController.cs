@@ -84,6 +84,16 @@ internal static class ClipboardController
             
             (surfaceToCopy, copyArea) = surface.AsT2;
         }
+        else if (document.SelectedStructureMember != null)
+        {
+            RectI bounds = new RectI(VecI.Zero, document.SizeBindable);
+            
+            var surface = document.TryExtractAreaFromSelected(bounds);
+            if (surface.IsT0 || surface.IsT1)
+                return;
+            
+            (surfaceToCopy, copyArea) = surface.AsT2;
+        }
 
         if (surfaceToCopy == null)
         {

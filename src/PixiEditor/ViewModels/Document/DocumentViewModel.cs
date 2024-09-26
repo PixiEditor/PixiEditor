@@ -566,7 +566,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         RectI bounds)
     {
         var selectedLayers = ExtractSelectedLayers();
-        selectedLayers.Reverse();
         if (selectedLayers.Count == 0)
             return new Error();
         if (bounds.IsZeroOrNegativeArea)
@@ -850,22 +849,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         var result = new List<Guid>();
         List<Guid> selectedMembers = GetSelectedMembers();
-        foreach (var member in selectedMembers)
+        var allLayers = StructureHelper.GetAllLayers();
+        foreach (var member in allLayers)
         {
-            var foundMember = StructureHelper.Find(member);
-            if (foundMember != null)
+            if (selectedMembers.Contains(member.Id))
             {
-                if (foundMember is ILayerHandler layer && selectedMembers.Contains(foundMember.Id) &&
-                    !result.Contains(layer.Id))
-                {
-                    result.Add(layer.Id);
-                }
-                else if (foundMember is IFolderHandler folder && selectedMembers.Contains(foundMember.Id))
-                {
-                    if (includeFoldersWithMask && folder.HasMaskBindable && !result.Contains(folder.Id))
-                        result.Add(folder.Id);
-                    ExtractSelectedLayers(folder, result, includeFoldersWithMask);
-                }
+                result.Add(member.Id);
             }
         }
 
