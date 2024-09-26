@@ -97,32 +97,4 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         OnDeselecting();
         OnSelected();
     }
-
-    private static RectI? GetSelectedLayersBounds()
-    {
-        var layers = ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.ExtractSelectedLayers();
-        RectI? bounds = null;
-        if (layers != null)
-        {
-            foreach (var layer in layers)
-            {
-                var foundLayer =
-                    ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.StructureHelper.Find(layer);
-                RectI? layerBounds = (RectI?)foundLayer?.TightBounds;
-                if (layerBounds != null)
-                {
-                    if (bounds == null)
-                    {
-                        bounds = layerBounds;
-                    }
-                    else
-                    {
-                        bounds = bounds.Value.Union(layerBounds.Value);
-                    }
-                }
-            }
-        }
-
-        return bounds;
-    }
 }
