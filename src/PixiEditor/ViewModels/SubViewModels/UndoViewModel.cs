@@ -1,6 +1,7 @@
 ﻿using Avalonia.Input;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.ViewModels.SubViewModels;
@@ -21,7 +22,7 @@ internal class UndoViewModel : SubViewModel<ViewModelMain>
     public void Redo()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        if (doc is null || (!doc.BlockingUpdateableChangeActive && !doc.HasSavedRedo))
+        if (doc is null || (!doc.IsChangeFeatureActive<IMidChangeUndoableExecutor>() && !doc.HasSavedRedo))
             return;
         doc.Operations.Redo();
     }
@@ -64,6 +65,6 @@ internal class UndoViewModel : SubViewModel<ViewModelMain>
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
             return false;
-        return doc.BlockingUpdateableChangeActive || doc.HasSavedRedo;
+        return doc.IsChangeFeatureActive<IMidChangeUndoableExecutor>() || doc.HasSavedRedo;
     }
 }
