@@ -14,6 +14,7 @@ using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
@@ -119,12 +120,14 @@ internal static class ClipboardController
 
     private static async Task AddImageToClipboard(Surface actuallySurface, DataObject data)
     {
-        using (ImgData pngData = actuallySurface.DrawingSurface.Snapshot().Encode())
+        using (ImgData pngData = actuallySurface.DrawingSurface.Snapshot().Encode(EncodedImageFormat.Png))
         {
             using MemoryStream pngStream = new MemoryStream();
             await pngData.AsStream().CopyToAsync(pngStream);
 
-            data.Set(ClipboardDataFormats.Png, pngStream.ToArray()); // PNG, supports transparency
+            var pngArray = pngStream.ToArray();
+            data.Set(ClipboardDataFormats.Png, pngArray);
+            data.Set(ClipboardDataFormats.ImageSlashPng, pngArray);
 
             pngStream.Position = 0;
             Directory.CreateDirectory(Path.GetDirectoryName(TempCopyFilePath)!);
@@ -132,10 +135,6 @@ internal static class ClipboardController
             await pngStream.CopyToAsync(fileStream);
             data.SetFileDropList(new[] { TempCopyFilePath });
         }
-
-        WriteableBitmap finalBitmap = actuallySurface.ToWriteableBitmap();
-        data.Set(ClipboardDataFormats.Bitmap, finalBitmap); // Bitmap, no transparency
-        data.Set(ClipboardDataFormats.Dib, finalBitmap); // DIB format, no transparency
     }
 
     /// <summary>
@@ -252,7 +251,7 @@ internal static class ClipboardController
     }
 
     /// <summary>
-    /// Gets images from clipboard, supported PNG, Dib and Bitmap.
+    /// Gets images from clipboard, supported PNG and Bitmap.
     /// </summary>
     public static List<DataImage> GetImage(IEnumerable<IDataObject?> data)
     {
@@ -261,7 +260,7 @@ internal static class ClipboardController
         if (data == null)
             return surfaces;
 
-        VecI pos = VecI.NegativeOne;
+        VecI pos = VecI.Zero;
 
         foreach (var dataObject in data)
         {
@@ -395,14 +394,19 @@ internal static class ClipboardController
             return false;
         }
 
-        return HasData(dataObject, "PNG", ClipboardDataFormats.Dib, ClipboardDataFormats.Bitmap);
+        return HasData(dataObject, ClipboardDataFormats.Png, ClipboardDataFormats.ImageSlashPng);
     }
 
-    private static bool IsImageFormat(string[] files)
+    private static bool IsImageFormat(string[] formats)
     {
-        foreach (var file in files)
+        foreach (var format in formats)
         {
-            if (Importer.IsSupportedFile(file))
+            if(format == ClipboardDataFormats.Png)
+            {
+                return true;
+            }
+            
+            if (Importer.IsSupportedFile(format))
             {
                 return true;
             }
@@ -435,21 +439,9 @@ internal static class ClipboardController
         try
         {
             Bitmap source;
-            if (data.Contains("PNG"))
+            if (data.Contains(ClipboardDataFormats.Png) || data.Contains(ClipboardDataFormats.ImageSlashPng))
             {
                 source = FromPNG(data);
-            }
-            else if (HasData(data, ClipboardDataFormats.Dib, ClipboardDataFormats.Bitmap))
-            {
-                var imgs = GetImage(new[] { data });
-                if (imgs == null || imgs.Count == 0)
-                {
-                    result = null;
-                    return false;
-                }
-
-                result = imgs[0].Image;
-                return true;
             }
             else
             {
