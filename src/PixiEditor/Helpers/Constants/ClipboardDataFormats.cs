@@ -2,7 +2,9 @@
 
 public static class ClipboardDataFormats
 {
-    public static string Dib = "DeviceIndependentBitmap";
-    public static string Bitmap = "Bitmap";
-    public static string Png = "PNG";
+    public const string Dib = "DeviceIndependentBitmap";
+    public const string Bitmap = "Bitmap";
+    public const string Png = "PNG";
+    public const string LayerIdList = "PixiEditor.LayerIdList";
+    public const string PositionFormat = "PixiEditor.Position";
 }

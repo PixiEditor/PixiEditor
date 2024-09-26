@@ -558,27 +558,31 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     /// Takes the selected area and converts it into a surface
     /// </summary>
     /// <returns><see cref="Error"/> on error, <see cref="None"/> for empty <see cref="Surface"/>, <see cref="Surface"/> otherwise.</returns>
-    public OneOf<Error, None, (Surface, RectI)> MaybeExtractSelectedArea(
+    public OneOf<Error, None, (Surface, RectI)> TryExtractArea(RectI bounds,
         IStructureMemberHandler? layerToExtractFrom = null)
     {
         layerToExtractFrom ??= SelectedStructureMember;
         if (layerToExtractFrom is not ILayerHandler layerVm)
             return new Error();
-        if (SelectionPathBindable.IsEmpty)
+        if (bounds.IsZeroOrNegativeArea)
             return new None();
 
-        //TODO: Make sure it's not needed for other layer types
-        IReadOnlyImageNode? layer = (IReadOnlyImageNode?)Internals.Tracker.Document.FindMember(layerVm.Id);
+        IReadOnlyStructureNode? layer = Internals.Tracker.Document.FindMember(layerVm.Id);
         if (layer is null)
             return new Error();
-
-        RectI bounds = (RectI)SelectionPathBindable.TightBounds;
+        
         RectI? memberImageBounds;
         try
         {
-            // TODO: Make sure it must be GetLayerImageAtFrame rather than Rasterize()
-            memberImageBounds = layer.GetLayerImageAtFrame(AnimationDataViewModel.ActiveFrameBindable)
-                .FindChunkAlignedMostUpToDateBounds();
+            if (layer is IReadOnlyImageNode imgNode)
+            {
+                memberImageBounds = imgNode.GetLayerImageAtFrame(AnimationDataViewModel.ActiveFrameBindable)
+                    .FindChunkAlignedMostUpToDateBounds();
+            }
+            else
+            {
+                memberImageBounds = (RectI?)layer.GetTightBounds(AnimationDataViewModel.ActiveFrameTime);
+            }
         }
         catch (ObjectDisposedException)
         {
@@ -597,11 +601,16 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         VectorPath clipPath = new VectorPath(SelectionPathBindable) { FillType = PathFillType.EvenOdd };
         clipPath.Transform(Matrix3X3.CreateTranslation(-bounds.X, -bounds.Y));
         output.DrawingSurface.Canvas.Save();
-        output.DrawingSurface.Canvas.ClipPath(clipPath);
+        if (!clipPath.IsEmpty)
+        {
+            output.DrawingSurface.Canvas.ClipPath(clipPath);
+        }
+
         try
         {
-            layer.GetLayerImageAtFrame(AnimationDataViewModel.ActiveFrameBindable)
-                .DrawMostUpToDateRegionOn(bounds, ChunkResolution.Full, output.DrawingSurface, VecI.Zero);
+            using Texture rendered = Renderer.RenderLayer(layerVm.Id, ChunkResolution.Full, AnimationDataViewModel.ActiveFrameTime);
+            using Image snapshot = rendered.DrawingSurface.Snapshot(bounds);
+            output.DrawingSurface.Canvas.DrawImage(snapshot, 0, 0);
         }
         catch (ObjectDisposedException)
         {
