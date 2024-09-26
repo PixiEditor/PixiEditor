@@ -64,7 +64,7 @@ internal static class ClipboardController
 
         if (!document.SelectionPathBindable.IsEmpty)
         {
-            var surface = document.TryExtractArea((RectI)document.SelectionPathBindable.TightBounds);
+            var surface = document.TryExtractAreaFromSelected((RectI)document.SelectionPathBindable.TightBounds);
             if (surface.IsT0)
                 return;
 
@@ -78,7 +78,7 @@ internal static class ClipboardController
         }
         else if(document.TransformViewModel.TransformActive)
         {
-            var surface = document.TryExtractArea((RectI)document.TransformViewModel.Corners.AABBBounds.RoundOutwards());
+            var surface = document.TryExtractAreaFromSelected((RectI)document.TransformViewModel.Corners.AABBBounds.RoundOutwards());
             if (surface.IsT0 || surface.IsT1)
                 return;
             

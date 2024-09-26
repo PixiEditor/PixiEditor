@@ -30,6 +30,7 @@ using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.DrawingApi.Core.Surfaces.Vector;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.Palettes;
@@ -51,6 +52,7 @@ using PixiEditor.Parser.Skia;
 using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
+using BlendMode = PixiEditor.DrawingApi.Core.Surfaces.BlendMode;
 using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
 using Node = PixiEditor.Parser.Graph.Node;
@@ -154,7 +156,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     private readonly HashSet<IStructureMemberHandler> softSelectedStructureMembers = new();
 
     public bool BlockingUpdateableChangeActive => Internals.ChangeController.IsBlockingChangeActive;
-    public bool IsChangeFeatureActive<T>() where T : IExecutorFeature => Internals.ChangeController.IsChangeOfTypeActive<T>();
+
+    public bool IsChangeFeatureActive<T>() where T : IExecutorFeature =>
+        Internals.ChangeController.IsChangeOfTypeActive<T>();
 
     public bool PointerDragChangeInProgress =>
         Internals.ChangeController.IsBlockingChangeActive && Internals.ChangeController.LeftMousePressed;
@@ -558,45 +562,63 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     /// Takes the selected area and converts it into a surface
     /// </summary>
     /// <returns><see cref="Error"/> on error, <see cref="None"/> for empty <see cref="Surface"/>, <see cref="Surface"/> otherwise.</returns>
-    public OneOf<Error, None, (Surface, RectI)> TryExtractArea(RectI bounds,
-        IStructureMemberHandler? layerToExtractFrom = null)
+    public OneOf<Error, None, (Surface, RectI)> TryExtractAreaFromSelected(
+        RectI bounds)
     {
-        layerToExtractFrom ??= SelectedStructureMember;
-        if (layerToExtractFrom is not ILayerHandler layerVm)
+        var selectedLayers = ExtractSelectedLayers();
+        selectedLayers.Reverse();
+        if (selectedLayers.Count == 0)
             return new Error();
         if (bounds.IsZeroOrNegativeArea)
             return new None();
 
-        IReadOnlyStructureNode? layer = Internals.Tracker.Document.FindMember(layerVm.Id);
-        if (layer is null)
-            return new Error();
-        
-        RectI? memberImageBounds;
-        try
+        RectI finalBounds = default;
+
+        for (int i = 0; i < selectedLayers.Count; i++)
         {
-            if (layer is IReadOnlyImageNode imgNode)
+            var layerVm = StructureHelper.Find(selectedLayers[i]); 
+            IReadOnlyStructureNode? layer = Internals.Tracker.Document.FindMember(layerVm.Id);
+            if (layer is null)
+                return new Error();
+
+            RectI? memberImageBounds;
+            try
             {
-                memberImageBounds = imgNode.GetLayerImageAtFrame(AnimationDataViewModel.ActiveFrameBindable)
-                    .FindChunkAlignedMostUpToDateBounds();
+                if (layer is IReadOnlyImageNode imgNode)
+                {
+                    memberImageBounds = imgNode.GetLayerImageAtFrame(AnimationDataViewModel.ActiveFrameBindable)
+                        .FindChunkAlignedMostUpToDateBounds();
+                }
+                else
+                {
+                    memberImageBounds = (RectI?)layer.GetTightBounds(AnimationDataViewModel.ActiveFrameTime);
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+                return new Error();
+            }
+
+            if (memberImageBounds is null)
+                continue;
+
+            RectI combinedBounds = bounds.Intersect(memberImageBounds.Value);
+            combinedBounds = combinedBounds.Intersect(new RectI(VecI.Zero, SizeBindable));
+
+            if (combinedBounds.IsZeroOrNegativeArea)
+                continue;
+
+            if (i == 0 || finalBounds == default)
+            {
+                finalBounds = combinedBounds;
             }
             else
             {
-                memberImageBounds = (RectI?)layer.GetTightBounds(AnimationDataViewModel.ActiveFrameTime);
+                finalBounds = finalBounds.Union(combinedBounds);
             }
         }
-        catch (ObjectDisposedException)
-        {
-            return new Error();
-        }
 
-        if (memberImageBounds is null)
-            return new None();
-        bounds = bounds.Intersect(memberImageBounds.Value);
-        bounds = bounds.Intersect(new RectI(VecI.Zero, SizeBindable));
-        if (bounds.IsZeroOrNegativeArea)
-            return new None();
-
-        Surface output = new(bounds.Size);
+        Surface output = new(finalBounds.Size);
 
         VectorPath clipPath = new VectorPath(SelectionPathBindable) { FillType = PathFillType.EvenOdd };
         clipPath.Transform(Matrix3X3.CreateTranslation(-bounds.X, -bounds.Y));
@@ -605,21 +627,26 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             output.DrawingSurface.Canvas.ClipPath(clipPath);
         }
+        using Paint paint = new Paint() { BlendMode = BlendMode.SrcOver };
 
-        try
+        foreach (var layer in selectedLayers)
         {
-            using Texture rendered = Renderer.RenderLayer(layerVm.Id, ChunkResolution.Full, AnimationDataViewModel.ActiveFrameTime);
-            using Image snapshot = rendered.DrawingSurface.Snapshot(bounds);
-            output.DrawingSurface.Canvas.DrawImage(snapshot, 0, 0);
-        }
-        catch (ObjectDisposedException)
-        {
-            output.Dispose();
-            return new Error();
+            try
+            {
+                var layerVm = Internals.Tracker.Document.FindMember(layer);
+                using Texture rendered = Renderer.RenderLayer(layerVm.Id, ChunkResolution.Full,
+                    AnimationDataViewModel.ActiveFrameTime);
+                using Image snapshot = rendered.DrawingSurface.Snapshot(bounds);
+                output.DrawingSurface.Canvas.DrawImage(snapshot, 0, 0, paint);
+            }
+            catch (ObjectDisposedException)
+            {
+                output.Dispose();
+                return new Error();
+            }
         }
 
         output.DrawingSurface.Canvas.Restore();
-
         return (output, bounds);
     }
 
@@ -716,7 +743,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     #region Internal Methods
 
-    // these are intended to only be called from DocumentUpdater
+// these are intended to only be called from DocumentUpdater
 
     public void InternalRaiseLayersChanged(LayersChangedEventArgs args) => LayersChanged?.Invoke(this, args);
 
@@ -828,12 +855,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             var foundMember = StructureHelper.Find(member);
             if (foundMember != null)
             {
-                if (foundMember is ImageLayerNodeViewModel layer && selectedMembers.Contains(foundMember.Id) &&
+                if (foundMember is ILayerHandler layer && selectedMembers.Contains(foundMember.Id) &&
                     !result.Contains(layer.Id))
                 {
                     result.Add(layer.Id);
                 }
-                else if (foundMember is FolderNodeViewModel folder && selectedMembers.Contains(foundMember.Id))
+                else if (foundMember is IFolderHandler folder && selectedMembers.Contains(foundMember.Id))
                 {
                     if (includeFoldersWithMask && folder.HasMaskBindable && !result.Contains(folder.Id))
                         result.Add(folder.Id);
@@ -850,7 +877,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         OnPropertyChanged(nameof(AllChangesSaved));
     }
 
-    private void ExtractSelectedLayers(FolderNodeViewModel folder, List<Guid> list,
+    private void ExtractSelectedLayers(IFolderHandler folder, List<Guid> list,
         bool includeFoldersWithMask)
     {
         foreach (var member in folder.Children)
