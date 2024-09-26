@@ -23,7 +23,6 @@ internal abstract class UpdateableChangeExecutor
     public virtual ExecutorType Type => ExecutorType.Regular;
     public virtual ExecutorStartMode StartMode => ExecutorStartMode.RightAway;
     public virtual bool BlocksOtherActions => true;
-    public virtual bool IsUndoable => true;
 
     public void Initialize(IDocument document, DocumentInternalParts internals, IServiceProvider services,
         ChangeExecutionController controller, Action<UpdateableChangeExecutor> onEnded)

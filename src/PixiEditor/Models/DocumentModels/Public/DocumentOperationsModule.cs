@@ -44,6 +44,9 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
         Internals.ActionAccumulator.AddFinishedActions(
             new SelectRectangle_Action(rect, mode),
             new EndSelectRectangle_Action());
@@ -56,6 +59,9 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
         Internals.ActionAccumulator.AddFinishedActions(new ClearSelection_Action());
     }
 
@@ -68,6 +74,9 @@ internal class DocumentOperationsModule : IDocumentOperations
         var member = Document.SelectedStructureMember;
         if (Internals.ChangeController.IsBlockingChangeActive || member is null)
             return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
         bool drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
         if (drawOnMask && !member.HasMaskBindable)
             return;
@@ -86,6 +95,9 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive || value is > 1 or < 0)
             return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
         Internals.ActionAccumulator.AddFinishedActions(
             new StructureMemberOpacity_Action(memberGuid, value),
             new EndStructureMemberOpacity_Action());
@@ -111,6 +123,9 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
         Internals.ActionAccumulator.AddActions(new DeleteRecordedChanges_Action());
     }
 
@@ -122,6 +137,8 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
 
         RectI maxSize = new RectI(VecI.Zero, Document.SizeBindable);
         foreach (var imageWithName in images)
@@ -154,6 +171,9 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return null;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
         return Internals.StructureHelper.CreateNewStructureMember(type, name, finish);
     }
 
@@ -161,7 +181,9 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return null;
-        
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
         return Internals.StructureHelper.CreateNewStructureMember(structureMemberType, name, finish);
     }
 
@@ -173,6 +195,9 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
         Internals.ActionAccumulator.AddFinishedActions(new DuplicateLayer_Action(guidValue));
     }
 
@@ -184,6 +209,9 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
         Internals.ActionAccumulator.AddFinishedActions(new DeleteStructureMember_Action(guidValue));
     }
 
@@ -196,8 +224,10 @@ internal class DocumentOperationsModule : IDocumentOperations
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
+        Internals.ChangeController.TryStopActiveExecutor();
+
         Guid closestMember = Document.StructureHelper.FindClosestMember(guids);
-        
+
         IAction[] actions = new IAction[guids.Count + (selectNext ? 1 : 0)];
         for (int i = 0; i < guids.Count; i++)
         {
@@ -222,9 +252,12 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="anchor">Where the existing content should be put</param>
     public void ResizeCanvas(VecI newSize, ResizeAnchor anchor)
     {
-        if (Internals.ChangeController.IsBlockingChangeActive || newSize.X > 9999 || newSize.Y > 9999 || newSize.X < 1 ||
+        if (Internals.ChangeController.IsBlockingChangeActive || newSize.X > 9999 || newSize.Y > 9999 ||
+            newSize.X < 1 ||
             newSize.Y < 1)
             return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
 
         if (Document.ReferenceLayerHandler.ReferenceBitmap is not null)
         {
@@ -251,9 +284,12 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="resampling">The resampling method to use</param>
     public void ResizeImage(VecI newSize, ResamplingMethod resampling)
     {
-        if (Internals.ChangeController.IsBlockingChangeActive || newSize.X > 9999 || newSize.Y > 9999 || newSize.X < 1 ||
+        if (Internals.ChangeController.IsBlockingChangeActive || newSize.X > 9999 || newSize.Y > 9999 ||
+            newSize.X < 1 ||
             newSize.Y < 1)
             return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
 
         if (Document.ReferenceLayerHandler.ReferenceBitmap is not null)
         {
@@ -283,6 +319,8 @@ internal class DocumentOperationsModule : IDocumentOperations
         if (Internals.ChangeController.IsBlockingChangeActive || oldColor == newColor)
             return;
 
+        Internals.ChangeController.TryStopActiveExecutor();
+
         Internals.ActionAccumulator.AddFinishedActions(new ReplaceColor_Action(oldColor.ToColor(), newColor.ToColor(),
             frame));
         ReplaceInPalette(oldColor, newColor);
@@ -305,6 +343,9 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
         if (!member.MaskIsVisibleBindable)
             Internals.ActionAccumulator.AddActions(new StructureMemberMaskIsVisible_Action(true, member.Id));
         Internals.ActionAccumulator.AddFinishedActions(new CreateStructureMemberMask_Action(member.Id));
@@ -317,6 +358,9 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
         Internals.ActionAccumulator.AddFinishedActions(new DeleteStructureMemberMask_Action(member.Id));
     }
 
@@ -327,6 +371,8 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
 
         Internals.ActionAccumulator.AddFinishedActions(new ApplyMask_Action(member.Id, frame),
             new DeleteStructureMemberMask_Action(member.Id));
@@ -418,6 +464,9 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive || memberToMove == memberToMoveIntoOrNextTo)
             return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
         Internals.StructureHelper.TryMoveStructureMember(memberToMove, memberToMoveIntoOrNextTo, placement);
     }
 
@@ -428,6 +477,8 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive || members.Count < 2)
             return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
 
         IStructureMemberHandler? node = Document.StructureHelper.FindNode<IStructureMemberHandler>(members[0]);
 
@@ -470,8 +521,9 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="startPos">Where the transform should start</param>
     public void PasteImageWithTransform(Surface image, VecI startPos)
     {
-        if (Document.SelectedStructureMember is null)
+        if (Document.SelectedStructureMember is null || Internals.ChangeController.IsBlockingChangeActive)
             return;
+
         Internals.ChangeController.TryStartExecutor(new PasteImageExecutor(image, startPos));
     }
 
@@ -482,6 +534,11 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="startPos">Where the transform should start</param>
     public void PasteImageWithTransform(Surface image, VecI startPos, Guid memberGuid, bool drawOnMask)
     {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+        
+        Internals.ChangeController.TryStopActiveExecutor();
+
         Internals.ChangeController.TryStartExecutor(new PasteImageExecutor(image, startPos, memberGuid, drawOnMask));
     }
 
@@ -494,6 +551,9 @@ internal class DocumentOperationsModule : IDocumentOperations
         if (Document.SelectedStructureMember is null ||
             Internals.ChangeController.IsBlockingChangeActive && !toolLinked)
             return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
         Internals.ChangeController.TryStartExecutor(new TransformSelectedExecutor(toolLinked));
     }
 
@@ -524,6 +584,9 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
+        
+        Internals.ChangeController.TryStopActiveExecutor();
+        
         Internals.ActionAccumulator.AddActions(
             new PasteImage_Action(image, corners, memberGuid, ignoreClipSymmetriesEtc, drawOnMask, atFrame, default),
             new EndPasteImage_Action());
@@ -538,6 +601,9 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
+        
+        Internals.ChangeController.TryStopActiveExecutor();
+        
         Internals.ActionAccumulator.AddFinishedActions(
             new ClipCanvas_Action(Document.AnimationHandler.ActiveFrameBindable));
     }
@@ -554,6 +620,8 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
+        
+        Internals.ChangeController.TryStopActiveExecutor();
 
         Internals.ActionAccumulator.AddFinishedActions(new FlipImage_Action(flipType, frame, membersToFlip));
     }
@@ -573,6 +641,8 @@ internal class DocumentOperationsModule : IDocumentOperations
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
+        Internals.ChangeController.TryStopActiveExecutor();
+        
         Internals.ActionAccumulator.AddFinishedActions(new RotateImage_Action(rotation, membersToRotate, frame));
     }
 
@@ -583,6 +653,8 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
+        
+        Internals.ChangeController.TryStopActiveExecutor();
 
         Internals.ActionAccumulator.AddFinishedActions(new CenterContent_Action(structureMembers.ToList(), frame));
     }
@@ -595,6 +667,8 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
+        
+        Internals.ChangeController.TryStopActiveExecutor();
 
         RectD referenceImageRect =
             new RectD(VecD.Zero, Document.SizeBindable).AspectFit(new RectD(VecD.Zero, imageSize));
@@ -611,6 +685,8 @@ internal class DocumentOperationsModule : IDocumentOperations
         if (Internals.ChangeController.IsBlockingChangeActive || Document.ReferenceLayerHandler.ReferenceBitmap is null)
             return;
 
+        Internals.ChangeController.TryStopActiveExecutor();
+
         Internals.ActionAccumulator.AddFinishedActions(new DeleteReferenceLayer_Action());
     }
 
@@ -621,6 +697,9 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Document.ReferenceLayerHandler.ReferenceBitmap is null || Internals.ChangeController.IsBlockingChangeActive)
             return;
+        
+        Internals.ChangeController.TryStopActiveExecutor();
+        
         Internals.ChangeController.TryStartExecutor(new TransformReferenceLayerExecutor());
     }
 
@@ -631,7 +710,8 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Document.ReferenceLayerHandler.ReferenceBitmap is null || Internals.ChangeController.IsBlockingChangeActive)
             return;
-
+        
+        Internals.ChangeController.TryStopActiveExecutor();
 
         VecD size = new(Document.ReferenceLayerHandler.ReferenceBitmap.Size.X,
             Document.ReferenceLayerHandler.ReferenceBitmap.Size.Y);
@@ -645,6 +725,11 @@ internal class DocumentOperationsModule : IDocumentOperations
 
     public void SelectionToMask(SelectionMode mode, int frame)
     {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+        
         if (Document.SelectedStructureMember is not { } member || Document.SelectionPathBindable.IsEmpty)
             return;
 
@@ -658,6 +743,11 @@ internal class DocumentOperationsModule : IDocumentOperations
 
     public void CropToSelection(int frame, bool clearSelection = true)
     {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+        
+        Internals.ChangeController.TryStopActiveExecutor();
+        
         var bounds = Document.SelectionPathBindable.TightBounds;
         if (Document.SelectionPathBindable.IsEmpty || bounds.Width <= 0 || bounds.Height <= 0)
             return;
@@ -676,6 +766,11 @@ internal class DocumentOperationsModule : IDocumentOperations
 
     public void InvertSelection()
     {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+        
+        Internals.ChangeController.TryStopActiveExecutor();
+        
         var selection = Document.SelectionPathBindable;
         var inverse = new VectorPath();
         inverse.AddRect(new RectI(new(0, 0), Document.SizeBindable));
@@ -683,22 +778,26 @@ internal class DocumentOperationsModule : IDocumentOperations
         Internals.ActionAccumulator.AddFinishedActions(
             new SetSelection_Action(inverse.Op(selection, VectorPathOp.Difference)));
     }
-    
+
     public void Rasterize(Guid memberId)
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
+        
+        Internals.ChangeController.TryStopActiveExecutor();
 
-        Internals.ActionAccumulator.AddFinishedActions(new RasterizeMember_Action(memberId));    
+        Internals.ActionAccumulator.AddFinishedActions(new RasterizeMember_Action(memberId));
     }
 
     public void InvokeCustomAction(Action action)
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
+        
+        Internals.ChangeController.TryStopActiveExecutor();
 
         IAction targetAction = new InvokeAction_PassthroughAction(action);
-        
+
         Internals.ActionAccumulator.AddActions(targetAction);
     }
 }

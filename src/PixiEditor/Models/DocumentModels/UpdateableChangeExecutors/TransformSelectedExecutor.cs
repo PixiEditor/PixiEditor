@@ -21,6 +21,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     private bool isInProgress;
     public override ExecutorType Type { get; }
 
+    public override bool BlocksOtherActions => false; 
+
     public TransformSelectedExecutor(bool toolLinked)
     {
         Type = toolLinked ? ExecutorType.ToolLinked : ExecutorType.Regular;

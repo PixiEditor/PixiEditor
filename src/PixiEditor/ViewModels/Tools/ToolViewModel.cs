@@ -101,7 +101,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     {
         if (layers.Length is > 1 or 0)
         {
-            CanBeUsedOnActiveLayer = false;
+            CanBeUsedOnActiveLayer = SupportedLayerTypes == null;
             return;
         }
         

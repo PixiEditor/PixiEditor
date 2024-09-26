@@ -87,6 +87,12 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
     }
 
+    protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
+    {
+        OnDeselecting();
+        OnSelected();
+    }
+
     private static RectI? GetSelectedLayersBounds()
     {
         var layers = ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.ExtractSelectedLayers();
