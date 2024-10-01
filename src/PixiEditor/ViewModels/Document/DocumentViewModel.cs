@@ -814,9 +814,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public void RemoveSoftSelectedMember(IStructureMemberHandler member)
     {
-        SelectedStructureMember = member;
-        Internals.ChangeController.MembersSelectedInlet(GetSelectedMembers());
         softSelectedStructureMembers.Remove(member);
+        Internals.ChangeController.MembersSelectedInlet(GetSelectedMembers());
     }
 
     public void ClearSoftSelectedMembers()
