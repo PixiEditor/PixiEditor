@@ -107,6 +107,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
     {
         if (!startedDrawing)
         {
+            base.OnLeftMouseButtonUp();
             onEnded!(this);
             return;
         }

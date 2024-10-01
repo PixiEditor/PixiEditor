@@ -31,7 +31,7 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
     private bool noMovement = true;
     private IBasicShapeToolbar toolbar;
     private IColorsHandler? colorsVM;
-    
+
     public override ExecutionState Start()
     {
         if (base.Start() == ExecutionState.Error)
@@ -245,6 +245,7 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
                 internals!.ActionAccumulator.AddFinishedActions(EndDrawAction());
                 AddMemberToSnapping();
 
+                base.OnLeftMouseButtonUp();
                 onEnded?.Invoke(this);
                 return;
             }
