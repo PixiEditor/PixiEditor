@@ -133,6 +133,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     public void OnMidChangeUndo() => document!.TransformHandler.Undo();
 
     public void OnMidChangeRedo() => document!.TransformHandler.Redo();
+    public bool CanUndo => document!.TransformHandler.HasUndo; 
 
     public void OnTransformApplied()
     {

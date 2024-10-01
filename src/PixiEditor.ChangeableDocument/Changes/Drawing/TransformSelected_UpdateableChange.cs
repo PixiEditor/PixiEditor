@@ -267,7 +267,7 @@ internal class TransformSelected_UpdateableChange : UpdateableChange
             infos.Add(SelectionChangeHelper.DoSelectionTransform(target, originalPath!, originalSelectionBounds,
                 masterCorners, cornersToSelectionOffset, originalCornersSize));
         }
-
+        
         hasEnqueudImages = false;
         ignoreInUndo = false;
         return infos;

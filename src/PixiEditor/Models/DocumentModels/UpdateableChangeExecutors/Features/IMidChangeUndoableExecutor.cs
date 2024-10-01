@@ -4,4 +4,5 @@ public interface IMidChangeUndoableExecutor : IExecutorFeature
 {
     public void OnMidChangeUndo();
     public void OnMidChangeRedo();
+    public bool CanUndo { get; }
 }

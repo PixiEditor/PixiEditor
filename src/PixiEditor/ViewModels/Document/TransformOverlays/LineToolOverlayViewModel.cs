@@ -80,6 +80,8 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
         ShowApplyButton = showApplyButton;
     }
 
+    public bool HasUndo => undoStack is not null && undoStack.UndoCount > 0; 
+
     public void Hide()
     {
         if (undoStack is null)

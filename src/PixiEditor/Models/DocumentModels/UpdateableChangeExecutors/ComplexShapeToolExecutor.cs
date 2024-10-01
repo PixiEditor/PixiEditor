@@ -32,6 +32,8 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
     private IBasicShapeToolbar toolbar;
     private IColorsHandler? colorsVM;
 
+    public override bool CanUndo => document.TransformHandler.HasUndo;
+
     public override ExecutionState Start()
     {
         if (base.Start() == ExecutionState.Error)

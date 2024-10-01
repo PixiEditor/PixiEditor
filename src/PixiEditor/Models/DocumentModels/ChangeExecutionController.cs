@@ -271,4 +271,12 @@ internal class ChangeExecutionController
     {
         currentSession?.OnColorChanged(color, false);
     }
+
+    public T? TryGetExecutorFeature<T>()
+    {
+        if (currentSession is T feature)
+            return feature;
+        
+        return default;
+    }
 }

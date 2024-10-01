@@ -26,6 +26,8 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
     private IColorsHandler? colorsVM;
     private ILineToolbar? toolbar;
 
+    public override bool CanUndo => document.LineToolOverlayHandler.HasUndo; 
+
     public override ExecutionState Start()
     {
         if (base.Start() == ExecutionState.Error)

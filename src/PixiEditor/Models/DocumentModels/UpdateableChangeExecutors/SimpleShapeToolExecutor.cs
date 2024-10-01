@@ -207,6 +207,8 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
     protected virtual void PrecisePositionChangeTransformMode(VecD pos) { }
     public abstract void OnMidChangeUndo();
     public abstract void OnMidChangeRedo();
+    public abstract bool CanUndo { get; } 
+
     public bool IsFeatureEnabled(IExecutorFeature feature)
     {
         if (feature is ITransformableExecutor)

@@ -422,12 +422,17 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void Undo()
     {
-        if (Internals.ChangeController.IsChangeOfTypeActive<IMidChangeUndoableExecutor>())
+        IMidChangeUndoableExecutor executor = Internals.ChangeController.TryGetExecutorFeature<IMidChangeUndoableExecutor>();
+        if (executor is { CanUndo: true })
         {
-            Internals.ChangeController.MidChangeUndoInlet();
+            executor.OnMidChangeUndo();
             return;
         }
-
+        
+        if(Internals.ChangeController.IsBlockingChangeActive)
+            return;
+        
+        Internals.ChangeController.TryStopActiveExecutor();
         Internals.ActionAccumulator.AddActions(new Undo_Action());
     }
 
