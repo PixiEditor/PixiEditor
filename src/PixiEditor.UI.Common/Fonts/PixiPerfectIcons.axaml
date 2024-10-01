@@ -131,6 +131,8 @@
             <system:String x:Key="icon-swatches">&#xE982;</system:String>
             <system:String x:Key="icon-nodes">&#xe984;</system:String>
             <system:String x:Key="icon-onion">&#xe985;</system:String>
+            
+            <system:String x:Key="icon-snapping">&#xfffd;</system:String>
         </ResourceDictionary>
     </Styles.Resources>
     

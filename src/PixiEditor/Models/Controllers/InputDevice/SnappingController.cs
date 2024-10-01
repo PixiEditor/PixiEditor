@@ -9,6 +9,7 @@ public class SnappingController
     private string highlightedXAxis = string.Empty;
     private string highlightedYAxis = string.Empty;
     private VecD? highlightedPoint = null;
+    private bool snappingEnabled = true;
 
     /// <summary>
     ///     Minimum distance that object has to be from snap point to snap to it. Expressed in pixels.
@@ -48,6 +49,21 @@ public class SnappingController
         }
     }
 
+    public bool SnappingEnabled
+    {
+        get => snappingEnabled;
+        set
+        {
+            snappingEnabled = value;
+            if (!value)
+            {
+                HighlightedXAxis = string.Empty;
+                HighlightedYAxis = string.Empty;
+                HighlightedPoint = null;
+            }
+        }
+    }
+
     public event Action<string> HorizontalHighlightChanged;
     public event Action<string> VerticalHighlightChanged;
     public event Action<VecD?> HighlightedPointChanged;
@@ -55,6 +71,12 @@ public class SnappingController
 
     public double? SnapToHorizontal(double xPos, out string snapAxis)
     {
+        if (!SnappingEnabled)
+        {
+            snapAxis = string.Empty;
+            return null;
+        }
+        
         if (HorizontalSnapPoints.Count == 0)
         {
             snapAxis = string.Empty;
@@ -83,6 +105,12 @@ public class SnappingController
 
     public double? SnapToVertical(double yPos, out string snapAxisKey)
     {
+        if (!SnappingEnabled)
+        {
+            snapAxisKey = string.Empty;
+            return null;
+        }
+        
         if (VerticalSnapPoints.Count == 0)
         {
             snapAxisKey = string.Empty;
@@ -149,6 +177,13 @@ public class SnappingController
 
     public VecD GetSnapDeltaForPoints(VecD[] points, out string xAxis, out string yAxis)
     {
+        if (!SnappingEnabled)
+        {
+            xAxis = string.Empty;
+            yAxis = string.Empty;
+            return VecD.Zero;
+        }
+        
         bool hasXSnap = false;
         bool hasYSnap = false;
         VecD snapDelta = VecD.Zero;
@@ -189,6 +224,13 @@ public class SnappingController
 
     public VecD GetSnapPoint(VecD pos, out string xAxis, out string yAxis)
     {
+        if (!SnappingEnabled)
+        {
+            xAxis = string.Empty;
+            yAxis = string.Empty;
+            return pos;
+        }
+        
         double? snapX = SnapToHorizontal(pos.X, out string snapAxisX);
         double? snapY = SnapToVertical(pos.Y, out string snapAxisY);
 
@@ -200,6 +242,13 @@ public class SnappingController
 
     public VecD GetSnapDeltaForPoint(VecD pos, out string xAxis, out string yAxis)
     {
+        if (!SnappingEnabled)
+        {
+            xAxis = string.Empty;
+            yAxis = string.Empty;
+            return VecD.Zero;
+        }
+        
         double? snapX = SnapToHorizontal(pos.X, out string snapAxisX);
         double? snapY = SnapToVertical(pos.Y, out string snapAxisY);
 

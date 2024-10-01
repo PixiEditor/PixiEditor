@@ -7,7 +7,18 @@ namespace PixiEditor.ViewModels.Document;
 
 public class SnappingViewModel : PixiObservableObject, ISnappingHandler
 {
+    private bool snappingEnabled = true;
     public SnappingController SnappingController { get; } = new SnappingController();
+
+    public bool SnappingEnabled
+    {
+        get => snappingEnabled;
+        set
+        {
+            SetProperty(ref snappingEnabled, value);
+            SnappingController.SnappingEnabled = value;
+        }
+    }
 
     public SnappingViewModel()
     {

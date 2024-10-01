@@ -115,16 +115,6 @@ internal class TransformOverlay : Overlay
         set => SetValue(ActionCompletedProperty, value);
     }
 
-    public static readonly StyledProperty<bool> SnappingEnabledProperty =
-        AvaloniaProperty.Register<TransformOverlay, bool>(
-            nameof(SnappingEnabled), defaultValue: true);
-
-    public bool SnappingEnabled
-    {
-        get => GetValue(SnappingEnabledProperty);
-        set => SetValue(SnappingEnabledProperty, value);
-    }
-
     public static readonly StyledProperty<SnappingController> SnappingControllerProperty =
         AvaloniaProperty.Register<TransformOverlay, SnappingController>(
             nameof(SnappingController));
@@ -523,7 +513,7 @@ internal class TransformOverlay : Overlay
 
     private SnapData TrySnapCorners(ShapeCorners rawCorners)
     {
-        if (!SnappingEnabled || SnappingController is null)
+        if (SnappingController is null)
         {
             return new SnapData();
         }
@@ -721,7 +711,7 @@ internal class TransformOverlay : Overlay
     // https://www.desmos.com/calculator/drdxuriovg
     private SnapData TrySnapAnchorAlongLine(VecD anchor, VecD origin)
     {
-        if (!SnappingEnabled || SnappingController is null)
+        if (SnappingController is null)
         {
             return new SnapData();
         }
@@ -779,7 +769,7 @@ internal class TransformOverlay : Overlay
 
     private SnapData TrySnapAnchor(VecD anchorPos)
     {
-        if (!SnappingEnabled || SnappingController is null)
+        if (SnappingController is null)
         {
             return new SnapData();
         }
