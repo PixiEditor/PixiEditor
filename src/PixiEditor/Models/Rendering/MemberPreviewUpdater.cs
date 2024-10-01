@@ -772,6 +772,9 @@ internal class MemberPreviewUpdater
 
             QueueRender(() =>
             {
+                if(nodeVm.ResultPreview == null || nodeVm.ResultPreview.IsDisposed)
+                    return;
+                
                 nodeVm.ResultPreview.DrawingSurface.Canvas.Save();
                 nodeVm.ResultPreview.DrawingSurface.Canvas.Scale(scalingX, scalingY);
 
