@@ -33,6 +33,7 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
     private IColorsHandler? colorsVM;
 
     public override bool CanUndo => document.TransformHandler.HasUndo;
+    public override bool CanRedo => document.TransformHandler.HasRedo;
 
     public override ExecutionState Start()
     {

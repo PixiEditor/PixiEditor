@@ -11,4 +11,5 @@ internal interface ILineOverlayHandler
     public bool Redo();
     public void Show(VecD startPos, VecD endPos, bool showApplyButton);
     public bool HasUndo { get; }
+    public bool HasRedo { get; }
 }

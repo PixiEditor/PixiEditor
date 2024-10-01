@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using Avalonia.Input;
 using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Preferences;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -373,7 +374,9 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
         if (ActiveTool is not { CanBeUsedOnActiveLayer: true })
         {
-            Guid? createdLayer = Owner.LayersSubViewModel.NewLayer(ActiveTool.LayerTypeToCreateOnEmptyUse, 
+            Guid? createdLayer = Owner.LayersSubViewModel.NewLayer(
+                ActiveTool.LayerTypeToCreateOnEmptyUse,
+                ActionSource.Automated,
                 ActiveTool.DefaultNewLayerName);
             if (createdLayer is not null)
             {
@@ -386,7 +389,10 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         if (waitForChange)
         {
             Owner.DocumentManagerSubViewModel.ActiveDocument.Operations
-                .InvokeCustomAction(() => ActiveTool.UseTool(canvasPos));
+                .InvokeCustomAction(() =>
+                {
+                    ActiveTool.UseTool(canvasPos);
+                });
         }
         else
         {

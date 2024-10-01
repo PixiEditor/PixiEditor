@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
@@ -177,14 +178,14 @@ internal class DocumentOperationsModule : IDocumentOperations
         return Internals.StructureHelper.CreateNewStructureMember(type, name, finish);
     }
 
-    public Guid? CreateStructureMember(Type structureMemberType, string? name = null, bool finish = true)
+    public Guid? CreateStructureMember(Type structureMemberType, ActionSource source, string? name = null)
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return null;
 
         Internals.ChangeController.TryStopActiveExecutor();
 
-        return Internals.StructureHelper.CreateNewStructureMember(structureMemberType, name, finish);
+        return Internals.StructureHelper.CreateNewStructureMember(structureMemberType, name, source);
     }
 
     /// <summary>
@@ -441,12 +442,17 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void Redo()
     {
-        if (Internals.ChangeController.IsChangeOfTypeActive<IMidChangeUndoableExecutor>())
+        IMidChangeUndoableExecutor executor = Internals.ChangeController.TryGetExecutorFeature<IMidChangeUndoableExecutor>();
+        if (executor is { CanRedo: true })
         {
-            Internals.ChangeController.MidChangeRedoInlet();
+            executor.OnMidChangeRedo();
             return;
         }
+        
+        if(Internals.ChangeController.IsBlockingChangeActive)
+            return;
 
+        Internals.ChangeController.TryStopActiveExecutor();
         Internals.ActionAccumulator.AddActions(new Redo_Action());
     }
 

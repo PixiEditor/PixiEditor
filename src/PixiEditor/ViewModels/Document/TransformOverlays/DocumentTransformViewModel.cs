@@ -180,6 +180,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
     }
 
     public bool HasUndo => undoStack is not null && undoStack.UndoCount > 0; 
+    public bool HasRedo => undoStack is not null && undoStack.RedoCount > 0;
 
     public void HideTransform()
     {

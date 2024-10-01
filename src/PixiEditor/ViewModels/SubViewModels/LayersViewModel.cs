@@ -9,6 +9,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
+using PixiEditor.ChangeableDocument;
 using PixiEditor.Helpers.Converters;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Enums;
@@ -126,12 +127,12 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         doc.Operations.CreateStructureMember(StructureMemberType.Layer);
     }
 
-    public Guid? NewLayer(Type layerType, string? name = null, bool finish = true)
+    public Guid? NewLayer(Type layerType, ActionSource source, string? name = null)
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is not { } doc)
             return null;
         
-        return doc.Operations.CreateStructureMember(layerType, name, finish);
+        return doc.Operations.CreateStructureMember(layerType, source, name);
     }
 
     [Evaluator.CanExecute("PixiEditor.Layer.CanCreateNewMember")]

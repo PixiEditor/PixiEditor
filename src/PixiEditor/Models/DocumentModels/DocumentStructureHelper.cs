@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using PixiEditor.ChangeableDocument;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
@@ -98,7 +99,7 @@ internal class DocumentStructureHelper
         throw new ArgumentException($"Unknown member type: {type}");
     }
 
-    public Guid? CreateNewStructureMember(Type structureMemberType, string? name, bool finish)
+    public Guid? CreateNewStructureMember(Type structureMemberType, string? name, ActionSource source)
     {
         Guid guid = Guid.NewGuid();
         var selectedMember = doc.SelectedStructureMember;
@@ -109,13 +110,13 @@ internal class DocumentStructureHelper
         if (parent is null)
             parent = doc.NodeGraphHandler.OutputNode;
 
-        internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(parent.Id, guid, structureMemberType));
+        internals.ActionAccumulator.AddActions(source, new CreateStructureMember_Action(parent.Id, guid, structureMemberType));
         name ??= GetUniqueName(
             structureMemberType.IsAssignableTo(typeof(LayerNode))
                 ? new LocalizedString("NEW_LAYER")
                 : new LocalizedString("NEW_FOLDER"), parent);
-        internals.ActionAccumulator.AddActions(new StructureMemberName_Action(guid, name));
-        if (finish)
+        internals.ActionAccumulator.AddActions(source, new StructureMemberName_Action(guid, name));
+        if (source == ActionSource.User)
             internals.ActionAccumulator.AddFinishedActions();
         return guid;
     }

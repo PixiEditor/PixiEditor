@@ -14,4 +14,5 @@ internal interface ITransformHandler : IHandler
     public bool Redo();
     public bool Nudge(VecD distance);
     public bool HasUndo { get; }
+    public bool HasRedo { get; }
 }

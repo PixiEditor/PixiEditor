@@ -75,7 +75,8 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
     public void OnMidChangeUndo() => document!.TransformHandler.Undo();
 
     public void OnMidChangeRedo() => document!.TransformHandler.Redo();
-    public bool CanUndo => document!.TransformHandler.HasUndo; 
+    public bool CanUndo => document!.TransformHandler.HasUndo;
+    public bool CanRedo => document!.TransformHandler.HasRedo;
 
     public void OnTransformApplied()
     {

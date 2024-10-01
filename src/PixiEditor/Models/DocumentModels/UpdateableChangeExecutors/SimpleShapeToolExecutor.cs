@@ -208,6 +208,7 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
     public abstract void OnMidChangeUndo();
     public abstract void OnMidChangeRedo();
     public abstract bool CanUndo { get; } 
+    public abstract bool CanRedo { get; }
 
     public bool IsFeatureEnabled(IExecutorFeature feature)
     {
