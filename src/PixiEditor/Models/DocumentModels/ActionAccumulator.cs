@@ -163,11 +163,7 @@ internal class ActionAccumulator
             {
                 case DirtyRect_RenderInfo info:
                 {
-                    var bitmap = document.Surfaces[info.Resolution];
-                    RectI finalRect = new RectI(VecI.Zero, new(bitmap.Size.X, bitmap.Size.Y));
-
-                    RectI dirtyRect = new RectI(info.Pos, info.Size).Intersect(finalRect);
-                    bitmap.AddDirtyRect(dirtyRect);
+                    //TODO: Validate if it's required
                 }
                 break;
                 case PreviewDirty_RenderInfo info:

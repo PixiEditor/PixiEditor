@@ -80,6 +80,17 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             return ManagedInstances[objectPointer].TotalMatrix.ToMatrix3X3();
         }
 
+        public Canvas FromNative(object native)
+        {
+            if (native is SKCanvas skCanvas)
+            {
+                ManagedInstances.TryAdd(skCanvas.Handle, skCanvas);
+                return new Canvas(skCanvas.Handle);
+            }
+            
+            throw new ArgumentException("Native object is not a SKCanvas", nameof(native));
+        }
+
         public int Save(IntPtr objPtr)
         {
             return ManagedInstances[objPtr].Save();

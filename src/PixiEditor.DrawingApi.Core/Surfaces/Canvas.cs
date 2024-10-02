@@ -222,5 +222,10 @@ namespace PixiEditor.DrawingApi.Core.Surfaces
         {
             DrawingBackendApi.Current.CanvasImplementation.Dispose(ObjectPointer);
         }
+
+        public static Canvas FromNative(object native)
+        {
+            return DrawingBackendApi.Current.CanvasImplementation.FromNative(native);
+        }
     }
 }

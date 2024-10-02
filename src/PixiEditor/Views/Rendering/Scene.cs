@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using Avalonia;
@@ -10,14 +9,9 @@ using Avalonia.Rendering;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using Avalonia.Threading;
-using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Bridge;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.DrawingApi.Skia;
 using PixiEditor.DrawingApi.Skia.Extensions;
 using PixiEditor.Extensions.UI.Overlays;
@@ -30,7 +24,6 @@ using PixiEditor.Views.Overlays;
 using PixiEditor.Views.Overlays.Pointers;
 using PixiEditor.Views.Visuals;
 using Bitmap = PixiEditor.DrawingApi.Core.Surfaces.Bitmap;
-using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
 using Image = PixiEditor.DrawingApi.Core.Surfaces.ImageData.Image;
 using Point = Avalonia.Point;
 

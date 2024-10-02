@@ -262,9 +262,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
             PropertyChanged?.Invoke(this, new(nameof(RealDimensions)));
             Document?.Operations.AddOrUpdateViewport(GetLocation());
-
-            if (oldRes != newRes)
-                PropertyChanged?.Invoke(this, new(nameof(TargetBitmap)));
         }
     }
 
@@ -281,17 +278,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
             PropertyChanged?.Invoke(this, new(nameof(Dimensions)));
             Document?.Operations.AddOrUpdateViewport(GetLocation());
-
-            if (oldRes != newRes)
-                PropertyChanged?.Invoke(this, new(nameof(TargetBitmap)));
-        }
-    }
-
-    public Texture? TargetBitmap
-    {
-        get
-        {
-            return Document?.Surfaces.TryGetValue(CalculateResolution(), out Texture? value) == true ? value : null;
         }
     }
 
@@ -339,7 +325,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         TextBoxFocusBehavior.FallbackFocusElement.Focus();
     }
 
-    public Scene Scene => scene;
+    public UniversalScene Scene => scene;
 
     private void ForceRefreshFinalImage()
     {
@@ -369,24 +355,11 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         Viewport? viewport = (Viewport)e.Sender;
 
         DocumentViewModel? oldDoc = e.OldValue.Value;
-        if (oldDoc != null)
-        {
-            oldDoc.SizeChanged -= viewport.OnImageSizeChanged;
-        }
 
         DocumentViewModel? newDoc = e.NewValue.Value;
-        if (newDoc != null)
-        {
-            newDoc.SizeChanged += viewport.OnImageSizeChanged;
-        }
 
         oldDoc?.Operations.RemoveViewport(viewport.GuidValue);
         newDoc?.Operations.AddOrUpdateViewport(viewport.GetLocation());
-    }
-
-    private void OnImageSizeChanged(object? sender, DocumentSizeChangedEventArgs e)
-    {
-        PropertyChanged?.Invoke(this, new(nameof(TargetBitmap)));
     }
 
     private ChunkResolution CalculateResolution()

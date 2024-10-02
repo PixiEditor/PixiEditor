@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
@@ -22,11 +23,13 @@ public class RenderingContext : IDisposable
     public ChunkResolution ChunkResolution { get; }
     public VecI DocumentSize { get; set; }
     
+    public DrawingSurface TargetSurface { get; set; }
 
     public bool IsDisposed { get; private set; }
     
-    public RenderingContext(KeyFrameTime frameTime, VecI chunkToUpdate, ChunkResolution chunkResolution, VecI docSize)
+    public RenderingContext(DrawingSurface targetSurface, KeyFrameTime frameTime, VecI chunkToUpdate, ChunkResolution chunkResolution, VecI docSize)
     {
+        TargetSurface = targetSurface;
         FrameTime = frameTime;
         ChunkToUpdate = chunkToUpdate;
         ChunkResolution = chunkResolution;

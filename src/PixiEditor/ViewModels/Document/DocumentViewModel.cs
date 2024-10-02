@@ -178,13 +178,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public IStructureMemberHandler? SelectedStructureMember { get; private set; } = null;
 
-    public Dictionary<ChunkResolution, Texture> Surfaces { get; set; } = new()
-    {
-        [ChunkResolution.Full] = new Texture(new VecI(64, 64)),
-        [ChunkResolution.Half] = new Texture(new VecI(32, 32)),
-        [ChunkResolution.Quarter] = new Texture(new VecI(16, 16)),
-        [ChunkResolution.Eighth] = new Texture(new VecI(8, 8))
-    };
 
     private Texture previewSurface;
 
@@ -195,7 +188,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             VecI? oldSize = previewSurface?.Size;
             SetProperty(ref previewSurface, value);
-            OnPropertyChanged(nameof(Surfaces));
             if (oldSize != null && value != null && oldSize != value.Size)
             {
                 RaiseSizeChanged(new DocumentSizeChangedEventArgs(this, oldSize.Value, value.Size));
@@ -1001,11 +993,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public void Dispose()
     {
-        foreach (var (_, surface) in Surfaces)
-        {
-            surface.Dispose();
-        }
-
         PreviewSurface.Dispose();
         Internals.Tracker.Dispose();
         Internals.Tracker.Document.Dispose();

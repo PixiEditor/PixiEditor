@@ -124,7 +124,8 @@
                            VerticalAlignment="Top"
                            ToolSet="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet}" 
                            SwitchToolSetCommand="{xaml:Command Name=PixiEditor.Tools.SwitchToolSet, UseProvided=True}"/>
-        <rendering:Scene
+        <rendering:UniversalScene Name="scene" ZIndex=""/>
+        <!--<rendering:Scene
             Focusable="False" Name="scene"
             ZIndex="1"
             Surface="{Binding TargetBitmap, ElementName=vpUc}"
@@ -142,7 +143,7 @@
             FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
             DefaultCursor="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolCursor, Mode=OneWay}"
             CheckerImagePath="/Images/CheckerTile.png"
-            ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}" />
+            ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}" />-->
 
         <!--Brush shape overlay is rendered separately, so it doesn't trigger rerender each mouse movement to scene-->
         <!--I didn't measure it, but I thought that could impact performance-->
