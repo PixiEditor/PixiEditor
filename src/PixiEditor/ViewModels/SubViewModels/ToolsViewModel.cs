@@ -449,13 +449,20 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         if (e.OldDocument is not null)
         {
             e.OldDocument.PropertyChanged -= DocumentOnPropertyChanged;
+            e.OldDocument.LayersChanged -= DocumentOnLayersChanged;
         }
 
         if (e.NewDocument is not null)
         {
             e.NewDocument.PropertyChanged += DocumentOnPropertyChanged;
+            e.NewDocument.LayersChanged += DocumentOnLayersChanged;
             UpdateEnabledState();
         }
+    }
+
+    private void DocumentOnLayersChanged(object? sender, LayersChangedEventArgs e)
+    {
+        UpdateEnabledState();
     }
 
     private void DocumentOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
