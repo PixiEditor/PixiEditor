@@ -8,6 +8,9 @@ public interface IOperatingSystem
     public static IOperatingSystem Current { get; protected set; }
     public string Name { get; }
 
+    public virtual string AnalyticsName => Environment.OSVersion.ToString();
+    public string AnalyticsId { get; }
+
     public IInputKeys InputKeys { get; }
     public IProcessUtility ProcessUtility { get; }
 

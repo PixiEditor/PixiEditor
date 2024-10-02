@@ -77,7 +77,7 @@ public class ModifyImageRightNode : Node, IPairNode, ICustomShaderNode
         }
         else
         {
-            ShaderBuilder builder = new();
+            ShaderBuilder builder = new(size);
             FuncContext context = new(renderingContext, builder);
 
             if (Coordinate.Connection != null)

@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
@@ -98,10 +99,10 @@ public class FuncContext
         if (!HasContext && r is Float1 firstFloat && g is Float1 secondFloat && b is Float1 thirdFloat && a is Float1 fourthFloat)
         {
             Half4 constantHalf4 = new Half4("");
-            byte rByte = (byte)firstFloat.ConstantValue;
-            byte gByte = (byte)secondFloat.ConstantValue;
-            byte bByte = (byte)thirdFloat.ConstantValue;
-            byte aByte = (byte)fourthFloat.ConstantValue;
+            byte rByte = firstFloat.AsConstantColorByte();
+            byte gByte = secondFloat.AsConstantColorByte();
+            byte bByte = thirdFloat.AsConstantColorByte();
+            byte aByte = fourthFloat.AsConstantColorByte();
             constantHalf4.ConstantValue = new Color(rByte, gByte, bByte, aByte);
             return constantHalf4;
         }
@@ -109,6 +110,65 @@ public class FuncContext
         return Builder.ConstructHalf4(r, g, b, a);
     }
 
+    public Half4 HsvaToRgba(Expression h, Expression s, Expression v, Expression a)
+    {
+        if (!HasContext && h is Float1 firstFloat && s is Float1 secondFloat && v is Float1 thirdFloat && a is Float1 fourthFloat)
+        {
+            Half4 constantHalf4 = new Half4("");
+            var hValue = firstFloat.ConstantValue * 360;
+            var sValue = secondFloat.ConstantValue * 100;
+            var vValue = thirdFloat.ConstantValue * 100;
+            byte aByte = fourthFloat.AsConstantColorByte();
+            constantHalf4.ConstantValue = Color.FromHsv((float)hValue, (float)sValue, (float)vValue, aByte);
+            return constantHalf4;
+        }
+
+        return Builder.AssignNewHalf4(Builder.Functions.GetHslToRgb(h, s, v, a));
+    }
+
+    public Half4 HslaToRgba(Expression h, Expression s, Expression l, Expression a)
+    {
+        if (!HasContext && h is Float1 firstFloat && s is Float1 secondFloat && l is Float1 thirdFloat && a is Float1 fourthFloat)
+        {
+            Half4 constantHalf4 = new Half4("");
+            var hValue = firstFloat.ConstantValue * 360;
+            var sValue = secondFloat.ConstantValue * 100;
+            var lValue = thirdFloat.ConstantValue * 100;
+            byte aByte = fourthFloat.AsConstantColorByte();
+            constantHalf4.ConstantValue = Color.FromHsl((float)hValue, (float)sValue, (float)lValue, aByte);
+            return constantHalf4;
+        }
+
+        return Builder.AssignNewHalf4(Builder.Functions.GetHslToRgb(h, s, l, a));
+    }
+    
+    public Half4 RgbaToHsva(Expression color)
+    {
+        if (!HasContext && color is Half4 constantColor)
+        {
+            var variable = new Half4(string.Empty);
+            constantColor.ConstantValue.ToHsv(out float h, out float s, out float l);
+            variable.ConstantValue = new Color((byte)(h * 255), (byte)(s * 255), (byte)(l * 255), constantColor.ConstantValue.A);
+            
+            return variable;
+        }
+
+        return Builder.AssignNewHalf4(Builder.Functions.GetRgbToHsv(color));
+    }
+    
+    public Half4 RgbaToHsla(Expression color)
+    {
+        if (!HasContext && color is Half4 constantColor)
+        {
+            var variable = new Half4(string.Empty);
+            constantColor.ConstantValue.ToHsl(out float h, out float s, out float l);
+            variable.ConstantValue = new Color((byte)(h * 255), (byte)(s * 255), (byte)(l * 255), constantColor.ConstantValue.A);
+            
+            return variable;
+        }
+
+        return Builder.AssignNewHalf4(Builder.Functions.GetRgbToHsl(color));
+    }
 
     public Half4 NewHalf4(Expression assignment)
     {

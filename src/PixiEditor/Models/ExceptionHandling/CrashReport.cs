@@ -12,6 +12,7 @@ using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
+using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels;
@@ -115,6 +116,8 @@ internal class CrashReport : IDisposable
         builder
             .AppendLine("Environment:")
             .AppendLine($"  Thread Count: {GetFormatted(() => Process.GetCurrentProcess().Threads.Count)}")
+            .AppendLine("Analytics:")
+            .AppendLine($"  Analytics Id: {GetFormatted(() => AnalyticsPeriodicReporter.Instance?.SessionId)}")
             .AppendLine("\nCulture:")
             .AppendLine($"  Selected language: {GetPreferenceFormatted("LanguageCode", true, "system")}")
             .AppendLine($"  Current Culture: {GetFormatted(() => CultureInfo.CurrentCulture)}")
@@ -267,15 +270,16 @@ internal class CrashReport : IDisposable
 
     public int GetDocumentCount() => ZipFile.Entries.Where(x => x.FullName.EndsWith(".pixi")).Count();
 
-    public bool TryRecoverDocuments(out List<RecoveredPixi> list)
+    public bool TryRecoverDocuments(out List<RecoveredPixi> list, out CrashedSessionInfo? sessionInfo)
     {
         try
         {
-            list = RecoverDocuments();
+            list = RecoverDocuments(out sessionInfo);
         }
         catch (Exception e)
         {
             list = null;
+            sessionInfo = null;
             CrashHelper.SendExceptionInfoToWebhook(e);
             return false;
         }
@@ -283,12 +287,12 @@ internal class CrashReport : IDisposable
         return true;
     }
 
-    public List<RecoveredPixi> RecoverDocuments()
+    public List<RecoveredPixi> RecoverDocuments(out CrashedSessionInfo? sessionInfo)
     {
         List<RecoveredPixi> recoveredDocuments = new();
 
-        var paths = TryGetOriginalPaths();
-        if (paths == null)
+        sessionInfo = TryGetSessionInfo();
+        if (sessionInfo?.OpenedDocuments == null)
         {
             recoveredDocuments.AddRange(
                 ZipFile.Entries
@@ -300,11 +304,11 @@ internal class CrashReport : IDisposable
             return recoveredDocuments;
         }
 
-        recoveredDocuments.AddRange(paths.Select(path => new RecoveredPixi(path.Value, ZipFile.GetEntry($"Documents/{path.Key}"))));
+        recoveredDocuments.AddRange(sessionInfo.OpenedDocuments.Select(path => new RecoveredPixi(path.OriginalPath, ZipFile.GetEntry($"Documents/{path.ZipName}"))));
 
         return recoveredDocuments;
 
-        Dictionary<string, string>? TryGetOriginalPaths()
+        CrashedSessionInfo? TryGetSessionInfo()
         {
             var originalPathsEntry = ZipFile.Entries.FirstOrDefault(entry => entry.FullName == "DocumentInfo.json");
 
@@ -317,7 +321,7 @@ internal class CrashReport : IDisposable
                 using var reader = new StreamReader(stream);
                 string json = reader.ReadToEnd();
 
-                return JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+                return JsonConvert.DeserializeObject<CrashedSessionInfo>(json);
             }
             catch
             {
@@ -373,7 +377,7 @@ internal class CrashReport : IDisposable
 
         // Write the documents into zip
         int counter = 0;
-        var originalPaths = new Dictionary<string, string>();
+        var originalPaths = new List<CrashedFileInfo>();
         //TODO: Implement
         foreach (var document in documents)
         {
@@ -389,7 +393,7 @@ internal class CrashReport : IDisposable
                 using Stream documentStream = archive.CreateEntry($"Documents/{nameInZip}").Open();
                 documentStream.Write(serialized);
 
-                originalPaths.Add(nameInZip, document.FullFilePath);
+                originalPaths.Add(new CrashedFileInfo(nameInZip, document.FullFilePath));
             }
             catch { }
             counter++;
@@ -400,7 +404,7 @@ internal class CrashReport : IDisposable
             using Stream jsonStream = archive.CreateEntry("DocumentInfo.json").Open();
             using StreamWriter writer = new StreamWriter(jsonStream);
 
-            string originalPathsJson = JsonConvert.SerializeObject(originalPaths, Formatting.Indented);
+            string originalPathsJson = JsonConvert.SerializeObject(new CrashedSessionInfo(AnalyticsPeriodicReporter.Instance?.SessionId ?? Guid.Empty, originalPaths), Formatting.Indented);
             writer.Write(originalPathsJson);
         }
     }

@@ -272,7 +272,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         AddRecentlyOpened(path);
 
-        var fileType = SupportedFilesHelper.ParseImageFormat(path);
+        var fileType = SupportedFilesHelper.ParseImageFormat(Path.GetExtension(path));
 
         if (fileType != null)
         {

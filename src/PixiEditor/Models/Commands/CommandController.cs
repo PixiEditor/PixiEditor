@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using PixiEditor.Exceptions;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.AnalyticsAPI;
@@ -376,10 +377,17 @@ internal class CommandController
         {
             Analytics.SendCommand(name, (parameter as CommandExecutionContext)?.SourceInfo);
         }
-                
-        object result = method.Invoke(instance, parameters);
-        if (result is Task task)
-            task.ContinueWith(ActionOnException, TaskContinuationOptions.OnlyOnFaulted);
+
+        try
+        {
+            object result = method.Invoke(instance, parameters);
+            if (result is Task task)
+                task.ContinueWith(ActionOnException, TaskContinuationOptions.OnlyOnFaulted);
+        }
+        catch (TargetInvocationException e)
+        {
+            throw new CommandInvocationException(name, e);
+        }
 
         return;
 

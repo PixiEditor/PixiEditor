@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
@@ -16,6 +18,13 @@ public class ShaderBuilder
 
     private Dictionary<Texture, TextureSampler> _samplers = new Dictionary<Texture, TextureSampler>();
 
+    public BuiltInFunctions Functions { get; } = new();
+
+    public ShaderBuilder(VecI resolution)
+    {
+        AddUniform("iResolution", resolution);
+    }
+    
     public Shader BuildShader()
     {
         string generatedSksl = ToSkSl();
@@ -26,8 +35,12 @@ public class ShaderBuilder
     {
         StringBuilder sb = new StringBuilder();
         AppendUniforms(sb);
+
+        sb.AppendLine(Functions.BuildFunctions());
+        
         sb.AppendLine("half4 main(float2 coords)");
         sb.AppendLine("{");
+        sb.AppendLine("coords = coords / iResolution;");
         sb.Append(_bodyBuilder);
         sb.AppendLine("}");
 
@@ -64,7 +77,7 @@ public class ShaderBuilder
         string resultName = $"color_{GetUniqueNameNumber()}";
         Half4 result = new Half4(resultName);
         _variables.Add(result);
-        _bodyBuilder.AppendLine($"half4 {resultName} = sample({texName.VariableName}, {pos.VariableName});");
+        _bodyBuilder.AppendLine($"half4 {resultName} = sample({texName.VariableName}, {pos.VariableName} * iResolution);");
         return result;
     }
 
@@ -152,19 +165,15 @@ public class ShaderBuilder
         Half4 result = new Half4(name);
         _variables.Add(result);
 
-        string rExpression = r.ExpressionValue;
-        string gExpression = g.ExpressionValue;
-        string bExpression = b.ExpressionValue;
-        string aExpression = a.ExpressionValue;
-
-        _bodyBuilder.AppendLine($"half4 {name} = half4({rExpression}, {gExpression}, {bExpression}, {aExpression});");
+        _bodyBuilder.AppendLine($"half4 {name} = {Half4.ConstructorText(r, g, b, a)};");
         return result;
     }
 
 
-    public Half4 AssignNewHalf4(Expression assignment)
+    public Half4 AssignNewHalf4(Expression assignment) => AssignNewHalf4($"color_{GetUniqueNameNumber()}", assignment);
+
+    public Half4 AssignNewHalf4(string name, Expression assignment)
     {
-        string name = $"color_{GetUniqueNameNumber()}";
         Half4 result = new Half4(name);
         _variables.Add(result);
 
