@@ -24,10 +24,14 @@ internal static class TransformUpdateHelper
             VecD oppositePos = TransformHelper.GetAnchorPosition(corners, opposite);
 
             // constrain desired pos to a "propotional" diagonal line if needed
-            if (freedom == TransformCornerFreedom.ScaleProportionally)
+            if (freedom == TransformCornerFreedom.ScaleProportionally && corners.IsRect)
             {
                 double correctAngle = targetCorner is Anchor.TopLeft or Anchor.BottomRight ? propAngle1 : propAngle2;
                 desiredPos = desiredPos.ProjectOntoLine(oppositePos, oppositePos + VecD.FromAngleAndLength(correctAngle, 1));
+            }
+            else if (freedom == TransformCornerFreedom.ScaleProportionally)
+            {
+                desiredPos = desiredPos.ProjectOntoLine(oppositePos, targetPos);
             }
 
             // find neighboring corners
@@ -55,11 +59,12 @@ internal static class TransformUpdateHelper
             }
             else
             {
-                // handle normal cases
-                VecD desiredTrans = (desiredPos - oppositePos).Rotate(-angle);
-                VecD scaling = desiredTrans.Divide(targetTrans);
-                leftNeighDelta = leftNeighTrans.Multiply(scaling) - leftNeighTrans;
-                rightNeighDelta = rightNeighTrans.Multiply(scaling) - rightNeighTrans;
+                VecD? newLeftPos = TransformHelper.TwoLineIntersection(VecD.Zero, leftNeighTrans, targetTrans + delta, leftNeighTrans + delta);
+                VecD? newRightPos = TransformHelper.TwoLineIntersection(VecD.Zero, rightNeighTrans, targetTrans + delta, rightNeighTrans + delta);
+                if (newLeftPos is null || newRightPos is null)
+                    return null;
+                leftNeighDelta = newLeftPos.Value - leftNeighTrans;
+                rightNeighDelta = newRightPos.Value - rightNeighTrans;
             }
 
             // handle cases where the transform overlay is squished into a line or a single point
@@ -86,6 +91,9 @@ internal static class TransformUpdateHelper
                 (leftNeighTrans + leftNeighDelta).Rotate(angle) + oppositePos);
             corners = TransformHelper.UpdateCorner(corners, rightNeighbor,
                 (rightNeighTrans + rightNeighDelta).Rotate(angle) + oppositePos);
+
+            if (!corners.IsLegal)
+                return null;
 
             return corners;
         }
