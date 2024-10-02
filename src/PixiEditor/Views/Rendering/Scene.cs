@@ -104,6 +104,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         set => SetValue(ChannelsProperty, value);
     }
 
+
     private Bitmap? checkerBitmap;
 
     private Overlay? capturedOverlay;
@@ -196,7 +197,10 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 if (!overlay.CanRender()) continue;
 
                 overlay.RenderOverlay(context, dirtyBounds);
-                Cursor = overlay.Cursor ?? DefaultCursor;
+                if (overlay.IsHitTestVisible)
+                {
+                    Cursor = overlay.Cursor ?? DefaultCursor;
+                }
             }
         }
     }

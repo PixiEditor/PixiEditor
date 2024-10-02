@@ -20,7 +20,7 @@ internal static class TransformHelper
     public static VecD ToVecD(Point pos) => new VecD(pos.X, pos.Y);
     public static Point ToPoint(VecD vec) => new Point(vec.X, vec.Y);
 
-    public static ShapeCorners SnapToPixels(ShapeCorners corners)
+    public static ShapeCorners AlignToPixels(ShapeCorners corners)
     {
         corners.TopLeft = corners.TopLeft.Round();
         corners.TopRight = corners.TopRight.Round();
@@ -284,5 +284,21 @@ internal static class TransformHelper
             Math.Max(Math.Max(corners.TopLeft.X, corners.TopRight.X), Math.Max(corners.BottomLeft.X, corners.BottomRight.X)),
             Math.Max(Math.Max(corners.TopLeft.Y, corners.TopRight.Y), Math.Max(corners.BottomLeft.Y, corners.BottomRight.Y)));
         return max + new VecD(size.X / zoomboxScale, size.Y / zoomboxScale);
+    }
+
+    public static (Anchor, Anchor) GetAdjacentAnchors(Anchor capturedAnchor)
+    {
+        return capturedAnchor switch
+        {
+            Anchor.TopLeft => (Anchor.Top, Anchor.Left),
+            Anchor.TopRight => (Anchor.Top, Anchor.Right),
+            Anchor.BottomLeft => (Anchor.Bottom, Anchor.Left),
+            Anchor.BottomRight => (Anchor.Bottom, Anchor.Right),
+            Anchor.Top => (Anchor.TopLeft, Anchor.TopRight),
+            Anchor.Bottom => (Anchor.BottomLeft, Anchor.BottomRight),
+            Anchor.Left => (Anchor.TopLeft, Anchor.BottomLeft),
+            Anchor.Right => (Anchor.TopRight, Anchor.BottomRight),
+            _ => throw new ArgumentException($"{capturedAnchor} is not a corner or a side"),
+        };
     }
 }

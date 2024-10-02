@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Numerics;
 using PixiEditor.UI.Common.Fonts;
 
@@ -104,5 +105,6 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
     }
 
     [Evaluator.CanExecute("PixiEditor.Selection.CanNudgeSelectedObject")]
-    public bool CanNudgeSelectedObject(int[] dist) => Owner.DocumentManagerSubViewModel.ActiveDocument?.UpdateableChangeActive == true;
+    public bool CanNudgeSelectedObject(int[] dist) => Owner.DocumentManagerSubViewModel.ActiveDocument
+        ?.IsChangeFeatureActive<ITransformableExecutor>() ?? false;
 }

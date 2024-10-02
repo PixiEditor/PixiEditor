@@ -103,6 +103,13 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         }
     }
     
+    private bool enableSnapping = true;
+    public bool EnableSnapping
+    {
+        get => enableSnapping;
+        set => SetProperty(ref enableSnapping, value);
+    }
+    
     private ExecutionTrigger<ShapeCorners> requestedCornersExecutor;
     public ExecutionTrigger<ShapeCorners> RequestCornersExecutor
     {
@@ -172,6 +179,9 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         return true;
     }
 
+    public bool HasUndo => undoStack is not null && undoStack.UndoCount > 0; 
+    public bool HasRedo => undoStack is not null && undoStack.RedoCount > 0;
+
     public void HideTransform()
     {
         if (undoStack is null)
@@ -184,7 +194,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
 
     public void ShowTransform(DocumentTransformMode mode, bool coverWholeScreen, ShapeCorners initPos, bool showApplyButton)
     {
-        if (undoStack is not null)
+        if (undoStack is not null || initPos.IsPartiallyDegenerate)
             return;
         undoStack = new();
 
@@ -196,8 +206,8 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         TransformActive = true;
         ShowTransformControls = showApplyButton;
 
-        undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Initial);
         RequestCornersExecutor?.Execute(this, initPos);
+        undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Initial);
     }
 
     public void KeyModifiersInlet(bool isShiftDown, bool isCtrlDown, bool isAltDown)

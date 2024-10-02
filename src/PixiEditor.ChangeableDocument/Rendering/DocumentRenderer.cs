@@ -66,7 +66,7 @@ public class DocumentRenderer
 
         return toDrawOn;
     }
-
+    
     public OneOf<Chunk, EmptyChunk> RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime,
         RectI? globalClippingRect = null)
     {
@@ -125,7 +125,7 @@ public class DocumentRenderer
         HashSet<Guid> layersToCombine, RectI? globalClippingRect)
     {
         using RenderingContext context = new(frame, chunkPos, resolution, Document.Size);
-        NodeGraph membersOnlyGraph = ConstructMembersOnlyGraph(layersToCombine, Document.NodeGraph);
+        IReadOnlyNodeGraph membersOnlyGraph = ConstructMembersOnlyGraph(layersToCombine, Document.NodeGraph);
         try
         {
             return RenderChunkOnGraph(chunkPos, resolution, globalClippingRect, membersOnlyGraph, context);
@@ -134,6 +134,47 @@ public class DocumentRenderer
         {
             return new EmptyChunk();
         }
+    }
+    
+    public Texture? RenderLayer(Guid nodeId, ChunkResolution resolution, KeyFrameTime frameTime)
+    {
+        var node = Document.FindNode(nodeId);
+        
+        if (node is null)
+        {
+            return null;
+        }
+        
+        VecI sizeInChunks = Document.Size / resolution.PixelSize();
+        
+        sizeInChunks = new VecI(
+            Math.Max(1, sizeInChunks.X),
+            Math.Max(1, sizeInChunks.Y));
+        
+        VecI size = new VecI(
+            Math.Min(Document.Size.X, resolution.PixelSize() * sizeInChunks.X),
+            Math.Min(Document.Size.Y, resolution.PixelSize() * sizeInChunks.Y));
+        
+        Texture texture = new(size);
+        
+        for (int x = 0; x < sizeInChunks.X; x++)
+        {
+            for (int y = 0; y < sizeInChunks.Y; y++)
+            {
+                VecI chunkPos = new(x, y);
+                RectI globalClippingRect = new(0, 0, Document.Size.X, Document.Size.Y);
+                OneOf<Chunk, EmptyChunk> chunk = RenderChunk(chunkPos, resolution, node, frameTime, globalClippingRect);
+                if (chunk.IsT0)
+                {
+                    VecI pos = chunkPos * resolution.PixelSize(); 
+                    texture.DrawingSurface.Canvas.DrawSurface(
+                        chunk.AsT0.Surface.DrawingSurface,
+                        pos.X, pos.Y, null);
+                }
+            }
+        }
+        
+        return texture;
     }
 
     private static OneOf<Chunk, EmptyChunk> RenderChunkOnGraph(VecI chunkPos, ChunkResolution resolution,
@@ -187,7 +228,13 @@ public class DocumentRenderer
         return chunk;
     }
 
-    private NodeGraph ConstructMembersOnlyGraph(HashSet<Guid> layersToCombine, IReadOnlyNodeGraph fullGraph)
+    public static IReadOnlyNodeGraph ConstructMembersOnlyGraph(IReadOnlyNodeGraph fullGraph)
+    {
+        return ConstructMembersOnlyGraph(null, fullGraph); 
+    }
+
+    public static IReadOnlyNodeGraph ConstructMembersOnlyGraph(HashSet<Guid>? layersToCombine,
+        IReadOnlyNodeGraph fullGraph)
     {
         NodeGraph membersOnlyGraph = new();
 
@@ -199,7 +246,7 @@ public class DocumentRenderer
 
         fullGraph.TryTraverse(node =>
         {
-            if (node is LayerNode layer && layersToCombine.Contains(layer.Id))
+            if (node is LayerNode layer && (layersToCombine == null || layersToCombine.Contains(layer.Id)))
             {
                 layersInOrder.Insert(0, layer);
             }

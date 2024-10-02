@@ -14,7 +14,7 @@ public interface IReadOnlyStructureNode : IReadOnlyNode
     public InputProperty<Texture?> CustomMask { get; }
     public InputProperty<bool> MaskIsVisible { get; }
     public string MemberName { get; set; }
-    public RectI? GetTightBounds(KeyFrameTime frameTime);
-    
+    public RectD? GetTightBounds(KeyFrameTime frameTime);
     public ChunkyImage? EmbeddedMask { get; }
+    public ShapeCorners GetTransformationCorners(KeyFrameTime frameTime);
 }

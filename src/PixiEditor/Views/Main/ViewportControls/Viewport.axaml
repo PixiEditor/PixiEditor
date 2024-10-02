@@ -107,6 +107,11 @@
                                           Content="{DynamicResource icon-x-flip}"
                                           Cursor="Hand" />
                         </StackPanel>
+                        <Separator/>
+                        <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
+                                      ui:Translator.TooltipKey="TOGGLE_SNAPPING" Classes="OverlayToggleButton pixi-icon"
+                                      Content="{DynamicResource icon-snapping}"
+                                      IsChecked="{Binding SnappingViewModel.SnappingEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"/>
                     </StackPanel>
                 </Border>
             </overlays:TogglableFlyout.Child>
@@ -173,7 +178,7 @@
                 <MultiBinding Converter="{converters:BoolOrToVisibilityConverter}">
                     <MultiBinding.Bindings>
                         <Binding ElementName="vpUc" Path="Document.TransformViewModel.ShowTransformControls" />
-                        <Binding ElementName="vpUc" Path="Document.LineToolOverlayViewModel.IsEnabled" />
+                        <Binding ElementName="vpUc" Path="Document.LineToolOverlayViewModel.ShowApplyButton" />
                     </MultiBinding.Bindings>
                 </MultiBinding>
             </Button.IsVisible>

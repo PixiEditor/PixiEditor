@@ -101,11 +101,12 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2"/>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
     <PackageReference Include="PixiEditor.ColorPicker.Models" Version="1.0.5"/>
-    <PackageReference Include="PixiEditor.ColorPicker.AvaloniaUI" Version="1.0.5"/>
+    <PackageReference Include="PixiEditor.ColorPicker.AvaloniaUI" Version="1.0.6"/>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\PixiDocks\src\PixiDocks.Avalonia\PixiDocks.Avalonia.csproj"/>
+    <ProjectReference Include="..\PixiEditor.SVG\PixiEditor.SVG.csproj" />
     <ProjectReference Include="..\PixiParser\src\PixiParser.Skia\PixiParser.Skia.csproj"/>
     <ProjectReference Include="..\PixiParser\src\PixiParser\PixiParser.csproj"/>
     <ProjectReference Include="..\ChunkyImageLib\ChunkyImageLib.csproj"/>

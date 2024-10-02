@@ -8,6 +8,7 @@ namespace ChunkyImageLib.DataHolders;
 public struct ShapeCorners
 {
     private const double epsilon = 0.001;
+
     public ShapeCorners(VecD center, VecD size)
     {
         TopLeft = center - size / 2;
@@ -15,6 +16,7 @@ public struct ShapeCorners
         BottomRight = center + size / 2;
         BottomLeft = center + new VecD(-size.X / 2, size.Y / 2);
     }
+
     public ShapeCorners(RectD rect)
     {
         TopLeft = rect.TopLeft;
@@ -22,10 +24,12 @@ public struct ShapeCorners
         BottomRight = rect.BottomRight;
         BottomLeft = rect.BottomLeft;
     }
+
     public VecD TopLeft { get; set; }
     public VecD TopRight { get; set; }
     public VecD BottomLeft { get; set; }
     public VecD BottomRight { get; set; }
+
     public bool IsInverted
     {
         get
@@ -34,9 +38,11 @@ public struct ShapeCorners
             var right = TopRight - BottomRight;
             var bottom = BottomRight - BottomLeft;
             var left = BottomLeft - TopLeft;
-            return Math.Sign(top.Cross(right)) + Math.Sign(right.Cross(bottom)) + Math.Sign(bottom.Cross(left)) + Math.Sign(left.Cross(top)) < 0;
+            return Math.Sign(top.Cross(right)) + Math.Sign(right.Cross(bottom)) + Math.Sign(bottom.Cross(left)) +
+                Math.Sign(left.Cross(top)) < 0;
         }
     }
+
     public bool IsLegal
     {
         get
@@ -48,7 +54,8 @@ public struct ShapeCorners
             var bottom = BottomRight - BottomLeft;
             var left = BottomLeft - TopLeft;
             var topRight = Math.Sign(top.Cross(right));
-            return topRight == Math.Sign(right.Cross(bottom)) && topRight == Math.Sign(bottom.Cross(left)) && topRight == Math.Sign(left.Cross(top));
+            return topRight == Math.Sign(right.Cross(bottom)) && topRight == Math.Sign(bottom.Cross(left)) &&
+                   topRight == Math.Sign(left.Cross(top));
         }
     }
 
@@ -59,32 +66,34 @@ public struct ShapeCorners
     {
         get
         {
-            Span<VecD> lengths = stackalloc[] 
+            Span<VecD> lengths = stackalloc[]
             {
-                TopLeft - TopRight,
-                TopRight - BottomRight,
-                BottomRight - BottomLeft,
-                BottomLeft - TopLeft,
-                TopLeft - BottomRight,
-                TopRight - BottomLeft
+                TopLeft - TopRight, TopRight - BottomRight, BottomRight - BottomLeft, BottomLeft - TopLeft,
+                TopLeft - BottomRight, TopRight - BottomLeft
             };
             foreach (VecD vec in lengths)
             {
                 if (vec.LengthSquared < epsilon * epsilon)
                     return true;
             }
+
             return false;
         }
     }
-    public bool HasNaNOrInfinity => TopLeft.IsNaNOrInfinity() || TopRight.IsNaNOrInfinity() || BottomLeft.IsNaNOrInfinity() || BottomRight.IsNaNOrInfinity();
+
+    public bool HasNaNOrInfinity => TopLeft.IsNaNOrInfinity() || TopRight.IsNaNOrInfinity() ||
+                                    BottomLeft.IsNaNOrInfinity() || BottomRight.IsNaNOrInfinity();
+
     public bool IsRect => Math.Abs((TopLeft - BottomRight).Length - (TopRight - BottomLeft).Length) < epsilon;
     public VecD RectSize => new((TopLeft - TopRight).Length, (TopLeft - BottomLeft).Length);
     public VecD RectCenter => (TopLeft - BottomRight) / 2 + BottomRight;
+
     public double RectRotation =>
-        (TopLeft - TopRight).Cross(TopLeft - BottomLeft) > 0 ?
-        RectSize.CCWAngleTo(BottomRight - TopLeft) :
-        RectSize.CCWAngleTo(BottomLeft - TopRight);
-    public bool IsSnappedToPixels
+        (TopLeft - TopRight).Cross(TopLeft - BottomLeft) > 0
+            ? RectSize.CCWAngleTo(BottomRight - TopLeft)
+            : RectSize.CCWAngleTo(BottomLeft - TopRight);
+
+    public bool IsAlignedToPixels
     {
         get
         {
@@ -96,6 +105,7 @@ public struct ShapeCorners
                 (BottomRight - BottomRight.Round()).TaxicabLength < epsilon;
         }
     }
+
     public RectD AABBBounds
     {
         get
@@ -120,7 +130,8 @@ public struct ShapeCorners
         var deltaBottomRight = point - BottomRight;
         var deltaBottomLeft = point - BottomLeft;
 
-        if (deltaTopRight.IsNaNOrInfinity() || deltaTopLeft.IsNaNOrInfinity() || deltaBottomRight.IsNaNOrInfinity() || deltaBottomRight.IsNaNOrInfinity())
+        if (deltaTopRight.IsNaNOrInfinity() || deltaTopLeft.IsNaNOrInfinity() || deltaBottomRight.IsNaNOrInfinity() ||
+            deltaBottomRight.IsNaNOrInfinity())
             return false;
 
         var crossTop = Math.Sign(top.Cross(deltaTopLeft));
@@ -186,13 +197,14 @@ public struct ShapeCorners
     }
 
     public static bool operator !=(ShapeCorners left, ShapeCorners right) => !(left == right);
-    public static bool operator == (ShapeCorners left, ShapeCorners right)
+
+    public static bool operator ==(ShapeCorners left, ShapeCorners right)
     {
-        return 
-           left.TopLeft == right.TopLeft &&
-           left.TopRight == right.TopRight &&
-           left.BottomLeft == right.BottomLeft &&
-           left.BottomRight == right.BottomRight;
+        return
+            left.TopLeft == right.TopLeft &&
+            left.TopRight == right.TopRight &&
+            left.BottomLeft == right.BottomLeft &&
+            left.BottomRight == right.BottomRight;
     }
 
     public bool AlmostEquals(ShapeCorners other, double epsilon = 0.001)
@@ -203,7 +215,7 @@ public struct ShapeCorners
             BottomLeft.AlmostEquals(other.BottomLeft, epsilon) &&
             BottomRight.AlmostEquals(other.BottomRight, epsilon);
     }
-    
+
     public bool Intersects(RectD rect)
     {
         // Get all corners
@@ -244,5 +256,18 @@ public struct ShapeCorners
 
         // All projections overlap, so the shapes intersect
         return true;
+    }
+
+    public ShapeCorners WithMatrix(Matrix3X3 transformationMatrix)
+    {
+        ShapeCorners corners = new ShapeCorners
+        {
+            TopLeft = transformationMatrix.MapPoint(TopLeft),
+            TopRight = transformationMatrix.MapPoint(TopRight),
+            BottomLeft = transformationMatrix.MapPoint(BottomLeft),
+            BottomRight = transformationMatrix.MapPoint(BottomRight)
+        };
+
+        return corners;
     }
 }

@@ -1,10 +1,12 @@
-﻿using Avalonia;
+﻿using System.Windows.Input;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Models.Controllers.InputDevice;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes;
@@ -15,10 +17,10 @@ internal partial class LayerControl : UserControl
 {
     public static string? LayerControlDataName = typeof(LayerControl).FullName;
 
-    public static readonly StyledProperty<ImageLayerNodeViewModel> LayerProperty =
-        AvaloniaProperty.Register<LayerControl, ImageLayerNodeViewModel>(nameof(Layer));
+    public static readonly StyledProperty<ILayerHandler> LayerProperty =
+        AvaloniaProperty.Register<LayerControl, ILayerHandler>(nameof(Layer));
 
-    public ImageLayerNodeViewModel Layer
+    public ILayerHandler Layer
     {
         get => GetValue(LayerProperty);
         set => SetValue(LayerProperty, value);

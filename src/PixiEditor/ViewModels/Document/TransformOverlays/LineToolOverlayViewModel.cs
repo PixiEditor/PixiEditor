@@ -1,11 +1,11 @@
 ﻿using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ViewModels.Document.TransformOverlays;
+
 internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
 {
     public event EventHandler<(VecD, VecD)>? LineMoved;
@@ -13,6 +13,7 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
     private TransformOverlayUndoStack<(VecD, VecD)>? undoStack = null;
 
     private VecD lineStart;
+
     public VecD LineStart
     {
         get => lineStart;
@@ -24,6 +25,7 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
     }
 
     private VecD lineEnd;
+
     public VecD LineEnd
     {
         get => lineEnd;
@@ -33,8 +35,9 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
                 LineMoved?.Invoke(this, (lineStart, lineEnd));
         }
     }
-
+    
     private bool isEnabled;
+
     public bool IsEnabled
     {
         get => isEnabled;
@@ -42,28 +45,43 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
     }
 
     private ICommand? actionCompletedCommand = null;
+
     public ICommand? ActionCompletedCommand
     {
         get => actionCompletedCommand;
         set => SetProperty(ref actionCompletedCommand, value);
     }
 
-    public LineToolOverlayViewModel()
+    private bool showApplyButton;
+
+    public bool ShowApplyButton
     {
-        ActionCompletedCommand = new RelayCommand(() => undoStack?.AddState((LineStart, LineEnd), TransformOverlayStateType.Move));
+        get => showApplyButton;
+        set => SetProperty(ref showApplyButton, value);
     }
 
-    public void Show(VecD lineStart, VecD lineEnd)
+    public LineToolOverlayViewModel()
+    {
+        ActionCompletedCommand =
+            new RelayCommand(() => undoStack?.AddState((LineStart, LineEnd), TransformOverlayStateType.Move));
+    }
+
+    public void Show(VecD lineStart, VecD endPos, bool showApplyButton)
     {
         if (undoStack is not null)
             return;
         undoStack = new();
-        undoStack.AddState((lineStart, lineEnd), TransformOverlayStateType.Initial);
+        
+        undoStack.AddState((lineStart, endPos), TransformOverlayStateType.Initial);
 
         LineStart = lineStart;
-        LineEnd = lineEnd;
+        LineEnd = endPos; 
         IsEnabled = true;
+        ShowApplyButton = showApplyButton;
     }
+
+    public bool HasUndo => undoStack is not null && undoStack.UndoCount > 0;
+    public bool HasRedo => undoStack is not null && undoStack.RedoCount > 0; 
 
     public void Hide()
     {
@@ -71,6 +89,7 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
             return;
         undoStack = null;
         IsEnabled = false;
+        ShowApplyButton = false;
     }
 
     public bool Nudge(VecD distance)

@@ -10,9 +10,9 @@
       "MagicWand",
       "Lasso",
       "FloodFill",
-      "Line",
-      "Ellipse",
-      "Rectangle",
+      "RasterLine",
+      "RasterEllipse",
+      "RasterRectangle",
       "Eraser",
       "ColorPicker",
       "Brightness",
@@ -25,9 +25,9 @@
       "MoveViewport",
       "RotateViewport",
       "Move",
-      "Line",
-      "Ellipse",
-      "Rectangle"
+      "VectorLine",
+      "VectorEllipse",
+      "VectorRectangle"
     ]
   }
 ]

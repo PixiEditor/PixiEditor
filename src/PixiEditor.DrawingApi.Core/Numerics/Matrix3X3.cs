@@ -54,6 +54,11 @@ public struct Matrix3X3 : IEquatable<Matrix3X3>
     /// <summary>Gets or sets the z-perspective.</summary>
     /// <value />
     public float Persp2 { get; set; }
+    
+    public VecD Position => new VecD(TransX, TransY);
+    public VecD Scale => new VecD(ScaleX, ScaleY);
+    public VecD Skew => new VecD(SkewX, SkewY);
+    public VecD Perspective => new VecD(Persp0, Persp1);
 
     public readonly bool Equals(Matrix3X3 obj)
     {
@@ -351,10 +356,20 @@ public struct Matrix3X3 : IEquatable<Matrix3X3>
     {
         return DrawingBackendApi.Current.MatrixImplementation.PostConcat(in this, in globalMatrix);
     }
+    
+    public Matrix3X3 Concat(Matrix3X3 localMatrix)
+    {
+        return DrawingBackendApi.Current.MatrixImplementation.Concat(in this, in localMatrix);
+    }
 
     public VecD MapPoint(int p0, int p1)
     {
         return DrawingBackendApi.Current.MatrixImplementation.MapPoint(this, p0, p1);
+    }
+    
+    public VecD MapPoint(VecD point)
+    {
+        return DrawingBackendApi.Current.MatrixImplementation.MapPoint(this, point);
     }
 
     private static void SetSinCos(ref Matrix3X3 matrix, float sin, float cos)

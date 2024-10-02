@@ -435,7 +435,10 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                     }
                     else
                     {
-                        ShowSaveError((DialogSaveResult)result.result);
+                        Dispatcher.UIThread.Post(() =>
+                        {
+                            ShowSaveError((DialogSaveResult)result.result);
+                        });
                     }
                 });
 

@@ -102,7 +102,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
         return Output.Value;
     }
 
-    public override RectI? GetTightBounds(KeyFrameTime frameTime)
+    public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
         RectI bounds = new RectI();
         if(Content.Connection != null)
@@ -111,7 +111,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
             {
                 if (n is ImageLayerNode imageLayerNode)
                 {
-                    RectI? imageBounds = imageLayerNode.GetTightBounds(frameTime);
+                    RectI? imageBounds = (RectI?)imageLayerNode.GetTightBounds(frameTime);
                     if (imageBounds != null)
                     {
                         bounds = bounds.Union(imageBounds.Value);
@@ -121,10 +121,10 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
                 return true;
             });
             
-            return bounds;
+            return (RectD)bounds;
         }
         
-        return RectI.Create(0, 0, Content.Value?.Size.X ?? 0, Content.Value?.Size.Y ?? 0);
+        return (RectD)RectI.Create(0, 0, Content.Value?.Size.X ?? 0, Content.Value?.Size.Y ?? 0);
     }
 
     public HashSet<Guid> GetLayerNodeGuids()

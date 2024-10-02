@@ -6,7 +6,7 @@ using PixiEditor.ViewModels.Nodes;
 namespace PixiEditor.ViewModels.Document.Nodes;
 
 [NodeViewModel("IMAGE_LAYER_NODE", "STRUCTURE", "\ue905")]
-internal class ImageLayerNodeViewModel : StructureMemberViewModel<ImageLayerNode>, ILayerHandler
+internal class ImageLayerNodeViewModel : StructureMemberViewModel<ImageLayerNode>, ITransparencyLockableMember, IRasterLayerHandler
 {
     bool lockTransparency;
     public void SetLockTransparency(bool lockTransparency)
@@ -19,7 +19,7 @@ internal class ImageLayerNodeViewModel : StructureMemberViewModel<ImageLayerNode
         get => lockTransparency;
         set
         {
-            if (!Document.UpdateableChangeActive)
+            if (!Document.BlockingUpdateableChangeActive)
                 Internals.ActionAccumulator.AddFinishedActions(new LayerLockTransparency_Action(Id, value));
         }
     }

@@ -4,6 +4,8 @@ namespace PixiEditor.Models.Handlers.Toolbars;
 
 internal interface IBasicShapeToolbar : IBasicToolbar
 {
-    public bool Fill { get; }
-    public Color FillColor { get; }
+    public Color StrokeColor { get; set; }
+    public bool Fill { get; set; }
+    public Color FillColor { get; set; }
+    public bool SyncWithPrimaryColor { get; set; }
 }

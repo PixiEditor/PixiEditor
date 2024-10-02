@@ -25,6 +25,8 @@ internal class LassoToolViewModel : ToolViewModel, ILassoToolHandler
     private SelectionMode KeyModifierselectionMode = SelectionMode.New;
     public SelectionMode? ResultingSelectionMode => KeyModifierselectionMode != SelectionMode.New ? KeyModifierselectionMode : SelectMode;
 
+    public override Type LayerTypeToCreateOnEmptyUse { get; } = null;
+
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
         if (shiftIsDown)
@@ -49,6 +51,8 @@ internal class LassoToolViewModel : ToolViewModel, ILassoToolHandler
     public override string ToolNameLocalizationKey => "LASSO_TOOL";
     public string Icon => PixiPerfectIcons.Lasso;
     public override BrushShape BrushShape => BrushShape.Pixel;
+    
+    public override Type[]? SupportedLayerTypes { get; } = null; // all layer types are supported
 
     [Settings.Enum("MODE_LABEL")]
     public SelectionMode SelectMode => GetValue<SelectionMode>();

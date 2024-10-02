@@ -1,4 +1,5 @@
 ﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.Serialization.Factories;
@@ -56,5 +57,28 @@ public class ByteExtractor
         }
         
         return points;
+    }
+
+    public Matrix3X3 GetMatrix3X3()
+    {
+        double[] values = new double[9];
+        
+        for (int i = 0; i < 9; i++)
+        {
+            values[i] = BitConverter.ToDouble(_data, Position);
+            Position += sizeof(double);
+        }
+        
+        float[] valuesFloat = values.Select(x => (float)x).ToArray();
+        return new Matrix3X3(valuesFloat);
+    }
+
+    public double GetDouble()
+    {
+        double value = BitConverter.ToDouble(_data, Position);
+        
+        Position += sizeof(double);
+        
+        return value;
     }
 }

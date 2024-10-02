@@ -14,6 +14,8 @@ namespace PixiEditor.DrawingApi.Core.Surfaces
     public class Canvas : NativeObject
     {
         public override object Native => DrawingBackendApi.Current.CanvasImplementation.GetNativeCanvas(ObjectPointer);
+        public Matrix3X3 ActiveMatrix => DrawingBackendApi.Current.CanvasImplementation.GetActiveMatrix(ObjectPointer);
+
         public event SurfaceChangedEventHandler? Changed;
 
         public Canvas(IntPtr objPtr) : base(objPtr)

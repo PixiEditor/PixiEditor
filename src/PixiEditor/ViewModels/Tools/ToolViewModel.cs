@@ -15,6 +15,7 @@ namespace PixiEditor.ViewModels.Tools;
 
 internal abstract class ToolViewModel : ObservableObject, IToolHandler
 {
+    private bool canBeUsedOnActiveLayerOnActiveLayer = true;
     public bool IsTransient { get; set; } = false;
     public KeyCombination Shortcut { get; set; }
 
@@ -27,6 +28,20 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
     public virtual BrushShape BrushShape => BrushShape.Square;
 
+    public abstract Type[]? SupportedLayerTypes { get; }
+
+    public bool CanBeUsedOnActiveLayer
+    {
+        get => canBeUsedOnActiveLayerOnActiveLayer;
+        private set
+        {
+            canBeUsedOnActiveLayerOnActiveLayer = value;
+            OnPropertyChanged(nameof(CanBeUsedOnActiveLayer));
+        }
+    }
+
+    public abstract Type LayerTypeToCreateOnEmptyUse { get; }
+
     public virtual bool HideHighlight { get; }
 
     public abstract LocalizedString Tooltip { get; }
@@ -36,12 +51,12 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     /// </summary>
     public virtual bool UsesColor => false;
 
-   /// <summary>
-   /// Determines if PixiEditor should switch to the Eraser when right click mode is set to erase
-   /// </summary>
+    /// <summary>
+    /// Determines if PixiEditor should switch to the Eraser when right click mode is set to erase
+    /// </summary>
     public virtual bool IsErasable => false;
 
-   /// <inheritdoc cref="IToolHandler.StopsLinkedToolOnUse"/>
+    /// <inheritdoc cref="IToolHandler.StopsLinkedToolOnUse"/>
     public virtual bool StopsLinkedToolOnUse => true;
 
     /// <summary>
@@ -50,6 +65,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     public MouseButton UsedWith { get; set; }
 
     private LocalizedString actionDisplay = string.Empty;
+
     public LocalizedString ActionDisplay
     {
         get => actionDisplay;
@@ -61,6 +77,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     }
 
     private bool isActive;
+
     public bool IsActive
     {
         get => isActive;
@@ -80,6 +97,39 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
         ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
     }
 
+    internal void SelectedLayersChanged(IStructureMemberHandler[] layers)
+    {
+        if (layers.Length is > 1 or 0)
+        {
+            CanBeUsedOnActiveLayer = SupportedLayerTypes == null;
+            return;
+        }
+        
+        var layer = layers[0];
+
+        if (IsActive)
+        {
+            OnSelectedLayersChanged(layers);
+        }
+
+        if (SupportedLayerTypes == null)
+        {
+            CanBeUsedOnActiveLayer = true;
+            return;
+        }
+
+        foreach (var type in SupportedLayerTypes)
+        {
+            if (type.IsInstanceOfType(layer))
+            {
+                CanBeUsedOnActiveLayer = true;
+                return;
+            }
+        }
+
+        CanBeUsedOnActiveLayer = false;
+    }
+
     private void OnLanguageChanged(Language obj)
     {
         ActionDisplay = new LocalizedString(ActionDisplay.Key);
@@ -89,9 +139,12 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
     public virtual void UseTool(VecD pos) { }
     public virtual void OnSelected() { }
+    
+    protected virtual void OnSelectedLayersChanged(IStructureMemberHandler[] layers) { }
 
     public virtual void OnDeselecting()
-    { }
+    {
+    }
 
     protected T GetValue<T>([CallerMemberName] string name = null)
     {
@@ -99,7 +152,8 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
         if (setting.GetSettingType().IsAssignableTo(typeof(Enum)))
         {
-            var property = setting.GetType().GetProperty("Value",  BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+            var property = setting.GetType().GetProperty("Value",
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
             return (T)property!.GetValue(setting);
         }
 

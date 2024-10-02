@@ -6,6 +6,7 @@
              xmlns:tools1="clr-namespace:PixiEditor.Views.Main.Tools"
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
+             xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              ClipToBounds="False"
              x:Class="PixiEditor.Views.Main.Tools.ToolsPicker" Name="picker">
@@ -40,7 +41,8 @@
                 <ItemsControl ItemsSource="{Binding ElementName=picker, Path=ToolSet.Tools}" Padding="0 2">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="tools:ToolViewModel">
-                            <tools1:ToolPickerButton DataContext="{Binding}" IsSelected="{Binding IsActive}" />
+                            <tools1:ToolPickerButton DataContext="{Binding}" 
+                                                     IsSelected="{Binding IsActive}" />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                     <ItemsControl.ItemsPanel>

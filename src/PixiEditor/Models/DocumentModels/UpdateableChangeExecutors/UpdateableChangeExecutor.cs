@@ -2,6 +2,7 @@
 using ChunkyImageLib.DataHolders;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
@@ -21,6 +22,7 @@ internal abstract class UpdateableChangeExecutor
     protected Action<UpdateableChangeExecutor>? onEnded;
     public virtual ExecutorType Type => ExecutorType.Regular;
     public virtual ExecutorStartMode StartMode => ExecutorStartMode.RightAway;
+    public virtual bool BlocksOtherActions => true;
 
     public void Initialize(IDocument document, DocumentInternalParts internals, IServiceProvider services,
         ChangeExecutionController controller, Action<UpdateableChangeExecutor> onEnded)
@@ -56,10 +58,7 @@ internal abstract class UpdateableChangeExecutor
     public virtual void OnSymmetryDragEnded(SymmetryAxisDirection dir) { }
     public virtual void OnConvertedKeyDown(Key key) { }
     public virtual void OnConvertedKeyUp(Key key) { }
-    public virtual void OnTransformMoved(ShapeCorners corners) { }
-    public virtual void OnTransformApplied() { }
-    public virtual void OnLineOverlayMoved(VecD start, VecD end) { }
-    public virtual void OnMidChangeUndo() { }
-    public virtual void OnMidChangeRedo() { }
-    public virtual void OnSelectedObjectNudged(VecI distance) { }
+    public virtual void OnSettingsChanged(string name, object value) { }
+    public virtual void OnColorChanged(Color color, bool primary) { }
+    public virtual void OnMembersSelected(List<Guid> memberGuids) { }
 }

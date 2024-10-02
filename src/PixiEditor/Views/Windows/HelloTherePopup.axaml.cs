@@ -154,18 +154,18 @@ internal partial class HelloTherePopup : PixiEditorPopup
 
         if (RecentlyOpenedEmpty)
         {
-            Width = 500 + newsWidth;
-            Height = 670;
+            Width = 550 + newsWidth;
+            Height = 680;
         }
         else if (RecentlyOpened.Count < 4)
         {
             Width = 545 + newsWidth;
-            Height = 670;
+            Height = 680;
         }
         else if (RecentlyOpened.Count < 7)
         {
             Width = 575 + newsWidth;
-            Height = 840;
+            Height = 850;
         }
     }
 
@@ -184,10 +184,12 @@ internal partial class HelloTherePopup : PixiEditorPopup
         if (e.NewValue.Value)
         {
             helloTherePopup.grid.ColumnDefinitions.Last<ColumnDefinition>().Width = new GridLength(0);
+            helloTherePopup.Width -= 300;
         }
         else
         {
             helloTherePopup.grid.ColumnDefinitions.Last<ColumnDefinition>().Width = new GridLength(300);
+            helloTherePopup.Width += 300;
         }
 
         PixiEditorSettings.StartupWindow.NewsPanelCollapsed.Value = e.NewValue.Value;

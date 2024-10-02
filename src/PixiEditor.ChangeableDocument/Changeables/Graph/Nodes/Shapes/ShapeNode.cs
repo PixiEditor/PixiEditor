@@ -1,11 +1,12 @@
-﻿using PixiEditor.ChangeableDocument.Rendering;
+﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.Numerics;
-using ShapeData = PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data.ShapeData;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes;
 
-public abstract class ShapeNode<T> : Node where T : ShapeData
+public abstract class ShapeNode<T> : Node where T : ShapeVectorData
 {
     public OutputProperty<T> Output { get; }
     
@@ -28,11 +29,11 @@ public abstract class ShapeNode<T> : Node where T : ShapeData
     
     protected abstract T? GetShapeData(RenderingContext context);
 
-    public Texture RasterizePreview(ShapeData data, VecI size)
+    public Texture RasterizePreview(ShapeVectorData vectorData, VecI size)
     {
         Texture texture = RequestTexture(0, size);
         
-        data.Rasterize(texture.DrawingSurface);
+        vectorData.RasterizeTransformed(texture.DrawingSurface, ChunkResolution.Full, null);
         
         return texture;
     }

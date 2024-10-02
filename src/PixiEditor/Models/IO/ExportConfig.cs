@@ -12,4 +12,6 @@ public class ExportConfig
    public int SpriteSheetColumns { get; set; }
    public int SpriteSheetRows { get; set; }
    public IAnimationRenderer? AnimationRenderer { get; set; }
+   
+   public VectorExportConfig? VectorExportConfig { get; set; }
 }

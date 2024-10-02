@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using PixiEditor.ChangeableDocument;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Handlers;
@@ -46,7 +48,7 @@ internal class DocumentStructureHelper
             //put member on top
             internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(
                 doc.NodeGraphHandler.OutputNode.Id,
-                guid, type));
+                guid, type == StructureMemberType.Layer ? typeof(ImageLayerNode) : typeof(FolderNode)));
             name ??= GetUniqueName(
                 type == StructureMemberType.Layer
                     ? new LocalizedString("NEW_LAYER")
@@ -61,7 +63,8 @@ internal class DocumentStructureHelper
         {
             Guid guid = Guid.NewGuid();
             //put member inside folder on top
-            internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(folder.Id, guid, type));
+            Type nodeType = type == StructureMemberType.Layer ? typeof(ImageLayerNode) : typeof(FolderNode);
+            internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(folder.Id, guid, nodeType));
             name ??= GetUniqueName(
                 type == StructureMemberType.Layer
                     ? new LocalizedString("NEW_LAYER")
@@ -77,10 +80,12 @@ internal class DocumentStructureHelper
             Guid guid = Guid.NewGuid();
             //put member above the layer
             INodeHandler parent = doc.StructureHelper.GetFirstForwardNode(layer);
-            if(parent is null)
+            if (parent is null)
                 parent = doc.NodeGraphHandler.OutputNode;
+
+            Type nodeType = type == StructureMemberType.Layer ? typeof(ImageLayerNode) : typeof(FolderNode);
             
-            internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(parent.Id, guid, type));
+            internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(parent.Id, guid, nodeType));
             name ??= GetUniqueName(
                 type == StructureMemberType.Layer
                     ? new LocalizedString("NEW_LAYER")
@@ -92,6 +97,28 @@ internal class DocumentStructureHelper
         }
 
         throw new ArgumentException($"Unknown member type: {type}");
+    }
+
+    public Guid? CreateNewStructureMember(Type structureMemberType, string? name, ActionSource source)
+    {
+        Guid guid = Guid.NewGuid();
+        var selectedMember = doc.SelectedStructureMember;
+        
+        //put member above the layer
+        INodeHandler parent = selectedMember != null ? doc.StructureHelper.GetFirstForwardNode(selectedMember)
+                : doc.NodeGraphHandler.OutputNode;
+        if (parent is null)
+            parent = doc.NodeGraphHandler.OutputNode;
+
+        internals.ActionAccumulator.AddActions(source, new CreateStructureMember_Action(parent.Id, guid, structureMemberType));
+        name ??= GetUniqueName(
+            structureMemberType.IsAssignableTo(typeof(LayerNode))
+                ? new LocalizedString("NEW_LAYER")
+                : new LocalizedString("NEW_FOLDER"), parent);
+        internals.ActionAccumulator.AddActions(source, new StructureMemberName_Action(guid, name));
+        if (source == ActionSource.User)
+            internals.ActionAccumulator.AddFinishedActions();
+        return guid;
     }
 
     private void HandleMoveInside(Guid memberToMove, Guid memberToMoveInto)
@@ -108,7 +135,8 @@ internal class DocumentStructureHelper
         var referenceMember = doc.StructureHelper.FindNode<INodeHandler>(referenceMemberId);
         var memberToMoveInto = !above ? referenceMember : doc.StructureHelper.GetFirstForwardNode(referenceMember);
         internals.ActionAccumulator.AddFinishedActions(
-            new MoveStructureMember_Action(memberToMove, memberToMoveInto.Id, above && memberToMoveInto is IFolderHandler));
+            new MoveStructureMember_Action(memberToMove, memberToMoveInto.Id,
+                above && memberToMoveInto is IFolderHandler));
     }
 
     public void TryMoveStructureMember(Guid memberToMove, Guid memberToMoveIntoOrNextTo,

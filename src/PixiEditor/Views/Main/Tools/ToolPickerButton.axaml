@@ -9,7 +9,7 @@
              xmlns:markupExtensions="clr-namespace:PixiEditor.Helpers.MarkupExtensions"
              xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             d:DataContext="{tools:ToolViewModel}"
+             d:DataContext="{tools:ToolViewModel}" Name="Uc"
              x:Class="PixiEditor.Views.Main.Tools.ToolPickerButton">
     <Design.DataContext>
         <tools:ToolViewModel />
@@ -21,15 +21,21 @@
             Background="{DynamicResource ThemeBackgroundBrush1}">
         <Button.Template>
             <ControlTemplate>
-                <Border Height="34" Width="34" 
+                <Border Height="34" Width="34"
                         Background="{DynamicResource ThemeBackgroundBrush1}">
-                    <ContentPresenter Content="{TemplateBinding Content}"/>
+                    <ContentPresenter Content="{TemplateBinding Content}" />
                 </Border>
             </ControlTemplate>
         </Button.Template>
         <Button.Content>
-            <TextBlock Classes="pixi-icon" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"
-                       Text="{Binding Path=Icon}"/>
+            <Grid>
+                <TextBlock Classes="pixi-icon" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Text="{Binding Path=Icon}" />
+                <TextBlock Background="{DynamicResource ThemeBorderLowBrush}"
+                           IsVisible="{Binding !CanBeUsedOnActiveLayer}"
+                           Classes="pixi-icon" FontSize="12" Text="{DynamicResource icon-plus-square}" 
+                           HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            </Grid>
         </Button.Content>
     </Button>
 </UserControl>

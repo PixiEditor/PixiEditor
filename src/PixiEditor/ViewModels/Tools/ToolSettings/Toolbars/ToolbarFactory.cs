@@ -30,7 +30,7 @@ internal static class ToolbarFactory
             {
                 var setting = CreateSetting(property.PropertyType, name, attribute, label);
                 AddValueChangedHandlerIfRequired(toolType, tool, setting, attribute);
-                toolbar.Settings.Add(setting);
+                toolbar.AddSetting(setting);
             }
         }
 

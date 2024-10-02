@@ -1,13 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Avalonia.Platform;
-using Avalonia.Threading;
+﻿using Avalonia.Threading;
+using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.DrawingApi.Core.Bridge;
-using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Handlers;
@@ -21,7 +18,7 @@ internal class ActionAccumulator
 {
     private bool executing = false;
 
-    private List<IAction> queuedActions = new();
+    private List<(ActionSource source, IAction action)> queuedActions = new();
     private IDocument document;
     private DocumentInternalParts internals;
 
@@ -39,14 +36,28 @@ internal class ActionAccumulator
 
     public void AddFinishedActions(params IAction[] actions)
     {
-        queuedActions.AddRange(actions);
-        queuedActions.Add(new ChangeBoundary_Action());
+        foreach (var action in actions)
+        {
+            queuedActions.Add((ActionSource.User, action));
+        }
+        
+        queuedActions.Add((ActionSource.Automated, new ChangeBoundary_Action()));
         TryExecuteAccumulatedActions();
     }
 
     public void AddActions(params IAction[] actions)
     {
-        queuedActions.AddRange(actions);
+        foreach (var action in actions)
+        {
+            queuedActions.Add((ActionSource.User, action));
+        }
+        
+        TryExecuteAccumulatedActions();
+    }
+    
+    public void AddActions(ActionSource source, IAction action)
+    {
+        queuedActions.Add((source, action));
         TryExecuteAccumulatedActions();
     }
 
@@ -67,13 +78,13 @@ internal class ActionAccumulator
         {
             // select actions to be processed
             var toExecute = queuedActions;
-            queuedActions = new List<IAction>();
+            queuedActions = new();
 
             // pass them to changeabledocument for processing
             List<IChangeInfo?> changes;
             if (AreAllPassthrough(toExecute))
             {
-                changes = toExecute.Select(a => (IChangeInfo?)a).ToList();
+                changes = toExecute.Select(a => (IChangeInfo?)a.action).ToList();
             }
             else
             {
@@ -83,8 +94,8 @@ internal class ActionAccumulator
             // update viewmodels based on changes
             List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);
             bool undoBoundaryPassed =
-                toExecute.Any(static action => action is ChangeBoundary_Action or Redo_Action or Undo_Action);
-            bool viewportRefreshRequest = toExecute.Any(static action => action is RefreshViewport_PassthroughAction);
+                toExecute.Any(static action => action.action is ChangeBoundary_Action or Redo_Action or Undo_Action);
+            bool viewportRefreshRequest = toExecute.Any(static action => action.action is RefreshViewport_PassthroughAction);
             foreach (IChangeInfo info in optimizedChanges)
             {
                 internals.Updater.ApplyChangeFromChangeInfo(info);
@@ -99,12 +110,14 @@ internal class ActionAccumulator
             List<IRenderInfo> renderResult = new();
             if (DrawingBackendApi.Current.IsHardwareAccelerated)
             {
-                renderResult.AddRange(canvasUpdater.UpdateGatheredChunksSync(affectedAreas, undoBoundaryPassed || viewportRefreshRequest));
+                renderResult.AddRange(canvasUpdater.UpdateGatheredChunksSync(affectedAreas,
+                    undoBoundaryPassed || viewportRefreshRequest));
                 renderResult.AddRange(previewUpdater.UpdateGatheredChunksSync(affectedAreas, undoBoundaryPassed));
             }
             else
             {
-                renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed || viewportRefreshRequest));
+                renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas,
+                    undoBoundaryPassed || viewportRefreshRequest));
                 renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
             }
 
@@ -131,11 +144,11 @@ internal class ActionAccumulator
         executing = false;
     }
 
-    private bool AreAllPassthrough(List<IAction> actions)
+    private bool AreAllPassthrough(List<(ActionSource, IAction)> actions)
     {
         foreach (var action in actions)
         {
-            if (action is not IChangeInfo)
+            if (action.Item2 is not IChangeInfo)
                 return false;
         }
 
@@ -156,7 +169,7 @@ internal class ActionAccumulator
                     RectI dirtyRect = new RectI(info.Pos, info.Size).Intersect(finalRect);
                     bitmap.AddDirtyRect(dirtyRect);
                 }
-                    break;
+                break;
                 case PreviewDirty_RenderInfo info:
                 {
                     var bitmap = document.StructureHelper.Find(info.GuidValue)?.PreviewSurface;
@@ -164,7 +177,7 @@ internal class ActionAccumulator
                         continue;
                     bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
                 }
-                    break;
+                break;
                 case MaskPreviewDirty_RenderInfo info:
                 {
                     var bitmap = document.StructureHelper.Find(info.GuidValue)?.MaskPreviewSurface;
@@ -172,13 +185,13 @@ internal class ActionAccumulator
                         continue;
                     bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
                 }
-                    break;
+                break;
                 case CanvasPreviewDirty_RenderInfo:
                 {
                     document.PreviewSurface.AddDirtyRect(new RectI(0, 0, document.PreviewSurface.Size.X,
                         document.PreviewSurface.Size.Y));
                 }
-                    break;
+                break;
                 case NodePreviewDirty_RenderInfo info:
                 {
                     var node = document.StructureHelper.Find(info.NodeId);
@@ -187,7 +200,7 @@ internal class ActionAccumulator
                     node.PreviewSurface.AddDirtyRect(new RectI(0, 0, node.PreviewSurface.Size.X,
                         node.PreviewSurface.Size.Y));
                 }
-                    break;
+                break;
             }
         }
     }

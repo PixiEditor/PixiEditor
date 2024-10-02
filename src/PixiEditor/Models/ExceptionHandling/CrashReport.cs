@@ -132,7 +132,7 @@ internal class CrashReport : IDisposable
             .AppendLine($"  MainWindow Size: {GetFormatted(() => MainWindow.Current?.Bounds)}")
             .AppendLine($"  MainWindow State: {GetFormatted(() => MainWindow.Current?.WindowState)}")
             .AppendLine("\nViewModels:")
-            .AppendLine($"  Has active updateable change: {GetFormatted(() => ViewModelMain.Current?.DocumentManagerSubViewModel?.ActiveDocument?.UpdateableChangeActive)}")
+            .AppendLine($"  Has active updateable change: {GetFormatted(() => ViewModelMain.Current?.DocumentManagerSubViewModel?.ActiveDocument?.BlockingUpdateableChangeActive)}")
             .AppendLine($"  Current Tool: {GetFormattedFromViewModelMain(x => x.ToolsSubViewModel?.ActiveTool?.ToolName)}")
             .AppendLine($"  Primary Color: {GetFormattedFromViewModelMain(x => x.ColorsSubViewModel?.PrimaryColor)}")
             .AppendLine($"  Secondary Color: {GetFormattedFromViewModelMain(x => x.ColorsSubViewModel?.SecondaryColor)}")
@@ -183,7 +183,7 @@ internal class CrashReport : IDisposable
             .AppendLine($"  Horizontal Symmetry Value: {FormatObject(document.HorizontalSymmetryAxisYBindable)}")
             .AppendLine($"  Vertical Symmetry Enabled: {document.VerticalSymmetryAxisEnabledBindable}")
             .AppendLine($"  Vertical Symmetry Value: {FormatObject(document.VerticalSymmetryAxisXBindable)}")
-            .AppendLine($"  Updateable Change Active: {FormatObject(document.UpdateableChangeActive)}")
+            .AppendLine($"  Updateable Change Active: {FormatObject(document.BlockingUpdateableChangeActive)}")
             .AppendLine($"  Transform: {FormatObject(document.TransformViewModel)}");
     }
 

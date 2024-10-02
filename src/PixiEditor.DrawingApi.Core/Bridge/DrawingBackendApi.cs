@@ -28,7 +28,7 @@ namespace PixiEditor.DrawingApi.Core.Bridge
             }
             
             _current = backend;
-            _current.RenderingServer = server;
+            _current.RenderingDispatcher = server;
             backend.Setup();
         }
     }

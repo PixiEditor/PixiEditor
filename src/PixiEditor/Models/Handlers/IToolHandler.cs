@@ -13,7 +13,7 @@ internal interface IToolHandler : IHandler
     public string ToolName => GetType().Name.Replace("Tool", string.Empty).Replace("ViewModel", string.Empty);
     public string ToolNameLocalizationKey { get; }
     public string Icon => $"icon-{ToolName.ToLower()}";
-    //public virtual BrushShape BrushShape => BrushShape.Square;
+    public Type[]? SupportedLayerTypes { get; }
 
     public bool HideHighlight { get; }
 
@@ -47,7 +47,14 @@ internal interface IToolHandler : IHandler
     public LocalizedString ActionDisplay { get; set; }
     public bool IsActive { get; set; }
     public Cursor Cursor { get; set; }
-    //public Toolbar Toolbar { get; set; }
+    public bool CanBeUsedOnActiveLayer { get; }
+    
+    /// <summary>
+    ///     Layer type that should be created if no layer is selected incompatible one.
+    /// </summary>
+    public Type LayerTypeToCreateOnEmptyUse { get; }
+
+    public virtual string? DefaultNewLayerName => null;
 
     public void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown);
     public void UseTool(VecD pos);

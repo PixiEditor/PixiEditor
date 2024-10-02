@@ -30,6 +30,8 @@ internal class SelectToolViewModel : ToolViewModel, ISelectToolHandler
     private SelectionMode KeyModifierselectionMode = SelectionMode.New;
     public SelectionMode ResultingSelectionMode => KeyModifierselectionMode != SelectionMode.New ? KeyModifierselectionMode : SelectMode;
 
+    public override Type LayerTypeToCreateOnEmptyUse { get; } = null;
+
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
         if (shiftIsDown)
@@ -56,6 +58,7 @@ internal class SelectToolViewModel : ToolViewModel, ISelectToolHandler
     public SelectionShape SelectShape => GetValue<SelectionShape>();
 
     public override BrushShape BrushShape => BrushShape.Pixel;
+    public override Type[]? SupportedLayerTypes { get; } = null;
 
     public override LocalizedString Tooltip => new LocalizedString("SELECT_TOOL_TOOLTIP", Shortcut);
 

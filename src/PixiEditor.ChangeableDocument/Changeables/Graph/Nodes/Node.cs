@@ -352,6 +352,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public Node Clone()
     {
         var clone = CreateCopy();
+        clone.DisplayName = DisplayName;
         clone.Id = Guid.NewGuid();
         clone.Position = Position;
 
@@ -420,7 +421,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
     }
 
-    internal virtual void DeserializeData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data)
+    internal virtual OneOf<None, IChangeInfo, List<IChangeInfo>> DeserializeAdditionalData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data)
     {
+        return new None();
     }
 }

@@ -20,18 +20,18 @@ public class DocumentChangeTracker : IDisposable
         {
             if (!undoStack.Any())
                 return null;
-            List<Change> list = undoStack.Peek();
-            if (list.Count == 0)
+            var list = undoStack.Peek();
+            if (list.changes.Count == 0)
                 return null;
-            return list[^1].ChangeGuid;
+            return list.changes[^1].ChangeGuid;
         }
     }
 
     private UpdateableChange? activeUpdateableChange = null;
     private List<Change>? activePacket = null;
 
-    private Stack<List<Change>> undoStack = new();
-    private Stack<List<Change>> redoStack = new();
+    private Stack<(ActionSource source, List<Change> changes)> undoStack = new();
+    private Stack<(ActionSource source, List<Change> changes)> redoStack = new();
 
     public void Dispose()
     {
@@ -53,13 +53,13 @@ public class DocumentChangeTracker : IDisposable
 
         foreach (var list in undoStack)
         {
-            foreach (var change in list)
+            foreach (var change in list.changes)
                 change.Dispose();
         }
 
         foreach (var list in redoStack)
         {
-            foreach (var change in list)
+            foreach (var change in list.changes)
                 change.Dispose();
         }
     }
@@ -77,14 +77,14 @@ public class DocumentChangeTracker : IDisposable
 
         foreach (var changesToDispose in redoStack)
         {
-            foreach (var changeToDispose in changesToDispose)
+            foreach (var changeToDispose in changesToDispose.changes)
                 changeToDispose.Dispose();
         }
 
         redoStack.Clear();
     }
 
-    private void CompletePacket()
+    private void CompletePacket(ActionSource source)
     {
         if (activePacket is null)
             return;
@@ -92,24 +92,25 @@ public class DocumentChangeTracker : IDisposable
         // maybe merge with previous
         if (activePacket.Count == 1 &&
             undoStack.Count > 0 &&
-            IsHomologous(undoStack.Peek()) &&
-            undoStack.Peek()[^1].IsMergeableWith(activePacket[0]))
+            (undoStack.Peek().source == ActionSource.Automated ||
+            (IsHomologous(undoStack.Peek()) &&
+            undoStack.Peek().changes[^1].IsMergeableWith(activePacket[0]))))
         {
-            undoStack.Peek().Add(activePacket[0]);
+            undoStack.Peek().changes.Add(activePacket[0]);
         }
         else
         {
-            undoStack.Push(activePacket);
+            undoStack.Push((source, activePacket));
         }
 
         activePacket = null;
     }
 
-    private bool IsHomologous(List<Change> changes)
+    private bool IsHomologous((ActionSource source, List<Change> changes) changes)
     {
-        for (int i = 1; i < changes.Count; i++)
+        for (int i = 1; i < changes.changes.Count; i++)
         {
-            if (!changes[i].IsMergeableWith(changes[i - 1]))
+            if (!changes.changes[i].IsMergeableWith(changes.changes[i - 1]))
                 return false;
         }
         return true;
@@ -125,11 +126,11 @@ public class DocumentChangeTracker : IDisposable
             return new List<IChangeInfo>();
         }
         List<IChangeInfo> changeInfos = new();
-        List<Change> changePacket = undoStack.Pop();
+        var changePacket = undoStack.Pop();
 
-        for (int i = changePacket.Count - 1; i >= 0; i--)
+        for (int i = changePacket.changes.Count - 1; i >= 0; i--)
         {
-            changePacket[i].Revert(document).Switch(
+            changePacket.changes[i].Revert(document).Switch(
                 (None _) => { },
                 (IChangeInfo info) => changeInfos.Add(info),
                 (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
@@ -149,11 +150,11 @@ public class DocumentChangeTracker : IDisposable
             return new List<IChangeInfo>();
         }
         List<IChangeInfo> changeInfos = new();
-        List<Change> changePacket = redoStack.Pop();
+        var changePacket = redoStack.Pop();
 
-        for (int i = 0; i < changePacket.Count; i++)
+        for (int i = 0; i < changePacket.changes.Count; i++)
         {
-            changePacket[i].Apply(document, false, out _).Switch(
+            changePacket.changes[i].Apply(document, false, out _).Switch(
                 (None _) => { },
                 (IChangeInfo info) => changeInfos.Add(info),
                 (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
@@ -172,13 +173,13 @@ public class DocumentChangeTracker : IDisposable
         }
         foreach (var changesToDispose in redoStack)
         {
-            foreach (var changeToDispose in changesToDispose)
+            foreach (var changeToDispose in changesToDispose.changes)
                 changeToDispose.Dispose();
         }
 
         foreach (var changesToDispose in undoStack)
         {
-            foreach (var changeToDispose in changesToDispose)
+            foreach (var changeToDispose in changesToDispose.changes)
                 changeToDispose.Dispose();
         }
 
@@ -255,7 +256,7 @@ public class DocumentChangeTracker : IDisposable
         return info;
     }
 
-    private List<IChangeInfo?> ProcessActionList(IReadOnlyList<IAction> actions)
+    private List<IChangeInfo?> ProcessActionList(IReadOnlyList<(ActionSource, IAction)> actions)
     {
         List<IChangeInfo?> changeInfos = new();
         void AddInfo(OneOf<None, IChangeInfo, List<IChangeInfo>> info) =>
@@ -266,7 +267,7 @@ public class DocumentChangeTracker : IDisposable
 
         foreach (var action in actions)
         {
-            switch (action)
+            switch (action.Item2)
             {
                 case IMakeChangeAction act:
                     AddInfo(ProcessMakeChangeAction(act));
@@ -284,7 +285,7 @@ public class DocumentChangeTracker : IDisposable
                     AddInfo(Redo());
                     break;
                 case ChangeBoundary_Action:
-                    CompletePacket();
+                    CompletePacket(action.Item1);
                     break;
                 case DeleteRecordedChanges_Action:
                     DeleteAllChanges();
@@ -298,7 +299,7 @@ public class DocumentChangeTracker : IDisposable
         return changeInfos;
     }
 
-    public async Task<List<IChangeInfo?>> ProcessActions(IReadOnlyList<IAction> actions)
+    public async Task<List<IChangeInfo?>> ProcessActions(List<(ActionSource, IAction)> actions)
     {
         if (disposed)
             throw new ObjectDisposedException(nameof(DocumentChangeTracker));
@@ -310,7 +311,7 @@ public class DocumentChangeTracker : IDisposable
         return result;
     }
 
-    public List<IChangeInfo?> ProcessActionsSync(IReadOnlyList<IAction> actions)
+    public List<IChangeInfo?> ProcessActionsSync(IReadOnlyList<(ActionSource, IAction)> actions)
     {
         if (disposed)
             throw new ObjectDisposedException(nameof(DocumentChangeTracker));
@@ -321,4 +322,10 @@ public class DocumentChangeTracker : IDisposable
         running = false;
         return result;
     }
+}
+
+public enum ActionSource
+{
+    User,
+    Automated
 }

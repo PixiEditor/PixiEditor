@@ -2,12 +2,11 @@
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.Numerics;
-using ShapeData = PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data.ShapeData;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes;
 
 [NodeInfo("Ellipse")]
-public class EllipseNode : ShapeNode<EllipseData>
+public class EllipseNode : ShapeNode<EllipseVectorData>
 {
     public InputProperty<VecD> Position { get; }
     public InputProperty<VecD> Radius { get; }
@@ -25,9 +24,9 @@ public class EllipseNode : ShapeNode<EllipseData>
         StrokeWidth = CreateInput<int>("StrokeWidth", "STROKE_WIDTH", 1);
     }
 
-    protected override EllipseData? GetShapeData(RenderingContext context)
+    protected override EllipseVectorData? GetShapeData(RenderingContext context)
     {
-        return new EllipseData(Position.Value, Radius.Value)
+        return new EllipseVectorData(Position.Value, Radius.Value)
             { StrokeColor = StrokeColor.Value, FillColor = FillColor.Value, StrokeWidth = StrokeWidth.Value };
     }
 

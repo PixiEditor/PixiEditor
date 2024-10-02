@@ -76,7 +76,7 @@ internal class Document : IChangeable, IReadOnlyDocument
             throw new ArgumentException(@"The given guid does not belong to a layer.", nameof(layerGuid));
 
 
-        RectI? tightBounds = layer.GetTightBounds(frame);
+        RectI? tightBounds = (RectI)layer.GetTightBounds(frame);
 
         if (tightBounds is null)
             return null;
@@ -126,7 +126,7 @@ internal class Document : IChangeable, IReadOnlyDocument
             throw new ArgumentException(@"The given guid does not belong to a layer.", nameof(layerGuid));
 
 
-        return layer.GetTightBounds(frame);
+        return (RectI)layer.GetTightBounds(frame);
     }
 
     public void ForEveryReadonlyMember(Action<IReadOnlyStructureNode> action) =>
@@ -263,7 +263,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     /// <returns>True if the node could be found, otherwise false.</returns>
     public bool TryFindNode<T>(Guid id, out T node) where T : Node
     {
-        node = (T?)NodeGraph.Nodes.FirstOrDefault(x => x.Id == id) ?? default;
+        node = (T?)NodeGraph.Nodes.FirstOrDefault(x => x.Id == id && x is T) ?? default;
         return node != null;
     }
 

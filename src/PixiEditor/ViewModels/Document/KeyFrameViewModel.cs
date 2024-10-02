@@ -43,7 +43,7 @@ internal abstract class KeyFrameViewModel : ObservableObject, IKeyFrameHandler
                 value = 0;
             }
 
-            if (!Document.UpdateableChangeActive)
+            if (!Document.BlockingUpdateableChangeActive)
             {
                 Internals.ActionAccumulator.AddFinishedActions(
                     new KeyFrameLength_Action(Id, value, DurationBindable),
@@ -62,7 +62,7 @@ internal abstract class KeyFrameViewModel : ObservableObject, IKeyFrameHandler
                 value = 1;
             }
 
-            if (!Document.UpdateableChangeActive)
+            if (!Document.BlockingUpdateableChangeActive)
             {
                 Internals.ActionAccumulator.AddFinishedActions(
                     new KeyFrameLength_Action(Id, StartFrameBindable, value),
@@ -76,7 +76,7 @@ internal abstract class KeyFrameViewModel : ObservableObject, IKeyFrameHandler
         get => isVisibleBindable;
         set
         {
-            if (!Document.UpdateableChangeActive)
+            if (!Document.BlockingUpdateableChangeActive)
             {
                 Internals.ActionAccumulator.AddFinishedActions(new KeyFrameVisibility_Action(Id, value));
             }

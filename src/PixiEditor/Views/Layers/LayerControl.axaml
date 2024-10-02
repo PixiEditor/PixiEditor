@@ -199,6 +199,8 @@
                 <MenuItem ui:Translator.Key="MERGE_SELECTED" Command="{xaml:Command PixiEditor.Layer.MergeSelected}" />
                 <MenuItem ui:Translator.Key="MERGE_WITH_ABOVE" Command="{xaml:Command PixiEditor.Layer.MergeWithAbove}" />
                 <MenuItem ui:Translator.Key="MERGE_WITH_BELOW" Command="{xaml:Command PixiEditor.Layer.MergeWithBelow}" />
+                <Separator />
+                <MenuItem ui:Translator.Key="RASTERIZE" Command="{xaml:Command PixiEditor.Layer.Rasterize}" />
             </ContextMenu>
         </Border.ContextMenu>
     </Border>

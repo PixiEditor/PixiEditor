@@ -45,7 +45,7 @@ internal class CenterContent_Change : Change
         foreach (var layerGuid in affectedLayers)
         {
             LayerNode layer = document.FindMemberOrThrow<LayerNode>(layerGuid);
-            RectI? tightBounds = layer.GetTightBounds(frame);
+            RectI? tightBounds = (RectI)layer.GetTightBounds(frame);
             if (tightBounds.HasValue)
             {
                 currentBounds = currentBounds.HasValue ? currentBounds.Value.Union(tightBounds.Value) : tightBounds;

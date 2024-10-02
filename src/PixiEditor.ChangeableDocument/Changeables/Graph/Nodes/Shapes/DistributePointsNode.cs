@@ -1,12 +1,11 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Numerics;
-using ShapeData = PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data.ShapeData;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes;
 
 [NodeInfo("DistributePoints")]
-public class DistributePointsNode : ShapeNode<PointsData>
+public class DistributePointsNode : ShapeNode<PointsVectorData>
 {
     public InputProperty<int> MaxPointCount { get; }
 
@@ -19,12 +18,12 @@ public class DistributePointsNode : ShapeNode<PointsData>
         Seed = CreateInput("Seed", "SEED", 0);
     }
 
-    protected override PointsData? GetShapeData(RenderingContext context)
+    protected override PointsVectorData? GetShapeData(RenderingContext context)
     {
         return GetPointsRandomly(context.DocumentSize);
     }
 
-    private PointsData GetPointsRandomly(VecI size)
+    private PointsVectorData GetPointsRandomly(VecI size)
     {
         var seed = Seed.Value;
         var random = new Random(seed);
@@ -36,7 +35,7 @@ public class DistributePointsNode : ShapeNode<PointsData>
             finalPoints.Add(new VecD(random.NextDouble() * size.X, random.NextDouble() * size.Y));
         }
         
-        var shapeData = new PointsData(finalPoints);
+        var shapeData = new PointsVectorData(finalPoints);
         return shapeData;
     }
 

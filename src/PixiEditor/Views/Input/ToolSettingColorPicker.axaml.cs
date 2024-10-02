@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Threading;
 
 namespace PixiEditor.Views.Input;
 
@@ -14,6 +15,7 @@ internal partial class ToolSettingColorPicker : UserControl
         get => GetValue(SelectedColorProperty);
         set => SetValue(SelectedColorProperty, value);
     }
+    
     public ToolSettingColorPicker()
     {
         InitializeComponent();

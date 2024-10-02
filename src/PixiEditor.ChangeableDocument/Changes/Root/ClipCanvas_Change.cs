@@ -24,8 +24,8 @@ internal class ClipCanvas_Change : ResizeBasedChangeBase
                 var layerBounds = layer.GetTightBounds(frameToClip);
                 if (layerBounds.HasValue)
                 {
-                    bounds ??= layerBounds.Value;
-                    bounds = bounds.Value.Union(layerBounds.Value);
+                    bounds ??= (RectI)layerBounds.Value;
+                    bounds = bounds.Value.Union((RectI)layerBounds.Value);
                 }
             }
         });

@@ -24,8 +24,6 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
     private bool transformingSelectedArea = false;
     public bool MoveAllLayers { get; set; }
 
-    private bool removeSelection = false;
-
     public override string Icon => PixiPerfectIcons.MousePointer;
 
     public MoveToolViewModel()
@@ -41,6 +39,8 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
     public bool KeepOriginalImage => GetValue<bool>();
 
     public override BrushShape BrushShape => BrushShape.Hidden;
+    public override Type[]? SupportedLayerTypes { get; } = null;
+    public override Type LayerTypeToCreateOnEmptyUse { get; } = null;
     public override bool HideHighlight => true;
 
     public bool TransformingSelectedArea
@@ -79,57 +79,22 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
 
     public override void OnSelected()
     {
-        RectI? bounds = GetSelectedLayersBounds();
-        bool? isEmpty = ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.SelectionPathBindable
-            ?.IsEmpty;
-        if ((!isEmpty.HasValue || isEmpty.Value) && bounds.HasValue)
-        {
-            ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.Operations.Select(bounds.Value);
-            VectorPath path = new VectorPath();
-            path.AddRect(bounds.Value);
-            ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.UpdateSelectionPath(path);
-            removeSelection = true;
-        }
-
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(true);
     }
 
     public override void OnDeselecting()
     {
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
-
-        if (removeSelection)
-        {
-            ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.ClearSelection();
-            removeSelection = false;
-        }
     }
 
-    private static RectI? GetSelectedLayersBounds()
+    protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
     {
-        var layers = ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.ExtractSelectedLayers();
-        RectI? bounds = null;
-        if (layers != null)
+        if (ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.TransformViewModel.TransformActive)
         {
-            foreach (var layer in layers)
-            {
-                var foundLayer =
-                    ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.StructureHelper.Find(layer);
-                RectI? layerBounds = foundLayer?.TightBounds;
-                if (layerBounds != null)
-                {
-                    if (bounds == null)
-                    {
-                        bounds = layerBounds;
-                    }
-                    else
-                    {
-                        bounds = bounds.Value.Union(layerBounds.Value);
-                    }
-                }
-            }
+            return;
         }
-
-        return bounds;
+        
+        OnDeselecting();
+        OnSelected();
     }
 }

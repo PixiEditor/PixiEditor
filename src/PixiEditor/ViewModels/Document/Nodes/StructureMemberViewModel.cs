@@ -1,4 +1,6 @@
-﻿using PixiEditor.ChangeableDocument.Actions.Generated;
+﻿using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.Helpers;
@@ -31,16 +33,19 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
         get => isVisible;
         set
         {
-            if (!Document.UpdateableChangeActive)
+            if (!Document.BlockingUpdateableChangeActive)
                 Internals.ActionAccumulator.AddFinishedActions(new StructureMemberIsVisible_Action(value, Id));
         }
     }
 
     private bool maskIsVisible;
 
-    public RectI? TightBounds => Internals.Tracker.Document.FindMember(Id)
+    public RectD? TightBounds => Internals.Tracker.Document.FindMember(Id)
         ?.GetTightBounds(Document.AnimationDataViewModel.ActiveFrameBindable);
-
+    
+    public ShapeCorners TransformationCorners => Internals.Tracker.Document.FindMember(Id)
+        ?.GetTransformationCorners(Document.AnimationDataViewModel.ActiveFrameBindable) ?? new ShapeCorners();
+    
     public void SetMaskIsVisible(bool maskIsVisible)
     {
         this.maskIsVisible = maskIsVisible;
@@ -52,7 +57,7 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
         get => maskIsVisible;
         set
         {
-            if (!Document.UpdateableChangeActive)
+            if (!Document.BlockingUpdateableChangeActive)
                 Internals.ActionAccumulator.AddFinishedActions(
                     new StructureMemberMaskIsVisible_Action(value, Id));
         }
@@ -71,7 +76,7 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
         get => blendMode;
         set
         {
-            if (!Document.UpdateableChangeActive)
+            if (!Document.BlockingUpdateableChangeActive)
                 Internals.ActionAccumulator.AddFinishedActions(new StructureMemberBlendMode_Action(value, Id));
         }
     }
@@ -89,7 +94,7 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
         get => clipToMemberBelowEnabled;
         set
         {
-            if (!Document.UpdateableChangeActive)
+            if (!Document.BlockingUpdateableChangeActive)
                 Internals.ActionAccumulator.AddFinishedActions(
                     new StructureMemberClipToMemberBelow_Action(value, Id));
         }
@@ -121,7 +126,7 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
         get => opacity;
         set
         {
-            if (Document.UpdateableChangeActive)
+            if (Document.BlockingUpdateableChangeActive)
                 return;
             float newValue = Math.Clamp(value, 0, 1);
             Internals.ActionAccumulator.AddFinishedActions(

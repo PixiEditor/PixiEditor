@@ -89,12 +89,15 @@ internal static class ServiceCollectionHelpers
             .AddTool<IMagicWandToolHandler, MagicWandToolViewModel>()
             .AddTool<ILassoToolHandler, LassoToolViewModel>()
             .AddTool<IFloodFillToolHandler, FloodFillToolViewModel>()
-            .AddTool<ILineToolHandler, LineToolViewModel>()
-            .AddTool<IEllipseToolHandler, EllipseToolViewModel>()
-            .AddTool<IRectangleToolHandler, RectangleToolViewModel>()
+            .AddTool<ILineToolHandler, RasterLineToolViewModel>()
+            .AddTool<IRasterEllipseToolHandler, RasterEllipseToolViewModel>()
+            .AddTool<IRasterRectangleToolHandler, RasterRectangleToolViewModel>()
             .AddTool<IEraserToolHandler, EraserToolViewModel>()
             .AddTool<IColorPickerHandler, ColorPickerToolViewModel>()
             .AddTool<IBrightnessToolHandler, BrightnessToolViewModel>()
+            .AddTool<IVectorEllipseToolHandler, VectorEllipseToolViewModel>()
+            .AddTool<IVectorRectangleToolHandler, VectorRectangleToolViewModel>()
+            .AddTool<IVectorLineToolHandler, VectorLineToolViewModel>()
             .AddTool<ZoomToolViewModel>()
             // File types
             .AddSingleton<IoFileType, PixiFileType>()
@@ -103,16 +106,9 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IoFileType, BmpFileType>()
             .AddSingleton<IoFileType, GifFileType>()
             .AddSingleton<IoFileType, Mp4FileType>()
+            .AddSingleton<IoFileType, SvgFileType>()
             // Serialization Factories
-            .AddSingleton<SerializationFactory, SurfaceSerializationFactory>()
-            .AddSingleton<SerializationFactory, ChunkyImageSerializationFactory>()
-            .AddSingleton<SerializationFactory, KernelSerializationFactory>()
-            .AddSingleton<SerializationFactory, VecDSerializationFactory>()
-            .AddSingleton<SerializationFactory, VecISerializationFactory>()
-            .AddSingleton<SerializationFactory, ColorSerializationFactory>()
-            .AddSingleton<SerializationFactory, ColorMatrixSerializationFactory>()
-            .AddSingleton<SerializationFactory, VecD3SerializationFactory>()
-            .AddSingleton<SerializationFactory, TextureSerializationFactory>()
+            .AddAssemblyTypes<SerializationFactory>()
             // Palette Parsers
             .AddSingleton<IPalettesProvider, PaletteProvider>()
             .AddSingleton<PaletteFileParser, JascFileParser>()
@@ -154,6 +150,19 @@ internal static class ServiceCollectionHelpers
         {
             url = Environment.GetEnvironmentVariable("PixiEditorAnalytics");
         }
+    }
+    
+    private static IServiceCollection AddAssemblyTypes<T>(this IServiceCollection collection)
+    {
+        Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        IEnumerable<Type> types = assemblies.SelectMany(x => x.GetTypes())
+            .Where(x => typeof(T).IsAssignableFrom(x) && x is { IsInterface: false, IsAbstract: false });
+        foreach (Type type in types)
+        {
+            collection.AddSingleton(typeof(T), type);
+        }
+
+        return collection;
     }
     
     private static IServiceCollection AddTool<T, T1>(this IServiceCollection collection)

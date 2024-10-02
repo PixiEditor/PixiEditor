@@ -1,6 +1,8 @@
 ﻿using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -27,6 +29,10 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     public OutputProperty<Texture?> FilterlessOutput { get; }
 
     public ChunkyImage? EmbeddedMask { get; set; }
+    public virtual ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
+    {
+        return new ShapeCorners(GetTightBounds(frameTime).GetValueOrDefault());
+    }
 
     public string MemberName
     {
@@ -144,6 +150,9 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         int width = (int)(chunkSize);
         int height = (int)(chunkSize);
 
+        x = Math.Clamp(x, 0, Math.Max(sourceSize.X - width, 0));
+        y = Math.Clamp(y, 0, Math.Max(sourceSize.Y - height, 0));
+        
         return new RectI(x, y, width, height);
     }
 
@@ -160,7 +169,34 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         return new RectI(x, y, width, height);
     }
 
-    public abstract RectI? GetTightBounds(KeyFrameTime frameTime);
+    public abstract RectD? GetTightBounds(KeyFrameTime frameTime);
+
+
+    public override void SerializeAdditionalData(Dictionary<string, object> additionalData)
+    {
+        base.SerializeAdditionalData(additionalData);
+        if (EmbeddedMask != null)
+        {
+            additionalData["embeddedMask"] = EmbeddedMask;
+        }
+    }
+
+    internal override OneOf<None, IChangeInfo, List<IChangeInfo>> DeserializeAdditionalData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data)
+    {
+        base.DeserializeAdditionalData(target, data);
+        bool hasMask = data.ContainsKey("embeddedMask");
+        if (hasMask)
+        {
+            ChunkyImage? mask = (ChunkyImage?)data["embeddedMask"];
+            
+            EmbeddedMask?.Dispose();
+            EmbeddedMask = mask; 
+            
+            return new List<IChangeInfo> { new StructureMemberMask_ChangeInfo(Id, mask != null) };
+        }
+
+        return new None();
+    }
 
     public override void Dispose()
     {

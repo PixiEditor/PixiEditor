@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using PixiDocks.Avalonia.Controls;
 using PixiEditor.Models.Preferences;
@@ -74,13 +75,13 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     {
         window.KeyDown += MainWindowKeyDown;
         window.KeyUp += MainWindowKeyUp;
-        
+
         window.Deactivated += keyboardFilter.DeactivatedInlet;
         window.Deactivated += mouseFilter.DeactivatedInlet;
-        
+
         window.Closing += HostWindowOnClosing;
     }
-    
+
     private void HostWindowOnClosing(object? sender, WindowClosingEventArgs e)
     {
         if (sender is not HostWindow hostWindow)
@@ -208,7 +209,15 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         {
             case RightClickMode.SecondaryColor when tools.ActiveTool.UsesColor:
             case RightClickMode.Erase when tools.ActiveTool is ColorPickerToolViewModel:
-                Owner.ColorsSubViewModel.SwapColors(null);
+                if (!Owner.DocumentManagerSubViewModel.ActiveDocument.BlockingUpdateableChangeActive)
+                {
+                    Owner.ColorsSubViewModel.SwapColors(null);
+                }
+                else
+                {
+                    Owner.DocumentManagerSubViewModel.ActiveDocument.ToolSessionFinished += ToolSessionFinished;
+                }
+
                 hadSwapped = true;
                 return true;
             case RightClickMode.Erase when tools.ActiveTool.IsErasable:
@@ -301,12 +310,27 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
                                          }
                                         ):
 
-                Owner.ColorsSubViewModel.SwapColors(null);
+                if (!Owner.DocumentManagerSubViewModel.ActiveDocument.BlockingUpdateableChangeActive)
+                {
+                    Owner.ColorsSubViewModel.SwapColors(null);
+                }
+                else
+                {
+                    Owner.DocumentManagerSubViewModel.ActiveDocument.ToolSessionFinished +=
+                        ToolSessionFinished;
+                }
+
                 break;
             case MouseButton.Right when tools.RightClickMode == RightClickMode.Erase:
                 HandleRightMouseEraseUp(tools);
                 break;
         }
+    }
+    
+    private void ToolSessionFinished()
+    {
+        Owner.ColorsSubViewModel.SwapColors(null);
+        Owner.DocumentManagerSubViewModel.ActiveDocument.ToolSessionFinished -= ToolSessionFinished;
     }
 
     private void HandleRightMouseEraseUp(IToolsHandler tools)

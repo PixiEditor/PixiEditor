@@ -1,7 +1,9 @@
 ﻿using Avalonia.Input;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Numerics;
 using PixiEditor.UI.Common.Fonts;
@@ -16,6 +18,7 @@ internal class FloodFillToolViewModel : ToolViewModel, IFloodFillToolHandler
 
     public override string ToolNameLocalizationKey => "FLOOD_FILL_TOOL";
     public override BrushShape BrushShape => BrushShape.Pixel;
+    public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
 
     public override LocalizedString Tooltip => new("FLOOD_FILL_TOOL_TOOLTIP", Shortcut);
 
@@ -31,6 +34,8 @@ internal class FloodFillToolViewModel : ToolViewModel, IFloodFillToolHandler
     {
         ActionDisplay = defaultActionDisplay;
     }
+
+    public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {

@@ -301,7 +301,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
                             int x = index % clampedColumns;
                             int y = index / clampedColumns;
                             var resized = frame.ResizeNearestNeighbor(new VecI(singleFrameSize.X, singleFrameSize.Y));
-                            DrawingBackendApi.Current.RenderingServer.Invoke(() =>
+                            DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
                             {
                                 if (ExportPreview.IsDisposed) return;
                                 ExportPreview!.DrawingSurface.Canvas.DrawSurface(resized.DrawingSurface,
@@ -415,7 +415,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
             FileTypeChoices =
                 SupportedFilesHelper.BuildSaveFilter(SelectedExportIndex == 1
                     ? FileTypeDialogDataSet.SetKind.Video
-                    : FileTypeDialogDataSet.SetKind.Image),
+                    : FileTypeDialogDataSet.SetKind.Image | FileTypeDialogDataSet.SetKind.Vector),
             ShowOverwritePrompt = true
         };
 
@@ -427,7 +427,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
                 SaveFormat = SupportedFilesHelper.GetSaveFileType(
                     SelectedExportIndex == 1
                         ? FileTypeDialogDataSet.SetKind.Video
-                        : FileTypeDialogDataSet.SetKind.Image, file);
+                        : FileTypeDialogDataSet.SetKind.Image | FileTypeDialogDataSet.SetKind.Vector, file);
                 if (SaveFormat == null)
                 {
                     return null;

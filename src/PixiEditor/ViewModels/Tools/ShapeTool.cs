@@ -1,4 +1,5 @@
 ﻿using Avalonia.Input;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.Overlays.BrushShapeOverlay;
@@ -17,5 +18,10 @@ internal abstract class ShapeTool : ToolViewModel, IShapeToolHandler
     {
         Cursor = new Cursor(StandardCursorType.Cross);
         Toolbar = new BasicShapeToolbar();
+    }
+
+    public override void OnDeselecting()
+    {
+        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
     }
 }

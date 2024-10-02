@@ -315,7 +315,7 @@ internal class MemberPreviewUpdater
             return FindImageTightBoundsFast(raster.GetLayerImageAtFrame(frame));
         }
 
-        return layer.GetTightBounds(frame);
+        return (RectI?)layer.GetTightBounds(frame);
     }
 
     /// <summary>
@@ -347,7 +347,7 @@ internal class MemberPreviewUpdater
         }
 
         return combinedBounds;*/
-        return folder.GetTightBounds(frame);
+        return (RectI)folder.GetTightBounds(frame);
     }
 
     /// <summary>
@@ -612,6 +612,9 @@ internal class MemberPreviewUpdater
     {
         QueueRender(() =>
         {
+            if(surface.IsDisposed)
+                return;
+            
             surface.DrawingSurface.Canvas.Save();
             surface.DrawingSurface.Canvas.Scale(scaling);
             surface.DrawingSurface.Canvas.Translate(-position);
@@ -620,16 +623,13 @@ internal class MemberPreviewUpdater
             foreach (var chunk in area.Chunks)
             {
                 var pos = chunk * ChunkResolution.Full.PixelSize();
-                if (layer is not IReadOnlyImageNode raster) return;
-                IReadOnlyChunkyImage? result = raster.GetLayerImageAtFrame(frame);
-
-                if (!result.DrawCommittedChunkOn(
-                        chunk,
-                        ChunkResolution.Full, surface.DrawingSurface, pos,
-                        scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint))
+                if (layer is IPreviewRenderable renderable)
                 {
-                    surface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize,
-                        ChunkyImage.FullChunkSize, ClearPaint);
+                    if (!renderable.RenderPreview(surface, chunk, ChunkResolution.Full, frame))
+                    {
+                        surface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkResolution.Full.PixelSize(),
+                            ChunkResolution.Full.PixelSize(), ClearPaint);
+                    }
                 }
             }
 
@@ -772,6 +772,9 @@ internal class MemberPreviewUpdater
 
             QueueRender(() =>
             {
+                if(nodeVm.ResultPreview == null || nodeVm.ResultPreview.IsDisposed)
+                    return;
+                
                 nodeVm.ResultPreview.DrawingSurface.Canvas.Save();
                 nodeVm.ResultPreview.DrawingSurface.Canvas.Scale(scalingX, scalingY);
 

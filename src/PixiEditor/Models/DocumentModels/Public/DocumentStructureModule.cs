@@ -26,6 +26,50 @@ internal class DocumentStructureModule
         return doc.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.Id == guid && x is T) as T;
     }
 
+
+    public Guid FindClosestMember(IReadOnlyList<Guid> guids)
+    {
+        IStructureMemberHandler? firstNode = FindNode<IStructureMemberHandler>(guids[0]);
+        if (firstNode is null)
+            return Guid.Empty;
+
+        INodeHandler? parent = null;
+
+        firstNode.TraverseForwards(traversedNode =>
+        {
+            if (!guids.Contains(traversedNode.Id) && traversedNode is IStructureMemberHandler)
+            {
+                parent = traversedNode;
+                return false;
+            }
+
+            return true;
+        });
+
+        if (parent is null)
+        {
+            var lastNode = FindNode<IStructureMemberHandler>(guids[^1]);
+            if (lastNode is null)
+                return Guid.Empty;
+
+            lastNode.TraverseBackwards(traversedNode =>
+            {
+                if (!guids.Contains(traversedNode.Id) && traversedNode is IStructureMemberHandler)
+                {
+                    parent = traversedNode;
+                    return false;
+                }
+
+                return true;
+            });
+        }
+
+        if (parent is null)
+            return Guid.Empty;
+
+        return parent.Id;
+    }
+
     public INodeHandler? FindFirstWhere(Predicate<INodeHandler> predicate)
     {
         return FindFirstWhere(predicate, doc.NodeGraphHandler);
@@ -115,9 +159,9 @@ internal class DocumentStructureModule
         INodeHandler? result = null;
         startNode.TraverseForwards(node =>
         {
-            if(node == startNode)
+            if (node == startNode)
                 return true;
-            
+
             result = node;
             return false;
         });
@@ -130,46 +174,46 @@ internal class DocumentStructureModule
         INodeHandler member = FindNode<INodeHandler>(memberId);
         if (member == null)
             return null;
-        
+
         IStructureMemberHandler? result = null;
         member.TraverseForwards(node =>
         {
             if (node != member && node is IStructureMemberHandler structureMemberNode)
             {
-                if(node is IFolderHandler && !includeFolders)
+                if (node is IFolderHandler && !includeFolders)
                     return true;
-                
+
                 result = structureMemberNode;
                 return false;
             }
 
             return true;
         });
-        
+
         return result;
     }
-    
+
     public IStructureMemberHandler? GetBelowMember(Guid memberId, bool includeFolders)
     {
         INodeHandler member = FindNode<INodeHandler>(memberId);
         if (member == null)
             return null;
-        
+
         IStructureMemberHandler? result = null;
         member.TraverseBackwards(node =>
         {
             if (node != member && node is IStructureMemberHandler structureMemberNode)
             {
-                if(node is IFolderHandler && !includeFolders)
+                if (node is IFolderHandler && !includeFolders)
                     return true;
-                
+
                 result = structureMemberNode;
                 return false;
             }
 
             return true;
         });
-        
+
         return result;
     }
 }

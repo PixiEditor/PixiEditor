@@ -15,6 +15,7 @@
              xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
              xmlns:panels="clr-namespace:PixiEditor.Views.Panels"
              xmlns:nodes="clr-namespace:PixiEditor.ViewModels.Document.Nodes"
+             xmlns:handlers="clr-namespace:PixiEditor.Models.Handlers"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="250" x:Name="layersManager">
     <UserControl.Resources>
@@ -145,7 +146,7 @@
                                 PointerPressed="FolderControl_MouseDown"
                                 PointerReleased="FolderControl_MouseUp"/>
                     </TreeDataTemplate>
-                    <DataTemplate DataType="{x:Type nodes:ImageLayerNodeViewModel}">
+                    <DataTemplate DataType="{x:Type handlers:ILayerHandler}">
                         <layers:LayerControl
                             Layer="{Binding}"
                             Manager="{Binding ElementName=layersManager}"

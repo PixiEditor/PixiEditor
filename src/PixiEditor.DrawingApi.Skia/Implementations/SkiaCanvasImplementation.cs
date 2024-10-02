@@ -75,6 +75,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             canvas.DrawImage(img, x, y, skPaint);
         }
 
+        public Matrix3X3 GetActiveMatrix(IntPtr objectPointer)
+        {
+            return ManagedInstances[objectPointer].TotalMatrix.ToMatrix3X3();
+        }
+
         public int Save(IntPtr objPtr)
         {
             return ManagedInstances[objPtr].Save();
@@ -112,9 +117,10 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public void DrawPoints(IntPtr objPtr, PointMode pointMode, Point[] points, Paint paint)
         {
+            SKPoint[] skPoints = CastUtility.UnsafeArrayCast<Point, SKPoint>(points);
             ManagedInstances[objPtr].DrawPoints(
                 (SKPointMode)pointMode,
-                CastUtility.UnsafeArrayCast<Point, SKPoint>(points),
+                skPoints,
                 _paintImpl[paint.ObjectPointer]);
         }
 

@@ -9,6 +9,7 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.Structures;
 using PixiEditor.Models.Tools;
@@ -40,6 +41,7 @@ internal interface IDocument : IHandler
     public double VerticalSymmetryAxisXBindable { get; }
     public IDocumentOperations Operations { get; }
     public DocumentRenderer Renderer { get; }
+    public ISnappingHandler SnappingHandler { get; }
     public void RemoveSoftSelectedMember(IStructureMemberHandler member);
     public void ClearSoftSelectedMembers();
     public void AddSoftSelectedMember(IStructureMemberHandler member);
@@ -53,4 +55,6 @@ internal interface IDocument : IHandler
     public Color PickColor(VecD controllerLastPrecisePosition, DocumentScope scope, bool includeReference, bool includeCanvas, int frame, bool isTopMost);
     public List<Guid> ExtractSelectedLayers(bool includeFoldersWithMask = false);
     public void UpdateSavedState();
+
+    internal void InternalRaiseLayersChanged(LayersChangedEventArgs e);
 }

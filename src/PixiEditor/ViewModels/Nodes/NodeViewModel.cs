@@ -53,7 +53,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         get => nodeNameBindable ?? DisplayName;
         set
         {
-            if (!Document.UpdateableChangeActive)
+            if (!Document.BlockingUpdateableChangeActive)
             {
                 Internals.ActionAccumulator.AddFinishedActions(
                     new SetNodeName_Action(Id, value));
@@ -89,7 +89,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         get => position;
         set
         {
-            if (!Document.UpdateableChangeActive)
+            if (!Document.BlockingUpdateableChangeActive)
             {
                 Internals.ActionAccumulator.AddFinishedActions(
                     new NodePosition_Action(Id, value),

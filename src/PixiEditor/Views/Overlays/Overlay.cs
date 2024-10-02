@@ -46,6 +46,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     public Overlay()
     {
         ZoomScaleProperty.Changed.Subscribe(OnZoomScaleChanged);
+        IsVisibleProperty.Changed.Subscribe(OnIsVisibleChanged);
     }
 
     ~Overlay()
@@ -207,6 +208,14 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
             {
                 handle.ZoomScale = e.NewValue.Value;
             }
+        }
+    }
+    
+    private void OnIsVisibleChanged(AvaloniaPropertyChangedEventArgs<bool> e)
+    {
+        if (e.NewValue.Value)
+        {
+            Refresh();
         }
     }
 }
