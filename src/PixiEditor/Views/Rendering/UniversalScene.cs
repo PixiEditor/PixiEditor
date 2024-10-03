@@ -26,7 +26,7 @@ public class UniversalScene : Zoombox.Zoombox, ICustomHitTest
         get => GetValue(SceneRendererProperty);
         set => SetValue(SceneRendererProperty, value);
     }
-
+    
     public override void Render(DrawingContext context)
     {
         // TODO: Do bounds pass, that will be used to calculate dirty bounds
@@ -36,7 +36,7 @@ public class UniversalScene : Zoombox.Zoombox, ICustomHitTest
             return;
         }
         
-        var drawOperation = new DrawUniversalSceneOperation(SceneRenderer.RenderScene, Bounds, CalculateTransformMatrix());
+        using var drawOperation = new DrawUniversalSceneOperation(SceneRenderer.RenderScene, Bounds, CalculateTransformMatrix());
         context.Custom(drawOperation);
 
         Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
@@ -60,13 +60,13 @@ public class UniversalScene : Zoombox.Zoombox, ICustomHitTest
 
 class DrawUniversalSceneOperation : SkiaDrawOperation
 {
-    public event Action<DrawingSurface> RenderScene;
+    public Action<DrawingSurface> RenderScene;
     public Matrix TransformMatrix { get; set; }
 
     public DrawUniversalSceneOperation(Action<DrawingSurface> renderAction, Rect dirtyBounds,
         Matrix calculateTransformMatrix) : base(dirtyBounds)
     {
-        RenderScene += renderAction;
+        RenderScene = renderAction;
         TransformMatrix = calculateTransformMatrix;
     }
 

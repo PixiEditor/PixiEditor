@@ -8,8 +8,7 @@ namespace PixiEditor.Views.Visuals;
 
 internal abstract class SkiaDrawOperation : ICustomDrawOperation
 {
-    public Rect Bounds { get; }
-
+    public Rect Bounds { get; set; }
 
     public SkiaDrawOperation(Rect dirtyBounds)
     {

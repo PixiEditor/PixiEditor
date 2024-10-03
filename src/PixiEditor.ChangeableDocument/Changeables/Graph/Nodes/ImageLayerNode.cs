@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
@@ -78,24 +79,25 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return (GetFrameWithImage(ctx.FrameTime).Data as ChunkyImage).LatestSize;
     }
 
-    protected override void DrawWithoutFilters(RenderContext ctx, Texture workingSurface, bool shouldClear,
+    protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface, bool shouldClear,
         Paint paint)
     {
         var frameImage = GetFrameWithImage(ctx.FrameTime).Data as ChunkyImage;
         if (!frameImage.DrawMostUpToDateChunkOn(
                 ctx.ChunkToUpdate,
                 ctx.ChunkResolution,
-                workingSurface.DrawingSurface,
+                workingSurface,
                 ctx.ChunkToUpdate * ctx.ChunkResolution.PixelSize(),
                 blendPaint) && shouldClear)
         {
-            workingSurface.DrawingSurface.Canvas.DrawRect((RectD)CalculateDestinationRect(ctx), clearPaint);
+            // TODO: Is it necessary to clear the surface?
+            //workingSurface.Canvas.DrawRect((RectD)CalculateDestinationRect(ctx), clearPaint);
         }
     }
 
     // Draw with filters is a bit tricky since some filters sample data from chunks surrounding the chunk being drawn,
     // this is why we need to do intermediate drawing to a temporary surface and then apply filters to that surface
-    protected override void DrawWithFilters(RenderContext context, Texture workingSurface,
+    protected override void DrawWithFilters(SceneObjectRenderContext context, DrawingSurface workingSurface,
         bool shouldClear, Paint paint)
     {
         var frameImage = GetFrameWithImage(context.FrameTime).Data as ChunkyImage;
@@ -133,11 +135,11 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
 
         VecI tempSize = tempSizeInChunks * context.ChunkResolution.PixelSize();
-        tempSize = new VecI(Math.Min(tempSize.X, workingSurface.Size.X), Math.Min(tempSize.Y, workingSurface.Size.Y));
+        tempSize = new VecI(Math.Min(tempSize.X, (int)context.LocalBounds.Size.X), Math.Min(tempSize.Y, (int)context.LocalBounds.Size.Y));
 
         if (shouldClear)
         {
-            workingSurface.DrawingSurface.Canvas.DrawRect(
+            workingSurface.Canvas.DrawRect(
                 new RectD(
                     VecI.Zero,
                     tempSize),
@@ -188,7 +190,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         DrawChunk(frameImage, context, tempSurface, new VecI(0, 0), paint);
 
-        workingSurface.DrawingSurface.Canvas.DrawSurface(tempSurface.DrawingSurface, VecI.Zero, paint);
+        workingSurface.Canvas.DrawSurface(tempSurface.DrawingSurface, VecI.Zero, paint);
     }
 
     public override bool RenderPreview(Texture renderOn, VecI chunk, ChunkResolution resolution, int frame)

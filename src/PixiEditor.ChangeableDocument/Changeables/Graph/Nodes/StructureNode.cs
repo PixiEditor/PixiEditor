@@ -45,7 +45,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     }
 
     private Paint maskPaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.DstIn };
-    protected Paint blendPaint = new Paint();
+    protected Paint blendPaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.SrcOver};
 
     private int maskCacheHash = 0;
 
@@ -72,7 +72,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     {
         RectD localBounds = new RectD(0, 0, SceneSize.X, SceneSize.Y);
 
-        DrawingSurface sceneSurface = context.TargetSurface;
+        DrawingSurface sceneSurface = Background.Value ?? context.TargetSurface;
         
         int savedNum = sceneSurface.Canvas.Save();
         sceneSurface.Canvas.ClipRect(RectD.Create((VecI)ScenePosition.Floor(), (VecI)SceneSize.Ceiling()));
@@ -84,24 +84,26 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         Render(renderObjectContext);
         
         sceneSurface.Canvas.RestoreToCount(savedNum);
+        
+        Output.Value = sceneSurface;
     }
 
     public abstract void Render(SceneObjectRenderContext sceneContext);
 
-    protected void ApplyMaskIfPresent(Texture surface, RenderContext context)
+    protected void ApplyMaskIfPresent(DrawingSurface surface, RenderContext context)
     {
         if (MaskIsVisible.Value)
         {
             if (CustomMask.Value != null)
             {
-                surface.DrawingSurface.Canvas.DrawSurface(CustomMask.Value.DrawingSurface, 0, 0, maskPaint);
+                surface.Canvas.DrawSurface(CustomMask.Value.DrawingSurface, 0, 0, maskPaint);
             }
             else if (EmbeddedMask != null)
             {
                 EmbeddedMask.DrawMostUpToDateChunkOn(
                     context.ChunkToUpdate,
                     context.ChunkResolution,
-                    surface.DrawingSurface,
+                    surface,
                     context.ChunkToUpdate * context.ChunkResolution.PixelSize(),
                     maskPaint);
             }
@@ -120,11 +122,11 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         maskCacheHash = EmbeddedMask?.GetCacheHash() ?? 0;
     }
 
-    protected void ApplyRasterClip(Texture toClip, Texture clipSource)
+    protected void ApplyRasterClip(DrawingSurface toClip, DrawingSurface clipSource)
     {
         if (ClipToPreviousMember && Background.Value != null)
         {
-            toClip.DrawingSurface.Canvas.DrawSurface(clipSource.DrawingSurface, 0, 0, maskPaint);
+            toClip.Canvas.DrawSurface(clipSource, 0, 0, maskPaint);
         }
     }
 
