@@ -2,7 +2,6 @@
     <PropertyGroup>
         <CodeAnalysisRuleSet>../Custom.ruleset</CodeAnalysisRuleSet>
 		    <AvaloniaVersion>11.1.3</AvaloniaVersion>
-        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" />

@@ -12,7 +12,6 @@ variables:
   buildConfiguration: 'Release'
   wasiVer: 'wasi-sdk-24.0-$(wasi-arch)-windows'
   wasiUrl: 'https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-24/$(wasiVer).tar.gz'
-  NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
 
 steps:
 - task: CmdLine@2
@@ -61,18 +60,13 @@ steps:
     arguments: 'install wasi-experimental'
 
 - task: Cache@2
-  displayName: Cache nuget packages, will remove this later to test if it works
+  displayName: Cache nuget packages, remove before flight
   inputs:
-    key: 'nuget | "$(Agent.OS)" | **/packages.lock.json,!**/bin/**,!**/obj/**'
-    restoreKeys: |
-       nuget | "$(Agent.OS)"
-       nuget
-    path: '$(NUGET_PACKAGES)'
-    cacheHitVar: 'CACHE_RESTORED'
+    key: 'dotnetNuget-windows'
+    path: '%localappdata%\NuGet\v3-cache'
 
 - task: NuGetCommand@2
   displayName: 'Restore solution'
-  condition: ne(variables.CACHE_RESTORED, true)
   inputs:
     restoreSolution: '$(solution)'
 
