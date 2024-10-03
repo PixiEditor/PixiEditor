@@ -59,11 +59,6 @@ steps:
     custom: 'workload'
     arguments: 'install wasi-experimental'
 
-- task: Cache@2
-  displayName: Cache nuget packages, remove before flight
-  inputs:
-    key: 'dotnetNuget-windows'
-    path: '%localappdata%\NuGet\v3-cache'
 
 - task: NuGetCommand@2
   displayName: 'Restore solution'
