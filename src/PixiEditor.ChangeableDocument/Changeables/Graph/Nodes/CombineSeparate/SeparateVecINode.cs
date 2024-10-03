@@ -21,9 +21,8 @@ public class SeparateVecINode : Node
         Vector = CreateFuncInput<Int2>("Vector", "VECTOR", new VecI(0, 0));
     }
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
-        return null;
     }
 
 

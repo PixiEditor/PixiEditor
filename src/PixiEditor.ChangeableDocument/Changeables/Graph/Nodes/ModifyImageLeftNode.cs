@@ -25,7 +25,7 @@ public class ModifyImageLeftNode : Node, IPairNode
 
     public Guid OtherNode { get; set; }
 
-    private ConcurrentDictionary<RenderingContext, Pixmap> pixmapCache = new();
+    private ConcurrentDictionary<RenderContext, Pixmap> pixmapCache = new();
 
     public ModifyImageLeftNode()
     {
@@ -51,12 +51,12 @@ public class ModifyImageLeftNode : Node, IPairNode
         return targetPixmap.GetPixelColor((int)x, (int)y);*/
     }
 
-    internal void PreparePixmap(RenderingContext forContext)
+    internal void PreparePixmap(RenderContext forContext)
     {
         pixmapCache[forContext] = Image.Value?.PeekReadOnlyPixels();
     }
 
-    internal void DisposePixmap(RenderingContext forContext)
+    internal void DisposePixmap(RenderContext forContext)
     {
         if (pixmapCache.TryRemove(forContext, out var targetPixmap))
         {
@@ -64,9 +64,9 @@ public class ModifyImageLeftNode : Node, IPairNode
         }
     }
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
-        return Image.Value;
+        //return Image.Value;
     }
 
     public override Node CreateCopy() => new ModifyImageLeftNode();

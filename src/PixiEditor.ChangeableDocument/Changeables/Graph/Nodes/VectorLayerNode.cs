@@ -37,21 +37,27 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
     private int lastCacheHash;
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
-        var rendered = base.OnExecute(context);
-
-        Output.Value = rendered;
-
-        return rendered;
+        base.OnExecute(context);
+        
+        Output.Value = context.TargetSurface;
     }
 
-    protected override VecI GetTargetSize(RenderingContext ctx)
+    public override VecD ScenePosition => ShapeData?.TransformedAABB.TopLeft ?? VecD.Zero;
+    public override VecD SceneSize => ShapeData?.TransformedAABB.Size ?? VecD.Zero;
+
+    public override void Render(SceneObjectRenderContext sceneContext)
+    {
+        Rasterize(sceneContext.TargetSurface, ChunkResolution.Full, blendPaint);
+    }
+
+    protected override VecI GetTargetSize(RenderContext ctx)
     {
         return ctx.DocumentSize;
     }
 
-    protected override void DrawWithoutFilters(RenderingContext ctx, Texture workingSurface, bool shouldClear,
+    protected override void DrawWithoutFilters(RenderContext ctx, Texture workingSurface, bool shouldClear,
         Paint paint)
     {
         if (ShapeData == null)
@@ -67,7 +73,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         Rasterize(workingSurface.DrawingSurface, ctx.ChunkResolution, paint);
     }
 
-    protected override void DrawWithFilters(RenderingContext ctx, Texture workingSurface, bool shouldClear, Paint paint)
+    protected override void DrawWithFilters(RenderContext ctx, Texture workingSurface, bool shouldClear, Paint paint)
     {
         if (ShapeData == null)
         {
@@ -134,12 +140,12 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return new VectorShape_ChangeInfo(Id, affected);
     }
 
-    protected override bool CacheChanged(RenderingContext context)
+    protected override bool CacheChanged(RenderContext context)
     {
         return base.CacheChanged(context) || (ShapeData?.GetCacheHash() ?? -1) != lastCacheHash;
     }
 
-    protected override void UpdateCache(RenderingContext context)
+    protected override void UpdateCache(RenderContext context)
     {
         base.UpdateCache(context);
         lastCacheHash = ShapeData?.GetCacheHash() ?? -1;

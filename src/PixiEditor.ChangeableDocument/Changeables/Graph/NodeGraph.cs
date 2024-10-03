@@ -119,9 +119,9 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         return true;
     }
 
-    public Texture? Execute(RenderingContext context)
+    public void Execute(RenderContext context)
     {
-        if (OutputNode == null) return null;
+        if (OutputNode == null) return;
 
         var queue = CalculateExecutionQueue(OutputNode);
         
@@ -138,7 +138,5 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
                 node.Execute(context);
             }
         }
-
-        return OutputNode.Input.Value;
     }
 }

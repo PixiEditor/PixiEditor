@@ -16,7 +16,7 @@ public abstract class FilterNode : Node
         Input = CreateInput<Filter>(nameof(Input), "PREVIOUS", null);
     }
     
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
         var colorFilter = GetColorFilter();
         var imageFilter = GetImageFilter();
@@ -24,14 +24,12 @@ public abstract class FilterNode : Node
         if (colorFilter == null && imageFilter == null)
         {
             Output.Value = Input.Value;
-            return null;
+            return;
         }
 
         var filter = Input.Value;
 
         Output.Value = filter == null ? new Filter(colorFilter, imageFilter) : filter.Add(colorFilter, imageFilter);
-        
-        return null;
     }
 
     protected virtual ColorFilter? GetColorFilter() => null;

@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
@@ -51,7 +52,7 @@ internal class MoveStructureMember_Change : Change
         
         Guid oldBackgroundId = sourceNode.Background.Node.Id;
 
-        InputProperty<Texture?> inputProperty = backgroundInput.Background;
+        InputProperty<DrawingSurface?> inputProperty = backgroundInput.Background;
 
         if (targetNode is FolderNode folder && putInsideFolder)
         {

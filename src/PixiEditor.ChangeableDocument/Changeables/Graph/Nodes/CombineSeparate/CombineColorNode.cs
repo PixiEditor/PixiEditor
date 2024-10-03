@@ -79,9 +79,8 @@ public class CombineColorNode : Node
         return ctx.HslaToRgba(h, s, l, a);
     }
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
-        return null;
     }
 
 

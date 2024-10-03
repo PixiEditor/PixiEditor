@@ -26,19 +26,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public IReadOnlyList<OutputProperty> OutputProperties => outputs;
     public IReadOnlyList<KeyFrameData> KeyFrames => keyFrames;
 
-    public Texture? CachedResult
-    {
-        get
-        {
-            if (_lastCachedResult == null || _lastCachedResult.IsDisposed) return null;
-            return _lastCachedResult;
-        }
-        private set
-        {
-            _lastCachedResult = value;
-        }
-    }
-
     protected virtual bool AffectedByAnimation { get; }
 
     protected virtual bool AffectedByChunkResolution { get; }
@@ -65,38 +52,23 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     private Dictionary<int, Texture> _managedTextures = new();
 
-    public Texture? Execute(RenderingContext context)
+    public void Execute(RenderContext context)
     {
-        var result = ExecuteInternal(context);
-
-        if (result is null)
-        {
-            return null;
-        }
-
-        var copy = new Texture(result);
-        return copy;
+        ExecuteInternal(context);
     }
 
-    internal Texture? ExecuteInternal(RenderingContext context)
+    internal void ExecuteInternal(RenderContext context)
     {
         if (_isDisposed) throw new ObjectDisposedException("Node was disposed before execution.");
 
-        if (!CacheChanged(context)) return CachedResult;
-
-        CachedResult = OnExecute(context);
-        if (CachedResult is { IsDisposed: true })
-        {
-            throw new ObjectDisposedException("Texture was disposed after execution.");
-        }
+        OnExecute(context);
 
         UpdateCache(context);
-        return CachedResult;
     }
 
-    protected abstract Texture? OnExecute(RenderingContext context);
+    protected abstract void OnExecute(RenderContext context);
 
-    protected virtual bool CacheChanged(RenderingContext context)
+    protected virtual bool CacheChanged(RenderContext context)
     {
         return (!context.FrameTime.Equals(_lastFrameTime) && AffectedByAnimation)
                || (AffectedByAnimation && _keyFramesDirty)
@@ -105,7 +77,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
                || inputs.Any(x => x.CacheChanged);
     }
 
-    protected virtual void UpdateCache(RenderingContext context)
+    protected virtual void UpdateCache(RenderContext context)
     {
         foreach (var input in inputs)
         {
@@ -421,7 +393,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
     }
 
-    internal virtual OneOf<None, IChangeInfo, List<IChangeInfo>> DeserializeAdditionalData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data)
+    internal virtual OneOf<None, IChangeInfo, List<IChangeInfo>> DeserializeAdditionalData(IReadOnlyDocument target,
+        IReadOnlyDictionary<string, object> data)
     {
         return new None();
     }

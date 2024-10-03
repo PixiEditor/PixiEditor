@@ -26,7 +26,7 @@ public class FuncContext
     public Float2 SamplePosition { get; private set; }
     public VecI Size { get; private set; }
     public bool HasContext { get; private set; }
-    public RenderingContext RenderingContext { get; set; }
+    public RenderContext RenderContext { get; set; }
 
     public ShaderBuilder Builder { get; set; }
 
@@ -42,9 +42,9 @@ public class FuncContext
     {
     }
 
-    public FuncContext(RenderingContext renderingContext, ShaderBuilder builder)
+    public FuncContext(RenderContext renderContext, ShaderBuilder builder)
     {
-        RenderingContext = renderingContext;
+        RenderContext = renderContext;
         Builder = builder;
         HasContext = true;
         OriginalPosition = new Float2("coords"); // input argument 'half4 main(float2 coords)'

@@ -86,7 +86,7 @@ internal class EllipseOperation : IMirroredDrawOperation
                 {
                     paint.Color = fillColor;
                     surf.Canvas.DrawPoints(PointMode.Lines, ellipseFill!, paint);
-                    surf.Canvas.DrawRect(ellipseFillRect!.Value, paint);
+                    surf.Canvas.DrawRect((RectD)ellipseFillRect!.Value, paint);
                 }
                 
                 paint.Color = strokeColor;

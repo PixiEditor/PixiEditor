@@ -53,7 +53,7 @@ public class NoiseNode : Node
         Seed = CreateInput(nameof(Seed), "SEED", 0d);
     }
 
-    protected override Texture OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
         if (Math.Abs(previousScale - Scale.Value) > 0.000001
             || previousSeed != Seed.Value
@@ -65,14 +65,14 @@ public class NoiseNode : Node
             if (Scale.Value < 0.000001)
             {
                 Noise.Value = null;
-                return null;
+                return;
             }
 
             var shader = SelectShader();
             if (shader == null)
             {
                 Noise.Value = null;
-                return null;
+                return;
             }
 
             paint.Shader = shader;
@@ -91,7 +91,7 @@ public class NoiseNode : Node
         if (size.X < 1 || size.Y < 1)
         {
             Noise.Value = null;
-            return null;
+            return;
         }
 
         var workingSurface = RequestTexture(0, size);
@@ -104,8 +104,6 @@ public class NoiseNode : Node
         workingSurface.DrawingSurface.Canvas.Restore();
 
         Noise.Value = workingSurface;
-
-        return Noise.Value;
     }
 
     private Shader SelectShader()

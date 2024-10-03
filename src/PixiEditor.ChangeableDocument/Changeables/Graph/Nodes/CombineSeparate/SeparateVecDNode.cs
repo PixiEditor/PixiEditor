@@ -22,9 +22,8 @@ public class SeparateVecDNode : Node
         Vector = CreateFuncInput<Float2>("Vector", "VECTOR", VecD.Zero);
     }
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
-        return null;
     }
 
 

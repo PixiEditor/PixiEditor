@@ -32,9 +32,8 @@ public class CombineVecINode : Node
     }
 
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
-        return null;
     }
 
 

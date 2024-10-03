@@ -37,7 +37,8 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
 
     private void Rasterize(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint, bool applyTransform)
     {
-        var imageSize = (VecI)Size; 
+        drawingSurface.Canvas.DrawRect(0, 0, (int)Size.X, (int)Size.Y, paint);
+        /*var imageSize = (VecI)Size; 
 
         using ChunkyImage img = new ChunkyImage(imageSize);
 
@@ -67,7 +68,7 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         if (applyTransform)
         {
             drawingSurface.Canvas.RestoreToCount(num);
-        }
+        }*/
     }
 
     public override bool IsValid()

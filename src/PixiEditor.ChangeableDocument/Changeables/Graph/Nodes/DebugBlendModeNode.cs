@@ -29,10 +29,10 @@ public class DebugBlendModeNode : Node
         Result = CreateOutput<Texture>(nameof(Result), "Result", null);
     }
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
         if (Dst.Value is not { } dst || Src.Value is not { } src)
-            return null;
+            return;
 
         var size = new VecI(Math.Max(src.Size.X, dst.Size.X), int.Max(src.Size.Y, dst.Size.Y));
         var workingSurface = RequestTexture(0, size);
@@ -43,8 +43,6 @@ public class DebugBlendModeNode : Node
         workingSurface.DrawingSurface.Canvas.DrawSurface(src.DrawingSurface, 0, 0, _paint);
         
         Result.Value = workingSurface;
-
-        return workingSurface;
     }
 
 

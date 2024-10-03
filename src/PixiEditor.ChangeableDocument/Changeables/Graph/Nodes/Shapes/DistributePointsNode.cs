@@ -18,7 +18,7 @@ public class DistributePointsNode : ShapeNode<PointsVectorData>
         Seed = CreateInput("Seed", "SEED", 0);
     }
 
-    protected override PointsVectorData? GetShapeData(RenderingContext context)
+    protected override PointsVectorData? GetShapeData(RenderContext context)
     {
         return GetPointsRandomly(context.DocumentSize);
     }

@@ -21,7 +21,7 @@ public class RemoveClosePointsNode : ShapeNode<PointsVectorData>
         Seed = CreateInput("Seed", "SEED", 0);
     }
 
-    protected override PointsVectorData? GetShapeData(RenderingContext context)
+    protected override PointsVectorData? GetShapeData(RenderContext context)
     {
         var data = Input.Value;
 

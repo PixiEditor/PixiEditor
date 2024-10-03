@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -10,10 +11,10 @@ public class OutputNode : Node, IBackgroundInput
 {
     public const string InputPropertyName = "Background";
 
-    public InputProperty<Texture?> Input { get; } 
+    public InputProperty<DrawingSurface?> Input { get; } 
     public OutputNode()
     {
-        Input = CreateInput<Texture>(InputPropertyName, "INPUT", null);
+        Input = CreateInput<DrawingSurface>(InputPropertyName, "INPUT", null);
     }
 
     public override Node CreateCopy()
@@ -21,10 +22,9 @@ public class OutputNode : Node, IBackgroundInput
         return new OutputNode();
     }
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
-        return Input.Value;
     }
 
-    InputProperty<Texture?> IBackgroundInput.Background => Input;
+    InputProperty<DrawingSurface?> IBackgroundInput.Background => Input;
 }

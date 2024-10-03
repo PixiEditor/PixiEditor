@@ -17,12 +17,10 @@ public class TimeNode : Node
         NormalizedTime = CreateOutput("NormalizedTime", "NORMALIZED_TIME", 0.0);
     }
     
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
         ActiveFrame.Value = context.FrameTime.Frame;
         NormalizedTime.Value = context.FrameTime.NormalizedTime;
-        
-        return null;
     }
 
     public override Node CreateCopy()

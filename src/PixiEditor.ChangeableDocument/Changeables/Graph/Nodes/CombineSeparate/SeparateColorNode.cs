@@ -43,9 +43,8 @@ public class SeparateColorNode : Node
         Color = CreateFuncInput<Half4>(nameof(Color), "COLOR", new Color());
     }
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
-        return null;
     }
     
     private Half4 GetColor(FuncContext ctx) =>

@@ -166,7 +166,8 @@ internal class CanvasUpdater
             FindGlobalChunksToRerender(chunkGatherer, rerenderDelayed);
         
         ChunkResolution onionSkinResolution = chunksToRerender.Min(x => x.Key);
-        UpdateOnionSkinning(doc.Surfaces[onionSkinResolution]);
+        // TODO: Don't forget to implement this
+        //UpdateOnionSkinning(doc.Surfaces[onionSkinResolution]);
 
         bool updatingStoredChunks = false;
         foreach (var (res, stored) in affectedAndNonRerenderedChunks)
@@ -211,6 +212,7 @@ internal class CanvasUpdater
                 globalScaledClippingRectangle =
                     (RectI?)((RectI)globalClippingRectangle).Scale(resolution.Multiplier()).RoundOutwards();
 
+            /*
             Texture screenSurface = doc.Surfaces[resolution];
             foreach (var chunkPos in chunks)
             {
@@ -226,6 +228,7 @@ internal class CanvasUpdater
                     resolution
                 ));
             }
+        */
         }
     }
 
@@ -299,8 +302,9 @@ internal class CanvasUpdater
 
         KeyFrameTime newFrameTime = new(frameIndex, newNormalizedTime);
 
-        using Texture rendered = doc.Renderer.RenderDocument(newFrameTime, ChunkResolution.Full);
-        UpdateLastRenderedFrame(rendered, frameIndex);
+        //TODO: fix this
+        //using Texture rendered = doc.Renderer.RenderDocument(newFrameTime, ChunkResolution.Full);
+        //UpdateLastRenderedFrame(rendered, frameIndex);
     }
 
     private void UpdateLastRenderedFrame(Texture rendered, int index)
@@ -327,7 +331,7 @@ internal class CanvasUpdater
         }
     }
 
-    private void RenderChunk(VecI chunkPos, Texture screenSurface, ChunkResolution resolution,
+    /*private void RenderChunk(VecI chunkPos, Texture screenSurface, ChunkResolution resolution,
         RectI? globalClippingRectangle, RectI? globalScaledClippingRectangle)
     {
         if (screenSurface is null || screenSurface.IsDisposed)
@@ -372,5 +376,5 @@ internal class CanvasUpdater
                     if (globalScaledClippingRectangle is not null)
                         screenSurface.DrawingSurface.Canvas.Restore();
                 });
-    }
+    }*/
 }

@@ -43,12 +43,12 @@ public class SeparateChannelsNode : Node
         Grayscale = CreateInput(nameof(Grayscale), "GRAYSCALE", false);
     }
     
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
         var image = Image.Value;
 
         if (image == null)
-            return null;
+            return;
         
         var grayscale = Grayscale.Value;
 
@@ -75,8 +75,6 @@ public class SeparateChannelsNode : Node
         previewSurface.DrawingSurface.Canvas.DrawSurface(Green.Value.DrawingSurface, greenPos, context.ReplacingPaintWithOpacity);
         previewSurface.DrawingSurface.Canvas.DrawSurface(Blue.Value.DrawingSurface, bluePos, context.ReplacingPaintWithOpacity);
         previewSurface.DrawingSurface.Canvas.DrawSurface(Alpha.Value.DrawingSurface, alphaPos, context.ReplacingPaintWithOpacity);
-        
-        return previewSurface;
     }
 
     private Texture GetImage(Texture image, ColorFilter filter, int id)

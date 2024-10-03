@@ -38,9 +38,9 @@ public class SampleImageNode : Node
         return context.SampleTexture(Image.Value, uv);
     }
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
-        return Image.Value;
+        //return Image.Value;
     }
 
     public override Node CreateCopy() => new SampleImageNode();

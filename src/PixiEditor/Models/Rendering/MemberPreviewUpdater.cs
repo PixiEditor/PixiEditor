@@ -435,12 +435,12 @@ internal class MemberPreviewUpdater
                 _ => ChunkResolution.Eighth,
             };
             var pos = chunkPos * resolution.PixelSize();
-            var rendered = doc.Renderer.RenderChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameTime);
+            //var rendered = doc.Renderer.RenderChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameTime);
             doc.PreviewSurface.DrawingSurface.Canvas.Save();
             doc.PreviewSurface.DrawingSurface.Canvas.Scale(scaling);
             doc.PreviewSurface.DrawingSurface.Canvas.ClipRect((RectD)cumulative.GlobalArea);
             doc.PreviewSurface.DrawingSurface.Canvas.Scale(1 / (float)resolution.Multiplier());
-            if (rendered.IsT1)
+            /*if (rendered.IsT1)
             {
                 doc.PreviewSurface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(),
                     resolution.PixelSize(), ClearPaint);
@@ -449,7 +449,7 @@ internal class MemberPreviewUpdater
             {
                 using var renderedChunk = rendered.AsT0;
                 renderedChunk.DrawChunkOn(doc.PreviewSurface.DrawingSurface, pos, SmoothReplacingPaint);
-            }
+            }*/
 
             doc.PreviewSurface.DrawingSurface.Canvas.Restore();
         }
@@ -560,7 +560,7 @@ internal class MemberPreviewUpdater
         AffectedArea area,
         VecI position, float scaling)
     {
-        QueueRender(() =>
+        /*QueueRender(() =>
         {
             memberVM.PreviewSurface.DrawingSurface.Canvas.Save();
             memberVM.PreviewSurface.DrawingSurface.Canvas.Scale(scaling);
@@ -601,7 +601,7 @@ internal class MemberPreviewUpdater
             }
 
             memberVM.PreviewSurface.DrawingSurface.Canvas.Restore();
-        });
+        });*/
     }
 
     /// <summary>
@@ -731,7 +731,7 @@ internal class MemberPreviewUpdater
 
     private void RenderNodePreviews(List<IRenderInfo> infos)
     {
-        using RenderingContext previewContext = new(doc.AnimationHandler.ActiveFrameTime,  VecI.Zero, ChunkResolution.Full, doc.SizeBindable);
+        /*using RenderingContext previewContext = new(doc.AnimationHandler.ActiveFrameTime,  VecI.Zero, ChunkResolution.Full, doc.SizeBindable);
 
         var outputNode = internals.Tracker.Document.NodeGraph.OutputNode;
         
@@ -786,7 +786,7 @@ internal class MemberPreviewUpdater
             });
 
             infos.Add(new NodePreviewDirty_RenderInfo(node.Id));
-        }
+        }*/
     }
 
     private void QueueRender(Action action)

@@ -6,6 +6,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
@@ -44,8 +45,8 @@ internal class CreateStructureMember_Change : Change
 
         List<IChangeInfo> changes = new() { CreateChangeInfo(member) };
         
-        InputProperty<Texture> targetInput = parentNode.InputProperties.FirstOrDefault(x => 
-            x.ValueType == typeof(Texture)) as InputProperty<Texture>;
+        InputProperty<DrawingSurface> targetInput = parentNode.InputProperties.FirstOrDefault(x => 
+            x.ValueType == typeof(DrawingSurface)) as InputProperty<DrawingSurface>;
         
         
         if (member is FolderNode folder)
@@ -105,7 +106,7 @@ internal class CreateStructureMember_Change : Change
         return changes;
     }
 
-    private static void AppendFolder(InputProperty<Texture> backgroundInput, FolderNode folder, List<IChangeInfo> changes)
+    private static void AppendFolder(InputProperty<DrawingSurface> backgroundInput, FolderNode folder, List<IChangeInfo> changes)
     {
         var appened = NodeOperations.AppendMember(backgroundInput, folder.Output, folder.Background, folder.Id);
         changes.AddRange(appened);

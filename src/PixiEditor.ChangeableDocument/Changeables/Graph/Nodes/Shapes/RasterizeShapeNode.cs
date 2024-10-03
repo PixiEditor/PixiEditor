@@ -25,12 +25,12 @@ public class RasterizeShapeNode : Node
         Data = CreateInput<ShapeVectorData>("Points", "SHAPE", null);
     }
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
         var shape = Data.Value;
 
         if (shape == null || !shape.IsValid())
-            return null;
+            return;
 
         var size = context.DocumentSize;
         var image = RequestTexture(0, size);
@@ -39,7 +39,7 @@ public class RasterizeShapeNode : Node
 
         Image.Value = image;
         
-        return image;
+        return;
     }
 
     public override Node CreateCopy() => new RasterizeShapeNode();

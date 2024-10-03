@@ -5,6 +5,7 @@ using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using Avalonia.Threading;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
@@ -17,12 +18,25 @@ namespace PixiEditor.Views.Rendering;
 
 public class UniversalScene : Zoombox.Zoombox, ICustomHitTest
 {
-    public List<ISceneObject> SceneObjects { get; set; } = new List<ISceneObject>();
+    public static readonly StyledProperty<SceneRenderer> SceneRendererProperty = AvaloniaProperty.Register<UniversalScene, SceneRenderer>(
+        nameof(SceneRenderer));
+
+    public SceneRenderer SceneRenderer
+    {
+        get => GetValue(SceneRendererProperty);
+        set => SetValue(SceneRendererProperty, value);
+    }
 
     public override void Render(DrawingContext context)
     {
         // TODO: Do bounds pass, that will be used to calculate dirty bounds
-        var drawOperation = new DrawUniversalSceneOperation(SceneObjects, Bounds, CalculateTransformMatrix());
+        
+        if (SceneRenderer is null)
+        {
+            return;
+        }
+        
+        var drawOperation = new DrawUniversalSceneOperation(SceneRenderer.RenderScene, Bounds, CalculateTransformMatrix());
         context.Custom(drawOperation);
 
         Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
@@ -46,13 +60,13 @@ public class UniversalScene : Zoombox.Zoombox, ICustomHitTest
 
 class DrawUniversalSceneOperation : SkiaDrawOperation
 {
-    public List<ISceneObject> SceneObjects { get; set; }
+    public event Action<DrawingSurface> RenderScene;
     public Matrix TransformMatrix { get; set; }
 
-    public DrawUniversalSceneOperation(List<ISceneObject> sceneObjects, Rect dirtyBounds,
+    public DrawUniversalSceneOperation(Action<DrawingSurface> renderAction, Rect dirtyBounds,
         Matrix calculateTransformMatrix) : base(dirtyBounds)
     {
-        SceneObjects = sceneObjects;
+        RenderScene += renderAction;
         TransformMatrix = calculateTransformMatrix;
     }
 
@@ -66,21 +80,12 @@ class DrawUniversalSceneOperation : SkiaDrawOperation
         var originalMatrix = lease.SkSurface.Canvas.TotalMatrix;
 
         lease.SkSurface.Canvas.SetMatrix(TransformMatrix.ToSKMatrix());
-
-        foreach (ISceneObject sceneObject in SceneObjects)
-        {
-            RenderObject(lease, sceneObject);
-        }
+        DrawingSurface surface = DrawingSurface.FromNative(lease.SkSurface);
+        RenderScene?.Invoke(surface);
 
         DrawDebugGrid(lease.SkSurface.Canvas);
         lease.SkSurface.Canvas.SetMatrix(originalMatrix);
     }
-
-    private static void RenderObject(ISkiaSharpApiLease lease, ISceneObject sceneObject)
-    {
-        DrawingSurface surface = DrawingSurface.FromNative(lease.SkSurface);
-        sceneObject.RenderInScene(surface);
-    } 
 
     private void DrawDebugGrid(SKCanvas canvas)
     {
@@ -104,55 +109,5 @@ class DrawUniversalSceneOperation : SkiaDrawOperation
             canvas.DrawLine(i, -1000, i, 1000, new SKPaint() { Color = SKColors.White });
             canvas.DrawLine(-1000, i, 1000, i, new SKPaint() { Color = SKColors.White });
         }
-    }
-}
-
-public class RenderContext
-{
-    public DrawingSurface Surface { get; }
-    public RectD LocalBounds { get; }
-    
-    public RenderContext(DrawingSurface surface, RectD localBounds)
-    {
-        Surface = surface;
-        LocalBounds = localBounds;
-    }
-}
-
-public class RenderGraph
-{
-    public List<EffectNode> Nodes { get; set; } = new List<EffectNode>();
-
-    public void RenderInLocalSpace(RenderContext context)
-    {
-        foreach (EffectNode node in Nodes)
-        {
-            node.Render(context);
-        }
-    }
-}
-
-public abstract class EffectNode
-{
-    public abstract void Render(RenderContext context);
-}
-
-class DrawRectNode : EffectNode
-{
-    public override void Render(RenderContext context)
-    {
-        context.Surface.Canvas.DrawRect(0, 0, (int)context.LocalBounds.Width, (int)context.LocalBounds.Height, new Paint 
-            { Color = Colors.Aquamarine, BlendMode = BlendMode.Difference} );
-    }
-}
-
-class ApplyEffectNode : EffectNode
-{
-    public override void Render(RenderContext context)
-    {
-        using Paint paint = new Paint();
-        paint.ColorFilter = Filters.RedGrayscaleFilter;
-
-        context.Surface.Canvas.DrawPaint(paint);
     }
 }

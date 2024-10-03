@@ -5,7 +5,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
-public interface IReadOnlyStructureNode : IReadOnlyNode
+public interface IReadOnlyStructureNode : IReadOnlyNode, ISceneObject
 {
     public InputProperty<float> Opacity { get; }
     public InputProperty<bool> IsVisible { get; }

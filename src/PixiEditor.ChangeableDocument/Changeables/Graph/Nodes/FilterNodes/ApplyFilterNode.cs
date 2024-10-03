@@ -26,11 +26,11 @@ public class ApplyFilterNode : Node
         Filter = CreateInput<Filter>(nameof(Filter), "FILTER", null);
     }
     
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
         if (Input.Value is not { } input)
         {
-            return null;
+            return;
         }
         
         _paint.SetFilters(Filter.Value);
@@ -40,7 +40,6 @@ public class ApplyFilterNode : Node
         _workingSurface.DrawingSurface.Canvas.DrawSurface(input.DrawingSurface, 0, 0, _paint);
 
         Output.Value = _workingSurface;
-        return _workingSurface;
     }
 
     public override Node CreateCopy() => new ApplyFilterNode();

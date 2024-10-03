@@ -15,19 +15,19 @@ public abstract class ShapeNode<T> : Node where T : ShapeVectorData
         Output = CreateOutput<T>("Output", "OUTPUT", null);
     }
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
         var data = GetShapeData(context);
 
         Output.Value = data;
         
-        if (data == null || !data.IsValid())
-            return null;
+        /*if (data == null || !data.IsValid())
+            return;
 
-        return RasterizePreview(data, context.DocumentSize);
+        return RasterizePreview(data, context.DocumentSize);*/
     }
     
-    protected abstract T? GetShapeData(RenderingContext context);
+    protected abstract T? GetShapeData(RenderContext context);
 
     public Texture RasterizePreview(ShapeVectorData vectorData, VecI size)
     {

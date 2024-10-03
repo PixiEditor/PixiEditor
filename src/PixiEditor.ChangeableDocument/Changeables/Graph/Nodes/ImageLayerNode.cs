@@ -57,27 +57,28 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return (RectD?)GetLayerImageAtFrame(frameTime.Frame).FindTightCommittedBounds();
     }
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
-        var rendered = base.OnExecute(context);
+        base.OnExecute(context);
 
-        if (RawOutput.Connections.Count > 0)
+        /*if (RawOutput.Connections.Count > 0)
         {
-            var rawWorkingSurface = TryInitWorkingSurface(GetTargetSize(context), context, 2);
+            var rawWorkingSurface = TryInitWorkingSurface(GetTargetSize(context), context.ChunkResolution, 2);
             DrawLayer(context, rawWorkingSurface, true, useFilters: false);
 
             RawOutput.Value = rawWorkingSurface;
-        }
-
-        return rendered;
+        }*/
     }
 
-    protected override VecI GetTargetSize(RenderingContext ctx)
+    public override VecD ScenePosition => VecD.Zero;
+    public override VecD SceneSize => size;
+
+    protected override VecI GetTargetSize(RenderContext ctx)
     {
         return (GetFrameWithImage(ctx.FrameTime).Data as ChunkyImage).LatestSize;
     }
 
-    protected override void DrawWithoutFilters(RenderingContext ctx, Texture workingSurface, bool shouldClear,
+    protected override void DrawWithoutFilters(RenderContext ctx, Texture workingSurface, bool shouldClear,
         Paint paint)
     {
         var frameImage = GetFrameWithImage(ctx.FrameTime).Data as ChunkyImage;
@@ -88,13 +89,13 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                 ctx.ChunkToUpdate * ctx.ChunkResolution.PixelSize(),
                 blendPaint) && shouldClear)
         {
-            workingSurface.DrawingSurface.Canvas.DrawRect(CalculateDestinationRect(ctx), clearPaint);
+            workingSurface.DrawingSurface.Canvas.DrawRect((RectD)CalculateDestinationRect(ctx), clearPaint);
         }
     }
 
     // Draw with filters is a bit tricky since some filters sample data from chunks surrounding the chunk being drawn,
     // this is why we need to do intermediate drawing to a temporary surface and then apply filters to that surface
-    protected override void DrawWithFilters(RenderingContext context, Texture workingSurface,
+    protected override void DrawWithFilters(RenderContext context, Texture workingSurface,
         bool shouldClear, Paint paint)
     {
         var frameImage = GetFrameWithImage(context.FrameTime).Data as ChunkyImage;
@@ -137,7 +138,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         if (shouldClear)
         {
             workingSurface.DrawingSurface.Canvas.DrawRect(
-                new RectI(
+                new RectD(
                     VecI.Zero,
                     tempSize),
                 clearPaint);
@@ -210,7 +211,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     }
 
 
-    private void DrawChunk(ChunkyImage frameImage, RenderingContext context, Texture tempSurface, VecI vecI,
+    private void DrawChunk(ChunkyImage frameImage, RenderContext context, Texture tempSurface, VecI vecI,
         Paint paint)
     {
         VecI chunkPos = context.ChunkToUpdate + vecI;
@@ -237,14 +238,14 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return frameImage;
     }
 
-    protected override bool CacheChanged(RenderingContext context)
+    protected override bool CacheChanged(RenderContext context)
     {
         var frame = GetFrameWithImage(context.FrameTime);
 
         return base.CacheChanged(context) || frame?.RequiresUpdate == true;
     }
 
-    protected override void UpdateCache(RenderingContext context)
+    protected override void UpdateCache(RenderContext context)
     {
         base.UpdateCache(context);
         var imageFrame = GetFrameWithImage(context.FrameTime);

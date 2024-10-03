@@ -12,7 +12,7 @@ using DrawingApiBlendMode = PixiEditor.DrawingApi.Core.Surfaces.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
 
-public class RenderingContext : IDisposable
+public class RenderContext : IDisposable
 {
     public Paint BlendModePaint = new() { BlendMode = DrawingApiBlendMode.SrcOver };
     public Paint BlendModeOpacityPaint = new() { BlendMode = DrawingApiBlendMode.SrcOver };
@@ -27,7 +27,7 @@ public class RenderingContext : IDisposable
 
     public bool IsDisposed { get; private set; }
     
-    public RenderingContext(DrawingSurface targetSurface, KeyFrameTime frameTime, VecI chunkToUpdate, ChunkResolution chunkResolution, VecI docSize)
+    public RenderContext(DrawingSurface targetSurface, KeyFrameTime frameTime, VecI chunkToUpdate, ChunkResolution chunkResolution, VecI docSize)
     {
         TargetSurface = targetSurface;
         FrameTime = frameTime;

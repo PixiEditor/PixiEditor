@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
@@ -55,12 +56,12 @@ internal class RasterizeMember_Change : Change
         image.EnqueueDrawImage(VecI.Zero, surface);
         image.CommitChanges();
 
-        OutputProperty<Texture>? outputConnection = node.OutputProperties.FirstOrDefault(x => x is OutputProperty<Texture>) as OutputProperty<Texture>;
-        InputProperty<Texture>? outputConnectedInput =
-            outputConnection?.Connections.FirstOrDefault(x => x is InputProperty<Texture>) as InputProperty<Texture>;
+        OutputProperty<DrawingSurface>? outputConnection = node.OutputProperties.FirstOrDefault(x => x is OutputProperty<DrawingSurface>) as OutputProperty<DrawingSurface>;
+        InputProperty<DrawingSurface>? outputConnectedInput =
+            outputConnection?.Connections.FirstOrDefault(x => x is InputProperty<DrawingSurface>) as InputProperty<DrawingSurface>;
 
-        InputProperty<Texture> backgroundInput = imageLayer.Background;
-        OutputProperty<Texture> toAddOutput = imageLayer.Output;
+        InputProperty<DrawingSurface> backgroundInput = imageLayer.Background;
+        OutputProperty<DrawingSurface> toAddOutput = imageLayer.Output;
 
         List<IChangeInfo> changeInfos = new();
         changeInfos.Add(CreateNode_ChangeInfo.CreateFromNode(imageLayer));

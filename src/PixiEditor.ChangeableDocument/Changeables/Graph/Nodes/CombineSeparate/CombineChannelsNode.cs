@@ -40,12 +40,12 @@ public class CombineChannelsNode : Node
         Grayscale = CreateInput(nameof(Grayscale), "GRAYSCALE", false);
     }
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
         var size = GetSize();
 
         if (size == VecI.Zero)
-            return null;
+            return;
         
         var workingSurface = RequestTexture(0, size); 
 
@@ -75,8 +75,6 @@ public class CombineChannelsNode : Node
         }
 
         Image.Value = workingSurface;
-
-        return workingSurface;
     }
 
     private VecI GetSize()

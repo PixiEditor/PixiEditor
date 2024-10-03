@@ -24,7 +24,7 @@ public class EllipseNode : ShapeNode<EllipseVectorData>
         StrokeWidth = CreateInput<int>("StrokeWidth", "STROKE_WIDTH", 1);
     }
 
-    protected override EllipseVectorData? GetShapeData(RenderingContext context)
+    protected override EllipseVectorData? GetShapeData(RenderContext context)
     {
         return new EllipseVectorData(Position.Value, Radius.Value)
             { StrokeColor = StrokeColor.Value, FillColor = FillColor.Value, StrokeWidth = StrokeWidth.Value };

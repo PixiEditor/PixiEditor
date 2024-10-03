@@ -353,15 +353,6 @@ internal class DocumentUpdater
 
     private void ProcessSize(Size_ChangeInfo info)
     {
-        VecI oldSize = doc.SizeBindable;
-
-        foreach ((ChunkResolution res, Texture surf) in doc.Surfaces)
-        {
-            surf.Dispose();
-            VecI size = (VecI)(info.Size * res.Multiplier());
-            doc.Surfaces[res] = new Texture(new VecI(Math.Max(size.X, 1), Math.Max(size.Y, 1)));
-        }
-
         doc.SetSize(info.Size);
         doc.SetVerticalSymmetryAxisX(info.VerticalSymmetryAxisX);
         doc.SetHorizontalSymmetryAxisY(info.HorizontalSymmetryAxisY);

@@ -26,7 +26,7 @@ public class DocumentRenderer
     private IReadOnlyDocument Document { get; }
     public Texture OnionSkinTexture { get; set; }
 
-    public Texture RenderDocument(KeyFrameTime frameTime, ChunkResolution resolution, Texture toDrawOn = null,
+    /*public Texture RenderDocument(KeyFrameTime frameTime, ChunkResolution resolution, Texture toDrawOn = null,
         Paint paint = null)
     {
         VecI sizeInChunks = Document.Size / resolution.PixelSize();
@@ -65,15 +65,16 @@ public class DocumentRenderer
         }
 
         return toDrawOn;
-    }
+    }*/
     
     public OneOf<Chunk, EmptyChunk> RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime,
         RectI? globalClippingRect = null)
     {
-        RenderingContext context = new(frameTime, chunkPos, resolution, Document.Size);
+        //RenderingContext context = new(frameTime, chunkPos, resolution, Document.Size);
         try
         {
-            return RenderChunkOnGraph(chunkPos, resolution, globalClippingRect, Document.NodeGraph, context);
+            //return RenderChunkOnGraph(chunkPos, resolution, globalClippingRect, Document.NodeGraph, context);
+            return new EmptyChunk();
         }
         catch (ObjectDisposedException)
         {
@@ -81,17 +82,17 @@ public class DocumentRenderer
         }
         finally
         {
-            context.Dispose();
+            //context.Dispose();
         }
     }
 
     public OneOf<Chunk, EmptyChunk> RenderChunk(VecI chunkPos, ChunkResolution resolution,
         IReadOnlyNode node, KeyFrameTime frameTime, RectI? globalClippingRect = null)
     {
-        using RenderingContext context = new(frameTime, chunkPos, resolution, Document.Size);
+        //using RenderingContext context = new(frameTime, chunkPos, resolution, Document.Size);
         try
         {
-            RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
+            /*RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
 
             Texture? evaluated = node.Execute(context);
             if (evaluated is null)
@@ -103,7 +104,8 @@ public class DocumentRenderer
                 context);
             evaluated.Dispose();
 
-            return result;
+            return result;*/
+            return new EmptyChunk();
         }
         catch (ObjectDisposedException)
         {
@@ -111,6 +113,7 @@ public class DocumentRenderer
         }
     }
 
+    
     private static RectI? TransformClipRect(RectI? globalClippingRect, ChunkResolution resolution, VecI chunkPos)
     {
         if (globalClippingRect is not RectI rect)
@@ -124,17 +127,19 @@ public class DocumentRenderer
     public OneOf<Chunk, EmptyChunk> RenderLayersChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frame,
         HashSet<Guid> layersToCombine, RectI? globalClippingRect)
     {
-        using RenderingContext context = new(frame, chunkPos, resolution, Document.Size);
+        //using RenderingContext context = new(frame, chunkPos, resolution, Document.Size);
         IReadOnlyNodeGraph membersOnlyGraph = ConstructMembersOnlyGraph(layersToCombine, Document.NodeGraph);
         try
         {
-            return RenderChunkOnGraph(chunkPos, resolution, globalClippingRect, membersOnlyGraph, context);
+            //return RenderChunkOnGraph(chunkPos, resolution, globalClippingRect, membersOnlyGraph, context);
+            return new EmptyChunk();
         }
         catch (ObjectDisposedException)
         {
             return new EmptyChunk();
         }
     }
+    
     
     public Texture? RenderLayer(Guid nodeId, ChunkResolution resolution, KeyFrameTime frameTime)
     {
@@ -177,6 +182,7 @@ public class DocumentRenderer
         return texture;
     }
 
+    /*
     private static OneOf<Chunk, EmptyChunk> RenderChunkOnGraph(VecI chunkPos, ChunkResolution resolution,
         RectI? globalClippingRect,
         IReadOnlyNodeGraph graph, RenderingContext context)
@@ -227,6 +233,7 @@ public class DocumentRenderer
 
         return chunk;
     }
+    */
 
     public static IReadOnlyNodeGraph ConstructMembersOnlyGraph(IReadOnlyNodeGraph fullGraph)
     {
@@ -252,7 +259,7 @@ public class DocumentRenderer
             }
         });
 
-        IInputProperty<Texture> lastInput = outputNode.Input;
+        IInputProperty<DrawingSurface> lastInput = outputNode.Input;
 
         foreach (var layer in layersInOrder)
         {
@@ -269,7 +276,7 @@ public class DocumentRenderer
     private static OneOf<Chunk, EmptyChunk> ChunkFromResult(
         ChunkResolution resolution,
         RectI? transformedClippingRect, Image evaluated,
-        RenderingContext context)
+        RenderContext context)
     {
         Chunk chunk = Chunk.Create(resolution);
 

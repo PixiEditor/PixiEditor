@@ -14,7 +14,6 @@ namespace PixiEditor.DrawingApi.Core.Surfaces
     public class Canvas : NativeObject
     {
         public override object Native => DrawingBackendApi.Current.CanvasImplementation.GetNativeCanvas(ObjectPointer);
-        public Matrix3X3 ActiveMatrix => DrawingBackendApi.Current.CanvasImplementation.GetActiveMatrix(ObjectPointer);
 
         public event SurfaceChangedEventHandler? Changed;
 
@@ -30,23 +29,23 @@ namespace PixiEditor.DrawingApi.Core.Surfaces
             Changed?.Invoke(new RectD(posX, posY, 1, 1));
         }
 
-        public void DrawSurface(DrawingSurface original, int x, int y, Paint? paint)
+        public void DrawSurface(DrawingSurface original, float x, float y, Paint? paint)
         {
             DrawingBackendApi.Current.CanvasImplementation.DrawSurface(ObjectPointer, original, x, y, paint);
             Changed?.Invoke(null);
         }
 
-        public void DrawSurface(DrawingSurface original, int x, int y) => DrawSurface(original, x, y, null);
+        public void DrawSurface(DrawingSurface original, float x, float y) => DrawSurface(original, x, y, null);
 
         public void DrawSurface(DrawingSurface surfaceToDraw, VecI size, Paint paint)
         {
             DrawSurface(surfaceToDraw, size.X, size.Y, paint);
         }
 
-        public void DrawImage(Image image, int x, int y) =>
+        public void DrawImage(Image image, float x, float y) =>
             DrawingBackendApi.Current.CanvasImplementation.DrawImage(ObjectPointer, image, x, y);
         
-        public void DrawImage(Image image, int x, int y, Paint paint) =>
+        public void DrawImage(Image image, float x, float y, Paint paint) =>
             DrawingBackendApi.Current.CanvasImplementation.DrawImage(ObjectPointer, image, x, y, paint);
 
         public void DrawImage(Image image, RectD destRect, Paint paint) =>
@@ -104,7 +103,7 @@ namespace PixiEditor.DrawingApi.Core.Surfaces
             Changed?.Invoke(path.Bounds);
         }
 
-        public void DrawPoint(VecI pos, Paint paint)
+        public void DrawPoint(VecD pos, Paint paint)
         {
             DrawingBackendApi.Current.CanvasImplementation.DrawPoint(ObjectPointer, pos, paint);
             Changed?.Invoke(new RectD(pos.X, pos.Y, 1, 1));
@@ -116,31 +115,31 @@ namespace PixiEditor.DrawingApi.Core.Surfaces
             Changed?.Invoke(RectD.FromPoints(points));
         }
 
-        public void DrawRect(int x, int y, int width, int height, Paint paint)
+        public void DrawRect(float x, float y, float width, float height, Paint paint)
         {
             DrawingBackendApi.Current.CanvasImplementation.DrawRect(ObjectPointer, x, y, width, height, paint);
             Changed?.Invoke(new RectD(x, y, width, height));
         }
 
-        public void DrawCircle(int centerX, int centerY, int radius, Paint paint)
+        public void DrawCircle(float centerX, float centerY, float radius, Paint paint)
         {
             DrawingBackendApi.Current.CanvasImplementation.DrawCircle(ObjectPointer, centerX, centerY, radius, paint);
             Changed?.Invoke(new RectD(centerX - radius, centerY - radius, radius * 2, radius * 2));
         }
 
-        public void DrawCircle(VecI center, int radius, Paint paint) =>
-            DrawCircle(center.X, center.Y, radius, paint);
+        public void DrawCircle(VecD center, float radius, Paint paint) =>
+            DrawCircle((float)center.X, (float)center.Y, radius, paint);
 
-        public void DrawOval(int centerX, int centerY, int radiusX, int radiusY, Paint paint)
+        public void DrawOval(float centerX, float centerY, float radiusX, float radiusY, Paint paint)
         {
             DrawingBackendApi.Current.CanvasImplementation.DrawOval(ObjectPointer, centerX, centerY, radiusX, radiusY, paint);
             Changed?.Invoke(new RectD(centerX - radiusX, centerY - radiusY, radiusX * 2, radiusY * 2));
         }
 
-        public void DrawOval(VecI center, VecI radius, Paint paint) =>
-            DrawOval(center.X, center.Y, radius.X, radius.Y, paint);
+        public void DrawOval(VecD center, VecD radius, Paint paint) =>
+            DrawOval((float)center.X, (float)center.Y, (float)radius.X, (float)radius.Y, paint);
 
-        public void DrawRect(RectI rect, Paint paint) => DrawRect(rect.X, rect.Y, rect.Width, rect.Height, paint);
+        public void DrawRect(RectD rect, Paint paint) => DrawRect((float)rect.X, (float)rect.Y, (float)rect.Width, (float)rect.Height, paint);
 
         public void ClipPath(VectorPath clipPath) => ClipPath(clipPath, ClipOperation.Intersect);
 
@@ -169,7 +168,7 @@ namespace PixiEditor.DrawingApi.Core.Surfaces
             Changed?.Invoke(null);
         }
 
-        public void DrawLine(VecI from, VecI to, Paint paint)
+        public void DrawLine(VecD from, VecD to, Paint paint)
         {
             DrawingBackendApi.Current.CanvasImplementation.DrawLine(ObjectPointer, from, to, paint);
             Changed?.Invoke(new RectD(from, to));
@@ -221,11 +220,6 @@ namespace PixiEditor.DrawingApi.Core.Surfaces
         public override void Dispose()
         {
             DrawingBackendApi.Current.CanvasImplementation.Dispose(ObjectPointer);
-        }
-
-        public static Canvas FromNative(object native)
-        {
-            return DrawingBackendApi.Current.CanvasImplementation.FromNative(native);
         }
     }
 }

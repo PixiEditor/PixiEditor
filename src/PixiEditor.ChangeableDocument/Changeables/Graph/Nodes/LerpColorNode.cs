@@ -32,9 +32,8 @@ public class LerpColorNode : Node // TODO: ILerpable as inputs?
         return arg.NewHalf4(ShaderMath.Lerp(from, to, time)); 
     }
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
-        return null;
     }
 
     public override Node CreateCopy()

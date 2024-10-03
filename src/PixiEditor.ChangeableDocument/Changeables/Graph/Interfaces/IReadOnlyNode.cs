@@ -13,10 +13,9 @@ public interface IReadOnlyNode
     public IReadOnlyList<IOutputProperty> OutputProperties { get; }
     public IReadOnlyList<IReadOnlyKeyFrameData> KeyFrames { get; }
     public VecD Position { get; }
-    public Texture? CachedResult { get; }
     string DisplayName { get; }
 
-    public Texture? Execute(RenderingContext context);
+    public void Execute(RenderContext context);
     
     /// <summary>
     ///     Checks if the inputs are legal. If they are not, the node should not be executed.

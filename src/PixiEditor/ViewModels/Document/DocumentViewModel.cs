@@ -171,6 +171,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public DocumentToolsModule Tools { get; }
     public DocumentOperationsModule Operations { get; }
     public DocumentRenderer Renderer { get; }
+    public SceneRenderer SceneRenderer { get; }
     public DocumentEventsModule EventInlet { get; }
 
     public ActionDisplayList ActionDisplays { get; } =
@@ -264,6 +265,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         ReferenceLayerViewModel = new(this, Internals);
 
         Renderer = new DocumentRenderer(Internals.Tracker.Document);
+        SceneRenderer = new SceneRenderer(Internals.Tracker.Document, () => AnimationDataViewModel.ActiveFrameTime);
     }
 
     /// <summary>

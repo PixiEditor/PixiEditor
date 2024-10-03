@@ -7,6 +7,7 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.Changes.Structure;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
@@ -69,9 +70,9 @@ public static class NodeOperations
     }
 
     public static List<ConnectProperty_ChangeInfo> AppendMember(
-        InputProperty<Texture?> parentInput,
-        OutputProperty<Texture> toAddOutput,
-        InputProperty<Texture> toAddInput, Guid memberId)
+        InputProperty<DrawingSurface?> parentInput,
+        OutputProperty<DrawingSurface> toAddOutput,
+        InputProperty<DrawingSurface> toAddInput, Guid memberId)
     {
         List<ConnectProperty_ChangeInfo> changes = new();
         IOutputProperty? previouslyConnected = null;

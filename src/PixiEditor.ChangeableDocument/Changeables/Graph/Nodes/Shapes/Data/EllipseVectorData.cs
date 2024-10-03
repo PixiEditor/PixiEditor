@@ -37,7 +37,8 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
 
     private void Rasterize(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint, bool applyTransform)
     {
-        var imageSize = (VecI)(Radius * 2);
+        drawingSurface.Canvas.DrawOval(Radius, Radius, paint);
+        /*var imageSize = (VecI)(Radius * 2);
         
         using ChunkyImage img = new ChunkyImage((VecI)GeometryAABB.Size);
 
@@ -71,7 +72,7 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
         if (applyTransform)
         {
             drawingSurface.Canvas.RestoreToCount(num);
-        }
+        }*/
     }
 
     public override bool IsValid()

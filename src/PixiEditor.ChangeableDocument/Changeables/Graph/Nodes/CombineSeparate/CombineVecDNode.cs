@@ -32,9 +32,8 @@ public class CombineVecDNode : Node
         return ctx.NewFloat2(x, y); 
     }
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
-        return null;
     }
 
 

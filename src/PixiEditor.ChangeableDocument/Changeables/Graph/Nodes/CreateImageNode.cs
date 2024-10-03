@@ -25,11 +25,11 @@ public class CreateImageNode : Node
         Fill = CreateInput(nameof(Fill), "FILL", new Color(0, 0, 0, 255));
     }
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
         if (Size.Value.X <= 0 || Size.Value.Y <= 0)
         {
-            return null;
+            return;
         }
 
         var surface = RequestTexture(0, Size.Value); 
@@ -38,8 +38,6 @@ public class CreateImageNode : Node
         surface.DrawingSurface.Canvas.DrawPaint(_paint);
 
         Output.Value = surface;
-
-        return Output.Value;
     }
  
     public override Node CreateCopy() => new CreateImageNode();

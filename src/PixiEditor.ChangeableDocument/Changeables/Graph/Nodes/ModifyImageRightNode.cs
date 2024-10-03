@@ -38,26 +38,26 @@ public class ModifyImageRightNode : Node, IPairNode, ICustomShaderNode
         Output = CreateOutput<Texture>(nameof(Output), "OUTPUT", null);
     }
 
-    protected override Texture? OnExecute(RenderingContext renderingContext)
+    protected override void OnExecute(RenderContext renderContext)
     {
         if (OtherNode == null)
         {
             FindStartNode();
             if (OtherNode == null)
             {
-                return null;
+                return;
             }
         }
 
         var startNode = FindStartNode(); 
         if (startNode == null)
         {
-            return null;
+            return;
         }
         
         if (startNode.Image.Value is not { Size: var size })
         {
-            return null;
+            return;
         }
 
         var width = size.X;
@@ -67,18 +67,18 @@ public class ModifyImageRightNode : Node, IPairNode, ICustomShaderNode
 
         if (!surface.IsHardwareAccelerated)
         {
-            startNode.PreparePixmap(renderingContext);
+            startNode.PreparePixmap(renderContext);
 
             using Pixmap targetPixmap = surface.PeekReadOnlyPixels();
 
-            ModifyImageInParallel(renderingContext, targetPixmap, width, height);
+            ModifyImageInParallel(renderContext, targetPixmap, width, height);
 
-            startNode.DisposePixmap(renderingContext);
+            startNode.DisposePixmap(renderContext);
         }
         else
         {
             ShaderBuilder builder = new(size);
-            FuncContext context = new(renderingContext, builder);
+            FuncContext context = new(renderContext, builder);
 
             if (Coordinate.Connection != null)
             {
@@ -129,10 +129,9 @@ public class ModifyImageRightNode : Node, IPairNode, ICustomShaderNode
         }
         
         Output.Value = surface;
-        return surface;
     }
 
-    private unsafe void ModifyImageInParallel(RenderingContext renderingContext, Pixmap targetPixmap, int width,
+    private unsafe void ModifyImageInParallel(RenderContext renderContext, Pixmap targetPixmap, int width,
         int height)
     {
         int threads = Environment.ProcessorCount;

@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
@@ -40,9 +41,9 @@ internal class DuplicateLayer_Change : Change
         LayerNode clone = (LayerNode)existingLayer.Clone();
         clone.Id = duplicateGuid;
 
-        InputProperty<Texture?> targetInput = parent.InputProperties.FirstOrDefault(x =>
-            x.ValueType == typeof(Texture) &&
-            x.Connection.Node is StructureNode) as InputProperty<Texture?>;
+        InputProperty<DrawingSurface?> targetInput = parent.InputProperties.FirstOrDefault(x =>
+            x.ValueType == typeof(DrawingSurface) &&
+            x.Connection.Node is StructureNode) as InputProperty<DrawingSurface?>;
 
         List<IChangeInfo> operations = new();
 
