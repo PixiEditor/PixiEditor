@@ -47,6 +47,7 @@ steps:
 - task: NuGetToolInstaller@1
 
 - task: Cache@2
+  displayName: Cache dotnet workloads
   inputs:
     key: 'dotnetWorkloads-windows'
     path: 'C:\ProgramData\dotnet\workloads'
