@@ -46,6 +46,11 @@ steps:
 
 - task: NuGetToolInstaller@1
 
+- task: Cache@2
+  inputs:
+    key: 'dotnetWorkloads-windows'
+    path: 'C:\ProgramData\dotnet\workloads'
+
 - task: DotNetCoreCLI@2
   displayName: Install wasi-wasm
   inputs:
