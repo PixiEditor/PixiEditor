@@ -325,7 +325,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         TextBoxFocusBehavior.FallbackFocusElement.Focus();
     }
 
-    public UniversalScene Scene => scene;
+    public Scene Scene => scene;
 
     private void ForceRefreshFinalImage()
     {
