@@ -10,6 +10,12 @@ namespace PixiEditor.DrawingApi.Core.Surfaces
     {
         public override object Native => DrawingBackendApi.Current.SurfaceImplementation.GetNativeSurface(ObjectPointer);
         public Canvas Canvas { get; private set; }
+
+        public RectI DeviceClipBounds
+        {
+            get => DrawingBackendApi.Current.SurfaceImplementation.GetDeviceClipBounds(this);
+        }
+
         public event SurfaceChangedEventHandler? Changed;
 
         public DrawingSurface(IntPtr objPtr, Canvas canvas) : base(objPtr)

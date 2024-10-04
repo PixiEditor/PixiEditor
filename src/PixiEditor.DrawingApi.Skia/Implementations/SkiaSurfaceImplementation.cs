@@ -166,5 +166,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
             return CreateDrawingSurface(skSurface);
         }
+
+        public RectI GetDeviceClipBounds(DrawingSurface surface)
+        {
+            SKRectI rect = ManagedInstances[surface.ObjectPointer].Canvas.DeviceClipBounds;
+            return new RectI(rect.Left, rect.Top, rect.Width, rect.Height);
+        }
     }
 }

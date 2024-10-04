@@ -90,8 +90,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                 ctx.ChunkToUpdate * ctx.ChunkResolution.PixelSize(),
                 blendPaint) && shouldClear)
         {
-            // TODO: Is it necessary to clear the surface?
-            //workingSurface.Canvas.DrawRect((RectD)CalculateDestinationRect(ctx), clearPaint);
+            workingSurface.Canvas.DrawRect((RectD)CalculateDestinationRect(ctx), clearPaint);
         }
     }
 

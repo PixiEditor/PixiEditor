@@ -140,10 +140,10 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         return (MaskIsVisible.Value && (EmbeddedMask != null || CustomMask.Value != null)) || ClipToPreviousMember;
     }
 
-    protected void DrawBackground(DrawingSurface drawOnto, RenderContext context)
+    protected void DrawPreviousLayer(DrawingSurface drawOnto, LayerNode previousNode, SceneObjectRenderContext context)
     {
         blendPaint.Color = Colors.White;
-        DrawSurface(drawOnto, Background.Value, context, null);
+        previousNode.DrawLayer(context, drawOnto, false);
     }
 
     protected void DrawSurface(DrawingSurface workingSurface, DrawingSurface source, RenderContext context,
@@ -155,9 +155,10 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         RectI targetRect = CalculateDestinationRect(context);
         using var snapshot = source.DrawingSurface.Snapshot(sourceRect);
         */
-
+        
         blendPaint.SetFilters(filter);
-        workingSurface.Canvas.DrawSurface(source, 0, 0, blendPaint);
+        
+        workingSurface.Canvas.DrawSurface(source, source.DeviceClipBounds.X, source.DeviceClipBounds.Y, blendPaint);
     }
 
     protected RectI CalculateSourceRect(VecI targetSize, VecI sourceSize, RenderContext context)

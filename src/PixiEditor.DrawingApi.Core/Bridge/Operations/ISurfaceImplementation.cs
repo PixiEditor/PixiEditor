@@ -2,6 +2,7 @@
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.DrawingApi.Core.Bridge.Operations;
 
@@ -18,5 +19,6 @@ public interface ISurfaceImplementation
     public object GetNativeSurface(IntPtr objectPointer);
     public void Flush(DrawingSurface drawingSurface);
     public DrawingSurface FromNative(object native);
+    public RectI GetDeviceClipBounds(DrawingSurface surface);
 }
 
