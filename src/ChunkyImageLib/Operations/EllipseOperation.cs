@@ -21,7 +21,7 @@ internal class EllipseOperation : IMirroredDrawOperation
     private VectorPath? outerPath;
     private VectorPath? innerPath;
     
-    private VectorPath ellipseOutline;
+    private VectorPath? ellipseOutline;
     private Point[]? ellipse;
     private Point[]? ellipseFill;
     private RectI? ellipseFillRect;
@@ -102,14 +102,14 @@ internal class EllipseOperation : IMirroredDrawOperation
                 {
                     paint.Color = fillColor;
                     paint.Style = PaintStyle.Fill;
-                    surf.Canvas.DrawPath(ellipseOutline, paint);
+                    surf.Canvas.DrawPath(ellipseOutline!, paint);
                 }
                 
                 paint.Color = strokeColor;
                 paint.Style = PaintStyle.Stroke;
                 paint.StrokeWidth = 1f;
                 
-                surf.Canvas.DrawPath(ellipseOutline, paint);
+                surf.Canvas.DrawPath(ellipseOutline!, paint);
 
                 surf.Canvas.Restore();
             }

@@ -125,7 +125,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         remove => RemoveHandler(ViewportMovedEvent, value);
     }
 
-    public event Action<double> ScaleChanged;
+    public event Action<double>? ScaleChanged;
 
     public VecD CanvasPos => ToScreenSpace(VecD.Zero);
     public double CanvasX => ToScreenSpace(VecD.Zero).X;
