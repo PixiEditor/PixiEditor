@@ -111,13 +111,13 @@ internal class ActionAccumulator
             if (DrawingBackendApi.Current.IsHardwareAccelerated)
             {
                 renderResult.AddRange(canvasUpdater.UpdateGatheredChunksSync(affectedAreas,
-                    undoBoundaryPassed || viewportRefreshRequest));
+                    undoBoundaryPassed || viewportRefreshRequest, document.SelectedMembers)); 
                 renderResult.AddRange(previewUpdater.UpdateGatheredChunksSync(affectedAreas, undoBoundaryPassed));
             }
             else
             {
                 renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas,
-                    undoBoundaryPassed || viewportRefreshRequest));
+                    undoBoundaryPassed || viewportRefreshRequest, document.SelectedMembers));
                 renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
             }
 

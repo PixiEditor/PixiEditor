@@ -68,7 +68,7 @@ public class DocumentRenderer
         return toDrawOn;
     }*/
     
-    public void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime, Guid[] membersToUpdate)
+    public void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime, IReadOnlyCollection<Guid> membersToUpdate)
     {
         try
         {

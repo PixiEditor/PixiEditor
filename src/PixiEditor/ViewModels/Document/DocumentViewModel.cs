@@ -202,6 +202,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public ObservableRangeCollection<PaletteColor> Palette { get; set; } = new();
     public SnappingViewModel SnappingViewModel { get; }
     ISnappingHandler IDocument.SnappingHandler => SnappingViewModel;
+    public IReadOnlyCollection<Guid> SelectedMembers => GetSelectedMembers().AsReadOnly();
     public DocumentTransformViewModel TransformViewModel { get; }
     public ReferenceLayerViewModel ReferenceLayerViewModel { get; }
     public LineToolOverlayViewModel LineToolOverlayViewModel { get; }

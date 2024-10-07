@@ -71,18 +71,18 @@ internal class CanvasUpdater
     /// Don't call this outside ActionAccumulator
     /// </summary>
     public async Task<List<IRenderInfo>> UpdateGatheredChunks
-        (AffectedAreasGatherer chunkGatherer, bool rerenderDelayed)
+        (AffectedAreasGatherer chunkGatherer, bool rerenderDelayed, IReadOnlyCollection<Guid> membersToRender)
     {
-        return await Task.Run(() => Render(chunkGatherer, rerenderDelayed)).ConfigureAwait(true);
+        return await Task.Run(() => Render(chunkGatherer, rerenderDelayed, membersToRender)).ConfigureAwait(true);
     }
 
     /// <summary>
     /// Don't call this outside ActionAccumulator
     /// </summary>
     public List<IRenderInfo> UpdateGatheredChunksSync
-        (AffectedAreasGatherer chunkGatherer, bool rerenderDelayed)
+        (AffectedAreasGatherer chunkGatherer, bool rerenderDelayed, IReadOnlyCollection<Guid> documentSelectedMembers)
     {
-        return Render(chunkGatherer, rerenderDelayed);
+        return Render(chunkGatherer, rerenderDelayed, documentSelectedMembers);
     }
 
     private Dictionary<ChunkResolution, HashSet<VecI>> FindChunksVisibleOnViewports(bool onDelayed, bool all)
@@ -160,7 +160,8 @@ internal class CanvasUpdater
         }
     }
 
-    private List<IRenderInfo> Render(AffectedAreasGatherer chunkGatherer, bool rerenderDelayed)
+    private List<IRenderInfo> Render(AffectedAreasGatherer chunkGatherer, bool rerenderDelayed,
+        IReadOnlyCollection<Guid> membersToRender)
     {
         Dictionary<ChunkResolution, HashSet<VecI>> chunksToRerender =
             FindGlobalChunksToRerender(chunkGatherer, rerenderDelayed);
@@ -194,12 +195,12 @@ internal class CanvasUpdater
 
         List<IRenderInfo> infos = new();
         UpdateMainImage(chunksToRerender, updatingStoredChunks ? null : chunkGatherer.MainImageArea.GlobalArea.Value,
-            infos);
+            infos, membersToRender);
         return infos;
     }
 
     private void UpdateMainImage(Dictionary<ChunkResolution, HashSet<VecI>> chunksToRerender,
-        RectI? globalClippingRectangle, List<IRenderInfo> infos)
+        RectI? globalClippingRectangle, List<IRenderInfo> infos, IReadOnlyCollection<Guid> membersToRender)
     {
         if (chunksToRerender.Count == 0)
             return;
@@ -214,8 +215,7 @@ internal class CanvasUpdater
             
             foreach (var chunkPos in chunks)
             {
-                RenderChunk(chunkPos, resolution, globalClippingRectangle,
-                    globalScaledClippingRectangle);
+                RenderChunk(chunkPos, resolution, membersToRender);
                 RectI chunkRect = new(chunkPos * chunkSize, new(chunkSize, chunkSize));
                 if (globalScaledClippingRectangle is RectI rect)
                     chunkRect = chunkRect.Intersect(rect);
@@ -328,9 +328,8 @@ internal class CanvasUpdater
         }
     }
 
-    private void RenderChunk(VecI chunkPos, ChunkResolution resolution,
-        RectI? globalClippingRectangle, RectI? globalScaledClippingRectangle)
+    private void RenderChunk(VecI chunkPos, ChunkResolution resolution, IReadOnlyCollection<Guid> membersToRender)
     {
-        doc.Renderer.RenderChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameTime, );
+        doc.Renderer.RenderChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameTime, membersToRender);
     }
 }

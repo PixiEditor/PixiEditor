@@ -41,6 +41,7 @@ internal interface IDocument : IHandler
     public IDocumentOperations Operations { get; }
     public DocumentRenderer Renderer { get; }
     public ISnappingHandler SnappingHandler { get; }
+    public IReadOnlyCollection<Guid> SelectedMembers { get; }
     public void RemoveSoftSelectedMember(IStructureMemberHandler member);
     public void ClearSoftSelectedMembers();
     public void AddSoftSelectedMember(IStructureMemberHandler member);
