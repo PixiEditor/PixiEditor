@@ -533,13 +533,15 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 {
                     for (int j = 0; j < sizeInChunks.Y; j++)
                     {
-                        var maybeChunk = Renderer.RenderChunk(new(i, j), ChunkResolution.Full, frameTime);
-                        if (maybeChunk.IsT1)
-                            return;
+                        // TODO: Implement this
+                        /*
+                        Renderer.RenderChunk(new(i, j), ChunkResolution.Full, frameTime);
+                        
                         using Chunk chunk = maybeChunk.AsT0;
                         finalSurface.DrawingSurface.Canvas.DrawSurface(
                             chunk.Surface.DrawingSurface,
                             i * ChunkyImage.FullChunkSize, j * ChunkyImage.FullChunkSize);
+                    */
                     }
                 }
             });
@@ -708,7 +710,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             if (scope == DocumentScope.AllLayers)
             {
                 VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize);
-                return Renderer.RenderChunk(chunkPos, ChunkResolution.Full,
+                // TODO: Implement this
+                /*return Renderer.RenderChunk(chunkPos, ChunkResolution.Full,
                         frameTime)
                     .Match(
                         chunk =>
@@ -718,7 +721,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                             chunk.Dispose();
                             return color;
                         },
-                        _ => Colors.Transparent);
+                        _ => Colors.Transparent);*/
             }
 
             if (SelectedStructureMember is not ILayerHandler layerVm)

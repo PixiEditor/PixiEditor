@@ -9,7 +9,7 @@ public class SceneObjectRenderContext : RenderContext
 {
     public RectD LocalBounds { get; }
 
-    public SceneObjectRenderContext(DrawingSurface surface, RectD localBounds, KeyFrameTime frameTime, VecI chunkToUpdate, ChunkResolution chunkResolution, VecI docSize) : base(surface, frameTime, chunkToUpdate, chunkResolution, docSize)
+    public SceneObjectRenderContext(DrawingSurface surface, RectD localBounds, KeyFrameTime frameTime, ChunkResolution chunkResolution, VecI docSize) : base(surface, frameTime, chunkResolution, docSize)
     {
         LocalBounds = localBounds;
     }

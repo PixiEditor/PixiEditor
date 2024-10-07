@@ -19,7 +19,7 @@ public class RenderContext : IDisposable
     public Paint ReplacingPaintWithOpacity = new() { BlendMode = DrawingApiBlendMode.Src };
 
     public KeyFrameTime FrameTime { get; }
-    public VecI ChunkToUpdate { get; }
+    public VecI? ChunkToUpdate { get; set; }
     public ChunkResolution ChunkResolution { get; }
     public VecI DocumentSize { get; set; }
     
@@ -27,11 +27,10 @@ public class RenderContext : IDisposable
 
     public bool IsDisposed { get; private set; }
     
-    public RenderContext(DrawingSurface targetSurface, KeyFrameTime frameTime, VecI chunkToUpdate, ChunkResolution chunkResolution, VecI docSize)
+    public RenderContext(DrawingSurface targetSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution, VecI docSize)
     {
         TargetSurface = targetSurface;
         FrameTime = frameTime;
-        ChunkToUpdate = chunkToUpdate;
         ChunkResolution = chunkResolution;
         DocumentSize = docSize;
     }

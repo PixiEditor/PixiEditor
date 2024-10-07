@@ -79,7 +79,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         sceneSurface.Canvas.Translate((float)ScenePosition.X, (float)ScenePosition.Y);
         
         SceneObjectRenderContext renderObjectContext = new SceneObjectRenderContext(sceneSurface, localBounds, 
-            context.FrameTime, context.ChunkToUpdate, context.ChunkResolution, context.DocumentSize);
+            context.FrameTime, context.ChunkResolution, context.DocumentSize) { ChunkToUpdate = context.ChunkToUpdate };
         
         Render(renderObjectContext);
         
@@ -101,10 +101,10 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
             else if (EmbeddedMask != null)
             {
                 EmbeddedMask.DrawMostUpToDateChunkOn(
-                    context.ChunkToUpdate,
+                    context.ChunkToUpdate.Value,
                     context.ChunkResolution,
                     surface,
-                    context.ChunkToUpdate * context.ChunkResolution.PixelSize(),
+                    context.ChunkToUpdate.Value * context.ChunkResolution.PixelSize(),
                     maskPaint);
             }
         }
@@ -171,7 +171,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         }
 
         int chunkSize = (int)Math.Round(context.ChunkResolution.PixelSize() / divider);
-        VecI chunkPos = context.ChunkToUpdate;
+        VecI chunkPos = context.ChunkToUpdate.Value;
 
         int x = (int)(chunkPos.X * chunkSize);
         int y = (int)(chunkPos.Y * chunkSize);
@@ -187,7 +187,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     protected RectI CalculateDestinationRect(RenderContext context)
     {
         int chunkSize = context.ChunkResolution.PixelSize();
-        VecI chunkPos = context.ChunkToUpdate;
+        VecI chunkPos = context.ChunkToUpdate.Value;
 
         int x = chunkPos.X * chunkSize;
         int y = chunkPos.Y * chunkSize;

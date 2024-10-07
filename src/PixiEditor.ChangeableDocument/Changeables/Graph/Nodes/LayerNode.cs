@@ -14,6 +14,11 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
     protected Dictionary<(ChunkResolution, int), Texture> workingSurfaces =
         new Dictionary<(ChunkResolution, int), Texture>();
 
+    public LayerNode()
+    {
+    }
+
+    
     public override void Render(SceneObjectRenderContext sceneContext)
     {
         if (!IsVisible.Value || Opacity.Value <= 0 || IsEmptyMask())
@@ -55,6 +60,14 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
     {
         if (Output.Connections.Count > 0)
         {
+            //Texture cached = TryInitWorkingSurface(size, context.ChunkResolution, -1);
+            if (context.ChunkToUpdate == null)
+            {
+                //renderOnto.Canvas.DrawSurface(, 0, 0, blendPaint);
+                DrawLayer(context, renderOnto, shouldClear);
+                return;
+            }
+
             if (!HasOperations())
             {
                 if (Background.Value != null)
@@ -63,7 +76,6 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
                 }
                 
                 DrawLayer(context, renderOnto, false);
-
                 return;
             }
 
@@ -88,11 +100,11 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
                 tempSurface.DrawingSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0,
                     blendPaint);
 
-                renderOnto.Canvas.DrawSurface(tempSurface.DrawingSurface, VecI.Zero, blendPaint);
+                //cached.DrawingSurface.Canvas.DrawSurface(tempSurface.DrawingSurface, VecI.Zero, blendPaint);
                 return;
             }
 
-            renderOnto.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
+            //cached.DrawingSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
         }
     }
 

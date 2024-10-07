@@ -13,6 +13,8 @@ namespace PixiEditor.ChangeableDocument.Rendering;
 
 public class DocumentRenderer
 {
+    private Dictionary<ChunkResolution, Texture> updateCanvases = new Dictionary<ChunkResolution, Texture>();
+    
     private Paint ClearPaint { get; } = new Paint()
     {
         BlendMode = BlendMode.Src, Color = PixiEditor.DrawingApi.Core.ColorsImpl.Colors.Transparent
@@ -67,22 +69,32 @@ public class DocumentRenderer
         return toDrawOn;
     }*/
     
-    public OneOf<Chunk, EmptyChunk> RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime,
+    public void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime,
         RectI? globalClippingRect = null)
     {
-        //RenderingContext context = new(frameTime, chunkPos, resolution, Document.Size);
+        Texture target;
+        if(updateCanvases.TryGetValue(resolution, out Texture canvas))
+        {
+            target = canvas;
+        }
+        else
+        {
+            target = new Texture(Document.Size);
+            updateCanvases[resolution] = target;
+        }
+        
+        RenderContext context = new(target.DrawingSurface, frameTime, resolution, Document.Size);
+        context.ChunkToUpdate = chunkPos;
         try
         {
-            //return RenderChunkOnGraph(chunkPos, resolution, globalClippingRect, Document.NodeGraph, context);
-            return new EmptyChunk();
+            Document.NodeGraph.Execute(context);
         }
         catch (ObjectDisposedException)
         {
-            return new EmptyChunk();
         }
         finally
         {
-            //context.Dispose();
+            context.Dispose();
         }
     }
 

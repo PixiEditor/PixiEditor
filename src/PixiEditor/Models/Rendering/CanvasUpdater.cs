@@ -211,12 +211,10 @@ internal class CanvasUpdater
             if (globalClippingRectangle is not null)
                 globalScaledClippingRectangle =
                     (RectI?)((RectI)globalClippingRectangle).Scale(resolution.Multiplier()).RoundOutwards();
-
-            /*
-            Texture screenSurface = doc.Surfaces[resolution];
+            
             foreach (var chunkPos in chunks)
             {
-                RenderChunk(chunkPos, screenSurface, resolution, globalClippingRectangle,
+                RenderChunk(chunkPos, resolution, globalClippingRectangle,
                     globalScaledClippingRectangle);
                 RectI chunkRect = new(chunkPos * chunkSize, new(chunkSize, chunkSize));
                 if (globalScaledClippingRectangle is RectI rect)
@@ -228,7 +226,6 @@ internal class CanvasUpdater
                     resolution
                 ));
             }
-        */
         }
     }
 
@@ -331,50 +328,9 @@ internal class CanvasUpdater
         }
     }
 
-    /*private void RenderChunk(VecI chunkPos, Texture screenSurface, ChunkResolution resolution,
+    private void RenderChunk(VecI chunkPos, ChunkResolution resolution,
         RectI? globalClippingRectangle, RectI? globalScaledClippingRectangle)
     {
-        if (screenSurface is null || screenSurface.IsDisposed)
-            return;
-
-
-        doc.Renderer.RenderChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameTime, globalClippingRectangle)
-            .Switch(
-                (Chunk chunk) =>
-                {
-                    if (screenSurface.IsDisposed) return;
-
-                    if (globalScaledClippingRectangle is not null)
-                    {
-                        screenSurface.DrawingSurface.Canvas.Save();
-                        screenSurface.DrawingSurface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
-                    }
-
-                    screenSurface.DrawingSurface.Canvas.DrawSurface(
-                        chunk.Surface.DrawingSurface,
-                        chunkPos.Multiply(new VecI(resolution.PixelSize())), ReplacingPaint);
-                    chunk.Dispose();
-
-
-                    if (globalScaledClippingRectangle is not null)
-                        screenSurface.DrawingSurface.Canvas.Restore();
-                },
-                (EmptyChunk _) =>
-                {
-                    if (screenSurface.IsDisposed) return;
-
-                    if (globalScaledClippingRectangle is not null)
-                    {
-                        screenSurface.DrawingSurface.Canvas.Save();
-                        screenSurface.DrawingSurface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
-                    }
-
-                    var pos = chunkPos * resolution.PixelSize();
-                    screenSurface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(),
-                        resolution.PixelSize(), ClearPaint);
-
-                    if (globalScaledClippingRectangle is not null)
-                        screenSurface.DrawingSurface.Canvas.Restore();
-                });
-    }*/
+        doc.Renderer.RenderChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameTime, globalClippingRectangle);
+    }
 }
