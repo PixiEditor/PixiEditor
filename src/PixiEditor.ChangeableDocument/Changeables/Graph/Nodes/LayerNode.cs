@@ -60,10 +60,8 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
     {
         if (Output.Connections.Count > 0)
         {
-            //Texture cached = TryInitWorkingSurface(size, context.ChunkResolution, -1);
             if (context.ChunkToUpdate == null)
             {
-                //renderOnto.Canvas.DrawSurface(, 0, 0, blendPaint);
                 DrawLayer(context, renderOnto, shouldClear);
                 return;
             }

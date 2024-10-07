@@ -23,11 +23,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     private VecI size;
     private ChunkyImage layerImage => keyFrames[0]?.Data as ChunkyImage;
 
-    private Dictionary<ChunkResolution, Texture> renderedSurfaces = new();
-
-
-    protected Dictionary<(ChunkResolution, int), Texture> workingSurfaces =
-        new Dictionary<(ChunkResolution, int), Texture>();
 
     private static readonly Paint clearPaint = new()
     {
@@ -42,6 +37,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     protected override bool AffectedByChunkToUpdate => true;
 
+    private Dictionary<ChunkResolution, Texture> renderedSurfaces = new();
+
     public ImageLayerNode(VecI size)
     {
         RawOutput = CreateOutput<Texture>(nameof(RawOutput), "RAW_LAYER_OUTPUT", null);
@@ -52,6 +49,11 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
 
         this.size = size;
+        
+        renderedSurfaces[ChunkResolution.Full] = new Texture(size);
+        renderedSurfaces[ChunkResolution.Half] = new Texture(new VecI(Math.Max(size.X / 2, 1), Math.Max(size.Y / 2, 1))); 
+        renderedSurfaces[ChunkResolution.Quarter] = new Texture(new VecI(Math.Max(size.X / 4, 1), Math.Max(size.Y / 4, 1)));
+        renderedSurfaces[ChunkResolution.Eighth] = new Texture(new VecI(Math.Max(size.X / 8, 1), Math.Max(size.Y / 8, 1)));
     }
 
 
@@ -85,44 +87,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         bool shouldClear,
         Paint paint)
     {
-        //if (ctx.ChunkToUpdate != null)
-        {
-            var frameImage = GetFrameWithImage(ctx.FrameTime).Data as ChunkyImage;
-            /*if (!frameImage.DrawMostUpToDateChunkOn(
-                    ctx.ChunkToUpdate.Value,
-                    ctx.ChunkResolution,
-                    workingSurface,
-                    ctx.ChunkToUpdate.Value * ctx.ChunkResolution.PixelSize(),
-                    blendPaint) && shouldClear)
-            {
-                workingSurface.Canvas.DrawRect((RectD)CalculateDestinationRect(ctx), clearPaint);
-            }*/
-
-            int chunksInDocumentX = (int)((float)ctx.DocumentSize.X / ChunkyImage.FullChunkSize);
-            int chunksInDocumentY = (int)((float)ctx.DocumentSize.Y / ChunkyImage.FullChunkSize);
-
-            chunksInDocumentX = Math.Max(1, chunksInDocumentX);
-            chunksInDocumentY = Math.Max(1, chunksInDocumentY);
-
-            for (int y = 0; y < chunksInDocumentY; y++)
-            {
-                for (int x = 0; x < chunksInDocumentX; x++)
-                {
-                    bool isVisible = ctx.VisibleChunks.Contains(new VecI(x, y));
-                    if (!isVisible)
-                    {
-                        continue;
-                    }
-                    
-                    frameImage.DrawMostUpToDateChunkOn(
-                        new VecI(x, y),
-                        ctx.ChunkResolution,
-                        workingSurface,
-                        new VecI(x, y) * ctx.ChunkResolution.PixelSize(),
-                        blendPaint);
-                }
-            }
-        }
+        workingSurface.Canvas.DrawSurface(renderedSurfaces[ctx.ChunkResolution].DrawingSurface, VecI.Zero, paint); 
     }
 
     // Draw with filters is a bit tricky since some filters sample data from chunks surrounding the chunk being drawn,
@@ -130,6 +95,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     protected override void DrawWithFilters(SceneObjectRenderContext context, DrawingSurface workingSurface,
         bool shouldClear, Paint paint)
     {
+        // TODO: Implement non-chunk rendering
         var frameImage = GetFrameWithImage(context.FrameTime).Data as ChunkyImage;
 
         VecI chunkToUpdate = context.ChunkToUpdate.Value;
@@ -319,6 +285,25 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         SetLayerImageAtFrame(frame, (ChunkyImage)newLayerImage);
 
     void IReadOnlyImageNode.ForEveryFrame(Action<IReadOnlyChunkyImage> action) => ForEveryFrame(action);
+    
+    public void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime)
+    {
+        var img = GetLayerImageAtFrame(frameTime.Frame);
+
+        if (img is null)
+        {
+            return;
+        }
+
+        img.DrawMostUpToDateChunkOn(
+            chunkPos,
+            resolution,
+            renderedSurfaces[resolution].DrawingSurface,
+            chunkPos * resolution.PixelSize(),
+            blendPaint);
+        
+        renderedSurfaces[resolution].DrawingSurface.Flush();
+    }
 
     public void ForEveryFrame(Action<ChunkyImage> action)
     {

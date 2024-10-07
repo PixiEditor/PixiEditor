@@ -331,6 +331,6 @@ internal class CanvasUpdater
     private void RenderChunk(VecI chunkPos, ChunkResolution resolution,
         RectI? globalClippingRectangle, RectI? globalScaledClippingRectangle)
     {
-        doc.Renderer.RenderChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameTime, globalClippingRectangle);
+        doc.Renderer.RenderChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameTime, );
     }
 }

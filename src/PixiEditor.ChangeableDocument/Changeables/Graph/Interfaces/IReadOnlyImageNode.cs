@@ -1,4 +1,6 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
@@ -12,4 +14,5 @@ public interface IReadOnlyImageNode : IReadOnlyLayerNode, ITransparencyLockable
     public IReadOnlyChunkyImage GetLayerImageByKeyFrameGuid(Guid keyFrameGuid);
     void SetLayerImageAtFrame(int frame, IReadOnlyChunkyImage image);
     public void ForEveryFrame(Action<IReadOnlyChunkyImage> action);
+    public void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime);
 }
