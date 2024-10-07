@@ -20,6 +20,7 @@ public class RenderContext : IDisposable
 
     public KeyFrameTime FrameTime { get; }
     public VecI? ChunkToUpdate { get; set; }
+    public HashSet<VecI> VisibleChunks { get; set; } = new();
     public ChunkResolution ChunkResolution { get; }
     public VecI DocumentSize { get; set; }
     

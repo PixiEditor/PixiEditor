@@ -458,7 +458,6 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
 
     /// <summary>
     /// Tries it's best to return a committed chunk, either if it exists or if it can be created from it's high res version. Returns null if it can't.
-    /// </summary>
     private Chunk? GetCommittedChunk(VecI pos, ChunkResolution resolution)
     {
         var maybeSameRes = MaybeGetCommittedChunk(pos, resolution);

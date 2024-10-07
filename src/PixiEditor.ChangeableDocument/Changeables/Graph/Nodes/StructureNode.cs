@@ -79,7 +79,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         sceneSurface.Canvas.Translate((float)ScenePosition.X, (float)ScenePosition.Y);
         
         SceneObjectRenderContext renderObjectContext = new SceneObjectRenderContext(sceneSurface, localBounds, 
-            context.FrameTime, context.ChunkResolution, context.DocumentSize) { ChunkToUpdate = context.ChunkToUpdate };
+            context.FrameTime, context.ChunkResolution, context.DocumentSize) { ChunkToUpdate = context.ChunkToUpdate, VisibleChunks = context.VisibleChunks };
         
         Render(renderObjectContext);
         

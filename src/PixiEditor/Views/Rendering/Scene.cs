@@ -10,6 +10,7 @@ using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using Avalonia.Threading;
 using ChunkyImageLib.DataHolders;
+using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Bridge;
@@ -54,14 +55,16 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         AvaloniaProperty.Register<Scene, ViewportColorChannels>(
             nameof(Channels));
 
-    public static readonly StyledProperty<SceneRenderer> SceneRendererProperty = AvaloniaProperty.Register<Scene, SceneRenderer>(
-        nameof(SceneRenderer));
+    public static readonly StyledProperty<SceneRenderer> SceneRendererProperty =
+        AvaloniaProperty.Register<Scene, SceneRenderer>(
+            nameof(SceneRenderer));
 
     public SceneRenderer SceneRenderer
     {
         get => GetValue(SceneRendererProperty);
         set => SetValue(SceneRendererProperty, value);
     }
+
     public Cursor DefaultCursor
     {
         get => GetValue(DefaultCursorProperty);
@@ -134,6 +137,30 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         };
     }
 
+    private ChunkResolution CalculateResolution()
+    {
+        VecD densityVec = Dimensions.Divide(RealDimensions);
+        double density = Math.Min(densityVec.X, densityVec.Y);
+        if (density > 8.01)
+            return ChunkResolution.Eighth;
+        else if (density > 4.01)
+            return ChunkResolution.Quarter;
+        else if (density > 2.01)
+            return ChunkResolution.Half;
+        return ChunkResolution.Full;
+    }
+
+    private HashSet<VecI> FindChunksVisibleOnViewports()
+    {
+        var viewportChunks = OperationHelper.FindChunksTouchingRectangle(
+            Center,
+            Dimensions,
+            -AngleRadians,
+            ChunkResolution.Full.PixelSize());
+
+        return viewportChunks;
+    }
+
     public override void Render(DrawingContext context)
     {
         if (Document == null) return;
@@ -142,10 +169,14 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
         float resolutionScale = CalculateResolutionScale();
 
-        RectD dirtyBounds = new RectD(0, 0, Document.Width / resolutionScale, Document.Height / resolutionScale);
+        RectD dirtyBounds = new RectD(0, 0, Document.Width, Document.Height);
         Rect dirtyRect = new Rect(0, 0, Document.Width / resolutionScale, Document.Height / resolutionScale);
 
-        using var operation = new DrawSceneOperation(SceneRenderer.RenderScene, Document, CanvasPos, Scale * resolutionScale,
+        SceneRenderer.Resolution = CalculateResolution();
+        SceneRenderer.VisibleChunks = FindChunksVisibleOnViewports();
+
+        using var operation = new DrawSceneOperation(SceneRenderer.RenderScene, Document, CanvasPos,
+            Scale * resolutionScale,
             resolutionScale, angle,
             FlipX, FlipY,
             dirtyRect,
@@ -156,17 +187,18 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         context.PushTransform(matrix);
         context.PushRenderOptions(new RenderOptions { BitmapInterpolationMode = BitmapInterpolationMode.None });
 
-        var resolutionTransformation = context.PushTransform(Matrix.CreateScale(resolutionScale, resolutionScale));
+        //var resolutionTransformation = context.PushTransform(Matrix.CreateScale(resolutionScale, resolutionScale));
 
-        DrawCheckerboard(context, dirtyRect, new RectI(0, 0, operation.Document.SizeBindable.X, operation.Document.SizeBindable.Y));
+        DrawCheckerboard(context, dirtyRect,
+            new RectI(0, 0, operation.Document.SizeBindable.X, operation.Document.SizeBindable.Y));
 
-        resolutionTransformation.Dispose();
+        //resolutionTransformation.Dispose();
 
         Cursor = DefaultCursor;
 
         DrawOverlays(context, dirtyBounds, OverlayRenderSorting.Background);
 
-        resolutionTransformation = context.PushTransform(Matrix.CreateScale(resolutionScale, resolutionScale));
+        var resolutionTransformation = context.PushTransform(Matrix.CreateScale(resolutionScale, resolutionScale));
         context.Custom(operation);
 
         resolutionTransformation.Dispose();
@@ -373,14 +405,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private float CalculateResolutionScale()
     {
-        // TODO: Implement;
-        return 1;
-        /*
-        float scaleX = (float)Document.Width / Surface.Size.X;
-        float scaleY = (float)Document.Height / Surface.Size.Y;
-        var scaleUniform = Math.Min(scaleX, scaleY);
-        return scaleUniform;
-    */
+        var resolution = CalculateResolution();
+        return (float)resolution.InvertedMultiplier();
     }
 
     private void CaptureOverlay(Overlay? overlay, IPointer pointer)
@@ -491,16 +517,17 @@ internal class DrawSceneOperation : SkiaDrawOperation
     public bool FlipY { get; set; }
     public Rect ViewportBounds { get; }
 
-    
+
     public Action<DrawingSurface> RenderScene;
 
     private double opacity;
 
-    public DrawSceneOperation(Action<DrawingSurface> renderAction, DocumentViewModel document, VecD contentPosition, double scale,
+    public DrawSceneOperation(Action<DrawingSurface> renderAction, DocumentViewModel document, VecD contentPosition,
+        double scale,
         double resolutionScale,
         double angle, bool flipX, bool flipY, Rect dirtyBounds, Rect viewportBounds, double opacity) : base(dirtyBounds)
     {
-        RenderScene = renderAction; 
+        RenderScene = renderAction;
         Document = document;
         ContentPosition = contentPosition;
         Scale = scale;
@@ -520,7 +547,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
         int count = canvas.Save();
 
-        using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
+        //using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
 
         using SKPaint paint = new SKPaint();
         paint.Color = paint.Color.WithAlpha((byte)(opacity * 255));
@@ -529,7 +556,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
         DrawingSurface surface = DrawingSurface.FromNative(lease.SkSurface);
         RenderScene?.Invoke(surface);
-        
+
         canvas.RestoreToCount(count);
     }
 

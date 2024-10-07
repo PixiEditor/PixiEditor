@@ -98,10 +98,22 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                 workingSurface.Canvas.DrawRect((RectD)CalculateDestinationRect(ctx), clearPaint);
             }*/
 
-            for (int y = 0; y < 8; y++)
+            int chunksInDocumentX = (int)((float)ctx.DocumentSize.X / ChunkyImage.FullChunkSize);
+            int chunksInDocumentY = (int)((float)ctx.DocumentSize.Y / ChunkyImage.FullChunkSize);
+
+            chunksInDocumentX = Math.Max(1, chunksInDocumentX);
+            chunksInDocumentY = Math.Max(1, chunksInDocumentY);
+
+            for (int y = 0; y < chunksInDocumentY; y++)
             {
-                for (int x = 0; x < 8; x++)
+                for (int x = 0; x < chunksInDocumentX; x++)
                 {
+                    bool isVisible = ctx.VisibleChunks.Contains(new VecI(x, y));
+                    if (!isVisible)
+                    {
+                        continue;
+                    }
+                    
                     frameImage.DrawMostUpToDateChunkOn(
                         new VecI(x, y),
                         ctx.ChunkResolution,
