@@ -141,13 +141,13 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         VecD densityVec = Dimensions.Divide(RealDimensions);
         double density = Math.Min(densityVec.X, densityVec.Y);
-        if (density > 8.01)
-            return ChunkResolution.Eighth;
-        else if (density > 4.01)
-            return ChunkResolution.Quarter;
-        else if (density > 2.01)
-            return ChunkResolution.Half;
-        return ChunkResolution.Full;
+        return density switch
+        {
+            > 8.01 => ChunkResolution.Eighth,
+            > 4.01 => ChunkResolution.Quarter,
+            > 2.01 => ChunkResolution.Half,
+            _ => ChunkResolution.Full
+        };
     }
 
     public override void Render(DrawingContext context)
