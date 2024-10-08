@@ -82,6 +82,16 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return (GetFrameWithImage(ctx.FrameTime).Data as ChunkyImage).LatestSize;
     }
 
+    protected internal override void DrawLayer(SceneObjectRenderContext ctx, DrawingSurface workingSurface, bool shouldClear, bool useFilters = true)
+    {
+        int scaled = workingSurface.Canvas.Save();
+        float multiplier = (float)ctx.ChunkResolution.InvertedMultiplier();
+        workingSurface.Canvas.Scale(multiplier, multiplier);
+        base.DrawLayer(ctx, workingSurface, shouldClear, useFilters);
+        
+        workingSurface.Canvas.RestoreToCount(scaled);
+    }
+
     protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         bool shouldClear,
         Paint paint)

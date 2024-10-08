@@ -49,7 +49,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
     public override void Render(SceneObjectRenderContext sceneContext)
     {
-        Rasterize(sceneContext.TargetSurface, ChunkResolution.Full, blendPaint);
+        Rasterize(sceneContext.TargetSurface, sceneContext.ChunkResolution, blendPaint);
     }
 
     protected override VecI GetTargetSize(RenderContext ctx)

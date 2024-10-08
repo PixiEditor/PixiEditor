@@ -159,7 +159,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         float resolutionScale = CalculateResolutionScale();
 
         RectD dirtyBounds = new RectD(0, 0, Document.Width, Document.Height);
-        Rect dirtyRect = new Rect(0, 0, Document.Width / resolutionScale, Document.Height / resolutionScale);
+        Rect dirtyRect = new Rect(0, 0, Document.Width, Document.Height);
 
         SceneRenderer.Resolution = CalculateResolution();
 
@@ -175,21 +175,15 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         context.PushTransform(matrix);
         context.PushRenderOptions(new RenderOptions { BitmapInterpolationMode = BitmapInterpolationMode.None });
 
-        //var resolutionTransformation = context.PushTransform(Matrix.CreateScale(resolutionScale, resolutionScale));
-
         DrawCheckerboard(context, dirtyRect,
             new RectI(0, 0, operation.Document.SizeBindable.X, operation.Document.SizeBindable.Y));
-
-        //resolutionTransformation.Dispose();
 
         Cursor = DefaultCursor;
 
         DrawOverlays(context, dirtyBounds, OverlayRenderSorting.Background);
 
-        var resolutionTransformation = context.PushTransform(Matrix.CreateScale(resolutionScale, resolutionScale));
         context.Custom(operation);
 
-        resolutionTransformation.Dispose();
         DrawOverlays(context, dirtyBounds, OverlayRenderSorting.Foreground);
     }
 

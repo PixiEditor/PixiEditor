@@ -73,7 +73,8 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
         DrawingSurface sceneSurface = Background.Value ?? context.TargetSurface;
 
-        int savedNum = sceneSurface.Canvas.Save();
+        int savedNum = sceneSurface.Canvas.Save();  
+        
         sceneSurface.Canvas.ClipRect(RectD.Create((VecI)ScenePosition.Floor(), (VecI)SceneSize.Ceiling()));
         sceneSurface.Canvas.Translate((float)ScenePosition.X, (float)ScenePosition.Y);
 
