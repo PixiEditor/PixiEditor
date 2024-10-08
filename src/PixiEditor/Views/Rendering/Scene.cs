@@ -150,17 +150,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         return ChunkResolution.Full;
     }
 
-    private HashSet<VecI> FindChunksVisibleOnViewports()
-    {
-        var viewportChunks = OperationHelper.FindChunksTouchingRectangle(
-            Center,
-            Dimensions,
-            -AngleRadians,
-            ChunkResolution.Full.PixelSize());
-
-        return viewportChunks;
-    }
-
     public override void Render(DrawingContext context)
     {
         if (Document == null) return;
@@ -173,7 +162,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         Rect dirtyRect = new Rect(0, 0, Document.Width / resolutionScale, Document.Height / resolutionScale);
 
         SceneRenderer.Resolution = CalculateResolution();
-        SceneRenderer.VisibleChunks = FindChunksVisibleOnViewports();
 
         using var operation = new DrawSceneOperation(SceneRenderer.RenderScene, Document, CanvasPos,
             Scale * resolutionScale,

@@ -60,12 +60,6 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
     {
         if (Output.Connections.Count > 0)
         {
-            if (context.ChunkToUpdate == null)
-            {
-                DrawLayer(context, renderOnto, shouldClear);
-                return;
-            }
-
             if (!HasOperations())
             {
                 if (Background.Value != null)

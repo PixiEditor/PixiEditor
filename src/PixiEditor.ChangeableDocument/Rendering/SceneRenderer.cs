@@ -9,7 +9,6 @@ public class SceneRenderer
 {
     public IReadOnlyDocument Document { get; }
     public ChunkResolution Resolution { get; set; }
-    public HashSet<VecI> VisibleChunks { get; set; }
 
     private readonly Func<KeyFrameTime> getActiveFrameTime;
     
@@ -21,7 +20,7 @@ public class SceneRenderer
 
     public void RenderScene(DrawingSurface target)
     {
-        using RenderContext ctx = new(target, getActiveFrameTime(), Resolution, Document.Size) { VisibleChunks = this.VisibleChunks};
+        using RenderContext ctx = new(target, getActiveFrameTime(), Resolution, Document.Size); 
         Document.NodeGraph.Execute(ctx);
     }
 }

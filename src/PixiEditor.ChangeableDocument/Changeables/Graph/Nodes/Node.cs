@@ -30,7 +30,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     protected virtual bool AffectedByChunkResolution { get; }
 
-    protected virtual bool AffectedByChunkToUpdate { get; }
 
     IReadOnlyList<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyList<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
@@ -45,7 +44,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     private KeyFrameTime _lastFrameTime = new KeyFrameTime(-1, 0);
     private ChunkResolution? _lastResolution;
-    private VecI? _lastChunkPos;
     private bool _keyFramesDirty;
     private Texture? _lastCachedResult;
     private bool _isDisposed;
@@ -73,7 +71,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
         return (!context.FrameTime.Equals(_lastFrameTime) && AffectedByAnimation)
                || (AffectedByAnimation && _keyFramesDirty)
                || (context.ChunkResolution != _lastResolution && AffectedByChunkResolution)
-               || (context.ChunkToUpdate != _lastChunkPos && AffectedByChunkToUpdate)
                || inputs.Any(x => x.CacheChanged);
     }
 
@@ -86,7 +83,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         _lastFrameTime = context.FrameTime;
         _lastResolution = context.ChunkResolution;
-        _lastChunkPos = context.ChunkToUpdate;
         _keyFramesDirty = false;
     }
 

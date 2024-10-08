@@ -45,7 +45,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     }
 
     private Paint maskPaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.DstIn };
-    protected Paint blendPaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.SrcOver};
+    protected Paint blendPaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.SrcOver };
 
     private int maskCacheHash = 0;
 
@@ -66,25 +66,24 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     }
 
     protected override bool AffectedByChunkResolution => true;
-    protected override bool AffectedByChunkToUpdate => true;
 
     protected override void OnExecute(RenderContext context)
     {
         RectD localBounds = new RectD(0, 0, SceneSize.X, SceneSize.Y);
 
         DrawingSurface sceneSurface = Background.Value ?? context.TargetSurface;
-        
+
         int savedNum = sceneSurface.Canvas.Save();
         sceneSurface.Canvas.ClipRect(RectD.Create((VecI)ScenePosition.Floor(), (VecI)SceneSize.Ceiling()));
         sceneSurface.Canvas.Translate((float)ScenePosition.X, (float)ScenePosition.Y);
-        
-        SceneObjectRenderContext renderObjectContext = new SceneObjectRenderContext(sceneSurface, localBounds, 
-            context.FrameTime, context.ChunkResolution, context.DocumentSize) { ChunkToUpdate = context.ChunkToUpdate, VisibleChunks = context.VisibleChunks };
-        
+
+        SceneObjectRenderContext renderObjectContext = new SceneObjectRenderContext(sceneSurface, localBounds,
+            context.FrameTime, context.ChunkResolution, context.DocumentSize);
+
         Render(renderObjectContext);
-        
+
         sceneSurface.Canvas.RestoreToCount(savedNum);
-        
+
         Output.Value = sceneSurface;
     }
 
@@ -100,12 +99,14 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
             }
             else if (EmbeddedMask != null)
             {
-                EmbeddedMask.DrawMostUpToDateChunkOn(
+                // TODO: Handle mask
+                /*EmbeddedMask.DrawMostUpToDateChunkOn(
                     context.ChunkToUpdate.Value,
                     context.ChunkResolution,
                     surface,
                     context.ChunkToUpdate.Value * context.ChunkResolution.PixelSize(),
                     maskPaint);
+            }*/
             }
         }
     }
@@ -155,15 +156,15 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         RectI targetRect = CalculateDestinationRect(context);
         using var snapshot = source.DrawingSurface.Snapshot(sourceRect);
         */
-        
+
         blendPaint.SetFilters(filter);
-        
+
         workingSurface.Canvas.DrawSurface(source, source.DeviceClipBounds.X, source.DeviceClipBounds.Y, blendPaint);
     }
 
     protected RectI CalculateSourceRect(VecI targetSize, VecI sourceSize, RenderContext context)
     {
-        float divider = 1;
+        /*float divider = 1;
 
         if (sourceSize.X < targetSize.X || sourceSize.Y < targetSize.Y)
         {
@@ -181,12 +182,14 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         x = Math.Clamp(x, 0, Math.Max(sourceSize.X - width, 0));
         y = Math.Clamp(y, 0, Math.Max(sourceSize.Y - height, 0));
 
-        return new RectI(x, y, width, height);
+        return new RectI(x, y, width, height);*/
+        
+        return new RectI(0, 0, sourceSize.X, sourceSize.Y);
     }
 
     protected RectI CalculateDestinationRect(RenderContext context)
     {
-        int chunkSize = context.ChunkResolution.PixelSize();
+        /*int chunkSize = context.ChunkResolution.PixelSize();
         VecI chunkPos = context.ChunkToUpdate.Value;
 
         int x = chunkPos.X * chunkSize;
@@ -194,7 +197,9 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         int width = chunkSize;
         int height = chunkSize;
 
-        return new RectI(x, y, width, height);
+        return new RectI(x, y, width, height);*/
+        
+        return new RectI(0, 0, context.DocumentSize.X, context.DocumentSize.Y);
     }
 
     public abstract RectD? GetTightBounds(KeyFrameTime frameTime);

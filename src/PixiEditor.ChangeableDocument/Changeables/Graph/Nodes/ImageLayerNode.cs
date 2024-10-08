@@ -35,7 +35,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     protected override bool AffectedByChunkResolution => true;
 
-    protected override bool AffectedByChunkToUpdate => true;
 
     private Dictionary<ChunkResolution, Texture> renderedSurfaces = new();
 
@@ -96,7 +95,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         bool shouldClear, Paint paint)
     {
         // TODO: Implement non-chunk rendering
-        var frameImage = GetFrameWithImage(context.FrameTime).Data as ChunkyImage;
+        /*var frameImage = GetFrameWithImage(context.FrameTime).Data as ChunkyImage;
 
         VecI chunkToUpdate = context.ChunkToUpdate.Value;
 
@@ -189,7 +188,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         DrawChunk(frameImage, context, tempSurface, new VecI(0, 0), paint);
 
-        workingSurface.Canvas.DrawSurface(tempSurface.DrawingSurface, VecI.Zero, paint);
+        workingSurface.Canvas.DrawSurface(tempSurface.DrawingSurface, VecI.Zero, paint);*/
     }
 
     public override bool RenderPreview(Texture renderOn, VecI chunk, ChunkResolution resolution, int frame)
@@ -215,7 +214,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     private void DrawChunk(ChunkyImage frameImage, RenderContext context, Texture tempSurface, VecI vecI,
         Paint paint)
     {
-        VecI chunkPos = context.ChunkToUpdate.Value + vecI;
+        /*VecI chunkPos = context.ChunkToUpdate.Value + vecI;
         if (frameImage.LatestOrCommittedChunkExists(chunkPos))
         {
             frameImage.DrawMostUpToDateChunkOn(
@@ -224,7 +223,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                 tempSurface.DrawingSurface,
                 chunkPos * context.ChunkResolution.PixelSize(),
                 paint);
-        }
+        }*/
     }
 
     private KeyFrameData GetFrameWithImage(KeyFrameTime frame)
