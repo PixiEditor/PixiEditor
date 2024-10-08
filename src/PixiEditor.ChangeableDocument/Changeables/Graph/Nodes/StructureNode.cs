@@ -234,6 +234,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
     public override void Dispose()
     {
+        Output.Value = null;
         base.Dispose();
         maskPaint.Dispose();
         blendPaint.Dispose();

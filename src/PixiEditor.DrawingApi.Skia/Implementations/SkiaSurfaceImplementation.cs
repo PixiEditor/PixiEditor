@@ -172,5 +172,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             SKRectI rect = ManagedInstances[surface.ObjectPointer].Canvas.DeviceClipBounds;
             return new RectI(rect.Left, rect.Top, rect.Width, rect.Height);
         }
+
+        public void Unmanage(DrawingSurface surface)
+        {
+            _canvasImplementation.ManagedInstances.TryRemove(surface.Canvas.ObjectPointer, out _);
+            ManagedInstances.TryRemove(surface.ObjectPointer, out _);
+        }
     }
 }

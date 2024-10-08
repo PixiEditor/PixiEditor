@@ -91,5 +91,10 @@ namespace PixiEditor.DrawingApi.Core.Surfaces
         {
             return DrawingBackendApi.Current.SurfaceImplementation.FromNative(native);
         }
+
+        public static void Unmanage(DrawingSurface surface)
+        {
+            DrawingBackendApi.Current.SurfaceImplementation.Unmanage(surface);
+        }
     }
 }

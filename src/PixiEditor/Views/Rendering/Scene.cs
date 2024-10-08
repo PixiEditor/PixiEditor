@@ -546,6 +546,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
         RenderScene?.Invoke(surface);
 
         canvas.RestoreToCount(count);
+        DrawingSurface.Unmanage(surface);
     }
 
     private void RenderOnionSkin(SKCanvas canvas, SKPaint paint)
