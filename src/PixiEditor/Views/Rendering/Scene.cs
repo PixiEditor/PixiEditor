@@ -121,6 +121,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         AllOverlaysProperty.Changed.AddClassHandler<Scene>(ActiveOverlaysChanged);
         DefaultCursorProperty.Changed.AddClassHandler<Scene>(DefaultCursorChanged);
         ChannelsProperty.Changed.AddClassHandler<Scene>(ChannelsChanged);
+        DocumentProperty.Changed.AddClassHandler<Scene>(DocumentChanged);
     }
 
     private static void ChannelsChanged(Scene scene, AvaloniaPropertyChangedEventArgs args)
@@ -466,11 +467,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
-    private static void SurfaceChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
+    private static void DocumentChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
     {
-        if (e.NewValue is Texture surface)
+        if (e.NewValue is DocumentViewModel documentViewModel)
         {
-            scene.ContentDimensions = surface.Size;
+            scene.ContentDimensions = documentViewModel.SizeBindable;
         }
     }
 
@@ -562,83 +563,6 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
             canvas.RestoreToCount(count);
         }
-    }
-
-    private ShapeCorners ViewportToSurface(RectI viewportRect, float scale)
-    {
-        return new ShapeCorners()
-        {
-            TopLeft = ViewportToSurface(viewportRect.TopLeft, scale),
-            TopRight = ViewportToSurface(viewportRect.TopRight, scale),
-            BottomLeft = ViewportToSurface(viewportRect.BottomLeft, scale),
-            BottomRight = ViewportToSurface(viewportRect.BottomRight, scale),
-        };
-    }
-
-    private ShapeCorners SurfaceToViewport(RectI viewportRect, float scale)
-    {
-        return new ShapeCorners()
-        {
-            TopLeft = SurfaceToViewport(viewportRect.TopLeft, scale),
-            TopRight = SurfaceToViewport(viewportRect.TopRight, scale),
-            BottomLeft = SurfaceToViewport(viewportRect.BottomLeft, scale),
-            BottomRight = SurfaceToViewport(viewportRect.BottomRight, scale),
-        };
-    }
-
-    private VecD SurfaceToViewport(VecI surfacePoint, float scale)
-    {
-        VecD unscaledPoint = surfacePoint * scale;
-
-        float angle = (float)Angle;
-        if (FlipX)
-        {
-            unscaledPoint.X = -unscaledPoint.X;
-            angle = 360 - angle;
-        }
-
-        if (FlipY)
-        {
-            unscaledPoint.Y = -unscaledPoint.Y;
-            angle = 360 - angle;
-        }
-
-        VecD offseted = unscaledPoint + ContentPosition;
-
-        float angleRadians = (float)(angle * Math.PI / 180);
-        VecD rotated = offseted.Rotate(angleRadians, ContentPosition);
-
-        return rotated;
-    }
-
-    private VecI ViewportToSurface(VecD viewportPoint, float scale)
-    {
-        float angle = (float)Angle;
-        if (FlipX)
-        {
-            angle = 360 - angle;
-        }
-
-        if (FlipY)
-        {
-            angle = 360 - angle;
-        }
-
-        float angleRadians = (float)(angle * Math.PI / 180);
-        VecD rotatedViewportPoint = (viewportPoint).Rotate(-angleRadians, ContentPosition);
-
-        VecD unscaledPoint = rotatedViewportPoint - ContentPosition;
-
-        if (FlipX)
-            unscaledPoint.X = -unscaledPoint.X;
-        if (FlipY)
-            unscaledPoint.Y = -unscaledPoint.Y;
-
-        VecI pos = new VecI(
-            (int)Math.Round(unscaledPoint.X / scale),
-            (int)Math.Round(unscaledPoint.Y / scale));
-
-        return pos;
     }
 
     public override bool Equals(ICustomDrawOperation? other)

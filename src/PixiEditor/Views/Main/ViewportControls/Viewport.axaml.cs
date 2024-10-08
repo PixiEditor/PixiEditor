@@ -441,7 +441,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private void OnImageLoaded(object sender, EventArgs e)
     {
-        scene.CenterContent(Document.SizeBindable);
+        scene.CenterContent();
     }
 
     private void OnMainImageSizeChanged(object? sender, SizeChangedEventArgs e)
