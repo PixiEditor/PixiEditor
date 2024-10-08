@@ -68,13 +68,13 @@ public class DocumentRenderer
         return toDrawOn;
     }*/
     
-    public void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime, IReadOnlyCollection<Guid> membersToUpdate)
+    public void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime)
     {
         try
         {
             Document.NodeGraph.TryTraverse((node =>
             {
-                if (node is IReadOnlyImageNode imageNode && membersToUpdate.Contains(imageNode.Id))
+                if (node is IReadOnlyImageNode imageNode)
                 {
                     imageNode.RenderChunk(chunkPos, resolution, frameTime);
                 }

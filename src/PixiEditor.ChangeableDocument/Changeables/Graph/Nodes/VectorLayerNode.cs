@@ -47,17 +47,12 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     public override VecD ScenePosition => ShapeData?.TransformedAABB.TopLeft ?? VecD.Zero;
     public override VecD SceneSize => ShapeData?.TransformedAABB.Size ?? VecD.Zero;
 
-    public override void Render(SceneObjectRenderContext sceneContext)
-    {
-        Rasterize(sceneContext.TargetSurface, sceneContext.ChunkResolution, blendPaint);
-    }
-
     protected override VecI GetTargetSize(RenderContext ctx)
     {
         return ctx.DocumentSize;
     }
 
-    protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface, bool shouldClear,
+    protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         Paint paint)
     {
         if (ShapeData == null)
@@ -65,24 +60,14 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return;
         }
 
-        if (shouldClear)
-        {
-            workingSurface.Canvas.Clear();
-        }
-
         Rasterize(workingSurface, ctx.ChunkResolution, paint);
     }
 
-    protected override void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface, bool shouldClear, Paint paint)
+    protected override void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface, Paint paint)
     {
         if (ShapeData == null)
         {
             return;
-        }
-
-        if (shouldClear)
-        {
-            workingSurface.Canvas.Clear();
         }
 
         Rasterize(workingSurface, ctx.ChunkResolution, paint);

@@ -60,6 +60,9 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     private bool disposed = false;
     private readonly object lockObject = new();
     private int commitCounter = 0;
+    
+    private RectI cachedPreciseBounds = RectI.Empty;
+    private int lastBoundsCacheHash = -1;
 
     public const int FullChunkSize = ChunkPool.FullChunkSize;
     private static Paint ClippingPaint { get; } = new Paint() { BlendMode = BlendMode.DstIn };
@@ -189,11 +192,17 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         {
             ThrowIfDisposed();
 
+            if (lastBoundsCacheHash == GetCacheHash())
+            {
+                return cachedPreciseBounds;
+            }
+
             var chunkSize = suggestedResolution.PixelSize();
             var multiplier = suggestedResolution.Multiplier();
             RectI scaledCommittedSize = (RectI)(new RectD(VecI.Zero, CommittedSize * multiplier)).RoundOutwards();
 
             RectI? preciseBounds = null;
+            
             foreach (var (chunkPos, fullResChunk) in committedChunks[ChunkResolution.Full])
             {
                 if (committedChunks[suggestedResolution].TryGetValue(chunkPos, out Chunk? requestedResChunk))
@@ -228,6 +237,9 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             preciseBounds = (RectI?)preciseBounds?.Scale(suggestedResolution.InvertedMultiplier()).RoundOutwards();
             preciseBounds = preciseBounds?.Intersect(new RectI(preciseBounds.Value.Pos, CommittedSize));
 
+            cachedPreciseBounds = preciseBounds.GetValueOrDefault();
+            lastBoundsCacheHash = GetCacheHash();
+            
             return preciseBounds;
         }
     }

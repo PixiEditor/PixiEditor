@@ -82,18 +82,17 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return (GetFrameWithImage(ctx.FrameTime).Data as ChunkyImage).LatestSize;
     }
 
-    protected internal override void DrawLayer(SceneObjectRenderContext ctx, DrawingSurface workingSurface, bool shouldClear, bool useFilters = true)
+    protected internal override void DrawLayer(SceneObjectRenderContext ctx, DrawingSurface workingSurface, bool useFilters = true)
     {
         int scaled = workingSurface.Canvas.Save();
         float multiplier = (float)ctx.ChunkResolution.InvertedMultiplier();
         workingSurface.Canvas.Scale(multiplier, multiplier);
-        base.DrawLayer(ctx, workingSurface, shouldClear, useFilters);
+        base.DrawLayer(ctx, workingSurface, useFilters);
         
         workingSurface.Canvas.RestoreToCount(scaled);
     }
 
     protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
-        bool shouldClear,
         Paint paint)
     {
         workingSurface.Canvas.DrawSurface(renderedSurfaces[ctx.ChunkResolution].DrawingSurface, VecI.Zero, paint); 
@@ -102,7 +101,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     // Draw with filters is a bit tricky since some filters sample data from chunks surrounding the chunk being drawn,
     // this is why we need to do intermediate drawing to a temporary surface and then apply filters to that surface
     protected override void DrawWithFilters(SceneObjectRenderContext context, DrawingSurface workingSurface,
-        bool shouldClear, Paint paint)
+        Paint paint)
     {
         // TODO: Implement non-chunk rendering
         /*var frameImage = GetFrameWithImage(context.FrameTime).Data as ChunkyImage;

@@ -33,7 +33,6 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
         DrawingSurface target = sceneContext.TargetSurface;
 
         VecI targetSize = GetTargetSize(sceneContext);
-        bool shouldClear = Background.Value == null;
 
         /*if (FilterlessOutput.Connections.Count > 0)
         {
@@ -51,12 +50,12 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
             FilterlessOutput.Value = filterlessWorkingSurface;
         }*/
 
-        RenderImage(targetSize, sceneContext, target, shouldClear);
+        RenderContent(targetSize, sceneContext, target);
 
         Output.Value = target;
     }
 
-    private void RenderImage(VecI size, SceneObjectRenderContext context, DrawingSurface renderOnto, bool shouldClear)
+    private void RenderContent(VecI size, SceneObjectRenderContext context, DrawingSurface renderOnto)
     {
         if (Output.Connections.Count > 0)
         {
@@ -102,7 +101,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
 
     protected abstract VecI GetTargetSize(RenderContext ctx);
 
-    protected internal virtual void DrawLayer(SceneObjectRenderContext ctx, DrawingSurface workingSurface, bool shouldClear,
+    protected internal virtual void DrawLayer(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         bool useFilters = true)
     {
         blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255));
@@ -110,19 +109,19 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
         if (useFilters && Filters.Value != null)
         {
             blendPaint.SetFilters(Filters.Value);
-            DrawWithFilters(ctx, workingSurface, shouldClear, blendPaint);
+            DrawWithFilters(ctx, workingSurface, blendPaint);
         }
         else
         {
             blendPaint.SetFilters(null);
-            DrawWithoutFilters(ctx, workingSurface, shouldClear, blendPaint);
+            DrawWithoutFilters(ctx, workingSurface, blendPaint);
         }
     }
 
-    protected abstract void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface, bool shouldClear,
+    protected abstract void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         Paint paint);
 
-    protected abstract void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface, bool shouldClear,
+    protected abstract void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         Paint paint);
 
     protected Texture TryInitWorkingSurface(VecI imageSize, ChunkResolution resolution, int id)
