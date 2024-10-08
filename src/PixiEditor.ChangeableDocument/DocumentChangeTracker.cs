@@ -28,7 +28,7 @@ public class DocumentChangeTracker : IDisposable
     }
 
     private UpdateableChange? activeUpdateableChange = null;
-    private List<Change>? activePacket = null;
+    private List<(ActionSource source, Change change)>? activePacket = null;
 
     private Stack<(ActionSource source, List<Change> changes)> undoStack = new();
     private Stack<(ActionSource source, List<Change> changes)> redoStack = new();
@@ -48,7 +48,7 @@ public class DocumentChangeTracker : IDisposable
         if (activePacket != null)
         {
             foreach (var change in activePacket)
-                change.Dispose();
+                change.change.Dispose();
         }
 
         foreach (var list in undoStack)
@@ -69,11 +69,11 @@ public class DocumentChangeTracker : IDisposable
         document = new Document();
     }
 
-    private void AddToUndo(Change change)
+    private void AddToUndo(Change change, ActionSource source)
     {
         if (activePacket is null)
             activePacket = new();
-        activePacket.Add(change);
+        activePacket.Add((source, change));
 
         foreach (var changesToDispose in redoStack)
         {
@@ -94,13 +94,15 @@ public class DocumentChangeTracker : IDisposable
             undoStack.Count > 0 &&
             (undoStack.Peek().source == ActionSource.Automated ||
             (IsHomologous(undoStack.Peek()) &&
-            undoStack.Peek().changes[^1].IsMergeableWith(activePacket[0]))))
+            undoStack.Peek().changes[^1].IsMergeableWith(activePacket[0].change))))
         {
-            undoStack.Peek().changes.Add(activePacket[0]);
+            undoStack.Peek().changes.Add(activePacket[0].change);
         }
         else
         {
-            undoStack.Push((source, activePacket));
+            undoStack.Push(
+                (activePacket.Any(x => x.source == ActionSource.User) ? ActionSource.User : source,  
+                activePacket.Select(x => x.change).ToList()));
         }
 
         activePacket = null;
@@ -205,7 +207,7 @@ public class DocumentChangeTracker : IDisposable
 
         var info = change.Apply(document, true, out bool ignoreInUndo);
         if (!ignoreInUndo)
-            AddToUndo(change);
+            AddToUndo(change, ActionSource.User);
         else
             change.Dispose();
         return info;
@@ -249,7 +251,7 @@ public class DocumentChangeTracker : IDisposable
 
         var info = activeUpdateableChange.Apply(document, true, out bool ignoreInUndo);
         if (!ignoreInUndo)
-            AddToUndo(activeUpdateableChange);
+            AddToUndo(activeUpdateableChange, ActionSource.User);
         else
             activeUpdateableChange.Dispose();
         activeUpdateableChange = null;

@@ -22,7 +22,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     private VecI size;
     private ChunkyImage layerImage => keyFrames[0]?.Data as ChunkyImage;
-
+    protected Paint replacePaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src };
 
     private static readonly Paint clearPaint = new()
     {
@@ -299,7 +299,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             resolution,
             renderedSurfaces[resolution].DrawingSurface,
             chunkPos * resolution.PixelSize(),
-            blendPaint);
+            replacePaint);
         
         renderedSurfaces[resolution].DrawingSurface.Flush();
     }
