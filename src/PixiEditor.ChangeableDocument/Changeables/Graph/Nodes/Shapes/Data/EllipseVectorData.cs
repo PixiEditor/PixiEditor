@@ -28,41 +28,75 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
 
     public override void RasterizeGeometry(DrawingSurface drawingSurface, ChunkResolution resolution, Paint? paint)
     {
-        Rasterize(drawingSurface, resolution, paint, false);
+        Rasterize(drawingSurface, paint, false);
     }
 
     public override void RasterizeTransformed(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint)
     {
-        Rasterize(drawingSurface, resolution, paint, true);
+        Rasterize(drawingSurface, paint, true);
     }
 
-    private void Rasterize(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint, bool applyTransform)
+    private void Rasterize(DrawingSurface drawingSurface, Paint paint, bool applyTransform)
     {
-        int saved = drawingSurface.Canvas.Save();
+        int saved = 0;
+        if (applyTransform)
+        {
+            saved = drawingSurface.Canvas.Save();
+            ApplyTransformTo(drawingSurface);
+        }
+
+        paint.Color = FillColor;
+        paint.Style = PaintStyle.Fill;
+        drawingSurface.Canvas.DrawOval(VecD.Zero, Radius, paint);
+
+        paint.Color = StrokeColor;
+        paint.Style = PaintStyle.Stroke;
+        paint.StrokeWidth = StrokeWidth;
+        drawingSurface.Canvas.DrawOval(VecD.Zero, Radius - new VecD(StrokeWidth / 2f), paint);
 
         if (applyTransform)
         {
-            Matrix3X3 canvasMatrix = drawingSurface.Canvas.TotalMatrix;
-
-            Matrix3X3 final = TransformationMatrix with { TransX = 0, TransY = 0 }; 
-
-            final = canvasMatrix.Concat(final);
-
-            drawingSurface.Canvas.SetMatrix(final);
-
-            paint.Color = FillColor;
-            paint.Style = PaintStyle.Fill;
-            drawingSurface.Canvas.DrawOval(VecD.Zero, Radius, paint);
-
-            paint.Color = StrokeColor;
-            paint.Style = PaintStyle.Stroke;
-            paint.StrokeWidth = StrokeWidth;
-            drawingSurface.Canvas.DrawOval(VecD.Zero, Radius - new VecD(StrokeWidth / 2f), paint);
+            drawingSurface.Canvas.RestoreToCount(saved);
         }
 
-        drawingSurface.Canvas.RestoreToCount(saved);
-    }
+        // Do not remove below, it might be used (directly or as a reference) for pixelated rendering
+        /*var imageSize = (VecI)(Radius * 2);
 
+        using ChunkyImage img = new ChunkyImage((VecI)GeometryAABB.Size);
+
+        RectD rotated = new ShapeCorners(RectD.FromTwoPoints(VecD.Zero, imageSize)).AABBBounds;
+
+        VecI shift = new VecI((int)Math.Floor(-rotated.Left), (int)Math.Floor(-rotated.Top));
+        RectI drawRect = new(shift, imageSize);
+
+        img.EnqueueDrawEllipse(drawRect, StrokeColor, FillColor, StrokeWidth);
+        img.CommitChanges();
+
+        VecI topLeft = new VecI((int)Math.Round(Center.X - Radius.X), (int)Math.Round(Center.Y - Radius.Y)) - shift;
+        topLeft = (VecI)(topLeft * resolution.Multiplier());
+
+        RectI region = new(VecI.Zero, (VecI)GeometryAABB.Size);
+
+        int num = 0;
+        if (applyTransform)
+        {
+            num = drawingSurface.Canvas.Save();
+            Matrix3X3 final = TransformationMatrix with
+            {
+                TransX = TransformationMatrix.TransX * (float)resolution.Multiplier(),
+                TransY = TransformationMatrix.TransY * (float)resolution.Multiplier()
+            };
+            drawingSurface.Canvas.SetMatrix(final);
+        }
+
+        img.DrawMostUpToDateRegionOn(region, resolution, drawingSurface, topLeft, paint);
+
+        if (applyTransform)
+        {
+            drawingSurface.Canvas.RestoreToCount(num);
+        }*/
+    }
+    
     public override bool IsValid()
     {
         return Radius is { X: > 0, Y: > 0 };

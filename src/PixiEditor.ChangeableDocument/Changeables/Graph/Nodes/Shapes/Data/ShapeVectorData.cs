@@ -18,6 +18,17 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
     public abstract RectD GeometryAABB { get; }
     public RectD TransformedAABB => new ShapeCorners(GeometryAABB).WithMatrix(TransformationMatrix).AABBBounds;
     public abstract ShapeCorners TransformationCorners { get; } 
+    
+    protected void ApplyTransformTo(DrawingSurface drawingSurface)
+    {
+        Matrix3X3 canvasMatrix = drawingSurface.Canvas.TotalMatrix;
+
+        Matrix3X3 final = TransformationMatrix with { TransX = 0, TransY = 0 };
+
+        final = canvasMatrix.Concat(final);
+
+        drawingSurface.Canvas.SetMatrix(final);
+    }
 
     public abstract void RasterizeGeometry(DrawingSurface drawingSurface, ChunkResolution resolution, Paint? paint);
     public abstract void RasterizeTransformed(DrawingSurface drawingSurface, ChunkResolution resolution, Paint? paint);
