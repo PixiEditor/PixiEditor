@@ -64,7 +64,7 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
         double endX;
         double endY;
 
-        VecD halfSize = new VecD(TransformedAABB.Size.X / 2f - StrokeWidth, TransformedAABB.Size.Y / 2f - StrokeWidth);
+        VecD halfSize = new VecD(GeometryAABB.Size.X / 2f - StrokeWidth, GeometryAABB.Size.Y / 2f - StrokeWidth);
 
         startX = Start.X <= End.X ? -halfSize.X : halfSize.X;
         endX = Start.X <= End.X ? halfSize.X : -halfSize.X;
