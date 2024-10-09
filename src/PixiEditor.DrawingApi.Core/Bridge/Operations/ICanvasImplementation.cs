@@ -43,5 +43,6 @@ namespace PixiEditor.DrawingApi.Core.Bridge.Operations
         public void DrawPaint(IntPtr objectPointer, Paint paint);
         public void DrawImage(IntPtr objectPointer, Image image, float x, float y, Paint paint);
         public void DrawRoundRect(IntPtr objectPointer, float x, float y, float width, float height, float radiusX, float radiusY, Paint paint);
+        public Matrix3X3 GetTotalMatrix(IntPtr objectPointer);
     }
 }

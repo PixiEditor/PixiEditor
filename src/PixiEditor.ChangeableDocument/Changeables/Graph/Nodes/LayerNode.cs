@@ -71,6 +71,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
             }
 
             var outputWorkingSurface = TryInitWorkingSurface(size, context.ChunkResolution, 1);
+            outputWorkingSurface.DrawingSurface.Canvas.Clear();
             
             DrawLayer(context, outputWorkingSurface.DrawingSurface, true);
 
@@ -91,11 +92,13 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
                 tempSurface.DrawingSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0,
                     blendPaint);
 
-                //cached.DrawingSurface.Canvas.DrawSurface(tempSurface.DrawingSurface, VecI.Zero, blendPaint);
+                //cached.DrawingSurface.Canvas.DrawSurface(tempSurface.DrawingSurface, VecI.Zero, blendPaint);\
+                renderOnto.Canvas.DrawSurface(tempSurface.DrawingSurface, 0, 0, blendPaint);
                 return;
             }
 
             //cached.DrawingSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
+            renderOnto.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
         }
     }
 

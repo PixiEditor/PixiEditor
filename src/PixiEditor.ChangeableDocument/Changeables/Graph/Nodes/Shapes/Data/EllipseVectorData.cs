@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
@@ -11,7 +12,7 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
 {
     public VecD Radius { get; set; }
     public VecD Center { get; set; }
-    
+
     public override RectD GeometryAABB =>
         new ShapeCorners(Center, Radius * 2).AABBBounds;
 
@@ -37,42 +38,29 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
 
     private void Rasterize(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint, bool applyTransform)
     {
-        drawingSurface.Canvas.DrawOval(Radius, Radius, paint);
-        /*var imageSize = (VecI)(Radius * 2);
-        
-        using ChunkyImage img = new ChunkyImage((VecI)GeometryAABB.Size);
+        int saved = drawingSurface.Canvas.Save();
 
-        RectD rotated = new ShapeCorners(RectD.FromTwoPoints(VecD.Zero, imageSize)).AABBBounds;
-
-        VecI shift = new VecI((int)Math.Floor(-rotated.Left), (int)Math.Floor(-rotated.Top));
-        RectI drawRect = new(shift, imageSize);
-        
-        img.EnqueueDrawEllipse(drawRect, StrokeColor, FillColor, StrokeWidth);
-        img.CommitChanges();
-
-        VecI topLeft = new VecI((int)Math.Round(Center.X - Radius.X), (int)Math.Round(Center.Y - Radius.Y)) - shift;
-        topLeft = (VecI)(topLeft * resolution.Multiplier());
-        
-        RectI region = new(VecI.Zero, (VecI)GeometryAABB.Size);
-
-        int num = 0;
         if (applyTransform)
         {
-            num = drawingSurface.Canvas.Save();
-            Matrix3X3 final = TransformationMatrix with
-            {
-                TransX = TransformationMatrix.TransX * (float)resolution.Multiplier(),
-                TransY = TransformationMatrix.TransY * (float)resolution.Multiplier()
-            };
+            Matrix3X3 canvasMatrix = drawingSurface.Canvas.TotalMatrix;
+
+            Matrix3X3 final = TransformationMatrix with { TransX = 0, TransY = 0 }; 
+
+            final = canvasMatrix.Concat(final);
+
             drawingSurface.Canvas.SetMatrix(final);
+
+            paint.Color = FillColor;
+            paint.Style = PaintStyle.Fill;
+            drawingSurface.Canvas.DrawOval(VecD.Zero, Radius, paint);
+
+            paint.Color = StrokeColor;
+            paint.Style = PaintStyle.Stroke;
+            paint.StrokeWidth = StrokeWidth;
+            drawingSurface.Canvas.DrawOval(VecD.Zero, Radius - new VecD(StrokeWidth / 2f), paint);
         }
 
-        img.DrawMostUpToDateRegionOn(region, resolution, drawingSurface, topLeft, paint);
-
-        if (applyTransform)
-        {
-            drawingSurface.Canvas.RestoreToCount(num);
-        }*/
+        drawingSurface.Canvas.RestoreToCount(saved);
     }
 
     public override bool IsValid()
@@ -82,7 +70,7 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
 
     public override int CalculateHash()
     {
-        return HashCode.Combine(Center, Radius, StrokeColor, FillColor, StrokeWidth,  TransformationMatrix);
+        return HashCode.Combine(Center, Radius, StrokeColor, FillColor, StrokeWidth, TransformationMatrix);
     }
 
     public override int GetCacheHash()

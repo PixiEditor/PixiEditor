@@ -44,7 +44,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         Output.Value = context.TargetSurface;
     }
 
-    public override VecD ScenePosition => ShapeData?.TransformedAABB.TopLeft ?? VecD.Zero;
+    public override VecD ScenePosition => ShapeData?.TransformedAABB.Center ?? VecD.Zero;
     public override VecD SceneSize => ShapeData?.TransformedAABB.Size ?? VecD.Zero;
 
     protected override VecI GetTargetSize(RenderContext ctx)

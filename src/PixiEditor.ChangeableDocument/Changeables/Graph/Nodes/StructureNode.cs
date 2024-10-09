@@ -24,7 +24,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     public InputProperty<bool> IsVisible { get; }
     public bool ClipToPreviousMember { get; set; }
     public InputProperty<BlendMode> BlendMode { get; }
-    public InputProperty<Texture?> CustomMask { get; }
+    public InputProperty<DrawingSurface?> CustomMask { get; }
     public InputProperty<bool> MaskIsVisible { get; }
     public InputProperty<Filter> Filters { get; }
     public OutputProperty<DrawingSurface?> Output { get; }
@@ -55,7 +55,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         Opacity = CreateInput<float>("Opacity", "OPACITY", 1);
         IsVisible = CreateInput<bool>("IsVisible", "IS_VISIBLE", true);
         BlendMode = CreateInput("BlendMode", "BLEND_MODE", Enums.BlendMode.Normal);
-        CustomMask = CreateInput<Texture?>("Mask", "MASK", null);
+        CustomMask = CreateInput<DrawingSurface?>("Mask", "MASK", null);
         MaskIsVisible = CreateInput<bool>("MaskIsVisible", "MASK_IS_VISIBLE", true);
         Filters = CreateInput<Filter>(nameof(Filters), "FILTERS", null);
 
@@ -75,7 +75,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
         int savedNum = sceneSurface.Canvas.Save();  
         
-        sceneSurface.Canvas.ClipRect(RectD.Create((VecI)ScenePosition.Floor(), (VecI)SceneSize.Ceiling()));
+        sceneSurface.Canvas.ClipRect(new RectD(ScenePosition - (SceneSize / 2f), SceneSize));
         sceneSurface.Canvas.Translate((float)ScenePosition.X, (float)ScenePosition.Y);
 
         SceneObjectRenderContext renderObjectContext = new SceneObjectRenderContext(sceneSurface, localBounds,
@@ -96,7 +96,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         {
             if (CustomMask.Value != null)
             {
-                surface.Canvas.DrawSurface(CustomMask.Value.DrawingSurface, 0, 0, maskPaint);
+                surface.Canvas.DrawSurface(CustomMask.Value, 0, 0, maskPaint);
             }
             else if (EmbeddedMask != null)
             {

@@ -82,6 +82,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
                 x, y, width, height, radiusX, radiusY, _paintImpl[paint.ObjectPointer]);
         }
 
+        public Matrix3X3 GetTotalMatrix(IntPtr objectPointer)
+        {
+            return ManagedInstances[objectPointer].TotalMatrix.ToMatrix3X3();
+        }
+
         public Matrix3X3 GetActiveMatrix(IntPtr objectPointer)
         {
             return ManagedInstances[objectPointer].TotalMatrix.ToMatrix3X3();

@@ -14,6 +14,7 @@ namespace PixiEditor.DrawingApi.Core.Surfaces
     public class Canvas : NativeObject
     {
         public override object Native => DrawingBackendApi.Current.CanvasImplementation.GetNativeCanvas(ObjectPointer);
+        public Matrix3X3 TotalMatrix => DrawingBackendApi.Current.CanvasImplementation.GetTotalMatrix(ObjectPointer);
 
         public event SurfaceChangedEventHandler? Changed;
 
@@ -37,9 +38,9 @@ namespace PixiEditor.DrawingApi.Core.Surfaces
 
         public void DrawSurface(DrawingSurface original, float x, float y) => DrawSurface(original, x, y, null);
 
-        public void DrawSurface(DrawingSurface surfaceToDraw, VecI size, Paint paint)
+        public void DrawSurface(DrawingSurface surfaceToDraw, VecI position, Paint paint)
         {
-            DrawSurface(surfaceToDraw, size.X, size.Y, paint);
+            DrawSurface(surfaceToDraw, position.X, position.Y, paint);
         }
 
         public void DrawImage(Image image, float x, float y) =>
@@ -195,9 +196,9 @@ namespace PixiEditor.DrawingApi.Core.Surfaces
             Changed?.Invoke(null);
         }
 
-        public void RotateRadians(float dataAngle, float centerX, float centerY)
+        public void RotateRadians(float radians, float centerX, float centerY)
         {
-            DrawingBackendApi.Current.CanvasImplementation.RotateRadians(ObjectPointer, dataAngle, centerX, centerY);
+            DrawingBackendApi.Current.CanvasImplementation.RotateRadians(ObjectPointer, radians, centerX, centerY);
         }
 
         public void RotateDegrees(float degrees, float centerX, float centerY)

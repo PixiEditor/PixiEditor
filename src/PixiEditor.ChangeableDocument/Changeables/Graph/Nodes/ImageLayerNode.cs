@@ -74,7 +74,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }*/
     }
 
-    public override VecD ScenePosition => VecD.Zero;
+    public override VecD ScenePosition => size / 2f;
     public override VecD SceneSize => size;
 
     protected override VecI GetTargetSize(RenderContext ctx)
@@ -95,7 +95,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         Paint paint)
     {
-        workingSurface.Canvas.DrawSurface(renderedSurfaces[ctx.ChunkResolution].DrawingSurface, VecI.Zero, paint); 
+        VecD topLeft = size / 2f;
+        workingSurface.Canvas.DrawSurface(renderedSurfaces[ctx.ChunkResolution].DrawingSurface, -(VecI)topLeft, paint); 
     }
 
     // Draw with filters is a bit tricky since some filters sample data from chunks surrounding the chunk being drawn,

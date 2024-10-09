@@ -335,7 +335,6 @@ public struct Matrix3X3 : IEquatable<Matrix3X3>
 
     public readonly bool IsInvertible => TryInvert(out _);
 
-
     /// <param name="inverse">The destination value to store the inverted matrix if the matrix can be inverted.</param>
     /// <summary>Attempts to invert the matrix, if possible the inverse matrix contains the result.</summary>
     /// <returns>
