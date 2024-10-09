@@ -500,6 +500,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
     public bool FlipY { get; set; }
     public Rect ViewportBounds { get; }
 
+    public RectD ClippingBounds { get; }
 
     public Action<DrawingSurface> RenderScene;
 
@@ -520,6 +521,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
         ViewportBounds = viewportBounds;
         ResolutionScale = resolutionScale;
         this.opacity = opacity;
+        ClippingBounds = new RectD(dirtyBounds.X, dirtyBounds.Y, dirtyBounds.Width, dirtyBounds.Height);
     }
 
     public override void Render(ISkiaSharpApiLease lease)
@@ -538,6 +540,9 @@ internal class DrawSceneOperation : SkiaDrawOperation
         RenderOnionSkin(canvas, paint);
 
         DrawingSurface surface = DrawingSurface.FromNative(lease.SkSurface);
+
+        surface.Canvas.ClipRect(ClippingBounds);
+        
         RenderScene?.Invoke(surface);
 
         canvas.RestoreToCount(count);
