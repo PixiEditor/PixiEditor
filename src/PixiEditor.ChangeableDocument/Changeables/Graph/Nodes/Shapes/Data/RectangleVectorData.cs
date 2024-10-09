@@ -37,7 +37,26 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
 
     private void Rasterize(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint, bool applyTransform)
     {
-        drawingSurface.Canvas.DrawRect(0, 0, (int)Size.X, (int)Size.Y, paint);
+        int saved = 0;
+        if (applyTransform)
+        {
+            saved = drawingSurface.Canvas.Save();
+            ApplyTransformTo(drawingSurface);
+        }
+
+        paint.Color = FillColor;
+        paint.Style = PaintStyle.Fill;
+        drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(VecD.Zero, Size), paint);
+
+        paint.Color = StrokeColor;
+        paint.Style = PaintStyle.Stroke;
+        paint.StrokeWidth = StrokeWidth;
+        drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(VecD.Zero, Size - new VecD(StrokeWidth)), paint);
+
+        if (applyTransform)
+        {
+            drawingSurface.Canvas.RestoreToCount(saved);
+        }
         /*var imageSize = (VecI)Size; 
 
         using ChunkyImage img = new ChunkyImage(imageSize);
