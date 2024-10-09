@@ -18,9 +18,12 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     public const string ImageLayerKey = "LayerImage";
     public OutputProperty<Texture> RawOutput { get; }
 
+    public override VecD ScenePosition => layerImage.CommittedSize / 2f;
+    public override VecD SceneSize => layerImage.CommittedSize;
+    
     public bool LockTransparency { get; set; }
 
-    private VecI size;
+    private VecI startSize;
     private ChunkyImage layerImage => keyFrames[0]?.Data as ChunkyImage;
     protected Paint replacePaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src };
 
@@ -47,12 +50,20 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             keyFrames.Add(new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = new ChunkyImage(size) });
         }
 
-        this.size = size;
-        
-        renderedSurfaces[ChunkResolution.Full] = new Texture(size);
-        renderedSurfaces[ChunkResolution.Half] = new Texture(new VecI(Math.Max(size.X / 2, 1), Math.Max(size.Y / 2, 1))); 
-        renderedSurfaces[ChunkResolution.Quarter] = new Texture(new VecI(Math.Max(size.X / 4, 1), Math.Max(size.Y / 4, 1)));
-        renderedSurfaces[ChunkResolution.Eighth] = new Texture(new VecI(Math.Max(size.X / 8, 1), Math.Max(size.Y / 8, 1)));
+        this.startSize = size;
+
+        CreateRenderCanvases(size);
+    }
+
+    private void CreateRenderCanvases(VecI newSize)
+    {
+        renderedSurfaces[ChunkResolution.Full] = new Texture(newSize);
+        renderedSurfaces[ChunkResolution.Half] =
+            new Texture(new VecI(Math.Max(newSize.X / 2, 1), Math.Max(newSize.Y / 2, 1)));
+        renderedSurfaces[ChunkResolution.Quarter] =
+            new Texture(new VecI(Math.Max(newSize.X / 4, 1), Math.Max(newSize.Y / 4, 1)));
+        renderedSurfaces[ChunkResolution.Eighth] =
+            new Texture(new VecI(Math.Max(newSize.X / 8, 1), Math.Max(newSize.Y / 8, 1)));
     }
 
 
@@ -74,29 +85,29 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }*/
     }
 
-    public override VecD ScenePosition => size / 2f;
-    public override VecD SceneSize => size;
-
     protected override VecI GetTargetSize(RenderContext ctx)
     {
         return (GetFrameWithImage(ctx.FrameTime).Data as ChunkyImage).LatestSize;
     }
 
-    protected internal override void DrawLayer(SceneObjectRenderContext ctx, DrawingSurface workingSurface, bool useFilters = true)
+    protected internal override void DrawLayer(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+        bool useFilters = true)
     {
         int scaled = workingSurface.Canvas.Save();
         float multiplier = (float)ctx.ChunkResolution.InvertedMultiplier();
+        VecD shiftToCenter = SceneSize - renderedSurfaces[ctx.ChunkResolution].Size;
         workingSurface.Canvas.Scale(multiplier, multiplier);
+        workingSurface.Canvas.Translate(shiftToCenter / 2f);
         base.DrawLayer(ctx, workingSurface, useFilters);
-        
+
         workingSurface.Canvas.RestoreToCount(scaled);
     }
 
     protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         Paint paint)
     {
-        VecD topLeft = size / 2f;
-        workingSurface.Canvas.DrawSurface(renderedSurfaces[ctx.ChunkResolution].DrawingSurface, -(VecI)topLeft, paint); 
+        VecD topLeft = SceneSize / 2f;
+        workingSurface.Canvas.DrawSurface(renderedSurfaces[ctx.ChunkResolution].DrawingSurface, -(VecI)topLeft, paint);
     }
 
     // Draw with filters is a bit tricky since some filters sample data from chunks surrounding the chunk being drawn,
@@ -220,7 +231,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return true;
     }
 
-
     private void DrawChunk(ChunkyImage frameImage, RenderContext context, Texture tempSurface, VecI vecI,
         Paint paint)
     {
@@ -267,7 +277,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public override Node CreateCopy()
     {
-        var image = new ImageLayerNode(size) { MemberName = this.MemberName, };
+        var image = new ImageLayerNode(startSize) { MemberName = this.MemberName, };
 
         image.keyFrames.Clear();
 
@@ -294,7 +304,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         SetLayerImageAtFrame(frame, (ChunkyImage)newLayerImage);
 
     void IReadOnlyImageNode.ForEveryFrame(Action<IReadOnlyChunkyImage> action) => ForEveryFrame(action);
-    
+
     public void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime)
     {
         var img = GetLayerImageAtFrame(frameTime.Frame);
@@ -304,13 +314,20 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             return;
         }
 
+        VecD targetSize = img.LatestSize * resolution.Multiplier();
+        if ((renderedSurfaces[resolution].Size * resolution.InvertedMultiplier()) != targetSize)
+        {
+            renderedSurfaces[resolution].Dispose();
+            renderedSurfaces[resolution] = new Texture((VecI)targetSize);
+        }
+
         img.DrawMostUpToDateChunkOn(
             chunkPos,
             resolution,
             renderedSurfaces[resolution].DrawingSurface,
             chunkPos * resolution.PixelSize(),
             replacePaint);
-        
+
         renderedSurfaces[resolution].DrawingSurface.Flush();
     }
 
