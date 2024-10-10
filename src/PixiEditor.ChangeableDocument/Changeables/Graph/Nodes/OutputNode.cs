@@ -7,14 +7,15 @@ using PixiEditor.DrawingApi.Core.Surfaces;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("Output")]
-public class OutputNode : Node, IBackgroundInput
+public class OutputNode : Node, IRenderInput
 {
     public const string InputPropertyName = "Background";
 
-    public InputProperty<DrawingSurface?> Input { get; } 
+    public RenderInputProperty Input { get; } 
     public OutputNode()
     {
-        Input = CreateInput<DrawingSurface>(InputPropertyName, "INPUT", null);
+        Input = new RenderInputProperty(this, InputPropertyName, "BACKGROUND", null, (ctx) => ctx.RenderSurface);
+        AddInputProperty(Input);
     }
 
     public override Node CreateCopy()
@@ -26,5 +27,5 @@ public class OutputNode : Node, IBackgroundInput
     {
     }
 
-    InputProperty<DrawingSurface?> IBackgroundInput.Background => Input;
+    RenderInputProperty IRenderInput.RenderTarget => Input;
 }

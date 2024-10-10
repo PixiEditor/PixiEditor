@@ -37,13 +37,6 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
     private int lastCacheHash;
 
-    protected override void OnExecute(RenderContext context)
-    {
-        base.OnExecute(context);
-        
-        Output.Value = context.TargetSurface;
-    }
-
     public override VecD ScenePosition => ShapeData?.TransformedAABB.Center ?? VecD.Zero;
     public override VecD SceneSize => ShapeData?.TransformedAABB.Size ?? VecD.Zero;
 

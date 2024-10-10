@@ -22,13 +22,13 @@ public class RenderContext : IDisposable
     public ChunkResolution ChunkResolution { get; }
     public VecI DocumentSize { get; set; }
     
-    public DrawingSurface TargetSurface { get; set; }
+    public DrawingSurface RenderSurface { get; set; }
 
     public bool IsDisposed { get; private set; }
     
-    public RenderContext(DrawingSurface targetSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution, VecI docSize)
+    public RenderContext(DrawingSurface renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution, VecI docSize)
     {
-        TargetSurface = targetSurface;
+        RenderSurface = renderSurface;
         FrameTime = frameTime;
         ChunkResolution = chunkResolution;
         DocumentSize = docSize;

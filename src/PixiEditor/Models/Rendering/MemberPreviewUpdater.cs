@@ -347,7 +347,7 @@ internal class MemberPreviewUpdater
         }
 
         return combinedBounds;*/
-        return (RectI)folder.GetTightBounds(frame);
+        return (RectI?)folder.GetTightBounds(frame);
     }
 
     /// <summary>

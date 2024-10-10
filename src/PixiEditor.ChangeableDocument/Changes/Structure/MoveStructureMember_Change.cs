@@ -45,14 +45,14 @@ internal class MoveStructureMember_Change : Change
     {
         var sourceNode = document.FindMember(sourceNodeGuid);
         var targetNode = document.FindNode(targetNodeGuid);
-        if (sourceNode is null || targetNode is not IBackgroundInput backgroundInput)
+        if (sourceNode is null || targetNode is not IRenderInput backgroundInput)
             return [];
 
         List<IChangeInfo> changes = new();
         
-        Guid oldBackgroundId = sourceNode.Background.Node.Id;
+        Guid oldBackgroundId = sourceNode.RenderTarget.Node.Id;
 
-        InputProperty<DrawingSurface?> inputProperty = backgroundInput.Background;
+        InputProperty<DrawingSurface?> inputProperty = backgroundInput.RenderTarget;
 
         if (targetNode is FolderNode folder && putInsideFolder)
         {
@@ -63,7 +63,7 @@ internal class MoveStructureMember_Change : Change
         
         changes.AddRange(NodeOperations.DetachStructureNode(sourceNode));
         changes.AddRange(NodeOperations.AppendMember(inputProperty, sourceNode.Output,
-            sourceNode.Background,
+            sourceNode.RenderTarget,
             sourceNode.Id));
         
         changes.Add(changeInfo);

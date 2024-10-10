@@ -266,7 +266,7 @@ public class DocumentRenderer
             membersOnlyGraph.AddNode(clone);
 
             clone.Output.ConnectTo(lastInput);
-            lastInput = clone.Background;
+            lastInput = clone.RenderTarget;
         }
 
         return membersOnlyGraph;

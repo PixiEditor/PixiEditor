@@ -13,13 +13,13 @@ using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundInput
+public abstract class StructureNode : Node, IReadOnlyStructureNode, IRenderInput
 {
     public abstract VecD ScenePosition { get; }
     public abstract VecD SceneSize { get; }
 
     public const string DefaultMemberName = "DEFAULT_MEMBER_NAME";
-    public InputProperty<DrawingSurface?> Background { get; }
+    public RenderInputProperty RenderTarget { get; }
     public InputProperty<float> Opacity { get; }
     public InputProperty<bool> IsVisible { get; }
     public bool ClipToPreviousMember { get; set; }
@@ -27,9 +27,9 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     public InputProperty<Texture?> CustomMask { get; }
     public InputProperty<bool> MaskIsVisible { get; }
     public InputProperty<Filter> Filters { get; }
-    public OutputProperty<DrawingSurface?> Output { get; }
+    public RenderOutputProperty Output { get; }
 
-    public OutputProperty<Texture?> FilterlessOutput { get; }
+    public OutputProperty<DrawingSurface?> FilterlessOutput { get; }
 
     public ChunkyImage? EmbeddedMask { get; set; }
 
@@ -54,7 +54,8 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
     protected StructureNode()
     {
-        Background = CreateInput<DrawingSurface?>("Background", "BACKGROUND", null);
+        RenderTarget = CreateRenderInput("Background", "BACKGROUND", (context => Output.GetFirstRenderTarget(context)));
+        
         Opacity = CreateInput<float>("Opacity", "OPACITY", 1);
         IsVisible = CreateInput<bool>("IsVisible", "IS_VISIBLE", true);
         BlendMode = CreateInput("BlendMode", "BLEND_MODE", Enums.BlendMode.Normal);
@@ -62,10 +63,27 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         MaskIsVisible = CreateInput<bool>("MaskIsVisible", "MASK_IS_VISIBLE", true);
         Filters = CreateInput<Filter>(nameof(Filters), "FILTERS", null);
 
-        Output = CreateOutput<DrawingSurface?>("Output", "OUTPUT", null);
-        FilterlessOutput = CreateOutput<Texture?>(nameof(FilterlessOutput), "WITHOUT_FILTERS", null);
+        Output = CreateRenderOutput("Output", "OUTPUT");
+        FilterlessOutput = CreateOutput<DrawingSurface?>(nameof(FilterlessOutput), "WITHOUT_FILTERS", null);
 
         MemberName = DefaultMemberName;
+    }
+
+    protected RenderOutputProperty? CreateRenderOutput(string internalName, string displayName)
+    {
+        RenderOutputProperty prop = new RenderOutputProperty(this, internalName, displayName, null);
+        AddOutputProperty(prop);
+
+        return prop;
+    }
+
+    protected RenderInputProperty CreateRenderInput(string internalName, string displayName,
+        Func<RenderContext, DrawingSurface> renderTarget)
+    {
+        RenderInputProperty prop = new RenderInputProperty(this, internalName, displayName, null, renderTarget);
+        AddInputProperty(prop);
+
+        return prop;
     }
 
     protected override bool AffectedByChunkResolution => true;
@@ -74,20 +92,20 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     {
         RectD localBounds = new RectD(0, 0, SceneSize.X, SceneSize.Y);
 
-        DrawingSurface sceneSurface = Background.Value ?? context.TargetSurface;
+        DrawingSurface renderTarget = RenderTarget.Value ?? Output.GetFirstRenderTarget(context);
 
-        int savedNum = sceneSurface.Canvas.Save();
+        int savedNum = renderTarget.Canvas.Save();
 
-        sceneSurface.Canvas.ClipRect(new RectD(ScenePosition - (SceneSize / 2f), SceneSize));
+        renderTarget.Canvas.ClipRect(new RectD(ScenePosition - (SceneSize / 2f), SceneSize));
 
-        SceneObjectRenderContext renderObjectContext = new SceneObjectRenderContext(sceneSurface, localBounds,
-            context.FrameTime, context.ChunkResolution, context.DocumentSize);
+        SceneObjectRenderContext renderObjectContext = new SceneObjectRenderContext(renderTarget, localBounds,
+            context.FrameTime, context.ChunkResolution, context.DocumentSize, renderTarget == context.RenderSurface);
 
         Render(renderObjectContext);
 
-        sceneSurface.Canvas.RestoreToCount(savedNum);
+        renderTarget.Canvas.RestoreToCount(savedNum);
 
-        Output.Value = sceneSurface;
+        Output.Value = renderTarget;
     }
 
     public abstract void Render(SceneObjectRenderContext sceneContext);
@@ -102,7 +120,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
             }
             else if (EmbeddedMask != null)
             {
-                surface.Canvas.DrawSurface(renderedMasks[context.ChunkResolution].DrawingSurface, 0, 0, maskPaint); 
+                surface.Canvas.DrawSurface(renderedMasks[context.ChunkResolution].DrawingSurface, 0, 0, maskPaint);
             }
         }
     }
@@ -148,7 +166,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         {
             cache[resolution] = new Texture(targetSize);
         }
-        
+
         if (cache[resolution].Size != targetSize)
         {
             cache[resolution].Dispose();
@@ -167,7 +185,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
     protected void ApplyRasterClip(DrawingSurface toClip, DrawingSurface clipSource)
     {
-        if (ClipToPreviousMember && Background.Value != null)
+        if (ClipToPreviousMember && RenderTarget.Value != null)
         {
             toClip.Canvas.DrawSurface(clipSource, 0, 0, maskPaint);
         }

@@ -11,11 +11,24 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("Folder")]
 public class FolderNode : StructureNode, IReadOnlyFolderNode
 {
-    public InputProperty<DrawingSurface?> Content { get; }
+    public RenderInputProperty Content { get; }
 
     public FolderNode()
     {
-        Content = CreateInput<DrawingSurface?>("Content", "CONTENT", null);
+        Content = CreateRenderInput("Content", "CONTENT", ctx =>
+        {
+            RectD? bounds = new RectD(VecI.Zero, ctx.DocumentSize);
+            
+            // Folder doesn't need to do anything if no operations are present
+            if (bounds == null || !HasOperations()) 
+            {
+                return Output.GetFirstRenderTarget(ctx);
+            }
+
+            VecI size = (VecI)bounds.Value.Size;
+            var outputWorkingSurface = RequestTexture(0, size, false);
+            return outputWorkingSurface.DrawingSurface;
+        });
     }
 
     public override Node CreateCopy() => new FolderNode { MemberName = MemberName };
@@ -23,18 +36,20 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
 
     protected override void OnExecute(RenderContext context)
     {
+        base.OnExecute(context);
+
         /*if(Background.Value == null && Content.Value == null)
         {
             Output.Value = null;
             return;
         }
-        
+
         if (!IsVisible.Value || Opacity.Value <= 0 || IsEmptyMask())
         {
             Output.Value = Background.Value;
             return;
         }
-        
+
         blendPaint.Color = new Color(255, 255, 255, 255);
         blendPaint.BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src;
 
@@ -44,10 +59,10 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
         }
 
         VecI size = Content.Value?.Size ?? VecI.Zero;
-        
-        var outputWorkingSurface = RequestTexture(0, size); 
-        var filterlessWorkingSurface = RequestTexture(1, size); 
-        
+
+        var outputWorkingSurface = RequestTexture(0, size);
+        var filterlessWorkingSurface = RequestTexture(1, size);
+
         if (Background.Value != null)
         {
             DrawBackground(filterlessWorkingSurface.DrawingSurface, context);
@@ -56,7 +71,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
 
         if (Content.Value != null)
         {
-            blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255)); 
+            blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255));
             DrawSurface(filterlessWorkingSurface.DrawingSurface, Content.Value, context, null);
         }
 
@@ -71,30 +86,30 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
                 DrawBackground(outputWorkingSurface.DrawingSurface, context);
                 blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
             }
-            
+
             if (Content.Value != null)
             {
-                blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255)); 
+                blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255));
                 DrawSurface(outputWorkingSurface.DrawingSurface, Content.Value.DrawingSurface, context, Filters.Value);
             }
-            
+
             Output.Value = outputWorkingSurface.DrawingSurface;
         }
-        
+
         if (Content.Value != null)
         {
             DrawSurface(outputWorkingSurface.DrawingSurface, Content.Value.DrawingSurface, context, Filters.Value);
-            
+
             ApplyMaskIfPresent(outputWorkingSurface, context);
         }
-        
+
         if (Background.Value != null)
         {
             Texture tempSurface = RequestTexture(2, outputWorkingSurface.Size);
             DrawBackground(tempSurface.DrawingSurface, context);
-            
+
             ApplyRasterClip(outputWorkingSurface, tempSurface);
-            
+
             blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255));
             blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
             tempSurface.DrawingSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
@@ -106,18 +121,29 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
         Output.Value = outputWorkingSurface.DrawingSurface;*/
     }
 
-    public override VecD ScenePosition => throw new NotImplementedException(); 
-    public override VecD SceneSize => throw new NotImplementedException();
+    public override VecD ScenePosition => Content.Value?.DeviceClipBounds.Size / 2f ?? VecD.Zero;
+    public override VecD SceneSize => Content.Value?.DeviceClipBounds.Size ?? VecD.Zero;
 
     public override void Render(SceneObjectRenderContext sceneContext)
     {
-        throw new NotImplementedException();
+        RectD bounds = RectD.Create(VecI.Zero, sceneContext.DocumentSize); 
+        
+        if(Content.Connection == null || !HasOperations())
+        {
+            return;
+        }
+        
+        VecI size = (VecI)bounds.Size;
+        var outputWorkingSurface = RequestTexture(0, size, false);
+        
+        sceneContext.RenderSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
+        outputWorkingSurface.DrawingSurface.Canvas.Clear();
     }
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
         RectI bounds = new RectI();
-        if(Content.Connection != null)
+        if (Content.Connection != null)
         {
             Content.Connection.Node.TraverseBackwards((n) =>
             {
@@ -132,15 +158,11 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
 
                 return true;
             });
-            
+
             return (RectD)bounds;
         }
-        
+
         return null;
-        // TODO: Implement this
-        /*
-        return (RectD)RectI.Create(0, 0, Content.Value?.Size.X ?? 0, Content.Value?.Size.Y ?? 0);
-    */
     }
 
     public HashSet<Guid> GetLayerNodeGuids()

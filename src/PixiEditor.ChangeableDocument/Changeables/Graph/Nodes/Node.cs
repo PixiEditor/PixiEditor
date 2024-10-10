@@ -250,6 +250,21 @@ public abstract class Node : IReadOnlyNode, IDisposable
         return property;
     }
 
+    protected void AddOutputProperty(OutputProperty property)
+    {
+        outputs.Add(property);
+    }
+
+    protected void AddInputProperty(InputProperty property)
+    {
+        if (InputProperties.Any(x => x.InternalPropertyName == property.InternalPropertyName))
+        {
+            throw new InvalidOperationException($"Input with name {property.InternalPropertyName} already exists.");
+        }
+
+        inputs.Add(property);
+    }
+
     public virtual void Dispose()
     {
         _isDisposed = true;

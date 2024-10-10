@@ -18,19 +18,18 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
     {
     }
 
-
     public override void Render(SceneObjectRenderContext sceneContext)
     {
         if (!IsVisible.Value || Opacity.Value <= 0 || IsEmptyMask())
         {
-            Output.Value = sceneContext.TargetSurface;
+            Output.Value = sceneContext.RenderSurface;
             return;
         }
 
         blendPaint.Color = new Color(255, 255, 255, 255);
         blendPaint.BlendMode = DrawingApi.Core.Surfaces.BlendMode.SrcOver;
 
-        DrawingSurface target = sceneContext.TargetSurface;
+        DrawingSurface target = sceneContext.RenderSurface;
 
         VecI targetSize = GetTargetSize(sceneContext);
 
@@ -61,7 +60,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
         {
             if (!HasOperations())
             {
-                if (Background.Value != null)
+                if (RenderTarget.Value != null)
                 {
                     blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
                 }
@@ -74,14 +73,14 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
             outputWorkingSurface.DrawingSurface.Canvas.Clear();
 
             DrawLayerOnTexture(context, outputWorkingSurface.DrawingSurface, true);
-            
+
             ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, context);
 
-            if (Background.Value != null)
+            if (RenderTarget.Value != null)
             {
-                Texture tempSurface = TryInitWorkingSurface(size, context.ChunkResolution, 4); 
+                Texture tempSurface = TryInitWorkingSurface(size, context.ChunkResolution, 4);
                 tempSurface.DrawingSurface.Canvas.Clear();
-                if (Background.Connection.Node is LayerNode layerNode)
+                if (RenderTarget.Connection.Node is LayerNode layerNode)
                 {
                     // TODO: This probably should work with StructureMembers not Layers only
                     DrawPreviousLayer(tempSurface.DrawingSurface, layerNode, context);
@@ -98,12 +97,13 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
             DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, context.ChunkResolution, size);
         }
     }
-    
-    protected internal virtual void DrawLayerOnTexture(SceneObjectRenderContext ctx, DrawingSurface workingSurface, bool useFilters)
+
+    protected internal virtual void DrawLayerOnTexture(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+        bool useFilters)
     {
         int scaled = workingSurface.Canvas.Save();
         workingSurface.Canvas.Translate(ScenePosition);
-        
+
         DrawLayerOnto(ctx, workingSurface, useFilters);
 
         workingSurface.Canvas.RestoreToCount(scaled);
@@ -113,11 +113,10 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
     {
         int scaled = target.Canvas.Save();
         float multiplier = (float)resolution.InvertedMultiplier();
-        VecD shiftToCenter = SceneSize - (size * resolution.Multiplier()); 
         target.Canvas.Scale(multiplier, multiplier);
 
         target.Canvas.DrawSurface(source, 0, 0, blendPaint);
-        
+
         target.Canvas.RestoreToCount(scaled);
     }
 

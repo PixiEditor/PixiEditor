@@ -4,7 +4,7 @@ using PixiEditor.DrawingApi.Core.Surfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
-public interface IBackgroundInput
+public interface IRenderInput
 {
-    InputProperty<DrawingSurface?> Background { get; }
+    RenderInputProperty RenderTarget { get; }
 }

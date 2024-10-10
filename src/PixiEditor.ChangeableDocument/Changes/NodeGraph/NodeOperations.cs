@@ -100,13 +100,13 @@ public static class NodeOperations
     {
         List<IChangeInfo> changes = new();
 
-        if (structureNode.Background.Connection != null)
+        if (structureNode.RenderTarget.Connection != null)
         {
             // connect connection to next input if possible
 
             var connections = structureNode.Output.Connections.ToArray();
 
-            var output = structureNode.Background.Connection;
+            var output = structureNode.RenderTarget.Connection;
 
             foreach (var input in connections)
             {
@@ -115,9 +115,9 @@ public static class NodeOperations
                     output.InternalPropertyName, input.InternalPropertyName));
             }
 
-            structureNode.Background.Connection.DisconnectFrom(structureNode.Background);
+            structureNode.RenderTarget.Connection.DisconnectFrom(structureNode.RenderTarget);
             changes.Add(new ConnectProperty_ChangeInfo(null, structureNode.Id, null,
-                structureNode.Background.InternalPropertyName));
+                structureNode.RenderTarget.InternalPropertyName));
         }
 
         var outputs = structureNode.Output.Connections.ToArray();

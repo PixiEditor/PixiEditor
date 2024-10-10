@@ -60,7 +60,7 @@ internal class RasterizeMember_Change : Change
         InputProperty<DrawingSurface>? outputConnectedInput =
             outputConnection?.Connections.FirstOrDefault(x => x is InputProperty<DrawingSurface>) as InputProperty<DrawingSurface>;
 
-        InputProperty<DrawingSurface> backgroundInput = imageLayer.Background;
+        InputProperty<DrawingSurface> backgroundInput = imageLayer.RenderTarget;
         OutputProperty<DrawingSurface> toAddOutput = imageLayer.Output;
 
         List<IChangeInfo> changeInfos = new();

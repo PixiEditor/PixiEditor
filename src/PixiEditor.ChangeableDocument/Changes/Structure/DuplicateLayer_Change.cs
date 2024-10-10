@@ -51,7 +51,7 @@ internal class DuplicateLayer_Change : Change
 
         operations.Add(CreateLayer_ChangeInfo.FromLayer(clone));
 
-        operations.AddRange(NodeOperations.AppendMember(targetInput, clone.Output, clone.Background, clone.Id));
+        operations.AddRange(NodeOperations.AppendMember(targetInput, clone.Output, clone.RenderTarget, clone.Id));
 
         ignoreInUndo = false;
 

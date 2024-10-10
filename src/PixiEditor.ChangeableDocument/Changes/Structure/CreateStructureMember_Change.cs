@@ -58,7 +58,7 @@ internal class CreateStructureMember_Change : Change
         {
             document.NodeGraph.AddNode(member);
             List<ConnectProperty_ChangeInfo> connectPropertyChangeInfo =
-                NodeOperations.AppendMember(targetInput, member.Output, member.Background, member.Id);
+                NodeOperations.AppendMember(targetInput, member.Output, member.RenderTarget, member.Id);
             changes.AddRange(connectPropertyChangeInfo);
         }
 
@@ -81,13 +81,13 @@ internal class CreateStructureMember_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document document)
     {
         var container = document.FindNodeOrThrow<Node>(parentGuid);
-        if (container is not IBackgroundInput backgroundInput)
+        if (container is not IRenderInput backgroundInput)
         {
             throw new InvalidOperationException("Parent folder is not a valid container.");
         }
 
         StructureNode child = document.FindMemberOrThrow(newMemberGuid);
-        var childBackgroundConnection = child.Background.Connection;
+        var childBackgroundConnection = child.RenderTarget.Connection;
         child.Dispose();
 
         document.NodeGraph.RemoveNode(child);
@@ -96,10 +96,10 @@ internal class CreateStructureMember_Change : Change
 
         if (childBackgroundConnection != null)
         {
-            childBackgroundConnection?.ConnectTo(backgroundInput.Background);
+            childBackgroundConnection?.ConnectTo(backgroundInput.RenderTarget);
             ConnectProperty_ChangeInfo change = new(childBackgroundConnection.Node.Id,
-                backgroundInput.Background.Node.Id, childBackgroundConnection.InternalPropertyName,
-                backgroundInput.Background.InternalPropertyName);
+                backgroundInput.RenderTarget.Node.Id, childBackgroundConnection.InternalPropertyName,
+                backgroundInput.RenderTarget.InternalPropertyName);
             changes.Add(change);
         }
 
@@ -108,7 +108,7 @@ internal class CreateStructureMember_Change : Change
 
     private static void AppendFolder(InputProperty<DrawingSurface> backgroundInput, FolderNode folder, List<IChangeInfo> changes)
     {
-        var appened = NodeOperations.AppendMember(backgroundInput, folder.Output, folder.Background, folder.Id);
+        var appened = NodeOperations.AppendMember(backgroundInput, folder.Output, folder.RenderTarget, folder.Id);
         changes.AddRange(appened);
     }
 
