@@ -80,7 +80,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
 
             if (Background.Value != null)
             {
-                using Texture tempSurface = RequestTexture(4, size);
+                Texture tempSurface = RequestTexture(4, size);
                 if (Background.Connection.Node is LayerNode layerNode)
                 {
                     // TODO: This probably should work with StructureMembers not Layers only
@@ -89,15 +89,12 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
 
                 ApplyRasterClip(outputWorkingSurface.DrawingSurface, tempSurface.DrawingSurface);
                 blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
-                tempSurface.DrawingSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0,
-                    blendPaint);
+                tempSurface.DrawingSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
 
-                //cached.DrawingSurface.Canvas.DrawSurface(tempSurface.DrawingSurface, VecI.Zero, blendPaint);\
                 renderOnto.Canvas.DrawSurface(tempSurface.DrawingSurface, 0, 0, blendPaint);
                 return;
             }
 
-            //cached.DrawingSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
             renderOnto.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
         }
     }

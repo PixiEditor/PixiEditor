@@ -532,7 +532,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
         int count = canvas.Save();
 
-        //using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
+        using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
 
         using SKPaint paint = new SKPaint();
         paint.Color = paint.Color.WithAlpha((byte)(opacity * 255));
