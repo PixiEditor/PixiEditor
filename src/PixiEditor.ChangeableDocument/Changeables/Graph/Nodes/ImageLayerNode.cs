@@ -94,8 +94,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         Paint paint)
     {
-        VecD topLeft = SceneSize / 2f;
-        workingSurface.Canvas.DrawSurface(renderedSurfaces[ctx.ChunkResolution].DrawingSurface, -(VecI)topLeft, paint);
+        DrawLayer(workingSurface, paint, ctx.ChunkResolution); 
     }
 
     // Draw with filters is a bit tricky since some filters sample data from chunks surrounding the chunk being drawn,
@@ -103,101 +102,13 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     protected override void DrawWithFilters(SceneObjectRenderContext context, DrawingSurface workingSurface,
         Paint paint)
     {
-        // TODO: Implement non-chunk rendering
-        /*var frameImage = GetFrameWithImage(context.FrameTime).Data as ChunkyImage;
+        DrawLayer(workingSurface, paint, context.ChunkResolution);
+    }
 
-        VecI chunkToUpdate = context.ChunkToUpdate.Value;
-
-        VecI imageChunksSize = frameImage.LatestSize / context.ChunkResolution.PixelSize();
-        bool requiresTopLeft = chunkToUpdate.X > 0 || chunkToUpdate.Y > 0;
-        bool requiresTop = chunkToUpdate.Y > 0;
-        bool requiresLeft = chunkToUpdate.X > 0;
-        bool requiresTopRight = chunkToUpdate.X < imageChunksSize.X - 1 && chunkToUpdate.Y > 0;
-        bool requiresRight = chunkToUpdate.X < imageChunksSize.X - 1;
-        bool requiresBottomRight = chunkToUpdate.X < imageChunksSize.X - 1 &&
-                                   chunkToUpdate.Y < imageChunksSize.Y - 1;
-        bool requiresBottom = chunkToUpdate.Y < imageChunksSize.Y - 1;
-        bool requiresBottomLeft = chunkToUpdate.X > 0 && chunkToUpdate.Y < imageChunksSize.Y - 1;
-
-        VecI tempSizeInChunks = new VecI(1, 1);
-        if (requiresLeft)
-        {
-            tempSizeInChunks.X++;
-        }
-
-        if (requiresRight)
-        {
-            tempSizeInChunks.X++;
-        }
-
-        if (requiresTop)
-        {
-            tempSizeInChunks.Y++;
-        }
-
-        if (requiresBottom)
-        {
-            tempSizeInChunks.Y++;
-        }
-
-        VecI tempSize = tempSizeInChunks * context.ChunkResolution.PixelSize();
-        tempSize = new VecI(Math.Min(tempSize.X, (int)context.LocalBounds.Size.X),
-            Math.Min(tempSize.Y, (int)context.LocalBounds.Size.Y));
-
-        if (shouldClear)
-        {
-            workingSurface.Canvas.DrawRect(
-                new RectD(
-                    VecI.Zero,
-                    tempSize),
-                clearPaint);
-        }
-
-        using Texture tempSurface = new Texture(tempSize);
-
-        if (requiresTopLeft)
-        {
-            DrawChunk(frameImage, context, tempSurface, new VecI(-1, -1), paint);
-        }
-
-        if (requiresTop)
-        {
-            DrawChunk(frameImage, context, tempSurface, new VecI(0, -1), paint);
-        }
-
-        if (requiresLeft)
-        {
-            DrawChunk(frameImage, context, tempSurface, new VecI(-1, 0), paint);
-        }
-
-        if (requiresTopRight)
-        {
-            DrawChunk(frameImage, context, tempSurface, new VecI(1, -1), paint);
-        }
-
-        if (requiresRight)
-        {
-            DrawChunk(frameImage, context, tempSurface, new VecI(1, 0), paint);
-        }
-
-        if (requiresBottomRight)
-        {
-            DrawChunk(frameImage, context, tempSurface, new VecI(1, 1), paint);
-        }
-
-        if (requiresBottom)
-        {
-            DrawChunk(frameImage, context, tempSurface, new VecI(0, 1), paint);
-        }
-
-        if (requiresBottomLeft)
-        {
-            DrawChunk(frameImage, context, tempSurface, new VecI(-1, 1), paint);
-        }
-
-        DrawChunk(frameImage, context, tempSurface, new VecI(0, 0), paint);
-
-        workingSurface.Canvas.DrawSurface(tempSurface.DrawingSurface, VecI.Zero, paint);*/
+    private void DrawLayer(DrawingSurface workingSurface, Paint paint, ChunkResolution resolution)
+    {
+        VecD topLeft = SceneSize / 2f;
+        workingSurface.Canvas.DrawSurface(renderedSurfaces[resolution].DrawingSurface, -(VecI)topLeft, paint);
     }
 
     public override bool RenderPreview(Texture renderOn, VecI chunk, ChunkResolution resolution, int frame)

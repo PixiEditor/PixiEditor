@@ -66,17 +66,15 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
                     blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
                 }
 
-                DrawLayerInScene(context, renderOnto, false);
+                DrawLayerInScene(context, renderOnto, true);
                 return;
             }
-
 
             var outputWorkingSurface = TryInitWorkingSurface(size, context.ChunkResolution, 1);
             outputWorkingSurface.DrawingSurface.Canvas.Clear();
 
             DrawLayerOnTexture(context, outputWorkingSurface.DrawingSurface, true);
             
-            // shit gets downhill with mask on big canvases, TODO: optimize
             ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, context);
 
             if (Background.Value != null)
