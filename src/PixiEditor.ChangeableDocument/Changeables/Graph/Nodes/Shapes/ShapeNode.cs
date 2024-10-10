@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes;
@@ -14,6 +15,8 @@ public abstract class ShapeNode<T> : Node where T : ShapeVectorData
     {
         Output = CreateOutput<T>("Output", "OUTPUT", null);
     }
+    
+    private static readonly Paint rasterizePreviewPaint = new Paint();
 
     protected override void OnExecute(RenderContext context)
     {
@@ -33,7 +36,7 @@ public abstract class ShapeNode<T> : Node where T : ShapeVectorData
     {
         Texture texture = RequestTexture(0, size);
         
-        vectorData.RasterizeTransformed(texture.DrawingSurface, ChunkResolution.Full, null);
+        vectorData.RasterizeTransformed(texture.DrawingSurface, ChunkResolution.Full, rasterizePreviewPaint);
         
         return texture;
     }

@@ -46,12 +46,12 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
 
         paint.Color = FillColor;
         paint.Style = PaintStyle.Fill;
-        drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(VecD.Zero, Size), paint);
+        drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
 
         paint.Color = StrokeColor;
         paint.Style = PaintStyle.Stroke;
         paint.StrokeWidth = StrokeWidth;
-        drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(VecD.Zero, Size - new VecD(StrokeWidth)), paint);
+        drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size - new VecD(StrokeWidth)), paint);
 
         if (applyTransform)
         {

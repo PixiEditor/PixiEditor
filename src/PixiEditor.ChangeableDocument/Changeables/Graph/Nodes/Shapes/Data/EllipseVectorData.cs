@@ -11,6 +11,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
 {
     public VecD Radius { get; set; }
+    
     public VecD Center { get; set; }
 
     public override RectD GeometryAABB =>
@@ -26,7 +27,7 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
         Radius = radius;
     }
 
-    public override void RasterizeGeometry(DrawingSurface drawingSurface, ChunkResolution resolution, Paint? paint)
+    public override void RasterizeGeometry(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint)
     {
         Rasterize(drawingSurface, paint, false);
     }
@@ -47,12 +48,12 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
 
         paint.Color = FillColor;
         paint.Style = PaintStyle.Fill;
-        drawingSurface.Canvas.DrawOval(VecD.Zero, Radius, paint);
+        drawingSurface.Canvas.DrawOval(Center, Radius, paint);
 
         paint.Color = StrokeColor;
         paint.Style = PaintStyle.Stroke;
         paint.StrokeWidth = StrokeWidth;
-        drawingSurface.Canvas.DrawOval(VecD.Zero, Radius - new VecD(StrokeWidth / 2f), paint);
+        drawingSurface.Canvas.DrawOval(Center, Radius - new VecD(StrokeWidth / 2f), paint);
 
         if (applyTransform)
         {

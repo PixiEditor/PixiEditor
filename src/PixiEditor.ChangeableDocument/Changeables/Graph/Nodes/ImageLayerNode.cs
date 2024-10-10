@@ -96,6 +96,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         int scaled = workingSurface.Canvas.Save();
         float multiplier = (float)ctx.ChunkResolution.InvertedMultiplier();
         VecD shiftToCenter = SceneSize - renderedSurfaces[ctx.ChunkResolution].Size;
+        workingSurface.Canvas.Translate(ScenePosition);
         workingSurface.Canvas.Scale(multiplier, multiplier);
         workingSurface.Canvas.Translate(shiftToCenter / 2f);
         base.DrawLayer(ctx, workingSurface, useFilters);

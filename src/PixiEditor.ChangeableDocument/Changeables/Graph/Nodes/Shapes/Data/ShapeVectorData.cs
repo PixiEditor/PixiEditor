@@ -23,15 +23,13 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
     {
         Matrix3X3 canvasMatrix = drawingSurface.Canvas.TotalMatrix;
 
-        Matrix3X3 final = TransformationMatrix with { TransX = 0, TransY = 0 };
-
-        final = canvasMatrix.Concat(final);
+        Matrix3X3 final = canvasMatrix.Concat(TransformationMatrix);
 
         drawingSurface.Canvas.SetMatrix(final);
     }
 
-    public abstract void RasterizeGeometry(DrawingSurface drawingSurface, ChunkResolution resolution, Paint? paint);
-    public abstract void RasterizeTransformed(DrawingSurface drawingSurface, ChunkResolution resolution, Paint? paint);
+    public abstract void RasterizeGeometry(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint);
+    public abstract void RasterizeTransformed(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint);
     public abstract bool IsValid();
     public abstract int GetCacheHash();
     public abstract int CalculateHash();

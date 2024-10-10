@@ -59,23 +59,7 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
         paint.Style = PaintStyle.Stroke;
         paint.StrokeWidth = StrokeWidth;
 
-        double startX;
-        double startY;
-        double endX;
-        double endY;
-
-        VecD halfSize = new VecD(GeometryAABB.Size.X / 2f - StrokeWidth, GeometryAABB.Size.Y / 2f - StrokeWidth);
-
-        startX = Start.X <= End.X ? -halfSize.X : halfSize.X;
-        endX = Start.X <= End.X ? halfSize.X : -halfSize.X;
-
-        startY = Start.Y <= End.Y ? -halfSize.Y : halfSize.Y;
-        endY = Start.Y <= End.Y ? halfSize.Y : -halfSize.Y;
-
-        VecD localStart = new VecD(startX, startY);
-        VecD localEnd = new VecD(endX, endY);
-
-        drawingSurface.Canvas.DrawLine(localStart, localEnd, paint);
+        drawingSurface.Canvas.DrawLine(Start, End, paint);
 
         if (applyTransform)
         {

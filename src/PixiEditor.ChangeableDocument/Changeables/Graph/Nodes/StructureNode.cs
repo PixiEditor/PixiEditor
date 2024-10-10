@@ -24,7 +24,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     public InputProperty<bool> IsVisible { get; }
     public bool ClipToPreviousMember { get; set; }
     public InputProperty<BlendMode> BlendMode { get; }
-    public InputProperty<DrawingSurface?> CustomMask { get; }
+    public InputProperty<Texture?> CustomMask { get; }
     public InputProperty<bool> MaskIsVisible { get; }
     public InputProperty<Filter> Filters { get; }
     public OutputProperty<DrawingSurface?> Output { get; }
@@ -55,7 +55,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         Opacity = CreateInput<float>("Opacity", "OPACITY", 1);
         IsVisible = CreateInput<bool>("IsVisible", "IS_VISIBLE", true);
         BlendMode = CreateInput("BlendMode", "BLEND_MODE", Enums.BlendMode.Normal);
-        CustomMask = CreateInput<DrawingSurface?>("Mask", "MASK", null);
+        CustomMask = CreateInput<Texture?>("Mask", "MASK", null);
         MaskIsVisible = CreateInput<bool>("MaskIsVisible", "MASK_IS_VISIBLE", true);
         Filters = CreateInput<Filter>(nameof(Filters), "FILTERS", null);
 
@@ -73,10 +73,9 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
         DrawingSurface sceneSurface = Background.Value ?? context.TargetSurface;
 
-        int savedNum = sceneSurface.Canvas.Save();  
-        
+        int savedNum = sceneSurface.Canvas.Save();
+
         sceneSurface.Canvas.ClipRect(new RectD(ScenePosition - (SceneSize / 2f), SceneSize));
-        sceneSurface.Canvas.Translate((float)ScenePosition.X, (float)ScenePosition.Y);
 
         SceneObjectRenderContext renderObjectContext = new SceneObjectRenderContext(sceneSurface, localBounds,
             context.FrameTime, context.ChunkResolution, context.DocumentSize);
@@ -96,18 +95,16 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         {
             if (CustomMask.Value != null)
             {
-                surface.Canvas.DrawSurface(CustomMask.Value, 0, 0, maskPaint);
+                surface.Canvas.DrawSurface(CustomMask.Value.DrawingSurface, 0, 0, maskPaint);
             }
             else if (EmbeddedMask != null)
             {
-                // TODO: Handle mask
                 /*EmbeddedMask.DrawMostUpToDateChunkOn(
                     context.ChunkToUpdate.Value,
                     context.ChunkResolution,
                     surface,
                     context.ChunkToUpdate.Value * context.ChunkResolution.PixelSize(),
-                    maskPaint);
-            }*/
+                    maskPaint);*/
             }
         }
     }
@@ -184,7 +181,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         y = Math.Clamp(y, 0, Math.Max(sourceSize.Y - height, 0));
 
         return new RectI(x, y, width, height);*/
-        
+
         return new RectI(0, 0, sourceSize.X, sourceSize.Y);
     }
 
@@ -199,12 +196,11 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         int height = chunkSize;
 
         return new RectI(x, y, width, height);*/
-        
+
         return new RectI(0, 0, context.DocumentSize.X, context.DocumentSize.Y);
     }
 
     public abstract RectD? GetTightBounds(KeyFrameTime frameTime);
-
 
     public override void SerializeAdditionalData(Dictionary<string, object> additionalData)
     {

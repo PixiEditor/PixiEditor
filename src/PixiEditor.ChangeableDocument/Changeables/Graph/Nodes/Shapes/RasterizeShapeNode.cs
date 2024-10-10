@@ -18,6 +18,7 @@ public class RasterizeShapeNode : Node
 
     protected override bool AffectedByChunkResolution => true;
 
+    private Paint rasterizePaint = new Paint();
 
     public RasterizeShapeNode()
     {
@@ -34,8 +35,12 @@ public class RasterizeShapeNode : Node
 
         var size = context.DocumentSize;
         var image = RequestTexture(0, size);
+
+        image.DrawingSurface.Canvas.Save();
+
+        shape.RasterizeTransformed(image.DrawingSurface, context.ChunkResolution, rasterizePaint);
         
-        shape.RasterizeTransformed(image.DrawingSurface, context.ChunkResolution, null);
+        image.DrawingSurface.Canvas.Restore();
 
         Image.Value = image;
         
