@@ -33,7 +33,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
     public ChunkyImage? EmbeddedMask { get; set; }
 
-    private Dictionary<ChunkResolution, Texture> renderedMasks = new();
+    protected Dictionary<ChunkResolution, Texture> renderedMasks = new();
     protected static readonly Paint replacePaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src };
 
     public virtual ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
@@ -149,7 +149,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
             cache[resolution] = new Texture(targetSize);
         }
         
-        if ((cache[resolution].Size * resolution.InvertedMultiplier()) != targetSize)
+        if (cache[resolution].Size != targetSize)
         {
             cache[resolution].Dispose();
             cache[resolution] = new Texture(targetSize);
@@ -186,7 +186,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     protected void DrawPreviousLayer(DrawingSurface drawOnto, LayerNode previousNode, SceneObjectRenderContext context)
     {
         blendPaint.Color = Colors.White;
-        previousNode.DrawLayer(context, drawOnto, false);
+        previousNode.DrawLayerOnTexture(context, drawOnto, false);
     }
 
     protected void DrawSurface(DrawingSurface workingSurface, DrawingSurface source, RenderContext context,
