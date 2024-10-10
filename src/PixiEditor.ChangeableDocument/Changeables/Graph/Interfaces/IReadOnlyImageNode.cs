@@ -14,5 +14,4 @@ public interface IReadOnlyImageNode : IReadOnlyLayerNode, ITransparencyLockable
     public IReadOnlyChunkyImage GetLayerImageByKeyFrameGuid(Guid keyFrameGuid);
     void SetLayerImageAtFrame(int frame, IReadOnlyChunkyImage image);
     public void ForEveryFrame(Action<IReadOnlyChunkyImage> action);
-    public void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime);
 }

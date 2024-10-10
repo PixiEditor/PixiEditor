@@ -27,15 +27,15 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
 
     public override void RasterizeGeometry(DrawingSurface drawingSurface, ChunkResolution resolution, Paint? paint)
     {
-        Rasterize(drawingSurface, resolution, paint, false);
+        Rasterize(drawingSurface, paint, false);
     }
 
     public override void RasterizeTransformed(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint)
     {
-        Rasterize(drawingSurface, resolution, paint, true);
+        Rasterize(drawingSurface, paint, true);
     }
 
-    private void Rasterize(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint, bool applyTransform)
+    private void Rasterize(DrawingSurface drawingSurface, Paint paint, bool applyTransform)
     {
         int saved = 0;
         if (applyTransform)

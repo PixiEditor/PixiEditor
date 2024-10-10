@@ -33,6 +33,9 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
     public ChunkyImage? EmbeddedMask { get; set; }
 
+    private Dictionary<ChunkResolution, Texture> renderedMasks = new();
+    protected static readonly Paint replacePaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src };
+
     public virtual ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
     {
         return new ShapeCorners(GetTightBounds(frameTime).GetValueOrDefault());
@@ -99,14 +102,20 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
             }
             else if (EmbeddedMask != null)
             {
-                /*EmbeddedMask.DrawMostUpToDateChunkOn(
-                    context.ChunkToUpdate.Value,
-                    context.ChunkResolution,
-                    surface,
-                    context.ChunkToUpdate.Value * context.ChunkResolution.PixelSize(),
-                    maskPaint);*/
+                surface.Canvas.DrawSurface(renderedMasks[context.ChunkResolution].DrawingSurface, 0, 0, maskPaint); 
             }
         }
+    }
+
+    protected static void CreateRenderCanvases(VecI newSize, Dictionary<ChunkResolution, Texture> target)
+    {
+        target[ChunkResolution.Full] = new Texture(newSize);
+        target[ChunkResolution.Half] =
+            new Texture(new VecI(Math.Max(newSize.X / 2, 1), Math.Max(newSize.Y / 2, 1)));
+        target[ChunkResolution.Quarter] =
+            new Texture(new VecI(Math.Max(newSize.X / 4, 1), Math.Max(newSize.Y / 4, 1)));
+        target[ChunkResolution.Eighth] =
+            new Texture(new VecI(Math.Max(newSize.X / 8, 1), Math.Max(newSize.Y / 8, 1)));
     }
 
     protected override bool CacheChanged(RenderContext context)
@@ -119,6 +128,41 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     {
         base.UpdateCache(context);
         maskCacheHash = EmbeddedMask?.GetCacheHash() ?? 0;
+    }
+
+    public virtual void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime)
+    {
+        RenderChunkyImageChunk(chunkPos, resolution, EmbeddedMask, renderedMasks);
+    }
+
+    protected void RenderChunkyImageChunk(VecI chunkPos, ChunkResolution resolution, ChunkyImage img,
+        Dictionary<ChunkResolution, Texture> cache)
+    {
+        if (img is null)
+        {
+            return;
+        }
+
+        VecI targetSize = (VecI)(img.LatestSize * resolution.Multiplier());
+        if (!cache.ContainsKey(resolution))
+        {
+            cache[resolution] = new Texture(targetSize);
+        }
+        
+        if ((cache[resolution].Size * resolution.InvertedMultiplier()) != targetSize)
+        {
+            cache[resolution].Dispose();
+            cache[resolution] = new Texture(targetSize);
+        }
+
+        img.DrawMostUpToDateChunkOn(
+            chunkPos,
+            resolution,
+            cache[resolution].DrawingSurface,
+            chunkPos * resolution.PixelSize(),
+            replacePaint);
+
+        cache[resolution].DrawingSurface.Flush();
     }
 
     protected void ApplyRasterClip(DrawingSurface toClip, DrawingSurface clipSource)

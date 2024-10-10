@@ -25,7 +25,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     private VecI startSize;
     private ChunkyImage layerImage => keyFrames[0]?.Data as ChunkyImage;
-    protected Paint replacePaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src };
 
     private static readonly Paint clearPaint = new()
     {
@@ -52,21 +51,9 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         this.startSize = size;
 
-        CreateRenderCanvases(size);
+        CreateRenderCanvases(size, renderedSurfaces);
     }
-
-    private void CreateRenderCanvases(VecI newSize)
-    {
-        renderedSurfaces[ChunkResolution.Full] = new Texture(newSize);
-        renderedSurfaces[ChunkResolution.Half] =
-            new Texture(new VecI(Math.Max(newSize.X / 2, 1), Math.Max(newSize.Y / 2, 1)));
-        renderedSurfaces[ChunkResolution.Quarter] =
-            new Texture(new VecI(Math.Max(newSize.X / 4, 1), Math.Max(newSize.Y / 4, 1)));
-        renderedSurfaces[ChunkResolution.Eighth] =
-            new Texture(new VecI(Math.Max(newSize.X / 8, 1), Math.Max(newSize.Y / 8, 1)));
-    }
-
-
+    
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
         return (RectD?)GetLayerImageAtFrame(frameTime.Frame).FindTightCommittedBounds();
@@ -306,32 +293,15 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     void IReadOnlyImageNode.ForEveryFrame(Action<IReadOnlyChunkyImage> action) => ForEveryFrame(action);
 
-    public void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime)
+    public override void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime)
     {
+        base.RenderChunk(chunkPos, resolution, frameTime);
+        
         var img = GetLayerImageAtFrame(frameTime.Frame);
 
-        if (img is null)
-        {
-            return;
-        }
-
-        VecD targetSize = img.LatestSize * resolution.Multiplier();
-        if ((renderedSurfaces[resolution].Size * resolution.InvertedMultiplier()) != targetSize)
-        {
-            renderedSurfaces[resolution].Dispose();
-            renderedSurfaces[resolution] = new Texture((VecI)targetSize);
-        }
-
-        img.DrawMostUpToDateChunkOn(
-            chunkPos,
-            resolution,
-            renderedSurfaces[resolution].DrawingSurface,
-            chunkPos * resolution.PixelSize(),
-            replacePaint);
-
-        renderedSurfaces[resolution].DrawingSurface.Flush();
+        RenderChunkyImageChunk(chunkPos, resolution, img, renderedSurfaces);
     }
-
+    
     public void ForEveryFrame(Action<ChunkyImage> action)
     {
         foreach (var frame in keyFrames)

@@ -74,7 +74,7 @@ public class DocumentRenderer
         {
             Document.NodeGraph.TryTraverse((node =>
             {
-                if (node is IReadOnlyImageNode imageNode)
+                if (node is IChunkRenderable imageNode)
                 {
                     imageNode.RenderChunk(chunkPos, resolution, frameTime);
                 }
