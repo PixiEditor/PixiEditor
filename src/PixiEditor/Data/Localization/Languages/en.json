@@ -440,7 +440,7 @@
   "BOTTOM_LEFT": "Bottom left",
   "BOTTOM_CENTER": "Bottom center",
   "BOTTOM_RIGHT": "Bottom right",
-  "CLIP_TO_BELOW": "Clip to layer below",
+  "CLIP_TO_BELOW": "Clip to member below",
   "MOVE_UPWARDS": "Move upwards",
   "MOVE_DOWNWARDS": "Move downwards",
   "MERGE_SELECTED": "Merge selected",

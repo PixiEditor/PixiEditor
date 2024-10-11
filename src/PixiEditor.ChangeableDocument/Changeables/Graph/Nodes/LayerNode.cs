@@ -9,7 +9,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
+public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 {
     protected Dictionary<(ChunkResolution, int), Texture> workingSurfaces =
         new Dictionary<(ChunkResolution, int), Texture>();
@@ -80,10 +80,10 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
             {
                 Texture tempSurface = TryInitWorkingSurface(size, context.ChunkResolution, 4);
                 tempSurface.DrawingSurface.Canvas.Clear();
-                if (RenderTarget.Connection.Node is LayerNode layerNode)
+                if (RenderTarget.Connection.Node is IClipSource clipSource)
                 {
                     // TODO: This probably should work with StructureMembers not Layers only
-                    DrawPreviousLayer(tempSurface.DrawingSurface, layerNode, context);
+                    DrawClipSource(tempSurface.DrawingSurface, clipSource, context);
                 }
 
                 ApplyRasterClip(outputWorkingSurface.DrawingSurface, tempSurface.DrawingSurface);
@@ -168,4 +168,9 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
     }
 
     public abstract bool RenderPreview(Texture renderOn, VecI chunk, ChunkResolution resolution, int frame);
+
+    void IClipSource.DrawOnTexture(SceneObjectRenderContext context, DrawingSurface drawOnto)
+    {
+        DrawLayerOnTexture(context, drawOnto, false);
+    }
 }

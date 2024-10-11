@@ -187,10 +187,10 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IRenderInput
         return (MaskIsVisible.Value && (EmbeddedMask != null || CustomMask.Value != null)) || ClipToPreviousMember;
     }
 
-    protected void DrawPreviousLayer(DrawingSurface drawOnto, LayerNode previousNode, SceneObjectRenderContext context)
+    protected void DrawClipSource(DrawingSurface drawOnto, IClipSource clipSource, SceneObjectRenderContext context)
     {
         blendPaint.Color = Colors.White;
-        previousNode.DrawLayerOnTexture(context, drawOnto, false);
+        clipSource.DrawOnTexture(context, drawOnto);
     }
 
     protected void DrawSurface(DrawingSurface workingSurface, DrawingSurface source, RenderContext context,
