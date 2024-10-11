@@ -33,7 +33,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IRenderInput
 
     public ChunkyImage? EmbeddedMask { get; set; }
 
-    protected Dictionary<ChunkResolution, Texture> renderedMasks = new();
+    protected Texture renderedMask;
     protected static readonly Paint replacePaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src };
 
     public virtual ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
@@ -120,20 +120,10 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IRenderInput
             }
             else if (EmbeddedMask != null)
             {
-                surface.Canvas.DrawSurface(renderedMasks[context.ChunkResolution].DrawingSurface, 0, 0, maskPaint);
+                // apply resolution scaling
+                surface.Canvas.DrawSurface(renderedMask.DrawingSurface, 0, 0, maskPaint);
             }
         }
-    }
-
-    protected static void CreateRenderCanvases(VecI newSize, Dictionary<ChunkResolution, Texture> target)
-    {
-        target[ChunkResolution.Full] = new Texture(newSize);
-        target[ChunkResolution.Half] =
-            new Texture(new VecI(Math.Max(newSize.X / 2, 1), Math.Max(newSize.Y / 2, 1)));
-        target[ChunkResolution.Quarter] =
-            new Texture(new VecI(Math.Max(newSize.X / 4, 1), Math.Max(newSize.Y / 4, 1)));
-        target[ChunkResolution.Eighth] =
-            new Texture(new VecI(Math.Max(newSize.X / 8, 1), Math.Max(newSize.Y / 8, 1)));
     }
 
     protected override bool CacheChanged(RenderContext context)
@@ -150,37 +140,33 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IRenderInput
 
     public virtual void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime)
     {
-        RenderChunkyImageChunk(chunkPos, resolution, EmbeddedMask, renderedMasks);
+        RenderChunkyImageChunk(chunkPos, resolution, EmbeddedMask, ref renderedMask);
     }
 
     protected void RenderChunkyImageChunk(VecI chunkPos, ChunkResolution resolution, ChunkyImage img,
-        Dictionary<ChunkResolution, Texture> cache)
+        ref Texture? renderSurface)
     {
         if (img is null)
         {
             return;
         }
 
-        VecI targetSize = (VecI)(img.LatestSize * resolution.Multiplier());
-        if (!cache.ContainsKey(resolution))
-        {
-            cache[resolution] = new Texture(targetSize);
-        }
+        VecI targetSize = img.LatestSize;
 
-        if (cache[resolution].Size != targetSize)
+        if (renderSurface == null || renderSurface.Size != targetSize)
         {
-            cache[resolution].Dispose();
-            cache[resolution] = new Texture(targetSize);
+            renderSurface?.Dispose();
+            renderSurface = new Texture(targetSize);
         }
 
         img.DrawMostUpToDateChunkOn(
             chunkPos,
-            resolution,
-            cache[resolution].DrawingSurface,
-            chunkPos * resolution.PixelSize(),
+            ChunkResolution.Full,
+            renderSurface.DrawingSurface,
+            chunkPos * ChunkResolution.Full.PixelSize(),
             replacePaint);
 
-        cache[resolution].DrawingSurface.Flush();
+        renderSurface.DrawingSurface.Flush();
     }
 
     protected void ApplyRasterClip(DrawingSurface toClip, DrawingSurface clipSource)

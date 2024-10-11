@@ -38,7 +38,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     protected override bool AffectedByChunkResolution => true;
 
 
-    private Dictionary<ChunkResolution, Texture> renderedSurfaces = new();
+    private Texture fullResrenderedSurface; 
 
     public ImageLayerNode(VecI size)
     {
@@ -51,7 +51,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         this.startSize = size;
 
-        CreateRenderCanvases(size, renderedSurfaces);
     }
     
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
@@ -82,10 +81,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     {
         int scaled = workingSurface.Canvas.Save();
         float multiplier = (float)ctx.ChunkResolution.InvertedMultiplier();
-        VecD shiftToCenter = SceneSize - renderedSurfaces[ctx.ChunkResolution].Size;
         workingSurface.Canvas.Translate(ScenePosition);
-        workingSurface.Canvas.Scale(multiplier, multiplier);
-        workingSurface.Canvas.Translate(shiftToCenter / 2f);
+        //workingSurface.Canvas.Scale(multiplier, multiplier);
         base.DrawLayerInScene(ctx, workingSurface, useFilters);
 
         workingSurface.Canvas.RestoreToCount(scaled);
@@ -107,8 +104,19 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     private void DrawLayer(DrawingSurface workingSurface, Paint paint, ChunkResolution resolution)
     {
+        if (fullResrenderedSurface is null)
+        {
+            return;
+        }
+
+        int saved = workingSurface.Canvas.Save();
+
+        //workingSurface.Canvas.Scale((float)resolution.Multiplier());
+        
         VecD topLeft = SceneSize / 2f;
-        workingSurface.Canvas.DrawSurface(renderedSurfaces[resolution].DrawingSurface, -(VecI)topLeft, paint);
+        workingSurface.Canvas.DrawSurface(fullResrenderedSurface.DrawingSurface, -(VecI)topLeft, paint);
+        
+        workingSurface.Canvas.RestoreToCount(saved);
     }
 
     public override bool RenderPreview(Texture renderOn, VecI chunk, ChunkResolution resolution, int frame)
@@ -210,7 +218,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         
         var img = GetLayerImageAtFrame(frameTime.Frame);
 
-        RenderChunkyImageChunk(chunkPos, resolution, img, renderedSurfaces);
+        RenderChunkyImageChunk(chunkPos, resolution, img, ref fullResrenderedSurface);
     }
     
     public void ForEveryFrame(Action<ChunkyImage> action)
