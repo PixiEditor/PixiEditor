@@ -26,10 +26,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public IReadOnlyList<OutputProperty> OutputProperties => outputs;
     public IReadOnlyList<KeyFrameData> KeyFrames => keyFrames;
 
-    protected virtual bool AffectedByAnimation { get; }
-
-    protected virtual bool AffectedByChunkResolution { get; }
-
 
     IReadOnlyList<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyList<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
@@ -41,11 +37,9 @@ public abstract class Node : IReadOnlyNode, IDisposable
         get => displayName;
         set => displayName = value;
     }
+    
+    protected virtual bool ExecuteOnlyOnCacheChange => false;
 
-    private KeyFrameTime _lastFrameTime = new KeyFrameTime(-1, 0);
-    private ChunkResolution? _lastResolution;
-    private bool _keyFramesDirty;
-    private Texture? _lastCachedResult;
     private bool _isDisposed;
 
     private Dictionary<int, Texture> _managedTextures = new();
@@ -59,19 +53,24 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
         if (_isDisposed) throw new ObjectDisposedException("Node was disposed before execution.");
 
+        if (ExecuteOnlyOnCacheChange && !CacheChanged(context))
+        {
+            return;
+        }
+        
         OnExecute(context);
 
-        UpdateCache(context);
+        if (ExecuteOnlyOnCacheChange)
+        {
+            UpdateCache(context);
+        }
     }
 
     protected abstract void OnExecute(RenderContext context);
 
     protected virtual bool CacheChanged(RenderContext context)
     {
-        return (!context.FrameTime.Equals(_lastFrameTime) && AffectedByAnimation)
-               || (AffectedByAnimation && _keyFramesDirty)
-               || (context.ChunkResolution != _lastResolution && AffectedByChunkResolution)
-               || inputs.Any(x => x.CacheChanged);
+        return inputs.Any(x => x.CacheChanged);
     }
 
     protected virtual void UpdateCache(RenderContext context)
@@ -80,10 +79,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
         {
             input.UpdateCache();
         }
-
-        _lastFrameTime = context.FrameTime;
-        _lastResolution = context.ChunkResolution;
-        _keyFramesDirty = false;
     }
 
     protected Texture RequestTexture(int id, VecI size, bool clear = true)
@@ -176,7 +171,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public void RemoveKeyFrame(Guid keyFrameId)
     {
         keyFrames.RemoveAll(x => x.KeyFrameGuid == keyFrameId);
-        _keyFramesDirty = true;
     }
 
     public void SetKeyFrameLength(Guid id, int startFrame, int duration)
@@ -186,7 +180,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
         {
             frame.StartFrame = startFrame;
             frame.Duration = duration;
-            _keyFramesDirty = true;
         }
     }
 
@@ -196,7 +189,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
         if (frame is not null)
         {
             frame.IsVisible = isVisible;
-            _keyFramesDirty = true;
         }
     }
 
@@ -208,7 +200,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
 
         keyFrames.Add(value);
-        _keyFramesDirty = true;
     }
 
     protected FuncInputProperty<T> CreateFuncInput<T>(string propName, string displayName, T defaultValue)

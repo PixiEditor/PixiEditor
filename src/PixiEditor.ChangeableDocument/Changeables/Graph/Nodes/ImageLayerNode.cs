@@ -32,12 +32,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         Color = PixiEditor.DrawingApi.Core.ColorsImpl.Colors.Transparent
     };
 
-    // Handled by overriden CacheChanged
-    protected override bool AffectedByAnimation => true;
-
-    protected override bool AffectedByChunkResolution => true;
-
-
     private Texture fullResrenderedSurface; 
 
     public ImageLayerNode(VecI size)
@@ -94,8 +88,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         DrawLayer(workingSurface, paint, ctx.ChunkResolution); 
     }
 
-    // Draw with filters is a bit tricky since some filters sample data from chunks surrounding the chunk being drawn,
-    // this is why we need to do intermediate drawing to a temporary surface and then apply filters to that surface
     protected override void DrawWithFilters(SceneObjectRenderContext context, DrawingSurface workingSurface,
         Paint paint)
     {
@@ -136,21 +128,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             blendPaint);
 
         return true;
-    }
-
-    private void DrawChunk(ChunkyImage frameImage, RenderContext context, Texture tempSurface, VecI vecI,
-        Paint paint)
-    {
-        /*VecI chunkPos = context.ChunkToUpdate.Value + vecI;
-        if (frameImage.LatestOrCommittedChunkExists(chunkPos))
-        {
-            frameImage.DrawMostUpToDateChunkOn(
-                chunkPos,
-                context.ChunkResolution,
-                tempSurface.DrawingSurface,
-                chunkPos * context.ChunkResolution.PixelSize(),
-                paint);
-        }*/
     }
 
     private KeyFrameData GetFrameWithImage(KeyFrameTime frame)

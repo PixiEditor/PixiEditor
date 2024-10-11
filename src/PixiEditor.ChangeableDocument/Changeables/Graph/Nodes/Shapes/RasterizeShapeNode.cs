@@ -16,8 +16,6 @@ public class RasterizeShapeNode : Node
     public InputProperty<ShapeVectorData> Data { get; }
 
 
-    protected override bool AffectedByChunkResolution => true;
-
     private Paint rasterizePaint = new Paint();
 
     public RasterizeShapeNode()

@@ -86,7 +86,6 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IRenderInput
         return prop;
     }
 
-    protected override bool AffectedByChunkResolution => true;
 
     protected override void OnExecute(RenderContext context)
     {

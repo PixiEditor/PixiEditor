@@ -9,7 +9,6 @@ public class TimeNode : Node
     public OutputProperty<int> ActiveFrame { get; set; }
     public OutputProperty<double> NormalizedTime { get; set; }
 
-    protected override bool AffectedByAnimation => true;
 
     public TimeNode()
     {

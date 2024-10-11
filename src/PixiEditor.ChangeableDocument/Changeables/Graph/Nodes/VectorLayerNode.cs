@@ -33,7 +33,6 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     public ShapeVectorData? ShapeData { get; set; }
     IReadOnlyShapeVectorData IReadOnlyVectorNode.ShapeData => ShapeData;
 
-    protected override bool AffectedByChunkResolution => true;
 
     private int lastCacheHash;
 
