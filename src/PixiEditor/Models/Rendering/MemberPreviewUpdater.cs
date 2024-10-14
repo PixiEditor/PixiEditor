@@ -48,7 +48,7 @@ internal class MemberPreviewUpdater
         RenderWholeCanvasPreview();
         RenderMainPreviews(memberGuids);
         RenderMaskPreviews(maskGuids);
-        RenderNodePreviews();
+        RenderNodePreviews(); //TODO: maybe find nodes to render, instead of rendering all?
     }
 
     /// <summary>
@@ -224,9 +224,6 @@ internal class MemberPreviewUpdater
 
     private void RenderNodePreviews()
     {
-        /*using RenderContext previewContext = new(doc.AnimationHandler.ActiveFrameTime, VecI.Zero, ChunkResolution.Full,
-            doc.SizeBindable);
-
         var outputNode = internals.Tracker.Document.NodeGraph.OutputNode;
 
         if (outputNode is null)
@@ -251,7 +248,12 @@ internal class MemberPreviewUpdater
             if (nodeVm.ResultPainter == null && node is IPreviewRenderable renderable)
             {
                 nodeVm.ResultPainter = new PreviewPainter(renderable);
+                nodeVm.ResultPainter.Repaint();
             }
-        }*/
+            else
+            {
+                nodeVm.ResultPainter?.Repaint();
+            }
+        }
     }
 }

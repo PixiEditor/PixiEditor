@@ -12,6 +12,7 @@ using PixiEditor.Helpers;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Structures;
 using PixiEditor.Views.Nodes.Properties;
 
@@ -35,7 +36,7 @@ public class NodeView : TemplatedControl
         AvaloniaProperty.Register<NodeView, ObservableRangeCollection<INodePropertyHandler>>(
             nameof(Outputs));
 
-    public static readonly StyledProperty<Texture> ResultPreviewProperty = AvaloniaProperty.Register<NodeView, Texture>(
+    public static readonly StyledProperty<PreviewPainter> ResultPreviewProperty = AvaloniaProperty.Register<NodeView, PreviewPainter>(
         nameof(ResultPreview));
 
     public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<NodeView, bool>(
@@ -68,7 +69,7 @@ public class NodeView : TemplatedControl
         set => SetValue(IsSelectedProperty, value);
     }
 
-    public Texture ResultPreview
+    public PreviewPainter ResultPreview
     {
         get => GetValue(ResultPreviewProperty);
         set => SetValue(ResultPreviewProperty, value);
@@ -132,7 +133,14 @@ public class NodeView : TemplatedControl
         set => SetValue(SocketDropCommandProperty, value);
     }
 
+    public int ActiveFrame
+    {
+        get { return (int)GetValue(ActiveFrameProperty); }
+        set { SetValue(ActiveFrameProperty, value); }
+    }
+
     private bool captured;
+    public static readonly StyledProperty<int> ActiveFrameProperty = AvaloniaProperty.Register<NodeView, int>("ActiveFrame");
 
     static NodeView()
     {

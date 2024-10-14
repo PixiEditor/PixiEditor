@@ -41,6 +41,7 @@
                                         DisplayName="{Binding NodeNameBindable}"
                                         CategoryBackgroundBrush="{Binding CategoryBackgroundBrush}"
                                         Inputs="{Binding Inputs}"
+                                        ActiveFrame="{Binding ActiveFrame, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
                                         BorderBrush="{Binding InternalName, Converter={converters:NodeInternalNameToStyleConverter}, ConverterParameter='BorderBrush'}"
                                         BorderThickness="2"
                                         Outputs="{Binding Outputs}"
