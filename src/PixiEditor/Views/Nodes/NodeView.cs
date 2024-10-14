@@ -36,14 +36,16 @@ public class NodeView : TemplatedControl
         AvaloniaProperty.Register<NodeView, ObservableRangeCollection<INodePropertyHandler>>(
             nameof(Outputs));
 
-    public static readonly StyledProperty<PreviewPainter> ResultPreviewProperty = AvaloniaProperty.Register<NodeView, PreviewPainter>(
-        nameof(ResultPreview));
+    public static readonly StyledProperty<PreviewPainter> ResultPreviewProperty =
+        AvaloniaProperty.Register<NodeView, PreviewPainter>(
+            nameof(ResultPreview));
 
     public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<NodeView, bool>(
         nameof(IsSelected));
 
-    public static readonly StyledProperty<IBrush> CategoryBackgroundBrushProperty = AvaloniaProperty.Register<NodeView, IBrush>(
-        nameof(CategoryBackgroundBrush));
+    public static readonly StyledProperty<IBrush> CategoryBackgroundBrushProperty =
+        AvaloniaProperty.Register<NodeView, IBrush>(
+            nameof(CategoryBackgroundBrush));
 
     public static readonly StyledProperty<ICommand> SelectNodeCommandProperty =
         AvaloniaProperty.Register<NodeView, ICommand>("SelectNodeCommand");
@@ -140,11 +142,14 @@ public class NodeView : TemplatedControl
     }
 
     private bool captured;
-    public static readonly StyledProperty<int> ActiveFrameProperty = AvaloniaProperty.Register<NodeView, int>("ActiveFrame");
+
+    public static readonly StyledProperty<int> ActiveFrameProperty =
+        AvaloniaProperty.Register<NodeView, int>("ActiveFrame");
 
     static NodeView()
     {
         IsSelectedProperty.Changed.Subscribe(NodeSelectionChanged);
+        ResultPreviewProperty.Changed.Subscribe(PreviewPainterChanged);
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -250,5 +255,26 @@ public class NodeView : TemplatedControl
         {
             nodeView.PseudoClasses.Set(":selected", e.NewValue.Value);
         }
+    }
+
+    private static void PreviewPainterChanged(AvaloniaPropertyChangedEventArgs<PreviewPainter> e)
+    {
+        if (e.Sender is NodeView nodeView)
+        {
+            if (e.OldValue.Value != null)
+            {
+                e.OldValue.Value.RequestRepaint -= nodeView.OnPainterRenderRequest;
+            }
+
+            if (e.NewValue.Value != null)
+            {
+                e.NewValue.Value.RequestRepaint += nodeView.OnPainterRenderRequest;
+            }
+        }
+    }
+    
+    private void OnPainterRenderRequest()
+    {
+        InvalidateVisual();
     }
 }

@@ -28,12 +28,12 @@ internal class MemberPreviewUpdater
     }
 
     public void UpdatePreviews(bool rerenderPreviews, IEnumerable<Guid> membersToUpdate,
-        IEnumerable<Guid> masksToUpdate)
+        IEnumerable<Guid> masksToUpdate, IEnumerable<Guid> nodesToUpdate)
     {
         if (!rerenderPreviews)
             return;
 
-        UpdatePreviewPainters(membersToUpdate, masksToUpdate);
+        UpdatePreviewPainters(membersToUpdate, masksToUpdate, nodesToUpdate);
     }
 
     /// <summary>
@@ -41,14 +41,16 @@ internal class MemberPreviewUpdater
     /// </summary>
     /// <param name="members">Members that should be rendered</param>
     /// <param name="masksToUpdate">Masks that should be rendered</param>
-    private void UpdatePreviewPainters(IEnumerable<Guid> members, IEnumerable<Guid> masksToUpdate)
+    private void UpdatePreviewPainters(IEnumerable<Guid> members, IEnumerable<Guid> masksToUpdate, IEnumerable<Guid> nodesToUpdate)
     {
         Guid[] memberGuids = members as Guid[] ?? members.ToArray();
         Guid[] maskGuids = masksToUpdate as Guid[] ?? masksToUpdate.ToArray();
+        Guid[] nodesGuids = nodesToUpdate as Guid[] ?? nodesToUpdate.ToArray();
+        
         RenderWholeCanvasPreview();
         RenderMainPreviews(memberGuids);
         RenderMaskPreviews(maskGuids);
-        RenderNodePreviews(); //TODO: maybe find nodes to render, instead of rendering all?
+        RenderNodePreviews(nodesGuids);
     }
 
     /// <summary>
@@ -222,7 +224,7 @@ internal class MemberPreviewUpdater
         }
     }
 
-    private void RenderNodePreviews()
+    private void RenderNodePreviews(Guid[] nodesGuids)
     {
         var outputNode = internals.Tracker.Document.NodeGraph.OutputNode;
 
@@ -236,6 +238,9 @@ internal class MemberPreviewUpdater
         foreach (var node in executionQueue)
         {
             if (node is null)
+                continue;
+            
+            if (!nodesGuids.Contains(node.Id))
                 continue;
 
             var nodeVm = doc.StructureHelper.FindNode<INodeHandler>(node.Id);
