@@ -164,11 +164,11 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
         }
     }
 
-    public override RectD? GetPreviewBounds(string elementFor = "", int frame = 0)
+    public override RectD? GetPreviewBounds(int frame, string elementFor = "")
     {
         if (elementFor == nameof(EmbeddedMask))
         {
-            return base.GetPreviewBounds(elementFor);
+            return base.GetPreviewBounds(frame, elementFor);
         }
 
         return GetTightBounds(frame);

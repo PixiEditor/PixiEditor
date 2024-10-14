@@ -82,7 +82,7 @@
                         <visuals:PreviewPainterControl 
                             ClipToBounds="True" 
                             PreviewPainter="{Binding Layer.PreviewPainter, ElementName=uc}"
-                            FrameToRender="{Binding Layer.Document.AnimationHandler.ActiveFrameBindable, ElementName=uc}"
+                            FrameToRender="{Binding Manager.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, ElementName=uc}"
                             Width="30" Height="30"
                             RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False" />
                     </Border>
@@ -110,7 +110,7 @@
                                     PreviewPainter="{Binding Layer.MaskPreviewPainter, ElementName=uc}" 
                                     Width="30" Height="30"
                                     ClipToBounds="True"
-                                    FrameToRender="{Binding Path=Layer.Document.AnimationHandler.ActiveFrameBindable, ElementName=uc}"
+                                    FrameToRender="{Binding Path=Manager.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, ElementName=uc}"
                                     RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False"/>
                             <Path
                                 Data="M 2 0 L 10 8 L 18 0 L 20 2 L 12 10 L 20 18 L 18 20 L 10 12 L 2 20 L 0 18 L 8 10 L 0 2 Z"

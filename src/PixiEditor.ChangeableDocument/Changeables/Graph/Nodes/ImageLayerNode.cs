@@ -111,13 +111,23 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         workingSurface.Canvas.RestoreToCount(saved);
     }
 
-    public override RectD? GetPreviewBounds(string elementFor = "", int frame = 0)
+    public override RectD? GetPreviewBounds(int frame, string elementFor = "")
     {
         if (elementFor == nameof(EmbeddedMask))
         {
-            return base.GetPreviewBounds(elementFor);
+            return base.GetPreviewBounds(frame, elementFor);
         }
-        
+
+        if (Guid.TryParse(elementFor, out Guid guid))
+        {
+            var keyFrame = keyFrames.FirstOrDefault(x => x.KeyFrameGuid == guid);
+
+            if (keyFrame != null)
+            {
+                return (RectD?)GetLayerImageByKeyFrameGuid(keyFrame.KeyFrameGuid).FindTightCommittedBounds();
+            }
+        }
+
         return (RectD?)GetLayerImageAtFrame(frame).FindTightCommittedBounds();
     }
 
@@ -128,8 +138,18 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         {
             return base.RenderPreview(renderOnto, resolution, frame, elementToRenderName);
         }
-        
+
         var img = GetLayerImageAtFrame(frame);
+        
+        if (Guid.TryParse(elementToRenderName, out Guid guid))
+        {
+            var keyFrame = keyFrames.FirstOrDefault(x => x.KeyFrameGuid == guid);
+
+            if (keyFrame != null)
+            {
+                img = GetLayerImageByKeyFrameGuid(keyFrame.KeyFrameGuid);
+            }
+        }
 
         if (img is null)
         {

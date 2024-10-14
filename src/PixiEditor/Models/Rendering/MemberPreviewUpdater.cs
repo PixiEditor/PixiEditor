@@ -3,6 +3,7 @@
 using System.Diagnostics.CodeAnalysis;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -20,11 +21,14 @@ internal class MemberPreviewUpdater
 {
     private readonly IDocument doc;
     private readonly DocumentInternalParts internals;
+    
+    private AnimationKeyFramePreviewRenderer AnimationKeyFramePreviewRenderer { get; }
 
     public MemberPreviewUpdater(IDocument doc, DocumentInternalParts internals)
     {
         this.doc = doc;
         this.internals = internals;
+        AnimationKeyFramePreviewRenderer = new AnimationKeyFramePreviewRenderer(internals);
     }
 
     public void UpdatePreviews(bool rerenderPreviews, IEnumerable<Guid> membersToUpdate,
@@ -41,15 +45,17 @@ internal class MemberPreviewUpdater
     /// </summary>
     /// <param name="members">Members that should be rendered</param>
     /// <param name="masksToUpdate">Masks that should be rendered</param>
-    private void UpdatePreviewPainters(IEnumerable<Guid> members, IEnumerable<Guid> masksToUpdate, IEnumerable<Guid> nodesToUpdate)
+    private void UpdatePreviewPainters(IEnumerable<Guid> members, IEnumerable<Guid> masksToUpdate,
+        IEnumerable<Guid> nodesToUpdate)
     {
         Guid[] memberGuids = members as Guid[] ?? members.ToArray();
         Guid[] maskGuids = masksToUpdate as Guid[] ?? masksToUpdate.ToArray();
         Guid[] nodesGuids = nodesToUpdate as Guid[] ?? nodesToUpdate.ToArray();
-        
+
         RenderWholeCanvasPreview();
-        RenderMainPreviews(memberGuids);
+        RenderLayersPreview(memberGuids);
         RenderMaskPreviews(maskGuids);
+        RenderAnimationPreviews(memberGuids);
         RenderNodePreviews(nodesGuids);
     }
 
@@ -72,7 +78,7 @@ internal class MemberPreviewUpdater
         }
     }
 
-    private void RenderMainPreviews(Guid[] memberGuids)
+    private void RenderLayersPreview(Guid[] memberGuids)
     {
         foreach (var node in doc.NodeGraphHandler.AllNodes)
         {
@@ -96,6 +102,37 @@ internal class MemberPreviewUpdater
                     structureMemberHandler.PreviewPainter.Repaint();
                 }
             }
+        }
+    }
+
+    private void RenderAnimationPreviews(Guid[] memberGuids)
+    {
+        foreach (var keyFrame in doc.AnimationHandler.KeyFrames)
+        {
+            if (keyFrame is IKeyFrameGroupHandler groupHandler)
+            {
+                foreach (var childFrame in groupHandler.Children)
+                {
+                    if (!memberGuids.Contains(childFrame.LayerGuid))
+                        continue;
+
+                    RenderFramePreview(childFrame);
+                }
+
+                if (!memberGuids.Contains(groupHandler.LayerGuid))
+                    continue;
+
+                //RenderGroupPreview(groupHandler);
+            }
+        }
+    }
+
+    private void RenderFramePreview(IKeyFrameHandler keyFrame)
+    {
+        if (internals.Tracker.Document.AnimationData.TryFindKeyFrame(keyFrame.Id, out KeyFrame foundKeyFrame))
+        {
+            keyFrame.PreviewPainter ??= new PreviewPainter(AnimationKeyFramePreviewRenderer, keyFrame.Id.ToString());
+            keyFrame.PreviewPainter.Repaint();
         }
     }
 
@@ -170,11 +207,11 @@ internal class MemberPreviewUpdater
 
     private void RenderAnimationFramePreview(IReadOnlyImageNode node, IKeyFrameHandler keyFrameVM, AffectedArea area)
     {
-        if (keyFrameVM.PreviewSurface is null)
+        /*if (keyFrameVM.PreviewPainter is null)
         {
-            keyFrameVM.PreviewSurface =
+            keyFrameVM.PreviewPainter =
                 new Texture(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size));
-        }
+        }*/
 
         /*QueueRender(() =>
         {
@@ -239,7 +276,7 @@ internal class MemberPreviewUpdater
         {
             if (node is null)
                 continue;
-            
+
             if (!nodesGuids.Contains(node.Id))
                 continue;
 

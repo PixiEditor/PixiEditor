@@ -300,7 +300,8 @@ public class DocumentRenderer : IPreviewRenderable
         return chunk;
     }
 
-    public RectD? GetPreviewBounds(string elementNameToRender = "", int frame = 0) => new(0, 0, Document.Size.X, Document.Size.Y); 
+    public RectD? GetPreviewBounds(int frame, string elementNameToRender = "") => 
+        new(0, 0, Document.Size.X, Document.Size.Y); 
 
     public bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
     {

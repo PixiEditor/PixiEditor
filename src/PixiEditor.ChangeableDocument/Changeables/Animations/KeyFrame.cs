@@ -1,6 +1,8 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Animations;
 

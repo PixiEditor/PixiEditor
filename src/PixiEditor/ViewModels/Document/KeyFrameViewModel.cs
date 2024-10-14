@@ -4,12 +4,13 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Rendering;
 
 namespace PixiEditor.ViewModels.Document;
 
 internal abstract class KeyFrameViewModel : ObservableObject, IKeyFrameHandler
 {
-    private Texture? previewSurface;
+    private PreviewPainter? previewPainter;
     private int startFrameBindable;
     private int durationBindable;
     private bool isVisibleBindable = true;
@@ -27,10 +28,10 @@ internal abstract class KeyFrameViewModel : ObservableObject, IKeyFrameHandler
 
     IDocument IKeyFrameHandler.Document => Document;
 
-    public Texture? PreviewSurface
+    public PreviewPainter? PreviewPainter
     {
-        get => previewSurface;
-        set => SetProperty(ref previewSurface, value);
+        get => previewPainter;
+        set => SetProperty(ref previewPainter, value);
     }
 
     public virtual int StartFrameBindable

@@ -81,7 +81,7 @@ internal class DrawPreviewOperation : SkiaDrawOperation
 
     public override void Render(ISkiaSharpApiLease lease)
     {
-        RectD? previewBounds = PreviewPainter.PreviewRenderable.GetPreviewBounds(PreviewPainter.ElementToRenderName);
+        RectD? previewBounds = PreviewPainter.PreviewRenderable.GetPreviewBounds(frame, PreviewPainter.ElementToRenderName);
         if (PreviewPainter == null || previewBounds == null)
         {
             return;

@@ -286,7 +286,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IRenderInput
         blendPaint.Dispose();
     }
 
-    public virtual RectD? GetPreviewBounds(string elementFor = "", int frame = 0)
+    public virtual RectD? GetPreviewBounds(int frame, string elementFor = "")
     {
         if (elementFor == nameof(EmbeddedMask) && EmbeddedMask != null)
         {

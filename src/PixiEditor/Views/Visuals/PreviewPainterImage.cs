@@ -9,7 +9,9 @@ public class PreviewPainterImage : IImage
     public PreviewPainter PreviewPainter { get; set; }
     
     public int FrameToRender { get; set; }
-    public Size Size => new Size(PreviewPainter.PreviewRenderable.GetPreviewBounds()?.Size.X ?? 0, PreviewPainter.PreviewRenderable.GetPreviewBounds()?.Size.Y ?? 0); 
+    public Size Size => new Size(
+        PreviewPainter.PreviewRenderable.GetPreviewBounds(FrameToRender)?.Size.X ?? 0,
+        PreviewPainter.PreviewRenderable.GetPreviewBounds(FrameToRender)?.Size.Y ?? 0); 
     
     public PreviewPainterImage(PreviewPainter previewPainter, int frameToRender)
     {
@@ -19,7 +21,7 @@ public class PreviewPainterImage : IImage
     
     public void Draw(DrawingContext context, Rect sourceRect, Rect destRect)
     {
-        if (PreviewPainter.PreviewRenderable.GetPreviewBounds() == null) return;
+        if (PreviewPainter.PreviewRenderable.GetPreviewBounds(FrameToRender) == null) return;
         
         using DrawPreviewOperation drawPreviewOperation = new DrawPreviewOperation(destRect, PreviewPainter, FrameToRender); 
         context.Custom(drawPreviewOperation);
