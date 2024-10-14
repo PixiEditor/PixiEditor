@@ -164,9 +164,24 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
         }
     }
 
-    public bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,
+    public override RectD? GetPreviewBounds(string elementFor = "", int frame = 0)
+    {
+        if (elementFor == nameof(EmbeddedMask))
+        {
+            return base.GetPreviewBounds(elementFor);
+        }
+
+        return GetTightBounds(frame);
+    }
+
+    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,
         string elementToRenderName)
     {
+        if (elementToRenderName == nameof(EmbeddedMask))
+        {
+            return base.RenderPreview(renderOn, resolution, frame, elementToRenderName);
+        }
+        
         if (Content.Connection != null)
         {
             var executionQueue = GraphUtils.CalculateExecutionQueue(Content.Connection.Node);

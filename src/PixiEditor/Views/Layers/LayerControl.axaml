@@ -109,6 +109,7 @@
                              <visuals:PreviewPainterControl 
                                     PreviewPainter="{Binding Layer.MaskPreviewPainter, ElementName=uc}" 
                                     Width="30" Height="30"
+                                    ClipToBounds="True"
                                     FrameToRender="{Binding Path=Layer.Document.AnimationHandler.ActiveFrameBindable, ElementName=uc}"
                                     RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False"/>
                             <Path

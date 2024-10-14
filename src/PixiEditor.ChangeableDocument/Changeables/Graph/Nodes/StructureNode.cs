@@ -286,6 +286,16 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IRenderInput
         blendPaint.Dispose();
     }
 
+    public virtual RectD? GetPreviewBounds(string elementFor = "", int frame = 0)
+    {
+        if (elementFor == nameof(EmbeddedMask) && EmbeddedMask != null)
+        {
+            return new RectD(VecD.Zero, EmbeddedMask.LatestSize);
+        }
+
+        return null;
+    }
+
     public virtual bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,
         string elementToRenderName)
     {

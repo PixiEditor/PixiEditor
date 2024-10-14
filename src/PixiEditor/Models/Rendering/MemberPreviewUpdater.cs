@@ -5,6 +5,7 @@ using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
@@ -26,7 +27,8 @@ internal class MemberPreviewUpdater
         this.internals = internals;
     }
 
-    public void UpdatePreviews(bool rerenderPreviews, IEnumerable<Guid> membersToUpdate, IEnumerable<Guid> masksToUpdate)
+    public void UpdatePreviews(bool rerenderPreviews, IEnumerable<Guid> membersToUpdate,
+        IEnumerable<Guid> masksToUpdate)
     {
         if (!rerenderPreviews)
             return;
@@ -59,12 +61,11 @@ internal class MemberPreviewUpdater
 
         if (doc.PreviewPainter == null)
         {
-            doc.PreviewPainter = new PreviewPainter(doc.Renderer, new RectD(VecD.Zero, doc.SizeBindable));
+            doc.PreviewPainter = new PreviewPainter(doc.Renderer);
             doc.PreviewPainter.Repaint();
         }
         else
         {
-            doc.PreviewPainter.Bounds = new RectD(VecD.Zero, doc.SizeBindable);
             doc.PreviewPainter.Repaint();
         }
     }
@@ -85,12 +86,11 @@ internal class MemberPreviewUpdater
                         continue;
 
                     structureMemberHandler.PreviewPainter =
-                        new PreviewPainter(previewRenderable, structureMemberHandler.TightBounds);
+                        new PreviewPainter(previewRenderable);
                     structureMemberHandler.PreviewPainter.Repaint();
                 }
                 else
                 {
-                    structureMemberHandler.PreviewPainter.Bounds = structureMemberHandler.TightBounds;
                     structureMemberHandler.PreviewPainter.Repaint();
                 }
             }
@@ -202,22 +202,20 @@ internal class MemberPreviewUpdater
             {
                 if (!members.Contains(node.Id))
                     continue;
-                
+
                 var member = internals.Tracker.Document.FindMember(node.Id);
                 if (member is not IPreviewRenderable previewRenderable)
                     continue;
-                
+
                 if (structureMemberHandler.MaskPreviewPainter == null)
                 {
                     structureMemberHandler.MaskPreviewPainter = new PreviewPainter(
                         previewRenderable,
-                        member.EmbeddedMask != null ? new RectD(VecD.Zero, member.EmbeddedMask.LatestSize) : null,
                         nameof(StructureNode.EmbeddedMask));
                     structureMemberHandler.MaskPreviewPainter.Repaint();
                 }
                 else
                 {
-                    structureMemberHandler.MaskPreviewPainter.Bounds = member.EmbeddedMask != null ? new RectD(VecD.Zero, member.EmbeddedMask.LatestSize) : null;
                     structureMemberHandler.MaskPreviewPainter.Repaint();
                 }
             }
@@ -226,14 +224,17 @@ internal class MemberPreviewUpdater
 
     private void RenderNodePreviews()
     {
-        /*using RenderingContext previewContext = new(doc.AnimationHandler.ActiveFrameTime,  VecI.Zero, ChunkResolution.Full, doc.SizeBindable);
+        /*using RenderContext previewContext = new(doc.AnimationHandler.ActiveFrameTime, VecI.Zero, ChunkResolution.Full,
+            doc.SizeBindable);
 
         var outputNode = internals.Tracker.Document.NodeGraph.OutputNode;
 
         if (outputNode is null)
             return;
 
-        var executionQueue = internals.Tracker.Document.NodeGraph.AllNodes; //internals.Tracker.Document.NodeGraph.CalculateExecutionQueue(outputNode);
+        var executionQueue =
+            internals.Tracker.Document.NodeGraph
+                .AllNodes; //internals.Tracker.Document.NodeGraph.CalculateExecutionQueue(outputNode);
 
         foreach (var node in executionQueue)
         {
@@ -247,40 +248,10 @@ internal class MemberPreviewUpdater
                 continue;
             }
 
-            Texture evaluated = node.Execute(previewContext);
-
-            if (evaluated == null)
+            if (nodeVm.ResultPainter == null && node is IPreviewRenderable renderable)
             {
-                nodeVm.ResultPreview?.Dispose();
-                nodeVm.ResultPreview = null;
-                continue;
+                nodeVm.ResultPainter = new PreviewPainter(renderable);
             }
-
-            if (nodeVm.ResultPreview == null)
-            {
-                nodeVm.ResultPreview =
-                    new Texture(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size, 150));
-            }
-
-            float scalingX = (float)nodeVm.ResultPreview.Size.X / evaluated.Size.X;
-            float scalingY = (float)nodeVm.ResultPreview.Size.Y / evaluated.Size.Y;
-
-            QueueRender(() =>
-            {
-                if(nodeVm.ResultPreview == null || nodeVm.ResultPreview.IsDisposed)
-                    return;
-
-                nodeVm.ResultPreview.DrawingSurface.Canvas.Save();
-                nodeVm.ResultPreview.DrawingSurface.Canvas.Scale(scalingX, scalingY);
-
-                nodeVm.ResultPreview.DrawingSurface.Canvas.DrawSurface(evaluated.DrawingSurface, 0, 0, ReplacingPaint);
-
-                nodeVm.ResultPreview.DrawingSurface.Canvas.Restore();
-
-                evaluated.Dispose();
-            });
-
-            infos.Add(new NodePreviewDirty_RenderInfo(node.Id));
         }*/
     }
 }

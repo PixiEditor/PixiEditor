@@ -81,19 +81,20 @@ internal class DrawPreviewOperation : SkiaDrawOperation
 
     public override void Render(ISkiaSharpApiLease lease)
     {
-        if (PreviewPainter == null || PreviewPainter.Bounds == null)
+        RectD? previewBounds = PreviewPainter.PreviewRenderable.GetPreviewBounds(PreviewPainter.ElementToRenderName);
+        if (PreviewPainter == null || previewBounds == null)
         {
             return;
         }
 
         DrawingSurface target = DrawingSurface.FromNative(lease.SkSurface);
 
-        float x = (float)PreviewPainter.Bounds.Value.Width;
-        float y = (float)PreviewPainter.Bounds.Value.Height;
+        float x = (float)previewBounds.Value.Width; 
+        float y = (float)previewBounds.Value.Height; 
 
         target.Canvas.Save();
 
-        UniformScale(x, y, target);
+        UniformScale(x, y, target, previewBounds.Value);
 
         // TODO: Implement ChunkResolution and frame
         PreviewPainter.Paint(target, ChunkResolution.Full, frame);
@@ -103,15 +104,15 @@ internal class DrawPreviewOperation : SkiaDrawOperation
         DrawingSurface.Unmanage(target);
     }
 
-    private void UniformScale(float x, float y, DrawingSurface target)
+    private void UniformScale(float x, float y, DrawingSurface target, RectD previewBounds)
     {
         float scaleX = (float)Bounds.Width / x;
         float scaleY = (float)Bounds.Height / y;
         var scale = Math.Min(scaleX, scaleY);
         float dX = (float)Bounds.Width / 2 / scale - x / 2;
-        dX -= (float)PreviewPainter.Bounds.Value.X;
+        dX -= (float)previewBounds.X; 
         float dY = (float)Bounds.Height / 2 / scale - y / 2;
-        dY -= (float)PreviewPainter.Bounds.Value.Y;
+        dY -= (float)previewBounds.Y;
         target.Canvas.Scale(scale, scale);
         target.Canvas.Translate(dX, dY);
     }

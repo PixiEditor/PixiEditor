@@ -188,12 +188,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         get => previewSurface;
         set
         {
-            VecI? oldSize = (VecI?)previewSurface?.Bounds?.Size;
             SetProperty(ref previewSurface, value);
-            if (oldSize != null && value is { Bounds: not null } && oldSize != value.Bounds.Value.Size)
-            {
-                RaiseSizeChanged(new DocumentSizeChangedEventArgs(this, oldSize.Value, (VecI)value.Bounds.Value.Size));
-            }
         }
     }
 

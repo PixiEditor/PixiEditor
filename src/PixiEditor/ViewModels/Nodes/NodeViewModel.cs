@@ -13,6 +13,7 @@ using PixiEditor.DrawingApi.Core;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Structures;
 using PixiEditor.Numerics;
 using PixiEditor.ViewModels.Document;
@@ -27,7 +28,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
     private VecD position;
     private ObservableRangeCollection<INodePropertyHandler> inputs = new();
     private ObservableRangeCollection<INodePropertyHandler> outputs = new();
-    private Texture resultPreview;
+    private PreviewPainter resultPainter;
     private bool isSelected;
 
     protected Guid id;
@@ -110,10 +111,10 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         set => SetProperty(ref outputs, value);
     }
 
-    public Texture ResultPreview
+    public PreviewPainter ResultPainter
     {
-        get => resultPreview;
-        set => SetProperty(ref resultPreview, value);
+        get => resultPainter;
+        set => SetProperty(ref resultPainter, value);
     }
     
     public bool IsSelected

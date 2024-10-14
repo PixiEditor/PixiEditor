@@ -8,21 +8,19 @@ namespace PixiEditor.Models.Rendering;
 
 public class PreviewPainter
 {
-    public RectD? Bounds { get; set; }
     public string ElementToRenderName { get; set; }
     public IPreviewRenderable PreviewRenderable { get; set; }
     public event Action RequestRepaint;
     
-    public PreviewPainter(IPreviewRenderable previewRenderable, RectD? tightBounds, string elementToRenderName = "")
+    public PreviewPainter(IPreviewRenderable previewRenderable, string elementToRenderName = "")
     {
         PreviewRenderable = previewRenderable;
-        Bounds = tightBounds;
         ElementToRenderName = elementToRenderName;
     }
 
     public void Paint(DrawingSurface renderOn, ChunkResolution resolution, KeyFrameTime frame) 
     {
-        if (PreviewRenderable == null || Bounds == null)
+        if (PreviewRenderable == null)
         {
             return;
         }

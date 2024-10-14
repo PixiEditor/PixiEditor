@@ -74,11 +74,9 @@ internal class ActionAccumulator
 
         while (queuedActions.Count > 0)
         {
-            // select actions to be processed
             var toExecute = queuedActions;
             queuedActions = new();
 
-            // pass them to changeabledocument for processing
             List<IChangeInfo?> changes;
             if (AreAllPassthrough(toExecute))
             {
@@ -89,7 +87,6 @@ internal class ActionAccumulator
                 changes = await internals.Tracker.ProcessActions(toExecute);
             }
 
-            // update viewmodels based on changes
             List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);
             bool undoBoundaryPassed =
                 toExecute.Any(static action => action.action is ChangeBoundary_Action or Redo_Action or Undo_Action);

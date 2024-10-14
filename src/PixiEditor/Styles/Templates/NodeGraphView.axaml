@@ -53,7 +53,7 @@
                                         RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
                                         SocketDropCommand="{Binding SocketDropCommand,
                                         RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
-                                        ResultPreview="{Binding ResultPreview}" />
+                                        ResultPreview="{Binding ResultPainter}" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                             <ItemsControl.ItemContainerTheme>

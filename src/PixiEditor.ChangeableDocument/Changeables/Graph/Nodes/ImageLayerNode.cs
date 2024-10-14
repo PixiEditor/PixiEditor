@@ -111,6 +111,16 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         workingSurface.Canvas.RestoreToCount(saved);
     }
 
+    public override RectD? GetPreviewBounds(string elementFor = "", int frame = 0)
+    {
+        if (elementFor == nameof(EmbeddedMask))
+        {
+            return base.GetPreviewBounds(elementFor);
+        }
+        
+        return (RectD?)GetLayerImageAtFrame(frame).FindTightCommittedBounds();
+    }
+
     public override bool RenderPreview(DrawingSurface renderOnto, ChunkResolution resolution, int frame,
         string elementToRenderName)
     {
