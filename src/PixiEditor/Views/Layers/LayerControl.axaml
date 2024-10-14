@@ -79,10 +79,12 @@
                                 <Binding ElementName="uc" Path="Layer.HasMaskBindable" />
                             </MultiBinding>
                         </Border.BorderBrush>
-                        <visuals:TextureControl Texture="{Binding Layer.PreviewSurface, ElementName=uc}"
-                                                Stretch="Uniform" Width="30"
-                                                Height="30"
-                                                RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False" />
+                        <visuals:PreviewPainterControl 
+                            ClipToBounds="True" 
+                            PreviewPainter="{Binding Layer.PreviewPainter, ElementName=uc}"
+                            FrameToRender="{Binding Layer.Document.AnimationHandler.ActiveFrameBindable, ElementName=uc}"
+                            Width="30" Height="30"
+                            RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False" />
                     </Border>
                     <Border
                         Width="32" Height="32"

@@ -7,6 +7,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
+using PixiEditor.Models.Rendering;
 using PixiEditor.Numerics;
 using PixiEditor.ViewModels.Nodes;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
@@ -143,16 +144,16 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
         set => SetProperty(ref selection, value);
     }
 
-    private Texture? previewSurface;
-    private Texture? maskPreviewSurface;
+    private PreviewPainter? previewSurface;
+    private PreviewPainter? maskPreviewSurface;
 
-    public Texture? PreviewSurface
+    public PreviewPainter? PreviewPainter
     {
         get => previewSurface;
         set => SetProperty(ref previewSurface, value);
     }
 
-    public Texture? MaskPreviewSurface
+    public PreviewPainter? MaskPreviewSurface
     {
         get => maskPreviewSurface;
         set => SetProperty(ref maskPreviewSurface, value);

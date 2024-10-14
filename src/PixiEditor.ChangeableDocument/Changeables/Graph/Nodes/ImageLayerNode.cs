@@ -33,7 +33,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     };
 
     private Texture fullResrenderedSurface; 
-
+    private int renderedSurfaceFrame = -1;
     public ImageLayerNode(VecI size)
     {
         RawOutput = CreateOutput<Texture>(nameof(RawOutput), "RAW_LAYER_OUTPUT", null);
@@ -111,7 +111,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         workingSurface.Canvas.RestoreToCount(saved);
     }
 
-    public override bool RenderPreview(Texture renderOn, VecI chunk, ChunkResolution resolution, int frame)
+    public override bool RenderPreview(DrawingSurface renderOnto, ChunkResolution resolution, int frame)
     {
         var img = GetLayerImageAtFrame(frame);
 
@@ -120,12 +120,17 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             return false;
         }
 
-        img.DrawMostUpToDateChunkOn(
-            chunk,
-            resolution,
-            renderOn.DrawingSurface,
-            chunk * resolution.PixelSize(),
-            blendPaint);
+        if (renderedSurfaceFrame == frame)
+        {
+            renderOnto.Canvas.DrawSurface(fullResrenderedSurface.DrawingSurface, VecI.Zero, blendPaint);
+        }
+        else
+        {
+            img.DrawMostUpToDateRegionOn(
+                new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
+                resolution,
+                renderOnto, VecI.Zero, blendPaint);
+        }
 
         return true;
     }
@@ -178,7 +183,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
     }
 
-
     IReadOnlyChunkyImage IReadOnlyImageNode.GetLayerImageAtFrame(int frame) => GetLayerImageAtFrame(frame);
 
     IReadOnlyChunkyImage IReadOnlyImageNode.GetLayerImageByKeyFrameGuid(Guid keyFrameGuid) =>
@@ -196,6 +200,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         var img = GetLayerImageAtFrame(frameTime.Frame);
 
         RenderChunkyImageChunk(chunkPos, resolution, img, ref fullResrenderedSurface);
+        renderedSurfaceFrame = frameTime.Frame;
     }
     
     public void ForEveryFrame(Action<ChunkyImage> action)

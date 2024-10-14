@@ -5,6 +5,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Layers;
+using PixiEditor.Models.Rendering;
 using PixiEditor.Numerics;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
@@ -13,8 +14,8 @@ namespace PixiEditor.Models.Handlers;
 internal interface IStructureMemberHandler : INodeHandler
 {
     public bool HasMaskBindable { get; }
-    public Texture? MaskPreviewSurface { get; set; }
-    public Texture? PreviewSurface { get; set; }
+    public PreviewPainter? MaskPreviewSurface { get; set; }
+    public PreviewPainter? PreviewPainter { get; set; }
     public bool MaskIsVisibleBindable { get; set; }
     public StructureMemberSelectionType Selection { get; set; }
     public float OpacityBindable { get; set; }

@@ -65,7 +65,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         Rasterize(workingSurface, ctx.ChunkResolution, paint);
     }
 
-    public override bool RenderPreview(Texture renderOn, VecI chunk, ChunkResolution resolution, int frame)
+    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame)
     {
         if (ShapeData == null)
         {
@@ -94,7 +94,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         Matrix3X3 matrix = ShapeData.TransformationMatrix;
         Rasterize(toRasterizeOn.DrawingSurface, resolution, paint);
 
-        renderOn.DrawingSurface.Canvas.DrawSurface(toRasterizeOn.DrawingSurface, 0, 0, paint);
+        renderOn.Canvas.DrawSurface(toRasterizeOn.DrawingSurface, 0, 0, paint);
 
         toRasterizeOn.DrawingSurface.Canvas.RestoreToCount(save);
         return true;

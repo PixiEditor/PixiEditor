@@ -9,7 +9,7 @@ using PixiEditor.Numerics;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("Folder")]
-public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
+public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPreviewRenderable
 {
     public RenderInputProperty Content { get; }
 
@@ -162,5 +162,23 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
                 }
             }
         }
+    }
+
+    public bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame)
+    {
+        if (Content.Connection != null)
+        {
+            var executionQueue = GraphUtils.CalculateExecutionQueue(Content.Connection.Node);
+            while (executionQueue.Count > 0)
+            {
+                IReadOnlyNode node = executionQueue.Dequeue();
+                if (node is IPreviewRenderable previewRenderable)
+                {
+                    previewRenderable.RenderPreview(renderOn, resolution, frame);
+                }
+            }
+        }
+
+        return true;
     }
 }

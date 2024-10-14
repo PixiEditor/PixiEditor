@@ -65,15 +65,17 @@
                                     </ImageBrush.Transform>
                                 </ImageBrush>
                             </Border.Background>
-                            <visuals:TextureControl Texture="{Binding Folder.PreviewSurface, ElementName=folderControl}" 
-                                                    Stretch="Uniform" Width="30" Height="30">
+                            <visuals:PreviewPainterControl 
+                                PreviewPainter="{Binding Folder.PreviewPainter, ElementName=folderControl}"
+                                FrameToRender="{Binding Path=Folder.Document.AnimationDataViewModel.ActiveFrameBindable, ElementName=folderControl}"
+                                Width="30" Height="30">
                                 <ui:RenderOptionsBindable.BitmapInterpolationMode>
                                     <MultiBinding Converter="{converters:WidthToBitmapScalingModeConverter}">
-                                        <Binding Path="Folder.PreviewSurface.Size.X" ElementName="folderControl"/>
+                                        <Binding Path="Folder.PreviewPainter.Bounds.Size.X" ElementName="folderControl"/>
                                         <Binding RelativeSource="{RelativeSource Mode=Self}" Path="Bounds.Width"/>
                                     </MultiBinding>
                                 </ui:RenderOptionsBindable.BitmapInterpolationMode>
-                            </visuals:TextureControl>
+                            </visuals:PreviewPainterControl>
                         </Border>
                         <Border 
                             Width="32" Height="32" 

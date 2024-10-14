@@ -30,6 +30,7 @@ internal class AffectedAreasGatherer
     public AffectedArea MainImageArea { get; private set; } = new();
     public Dictionary<Guid, AffectedArea> ImagePreviewAreas { get; private set; } = new();
     public Dictionary<Guid, AffectedArea> MaskPreviewAreas { get; private set; } = new();
+    
 
     private KeyFrameTime ActiveFrame { get; set; }
 

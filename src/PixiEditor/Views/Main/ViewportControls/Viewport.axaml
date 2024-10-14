@@ -124,9 +124,6 @@
                            VerticalAlignment="Top"
                            ToolSet="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet}" 
                            SwitchToolSetCommand="{xaml:Command Name=PixiEditor.Tools.SwitchToolSet, UseProvided=True}"/>
-        <!--
-        <rendering:UniversalScene Name="scene" ZIndex="1" SceneRenderer="{Binding Source={viewModels:MainVM DocumentManagerSVM}, Path=ActiveDocument.SceneRenderer}"/>
-        -->
         <rendering:Scene
             Focusable="False" Name="scene"
             ZIndex="1"
