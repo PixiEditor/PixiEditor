@@ -56,6 +56,17 @@ internal class MemberPreviewUpdater
     {
         var previewSize = StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size);
         float scaling = (float)previewSize.X / doc.SizeBindable.X;
+
+        if (doc.PreviewPainter == null)
+        {
+            doc.PreviewPainter = new PreviewPainter(doc.Renderer, new RectD(VecD.Zero, doc.SizeBindable));
+            doc.PreviewPainter.Repaint();
+        }
+        else
+        {
+            doc.PreviewPainter.Bounds = new RectD(VecD.Zero, doc.SizeBindable);
+            doc.PreviewPainter.Repaint();
+        }
     }
 
     private void RenderMainPreviews(Guid[] memberGuids)

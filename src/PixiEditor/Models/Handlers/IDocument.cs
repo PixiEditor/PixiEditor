@@ -11,6 +11,7 @@ using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentModels.Public;
+using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Structures;
 using PixiEditor.Models.Tools;
 using PixiEditor.Numerics;
@@ -27,7 +28,7 @@ internal interface IDocument : IHandler
     public VectorPath SelectionPathBindable { get; }
     public INodeGraphHandler NodeGraphHandler { get; }
     public DocumentStructureModule StructureHelper { get; }
-    public Texture PreviewSurface { get; set; }
+    public PreviewPainter PreviewPainter { get; set; }
     public bool AllChangesSaved { get; }
     public string CoordinatesString { get; set; }
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers { get; }

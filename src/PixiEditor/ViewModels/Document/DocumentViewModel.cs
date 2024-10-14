@@ -43,6 +43,7 @@ using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
+using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
 using PixiEditor.Models.Structures;
@@ -180,18 +181,18 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public IStructureMemberHandler? SelectedStructureMember { get; private set; } = null;
 
 
-    private Texture previewSurface;
+    private PreviewPainter previewSurface;
 
-    public Texture PreviewSurface
+    public PreviewPainter PreviewPainter
     {
         get => previewSurface;
         set
         {
-            VecI? oldSize = previewSurface?.Size;
+            VecI? oldSize = (VecI?)previewSurface?.Bounds?.Size;
             SetProperty(ref previewSurface, value);
-            if (oldSize != null && value != null && oldSize != value.Size)
+            if (oldSize != null && value is { Bounds: not null } && oldSize != value.Bounds.Value.Size)
             {
-                RaiseSizeChanged(new DocumentSizeChangedEventArgs(this, oldSize.Value, value.Size));
+                RaiseSizeChanged(new DocumentSizeChangedEventArgs(this, oldSize.Value, (VecI)value.Bounds.Value.Size));
             }
         }
     }
@@ -259,9 +260,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 SnappingViewModel.Remove(args.LayerAffectedGuid.ToString());
             }
         };
-
-        VecI previewSize = StructureMemberViewModel.CalculatePreviewSize(SizeBindable);
-        PreviewSurface = new Texture(new VecI(previewSize.X, previewSize.Y));
 
         ReferenceLayerViewModel = new(this, Internals);
 
@@ -999,7 +997,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public void Dispose()
     {
-        PreviewSurface.Dispose();
         Internals.Tracker.Dispose();
         Internals.Tracker.Document.Dispose();
     }

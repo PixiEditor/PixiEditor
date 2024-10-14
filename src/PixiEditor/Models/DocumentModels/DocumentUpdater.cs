@@ -356,10 +356,6 @@ internal class DocumentUpdater
         doc.SetSize(info.Size);
         doc.SetVerticalSymmetryAxisX(info.VerticalSymmetryAxisX);
         doc.SetHorizontalSymmetryAxisY(info.HorizontalSymmetryAxisY);
-
-        VecI documentPreviewSize = StructureHelpers.CalculatePreviewSize(info.Size);
-        doc.PreviewSurface.Dispose();
-        doc.PreviewSurface = new Texture(documentPreviewSize);
     }
 
     private void ProcessCreateStructureMember(CreateStructureMember_ChangeInfo info)

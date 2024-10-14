@@ -11,7 +11,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
 
-public class DocumentRenderer
+public class DocumentRenderer : IPreviewRenderable
 {
     
     private Paint ClearPaint { get; } = new Paint()
@@ -298,5 +298,13 @@ public class DocumentRenderer
         chunk.Surface.DrawingSurface.Canvas.Restore();
 
         return chunk;
+    }
+
+    public bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
+    {
+        using RenderContext context = new(renderOn, frame, resolution, Document.Size);
+        Document.NodeGraph.Execute(context);
+        
+        return true;
     }
 }
