@@ -14,7 +14,7 @@ namespace PixiEditor.Models.Handlers;
 internal interface IStructureMemberHandler : INodeHandler
 {
     public bool HasMaskBindable { get; }
-    public PreviewPainter? MaskPreviewSurface { get; set; }
+    public PreviewPainter? MaskPreviewPainter { get; set; }
     public PreviewPainter? PreviewPainter { get; set; }
     public bool MaskIsVisibleBindable { get; set; }
     public StructureMemberSelectionType Selection { get; set; }

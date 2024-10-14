@@ -106,10 +106,11 @@
                             </MultiBinding>
                         </Border.BorderBrush>
                         <Grid IsHitTestVisible="False">
-                            <visuals:TextureControl Texture="{Binding Layer.MaskPreviewSurface,ElementName=uc}"
-                                                    Stretch="Uniform" Width="30" Height="30"
-                                                    RenderOptions.BitmapInterpolationMode="None"
-                                                    IsHitTestVisible="False" />
+                             <visuals:PreviewPainterControl 
+                                    PreviewPainter="{Binding Layer.MaskPreviewPainter, ElementName=uc}" 
+                                    Width="30" Height="30"
+                                    FrameToRender="{Binding Path=Layer.Document.AnimationHandler.ActiveFrameBindable, ElementName=uc}"
+                                    RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False"/>
                             <Path
                                 Data="M 2 0 L 10 8 L 18 0 L 20 2 L 12 10 L 20 18 L 18 20 L 10 12 L 2 20 L 0 18 L 8 10 L 0 2 Z"
                                 Fill="{DynamicResource ThemeAccentBrush}" HorizontalAlignment="Center"

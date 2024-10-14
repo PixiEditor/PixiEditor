@@ -13,7 +13,7 @@ using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-public abstract class StructureNode : Node, IReadOnlyStructureNode, IRenderInput
+public abstract class StructureNode : Node, IReadOnlyStructureNode, IRenderInput, IPreviewRenderable
 {
     public abstract VecD ScenePosition { get; }
     public abstract VecD SceneSize { get; }
@@ -49,6 +49,8 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IRenderInput
 
     private Paint maskPaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.DstIn };
     protected Paint blendPaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.SrcOver };
+    protected Paint maskPreviewPaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.SrcOver, 
+        ColorFilter = Nodes.Filters.AlphaGrayscaleFilter };
 
     private int maskCacheHash = 0;
 
@@ -282,5 +284,25 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IRenderInput
         base.Dispose();
         maskPaint.Dispose();
         blendPaint.Dispose();
+    }
+
+    public virtual bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,
+        string elementToRenderName)
+    {
+        if (elementToRenderName != nameof(EmbeddedMask))
+        {
+            return false;
+        }
+        
+        var img = EmbeddedMask;
+
+        if (img is null)
+        {
+            return false;
+        }
+        
+        renderOn.Canvas.DrawSurface(renderedMask.DrawingSurface, VecI.Zero, maskPreviewPaint);
+
+        return true;
     }
 }

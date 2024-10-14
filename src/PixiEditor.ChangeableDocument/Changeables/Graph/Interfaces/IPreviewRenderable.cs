@@ -6,5 +6,6 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 public interface IPreviewRenderable
 {
-    public bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame);
+    public bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,
+        string elementToRenderName);
 }

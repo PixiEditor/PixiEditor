@@ -1,20 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Avalonia.Threading;
-using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
+﻿using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Models.Rendering.RenderInfos;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.Rendering;
@@ -70,19 +62,19 @@ internal class CanvasUpdater
     /// <summary>
     /// Don't call this outside ActionAccumulator
     /// </summary>
-    public async Task<List<IRenderInfo>> UpdateGatheredChunks
+    public async Task UpdateGatheredChunks
         (AffectedAreasGatherer chunkGatherer, bool rerenderDelayed)
-    {
-        return await Task.Run(() => Render(chunkGatherer, rerenderDelayed)).ConfigureAwait(true);
+    { 
+        await Task.Run(() => Render(chunkGatherer, rerenderDelayed)).ConfigureAwait(true);
     }
 
     /// <summary>
     /// Don't call this outside ActionAccumulator
     /// </summary>
-    public List<IRenderInfo> UpdateGatheredChunksSync
+    public void UpdateGatheredChunksSync
         (AffectedAreasGatherer chunkGatherer, bool rerenderDelayed)
     {
-        return Render(chunkGatherer, rerenderDelayed);
+        Render(chunkGatherer, rerenderDelayed);
     }
 
     private Dictionary<ChunkResolution, HashSet<VecI>> FindChunksVisibleOnViewports(bool onDelayed, bool all)
@@ -160,7 +152,7 @@ internal class CanvasUpdater
         }
     }
 
-    private List<IRenderInfo> Render(AffectedAreasGatherer chunkGatherer, bool rerenderDelayed)
+    private void Render(AffectedAreasGatherer chunkGatherer, bool rerenderDelayed)
     {
         Dictionary<ChunkResolution, HashSet<VecI>> chunksToRerender =
             FindGlobalChunksToRerender(chunkGatherer, rerenderDelayed);
@@ -190,16 +182,13 @@ internal class CanvasUpdater
         }
 
         if (!anythingToUpdate)
-            return new();
+            return;
 
-        List<IRenderInfo> infos = new();
-        UpdateMainImage(chunksToRerender, updatingStoredChunks ? null : chunkGatherer.MainImageArea.GlobalArea.Value,
-            infos);
-        return infos;
+        UpdateMainImage(chunksToRerender, updatingStoredChunks ? null : chunkGatherer.MainImageArea.GlobalArea.Value);
     }
 
     private void UpdateMainImage(Dictionary<ChunkResolution, HashSet<VecI>> chunksToRerender,
-        RectI? globalClippingRectangle, List<IRenderInfo> infos)
+        RectI? globalClippingRectangle)
     {
         if (chunksToRerender.Count == 0)
             return;
@@ -218,12 +207,6 @@ internal class CanvasUpdater
                 RectI chunkRect = new(chunkPos * chunkSize, new(chunkSize, chunkSize));
                 if (globalScaledClippingRectangle is RectI rect)
                     chunkRect = chunkRect.Intersect(rect);
-
-                infos.Add(new DirtyRect_RenderInfo(
-                    chunkRect.Pos,
-                    chunkRect.Size,
-                    resolution
-                ));
             }
         }
     }

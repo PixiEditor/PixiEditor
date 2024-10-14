@@ -145,7 +145,7 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
     }
 
     private PreviewPainter? previewSurface;
-    private PreviewPainter? maskPreviewSurface;
+    private PreviewPainter? _maskPreviewPainter;
 
     public PreviewPainter? PreviewPainter
     {
@@ -153,10 +153,10 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
         set => SetProperty(ref previewSurface, value);
     }
 
-    public PreviewPainter? MaskPreviewSurface
+    public PreviewPainter? MaskPreviewPainter
     {
-        get => maskPreviewSurface;
-        set => SetProperty(ref maskPreviewSurface, value);
+        get => _maskPreviewPainter;
+        set => SetProperty(ref _maskPreviewPainter, value);
     }
 
     IDocument IStructureMemberHandler.Document => Document;

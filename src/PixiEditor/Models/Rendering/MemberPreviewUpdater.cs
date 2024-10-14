@@ -4,33 +4,21 @@ using System.Diagnostics.CodeAnalysis;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Models.Rendering.RenderInfos;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.Rendering;
 
 internal class MemberPreviewUpdater
 {
-    private const float smoothingThreshold = 1.5f;
-
     private readonly IDocument doc;
     private readonly DocumentInternalParts internals;
-
-    private static readonly Paint SmoothReplacingPaint = new()
-    {
-        BlendMode = BlendMode.Src, FilterQuality = FilterQuality.Medium, IsAntiAliased = true
-    };
-
-    private static readonly Paint ReplacingPaint = new() { BlendMode = BlendMode.Src };
-
-    private static readonly Paint ClearPaint =
-        new() { BlendMode = BlendMode.Src, Color = DrawingApi.Core.ColorsImpl.Colors.Transparent };
 
     public MemberPreviewUpdater(IDocument doc, DocumentInternalParts internals)
     {
@@ -38,99 +26,36 @@ internal class MemberPreviewUpdater
         this.internals = internals;
     }
 
-    public List<IRenderInfo> UpdatePreviews(bool rerenderPreviews, IEnumerable<Guid> keys)
+    public void UpdatePreviews(bool rerenderPreviews, IEnumerable<Guid> keys)
     {
         if (!rerenderPreviews)
-            return new List<IRenderInfo>();
+            return;
 
-        var renderInfos = UpdatePreviewPainters(keys);
-
-        return renderInfos;
-    }
-
-    /// <summary>
-    /// Finds the current committed tight bounds for a layer.
-    /// </summary>
-    private RectI? FindLayerTightBounds(IReadOnlyLayerNode layer, int frame, bool forMask)
-    {
-        if (layer.EmbeddedMask is null && forMask)
-            throw new InvalidOperationException();
-
-        if (layer.EmbeddedMask is not null && forMask)
-            return FindImageTightBoundsFast(layer.EmbeddedMask);
-
-        if (layer is IReadOnlyImageNode raster)
-        {
-            return FindImageTightBoundsFast(raster.GetLayerImageAtFrame(frame));
-        }
-
-        return (RectI?)layer.GetTightBounds(frame);
-    }
-
-    /// <summary>
-    /// Finds the current committed tight bounds for a folder recursively.
-    /// </summary>
-    private RectI? FindFolderTightBounds(IReadOnlyFolderNode folder, int frame, bool forMask)
-    {
-        if (forMask)
-        {
-            if (folder.EmbeddedMask is null)
-                throw new InvalidOperationException();
-            return FindImageTightBoundsFast(folder.EmbeddedMask);
-        }
-
-        return (RectI?)folder.GetTightBounds(frame);
-    }
-
-    /// <summary>
-    /// Finds the current committed tight bounds for an image in a reasonably efficient way.
-    /// Looks at the low-res chunks for large images, meaning the resulting bounds aren't 100% precise.
-    /// </summary>
-    private RectI? FindImageTightBoundsFast(IReadOnlyChunkyImage targetImage)
-    {
-        RectI? bounds = targetImage.FindChunkAlignedCommittedBounds();
-        if (bounds is null)
-            return null;
-
-        int biggest = bounds.Value.Size.LongestAxis;
-        ChunkResolution resolution = biggest switch
-        {
-            > ChunkyImage.FullChunkSize * 9 => ChunkResolution.Eighth,
-            > ChunkyImage.FullChunkSize * 5 => ChunkResolution.Quarter,
-            > ChunkyImage.FullChunkSize * 3 => ChunkResolution.Half,
-            _ => ChunkResolution.Full,
-        };
-        return targetImage.FindTightCommittedBounds(resolution);
+        UpdatePreviewPainters(keys);
     }
 
     /// <summary>
     /// Re-renders changed chunks using <see cref="mainPreviewAreasAccumulator"/> and <see cref="maskPreviewAreasAccumulator"/> along with the passed lists of bitmaps that need full re-render.
     /// </summary>
-    /// <param name="members"></param>
-    private List<IRenderInfo> UpdatePreviewPainters(IEnumerable<Guid> members)
+    /// <param name="members">Members that should be rerendered</param>
+    private void UpdatePreviewPainters(IEnumerable<Guid> members)
     {
-        List<IRenderInfo> infos = new();
-
-        RenderWholeCanvasPreview(infos);
-        RenderMainPreviews(infos, members);
-        RenderMaskPreviews(infos);
-        RenderNodePreviews(infos);
-
-        return infos;
+        RenderWholeCanvasPreview();
+        RenderMainPreviews(members);
+        RenderMaskPreviews();
+        RenderNodePreviews();
     }
 
     /// <summary>
     /// Re-renders the preview of the whole canvas which is shown as the tab icon
     /// </summary>
-    private void RenderWholeCanvasPreview(List<IRenderInfo> infos)
+    private void RenderWholeCanvasPreview()
     {
         var previewSize = StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size);
         float scaling = (float)previewSize.X / doc.SizeBindable.X;
-
-        //infos.Add(new CanvasPreviewDirty_RenderInfo());
     }
 
-    private void RenderMainPreviews(List<IRenderInfo> infos, IEnumerable<Guid> members)
+    private void RenderMainPreviews(IEnumerable<Guid> members)
     {
         Guid[] memberGuids = members.ToArray();
         foreach (var node in doc.NodeGraphHandler.AllNodes)
@@ -139,14 +64,15 @@ internal class MemberPreviewUpdater
             {
                 if (!memberGuids.Contains(node.Id))
                     continue;
-                
+
                 if (structureMemberHandler.PreviewPainter == null)
                 {
                     var member = internals.Tracker.Document.FindMember(node.Id);
                     if (member is not IPreviewRenderable previewRenderable)
                         continue;
 
-                    structureMemberHandler.PreviewPainter = new PreviewPainter(previewRenderable, structureMemberHandler.TightBounds);
+                    structureMemberHandler.PreviewPainter =
+                        new PreviewPainter(previewRenderable, structureMemberHandler.TightBounds);
                     structureMemberHandler.PreviewPainter.Repaint();
                 }
                 else
@@ -255,12 +181,33 @@ internal class MemberPreviewUpdater
         });*/
     }
 
-    private void RenderMaskPreviews(List<IRenderInfo> infos)
+    private void RenderMaskPreviews()
     {
-        //infos.Add(new MaskPreviewDirty_RenderInfo(guid));
+        foreach (var node in doc.NodeGraphHandler.AllNodes)
+        {
+            if (node is IStructureMemberHandler structureMemberHandler)
+            {
+                var member = internals.Tracker.Document.FindMember(node.Id);
+                if (member is not IPreviewRenderable previewRenderable)
+                    continue;
+                
+                if (structureMemberHandler.MaskPreviewPainter == null)
+                {
+                    structureMemberHandler.MaskPreviewPainter = new PreviewPainter(previewRenderable,
+                        member.EmbeddedMask != null ? new RectD(VecD.Zero, member.EmbeddedMask.LatestSize) : null,
+                        nameof(StructureNode.EmbeddedMask));
+                    structureMemberHandler.MaskPreviewPainter.Repaint();
+                }
+                else
+                {
+                    structureMemberHandler.MaskPreviewPainter.Bounds = member.EmbeddedMask != null ? new RectD(VecD.Zero, member.EmbeddedMask.LatestSize) : null;
+                    structureMemberHandler.MaskPreviewPainter.Repaint();
+                }
+            }
+        }
     }
 
-    private void RenderNodePreviews(List<IRenderInfo> infos)
+    private void RenderNodePreviews()
     {
         /*using RenderingContext previewContext = new(doc.AnimationHandler.ActiveFrameTime,  VecI.Zero, ChunkResolution.Full, doc.SizeBindable);
 

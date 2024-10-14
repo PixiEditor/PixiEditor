@@ -167,8 +167,6 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         return workingSurface;
     }
 
-    public abstract bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame);
-
     void IClipSource.DrawOnTexture(SceneObjectRenderContext context, DrawingSurface drawOnto)
     {
         DrawLayerOnTexture(context, drawOnto, false);

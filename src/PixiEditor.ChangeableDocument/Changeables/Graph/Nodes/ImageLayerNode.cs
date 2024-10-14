@@ -111,8 +111,14 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         workingSurface.Canvas.RestoreToCount(saved);
     }
 
-    public override bool RenderPreview(DrawingSurface renderOnto, ChunkResolution resolution, int frame)
+    public override bool RenderPreview(DrawingSurface renderOnto, ChunkResolution resolution, int frame,
+        string elementToRenderName)
     {
+        if (elementToRenderName == nameof(EmbeddedMask))
+        {
+            return base.RenderPreview(renderOnto, resolution, frame, elementToRenderName);
+        }
+        
         var img = GetLayerImageAtFrame(frame);
 
         if (img is null)

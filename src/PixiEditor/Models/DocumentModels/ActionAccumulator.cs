@@ -9,8 +9,6 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Rendering;
-using PixiEditor.Models.Rendering.RenderInfos;
-using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable
@@ -108,27 +106,18 @@ internal class ActionAccumulator
             // update the contents of the bitmaps
             var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime, internals.Tracker,
                 optimizedChanges);
-            List<IRenderInfo> renderResult = new();
             if (DrawingBackendApi.Current.IsHardwareAccelerated)
             {
-                renderResult.AddRange(canvasUpdater.UpdateGatheredChunksSync(affectedAreas,
-                    undoBoundaryPassed || viewportRefreshRequest));
+                canvasUpdater.UpdateGatheredChunksSync(affectedAreas,
+                    undoBoundaryPassed || viewportRefreshRequest);
             }
             else
             {
-                renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas,
-                    undoBoundaryPassed || viewportRefreshRequest));
+                await canvasUpdater.UpdateGatheredChunks(affectedAreas,
+                    undoBoundaryPassed || viewportRefreshRequest);
             }
 
-            renderResult.AddRange(previewUpdater.UpdatePreviews(undoBoundaryPassed, affectedAreas.ImagePreviewAreas.Keys));
-
-            if (undoBoundaryPassed)
-            {
-                //ClearDirtyRects();
-            }
-
-            // add dirty rectangles
-            AddDirtyRects(renderResult);
+            previewUpdater.UpdatePreviews(undoBoundaryPassed, affectedAreas.ImagePreviewAreas.Keys);
 
             // force refresh viewports for better responsiveness
             foreach (var (_, value) in internals.State.Viewports)
@@ -153,51 +142,5 @@ internal class ActionAccumulator
         }
 
         return true;
-    }
-
-    private void AddDirtyRects(List<IRenderInfo> changes)
-    {
-        foreach (IRenderInfo renderInfo in changes)
-        {
-            switch (renderInfo)
-            {
-                case DirtyRect_RenderInfo info:
-                {
-                    //TODO: Validate if it's required
-                }
-                    break;
-                case PreviewDirty_RenderInfo info:
-                {
-                    /*var bitmap = document.StructureHelper.Find(info.GuidValue)?.PreviewPainter;
-                    if (bitmap is null)
-                        continue;
-                    bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));*/
-                }
-                    break;
-                case MaskPreviewDirty_RenderInfo info:
-                {
-                    /*var bitmap = document.StructureHelper.Find(info.GuidValue)?.MaskPreviewSurface;
-                    if (bitmap is null)
-                        continue;
-                    bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));*/
-                }
-                    break;
-                case CanvasPreviewDirty_RenderInfo:
-                {
-                    document.PreviewSurface.AddDirtyRect(new RectI(0, 0, document.PreviewSurface.Size.X,
-                        document.PreviewSurface.Size.Y));
-                }
-                    break;
-                case NodePreviewDirty_RenderInfo info:
-                {
-                    /*var node = document.StructureHelper.Find(info.NodeId);
-                    if (node is null || node.PreviewPainter is null)
-                        continue;
-                    node.PreviewPainter.AddDirtyRect(new RectI(0, 0, node.PreviewPainter.Size.X,
-                        node.PreviewPainter.Size.Y));*/
-                }
-                    break;
-            }
-        }
     }
 }

@@ -164,7 +164,8 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
         }
     }
 
-    public bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame)
+    public bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,
+        string elementToRenderName)
     {
         if (Content.Connection != null)
         {
@@ -174,7 +175,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
                 IReadOnlyNode node = executionQueue.Dequeue();
                 if (node is IPreviewRenderable previewRenderable)
                 {
-                    previewRenderable.RenderPreview(renderOn, resolution, frame);
+                    previewRenderable.RenderPreview(renderOn, resolution, frame, elementToRenderName);
                 }
             }
         }

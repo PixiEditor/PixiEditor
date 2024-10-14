@@ -65,7 +65,8 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         Rasterize(workingSurface, ctx.ChunkResolution, paint);
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame)
+    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,
+        string elementToRenderName)
     {
         if (ShapeData == null)
         {
