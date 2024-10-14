@@ -117,7 +117,7 @@ internal class ActionAccumulator
                     undoBoundaryPassed || viewportRefreshRequest);
             }
 
-            previewUpdater.UpdatePreviews(undoBoundaryPassed, affectedAreas.ImagePreviewAreas.Keys);
+            previewUpdater.UpdatePreviews(undoBoundaryPassed, affectedAreas.ImagePreviewAreas.Keys, affectedAreas.MaskPreviewAreas.Keys);
 
             // force refresh viewports for better responsiveness
             foreach (var (_, value) in internals.State.Viewports)

@@ -26,23 +26,26 @@ internal class MemberPreviewUpdater
         this.internals = internals;
     }
 
-    public void UpdatePreviews(bool rerenderPreviews, IEnumerable<Guid> keys)
+    public void UpdatePreviews(bool rerenderPreviews, IEnumerable<Guid> membersToUpdate, IEnumerable<Guid> masksToUpdate)
     {
         if (!rerenderPreviews)
             return;
 
-        UpdatePreviewPainters(keys);
+        UpdatePreviewPainters(membersToUpdate, masksToUpdate);
     }
 
     /// <summary>
     /// Re-renders changed chunks using <see cref="mainPreviewAreasAccumulator"/> and <see cref="maskPreviewAreasAccumulator"/> along with the passed lists of bitmaps that need full re-render.
     /// </summary>
-    /// <param name="members">Members that should be rerendered</param>
-    private void UpdatePreviewPainters(IEnumerable<Guid> members)
+    /// <param name="members">Members that should be rendered</param>
+    /// <param name="masksToUpdate">Masks that should be rendered</param>
+    private void UpdatePreviewPainters(IEnumerable<Guid> members, IEnumerable<Guid> masksToUpdate)
     {
+        Guid[] memberGuids = members as Guid[] ?? members.ToArray();
+        Guid[] maskGuids = masksToUpdate as Guid[] ?? masksToUpdate.ToArray();
         RenderWholeCanvasPreview();
-        RenderMainPreviews(members);
-        RenderMaskPreviews();
+        RenderMainPreviews(memberGuids);
+        RenderMaskPreviews(maskGuids);
         RenderNodePreviews();
     }
 
@@ -55,9 +58,8 @@ internal class MemberPreviewUpdater
         float scaling = (float)previewSize.X / doc.SizeBindable.X;
     }
 
-    private void RenderMainPreviews(IEnumerable<Guid> members)
+    private void RenderMainPreviews(Guid[] memberGuids)
     {
-        Guid[] memberGuids = members.ToArray();
         foreach (var node in doc.NodeGraphHandler.AllNodes)
         {
             if (node is IStructureMemberHandler structureMemberHandler)
@@ -181,19 +183,23 @@ internal class MemberPreviewUpdater
         });*/
     }
 
-    private void RenderMaskPreviews()
+    private void RenderMaskPreviews(Guid[] members)
     {
         foreach (var node in doc.NodeGraphHandler.AllNodes)
         {
             if (node is IStructureMemberHandler structureMemberHandler)
             {
+                if (!members.Contains(node.Id))
+                    continue;
+                
                 var member = internals.Tracker.Document.FindMember(node.Id);
                 if (member is not IPreviewRenderable previewRenderable)
                     continue;
                 
                 if (structureMemberHandler.MaskPreviewPainter == null)
                 {
-                    structureMemberHandler.MaskPreviewPainter = new PreviewPainter(previewRenderable,
+                    structureMemberHandler.MaskPreviewPainter = new PreviewPainter(
+                        previewRenderable,
                         member.EmbeddedMask != null ? new RectD(VecD.Zero, member.EmbeddedMask.LatestSize) : null,
                         nameof(StructureNode.EmbeddedMask));
                     structureMemberHandler.MaskPreviewPainter.Repaint();
