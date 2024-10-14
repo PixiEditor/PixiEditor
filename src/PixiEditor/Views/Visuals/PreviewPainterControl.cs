@@ -12,7 +12,8 @@ namespace PixiEditor.Views.Visuals;
 
 public class PreviewPainterControl : Control
 {
-    public static readonly StyledProperty<int> FrameToRenderProperty = AvaloniaProperty.Register<PreviewPainterControl, int>("FrameToRender");
+    public static readonly StyledProperty<int> FrameToRenderProperty =
+        AvaloniaProperty.Register<PreviewPainterControl, int>("FrameToRender");
 
     public static readonly StyledProperty<PreviewPainter> PreviewPainterProperty =
         AvaloniaProperty.Register<PreviewPainterControl, PreviewPainter>(
@@ -45,13 +46,14 @@ public class PreviewPainterControl : Control
         using var renderOperation = new DrawPreviewOperation(Bounds, PreviewPainter, FrameToRender);
         context.Custom(renderOperation);
     }
-    
+
     private void PainterChanged(AvaloniaPropertyChangedEventArgs<PreviewPainter> args)
     {
         if (args.OldValue.Value != null)
         {
             args.OldValue.Value.RequestRepaint -= OnPainterRenderRequest;
         }
+
         if (args.NewValue.Value != null)
         {
             args.NewValue.Value.RequestRepaint += OnPainterRenderRequest;
@@ -83,23 +85,35 @@ internal class DrawPreviewOperation : SkiaDrawOperation
         {
             return;
         }
-        
+
         DrawingSurface target = DrawingSurface.FromNative(lease.SkSurface);
-        
-        float scaleX = (float)(bounds.Width / PreviewPainter.Bounds.Value.Width);
-        float scaleY = (float)(bounds.Height / PreviewPainter.Bounds.Value.Width);
+
+        float x = (float)PreviewPainter.Bounds.Value.Width;
+        float y = (float)PreviewPainter.Bounds.Value.Height;
 
         target.Canvas.Save();
-        
-        target.Canvas.Scale(scaleX, scaleY);
-        target.Canvas.Translate((float)-PreviewPainter.Bounds.Value.X, (float)-PreviewPainter.Bounds.Value.Y);
-        
+
+        UniformScale(x, y, target);
+
         // TODO: Implement ChunkResolution and frame
         PreviewPainter.Paint(target, ChunkResolution.Full, frame);
-        
+
         target.Canvas.Restore();
-        
+
         DrawingSurface.Unmanage(target);
+    }
+
+    private void UniformScale(float x, float y, DrawingSurface target)
+    {
+        float scaleX = (float)Bounds.Width / x;
+        float scaleY = (float)Bounds.Height / y;
+        var scale = Math.Min(scaleX, scaleY);
+        float dX = (float)Bounds.Width / 2 / scale - x / 2;
+        dX -= (float)PreviewPainter.Bounds.Value.X;
+        float dY = (float)Bounds.Height / 2 / scale - y / 2;
+        dY -= (float)PreviewPainter.Bounds.Value.Y;
+        target.Canvas.Scale(scale, scale);
+        target.Canvas.Translate(dX, dY);
     }
 
     public override bool Equals(ICustomDrawOperation? other)
