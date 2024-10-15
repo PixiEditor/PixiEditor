@@ -28,8 +28,8 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
         drawingSurface.Canvas.SetMatrix(final);
     }
 
-    public abstract void RasterizeGeometry(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint);
-    public abstract void RasterizeTransformed(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint);
+    public abstract void RasterizeGeometry(DrawingSurface drawingSurface);
+    public abstract void RasterizeTransformed(DrawingSurface drawingSurface);
     public abstract bool IsValid();
     public abstract int GetCacheHash();
     public abstract int CalculateHash();

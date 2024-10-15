@@ -36,7 +36,7 @@ public class RasterizeShapeNode : Node
 
         image.DrawingSurface.Canvas.Save();
 
-        shape.RasterizeTransformed(image.DrawingSurface, context.ChunkResolution, rasterizePaint);
+        shape.RasterizeTransformed(image.DrawingSurface);
         
         image.DrawingSurface.Canvas.Restore();
 

@@ -36,17 +36,17 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
     public override ShapeCorners TransformationCorners => new ShapeCorners(GeometryAABB)
         .WithMatrix(TransformationMatrix);
 
-    public override void RasterizeGeometry(DrawingSurface drawingSurface, ChunkResolution resolution, Paint? paint)
+    public override void RasterizeGeometry(DrawingSurface drawingSurface)
     {
-        Rasterize(drawingSurface, paint, false);
+        Rasterize(drawingSurface, false);
     }
 
-    public override void RasterizeTransformed(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint)
+    public override void RasterizeTransformed(DrawingSurface drawingSurface)
     {
-        Rasterize(drawingSurface, paint, true);
+        Rasterize(drawingSurface, true);
     }
 
-    private void Rasterize(DrawingSurface drawingSurface, Paint paint, bool applyTransform)
+    private void Rasterize(DrawingSurface drawingSurface, bool applyTransform)
     {
         int num = 0;
         if (applyTransform)
@@ -54,6 +54,8 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
             num = drawingSurface.Canvas.Save();
             ApplyTransformTo(drawingSurface);
         }
+
+        using Paint paint = new Paint();
 
         paint.Color = StrokeColor;
         paint.Style = PaintStyle.Stroke;

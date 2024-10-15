@@ -36,7 +36,7 @@ public abstract class ShapeNode<T> : Node where T : ShapeVectorData
     {
         Texture texture = RequestTexture(0, size);
         
-        vectorData.RasterizeTransformed(texture.DrawingSurface, ChunkResolution.Full, rasterizePreviewPaint);
+        vectorData.RasterizeTransformed(texture.DrawingSurface);
         
         return texture;
     }

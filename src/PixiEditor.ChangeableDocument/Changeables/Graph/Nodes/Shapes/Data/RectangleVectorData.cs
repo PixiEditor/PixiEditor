@@ -25,17 +25,17 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         Size = size;
     }
 
-    public override void RasterizeGeometry(DrawingSurface drawingSurface, ChunkResolution resolution, Paint? paint)
+    public override void RasterizeGeometry(DrawingSurface drawingSurface)
     {
-        Rasterize(drawingSurface, paint, false);
+        Rasterize(drawingSurface, false);
     }
 
-    public override void RasterizeTransformed(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint)
+    public override void RasterizeTransformed(DrawingSurface drawingSurface)
     {
-        Rasterize(drawingSurface, paint, true);
+        Rasterize(drawingSurface, true);
     }
 
-    private void Rasterize(DrawingSurface drawingSurface, Paint paint, bool applyTransform)
+    private void Rasterize(DrawingSurface drawingSurface, bool applyTransform)
     {
         int saved = 0;
         if (applyTransform)
@@ -44,6 +44,8 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
             ApplyTransformTo(drawingSurface);
         }
 
+        using Paint paint = new Paint();
+        
         paint.Color = FillColor;
         paint.Style = PaintStyle.Fill;
         drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
