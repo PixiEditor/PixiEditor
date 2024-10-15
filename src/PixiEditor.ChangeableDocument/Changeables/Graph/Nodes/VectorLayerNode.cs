@@ -53,7 +53,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return;
         }
         
-        Rasterize(workingSurface, ctx.ChunkResolution, paint);
+        Rasterize(workingSurface, paint);
     }
 
     protected override void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface, Paint paint)
@@ -63,7 +63,21 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return;
         }
         
-        Rasterize(workingSurface, ctx.ChunkResolution, paint);
+        Rasterize(workingSurface, paint);
+    }
+
+    public override RectD? GetPreviewBounds(int frame, string elementFor = "")
+    {
+        if (elementFor == nameof(EmbeddedMask))
+        {
+            base.GetPreviewBounds(frame, elementFor);
+        }
+        else
+        {
+            return ShapeData?.TransformedAABB;
+        }
+        
+        return null;
     }
 
     public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,
@@ -89,16 +103,8 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return false;
         }
 
-        using Texture toRasterizeOn = new(size);
-
-        int save = toRasterizeOn.DrawingSurface.Canvas.Save();
-
         Matrix3X3 matrix = ShapeData.TransformationMatrix;
-        Rasterize(toRasterizeOn.DrawingSurface, resolution, paint);
-
-        renderOn.Canvas.DrawSurface(toRasterizeOn.DrawingSurface, 0, 0, paint);
-
-        toRasterizeOn.DrawingSurface.Canvas.RestoreToCount(save);
+        Rasterize(renderOn, paint);
         return true;
     }
 
@@ -140,7 +146,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return ShapeData?.TransformationCorners ?? new ShapeCorners();
     }
 
-    public void Rasterize(DrawingSurface surface, ChunkResolution resolution, Paint paint)
+    public void Rasterize(DrawingSurface surface, Paint paint)
     {
         int layer = surface.Canvas.SaveLayer(paint);
         ShapeData?.RasterizeTransformed(surface);

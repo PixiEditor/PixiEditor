@@ -5,5 +5,5 @@ namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 public interface IRasterizable
 {
-    public void Rasterize(DrawingSurface surface, ChunkResolution resolution, Paint paint);
+    public void Rasterize(DrawingSurface surface, Paint paint);
 }

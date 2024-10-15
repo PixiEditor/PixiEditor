@@ -174,7 +174,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public void OpacitySliderSet(double value)
     {
         var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
-
+        
         if (document?.SelectedStructureMember != null)
         {
             document.Operations.SetMemberOpacity(document.SelectedStructureMember.Id, (float)value);
