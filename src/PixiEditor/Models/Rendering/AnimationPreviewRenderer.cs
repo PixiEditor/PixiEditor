@@ -17,13 +17,7 @@ internal class AnimationKeyFramePreviewRenderer(DocumentInternalParts internals)
                 Guid.Parse(elementToRenderName),
                 out KeyFrame keyFrame))
         {
-            var nodeId = keyFrame.NodeId;
-            var node = internals.Tracker.Document.NodeGraph.AllNodes.FirstOrDefault(x => x.Id == nodeId);
-            
-            if (node is IPreviewRenderable previewRenderable)
-            {
-                return previewRenderable.GetPreviewBounds(0, elementToRenderName); 
-            }
+            return new RectD(VecD.Zero, internals.Tracker.Document.Size); 
         }
         
         return null;
