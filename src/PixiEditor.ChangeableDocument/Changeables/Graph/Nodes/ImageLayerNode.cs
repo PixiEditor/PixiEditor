@@ -85,28 +85,23 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         Paint paint)
     {
-        DrawLayer(workingSurface, paint, ctx.FrameTime); 
+        DrawLayer(workingSurface, paint, ctx); 
     }
 
     protected override void DrawWithFilters(SceneObjectRenderContext context, DrawingSurface workingSurface,
         Paint paint)
     {
-        DrawLayer(workingSurface, paint, context.FrameTime);
+        DrawLayer(workingSurface, paint, context);
     }
 
-    private void DrawLayer(DrawingSurface workingSurface, Paint paint, KeyFrameTime frameTime)
+    private void DrawLayer(DrawingSurface workingSurface, Paint paint, SceneObjectRenderContext ctx)
     {
-        if (fullResrenderedSurface is null)
-        {
-            return;
-        }
-
         int saved = workingSurface.Canvas.Save();
 
         VecD topLeft = SceneSize / 2f;
-        if (frameTime.Frame != renderedSurfaceFrame)
+        if (renderedSurfaceFrame == null || ctx.IsExportRender || ctx.FrameTime.Frame != renderedSurfaceFrame)
         {
-            GetLayerImageAtFrame(frameTime.Frame).DrawMostUpToDateRegionOn(
+            GetLayerImageAtFrame(ctx.FrameTime.Frame).DrawMostUpToDateRegionOn(
                 new RectI(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y),
                 ChunkResolution.Full,
                 workingSurface, -(VecI)topLeft, paint);   

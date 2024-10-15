@@ -9,8 +9,6 @@ namespace PixiEditor.Models.Rendering;
 
 internal class AnimationKeyFramePreviewRenderer(DocumentInternalParts internals) : IPreviewRenderable
 {
-    private readonly DocumentInternalParts internals = internals;
-    
     public RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
     {
         if (internals.Tracker.Document.AnimationData.TryFindKeyFrame(

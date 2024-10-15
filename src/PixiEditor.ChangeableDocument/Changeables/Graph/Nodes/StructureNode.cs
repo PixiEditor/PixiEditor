@@ -105,6 +105,8 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IRenderInput
         SceneObjectRenderContext renderObjectContext = new SceneObjectRenderContext(renderTarget, localBounds,
             context.FrameTime, context.ChunkResolution, context.DocumentSize, renderTarget == context.RenderSurface,
             context.Opacity);
+        
+        renderObjectContext.IsExportRender = context.IsExportRender;
 
         Render(renderObjectContext);
 

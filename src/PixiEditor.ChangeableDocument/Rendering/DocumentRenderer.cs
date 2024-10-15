@@ -310,4 +310,10 @@ public class DocumentRenderer : IPreviewRenderable
         
         return true;
     }
+
+    public void RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime)
+    {
+        using RenderContext context = new(toRenderOn, frameTime, ChunkResolution.Full, Document.Size) { IsExportRender = true };
+        Document.NodeGraph.Execute(context);
+    }
 }
