@@ -14,6 +14,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Numerics;
+using PixiEditor.Parser;
 
 namespace PixiEditor.Models.Rendering;
 
@@ -113,7 +114,7 @@ internal class MemberPreviewUpdater
             {
                 foreach (var childFrame in groupHandler.Children)
                 {
-                    if (!memberGuids.Contains(childFrame.LayerGuid))
+                    if (!memberGuids.Contains(childFrame.LayerGuid) || !IsInFrame(childFrame))
                         continue;
 
                     RenderFramePreview(childFrame);
@@ -122,9 +123,15 @@ internal class MemberPreviewUpdater
                 if (!memberGuids.Contains(groupHandler.LayerGuid))
                     continue;
 
-                //RenderGroupPreview(groupHandler);
+                RenderGroupPreview(groupHandler);
             }
         }
+    }
+    
+    private bool IsInFrame(IKeyFrameHandler keyFrame)
+    {
+        return keyFrame.StartFrameBindable <= doc.AnimationHandler.ActiveFrameBindable &&
+               keyFrame.StartFrameBindable + keyFrame.DurationBindable >= doc.AnimationHandler.ActiveFrameBindable;
     }
 
     private void RenderFramePreview(IKeyFrameHandler keyFrame)
@@ -135,104 +142,17 @@ internal class MemberPreviewUpdater
             keyFrame.PreviewPainter.Repaint();
         }
     }
-
-    private void RenderGroupPreview(IKeyFrameHandler keyFrame, IStructureMemberHandler memberVM,
-        IReadOnlyStructureNode member, [DisallowNull] AffectedArea? affArea, VecI position, float scaling)
+    
+    private void RenderGroupPreview(IKeyFrameGroupHandler groupHandler)
     {
-        /*bool isEditingRootImage = !member.KeyFrames.Any(x => x.IsInFrame(doc.AnimationHandler.ActiveFrameBindable));
-        if (!isEditingRootImage && keyFrame.PreviewSurface is not null)
-            return;
-
-        if (keyFrame.PreviewSurface == null ||
-            keyFrame.PreviewSurface.Size != memberVM.PreviewPainter.Size)
+        var group = internals.Tracker.Document.AnimationData.KeyFrames.FirstOrDefault(x => x.Id == groupHandler.Id);
+        if (group != null)
         {
-            keyFrame.PreviewSurface?.Dispose();
-            keyFrame.PreviewSurface = new Texture(memberVM.PreviewPainter.Size);
+            groupHandler.PreviewPainter ??= new PreviewPainter(AnimationKeyFramePreviewRenderer, groupHandler.Id.ToString());
+            groupHandler.PreviewPainter.Repaint();
         }
-
-        RenderLayerMainPreview((IReadOnlyLayerNode)member, keyFrame.PreviewSurface, affArea.Value,
-            position, scaling, 0);*/
     }
-
-    /// <summary>
-    /// Re-render the <paramref name="area"/> of the main preview of the <paramref name="memberVM"/> folder
-    /// </summary>
-    private void RenderFolderMainPreview(IReadOnlyFolderNode folder, IStructureMemberHandler memberVM,
-        AffectedArea area,
-        VecI position, float scaling)
-    {
-        /*QueueRender(() =>
-        {
-            memberVM.PreviewSurface.DrawingSurface.Canvas.Save();
-            memberVM.PreviewSurface.DrawingSurface.Canvas.Scale(scaling);
-            memberVM.PreviewSurface.DrawingSurface.Canvas.Translate(-position);
-            memberVM.PreviewSurface.DrawingSurface.Canvas.ClipRect((RectD)area.GlobalArea);
-            foreach (var chunk in area.Chunks)
-            {
-                var pos = chunk * ChunkResolution.Full.PixelSize();
-                // drawing in full res here is kinda slow
-                // we could switch to a lower resolution based on (canvas size / preview size) to make it run faster
-                HashSet<Guid> layers = folder.GetLayerNodeGuids();
-
-                OneOf<Chunk, EmptyChunk> rendered;
-
-                if (layers.Count == 0)
-                {
-                    rendered = new EmptyChunk();
-                }
-                else
-                {
-                    rendered = doc.Renderer.RenderLayersChunk(chunk, ChunkResolution.Full,
-                        doc.AnimationHandler.ActiveFrameTime, layers,
-                        null);
-                }
-
-                if (rendered.IsT0)
-                {
-                    memberVM.PreviewSurface.DrawingSurface.Canvas.DrawSurface(rendered.AsT0.Surface.DrawingSurface, pos,
-                        scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint);
-                    rendered.AsT0.Dispose();
-                }
-                else
-                {
-                    memberVM.PreviewSurface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y,
-                        ChunkResolution.Full.PixelSize(),
-                        ChunkResolution.Full.PixelSize(), ClearPaint);
-                }
-            }
-
-            memberVM.PreviewSurface.DrawingSurface.Canvas.Restore();
-        });*/
-    }
-
-    private void RenderAnimationFramePreview(IReadOnlyImageNode node, IKeyFrameHandler keyFrameVM, AffectedArea area)
-    {
-        /*if (keyFrameVM.PreviewPainter is null)
-        {
-            keyFrameVM.PreviewPainter =
-                new Texture(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size));
-        }*/
-
-        /*QueueRender(() =>
-        {
-            keyFrameVM.PreviewSurface!.DrawingSurface.Canvas.Save();
-            float scaling = (float)keyFrameVM.PreviewSurface.Size.X / internals.Tracker.Document.Size.X;
-            keyFrameVM.PreviewSurface.DrawingSurface.Canvas.Scale(scaling);
-            foreach (var chunk in area.Chunks)
-            {
-                var pos = chunk * ChunkResolution.Full.PixelSize();
-                if (!node.GetLayerImageByKeyFrameGuid(keyFrameVM.Id).DrawCommittedChunkOn(chunk, ChunkResolution.Full,
-                        keyFrameVM.PreviewSurface!.DrawingSurface, pos, ReplacingPaint))
-                {
-                    keyFrameVM.PreviewSurface!.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize,
-                        ChunkyImage.FullChunkSize, ClearPaint);
-                }
-            }
-
-            keyFrameVM.PreviewSurface!.DrawingSurface.Canvas.Restore();
-        });*/
-    }
-
+    
     private void RenderMaskPreviews(Guid[] members)
     {
         foreach (var node in doc.NodeGraphHandler.AllNodes)

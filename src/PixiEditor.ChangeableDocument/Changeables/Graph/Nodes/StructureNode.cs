@@ -34,7 +34,10 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IRenderInput
     public ChunkyImage? EmbeddedMask { get; set; }
 
     protected Texture renderedMask;
-    protected static readonly Paint replacePaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src };
+    protected static readonly Paint replacePaint = new Paint() 
+        { BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src };
+    protected static readonly Paint clearPaint = new Paint() 
+        { BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src, Color = Colors.Transparent };
 
     public virtual ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
     {
@@ -160,12 +163,16 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IRenderInput
             renderSurface = new Texture(targetSize);
         }
 
-        img.DrawMostUpToDateChunkOn(
-            chunkPos,
-            ChunkResolution.Full,
-            renderSurface.DrawingSurface,
-            chunkPos * ChunkResolution.Full.PixelSize(),
-            replacePaint);
+        if (!img.DrawMostUpToDateChunkOn(
+                chunkPos,
+                ChunkResolution.Full,
+                renderSurface.DrawingSurface,
+                chunkPos * ChunkResolution.Full.PixelSize(),
+                replacePaint))
+        {
+            var chunkSize = ChunkResolution.Full.PixelSize();
+            renderSurface.DrawingSurface.Canvas.DrawRect(new RectD(chunkPos * chunkSize, new VecD(chunkSize)), clearPaint);
+        }
 
         renderSurface.DrawingSurface.Flush();
     }
@@ -192,61 +199,6 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IRenderInput
     {
         blendPaint.Color = Colors.White;
         clipSource.DrawOnTexture(context, drawOnto);
-    }
-
-    protected void DrawSurface(DrawingSurface workingSurface, DrawingSurface source, RenderContext context,
-        Filter? filter)
-    {
-        // Maybe clip rect will allow to avoid snapshotting? Idk if it will be faster
-        /*
-        RectI sourceRect = CalculateSourceRect(workingSurface.Size, source.Size, context);
-        RectI targetRect = CalculateDestinationRect(context);
-        using var snapshot = source.DrawingSurface.Snapshot(sourceRect);
-        */
-
-        blendPaint.SetFilters(filter);
-
-        workingSurface.Canvas.DrawSurface(source, source.DeviceClipBounds.X, source.DeviceClipBounds.Y, blendPaint);
-    }
-
-    protected RectI CalculateSourceRect(VecI targetSize, VecI sourceSize, RenderContext context)
-    {
-        /*float divider = 1;
-
-        if (sourceSize.X < targetSize.X || sourceSize.Y < targetSize.Y)
-        {
-            divider = Math.Min((float)targetSize.X / sourceSize.X, (float)targetSize.Y / sourceSize.Y);
-        }
-
-        int chunkSize = (int)Math.Round(context.ChunkResolution.PixelSize() / divider);
-        VecI chunkPos = context.ChunkToUpdate.Value;
-
-        int x = (int)(chunkPos.X * chunkSize);
-        int y = (int)(chunkPos.Y * chunkSize);
-        int width = (int)(chunkSize);
-        int height = (int)(chunkSize);
-
-        x = Math.Clamp(x, 0, Math.Max(sourceSize.X - width, 0));
-        y = Math.Clamp(y, 0, Math.Max(sourceSize.Y - height, 0));
-
-        return new RectI(x, y, width, height);*/
-
-        return new RectI(0, 0, sourceSize.X, sourceSize.Y);
-    }
-
-    protected RectI CalculateDestinationRect(RenderContext context)
-    {
-        /*int chunkSize = context.ChunkResolution.PixelSize();
-        VecI chunkPos = context.ChunkToUpdate.Value;
-
-        int x = chunkPos.X * chunkSize;
-        int y = chunkPos.Y * chunkSize;
-        int width = chunkSize;
-        int height = chunkSize;
-
-        return new RectI(x, y, width, height);*/
-
-        return new RectI(0, 0, context.DocumentSize.X, context.DocumentSize.Y);
     }
 
     public abstract RectD? GetTightBounds(KeyFrameTime frameTime);
@@ -278,14 +230,6 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IRenderInput
         return new None();
     }
 
-    public override void Dispose()
-    {
-        Output.Value = null;
-        base.Dispose();
-        maskPaint.Dispose();
-        blendPaint.Dispose();
-    }
-
     public virtual RectD? GetPreviewBounds(int frame, string elementFor = "")
     {
         if (elementFor == nameof(EmbeddedMask) && EmbeddedMask != null)
@@ -314,5 +258,13 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IRenderInput
         renderOn.Canvas.DrawSurface(renderedMask.DrawingSurface, VecI.Zero, maskPreviewPaint);
 
         return true;
+    }
+
+    public override void Dispose()
+    {
+        Output.Value = null;
+        base.Dispose();
+        maskPaint.Dispose();
+        blendPaint.Dispose();
     }
 }
