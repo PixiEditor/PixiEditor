@@ -85,16 +85,16 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         Paint paint)
     {
-        DrawLayer(workingSurface, paint, ctx.ChunkResolution); 
+        DrawLayer(workingSurface, paint, ctx.FrameTime); 
     }
 
     protected override void DrawWithFilters(SceneObjectRenderContext context, DrawingSurface workingSurface,
         Paint paint)
     {
-        DrawLayer(workingSurface, paint, context.ChunkResolution);
+        DrawLayer(workingSurface, paint, context.FrameTime);
     }
 
-    private void DrawLayer(DrawingSurface workingSurface, Paint paint, ChunkResolution resolution)
+    private void DrawLayer(DrawingSurface workingSurface, Paint paint, KeyFrameTime frameTime)
     {
         if (fullResrenderedSurface is null)
         {
@@ -103,11 +103,19 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         int saved = workingSurface.Canvas.Save();
 
-        //workingSurface.Canvas.Scale((float)resolution.Multiplier());
-        
         VecD topLeft = SceneSize / 2f;
-        workingSurface.Canvas.DrawSurface(fullResrenderedSurface.DrawingSurface, -(VecI)topLeft, paint);
-        
+        if (frameTime.Frame != renderedSurfaceFrame)
+        {
+            GetLayerImageAtFrame(frameTime.Frame).DrawMostUpToDateRegionOn(
+                new RectI(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y),
+                ChunkResolution.Full,
+                workingSurface, -(VecI)topLeft, paint);   
+        }
+        else
+        {
+            workingSurface.Canvas.DrawSurface(fullResrenderedSurface.DrawingSurface, -(VecI)topLeft, paint);
+        }
+
         workingSurface.Canvas.RestoreToCount(saved);
     }
 

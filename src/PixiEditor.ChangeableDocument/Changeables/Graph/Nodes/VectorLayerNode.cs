@@ -6,6 +6,7 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
@@ -38,7 +39,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
     public override VecD ScenePosition => ShapeData?.TransformedAABB.Center ?? VecD.Zero;
     public override VecD SceneSize => ShapeData?.TransformedAABB.Size ?? VecD.Zero;
-
+    
     protected override VecI GetTargetSize(RenderContext ctx)
     {
         return ctx.DocumentSize;
@@ -51,7 +52,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         {
             return;
         }
-
+        
         Rasterize(workingSurface, ctx.ChunkResolution, paint);
     }
 
@@ -61,7 +62,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         {
             return;
         }
-
+        
         Rasterize(workingSurface, ctx.ChunkResolution, paint);
     }
 
@@ -141,7 +142,10 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
     public void Rasterize(DrawingSurface surface, ChunkResolution resolution, Paint paint)
     {
+        int layer = surface.Canvas.SaveLayer(paint);
         ShapeData?.RasterizeTransformed(surface, resolution, paint);
+        
+        surface.Canvas.RestoreToCount(layer);
     }
 
     public override Node CreateCopy()

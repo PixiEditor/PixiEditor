@@ -69,13 +69,11 @@ public class PreviewPainterControl : Control
 internal class DrawPreviewOperation : SkiaDrawOperation
 {
     public PreviewPainter PreviewPainter { get; }
-    private RectD bounds;
     private int frame;
 
     public DrawPreviewOperation(Rect dirtyBounds, PreviewPainter previewPainter, int frameToRender) : base(dirtyBounds)
     {
         PreviewPainter = previewPainter;
-        bounds = new RectD(dirtyBounds.X, dirtyBounds.Y, dirtyBounds.Width, dirtyBounds.Height);
         frame = frameToRender;
     }
 

@@ -15,12 +15,14 @@ using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.DrawingApi.Skia;
 using PixiEditor.DrawingApi.Skia.Extensions;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Converters;
 using PixiEditor.Models.DocumentModels;
+using PixiEditor.Models.Rendering;
 using PixiEditor.Numerics;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.Views.Overlays;
@@ -534,11 +536,6 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
         using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
 
-        using SKPaint paint = new SKPaint();
-        paint.Color = paint.Color.WithAlpha((byte)(opacity * 255));
-
-        RenderOnionSkin(canvas, paint);
-
         DrawingSurface surface = DrawingSurface.FromNative(lease.SkSurface);
 
         surface.Canvas.ClipRect(ClippingBounds);
@@ -547,27 +544,6 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
         canvas.RestoreToCount(count);
         DrawingSurface.Unmanage(surface);
-    }
-
-    private void RenderOnionSkin(SKCanvas canvas, SKPaint paint)
-    {
-        if (Document.AnimationDataViewModel.OnionSkinningEnabledBindable)
-        {
-            var onionSkinTexture = Document.Renderer.OnionSkinTexture;
-
-            if (onionSkinTexture == null)
-            {
-                return;
-            }
-
-            int count = canvas.Save();
-
-            canvas.Scale(1f / (float)ResolutionScale, 1f / (float)ResolutionScale);
-
-            canvas.DrawSurface(onionSkinTexture.DrawingSurface.Native as SKSurface, 0, 0, paint);
-
-            canvas.RestoreToCount(count);
-        }
     }
 
     public override bool Equals(ICustomDrawOperation? other)

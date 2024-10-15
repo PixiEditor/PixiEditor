@@ -29,15 +29,15 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
 
     public override void RasterizeGeometry(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint)
     {
-        Rasterize(drawingSurface, paint, false);
+        Rasterize(drawingSurface, false);
     }
 
     public override void RasterizeTransformed(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint)
     {
-        Rasterize(drawingSurface, paint, true);
+        Rasterize(drawingSurface, true);
     }
 
-    private void Rasterize(DrawingSurface drawingSurface, Paint paint, bool applyTransform)
+    private void Rasterize(DrawingSurface drawingSurface, bool applyTransform)
     {
         int saved = 0;
         if (applyTransform)
@@ -45,15 +45,17 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
             saved = drawingSurface.Canvas.Save();
             ApplyTransformTo(drawingSurface);
         }
+        
+        using Paint shapePaint = new Paint();
+        
+        shapePaint.Color = FillColor;
+        shapePaint.Style = PaintStyle.Fill;
+        drawingSurface.Canvas.DrawOval(Center, Radius, shapePaint);
 
-        paint.Color = FillColor;
-        paint.Style = PaintStyle.Fill;
-        drawingSurface.Canvas.DrawOval(Center, Radius, paint);
-
-        paint.Color = StrokeColor;
-        paint.Style = PaintStyle.Stroke;
-        paint.StrokeWidth = StrokeWidth;
-        drawingSurface.Canvas.DrawOval(Center, Radius - new VecD(StrokeWidth / 2f), paint);
+        shapePaint.Color = StrokeColor;
+        shapePaint.Style = PaintStyle.Stroke;
+        shapePaint.StrokeWidth = StrokeWidth;
+        drawingSurface.Canvas.DrawOval(Center, Radius - new VecD(StrokeWidth / 2f), shapePaint);
 
         if (applyTransform)
         {

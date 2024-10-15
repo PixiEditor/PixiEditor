@@ -103,7 +103,8 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IRenderInput
         renderTarget.Canvas.ClipRect(new RectD(ScenePosition - (SceneSize / 2f), SceneSize));
 
         SceneObjectRenderContext renderObjectContext = new SceneObjectRenderContext(renderTarget, localBounds,
-            context.FrameTime, context.ChunkResolution, context.DocumentSize, renderTarget == context.RenderSurface);
+            context.FrameTime, context.ChunkResolution, context.DocumentSize, renderTarget == context.RenderSurface,
+            context.Opacity);
 
         Render(renderObjectContext);
 

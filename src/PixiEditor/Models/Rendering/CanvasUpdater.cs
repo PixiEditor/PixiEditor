@@ -158,8 +158,6 @@ internal class CanvasUpdater
             FindGlobalChunksToRerender(chunkGatherer, rerenderDelayed);
         
         ChunkResolution onionSkinResolution = chunksToRerender.Min(x => x.Key);
-        // TODO: Don't forget to implement this
-        //UpdateOnionSkinning(doc.Surfaces[onionSkinResolution]);
 
         bool updatingStoredChunks = false;
         foreach (var (res, stored) in affectedAndNonRerenderedChunks)
@@ -211,6 +209,7 @@ internal class CanvasUpdater
         }
     }
 
+    /*
     private void UpdateOnionSkinning(Texture lastRendered)
     {
         if (doc.AnimationHandler.OnionSkinningEnabledBindable)
@@ -281,10 +280,9 @@ internal class CanvasUpdater
 
         KeyFrameTime newFrameTime = new(frameIndex, newNormalizedTime);
 
-        //TODO: fix this
-        //using Texture rendered = doc.Renderer.RenderDocument(newFrameTime, ChunkResolution.Full);
-        //UpdateLastRenderedFrame(rendered, frameIndex);
-    }
+        using Texture rendered = doc.Renderer.RenderDocument(newFrameTime, ChunkResolution.Full);
+        UpdateLastRenderedFrame(rendered, frameIndex);
+    }*/
 
     private void UpdateLastRenderedFrame(Texture rendered, int index)
     {

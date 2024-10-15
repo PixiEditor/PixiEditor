@@ -130,7 +130,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
     private void DrawLayerOnto(SceneObjectRenderContext ctx, DrawingSurface workingSurface, bool useFilters)
     {
-        blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255));
+        blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * ctx.Opacity * 255));
 
         if (useFilters && Filters.Value != null)
         {

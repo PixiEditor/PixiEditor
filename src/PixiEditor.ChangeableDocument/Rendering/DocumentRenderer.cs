@@ -25,7 +25,7 @@ public class DocumentRenderer : IPreviewRenderable
     }
 
     private IReadOnlyDocument Document { get; }
-    public Texture OnionSkinTexture { get; set; }
+    //public Texture OnionSkinTexture { get; set; }
 
     /*public Texture RenderDocument(KeyFrameTime frameTime, ChunkResolution resolution, Texture toDrawOn = null,
         Paint paint = null)

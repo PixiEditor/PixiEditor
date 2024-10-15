@@ -259,7 +259,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         ReferenceLayerViewModel = new(this, Internals);
 
         Renderer = new DocumentRenderer(Internals.Tracker.Document);
-        SceneRenderer = new SceneRenderer(Internals.Tracker.Document, () => AnimationDataViewModel.ActiveFrameTime);
+        SceneRenderer = new SceneRenderer(Internals.Tracker.Document, this);
     }
 
     /// <summary>

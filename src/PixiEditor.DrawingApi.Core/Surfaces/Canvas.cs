@@ -217,6 +217,16 @@ namespace PixiEditor.DrawingApi.Core.Surfaces
             DrawingBackendApi.Current.CanvasImplementation.DrawPaint(ObjectPointer, paint);
             Changed?.Invoke(null);
         }
+        
+        public int SaveLayer()
+        {
+            return DrawingBackendApi.Current.CanvasImplementation.SaveLayer(ObjectPointer);
+        }
+
+        public int SaveLayer(Paint paint)
+        {
+            return DrawingBackendApi.Current.CanvasImplementation.SaveLayer(ObjectPointer, paint);
+        }
 
         public override void Dispose()
         {
