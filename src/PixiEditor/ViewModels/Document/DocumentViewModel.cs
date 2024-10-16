@@ -522,7 +522,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             Surface finalSurface = new Surface(SizeBindable);
             DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
             {
-                Renderer.RenderDocument(finalSurface.DrawingSurface, frameTime); 
+                Renderer.RenderDocument(finalSurface.DrawingSurface, frameTime);
             });
 
             return finalSurface;
@@ -550,7 +550,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         for (int i = 0; i < selectedLayers.Count; i++)
         {
-            var layerVm = StructureHelper.Find(selectedLayers[i]); 
+            var layerVm = StructureHelper.Find(selectedLayers[i]);
             IReadOnlyStructureNode? layer = Internals.Tracker.Document.FindMember(layerVm.Id);
             if (layer is null)
                 return new Error();
@@ -601,6 +601,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             output.DrawingSurface.Canvas.ClipPath(clipPath);
         }
+
         using Paint paint = new Paint() { BlendMode = BlendMode.SrcOver };
 
         foreach (var layer in selectedLayers)
@@ -608,10 +609,16 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             try
             {
                 var layerVm = Internals.Tracker.Document.FindMember(layer);
-                using Texture rendered = Renderer.RenderLayer(layerVm.Id, ChunkResolution.Full,
-                    AnimationDataViewModel.ActiveFrameTime);
-                using Image snapshot = rendered.DrawingSurface.Snapshot(bounds);
-                output.DrawingSurface.Canvas.DrawImage(snapshot, 0, 0, paint);
+
+                DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
+                {
+                    using Surface toPaintOn = new Surface(SizeBindable);
+
+                    Renderer.RenderLayer(toPaintOn.DrawingSurface, layerVm.Id, ChunkResolution.Full,
+                        AnimationDataViewModel.ActiveFrameTime);
+                    using Image snapshot = toPaintOn.DrawingSurface.Snapshot(bounds);
+                    output.DrawingSurface.Canvas.DrawImage(snapshot, 0, 0, paint);
+                });
             }
             catch (ObjectDisposedException)
             {

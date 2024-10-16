@@ -210,10 +210,8 @@ internal partial class DocumentViewModel
         Image toSave = null;
         DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
         {
-            using Texture rendered = Renderer.RenderLayer(imageNode.Id, ChunkResolution.Full, atTime.Frame);
-
-            using Surface surface = new Surface(rendered.Size);
-            surface.DrawingSurface.Canvas.DrawImage(rendered.DrawingSurface.Snapshot(), 0, 0);
+            using Surface surface = new Surface(SizeBindable); 
+            Renderer.RenderLayer(surface.DrawingSurface, imageNode.Id, ChunkResolution.Full, atTime.Frame);
 
             toSave = surface.DrawingSurface.Snapshot((RectI)tightBounds.Value);
         });
