@@ -80,7 +80,7 @@ public class DocumentRenderer : IPreviewRenderable
         }
         
         using RenderContext context = new(renderOn, frameTime, resolution, Document.Size);
-        context.IsExportRender = true;
+        context.FullRerender = true;
         
         node.Execute(context);
     }
@@ -136,7 +136,7 @@ public class DocumentRenderer : IPreviewRenderable
 
     public void RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime)
     {
-        using RenderContext context = new(toRenderOn, frameTime, ChunkResolution.Full, Document.Size) { IsExportRender = true };
+        using RenderContext context = new(toRenderOn, frameTime, ChunkResolution.Full, Document.Size) { FullRerender = true };
         Document.NodeGraph.Execute(context);
     }
 }

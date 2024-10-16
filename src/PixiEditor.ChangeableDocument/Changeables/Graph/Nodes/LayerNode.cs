@@ -29,73 +29,51 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         blendPaint.Color = new Color(255, 255, 255, 255);
         blendPaint.BlendMode = DrawingApi.Core.Surfaces.BlendMode.SrcOver;
 
-        DrawingSurface target = sceneContext.RenderSurface;
-
         VecI targetSize = GetTargetSize(sceneContext);
 
-        /*if (FilterlessOutput.Connections.Count > 0)
-        {
-            var filterlessWorkingSurface = TryInitWorkingSurface(targetSize, sceneContext.ChunkResolution, 0);
-
-            if (Background.Value != null)
-            {
-                DrawBackground(filterlessWorkingSurface.DrawingSurface, sceneContext);
-                blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
-            }
-
-            DrawLayer(sceneContext, filterlessWorkingSurface.DrawingSurface, shouldClear, useFilters: false);
-            blendPaint.BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src;
-
-            FilterlessOutput.Value = filterlessWorkingSurface;
-        }*/
-
-        RenderContent(targetSize, sceneContext, target);
-
-        Output.Value = target;
+        RenderContent(targetSize, sceneContext, sceneContext.RenderSurface,
+            sceneContext.TargetPropertyOutput != FilterlessOutput);
     }
 
-    private void RenderContent(VecI size, SceneObjectRenderContext context, DrawingSurface renderOnto)
+    private void RenderContent(VecI size, SceneObjectRenderContext context, DrawingSurface renderOnto, bool useFilters)
     {
-        if (Output.Connections.Count > 0)
+        if (!HasOperations())
         {
-            if (!HasOperations())
-            {
-                if (RenderTarget.Value != null)
-                {
-                    blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
-                }
-
-                DrawLayerInScene(context, renderOnto, true);
-                return;
-            }
-
-            var outputWorkingSurface = TryInitWorkingSurface(size, context.ChunkResolution, 1);
-            outputWorkingSurface.DrawingSurface.Canvas.Clear();
-
-            DrawLayerOnTexture(context, outputWorkingSurface.DrawingSurface, true);
-
-            ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, context);
-
             if (RenderTarget.Value != null)
             {
-                Texture tempSurface = TryInitWorkingSurface(size, context.ChunkResolution, 4);
-                tempSurface.DrawingSurface.Canvas.Clear();
-                if (RenderTarget.Connection.Node is IClipSource clipSource)
-                {
-                    // TODO: This probably should work with StructureMembers not Layers only
-                    DrawClipSource(tempSurface.DrawingSurface, clipSource, context);
-                }
-
-                ApplyRasterClip(outputWorkingSurface.DrawingSurface, tempSurface.DrawingSurface);
                 blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
-                tempSurface.DrawingSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
-
-                DrawWithResolution(tempSurface.DrawingSurface, renderOnto, context.ChunkResolution, size);
-                return;
             }
 
-            DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, context.ChunkResolution, size);
+            DrawLayerInScene(context, renderOnto, useFilters);
+            return;
         }
+
+        var outputWorkingSurface = TryInitWorkingSurface(size, context.ChunkResolution, 1);
+        outputWorkingSurface.DrawingSurface.Canvas.Clear();
+
+        DrawLayerOnTexture(context, outputWorkingSurface.DrawingSurface, useFilters);
+
+        ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, context);
+
+        if (RenderTarget.Value != null)
+        {
+            Texture tempSurface = TryInitWorkingSurface(size, context.ChunkResolution, 4);
+            tempSurface.DrawingSurface.Canvas.Clear();
+            if (RenderTarget.Connection.Node is IClipSource clipSource)
+            {
+                // TODO: This probably should work with StructureMembers not Layers only
+                DrawClipSource(tempSurface.DrawingSurface, clipSource, context);
+            }
+
+            ApplyRasterClip(outputWorkingSurface.DrawingSurface, tempSurface.DrawingSurface);
+            blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
+            tempSurface.DrawingSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
+
+            DrawWithResolution(tempSurface.DrawingSurface, renderOnto, context.ChunkResolution, size);
+            return;
+        }
+
+        DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, context.ChunkResolution, size);
     }
 
     protected internal virtual void DrawLayerOnTexture(SceneObjectRenderContext ctx, DrawingSurface workingSurface,

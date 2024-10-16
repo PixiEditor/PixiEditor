@@ -25,7 +25,7 @@ public class RenderContext : IDisposable
     public VecI DocumentSize { get; set; }
     
     public DrawingSurface RenderSurface { get; set; }
-    public bool IsExportRender { get; set; } = false;
+    public bool FullRerender { get; set; } = false;
 
     public bool IsDisposed { get; private set; }
 

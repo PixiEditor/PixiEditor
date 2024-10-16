@@ -16,27 +16,22 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 {
     public const string ImageFramesKey = "Frames";
     public const string ImageLayerKey = "LayerImage";
-    public OutputProperty<Texture> RawOutput { get; }
+    //public RenderOutputProperty RawOutput { get; }
 
     public override VecD ScenePosition => layerImage.CommittedSize / 2f;
     public override VecD SceneSize => layerImage.CommittedSize;
-    
+
     public bool LockTransparency { get; set; }
 
     private VecI startSize;
     private ChunkyImage layerImage => keyFrames[0]?.Data as ChunkyImage;
 
-    private static readonly Paint clearPaint = new()
-    {
-        BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src,
-        Color = PixiEditor.DrawingApi.Core.ColorsImpl.Colors.Transparent
-    };
-
-    private Texture fullResrenderedSurface; 
+    private Texture fullResrenderedSurface;
     private int renderedSurfaceFrame = -1;
+
     public ImageLayerNode(VecI size)
     {
-        RawOutput = CreateOutput<Texture>(nameof(RawOutput), "RAW_LAYER_OUTPUT", null);
+        //RawOutput = CreateRenderOutput(nameof(RawOutput), "RAW_LAYER_OUTPUT");
 
         if (keyFrames.Count == 0)
         {
@@ -44,9 +39,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
 
         this.startSize = size;
-
     }
-    
+
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
         return (RectD?)GetLayerImageAtFrame(frameTime.Frame).FindTightCommittedBounds();
@@ -55,16 +49,21 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     protected override void OnExecute(RenderContext context)
     {
         base.OnExecute(context);
-
-        /*if (RawOutput.Connections.Count > 0)
+        /*var rawOutputTarget = RawOutput.GetFirstRenderTarget(context);
+        if (RawOutput.Connections.Count > 0 && rawOutputTarget != null)
         {
-            var rawWorkingSurface = TryInitWorkingSurface(GetTargetSize(context), context.ChunkResolution, 2);
-            DrawLayer(context, rawWorkingSurface, true, useFilters: false);
-
-            RawOutput.Value = rawWorkingSurface;
+            using SceneObjectRenderContext sceneContext = CreateSceneContext(context, rawOutputTarget, RawOutput);
+            
+            int renderSaved = rawOutputTarget.Canvas.Save();
+            rawOutputTarget.Canvas.ClipRect(new RectD(ScenePosition - (SceneSize / 2f), SceneSize));
+            
+            DrawLayerInScene(sceneContext, rawOutputTarget, false);
+            
+            rawOutputTarget.Canvas.RestoreToCount(renderSaved);
+            RawOutput.Value = rawOutputTarget;
         }*/
     }
-
+    
     protected override VecI GetTargetSize(RenderContext ctx)
     {
         return (GetFrameWithImage(ctx.FrameTime).Data as ChunkyImage).LatestSize;
@@ -76,7 +75,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         int scaled = workingSurface.Canvas.Save();
         float multiplier = (float)ctx.ChunkResolution.InvertedMultiplier();
         workingSurface.Canvas.Translate(ScenePosition);
-        //workingSurface.Canvas.Scale(multiplier, multiplier);
         base.DrawLayerInScene(ctx, workingSurface, useFilters);
 
         workingSurface.Canvas.RestoreToCount(scaled);
@@ -85,7 +83,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         Paint paint)
     {
-        DrawLayer(workingSurface, paint, ctx); 
+        DrawLayer(workingSurface, paint, ctx);
     }
 
     protected override void DrawWithFilters(SceneObjectRenderContext context, DrawingSurface workingSurface,
@@ -99,12 +97,12 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         int saved = workingSurface.Canvas.Save();
 
         VecD topLeft = SceneSize / 2f;
-        if (renderedSurfaceFrame == null || ctx.IsExportRender || ctx.FrameTime.Frame != renderedSurfaceFrame)
+        if (renderedSurfaceFrame == null || ctx.FullRerender || ctx.FrameTime.Frame != renderedSurfaceFrame)
         {
             GetLayerImageAtFrame(ctx.FrameTime.Frame).DrawMostUpToDateRegionOn(
                 new RectI(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y),
                 ChunkResolution.Full,
-                workingSurface, -(VecI)topLeft, paint);   
+                workingSurface, -(VecI)topLeft, paint);
         }
         else
         {
@@ -143,7 +141,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
 
         var img = GetLayerImageAtFrame(frame);
-        
+
         if (Guid.TryParse(elementToRenderName, out Guid guid))
         {
             var keyFrame = keyFrames.FirstOrDefault(x => x.KeyFrameGuid == guid);
@@ -235,13 +233,13 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     public override void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime)
     {
         base.RenderChunk(chunkPos, resolution, frameTime);
-        
+
         var img = GetLayerImageAtFrame(frameTime.Frame);
 
         RenderChunkyImageChunk(chunkPos, resolution, img, ref fullResrenderedSurface);
         renderedSurfaceFrame = frameTime.Frame;
     }
-    
+
     public void ForEveryFrame(Action<ChunkyImage> action)
     {
         foreach (var frame in keyFrames)

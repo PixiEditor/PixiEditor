@@ -9,10 +9,8 @@ using PixiEditor.Numerics;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes;
 
 [NodeInfo("RasterizeShape")]
-public class RasterizeShapeNode : Node
+public class RasterizeShapeNode : RenderNode
 {
-    public OutputProperty<Texture> Image { get; }
-
     public InputProperty<ShapeVectorData> Data { get; }
 
 
@@ -20,30 +18,37 @@ public class RasterizeShapeNode : Node
 
     public RasterizeShapeNode()
     {
-        Image = CreateOutput<Texture>("Image", "IMAGE", null);
         Data = CreateInput<ShapeVectorData>("Points", "SHAPE", null);
     }
 
-    protected override void OnExecute(RenderContext context)
+    protected override DrawingSurface? ExecuteRender(RenderContext context)
     {
         var shape = Data.Value;
 
         if (shape == null || !shape.IsValid())
-            return;
+            return null;
 
-        var size = context.DocumentSize;
-        var image = RequestTexture(0, size);
-
-        image.DrawingSurface.Canvas.Save();
-
-        shape.RasterizeTransformed(image.DrawingSurface);
+        var surface = context.RenderSurface;
         
-        image.DrawingSurface.Canvas.Restore();
-
-        Image.Value = image;
-        
-        return;
+        shape.RasterizeTransformed(surface);
+        return surface;
     }
 
     public override Node CreateCopy() => new RasterizeShapeNode();
+    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    {
+        return Data?.Value?.TransformedAABB;
+    }
+
+    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
+    {
+        var shape = Data.Value;
+
+        if (shape == null || !shape.IsValid())
+            return false;
+
+        shape.RasterizeTransformed(renderOn);
+
+        return true;
+    }
 }
