@@ -4,13 +4,14 @@ using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Shaders;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("Noise")]
-public class NoiseNode : Node
+public class NoiseNode : RenderNode
 {
     private double previousScale = double.NaN;
     private double previousSeed = double.NaN;
@@ -23,10 +24,7 @@ public class NoiseNode : Node
     private static readonly ColorFilter grayscaleFilter = ColorFilter.CreateColorMatrix(
         ColorMatrix.MapAlphaToRedGreenBlue + ColorMatrix.OpaqueAlphaOffset);
 
-    public OutputProperty<Texture> Noise { get; }
-
     public InputProperty<NoiseType> NoiseType { get; }
-    public InputProperty<VecI> Size { get; }
 
     public InputProperty<VecD> Offset { get; }
     
@@ -38,11 +36,7 @@ public class NoiseNode : Node
 
     public NoiseNode()
     {
-        Noise = CreateOutput<Texture>(nameof(Noise), "NOISE", null);
         NoiseType = CreateInput(nameof(NoiseType), "NOISE_TYPE", Nodes.NoiseType.FractalPerlin);
-        Size = CreateInput(nameof(Size), "SIZE", new VecI(64, 64))
-            .WithRules(v => v.Min(VecI.One)
-            );
 
         Offset = CreateInput(nameof(Offset), "OFFSET", new VecD(0d, 0d));
         
@@ -53,7 +47,7 @@ public class NoiseNode : Node
         Seed = CreateInput(nameof(Seed), "SEED", 0d);
     }
 
-    protected override void OnExecute(RenderContext context)
+    protected override DrawingSurface? ExecuteRender(RenderContext context)
     {
         if (Math.Abs(previousScale - Scale.Value) > 0.000001
             || previousSeed != Seed.Value
@@ -64,15 +58,13 @@ public class NoiseNode : Node
         {
             if (Scale.Value < 0.000001)
             {
-                Noise.Value = null;
-                return;
+                return null;
             }
 
             var shader = SelectShader();
             if (shader == null)
             {
-                Noise.Value = null;
-                return;
+                return null;
             }
 
             paint.Shader = shader;
@@ -86,24 +78,41 @@ public class NoiseNode : Node
             previousNoiseType = NoiseType.Value;
         }
 
-        var size = Size.Value;
 
-        if (size.X < 1 || size.Y < 1)
+        var workingSurface = Output.GetFirstRenderTarget(context);
+
+        RenderNoise(workingSurface);
+
+        return workingSurface;
+    }
+
+    private void RenderNoise(DrawingSurface workingSurface)
+    {
+        int saved = workingSurface.Canvas.Save();
+        workingSurface.Canvas.Translate(-(float)Offset.Value.X, -(float)Offset.Value.Y);
+        workingSurface.Canvas.DrawPaint(paint);
+        workingSurface.Canvas.RestoreToCount(saved);
+    }
+
+    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    {
+        return new RectD(0, 0, 128, 128); 
+    }
+
+    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
+    {
+        var shader = SelectShader();
+        if (shader == null)
         {
-            Noise.Value = null;
-            return;
+            return false;
         }
-
-        var workingSurface = RequestTexture(0, size);
-
-        workingSurface.DrawingSurface.Canvas.Save();
-        workingSurface.DrawingSurface.Canvas.Translate(-(float)Offset.Value.X, -(float)Offset.Value.Y);
         
-        workingSurface.DrawingSurface.Canvas.DrawPaint(paint);
+        paint.Shader = shader;
+        paint.ColorFilter = grayscaleFilter;
         
-        workingSurface.DrawingSurface.Canvas.Restore();
+        RenderNoise(renderOn);
 
-        Noise.Value = workingSurface;
+        return true;
     }
 
     private Shader SelectShader()

@@ -23,6 +23,7 @@ public class PreviewPainterImage : IImage
     {
         if (PreviewPainter.PreviewRenderable.GetPreviewBounds(FrameToRender) == null) return;
         
+        context.PushClip(destRect);
         using DrawPreviewOperation drawPreviewOperation = new DrawPreviewOperation(destRect, PreviewPainter, FrameToRender); 
         context.Custom(drawPreviewOperation);
     }
