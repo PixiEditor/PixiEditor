@@ -16,7 +16,12 @@ public abstract class RenderNode : Node, IPreviewRenderable
 
     protected override void OnExecute(RenderContext context)
     {
-        Output.Value = ExecuteRender(context);
+        using RenderContext ctx = new RenderContext(
+            Output.GetFirstRenderTarget(context), 
+            context.FrameTime, context.ChunkResolution, context.DocumentSize, context.Opacity);
+        ctx.FullRerender = context.FullRerender;
+        
+        Output.Value = ExecuteRender(ctx);
     }
     
     protected abstract DrawingSurface? ExecuteRender(RenderContext context);

@@ -96,6 +96,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             return ManagedInstances[objectPtr].SaveLayer(_paintImpl.ManagedInstances[paint.ObjectPointer]);
         }
+        
+        public int SaveLayer(IntPtr objectPtr, Paint paint, RectD bounds)
+        {
+            return ManagedInstances[objectPtr].SaveLayer(bounds.ToSKRect(), _paintImpl.ManagedInstances[paint.ObjectPointer]);
+        }
 
         public Matrix3X3 GetActiveMatrix(IntPtr objectPointer)
         {

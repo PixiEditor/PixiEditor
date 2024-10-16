@@ -15,6 +15,11 @@ namespace PixiEditor.DrawingApi.Core.Surfaces
         {
             get => DrawingBackendApi.Current.SurfaceImplementation.GetDeviceClipBounds(this);
         }
+        
+        public RectD LocalClipBounds
+        {
+            get => DrawingBackendApi.Current.SurfaceImplementation.GetLocalClipBounds(this);
+        }
 
         public event SurfaceChangedEventHandler? Changed;
 

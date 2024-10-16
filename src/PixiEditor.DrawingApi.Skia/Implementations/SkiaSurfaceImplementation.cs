@@ -172,6 +172,12 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             SKRectI rect = ManagedInstances[surface.ObjectPointer].Canvas.DeviceClipBounds;
             return new RectI(rect.Left, rect.Top, rect.Width, rect.Height);
         }
+        
+        public RectD GetLocalClipBounds(DrawingSurface surface)
+        {
+            SKRect rect = ManagedInstances[surface.ObjectPointer].Canvas.LocalClipBounds;
+            return new RectD(rect.Left, rect.Top, rect.Width, rect.Height);
+        }
 
         public void Unmanage(DrawingSurface surface)
         {

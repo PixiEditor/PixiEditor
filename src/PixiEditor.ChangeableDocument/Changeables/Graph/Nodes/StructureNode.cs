@@ -76,7 +76,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         DrawingSurface renderTarget = null;
         if (Output.Connections.Count > 0 || RenderTarget.Value != null)
         {
-            renderTarget = RenderTarget.Value ?? Output.GetFirstRenderTarget(context);
+            renderTarget = RenderTarget.Value ?? context.RenderSurface;
             RenderForOutput(context, renderTarget, Output);
         }
 

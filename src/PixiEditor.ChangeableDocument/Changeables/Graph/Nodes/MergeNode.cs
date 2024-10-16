@@ -10,21 +10,45 @@ using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("Merge")]
-public class MergeNode : Node
+public class MergeNode : RenderNode
 {
-    private Paint _paint = new();
-
     public InputProperty<BlendMode> BlendMode { get; }
-    public InputProperty<Texture?> Top { get; }
-    public InputProperty<Texture?> Bottom { get; }
-    public OutputProperty<Texture?> Output { get; }
+    public RenderInputProperty Top { get; }
+    public RenderInputProperty Bottom { get; }
+
+    private Paint paint = new Paint();
+    
+    private static readonly Paint blendPaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.SrcOver };
+
+    private int topLayer;
+    private int bottomLayer;
     
     public MergeNode() 
     {
         BlendMode = CreateInput("BlendMode", "BlendMode", Enums.BlendMode.Normal);
-        Top = CreateInput<Texture?>("Top", "TOP", null);
-        Bottom = CreateInput<Texture?>("Bottom", "BOTTOM", null);
-        Output = CreateOutput<Texture?>("Output", "OUTPUT", null);
+        Top = CreateRenderInput("Top", "TOP", context =>
+        {
+            var output = Output.GetFirstRenderTarget(context);
+            if(output == null)
+            {
+                return null;
+            }
+
+            topLayer = output.Canvas.SaveLayer(blendPaint);
+            return output;
+        });
+        Bottom = CreateRenderInput("Bottom", "BOTTOM", context =>
+        {
+            var output = Output.GetFirstRenderTarget(context);
+            
+            if(output == null)
+            {
+                return null;
+            }
+            
+            bottomLayer = output.Canvas.SaveLayer(blendPaint);
+            return output;
+        });
     }
 
     public override Node CreateCopy()
@@ -33,30 +57,77 @@ public class MergeNode : Node
     }
 
 
-    protected override void OnExecute(RenderContext context)
+    protected override DrawingSurface? ExecuteRender(RenderContext context)
     {
         if(Top.Value == null && Bottom.Value == null)
         {
-            Output.Value = null;
+            return null;
+        }
+        
+        var target = context.RenderSurface;
+        
+        if(target == null || target.DeviceClipBounds.Size == VecI.Zero)
+        {
+            return null;
+        }
+
+        Merge(target);
+
+        return target;
+    }
+
+    private void Merge(DrawingSurface target)
+    {
+        if (Bottom.Value != null && Top.Value != null)
+        {
+            Texture texTop = RequestTexture(0, target.DeviceClipBounds.Size, false);
+            Texture texBottom = RequestTexture(1, target.DeviceClipBounds.Size, false);
+            
+            paint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
+            texBottom.DrawingSurface.Canvas.DrawSurface(texTop.DrawingSurface, 0, 0, blendPaint);
+            
+            target.Canvas.DrawSurface(texTop.DrawingSurface, 0, 0);
             return;
         }
         
-        int width = Math.Max(Top.Value?.Size.X ?? Bottom.Value.Size.X, Bottom.Value?.Size.X ?? Top.Value.Size.X);
-        int height = Math.Max(Top.Value?.Size.Y ?? Bottom.Value.Size.Y, Bottom.Value?.Size.Y ?? Top.Value.Size.Y);
-        
-        Texture workingSurface = RequestTexture(0, new VecI(width, height), true);
-        
         if(Bottom.Value != null)
         {
-            workingSurface.DrawingSurface.Canvas.DrawSurface(Bottom.Value.DrawingSurface, 0, 0);
+            Texture tex = RequestTexture(1, target.DeviceClipBounds.Size, false);
+            target.Canvas.DrawSurface(tex.DrawingSurface, 0, 0);
         }
 
         if(Top.Value != null)
         {
-            _paint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
-            workingSurface.DrawingSurface.Canvas.DrawSurface(Top.Value.DrawingSurface, 0, 0, _paint);
+            Texture tex = RequestTexture(0, target.DeviceClipBounds.Size, false);
+            target.Canvas.DrawSurface(tex.DrawingSurface, 0, 0);
+        }
+    }
+
+    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    {
+        if(Top.Value == null && Bottom.Value == null)
+        {
+            return null;
+        }
+        
+        return new RectD(VecI.Zero, new VecI(128, 128)); 
+    }
+
+    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
+    {
+        if (Top.Value == null && Bottom.Value == null)
+        {
+            return false;
         }
 
-        Output.Value = workingSurface;
+        Merge(renderOn);
+
+        return true;
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        paint.Dispose();
     }
 }

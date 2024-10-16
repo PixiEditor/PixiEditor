@@ -46,5 +46,6 @@ namespace PixiEditor.DrawingApi.Core.Bridge.Operations
         public Matrix3X3 GetTotalMatrix(IntPtr objectPointer);
         public int SaveLayer(IntPtr objectPtr);
         public int SaveLayer(IntPtr objectPtr, Paint paint);
+        public int SaveLayer(IntPtr objectPtr, Paint paint, RectD bounds);
     }
 }

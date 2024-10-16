@@ -20,6 +20,7 @@ public interface ISurfaceImplementation
     public void Flush(DrawingSurface drawingSurface);
     public DrawingSurface FromNative(object native);
     public RectI GetDeviceClipBounds(DrawingSurface surface);
+    public RectD GetLocalClipBounds(DrawingSurface surface);
     public void Unmanage(DrawingSurface surface);
 }
 
