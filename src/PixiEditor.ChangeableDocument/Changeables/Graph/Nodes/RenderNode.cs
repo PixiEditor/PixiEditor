@@ -8,36 +8,41 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 public abstract class RenderNode : Node, IPreviewRenderable 
 {
     public RenderOutputProperty Output { get; }
-    
+
     public RenderNode()
     {
-        Output = CreateRenderOutput("Output", "OUTPUT");
+        Painter painter = new Painter(OnPaint);
+        Output = CreateRenderOutput("Output", "OUTPUT", 
+            () => painter, 
+            () => this is IRenderInput renderInput ? renderInput.Background.Value : null);
     }
 
     protected override void OnExecute(RenderContext context)
     {
-        using RenderContext ctx = new RenderContext(
-            Output.GetFirstRenderTarget(context), 
-            context.FrameTime, context.ChunkResolution, context.DocumentSize, context.Opacity);
-        ctx.FullRerender = context.FullRerender;
-        
-        Output.Value = ExecuteRender(ctx);
+        foreach (var prop in OutputProperties)
+        {
+            if (prop is RenderOutputProperty output)
+            {
+                output.ChainToPainterValue();
+            }
+        } 
     }
     
-    protected abstract DrawingSurface? ExecuteRender(RenderContext context);
+    protected abstract void OnPaint(RenderContext context, DrawingSurface surface);
     
-    protected RenderOutputProperty? CreateRenderOutput(string internalName, string displayName)
+    protected RenderOutputProperty? CreateRenderOutput(string internalName, string displayName, Func<Painter?>? nextInChain, Func<Painter?>? previous = null)
     {
         RenderOutputProperty prop = new RenderOutputProperty(this, internalName, displayName, null);
+        prop.FirstInChain = previous;
+        prop.NextInChain = nextInChain;
         AddOutputProperty(prop);
 
         return prop;
     }
 
-    protected RenderInputProperty CreateRenderInput(string internalName, string displayName,
-        Func<RenderContext, DrawingSurface> renderTarget)
+    protected RenderInputProperty CreateRenderInput(string internalName, string displayName)
     {
-        RenderInputProperty prop = new RenderInputProperty(this, internalName, displayName, null, renderTarget);
+        RenderInputProperty prop = new RenderInputProperty(this, internalName, displayName, null);
         AddInputProperty(prop);
 
         return prop;

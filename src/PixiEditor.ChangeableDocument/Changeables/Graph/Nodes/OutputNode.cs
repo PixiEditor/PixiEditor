@@ -17,7 +17,7 @@ public class OutputNode : Node, IRenderInput, IPreviewRenderable
     private VecI? lastDocumentSize;
     public OutputNode()
     {
-        Input = new RenderInputProperty(this, InputPropertyName, "BACKGROUND", null, (ctx) => ctx.RenderSurface);
+        Input = new RenderInputProperty(this, InputPropertyName, "BACKGROUND", null);
         AddInputProperty(Input);
     }
 
@@ -29,9 +29,10 @@ public class OutputNode : Node, IRenderInput, IPreviewRenderable
     protected override void OnExecute(RenderContext context)
     {
         lastDocumentSize = context.DocumentSize;
+        Input.Value?.Paint(context, context.RenderSurface);
     }
 
-    RenderInputProperty IRenderInput.RenderTarget => Input;
+    RenderInputProperty IRenderInput.Background => Input;
     public RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
     {
         if (lastDocumentSize == null)

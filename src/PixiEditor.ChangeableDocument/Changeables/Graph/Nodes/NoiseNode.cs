@@ -47,7 +47,7 @@ public class NoiseNode : RenderNode
         Seed = CreateInput(nameof(Seed), "SEED", 0d);
     }
 
-    protected override DrawingSurface? ExecuteRender(RenderContext context)
+    protected override void OnPaint(RenderContext context, DrawingSurface target)
     {
         if (Math.Abs(previousScale - Scale.Value) > 0.000001
             || previousSeed != Seed.Value
@@ -58,13 +58,13 @@ public class NoiseNode : RenderNode
         {
             if (Scale.Value < 0.000001)
             {
-                return null;
+                return;
             }
 
             var shader = SelectShader();
             if (shader == null)
             {
-                return null;
+                return;
             }
 
             paint.Shader = shader;
@@ -78,12 +78,7 @@ public class NoiseNode : RenderNode
             previousNoiseType = NoiseType.Value;
         }
 
-
-        var workingSurface = Output.GetFirstRenderTarget(context);
-
-        RenderNoise(workingSurface);
-
-        return workingSurface;
+        RenderNoise(target);
     }
 
     private void RenderNoise(DrawingSurface workingSurface)

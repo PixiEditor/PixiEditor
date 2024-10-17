@@ -22,7 +22,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
     {
         if (!IsVisible.Value || Opacity.Value <= 0 || IsEmptyMask())
         {
-            Output.Value = sceneContext.RenderSurface;
+            Output.Value = Background.Value; 
             return;
         }
 
@@ -39,7 +39,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
     {
         if (!HasOperations())
         {
-            if (RenderTarget.Value != null)
+            if (Background.Value != null)
             {
                 blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
             }
@@ -55,11 +55,11 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, context);
 
-        if (RenderTarget.Value != null)
+        if (Background.Value != null)
         {
             Texture tempSurface = TryInitWorkingSurface(size, context.ChunkResolution, 4);
             tempSurface.DrawingSurface.Canvas.Clear();
-            if (RenderTarget.Connection.Node is IClipSource clipSource)
+            if (Background.Connection.Node is IClipSource clipSource)
             {
                 // TODO: This probably should work with StructureMembers not Layers only
                 DrawClipSource(tempSurface.DrawingSurface, clipSource, context);
@@ -80,7 +80,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         bool useFilters)
     {
         int scaled = workingSurface.Canvas.Save();
-        workingSurface.Canvas.Translate(ScenePosition);
+        workingSurface.Canvas.Translate(GetScenePosition(ctx.FrameTime));
 
         DrawLayerOnto(ctx, workingSurface, useFilters);
 

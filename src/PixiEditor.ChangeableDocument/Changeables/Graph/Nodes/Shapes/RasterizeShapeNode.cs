@@ -14,24 +14,19 @@ public class RasterizeShapeNode : RenderNode
     public InputProperty<ShapeVectorData> Data { get; }
 
 
-    private Paint rasterizePaint = new Paint();
-
     public RasterizeShapeNode()
     {
         Data = CreateInput<ShapeVectorData>("Points", "SHAPE", null);
     }
 
-    protected override DrawingSurface? ExecuteRender(RenderContext context)
+    protected override void OnPaint(RenderContext context, DrawingSurface surface)
     {
         var shape = Data.Value;
 
         if (shape == null || !shape.IsValid())
-            return null;
-
-        var surface = context.RenderSurface;
+            return;
         
         shape.RasterizeTransformed(surface);
-        return surface;
     }
 
     public override Node CreateCopy() => new RasterizeShapeNode();

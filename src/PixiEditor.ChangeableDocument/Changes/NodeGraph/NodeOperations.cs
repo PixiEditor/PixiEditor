@@ -70,9 +70,9 @@ public static class NodeOperations
     }
 
     public static List<ConnectProperty_ChangeInfo> AppendMember(
-        InputProperty<DrawingSurface?> parentInput,
-        OutputProperty<DrawingSurface> toAddOutput,
-        InputProperty<DrawingSurface> toAddInput, Guid memberId)
+        InputProperty<Painter?> parentInput,
+        OutputProperty<Painter> toAddOutput,
+        InputProperty<Painter> toAddInput, Guid memberId)
     {
         List<ConnectProperty_ChangeInfo> changes = new();
         IOutputProperty? previouslyConnected = null;
@@ -100,13 +100,13 @@ public static class NodeOperations
     {
         List<IChangeInfo> changes = new();
 
-        if (structureNode.RenderTarget.Connection != null)
+        if (structureNode.Background.Connection != null)
         {
             // connect connection to next input if possible
 
             var connections = structureNode.Output.Connections.ToArray();
 
-            var output = structureNode.RenderTarget.Connection;
+            var output = structureNode.Background.Connection;
 
             foreach (var input in connections)
             {
@@ -115,9 +115,9 @@ public static class NodeOperations
                     output.InternalPropertyName, input.InternalPropertyName));
             }
 
-            structureNode.RenderTarget.Connection.DisconnectFrom(structureNode.RenderTarget);
+            structureNode.Background.Connection.DisconnectFrom(structureNode.Background);
             changes.Add(new ConnectProperty_ChangeInfo(null, structureNode.Id, null,
-                structureNode.RenderTarget.InternalPropertyName));
+                structureNode.Background.InternalPropertyName));
         }
 
         var outputs = structureNode.Output.Connections.ToArray();

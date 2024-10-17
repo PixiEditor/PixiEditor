@@ -37,8 +37,8 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
     private int lastCacheHash;
 
-    public override VecD ScenePosition => ShapeData?.TransformedAABB.Center ?? VecD.Zero;
-    public override VecD SceneSize => ShapeData?.TransformedAABB.Size ?? VecD.Zero;
+    public override VecD GetScenePosition(KeyFrameTime time) => ShapeData?.TransformedAABB.Center ?? VecD.Zero;
+    public override VecD GetSceneSize(KeyFrameTime time) => ShapeData?.TransformedAABB.Size ?? VecD.Zero;
     
     protected override VecI GetTargetSize(RenderContext ctx)
     {

@@ -26,7 +26,7 @@ public class MergeNode : RenderNode
     public MergeNode() 
     {
         BlendMode = CreateInput("BlendMode", "BlendMode", Enums.BlendMode.Normal);
-        Top = CreateRenderInput("Top", "TOP", context =>
+        /*Top = CreateRenderInput("Top", "TOP", context =>
         {
             var output = Output.GetFirstRenderTarget(context);
             if(output == null)
@@ -48,7 +48,7 @@ public class MergeNode : RenderNode
             
             bottomLayer = output.Canvas.SaveLayer(blendPaint);
             return output;
-        });
+        });*/
     }
 
     public override Node CreateCopy()
@@ -57,23 +57,19 @@ public class MergeNode : RenderNode
     }
 
 
-    protected override DrawingSurface? ExecuteRender(RenderContext context)
+    protected override void OnPaint(RenderContext context, DrawingSurface target)
     {
         if(Top.Value == null && Bottom.Value == null)
         {
-            return null;
+            return;
         }
-        
-        var target = context.RenderSurface;
         
         if(target == null || target.DeviceClipBounds.Size == VecI.Zero)
         {
-            return null;
+            return;
         }
 
         Merge(target);
-
-        return target;
     }
 
     private void Merge(DrawingSurface target)

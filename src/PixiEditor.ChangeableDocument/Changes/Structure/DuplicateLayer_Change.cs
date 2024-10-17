@@ -1,10 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Surfaces;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
@@ -41,9 +38,9 @@ internal class DuplicateLayer_Change : Change
         LayerNode clone = (LayerNode)existingLayer.Clone();
         clone.Id = duplicateGuid;
 
-        InputProperty<DrawingSurface?> targetInput = parent.InputProperties.FirstOrDefault(x =>
-            x.ValueType == typeof(DrawingSurface) &&
-            x.Connection.Node is StructureNode) as InputProperty<DrawingSurface?>;
+        InputProperty<Painter?> targetInput = parent.InputProperties.FirstOrDefault(x =>
+            x.ValueType == typeof(Painter) &&
+            x.Connection.Node is StructureNode) as InputProperty<Painter?>;
 
         List<IChangeInfo> operations = new();
 
@@ -51,7 +48,7 @@ internal class DuplicateLayer_Change : Change
 
         operations.Add(CreateLayer_ChangeInfo.FromLayer(clone));
 
-        operations.AddRange(NodeOperations.AppendMember(targetInput, clone.Output, clone.RenderTarget, clone.Id));
+        operations.AddRange(NodeOperations.AppendMember(targetInput, clone.Output, clone.Background, clone.Id));
 
         ignoreInUndo = false;
 

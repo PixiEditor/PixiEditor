@@ -109,7 +109,7 @@ public class DocumentRenderer : IPreviewRenderable
             }
         });
 
-        IInputProperty<DrawingSurface> lastInput = outputNode.Input;
+        IInputProperty<Painter> lastInput = outputNode.Input;
 
         foreach (var layer in layersInOrder)
         {
@@ -117,7 +117,7 @@ public class DocumentRenderer : IPreviewRenderable
             membersOnlyGraph.AddNode(clone);
 
             clone.Output.ConnectTo(lastInput);
-            lastInput = clone.RenderTarget;
+            lastInput = clone.Background;
         }
 
         return membersOnlyGraph;

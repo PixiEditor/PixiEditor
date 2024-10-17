@@ -4,27 +4,29 @@ using PixiEditor.DrawingApi.Core.Surfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
-public class RenderOutputProperty : OutputProperty<DrawingSurface>
-{
-    internal RenderOutputProperty(Node node, string internalName, string displayName, DrawingSurface defaultValue) : base(node, internalName, displayName, defaultValue)
+public class RenderOutputProperty : OutputProperty<Painter>
+{ 
+    public Func<Painter?>? FirstInChain { get; set; }
+    public Func<Painter?>? NextInChain { get; set; }
+    
+    internal RenderOutputProperty(Node node, string internalName, string displayName, Painter defaultValue) : base(node, internalName, displayName, defaultValue)
     {
         
     }
-    
-    public DrawingSurface GetFirstRenderTarget(RenderContext ctx)
-    {
-        foreach (var connection in Connections)
-        {
-            if (connection is RenderInputProperty renderInput)
-            {
-                var target = renderInput.GetRenderTarget(ctx);
-                if (target != null)
-                {
-                    return target;
-                }
-            }
-        }
 
-        return null;
+    public void ChainToPainterValue()
+    {
+        if (FirstInChain != null)
+        {
+            Value = new Painter((ctx, surface) =>
+            {
+                FirstInChain()?.Paint(ctx, surface);
+                NextInChain()?.Paint(ctx, surface);
+            });
+        }
+        else
+        {
+            Value = NextInChain?.Invoke();
+        }
     }
 }

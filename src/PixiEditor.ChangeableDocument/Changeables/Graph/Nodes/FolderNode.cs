@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surfaces;
+using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -11,11 +12,12 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("Folder")]
 public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPreviewRenderable
 {
+    private VecI documentSize;
     public RenderInputProperty Content { get; }
 
     public FolderNode()
     {
-        Content = CreateRenderInput("Content", "CONTENT", ctx =>
+        Content = CreateRenderInput("Content", "CONTENT" /*, ctx =>
         {
             RectD? bounds = new RectD(VecI.Zero, ctx.DocumentSize);
 
@@ -28,42 +30,75 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
             VecI size = (VecI)bounds.Value.Size;
             var outputWorkingSurface = RequestTexture(0, size, false);
             return outputWorkingSurface.DrawingSurface;
-        });
+        }*/);
     }
 
     public override Node CreateCopy() => new FolderNode { MemberName = MemberName };
 
-    public override VecD ScenePosition => Content.Value?.DeviceClipBounds.Size / 2f ?? VecD.Zero;
-    public override VecD SceneSize => Content.Value?.DeviceClipBounds.Size ?? VecD.Zero;
+    public override VecD GetScenePosition(KeyFrameTime time) => documentSize / 2f; //GetTightBounds(time).GetValueOrDefault().Center;
+    public override VecD GetSceneSize(KeyFrameTime time) => documentSize; //GetTightBounds(time).GetValueOrDefault().Size;
+
+    protected override void OnExecute(RenderContext context)
+    {
+        base.OnExecute(context);
+        documentSize = context.DocumentSize;
+    }
 
     public override void Render(SceneObjectRenderContext sceneContext)
     {
-        RectD bounds = RectD.Create(VecI.Zero, sceneContext.DocumentSize);
         if (!IsVisible.Value || Opacity.Value <= 0 || IsEmptyMask())
         {
-            Output.Value = sceneContext.RenderSurface;
+            Output.Value = Background.Value;
             return;
         }
 
         if (Content.Connection == null || (!HasOperations() && BlendMode.Value == Enums.BlendMode.Normal))
         {
+            using Paint paint = new();
+            paint.Color = Colors.White.WithAlpha((byte)Math.Round(Opacity.Value * 255f));
+            int saved = sceneContext.RenderSurface.Canvas.SaveLayer(paint);
+            Content.Value?.Paint(sceneContext, sceneContext.RenderSurface);
+            
+            sceneContext.RenderSurface.Canvas.RestoreToCount(saved);
             return;
         }
 
-        VecI size = (VecI)bounds.Size;
-        var outputWorkingSurface = RequestTexture(0, size, false);
+        RectD bounds = RectD.Create(VecI.Zero, sceneContext.DocumentSize);
 
-        if (RenderTarget.Value != null)
+        if (sceneContext.TargetPropertyOutput == Output)
         {
-            blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
+            if (Background.Value != null)
+            {
+                blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
+            }
+
+            RenderFolder(sceneContext, bounds, true);
         }
+        else if (sceneContext.TargetPropertyOutput == FilterlessOutput ||
+                 sceneContext.TargetPropertyOutput == RawOutput)
+        {
+            RenderFolder(sceneContext, bounds, false);
+        }
+    }
+
+    private void RenderFolder(SceneObjectRenderContext sceneContext, RectD bounds, bool useFilters)
+    {
+        VecI size = (VecI)bounds.Size;
+        var outputWorkingSurface = RequestTexture(0, size, true);
+        
+        blendPaint.Color = Colors.White.WithAlpha((byte)Math.Round(Opacity.Value * 255f));
+        int saved = outputWorkingSurface.DrawingSurface.Canvas.SaveLayer(blendPaint);
+        
+        Content.Value?.Paint(sceneContext, outputWorkingSurface.DrawingSurface);
+        
+        outputWorkingSurface.DrawingSurface.Canvas.RestoreToCount(saved);
 
         ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, sceneContext);
 
-        if (RenderTarget.Value != null)
+        if (Background.Value != null)
         {
             Texture tempSurface = RequestTexture(1, outputWorkingSurface.Size);
-            if (RenderTarget.Connection.Node is IClipSource clipSource)
+            if (Background.Connection.Node is IClipSource clipSource)
             {
                 DrawClipSource(tempSurface.DrawingSurface, clipSource, sceneContext);
             }
@@ -152,7 +187,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
         if (Content.Connection != null)
         {
             var executionQueue = GraphUtils.CalculateExecutionQueue(Content.Connection.Node);
-            
+
             while (executionQueue.Count > 0)
             {
                 IReadOnlyNode node = executionQueue.Dequeue();
@@ -181,7 +216,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
         {
             return base.RenderPreview(renderOn, resolution, frame, elementToRenderName);
         }
-        
+
         if (Content.Connection != null)
         {
             var executionQueue = GraphUtils.CalculateExecutionQueue(Content.Connection.Node);

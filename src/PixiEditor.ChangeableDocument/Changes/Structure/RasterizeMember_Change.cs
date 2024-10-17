@@ -56,12 +56,12 @@ internal class RasterizeMember_Change : Change
         image.EnqueueDrawImage(VecI.Zero, surface);
         image.CommitChanges();
 
-        OutputProperty<DrawingSurface>? outputConnection = node.OutputProperties.FirstOrDefault(x => x is OutputProperty<DrawingSurface>) as OutputProperty<DrawingSurface>;
-        InputProperty<DrawingSurface>? outputConnectedInput =
-            outputConnection?.Connections.FirstOrDefault(x => x is InputProperty<DrawingSurface>) as InputProperty<DrawingSurface>;
+        OutputProperty<Painter>? outputConnection = node.OutputProperties.FirstOrDefault(x => x is OutputProperty<Painter>) as OutputProperty<Painter>;
+        InputProperty<Painter>? outputConnectedInput =
+            outputConnection?.Connections.FirstOrDefault(x => x is InputProperty<Painter>) as InputProperty<Painter>;
 
-        InputProperty<DrawingSurface> backgroundInput = imageLayer.RenderTarget;
-        OutputProperty<DrawingSurface> toAddOutput = imageLayer.Output;
+        InputProperty<Painter> backgroundInput = imageLayer.Background;
+        OutputProperty<Painter> toAddOutput = imageLayer.Output;
 
         List<IChangeInfo> changeInfos = new();
         changeInfos.Add(CreateNode_ChangeInfo.CreateFromNode(imageLayer));

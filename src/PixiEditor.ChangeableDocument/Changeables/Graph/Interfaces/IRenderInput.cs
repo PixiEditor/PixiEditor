@@ -6,5 +6,5 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 public interface IRenderInput
 {
-    RenderInputProperty RenderTarget { get; }
+    RenderInputProperty Background { get; }
 }

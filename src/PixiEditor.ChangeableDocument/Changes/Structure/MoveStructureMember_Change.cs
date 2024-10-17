@@ -3,8 +3,6 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Surfaces;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
@@ -50,9 +48,9 @@ internal class MoveStructureMember_Change : Change
 
         List<IChangeInfo> changes = new();
         
-        Guid oldBackgroundId = sourceNode.RenderTarget.Node.Id;
+        Guid oldBackgroundId = sourceNode.Background.Node.Id;
 
-        InputProperty<DrawingSurface?> inputProperty = backgroundInput.RenderTarget;
+        InputProperty<Painter?> inputProperty = backgroundInput.Background;
 
         if (targetNode is FolderNode folder && putInsideFolder)
         {
@@ -63,7 +61,7 @@ internal class MoveStructureMember_Change : Change
         
         changes.AddRange(NodeOperations.DetachStructureNode(sourceNode));
         changes.AddRange(NodeOperations.AppendMember(inputProperty, sourceNode.Output,
-            sourceNode.RenderTarget,
+            sourceNode.Background,
             sourceNode.Id));
         
         changes.Add(changeInfo);

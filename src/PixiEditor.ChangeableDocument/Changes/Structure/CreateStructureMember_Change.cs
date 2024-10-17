@@ -4,10 +4,6 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
-using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
@@ -45,8 +41,8 @@ internal class CreateStructureMember_Change : Change
 
         List<IChangeInfo> changes = new() { CreateChangeInfo(member) };
         
-        InputProperty<DrawingSurface> targetInput = parentNode.InputProperties.FirstOrDefault(x => 
-            x.ValueType == typeof(DrawingSurface)) as InputProperty<DrawingSurface>;
+        InputProperty<Painter> targetInput = parentNode.InputProperties.FirstOrDefault(x => 
+            x.ValueType == typeof(Painter)) as InputProperty<Painter>;
         
         
         if (member is FolderNode folder)
@@ -58,7 +54,7 @@ internal class CreateStructureMember_Change : Change
         {
             document.NodeGraph.AddNode(member);
             List<ConnectProperty_ChangeInfo> connectPropertyChangeInfo =
-                NodeOperations.AppendMember(targetInput, member.Output, member.RenderTarget, member.Id);
+                NodeOperations.AppendMember(targetInput, member.Output, member.Background, member.Id);
             changes.AddRange(connectPropertyChangeInfo);
         }
 
@@ -87,7 +83,7 @@ internal class CreateStructureMember_Change : Change
         }
 
         StructureNode child = document.FindMemberOrThrow(newMemberGuid);
-        var childBackgroundConnection = child.RenderTarget.Connection;
+        var childBackgroundConnection = child.Background.Connection;
         child.Dispose();
 
         document.NodeGraph.RemoveNode(child);
@@ -96,19 +92,19 @@ internal class CreateStructureMember_Change : Change
 
         if (childBackgroundConnection != null)
         {
-            childBackgroundConnection?.ConnectTo(backgroundInput.RenderTarget);
+            childBackgroundConnection?.ConnectTo(backgroundInput.Background);
             ConnectProperty_ChangeInfo change = new(childBackgroundConnection.Node.Id,
-                backgroundInput.RenderTarget.Node.Id, childBackgroundConnection.InternalPropertyName,
-                backgroundInput.RenderTarget.InternalPropertyName);
+                backgroundInput.Background.Node.Id, childBackgroundConnection.InternalPropertyName,
+                backgroundInput.Background.InternalPropertyName);
             changes.Add(change);
         }
 
         return changes;
     }
 
-    private static void AppendFolder(InputProperty<DrawingSurface> backgroundInput, FolderNode folder, List<IChangeInfo> changes)
+    private static void AppendFolder(InputProperty<Painter> backgroundInput, FolderNode folder, List<IChangeInfo> changes)
     {
-        var appened = NodeOperations.AppendMember(backgroundInput, folder.Output, folder.RenderTarget, folder.Id);
+        var appened = NodeOperations.AppendMember(backgroundInput, folder.Output, folder.Background, folder.Id);
         changes.AddRange(appened);
     }
 

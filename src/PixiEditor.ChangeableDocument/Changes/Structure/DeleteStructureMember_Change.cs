@@ -44,7 +44,7 @@ internal class DeleteStructureMember_Change : Change
     {
         StructureNode node = document.FindMember(memberGuid);
 
-        var bgConnection = node.RenderTarget.Connection;
+        var bgConnection = node.Background.Connection;
         var outputConnections = node.Output.Connections.ToArray();
 
         document.NodeGraph.RemoveNode(node);
