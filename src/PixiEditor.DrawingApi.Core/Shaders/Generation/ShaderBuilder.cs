@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.DrawingApi.Core.Shaders.Generation;
@@ -16,7 +17,7 @@ public class ShaderBuilder
 
     private List<ShaderExpressionVariable> _variables = new List<ShaderExpressionVariable>();
 
-    private Dictionary<Texture, TextureSampler> _samplers = new Dictionary<Texture, TextureSampler>();
+    private Dictionary<DrawingSurface, SurfaceSampler> _samplers = new Dictionary<DrawingSurface, SurfaceSampler>();
 
     public BuiltInFunctions Functions { get; } = new();
 
@@ -28,6 +29,11 @@ public class ShaderBuilder
     public Shader BuildShader()
     {
         string generatedSksl = ToSkSl();
+        /*string testSksl = """
+                          
+                          
+
+                          """;*/
         return new Shader(generatedSksl, Uniforms);
     }
 
@@ -56,23 +62,23 @@ public class ShaderBuilder
         }
     }
 
-    public TextureSampler AddOrGetTexture(Texture texture)
+    public SurfaceSampler AddOrGetSurface(DrawingSurface surface)
     {
-        if (_samplers.TryGetValue(texture, out var sampler))
+        if (_samplers.TryGetValue(surface, out var sampler))
         {
             return sampler;
         }
 
         string name = $"texture_{GetUniqueNameNumber()}";
-        using var snapshot = texture.DrawingSurface.Snapshot();
+        using var snapshot = surface.Snapshot();
         Uniforms[name] = new Uniform(name, snapshot.ToShader());
-        var newSampler = new TextureSampler(name);
-        _samplers[texture] = newSampler;
+        var newSampler = new SurfaceSampler(name);
+        _samplers[surface] = newSampler;
 
         return newSampler;
     }
 
-    public Half4 Sample(TextureSampler texName, Float2 pos)
+    public Half4 Sample(SurfaceSampler texName, Float2 pos)
     {
         string resultName = $"color_{GetUniqueNameNumber()}";
         Half4 result = new Half4(resultName);

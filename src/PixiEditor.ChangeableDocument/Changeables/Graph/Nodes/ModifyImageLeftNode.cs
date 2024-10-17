@@ -17,56 +17,34 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [PairNode(typeof(ModifyImageRightNode), "ModifyImageZone", true)]
 public class ModifyImageLeftNode : Node, IPairNode
 {
-    public InputProperty<Texture?> Image { get; }
+    public RenderInputProperty Image { get; }
 
     public FuncOutputProperty<Float2> Coordinate { get; }
 
     public FuncOutputProperty<Half4> Color { get; }
 
     public Guid OtherNode { get; set; }
-
-    private ConcurrentDictionary<RenderContext, Pixmap> pixmapCache = new();
+    
+    public Texture InputTexture { get; private set; }
 
     public ModifyImageLeftNode()
     {
-        Image = CreateInput<Texture>("Surface", "IMAGE", null);
+        Image = CreateRenderInput("Surface", "IMAGE");
         Coordinate = CreateFuncOutput("Coordinate", "UV", ctx => ctx.OriginalPosition);
         Color = CreateFuncOutput("Color", "COLOR", GetColor);
     }
-
+    
     private Half4 GetColor(FuncContext context)
     {
         context.ThrowOnMissingContext();
 
-        return context.SampleTexture(Image.Value, context.SamplePosition);
-
-        /*var targetPixmap = pixmapCache[context.RenderingContext];
-
-        if (targetPixmap == null)
-            return new Color();
-
-        var x = context.Position.X * context.Size.X;
-        var y = context.Position.Y * context.Size.Y;
-
-        return targetPixmap.GetPixelColor((int)x, (int)y);*/
-    }
-
-    internal void PreparePixmap(RenderContext forContext)
-    {
-        pixmapCache[forContext] = Image.Value?.PeekReadOnlyPixels();
-    }
-
-    internal void DisposePixmap(RenderContext forContext)
-    {
-        if (pixmapCache.TryRemove(forContext, out var targetPixmap))
-        {
-            targetPixmap?.Dispose();
-        }
+        return context.SampleSurface(InputTexture.DrawingSurface, context.SamplePosition);
     }
 
     protected override void OnExecute(RenderContext context)
     {
-        //return Image.Value;
+        InputTexture = RequestTexture(0, context.DocumentSize);
+        Image.Value.Paint(context, InputTexture.DrawingSurface);
     }
 
     public override Node CreateCopy() => new ModifyImageLeftNode();

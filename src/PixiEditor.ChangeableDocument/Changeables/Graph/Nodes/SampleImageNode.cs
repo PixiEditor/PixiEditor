@@ -28,14 +28,15 @@ public class SampleImageNode : Node
     {
         context.ThrowOnMissingContext();
 
-        if (Image.Value is null)
+        /*if (Image.Value is null)
         {
             return new Half4("");
         }
 
         Float2 uv = context.GetValue(Coordinate);
 
-        return context.SampleTexture(Image.Value, uv);
+        return context.SampleSurface(Image.Value, uv);*/
+        return new Half4("");// TODO: Implement this
     }
 
     protected override void OnExecute(RenderContext context)

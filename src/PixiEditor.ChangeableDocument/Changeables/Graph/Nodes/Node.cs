@@ -37,7 +37,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
         get => displayName;
         set => displayName = value;
     }
-    
+
     protected virtual bool ExecuteOnlyOnCacheChange => false;
 
     private bool _isDisposed;
@@ -57,7 +57,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
         {
             return;
         }
-        
+
         OnExecute(context);
 
         if (ExecuteOnlyOnCacheChange)
@@ -201,6 +201,26 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         keyFrames.Add(value);
     }
+
+    protected RenderOutputProperty? CreateRenderOutput(string internalName, string displayName,
+        Func<Painter?>? nextInChain, Func<Painter?>? previous = null)
+    {
+        RenderOutputProperty prop = new RenderOutputProperty(this, internalName, displayName, null);
+        prop.FirstInChain = previous;
+        prop.NextInChain = nextInChain;
+        AddOutputProperty(prop);
+
+        return prop;
+    }
+
+    protected RenderInputProperty CreateRenderInput(string internalName, string displayName)
+    {
+        RenderInputProperty prop = new RenderInputProperty(this, internalName, displayName, null);
+        AddInputProperty(prop);
+
+        return prop;
+    }
+
 
     protected FuncInputProperty<T> CreateFuncInput<T>(string propName, string displayName, T defaultValue)
     {

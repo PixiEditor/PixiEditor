@@ -53,13 +53,13 @@ public class MergeNode : RenderNode
 
     private void Merge(DrawingSurface target, RenderContext context)
     {
-        //TODO: Obsereve if behavior is correct, it could be that some background rendered elements influence Top with different blend mode.
         if (Bottom.Value != null && Top.Value != null)
         {
+            int saved = target.Canvas.SaveLayer();
             Bottom.Value.Paint(context, target);
 
             paint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
-            int saved = target.Canvas.SaveLayer(paint);
+            target.Canvas.SaveLayer(paint);
             
             Top.Value.Paint(context, target);
             target.Canvas.RestoreToCount(saved);

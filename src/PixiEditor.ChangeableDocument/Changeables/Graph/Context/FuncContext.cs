@@ -6,6 +6,7 @@ using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Shaders.Generation;
 using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.Numerics;
 using Expression = PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions.Expression;
 
@@ -51,9 +52,9 @@ public class FuncContext
         SamplePosition = Builder.ConstructFloat2(OriginalPosition.X, OriginalPosition.Y); 
     }
 
-    public Half4 SampleTexture(Texture imageValue, Float2 pos)
+    public Half4 SampleSurface(DrawingSurface surface, Float2 pos)
     {
-        TextureSampler texName = Builder.AddOrGetTexture(imageValue);
+        SurfaceSampler texName = Builder.AddOrGetSurface(surface);
         return Builder.Sample(texName, pos);
     }
 
