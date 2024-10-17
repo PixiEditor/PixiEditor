@@ -155,7 +155,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     public override void Render(DrawingContext context)
     {
-        if (Document == null) return;
+        if (Document == null || SceneRenderer == null) return;
 
         float angle = (float)MathUtil.RadiansToDegrees(AngleRadians);
 

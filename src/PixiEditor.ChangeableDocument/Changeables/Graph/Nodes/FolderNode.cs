@@ -17,20 +17,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
 
     public FolderNode()
     {
-        Content = CreateRenderInput("Content", "CONTENT" /*, ctx =>
-        {
-            RectD? bounds = new RectD(VecI.Zero, ctx.DocumentSize);
-
-            // Folder doesn't need to do anything if no operations are present
-            if (bounds == null || (!HasOperations() && BlendMode.Value == Enums.BlendMode.Normal))
-            {
-                return Output.GetFirstRenderTarget(ctx);
-            }
-
-            VecI size = (VecI)bounds.Value.Size;
-            var outputWorkingSurface = RequestTexture(0, size, false);
-            return outputWorkingSurface.DrawingSurface;
-        }*/);
+        Content = CreateRenderInput("Content", "CONTENT");
     }
 
     public override Node CreateCopy() => new FolderNode { MemberName = MemberName };

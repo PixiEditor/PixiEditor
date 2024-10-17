@@ -26,29 +26,8 @@ public class MergeNode : RenderNode
     public MergeNode() 
     {
         BlendMode = CreateInput("BlendMode", "BlendMode", Enums.BlendMode.Normal);
-        /*Top = CreateRenderInput("Top", "TOP", context =>
-        {
-            var output = Output.GetFirstRenderTarget(context);
-            if(output == null)
-            {
-                return null;
-            }
-
-            topLayer = output.Canvas.SaveLayer(blendPaint);
-            return output;
-        });
-        Bottom = CreateRenderInput("Bottom", "BOTTOM", context =>
-        {
-            var output = Output.GetFirstRenderTarget(context);
-            
-            if(output == null)
-            {
-                return null;
-            }
-            
-            bottomLayer = output.Canvas.SaveLayer(blendPaint);
-            return output;
-        });*/
+        Top = CreateRenderInput("Top", "TOP");
+        Bottom = CreateRenderInput("Bottom", "BOTTOM");
     }
 
     public override Node CreateCopy()
@@ -69,34 +48,26 @@ public class MergeNode : RenderNode
             return;
         }
 
-        Merge(target);
+        Merge(target, context);
     }
 
-    private void Merge(DrawingSurface target)
+    private void Merge(DrawingSurface target, RenderContext context)
     {
+        //TODO: Obsereve if behavior is correct, it could be that some background rendered elements influence Top with different blend mode.
         if (Bottom.Value != null && Top.Value != null)
         {
-            Texture texTop = RequestTexture(0, target.DeviceClipBounds.Size, false);
-            Texture texBottom = RequestTexture(1, target.DeviceClipBounds.Size, false);
-            
+            Bottom.Value.Paint(context, target);
+
             paint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
-            texBottom.DrawingSurface.Canvas.DrawSurface(texTop.DrawingSurface, 0, 0, blendPaint);
+            int saved = target.Canvas.SaveLayer(paint);
             
-            target.Canvas.DrawSurface(texTop.DrawingSurface, 0, 0);
+            Top.Value.Paint(context, target);
+            target.Canvas.RestoreToCount(saved);
             return;
         }
-        
-        if(Bottom.Value != null)
-        {
-            Texture tex = RequestTexture(1, target.DeviceClipBounds.Size, false);
-            target.Canvas.DrawSurface(tex.DrawingSurface, 0, 0);
-        }
 
-        if(Top.Value != null)
-        {
-            Texture tex = RequestTexture(0, target.DeviceClipBounds.Size, false);
-            target.Canvas.DrawSurface(tex.DrawingSurface, 0, 0);
-        }
+        Bottom.Value?.Paint(context, target);
+        Top.Value?.Paint(context, target);
     }
 
     public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
@@ -116,7 +87,8 @@ public class MergeNode : RenderNode
             return false;
         }
 
-        Merge(renderOn);
+        using RenderContext context = new RenderContext(renderOn, frame, ChunkResolution.Full, VecI.Zero);
+        Merge(renderOn, context);
 
         return true;
     }
