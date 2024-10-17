@@ -59,18 +59,12 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         {
             Texture tempSurface = TryInitWorkingSurface(size, context.ChunkResolution, 4);
             tempSurface.DrawingSurface.Canvas.Clear();
-            if (Background.Connection.Node is IClipSource clipSource)
+            if (Background.Connection.Node is IClipSource clipSource && ClipToPreviousMember)
             {
-                // TODO: This probably should work with StructureMembers not Layers only
                 DrawClipSource(tempSurface.DrawingSurface, clipSource, context);
             }
 
             ApplyRasterClip(outputWorkingSurface.DrawingSurface, tempSurface.DrawingSurface);
-            blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
-            tempSurface.DrawingSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
-
-            DrawWithResolution(tempSurface.DrawingSurface, renderOnto, context.ChunkResolution, size);
-            return;
         }
 
         DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, context.ChunkResolution, size);

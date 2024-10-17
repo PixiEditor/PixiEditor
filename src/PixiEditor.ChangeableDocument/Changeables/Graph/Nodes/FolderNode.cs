@@ -35,8 +35,11 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
 
     public override Node CreateCopy() => new FolderNode { MemberName = MemberName };
 
-    public override VecD GetScenePosition(KeyFrameTime time) => documentSize / 2f; //GetTightBounds(time).GetValueOrDefault().Center;
-    public override VecD GetSceneSize(KeyFrameTime time) => documentSize; //GetTightBounds(time).GetValueOrDefault().Size;
+    public override VecD GetScenePosition(KeyFrameTime time) =>
+        documentSize / 2f; //GetTightBounds(time).GetValueOrDefault().Center;
+
+    public override VecD GetSceneSize(KeyFrameTime time) =>
+        documentSize; //GetTightBounds(time).GetValueOrDefault().Size;
 
     protected override void OnExecute(RenderContext context)
     {
@@ -56,9 +59,16 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
         {
             using Paint paint = new();
             paint.Color = Colors.White.WithAlpha((byte)Math.Round(Opacity.Value * 255f));
+
+            if (sceneContext.TargetPropertyOutput == Output)
+            {
+                paint.ColorFilter = Filters.Value?.ColorFilter;
+                paint.ImageFilter = Filters.Value?.ImageFilter;
+            }
+
             int saved = sceneContext.RenderSurface.Canvas.SaveLayer(paint);
             Content.Value?.Paint(sceneContext, sceneContext.RenderSurface);
-            
+
             sceneContext.RenderSurface.Canvas.RestoreToCount(saved);
             return;
         }
@@ -72,48 +82,56 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
                 blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
             }
 
-            RenderFolder(sceneContext, bounds, true);
+            RenderFolderContent(sceneContext, bounds, true);
         }
         else if (sceneContext.TargetPropertyOutput == FilterlessOutput ||
                  sceneContext.TargetPropertyOutput == RawOutput)
         {
-            RenderFolder(sceneContext, bounds, false);
+            RenderFolderContent(sceneContext, bounds, false);
         }
     }
 
-    private void RenderFolder(SceneObjectRenderContext sceneContext, RectD bounds, bool useFilters)
+    private void RenderFolderContent(SceneObjectRenderContext sceneContext, RectD bounds, bool useFilters)
     {
         VecI size = (VecI)bounds.Size;
         var outputWorkingSurface = RequestTexture(0, size, true);
-        
-        blendPaint.Color = Colors.White.WithAlpha((byte)Math.Round(Opacity.Value * 255f));
-        int saved = outputWorkingSurface.DrawingSurface.Canvas.SaveLayer(blendPaint);
-        
+
+        blendPaint.ImageFilter = null;
+        blendPaint.ColorFilter = null;
+
         Content.Value?.Paint(sceneContext, outputWorkingSurface.DrawingSurface);
-        
-        outputWorkingSurface.DrawingSurface.Canvas.RestoreToCount(saved);
 
         ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, sceneContext);
 
-        if (Background.Value != null)
+        if (Background.Value != null && sceneContext.TargetPropertyOutput != RawOutput)
         {
             Texture tempSurface = RequestTexture(1, outputWorkingSurface.Size);
-            if (Background.Connection.Node is IClipSource clipSource)
+            if (Background.Connection.Node is IClipSource clipSource && ClipToPreviousMember)
             {
                 DrawClipSource(tempSurface.DrawingSurface, clipSource, sceneContext);
             }
 
             ApplyRasterClip(outputWorkingSurface.DrawingSurface, tempSurface.DrawingSurface);
-            blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
-            tempSurface.DrawingSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
-
-            sceneContext.RenderSurface.Canvas.DrawSurface(tempSurface.DrawingSurface, 0, 0, blendPaint);
-            outputWorkingSurface.DrawingSurface.Canvas.Clear();
-            return;
         }
 
+        AdjustPaint(useFilters);
+
         sceneContext.RenderSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
-        outputWorkingSurface.DrawingSurface.Canvas.Clear();
+    }
+
+    private void AdjustPaint(bool useFilters)
+    {
+        blendPaint.Color = Colors.White.WithAlpha((byte)Math.Round(Opacity.Value * 255f));
+        if (useFilters)
+        {
+            blendPaint.ColorFilter = Filters.Value?.ColorFilter;
+            blendPaint.ImageFilter = Filters.Value?.ImageFilter;
+        }
+        else
+        {
+            blendPaint.ColorFilter = null;
+            blendPaint.ImageFilter = null;
+        }
     }
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
@@ -216,6 +234,8 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
         {
             return base.RenderPreview(renderOn, resolution, frame, elementToRenderName);
         }
+
+        // TODO: Make preview better, with filters, clips and stuff
 
         if (Content.Connection != null)
         {

@@ -49,7 +49,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         set => DisplayName = value;
     }
 
-    private Paint maskPaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.DstIn };
+    protected Paint maskPaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.DstIn };
     protected Paint blendPaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.SrcOver };
 
     protected Paint maskPreviewPaint = new Paint()
@@ -62,6 +62,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     protected StructureNode()
     {
         Painter filterlessPainter = new Painter(OnFilterlessPaint);
+        Painter rawPainter = new Painter(OnRawPaint);
         Background = CreateRenderInput("Background", "BACKGROUND");
         Opacity = CreateInput<float>("Opacity", "OPACITY", 1);
         IsVisible = CreateInput<bool>("IsVisible", "IS_VISIBLE", true);
@@ -73,14 +74,14 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         FilterlessOutput = CreateRenderOutput(nameof(FilterlessOutput), "WITHOUT_FILTERS",
             () => filterlessPainter, () => Background.Value);
 
-        RawOutput = CreateRenderOutput(nameof(RawOutput), "RAW_LAYER_OUTPUT", () => filterlessPainter);
+        RawOutput = CreateRenderOutput(nameof(RawOutput), "RAW_LAYER_OUTPUT", () => rawPainter);
 
         MemberName = DefaultMemberName;
     }
 
     protected override void OnPaint(RenderContext context, DrawingSurface renderTarget)
     {
-        if (Output.Connections.Count > 0 || Background.Value != null)
+        if (Output.Connections.Count > 0)
         {
             RenderForOutput(context, renderTarget, Output);
         }
@@ -89,6 +90,11 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     private void OnFilterlessPaint(RenderContext context, DrawingSurface renderTarget)
     {
         RenderForOutput(context, renderTarget, FilterlessOutput);
+    }
+    
+    private void OnRawPaint(RenderContext context, DrawingSurface renderTarget)
+    {
+        RenderForOutput(context, renderTarget, RawOutput);
     }
     
     public abstract VecD GetScenePosition(KeyFrameTime frameTime);
@@ -193,7 +199,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
                 clearPaint);
         }
 
-        renderSurface.DrawingSurface.Canvas.Flush();
+        renderSurface.DrawingSurface.Flush();
     }
 
     protected void ApplyRasterClip(DrawingSurface toClip, DrawingSurface clipSource)
