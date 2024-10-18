@@ -34,12 +34,7 @@ public class ApplyFilterNode : RenderNode, IRenderInput
 
     public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
     {
-        if (Background.Connection != null && Background.Connection.Node is IPreviewRenderable previousPreview)
-        {
-            return previousPreview.GetPreviewBounds(frame, elementToRenderName);
-        }
-        
-        return null;
+        return PreviewUtils.FindPreviewBounds(Background.Connection, frame, elementToRenderName); 
     }
 
     public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,

@@ -45,24 +45,14 @@ public class OutputNode : Node, IRenderInput, IPreviewRenderable
 
     public bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
     {
-        var executionQueue = GraphUtils.CalculateExecutionQueue(this);
-        
-        foreach (var node in executionQueue)
+        if (Input.Value == null)
         {
-            if(node == this)
-            {
-                continue;
-            }
-            
-            if (node is IPreviewRenderable previewRenderable)
-            {
-                if (!previewRenderable.RenderPreview(renderOn, resolution, frame, elementToRenderName))
-                {
-                    return false;
-                }
-            }
+            return false;
         }
-
+        
+        using RenderContext context = new(renderOn, frame, resolution, VecI.One);
+        Input.Value.Paint(context, renderOn);
+        
         return true;
     }
 }

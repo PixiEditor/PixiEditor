@@ -1,12 +1,15 @@
-﻿using PixiEditor.ChangeableDocument.Rendering;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Helpers;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
 [NodeInfo("SeparateChannels")]
-public class SeparateChannelsNode : Node
+public class SeparateChannelsNode : Node, IRenderInput, IPreviewRenderable
 {
     private readonly Paint _paint = new();
     
@@ -20,73 +23,132 @@ public class SeparateChannelsNode : Node
     private readonly ColorFilter _blueGrayscaleFilter = ColorFilter.CreateColorMatrix(ColorMatrix.UseBlue + ColorMatrix.MapBlueToRedGreen + ColorMatrix.OpaqueAlphaOffset);
     private readonly ColorFilter _alphaGrayscaleFilter = ColorFilter.CreateColorMatrix(ColorMatrix.MapAlphaToRedGreenBlue + ColorMatrix.OpaqueAlphaOffset);
 
-    public OutputProperty<Texture?> Red { get; }
+    public RenderOutputProperty Red { get; }
     
-    public OutputProperty<Texture?> Green { get; }
+    public RenderOutputProperty Green { get; }
     
-    public OutputProperty<Texture?> Blue { get; }
+    public RenderOutputProperty Blue { get; }
 
-    public OutputProperty<Texture?> Alpha { get; }
+    public RenderOutputProperty Alpha { get; }
     
-    public InputProperty<Texture?> Image { get; }
+    public RenderInputProperty Image { get; } 
     
     public InputProperty<bool> Grayscale { get; }
 
     public SeparateChannelsNode()
     {
-        Red = CreateOutput<Texture>(nameof(Red), "RED", null);
-        Green = CreateOutput<Texture>(nameof(Green), "GREEN", null);
-        Blue = CreateOutput<Texture>(nameof(Blue), "BLUE", null);
-        Alpha = CreateOutput<Texture>(nameof(Alpha), "ALPHA", null);
+        Red = CreateRenderOutput("Red", "RED", () => new Painter(PaintRed));
+        Green = CreateRenderOutput("Green","GREEN", () => new Painter(PaintGreen)); 
+        Blue = CreateRenderOutput("Blue", "BLUE", () => new Painter(PaintBlue));
+        Alpha = CreateRenderOutput("Alpha", "ALPHA", () => new Painter(PaintAlpha));
         
-        Image = CreateInput<Texture>(nameof(Image), "IMAGE", null);
+        Image = CreateRenderInput("Image", "IMAGE");
         Grayscale = CreateInput(nameof(Grayscale), "GRAYSCALE", false);
     }
     
+    private void PaintRed(RenderContext context, DrawingSurface drawingSurface)
+    {
+        Paint(context, drawingSurface, _redFilter, _redGrayscaleFilter);
+    }
+    
+    private void PaintGreen(RenderContext context, DrawingSurface drawingSurface)
+    {
+        Paint(context, drawingSurface, _greenFilter, _greenGrayscaleFilter);
+    }
+    
+    private void PaintBlue(RenderContext context, DrawingSurface drawingSurface)
+    {
+        Paint(context, drawingSurface, _blueFilter, _blueGrayscaleFilter);
+    }
+    
+    private void PaintAlpha(RenderContext context, DrawingSurface drawingSurface)
+    {
+        Paint(context, drawingSurface, _alphaFilter, _alphaGrayscaleFilter);
+    }
+
+    private void Paint(RenderContext context, DrawingSurface drawingSurface, ColorFilter colorFilter, ColorFilter grayscaleFilter)
+    {
+        bool grayscale = Grayscale.Value;
+        
+        ColorFilter filter = grayscale ? grayscaleFilter : colorFilter; 
+        _paint.ColorFilter = filter;
+        
+        int saved = drawingSurface.Canvas.SaveLayer(_paint);
+        
+        Image.Value.Paint(context, drawingSurface);
+        
+        drawingSurface.Canvas.RestoreToCount(saved);
+    }
+
     protected override void OnExecute(RenderContext context)
     {
-        var image = Image.Value;
-
-        if (image == null)
-            return;
-        
-        var grayscale = Grayscale.Value;
-
-        var red = !grayscale ? _redFilter : _redGrayscaleFilter;
-        var green = !grayscale ? _greenFilter : _greenGrayscaleFilter;
-        var blue = !grayscale ? _blueFilter : _blueGrayscaleFilter;
-        var alpha = !grayscale ? _alphaFilter : _alphaGrayscaleFilter;
-
-        Red.Value = GetImage(image, red, 0);
-        Green.Value = GetImage(image, green, 1);
-        Blue.Value = GetImage(image, blue, 2);
-        Alpha.Value = GetImage(image, alpha, 3);
-
-        var previewSurface = RequestTexture(4, image.Size * 2);
-
-        var size = image.Size;
-        
-        var redPos = new VecI();
-        var greenPos = new VecI(size.X, 0);
-        var bluePos = new VecI(0, size.Y);
-        var alphaPos = new VecI(size.X, size.Y);
-        
-        previewSurface.DrawingSurface.Canvas.DrawSurface(Red.Value.DrawingSurface, redPos, context.ReplacingPaintWithOpacity);
-        previewSurface.DrawingSurface.Canvas.DrawSurface(Green.Value.DrawingSurface, greenPos, context.ReplacingPaintWithOpacity);
-        previewSurface.DrawingSurface.Canvas.DrawSurface(Blue.Value.DrawingSurface, bluePos, context.ReplacingPaintWithOpacity);
-        previewSurface.DrawingSurface.Canvas.DrawSurface(Alpha.Value.DrawingSurface, alphaPos, context.ReplacingPaintWithOpacity);
+        Red.ChainToPainterValue();
+        Green.ChainToPainterValue();
+        Blue.ChainToPainterValue();
+        Alpha.ChainToPainterValue();
     }
-
-    private Texture GetImage(Texture image, ColorFilter filter, int id)
-    {
-        var imageSurface = RequestTexture(id, image.Size);
-
-        _paint.ColorFilter = filter;
-        imageSurface.DrawingSurface.Canvas.DrawSurface(image.DrawingSurface, 0, 0, _paint);
-
-        return imageSurface;
-    }
-
 
     public override Node CreateCopy() => new SeparateChannelsNode();
+    RenderInputProperty IRenderInput.Background => Image;
+    public RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    {
+        RectD? bounds = PreviewUtils.FindPreviewBounds(Image.Connection, frame, elementToRenderName);
+        return bounds.HasValue ? new RectD(0, 0, bounds.Value.Width * 2, bounds.Value.Height * 2) : null;
+    }
+
+    public bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
+    {
+        if (Image.Value == null)
+            return false;
+
+        RectD? bounds = GetPreviewBounds(frame, elementToRenderName);
+        
+        if (bounds == null)
+            return false;
+
+        using RenderContext context = new(renderOn, frame, resolution, VecI.One);
+        
+        _paint.ColorFilter = Grayscale.Value ? _redGrayscaleFilter : _redFilter;
+        RectD localBounds = bounds.Value with { Width = bounds.Value.Width / 2, Height = bounds.Value.Height / 2, };
+        int saved = renderOn.Canvas.SaveLayer(_paint, localBounds);
+        
+        renderOn.Canvas.Scale(0.8f, 0.8f);
+        renderOn.Canvas.Translate((float)-bounds.Value.Width / 2f, (float)-bounds.Value.Height / 2f);
+        
+        Image.Value.Paint(context, renderOn);
+        
+        renderOn.Canvas.RestoreToCount(saved);
+        
+        localBounds = new RectD(bounds.Value.Width / 2f, 0, bounds.Value.Width / 2, bounds.Value.Height / 2); 
+        _paint.ColorFilter = Grayscale.Value ? _greenGrayscaleFilter : _greenFilter;
+        saved = renderOn.Canvas.SaveLayer(_paint, localBounds);
+        
+        renderOn.Canvas.Scale(0.8f, 0.8f);
+        renderOn.Canvas.Translate((float)bounds.Value.Width / 8f, (float)-bounds.Value.Height / 2f);
+        Image.Value.Paint(context, renderOn);
+        
+        renderOn.Canvas.RestoreToCount(saved);
+        
+        _paint.ColorFilter = Grayscale.Value ? _blueGrayscaleFilter : _blueFilter;
+        localBounds = new RectD(0, bounds.Value.Height / 2f, bounds.Value.Width / 2, bounds.Value.Height / 2);
+        saved = renderOn.Canvas.SaveLayer(_paint, localBounds);
+        
+        renderOn.Canvas.Scale(0.8f, 0.8f);
+        renderOn.Canvas.Translate((float)-bounds.Value.Width / 2f, (float)bounds.Value.Height / 8f);
+        Image.Value.Paint(context, renderOn);
+        
+        renderOn.Canvas.RestoreToCount(saved);
+        
+        _paint.ColorFilter = Grayscale.Value ? _alphaGrayscaleFilter : _alphaFilter;
+        localBounds = new RectD(bounds.Value.Width / 2f, bounds.Value.Height / 2f, bounds.Value.Width / 2, bounds.Value.Height / 2);
+        saved = renderOn.Canvas.SaveLayer(_paint, localBounds);
+        
+        renderOn.Canvas.Scale(0.8f, 0.8f);
+        renderOn.Canvas.Translate((float)bounds.Value.Width / 8f, (float)bounds.Value.Height / 8f);
+        Image.Value.Paint(context, renderOn);
+        
+        renderOn.Canvas.RestoreToCount(saved);
+
+        return true;
+    }
 }
