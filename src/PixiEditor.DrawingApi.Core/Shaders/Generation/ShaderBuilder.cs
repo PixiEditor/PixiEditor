@@ -70,7 +70,7 @@ public class ShaderBuilder
         }
 
         string name = $"texture_{GetUniqueNameNumber()}";
-        using var snapshot = surface.Snapshot();
+        using var snapshot = surface.Snapshot(surface.DeviceClipBounds);
         Uniforms[name] = new Uniform(name, snapshot.ToShader());
         var newSampler = new SurfaceSampler(name);
         _samplers[surface] = newSampler;

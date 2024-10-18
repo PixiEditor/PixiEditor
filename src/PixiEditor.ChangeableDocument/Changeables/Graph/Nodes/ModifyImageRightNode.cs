@@ -1,11 +1,7 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Shaders;
 using PixiEditor.DrawingApi.Core.Shaders.Generation;
 using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 using PixiEditor.DrawingApi.Core.Surfaces;
@@ -52,13 +48,10 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
             return;
         }
 
-        if (startNode.InputTexture is not { Size: var size })
+        if (startNode.Image.Value is not { Size: var size })
         {
             return;
         }
-
-        var width = size.X;
-        var height = size.Y;
 
         Texture surface = RequestTexture(0, size);
 
@@ -117,11 +110,13 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
 
     public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
     {
+        //TODO: Implement
         return null;
     }
 
     public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
     {
+        //TODO: Implement
         return false;
     }
 
