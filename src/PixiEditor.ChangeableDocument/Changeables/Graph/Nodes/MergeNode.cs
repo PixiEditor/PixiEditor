@@ -76,8 +76,28 @@ public class MergeNode : RenderNode
         {
             return null;
         }
+
+        RectD? totalBounds = null; 
         
-        return new RectD(VecI.Zero, new VecI(128, 128)); 
+        if (Top.Connection != null && Top.Connection.Node is IPreviewRenderable topPreview)
+        {
+            var topBounds = topPreview.GetPreviewBounds(frame, elementToRenderName);
+            if (topBounds != null)
+            {
+                totalBounds = totalBounds?.Union(topBounds.Value) ?? topBounds;
+            }
+        }
+        
+        if (Bottom.Connection != null && Bottom.Connection.Node is IPreviewRenderable bottomPreview)
+        {
+            var bottomBounds = bottomPreview.GetPreviewBounds(frame, elementToRenderName);
+            if (bottomBounds != null)
+            {
+                totalBounds = totalBounds?.Union(bottomBounds.Value) ?? bottomBounds;
+            } 
+        }
+        
+        return totalBounds;
     }
 
     public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)

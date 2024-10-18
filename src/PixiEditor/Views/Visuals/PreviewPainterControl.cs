@@ -80,19 +80,22 @@ internal class DrawPreviewOperation : SkiaDrawOperation
     public override void Render(ISkiaSharpApiLease lease)
     {
         RectD? previewBounds = PreviewPainter.PreviewRenderable.GetPreviewBounds(frame, PreviewPainter.ElementToRenderName);
-        if (PreviewPainter == null || previewBounds == null)
+        if (PreviewPainter == null)
         {
             return;
         }
 
         DrawingSurface target = DrawingSurface.FromNative(lease.SkSurface);
 
-        float x = (float)previewBounds.Value.Width; 
-        float y = (float)previewBounds.Value.Height; 
+        float x = (float)(previewBounds?.Width ?? 0); 
+        float y = (float)(previewBounds?.Height ?? 0);
 
         target.Canvas.Save();
 
-        UniformScale(x, y, target, previewBounds.Value);
+        if (previewBounds != null)
+        {
+            UniformScale(x, y, target, previewBounds.Value);
+        }
 
         // TODO: Implement ChunkResolution and frame
         PreviewPainter.Paint(target, ChunkResolution.Full, frame);
