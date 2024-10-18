@@ -90,8 +90,8 @@ internal class ActionAccumulator
             List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);
             bool undoBoundaryPassed =
                 toExecute.Any(static action => action.action is ChangeBoundary_Action or Redo_Action or Undo_Action);
-            bool viewportRefreshRequest =
-                toExecute.Any(static action => action.action is RefreshViewport_PassthroughAction);
+            /*bool viewportRefreshRequest =
+                toExecute.Any(static action => action.action is RefreshViewport_PassthroughAction);*/
             foreach (IChangeInfo info in optimizedChanges)
             {
                 internals.Updater.ApplyChangeFromChangeInfo(info);
@@ -106,12 +106,12 @@ internal class ActionAccumulator
             if (DrawingBackendApi.Current.IsHardwareAccelerated)
             {
                 canvasUpdater.UpdateGatheredChunksSync(affectedAreas,
-                    undoBoundaryPassed || viewportRefreshRequest);
+                    undoBoundaryPassed);
             }
             else
             {
                 await canvasUpdater.UpdateGatheredChunks(affectedAreas,
-                    undoBoundaryPassed || viewportRefreshRequest);
+                    undoBoundaryPassed);
             }
 
             previewUpdater.UpdatePreviews(undoBoundaryPassed, affectedAreas.ImagePreviewAreas.Keys, affectedAreas.MaskPreviewAreas.Keys,

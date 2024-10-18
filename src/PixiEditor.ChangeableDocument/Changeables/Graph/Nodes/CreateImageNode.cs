@@ -17,12 +17,15 @@ public class CreateImageNode : Node
     public InputProperty<VecI> Size { get; }
     
     public InputProperty<Color> Fill { get; }
+    
+    public RenderInputProperty Content { get; }
 
     public CreateImageNode()
     {
         Output = CreateOutput<Texture>(nameof(Output), "EMPTY_IMAGE", null);
         Size = CreateInput(nameof(Size), "SIZE", new VecI(32, 32)).WithRules(v => v.Min(VecI.One));
-        Fill = CreateInput(nameof(Fill), "FILL", new Color(0, 0, 0, 255));
+        Fill = CreateInput(nameof(Fill), "FILL", Colors.Transparent);
+        Content = CreateRenderInput(nameof(Content), "CONTENT");
     }
 
     protected override void OnExecute(RenderContext context)
@@ -36,6 +39,8 @@ public class CreateImageNode : Node
 
         _paint.Color = Fill.Value;
         surface.DrawingSurface.Canvas.DrawPaint(_paint);
+
+        Content.Value?.Paint(context, surface.DrawingSurface);
 
         Output.Value = surface;
     }
