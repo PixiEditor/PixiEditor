@@ -94,6 +94,11 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public override RectD? GetPreviewBounds(int frame, string elementFor = "")
     {
+        if(IsDisposed)
+        {
+            return null;
+        }
+        
         if (elementFor == nameof(EmbeddedMask))
         {
             return base.GetPreviewBounds(frame, elementFor);
@@ -109,12 +114,24 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             }
         }
 
-        return (RectD?)GetLayerImageAtFrame(frame).FindTightCommittedBounds();
+        try
+        {
+            return (RectD?)GetLayerImageAtFrame(frame).FindTightCommittedBounds();
+        }
+        catch (ObjectDisposedException)
+        {
+            return null;
+        }
     }
 
     public override bool RenderPreview(DrawingSurface renderOnto, ChunkResolution resolution, int frame,
         string elementToRenderName)
     {
+        if (IsDisposed)
+        {
+            return false;
+        }
+        
         if (elementToRenderName == nameof(EmbeddedMask))
         {
             return base.RenderPreview(renderOnto, resolution, frame, elementToRenderName);
