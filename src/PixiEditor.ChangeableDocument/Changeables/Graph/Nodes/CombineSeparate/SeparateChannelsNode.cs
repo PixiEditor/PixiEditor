@@ -93,7 +93,7 @@ public class SeparateChannelsNode : Node, IRenderInput, IPreviewRenderable
     public RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
     {
         RectD? bounds = PreviewUtils.FindPreviewBounds(Image.Connection, frame, elementToRenderName);
-        return bounds.HasValue ? new RectD(0, 0, bounds.Value.Width * 2, bounds.Value.Height * 2) : null;
+        return bounds;
     }
 
     public bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
@@ -105,46 +105,51 @@ public class SeparateChannelsNode : Node, IRenderInput, IPreviewRenderable
         
         if (bounds == null)
             return false;
-
+        
         using RenderContext context = new(renderOn, frame, resolution, VecI.One);
         
         _paint.ColorFilter = Grayscale.Value ? _redGrayscaleFilter : _redFilter;
-        RectD localBounds = bounds.Value with { Width = bounds.Value.Width / 2, Height = bounds.Value.Height / 2, };
+        RectD localBounds = new(bounds.Value.X, bounds.Value.Y, bounds.Value.Width / 2, bounds.Value.Height / 2);
         int saved = renderOn.Canvas.SaveLayer(_paint, localBounds);
-        
-        renderOn.Canvas.Scale(0.8f, 0.8f);
-        renderOn.Canvas.Translate((float)-bounds.Value.Width / 2f, (float)-bounds.Value.Height / 2f);
+
+        renderOn.Canvas.Scale(0.5f);
+        renderOn.Canvas.Translate((float)bounds.Value.X, (float)bounds.Value.Y);
         
         Image.Value.Paint(context, renderOn);
         
         renderOn.Canvas.RestoreToCount(saved);
         
-        localBounds = new RectD(bounds.Value.Width / 2f, 0, bounds.Value.Width / 2, bounds.Value.Height / 2); 
         _paint.ColorFilter = Grayscale.Value ? _greenGrayscaleFilter : _greenFilter;
+        localBounds = new(bounds.Value.X + bounds.Value.Width / 2, bounds.Value.Y, bounds.Value.Width / 2, bounds.Value.Height / 2);
         saved = renderOn.Canvas.SaveLayer(_paint, localBounds);
         
-        renderOn.Canvas.Scale(0.8f, 0.8f);
-        renderOn.Canvas.Translate((float)bounds.Value.Width / 8f, (float)-bounds.Value.Height / 2f);
+        renderOn.Canvas.Scale(0.5f);
+        renderOn.Canvas.Translate((float)bounds.Value.X + (float)bounds.Value.Width, (float)bounds.Value.Y);
+        
         Image.Value.Paint(context, renderOn);
         
         renderOn.Canvas.RestoreToCount(saved);
         
         _paint.ColorFilter = Grayscale.Value ? _blueGrayscaleFilter : _blueFilter;
-        localBounds = new RectD(0, bounds.Value.Height / 2f, bounds.Value.Width / 2, bounds.Value.Height / 2);
+        localBounds = new(bounds.Value.X, bounds.Value.Y + bounds.Value.Height / 2, bounds.Value.Width / 2, bounds.Value.Height / 2);
+        
         saved = renderOn.Canvas.SaveLayer(_paint, localBounds);
         
-        renderOn.Canvas.Scale(0.8f, 0.8f);
-        renderOn.Canvas.Translate((float)-bounds.Value.Width / 2f, (float)bounds.Value.Height / 8f);
+        renderOn.Canvas.Scale(0.5f);
+        renderOn.Canvas.Translate((float)bounds.Value.X, (float)bounds.Value.Y + (float)bounds.Value.Height);
+        
         Image.Value.Paint(context, renderOn);
         
         renderOn.Canvas.RestoreToCount(saved);
         
         _paint.ColorFilter = Grayscale.Value ? _alphaGrayscaleFilter : _alphaFilter;
-        localBounds = new RectD(bounds.Value.Width / 2f, bounds.Value.Height / 2f, bounds.Value.Width / 2, bounds.Value.Height / 2);
+        localBounds = new(bounds.Value.X + bounds.Value.Width / 2, bounds.Value.Y + bounds.Value.Height / 2, bounds.Value.Width / 2, bounds.Value.Height / 2);
         saved = renderOn.Canvas.SaveLayer(_paint, localBounds);
         
-        renderOn.Canvas.Scale(0.8f, 0.8f);
-        renderOn.Canvas.Translate((float)bounds.Value.Width / 8f, (float)bounds.Value.Height / 8f);
+        renderOn.Canvas.Scale(0.5f);
+        
+        renderOn.Canvas.Translate((float)bounds.Value.X + (float)bounds.Value.Width, (float)bounds.Value.Y + (float)bounds.Value.Height);
+        
         Image.Value.Paint(context, renderOn);
         
         renderOn.Canvas.RestoreToCount(saved);
