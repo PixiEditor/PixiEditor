@@ -156,6 +156,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             ManagedInstances[drawingSurface.ObjectPointer].Flush(true, true);
         }
+        
+        public void Flush(DrawingSurface surface, bool submit, bool synchronous)
+        {
+            ManagedInstances[surface.ObjectPointer].Flush(submit, synchronous);
+        }
 
         public DrawingSurface FromNative(object native)
         {

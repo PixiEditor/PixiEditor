@@ -198,8 +198,8 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
             renderSurface.DrawingSurface.Canvas.DrawRect(new RectD(chunkPos * chunkSize, new VecD(chunkSize)),
                 clearPaint);
         }
-
-        renderSurface.DrawingSurface.Flush();
+        
+        renderSurface?.DrawingSurface.Flush(true, true);
     }
 
     protected void ApplyRasterClip(DrawingSurface toClip, DrawingSurface clipSource)

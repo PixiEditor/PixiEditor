@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
@@ -10,14 +11,12 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("CreateImage")]
 public class CreateImageNode : Node
 {
-    private Paint _paint = new();
-    
     public OutputProperty<Texture> Output { get; }
 
     public InputProperty<VecI> Size { get; }
-    
+
     public InputProperty<Color> Fill { get; }
-    
+
     public RenderInputProperty Content { get; }
 
     public CreateImageNode()
@@ -34,16 +33,15 @@ public class CreateImageNode : Node
         {
             return;
         }
+        
+        var surface = RequestTexture(0, Size.Value, false);
 
-        var surface = RequestTexture(0, Size.Value); 
-
-        _paint.Color = Fill.Value;
-        surface.DrawingSurface.Canvas.DrawPaint(_paint);
+        surface.DrawingSurface.Canvas.Clear(Fill.Value);
 
         Content.Value?.Paint(context, surface.DrawingSurface);
 
         Output.Value = surface;
     }
- 
+
     public override Node CreateCopy() => new CreateImageNode();
 }

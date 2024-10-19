@@ -102,7 +102,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
             drawingPaint.Shader = drawingPaint.Shader.WithUpdatedUniforms(builder.Uniforms);
         }
 
-        surface.DrawingSurface.Canvas.DrawPaint(drawingPaint);
+        surface.DrawingSurface.Canvas.DrawRect(0, 0, size.X, size.Y, drawingPaint);
 
         targetSurface.Canvas.DrawSurface(surface.DrawingSurface, 0, 0);
         builder.Dispose();

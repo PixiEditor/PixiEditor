@@ -519,10 +519,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         try
         {
-            Surface finalSurface = new Surface(SizeBindable);
+            Surface finalSurface = null; 
             DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
             {
-                Renderer.RenderDocument(finalSurface.DrawingSurface, frameTime);
+                using Texture texture = new Texture(SizeBindable);
+                Renderer.RenderDocument(texture.DrawingSurface, frameTime);
+                
+                finalSurface = new Surface(SizeBindable);
+                finalSurface.DrawingSurface.Canvas.DrawImage(texture.DrawingSurface.Snapshot(), 0, 0);
             });
 
             return finalSurface;

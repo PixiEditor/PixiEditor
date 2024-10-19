@@ -56,7 +56,7 @@ public class ModifyImageLeftNode : Node, IPairNode, IPreviewRenderable
             return false;
         }
 
-        RenderContext renderContext = new(renderOn, frame, ChunkResolution.Full, VecI.Zero);
+        using RenderContext renderContext = new(renderOn, frame, ChunkResolution.Full, VecI.Zero);
         renderOn.Canvas.DrawSurface(Image.Value.DrawingSurface, 0, 0); 
         return true;
     }

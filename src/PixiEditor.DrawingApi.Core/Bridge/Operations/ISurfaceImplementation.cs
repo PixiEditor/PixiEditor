@@ -22,5 +22,6 @@ public interface ISurfaceImplementation
     public RectI GetDeviceClipBounds(DrawingSurface surface);
     public RectD GetLocalClipBounds(DrawingSurface surface);
     public void Unmanage(DrawingSurface surface);
+    public void Flush(DrawingSurface drawingSurface, bool submit, bool synchronous);
 }
 
