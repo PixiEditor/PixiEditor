@@ -125,8 +125,8 @@ internal class ConnectProperties_Change : Change
             {
                 return true;
             }
-            
-            var outputValue = output.Value;
+
+            object? outputValue = output.Value;
             
             if(IsExpressionToConstant(output, input, out var result))
             {
@@ -137,18 +137,13 @@ internal class ConnectProperties_Change : Change
             {
                 return ConversionTable.TryConvert(result, output.ValueType, out _);
             }
-
-            if (outputValue == null)
-            {
-                return true;
-            }
             
-            if (outputValue.GetType().IsAssignableTo(input.ValueType))
+            if (output.ValueType.IsAssignableTo(input.ValueType))
             {
                 return true;
             }
 
-            if (ConversionTable.TryConvert(outputValue, input.ValueType, out _))
+            if (outputValue != null && ConversionTable.TryConvert(outputValue, input.ValueType, out _))
             {
                 return true;
             }
