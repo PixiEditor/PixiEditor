@@ -25,7 +25,7 @@ public class DocumentRenderer : IPreviewRenderable
 
     private IReadOnlyDocument Document { get; }
 
-    public void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime)
+    public void UpdateChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime)
     {
         try
         {

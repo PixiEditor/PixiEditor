@@ -111,7 +111,7 @@ internal class ActionAccumulator
             else
             {
                 await canvasUpdater.UpdateGatheredChunks(affectedAreas,
-                    undoBoundaryPassed);
+                    undoBoundaryPassed || viewportRefreshRequest);
             }
 
             previewUpdater.UpdatePreviews(undoBoundaryPassed, affectedAreas.ImagePreviewAreas.Keys, affectedAreas.MaskPreviewAreas.Keys,

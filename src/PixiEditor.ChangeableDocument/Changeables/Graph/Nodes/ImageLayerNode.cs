@@ -233,7 +233,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         var img = GetLayerImageAtFrame(frameTime.Frame);
 
-        RenderChunkyImageChunk(chunkPos, resolution, img, ref fullResrenderedSurface);
+        RenderChunkyImageChunk(chunkPos, resolution, img, 85, ref fullResrenderedSurface);
         renderedSurfaceFrame = frameTime.Frame;
     }
 

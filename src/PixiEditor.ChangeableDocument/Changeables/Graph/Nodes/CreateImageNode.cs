@@ -43,7 +43,10 @@ public class CreateImageNode : Node
         
         int saved = surface.DrawingSurface.Canvas.Save();
 
-        Content.Value?.Paint(context, surface.DrawingSurface);
+        RenderContext ctx = new RenderContext(surface.DrawingSurface, context.FrameTime, context.ChunkResolution,
+            context.DocumentSize);
+        
+        Content.Value?.Paint(ctx, surface.DrawingSurface);
 
         surface.DrawingSurface.Canvas.RestoreToCount(saved);
         Output.Value = surface;

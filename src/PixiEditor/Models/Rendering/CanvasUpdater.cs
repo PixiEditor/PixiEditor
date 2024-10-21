@@ -310,6 +310,6 @@ internal class CanvasUpdater
 
     private void RenderChunk(VecI chunkPos, ChunkResolution resolution)
     {
-        doc.Renderer.RenderChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameTime);
+        doc.Renderer.UpdateChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameTime);
     }
 }

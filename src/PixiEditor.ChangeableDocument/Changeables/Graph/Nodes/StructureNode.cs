@@ -171,10 +171,11 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
 
     public virtual void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime)
     {
-        RenderChunkyImageChunk(chunkPos, resolution, EmbeddedMask, ref renderedMask);
+        RenderChunkyImageChunk(chunkPos, resolution, EmbeddedMask, 55, ref renderedMask);
     }
 
     protected void RenderChunkyImageChunk(VecI chunkPos, ChunkResolution resolution, ChunkyImage img,
+        int textureId,
         ref Texture? renderSurface)
     {
         if (img is null)
@@ -183,14 +184,10 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         }
 
         VecI targetSize = img.LatestSize;
+        
+        renderSurface = RequestTexture(textureId, targetSize, false);
 
-        if (renderSurface == null || renderSurface.Size != targetSize)
-        {
-            renderSurface?.Dispose();
-            renderSurface = new Texture(targetSize);
-        }
-
-        renderSurface.DrawingSurface.Canvas.Save();
+        int saved = renderSurface.DrawingSurface.Canvas.Save();
         
         if (!img.DrawMostUpToDateChunkOn(
                 chunkPos,
@@ -204,7 +201,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
                 clearPaint);
         }
         
-        renderSurface.DrawingSurface.Canvas.Restore();
+        renderSurface.DrawingSurface.Canvas.RestoreToCount(saved);
         
         renderSurface?.DrawingSurface.Flush(true, true);
     }
