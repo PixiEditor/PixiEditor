@@ -12,7 +12,7 @@ public interface IReadOnlyStructureNode : IReadOnlyNode, ISceneObject, IChunkRen
     public InputProperty<bool> IsVisible { get; }
     public bool ClipToPreviousMember { get; }
     public InputProperty<BlendMode> BlendMode { get; }
-    public InputProperty<Texture?> CustomMask { get; }
+    public RenderInputProperty CustomMask { get; }
     public InputProperty<bool> MaskIsVisible { get; }
     public string MemberName { get; set; }
     public RectD? GetTightBounds(KeyFrameTime frameTime);

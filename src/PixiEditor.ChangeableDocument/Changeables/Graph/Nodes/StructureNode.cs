@@ -20,7 +20,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     public InputProperty<bool> IsVisible { get; }
     public bool ClipToPreviousMember { get; set; }
     public InputProperty<BlendMode> BlendMode { get; }
-    public InputProperty<Texture?> CustomMask { get; }
+    public RenderInputProperty CustomMask { get; }
     public InputProperty<bool> MaskIsVisible { get; }
     public InputProperty<Filter> Filters { get; }
 
@@ -67,7 +67,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         Opacity = CreateInput<float>("Opacity", "OPACITY", 1);
         IsVisible = CreateInput<bool>("IsVisible", "IS_VISIBLE", true);
         BlendMode = CreateInput("BlendMode", "BLEND_MODE", Enums.BlendMode.Normal);
-        CustomMask = CreateInput<Texture?>("Mask", "MASK", null);
+        CustomMask = CreateRenderInput("Mask", "MASK");
         MaskIsVisible = CreateInput<bool>("MaskIsVisible", "MASK_IS_VISIBLE", true);
         Filters = CreateInput<Filter>(nameof(Filters), "FILTERS", null);
 
@@ -135,7 +135,10 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         {
             if (CustomMask.Value != null)
             {
-                surface.Canvas.DrawSurface(CustomMask.Value.DrawingSurface, 0, 0, maskPaint);
+                int layer = surface.Canvas.SaveLayer(maskPaint);
+                CustomMask.Value.Paint(context, surface);
+                
+                surface.Canvas.RestoreToCount(layer);
             }
             else if (EmbeddedMask != null)
             {
