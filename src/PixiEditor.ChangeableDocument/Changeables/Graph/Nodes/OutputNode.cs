@@ -29,7 +29,10 @@ public class OutputNode : Node, IRenderInput, IPreviewRenderable
     protected override void OnExecute(RenderContext context)
     {
         lastDocumentSize = context.DocumentSize;
+        int saved = context.RenderSurface.Canvas.Save();
         Input.Value?.Paint(context, context.RenderSurface);
+        
+        context.RenderSurface.Canvas.RestoreToCount(saved);
     }
 
     RenderInputProperty IRenderInput.Background => Input;
