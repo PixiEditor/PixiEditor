@@ -55,27 +55,34 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             canvas.DrawImage(_imageImpl.ManagedInstances[image.ObjectPointer], x, y);
         }
 
-        public void DrawImage(IntPtr objPtr, Image image, float x, float y, Paint paint)
+        public void DrawImage(IntPtr objPtr, Image image, float x, float y, Paint? paint)
         {
-            if(!ManagedInstances.TryGetValue(objPtr, out var canvas))
+            if (!ManagedInstances.TryGetValue(objPtr, out var canvas))
             {
                 throw new ObjectDisposedException(nameof(canvas));
             }
-            
-            if (!_paintImpl.ManagedInstances.TryGetValue(paint.ObjectPointer, out var skPaint))
-            {
-                throw new ObjectDisposedException(nameof(paint));
-            }
-            
-            if(!_imageImpl.ManagedInstances.TryGetValue(image.ObjectPointer, out var img))
+
+            if (!_imageImpl.ManagedInstances.TryGetValue(image.ObjectPointer, out var img))
             {
                 throw new ObjectDisposedException(nameof(image));
             }
-            
-            canvas.DrawImage(img, x, y, skPaint);
+
+            if (paint != null)
+            {
+                if (!_paintImpl.ManagedInstances.TryGetValue(paint.ObjectPointer, out var skPaint))
+                {
+                    throw new ObjectDisposedException(nameof(paint));
+                }
+
+                canvas.DrawImage(img, x, y, skPaint);
+                return;
+            }
+
+            canvas.DrawImage(img, x, y);
         }
 
-        public void DrawRoundRect(IntPtr objectPointer, float x, float y, float width, float height, float radiusX, float radiusY,
+        public void DrawRoundRect(IntPtr objectPointer, float x, float y, float width, float height, float radiusX,
+            float radiusY,
             Paint paint)
         {
             ManagedInstances[objectPointer].DrawRoundRect(
@@ -94,12 +101,14 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public int SaveLayer(IntPtr objectPtr, Paint? paint)
         {
-            return ManagedInstances[objectPtr].SaveLayer(paint != null ? _paintImpl.ManagedInstances[paint.ObjectPointer] : null);
+            return ManagedInstances[objectPtr]
+                .SaveLayer(paint != null ? _paintImpl.ManagedInstances[paint.ObjectPointer] : null);
         }
-        
+
         public int SaveLayer(IntPtr objectPtr, Paint paint, RectD bounds)
         {
-            return ManagedInstances[objectPtr].SaveLayer(bounds.ToSKRect(), _paintImpl.ManagedInstances[paint.ObjectPointer]);
+            return ManagedInstances[objectPtr]
+                .SaveLayer(bounds.ToSKRect(), _paintImpl.ManagedInstances[paint.ObjectPointer]);
         }
 
         public Matrix3X3 GetActiveMatrix(IntPtr objectPointer)
@@ -114,7 +123,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
                 ManagedInstances.TryAdd(skCanvas.Handle, skCanvas);
                 return new Canvas(skCanvas.Handle);
             }
-            
+
             throw new ArgumentException("Native object is not a SKCanvas", nameof(native));
         }
 
@@ -165,7 +174,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public void DrawRect(IntPtr objPtr, float x, float y, float width, float height, Paint paint)
         {
             SKPaint skPaint = _paintImpl[paint.ObjectPointer];
-            
+
             var canvas = ManagedInstances[objPtr];
             canvas.DrawRect(x, y, width, height, skPaint);
         }

@@ -6,17 +6,17 @@ using PixiEditor.Numerics;
 
 namespace ChunkyImageLib.Operations;
 
-internal class ImageOperation : IMirroredDrawOperation
+internal class TextureOperation : IMirroredDrawOperation
 {
     private Matrix3X3 transformMatrix;
     private ShapeCorners corners;
-    private Surface toPaint;
+    private Texture toPaint;
     private bool imageWasCopied = false;
     private readonly Paint? customPaint;
 
     public bool IgnoreEmptyChunks => false;
 
-    public ImageOperation(VecI pos, Surface image, Paint? paint = null, bool copyImage = true)
+    public TextureOperation(VecI pos, Texture image, Paint? paint = null, bool copyImage = true)
     {
         if (paint is not null)
             customPaint = paint.Clone();
@@ -34,13 +34,13 @@ internal class ImageOperation : IMirroredDrawOperation
 
         // copying is needed for thread safety
         if (copyImage)
-            toPaint = new Surface(image);
+            toPaint = new Texture(image);
         else
             toPaint = image;
         imageWasCopied = copyImage;
     }
 
-    public ImageOperation(ShapeCorners corners, Surface image, Paint? paint = null, bool copyImage = true)
+    public TextureOperation(ShapeCorners corners, Texture image, Paint? paint = null, bool copyImage = true)
     {
         if (paint is not null)
             customPaint = paint.Clone();
@@ -50,13 +50,13 @@ internal class ImageOperation : IMirroredDrawOperation
 
         // copying is needed for thread safety
         if (copyImage)
-            toPaint = new Surface(image);
+            toPaint = new Texture(image);
         else
             toPaint = image;
         imageWasCopied = copyImage;
     }
 
-    public ImageOperation(Matrix3X3 transformMatrix, Surface image, Paint? paint = null, bool copyImage = true)
+    public TextureOperation(Matrix3X3 transformMatrix, Texture image, Paint? paint = null, bool copyImage = true)
     {
         if (paint is not null)
             customPaint = paint.Clone();
@@ -72,7 +72,7 @@ internal class ImageOperation : IMirroredDrawOperation
 
         // copying is needed for thread safety
         if (copyImage)
-            toPaint = new Surface(image);
+            toPaint = new Texture(image);
         else
             toPaint = image;
         imageWasCopied = copyImage;
@@ -89,7 +89,7 @@ internal class ImageOperation : IMirroredDrawOperation
 
         targetChunk.Surface.DrawingSurface.Canvas.Save();
         targetChunk.Surface.DrawingSurface.Canvas.SetMatrix(finalMatrix);
-        targetChunk.Surface.DrawingSurface.Canvas.DrawSurface(toPaint.DrawingSurface, 0, 0, customPaint);
+        targetChunk.Surface.DrawingSurface.Canvas.DrawImage(toPaint.DrawingSurface.Snapshot(), 0, 0, customPaint);
         targetChunk.Surface.DrawingSurface.Canvas.Restore();
     }
 
@@ -109,19 +109,19 @@ internal class ImageOperation : IMirroredDrawOperation
     {
         if (verAxisX is not null && horAxisY is not null)
         {
-            return new ImageOperation
+            return new TextureOperation
                 (corners.AsMirroredAcrossVerAxis((double)verAxisX).AsMirroredAcrossHorAxis((double)horAxisY), toPaint, customPaint, imageWasCopied);
         }
         if (verAxisX is not null)
         {
-            return new ImageOperation
+            return new TextureOperation
                 (corners.AsMirroredAcrossVerAxis((double)verAxisX), toPaint, customPaint, imageWasCopied);
         }
         if (horAxisY is not null)
         {
-            return new ImageOperation
+            return new TextureOperation
                 (corners.AsMirroredAcrossHorAxis((double)horAxisY), toPaint, customPaint, imageWasCopied);
         }
-        return new ImageOperation(corners, toPaint, customPaint, imageWasCopied);
+        return new TextureOperation(corners, toPaint, customPaint, imageWasCopied);
     }
 }

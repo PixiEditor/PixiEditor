@@ -13,7 +13,6 @@ namespace PixiEditor.ChangeableDocument.Rendering;
 
 public class DocumentRenderer : IPreviewRenderable
 {
-    
     private Paint ClearPaint { get; } = new Paint()
     {
         BlendMode = BlendMode.Src, Color = PixiEditor.DrawingApi.Core.ColorsImpl.Colors.Transparent
@@ -53,41 +52,39 @@ public class DocumentRenderer : IPreviewRenderable
         return (RectI?)rect.Scale(multiplier).Translate(-pixelChunkPos).RoundOutwards();
     }
 
-    public OneOf<Chunk, EmptyChunk> RenderLayersChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frame,
-        HashSet<Guid> layersToCombine, RectI? globalClippingRect)
+    public void RenderLayers(DrawingSurface toDrawOn, HashSet<Guid> layersToCombine, int frame, ChunkResolution resolution)
     {
-        //using RenderingContext context = new(frame, chunkPos, resolution, Document.Size);
+        RenderContext context = new(toDrawOn, frame, resolution, Document.Size);
+        context.FullRerender = true;
         IReadOnlyNodeGraph membersOnlyGraph = ConstructMembersOnlyGraph(layersToCombine, Document.NodeGraph);
         try
         {
-            //return RenderChunkOnGraph(chunkPos, resolution, globalClippingRect, membersOnlyGraph, context);
-            return new EmptyChunk();
+            membersOnlyGraph.Execute(context);
         }
         catch (ObjectDisposedException)
         {
-            return new EmptyChunk();
         }
     }
-    
-    
+
+
     public void RenderLayer(DrawingSurface renderOn, Guid nodeId, ChunkResolution resolution, KeyFrameTime frameTime)
     {
         var node = Document.FindNode(nodeId);
-        
+
         if (node is null)
         {
             return;
         }
-        
+
         RenderContext context = new(renderOn, frameTime, resolution, Document.Size);
         context.FullRerender = true;
-        
+
         node.Execute(context);
     }
 
     public static IReadOnlyNodeGraph ConstructMembersOnlyGraph(IReadOnlyNodeGraph fullGraph)
     {
-        return ConstructMembersOnlyGraph(null, fullGraph); 
+        return ConstructMembersOnlyGraph(null, fullGraph);
     }
 
     public static IReadOnlyNodeGraph ConstructMembersOnlyGraph(HashSet<Guid>? layersToCombine,
@@ -123,14 +120,15 @@ public class DocumentRenderer : IPreviewRenderable
         return membersOnlyGraph;
     }
 
-    public RectD? GetPreviewBounds(int frame, string elementNameToRender = "") => 
-        new(0, 0, Document.Size.X, Document.Size.Y); 
+    public RectD? GetPreviewBounds(int frame, string elementNameToRender = "") =>
+        new(0, 0, Document.Size.X, Document.Size.Y);
 
-    public bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
+    public bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,
+        string elementToRenderName)
     {
         RenderContext context = new(renderOn, frame, resolution, Document.Size);
         Document.NodeGraph.Execute(context);
-        
+
         return true;
     }
 

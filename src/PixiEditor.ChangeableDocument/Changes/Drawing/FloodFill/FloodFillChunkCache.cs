@@ -1,6 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
@@ -49,7 +50,17 @@ internal class FloodFillChunkCache : IDisposable
         {
             if (document is null || membersToRender is null)
                 throw new InvalidOperationException();
-            var chunk = document.Renderer.RenderLayersChunk(pos, ChunkResolution.Full, frame, membersToRender, null);
+            Chunk chunk = Chunk.Create();
+            chunk.Surface.DrawingSurface.Canvas.Save();
+            
+            VecI chunkPos = pos * ChunkyImage.FullChunkSize;
+            
+            chunk.Surface.DrawingSurface.Canvas.Translate(-chunkPos.X, -chunkPos.Y);
+            
+            document.Renderer.RenderLayers(chunk.Surface.DrawingSurface, membersToRender, frame, ChunkResolution.Full);
+            
+            chunk.Surface.DrawingSurface.Canvas.Restore();
+            
             acquiredChunks[pos] = chunk;
             return chunk;
         }
