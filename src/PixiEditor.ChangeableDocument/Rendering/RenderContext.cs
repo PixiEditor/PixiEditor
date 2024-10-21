@@ -1,23 +1,13 @@
-﻿using System;
-using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
+﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 using DrawingApiBlendMode = PixiEditor.DrawingApi.Core.Surfaces.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
 
-public class RenderContext : IDisposable
+public class RenderContext
 {
-    public Paint BlendModePaint = new() { BlendMode = DrawingApiBlendMode.SrcOver };
-    public Paint BlendModeOpacityPaint = new() { BlendMode = DrawingApiBlendMode.SrcOver };
-    public Paint ReplacingPaintWithOpacity = new() { BlendMode = DrawingApiBlendMode.Src };
-
     public double Opacity { get; set; }
 
     public KeyFrameTime FrameTime { get; }
@@ -27,7 +17,6 @@ public class RenderContext : IDisposable
     public DrawingSurface RenderSurface { get; set; }
     public bool FullRerender { get; set; } = false;
 
-    public bool IsDisposed { get; private set; }
 
     public RenderContext(DrawingSurface renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution,
         VecI docSize, double opacity = 1) 
@@ -63,18 +52,5 @@ public class RenderContext : IDisposable
             BlendMode.Color => DrawingApiBlendMode.Color,
             _ => DrawingApiBlendMode.SrcOver,
         };
-    }
-
-    public void Dispose()
-    {
-        if (IsDisposed)
-        {
-            return;
-        }
-        
-        IsDisposed = true;
-        BlendModePaint.Dispose();
-        BlendModeOpacityPaint.Dispose();
-        ReplacingPaintWithOpacity.Dispose();
     }
 }

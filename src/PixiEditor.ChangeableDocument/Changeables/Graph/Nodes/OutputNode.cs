@@ -50,7 +50,7 @@ public class OutputNode : Node, IRenderInput, IPreviewRenderable
             return false;
         }
         
-        using RenderContext context = new(renderOn, frame, resolution, VecI.One);
+        RenderContext context = new(renderOn, frame, resolution, VecI.One);
         Input.Value.Paint(context, renderOn);
         
         return true;

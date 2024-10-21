@@ -43,7 +43,7 @@ public class ApplyFilterNode : RenderNode, IRenderInput
         if(Background.Value == null)
             return false;
 
-        using RenderContext context = new(renderOn, frame, ChunkResolution.Full, VecI.One);
+        RenderContext context = new(renderOn, frame, ChunkResolution.Full, VecI.One);
         
         int layer = renderOn.Canvas.SaveLayer(_paint);
         Background.Value.Paint(context, renderOn);

@@ -23,7 +23,7 @@ internal class SceneRenderer
     public void RenderScene(DrawingSurface target)
     {
         RenderOnionSkin(target);
-        using RenderContext ctx = new(target, DocumentViewModel.AnimationHandler.ActiveFrameTime, Resolution, Document.Size); 
+        RenderContext ctx = new(target, DocumentViewModel.AnimationHandler.ActiveFrameTime, Resolution, Document.Size); 
         Document.NodeGraph.Execute(ctx);
     }
 
@@ -49,7 +49,7 @@ internal class SceneRenderer
 
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
             
-            using RenderContext onionContext = new(target, frame, Resolution, Document.Size, finalOpacity);
+            RenderContext onionContext = new(target, frame, Resolution, Document.Size, finalOpacity);
             Document.NodeGraph.Execute(onionContext);
         }
         
@@ -63,7 +63,7 @@ internal class SceneRenderer
             }
             
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
-            using RenderContext onionContext = new(target, frame, Resolution, Document.Size, finalOpacity);
+            RenderContext onionContext = new(target, frame, Resolution, Document.Size, finalOpacity);
             Document.NodeGraph.Execute(onionContext);
         }
     }

@@ -79,7 +79,7 @@ public class DocumentRenderer : IPreviewRenderable
             return;
         }
         
-        using RenderContext context = new(renderOn, frameTime, resolution, Document.Size);
+        RenderContext context = new(renderOn, frameTime, resolution, Document.Size);
         context.FullRerender = true;
         
         node.Execute(context);
@@ -128,7 +128,7 @@ public class DocumentRenderer : IPreviewRenderable
 
     public bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
     {
-        using RenderContext context = new(renderOn, frame, resolution, Document.Size);
+        RenderContext context = new(renderOn, frame, resolution, Document.Size);
         Document.NodeGraph.Execute(context);
         
         return true;
@@ -136,7 +136,7 @@ public class DocumentRenderer : IPreviewRenderable
 
     public void RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime)
     {
-        using RenderContext context = new(toRenderOn, frameTime, ChunkResolution.Full, Document.Size) { FullRerender = true };
+        RenderContext context = new(toRenderOn, frameTime, ChunkResolution.Full, Document.Size) { FullRerender = true };
         Document.NodeGraph.Execute(context);
     }
 }

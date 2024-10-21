@@ -106,7 +106,7 @@ public class SeparateChannelsNode : Node, IRenderInput, IPreviewRenderable
         if (bounds == null)
             return false;
         
-        using RenderContext context = new(renderOn, frame, resolution, VecI.One);
+        RenderContext context = new(renderOn, frame, resolution, VecI.One);
         
         _paint.ColorFilter = Grayscale.Value ? _redGrayscaleFilter : _redFilter;
         RectD localBounds = new(bounds.Value.X, bounds.Value.Y, bounds.Value.Width / 2, bounds.Value.Height / 2);

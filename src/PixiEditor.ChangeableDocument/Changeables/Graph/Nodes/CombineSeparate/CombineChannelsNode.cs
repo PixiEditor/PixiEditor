@@ -126,7 +126,7 @@ public class CombineChannelsNode : RenderNode
             return false;
         }
 
-        using RenderContext context = new(renderOn, frame, resolution, VecI.One);
+        RenderContext context = new(renderOn, frame, resolution, VecI.One);
         
         OnPaint(context, renderOn); 
         

@@ -20,6 +20,7 @@ public class DebugBlendModeNode : Node
 
     public OutputProperty<Texture> Result { get; }
 
+    private Paint blendModeOpacityPaint => new() { BlendMode = DrawingApiBlendMode.SrcOver }; 
     public DebugBlendModeNode()
     {
         Dst = CreateInput<Texture?>(nameof(Dst), "Dst", null);
@@ -37,7 +38,7 @@ public class DebugBlendModeNode : Node
         var size = new VecI(Math.Max(src.Size.X, dst.Size.X), int.Max(src.Size.Y, dst.Size.Y));
         var workingSurface = RequestTexture(0, size);
 
-        workingSurface.DrawingSurface.Canvas.DrawSurface(dst.DrawingSurface, 0, 0, context.BlendModeOpacityPaint);
+        workingSurface.DrawingSurface.Canvas.DrawSurface(dst.DrawingSurface, 0, 0, blendModeOpacityPaint);
 
         _paint.BlendMode = BlendMode.Value;
         workingSurface.DrawingSurface.Canvas.DrawSurface(src.DrawingSurface, 0, 0, _paint);
@@ -47,4 +48,10 @@ public class DebugBlendModeNode : Node
 
 
     public override Node CreateCopy() => new DebugBlendModeNode();
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        _paint.Dispose();
+    }
 }

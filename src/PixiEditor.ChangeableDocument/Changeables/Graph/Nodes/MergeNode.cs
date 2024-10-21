@@ -107,7 +107,7 @@ public class MergeNode : RenderNode
             return false;
         }
 
-        using RenderContext context = new RenderContext(renderOn, frame, ChunkResolution.Full, VecI.Zero);
+        RenderContext context = new RenderContext(renderOn, frame, ChunkResolution.Full, VecI.Zero);
         Merge(renderOn, context);
 
         return true;
