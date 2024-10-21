@@ -190,6 +190,8 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
             renderSurface = new Texture(targetSize);
         }
 
+        renderSurface.DrawingSurface.Canvas.Save();
+        
         if (!img.DrawMostUpToDateChunkOn(
                 chunkPos,
                 ChunkResolution.Full,
@@ -201,6 +203,8 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
             renderSurface.DrawingSurface.Canvas.DrawRect(new RectD(chunkPos * chunkSize, new VecD(chunkSize)),
                 clearPaint);
         }
+        
+        renderSurface.DrawingSurface.Canvas.Restore();
         
         renderSurface?.DrawingSurface.Flush(true, true);
     }

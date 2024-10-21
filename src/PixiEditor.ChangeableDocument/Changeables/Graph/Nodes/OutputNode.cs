@@ -51,7 +51,10 @@ public class OutputNode : Node, IRenderInput, IPreviewRenderable
         }
         
         RenderContext context = new(renderOn, frame, resolution, VecI.One);
+        int saved = renderOn.Canvas.Save();
         Input.Value.Paint(context, renderOn);
+        
+        renderOn.Canvas.RestoreToCount(saved);
         
         return true;
     }
