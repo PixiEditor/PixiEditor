@@ -92,9 +92,9 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             return ManagedInstances[objectPointer].SaveLayer();
         }
 
-        public int SaveLayer(IntPtr objectPtr, Paint paint)
+        public int SaveLayer(IntPtr objectPtr, Paint? paint)
         {
-            return ManagedInstances[objectPtr].SaveLayer(_paintImpl.ManagedInstances[paint.ObjectPointer]);
+            return ManagedInstances[objectPtr].SaveLayer(paint != null ? _paintImpl.ManagedInstances[paint.ObjectPointer] : null);
         }
         
         public int SaveLayer(IntPtr objectPtr, Paint paint, RectD bounds)
