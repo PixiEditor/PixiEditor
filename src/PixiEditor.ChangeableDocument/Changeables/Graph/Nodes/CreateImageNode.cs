@@ -50,7 +50,6 @@ public class CreateImageNode : Node
         surface.DrawingSurface.Canvas.RestoreToCount(saved);
         Output.Value = surface;
 
-
         RenderOutput.ChainToPainterValue();
     }
 

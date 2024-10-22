@@ -28,20 +28,19 @@ public class SampleImageNode : Node
     {
         context.ThrowOnMissingContext();
 
-        /*if (Image.Value is null)
+        if (Image.Value is null)
         {
             return new Half4("");
         }
 
         Float2 uv = context.GetValue(Coordinate);
 
-        return context.SampleSurface(Image.Value, uv);*/
-        return new Half4("");// TODO: Implement this
+        return context.SampleSurface(Image.Value.DrawingSurface, uv);
     }
 
     protected override void OnExecute(RenderContext context)
     {
-        //return Image.Value;
+        
     }
 
     public override Node CreateCopy() => new SampleImageNode();

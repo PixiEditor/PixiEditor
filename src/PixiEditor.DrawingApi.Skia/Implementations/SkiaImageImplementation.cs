@@ -17,10 +17,14 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         private SkObjectImplementation<SKSurface>? _surfaceImplementation;
         private SkiaShaderImplementation shaderImpl;
         
-        public SkiaImageImplementation(SkObjectImplementation<SKData> imgDataImplementation, SkiaPixmapImplementation pixmapImplementation,  SkiaShaderImplementation shaderImplementation)
+        public SkiaImageImplementation(SkObjectImplementation<SKData> imgDataImplementation, SkiaPixmapImplementation pixmapImplementation)
         {
             _imgImplementation = imgDataImplementation;
             _pixmapImplementation = pixmapImplementation;
+        }
+        
+        public void SetShaderImplementation(SkiaShaderImplementation shaderImplementation)
+        {
             shaderImpl = shaderImplementation;
         }
         

@@ -16,7 +16,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
 {
     public Guid OtherNode { get; set; }
 
-    private Paint drawingPaint = new Paint() { BlendMode = BlendMode.Src };
+    private Paint drawingPaint = new Paint() { BlendMode = BlendMode.SrcOver };
 
     public FuncInputProperty<Float2> Coordinate { get; }
     public FuncInputProperty<Half4> Color { get; }
@@ -52,8 +52,6 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         {
             return;
         }
-
-        Texture surface = RequestTexture(0, size);
 
         ShaderBuilder builder = new(size);
         FuncContext context = new(renderContext, builder);
@@ -102,9 +100,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
             drawingPaint.Shader = drawingPaint.Shader.WithUpdatedUniforms(builder.Uniforms);
         }
 
-        surface.DrawingSurface.Canvas.DrawRect(0, 0, size.X, size.Y, drawingPaint);
-
-        targetSurface.Canvas.DrawSurface(surface.DrawingSurface, 0, 0);
+        targetSurface.Canvas.DrawRect(0, 0, size.X, size.Y, drawingPaint);
         builder.Dispose();
     }
 

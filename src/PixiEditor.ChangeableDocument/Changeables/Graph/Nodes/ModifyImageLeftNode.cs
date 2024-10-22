@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.Numerics;
@@ -30,6 +31,11 @@ public class ModifyImageLeftNode : Node, IPairNode, IPreviewRenderable
     private Half4 GetColor(FuncContext context)
     {
         context.ThrowOnMissingContext();
+        
+        if(Image.Value == null)
+        {
+            return new Half4("") { ConstantValue = Colors.Transparent };
+        }
 
         return context.SampleSurface(Image.Value.DrawingSurface, context.SamplePosition);
     }
