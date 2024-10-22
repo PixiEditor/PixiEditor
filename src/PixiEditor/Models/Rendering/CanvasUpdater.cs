@@ -1,6 +1,7 @@
 ﻿using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surfaces;
@@ -206,105 +207,6 @@ internal class CanvasUpdater
                 if (globalScaledClippingRectangle is RectI rect)
                     chunkRect = chunkRect.Intersect(rect);
             }
-        }
-    }
-
-    /*
-    private void UpdateOnionSkinning(Texture lastRendered)
-    {
-        if (doc.AnimationHandler.OnionSkinningEnabledBindable)
-        {
-            if (lastRenderedFrameNumber > 0)
-            {
-                UpdateLastRenderedFrame(lastRendered, lastRenderedFrameNumber);
-            }
-
-            if (lastRenderedFrameNumber != doc.AnimationHandler.ActiveFrameBindable 
-                || doc.AnimationHandler.OnionFramesBindable != lastOnionKeyFrames
-                || Math.Abs(doc.AnimationHandler.OnionOpacityBindable - lastOnionOpacity) > 0.01)
-            {
-                int framesToRender = doc.AnimationHandler.OnionFramesBindable;
-                using Paint onionPaint = new Paint();
-                byte opacity = (byte)((doc.AnimationHandler.OnionOpacityBindable / 100f) * 255);
-                onionPaint.Color = new Color(0, 0, 0, opacity); 
-                onionPaint.BlendMode = BlendMode.SrcOver;
-
-                if (doc.Renderer.OnionSkinTexture == null || doc.Renderer.OnionSkinTexture.Size != doc.SizeBindable)
-                {
-                    doc.Renderer.OnionSkinTexture?.Dispose();
-                    doc.Renderer.OnionSkinTexture = new Texture(doc.SizeBindable);
-                }
-
-                doc.Renderer.OnionSkinTexture.DrawingSurface.Canvas.Clear();
-
-                float alphaFalloffMultiplier = 1f / framesToRender;
-
-                for (int i = 1; i <= framesToRender; i++)
-                {
-                    int previousFrameIndex = doc.AnimationHandler.ActiveFrameBindable - i;
-                    int nextFrameIndex = doc.AnimationHandler.ActiveFrameBindable + i;
-
-                    if (!renderedFramesCache.ContainsKey(previousFrameIndex))
-                    {
-                        RenderNextOnionSkinningFrame(previousFrameIndex);
-                    }
-
-                    if (!renderedFramesCache.ContainsKey(nextFrameIndex))
-                    {
-                        RenderNextOnionSkinningFrame(nextFrameIndex);
-                    }
-
-                    DrawOnionSkinningFrame(previousFrameIndex, doc.Renderer.OnionSkinTexture, onionPaint);
-                    DrawOnionSkinningFrame(nextFrameIndex, doc.Renderer.OnionSkinTexture, onionPaint);
-
-                    onionPaint.Color = onionPaint.Color.WithAlpha((byte)(opacity -
-                                                                         (opacity *
-                                                                          alphaFalloffMultiplier * i)));
-                }
-            }
-
-            lastRenderedFrameNumber = doc.AnimationHandler.ActiveFrameBindable;
-            lastOnionKeyFrames = doc.AnimationHandler.OnionFramesBindable;
-            lastOnionOpacity = doc.AnimationHandler.OnionOpacityBindable;
-        }
-    }
-
-    private void RenderNextOnionSkinningFrame(int frameIndex)
-    {
-        int firstFrame = doc.AnimationHandler.FirstFrame;
-        int lastFrame = doc.AnimationHandler.LastFrame;
-        if (frameIndex < firstFrame || frameIndex >= lastFrame)
-            return;
-
-        double newNormalizedTime = (double)(frameIndex - firstFrame) / (lastFrame - firstFrame);
-
-        KeyFrameTime newFrameTime = new(frameIndex, newNormalizedTime);
-
-        using Texture rendered = doc.Renderer.RenderDocument(newFrameTime, ChunkResolution.Full);
-        UpdateLastRenderedFrame(rendered, frameIndex);
-    }*/
-
-    private void UpdateLastRenderedFrame(Texture rendered, int index)
-    {
-        if (renderedFramesCache.ContainsKey(index))
-        {
-            renderedFramesCache[index].Dispose();
-            renderedFramesCache[index] = new Texture(rendered);
-        }
-        else
-        {
-            renderedFramesCache.Add(index, new Texture(rendered));
-        }
-    }
-
-    private void DrawOnionSkinningFrame(int frameIndex, Texture onionSkinTexture, Paint paint)
-    {
-        if (frameIndex < 1 || frameIndex >= doc.AnimationHandler.LastFrame)
-            return;
-
-        if (renderedFramesCache.TryGetValue(frameIndex, out var frame))
-        {
-            onionSkinTexture.DrawingSurface.Canvas.DrawSurface(frame.DrawingSurface, 0, 0, paint);
         }
     }
 

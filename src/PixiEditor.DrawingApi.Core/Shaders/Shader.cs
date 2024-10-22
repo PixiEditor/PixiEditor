@@ -63,4 +63,9 @@ public class Shader : NativeObject
     {
         DrawingBackendApi.Current.ShaderImplementation.SetLocalMatrix(ObjectPointer, matrix);
     }
+
+    public static Shader CreateBitmap(Bitmap bitmap, ShaderTileMode tileModeX, ShaderTileMode tileModeY, Matrix3X3 matrix)
+    {
+        return DrawingBackendApi.Current.ShaderImplementation.CreateBitmap(bitmap, tileModeX, tileModeY, matrix);
+    }
 }

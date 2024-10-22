@@ -4,6 +4,7 @@ using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Shaders;
+using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 using SkiaSharp;
@@ -13,8 +14,10 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
     public class SkiaShaderImplementation : SkObjectImplementation<SKShader>, IShaderImplementation
     {
         private Dictionary<IntPtr, SKRuntimeEffect> runtimeEffects = new();
-        public SkiaShaderImplementation()
+        private SkiaBitmapImplementation _bitmapImplementation;
+        public SkiaShaderImplementation(SkiaBitmapImplementation bitmapImplementation)
         {
+            _bitmapImplementation = bitmapImplementation;
         }
 
         public IntPtr CreateShader()
@@ -131,6 +134,13 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             }
             
             shader.WithLocalMatrix(matrix.ToSkMatrix());
+        }
+
+        public Shader CreateBitmap(Bitmap bitmap, ShaderTileMode tileModeX, ShaderTileMode tileModeY, Matrix3X3 matrix)
+        {
+            SKShader shader = SKShader.CreateBitmap(_bitmapImplementation[bitmap.ObjectPointer], (SKShaderTileMode)(int)tileModeX, (SKShaderTileMode)(int)tileModeY, matrix.ToSkMatrix()); 
+            ManagedInstances[shader.Handle] = shader;
+            return new Shader(shader.Handle);
         }
 
         public void Dispose(IntPtr shaderObjPointer)

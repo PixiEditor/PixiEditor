@@ -14,6 +14,8 @@ using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
 using PixiEditor.DrawingApi.Core.Bridge;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Shaders;
 using PixiEditor.DrawingApi.Core.Surfaces;
 using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.DrawingApi.Skia;
@@ -112,6 +114,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private double sceneOpacity = 1;
 
+    private Texture renderTexture;
+    private Paint checkerPaint;
+
     static Scene()
     {
         AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty, ScaleProperty, AngleRadiansProperty,
@@ -157,37 +162,91 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         if (Document == null || SceneRenderer == null) return;
 
+        int width = (int)Math.Ceiling(Bounds.Width);
+        int height = (int)Math.Ceiling(Bounds.Height);
+        if (renderTexture == null || renderTexture.Size.X != width || renderTexture.Size.Y != height)
+        {
+            renderTexture?.Dispose();
+            renderTexture = new Texture(new VecI(width, height));
+        }
+
         float angle = (float)MathUtil.RadiansToDegrees(AngleRadians);
 
         float resolutionScale = CalculateResolutionScale();
 
         RectD dirtyBounds = new RectD(0, 0, Document.Width, Document.Height);
-        Rect dirtyRect = new Rect(0, 0, Document.Width, Document.Height);
 
         SceneRenderer.Resolution = CalculateResolution();
 
         using var operation = new DrawSceneOperation(SceneRenderer.RenderScene, Document, CanvasPos,
             Scale * resolutionScale,
-            resolutionScale, angle,
+            resolutionScale,
+            sceneOpacity,
+            angle,
             FlipX, FlipY,
-            dirtyRect,
             Bounds,
-            sceneOpacity);
+            Bounds,
+            renderTexture);
 
         var matrix = CalculateTransformMatrix();
-        context.PushTransform(matrix);
         context.PushRenderOptions(new RenderOptions { BitmapInterpolationMode = BitmapInterpolationMode.None });
-
-        DrawCheckerboard(context, dirtyRect,
-            new RectI(0, 0, operation.Document.SizeBindable.X, operation.Document.SizeBindable.Y));
+        var pushedMatrix = context.PushTransform(matrix);
 
         Cursor = DefaultCursor;
 
         DrawOverlays(context, dirtyBounds, OverlayRenderSorting.Background);
 
+        pushedMatrix.Dispose();
+
+        renderTexture.DrawingSurface.Canvas.Clear();
+        renderTexture.DrawingSurface.Canvas.Save();
+
+        renderTexture.DrawingSurface.Canvas.SetMatrix(matrix.ToSKMatrix().ToMatrix3X3());
+
+        RenderScene(dirtyBounds);
+
+        renderTexture.DrawingSurface.Flush();
+
         context.Custom(operation);
 
+        renderTexture.DrawingSurface.Canvas.Restore();
+
+        context.PushTransform(matrix);
+
         DrawOverlays(context, dirtyBounds, OverlayRenderSorting.Foreground);
+    }
+
+    private void RenderScene(RectD dirtyBounds)
+    {
+        DrawCheckerboard(dirtyBounds);
+        RenderGraph(renderTexture);
+    }
+
+    private void DrawCheckerboard(RectD dirtyBounds)
+    {
+        if (checkerBitmap == null) return;
+
+        RectD operationSurfaceRectToRender = new RectD(0, 0, dirtyBounds.Width, dirtyBounds.Height);
+        float checkerScale = (float)ZoomToViewportConverter.ZoomToViewport(16, Scale) * 0.25f;
+        checkerPaint?.Dispose();
+        checkerPaint = new Paint
+        {
+            Shader = Shader.CreateBitmap(
+                checkerBitmap,
+                ShaderTileMode.Repeat, ShaderTileMode.Repeat,
+                Matrix3X3.CreateScale(checkerScale, checkerScale)),
+            FilterQuality = FilterQuality.None
+        };
+        
+        renderTexture.DrawingSurface.Canvas.DrawRect(operationSurfaceRectToRender, checkerPaint);
+    }
+
+    private void RenderGraph(Texture targetTexture)
+    {
+        DrawingSurface surface = targetTexture.DrawingSurface;
+        RenderContext context = new(surface, SceneRenderer.DocumentViewModel.AnimationHandler.ActiveFrameTime,
+            SceneRenderer.Resolution, SceneRenderer.Document.Size);
+        SceneRenderer.Document.NodeGraph.Execute(context);
     }
 
     private void DrawOverlays(DrawingContext context, RectD dirtyBounds, OverlayRenderSorting sorting)
@@ -502,16 +561,19 @@ internal class DrawSceneOperation : SkiaDrawOperation
     public bool FlipY { get; set; }
     public Rect ViewportBounds { get; }
 
-    public RectD ClippingBounds { get; }
 
     public Action<DrawingSurface> RenderScene;
+
+    private Texture renderTexture;
 
     private double opacity;
 
     public DrawSceneOperation(Action<DrawingSurface> renderAction, DocumentViewModel document, VecD contentPosition,
         double scale,
         double resolutionScale,
-        double angle, bool flipX, bool flipY, Rect dirtyBounds, Rect viewportBounds, double opacity) : base(dirtyBounds)
+        double opacity,
+        double angle, bool flipX, bool flipY, Rect dirtyBounds, Rect viewportBounds,
+        Texture renderTexture) : base(dirtyBounds)
     {
         RenderScene = renderAction;
         Document = document;
@@ -523,7 +585,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
         ViewportBounds = viewportBounds;
         ResolutionScale = resolutionScale;
         this.opacity = opacity;
-        ClippingBounds = new RectD(dirtyBounds.X, dirtyBounds.Y, dirtyBounds.Width, dirtyBounds.Height);
+        this.renderTexture = renderTexture;
     }
 
     public override void Render(ISkiaSharpApiLease lease)
@@ -538,8 +600,8 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
         DrawingSurface surface = DrawingSurface.FromNative(lease.SkSurface);
 
-        surface.Canvas.ClipRect(ClippingBounds);
-        
+        surface.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
+
         RenderScene?.Invoke(surface);
 
         canvas.RestoreToCount(count);

@@ -202,8 +202,6 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         }
         
         renderSurface.DrawingSurface.Canvas.RestoreToCount(saved);
-        
-        renderSurface?.DrawingSurface.Flush(true, true);
     }
 
     protected void ApplyRasterClip(DrawingSurface toClip, DrawingSurface clipSource)

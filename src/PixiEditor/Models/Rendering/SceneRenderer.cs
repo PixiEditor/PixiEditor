@@ -23,8 +23,8 @@ internal class SceneRenderer
     public void RenderScene(DrawingSurface target)
     {
         RenderOnionSkin(target);
-        RenderContext ctx = new(target, DocumentViewModel.AnimationHandler.ActiveFrameTime, Resolution, Document.Size); 
-        Document.NodeGraph.Execute(ctx);
+        //RenderContext ctx = new(target, DocumentViewModel.AnimationHandler.ActiveFrameTime, Resolution, Document.Size); 
+        //Document.NodeGraph.Execute(ctx);
     }
 
     private void RenderOnionSkin(DrawingSurface target)

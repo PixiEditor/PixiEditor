@@ -52,7 +52,8 @@ public class DocumentRenderer : IPreviewRenderable
         return (RectI?)rect.Scale(multiplier).Translate(-pixelChunkPos).RoundOutwards();
     }
 
-    public void RenderLayers(DrawingSurface toDrawOn, HashSet<Guid> layersToCombine, int frame, ChunkResolution resolution)
+    public void RenderLayers(DrawingSurface toDrawOn, HashSet<Guid> layersToCombine, int frame,
+        ChunkResolution resolution)
     {
         RenderContext context = new(toDrawOn, frame, resolution, Document.Size);
         context.FullRerender = true;

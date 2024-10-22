@@ -1,9 +1,8 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.ChangeableDocument.Rendering;
+﻿using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core;
+using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -18,7 +17,7 @@ public class CreateImageNode : Node
     public InputProperty<Color> Fill { get; }
 
     public RenderInputProperty Content { get; }
-    
+
     public RenderOutputProperty RenderOutput { get; }
 
     public CreateImageNode()
@@ -36,24 +35,25 @@ public class CreateImageNode : Node
         {
             return;
         }
-        
+
         var surface = RequestTexture(0, Size.Value, false);
 
         surface.DrawingSurface.Canvas.Clear(Fill.Value);
-        
+
         int saved = surface.DrawingSurface.Canvas.Save();
 
         RenderContext ctx = new RenderContext(surface.DrawingSurface, context.FrameTime, context.ChunkResolution,
             context.DocumentSize);
-        
+
         Content.Value?.Paint(ctx, surface.DrawingSurface);
 
         surface.DrawingSurface.Canvas.RestoreToCount(saved);
         Output.Value = surface;
-        
+
+
         RenderOutput.ChainToPainterValue();
     }
-    
+
     private void OnPaint(RenderContext context, DrawingSurface surface)
     {
         surface.Canvas.DrawSurface(Output.Value.DrawingSurface, 0, 0);
