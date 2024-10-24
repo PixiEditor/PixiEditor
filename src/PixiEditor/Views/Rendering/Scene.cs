@@ -3,12 +3,15 @@ using System.Collections.Specialized;
 using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Rendering;
+using Avalonia.Rendering.Composition;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
@@ -17,6 +20,8 @@ using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Interop.VulkanAvalonia;
+using Drawie.Interop.VulkanAvalonia.Vulkan;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Converters;
@@ -111,8 +116,21 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private double sceneOpacity = 1;
 
-    private Texture renderTexture;
     private Paint checkerPaint;
+
+    private CompositionSurfaceVisual surfaceVisual;
+    private Compositor compositor;
+
+    private readonly Action update;
+    private bool updateQueued;
+
+    private CompositionDrawingSurface? surface;
+
+    private string info = string.Empty;
+    private bool initialized = false;
+    private VulkanResources resources;
+    private DrawingSurface renderSurface;
+    private PixelSize lastSize = PixelSize.Empty;
 
     static Scene()
     {
@@ -140,6 +158,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         {
             new DoubleTransition { Property = OpacityProperty, Duration = new TimeSpan(0, 0, 0, 0, 100) }
         };
+
+        update = UpdateFrame;
+        QueueNextFrame();
     }
 
     private ChunkResolution CalculateResolution()
@@ -155,17 +176,75 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         };
     }
 
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+        InitializeComposition();
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        if (initialized)
+        {
+            FreeGraphicsResources();
+        }
+
+        initialized = false;
+        base.OnDetachedFromVisualTree(e);
+    }
+
+    private async void InitializeComposition()
+    {
+        try
+        {
+            var selfVisual = ElementComposition.GetElementVisual(this);
+            compositor = selfVisual.Compositor;
+
+            surface = compositor.CreateDrawingSurface();
+            surfaceVisual = compositor.CreateSurfaceVisual();
+
+            surfaceVisual.Size = new Vector(Bounds.Width, Bounds.Height);
+
+            surfaceVisual.Surface = surface;
+            ElementComposition.SetElementChildVisual(this, surfaceVisual);
+            var (result, initInfo) = await DoInitialize(compositor, surface);
+            info = initInfo;
+
+            initialized = result;
+            QueueNextFrame();
+        }
+        catch (Exception e)
+        {
+            info = e.Message;
+            throw;
+        }
+    }
+
+    public void Draw(DrawingSurface renderTexture)
+    {
+        renderTexture.Canvas.Save();
+        var matrix = CalculateTransformMatrix();
+
+        renderTexture.Canvas.SetMatrix(matrix.ToSKMatrix().ToMatrix3X3());
+
+        RectD dirtyBounds = new RectD(0, 0, Document.Width, Document.Height);
+        RenderScene(dirtyBounds);
+
+        renderTexture.Canvas.Restore();
+        QueueNextFrame();
+    }
+
     public override void Render(DrawingContext context)
     {
         if (Document == null || SceneRenderer == null) return;
 
         int width = (int)Math.Ceiling(Bounds.Width);
         int height = (int)Math.Ceiling(Bounds.Height);
-        if (renderTexture == null || renderTexture.Size.X != width || renderTexture.Size.Y != height)
+        /*if (renderTexture == null || renderTexture.Size.X != width || renderTexture.Size.Y != height)
         {
             renderTexture?.Dispose();
             renderTexture = new Texture(new VecI(width, height));
-        }
+        }*/
 
         float angle = (float)MathUtil.RadiansToDegrees(AngleRadians);
 
@@ -175,7 +254,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
         SceneRenderer.Resolution = CalculateResolution();
 
-        using var operation = new DrawSceneOperation(SceneRenderer.RenderScene, Document, CanvasPos,
+        /*using var operation = new DrawSceneOperation(SceneRenderer.RenderScene, Document, CanvasPos,
             Scale * resolutionScale,
             resolutionScale,
             sceneOpacity,
@@ -183,7 +262,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             FlipX, FlipY,
             Bounds,
             Bounds,
-            renderTexture);
+            renderTexture);*/
 
         var matrix = CalculateTransformMatrix();
         context.PushRenderOptions(new RenderOptions { BitmapInterpolationMode = BitmapInterpolationMode.None });
@@ -195,28 +274,15 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
         pushedMatrix.Dispose();
 
-        renderTexture.DrawingSurface.Canvas.Clear();
-        renderTexture.DrawingSurface.Canvas.Save();
-
-        renderTexture.DrawingSurface.Canvas.SetMatrix(matrix.ToSKMatrix().ToMatrix3X3());
-
-        RenderScene(dirtyBounds);
-
-        renderTexture.DrawingSurface.Flush();
-
-        context.Custom(operation);
-
-        renderTexture.DrawingSurface.Canvas.Restore();
-
         context.PushTransform(matrix);
 
         DrawOverlays(context, dirtyBounds, OverlayRenderSorting.Foreground);
     }
 
-    private void RenderScene(RectD dirtyBounds)
+    private void RenderScene(RectD bounds)
     {
-        DrawCheckerboard(dirtyBounds);
-        RenderGraph(renderTexture);
+        DrawCheckerboard(bounds);
+        RenderGraph(renderSurface);
     }
 
     private void DrawCheckerboard(RectD dirtyBounds)
@@ -234,14 +300,13 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 Matrix3X3.CreateScale(checkerScale, checkerScale)),
             FilterQuality = FilterQuality.None
         };
-        
-        renderTexture.DrawingSurface.Canvas.DrawRect(operationSurfaceRectToRender, checkerPaint);
+
+        renderSurface.Canvas.DrawRect(operationSurfaceRectToRender, checkerPaint);
     }
 
-    private void RenderGraph(Texture targetTexture)
+    private void RenderGraph(DrawingSurface target)
     {
-        DrawingSurface surface = targetTexture.DrawingSurface;
-        RenderContext context = new(surface, SceneRenderer.DocumentViewModel.AnimationHandler.ActiveFrameTime,
+        RenderContext context = new(target, SceneRenderer.DocumentViewModel.AnimationHandler.ActiveFrameTime,
             SceneRenderer.Resolution, SceneRenderer.Document.Size);
         SceneRenderer.Document.NodeGraph.Execute(context);
     }
@@ -489,9 +554,117 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
+    #region Interop
+
+    void UpdateFrame()
+    {
+        updateQueued = false;
+        var root = this.GetVisualRoot();
+        if (root == null)
+        {
+            return;
+        }
+
+        surfaceVisual.Size = new Vector(Bounds.Width, Bounds.Height);
+
+        if (double.IsNaN(surfaceVisual.Size.X) || double.IsNaN(surfaceVisual.Size.Y))
+        {
+            return;
+        }
+
+        var size = PixelSize.FromSize(Bounds.Size, root.RenderScaling);
+        RenderFrame(size);
+    }
+
+    public void QueueNextFrame()
+    {
+        if (initialized && !updateQueued && compositor != null)
+        {
+            updateQueued = true;
+            compositor.RequestCompositionUpdate(update);
+        }
+    }
+
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        if (change.Property == BoundsProperty)
+        {
+            QueueNextFrame();
+        }
+
+        base.OnPropertyChanged(change);
+    }
+
+    private async Task<(bool success, string info)> DoInitialize(Compositor compositor,
+        CompositionDrawingSurface surface)
+    {
+        var interop = await compositor.TryGetCompositionGpuInterop();
+        if (interop == null)
+        {
+            return (false, "Composition interop not available");
+        }
+
+        return InitializeGraphicsResources(compositor, surface, interop);
+    }
+
+    protected (bool success, string info) InitializeGraphicsResources(Compositor targetCompositor,
+        CompositionDrawingSurface compositionDrawingSurface, ICompositionGpuInterop interop)
+    {
+        resources = new VulkanResources(
+            DrawieInterop.VulkanInteropContext,
+            new VulkanSwapchain(DrawieInterop.VulkanInteropContext, interop, compositionDrawingSurface),
+            new VulkanContent(DrawieInterop.VulkanInteropContext));
+
+        return (true, string.Empty);
+    }
+
+    protected void FreeGraphicsResources()
+    {
+        resources?.DisposeAsync();
+        resources = null;
+    }
+
+    protected void RenderFrame(PixelSize size)
+    {
+        if (resources != null)
+        {
+            if (size.Width == 0 || size.Height == 0)
+            {
+                return;
+            }
+
+            if (renderSurface == null || lastSize != size)
+            {
+                resources.Content.CreateTemporalObjects(size);
+
+                VecI sizeVec = new VecI(size.Width, size.Height);
+
+                renderSurface?.Dispose();
+
+                renderSurface =
+                    DrawingBackendApi.Current.CreateRenderSurface(sizeVec,
+                        resources.Content.texture, SurfaceOrigin.BottomLeft);
+
+                lastSize = size;
+            }
+
+            using (resources.Swapchain.BeginDraw(size, out var image))
+            {
+                renderSurface.Canvas.Clear();
+                Draw(renderSurface);
+                renderSurface.Flush();
+
+                resources.Content.Render(image);
+            }
+        }
+    }
+
+    #endregion
+
     private void QueueRender()
     {
         Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
+        QueueNextFrame();
     }
 
     private static void FadeOutChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)

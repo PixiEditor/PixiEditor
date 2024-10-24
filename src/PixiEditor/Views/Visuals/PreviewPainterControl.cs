@@ -5,12 +5,13 @@ using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Interop.VulkanAvalonia.Controls;
 using PixiEditor.Models.Rendering;
 using Drawie.Numerics;
 
 namespace PixiEditor.Views.Visuals;
 
-public class PreviewPainterControl : Control
+public class PreviewPainterControl : DrawieControl
 {
     public static readonly StyledProperty<int> FrameToRenderProperty =
         AvaloniaProperty.Register<PreviewPainterControl, int>("FrameToRender");
@@ -36,16 +37,6 @@ public class PreviewPainterControl : Control
         PreviewPainterProperty.Changed.Subscribe(PainterChanged);
     }
 
-    public override void Render(DrawingContext context)
-    {
-        if (PreviewPainter == null)
-        {
-            return;
-        }
-
-        using var renderOperation = new DrawPreviewOperation(Bounds, PreviewPainter, FrameToRender);
-        context.Custom(renderOperation);
-    }
 
     private void PainterChanged(AvaloniaPropertyChangedEventArgs<PreviewPainter> args)
     {
@@ -62,47 +53,32 @@ public class PreviewPainterControl : Control
 
     private void OnPainterRenderRequest()
     {
-        InvalidateVisual();
-    }
-}
-
-internal class DrawPreviewOperation : SkiaDrawOperation
-{
-    public PreviewPainter PreviewPainter { get; }
-    private int frame;
-
-    public DrawPreviewOperation(Rect dirtyBounds, PreviewPainter previewPainter, int frameToRender) : base(dirtyBounds)
-    {
-        PreviewPainter = previewPainter;
-        frame = frameToRender;
+        QueueNextFrame();
     }
 
-    public override void Render(ISkiaSharpApiLease lease)
+    public override void Draw(DrawingSurface surface)
     {
-        RectD? previewBounds = PreviewPainter.PreviewRenderable.GetPreviewBounds(frame, PreviewPainter.ElementToRenderName);
+        RectD? previewBounds =
+            PreviewPainter.PreviewRenderable.GetPreviewBounds(FrameToRender, PreviewPainter.ElementToRenderName);
         if (PreviewPainter == null)
         {
             return;
         }
 
-        DrawingSurface target = DrawingSurface.FromNative(lease.SkSurface);
-
-        float x = (float)(previewBounds?.Width ?? 0); 
+        float x = (float)(previewBounds?.Width ?? 0);
         float y = (float)(previewBounds?.Height ?? 0);
 
-        target.Canvas.Save();
+        surface.Canvas.Save();
 
         if (previewBounds != null)
         {
-            UniformScale(x, y, target, previewBounds.Value);
+            UniformScale(x, y, surface, previewBounds.Value);
         }
 
         // TODO: Implement ChunkResolution and frame
-        PreviewPainter.Paint(target, ChunkResolution.Full, frame);
+        PreviewPainter.Paint(surface, ChunkResolution.Full, FrameToRender);
 
-        target.Canvas.Restore();
-
-        DrawingSurface.Unmanage(target);
+        surface.Canvas.Restore();
     }
 
     private void UniformScale(float x, float y, DrawingSurface target, RectD previewBounds)
@@ -111,15 +87,10 @@ internal class DrawPreviewOperation : SkiaDrawOperation
         float scaleY = (float)Bounds.Height / y;
         var scale = Math.Min(scaleX, scaleY);
         float dX = (float)Bounds.Width / 2 / scale - x / 2;
-        dX -= (float)previewBounds.X; 
+        dX -= (float)previewBounds.X;
         float dY = (float)Bounds.Height / 2 / scale - y / 2;
         dY -= (float)previewBounds.Y;
         target.Canvas.Scale(scale, scale);
         target.Canvas.Translate(dX, dY);
-    }
-
-    public override bool Equals(ICustomDrawOperation? other)
-    {
-        return other is DrawPreviewOperation operation && operation.PreviewPainter == PreviewPainter;
     }
 }

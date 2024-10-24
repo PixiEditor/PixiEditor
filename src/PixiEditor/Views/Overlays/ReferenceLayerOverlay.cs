@@ -97,10 +97,11 @@ internal class ReferenceLayerOverlay : Overlay
             referenceBitmap.DrawingSurface.Flush();
             overlayPaint.Color = new Color(255, 255, 255, (byte)(opacity * 255)); 
             
-            DrawTextureOperation drawOperation =
-                new DrawTextureOperation(dirtyRect, Stretch.None, referenceBitmap, overlayPaint);
+            // TODO: Implement this
+            /*DrawTextureOperation drawOperation =
+                new DrawTextureOperation(dirtyRect, Stretch.None, referenceBitmap, overlayPaint);*/
 
-            context.Custom(drawOperation);
+            //context.Custom(drawOperation);
 
             matrix.Dispose();
 

@@ -21,6 +21,7 @@ public class TextureImage : IImage
     public void Draw(DrawingContext context, Rect sourceRect, Rect destRect)
     {
         if(Texture.IsDisposed) return; 
-        context.Custom(new DrawTextureOperation(destRect, Stretch, Texture));
+        // TODO: Implement this
+        //context.Custom(new DrawTextureOperation(destRect, Stretch, Texture));
     }
 }
