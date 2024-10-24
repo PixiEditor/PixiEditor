@@ -10,8 +10,8 @@ public class PreviewPainterImage : IImage
     
     public int FrameToRender { get; set; }
     public Size Size => new Size(
-        PreviewPainter.PreviewRenderable.GetPreviewBounds(FrameToRender)?.Size.X ?? 0,
-        PreviewPainter.PreviewRenderable.GetPreviewBounds(FrameToRender)?.Size.Y ?? 0); 
+        PreviewPainter?.PreviewRenderable.GetPreviewBounds(FrameToRender)?.Size.X ?? 0,
+        PreviewPainter?.PreviewRenderable.GetPreviewBounds(FrameToRender)?.Size.Y ?? 0); 
     
     public PreviewPainterImage(PreviewPainter previewPainter, int frameToRender)
     {
