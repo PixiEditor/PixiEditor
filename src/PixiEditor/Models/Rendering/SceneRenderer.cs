@@ -2,7 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.Rendering;

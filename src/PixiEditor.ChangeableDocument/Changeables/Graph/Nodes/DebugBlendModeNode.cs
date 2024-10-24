@@ -1,8 +1,8 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using DrawingApiBlendMode = PixiEditor.DrawingApi.Core.Surfaces.BlendMode;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using DrawingApiBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 

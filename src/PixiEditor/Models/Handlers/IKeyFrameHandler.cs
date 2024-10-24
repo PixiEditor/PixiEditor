@@ -1,5 +1,5 @@
 ﻿using ChunkyImageLib;
-using PixiEditor.DrawingApi.Core;
+using Drawie.Backend.Core;
 using PixiEditor.Models.Rendering;
 
 namespace PixiEditor.Models.Handlers;

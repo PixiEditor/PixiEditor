@@ -8,12 +8,12 @@ using ChunkyImageLib.Operations;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.Helpers;
 using PixiEditor.ChangeableDocument.Actions.Generated;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.ViewModels.Tools.Tools;
 
 namespace PixiEditor.ViewModels.Document;

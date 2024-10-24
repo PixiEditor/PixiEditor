@@ -2,9 +2,9 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
 

@@ -4,11 +4,11 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -31,11 +31,11 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     public ChunkyImage? EmbeddedMask { get; set; }
 
     protected Texture renderedMask;
-    protected static readonly Paint replacePaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src };
+    protected static readonly Paint replacePaint = new Paint() { BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src };
 
     protected static readonly Paint clearPaint = new Paint()
     {
-        BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src, Color = Colors.Transparent
+        BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src, Color = Colors.Transparent
     };
 
     public virtual ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
@@ -49,12 +49,12 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         set => DisplayName = value;
     }
 
-    protected Paint maskPaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.DstIn };
-    protected Paint blendPaint = new Paint() { BlendMode = DrawingApi.Core.Surfaces.BlendMode.SrcOver };
+    protected Paint maskPaint = new Paint() { BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.DstIn };
+    protected Paint blendPaint = new Paint() { BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver };
 
     protected Paint maskPreviewPaint = new Paint()
     {
-        BlendMode = DrawingApi.Core.Surfaces.BlendMode.SrcOver, ColorFilter = Nodes.Filters.AlphaGrayscaleFilter
+        BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver, ColorFilter = Nodes.Filters.AlphaGrayscaleFilter
     };
 
     private int maskCacheHash = 0;

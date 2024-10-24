@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using Avalonia.Input;
 using PixiEditor.Models.Preferences;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.Config;
 using PixiEditor.Models.Events;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.ViewModels.Tools;
 
 namespace PixiEditor.Models.Handlers;

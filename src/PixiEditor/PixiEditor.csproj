@@ -114,8 +114,6 @@
     <ProjectReference Include="..\PixiEditor.AnimationRenderer.FFmpeg\PixiEditor.AnimationRenderer.FFmpeg.csproj"/>
     <ProjectReference Include="..\PixiEditor.ChangeableDocument.Gen\PixiEditor.ChangeableDocument.Gen.csproj"/>
     <ProjectReference Include="..\PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj"/>
-    <ProjectReference Include="..\PixiEditor.DrawingApi.Core\PixiEditor.DrawingApi.Core.csproj"/>
-    <ProjectReference Include="..\PixiEditor.DrawingApi.Skia\PixiEditor.DrawingApi.Skia.csproj"/>
     <ProjectReference Include="..\PixiEditor.Extensions.Runtime\PixiEditor.Extensions.Runtime.csproj"/>
     <ProjectReference Include="..\PixiEditor.Extensions.WasmRuntime\PixiEditor.Extensions.WasmRuntime.csproj"/>
     <ProjectReference Include="..\PixiEditor.Extensions\PixiEditor.Extensions.csproj"/>

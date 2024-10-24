@@ -1,8 +1,8 @@
 ﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace ChunkyImageLib.Operations;
 

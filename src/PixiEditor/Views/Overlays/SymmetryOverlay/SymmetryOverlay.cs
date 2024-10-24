@@ -7,10 +7,10 @@ using Avalonia.Media;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.UI.Overlays;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.Views.Overlays.Handles;
 using Point = Avalonia.Point;
 

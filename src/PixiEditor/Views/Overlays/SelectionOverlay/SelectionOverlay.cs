@@ -5,9 +5,9 @@ using Avalonia.Animation;
 using Avalonia.Media;
 using Avalonia.Styling;
 using PixiEditor.Animation;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces.Vector;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.Vector;
+using Drawie.Numerics;
 
 namespace PixiEditor.Views.Overlays.SelectionOverlay;
 #nullable enable

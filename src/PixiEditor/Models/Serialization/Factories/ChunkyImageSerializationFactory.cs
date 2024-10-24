@@ -1,10 +1,8 @@
 ﻿using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.DrawingApi.Skia;
-using PixiEditor.Numerics;
-using PixiEditor.Parser.Skia;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.Serialization.Factories;
 

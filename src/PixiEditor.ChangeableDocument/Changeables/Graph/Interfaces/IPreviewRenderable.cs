@@ -1,6 +1,6 @@
-﻿using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.Numerics;
+﻿using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 

@@ -10,28 +10,25 @@ using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using Avalonia.Threading;
 using ChunkyImageLib.DataHolders;
-using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Bridge;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Shaders;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.DrawingApi.Skia;
-using PixiEditor.DrawingApi.Skia.Extensions;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Shaders;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Converters;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Rendering;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
+using Drawie.Skia;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.Views.Overlays;
 using PixiEditor.Views.Overlays.Pointers;
 using PixiEditor.Views.Visuals;
-using Bitmap = PixiEditor.DrawingApi.Core.Surfaces.Bitmap;
-using Image = PixiEditor.DrawingApi.Core.Surfaces.ImageData.Image;
+using Bitmap = Drawie.Backend.Core.Surfaces.Bitmap;
 using Point = Avalonia.Point;
 
 namespace PixiEditor.Views.Rendering;
@@ -596,7 +593,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
         int count = canvas.Save();
 
-        using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
+        //using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
 
         DrawingSurface surface = DrawingSurface.FromNative(lease.SkSurface);
 

@@ -7,8 +7,8 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Surfaces.Vector;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Models.Clipboard;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
@@ -18,7 +18,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.Public;
 #nullable enable

@@ -8,8 +8,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Numerics;
 
 namespace ChunkyImageLibVis;
 

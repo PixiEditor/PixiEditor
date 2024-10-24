@@ -1,13 +1,13 @@
 ﻿using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 
 namespace PixiEditor.Models.DocumentModels;

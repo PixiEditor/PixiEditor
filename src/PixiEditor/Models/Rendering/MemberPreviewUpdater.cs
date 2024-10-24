@@ -7,13 +7,13 @@ using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.Parser;
 
 namespace PixiEditor.Models.Rendering;

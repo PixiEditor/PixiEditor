@@ -1,7 +1,7 @@
 ﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Numerics;
 
 namespace ChunkyImageLib.Operations;
 
@@ -118,10 +118,10 @@ public static class OperationHelper
     }
 
     public static Matrix3X3 CreateMatrixFromPoints(ShapeCorners corners, VecD size)
-        => CreateMatrixFromPoints((Point)corners.TopLeft, (Point)corners.TopRight, (Point)corners.BottomRight, (Point)corners.BottomLeft, (float)size.X, (float)size.Y);
+        => CreateMatrixFromPoints((VecF)corners.TopLeft, (VecF)corners.TopRight, (VecF)corners.BottomRight, (VecF)corners.BottomLeft, (float)size.X, (float)size.Y);
 
     // see https://stackoverflow.com/questions/48416118/perspective-transform-in-skia/72364829#72364829
-    public static Matrix3X3 CreateMatrixFromPoints(Point topLeft, Point topRight, Point botRight, Point botLeft, double width, double height)
+    public static Matrix3X3 CreateMatrixFromPoints(VecF topLeft, VecF topRight, VecF botRight, VecF botLeft, double width, double height)
     {
         (double x1, double y1) = (topLeft.X, topLeft.Y);
         (double x2, double y2) = (topRight.X, topRight.Y);

@@ -4,10 +4,10 @@ using Avalonia.Media;
 using ChunkyImageLib;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
-using PixiEditor.DrawingApi.Core;
+using Drawie.Backend.Core;
 using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Structures;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.Handlers;
 

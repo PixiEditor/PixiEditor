@@ -5,11 +5,11 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 

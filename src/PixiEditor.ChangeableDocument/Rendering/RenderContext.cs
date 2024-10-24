@@ -1,8 +1,8 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Numerics;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
-using DrawingApiBlendMode = PixiEditor.DrawingApi.Core.Surfaces.BlendMode;
+using DrawingApiBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
 

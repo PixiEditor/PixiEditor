@@ -1,7 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.SVG;
 using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Features;

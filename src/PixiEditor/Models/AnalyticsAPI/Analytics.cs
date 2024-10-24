@@ -3,7 +3,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.Models.Commands.CommandContext;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.AnalyticsAPI;
 

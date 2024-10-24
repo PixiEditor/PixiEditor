@@ -3,11 +3,11 @@ using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
 
@@ -15,7 +15,7 @@ public class DocumentRenderer : IPreviewRenderable
 {
     private Paint ClearPaint { get; } = new Paint()
     {
-        BlendMode = BlendMode.Src, Color = PixiEditor.DrawingApi.Core.ColorsImpl.Colors.Transparent
+        BlendMode = BlendMode.Src, Color = Drawie.Backend.Core.ColorsImpl.Colors.Transparent
     };
 
     public DocumentRenderer(IReadOnlyDocument document)

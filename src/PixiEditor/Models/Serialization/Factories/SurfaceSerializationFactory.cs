@@ -1,8 +1,7 @@
 ﻿using PixiEditor.Helpers;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
-using PixiEditor.DrawingApi.Skia;
-using PixiEditor.Parser;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Skia;
 using PixiEditor.Parser.Skia;
 
 namespace PixiEditor.Models.Serialization.Factories;

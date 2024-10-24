@@ -1,8 +1,8 @@
 ﻿using Avalonia.Input;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Handlers.Toolbars;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.Handlers;
 

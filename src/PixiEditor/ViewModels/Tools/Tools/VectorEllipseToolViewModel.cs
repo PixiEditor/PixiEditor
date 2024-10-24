@@ -7,7 +7,7 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.ViewModels.Tools.Tools;

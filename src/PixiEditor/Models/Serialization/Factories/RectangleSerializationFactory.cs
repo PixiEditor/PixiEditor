@@ -1,7 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.Serialization.Factories;
 

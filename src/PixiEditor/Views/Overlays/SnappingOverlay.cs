@@ -2,7 +2,7 @@
 using Avalonia.Media;
 using Avalonia.Styling;
 using PixiEditor.Models.Controllers.InputDevice;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using Point = Avalonia.Point;
 
 namespace PixiEditor.Views.Overlays;

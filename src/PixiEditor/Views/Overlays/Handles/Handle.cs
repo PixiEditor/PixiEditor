@@ -4,9 +4,9 @@ using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Media;
 using PixiEditor.Helpers;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.Views.Overlays.TransformOverlay;
 using Path = Avalonia.Controls.Shapes.Path;
 

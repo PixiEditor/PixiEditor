@@ -2,13 +2,13 @@
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.DrawingApi.Core;
+using Drawie.Backend.Core;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Rendering;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.ViewModels.Nodes;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 

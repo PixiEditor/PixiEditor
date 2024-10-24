@@ -6,7 +6,7 @@ using Avalonia.Data;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.ViewModels.Nodes;
 using Point = Avalonia.Point;
 

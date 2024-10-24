@@ -5,21 +5,21 @@ using Avalonia.Media.Imaging;
 using ChunkyImageLib;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.Helpers.Extensions;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Exceptions;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Helpers;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Old.PixiV4;
 using PixiEditor.ViewModels.Document;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
-using BlendMode = PixiEditor.DrawingApi.Core.Surfaces.BlendMode;
+using BlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 
 namespace PixiEditor.Models.IO;
 

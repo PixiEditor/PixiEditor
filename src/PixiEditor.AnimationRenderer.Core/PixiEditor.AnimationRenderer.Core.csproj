@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PixiEditor.DrawingApi.Core\PixiEditor.DrawingApi.Core.csproj" />
+      <ProjectReference Include="..\Drawie\src\Drawie.Backend.Core\Drawie.Backend.Core.csproj" />
     </ItemGroup>
 
 </Project>

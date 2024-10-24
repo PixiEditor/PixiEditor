@@ -1,11 +1,11 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -27,7 +27,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         }
 
         blendPaint.Color = new Color(255, 255, 255, 255);
-        blendPaint.BlendMode = DrawingApi.Core.Surfaces.BlendMode.SrcOver;
+        blendPaint.BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver;
 
         VecI targetSize = GetTargetSize(sceneContext);
 

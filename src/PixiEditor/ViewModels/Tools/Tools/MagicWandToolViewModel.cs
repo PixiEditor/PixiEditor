@@ -1,12 +1,12 @@
 ﻿using Avalonia.Input;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.Overlays.BrushShapeOverlay;

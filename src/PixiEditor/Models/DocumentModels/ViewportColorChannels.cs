@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics.Contracts;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.DocumentModels;
 

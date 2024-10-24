@@ -6,8 +6,8 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.Changes.Structure;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Surfaces;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 

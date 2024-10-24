@@ -1,9 +1,9 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.Views.Overlays.TransformOverlay;
 
 namespace PixiEditor.Views.Overlays.Handles;

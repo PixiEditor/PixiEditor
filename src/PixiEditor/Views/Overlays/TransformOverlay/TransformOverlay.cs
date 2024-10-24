@@ -9,11 +9,11 @@ using Avalonia.Media;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers.InputDevice;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.Views.Overlays.Handles;
 using Point = Avalonia.Point;
 

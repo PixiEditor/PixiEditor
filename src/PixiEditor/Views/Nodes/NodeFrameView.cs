@@ -1,7 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls.Primitives;
-using PixiEditor.Numerics;
-using Point = PixiEditor.Numerics.Point;
+using Drawie.Numerics;
 
 namespace PixiEditor.Views.Nodes;
 

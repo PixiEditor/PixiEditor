@@ -1,7 +1,7 @@
 ﻿using Avalonia.Media;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.IO;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Models.Files;

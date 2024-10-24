@@ -9,13 +9,13 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
-using PixiEditor.DrawingApi.Core;
+using Drawie.Backend.Core;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Structures;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.ViewModels.Nodes;

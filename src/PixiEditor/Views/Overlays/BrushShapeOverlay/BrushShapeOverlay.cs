@@ -7,10 +7,10 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using ChunkyImageLib.Operations;
 using PixiEditor.Views.Visuals;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Models.Controllers.InputDevice;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.Views.Rendering;
 using Point = Avalonia.Point;
 

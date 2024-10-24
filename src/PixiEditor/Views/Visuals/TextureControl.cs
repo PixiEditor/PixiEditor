@@ -4,12 +4,10 @@ using Avalonia.Media;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using Avalonia.Threading;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Bridge;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.DrawingApi.Skia.Extensions;
-using PixiEditor.DrawingApi.Skia.Implementations;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.Views.Visuals;
 
@@ -162,7 +160,7 @@ internal class DrawTextureOperation : SkiaDrawOperation
 
             SKCanvas canvas = lease.SkCanvas;
 
-            using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
+            //using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
 
             canvas.Save();
             ScaleCanvas(canvas);

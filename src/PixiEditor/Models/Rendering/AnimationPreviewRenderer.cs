@@ -1,9 +1,9 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.DrawingApi.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Models.DocumentModels;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.Rendering;
 

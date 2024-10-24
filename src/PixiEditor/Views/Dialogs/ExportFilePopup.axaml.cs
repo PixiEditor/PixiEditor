@@ -6,15 +6,15 @@ using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using ChunkyImageLib;
 using CommunityToolkit.Mvvm.Input;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Bridge;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.IO;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.ViewModels.Document;
-using Image = PixiEditor.DrawingApi.Core.Surfaces.ImageData.Image;
+using Image = Drawie.Backend.Core.Surfaces.ImageData.Image;
 
 namespace PixiEditor.Views.Dialogs;
 

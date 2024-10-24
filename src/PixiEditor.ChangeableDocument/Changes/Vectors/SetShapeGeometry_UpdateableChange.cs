@@ -2,7 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Vectors;
 

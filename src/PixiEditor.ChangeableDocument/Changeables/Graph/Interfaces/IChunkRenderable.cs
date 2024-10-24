@@ -1,5 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 

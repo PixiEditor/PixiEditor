@@ -2,13 +2,13 @@
 using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.Rendering;
 #nullable enable
@@ -26,7 +26,7 @@ internal class CanvasUpdater
 
     private static readonly Paint ClearPaint = new()
     {
-        BlendMode = BlendMode.Src, Color = PixiEditor.DrawingApi.Core.ColorsImpl.Colors.Transparent
+        BlendMode = BlendMode.Src, Color = Colors.Transparent
     };
 
     /// <summary>

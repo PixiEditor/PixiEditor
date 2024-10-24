@@ -3,7 +3,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 

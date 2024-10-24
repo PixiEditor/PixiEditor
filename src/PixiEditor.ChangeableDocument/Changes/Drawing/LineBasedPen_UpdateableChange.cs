@@ -1,9 +1,9 @@
 ﻿using ChunkyImageLib.Operations;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class LineBasedPen_UpdateableChange : UpdateableChange

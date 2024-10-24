@@ -4,7 +4,7 @@ using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.DrawingApi.Core.Bridge;
+using Drawie.Backend.Core.Bridge;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Handlers;

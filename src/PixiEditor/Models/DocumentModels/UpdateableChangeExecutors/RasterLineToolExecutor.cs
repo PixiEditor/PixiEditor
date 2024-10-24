@@ -1,9 +1,9 @@
 ﻿using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Models.Handlers.Tools;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable

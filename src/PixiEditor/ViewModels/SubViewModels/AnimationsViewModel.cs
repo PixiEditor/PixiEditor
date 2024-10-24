@@ -4,7 +4,7 @@ using PixiEditor.AnimationRenderer.Core;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Commands.Attributes.Commands;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
 

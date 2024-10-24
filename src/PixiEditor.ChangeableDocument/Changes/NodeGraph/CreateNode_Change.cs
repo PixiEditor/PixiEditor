@@ -6,7 +6,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using Type = System.Type;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;

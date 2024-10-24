@@ -14,7 +14,7 @@ using PixiEditor.ViewModels.Document;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.Views.Nodes.Properties;
 using Point = Avalonia.Point;

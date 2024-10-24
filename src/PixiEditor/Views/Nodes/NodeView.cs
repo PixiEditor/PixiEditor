@@ -10,7 +10,7 @@ using Avalonia.VisualTree;
 using ChunkyImageLib;
 using PixiEditor.Helpers;
 using PixiEditor.ViewModels.Nodes;
-using PixiEditor.DrawingApi.Core;
+using Drawie.Backend.Core;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Structures;

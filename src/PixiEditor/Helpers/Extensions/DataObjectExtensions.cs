@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using Avalonia.Input;
 using Avalonia.Platform.Storage;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.Helpers.Extensions;
 

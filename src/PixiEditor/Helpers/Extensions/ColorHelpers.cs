@@ -1,6 +1,6 @@
 ﻿using Avalonia.Media;
 using PixiEditor.Extensions.CommonApi.Palettes;
-using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
+using BackendColor = Drawie.Backend.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Helpers.Extensions;
 

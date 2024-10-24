@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Numerics;
 
 namespace ChunkyImageLib.DataHolders;
 

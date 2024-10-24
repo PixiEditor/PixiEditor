@@ -6,10 +6,10 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core;
+using Drawie.Backend.Core;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Position;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Views.Main.ViewportControls;

@@ -1,12 +1,12 @@
-﻿using PixiEditor.Numerics;
+﻿using Drawie.Numerics;
 
 namespace PixiEditor.Models.Serialization.Factories;
 
-public class VecD3SerializationFactory : SerializationFactory<byte[], VecD3>
+public class VecD3SerializationFactory : SerializationFactory<byte[], Vec3D>
 {
     public override string DeserializationId { get; } = "PixiEditor.VecD";
 
-    public override byte[] Serialize(VecD3 original)
+    public override byte[] Serialize(Vec3D original)
     {
         byte[] result = new byte[sizeof(double) * 3];
         BitConverter.GetBytes(original.X).CopyTo(result, 0);
@@ -15,11 +15,11 @@ public class VecD3SerializationFactory : SerializationFactory<byte[], VecD3>
         return result;
     }
 
-    public override bool TryDeserialize(object serialized, out VecD3 original)
+    public override bool TryDeserialize(object serialized, out Vec3D original)
     {
         if (serialized is byte[] { Length: sizeof(double) * 3 } bytes)
         {
-            original = new VecD3(BitConverter.ToDouble(bytes, 0), BitConverter.ToDouble(bytes, sizeof(double)),
+            original = new Vec3D(BitConverter.ToDouble(bytes, 0), BitConverter.ToDouble(bytes, sizeof(double)),
                 BitConverter.ToDouble(bytes, sizeof(double) * 2));
             return true;
         }

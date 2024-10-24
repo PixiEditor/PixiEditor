@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Input;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.OperatingSystem;
 
 namespace PixiEditor.Models.AnalyticsAPI;

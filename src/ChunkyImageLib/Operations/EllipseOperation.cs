@@ -1,10 +1,10 @@
 ﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.DrawingApi.Core.Surfaces.Vector;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Surfaces.Vector;
+using Drawie.Numerics;
 
 namespace ChunkyImageLib.Operations;
 internal class EllipseOperation : IMirroredDrawOperation
@@ -22,8 +22,8 @@ internal class EllipseOperation : IMirroredDrawOperation
     private VectorPath? innerPath;
     
     private VectorPath? ellipseOutline;
-    private Point[]? ellipse;
-    private Point[]? ellipseFill;
+    private VecF[]? ellipse;
+    private VecF[]? ellipseFill;
     private RectI? ellipseFillRect;
 
     public EllipseOperation(RectI location, Color strokeColor, Color fillColor, int strokeWidth, double rotationRad, Paint? paint = null)
@@ -45,12 +45,12 @@ internal class EllipseOperation : IMirroredDrawOperation
             {
                 var ellipseList = EllipseHelper.GenerateEllipseFromRect(location);
 
-                ellipse = ellipseList.Select(a => new Point(a)).ToArray();
+                ellipse = ellipseList.Select(a => new VecF(a)).ToArray();
 
                 if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
                 {
                     (var fill, ellipseFillRect) = EllipseHelper.SplitEllipseFillIntoRegions(ellipseList.ToList(), location);
-                    ellipseFill = fill.Select(a => new Point(a)).ToArray();
+                    ellipseFill = fill.Select(a => new VecF(a)).ToArray();
                 }
             }
             else

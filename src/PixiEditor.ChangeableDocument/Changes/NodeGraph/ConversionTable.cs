@@ -1,8 +1,8 @@
 ﻿using System.Numerics;
 using System.Reflection;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
-using PixiEditor.DrawingApi.Core.Shaders.Generation;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.Shaders.Generation;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 

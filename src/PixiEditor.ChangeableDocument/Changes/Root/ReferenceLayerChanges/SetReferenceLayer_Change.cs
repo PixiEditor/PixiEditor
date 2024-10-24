@@ -1,8 +1,8 @@
 ﻿using System.Collections.Immutable;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root.ReferenceLayerChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root.ReferenceLayerChanges;
 

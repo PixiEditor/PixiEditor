@@ -1,7 +1,7 @@
-﻿using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.Numerics;
+﻿using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
@@ -44,7 +44,7 @@ public class PointsVectorData : ShapeVectorData
             drawingSurface.Canvas.SetMatrix(final);
         }
 
-        drawingSurface.Canvas.DrawPoints(PointMode.Points, Points.Select(p => new Point((int)p.X, (int)p.Y)).ToArray(),
+        drawingSurface.Canvas.DrawPoints(PointMode.Points, Points.Select(p => new VecF((int)p.X, (int)p.Y)).ToArray(),
             paint);
 
         if (applyTransform)

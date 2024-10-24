@@ -2,14 +2,14 @@
 using System.Linq;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions.Generated;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces.Vector;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.Vector;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;

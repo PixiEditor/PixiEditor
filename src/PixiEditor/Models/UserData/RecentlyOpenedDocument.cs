@@ -3,12 +3,12 @@ using System.IO;
 using System.Linq;
 using ChunkyImageLib;
 using CommunityToolkit.Mvvm.ComponentModel;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Models.IO;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.Parser;
 
 namespace PixiEditor.Models.UserData;

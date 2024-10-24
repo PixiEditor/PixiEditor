@@ -1,14 +1,14 @@
 ﻿using System.Security;
 using ChunkyImageLib;
 using PixiEditor.Helpers;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Bridge;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surfaces;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.IO.FileEncoders;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Models.Files;

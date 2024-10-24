@@ -2,7 +2,7 @@
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Styling;
-using PixiEditor.DrawingApi.Core.Shaders.Generation;
+using Drawie.Backend.Core.Shaders.Generation;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;

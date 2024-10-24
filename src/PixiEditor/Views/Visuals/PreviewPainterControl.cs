@@ -4,9 +4,9 @@ using Avalonia.Media;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Models.Rendering;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.Views.Visuals;
 
