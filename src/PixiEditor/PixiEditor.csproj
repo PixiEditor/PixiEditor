@@ -104,6 +104,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Drawie\src\Drawie.Interop.VulkanAvalonia\Drawie.Interop.VulkanAvalonia.csproj" />
     <ProjectReference Include="..\PixiDocks\src\PixiDocks.Avalonia\PixiDocks.Avalonia.csproj"/>
     <ProjectReference Include="..\PixiEditor.SVG\PixiEditor.SVG.csproj" />
     <ProjectReference Include="..\PixiParser\src\PixiParser.Skia\PixiParser.Skia.csproj"/>
