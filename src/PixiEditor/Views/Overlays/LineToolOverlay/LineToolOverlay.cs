@@ -6,10 +6,13 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Controllers.InputDevice;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Surfaces.Vector;
 using PixiEditor.Extensions.UI.Overlays;
 using Drawie.Numerics;
 using PixiEditor.Views.Overlays.Handles;
 using PixiEditor.Views.Overlays.TransformOverlay;
+using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 using Point = Avalonia.Point;
 
 namespace PixiEditor.Views.Overlays.LineToolOverlay;
@@ -56,10 +59,11 @@ internal class LineToolOverlay : Overlay
         LineStartProperty.Changed.Subscribe(RenderAffectingPropertyChanged);
         LineEndProperty.Changed.Subscribe(RenderAffectingPropertyChanged);
     }
+    
 
-    private Pen blackPen = new Pen(Brushes.Black, 1);
-    private Pen blackDashedPen = new Pen(Brushes.Black, 1) { DashStyle = new DashStyle(new double[] { 2, 4 }, 0) };
-    private Pen whiteDashedPen = new Pen(Brushes.White, 1) { DashStyle = new DashStyle(new double[] { 2, 4 }, 2) };
+    private Paint blackPaint = new Paint() { Color = Colors.Black, StrokeWidth = 1, Style = PaintStyle.Stroke, IsAntiAliased = true };
+    private Paint whiteDashPaint = new Paint() { Color = Colors.White, StrokeWidth = 1, Style = PaintStyle.Stroke, PathEffect = PathEffect.CreateDash(
+        [2, 2], 2), IsAntiAliased = true };
 
     private VecD mouseDownPos = VecD.Zero;
     private VecD lineStartOnMouseDown = VecD.Zero;
@@ -79,14 +83,14 @@ internal class LineToolOverlay : Overlay
         Cursor = new Cursor(StandardCursorType.Arrow);
 
         startHandle = new AnchorHandle(this);
-        startHandle.HandlePen = blackPen;
+        startHandle.StrokePaint = blackPaint;
         startHandle.OnDrag += StartHandleOnDrag;
         startHandle.OnHover += handle => Refresh();
         startHandle.OnRelease += OnHandleRelease;
         AddHandle(startHandle);
 
         endHandle = new AnchorHandle(this);
-        endHandle.HandlePen = blackPen;
+        endHandle.StrokePaint = blackPaint;
         endHandle.OnDrag += EndHandleOnDrag;
         endHandle.Cursor = new Cursor(StandardCursorType.Arrow);
         endHandle.OnHover += handle => Refresh();
@@ -94,7 +98,7 @@ internal class LineToolOverlay : Overlay
         AddHandle(endHandle);
 
         moveHandle = new TransformHandle(this);
-        moveHandle.HandlePen = blackPen;
+        moveHandle.StrokePaint = blackPaint;
         moveHandle.OnDrag += MoveHandleOnDrag;
         endHandle.Cursor = new Cursor(StandardCursorType.Arrow);
         moveHandle.OnHover += handle => Refresh();
@@ -114,9 +118,17 @@ internal class LineToolOverlay : Overlay
 
     protected override void ZoomChanged(double newZoom)
     {
-        blackPen.Thickness = 1.0 / newZoom;
-        blackDashedPen.Thickness = 2.0 / newZoom;
-        whiteDashedPen.Thickness = 2.0 / newZoom;
+        blackPaint.StrokeWidth = (float)(1.0 / newZoom);
+        
+        whiteDashPaint.StrokeWidth = (float)(2.0 / newZoom);
+        whiteDashPaint?.PathEffect?.Dispose();
+        
+        float[] dashes = new float[] { whiteDashPaint.StrokeWidth * 4, whiteDashPaint.StrokeWidth * 3 }; 
+
+        dashes[0] = whiteDashPaint.StrokeWidth * 4;
+        dashes[1] = whiteDashPaint.StrokeWidth * 3;
+        
+        whiteDashPaint.PathEffect = PathEffect.CreateDash(dashes, 2);
     }
 
     public override void RenderOverlay(Canvas context, RectD canvasBounds)
@@ -132,12 +144,12 @@ internal class LineToolOverlay : Overlay
         
         moveHandle.Position = TransformHelper.GetHandlePos(new ShapeCorners(center, size), ZoomScale, moveHandle.Size);
 
-        /*context.DrawLine(blackDashedPen, new Point(mappedStart.X, mappedStart.Y), new Point(mappedEnd.X, mappedEnd.Y));
-        context.DrawLine(whiteDashedPen, new Point(mappedStart.X, mappedStart.Y), new Point(mappedEnd.X, mappedEnd.Y));
+        context.DrawLine(new VecD(mappedStart.X, mappedStart.Y), new VecD(mappedEnd.X, mappedEnd.Y), blackPaint);
+        context.DrawLine(new VecD(mappedStart.X, mappedStart.Y), new VecD(mappedEnd.X, mappedEnd.Y), whiteDashPaint);
         
         startHandle.Draw(context);
         endHandle.Draw(context);
-        moveHandle.Draw(context);*/
+        moveHandle.Draw(context);
     }
 
     protected override void OnOverlayPointerPressed(OverlayPointerArgs args)

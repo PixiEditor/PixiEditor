@@ -5,9 +5,12 @@ using Avalonia.Input;
 using Avalonia.Media;
 using PixiEditor.Helpers;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Extensions.UI.Overlays;
 using Drawie.Numerics;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Views.Overlays.TransformOverlay;
+using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 using Path = Avalonia.Controls.Shapes.Path;
 
 namespace PixiEditor.Views.Overlays.Handles;
@@ -15,8 +18,8 @@ namespace PixiEditor.Views.Overlays.Handles;
 public delegate void HandleEvent(Handle source, VecD position);
 public abstract class Handle : IHandle
 {
-    public IBrush HandleBrush { get; set; } = GetBrush("HandleBackgroundBrush");
-    public IPen? HandlePen { get; set; }
+    public Paint? FillPaint { get; set; } = GetPaint("HandleBackgroundBrush");
+    public Paint? StrokePaint { get; set; } = GetPaint("HandleStrokeBrush", PaintStyle.Stroke);
     public double ZoomScale { get; set; } = 1.0;
     public IOverlay Owner { get; set; } = null!;
     public VecD Position { get; set; }
@@ -44,7 +47,7 @@ public abstract class Handle : IHandle
         Owner.PointerReleasedOverlay += OnPointerReleased;
     }
 
-    public abstract void Draw(DrawingContext context);
+    public abstract void Draw(Canvas target);
 
     public virtual void OnPressed(OverlayPointerArgs args) { }
 
@@ -85,14 +88,19 @@ public abstract class Handle : IHandle
         return null;
     }
 
-    protected static IBrush GetBrush(string key)
+    protected static Paint? GetPaint(string key, PaintStyle style = PaintStyle.Fill)
     {
-        if (Application.Current.Styles.TryGetResource(key, null, out object brush))
+        if (Application.Current.Styles.TryGetResource(key, null, out object paint))
         {
-            return (IBrush)brush;
+            if (paint is SolidColorBrush solidColorBrush)
+            {
+                return new Paint() { Color = solidColorBrush.Color.ToColor(), Style = style, IsAntiAliased = true };
+            }
+            
+            throw new InvalidOperationException("Invalid paint style");
         }
 
-        return Brushes.Black;
+        return null;
     }
 
     private void OnPointerPressed(OverlayPointerArgs args)

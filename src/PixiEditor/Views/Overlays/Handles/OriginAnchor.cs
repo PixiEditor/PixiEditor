@@ -1,23 +1,28 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Media;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Views.Overlays.TransformOverlay;
+using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
+using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.Views.Overlays.Handles;
 
 public class OriginAnchor : Handle
 {
-    public IPen? SecondaryHandlePen { get; set; } = new Pen(Brushes.White, 1);
-
+    public Paint SecondaryHandlePen { get; set; } = new Paint() { Color = Colors.White, StrokeWidth = 1 };
+    
     public OriginAnchor(Overlay owner) : base(owner)
     {
 
     }
 
-    public override void Draw(DrawingContext context)
+    public override void Draw(Canvas context)
     {
         double radius = Size.LongestAxis / ZoomScale / 2;
-        context.DrawEllipse(HandleBrush, HandlePen, TransformHelper.ToPoint(Position), radius, radius);
-        context.DrawEllipse(HandleBrush, SecondaryHandlePen, TransformHelper.ToPoint(Position), radius, radius);
+        
+        context.DrawOval(Position, new VecD(radius), StrokePaint);
+        context.DrawOval(Position, new VecD(radius), SecondaryHandlePen);
     }
 }

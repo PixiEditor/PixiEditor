@@ -192,12 +192,14 @@ internal class TransformOverlay : Overlay
         centerHandle = new RectangleHandle(this);
         centerHandle.Size = rightHandle.Size;
 
-        originHandle = new(this)
+        // TODO: Fix this
+        /*originHandle = new(this)
         {
-            HandlePen = blackFreqDashedPen,
+            StrokePaint = blackFreqDashedPen,
             SecondaryHandlePen = whiteFreqDashedPen,
-            HandleBrush = Brushes.Transparent
-        };
+        };*/
+
+        return;
 
         AddHandle(originHandle);
         AddHandle(topLeftHandle);
@@ -247,12 +249,12 @@ internal class TransformOverlay : Overlay
             UpdateRotationCursor(lastPointerPos);*/
     }
 
-    private void DrawMouseInputArea(DrawingContext context, VecD size)
+    private void DrawMouseInputArea(Canvas context, VecD size)
     {
         if (CoverWholeScreen)
         {
-            context.DrawRectangle(Brushes.Transparent, null,
-                new Rect(new Point(-size.X * 50, -size.Y * 50), new Size(size.X * 101, size.Y * 101)));
+            // TODO: Is it needed? Seems like it makes a hit area for avalonia
+            //context.DrawRect(new RectD(new VecD(-size.X * 50, -size.Y * 50), new VecD(size.X * 101, size.Y * 101)));
             return;
         }
 
@@ -266,11 +268,12 @@ internal class TransformOverlay : Overlay
             ctx.EndFigure(true);
         }
 
-        context.DrawGeometry(Brushes.Transparent, null, geometry);
+        // TODO: Is it needed? Seems like it makes a hit area for avalonia
+        //context.DrawGeometry(Brushes.Transparent, null, geometry);
     }
 
     private void DrawOverlay
-        (DrawingContext context, VecD size, ShapeCorners corners, VecD origin, double zoomboxScale)
+        (Canvas context, VecD size, ShapeCorners corners, VecD origin, double zoomboxScale)
     {
         // draw transparent background to enable mouse input
         DrawMouseInputArea(context, size);
@@ -291,14 +294,15 @@ internal class TransformOverlay : Overlay
         VecD right = (topRight + bottomRight) / 2;
 
         // lines
-        context.DrawLine(blackDashedPen, TransformHelper.ToPoint(topLeft), TransformHelper.ToPoint(topRight));
+        // TODO: Implement
+        /*context.DrawLine(blackDashedPen, TransformHelper.ToPoint(topLeft), TransformHelper.ToPoint(topRight));
         context.DrawLine(whiteDashedPen, TransformHelper.ToPoint(topLeft), TransformHelper.ToPoint(topRight));
         context.DrawLine(blackDashedPen, TransformHelper.ToPoint(topLeft), TransformHelper.ToPoint(bottomLeft));
         context.DrawLine(whiteDashedPen, TransformHelper.ToPoint(topLeft), TransformHelper.ToPoint(bottomLeft));
         context.DrawLine(blackDashedPen, TransformHelper.ToPoint(bottomRight), TransformHelper.ToPoint(bottomLeft));
         context.DrawLine(whiteDashedPen, TransformHelper.ToPoint(bottomRight), TransformHelper.ToPoint(bottomLeft));
         context.DrawLine(blackDashedPen, TransformHelper.ToPoint(bottomRight), TransformHelper.ToPoint(topRight));
-        context.DrawLine(whiteDashedPen, TransformHelper.ToPoint(bottomRight), TransformHelper.ToPoint(topRight));
+        context.DrawLine(whiteDashedPen, TransformHelper.ToPoint(bottomRight), TransformHelper.ToPoint(topRight));*/
 
         // corner anchors
 
@@ -332,7 +336,8 @@ internal class TransformOverlay : Overlay
         }
 
         // rotate cursor
-        context.DrawGeometry(Brushes.White, blackPen, rotateCursorGeometry);
+        // TODO: Implement
+        //context.DrawGeometry(Brushes.White, blackPen, rotateCursorGeometry);
     }
 
     private void OnAnchorHandlePressed(Handle source, VecD position)

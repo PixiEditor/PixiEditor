@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Media;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
 
 namespace PixiEditor.Views.Overlays.Handles;
@@ -19,7 +20,7 @@ public class HandleGlyph
         originalBounds = glyph.GetBounds();
     }
 
-    public void Draw(DrawingContext context, double zoomboxScale, VecD position)
+    public void Draw(Canvas context, double zoomboxScale, VecD position)
     {
         VecD scale = NormalizeGlyph(zoomboxScale);
         VecD offset = CalculateOffset(zoomboxScale, position);
@@ -30,7 +31,9 @@ public class HandleGlyph
                 0, scale.Y,
                 offset.X, offset.Y)
         );
-        Glyph.Draw(context);
+        
+        // TODO: Implement
+        //Glyph.Draw(context);
     }
 
     private VecD CalculateOffset(double zoomboxScale, VecD position)
