@@ -5,6 +5,7 @@ using Avalonia.Media;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Controllers.InputDevice;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Extensions.UI.Overlays;
 using Drawie.Numerics;
 using PixiEditor.Views.Overlays.Handles;
@@ -118,7 +119,7 @@ internal class LineToolOverlay : Overlay
         whiteDashedPen.Thickness = 2.0 / newZoom;
     }
 
-    public override void RenderOverlay(DrawingContext context, RectD canvasBounds)
+    public override void RenderOverlay(Canvas context, RectD canvasBounds)
     {
         VecD mappedStart = LineStart;
         VecD mappedEnd = LineEnd;
@@ -131,12 +132,12 @@ internal class LineToolOverlay : Overlay
         
         moveHandle.Position = TransformHelper.GetHandlePos(new ShapeCorners(center, size), ZoomScale, moveHandle.Size);
 
-        context.DrawLine(blackDashedPen, new Point(mappedStart.X, mappedStart.Y), new Point(mappedEnd.X, mappedEnd.Y));
+        /*context.DrawLine(blackDashedPen, new Point(mappedStart.X, mappedStart.Y), new Point(mappedEnd.X, mappedEnd.Y));
         context.DrawLine(whiteDashedPen, new Point(mappedStart.X, mappedStart.Y), new Point(mappedEnd.X, mappedEnd.Y));
         
         startHandle.Draw(context);
         endHandle.Draw(context);
-        moveHandle.Draw(context);
+        moveHandle.Draw(context);*/
     }
 
     protected override void OnOverlayPointerPressed(OverlayPointerArgs args)

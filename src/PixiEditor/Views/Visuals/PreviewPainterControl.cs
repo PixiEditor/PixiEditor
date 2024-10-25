@@ -58,13 +58,14 @@ public class PreviewPainterControl : DrawieControl
 
     public override void Draw(DrawingSurface surface)
     {
-        RectD? previewBounds =
-            PreviewPainter.PreviewRenderable.GetPreviewBounds(FrameToRender, PreviewPainter.ElementToRenderName);
         if (PreviewPainter == null)
         {
             return;
         }
 
+        RectD? previewBounds =
+            PreviewPainter.PreviewRenderable.GetPreviewBounds(FrameToRender, PreviewPainter.ElementToRenderName);
+        
         float x = (float)(previewBounds?.Width ?? 0);
         float y = (float)(previewBounds?.Height ?? 0);
 

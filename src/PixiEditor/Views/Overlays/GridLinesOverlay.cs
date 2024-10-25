@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Media;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Helpers.Converters;
 using Drawie.Numerics;
 using Point = Avalonia.Point;
@@ -65,11 +66,11 @@ public class GridLinesOverlay : Overlay
         return visibilityConverter.Check(ZoomScale);
     }
 
-    public override void RenderOverlay(DrawingContext context, RectD canvasBounds)
+    public override void RenderOverlay(Canvas context, RectD canvasBounds)
     {
         // Draw lines in vertical and horizontal directions, size should be relative to the scale
 
-        base.Render(context);
+        /*base.Render(context);
         double width = PixelWidth;
         double height = PixelHeight;
 
@@ -91,7 +92,7 @@ public class GridLinesOverlay : Overlay
             double y = i * rowHeight;
             context.DrawLine(pen1, new Point(0, y), new Point(width, y));
             context.DrawLine(pen2, new Point(0, y), new Point(width, y));
-        }
+        }*/
     }
 
     private static void OnIsVisibleChanged(AvaloniaPropertyChangedEventArgs<bool> e)

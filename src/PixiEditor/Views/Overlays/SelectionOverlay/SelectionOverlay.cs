@@ -6,6 +6,7 @@ using Avalonia.Media;
 using Avalonia.Styling;
 using PixiEditor.Animation;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.Vector;
 using Drawie.Numerics;
 
@@ -82,9 +83,9 @@ internal class SelectionOverlay : Overlay
         }
     }
 
-    public override void RenderOverlay(DrawingContext context, RectD canvasBounds)
+    public override void RenderOverlay(Canvas context, RectD canvasBounds)
     {
-        base.Render(context);
+        /*base.Render(context);
         if (Path is null)
             return;
 
@@ -101,7 +102,7 @@ internal class SelectionOverlay : Overlay
             return;
         }
         context.DrawGeometry(null, whitePen, renderPath);
-        context.DrawGeometry(fillBrush, blackDashedPen, renderPath);
+        context.DrawGeometry(fillBrush, blackDashedPen, renderPath);*/
     }
 
     protected override void ZoomChanged(double newZoom)

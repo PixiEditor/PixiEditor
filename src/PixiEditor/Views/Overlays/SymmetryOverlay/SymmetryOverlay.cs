@@ -8,6 +8,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.UI.Overlays;
 using Drawie.Numerics;
@@ -120,9 +121,9 @@ internal class SymmetryOverlay : Overlay
         VerticalAxisXProperty.Changed.Subscribe(OnPositionUpdate);
     }
 
-    public override void RenderOverlay(DrawingContext drawingContext, RectD canvasBounds)
+    public override void RenderOverlay(Canvas drawingContext, RectD canvasBounds)
     {
-        base.Render(drawingContext);
+        /*base.Render(drawingContext);
         if (!HorizontalAxisVisible && !VerticalAxisVisible)
             return;
 
@@ -186,7 +187,7 @@ internal class SymmetryOverlay : Overlay
 
             drawingContext.DrawLine(checkerBlack, new(verticalAxisX, 0), new(verticalAxisX, Size.Y));
             drawingContext.DrawLine(checkerWhite, new(verticalAxisX, 0), new(verticalAxisX, Size.Y));
-        }
+        }*/
     }
 
     private void DrawHorizontalRuler(DrawingContext drawingContext, bool upper)

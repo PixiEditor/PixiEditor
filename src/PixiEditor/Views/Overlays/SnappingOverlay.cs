@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Media;
 using Avalonia.Styling;
+using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Models.Controllers.InputDevice;
 using Drawie.Numerics;
 using Point = Avalonia.Point;
@@ -39,9 +40,9 @@ internal class SnappingOverlay : Overlay
         IsHitTestVisible = false;
     }
 
-    public override void RenderOverlay(DrawingContext context, RectD canvasBounds)
+    public override void RenderOverlay(Canvas context, RectD canvasBounds)
     {
-        if (SnappingController is null)
+        /*if (SnappingController is null)
         {
             return;
         }
@@ -71,7 +72,7 @@ internal class SnappingOverlay : Overlay
         if (SnappingController.HighlightedPoint.HasValue)
         {
             context.DrawEllipse(previewPointPen.Brush, previewPointPen, new Point(SnappingController.HighlightedPoint.Value.X, SnappingController.HighlightedPoint.Value.Y), 5 / ZoomScale, 5 / ZoomScale);
-        }
+        }*/
     }
 
     protected override void ZoomChanged(double newZoom)

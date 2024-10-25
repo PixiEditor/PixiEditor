@@ -143,28 +143,6 @@
             DefaultCursor="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolCursor, Mode=OneWay}"
             CheckerImagePath="/Images/CheckerTile.png"
             ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}" />
-
-        <!--Brush shape overlay is rendered separately, so it doesn't trigger rerender each mouse movement to scene-->
-        <!--I didn't measure it, but I thought that could impact performance-->
-        <brushShapeOverlay:BrushShapeOverlay
-            DataContext="{Binding ElementName=vpUc}"
-            RenderTransform="{Binding #scene.CanvasTransform}"
-            RenderTransformOrigin="0, 0"
-            Name="brushShapeOverlay"
-            Focusable="False" ZIndex="6"
-            IsHitTestVisible="False"
-            ZoomScale="{Binding #scene.Scale}"
-            Scene="{Binding #scene, Mode=OneTime}"
-            BrushSize="{Binding ToolsSubViewModel.ActiveBasicToolbar.ToolSize, Source={viewModels:MainVM}}"
-            BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={viewModels:MainVM}, FallbackValue={x:Static brushShapeOverlay:BrushShape.Hidden}}"
-            FlowDirection="LeftToRight">
-            <brushShapeOverlay:BrushShapeOverlay.IsVisible>
-                <MultiBinding Converter="{converters:AllTrueConverter}">
-                    <Binding Path="!Document.TransformViewModel.TransformActive" />
-                    <Binding Path="IsOverCanvas" />
-                </MultiBinding>
-            </brushShapeOverlay:BrushShapeOverlay.IsVisible>
-        </brushShapeOverlay:BrushShapeOverlay>
         <Button
             ZIndex="99999"
             DockPanel.Dock="Bottom"

@@ -220,6 +220,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
+    public new void InvalidateVisual()
+    {
+        QueueNextFrame();
+    }
+
     public void Draw(DrawingSurface renderTexture)
     {
         renderTexture.Canvas.Save();
@@ -228,10 +233,10 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         renderTexture.Canvas.SetMatrix(matrix.ToSKMatrix().ToMatrix3X3());
 
         RectD dirtyBounds = new RectD(0, 0, Document.Width, Document.Height);
+        Cursor = DefaultCursor;
         RenderScene(dirtyBounds);
 
         renderTexture.Canvas.Restore();
-        QueueNextFrame();
     }
 
     public override void Render(DrawingContext context)
@@ -252,7 +257,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
         RectD dirtyBounds = new RectD(0, 0, Document.Width, Document.Height);
 
-        SceneRenderer.Resolution = CalculateResolution();
 
         /*using var operation = new DrawSceneOperation(SceneRenderer.RenderScene, Document, CanvasPos,
             Scale * resolutionScale,
@@ -268,21 +272,22 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         context.PushRenderOptions(new RenderOptions { BitmapInterpolationMode = BitmapInterpolationMode.None });
         var pushedMatrix = context.PushTransform(matrix);
 
-        Cursor = DefaultCursor;
 
-        DrawOverlays(context, dirtyBounds, OverlayRenderSorting.Background);
 
         pushedMatrix.Dispose();
 
+        //RenderFrame(new PixelSize(width, height));
+
         context.PushTransform(matrix);
 
-        DrawOverlays(context, dirtyBounds, OverlayRenderSorting.Foreground);
     }
 
     private void RenderScene(RectD bounds)
     {
         DrawCheckerboard(bounds);
-        RenderGraph(renderSurface);
+        DrawOverlays(renderSurface, bounds, OverlayRenderSorting.Background);
+        SceneRenderer.RenderScene(renderSurface, CalculateResolution());
+        DrawOverlays(renderSurface, bounds, OverlayRenderSorting.Foreground);
     }
 
     private void DrawCheckerboard(RectD dirtyBounds)
@@ -303,15 +308,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
         renderSurface.Canvas.DrawRect(operationSurfaceRectToRender, checkerPaint);
     }
-
-    private void RenderGraph(DrawingSurface target)
-    {
-        RenderContext context = new(target, SceneRenderer.DocumentViewModel.AnimationHandler.ActiveFrameTime,
-            SceneRenderer.Resolution, SceneRenderer.Document.Size);
-        SceneRenderer.Document.NodeGraph.Execute(context);
-    }
-
-    private void DrawOverlays(DrawingContext context, RectD dirtyBounds, OverlayRenderSorting sorting)
+    
+    private void DrawOverlays(DrawingSurface renderSurface, RectD dirtyBounds, OverlayRenderSorting sorting)
     {
         if (AllOverlays != null)
         {
@@ -326,7 +324,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
                 if (!overlay.CanRender()) continue;
 
-                overlay.RenderOverlay(context, dirtyBounds);
+                overlay.RenderOverlay(renderSurface.Canvas, dirtyBounds);
                 if (overlay.IsHitTestVisible)
                 {
                     Cursor = overlay.Cursor ?? DefaultCursor;

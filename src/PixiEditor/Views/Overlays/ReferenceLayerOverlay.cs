@@ -17,6 +17,7 @@ using PixiEditor.Helpers.Converters;
 using Drawie.Numerics;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.Views.Visuals;
+using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Views.Overlays;
@@ -77,9 +78,9 @@ internal class ReferenceLayerOverlay : Overlay
         FadeOutProperty.Changed.Subscribe(FadeOutChanged);
     }
 
-    public override void RenderOverlay(DrawingContext context, RectD dirtyCanvasBounds)
+    public override void RenderOverlay(Canvas context, RectD dirtyCanvasBounds)
     {
-        if (ReferenceLayer is { ReferenceBitmap: not null })
+        /*if (ReferenceLayer is { ReferenceBitmap: not null })
         {
             using var renderOptions = context.PushRenderOptions(new RenderOptions
             {
@@ -99,14 +100,14 @@ internal class ReferenceLayerOverlay : Overlay
             
             // TODO: Implement this
             /*DrawTextureOperation drawOperation =
-                new DrawTextureOperation(dirtyRect, Stretch.None, referenceBitmap, overlayPaint);*/
+                new DrawTextureOperation(dirtyRect, Stretch.None, referenceBitmap, overlayPaint);#1#
 
             //context.Custom(drawOperation);
 
             matrix.Dispose();
 
             DrawBorder(context, dirtyCanvasBounds);
-        }
+        }*/
     }
 
     private void DrawBorder(DrawingContext context, RectD dirtyCanvasBounds)

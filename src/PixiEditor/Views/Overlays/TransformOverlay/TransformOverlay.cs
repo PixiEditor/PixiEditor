@@ -10,6 +10,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers.InputDevice;
@@ -237,13 +238,13 @@ internal class TransformOverlay : Overlay
 
     private VecD pos;
 
-    public override void RenderOverlay(DrawingContext drawingContext, RectD canvasBounds)
+    public override void RenderOverlay(Canvas drawingContext, RectD canvasBounds)
     {
-        base.Render(drawingContext);
+        /*base.Render(drawingContext);
         DrawOverlay(drawingContext, new(Bounds.Width, Bounds.Height), Corners, InternalState.Origin, ZoomScale);
 
         if (capturedAnchor is null)
-            UpdateRotationCursor(lastPointerPos);
+            UpdateRotationCursor(lastPointerPos);*/
     }
 
     private void DrawMouseInputArea(DrawingContext context, VecD size)
