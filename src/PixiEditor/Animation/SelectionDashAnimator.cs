@@ -1,18 +1,20 @@
 ﻿using Avalonia.Animation;
 using Avalonia.Media;
+using Drawie.Backend.Core.Surfaces.Vector;
 
 namespace PixiEditor.Animation;
 
-public sealed class SelectionDashAnimator : InterpolatingAnimator<IDashStyle>
+public sealed class SelectionDashAnimator : InterpolatingAnimator<IDashPathEffect>
 {
-    public override IDashStyle Interpolate(double progress, IDashStyle oldValue, IDashStyle newValue)
+    
+    public override IDashPathEffect Interpolate(double progress, IDashPathEffect oldValue, IDashPathEffect newValue)
     {
-        return new DashStyle(oldValue.Dashes, progress * 6);
+        return new DashPathEffect(oldValue.Dashes.ToArray(), (float)progress * 6);
     }
 
-    public static IDashStyle Interpolate(double progress, int steps, double[] dashes)
+    public static IDashPathEffect Interpolate(double progress, int steps, float[] dashes)
     {
-        var newDashStyle = new DashStyle(dashes, progress * steps);
+        var newDashStyle = new DashPathEffect(dashes, (float)progress * steps);
         return newDashStyle;
     }
 }
