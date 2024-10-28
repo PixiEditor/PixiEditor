@@ -76,18 +76,6 @@ public abstract class Handle : IHandle
         return Geometry.Parse("M 0 0 L 1 0 M 0 0 L 0 1");
     }
 
-    public static HandleGlyph? GetHandleGlyph(string key)
-    {
-        DrawingGroup? glyph = GetResource<DrawingGroup>(key);
-        if (glyph != null)
-        {
-            glyph.Transform = new MatrixTransform();
-            return new HandleGlyph(glyph);
-        }
-
-        return null;
-    }
-
     protected static Paint? GetPaint(string key, PaintStyle style = PaintStyle.Fill)
     {
         if (Application.Current.Styles.TryGetResource(key, null, out object paint))

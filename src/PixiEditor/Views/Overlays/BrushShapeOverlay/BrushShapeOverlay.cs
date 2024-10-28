@@ -55,6 +55,7 @@ internal class BrushShapeOverlay : Overlay
 
     public BrushShapeOverlay()
     {
+        IsHitTestVisible = false;
         threePixelCircle = CreateThreePixelCircle();
     }
 

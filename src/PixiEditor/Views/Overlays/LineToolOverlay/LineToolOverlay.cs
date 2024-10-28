@@ -87,6 +87,7 @@ internal class LineToolOverlay : Overlay
         startHandle.OnDrag += StartHandleOnDrag;
         startHandle.OnHover += handle => Refresh();
         startHandle.OnRelease += OnHandleRelease;
+        startHandle.Cursor = new Cursor(StandardCursorType.Arrow);
         AddHandle(startHandle);
 
         endHandle = new AnchorHandle(this);

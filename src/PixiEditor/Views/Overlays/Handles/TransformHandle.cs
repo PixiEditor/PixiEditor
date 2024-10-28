@@ -5,6 +5,7 @@ using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Extensions.UI.Overlays;
 using Drawie.Numerics;
+using PixiEditor.UI.Common.Fonts;
 using PixiEditor.Views.Overlays.TransformOverlay;
 using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 
@@ -13,14 +14,15 @@ namespace PixiEditor.Views.Overlays.Handles;
 public class TransformHandle : Handle
 {
     public double AnchorRadius { get; set; } = GetResource<double>("AnchorRadius");
-    public Paint GlyphPaint { get; set; } = GetPaint("HandleGlyphBrush");
+    public Paint GlyphPaint { get; set; } = GetPaint("HandleBrush");
 
-    private HandleGlyph handleGeometry;
+    private HandleGlyph handleGlyph;
 
     public TransformHandle(Overlay owner) : base(owner)
     {
-        handleGeometry = GetHandleGlyph("MoveHandle");
-        handleGeometry.Size = Size - new VecD(1, 1);
+        handleGlyph = new IconGlyph(PixiPerfectIcons.MoveView, customPaint: GlyphPaint); 
+        handleGlyph.Size = Size - new VecD(1);
+        handleGlyph.Offset = new VecD(0, -1f);
 
         Cursor = new Cursor(StandardCursorType.SizeAll);
     }
@@ -41,6 +43,6 @@ public class TransformHandle : Handle
                 (float)radius, (float)radius, StrokePaint);
         }
         
-        handleGeometry.Draw(context, ZoomScale, Position);
+        handleGlyph.Draw(context, ZoomScale, Position);
     }
 }

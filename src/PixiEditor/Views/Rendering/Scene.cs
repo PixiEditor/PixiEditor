@@ -131,6 +131,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     private VulkanResources resources;
     private DrawingSurface renderSurface;
     private PixelSize lastSize = PixelSize.Empty;
+    private Cursor lastCursor;
 
     static Scene()
     {
@@ -273,13 +274,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         var pushedMatrix = context.PushTransform(matrix);
 
 
-
         pushedMatrix.Dispose();
 
         //RenderFrame(new PixelSize(width, height));
 
         context.PushTransform(matrix);
-
     }
 
     private void RenderScene(RectD bounds)
@@ -308,7 +307,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
         renderSurface.Canvas.DrawRect(operationSurfaceRectToRender, checkerPaint);
     }
-    
+
     private void DrawOverlays(DrawingSurface renderSurface, RectD dirtyBounds, OverlayRenderSorting sorting)
     {
         if (AllOverlays != null)
@@ -325,10 +324,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 if (!overlay.CanRender()) continue;
 
                 overlay.RenderOverlay(renderSurface.Canvas, dirtyBounds);
-                if (overlay.IsHitTestVisible)
-                {
-                    Cursor = overlay.Cursor ?? DefaultCursor;
-                }
             }
         }
     }
@@ -398,6 +393,10 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                     }
 
                     overlay.MovePointer(args);
+                    if (overlay.IsHitTestVisible)
+                    {
+                        Cursor = overlay.Cursor ?? DefaultCursor;
+                    }
                 }
             }
 
