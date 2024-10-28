@@ -45,8 +45,8 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
             saved = drawingSurface.Canvas.Save();
             ApplyTransformTo(drawingSurface);
         }
-        
-        using Paint shapePaint = new Paint();
+
+        using Paint shapePaint = new Paint() { IsAntiAliased = true };
         
         shapePaint.Color = FillColor;
         shapePaint.Style = PaintStyle.Fill;

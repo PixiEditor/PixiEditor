@@ -55,7 +55,7 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
             ApplyTransformTo(drawingSurface);
         }
 
-        using Paint paint = new Paint();
+        using Paint paint = new Paint() { IsAntiAliased = true };
 
         paint.Color = StrokeColor;
         paint.Style = PaintStyle.Stroke;

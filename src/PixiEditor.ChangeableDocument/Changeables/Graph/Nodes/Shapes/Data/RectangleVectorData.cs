@@ -44,7 +44,7 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
             ApplyTransformTo(drawingSurface);
         }
 
-        using Paint paint = new Paint();
+        using Paint paint = new Paint() { IsAntiAliased = true };
         
         paint.Color = FillColor;
         paint.Style = PaintStyle.Fill;
