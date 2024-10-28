@@ -16,6 +16,7 @@ public class AnchorHandle : RectangleHandle
         Size = new VecD(GetResource<double>("AnchorHandleSize"));
         paint = GetPaint("HandleBrush");
         StrokePaint = paint;
+        StrokePaint.Style = PaintStyle.Stroke;
     }
 
     public override void Draw(Canvas context)
