@@ -6,6 +6,7 @@ using Avalonia.Media;
 using PixiEditor.Helpers;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Surfaces.Vector;
 using PixiEditor.Extensions.UI.Overlays;
 using Drawie.Numerics;
 using PixiEditor.Helpers.Extensions;
@@ -66,14 +67,17 @@ public abstract class Handle : IHandle
         return default!;
     }
 
-    public static Geometry GetHandleGeometry(string handleName)
+    public static VectorPath GetHandleGeometry(string handleName)
     {
         if (Application.Current.Styles.TryGetResource(handleName, null, out object shape))
         {
-            return ((Path)shape).Data.Clone();
+            if (shape is string path)
+            {
+                return VectorPath.FromSvgPath(path);
+            }
         }
 
-        return Geometry.Parse("M 0 0 L 1 0 M 0 0 L 0 1");
+        return VectorPath.FromSvgPath("M 0 0 L 1 0 M 0 0 L 0 1");
     }
 
     protected static Paint? GetPaint(string key, PaintStyle style = PaintStyle.Fill)

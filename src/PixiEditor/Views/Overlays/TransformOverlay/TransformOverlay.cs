@@ -11,6 +11,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.Vector;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers.InputDevice;
@@ -174,7 +175,7 @@ internal class TransformOverlay : Overlay
     private List<Handle> snapPoints = new();
     private Handle? snapHandleOfOrigin;
 
-    private Geometry rotateCursorGeometry = Handle.GetHandleGeometry("RotateHandle");
+    private VectorPath rotateCursorGeometry = Handle.GetHandleGeometry("RotateHandle");
 
     private VecD lastPointerPos;
 
@@ -360,7 +361,7 @@ internal class TransformOverlay : Overlay
 
     protected override void OnOverlayPointerExited(OverlayPointerArgs args)
     {
-        rotateCursorGeometry.Transform = new ScaleTransform(0, 0);
+        //rotateCursorGeometry.Transform = new ScaleTransform(0, 0);
         Refresh();
     }
 
@@ -564,7 +565,7 @@ internal class TransformOverlay : Overlay
     {
         if ((!CanRotate(mousePos) && !isRotating) || LockRotation)
         {
-            rotateCursorGeometry.Transform = new ScaleTransform(0, 0);
+            //rotateCursorGeometry.Transform = new ScaleTransform(0, 0);
             return false;
         }
 
@@ -572,7 +573,7 @@ internal class TransformOverlay : Overlay
         double angle = (mousePos - InternalState.Origin).Angle * 180 / Math.PI - 90;
         matrix = matrix.RotateAt(angle, mousePos.X, mousePos.Y);
         matrix = matrix.ScaleAt(8 / ZoomScale, 8 / ZoomScale, mousePos.X, mousePos.Y);
-        rotateCursorGeometry.Transform = new MatrixTransform(matrix);
+        //rotateCursorGeometry.Transform = new MatrixTransform(matrix);
         return true;
     }
 

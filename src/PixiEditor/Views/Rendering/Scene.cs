@@ -234,7 +234,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         renderTexture.Canvas.SetMatrix(matrix.ToSKMatrix().ToMatrix3X3());
 
         RectD dirtyBounds = new RectD(0, 0, Document.Width, Document.Height);
-        Cursor = DefaultCursor;
+        //Cursor = DefaultCursor;
         RenderScene(dirtyBounds);
 
         renderTexture.Canvas.Restore();
@@ -326,16 +326,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 overlay.RenderOverlay(renderSurface.Canvas, dirtyBounds);
             }
         }
-    }
-
-    private void DrawCheckerboard(DrawingContext context, Rect dirtyBounds, RectI operationSurfaceRectToRender)
-    {
-        DrawCheckerBackgroundOperation checkerOperation = new DrawCheckerBackgroundOperation(
-            dirtyBounds,
-            (SKBitmap)checkerBitmap.Native,
-            (float)Scale,
-            operationSurfaceRectToRender.ToSkRect());
-        context.Custom(checkerOperation);
     }
 
     protected override void OnPointerEntered(PointerEventArgs e)
