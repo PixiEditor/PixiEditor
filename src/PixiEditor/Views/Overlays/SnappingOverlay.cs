@@ -2,8 +2,11 @@
 using Avalonia.Media;
 using Avalonia.Styling;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Models.Controllers.InputDevice;
 using Drawie.Numerics;
+using PixiEditor.Helpers;
+using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 using Point = Avalonia.Point;
 
 namespace PixiEditor.Views.Overlays;
@@ -19,11 +22,11 @@ internal class SnappingOverlay : Overlay
         set => SetValue(SnappingControllerProperty, value);
     }
 
-    private Pen horizontalAxisPen;
-    private Pen verticalAxisPen; 
-    private Pen previewPointPen;
+    private Paint horizontalAxisPen;
+    private Paint verticalAxisPen; 
+    private Paint previewPointPen;
 
-    private const double startSize = 2;
+    private const float startSize = 1;
     
     static SnappingOverlay()
     {
@@ -34,15 +37,15 @@ internal class SnappingOverlay : Overlay
     public SnappingOverlay()
     {
         /*TODO: Theme variant is not present, that's why Dark is hardcoded*/        
-        horizontalAxisPen = Application.Current.Styles.TryGetResource("HorizontalSnapAxisBrush", ThemeVariant.Dark, out var horizontalAxisBrush) ? new Pen((IBrush)horizontalAxisBrush, startSize) : new Pen(Brushes.Red, startSize);
-        verticalAxisPen = Application.Current.Styles.TryGetResource("VerticalSnapAxisBrush", ThemeVariant.Dark, out var verticalAxisBrush) ? new Pen((IBrush)verticalAxisBrush, startSize) : new Pen(Brushes.Green, startSize);
-        previewPointPen = Application.Current.Styles.TryGetResource("SnapPointPreviewBrush", ThemeVariant.Dark, out var previewPointBrush) ? new Pen((IBrush)previewPointBrush, startSize) : new Pen(Brushes.DodgerBlue, startSize);
+        horizontalAxisPen = ResourceLoader.GetPaint("HorizontalSnapAxisBrush", PaintStyle.Stroke, ThemeVariant.Dark) ?? new Paint() { Color = Colors.Red, Style = PaintStyle.Stroke, IsAntiAliased = true, StrokeWidth = startSize};
+        verticalAxisPen = ResourceLoader.GetPaint("VerticalSnapAxisBrush", PaintStyle.Stroke, ThemeVariant.Dark) ?? new Paint() { Color = Colors.Green, Style = PaintStyle.Stroke, IsAntiAliased = true, StrokeWidth = startSize}; 
+        previewPointPen = ResourceLoader.GetPaint("SnapPointPreviewBrush", PaintStyle.Fill, ThemeVariant.Dark) ?? new Paint() { Color = Colors.Blue, Style = PaintStyle.Stroke, IsAntiAliased = true, StrokeWidth = startSize}; 
         IsHitTestVisible = false;
     }
 
     public override void RenderOverlay(Canvas context, RectD canvasBounds)
     {
-        /*if (SnappingController is null)
+        if (SnappingController is null)
         {
             return;
         }
@@ -53,7 +56,7 @@ internal class SnappingOverlay : Overlay
             {
                 if (snapPoint.Key == SnappingController.HighlightedXAxis)
                 {
-                    context.DrawLine(horizontalAxisPen, new Point(snapPoint.Value(), 0), new Point(snapPoint.Value(), canvasBounds.Height));
+                    context.DrawLine(new VecD(snapPoint.Value(), 0), new VecD(snapPoint.Value(), canvasBounds.Height), horizontalAxisPen);
                 }
             }
         }
@@ -64,22 +67,22 @@ internal class SnappingOverlay : Overlay
             {
                 if (snapPoint.Key == SnappingController.HighlightedYAxis)
                 {
-                    context.DrawLine(verticalAxisPen, new Point(0, snapPoint.Value()), new Point(canvasBounds.Width, snapPoint.Value()));
+                    context.DrawLine(new VecD(0, snapPoint.Value()), new VecD(canvasBounds.Width, snapPoint.Value()), verticalAxisPen);
                 }
             }
         }
         
         if (SnappingController.HighlightedPoint.HasValue)
         {
-            context.DrawEllipse(previewPointPen.Brush, previewPointPen, new Point(SnappingController.HighlightedPoint.Value.X, SnappingController.HighlightedPoint.Value.Y), 5 / ZoomScale, 5 / ZoomScale);
-        }*/
+            context.DrawOval((float)SnappingController.HighlightedPoint.Value.X, (float)SnappingController.HighlightedPoint.Value.Y, 4f / (float)ZoomScale, 4f / (float)ZoomScale, previewPointPen);
+        }
     }
 
     protected override void ZoomChanged(double newZoom)
     {
-        horizontalAxisPen.Thickness = startSize / newZoom;
-        verticalAxisPen.Thickness = startSize / newZoom;
-        previewPointPen.Thickness = startSize / newZoom;
+        horizontalAxisPen.StrokeWidth = startSize / (float)newZoom;
+        verticalAxisPen.StrokeWidth = startSize / (float)newZoom;
+        previewPointPen.StrokeWidth = startSize / (float)newZoom;
     }
 
     private static void SnappingControllerChanged(AvaloniaPropertyChangedEventArgs e)

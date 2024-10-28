@@ -59,12 +59,7 @@ public abstract class Handle : IHandle
 
     public static T? GetResource<T>(string key)
     {
-        if (Application.Current.Styles.TryGetResource(key, null, out object resource))
-        {
-            return (T)resource;
-        }
-
-        return default!;
+       return ResourceLoader.GetResource<T>(key); 
     }
 
     public static VectorPath GetHandleGeometry(string handleName)
@@ -82,17 +77,7 @@ public abstract class Handle : IHandle
 
     protected static Paint? GetPaint(string key, PaintStyle style = PaintStyle.Fill)
     {
-        if (Application.Current.Styles.TryGetResource(key, null, out object paint))
-        {
-            if (paint is SolidColorBrush solidColorBrush)
-            {
-                return new Paint() { Color = solidColorBrush.Color.ToColor(), Style = style, IsAntiAliased = true };
-            }
-            
-            throw new InvalidOperationException("Invalid paint style");
-        }
-
-        return null;
+       return ResourceLoader.GetPaint(key, style);
     }
 
     private void OnPointerPressed(OverlayPointerArgs args)
