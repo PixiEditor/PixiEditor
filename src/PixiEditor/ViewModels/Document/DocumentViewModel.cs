@@ -676,13 +676,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public Color? PickColorFromReferenceLayer(VecD pos)
     {
-        Texture? bitmap = ReferenceLayerViewModel.ReferenceBitmap;
+        Texture? bitmap = ReferenceLayerViewModel.ReferenceTexture;
         if (bitmap is null)
             return null;
 
-        Matrix matrix = ReferenceLayerViewModel.ReferenceTransformMatrix;
+        Matrix3X3 matrix = ReferenceLayerViewModel.ReferenceTransformMatrix;
         matrix = matrix.Invert();
-        var transformed = matrix.Transform(new Point(pos.X, pos.Y));
+        var transformed = matrix.MapPoint(pos);
 
         if (transformed.X < 0 || transformed.Y < 0 || transformed.X >= bitmap.Size.X || transformed.Y >= bitmap.Size.Y)
             return null;

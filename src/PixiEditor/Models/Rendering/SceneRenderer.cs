@@ -1,14 +1,17 @@
 ﻿using ChunkyImageLib.DataHolders;
+using Drawie.Backend.Core.ColorsImpl;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.Rendering;
 
 internal class SceneRenderer
 {
+    
     public IReadOnlyDocument Document { get; }
     public IDocument DocumentViewModel { get; }
 

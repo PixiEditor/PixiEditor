@@ -34,13 +34,13 @@
             <controls:Shelf>
                 <Grid Height="40" x:Name="mainDockPanel">
                     <Grid
-                        IsVisible="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, ElementName=uc, Converter={converters:NullToVisibilityConverter}}"
+                        IsVisible="{Binding Document.ReferenceLayerViewModel.ReferenceTexture, ElementName=uc, Converter={converters:NullToVisibilityConverter}}"
                         Panel.ZIndex="5">
                         <Grid Cursor="Hand" IsVisible="{Binding ElementName=visibilityCheckbox, Path=!IsChecked}"
                               Background="Transparent">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" DockPanel.Dock="Left">
                                 <TextBlock Margin="5 0 5 0" VerticalAlignment="Center" FontSize="24" Text="{DynamicResource icon-add-reference}" Classes="pixi-icon"
-                                       IsVisible="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, ElementName=uc, Converter={converters:NullToVisibilityConverter}}" />
+                                       IsVisible="{Binding Document.ReferenceLayerViewModel.ReferenceTexture, ElementName=uc, Converter={converters:NullToVisibilityConverter}}" />
 
                                 <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}"
                                            Margin="0 0 5 0" Foreground="{DynamicResource ThemeForegroundBrush}"
@@ -57,7 +57,7 @@
                     </Grid>
 
                     <DockPanel Grid.Row="0" VerticalAlignment="Center" Height="40"
-                               IsVisible="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, ElementName=uc, Converter={converters:NotNullToVisibilityConverter}}">
+                               IsVisible="{Binding Document.ReferenceLayerViewModel.ReferenceTexture, ElementName=uc, Converter={converters:NotNullToVisibilityConverter}}">
                         <Grid Height="16" Name="layerVisibilityCheckboxGrid" DockPanel.Dock="Left" Margin="10,0,5,0">
                             <CheckBox
                                 Classes="ImageCheckBox"
@@ -80,7 +80,7 @@
                             BorderBrush="Black"
                             Background="{DynamicResource ThemeBackgroundBrush}"
                             Margin="5, 0, 10, 0">
-                            <visuals:TextureControl Texture="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap,ElementName=uc}"
+                            <visuals:TextureControl Texture="{Binding Document.ReferenceLayerViewModel.ReferenceTexture,ElementName=uc}"
                                    Stretch="Uniform" Width="26" Height="26"
                                    RenderOptions.BitmapInterpolationMode="HighQuality" IsHitTestVisible="False" />
                         </Border>

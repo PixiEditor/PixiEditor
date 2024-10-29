@@ -10,7 +10,7 @@ internal class TransformReferenceLayerExecutor : UpdateableChangeExecutor, ITran
 {
     public override ExecutionState Start()
     {
-        if (document!.ReferenceLayerHandler.ReferenceBitmap is null)
+        if (document!.ReferenceLayerHandler.ReferenceTexture is null)
             return ExecutionState.Error;
 
         ShapeCorners corners = document.ReferenceLayerHandler.ReferenceShapeBindable;

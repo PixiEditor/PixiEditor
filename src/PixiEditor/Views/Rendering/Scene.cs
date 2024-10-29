@@ -236,7 +236,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         renderTexture.Canvas.SetMatrix(matrix.ToSKMatrix().ToMatrix3X3());
 
         RectD dirtyBounds = new RectD(0, 0, Document.Width, Document.Height);
-        //Cursor = DefaultCursor;
         RenderScene(dirtyBounds);
 
         renderTexture.Canvas.Restore();

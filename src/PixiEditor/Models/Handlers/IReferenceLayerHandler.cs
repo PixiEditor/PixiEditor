@@ -11,11 +11,12 @@ namespace PixiEditor.Models.Handlers;
 
 public interface IReferenceLayerHandler : IHandler
 {
-    public Texture? ReferenceBitmap { get; }
+    public Texture? ReferenceTexture { get; }
     public ShapeCorners ReferenceShapeBindable { get; set; }
     public bool IsTopMost { get; set; }
+    public bool IsVisible { get;  }
     public bool IsTransforming { get; set; }
-    public Matrix ReferenceTransformMatrix { get; }
+    public Matrix3X3 ReferenceTransformMatrix { get; }
     public void SetReferenceLayerIsVisible(bool infoIsVisible);
     public void TransformReferenceLayer(ShapeCorners infoCorners);
     public void DeleteReferenceLayer();

@@ -19,6 +19,7 @@ using PixiEditor.ViewModels.Document;
 using PixiEditor.Views.Visuals;
 using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
+using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.Views.Overlays;
 
@@ -56,15 +57,15 @@ internal class ReferenceLayerOverlay : Overlay
         set => SetValue(FadeOutProperty, value);
     }
 
-    public double ReferenceLayerScale => ((ReferenceLayer.ReferenceBitmap != null && ReferenceShape != null)
-        ? (ReferenceShape.RectSize.X / (double)ReferenceLayer.ReferenceBitmap.Size.X)
+    public double ReferenceLayerScale => ((ReferenceLayer.ReferenceTexture != null && ReferenceShape != null)
+        ? (ReferenceShape.RectSize.X / (double)ReferenceLayer.ReferenceTexture.Size.X)
         : 1);
 
     public override OverlayRenderSorting OverlayRenderSorting => ReferenceLayer.IsTopMost
         ? OverlayRenderSorting.Foreground
         : OverlayRenderSorting.Background;
 
-    private Pen borderBen = new Pen(Brushes.Black, 2);
+    private Paint borderBen = new Paint() { Color = Colors.Black, StrokeWidth = 2, Style = PaintStyle.Stroke };
     
     private Paint overlayPaint = new Paint
     {
@@ -80,39 +81,33 @@ internal class ReferenceLayerOverlay : Overlay
 
     public override void RenderOverlay(Canvas context, RectD dirtyCanvasBounds)
     {
-        /*if (ReferenceLayer is { ReferenceBitmap: not null })
+        if (ReferenceLayer is { ReferenceTexture: not null })
         {
-            using var renderOptions = context.PushRenderOptions(new RenderOptions
-            {
-                BitmapInterpolationMode = ScaleToBitmapScalingModeConverter.Calculate(ReferenceLayerScale)
-            });
+            var interpolationMode = ScaleToBitmapScalingModeConverter.Calculate(ReferenceLayerScale);
 
-            var matrix = context.PushTransform(ReferenceLayer.ReferenceTransformMatrix);
+            int saved = context.Save();
+            
+            context.SetMatrix(context.TotalMatrix.Concat(ReferenceLayer.ReferenceTransformMatrix));
 
-            RectD dirty = new RectD(0, 0, ReferenceLayer.ReferenceBitmap.Size.X, ReferenceLayer.ReferenceBitmap.Size.Y);
+            RectD dirty = new RectD(0, 0, ReferenceLayer.ReferenceTexture.Size.X, ReferenceLayer.ReferenceTexture.Size.Y);
             Rect dirtyRect = new Rect(dirty.X, dirty.Y, dirty.Width, dirty.Height);
 
             double opacity = Opacity;
-            var referenceBitmap = ReferenceLayer.ReferenceBitmap;
+            var referenceBitmap = ReferenceLayer.ReferenceTexture;
 
-            referenceBitmap.DrawingSurface.Flush();
-            overlayPaint.Color = new Color(255, 255, 255, (byte)(opacity * 255)); 
+            overlayPaint.Color = new Color(255, 255, 255, (byte)(opacity * 255));
+
+            context.DrawSurface(referenceBitmap.DrawingSurface, 0, 0, overlayPaint); 
             
-            // TODO: Implement this
-            /*DrawTextureOperation drawOperation =
-                new DrawTextureOperation(dirtyRect, Stretch.None, referenceBitmap, overlayPaint);#1#
-
-            //context.Custom(drawOperation);
-
-            matrix.Dispose();
-
+            context.RestoreToCount(saved);
+            
             DrawBorder(context, dirtyCanvasBounds);
-        }*/
+        }
     }
 
-    private void DrawBorder(DrawingContext context, RectD dirtyCanvasBounds)
+    private void DrawBorder(Canvas context, RectD dirtyCanvasBounds)
     {
-        context.DrawRectangle(borderBen, new Rect(0, 0, dirtyCanvasBounds.Width, dirtyCanvasBounds.Height));
+        context.DrawRect(new RectD(0, 0, dirtyCanvasBounds.Width, dirtyCanvasBounds.Height), borderBen);
     }
 
     private static void ReferenceLayerChanged(AvaloniaPropertyChangedEventArgs<ReferenceLayerViewModel> obj)
@@ -131,7 +126,7 @@ internal class ReferenceLayerOverlay : Overlay
 
     protected override void ZoomChanged(double newZoom)
     {
-        borderBen.Thickness = 2 / newZoom;
+        borderBen.StrokeWidth = 2 / (float)newZoom;
     }
 
     private void ToggleFadeOut(bool toggle)

@@ -376,12 +376,12 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
     [Evaluator.CanExecute("PixiEditor.Layer.ReferenceLayerExists")]
     public bool ReferenceLayerExists() =>
-        Owner.DocumentManagerSubViewModel.ActiveDocument?.ReferenceLayerViewModel.ReferenceBitmap is not null;
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.ReferenceLayerViewModel.ReferenceTexture is not null;
 
     [Evaluator.CanExecute("PixiEditor.Layer.ReferenceLayerDoesntExist")]
     public bool ReferenceLayerDoesntExist() =>
         Owner.DocumentManagerSubViewModel.ActiveDocument is not null &&
-        Owner.DocumentManagerSubViewModel.ActiveDocument.ReferenceLayerViewModel.ReferenceBitmap is null;
+        Owner.DocumentManagerSubViewModel.ActiveDocument.ReferenceLayerViewModel.ReferenceTexture is null;
 
     [Command.Basic("PixiEditor.Layer.ImportReferenceLayer", "ADD_REFERENCE_LAYER", "ADD_REFERENCE_LAYER",
         CanExecute = "PixiEditor.Layer.ReferenceLayerDoesntExist",
