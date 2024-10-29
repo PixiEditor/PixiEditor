@@ -228,6 +228,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     public void Draw(DrawingSurface renderTexture)
     {
+        if (Document == null || SceneRenderer == null) return;
+        
         renderTexture.Canvas.Save();
         var matrix = CalculateTransformMatrix();
 
@@ -238,47 +240,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         RenderScene(dirtyBounds);
 
         renderTexture.Canvas.Restore();
-    }
-
-    public override void Render(DrawingContext context)
-    {
-        if (Document == null || SceneRenderer == null) return;
-
-        int width = (int)Math.Ceiling(Bounds.Width);
-        int height = (int)Math.Ceiling(Bounds.Height);
-        /*if (renderTexture == null || renderTexture.Size.X != width || renderTexture.Size.Y != height)
-        {
-            renderTexture?.Dispose();
-            renderTexture = new Texture(new VecI(width, height));
-        }*/
-
-        float angle = (float)MathUtil.RadiansToDegrees(AngleRadians);
-
-        float resolutionScale = CalculateResolutionScale();
-
-        RectD dirtyBounds = new RectD(0, 0, Document.Width, Document.Height);
-
-
-        /*using var operation = new DrawSceneOperation(SceneRenderer.RenderScene, Document, CanvasPos,
-            Scale * resolutionScale,
-            resolutionScale,
-            sceneOpacity,
-            angle,
-            FlipX, FlipY,
-            Bounds,
-            Bounds,
-            renderTexture);*/
-
-        var matrix = CalculateTransformMatrix();
-        context.PushRenderOptions(new RenderOptions { BitmapInterpolationMode = BitmapInterpolationMode.None });
-        var pushedMatrix = context.PushTransform(matrix);
-
-
-        pushedMatrix.Dispose();
-
-        //RenderFrame(new PixelSize(width, height));
-
-        context.PushTransform(matrix);
     }
 
     private void RenderScene(RectD bounds)
@@ -608,6 +569,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     protected void FreeGraphicsResources()
     {
         resources?.DisposeAsync();
+        renderSurface?.Dispose();
+        renderSurface = null;
         resources = null;
     }
 
