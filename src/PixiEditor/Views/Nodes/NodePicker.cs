@@ -130,6 +130,11 @@ public partial class NodePicker : TemplatedControl
     {
         if (e.OffsetDelta.Y != 0)
         {
+            if(_scrollViewer.ScrollBarMaximum.Y == 0)
+            {
+                return;
+            }
+            
             double normalizedY = ScrollOffset.Y / _scrollViewer.ScrollBarMaximum.Y;
 
             int index = (int)(normalizedY * _itemsControl.Items.Count);

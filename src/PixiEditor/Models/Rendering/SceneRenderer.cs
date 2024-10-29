@@ -1,10 +1,12 @@
 ﻿using ChunkyImageLib.DataHolders;
+using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.Rendering;
@@ -14,6 +16,7 @@ internal class SceneRenderer
     
     public IReadOnlyDocument Document { get; }
     public IDocument DocumentViewModel { get; }
+    public bool HighResRendering { get; set; } = true;
 
     public SceneRenderer(IReadOnlyDocument trackerDocument, IDocument documentViewModel)
     {
@@ -29,9 +32,24 @@ internal class SceneRenderer
 
     private void RenderGraph(DrawingSurface target, ChunkResolution resolution)
     {
-        RenderContext context = new(target, DocumentViewModel.AnimationHandler.ActiveFrameTime,
+        DrawingSurface renderTarget = target;
+        Texture? texture = null;
+        
+        if (!HighResRendering)
+        {
+            texture = new(Document.Size);
+            renderTarget = texture.DrawingSurface;
+        }
+
+        RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
             resolution, Document.Size);
         Document.NodeGraph.Execute(context);
+        
+        if(texture != null)
+        {
+            target.Canvas.DrawSurface(texture.DrawingSurface, 0, 0);
+            texture.Dispose();
+        }
     }
 
     private void RenderOnionSkin(DrawingSurface target, ChunkResolution resolution)

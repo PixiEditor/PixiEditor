@@ -59,7 +59,7 @@
                         Background="{DynamicResource ThemeBackgroundBrush1}" ZIndex="2">
                     <StackPanel Orientation="Vertical">
                         <StackPanel Orientation="Horizontal">
-                            <Border Width="35" Height="35" Margin="5 0" 
+                            <Border Width="35" Height="35" Margin="5 0"
                                     BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                                     BorderThickness="{DynamicResource ThemeBorderThickness}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -78,6 +78,22 @@
                                     BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                                     Content="{DynamicResource icon-reset}"
                                     Cursor="Hand" />
+                        </StackPanel>
+                        <Separator />
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="HIGH_RES_PREVIEW"
+                                          Classes="OverlayButton pixi-icon"
+                                          BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                          Content="{DynamicResource icon-circle}"
+                                          IsChecked="{Binding HighResPreview, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+                                          Cursor="Hand" />
+                            <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
+                                          ui:Translator.TooltipKey="LOW_RES_PREVIEW"
+                                          Classes="OverlayButton pixi-icon"
+                                          BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                          Content="{DynamicResource icon-circle}"
+                                          IsChecked="{Binding !HighResPreview, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+                                          Cursor="Hand" />
                         </StackPanel>
                         <Separator />
                         <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
@@ -107,11 +123,12 @@
                                           Content="{DynamicResource icon-x-flip}"
                                           Cursor="Hand" />
                         </StackPanel>
-                        <Separator/>
+                        <Separator />
                         <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
-                                      ui:Translator.TooltipKey="TOGGLE_SNAPPING" Classes="OverlayToggleButton pixi-icon"
+                                      ui:Translator.TooltipKey="TOGGLE_SNAPPING"
+                                      Classes="OverlayToggleButton pixi-icon"
                                       Content="{DynamicResource icon-snapping}"
-                                      IsChecked="{Binding SnappingViewModel.SnappingEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"/>
+                                      IsChecked="{Binding SnappingViewModel.SnappingEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
                     </StackPanel>
                 </Border>
             </overlays:TogglableFlyout.Child>
@@ -122,8 +139,8 @@
                            Margin="10 55 0 0"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Top"
-                           ToolSet="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet}" 
-                           SwitchToolSetCommand="{xaml:Command Name=PixiEditor.Tools.SwitchToolSet, UseProvided=True}"/>
+                           ToolSet="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet}"
+                           SwitchToolSetCommand="{xaml:Command Name=PixiEditor.Tools.SwitchToolSet, UseProvided=True}" />
         <rendering:Scene
             Focusable="False" Name="scene"
             ZIndex="1"

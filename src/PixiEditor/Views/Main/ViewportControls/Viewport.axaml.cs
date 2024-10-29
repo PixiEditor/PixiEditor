@@ -91,11 +91,14 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             nameof(Channels));
 
     public static readonly StyledProperty<bool> IsOverCanvasProperty = AvaloniaProperty.Register<Viewport, bool>(
-        "IsOverCanvas");
+        nameof(IsOverCanvas));
 
-    public static readonly StyledProperty<SnappingViewModel> SnappingViewModelProperty = AvaloniaProperty.Register<Viewport, SnappingViewModel>(
+    public static readonly StyledProperty<SnappingViewModel> SnappingViewModelProperty = 
+        AvaloniaProperty.Register<Viewport, SnappingViewModel>(
         nameof(SnappingViewModel));
 
+    public static readonly StyledProperty<bool> HighResPreviewProperty = 
+        AvaloniaProperty.Register<Viewport, bool>(nameof(HighResPreview), true);
     public SnappingViewModel SnappingViewModel
     {
         get => GetValue(SnappingViewModelProperty);
@@ -293,6 +296,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         DocumentProperty.Changed.Subscribe(OnDocumentChange);
         ZoomViewportTriggerProperty.Changed.Subscribe(ZoomViewportTriggerChanged);
         CenterViewportTriggerProperty.Changed.Subscribe(CenterViewportTriggerChanged);
+        HighResPreviewProperty.Changed.Subscribe(OnHighResPreviewChanged);
     }
 
     public Viewport()
@@ -326,6 +330,12 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     }
 
     public Scene Scene => scene;
+
+    public bool HighResPreview
+    {
+        get { return (bool)GetValue(HighResPreviewProperty); }
+        set { SetValue(HighResPreviewProperty, value); }
+    }
 
     private void ForceRefreshFinalImage()
     {
@@ -476,5 +486,12 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             return;
         if (isMiddle && MiddleMouseClickedCommand.CanExecute(null))
             MiddleMouseClickedCommand.Execute(null);
+    }
+    
+    private static void OnHighResPreviewChanged(AvaloniaPropertyChangedEventArgs<bool> e)
+    {
+        Viewport? viewport = (Viewport)e.Sender;
+        viewport.Document.SceneRenderer.HighResRendering = e.NewValue.Value; 
+        viewport.ForceRefreshFinalImage();
     }
 }

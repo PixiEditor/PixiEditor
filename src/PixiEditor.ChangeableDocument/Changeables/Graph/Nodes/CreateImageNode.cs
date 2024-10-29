@@ -22,7 +22,7 @@ public class CreateImageNode : Node
 
     public CreateImageNode()
     {
-        Output = CreateOutput<Texture>(nameof(Output), "EMPTY_IMAGE", null);
+        Output = CreateOutput<Texture>(nameof(Output), "IMAGE", null);
         Size = CreateInput(nameof(Size), "SIZE", new VecI(32, 32)).WithRules(v => v.Min(VecI.One));
         Fill = CreateInput(nameof(Fill), "FILL", Colors.Transparent);
         Content = CreateRenderInput(nameof(Content), "CONTENT");
