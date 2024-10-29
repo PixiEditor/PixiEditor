@@ -155,7 +155,7 @@ internal static class ServiceCollectionHelpers
     private static IServiceCollection AddAssemblyTypes<T>(this IServiceCollection collection)
     {
         Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-        IEnumerable<Type> types = assemblies.SelectMany(x => x.GetTypes())
+        IEnumerable<Type> types = assemblies.Where(asm => !asm.FullName.Contains("Steamworks")).SelectMany(x => x.GetTypes())
             .Where(x => typeof(T).IsAssignableFrom(x) && x is { IsInterface: false, IsAbstract: false });
         foreach (Type type in types)
         {
