@@ -13,18 +13,20 @@
              HorizontalAlignment="Center"
              VerticalAlignment="Center"
              d:DesignHeight="450" d:DesignWidth="800">
-
-    <visuals:TextureControl
-        x:Name="mainImage"
-        Focusable="True"
-        Texture="{Binding TargetBitmap, ElementName=uc}"
-        Stretch="Uniform"
-        SizeChanged="OnImageSizeChanged">
-        <ui1:RenderOptionsBindable.BitmapInterpolationMode>
-            <MultiBinding Converter="{converters1:WidthToBitmapScalingModeConverter}">
-                <Binding ElementName="uc" Path="TargetBitmap.Size.X"/>
-                <Binding ElementName="mainImage" Path="Bounds.Width"/>
-            </MultiBinding>
-        </ui1:RenderOptionsBindable.BitmapInterpolationMode>
-    </visuals:TextureControl>
+    
+        <visuals:PreviewPainterControl
+            x:Name="mainImage"
+            VerticalAlignment="Stretch"
+            HorizontalAlignment="Stretch"
+            Focusable="True"
+            PreviewPainter="{Binding Document.PreviewPainter, ElementName=uc}"
+            FrameToRender="{Binding Document.AnimationDataViewModel.ActiveFrameBindable, ElementName=uc}"
+            SizeChanged="OnImageSizeChanged">
+            <ui1:RenderOptionsBindable.BitmapInterpolationMode>
+                <MultiBinding Converter="{converters1:WidthToBitmapScalingModeConverter}">
+                    <Binding ElementName="uc" Path="Document.SizeBindable.X" />
+                    <Binding ElementName="mainImage" Path="Bounds.Width" />
+                </MultiBinding>
+            </ui1:RenderOptionsBindable.BitmapInterpolationMode>
+        </visuals:PreviewPainterControl>
 </UserControl>

@@ -36,7 +36,17 @@ public class PreviewPainterControl : DrawieControl
     {
         PreviewPainterProperty.Changed.Subscribe(PainterChanged);
     }
-    
+
+    protected override Size MeasureOverride(Size availableSize)
+    {
+        return availableSize;
+    }
+
+    protected override Size ArrangeOverride(Size finalSize)
+    {
+        return finalSize;
+    }
+
     public PreviewPainterControl(PreviewPainter previewPainter, int frameToRender)
     {
         PreviewPainter = previewPainter;

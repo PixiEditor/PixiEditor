@@ -10,6 +10,7 @@ using Drawie.Backend.Core;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Position;
 using Drawie.Numerics;
+using PixiEditor.Models.Rendering;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Views.Main.ViewportControls;
@@ -117,12 +118,6 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
     private void DocSizeChanged(object? sender, DocumentSizeChangedEventArgs e)
     {
         Document?.Operations.AddOrUpdateViewport(GetLocation());
-    }
-
-    private static void OnBitmapsChange(AvaloniaPropertyChangedEventArgs<Dictionary<ChunkResolution, Texture>> args)
-    {
-        FixedViewport? viewport = (FixedViewport)args.Sender;
-        viewport.Document?.Operations.AddOrUpdateViewport(viewport.GetLocation());
     }
 
     private void OnImageSizeChanged(object sender, SizeChangedEventArgs e)
