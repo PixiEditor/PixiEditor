@@ -36,7 +36,13 @@ public class PreviewPainterControl : DrawieControl
     {
         PreviewPainterProperty.Changed.Subscribe(PainterChanged);
     }
-
+    
+    public PreviewPainterControl(PreviewPainter previewPainter, int frameToRender)
+    {
+        PreviewPainter = previewPainter;
+        FrameToRender = frameToRender;
+        PreviewPainterProperty.Changed.Subscribe(PainterChanged);
+    }
 
     private void PainterChanged(AvaloniaPropertyChangedEventArgs<PreviewPainter> args)
     {

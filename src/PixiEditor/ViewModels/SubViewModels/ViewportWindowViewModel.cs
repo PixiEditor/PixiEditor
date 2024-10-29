@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using PixiDocks.Core.Docking;
 using PixiDocks.Core.Docking.Events;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Interop.VulkanAvalonia.Controls;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentModels;
@@ -68,6 +69,8 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         set => SetProperty(ref _channels, value);
     }
 
+    private PreviewPainterControl previewPainterControl;
+
     public void IndexChanged()
     {
         _index = Owner.CalculateViewportIndex(this) ?? "";
@@ -81,7 +84,8 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         Document = document;
         Document.SizeChanged += DocumentOnSizeChanged;
         Document.PropertyChanged += DocumentOnPropertyChanged;
-        TabCustomizationSettings.Icon = new PreviewPainterImage(Document.PreviewPainter, Document.AnimationDataViewModel.ActiveFrameTime.Frame);
+        previewPainterControl = new PreviewPainterControl(Document.PreviewPainter, Document.AnimationDataViewModel.ActiveFrameTime.Frame);
+        TabCustomizationSettings.Icon = previewPainterControl;
     }
 
     private void DocumentOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -92,7 +96,8 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         }
         else if (e.PropertyName == nameof(DocumentViewModel.PreviewPainter))
         {
-            TabCustomizationSettings.Icon = new PreviewPainterImage(Document.PreviewPainter, Document.AnimationDataViewModel.ActiveFrameTime.Frame); 
+            previewPainterControl.PreviewPainter = Document.PreviewPainter;
+            previewPainterControl.FrameToRender = Document.AnimationDataViewModel.ActiveFrameTime.Frame;
         }
         else if (e.PropertyName == nameof(DocumentViewModel.AllChangesSaved))
         {
@@ -108,7 +113,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
 
     private void DocumentOnSizeChanged(object? sender, DocumentSizeChangedEventArgs e)
     {
-        TabCustomizationSettings.Icon = new PreviewPainterImage(Document.PreviewPainter, e.Document.AnimationHandler.ActiveFrameTime.Frame);
+        previewPainterControl.QueueNextFrame();
         OnPropertyChanged(nameof(TabCustomizationSettings));
     }
 
