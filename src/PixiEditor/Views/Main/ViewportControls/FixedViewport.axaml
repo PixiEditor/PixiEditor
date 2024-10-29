@@ -16,8 +16,6 @@
     
         <visuals:PreviewPainterControl
             x:Name="mainImage"
-            VerticalAlignment="Stretch"
-            HorizontalAlignment="Stretch"
             Focusable="True"
             PreviewPainter="{Binding Document.PreviewPainter, ElementName=uc}"
             FrameToRender="{Binding Document.AnimationDataViewModel.ActiveFrameBindable, ElementName=uc}"

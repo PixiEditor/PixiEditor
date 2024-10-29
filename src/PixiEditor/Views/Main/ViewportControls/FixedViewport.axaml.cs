@@ -51,6 +51,20 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
         Unloaded += OnUnload;
     }
 
+    protected override Size MeasureOverride(Size availableSize)
+    {
+        double aspectRatio = Document?.Width / (double)Document?.Height ?? 1;
+        double width = availableSize.Width;
+        double height = width / aspectRatio;
+        if (height > availableSize.Height)
+        {
+            height = availableSize.Height;
+            width = height * aspectRatio;
+        }
+        
+        return new Size(width, height);
+    }
+
     private void OnUnload(object sender, RoutedEventArgs e)
     {
         Document?.Operations.RemoveViewport(GuidValue);
@@ -104,6 +118,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
         FixedViewport? viewport = (FixedViewport)args.Sender;
         oldDoc?.Operations.RemoveViewport(viewport.GuidValue);
         newDoc?.Operations.AddOrUpdateViewport(viewport.GetLocation());
+        viewport.InvalidateMeasure();
 
         if (oldDoc != null)
         {
@@ -118,6 +133,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
     private void DocSizeChanged(object? sender, DocumentSizeChangedEventArgs e)
     {
         Document?.Operations.AddOrUpdateViewport(GetLocation());
+        InvalidateMeasure();
     }
 
     private void OnImageSizeChanged(object sender, SizeChangedEventArgs e)
