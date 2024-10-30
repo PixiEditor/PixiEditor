@@ -20,10 +20,14 @@ public class ApplyFilterNode : RenderNode, IRenderInput
     {
         Background = CreateRenderInput("Input", "IMAGE");
         Filter = CreateInput<Filter>("Filter", "FILTER", null);
+        Output.FirstInChain = null;
     }
 
     protected override void OnPaint(RenderContext context, DrawingSurface surface)
     {
+        if (Background.Value == null || Filter.Value == null)
+            return;
+        
         _paint.SetFilters(Filter.Value);
         var layer = surface.Canvas.SaveLayer(_paint);
         
