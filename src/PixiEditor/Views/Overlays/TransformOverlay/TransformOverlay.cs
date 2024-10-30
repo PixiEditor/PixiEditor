@@ -155,9 +155,14 @@ internal class TransformOverlay : Overlay
     private VecD mousePosOnStartAnchorDrag;
     private VecD originOnStartAnchorDrag;
 
-    private Paint blackPen = new Paint()
+    private Paint handlePen = new Paint()
     {
         Color = Colors.Black, StrokeWidth = 1, Style = PaintStyle.Stroke, IsAntiAliased = true
+    };
+
+    private Paint cursorBorderPaint = new Paint()
+    {
+        Color = Colors.Black, StrokeWidth = 0.08f, Style = PaintStyle.Stroke, IsAntiAliased = true
     };
 
     private Paint whiteFillPen = new Paint()
@@ -234,7 +239,7 @@ internal class TransformOverlay : Overlay
         leftHandle = new AnchorHandle(this);
         rightHandle = new AnchorHandle(this);
         moveHandle = new(this);
-        moveHandle.StrokePaint = blackPen;
+        moveHandle.StrokePaint = handlePen;
         centerHandle = new RectangleHandle(this);
         centerHandle.Size = rightHandle.Size;
 
@@ -316,21 +321,21 @@ internal class TransformOverlay : Overlay
         // draw transparent background to enable mouse input
         DrawMouseInputArea(context, size);
 
-        blackPen.StrokeWidth = 1 / zoomboxScale;
+        handlePen.StrokeWidth = 1 / zoomboxScale;
         blackDashedPen.StrokeWidth = 1 / zoomboxScale;
         whiteDashedPen.StrokeWidth = 1 / zoomboxScale;
         blackFreqDashedPen.StrokeWidth = 1 / zoomboxScale;
         whiteFreqDashedPen.StrokeWidth = 1 / zoomboxScale;
-        
+
         blackDashedPen.PathEffect?.Dispose();
         blackDashedPen.PathEffect = PathEffect.CreateDash([2 / zoomboxScale, 4 / zoomboxScale], 0);
-        
+
         whiteDashedPen.PathEffect?.Dispose();
         whiteDashedPen.PathEffect = PathEffect.CreateDash([2 / zoomboxScale, 4 / zoomboxScale], 2);
-        
+
         blackFreqDashedPen.PathEffect?.Dispose();
         blackFreqDashedPen.PathEffect = PathEffect.CreateDash([2 / zoomboxScale, 2 / zoomboxScale], 0);
-        
+
         whiteFreqDashedPen.PathEffect?.Dispose();
         whiteFreqDashedPen.PathEffect = PathEffect.CreateDash([2 / zoomboxScale, 2 / zoomboxScale], 2);
 
@@ -395,10 +400,10 @@ internal class TransformOverlay : Overlay
                 (float)lastPointerPos.X, (float)lastPointerPos.Y));
             context.SetMatrix(context.TotalMatrix.Concat(matrix));
 
-            context.DrawPath(rotateCursorGeometry, blackPen);
             context.DrawPath(rotateCursorGeometry, whiteFillPen);
+            context.DrawPath(rotateCursorGeometry, cursorBorderPaint);
         }
-        
+
         context.RestoreToCount(saved);
     }
 
