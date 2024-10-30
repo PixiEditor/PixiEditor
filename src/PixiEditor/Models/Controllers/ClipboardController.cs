@@ -144,7 +144,9 @@ internal static class ClipboardController
     {
         Guid[] layerIds = GetLayerIds(data);
 
-        if (layerIds != null && layerIds.Length > 0)
+        bool hasPos = data.Any(x => x.Contains(ClipboardDataFormats.PositionFormat));
+        
+        if (layerIds is { Length: > 0 } && !hasPos)
         {
             foreach (var layerId in layerIds)
             {

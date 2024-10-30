@@ -100,7 +100,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     public abstract VecD GetScenePosition(KeyFrameTime frameTime);
     public abstract VecD GetSceneSize(KeyFrameTime frameTime);
 
-    private void RenderForOutput(RenderContext context, DrawingSurface renderTarget, RenderOutputProperty output)
+    public void RenderForOutput(RenderContext context, DrawingSurface renderTarget, RenderOutputProperty output)
     {
         var renderObjectContext = CreateSceneContext(context, renderTarget, output);
 

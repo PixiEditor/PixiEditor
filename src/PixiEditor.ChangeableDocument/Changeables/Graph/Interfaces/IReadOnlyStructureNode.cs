@@ -2,6 +2,7 @@
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Rendering;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
@@ -18,4 +19,5 @@ public interface IReadOnlyStructureNode : IReadOnlyNode, ISceneObject, IChunkRen
     public RectD? GetTightBounds(KeyFrameTime frameTime);
     public ChunkyImage? EmbeddedMask { get; }
     public ShapeCorners GetTransformationCorners(KeyFrameTime frameTime);
+    public void RenderForOutput(RenderContext context, DrawingSurface renderTarget, RenderOutputProperty output);
 }

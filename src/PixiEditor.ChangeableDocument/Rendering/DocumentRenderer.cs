@@ -68,9 +68,9 @@ public class DocumentRenderer : IPreviewRenderable
     }
 
 
-    public void RenderLayer(DrawingSurface renderOn, Guid nodeId, ChunkResolution resolution, KeyFrameTime frameTime)
+    public void RenderLayer(DrawingSurface renderOn, Guid layerId, ChunkResolution resolution, KeyFrameTime frameTime)
     {
-        var node = Document.FindNode(nodeId);
+        var node = Document.FindMember(layerId);
 
         if (node is null)
         {
@@ -79,8 +79,8 @@ public class DocumentRenderer : IPreviewRenderable
 
         RenderContext context = new(renderOn, frameTime, resolution, Document.Size);
         context.FullRerender = true;
-
-        node.Execute(context);
+        
+        node.RenderForOutput(context, renderOn, null);
     }
 
     public static IReadOnlyNodeGraph ConstructMembersOnlyGraph(IReadOnlyNodeGraph fullGraph)
