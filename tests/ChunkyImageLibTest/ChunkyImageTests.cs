@@ -1,13 +1,11 @@
 ﻿using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.Bridge;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Skia;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.Bridge;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Numerics;
+using Drawie.Skia;
 using Xunit;
-using static PixiEditor.DrawingApi.Core.Surface;
 
 namespace ChunkyImageLibTest;
 public class ChunkyImageTests
