@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿using System.Diagnostics.CodeAnalysis;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
@@ -107,53 +108,42 @@ public class SeparateChannelsNode : Node, IRenderInput, IPreviewRenderable
             return false;
         
         RenderContext context = new(renderOn, frame, resolution, VecI.One);
-        
+
+        renderOn.Canvas.Save();
+
         _paint.ColorFilter = Grayscale.Value ? _redGrayscaleFilter : _redFilter;
         RectD localBounds = new(bounds.Value.X, bounds.Value.Y, bounds.Value.Width / 2, bounds.Value.Height / 2);
-        int saved = renderOn.Canvas.SaveLayer(_paint, localBounds);
+        PaintPreview(renderOn, localBounds, bounds.Value.Pos, context);
 
-        renderOn.Canvas.Scale(0.5f);
-        renderOn.Canvas.Translate((float)bounds.Value.X, (float)bounds.Value.Y);
-        
-        Image.Value.Paint(context, renderOn);
-        
-        renderOn.Canvas.RestoreToCount(saved);
-        
         _paint.ColorFilter = Grayscale.Value ? _greenGrayscaleFilter : _greenFilter;
         localBounds = new(bounds.Value.X + bounds.Value.Width / 2, bounds.Value.Y, bounds.Value.Width / 2, bounds.Value.Height / 2);
-        saved = renderOn.Canvas.SaveLayer(_paint, localBounds);
-        
-        renderOn.Canvas.Scale(0.5f);
-        renderOn.Canvas.Translate((float)bounds.Value.X + (float)bounds.Value.Width, (float)bounds.Value.Y);
-        
-        Image.Value.Paint(context, renderOn);
-        
-        renderOn.Canvas.RestoreToCount(saved);
+        PaintPreview(renderOn, localBounds, new VecD(bounds.Value.X + bounds.Value.Width, bounds.Value.Y), context);
         
         _paint.ColorFilter = Grayscale.Value ? _blueGrayscaleFilter : _blueFilter;
         localBounds = new(bounds.Value.X, bounds.Value.Y + bounds.Value.Height / 2, bounds.Value.Width / 2, bounds.Value.Height / 2);
-        
-        saved = renderOn.Canvas.SaveLayer(_paint, localBounds);
-        
-        renderOn.Canvas.Scale(0.5f);
-        renderOn.Canvas.Translate((float)bounds.Value.X, (float)bounds.Value.Y + (float)bounds.Value.Height);
-        
-        Image.Value.Paint(context, renderOn);
-        
-        renderOn.Canvas.RestoreToCount(saved);
+        PaintPreview(renderOn, localBounds, new VecD(bounds.Value.X, bounds.Value.Y + bounds.Value.Height), context);
         
         _paint.ColorFilter = Grayscale.Value ? _alphaGrayscaleFilter : _alphaFilter;
         localBounds = new(bounds.Value.X + bounds.Value.Width / 2, bounds.Value.Y + bounds.Value.Height / 2, bounds.Value.Width / 2, bounds.Value.Height / 2);
-        saved = renderOn.Canvas.SaveLayer(_paint, localBounds);
+        PaintPreview(renderOn, localBounds, new VecD(bounds.Value.X + bounds.Value.Width, bounds.Value.Y + bounds.Value.Height), context);
         
+        renderOn.Canvas.Restore();
+
+        return true;
+    }
+
+    private void PaintPreview(DrawingSurface renderOn, RectD localBounds, VecD translation, RenderContext context)
+    {
+        int saved = renderOn.Canvas.Save();
+        
+        renderOn.Canvas.ClipRect(localBounds);
+        renderOn.Canvas.SaveLayer(_paint, localBounds);
+
         renderOn.Canvas.Scale(0.5f);
-        
-        renderOn.Canvas.Translate((float)bounds.Value.X + (float)bounds.Value.Width, (float)bounds.Value.Y + (float)bounds.Value.Height);
+        renderOn.Canvas.Translate((float)translation.X, (float)translation.Y);
         
         Image.Value.Paint(context, renderOn);
         
         renderOn.Canvas.RestoreToCount(saved);
-
-        return true;
     }
 }
