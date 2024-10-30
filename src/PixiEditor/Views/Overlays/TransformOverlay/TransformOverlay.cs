@@ -234,6 +234,7 @@ internal class TransformOverlay : Overlay
         leftHandle = new AnchorHandle(this);
         rightHandle = new AnchorHandle(this);
         moveHandle = new(this);
+        moveHandle.StrokePaint = blackPen;
         centerHandle = new RectangleHandle(this);
         centerHandle.Size = rightHandle.Size;
 

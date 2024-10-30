@@ -8,6 +8,7 @@ using Drawie.Numerics;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.Views.Overlays.TransformOverlay;
 using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
+using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.Views.Overlays.Handles;
 
@@ -23,7 +24,7 @@ public class TransformHandle : Handle
         handleGlyph = new IconGlyph(PixiPerfectIcons.MoveView, customPaint: GlyphPaint); 
         handleGlyph.Size = Size - new VecD(1);
         handleGlyph.Offset = new VecD(0, -1f);
-
+        
         Cursor = new Cursor(StandardCursorType.SizeAll);
     }
 
