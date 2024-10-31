@@ -363,9 +363,16 @@ internal static class ClipboardController
                 {
                     foreach (var file in storageFiles)
                     {
-                        if (Importer.IsSupportedFile(file.Path.LocalPath))
+                        try
                         {
-                            return file.Path.LocalPath;
+                            if (Importer.IsSupportedFile(file.Path.LocalPath))
+                            {
+                                return file.Path.LocalPath;
+                            }
+                        }
+                        catch (UriFormatException)
+                        {
+                            continue;
                         }
                     }
                 }

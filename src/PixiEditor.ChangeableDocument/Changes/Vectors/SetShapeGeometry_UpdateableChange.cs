@@ -6,7 +6,7 @@ using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Vectors;
 
-internal class SetShapeGeometry_UpdateableChange : UpdateableChange
+internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
 {
     public Guid TargetId { get; set; }
     public ShapeVectorData Data { get; set; }

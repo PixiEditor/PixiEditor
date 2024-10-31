@@ -14,6 +14,7 @@ public class DocumentChangeTracker : IDisposable
     public IReadOnlyDocument Document => document;
     public bool HasSavedUndo => undoStack.Any();
     public bool HasSavedRedo => redoStack.Any();
+
     public Guid? LastChangeGuid
     {
         get
@@ -93,16 +94,16 @@ public class DocumentChangeTracker : IDisposable
         if (activePacket.Count == 1 &&
             undoStack.Count > 0 &&
             (undoStack.Peek().source == ActionSource.Automated ||
-            (IsHomologous(undoStack.Peek()) &&
-            undoStack.Peek().changes[^1].IsMergeableWith(activePacket[0].change))))
+             (IsHomologous(undoStack.Peek()) &&
+              undoStack.Peek().changes[^1].IsMergeableWith(activePacket[0].change))))
         {
             undoStack.Peek().changes.Add(activePacket[0].change);
         }
         else
         {
             undoStack.Push(
-                (activePacket.Any(x => x.source == ActionSource.User) ? ActionSource.User : source,  
-                activePacket.Select(x => x.change).ToList()));
+                (activePacket.Any(x => x.source == ActionSource.User) ? ActionSource.User : source,
+                    activePacket.Select(x => x.change).ToList()));
         }
 
         activePacket = null;
@@ -115,6 +116,7 @@ public class DocumentChangeTracker : IDisposable
             if (!changes.changes[i].IsMergeableWith(changes.changes[i - 1]))
                 return false;
         }
+
         return true;
     }
 
@@ -124,9 +126,11 @@ public class DocumentChangeTracker : IDisposable
             return new List<IChangeInfo>();
         if (activePacket is not null || activeUpdateableChange is not null)
         {
-            Trace.WriteLine("Attempted to undo while there is an active updateable change or an unfinished undo packet");
+            Trace.WriteLine(
+                "Attempted to undo while there is an active updateable change or an unfinished undo packet");
             return new List<IChangeInfo>();
         }
+
         List<IChangeInfo> changeInfos = new();
         var changePacket = undoStack.Pop();
 
@@ -148,9 +152,11 @@ public class DocumentChangeTracker : IDisposable
             return new List<IChangeInfo>();
         if (activePacket is not null || activeUpdateableChange is not null)
         {
-            Trace.WriteLine("Attempted to redo while there is an active updateable change or an unfinished undo packet");
+            Trace.WriteLine(
+                "Attempted to redo while there is an active updateable change or an unfinished undo packet");
             return new List<IChangeInfo>();
         }
+
         List<IChangeInfo> changeInfos = new();
         var changePacket = redoStack.Pop();
 
@@ -170,9 +176,11 @@ public class DocumentChangeTracker : IDisposable
     {
         if (activeUpdateableChange is not null || activePacket is not null)
         {
-            Trace.WriteLine("Attempted to delete all changes while there is an active updateable change or an unfinished undo packet");
+            Trace.WriteLine(
+                "Attempted to delete all changes while there is an active updateable change or an unfinished undo packet");
             return;
         }
+
         foreach (var changesToDispose in redoStack)
         {
             foreach (var changeToDispose in changesToDispose.changes)
@@ -196,6 +204,7 @@ public class DocumentChangeTracker : IDisposable
             Trace.WriteLine($"Attempted to execute make change action {act} while {activeUpdateableChange} is active");
             return new None();
         }
+
         var change = act.CreateCorrespondingChange();
         var validationResult = change.InitializeAndValidate(document);
         if (!validationResult)
@@ -217,23 +226,65 @@ public class DocumentChangeTracker : IDisposable
     {
         if (activeUpdateableChange is null)
         {
-            var newChange = act.CreateCorrespondingChange();
-            var validationResult = newChange.InitializeAndValidate(document);
-            if (!validationResult)
+            if (CreateUpdateableChange(act, out var processStartOrUpdateChangeAction))
             {
-                Trace.WriteLine($"Change {newChange} failed validation");
-                newChange.Dispose();
-                return new None();
+                return processStartOrUpdateChangeAction;
             }
-            activeUpdateableChange = newChange;
         }
         else if (!act.IsChangeTypeMatching(activeUpdateableChange))
         {
-            Trace.WriteLine($"Tried to start or update a change using action {act} while a change of type {activeUpdateableChange} is active");
+            if (activeUpdateableChange is InterruptableUpdateableChange)
+            {
+                var applyInfo = activeUpdateableChange.Apply(document, false, out bool ignoreInUndo);
+                if (!ignoreInUndo)
+                    AddToUndo(activeUpdateableChange, ActionSource.User);
+                else
+                    activeUpdateableChange.Dispose();
+
+                activeUpdateableChange = null;
+
+                List<IChangeInfo> changeInfos = new();
+                applyInfo.Switch(
+                    static (None _) => { },
+                    (IChangeInfo info) => changeInfos.Add(info),
+                    (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
+
+                if (CreateUpdateableChange(act, out var processStartOrUpdateChangeAction))
+                {
+                    processStartOrUpdateChangeAction.Switch(
+                        static (None _) => { },
+                        (IChangeInfo info) => changeInfos.Add(info),
+                        (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
+                }
+
+                return changeInfos;
+            }
+
+            Trace.WriteLine(
+                $"Tried to start or update a change using action {act} while a change of type {activeUpdateableChange} is active");
             return new None();
         }
+
         act.UpdateCorrespodingChange(activeUpdateableChange);
         return activeUpdateableChange.ApplyTemporarily(document);
+    }
+
+    private bool CreateUpdateableChange(IStartOrUpdateChangeAction act,
+        out OneOf<None, IChangeInfo, List<IChangeInfo>> processStartOrUpdateChangeAction)
+    {
+        var newChange = act.CreateCorrespondingChange();
+        var validationResult = newChange.InitializeAndValidate(document);
+        if (!validationResult)
+        {
+            Trace.WriteLine($"Change {newChange} failed validation");
+            newChange.Dispose();
+            processStartOrUpdateChangeAction = new None();
+            return true;
+        }
+
+        activeUpdateableChange = newChange;
+        processStartOrUpdateChangeAction = new None();
+        return false;
     }
 
     private OneOf<None, IChangeInfo, List<IChangeInfo>> ProcessEndChangeAction(IEndChangeAction act)
@@ -243,9 +294,11 @@ public class DocumentChangeTracker : IDisposable
             Trace.WriteLine($"Attempted to end a change using action {act} while no changes are active");
             return new None();
         }
+
         if (!act.IsChangeTypeMatching(activeUpdateableChange))
         {
-            Trace.WriteLine($"Trying to end a change with an action {act} while change {activeUpdateableChange} is active");
+            Trace.WriteLine(
+                $"Trying to end a change with an action {act} while change {activeUpdateableChange} is active");
             return new None();
         }
 
@@ -261,6 +314,7 @@ public class DocumentChangeTracker : IDisposable
     private List<IChangeInfo?> ProcessActionList(IReadOnlyList<(ActionSource, IAction)> actions)
     {
         List<IChangeInfo?> changeInfos = new();
+
         void AddInfo(OneOf<None, IChangeInfo, List<IChangeInfo>> info) =>
             info.Switch(
                 static (None _) => { },
@@ -298,6 +352,7 @@ public class DocumentChangeTracker : IDisposable
                     break;
             }
         }
+
         return changeInfos;
     }
 
