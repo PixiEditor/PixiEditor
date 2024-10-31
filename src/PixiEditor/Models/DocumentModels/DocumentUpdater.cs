@@ -13,14 +13,14 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root.ReferenceLayerChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core;
+using Drawie.Backend.Core;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Nodes;
@@ -353,22 +353,9 @@ internal class DocumentUpdater
 
     private void ProcessSize(Size_ChangeInfo info)
     {
-        VecI oldSize = doc.SizeBindable;
-
-        foreach ((ChunkResolution res, Texture surf) in doc.Surfaces)
-        {
-            surf.Dispose();
-            VecI size = (VecI)(info.Size * res.Multiplier());
-            doc.Surfaces[res] = new Texture(new VecI(Math.Max(size.X, 1), Math.Max(size.Y, 1)));
-        }
-
         doc.SetSize(info.Size);
         doc.SetVerticalSymmetryAxisX(info.VerticalSymmetryAxisX);
         doc.SetHorizontalSymmetryAxisY(info.HorizontalSymmetryAxisY);
-
-        VecI documentPreviewSize = StructureHelpers.CalculatePreviewSize(info.Size);
-        doc.PreviewSurface.Dispose();
-        doc.PreviewSurface = new Texture(documentPreviewSize);
     }
 
     private void ProcessCreateStructureMember(CreateStructureMember_ChangeInfo info)

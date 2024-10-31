@@ -1,7 +1,9 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Media;
+using Drawie.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Views.Overlays.TransformOverlay;
+using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 
 namespace PixiEditor.Views.Overlays.Handles;
 
@@ -12,10 +14,18 @@ public class RectangleHandle : Handle
     {
     }
 
-    public override void Draw(DrawingContext context)
+    public override void Draw(Canvas context)
     {
         double scaleMultiplier = (1.0 / ZoomScale);
         double radius = AnchorRadius * scaleMultiplier;
-        context.DrawRectangle(HandleBrush, HandlePen, TransformHelper.ToHandleRect(Position, Size, ZoomScale), radius, radius);
+        RectD handleRect = TransformHelper.ToHandleRect(Position, Size, ZoomScale);
+        context.DrawRoundRect((float)handleRect.X, (float)handleRect.Y, (float)handleRect.Width, (float)handleRect.Height,
+            (float)radius, (float)radius, FillPaint);
+        if (StrokePaint != null)
+        {
+            context.DrawRoundRect((float)handleRect.X, (float)handleRect.Y, (float)handleRect.Width,
+                (float)handleRect.Height,
+                (float)radius, (float)radius, StrokePaint);
+        }
     }
 }

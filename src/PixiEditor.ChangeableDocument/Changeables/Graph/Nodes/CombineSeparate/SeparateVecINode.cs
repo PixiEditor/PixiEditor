@@ -1,7 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Shaders.Generation.Expressions;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
@@ -21,9 +21,8 @@ public class SeparateVecINode : Node
         Vector = CreateFuncInput<Int2>("Vector", "VECTOR", new VecI(0, 0));
     }
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
-        return null;
     }
 
 

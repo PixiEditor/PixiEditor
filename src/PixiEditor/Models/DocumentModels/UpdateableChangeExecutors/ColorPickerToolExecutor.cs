@@ -1,8 +1,8 @@
-﻿using PixiEditor.DrawingApi.Core.Numerics;
+﻿using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -23,7 +23,7 @@ internal class ColorPickerToolExecutor : UpdateableChangeExecutor
             return ExecutionState.Error;
 
         scope = tool.Mode;
-        includeReference = tool.PickFromReferenceLayer && document!.ReferenceLayerHandler.ReferenceBitmap is not null;
+        includeReference = tool.PickFromReferenceLayer && document!.ReferenceLayerHandler.ReferenceTexture is not null;
         includeCanvas = tool.PickFromCanvas;
         
         colorsViewModel.PrimaryColor = document.PickColor(controller.LastPrecisePosition, scope, includeReference, includeCanvas, document.AnimationHandler.ActiveFrameBindable, document.ReferenceLayerHandler.IsTopMost);

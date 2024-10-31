@@ -8,12 +8,12 @@ using ChunkyImageLib.Operations;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.Helpers;
 using PixiEditor.ChangeableDocument.Actions.Generated;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.ViewModels.Tools.Tools;
 
 namespace PixiEditor.ViewModels.Document;
@@ -26,7 +26,7 @@ internal class ReferenceLayerViewModel : ObservableObject, IReferenceLayerHandle
 
     public const double TopMostOpacity = 0.6;
     
-    public Texture? ReferenceBitmap { get; private set; }
+    public Texture? ReferenceTexture { get; private set; }
 
     private ShapeCorners referenceShape;
     public ShapeCorners ReferenceShapeBindable 
@@ -39,15 +39,14 @@ internal class ReferenceLayerViewModel : ObservableObject, IReferenceLayerHandle
         }
     }
     
-    public Matrix ReferenceTransformMatrix
+    public Matrix3X3 ReferenceTransformMatrix
     {
         get
         {
-            if (ReferenceBitmap is null)
-                return Matrix.Identity;
+            if (ReferenceTexture is null)
+                return Matrix3X3.Identity;
 
-            Matrix3X3 skiaMatrix = OperationHelper.CreateMatrixFromPoints(ReferenceShapeBindable, new VecD(ReferenceBitmap.Size.X, ReferenceBitmap.Size.Y));
-            return new Matrix(skiaMatrix.ScaleX, skiaMatrix.SkewY, skiaMatrix.SkewX, skiaMatrix.ScaleY, skiaMatrix.TransX, skiaMatrix.TransY);
+            return OperationHelper.CreateMatrixFromPoints(ReferenceShapeBindable, new VecD(ReferenceTexture.Size.X, ReferenceTexture.Size.Y));
         }
     }
 
@@ -63,6 +62,8 @@ internal class ReferenceLayerViewModel : ObservableObject, IReferenceLayerHandle
     }
 
     private bool isTransforming;
+    bool IReferenceLayerHandler.IsVisible => isVisible;
+
     public bool IsTransforming
     {
         get => isTransforming;
@@ -114,12 +115,12 @@ internal class ReferenceLayerViewModel : ObservableObject, IReferenceLayerHandle
     
     public void SetReferenceLayer(ImmutableArray<byte> imageBgra8888Bytes, VecI imageSize, ShapeCorners shape)
     {
-        ReferenceBitmap = Texture.Load(imageBgra8888Bytes.ToArray(), ColorType.Bgra8888, imageSize); 
+        ReferenceTexture = Texture.Load(imageBgra8888Bytes.ToArray(), ColorType.Bgra8888, imageSize); 
         referenceShape = shape;
         isVisible = true;
         isTransforming = false;
         isTopMost = false;
-        OnPropertyChanged(nameof(ReferenceBitmap));
+        OnPropertyChanged(nameof(ReferenceTexture));
         OnPropertyChanged(nameof(ReferenceShapeBindable));
         OnPropertyChanged(nameof(ReferenceTransformMatrix));
         OnPropertyChanged(nameof(IsVisibleBindable));
@@ -129,9 +130,9 @@ internal class ReferenceLayerViewModel : ObservableObject, IReferenceLayerHandle
 
     public void DeleteReferenceLayer()
     {
-        ReferenceBitmap = null;
+        ReferenceTexture = null;
         isVisible = false;
-        OnPropertyChanged(nameof(ReferenceBitmap));
+        OnPropertyChanged(nameof(ReferenceTexture));
         OnPropertyChanged(nameof(ReferenceTransformMatrix));
         OnPropertyChanged(nameof(IsVisibleBindable));
     }

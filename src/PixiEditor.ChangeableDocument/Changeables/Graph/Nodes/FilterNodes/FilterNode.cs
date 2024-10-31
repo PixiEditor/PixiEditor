@@ -1,6 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
@@ -16,7 +16,7 @@ public abstract class FilterNode : Node
         Input = CreateInput<Filter>(nameof(Input), "PREVIOUS", null);
     }
     
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
         var colorFilter = GetColorFilter();
         var imageFilter = GetImageFilter();
@@ -24,14 +24,12 @@ public abstract class FilterNode : Node
         if (colorFilter == null && imageFilter == null)
         {
             Output.Value = Input.Value;
-            return null;
+            return;
         }
 
         var filter = Input.Value;
 
         Output.Value = filter == null ? new Filter(colorFilter, imageFilter) : filter.Add(colorFilter, imageFilter);
-        
-        return null;
     }
 
     protected virtual ColorFilter? GetColorFilter() => null;

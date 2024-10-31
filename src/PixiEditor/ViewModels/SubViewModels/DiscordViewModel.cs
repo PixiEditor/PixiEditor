@@ -3,6 +3,7 @@ using DiscordRPC;
 using PixiEditor.Helpers;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.ViewModels.SubViewModels;
@@ -99,14 +100,17 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
 
     private int CountLayers(NodeGraphViewModel graph)
     {
-        int counter = 0; //TODO: Implement this
-        /*foreach (var child in folder.Children)
+        int counter = 0; 
+        graph.TryTraverse(n =>
         {
-            if (child is LayerViewModel)
+            if(n is ILayerHandler layer)
+            {
                 counter++;
-            else if (child is FolderViewModel innerFolder)
-                counter += CountLayers(innerFolder);
-        }*/
+            }
+
+            return true;
+        });
+        
         return counter;
     }
 

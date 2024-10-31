@@ -3,11 +3,11 @@ using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using PixiEditor.Helpers.Extensions;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 using PixiEditor.Helpers;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.IO.PaletteParsers;
 

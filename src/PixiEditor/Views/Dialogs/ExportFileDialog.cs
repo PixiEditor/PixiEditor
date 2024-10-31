@@ -1,11 +1,11 @@
 ﻿using System.Threading.Tasks;
 using Avalonia.Controls;
 using PixiEditor.AnimationRenderer.FFmpeg;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.IO;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Views.Dialogs;

@@ -10,11 +10,11 @@ namespace PixiEditor.Models.Commands.Search;
 internal class ColorSearchResult : SearchResult
 {
     private readonly DrawingImage icon;
-    private readonly DrawingApi.Core.ColorsImpl.Color color;
+    private readonly Drawie.Backend.Core.ColorsImpl.Color color;
     private string text;
     private bool requiresDocument;
     private bool isPalettePaste;
-    private readonly Action<DrawingApi.Core.ColorsImpl.Color> target;
+    private readonly Action<Drawie.Backend.Core.ColorsImpl.Color> target;
 
     public override string Text => text;
 
@@ -35,19 +35,19 @@ internal class ColorSearchResult : SearchResult
         target(color);
     }
 
-    private ColorSearchResult(DrawingApi.Core.ColorsImpl.Color color, Action<DrawingApi.Core.ColorsImpl.Color> target)
+    private ColorSearchResult(Drawie.Backend.Core.ColorsImpl.Color color, Action<Drawie.Backend.Core.ColorsImpl.Color> target)
     {
         this.color = color;
         icon = GetIcon(color);
         this.target = target;
     }
 
-    public ColorSearchResult(DrawingApi.Core.ColorsImpl.Color color) : this(color, x => IColorsHandler.Instance.PrimaryColor = x)
+    public ColorSearchResult(Drawie.Backend.Core.ColorsImpl.Color color) : this(color, x => IColorsHandler.Instance.PrimaryColor = x)
     {
         text = $"Set color to {color}";
     }
 
-    public static ColorSearchResult PastePalette(DrawingApi.Core.ColorsImpl.Color color, string searchTerm = null)
+    public static ColorSearchResult PastePalette(Drawie.Backend.Core.ColorsImpl.Color color, string searchTerm = null)
     {
         var result = new ColorSearchResult(color, x =>
             IDocumentManagerHandler.Instance.ActiveDocument.Palette.Add(new PaletteColor(x.R, x.G, x.B)))
@@ -61,7 +61,7 @@ internal class ColorSearchResult : SearchResult
         return result;
     }
 
-    public static DrawingImage GetIcon(DrawingApi.Core.ColorsImpl.Color color)
+    public static DrawingImage GetIcon(Drawie.Backend.Core.ColorsImpl.Color color)
     {
         var drawing = new GeometryDrawing() { Brush = new SolidColorBrush(color.ToOpaqueMediaColor()), Pen = new Pen(Brushes.White, 1) };
         var geometry = new EllipseGeometry(new Rect(5, 5,5, 5));

@@ -2,10 +2,10 @@
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using PixiEditor.Helpers.Extensions;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Numerics;
 
 namespace PixiEditor.Helpers;
 

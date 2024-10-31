@@ -1,13 +1,13 @@
 ﻿using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 
 namespace PixiEditor.Models.DocumentModels;
@@ -55,7 +55,7 @@ internal class ChangeExecutionController
     public bool TryStartExecutor<T>(bool force = false)
         where T : UpdateableChangeExecutor, new()
     {
-        if (CanStartExecutor(force))
+        if (!CanStartExecutor(force))
             return false;
         if (force)
             currentSession?.ForceStop();
@@ -66,7 +66,7 @@ internal class ChangeExecutionController
 
     public bool TryStartExecutor(UpdateableChangeExecutor brandNewExecutor, bool force = false)
     {
-        if (CanStartExecutor(force))
+        if (!CanStartExecutor(force))
             return false;
         if (force)
             currentSession?.ForceStop();
@@ -76,7 +76,7 @@ internal class ChangeExecutionController
 
     private bool CanStartExecutor(bool force)
     {
-        return (currentSession is not null || _queuedExecutor is not null) && !force;
+        return (currentSession is null && _queuedExecutor is null) || force;
     }
 
     private bool TryStartExecutorInternal(UpdateableChangeExecutor executor)

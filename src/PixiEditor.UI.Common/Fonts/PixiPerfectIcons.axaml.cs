@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Platform;
 using PixiEditor.UI.Common.Rendering;
 
 namespace PixiEditor.UI.Common.Fonts;
@@ -10,7 +11,7 @@ namespace PixiEditor.UI.Common.Fonts;
 public static class PixiPerfectIcons
 {
     private static readonly FontFamily pixiPerfectFontFamily = new("avares://PixiEditor.UI.Common/Fonts/pixiperfect.ttf#pixiperfect");
-
+    
     public const string AddReference = "\ue900";
     public const string AddToMask = "\ue901";
     public const string AlphaLock = "\ue902";
@@ -130,6 +131,11 @@ public static class PixiPerfectIcons
     public const string ToggleLayerVisible = "\u25a1;"; // TODO: Create a toggle layer visible icon
     public const string ToggleMask = "\u25a1;"; // TODO: Create a toggle mask icon
     public static string Pen => "\uE971";
+    
+    public static Stream GetFontStream()
+    {
+        return AssetLoader.Open(new Uri("avares://PixiEditor.UI.Common/Fonts/pixiperfect.ttf"));
+    }
 
     public static IImage ToIcon(string unicode, double size = 18)
     {

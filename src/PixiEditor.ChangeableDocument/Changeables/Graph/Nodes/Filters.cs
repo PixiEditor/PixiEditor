@@ -1,5 +1,5 @@
-﻿using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.Numerics;
+﻿using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -37,4 +37,6 @@ public static class Filters
     /// </summary>
     public static readonly ColorFilter AverageGrayscaleFilter =
         ColorFilter.CreateColorMatrix(ColorMatrix.AverageGrayscale + ColorMatrix.OpaqueAlphaOffset);
+
+    public static ColorFilter MaskFilter => ColorFilter.CreateColorMatrix(ColorMatrix.WeightedWavelengthAlphaGrayscale);
 }

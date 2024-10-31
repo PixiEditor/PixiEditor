@@ -7,8 +7,8 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Surfaces.Vector;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Models.Clipboard;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
@@ -18,7 +18,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.Public;
 #nullable enable
@@ -260,7 +260,7 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ChangeController.TryStopActiveExecutor();
 
-        if (Document.ReferenceLayerHandler.ReferenceBitmap is not null)
+        if (Document.ReferenceLayerHandler.ReferenceTexture is not null)
         {
             VecI offset = anchor.FindOffsetFor(Document.SizeBindable, newSize);
             ShapeCorners curShape = Document.ReferenceLayerHandler.ReferenceShapeBindable;
@@ -292,7 +292,7 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ChangeController.TryStopActiveExecutor();
 
-        if (Document.ReferenceLayerHandler.ReferenceBitmap is not null)
+        if (Document.ReferenceLayerHandler.ReferenceTexture is not null)
         {
             VecD scale = ((VecD)newSize).Divide(Document.SizeBindable);
             ShapeCorners curShape = Document.ReferenceLayerHandler.ReferenceShapeBindable;
@@ -693,7 +693,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void DeleteReferenceLayer()
     {
-        if (Internals.ChangeController.IsBlockingChangeActive || Document.ReferenceLayerHandler.ReferenceBitmap is null)
+        if (Internals.ChangeController.IsBlockingChangeActive || Document.ReferenceLayerHandler.ReferenceTexture is null)
             return;
 
         Internals.ChangeController.TryStopActiveExecutor();
@@ -706,7 +706,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void TransformReferenceLayer()
     {
-        if (Document.ReferenceLayerHandler.ReferenceBitmap is null || Internals.ChangeController.IsBlockingChangeActive)
+        if (Document.ReferenceLayerHandler.ReferenceTexture is null || Internals.ChangeController.IsBlockingChangeActive)
             return;
         
         Internals.ChangeController.TryStopActiveExecutor();
@@ -719,13 +719,13 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void ResetReferenceLayerPosition()
     {
-        if (Document.ReferenceLayerHandler.ReferenceBitmap is null || Internals.ChangeController.IsBlockingChangeActive)
+        if (Document.ReferenceLayerHandler.ReferenceTexture is null || Internals.ChangeController.IsBlockingChangeActive)
             return;
         
         Internals.ChangeController.TryStopActiveExecutor();
 
-        VecD size = new(Document.ReferenceLayerHandler.ReferenceBitmap.Size.X,
-            Document.ReferenceLayerHandler.ReferenceBitmap.Size.Y);
+        VecD size = new(Document.ReferenceLayerHandler.ReferenceTexture.Size.X,
+            Document.ReferenceLayerHandler.ReferenceTexture.Size.Y);
         RectD referenceImageRect = new RectD(VecD.Zero, Document.SizeBindable).AspectFit(new RectD(VecD.Zero, size));
         ShapeCorners corners = new ShapeCorners(referenceImageRect);
         Internals.ActionAccumulator.AddFinishedActions(

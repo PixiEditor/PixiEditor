@@ -1,4 +1,4 @@
-﻿using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
+﻿using Drawie.Backend.Core.Surfaces.ImageData;
 
 namespace PixiEditor.AnimationRenderer.Core;
 

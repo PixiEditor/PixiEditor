@@ -4,3 +4,6 @@
 [submodule "src/PixiParser"]
 	path = src/PixiParser
 	url = https://github.com/PixiEditor/PixiParser.git
+[submodule "src/Drawie"]
+	path = src/Drawie
+	url = https://github.com/PixiEditor/Drawie.git

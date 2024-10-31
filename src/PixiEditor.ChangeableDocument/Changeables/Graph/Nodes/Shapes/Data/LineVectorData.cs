@@ -1,17 +1,17 @@
 ﻿using System.Diagnostics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
 public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnlyLineData
 {
-    public VecD Start { get; set; } = startPos;
-    public VecD End { get; set; } = pos;
+    public VecD Start { get; set; } = startPos; // Relative to the document top left
+    public VecD End { get; set; } = pos; // Relative to the document top left
 
     public VecD TransformedStart
     {
@@ -29,47 +29,59 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
     {
         get
         {
-            if (StrokeWidth == 1)
-            {
-                return RectD.FromTwoPoints(Start, End);
-            }
-            
-            VecD halfStroke = new(StrokeWidth / 2f);
-            VecD min = new VecD(Math.Min(Start.X, End.X), Math.Min(Start.Y, End.Y)) - halfStroke;
-            VecD max = new VecD(Math.Max(Start.X, End.X), Math.Max(Start.Y, End.Y)) + halfStroke;
-            
-            return new RectD(min, max - min);
+            return RectD.FromTwoPoints(Start, End).Inflate(StrokeWidth);
         }
     }
 
     public override ShapeCorners TransformationCorners => new ShapeCorners(GeometryAABB)
         .WithMatrix(TransformationMatrix);
 
-    public override void RasterizeGeometry(DrawingSurface drawingSurface, ChunkResolution resolution, Paint? paint)
+    public override void RasterizeGeometry(DrawingSurface drawingSurface)
     {
-        Rasterize(drawingSurface, resolution, paint, false);
+        Rasterize(drawingSurface, false);
     }
 
-    public override void RasterizeTransformed(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint)
+    public override void RasterizeTransformed(DrawingSurface drawingSurface)
     {
-        Rasterize(drawingSurface, resolution, paint, true);
+        Rasterize(drawingSurface, true);
     }
 
-    private void Rasterize(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint, bool applyTransform)
+    private void Rasterize(DrawingSurface drawingSurface, bool applyTransform)
     {
+        int num = 0;
+        if (applyTransform)
+        {
+            num = drawingSurface.Canvas.Save();
+            ApplyTransformTo(drawingSurface);
+        }
+
+        using Paint paint = new Paint() { IsAntiAliased = true };
+
+        paint.Color = StrokeColor;
+        paint.Style = PaintStyle.Stroke;
+        paint.StrokeWidth = StrokeWidth;
+
+        drawingSurface.Canvas.DrawLine(Start, End, paint);
+
+        if (applyTransform)
+        {
+            drawingSurface.Canvas.RestoreToCount(num);
+        }
+
+        /*
         RectD adjustedAABB = GeometryAABB.RoundOutwards();
         adjustedAABB = adjustedAABB with { Size = adjustedAABB.Size + new VecD(1, 1) };
         var imageSize = (VecI)adjustedAABB.Size;
-        
+
         using ChunkyImage img = new ChunkyImage(imageSize);
 
         if (StrokeWidth == 1)
         {
-            VecD adjustment = new VecD(0.5, 0.5); 
-            
+            VecD adjustment = new VecD(0.5, 0.5);
+
             img.EnqueueDrawBresenhamLine(
                 (VecI)(Start - adjustedAABB.TopLeft - adjustment),
-                (VecI)(End - adjustedAABB.TopLeft - adjustment), StrokeColor, BlendMode.SrcOver); 
+                (VecI)(End - adjustedAABB.TopLeft - adjustment), StrokeColor, BlendMode.SrcOver);
         }
         else
         {
@@ -79,11 +91,11 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
         }
 
         img.CommitChanges();
-        
-        VecI topLeft = (VecI)(adjustedAABB.TopLeft * resolution.Multiplier()); 
-        
+
+        VecI topLeft = (VecI)(adjustedAABB.TopLeft * resolution.Multiplier());
+
         RectI region = new(VecI.Zero, imageSize);
-        
+
         int num = 0;
 
         if (applyTransform)
@@ -98,11 +110,12 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
         }
 
         img.DrawMostUpToDateRegionOn(region, resolution, drawingSurface, topLeft, paint);
-        
+
         if (applyTransform)
         {
             drawingSurface.Canvas.RestoreToCount(num);
         }
+    */
     }
 
     public override bool IsValid()
@@ -124,9 +137,7 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
     {
         return new LineVectorData(Start, End)
         {
-            StrokeColor = StrokeColor,
-            StrokeWidth = StrokeWidth,
-            TransformationMatrix = TransformationMatrix
+            StrokeColor = StrokeColor, StrokeWidth = StrokeWidth, TransformationMatrix = TransformationMatrix
         };
     }
 }

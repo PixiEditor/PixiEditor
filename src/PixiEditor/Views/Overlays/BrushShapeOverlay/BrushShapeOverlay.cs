@@ -1,18 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.Media;
+﻿using Avalonia;
 using ChunkyImageLib.Operations;
-using PixiEditor.Views.Visuals;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Surfaces.Vector;
 using PixiEditor.Extensions.UI.Overlays;
-using PixiEditor.Models.Controllers.InputDevice;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.Views.Rendering;
-using Point = Avalonia.Point;
+using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
+using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.Views.Overlays.BrushShapeOverlay;
 #nullable enable
@@ -38,131 +33,130 @@ internal class BrushShapeOverlay : Overlay
         get => (BrushShape)GetValue(BrushShapeProperty);
         set => SetValue(BrushShapeProperty, value);
     }
-    
+
     public int BrushSize
     {
         get => (int)GetValue(BrushSizeProperty);
         set => SetValue(BrushSizeProperty, value);
     }
 
-    private Pen whitePen = new Pen(Brushes.LightGray, 1);
+    private Paint paint = new Paint() { Color = Colors.LightGray, StrokeWidth = 1, Style = PaintStyle.Stroke};
     private VecD lastMousePos = new();
 
-    private MouseUpdateController? mouseUpdateController;
+    private VectorPath threePixelCircle;
+    private int lastSize;
+    private VectorPath lastNonTranslatedCircle;
+
 
     static BrushShapeOverlay()
     {
-        AffectsRender<BrushShapeOverlay>(BrushShapeProperty);
-        AffectsRender<BrushShapeOverlay>(BrushSizeProperty);
+        AffectsOverlayRender(BrushShapeProperty, BrushSizeProperty);
     }
 
     public BrushShapeOverlay()
     {
-        Unloaded += ControlUnloaded;
+        IsHitTestVisible = false;
+        threePixelCircle = CreateThreePixelCircle();
     }
 
-    private void ControlUnloaded(object? sender, RoutedEventArgs e)
+    protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
-        if (Scene is null)
+        if (BrushShape == BrushShape.Hidden)
             return;
 
-        mouseUpdateController?.Dispose();
+        VecD rawPoint = args.Point;
+        lastMousePos = rawPoint; 
+        Refresh();
     }
 
-    public void Initialize()
+    public override void RenderOverlay(Canvas context, RectD canvasBounds) => Render(context);
+
+    public void Render(Canvas targetCanvas)
     {
-        if (Scene is null)
-            return;
-
-        mouseUpdateController = new MouseUpdateController(Scene, SourceMouseMove);
-    }
-
-    private void SourceMouseMove(PointerEventArgs args)
-    {
-        if (Scene is null || BrushShape == BrushShape.Hidden) 
-            return;
-
-        Point rawPoint = args.GetPosition(Scene);
-        lastMousePos = Scene.ToZoomboxSpace(new VecD(rawPoint.X, rawPoint.Y));
-        InvalidateVisual();
-    }
-    
-    public override void RenderOverlay(DrawingContext context, RectD canvasBounds) => Render(context);
-
-    public override void Render(DrawingContext drawingContext)
-    {
-        var winRect = new Rect(
-            (Point)(new Point(Math.Floor(lastMousePos.X), Math.Floor(lastMousePos.Y)) - new Point(BrushSize / 2, BrushSize / 2)),
-            new Size(BrushSize, BrushSize));
+        var winRect = new RectD(
+            (VecD)(new VecD(Math.Floor(lastMousePos.X), Math.Floor(lastMousePos.Y)) -
+                   new VecD(BrushSize / 2, BrushSize / 2)),
+            new VecD(BrushSize, BrushSize));
         switch (BrushShape)
         {
             case BrushShape.Pixel:
-                drawingContext.DrawRectangle(
-                    null, whitePen, new Rect(new Point(Math.Floor(lastMousePos.X), Math.Floor(lastMousePos.Y)), new Size(1, 1)));
+                targetCanvas.DrawRect(
+                    new RectD(new VecD(Math.Floor(lastMousePos.X), Math.Floor(lastMousePos.Y)), new VecD(1, 1)),
+                    paint);
                 break;
             case BrushShape.Square:
-                drawingContext.DrawRectangle(null, whitePen, winRect);
+                targetCanvas.DrawRect(winRect, paint);
                 break;
             case BrushShape.Circle:
-                DrawCircleBrushShape(drawingContext, winRect);
+                DrawCircleBrushShape(targetCanvas, winRect);
                 break;
         }
     }
 
-    private void DrawCircleBrushShape(DrawingContext drawingContext, Rect winRect)
+    private void DrawCircleBrushShape(Canvas drawingContext, RectD winRect)
     {
         var rectI = new RectI((int)winRect.X, (int)winRect.Y, (int)winRect.Width, (int)winRect.Height);
         if (BrushSize < 3)
         {
-            drawingContext.DrawRectangle(null, whitePen, winRect);
+            drawingContext.DrawRect(winRect, paint);
         }
         else if (BrushSize == 3)
         {
             var lp = new VecI((int)lastMousePos.X, (int)lastMousePos.Y);
-            PathFigure figure = new PathFigure()
-            {
-                StartPoint = new Point(lp.X, lp.Y),
-                Segments = new PathSegments()
-                {
-                    new LineSegment { Point = new Point(lp.X, lp.Y - 1) },
-                    new LineSegment { Point = new Point(lp.X + 1, lp.Y - 1) },
-                    new LineSegment { Point = new Point(lp.X + 1, lp.Y) },
-                    new LineSegment { Point = new Point(lp.X + 2, lp.Y) },
-                    new LineSegment { Point = new Point(lp.X + 2, lp.Y + 1) },
-                    new LineSegment { Point = new Point(lp.X + 2, lp.Y + 1) },
-                    new LineSegment { Point = new Point(lp.X + 1, lp.Y + 1) },
-                    new LineSegment { Point = new Point(lp.X + 1, lp.Y + 2) },
-                    new LineSegment { Point = new Point(lp.X, lp.Y + 2) },
-                    new LineSegment { Point = new Point(lp.X, lp.Y + 1) },
-                    new LineSegment { Point = new Point(lp.X - 1, lp.Y + 1) },
-                    new LineSegment { Point = new Point(lp.X - 1, lp.Y) }
-                },
-                IsClosed = true
-            };
-
-            var geometry = new PathGeometry() { Figures = new PathFigures() { figure } };
-            drawingContext.DrawGeometry(null, whitePen, geometry);
+            using VectorPath shifted = new VectorPath(threePixelCircle);
+            shifted.Transform(Matrix3X3.CreateTranslation(lp.X, lp.Y));
+            drawingContext.DrawPath(shifted, paint);
         }
         else if (BrushSize > 200)
         {
             VecD center = rectI.Center;
-            drawingContext.DrawEllipse(null, whitePen, new Point(center.X, center.Y), rectI.Width / 2.0, rectI.Height / 2.0);
+            drawingContext.DrawOval(new VecD(center.X, center.Y), new VecD(rectI.Width / 2.0, rectI.Height / 2.0),
+                paint);
         }
         else
         {
-            var geometry = ConstructEllipseOutline(rectI);
-            drawingContext.DrawGeometry(null, whitePen, geometry);
+            if (BrushSize != lastSize)
+            {
+                var geometry = ConstructEllipseOutline(new RectI(0, 0, rectI.Width, rectI.Height));
+                lastNonTranslatedCircle = new VectorPath(geometry);
+                lastSize = BrushSize;
+            }
+
+            var lp = new VecI((int)lastMousePos.X, (int)lastMousePos.Y);
+            using VectorPath shifted = new VectorPath(lastNonTranslatedCircle);
+            shifted.Transform(Matrix3X3.CreateTranslation(lp.X - rectI.Width / 2, lp.Y - rectI.Height / 2)); // don't use float, truncation is intended 
+            drawingContext.DrawPath(shifted, paint);
         }
     }
 
     protected override void ZoomChanged(double newZoom)
     {
-        whitePen.Thickness = 1.0 / newZoom;
+        paint.StrokeWidth = (float)(1.0f / newZoom);
     }
 
     private static int Mod(int x, int m) => (x % m + m) % m;
 
-    private static PathGeometry ConstructEllipseOutline(RectI rectangle)
+    private static VectorPath CreateThreePixelCircle()
+    {
+        var path = new VectorPath();
+        path.MoveTo(new VecF(0, 0));
+        path.LineTo(new VecF(0, -1));
+        path.LineTo(new VecF(1, -1));
+        path.LineTo(new VecF(1, 0));
+        path.LineTo(new VecF(2, 0));
+        path.LineTo(new VecF(2, 1));
+        path.LineTo(new VecF(2, 1));
+        path.LineTo(new VecF(1, 1));
+        path.LineTo(new VecF(1, 2));
+        path.LineTo(new VecF(0, 2));
+        path.LineTo(new VecF(0, 1));
+        path.LineTo(new VecF(-1, 1));
+        path.LineTo(new VecF(-1, 0));
+        path.Close();
+        return path;
+    }
+
+    private static VectorPath ConstructEllipseOutline(RectI rectangle)
     {
         var center = rectangle.Center;
         var points = EllipseHelper.GenerateEllipseFromRect(rectangle, 0).ToList();
@@ -185,7 +179,6 @@ internal class BrushShapeOverlay : Overlay
                     finalPoints.Add(new(point.X + 1, point.Y + 1));
                     if (next.X != point.X)
                         finalPoints.Add(new(point.X, point.Y + 1));
-
                 }
                 else
                 {
@@ -217,17 +210,17 @@ internal class BrushShapeOverlay : Overlay
             }
         }
 
-        PathSegments segments = new();
-        segments.AddRange(finalPoints.Select(static point => new LineSegment { Point = new(point.X, point.Y) }));
+        VectorPath path = new();
 
-        PathFigure figure = new PathFigure()
+        path.MoveTo(new VecF(finalPoints[0].X, finalPoints[0].Y));
+        for (var index = 1; index < finalPoints.Count; index++)
         {
-            StartPoint = new Point(finalPoints[0].X, finalPoints[0].Y),
-            Segments = segments,
-            IsClosed = true
-        };
+            var point = finalPoints[index];
+            path.LineTo(new VecF(point.X, point.Y));
+        }
 
-        var geometry = new PathGeometry() { Figures = new PathFigures() { figure }};
-        return geometry;
+        path.Close();
+
+        return path;
     }
 }

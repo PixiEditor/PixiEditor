@@ -28,7 +28,7 @@ internal class StructureTree
                 if (lastRoot != value)
                 {
                     lastRoot = value;
-                    relativeFolderIndex = lastRoot.Count - 1;
+                    relativeFolderIndex = lastRoot.Count;
                 }
             }
             

@@ -1,13 +1,14 @@
-﻿using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.Numerics;
+﻿using PixiEditor.ChangeableDocument.Helpers;
+using PixiEditor.ChangeableDocument.Rendering;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
 [NodeInfo("CombineChannels")]
-public class CombineChannelsNode : Node
+public class CombineChannelsNode : RenderNode
 {
     private readonly Paint _screenPaint = new() { BlendMode = BlendMode.Screen };
     private readonly Paint _clearPaint = new() { BlendMode = BlendMode.DstIn };
@@ -16,94 +17,120 @@ public class CombineChannelsNode : Node
     private readonly ColorFilter _greenFilter = ColorFilter.CreateColorMatrix(ColorMatrix.UseGreen + ColorMatrix.OpaqueAlphaOffset);
     private readonly ColorFilter _blueFilter = ColorFilter.CreateColorMatrix(ColorMatrix.UseBlue + ColorMatrix.OpaqueAlphaOffset);
 
-    public InputProperty<Texture> Red { get; }
+    public RenderInputProperty Red { get; }
     
-    public InputProperty<Texture> Green { get; }
+    public RenderInputProperty Green { get; }
     
-    public InputProperty<Texture> Blue { get; }
+    public RenderInputProperty Blue { get; }
     
-    public InputProperty<Texture> Alpha { get; }
+    public RenderInputProperty Alpha { get; }
 
-    public OutputProperty<Texture> Image { get; }
-    
     // TODO: Either use a shader to combine each, or find a way to automatically "detect" if alpha channel is grayscale or not, oooor find an even better solution
     public InputProperty<bool> Grayscale { get; }
 
     public CombineChannelsNode()
     {
-        Red = CreateInput<Texture>(nameof(Red), "RED", null);
-        Green = CreateInput<Texture>(nameof(Green), "GREEN", null);
-        Blue = CreateInput<Texture>(nameof(Blue), "BLUE", null);
-        Alpha = CreateInput<Texture>(nameof(Alpha), "ALPHA", null);
+        Red = CreateRenderInput("Red", "RED");
+        Green = CreateRenderInput("Green","GREEN");
+        Blue = CreateRenderInput("Blue", "BLUE");
+        Alpha = CreateRenderInput("Alpha", "ALPHA");
         
-        Image = CreateOutput<Texture>(nameof(Image), "IMAGE", null);
         Grayscale = CreateInput(nameof(Grayscale), "GRAYSCALE", false);
     }
 
-    protected override Texture? OnExecute(RenderingContext context)
+    
+    protected override void OnPaint(RenderContext context, DrawingSurface surface)
     {
-        var size = GetSize();
-
-        if (size == VecI.Zero)
-            return null;
-        
-        var workingSurface = RequestTexture(0, size); 
-
+        int saved = surface.Canvas.SaveLayer();
         if (Red.Value is { } red)
         {
             _screenPaint.ColorFilter = _redFilter;
-            workingSurface.DrawingSurface.Canvas.DrawSurface(red.DrawingSurface, 0, 0, _screenPaint);
+            
+            int savedRed = surface.Canvas.SaveLayer(_screenPaint);
+            red.Paint(context, surface);
+            
+            surface.Canvas.RestoreToCount(savedRed);
         }
 
         if (Green.Value is { } green)
         {
             _screenPaint.ColorFilter = _greenFilter;
-            workingSurface.DrawingSurface.Canvas.DrawSurface(green.DrawingSurface, 0, 0, _screenPaint);
+            int savedGreen = surface.Canvas.SaveLayer(_screenPaint);
+            green.Paint(context, surface);
+            
+            surface.Canvas.RestoreToCount(savedGreen);
         }
 
         if (Blue.Value is { } blue)
         {
             _screenPaint.ColorFilter = _blueFilter;
-            workingSurface.DrawingSurface.Canvas.DrawSurface(blue.DrawingSurface, 0, 0, _screenPaint);
+            int savedBlue = surface.Canvas.SaveLayer(_screenPaint);
+            blue.Paint(context, surface);
+            
+            surface.Canvas.RestoreToCount(savedBlue);
         }
 
         if (Alpha.Value is { } alpha)
         {
             _clearPaint.ColorFilter = Grayscale.Value ? Filters.AlphaGrayscaleFilter : null;
-
-            workingSurface.DrawingSurface.Canvas.DrawSurface(alpha.DrawingSurface, 0, 0, _clearPaint);
+            int savedAlpha = surface.Canvas.SaveLayer(_clearPaint);
+            alpha.Paint(context, surface);
+            
+            surface.Canvas.RestoreToCount(savedAlpha);
         }
-
-        Image.Value = workingSurface;
-
-        return workingSurface;
+            
+        surface.Canvas.RestoreToCount(saved);
     }
 
-    private VecI GetSize()
+    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
     {
-        var final = new RectI();
+        RectD? redBounds = PreviewUtils.FindPreviewBounds(Red.Connection, frame, elementToRenderName);
+        RectD? greenBounds = PreviewUtils.FindPreviewBounds(Green.Connection, frame, elementToRenderName);
+        RectD? blueBounds = PreviewUtils.FindPreviewBounds(Blue.Connection, frame, elementToRenderName);
+        RectD? alphaBounds = PreviewUtils.FindPreviewBounds(Alpha.Connection, frame, elementToRenderName);
 
-        if (Red.Value is { } red)
+        RectD? finalBounds = null;
+        
+        if (redBounds == null && greenBounds == null && blueBounds == null && alphaBounds == null)
         {
-            final = final.Union(new RectI(VecI.Zero, red.Size));
+            return null;
         }
 
-        if (Green.Value is { } green)
+        if (redBounds.HasValue)
         {
-            final = final.Union(new RectI(VecI.Zero, green.Size));
+            finalBounds = redBounds.Value;
+        }
+        
+        if (greenBounds.HasValue)
+        {
+            finalBounds = finalBounds?.Union(greenBounds.Value) ?? greenBounds.Value;
+        }
+        
+        if (blueBounds.HasValue)
+        {
+            finalBounds = finalBounds?.Union(blueBounds.Value) ?? blueBounds.Value;
+        }
+        
+        if (alphaBounds.HasValue)
+        {
+            finalBounds = finalBounds?.Union(alphaBounds.Value) ?? alphaBounds.Value;
+        }
+        
+        return finalBounds;
+    }
+
+    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
+    {
+        if (Red.Value == null && Green.Value == null && Blue.Value == null && Alpha.Value == null)
+        {
+            return false;
         }
 
-        if (Blue.Value is { } blue)
-        {
-            final = final.Union(new RectI(VecI.Zero, blue.Size));
-        }
-
-        if (Alpha.Value is { } alpha)
-        {
-            final = final.Union(new RectI(VecI.Zero, alpha.Size));
-        }
-
-        return final.Size;
+        RenderContext context = new(renderOn, frame, resolution, VecI.One);
+        
+        OnPaint(context, renderOn); 
+        
+        return true;
     }
 
     public override Node CreateCopy() => new CombineChannelsNode();

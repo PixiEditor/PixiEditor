@@ -9,11 +9,13 @@ using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.Threading;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Extensions.UI.Overlays;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.Views.Overlays.Handles;
 using PixiEditor.Views.Overlays.Transitions;
+using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 
 namespace PixiEditor.Views.Overlays;
 
@@ -56,7 +58,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
 
     public virtual bool CanRender() => true;
     
-    public abstract void RenderOverlay(DrawingContext context, RectD canvasBounds);
+    public abstract void RenderOverlay(Canvas context, RectD canvasBounds);
 
     public void Refresh()
     {
@@ -216,6 +218,20 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         if (e.NewValue.Value)
         {
             Refresh();
+        }
+    }
+    
+    protected static void AffectsOverlayRender(params AvaloniaProperty[] properties)
+    {
+        foreach (var property in properties)
+        {
+            property.Changed.Subscribe((args) =>
+            {
+                if (args.Sender is Overlay overlay)
+                {
+                    overlay.Refresh();
+                }
+            });
         }
     }
 }

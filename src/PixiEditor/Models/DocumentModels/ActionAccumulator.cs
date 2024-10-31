@@ -4,13 +4,11 @@ using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.DrawingApi.Core.Bridge;
+using Drawie.Backend.Core.Bridge;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Rendering;
-using PixiEditor.Models.Rendering.RenderInfos;
-using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable
@@ -40,7 +38,7 @@ internal class ActionAccumulator
         {
             queuedActions.Add((ActionSource.User, action));
         }
-        
+
         queuedActions.Add((ActionSource.Automated, new ChangeBoundary_Action()));
         TryExecuteAccumulatedActions();
     }
@@ -51,10 +49,10 @@ internal class ActionAccumulator
         {
             queuedActions.Add((ActionSource.User, action));
         }
-        
+
         TryExecuteAccumulatedActions();
     }
-    
+
     public void AddActions(ActionSource source, IAction action)
     {
         queuedActions.Add((source, action));
@@ -76,11 +74,9 @@ internal class ActionAccumulator
 
         while (queuedActions.Count > 0)
         {
-            // select actions to be processed
             var toExecute = queuedActions;
             queuedActions = new();
 
-            // pass them to changeabledocument for processing
             List<IChangeInfo?> changes;
             if (AreAllPassthrough(toExecute))
             {
@@ -91,11 +87,11 @@ internal class ActionAccumulator
                 changes = await internals.Tracker.ProcessActions(toExecute);
             }
 
-            // update viewmodels based on changes
             List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);
             bool undoBoundaryPassed =
                 toExecute.Any(static action => action.action is ChangeBoundary_Action or Redo_Action or Undo_Action);
-            bool viewportRefreshRequest = toExecute.Any(static action => action.action is RefreshViewport_PassthroughAction);
+            bool viewportRefreshRequest =
+                toExecute.Any(static action => action.action is RefreshViewport_PassthroughAction);
             foreach (IChangeInfo info in optimizedChanges)
             {
                 internals.Updater.ApplyChangeFromChangeInfo(info);
@@ -107,28 +103,19 @@ internal class ActionAccumulator
             // update the contents of the bitmaps
             var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime, internals.Tracker,
                 optimizedChanges);
-            List<IRenderInfo> renderResult = new();
             if (DrawingBackendApi.Current.IsHardwareAccelerated)
             {
-                renderResult.AddRange(canvasUpdater.UpdateGatheredChunksSync(affectedAreas,
-                    undoBoundaryPassed || viewportRefreshRequest));
-                renderResult.AddRange(previewUpdater.UpdateGatheredChunksSync(affectedAreas, undoBoundaryPassed));
+                canvasUpdater.UpdateGatheredChunksSync(affectedAreas,
+                    undoBoundaryPassed || viewportRefreshRequest);
             }
             else
             {
-                renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas,
-                    undoBoundaryPassed || viewportRefreshRequest));
-                renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
+                await canvasUpdater.UpdateGatheredChunks(affectedAreas,
+                    undoBoundaryPassed || viewportRefreshRequest);
             }
 
-
-            if (undoBoundaryPassed)
-            {
-                //ClearDirtyRects();
-            }
-
-            // add dirty rectangles
-            AddDirtyRects(renderResult);
+            previewUpdater.UpdatePreviews(undoBoundaryPassed, affectedAreas.ImagePreviewAreas.Keys, affectedAreas.MaskPreviewAreas.Keys,
+                affectedAreas.ChangedNodes);
 
             // force refresh viewports for better responsiveness
             foreach (var (_, value) in internals.State.Viewports)
@@ -153,55 +140,5 @@ internal class ActionAccumulator
         }
 
         return true;
-    }
-
-    private void AddDirtyRects(List<IRenderInfo> changes)
-    {
-        foreach (IRenderInfo renderInfo in changes)
-        {
-            switch (renderInfo)
-            {
-                case DirtyRect_RenderInfo info:
-                {
-                    var bitmap = document.Surfaces[info.Resolution];
-                    RectI finalRect = new RectI(VecI.Zero, new(bitmap.Size.X, bitmap.Size.Y));
-
-                    RectI dirtyRect = new RectI(info.Pos, info.Size).Intersect(finalRect);
-                    bitmap.AddDirtyRect(dirtyRect);
-                }
-                break;
-                case PreviewDirty_RenderInfo info:
-                {
-                    var bitmap = document.StructureHelper.Find(info.GuidValue)?.PreviewSurface;
-                    if (bitmap is null)
-                        continue;
-                    bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
-                }
-                break;
-                case MaskPreviewDirty_RenderInfo info:
-                {
-                    var bitmap = document.StructureHelper.Find(info.GuidValue)?.MaskPreviewSurface;
-                    if (bitmap is null)
-                        continue;
-                    bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
-                }
-                break;
-                case CanvasPreviewDirty_RenderInfo:
-                {
-                    document.PreviewSurface.AddDirtyRect(new RectI(0, 0, document.PreviewSurface.Size.X,
-                        document.PreviewSurface.Size.Y));
-                }
-                break;
-                case NodePreviewDirty_RenderInfo info:
-                {
-                    var node = document.StructureHelper.Find(info.NodeId);
-                    if (node is null || node.PreviewSurface is null)
-                        continue;
-                    node.PreviewSurface.AddDirtyRect(new RectI(0, 0, node.PreviewSurface.Size.X,
-                        node.PreviewSurface.Size.Y));
-                }
-                break;
-            }
-        }
     }
 }

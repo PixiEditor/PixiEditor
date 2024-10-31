@@ -2,9 +2,10 @@
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Changes.Structure;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.Bridge;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
@@ -91,13 +92,15 @@ internal class CombineStructureMembersOnto_Change : Change
         var toDrawOnImage = ((ImageLayerNode)toDrawOn).GetLayerImageAtFrame(frame);
         toDrawOnImage.EnqueueClear();
 
+        Texture tempTexture = new Texture(target.Size);
+        
         DocumentRenderer renderer = new(target);
 
         AffectedArea affArea = new();
         DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
         {
             RectI? globalClippingRect = new RectI(0, 0, target.Size.X, target.Size.Y);
-            foreach (var chunk in chunksToCombine)
+            /*foreach (var chunk in chunksToCombine)
             {
                 OneOf<Chunk, EmptyChunk> combined =
                     renderer.RenderLayersChunk(chunk, ChunkResolution.Full, frame, layersToCombine, globalClippingRect);
@@ -106,11 +109,17 @@ internal class CombineStructureMembersOnto_Change : Change
                     toDrawOnImage.EnqueueDrawImage(chunk * ChunkyImage.FullChunkSize, combined.AsT0.Surface);
                     combined.AsT0.Dispose();
                 }
-            }
+            }*/
+            
+            renderer.RenderLayers(tempTexture.DrawingSurface, layersToCombine, frame, ChunkResolution.Full);
+            
+            toDrawOnImage.EnqueueDrawTexture(VecI.Zero, tempTexture);
 
             affArea = toDrawOnImage.FindAffectedArea();
             originalChunks = new CommittedChunkStorage(toDrawOnImage, affArea.Chunks);
             toDrawOnImage.CommitChanges();
+            
+            tempTexture.Dispose();
         });
 
 

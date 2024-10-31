@@ -1,10 +1,6 @@
-﻿using System.Collections;
-using ChunkyImageLib;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
-using PixiEditor.DrawingApi.Skia;
+﻿using Drawie.Backend.Core;
 using PixiEditor.Extensions.CommonApi.Palettes;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Graph;
 using PixiEditor.Parser.Skia;

@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using ChunkyImageLib;
 using ChunkyImageLib.Operations;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Numerics;
 using Xunit;
 
 namespace ChunkyImageLibTest;

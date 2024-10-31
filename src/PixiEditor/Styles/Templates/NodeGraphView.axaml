@@ -41,6 +41,7 @@
                                         DisplayName="{Binding NodeNameBindable}"
                                         CategoryBackgroundBrush="{Binding CategoryBackgroundBrush}"
                                         Inputs="{Binding Inputs}"
+                                        ActiveFrame="{Binding ActiveFrame, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
                                         BorderBrush="{Binding InternalName, Converter={converters:NodeInternalNameToStyleConverter}, ConverterParameter='BorderBrush'}"
                                         BorderThickness="2"
                                         Outputs="{Binding Outputs}"
@@ -53,7 +54,7 @@
                                         RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
                                         SocketDropCommand="{Binding SocketDropCommand,
                                         RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
-                                        ResultPreview="{Binding ResultPreview}" />
+                                        ResultPreview="{Binding ResultPainter}" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                             <ItemsControl.ItemContainerTheme>

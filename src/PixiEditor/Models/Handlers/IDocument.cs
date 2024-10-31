@@ -3,17 +3,18 @@ using Avalonia.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces.Vector;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentModels.Public;
+using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Structures;
 using PixiEditor.Models.Tools;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.Handlers;
 
@@ -26,9 +27,8 @@ internal interface IDocument : IHandler
     public IAnimationHandler AnimationHandler { get; }
     public VectorPath SelectionPathBindable { get; }
     public INodeGraphHandler NodeGraphHandler { get; }
-    public Dictionary<ChunkResolution, Texture> Surfaces { get; set; }
     public DocumentStructureModule StructureHelper { get; }
-    public Texture PreviewSurface { get; set; }
+    public PreviewPainter PreviewPainter { get; set; }
     public bool AllChangesSaved { get; }
     public string CoordinatesString { get; set; }
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers { get; }
@@ -42,6 +42,7 @@ internal interface IDocument : IHandler
     public IDocumentOperations Operations { get; }
     public DocumentRenderer Renderer { get; }
     public ISnappingHandler SnappingHandler { get; }
+    public IReadOnlyCollection<Guid> SelectedMembers { get; }
     public void RemoveSoftSelectedMember(IStructureMemberHandler member);
     public void ClearSoftSelectedMembers();
     public void AddSoftSelectedMember(IStructureMemberHandler member);

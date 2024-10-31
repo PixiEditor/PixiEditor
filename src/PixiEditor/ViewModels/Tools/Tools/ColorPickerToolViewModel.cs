@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel;
 using Avalonia.Input;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.TransformOverlays;
@@ -103,7 +103,7 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
 
     private void ReferenceLayerChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(ReferenceLayerViewModel.ReferenceBitmap)
+        if (e.PropertyName is nameof(ReferenceLayerViewModel.ReferenceTexture)
             or nameof(ReferenceLayerViewModel.ReferenceShapeBindable))
         {
             UpdateActionDisplay();
@@ -131,7 +131,7 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
         var documentBounds = new RectD(default, document.SizeBindable);
         var referenceLayer = document.ReferenceLayerViewModel;
 
-        if (referenceLayer.ReferenceBitmap == null || document.TransformViewModel.TransformActive ||
+        if (referenceLayer.ReferenceTexture == null || document.TransformViewModel.TransformActive ||
             !referenceLayer.ReferenceShapeBindable.Intersects(documentBounds))
         {
             PickFromCanvas = true;

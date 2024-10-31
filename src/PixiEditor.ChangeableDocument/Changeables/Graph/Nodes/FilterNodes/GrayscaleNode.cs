@@ -1,5 +1,5 @@
-﻿using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.Numerics;
+﻿using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
@@ -16,12 +16,12 @@ public class GrayscaleNode : FilterNode
     public InputProperty<bool> Normalize { get; }
 
     // TODO: Hide when Mode != Custom
-    public InputProperty<VecD3> CustomWeight { get; }
+    public InputProperty<Vec3D> CustomWeight { get; }
     
     private GrayscaleMode lastMode;
     private double lastFactor;
     private bool lastNormalize;
-    private VecD3 lastCustomWeight;
+    private Vec3D lastCustomWeight;
     
     private ColorFilter? filter;
     
@@ -31,7 +31,7 @@ public class GrayscaleNode : FilterNode
         // TODO: Clamp 0 - 1 in UI
         Factor = CreateInput("Factor", "FACTOR", 1d);
         Normalize = CreateInput("Normalize", "NORMALIZE", true);
-        CustomWeight = CreateInput("CustomWeight", "WEIGHT_FACTOR", new VecD3(1, 1, 1));
+        CustomWeight = CreateInput("CustomWeight", "WEIGHT_FACTOR", new Vec3D(1, 1, 1));
     }
 
     protected override ColorFilter GetColorFilter()
@@ -74,7 +74,7 @@ public class GrayscaleNode : FilterNode
         };
     }
 
-    private VecD3 GetAdjustedCustomWeight()
+    private Vec3D GetAdjustedCustomWeight()
     {
         var weight = CustomWeight.Value;
         var normalize = Normalize.Value;
@@ -88,7 +88,7 @@ public class GrayscaleNode : FilterNode
 
         if (sum == 0)
         {
-            return VecD3.Zero;
+            return Vec3D.Zero;
         }
             
         return weight / weight.Sum();

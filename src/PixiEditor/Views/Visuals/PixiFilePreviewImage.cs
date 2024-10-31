@@ -2,12 +2,12 @@
 using Avalonia;
 using Avalonia.Threading;
 using FFMpegCore.Enums;
-using PixiEditor.DrawingApi.Core;
+using Drawie.Backend.Core;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Models;
 using PixiEditor.Models.IO;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.Parser;
 using Image = Avalonia.Controls.Image;
 

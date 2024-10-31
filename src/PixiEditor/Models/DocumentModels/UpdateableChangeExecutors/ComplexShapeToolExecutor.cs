@@ -3,12 +3,12 @@ using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -19,7 +19,7 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
     protected int StrokeWidth => toolbar.ToolSize;
 
     protected Color FillColor =>
-        toolbar.Fill ? toolbar.FillColor.ToColor() : DrawingApi.Core.ColorsImpl.Colors.Transparent;
+        toolbar.Fill ? toolbar.FillColor.ToColor() : Colors.Transparent;
 
     protected Color StrokeColor => toolbar.StrokeColor.ToColor();
     protected bool drawOnMask;

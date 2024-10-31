@@ -3,7 +3,6 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
-using PixiEditor.DrawingApi.Core;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
@@ -44,14 +43,14 @@ internal class MoveStructureMember_Change : Change
     {
         var sourceNode = document.FindMember(sourceNodeGuid);
         var targetNode = document.FindNode(targetNodeGuid);
-        if (sourceNode is null || targetNode is not IBackgroundInput backgroundInput)
+        if (sourceNode is null || targetNode is not IRenderInput backgroundInput)
             return [];
 
         List<IChangeInfo> changes = new();
         
         Guid oldBackgroundId = sourceNode.Background.Node.Id;
 
-        InputProperty<Texture?> inputProperty = backgroundInput.Background;
+        InputProperty<Painter?> inputProperty = backgroundInput.Background;
 
         if (targetNode is FolderNode folder && putInsideFolder)
         {

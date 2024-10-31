@@ -1,24 +1,27 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Media;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Extensions.UI.Overlays;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
+using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 
 namespace PixiEditor.Views.Overlays.Handles;
 
 public class AnchorHandle : RectangleHandle
 {
-    private Pen pen;
+    private Paint paint;
     public AnchorHandle(Overlay owner) : base(owner)
     {
         Size = new VecD(GetResource<double>("AnchorHandleSize"));
-        pen = new Pen(GetResource<SolidColorBrush>("HandleBrush"));
-        HandlePen = pen;
+        paint = GetPaint("HandleBrush");
+        StrokePaint = paint;
+        StrokePaint.Style = PaintStyle.Stroke;
     }
 
-    public override void Draw(DrawingContext context)
+    public override void Draw(Canvas context)
     {
-        pen.Thickness = 1.0 / ZoomScale;
+        paint.StrokeWidth = (float)(1.0 / ZoomScale);
         base.Draw(context);
     }
 }

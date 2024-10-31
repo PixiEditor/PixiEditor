@@ -5,11 +5,12 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -33,56 +34,54 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     public ShapeVectorData? ShapeData { get; set; }
     IReadOnlyShapeVectorData IReadOnlyVectorNode.ShapeData => ShapeData;
 
-    protected override bool AffectedByChunkResolution => true;
 
     private int lastCacheHash;
 
-    protected override Texture? OnExecute(RenderingContext context)
-    {
-        var rendered = base.OnExecute(context);
-
-        Output.Value = rendered;
-
-        return rendered;
-    }
-
-    protected override VecI GetTargetSize(RenderingContext ctx)
+    public override VecD GetScenePosition(KeyFrameTime time) => ShapeData?.TransformedAABB.Center ?? VecD.Zero;
+    public override VecD GetSceneSize(KeyFrameTime time) => ShapeData?.TransformedAABB.Size ?? VecD.Zero;
+    
+    protected override VecI GetTargetSize(RenderContext ctx)
     {
         return ctx.DocumentSize;
     }
 
-    protected override void DrawWithoutFilters(RenderingContext ctx, Texture workingSurface, bool shouldClear,
+    protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         Paint paint)
     {
         if (ShapeData == null)
         {
             return;
         }
-
-        if (shouldClear)
-        {
-            workingSurface.DrawingSurface.Canvas.Clear();
-        }
-
-        Rasterize(workingSurface.DrawingSurface, ctx.ChunkResolution, paint);
+        
+        Rasterize(workingSurface, paint);
     }
 
-    protected override void DrawWithFilters(RenderingContext ctx, Texture workingSurface, bool shouldClear, Paint paint)
+    protected override void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface, Paint paint)
     {
         if (ShapeData == null)
         {
             return;
         }
-
-        if (shouldClear)
-        {
-            workingSurface.DrawingSurface.Canvas.Clear();
-        }
-
-        Rasterize(workingSurface.DrawingSurface, ctx.ChunkResolution, paint);
+        
+        Rasterize(workingSurface, paint);
     }
 
-    public override bool RenderPreview(Texture renderOn, VecI chunk, ChunkResolution resolution, int frame)
+    public override RectD? GetPreviewBounds(int frame, string elementFor = "")
+    {
+        if (elementFor == nameof(EmbeddedMask))
+        {
+            base.GetPreviewBounds(frame, elementFor);
+        }
+        else
+        {
+            return ShapeData?.TransformedAABB;
+        }
+        
+        return null;
+    }
+
+    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,
+        string elementToRenderName)
     {
         if (ShapeData == null)
         {
@@ -104,16 +103,8 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return false;
         }
 
-        using Texture toRasterizeOn = new(size);
-
-        int save = toRasterizeOn.DrawingSurface.Canvas.Save();
-
         Matrix3X3 matrix = ShapeData.TransformationMatrix;
-        Rasterize(toRasterizeOn.DrawingSurface, resolution, paint);
-
-        renderOn.DrawingSurface.Canvas.DrawSurface(toRasterizeOn.DrawingSurface, 0, 0, paint);
-
-        toRasterizeOn.DrawingSurface.Canvas.RestoreToCount(save);
+        Rasterize(renderOn, paint);
         return true;
     }
 
@@ -134,12 +125,12 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return new VectorShape_ChangeInfo(Id, affected);
     }
 
-    protected override bool CacheChanged(RenderingContext context)
+    protected override bool CacheChanged(RenderContext context)
     {
         return base.CacheChanged(context) || (ShapeData?.GetCacheHash() ?? -1) != lastCacheHash;
     }
 
-    protected override void UpdateCache(RenderingContext context)
+    protected override void UpdateCache(RenderContext context)
     {
         base.UpdateCache(context);
         lastCacheHash = ShapeData?.GetCacheHash() ?? -1;
@@ -155,9 +146,12 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return ShapeData?.TransformationCorners ?? new ShapeCorners();
     }
 
-    public void Rasterize(DrawingSurface surface, ChunkResolution resolution, Paint paint)
+    public void Rasterize(DrawingSurface surface, Paint paint)
     {
-        ShapeData?.RasterizeTransformed(surface, resolution, paint);
+        int layer = surface.Canvas.SaveLayer(paint);
+        ShapeData?.RasterizeTransformed(surface);
+        
+        surface.Canvas.RestoreToCount(layer);
     }
 
     public override Node CreateCopy()

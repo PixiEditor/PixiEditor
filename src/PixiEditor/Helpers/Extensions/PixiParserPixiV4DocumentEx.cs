@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using ChunkyImageLib;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Surfaces;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Extensions.CommonApi.Palettes;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Old.PixiV4;
 using PixiEditor.ViewModels.Document;

@@ -24,17 +24,9 @@
                                     </ImageBrush.Transform>
                                 </ImageBrush>
                             </Border.Background>
-                            <visuals:TextureControl
-                                Texture="{Binding Item.PreviewSurface, RelativeSource={RelativeSource TemplatedParent}}"
-                                Stretch="Uniform" Width="60" Height="60">
-                                <ui:RenderOptionsBindable.BitmapInterpolationMode>
-                                    <MultiBinding Converter="{converters:WidthToBitmapScalingModeConverter}">
-                                        <Binding Path="Item.PreviewSurface.Size.X"
-                                                 RelativeSource="{RelativeSource TemplatedParent}" />
-                                        <Binding RelativeSource="{RelativeSource Mode=Self}" Path="Bounds.Width" />
-                                    </MultiBinding>
-                                </ui:RenderOptionsBindable.BitmapInterpolationMode>
-                            </visuals:TextureControl>
+                            <visuals:PreviewPainterControl
+                                PreviewPainter="{Binding Item.PreviewPainter, RelativeSource={RelativeSource TemplatedParent}}"
+                                Width="60" Height="60" RenderOptions.BitmapInterpolationMode="None"/>
                         </Border>
                         <TextBlock Margin="5 0 0 0" VerticalAlignment="Center" Text="{Binding Item.LayerName, RelativeSource={RelativeSource TemplatedParent}}" />
                         <ToggleButton Name="PART_CollapseButton" Margin="0 0 5 0" DockPanel.Dock="Right" Classes="ExpandCollapseToggleStyle" HorizontalAlignment="Right" VerticalAlignment="Center" />

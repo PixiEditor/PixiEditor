@@ -2,12 +2,12 @@
 using System.Runtime.CompilerServices;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Input;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.Overlays.BrushShapeOverlay;
 
@@ -120,7 +120,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
         foreach (var type in SupportedLayerTypes)
         {
-            if (type.IsInstanceOfType(layer))
+            if (type.IsInstanceOfType(layer) || IsFolderAndRasterSupported(layer))
             {
                 CanBeUsedOnActiveLayer = true;
                 return;
@@ -128,6 +128,11 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
         }
 
         CanBeUsedOnActiveLayer = false;
+    }
+    
+    private bool IsFolderAndRasterSupported(IStructureMemberHandler layer)
+    {
+        return SupportedLayerTypes.Contains(typeof(IRasterLayerHandler)) && layer is IFolderHandler;
     }
 
     private void OnLanguageChanged(Language obj)

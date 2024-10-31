@@ -16,5 +16,6 @@
         CreateNodeCommand="{xaml:Command PixiEditor.NodeGraph.CreateNode, UseProvided=True}"
         ChangeNodePosCommand="{xaml:Command PixiEditor.NodeGraph.ChangeNodePos, UseProvided=True}"
         EndChangeNodePosCommand="{xaml:Command PixiEditor.NodeGraph.EndChangeNodePos, UseProvided=True}"
+        ActiveFrame="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable}"
         NodeGraph="{Binding DocumentManagerSubViewModel.ActiveDocument.NodeGraph}"/>
 </UserControl>

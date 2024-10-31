@@ -1,10 +1,10 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.DrawingApi.Core.Surfaces.Vector;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Surfaces.Vector;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
@@ -25,19 +25,41 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         Size = size;
     }
 
-    public override void RasterizeGeometry(DrawingSurface drawingSurface, ChunkResolution resolution, Paint? paint)
+    public override void RasterizeGeometry(DrawingSurface drawingSurface)
     {
-        Rasterize(drawingSurface, resolution, paint, false);
+        Rasterize(drawingSurface, false);
     }
 
-    public override void RasterizeTransformed(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint)
+    public override void RasterizeTransformed(DrawingSurface drawingSurface)
     {
-        Rasterize(drawingSurface, resolution, paint, true);
+        Rasterize(drawingSurface, true);
     }
 
-    private void Rasterize(DrawingSurface drawingSurface, ChunkResolution resolution, Paint paint, bool applyTransform)
+    private void Rasterize(DrawingSurface drawingSurface, bool applyTransform)
     {
-        var imageSize = (VecI)Size; 
+        int saved = 0;
+        if (applyTransform)
+        {
+            saved = drawingSurface.Canvas.Save();
+            ApplyTransformTo(drawingSurface);
+        }
+
+        using Paint paint = new Paint() { IsAntiAliased = true };
+        
+        paint.Color = FillColor;
+        paint.Style = PaintStyle.Fill;
+        drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
+
+        paint.Color = StrokeColor;
+        paint.Style = PaintStyle.Stroke;
+        paint.StrokeWidth = StrokeWidth;
+        drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size - new VecD(StrokeWidth)), paint);
+
+        if (applyTransform)
+        {
+            drawingSurface.Canvas.RestoreToCount(saved);
+        }
+        /*var imageSize = (VecI)Size; 
 
         using ChunkyImage img = new ChunkyImage(imageSize);
 
@@ -67,7 +89,7 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         if (applyTransform)
         {
             drawingSurface.Canvas.RestoreToCount(num);
-        }
+        }*/
     }
 
     public override bool IsValid()

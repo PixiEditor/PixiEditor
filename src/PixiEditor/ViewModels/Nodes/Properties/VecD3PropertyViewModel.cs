@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.ViewModels.Nodes.Properties;
 
-internal class VecD3PropertyViewModel : NodePropertyViewModel<VecD3>
+internal class VecD3PropertyViewModel : NodePropertyViewModel<Vec3D>
 {
     public VecD3PropertyViewModel(NodeViewModel node, Type valueType) : base(node, valueType)
     {
@@ -25,18 +25,18 @@ internal class VecD3PropertyViewModel : NodePropertyViewModel<VecD3>
     public double XValue
     {
         get => Value.X;
-        set => Value = new VecD3(value, Value.Y, Value.Z);
+        set => Value = new Vec3D(value, Value.Y, Value.Z);
     }
     
     public double YValue
     {
         get => Value.Y;
-        set => Value = new VecD3(Value.X, value, Value.Z);
+        set => Value = new Vec3D(Value.X, value, Value.Z);
     }
     
     public double ZValue
     {
         get => Value.Z;
-        set => Value = new VecD3(Value.X, Value.Y, value);
+        set => Value = new Vec3D(Value.X, Value.Y, value);
     }
 }

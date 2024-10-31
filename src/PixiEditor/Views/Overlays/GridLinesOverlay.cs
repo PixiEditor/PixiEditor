@@ -1,8 +1,11 @@
 ﻿using Avalonia;
 using Avalonia.Media;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Helpers.Converters;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
+using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 using Point = Avalonia.Point;
 
 namespace PixiEditor.Views.Overlays;
@@ -45,9 +48,9 @@ public class GridLinesOverlay : Overlay
         set => SetValue(RowsProperty, value);
     }
 
-    private const double PenWidth = 0.8d;
-    private Pen pen1 = new(Brushes.Black, PenWidth);
-    private Pen pen2 = new(Brushes.White, PenWidth);
+    private const float PenWidth = 0.8f;
+    private Paint pen1 = new Paint() { Color = Colors.Black, StrokeWidth = PenWidth, IsAntiAliased = true, Style = PaintStyle.Stroke };
+    private Paint pen2 = new Paint() { Color = Colors.White, StrokeWidth = PenWidth, IsAntiAliased = true, Style = PaintStyle.Stroke };
     private ThresholdVisibilityConverter visibilityConverter = new(){ Threshold = 10 };
 
     static GridLinesOverlay()
@@ -65,32 +68,31 @@ public class GridLinesOverlay : Overlay
         return visibilityConverter.Check(ZoomScale);
     }
 
-    public override void RenderOverlay(DrawingContext context, RectD canvasBounds)
+    public override void RenderOverlay(Canvas context, RectD canvasBounds)
     {
         // Draw lines in vertical and horizontal directions, size should be relative to the scale
 
-        base.Render(context);
         double width = PixelWidth;
         double height = PixelHeight;
 
         double columnWidth = width / Columns;
         double rowHeight = height / Rows;
 
-        pen1.Thickness = ReciprocalConverter.Convert(ZoomScale);
-        pen2.Thickness = ReciprocalConverter.Convert(ZoomScale, 1.2);
+        pen1.StrokeWidth = (float)ReciprocalConverter.Convert(ZoomScale);
+        pen2.StrokeWidth = (float)ReciprocalConverter.Convert(ZoomScale, 1.2);
 
         for (int i = 0; i < Columns; i++)
         {
             double x = i * columnWidth;
-            context.DrawLine(pen1, new Point(x, 0), new Point(x, height));
-            context.DrawLine(pen2, new Point(x, 0), new Point(x, height));
+            context.DrawLine(new VecD(x, 0), new VecD(x, height), pen1);
+            context.DrawLine(new VecD(x, 0), new VecD(x, height), pen2);
         }
 
         for (int i = 0; i < Rows; i++)
         {
             double y = i * rowHeight;
-            context.DrawLine(pen1, new Point(0, y), new Point(width, y));
-            context.DrawLine(pen2, new Point(0, y), new Point(width, y));
+            context.DrawLine(new VecD(0, y), new VecD(width, y), pen1);
+            context.DrawLine(new VecD(0, y), new VecD(width, y), pen2);
         }
     }
 

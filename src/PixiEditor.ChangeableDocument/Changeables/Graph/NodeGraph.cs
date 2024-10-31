@@ -3,7 +3,7 @@ using System.Diagnostics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core;
+using Drawie.Backend.Core;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
@@ -38,58 +38,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
 
     public Queue<IReadOnlyNode> CalculateExecutionQueue(IReadOnlyNode outputNode)
     {
-        var finalQueue = new HashSet<IReadOnlyNode>();
-        var queueNodes = new Queue<IReadOnlyNode>();
-        queueNodes.Enqueue(outputNode);
-
-        while (queueNodes.Count > 0)
-        {
-            var node = queueNodes.Dequeue();
-            
-            if (finalQueue.Contains(node))
-            {
-                continue;
-            }
-            
-            bool canAdd = true;
-
-            foreach (var input in node.InputProperties)
-            {
-                if (input.Connection == null)
-                {
-                    continue;
-                }
-
-                if (finalQueue.Contains(input.Connection.Node))
-                {
-                    continue;
-                }
-
-                canAdd = false;
-                
-                if (finalQueue.Contains(input.Connection.Node))
-                {
-                    finalQueue.Remove(input.Connection.Node);
-                    finalQueue.Add(input.Connection.Node);
-                }
-
-                if (!queueNodes.Contains(input.Connection.Node))
-                {
-                    queueNodes.Enqueue(input.Connection.Node);
-                }
-            }
-            
-            if (canAdd)
-            {
-                finalQueue.Add(node);
-            }
-            else
-            {
-                queueNodes.Enqueue(node);
-            }
-        }
-
-        return new Queue<IReadOnlyNode>(finalQueue);
+        return GraphUtils.CalculateExecutionQueue(outputNode);
     }
 
     void IReadOnlyNodeGraph.AddNode(IReadOnlyNode node) => AddNode((Node)node);
@@ -119,9 +68,9 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         return true;
     }
 
-    public Texture? Execute(RenderingContext context)
+    public void Execute(RenderContext context)
     {
-        if (OutputNode == null) return null;
+        if (OutputNode == null) return;
 
         var queue = CalculateExecutionQueue(OutputNode);
         
@@ -138,7 +87,5 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
                 node.Execute(context);
             }
         }
-
-        return OutputNode.Input.Value;
     }
 }

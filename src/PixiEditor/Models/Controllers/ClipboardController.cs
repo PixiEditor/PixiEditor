@@ -12,10 +12,10 @@ using Avalonia.Platform.Storage;
 using ChunkyImageLib;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Constants;
@@ -23,7 +23,7 @@ using PixiEditor.Models.Clipboard;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels.Document;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
@@ -144,7 +144,9 @@ internal static class ClipboardController
     {
         Guid[] layerIds = GetLayerIds(data);
 
-        if (layerIds != null && layerIds.Length > 0)
+        bool hasPos = data.Any(x => x.Contains(ClipboardDataFormats.PositionFormat));
+        
+        if (layerIds is { Length: > 0 } && !hasPos)
         {
             foreach (var layerId in layerIds)
             {
@@ -361,9 +363,16 @@ internal static class ClipboardController
                 {
                     foreach (var file in storageFiles)
                     {
-                        if (Importer.IsSupportedFile(file.Path.LocalPath))
+                        try
                         {
-                            return file.Path.LocalPath;
+                            if (Importer.IsSupportedFile(file.Path.LocalPath))
+                            {
+                                return file.Path.LocalPath;
+                            }
+                        }
+                        catch (UriFormatException)
+                        {
+                            continue;
                         }
                     }
                 }

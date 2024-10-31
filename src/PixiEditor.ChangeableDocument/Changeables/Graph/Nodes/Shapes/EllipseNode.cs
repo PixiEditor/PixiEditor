@@ -1,14 +1,14 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes;
 
 [NodeInfo("Ellipse")]
 public class EllipseNode : ShapeNode<EllipseVectorData>
 {
-    public InputProperty<VecD> Position { get; }
+    public InputProperty<VecD> Center { get; }
     public InputProperty<VecD> Radius { get; }
     public InputProperty<Color> StrokeColor { get; }
     public InputProperty<Color> FillColor { get; }
@@ -16,7 +16,7 @@ public class EllipseNode : ShapeNode<EllipseVectorData>
 
     public EllipseNode()
     {
-        Position = CreateInput<VecD>("Position", "POSITION", VecI.Zero);
+        Center = CreateInput<VecD>("Position", "POSITION", VecI.Zero);
         Radius = CreateInput<VecD>("Radius", "RADIUS", new VecD(32, 32)).WithRules(
             v => v.Min(new VecD(1)));
         StrokeColor = CreateInput<Color>("StrokeColor", "STROKE_COLOR", new Color(0, 0, 0, 255));
@@ -24,9 +24,9 @@ public class EllipseNode : ShapeNode<EllipseVectorData>
         StrokeWidth = CreateInput<int>("StrokeWidth", "STROKE_WIDTH", 1);
     }
 
-    protected override EllipseVectorData? GetShapeData(RenderingContext context)
+    protected override EllipseVectorData? GetShapeData(RenderContext context)
     {
-        return new EllipseVectorData(Position.Value, Radius.Value)
+        return new EllipseVectorData(Center.Value, Radius.Value)
             { StrokeColor = StrokeColor.Value, FillColor = FillColor.Value, StrokeWidth = StrokeWidth.Value };
     }
 

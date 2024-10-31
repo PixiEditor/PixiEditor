@@ -8,7 +8,9 @@ using PixiEditor.Helpers.Converters;
 using PixiEditor.Models.Commands.XAML;
 using PixiEditor.ViewModels;
 using PixiEditor.Views.Overlays;
+using PixiEditor.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.Views.Overlays.LineToolOverlay;
+using PixiEditor.Views.Overlays.Pointers;
 using PixiEditor.Views.Overlays.SelectionOverlay;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 using PixiEditor.Views.Overlays.TransformOverlay;
@@ -26,6 +28,7 @@ internal class ViewportOverlays
     private TransformOverlay transformOverlay;
     private ReferenceLayerOverlay referenceLayerOverlay;
     private SnappingOverlay snappingOverlay;
+    private BrushShapeOverlay brushShapeOverlay;
 
     public void Init(Viewport viewport)
     {
@@ -47,10 +50,12 @@ internal class ViewportOverlays
 
         referenceLayerOverlay = new ReferenceLayerOverlay();
         BindReferenceLayerOverlay();
-        
+
         snappingOverlay = new SnappingOverlay();
         BindSnappingOverlay();
-        
+
+        brushShapeOverlay = new BrushShapeOverlay();
+        BindMouseOverlayPointer();
 
         Viewport.ActiveOverlays.Add(gridLinesOverlay);
         Viewport.ActiveOverlays.Add(referenceLayerOverlay);
@@ -59,6 +64,7 @@ internal class ViewportOverlays
         Viewport.ActiveOverlays.Add(lineToolOverlay);
         Viewport.ActiveOverlays.Add(transformOverlay);
         Viewport.ActiveOverlays.Add(snappingOverlay);
+        Viewport.ActiveOverlays.Add(brushShapeOverlay);
     }
 
     private void BindReferenceLayerOverlay()
@@ -72,9 +78,7 @@ internal class ViewportOverlays
 
         Binding referenceLayerBinding = new()
         {
-            Source = Viewport,
-            Path = "Document.ReferenceLayerViewModel",
-            Mode = BindingMode.OneWay
+            Source = Viewport, Path = "Document.ReferenceLayerViewModel", Mode = BindingMode.OneWay
         };
 
         Binding referenceShapeBinding = new()
@@ -99,29 +103,14 @@ internal class ViewportOverlays
 
     private void BindGridLines()
     {
-        Binding isVisBinding = new()
-        {
-            Source = Viewport,
-            Path = "GridLinesVisible",
-            Mode = BindingMode.OneWay
-        };
+        Binding isVisBinding = new() { Source = Viewport, Path = "GridLinesVisible", Mode = BindingMode.OneWay };
 
-        Binding binding = new()
-        {
-            Source = Viewport,
-            Path = "Document.Width",
-            Mode = BindingMode.OneWay
-        };
+        Binding binding = new() { Source = Viewport, Path = "Document.Width", Mode = BindingMode.OneWay };
 
         gridLinesOverlay.Bind(GridLinesOverlay.PixelWidthProperty, binding);
         gridLinesOverlay.Bind(GridLinesOverlay.ColumnsProperty, binding);
 
-        binding = new Binding
-        {
-            Source = Viewport,
-            Path = "Document.Height",
-            Mode = BindingMode.OneWay
-        };
+        binding = new Binding { Source = Viewport, Path = "Document.Height", Mode = BindingMode.OneWay };
 
         gridLinesOverlay.Bind(GridLinesOverlay.PixelHeightProperty, binding);
         gridLinesOverlay.Bind(GridLinesOverlay.RowsProperty, binding);
@@ -140,9 +129,7 @@ internal class ViewportOverlays
 
         Binding pathBinding = new()
         {
-            Source = Viewport,
-            Path = "Document.SelectionPathBindable",
-            Mode = BindingMode.OneWay
+            Source = Viewport, Path = "Document.SelectionPathBindable", Mode = BindingMode.OneWay
         };
 
         Binding isVisibleBinding = new()
@@ -160,13 +147,34 @@ internal class ViewportOverlays
 
     private void BindSymmetryOverlay()
     {
-        Binding isVisibleBinding = new() {Source = Viewport, Path = "Document.AnySymmetryAxisEnabledBindable", Mode = BindingMode.OneWay };
+        Binding isVisibleBinding = new()
+        {
+            Source = Viewport, Path = "Document.AnySymmetryAxisEnabledBindable", Mode = BindingMode.OneWay
+        };
         Binding sizeBinding = new() { Source = Viewport, Path = "Document.SizeBindable", Mode = BindingMode.OneWay };
-        Binding isHitTestVisibleBinding = new() {Source = Viewport, Path = "ZoomMode", Converter = new ZoomModeToHitTestVisibleConverter(), Mode = BindingMode.OneWay };
-        Binding horizontalAxisVisibleBinding = new() {Source = Viewport, Path = "Document.HorizontalSymmetryAxisEnabledBindable", Mode = BindingMode.OneWay };
-        Binding verticalAxisVisibleBinding = new() {Source = Viewport, Path = "Document.VerticalSymmetryAxisEnabledBindable", Mode = BindingMode.OneWay };
-        Binding horizontalAxisYBinding = new() {Source = Viewport, Path = "Document.HorizontalSymmetryAxisYBindable", Mode = BindingMode.OneWay };
-        Binding verticalAxisXBinding = new() {Source = Viewport, Path = "Document.VerticalSymmetryAxisXBindable", Mode = BindingMode.OneWay };
+        Binding isHitTestVisibleBinding = new()
+        {
+            Source = Viewport,
+            Path = "ZoomMode",
+            Converter = new ZoomModeToHitTestVisibleConverter(),
+            Mode = BindingMode.OneWay
+        };
+        Binding horizontalAxisVisibleBinding = new()
+        {
+            Source = Viewport, Path = "Document.HorizontalSymmetryAxisEnabledBindable", Mode = BindingMode.OneWay
+        };
+        Binding verticalAxisVisibleBinding = new()
+        {
+            Source = Viewport, Path = "Document.VerticalSymmetryAxisEnabledBindable", Mode = BindingMode.OneWay
+        };
+        Binding horizontalAxisYBinding = new()
+        {
+            Source = Viewport, Path = "Document.HorizontalSymmetryAxisYBindable", Mode = BindingMode.OneWay
+        };
+        Binding verticalAxisXBinding = new()
+        {
+            Source = Viewport, Path = "Document.VerticalSymmetryAxisXBindable", Mode = BindingMode.OneWay
+        };
 
         symmetryOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         symmetryOverlay.Bind(SymmetryOverlay.SizeProperty, sizeBinding);
@@ -175,25 +183,24 @@ internal class ViewportOverlays
         symmetryOverlay.Bind(SymmetryOverlay.VerticalAxisVisibleProperty, verticalAxisVisibleBinding);
         symmetryOverlay.Bind(SymmetryOverlay.HorizontalAxisYProperty, horizontalAxisYBinding);
         symmetryOverlay.Bind(SymmetryOverlay.VerticalAxisXProperty, verticalAxisXBinding);
-        symmetryOverlay.DragCommand = (ICommand)new Command("PixiEditor.Document.DragSymmetry") { UseProvided = true }.ProvideValue(null);
-        symmetryOverlay.DragEndCommand = (ICommand)new Command("PixiEditor.Document.EndDragSymmetry") { UseProvided = true }.ProvideValue(null);
-        symmetryOverlay.DragStartCommand = (ICommand)new Command("PixiEditor.Document.StartDragSymmetry") { UseProvided = true }.ProvideValue(null);
+        symmetryOverlay.DragCommand =
+            (ICommand)new Command("PixiEditor.Document.DragSymmetry") { UseProvided = true }.ProvideValue(null);
+        symmetryOverlay.DragEndCommand =
+            (ICommand)new Command("PixiEditor.Document.EndDragSymmetry") { UseProvided = true }.ProvideValue(null);
+        symmetryOverlay.DragStartCommand =
+            (ICommand)new Command("PixiEditor.Document.StartDragSymmetry") { UseProvided = true }.ProvideValue(null);
     }
 
     private void BindLineToolOverlay()
     {
         Binding isVisibleBinding = new()
         {
-            Source = Viewport,
-            Path = "Document.LineToolOverlayViewModel.IsEnabled",
-            Mode = BindingMode.OneWay
+            Source = Viewport, Path = "Document.LineToolOverlayViewModel.IsEnabled", Mode = BindingMode.OneWay
         };
-        
+
         Binding snappingBinding = new()
         {
-            Source = Viewport,
-            Path = "Document.SnappingViewModel.SnappingController",
-            Mode = BindingMode.OneWay
+            Source = Viewport, Path = "Document.SnappingViewModel.SnappingController", Mode = BindingMode.OneWay
         };
 
         Binding actionCompletedBinding = new()
@@ -205,18 +212,14 @@ internal class ViewportOverlays
 
         Binding lineStartBinding = new()
         {
-            Source = Viewport,
-            Path = "Document.LineToolOverlayViewModel.LineStart",
-            Mode = BindingMode.TwoWay
+            Source = Viewport, Path = "Document.LineToolOverlayViewModel.LineStart", Mode = BindingMode.TwoWay
         };
 
         Binding lineEndBinding = new()
         {
-            Source = Viewport,
-            Path = "Document.LineToolOverlayViewModel.LineEnd",
-            Mode = BindingMode.TwoWay
+            Source = Viewport, Path = "Document.LineToolOverlayViewModel.LineEnd", Mode = BindingMode.TwoWay
         };
-        
+
         lineToolOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         lineToolOverlay.Bind(LineToolOverlay.SnappingControllerProperty, snappingBinding);
         lineToolOverlay.Bind(LineToolOverlay.ActionCompletedProperty, actionCompletedBinding);
@@ -228,16 +231,12 @@ internal class ViewportOverlays
     {
         Binding isVisibleBinding = new()
         {
-            Source = Viewport,
-            Path = "Document.TransformViewModel.TransformActive",
-            Mode = BindingMode.OneWay
+            Source = Viewport, Path = "Document.TransformViewModel.TransformActive", Mode = BindingMode.OneWay
         };
-        
+
         Binding snappingBinding = new()
         {
-            Source = Viewport,
-            Path = "Document.SnappingViewModel.SnappingController",
-            Mode = BindingMode.OneWay
+            Source = Viewport, Path = "Document.SnappingViewModel.SnappingController", Mode = BindingMode.OneWay
         };
 
         Binding actionCompletedBinding = new()
@@ -249,65 +248,45 @@ internal class ViewportOverlays
 
         Binding cornersBinding = new()
         {
-            Source = Viewport,
-            Path = "Document.TransformViewModel.Corners",
-            Mode = BindingMode.TwoWay
+            Source = Viewport, Path = "Document.TransformViewModel.Corners", Mode = BindingMode.TwoWay
         };
 
         Binding requestedCornersBinding = new()
         {
-            Source = Viewport,
-            Path = "Document.TransformViewModel.RequestCornersExecutor",
+            Source = Viewport, Path = "Document.TransformViewModel.RequestCornersExecutor",
         };
 
         Binding cornerFreedomBinding = new()
         {
-            Source = Viewport,
-            Path = "Document.TransformViewModel.CornerFreedom",
-            Mode = BindingMode.OneWay
+            Source = Viewport, Path = "Document.TransformViewModel.CornerFreedom", Mode = BindingMode.OneWay
         };
 
         Binding sideFreedomBinding = new()
         {
-            Source = Viewport,
-            Path = "Document.TransformViewModel.SideFreedom",
-            Mode = BindingMode.OneWay
+            Source = Viewport, Path = "Document.TransformViewModel.SideFreedom", Mode = BindingMode.OneWay
         };
 
         Binding lockRotationBinding = new()
         {
-            Source = Viewport,
-            Path = "Document.TransformViewModel.LockRotation",
-            Mode = BindingMode.OneWay
+            Source = Viewport, Path = "Document.TransformViewModel.LockRotation", Mode = BindingMode.OneWay
         };
 
         Binding coverWholeScreenBinding = new()
         {
-            Source = Viewport,
-            Path = "Document.TransformViewModel.CoverWholeScreen",
-            Mode = BindingMode.OneWay
+            Source = Viewport, Path = "Document.TransformViewModel.CoverWholeScreen", Mode = BindingMode.OneWay
         };
 
         Binding snapToAnglesBinding = new()
         {
-            Source = Viewport,
-            Path = "Document.TransformViewModel.SnapToAngles",
-            Mode = BindingMode.OneWay
+            Source = Viewport, Path = "Document.TransformViewModel.SnapToAngles", Mode = BindingMode.OneWay
         };
 
         Binding internalStateBinding = new()
         {
-            Source = Viewport,
-            Path = "Document.TransformViewModel.InternalState",
-            Mode = BindingMode.TwoWay
+            Source = Viewport, Path = "Document.TransformViewModel.InternalState", Mode = BindingMode.TwoWay
         };
 
-        Binding zoomboxAngleBinding = new()
-        {
-            Source = Viewport,
-            Path = "Zoombox.Angle",
-            Mode = BindingMode.OneWay
-        };
+        Binding zoomboxAngleBinding = new() { Source = Viewport, Path = "Zoombox.Angle", Mode = BindingMode.OneWay };
 
         transformOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         transformOverlay.Bind(TransformOverlay.ActionCompletedProperty, actionCompletedBinding);
@@ -327,11 +306,67 @@ internal class ViewportOverlays
     {
         Binding snappingControllerBinding = new()
         {
-            Source = Viewport,
-            Path = "Document.SnappingViewModel.SnappingController",
-            Mode = BindingMode.OneWay
+            Source = Viewport, Path = "Document.SnappingViewModel.SnappingController", Mode = BindingMode.OneWay
         };
-        
+
         snappingOverlay.Bind(SnappingOverlay.SnappingControllerProperty, snappingControllerBinding);
     }
+
+/**  <brushShapeOverlay:BrushShapeOverlay
+               DataContext="{Binding ElementName=vpUc}"
+               RenderTransform="{Binding #scene.CanvasTransform}"
+               RenderTransformOrigin="0, 0"
+               Name="brushShapeOverlay"
+               Focusable="False" ZIndex="6"
+               IsHitTestVisible="False"
+               ZoomScale="{Binding #scene.Scale}"
+               Scene="{Binding #scene, Mode=OneTime}"
+               BrushSize="{Binding ToolsSubViewModel.ActiveBasicToolbar.ToolSize, Source={viewModels:MainVM}}"
+               BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={viewModels:MainVM}, FallbackValue={x:Static brushShapeOverlay:BrushShape.Hidden}}"
+               FlowDirection="LeftToRight">
+               <brushShapeOverlay:BrushShapeOverlay.IsVisible>
+                   <MultiBinding Converter="{converters:AllTrueConverter}">
+                       <Binding Path="!Document.TransformViewModel.TransformActive" />
+                       <Binding Path="IsOverCanvas" />
+                   </MultiBinding>
+               </brushShapeOverlay:BrushShapeOverlay.IsVisible>
+           </brushShapeOverlay:BrushShapeOverlay>*/
+    private void BindMouseOverlayPointer()
+    {
+        Binding isTransformingBinding = new()
+        {
+            Source = Viewport, Path = "!Document.TransformViewModel.TransformActive", Mode = BindingMode.OneWay
+        };
+
+        Binding isOverCanvasBinding = new()
+        {
+            Source = Viewport, Path = "IsOverCanvas", Mode = BindingMode.OneWay
+        };
+
+        Binding brushSizeBinding = new()
+        {
+            Source = ViewModelMain.Current.ToolsSubViewModel, Path = "ActiveBasicToolbar.ToolSize", Mode = BindingMode.OneWay
+        };
+
+        Binding brushShapeBinding = new()
+        {
+            Source = ViewModelMain.Current.ToolsSubViewModel, Path = "ActiveTool.BrushShape", Mode = BindingMode.OneWay
+        };
+        
+        MultiBinding isVisibleMultiBinding = new()
+        {
+            Converter = new AllTrueConverter(),
+            Mode = BindingMode.OneWay,
+            Bindings = new List<IBinding>() 
+            {
+                isTransformingBinding,
+                isOverCanvasBinding
+            }
+        };
+
+        brushShapeOverlay.Bind(Visual.IsVisibleProperty, isVisibleMultiBinding);
+        brushShapeOverlay.Bind(BrushShapeOverlay.BrushSizeProperty, brushSizeBinding);
+        brushShapeOverlay.Bind(BrushShapeOverlay.BrushShapeProperty, brushShapeBinding); 
+    }
 }
+

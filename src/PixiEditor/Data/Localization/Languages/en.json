@@ -440,7 +440,7 @@
   "BOTTOM_LEFT": "Bottom left",
   "BOTTOM_CENTER": "Bottom center",
   "BOTTOM_RIGHT": "Bottom right",
-  "CLIP_TO_BELOW": "Clip to layer below",
+  "CLIP_TO_BELOW": "Clip to member below",
   "MOVE_UPWARDS": "Move upwards",
   "MOVE_DOWNWARDS": "Move downwards",
   "MERGE_SELECTED": "Merge selected",
@@ -631,7 +631,6 @@
   "GRAYSCALE": "Grayscale",
   "CLAMP": "Clamp",
   "SIZE": "Size",
-  "EMPTY_IMAGE": "Empty image",
   "NOISE": "Noise",
   "SCALE": "Scale",
   "SEED": "Seed",
@@ -756,5 +755,6 @@
   "RASTERIZE_ACTIVE_LAYER_DESCRIPTIVE": "Convert/Rasterize the active layer into a image (raster) layer.",
   "NEW_ELLIPSE_LAYER_NAME": "Ellipse",
   "NEW_RECTANGLE_LAYER_NAME": "Rectangle",
-  "NEW_LINE_LAYER_NAME": "Line"
+  "NEW_LINE_LAYER_NAME": "Line",
+  "RENDER_OUTPUT": "Render Output"
 }

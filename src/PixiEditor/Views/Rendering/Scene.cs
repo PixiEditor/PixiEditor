@@ -1,46 +1,45 @@
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Rendering;
+using Avalonia.Rendering.Composition;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using Avalonia.Threading;
-using ChunkyImageLib;
+using Avalonia.VisualTree;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Bridge;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.DrawingApi.Skia;
-using PixiEditor.DrawingApi.Skia.Extensions;
+using PixiEditor.ChangeableDocument.Rendering;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Shaders;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Interop.VulkanAvalonia;
+using Drawie.Interop.VulkanAvalonia.Vulkan;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Converters;
 using PixiEditor.Models.DocumentModels;
-using PixiEditor.Numerics;
+using PixiEditor.Models.Rendering;
+using Drawie.Numerics;
+using Drawie.Skia;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.Views.Overlays;
 using PixiEditor.Views.Overlays.Pointers;
 using PixiEditor.Views.Visuals;
-using Bitmap = PixiEditor.DrawingApi.Core.Surfaces.Bitmap;
-using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
-using Image = PixiEditor.DrawingApi.Core.Surfaces.ImageData.Image;
+using Bitmap = Drawie.Backend.Core.Surfaces.Bitmap;
 using Point = Avalonia.Point;
 
 namespace PixiEditor.Views.Rendering;
 
 internal class Scene : Zoombox.Zoombox, ICustomHitTest
 {
-    public static readonly StyledProperty<Texture> SurfaceProperty = AvaloniaProperty.Register<SurfaceControl, Texture>(
-        nameof(Surface));
-
     public static readonly StyledProperty<DocumentViewModel> DocumentProperty =
         AvaloniaProperty.Register<Scene, DocumentViewModel>(
             nameof(Document));
@@ -61,6 +60,16 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     public static readonly StyledProperty<ViewportColorChannels> ChannelsProperty =
         AvaloniaProperty.Register<Scene, ViewportColorChannels>(
             nameof(Channels));
+
+    public static readonly StyledProperty<SceneRenderer> SceneRendererProperty =
+        AvaloniaProperty.Register<Scene, SceneRenderer>(
+            nameof(SceneRenderer));
+
+    public SceneRenderer SceneRenderer
+    {
+        get => GetValue(SceneRendererProperty);
+        set => SetValue(SceneRendererProperty, value);
+    }
 
     public Cursor DefaultCursor
     {
@@ -92,12 +101,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         set => SetValue(DocumentProperty, value);
     }
 
-    public Texture Surface
-    {
-        get => GetValue(SurfaceProperty);
-        set => SetValue(SurfaceProperty, value);
-    }
-
     public ViewportColorChannels Channels
     {
         get => GetValue(ChannelsProperty);
@@ -113,18 +116,35 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private double sceneOpacity = 1;
 
+    private Paint checkerPaint;
+
+    private CompositionSurfaceVisual surfaceVisual;
+    private Compositor compositor;
+
+    private readonly Action update;
+    private bool updateQueued;
+
+    private CompositionDrawingSurface? surface;
+
+    private string info = string.Empty;
+    private bool initialized = false;
+    private VulkanResources resources;
+    private DrawingSurface renderSurface;
+    private PixelSize lastSize = PixelSize.Empty;
+    private Cursor lastCursor;
+
     static Scene()
     {
         AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty, ScaleProperty, AngleRadiansProperty,
             FlipXProperty,
-            FlipYProperty, DocumentProperty, SurfaceProperty, AllOverlaysProperty);
+            FlipYProperty, DocumentProperty, AllOverlaysProperty);
 
         FadeOutProperty.Changed.AddClassHandler<Scene>(FadeOutChanged);
-        SurfaceProperty.Changed.AddClassHandler<Scene>(SurfaceChanged);
         CheckerImagePathProperty.Changed.AddClassHandler<Scene>(CheckerImagePathChanged);
         AllOverlaysProperty.Changed.AddClassHandler<Scene>(ActiveOverlaysChanged);
         DefaultCursorProperty.Changed.AddClassHandler<Scene>(DefaultCursorChanged);
         ChannelsProperty.Changed.AddClassHandler<Scene>(ChannelsChanged);
+        DocumentProperty.Changed.AddClassHandler<Scene>(DocumentChanged);
     }
 
     private static void ChannelsChanged(Scene scene, AvaloniaPropertyChangedEventArgs args)
@@ -139,49 +159,116 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         {
             new DoubleTransition { Property = OpacityProperty, Duration = new TimeSpan(0, 0, 0, 0, 100) }
         };
+
+        update = UpdateFrame;
+        QueueNextFrame();
     }
 
-    public override void Render(DrawingContext context)
+    private ChunkResolution CalculateResolution()
     {
-        if (Surface == null || Surface.IsDisposed || Document == null) return;
-
-        float angle = (float)MathUtil.RadiansToDegrees(AngleRadians);
-
-        float resolutionScale = CalculateResolutionScale();
-
-        RectD dirtyBounds = new RectD(0, 0, Document.Width / resolutionScale, Document.Height / resolutionScale);
-        Rect dirtyRect = new Rect(0, 0, Document.Width / resolutionScale, Document.Height / resolutionScale);
-
-        Surface.DrawingSurface.Flush();
-        using var operation = new DrawSceneOperation(Surface, Document, CanvasPos, Scale * resolutionScale,
-            resolutionScale, angle,
-            FlipX, FlipY,
-            dirtyRect,
-            Bounds,
-            sceneOpacity);
-
-        var matrix = CalculateTransformMatrix();
-        context.PushTransform(matrix);
-        context.PushRenderOptions(new RenderOptions { BitmapInterpolationMode = BitmapInterpolationMode.None });
-
-        var resolutionTransformation = context.PushTransform(Matrix.CreateScale(resolutionScale, resolutionScale));
-
-        DrawCheckerboard(context, dirtyRect, operation.SurfaceRectToRender);
-
-        resolutionTransformation.Dispose();
-
-        Cursor = DefaultCursor;
-
-        DrawOverlays(context, dirtyBounds, OverlayRenderSorting.Background);
-
-        resolutionTransformation = context.PushTransform(Matrix.CreateScale(resolutionScale, resolutionScale));
-        context.Custom(operation);
-
-        resolutionTransformation.Dispose();
-        DrawOverlays(context, dirtyBounds, OverlayRenderSorting.Foreground);
+        VecD densityVec = Dimensions.Divide(RealDimensions);
+        double density = Math.Min(densityVec.X, densityVec.Y);
+        return density switch
+        {
+            > 8.01 => ChunkResolution.Eighth,
+            > 4.01 => ChunkResolution.Quarter,
+            > 2.01 => ChunkResolution.Half,
+            _ => ChunkResolution.Full
+        };
     }
 
-    private void DrawOverlays(DrawingContext context, RectD dirtyBounds, OverlayRenderSorting sorting)
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+        InitializeComposition();
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        if (initialized)
+        {
+            FreeGraphicsResources();
+        }
+
+        initialized = false;
+        base.OnDetachedFromVisualTree(e);
+    }
+
+    private async void InitializeComposition()
+    {
+        try
+        {
+            var selfVisual = ElementComposition.GetElementVisual(this);
+            compositor = selfVisual.Compositor;
+
+            surface = compositor.CreateDrawingSurface();
+            surfaceVisual = compositor.CreateSurfaceVisual();
+
+            surfaceVisual.Size = new Vector(Bounds.Width, Bounds.Height);
+
+            surfaceVisual.Surface = surface;
+            ElementComposition.SetElementChildVisual(this, surfaceVisual);
+            var (result, initInfo) = await DoInitialize(compositor, surface);
+            info = initInfo;
+
+            initialized = result;
+            QueueNextFrame();
+        }
+        catch (Exception e)
+        {
+            info = e.Message;
+            throw;
+        }
+    }
+
+    public new void InvalidateVisual()
+    {
+        QueueNextFrame();
+    }
+
+    public void Draw(DrawingSurface renderTexture)
+    {
+        if (Document == null || SceneRenderer == null) return;
+        
+        renderTexture.Canvas.Save();
+        var matrix = CalculateTransformMatrix();
+
+        renderTexture.Canvas.SetMatrix(matrix.ToSKMatrix().ToMatrix3X3());
+
+        RectD dirtyBounds = new RectD(0, 0, Document.Width, Document.Height);
+        RenderScene(dirtyBounds);
+
+        renderTexture.Canvas.Restore();
+    }
+
+    private void RenderScene(RectD bounds)
+    {
+        DrawCheckerboard(bounds);
+        DrawOverlays(renderSurface, bounds, OverlayRenderSorting.Background);
+        SceneRenderer.RenderScene(renderSurface, CalculateResolution());
+        DrawOverlays(renderSurface, bounds, OverlayRenderSorting.Foreground);
+    }
+
+    private void DrawCheckerboard(RectD dirtyBounds)
+    {
+        if (checkerBitmap == null) return;
+
+        RectD operationSurfaceRectToRender = new RectD(0, 0, dirtyBounds.Width, dirtyBounds.Height);
+        float checkerScale = (float)ZoomToViewportConverter.ZoomToViewport(16, Scale) * 0.25f;
+        checkerPaint?.Dispose();
+        checkerPaint = new Paint
+        {
+            Shader = Shader.CreateBitmap(
+                checkerBitmap,
+                ShaderTileMode.Repeat, ShaderTileMode.Repeat,
+                Matrix3X3.CreateScale(checkerScale, checkerScale)),
+            FilterQuality = FilterQuality.None
+        };
+
+        renderSurface.Canvas.DrawRect(operationSurfaceRectToRender, checkerPaint);
+    }
+
+    private void DrawOverlays(DrawingSurface renderSurface, RectD dirtyBounds, OverlayRenderSorting sorting)
     {
         if (AllOverlays != null)
         {
@@ -196,23 +283,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
                 if (!overlay.CanRender()) continue;
 
-                overlay.RenderOverlay(context, dirtyBounds);
-                if (overlay.IsHitTestVisible)
-                {
-                    Cursor = overlay.Cursor ?? DefaultCursor;
-                }
+                overlay.RenderOverlay(renderSurface.Canvas, dirtyBounds);
             }
         }
-    }
-
-    private void DrawCheckerboard(DrawingContext context, Rect dirtyBounds, RectI operationSurfaceRectToRender)
-    {
-        DrawCheckerBackgroundOperation checkerOperation = new DrawCheckerBackgroundOperation(
-            dirtyBounds,
-            (SKBitmap)checkerBitmap.Native,
-            (float)Scale,
-            operationSurfaceRectToRender.ToSkRect());
-        context.Custom(checkerOperation);
     }
 
     protected override void OnPointerEntered(PointerEventArgs e)
@@ -270,6 +343,10 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                     }
 
                     overlay.MovePointer(args);
+                    if (overlay.IsHitTestVisible)
+                    {
+                        Cursor = overlay.Cursor ?? DefaultCursor;
+                    }
                 }
             }
 
@@ -381,10 +458,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private float CalculateResolutionScale()
     {
-        float scaleX = (float)Document.Width / Surface.Size.X;
-        float scaleY = (float)Document.Height / Surface.Size.Y;
-        var scaleUniform = Math.Min(scaleX, scaleY);
-        return scaleUniform;
+        var resolution = CalculateResolution();
+        return (float)resolution.InvertedMultiplier();
     }
 
     private void CaptureOverlay(Overlay? overlay, IPointer pointer)
@@ -426,9 +501,119 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
+    #region Interop
+
+    void UpdateFrame()
+    {
+        updateQueued = false;
+        var root = this.GetVisualRoot();
+        if (root == null)
+        {
+            return;
+        }
+
+        surfaceVisual.Size = new Vector(Bounds.Width, Bounds.Height);
+
+        if (double.IsNaN(surfaceVisual.Size.X) || double.IsNaN(surfaceVisual.Size.Y))
+        {
+            return;
+        }
+
+        var size = PixelSize.FromSize(Bounds.Size, root.RenderScaling);
+        RenderFrame(size);
+    }
+
+    public void QueueNextFrame()
+    {
+        if (initialized && !updateQueued && compositor != null)
+        {
+            updateQueued = true;
+            compositor.RequestCompositionUpdate(update);
+        }
+    }
+
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        if (change.Property == BoundsProperty)
+        {
+            QueueNextFrame();
+        }
+
+        base.OnPropertyChanged(change);
+    }
+
+    private async Task<(bool success, string info)> DoInitialize(Compositor compositor,
+        CompositionDrawingSurface surface)
+    {
+        var interop = await compositor.TryGetCompositionGpuInterop();
+        if (interop == null)
+        {
+            return (false, "Composition interop not available");
+        }
+
+        return InitializeGraphicsResources(compositor, surface, interop);
+    }
+
+    protected (bool success, string info) InitializeGraphicsResources(Compositor targetCompositor,
+        CompositionDrawingSurface compositionDrawingSurface, ICompositionGpuInterop interop)
+    {
+        resources = new VulkanResources(
+            DrawieInterop.VulkanInteropContext,
+            new VulkanSwapchain(DrawieInterop.VulkanInteropContext, interop, compositionDrawingSurface),
+            new VulkanContent(DrawieInterop.VulkanInteropContext));
+
+        return (true, string.Empty);
+    }
+
+    protected void FreeGraphicsResources()
+    {
+        resources?.DisposeAsync();
+        renderSurface?.Dispose();
+        renderSurface = null;
+        resources = null;
+    }
+
+    protected void RenderFrame(PixelSize size)
+    {
+        if (resources != null)
+        {
+            if (size.Width == 0 || size.Height == 0)
+            {
+                return;
+            }
+
+            if (renderSurface == null || lastSize != size)
+            {
+                resources.Content.CreateTemporalObjects(size);
+
+                VecI sizeVec = new VecI(size.Width, size.Height);
+
+                renderSurface?.Dispose();
+
+                renderSurface =
+                    DrawingBackendApi.Current.CreateRenderSurface(sizeVec,
+                        resources.Content.texture, SurfaceOrigin.BottomLeft);
+
+                lastSize = size;
+            }
+
+            using (resources.Swapchain.BeginDraw(size, out var image))
+            {
+                renderSurface.Canvas.Clear();
+                Draw(renderSurface);
+                renderSurface.Flush();
+
+                resources.Content.Render(image);
+            }
+        }
+    }
+
+    #endregion
+
     private void QueueRender()
     {
         Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
+        QueueNextFrame();
     }
 
     private static void FadeOutChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
@@ -462,11 +647,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
-    private static void SurfaceChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
+    private static void DocumentChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
     {
-        if (e.NewValue is Texture surface)
+        if (e.NewValue is DocumentViewModel documentViewModel)
         {
-            scene.ContentDimensions = surface.Size;
+            scene.ContentDimensions = documentViewModel.SizeBindable;
         }
     }
 
@@ -486,7 +671,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
 internal class DrawSceneOperation : SkiaDrawOperation
 {
-    public Texture Surface { get; set; }
     public DocumentViewModel Document { get; set; }
     public VecD ContentPosition { get; set; }
     public double Scale { get; set; }
@@ -496,17 +680,21 @@ internal class DrawSceneOperation : SkiaDrawOperation
     public bool FlipY { get; set; }
     public Rect ViewportBounds { get; }
 
-    public RectI SurfaceRectToRender { get; }
 
-    private bool hardwareAccelerationAvailable = DrawingBackendApi.Current.IsHardwareAccelerated;
+    public Action<DrawingSurface> RenderScene;
+
+    private Texture renderTexture;
 
     private double opacity;
 
-    public DrawSceneOperation(Texture surface, DocumentViewModel document, VecD contentPosition, double scale,
+    public DrawSceneOperation(Action<DrawingSurface> renderAction, DocumentViewModel document, VecD contentPosition,
+        double scale,
         double resolutionScale,
-        double angle, bool flipX, bool flipY, Rect dirtyBounds, Rect viewportBounds, double opacity) : base(dirtyBounds)
+        double opacity,
+        double angle, bool flipX, bool flipY, Rect dirtyBounds, Rect viewportBounds,
+        Texture renderTexture) : base(dirtyBounds)
     {
-        Surface = surface;
+        RenderScene = renderAction;
         Document = document;
         ContentPosition = contentPosition;
         Scale = scale;
@@ -515,170 +703,28 @@ internal class DrawSceneOperation : SkiaDrawOperation
         FlipY = flipY;
         ViewportBounds = viewportBounds;
         ResolutionScale = resolutionScale;
-        SurfaceRectToRender = FindRectToRender((float)scale);
         this.opacity = opacity;
+        this.renderTexture = renderTexture;
     }
 
     public override void Render(ISkiaSharpApiLease lease)
     {
-        if (Surface == null || Surface.IsDisposed || Document == null) return;
+        if (Document == null) return;
 
         SKCanvas canvas = lease.SkCanvas;
 
         int count = canvas.Save();
 
-        if (SurfaceRectToRender.IsZeroOrNegativeArea)
-        {
-            canvas.RestoreToCount(count);
-            return;
-        }
+        //using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
 
-        using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
+        DrawingSurface surface = DrawingSurface.FromNative(lease.SkSurface);
 
-        using SKPaint paint = new SKPaint();
-        paint.Color = paint.Color.WithAlpha((byte)(opacity * 255));
-        
-        RenderOnionSkin(canvas, paint);
+        surface.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
 
-        /*var matrixValues = new float[ColorMatrix.Width * ColorMatrix.Height];
-        ColorMatrix.TryGetMembers(matrixValues);*/
-
-
-        if (!hardwareAccelerationAvailable)
-        {
-            // snapshotting wanted region on CPU is faster than rendering whole surface on CPU,
-            // but slower than rendering whole surface on GPU
-            using Image snapshot = Surface.DrawingSurface.Snapshot(SurfaceRectToRender);
-            canvas.DrawImage((SKImage)snapshot.Native, SurfaceRectToRender.X, SurfaceRectToRender.Y, paint);
-        }
-        else
-        {
-            canvas.DrawSurface(Surface.DrawingSurface.Native as SKSurface, 0, 0, paint);
-        }
+        RenderScene?.Invoke(surface);
 
         canvas.RestoreToCount(count);
-    }
-
-    private void RenderOnionSkin(SKCanvas canvas, SKPaint paint)
-    {
-        if (Document.AnimationDataViewModel.OnionSkinningEnabledBindable)
-        {
-            var onionSkinTexture = Document.Renderer.OnionSkinTexture;
-
-            if (onionSkinTexture == null)
-            {
-                return;
-            }
-
-            int count = canvas.Save();
-
-            canvas.Scale(1f / (float)ResolutionScale, 1f / (float)ResolutionScale);
-
-            canvas.DrawSurface(onionSkinTexture.DrawingSurface.Native as SKSurface, 0, 0, paint);
-
-            canvas.RestoreToCount(count);
-        }
-    }
-
-
-    private RectI FindRectToRender(float finalScale)
-    {
-        ShapeCorners surfaceInViewportSpace = SurfaceToViewport(new RectI(VecI.Zero, Surface.Size), finalScale);
-        RectI surfaceBoundsInViewportSpace = (RectI)surfaceInViewportSpace.AABBBounds.RoundOutwards();
-        RectI viewportBoundsInViewportSpace =
-            (RectI)(new RectD(ViewportBounds.X, ViewportBounds.Y, ViewportBounds.Width, ViewportBounds.Height))
-            .RoundOutwards();
-        RectI firstIntersectionInViewportSpace = surfaceBoundsInViewportSpace.Intersect(viewportBoundsInViewportSpace);
-        ShapeCorners firstIntersectionInSurfaceSpace = ViewportToSurface(firstIntersectionInViewportSpace, finalScale);
-        RectI firstIntersectionBoundsInSurfaceSpace = (RectI)firstIntersectionInSurfaceSpace.AABBBounds.RoundOutwards();
-
-        ShapeCorners viewportInSurfaceSpace = ViewportToSurface(viewportBoundsInViewportSpace, finalScale);
-        RectD viewportBoundsInSurfaceSpace = viewportInSurfaceSpace.AABBBounds;
-        RectD surfaceBoundsInSurfaceSpace = new(VecD.Zero, Surface.Size);
-        RectI secondIntersectionInSurfaceSpace =
-            (RectI)viewportBoundsInSurfaceSpace.Intersect(surfaceBoundsInSurfaceSpace).RoundOutwards();
-
-        //Inflate makes sure rounding doesn't cut any pixels.
-        RectI surfaceRectToRender =
-            firstIntersectionBoundsInSurfaceSpace.Intersect(secondIntersectionInSurfaceSpace).Inflate(1);
-        return surfaceRectToRender.Intersect(new RectI(VecI.Zero, Surface.Size)); // Clamp to surface size
-    }
-
-    private ShapeCorners ViewportToSurface(RectI viewportRect, float scale)
-    {
-        return new ShapeCorners()
-        {
-            TopLeft = ViewportToSurface(viewportRect.TopLeft, scale),
-            TopRight = ViewportToSurface(viewportRect.TopRight, scale),
-            BottomLeft = ViewportToSurface(viewportRect.BottomLeft, scale),
-            BottomRight = ViewportToSurface(viewportRect.BottomRight, scale),
-        };
-    }
-
-    private ShapeCorners SurfaceToViewport(RectI viewportRect, float scale)
-    {
-        return new ShapeCorners()
-        {
-            TopLeft = SurfaceToViewport(viewportRect.TopLeft, scale),
-            TopRight = SurfaceToViewport(viewportRect.TopRight, scale),
-            BottomLeft = SurfaceToViewport(viewportRect.BottomLeft, scale),
-            BottomRight = SurfaceToViewport(viewportRect.BottomRight, scale),
-        };
-    }
-
-    private VecD SurfaceToViewport(VecI surfacePoint, float scale)
-    {
-        VecD unscaledPoint = surfacePoint * scale;
-
-        float angle = (float)Angle;
-        if (FlipX)
-        {
-            unscaledPoint.X = -unscaledPoint.X;
-            angle = 360 - angle;
-        }
-
-        if (FlipY)
-        {
-            unscaledPoint.Y = -unscaledPoint.Y;
-            angle = 360 - angle;
-        }
-
-        VecD offseted = unscaledPoint + ContentPosition;
-
-        float angleRadians = (float)(angle * Math.PI / 180);
-        VecD rotated = offseted.Rotate(angleRadians, ContentPosition);
-
-        return rotated;
-    }
-
-    private VecI ViewportToSurface(VecD viewportPoint, float scale)
-    {
-        float angle = (float)Angle;
-        if (FlipX)
-        {
-            angle = 360 - angle;
-        }
-
-        if (FlipY)
-        {
-            angle = 360 - angle;
-        }
-
-        float angleRadians = (float)(angle * Math.PI / 180);
-        VecD rotatedViewportPoint = (viewportPoint).Rotate(-angleRadians, ContentPosition);
-
-        VecD unscaledPoint = rotatedViewportPoint - ContentPosition;
-
-        if (FlipX)
-            unscaledPoint.X = -unscaledPoint.X;
-        if (FlipY)
-            unscaledPoint.Y = -unscaledPoint.Y;
-
-        VecI pos = new VecI(
-            (int)Math.Round(unscaledPoint.X / scale),
-            (int)Math.Round(unscaledPoint.Y / scale));
-
-        return pos;
+        DrawingSurface.Unmanage(surface);
     }
 
     public override bool Equals(ICustomDrawOperation? other)

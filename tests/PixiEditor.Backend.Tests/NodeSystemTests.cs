@@ -1,17 +1,14 @@
 using System.Reflection;
-using ChunkyImageLib.DataHolders;
+using Drawie.Backend.Core.Bridge;
+using Drawie.Interop.VulkanAvalonia;
+using Drawie.Skia;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
-using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.Bridge;
-using PixiEditor.DrawingApi.Skia;
 using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
-using PixiEditor.Numerics;
 using PixiEditor.Parser.Skia.Encoders;
-using PixiEditor.Views.Rendering;
 using Xunit.Abstractions;
 
 namespace PixiEditor.Backend.Tests;
@@ -22,27 +19,15 @@ public class NodeSystemTests
 
     private Type[] knownNonSerializableTypes = new[]
     {
-        typeof(Filter)
+        typeof(Filter),
+        typeof(Painter)
     };
 
     public NodeSystemTests(ITestOutputHelper output)
     {
         this.output = output;
         if (!DrawingBackendApi.HasBackend)
-            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend(), new AvaloniaRenderingServer());
-    }
-
-    [Fact]
-    public void TestThatNodeGraphExecutesEmptyOutputNode()
-    {
-        NodeGraph graph = new NodeGraph();
-        OutputNode outputNode = new OutputNode();
-
-        graph.AddNode(outputNode);
-        using RenderingContext context = new RenderingContext(0, VecI.Zero, ChunkResolution.Full, new VecI(1, 1));
-        graph.Execute(context);
-
-        Assert.Null(outputNode.CachedResult);
+            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend(), new AvaloniaRenderingDispatcher());
     }
 
     [Fact]

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using Xunit;
 
 namespace ChunkyImageLibTest;

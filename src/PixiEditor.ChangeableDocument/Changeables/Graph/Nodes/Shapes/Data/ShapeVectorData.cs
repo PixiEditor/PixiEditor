@@ -1,10 +1,10 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.Common;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
@@ -18,9 +18,18 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
     public abstract RectD GeometryAABB { get; }
     public RectD TransformedAABB => new ShapeCorners(GeometryAABB).WithMatrix(TransformationMatrix).AABBBounds;
     public abstract ShapeCorners TransformationCorners { get; } 
+    
+    protected void ApplyTransformTo(DrawingSurface drawingSurface)
+    {
+        Matrix3X3 canvasMatrix = drawingSurface.Canvas.TotalMatrix;
 
-    public abstract void RasterizeGeometry(DrawingSurface drawingSurface, ChunkResolution resolution, Paint? paint);
-    public abstract void RasterizeTransformed(DrawingSurface drawingSurface, ChunkResolution resolution, Paint? paint);
+        Matrix3X3 final = canvasMatrix.Concat(TransformationMatrix);
+
+        drawingSurface.Canvas.SetMatrix(final);
+    }
+
+    public abstract void RasterizeGeometry(DrawingSurface drawingSurface);
+    public abstract void RasterizeTransformed(DrawingSurface drawingSurface);
     public abstract bool IsValid();
     public abstract int GetCacheHash();
     public abstract int CalculateHash();

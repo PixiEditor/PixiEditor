@@ -45,6 +45,7 @@
             <!-- Sockets -->
             <Color x:Key="DefaultSocketColor">#FF00FF</Color>
             <Color x:Key="ImageSocketColor">#99c47a</Color>
+            <Color x:Key="PainterSocketColor">#ff8c00</Color>
             <Color x:Key="FilterSocketColor">#CC5C5C</Color>
             <Color x:Key="BoolSocketColor">#68abdf</Color>
             <Color x:Key="FloatSocketColor">#ffc66d</Color>
@@ -126,6 +127,7 @@
             <!-- Sockets -->
             <SolidColorBrush x:Key="DefaultSocketBrush" Color="{StaticResource DefaultSocketColor}"/>
             <SolidColorBrush x:Key="TextureSocketBrush" Color="{StaticResource ImageSocketColor}"/>
+            <SolidColorBrush x:Key="PainterSocketBrush" Color="{StaticResource PainterSocketColor}"/>
             <SolidColorBrush x:Key="FilterSocketBrush" Color="{StaticResource FilterSocketColor}"/>
             <SolidColorBrush x:Key="TextureSamplerSocketBrush" Color="{StaticResource ImageSocketColor}"/>
             <SolidColorBrush x:Key="BooleanSocketBrush" Color="{StaticResource BoolSocketColor}"/>
@@ -140,9 +142,9 @@
             <SolidColorBrush x:Key="Int2SocketBrush" Color="{StaticResource VecISocketColor}"/>
             <SolidColorBrush x:Key="Int32SocketBrush" Color="{StaticResource IntSocketColor}"/>
             <SolidColorBrush x:Key="Int1SocketBrush" Color="{StaticResource IntSocketColor}"/>
-            <ConicGradientBrush x:Key="ShapeDataSocketBrush" GradientStops="{StaticResource ShapeDataSocketGradient}"/>
-            <SolidColorBrush x:Key="EllipseDataSocketBrush" Color="{StaticResource EllipseDataSocketColor}"/>
-            <SolidColorBrush x:Key="PointsDataSocketBrush" Color="{StaticResource PointsDataSocketColor}"/>
+            <ConicGradientBrush x:Key="ShapeVectorDataSocketBrush" GradientStops="{StaticResource ShapeDataSocketGradient}"/>
+            <SolidColorBrush x:Key="EllipseVectorDataSocketBrush" Color="{StaticResource EllipseDataSocketColor}"/>
+            <SolidColorBrush x:Key="PointsVectorDataSocketBrush" Color="{StaticResource PointsDataSocketColor}"/>
             
             <!-- Zones & Frames -->
             <SolidColorBrush x:Key="PixiEditorModifyImageLeftBorderBrush" Color="{StaticResource PixiEditorModifyImageBorderColor}"/>

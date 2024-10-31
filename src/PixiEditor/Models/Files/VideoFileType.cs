@@ -1,5 +1,5 @@
-﻿using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
+﻿using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.IO;
 using PixiEditor.ViewModels.Document;

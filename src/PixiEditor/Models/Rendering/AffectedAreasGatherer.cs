@@ -17,9 +17,9 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.DocumentPassthroughActions;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.Rendering;
 #nullable enable
@@ -30,8 +30,10 @@ internal class AffectedAreasGatherer
     public AffectedArea MainImageArea { get; private set; } = new();
     public Dictionary<Guid, AffectedArea> ImagePreviewAreas { get; private set; } = new();
     public Dictionary<Guid, AffectedArea> MaskPreviewAreas { get; private set; } = new();
+    
 
     private KeyFrameTime ActiveFrame { get; set; }
+    public List<Guid> ChangedNodes { get; set; } = new();
 
     public AffectedAreasGatherer(KeyFrameTime activeFrame, DocumentChangeTracker tracker,
         IReadOnlyList<IChangeInfo> changes)
@@ -63,21 +65,25 @@ internal class AffectedAreasGatherer
                     AddToMainImage(info.Area);
                     AddToImagePreviews(info.Id, info.Area, true);
                     AddToMaskPreview(info.Id, info.Area);
+                    AddToNodePreviews(info.Id);
                     break;
                 case LayerImageArea_ChangeInfo info:
                     if (info.Area.Chunks is null)
                         throw new InvalidOperationException("Chunks must not be null");
                     AddToMainImage(info.Area);
                     AddToImagePreviews(info.Id, info.Area);
+                    AddToNodePreviews(info.Id);
                     break;
                 case TransformObject_ChangeInfo info:
                     AddToMainImage(info.Area);
                     AddToImagePreviews(info.NodeGuid, info.Area);
+                    AddToNodePreviews(info.NodeGuid);
                     break;
                 case CreateStructureMember_ChangeInfo info:
                     AddAllToMainImage(info.Id, 0);
                     AddAllToImagePreviews(info.Id, 0);
                     AddAllToMaskPreview(info.Id);
+                    AddToNodePreviews(info.Id);
                     break;
                 case DeleteStructureMember_ChangeInfo info:
                     AddWholeCanvasToMainImage();
@@ -99,26 +105,32 @@ internal class AffectedAreasGatherer
                     AddWholeCanvasToMainImage();
                     AddWholeCanvasToMaskPreview(info.Id);
                     AddWholeCanvasToImagePreviews(info.Id, true);
+                    AddToNodePreviews(info.Id);
                     break;
                 case StructureMemberBlendMode_ChangeInfo info:
                     AddAllToMainImage(info.Id, ActiveFrame);
                     AddAllToImagePreviews(info.Id, ActiveFrame, true);
+                    AddToNodePreviews(info.Id);
                     break;
                 case StructureMemberClipToMemberBelow_ChangeInfo info:
                     AddAllToMainImage(info.Id, ActiveFrame);
                     AddAllToImagePreviews(info.Id, ActiveFrame, true);
+                    AddToNodePreviews(info.Id);
                     break;
                 case StructureMemberOpacity_ChangeInfo info:
                     AddAllToMainImage(info.Id, ActiveFrame);
                     AddAllToImagePreviews(info.Id, ActiveFrame, true);
+                    AddToNodePreviews(info.Id);
                     break;
                 case StructureMemberIsVisible_ChangeInfo info:
                     AddAllToMainImage(info.Id, ActiveFrame);
                     AddAllToImagePreviews(info.Id, ActiveFrame, true);
+                    AddToNodePreviews(info.Id);
                     break;
                 case StructureMemberMaskIsVisible_ChangeInfo info:
                     AddAllToMainImage(info.Id, ActiveFrame, false);
                     AddAllToImagePreviews(info.Id, ActiveFrame, true);
+                    AddToNodePreviews(info.Id);
                     break;
                 case CreateRasterKeyFrame_ChangeInfo info:
                     if (info.CloneFromExisting)
@@ -149,13 +161,20 @@ internal class AffectedAreasGatherer
                     AddWholeCanvasToMainImage();
                     AddWholeCanvasToEveryImagePreview();
                     break;
-                case ConnectProperty_ChangeInfo:
+                case ConnectProperty_ChangeInfo info:
                     AddWholeCanvasToMainImage();
                     AddWholeCanvasToEveryImagePreview();
+                    AddToNodePreviews(info.InputNodeId);
+                    if (info.OutputNodeId.HasValue)
+                    {
+                        AddToNodePreviews(info.OutputNodeId.Value);
+                    }
+                    
                     break;
-                case PropertyValueUpdated_ChangeInfo:
+                case PropertyValueUpdated_ChangeInfo info:
                     AddWholeCanvasToMainImage();
                     AddWholeCanvasToEveryImagePreview();
+                    AddToNodePreviews(info.NodeId);
                     break;
                 case ToggleOnionSkinning_PassthroughAction:
                     AddWholeCanvasToMainImage();
@@ -166,9 +185,17 @@ internal class AffectedAreasGatherer
                 case VectorShape_ChangeInfo info:
                     AddToMainImage(info.Affected);
                     AddToImagePreviews(info.LayerId, info.Affected);
+                    AddToNodePreviews(info.LayerId);
                     break;
             }
         }
+    }
+
+    private void AddToNodePreviews(Guid nodeId)
+    {
+        ChangedNodes ??= new List<Guid>();
+        if (!ChangedNodes.Contains(nodeId))
+            ChangedNodes.Add(nodeId);
     }
 
     private void AddAllToImagePreviews(Guid memberGuid, KeyFrameTime frame, bool ignoreSelf = false)

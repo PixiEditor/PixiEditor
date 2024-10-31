@@ -3,18 +3,18 @@
 using Avalonia;
 using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Numerics;
 using Point = Avalonia.Point;
 
 namespace PixiEditor.Views.Overlays.TransformOverlay;
 internal static class TransformHelper
 {
-    public static Rect ToHandleRect(VecD pos, VecD size, double zoomboxScale)
+    public static RectD ToHandleRect(VecD pos, VecD size, double zoomboxScale)
     {
         double scaledX = size.X / zoomboxScale;
         double scaledY = size.Y / zoomboxScale;
-        return new Rect(pos.X - scaledX / 2, pos.Y - scaledY / 2, scaledX, scaledY);
+        return new RectD(pos.X - scaledX / 2, pos.Y - scaledY / 2, scaledX, scaledY);
     }
 
     public static VecD ToVecD(Point pos) => new VecD(pos.X, pos.Y);

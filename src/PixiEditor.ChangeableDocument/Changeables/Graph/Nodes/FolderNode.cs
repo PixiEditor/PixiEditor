@@ -1,111 +1,130 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("Folder")]
-public class FolderNode : StructureNode, IReadOnlyFolderNode
+public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPreviewRenderable
 {
-    public InputProperty<Texture?> Content { get; }
+    private VecI documentSize;
+    public RenderInputProperty Content { get; }
 
     public FolderNode()
     {
-        Content = CreateInput<Texture?>("Content", "CONTENT", null);
+        Content = CreateRenderInput("Content", "CONTENT");
     }
 
     public override Node CreateCopy() => new FolderNode { MemberName = MemberName };
 
+    public override VecD GetScenePosition(KeyFrameTime time) =>
+        documentSize / 2f; //GetTightBounds(time).GetValueOrDefault().Center;
 
-    protected override Texture? OnExecute(RenderingContext context)
+    public override VecD GetSceneSize(KeyFrameTime time) =>
+        documentSize; //GetTightBounds(time).GetValueOrDefault().Size;
+
+    protected override void OnExecute(RenderContext context)
     {
-        if(Background.Value == null && Content.Value == null)
-        {
-            Output.Value = null;
-            return null;
-        }
-        
+        base.OnExecute(context);
+        documentSize = context.DocumentSize;
+    }
+
+    public override void Render(SceneObjectRenderContext sceneContext)
+    {
         if (!IsVisible.Value || Opacity.Value <= 0 || IsEmptyMask())
         {
             Output.Value = Background.Value;
-            return Output.Value;
+            return;
         }
-        
-        blendPaint.Color = new Color(255, 255, 255, 255);
-        blendPaint.BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src;
 
-        VecI size = Content.Value?.Size ?? Background.Value?.Size ?? VecI.Zero;
-        
-        var outputWorkingSurface = RequestTexture(0, size); 
-        var filterlessWorkingSurface = RequestTexture(1, size); 
-        
-        if (Background.Value != null)
+        if (Content.Connection == null || (!HasOperations() && BlendMode.Value == Enums.BlendMode.Normal))
         {
-            DrawBackground(filterlessWorkingSurface, context);
-            blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
+            using Paint paint = new();
+            paint.Color = Colors.White.WithAlpha((byte)Math.Round(Opacity.Value * 255f));
+
+            if (sceneContext.TargetPropertyOutput == Output)
+            {
+                paint.ColorFilter = Filters.Value?.ColorFilter;
+                paint.ImageFilter = Filters.Value?.ImageFilter;
+            }
+
+            int saved = sceneContext.RenderSurface.Canvas.SaveLayer(paint);
+            Content.Value?.Paint(sceneContext, sceneContext.RenderSurface);
+
+            sceneContext.RenderSurface.Canvas.RestoreToCount(saved);
+            return;
         }
 
-        if (Content.Value != null)
-        {
-            blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255)); 
-            DrawSurface(filterlessWorkingSurface, Content.Value, context, null);
-        }
+        RectD bounds = RectD.Create(VecI.Zero, sceneContext.DocumentSize);
 
-        FilterlessOutput.Value = filterlessWorkingSurface;
-
-        if (!HasOperations())
+        if (sceneContext.TargetPropertyOutput == Output)
         {
             if (Background.Value != null)
             {
-                blendPaint.Color = new Color(255, 255, 255, 255);
-                blendPaint.BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src;
-                DrawBackground(outputWorkingSurface, context);
-                blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
+                blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
             }
-            
-            if (Content.Value != null)
+
+            RenderFolderContent(sceneContext, bounds, true);
+        }
+        else if (sceneContext.TargetPropertyOutput == FilterlessOutput ||
+                 sceneContext.TargetPropertyOutput == RawOutput)
+        {
+            RenderFolderContent(sceneContext, bounds, false);
+        }
+    }
+
+    private void RenderFolderContent(SceneObjectRenderContext sceneContext, RectD bounds, bool useFilters)
+    {
+        VecI size = (VecI)bounds.Size;
+        var outputWorkingSurface = RequestTexture(0, size, true);
+
+        blendPaint.ImageFilter = null;
+        blendPaint.ColorFilter = null;
+
+        Content.Value?.Paint(sceneContext, outputWorkingSurface.DrawingSurface);
+
+        ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, sceneContext);
+
+        if (Background.Value != null && sceneContext.TargetPropertyOutput != RawOutput)
+        {
+            Texture tempSurface = RequestTexture(1, outputWorkingSurface.Size);
+            if (Background.Connection.Node is IClipSource clipSource && ClipToPreviousMember)
             {
-                blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255)); 
-                DrawSurface(outputWorkingSurface, Content.Value, context, Filters.Value);
+                DrawClipSource(tempSurface.DrawingSurface, clipSource, sceneContext);
             }
-            
-            Output.Value = outputWorkingSurface;
-            return Output.Value;
-        }
-        
-        if (Content.Value != null)
-        {
-            DrawSurface(outputWorkingSurface, Content.Value, context, Filters.Value);
-            
-            ApplyMaskIfPresent(outputWorkingSurface, context);
-        }
-        
-        if (Background.Value != null)
-        {
-            Texture tempSurface = RequestTexture(2, outputWorkingSurface.Size);
-            DrawBackground(tempSurface, context);
-            
-            ApplyRasterClip(outputWorkingSurface, tempSurface);
-            
-            blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255));
-            blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
-            tempSurface.DrawingSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
 
-            Output.Value = tempSurface;
-            return tempSurface;
+            ApplyRasterClip(outputWorkingSurface.DrawingSurface, tempSurface.DrawingSurface);
         }
 
-        Output.Value = outputWorkingSurface;
-        return Output.Value;
+        AdjustPaint(useFilters);
+
+        sceneContext.RenderSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
+    }
+
+    private void AdjustPaint(bool useFilters)
+    {
+        blendPaint.Color = Colors.White.WithAlpha((byte)Math.Round(Opacity.Value * 255f));
+        if (useFilters)
+        {
+            blendPaint.ColorFilter = Filters.Value?.ColorFilter;
+            blendPaint.ImageFilter = Filters.Value?.ImageFilter;
+        }
+        else
+        {
+            blendPaint.ColorFilter = null;
+            blendPaint.ImageFilter = null;
+        }
     }
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
         RectI bounds = new RectI();
-        if(Content.Connection != null)
+        if (Content.Connection != null)
         {
             Content.Connection.Node.TraverseBackwards((n) =>
             {
@@ -120,11 +139,11 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
 
                 return true;
             });
-            
+
             return (RectD)bounds;
         }
-        
-        return (RectD)RectI.Create(0, 0, Content.Value?.Size.X ?? 0, Content.Value?.Size.Y ?? 0);
+
+        return null;
     }
 
     public HashSet<Guid> GetLayerNodeGuids()
@@ -168,4 +187,56 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
             MaskIsVisible = MaskIsVisible
         };
     }*/
+    public void DrawOnTexture(SceneObjectRenderContext context, DrawingSurface drawOnto)
+    {
+        if (Content.Connection != null)
+        {
+            var executionQueue = GraphUtils.CalculateExecutionQueue(Content.Connection.Node);
+
+            while (executionQueue.Count > 0)
+            {
+                IReadOnlyNode node = executionQueue.Dequeue();
+                if (node is IClipSource clipSource)
+                {
+                    clipSource.DrawOnTexture(context, drawOnto);
+                }
+            }
+        }
+    }
+
+    public override RectD? GetPreviewBounds(int frame, string elementFor = "")
+    {
+        if (elementFor == nameof(EmbeddedMask))
+        {
+            return base.GetPreviewBounds(frame, elementFor);
+        }
+
+        return GetTightBounds(frame);
+    }
+
+    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,
+        string elementToRenderName)
+    {
+        if (elementToRenderName == nameof(EmbeddedMask))
+        {
+            return base.RenderPreview(renderOn, resolution, frame, elementToRenderName);
+        }
+
+        // TODO: Make preview better, with filters, clips and stuff
+
+        if (Content.Connection != null)
+        {
+            var executionQueue = GraphUtils.CalculateExecutionQueue(Content.Connection.Node);
+            while (executionQueue.Count > 0)
+            {
+                IReadOnlyNode node = executionQueue.Dequeue();
+                if (node is IPreviewRenderable previewRenderable)
+                {
+                    previewRenderable.RenderPreview(renderOn, resolution, frame, elementToRenderName);
+                }
+            }
+        }
+
+        return true;
+    }
 }

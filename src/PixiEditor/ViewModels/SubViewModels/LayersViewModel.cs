@@ -13,7 +13,7 @@ using PixiEditor.ChangeableDocument;
 using PixiEditor.Helpers.Converters;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Models.Commands.Attributes.Commands;
@@ -22,7 +22,7 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
@@ -174,7 +174,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public void OpacitySliderSet(double value)
     {
         var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
-
+        
         if (document?.SelectedStructureMember != null)
         {
             document.Operations.SetMemberOpacity(document.SelectedStructureMember.Id, (float)value);
@@ -376,12 +376,12 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
     [Evaluator.CanExecute("PixiEditor.Layer.ReferenceLayerExists")]
     public bool ReferenceLayerExists() =>
-        Owner.DocumentManagerSubViewModel.ActiveDocument?.ReferenceLayerViewModel.ReferenceBitmap is not null;
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.ReferenceLayerViewModel.ReferenceTexture is not null;
 
     [Evaluator.CanExecute("PixiEditor.Layer.ReferenceLayerDoesntExist")]
     public bool ReferenceLayerDoesntExist() =>
         Owner.DocumentManagerSubViewModel.ActiveDocument is not null &&
-        Owner.DocumentManagerSubViewModel.ActiveDocument.ReferenceLayerViewModel.ReferenceBitmap is null;
+        Owner.DocumentManagerSubViewModel.ActiveDocument.ReferenceLayerViewModel.ReferenceTexture is null;
 
     [Command.Basic("PixiEditor.Layer.ImportReferenceLayer", "ADD_REFERENCE_LAYER", "ADD_REFERENCE_LAYER",
         CanExecute = "PixiEditor.Layer.ReferenceLayerDoesntExist",

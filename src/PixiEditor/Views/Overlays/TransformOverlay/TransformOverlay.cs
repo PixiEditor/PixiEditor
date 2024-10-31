@@ -9,12 +9,16 @@ using Avalonia.Media;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Surfaces.Vector;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers.InputDevice;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.Views.Overlays.Handles;
+using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 using Point = Avalonia.Point;
 
 namespace PixiEditor.Views.Overlays.TransformOverlay;
@@ -151,11 +155,57 @@ internal class TransformOverlay : Overlay
     private VecD mousePosOnStartAnchorDrag;
     private VecD originOnStartAnchorDrag;
 
-    private Pen blackPen = new Pen(Brushes.Black, 1);
-    private Pen blackDashedPen = new Pen(Brushes.Black, 1) { DashStyle = new DashStyle(new double[] { 2, 4 }, 0) };
-    private Pen whiteDashedPen = new Pen(Brushes.White, 1) { DashStyle = new DashStyle(new double[] { 2, 4 }, 2) };
-    private Pen blackFreqDashedPen = new Pen(Brushes.Black, 1) { DashStyle = new DashStyle(new double[] { 2, 2 }, 0) };
-    private Pen whiteFreqDashedPen = new Pen(Brushes.White, 1) { DashStyle = new DashStyle(new double[] { 2, 2 }, 2) };
+    private Paint handlePen = new Paint()
+    {
+        Color = Colors.Black, StrokeWidth = 1, Style = PaintStyle.Stroke, IsAntiAliased = true
+    };
+
+    private Paint cursorBorderPaint = new Paint()
+    {
+        Color = Colors.Black, StrokeWidth = 0.08f, Style = PaintStyle.Stroke, IsAntiAliased = true
+    };
+
+    private Paint whiteFillPen = new Paint()
+    {
+        Color = Colors.White, StrokeWidth = 1, Style = PaintStyle.Fill, IsAntiAliased = true
+    };
+
+    private Paint blackDashedPen = new Paint()
+    {
+        Color = Colors.Black,
+        StrokeWidth = 1,
+        Style = PaintStyle.Stroke,
+        PathEffect = PathEffect.CreateDash(
+            [2, 4], 0),
+        IsAntiAliased = true
+    };
+
+    private Paint whiteDashedPen = new Paint()
+    {
+        Color = Colors.White,
+        StrokeWidth = 1,
+        Style = PaintStyle.Stroke,
+        PathEffect = PathEffect.CreateDash([2, 4], 2),
+        IsAntiAliased = true
+    };
+
+    private Paint blackFreqDashedPen = new Paint()
+    {
+        Color = Colors.Black,
+        StrokeWidth = 1,
+        Style = PaintStyle.Stroke,
+        PathEffect = PathEffect.CreateDash([2, 2], 0),
+        IsAntiAliased = true
+    };
+
+    private Paint whiteFreqDashedPen = new Paint()
+    {
+        Color = Colors.White,
+        StrokeWidth = 1,
+        Style = PaintStyle.Stroke,
+        PathEffect = PathEffect.CreateDash([2, 2], 2),
+        IsAntiAliased = true
+    };
 
     private AnchorHandle topLeftHandle;
     private AnchorHandle topRightHandle;
@@ -173,7 +223,8 @@ internal class TransformOverlay : Overlay
     private List<Handle> snapPoints = new();
     private Handle? snapHandleOfOrigin;
 
-    private Geometry rotateCursorGeometry = Handle.GetHandleGeometry("RotateHandle");
+    private VectorPath rotateCursorGeometry = Handle.GetHandleGeometry("RotateHandle");
+    private bool rotationCursorActive = false;
 
     private VecD lastPointerPos;
 
@@ -188,15 +239,11 @@ internal class TransformOverlay : Overlay
         leftHandle = new AnchorHandle(this);
         rightHandle = new AnchorHandle(this);
         moveHandle = new(this);
+        moveHandle.StrokePaint = handlePen;
         centerHandle = new RectangleHandle(this);
         centerHandle.Size = rightHandle.Size;
 
-        originHandle = new(this)
-        {
-            HandlePen = blackFreqDashedPen,
-            SecondaryHandlePen = whiteFreqDashedPen,
-            HandleBrush = Brushes.Transparent
-        };
+        originHandle = new(this) { StrokePaint = blackFreqDashedPen, SecondaryHandlePen = whiteFreqDashedPen, };
 
         AddHandle(originHandle);
         AddHandle(topLeftHandle);
@@ -237,21 +284,20 @@ internal class TransformOverlay : Overlay
 
     private VecD pos;
 
-    public override void RenderOverlay(DrawingContext drawingContext, RectD canvasBounds)
+    public override void RenderOverlay(Canvas drawingContext, RectD canvasBounds)
     {
-        base.Render(drawingContext);
-        DrawOverlay(drawingContext, new(Bounds.Width, Bounds.Height), Corners, InternalState.Origin, ZoomScale);
+        DrawOverlay(drawingContext, new(Bounds.Width, Bounds.Height), Corners, InternalState.Origin, (float)ZoomScale);
 
         if (capturedAnchor is null)
             UpdateRotationCursor(lastPointerPos);
     }
 
-    private void DrawMouseInputArea(DrawingContext context, VecD size)
+    private void DrawMouseInputArea(Canvas context, VecD size)
     {
         if (CoverWholeScreen)
         {
-            context.DrawRectangle(Brushes.Transparent, null,
-                new Rect(new Point(-size.X * 50, -size.Y * 50), new Size(size.X * 101, size.Y * 101)));
+            // TODO: Is it needed? Seems like it makes a hit area for avalonia
+            //context.DrawRect(new RectD(new VecD(-size.X * 50, -size.Y * 50), new VecD(size.X * 101, size.Y * 101)));
             return;
         }
 
@@ -265,20 +311,33 @@ internal class TransformOverlay : Overlay
             ctx.EndFigure(true);
         }
 
-        context.DrawGeometry(Brushes.Transparent, null, geometry);
+        // TODO: Is it needed? Seems like it makes a hit area for avalonia
+        //context.DrawGeometry(Brushes.Transparent, null, geometry);
     }
 
     private void DrawOverlay
-        (DrawingContext context, VecD size, ShapeCorners corners, VecD origin, double zoomboxScale)
+        (Canvas context, VecD size, ShapeCorners corners, VecD origin, float zoomboxScale)
     {
         // draw transparent background to enable mouse input
         DrawMouseInputArea(context, size);
 
-        blackPen.Thickness = 1 / zoomboxScale;
-        blackDashedPen.Thickness = 1 / zoomboxScale;
-        whiteDashedPen.Thickness = 1 / zoomboxScale;
-        blackFreqDashedPen.Thickness = 1 / zoomboxScale;
-        whiteFreqDashedPen.Thickness = 1 / zoomboxScale;
+        handlePen.StrokeWidth = 1 / zoomboxScale;
+        blackDashedPen.StrokeWidth = 1 / zoomboxScale;
+        whiteDashedPen.StrokeWidth = 1 / zoomboxScale;
+        blackFreqDashedPen.StrokeWidth = 1 / zoomboxScale;
+        whiteFreqDashedPen.StrokeWidth = 1 / zoomboxScale;
+
+        blackDashedPen.PathEffect?.Dispose();
+        blackDashedPen.PathEffect = PathEffect.CreateDash([2 / zoomboxScale, 4 / zoomboxScale], 0);
+
+        whiteDashedPen.PathEffect?.Dispose();
+        whiteDashedPen.PathEffect = PathEffect.CreateDash([2 / zoomboxScale, 4 / zoomboxScale], 2);
+
+        blackFreqDashedPen.PathEffect?.Dispose();
+        blackFreqDashedPen.PathEffect = PathEffect.CreateDash([2 / zoomboxScale, 2 / zoomboxScale], 0);
+
+        whiteFreqDashedPen.PathEffect?.Dispose();
+        whiteFreqDashedPen.PathEffect = PathEffect.CreateDash([2 / zoomboxScale, 2 / zoomboxScale], 2);
 
         VecD topLeft = corners.TopLeft;
         VecD topRight = corners.TopRight;
@@ -290,14 +349,14 @@ internal class TransformOverlay : Overlay
         VecD right = (topRight + bottomRight) / 2;
 
         // lines
-        context.DrawLine(blackDashedPen, TransformHelper.ToPoint(topLeft), TransformHelper.ToPoint(topRight));
-        context.DrawLine(whiteDashedPen, TransformHelper.ToPoint(topLeft), TransformHelper.ToPoint(topRight));
-        context.DrawLine(blackDashedPen, TransformHelper.ToPoint(topLeft), TransformHelper.ToPoint(bottomLeft));
-        context.DrawLine(whiteDashedPen, TransformHelper.ToPoint(topLeft), TransformHelper.ToPoint(bottomLeft));
-        context.DrawLine(blackDashedPen, TransformHelper.ToPoint(bottomRight), TransformHelper.ToPoint(bottomLeft));
-        context.DrawLine(whiteDashedPen, TransformHelper.ToPoint(bottomRight), TransformHelper.ToPoint(bottomLeft));
-        context.DrawLine(blackDashedPen, TransformHelper.ToPoint(bottomRight), TransformHelper.ToPoint(topRight));
-        context.DrawLine(whiteDashedPen, TransformHelper.ToPoint(bottomRight), TransformHelper.ToPoint(topRight));
+        context.DrawLine(topLeft, topRight, blackDashedPen);
+        context.DrawLine(topLeft, topRight, whiteDashedPen);
+        context.DrawLine(topLeft, bottomLeft, blackDashedPen);
+        context.DrawLine(topLeft, bottomLeft, whiteDashedPen);
+        context.DrawLine(bottomRight, bottomLeft, blackDashedPen);
+        context.DrawLine(bottomRight, bottomLeft, whiteDashedPen);
+        context.DrawLine(bottomRight, topRight, blackDashedPen);
+        context.DrawLine(bottomRight, topRight, whiteDashedPen);
 
         // corner anchors
 
@@ -330,8 +389,22 @@ internal class TransformOverlay : Overlay
             centerHandle.Draw(context);
         }
 
-        // rotate cursor
-        context.DrawGeometry(Brushes.White, blackPen, rotateCursorGeometry);
+        int saved = context.Save();
+        if (rotationCursorActive)
+        {
+            var matrix = Matrix3X3.CreateTranslation((float)lastPointerPos.X, (float)lastPointerPos.Y);
+            double angle = (lastPointerPos - InternalState.Origin).Angle * 180 / Math.PI - 90;
+            matrix = matrix.PostConcat(Matrix3X3.CreateRotationDegrees((float)angle, (float)lastPointerPos.X,
+                (float)lastPointerPos.Y));
+            matrix = matrix.PostConcat(Matrix3X3.CreateScale(8f / (float)ZoomScale, 8 / (float)ZoomScale,
+                (float)lastPointerPos.X, (float)lastPointerPos.Y));
+            context.SetMatrix(context.TotalMatrix.Concat(matrix));
+
+            context.DrawPath(rotateCursorGeometry, whiteFillPen);
+            context.DrawPath(rotateCursorGeometry, cursorBorderPaint);
+        }
+
+        context.RestoreToCount(saved);
     }
 
     private void OnAnchorHandlePressed(Handle source, VecD position)
@@ -354,7 +427,7 @@ internal class TransformOverlay : Overlay
 
     protected override void OnOverlayPointerExited(OverlayPointerArgs args)
     {
-        rotateCursorGeometry.Transform = new ScaleTransform(0, 0);
+        rotationCursorActive = false;
         Refresh();
     }
 
@@ -558,15 +631,11 @@ internal class TransformOverlay : Overlay
     {
         if ((!CanRotate(mousePos) && !isRotating) || LockRotation)
         {
-            rotateCursorGeometry.Transform = new ScaleTransform(0, 0);
+            rotationCursorActive = false;
             return false;
         }
 
-        var matrix = new TranslateTransform(mousePos.X, mousePos.Y).Value;
-        double angle = (mousePos - InternalState.Origin).Angle * 180 / Math.PI - 90;
-        matrix = matrix.RotateAt(angle, mousePos.X, mousePos.Y);
-        matrix = matrix.ScaleAt(8 / ZoomScale, 8 / ZoomScale, mousePos.X, mousePos.Y);
-        rotateCursorGeometry.Transform = new MatrixTransform(matrix);
+        rotationCursorActive = true;
         return true;
     }
 
@@ -631,7 +700,7 @@ internal class TransformOverlay : Overlay
                 {
                     snapped = TrySnapAnchor(targetPos);
                 }
-                
+
                 if (snapped.Delta == VecD.Zero)
                 {
                     adjacentPos = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, adjacentAnchors.Item2);
@@ -699,12 +768,12 @@ internal class TransformOverlay : Overlay
 
         return snapped;
     }
-    
+
     private SnapData FindProjectedAnchorSnap(VecD projected)
     {
         VecD origin = InternalState.Origin;
         var snapped = TrySnapAnchorAlongLine(projected, origin);
-        
+
         return snapped;
     }
 
@@ -746,7 +815,7 @@ internal class TransformOverlay : Overlay
         {
             return new VecD(p2.X, y);
         }
-        
+
         double yIntercept = p1.Y - slope * p1.X;
         double x = (y - yIntercept) / slope;
 
@@ -760,7 +829,7 @@ internal class TransformOverlay : Overlay
         {
             return new VecD(x, p2.Y);
         }
-        
+
         double yIntercept = p1.Y - slope * p1.X;
         double y = slope * x + yIntercept;
 

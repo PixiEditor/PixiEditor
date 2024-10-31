@@ -6,10 +6,10 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Common;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Shaders;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Shaders;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -26,24 +26,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public IReadOnlyList<OutputProperty> OutputProperties => outputs;
     public IReadOnlyList<KeyFrameData> KeyFrames => keyFrames;
 
-    public Texture? CachedResult
-    {
-        get
-        {
-            if (_lastCachedResult == null || _lastCachedResult.IsDisposed) return null;
-            return _lastCachedResult;
-        }
-        private set
-        {
-            _lastCachedResult = value;
-        }
-    }
-
-    protected virtual bool AffectedByAnimation { get; }
-
-    protected virtual bool AffectedByChunkResolution { get; }
-
-    protected virtual bool AffectedByChunkToUpdate { get; }
 
     IReadOnlyList<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyList<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
@@ -56,66 +38,48 @@ public abstract class Node : IReadOnlyNode, IDisposable
         set => displayName = value;
     }
 
-    private KeyFrameTime _lastFrameTime = new KeyFrameTime(-1, 0);
-    private ChunkResolution? _lastResolution;
-    private VecI? _lastChunkPos;
-    private bool _keyFramesDirty;
-    private Texture? _lastCachedResult;
+    protected virtual bool ExecuteOnlyOnCacheChange => false;
+
+    protected bool IsDisposed => _isDisposed;
     private bool _isDisposed;
 
     private Dictionary<int, Texture> _managedTextures = new();
 
-    public Texture? Execute(RenderingContext context)
+    public void Execute(RenderContext context)
     {
-        var result = ExecuteInternal(context);
-
-        if (result is null)
-        {
-            return null;
-        }
-
-        var copy = new Texture(result);
-        return copy;
+        ExecuteInternal(context);
     }
 
-    internal Texture? ExecuteInternal(RenderingContext context)
+    internal void ExecuteInternal(RenderContext context)
     {
         if (_isDisposed) throw new ObjectDisposedException("Node was disposed before execution.");
 
-        if (!CacheChanged(context)) return CachedResult;
-
-        CachedResult = OnExecute(context);
-        if (CachedResult is { IsDisposed: true })
+        if (ExecuteOnlyOnCacheChange && !CacheChanged(context))
         {
-            throw new ObjectDisposedException("Texture was disposed after execution.");
+            return;
         }
 
-        UpdateCache(context);
-        return CachedResult;
+        OnExecute(context);
+
+        if (ExecuteOnlyOnCacheChange)
+        {
+            UpdateCache(context);
+        }
     }
 
-    protected abstract Texture? OnExecute(RenderingContext context);
+    protected abstract void OnExecute(RenderContext context);
 
-    protected virtual bool CacheChanged(RenderingContext context)
+    protected virtual bool CacheChanged(RenderContext context)
     {
-        return (!context.FrameTime.Equals(_lastFrameTime) && AffectedByAnimation)
-               || (AffectedByAnimation && _keyFramesDirty)
-               || (context.ChunkResolution != _lastResolution && AffectedByChunkResolution)
-               || (context.ChunkToUpdate != _lastChunkPos && AffectedByChunkToUpdate)
-               || inputs.Any(x => x.CacheChanged);
+        return inputs.Any(x => x.CacheChanged);
     }
 
-    protected virtual void UpdateCache(RenderingContext context)
+    protected virtual void UpdateCache(RenderContext context)
     {
         foreach (var input in inputs)
         {
             input.UpdateCache();
         }
-
-        _lastFrameTime = context.FrameTime;
-        _lastResolution = context.ChunkResolution;
-        _lastChunkPos = context.ChunkToUpdate;
-        _keyFramesDirty = false;
     }
 
     protected Texture RequestTexture(int id, VecI size, bool clear = true)
@@ -208,7 +172,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public void RemoveKeyFrame(Guid keyFrameId)
     {
         keyFrames.RemoveAll(x => x.KeyFrameGuid == keyFrameId);
-        _keyFramesDirty = true;
     }
 
     public void SetKeyFrameLength(Guid id, int startFrame, int duration)
@@ -218,7 +181,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
         {
             frame.StartFrame = startFrame;
             frame.Duration = duration;
-            _keyFramesDirty = true;
         }
     }
 
@@ -228,7 +190,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
         if (frame is not null)
         {
             frame.IsVisible = isVisible;
-            _keyFramesDirty = true;
         }
     }
 
@@ -240,8 +201,27 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
 
         keyFrames.Add(value);
-        _keyFramesDirty = true;
     }
+
+    protected RenderOutputProperty? CreateRenderOutput(string internalName, string displayName,
+        Func<Painter?>? nextInChain, Func<Painter?>? previous = null)
+    {
+        RenderOutputProperty prop = new RenderOutputProperty(this, internalName, displayName, null);
+        prop.FirstInChain = previous;
+        prop.NextInChain = nextInChain;
+        AddOutputProperty(prop);
+
+        return prop;
+    }
+
+    protected RenderInputProperty CreateRenderInput(string internalName, string displayName)
+    {
+        RenderInputProperty prop = new RenderInputProperty(this, internalName, displayName, null);
+        AddInputProperty(prop);
+
+        return prop;
+    }
+
 
     protected FuncInputProperty<T> CreateFuncInput<T>(string propName, string displayName, T defaultValue)
     {
@@ -280,6 +260,21 @@ public abstract class Node : IReadOnlyNode, IDisposable
         var property = new OutputProperty<T>(this, propName, displayName, defaultValue);
         outputs.Add(property);
         return property;
+    }
+
+    protected void AddOutputProperty(OutputProperty property)
+    {
+        outputs.Add(property);
+    }
+
+    protected void AddInputProperty(InputProperty property)
+    {
+        if (InputProperties.Any(x => x.InternalPropertyName == property.InternalPropertyName))
+        {
+            throw new InvalidOperationException($"Input with name {property.InternalPropertyName} already exists.");
+        }
+
+        inputs.Add(property);
     }
 
     public virtual void Dispose()
@@ -421,7 +416,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
     }
 
-    internal virtual OneOf<None, IChangeInfo, List<IChangeInfo>> DeserializeAdditionalData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data)
+    internal virtual OneOf<None, IChangeInfo, List<IChangeInfo>> DeserializeAdditionalData(IReadOnlyDocument target,
+        IReadOnlyDictionary<string, object> data)
     {
         return new None();
     }

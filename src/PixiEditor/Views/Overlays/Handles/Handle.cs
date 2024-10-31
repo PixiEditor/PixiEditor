@@ -4,10 +4,14 @@ using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Media;
 using PixiEditor.Helpers;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Surfaces.Vector;
 using PixiEditor.Extensions.UI.Overlays;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Views.Overlays.TransformOverlay;
+using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 using Path = Avalonia.Controls.Shapes.Path;
 
 namespace PixiEditor.Views.Overlays.Handles;
@@ -15,8 +19,8 @@ namespace PixiEditor.Views.Overlays.Handles;
 public delegate void HandleEvent(Handle source, VecD position);
 public abstract class Handle : IHandle
 {
-    public IBrush HandleBrush { get; set; } = GetBrush("HandleBackgroundBrush");
-    public IPen? HandlePen { get; set; }
+    public Paint? FillPaint { get; set; } = GetPaint("HandleBackgroundBrush");
+    public Paint? StrokePaint { get; set; } = GetPaint("HandleStrokeBrush", PaintStyle.Stroke);
     public double ZoomScale { get; set; } = 1.0;
     public IOverlay Owner { get; set; } = null!;
     public VecD Position { get; set; }
@@ -44,7 +48,7 @@ public abstract class Handle : IHandle
         Owner.PointerReleasedOverlay += OnPointerReleased;
     }
 
-    public abstract void Draw(DrawingContext context);
+    public abstract void Draw(Canvas target);
 
     public virtual void OnPressed(OverlayPointerArgs args) { }
 
@@ -55,44 +59,25 @@ public abstract class Handle : IHandle
 
     public static T? GetResource<T>(string key)
     {
-        if (Application.Current.Styles.TryGetResource(key, null, out object resource))
-        {
-            return (T)resource;
-        }
-
-        return default!;
+       return ResourceLoader.GetResource<T>(key); 
     }
 
-    public static Geometry GetHandleGeometry(string handleName)
+    public static VectorPath GetHandleGeometry(string handleName)
     {
         if (Application.Current.Styles.TryGetResource(handleName, null, out object shape))
         {
-            return ((Path)shape).Data.Clone();
+            if (shape is string path)
+            {
+                return VectorPath.FromSvgPath(path);
+            }
         }
 
-        return Geometry.Parse("M 0 0 L 1 0 M 0 0 L 0 1");
+        return VectorPath.FromSvgPath("M 0 0 L 1 0 M 0 0 L 0 1");
     }
 
-    public static HandleGlyph? GetHandleGlyph(string key)
+    protected static Paint? GetPaint(string key, PaintStyle style = PaintStyle.Fill)
     {
-        DrawingGroup? glyph = GetResource<DrawingGroup>(key);
-        if (glyph != null)
-        {
-            glyph.Transform = new MatrixTransform();
-            return new HandleGlyph(glyph);
-        }
-
-        return null;
-    }
-
-    protected static IBrush GetBrush(string key)
-    {
-        if (Application.Current.Styles.TryGetResource(key, null, out object brush))
-        {
-            return (IBrush)brush;
-        }
-
-        return Brushes.Black;
+       return ResourceLoader.GetPaint(key, style);
     }
 
     private void OnPointerPressed(OverlayPointerArgs args)

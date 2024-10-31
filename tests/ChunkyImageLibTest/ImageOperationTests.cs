@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
 using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Bridge;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Skia;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
+using Drawie.Numerics;
+using Drawie.Skia;
 using Xunit;
 
 namespace ChunkyImageLibTest;

@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.ViewModels.Document;
 

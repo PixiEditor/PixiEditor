@@ -1,10 +1,10 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Shaders.Generation.Expressions;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Shaders.Generation.Expressions;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -35,12 +35,12 @@ public class SampleImageNode : Node
 
         Float2 uv = context.GetValue(Coordinate);
 
-        return context.SampleTexture(Image.Value, uv);
+        return context.SampleSurface(Image.Value.DrawingSurface, uv);
     }
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnExecute(RenderContext context)
     {
-        return Image.Value;
+        
     }
 
     public override Node CreateCopy() => new SampleImageNode();

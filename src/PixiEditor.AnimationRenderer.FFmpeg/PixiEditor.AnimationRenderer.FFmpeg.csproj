@@ -4,11 +4,12 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <Configurations>Release;Debug</Configurations>
+        <Platforms>arm64;x64</Platforms>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\PixiEditor.AnimationRenderer.Core\PixiEditor.AnimationRenderer.Core.csproj" />
-      <ProjectReference Include="..\PixiEditor.Numerics\PixiEditor.Numerics.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.SVG.Features;
 
 namespace PixiEditor.SVG;

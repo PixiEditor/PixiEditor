@@ -1,29 +1,33 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
+using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("Merge")]
-public class MergeNode : Node, IBackgroundInput
+public class MergeNode : RenderNode
 {
-    private Paint _paint = new();
-
     public InputProperty<BlendMode> BlendMode { get; }
-    public InputProperty<Texture?> Top { get; }
-    public InputProperty<Texture?> Bottom { get; }
-    public OutputProperty<Texture?> Output { get; }
+    public RenderInputProperty Top { get; }
+    public RenderInputProperty Bottom { get; }
+
+    private Paint paint = new Paint();
+    
+    private static readonly Paint blendPaint = new Paint() { BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver };
+
+    private int topLayer;
+    private int bottomLayer;
     
     public MergeNode() 
     {
         BlendMode = CreateInput("BlendMode", "BlendMode", Enums.BlendMode.Normal);
-        Top = CreateInput<Texture?>("Top", "TOP", null);
-        Bottom = CreateInput<Texture?>("Bottom", "BOTTOM", null);
-        Output = CreateOutput<Texture?>("Output", "OUTPUT", null);
+        Top = CreateRenderInput("Top", "TOP");
+        Bottom = CreateRenderInput("Bottom", "BOTTOM");
     }
 
     public override Node CreateCopy()
@@ -32,34 +36,86 @@ public class MergeNode : Node, IBackgroundInput
     }
 
 
-    protected override Texture? OnExecute(RenderingContext context)
+    protected override void OnPaint(RenderContext context, DrawingSurface target)
     {
         if(Top.Value == null && Bottom.Value == null)
         {
-            Output.Value = null;
-            return null;
+            return;
         }
         
-        int width = Math.Max(Top.Value?.Size.X ?? Bottom.Value.Size.X, Bottom.Value?.Size.X ?? Top.Value.Size.X);
-        int height = Math.Max(Top.Value?.Size.Y ?? Bottom.Value.Size.Y, Bottom.Value?.Size.Y ?? Top.Value.Size.Y);
-        
-        Texture workingSurface = RequestTexture(0, new VecI(width, height), true);
-        
-        if(Bottom.Value != null)
+        if(target == null || target.DeviceClipBounds.Size == VecI.Zero)
         {
-            workingSurface.DrawingSurface.Canvas.DrawSurface(Bottom.Value.DrawingSurface, 0, 0);
+            return;
         }
 
-        if(Top.Value != null)
-        {
-            _paint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
-            workingSurface.DrawingSurface.Canvas.DrawSurface(Top.Value.DrawingSurface, 0, 0, _paint);
-        }
-
-        Output.Value = workingSurface;
-        
-        return Output.Value;
+        Merge(target, context);
     }
 
-    InputProperty<Texture> IBackgroundInput.Background => Bottom;
+    private void Merge(DrawingSurface target, RenderContext context)
+    {
+        if (Bottom.Value != null && Top.Value != null)
+        {
+            int saved = target.Canvas.SaveLayer();
+            Bottom.Value.Paint(context, target);
+
+            paint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
+            target.Canvas.SaveLayer(paint);
+            
+            Top.Value.Paint(context, target);
+            target.Canvas.RestoreToCount(saved);
+            return;
+        }
+
+        Bottom.Value?.Paint(context, target);
+        Top.Value?.Paint(context, target);
+    }
+
+    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    {
+        if(Top.Value == null && Bottom.Value == null)
+        {
+            return null;
+        }
+
+        RectD? totalBounds = null; 
+        
+        if (Top.Connection != null && Top.Connection.Node is IPreviewRenderable topPreview)
+        {
+            var topBounds = topPreview.GetPreviewBounds(frame, elementToRenderName);
+            if (topBounds != null)
+            {
+                totalBounds = totalBounds?.Union(topBounds.Value) ?? topBounds;
+            }
+        }
+        
+        if (Bottom.Connection != null && Bottom.Connection.Node is IPreviewRenderable bottomPreview)
+        {
+            var bottomBounds = bottomPreview.GetPreviewBounds(frame, elementToRenderName);
+            if (bottomBounds != null)
+            {
+                totalBounds = totalBounds?.Union(bottomBounds.Value) ?? bottomBounds;
+            } 
+        }
+        
+        return totalBounds;
+    }
+
+    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
+    {
+        if (Top.Value == null && Bottom.Value == null)
+        {
+            return false;
+        }
+
+        RenderContext context = new RenderContext(renderOn, frame, ChunkResolution.Full, VecI.Zero);
+        Merge(renderOn, context);
+
+        return true;
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        paint.Dispose();
+    }
 }

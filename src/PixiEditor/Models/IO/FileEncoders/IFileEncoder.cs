@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using ChunkyImageLib;
-using PixiEditor.DrawingApi.Core;
+using Drawie.Backend.Core;
 
 namespace PixiEditor.Models.IO.FileEncoders;
 

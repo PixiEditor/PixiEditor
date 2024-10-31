@@ -4,9 +4,6 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
-using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
@@ -44,8 +41,8 @@ internal class CreateStructureMember_Change : Change
 
         List<IChangeInfo> changes = new() { CreateChangeInfo(member) };
         
-        InputProperty<Texture> targetInput = parentNode.InputProperties.FirstOrDefault(x => 
-            x.ValueType == typeof(Texture)) as InputProperty<Texture>;
+        InputProperty<Painter> targetInput = parentNode.InputProperties.FirstOrDefault(x => 
+            x.ValueType == typeof(Painter)) as InputProperty<Painter>;
         
         
         if (member is FolderNode folder)
@@ -80,7 +77,7 @@ internal class CreateStructureMember_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document document)
     {
         var container = document.FindNodeOrThrow<Node>(parentGuid);
-        if (container is not IBackgroundInput backgroundInput)
+        if (container is not IRenderInput backgroundInput)
         {
             throw new InvalidOperationException("Parent folder is not a valid container.");
         }
@@ -105,7 +102,7 @@ internal class CreateStructureMember_Change : Change
         return changes;
     }
 
-    private static void AppendFolder(InputProperty<Texture> backgroundInput, FolderNode folder, List<IChangeInfo> changes)
+    private static void AppendFolder(InputProperty<Painter> backgroundInput, FolderNode folder, List<IChangeInfo> changes)
     {
         var appened = NodeOperations.AppendMember(backgroundInput, folder.Output, folder.Background, folder.Id);
         changes.AddRange(appened);

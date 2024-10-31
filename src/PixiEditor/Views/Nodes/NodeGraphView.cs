@@ -14,7 +14,7 @@ using PixiEditor.ViewModels.Document;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.Views.Nodes.Properties;
 using Point = Avalonia.Point;
@@ -167,6 +167,12 @@ internal class NodeGraphView : Zoombox.Zoombox
         set => SetValue(SocketDropCommandProperty, value);
     }
 
+    public int ActiveFrame
+    {
+        get { return (int)GetValue(ActiveFrameProperty); }
+        set { SetValue(ActiveFrameProperty, value); }
+    }
+
     private bool isDraggingNodes;
     private bool isDraggingConnection;
     private VecD clickPointOffset;
@@ -182,6 +188,7 @@ internal class NodeGraphView : Zoombox.Zoombox
     private NodeConnectionViewModel? _hiddenConnection;
     private Color _startingPropColor;
     private VecD _lastMouseClickPos;
+    public static readonly StyledProperty<int> ActiveFrameProperty = AvaloniaProperty.Register<NodeGraphView, int>("ActiveFrame");
 
     public NodeGraphView()
     {

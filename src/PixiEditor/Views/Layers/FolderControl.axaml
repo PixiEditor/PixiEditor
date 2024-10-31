@@ -65,15 +65,11 @@
                                     </ImageBrush.Transform>
                                 </ImageBrush>
                             </Border.Background>
-                            <visuals:TextureControl Texture="{Binding Folder.PreviewSurface, ElementName=folderControl}" 
-                                                    Stretch="Uniform" Width="30" Height="30">
-                                <ui:RenderOptionsBindable.BitmapInterpolationMode>
-                                    <MultiBinding Converter="{converters:WidthToBitmapScalingModeConverter}">
-                                        <Binding Path="Folder.PreviewSurface.Size.X" ElementName="folderControl"/>
-                                        <Binding RelativeSource="{RelativeSource Mode=Self}" Path="Bounds.Width"/>
-                                    </MultiBinding>
-                                </ui:RenderOptionsBindable.BitmapInterpolationMode>
-                            </visuals:TextureControl>
+                            <visuals:PreviewPainterControl 
+                                PreviewPainter="{Binding Folder.PreviewPainter, ElementName=folderControl}"
+                                ClipToBounds="True"
+                                FrameToRender="{Binding Manager.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, ElementName=folderControl}"
+                                Width="30" Height="30" RenderOptions.BitmapInterpolationMode="None"/>
                         </Border>
                         <Border 
                             Width="32" Height="32" 
@@ -90,7 +86,11 @@
                                 </ImageBrush>
                             </Border.Background>
                             <Grid IsHitTestVisible="False">
-                                <visuals:TextureControl Texture="{Binding Folder.MaskPreviewSurface, ElementName=folderControl}" Stretch="Uniform" Width="30" Height="30"
+                                <visuals:PreviewPainterControl 
+                                    PreviewPainter="{Binding Folder.MaskPreviewPainter, ElementName=folderControl}" 
+                                    Width="30" Height="30"
+                                    ClipToBounds="True"
+                                    FrameToRender="{Binding Manager.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, ElementName=folderControl}"
                                     RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False"/>
                                 <Path 
                                 Data="M 2 0 L 10 8 L 18 0 L 20 2 L 12 10 L 20 18 L 18 20 L 10 12 L 2 20 L 0 18 L 8 10 L 0 2 Z" 

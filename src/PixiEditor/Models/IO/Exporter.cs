@@ -4,11 +4,11 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using ChunkyImageLib;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Files;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Models.IO;

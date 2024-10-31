@@ -84,7 +84,7 @@ internal class DocumentStructureHelper
                 parent = doc.NodeGraphHandler.OutputNode;
 
             Type nodeType = type == StructureMemberType.Layer ? typeof(ImageLayerNode) : typeof(FolderNode);
-            
+
             internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(parent.Id, guid, nodeType));
             name ??= GetUniqueName(
                 type == StructureMemberType.Layer
@@ -103,14 +103,16 @@ internal class DocumentStructureHelper
     {
         Guid guid = Guid.NewGuid();
         var selectedMember = doc.SelectedStructureMember;
-        
+
         //put member above the layer
-        INodeHandler parent = selectedMember != null ? doc.StructureHelper.GetFirstForwardNode(selectedMember)
-                : doc.NodeGraphHandler.OutputNode;
+        INodeHandler parent = selectedMember != null
+            ? doc.StructureHelper.GetFirstForwardNode(selectedMember)
+            : doc.NodeGraphHandler.OutputNode;
         if (parent is null)
             parent = doc.NodeGraphHandler.OutputNode;
 
-        internals.ActionAccumulator.AddActions(source, new CreateStructureMember_Action(parent.Id, guid, structureMemberType));
+        internals.ActionAccumulator.AddActions(source,
+            new CreateStructureMember_Action(parent.Id, guid, structureMemberType));
         name ??= GetUniqueName(
             structureMemberType.IsAssignableTo(typeof(LayerNode))
                 ? new LocalizedString("NEW_LAYER")
@@ -134,9 +136,14 @@ internal class DocumentStructureHelper
     {
         var referenceMember = doc.StructureHelper.FindNode<INodeHandler>(referenceMemberId);
         var memberToMoveInto = !above ? referenceMember : doc.StructureHelper.GetFirstForwardNode(referenceMember);
+        if (memberToMoveInto.Id == memberToMove)
+        {
+            memberToMoveInto = doc.StructureHelper.GetFirstForwardNode(memberToMoveInto);
+        }
+
         internals.ActionAccumulator.AddFinishedActions(
             new MoveStructureMember_Action(memberToMove, memberToMoveInto.Id,
-                above && memberToMoveInto is IFolderHandler));
+                above && memberToMoveInto is IFolderHandler folder && folder.Children.Contains(referenceMember)));
     }
 
     public void TryMoveStructureMember(Guid memberToMove, Guid memberToMoveIntoOrNextTo,

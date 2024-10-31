@@ -1,5 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core;
+using Drawie.Backend.Core;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
@@ -10,6 +10,6 @@ public interface IReadOnlyNodeGraph
     public void AddNode(IReadOnlyNode node);
     public void RemoveNode(IReadOnlyNode node);
     public bool TryTraverse(Action<IReadOnlyNode> action);
-    public Texture? Execute(RenderingContext context);
+    public void Execute(RenderContext context);
     Queue<IReadOnlyNode> CalculateExecutionQueue(IReadOnlyNode endNode);
 }

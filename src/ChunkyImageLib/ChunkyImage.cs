@@ -5,14 +5,14 @@ using ChunkyImageLib.Operations;
 using OneOf;
 using OneOf.Types;
 using PixiEditor.Common;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.DrawingApi.Core.Surfaces.Vector;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Surfaces.Vector;
+using Drawie.Numerics;
 
 [assembly: InternalsVisibleTo("ChunkyImageLibTest")]
 
@@ -61,6 +61,9 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     private readonly object lockObject = new();
     private int commitCounter = 0;
 
+    private RectI cachedPreciseBounds = RectI.Empty;
+    private int lastBoundsCacheHash = -1;
+
     public const int FullChunkSize = ChunkPool.FullChunkSize;
     private static Paint ClippingPaint { get; } = new Paint() { BlendMode = BlendMode.DstIn };
     private static Paint InverseClippingPaint { get; } = new Paint() { BlendMode = BlendMode.DstOut };
@@ -93,7 +96,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     private VectorPath? clippingPath;
     private double? horizontalSymmetryAxis = null;
     private double? verticalSymmetryAxis = null;
-    
+
     private int operationCounter = 0;
 
     private readonly Dictionary<ChunkResolution, Dictionary<VecI, Chunk>> committedChunks;
@@ -189,11 +192,17 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         {
             ThrowIfDisposed();
 
+            if (lastBoundsCacheHash == GetCacheHash())
+            {
+                return cachedPreciseBounds;
+            }
+
             var chunkSize = suggestedResolution.PixelSize();
             var multiplier = suggestedResolution.Multiplier();
             RectI scaledCommittedSize = (RectI)(new RectD(VecI.Zero, CommittedSize * multiplier)).RoundOutwards();
 
             RectI? preciseBounds = null;
+
             foreach (var (chunkPos, fullResChunk) in committedChunks[ChunkResolution.Full])
             {
                 if (committedChunks[suggestedResolution].TryGetValue(chunkPos, out Chunk? requestedResChunk))
@@ -227,6 +236,9 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
 
             preciseBounds = (RectI?)preciseBounds?.Scale(suggestedResolution.InvertedMultiplier()).RoundOutwards();
             preciseBounds = preciseBounds?.Intersect(new RectI(preciseBounds.Value.Pos, CommittedSize));
+
+            cachedPreciseBounds = preciseBounds.GetValueOrDefault();
+            lastBoundsCacheHash = GetCacheHash();
 
             return preciseBounds;
         }
@@ -346,7 +358,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             }
 
             var committedChunk = GetCommittedChunk(chunkPos, resolution);
-            
+
             // draw committed directly
             if (latestChunk.IsT0 || latestChunk.IsT1 && committedChunk is not null && blendMode != BlendMode.Src)
             {
@@ -458,7 +470,6 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
 
     /// <summary>
     /// Tries it's best to return a committed chunk, either if it exists or if it can be created from it's high res version. Returns null if it can't.
-    /// </summary>
     private Chunk? GetCommittedChunk(VecI pos, ChunkResolution resolution)
     {
         var maybeSameRes = MaybeGetCommittedChunk(pos, resolution);
@@ -632,6 +643,51 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         {
             ThrowIfDisposed();
             ImageOperation operation = new(pos, image, paint, copyImage);
+            EnqueueOperation(operation);
+        }
+    }
+
+    /// <summary>
+    /// Be careful about the copyImage argument. The default is true, and this is a thread safe version without any side effects. 
+    /// It will however copy the surface right away which can be slow (in updateable changes especially). 
+    /// If copyImage is set to false, the image won't be copied and instead a reference will be stored.
+    /// Texture is NOT THREAD SAFE, so if you pass a Texture here with copyImage == false you must not do anything with that texture anywhere (not even read) until CommitChanges/CancelChanges is called.
+    /// </summary>
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
+    public void EnqueueDrawTexture(Matrix3X3 transformMatrix, Texture image, Paint? paint = null, bool copyImage = true)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            TextureOperation operation = new(transformMatrix, image, paint, copyImage);
+            EnqueueOperation(operation);
+        }
+    }
+
+    /// <summary>
+    /// Be careful about the copyImage argument, see other overload for details
+    /// </summary>
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
+    public void EnqueueDrawTexture(ShapeCorners corners, Texture image, Paint? paint = null, bool copyImage = true)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            TextureOperation operation = new(corners, image, paint, copyImage);
+            EnqueueOperation(operation);
+        }
+    }
+
+    /// <summary>
+    /// Be careful about the copyImage argument, see other overload for details
+    /// </summary>
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
+    public void EnqueueDrawTexture(VecI pos, Texture image, Paint? paint = null, bool copyImage = true)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            TextureOperation operation = new(pos, image, paint, copyImage);
             EnqueueOperation(operation);
         }
     }
@@ -1424,9 +1480,9 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     public int GetCacheHash()
     {
         return commitCounter + queuedOperations.Count + operationCounter + activeClips.Count
-            + (int)blendMode + (lockTransparency ? 1 : 0) 
-            + (horizontalSymmetryAxis is not null ? (int)(horizontalSymmetryAxis * 100) : 0) 
-            + (verticalSymmetryAxis is not null ? (int)(verticalSymmetryAxis * 100) : 0) 
-            + (clippingPath is not null ? 1 : 0);
+               + (int)blendMode + (lockTransparency ? 1 : 0)
+               + (horizontalSymmetryAxis is not null ? (int)(horizontalSymmetryAxis * 100) : 0)
+               + (verticalSymmetryAxis is not null ? (int)(verticalSymmetryAxis * 100) : 0)
+               + (clippingPath is not null ? 1 : 0);
     }
 }

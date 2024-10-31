@@ -4,9 +4,10 @@ using Avalonia.Media;
 using ChunkyImageLib;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
-using PixiEditor.DrawingApi.Core;
+using Drawie.Backend.Core;
+using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Structures;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.Handlers;
 
@@ -19,7 +20,7 @@ public interface INodeHandler : INotifyPropertyChanged
     public NodeMetadata Metadata { get; set; }
     public ObservableRangeCollection<INodePropertyHandler> Inputs { get; }
     public ObservableRangeCollection<INodePropertyHandler> Outputs { get; }
-    public Texture? ResultPreview { get; set; }
+    public PreviewPainter? ResultPainter { get; set; }
     public VecD PositionBindable { get; set; }
     public bool IsSelected { get; set; }
     public void TraverseBackwards(Func<INodeHandler, bool> func);

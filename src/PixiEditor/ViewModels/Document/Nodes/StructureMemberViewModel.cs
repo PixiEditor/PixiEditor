@@ -2,12 +2,13 @@
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.DrawingApi.Core;
+using Drawie.Backend.Core;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
-using PixiEditor.Numerics;
+using PixiEditor.Models.Rendering;
+using Drawie.Numerics;
 using PixiEditor.ViewModels.Nodes;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
@@ -143,19 +144,19 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
         set => SetProperty(ref selection, value);
     }
 
-    private Texture? previewSurface;
-    private Texture? maskPreviewSurface;
+    private PreviewPainter? previewSurface;
+    private PreviewPainter? _maskPreviewPainter;
 
-    public Texture? PreviewSurface
+    public PreviewPainter? PreviewPainter
     {
         get => previewSurface;
         set => SetProperty(ref previewSurface, value);
     }
 
-    public Texture? MaskPreviewSurface
+    public PreviewPainter? MaskPreviewPainter
     {
-        get => maskPreviewSurface;
-        set => SetProperty(ref maskPreviewSurface, value);
+        get => _maskPreviewPainter;
+        set => SetProperty(ref _maskPreviewPainter, value);
     }
 
     IDocument IStructureMemberHandler.Document => Document;

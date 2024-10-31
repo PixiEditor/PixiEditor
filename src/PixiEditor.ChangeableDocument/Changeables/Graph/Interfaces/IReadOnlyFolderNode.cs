@@ -1,5 +1,5 @@
-﻿using PixiEditor.DrawingApi.Core;
-using PixiEditor.Numerics;
+﻿using Drawie.Backend.Core;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 

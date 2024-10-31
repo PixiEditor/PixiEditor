@@ -26,12 +26,12 @@ using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Bridge;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.DrawingApi.Core.Surfaces.Vector;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Surfaces.Vector;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers;
@@ -43,18 +43,19 @@ using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
+using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
 using PixiEditor.Models.Structures;
 using PixiEditor.Models.Tools;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 using PixiEditor.Parser.Skia;
 using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
-using BlendMode = PixiEditor.DrawingApi.Core.Surfaces.BlendMode;
-using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
-using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
+using BlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
+using Color = Drawie.Backend.Core.ColorsImpl.Color;
+using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 using Node = PixiEditor.Parser.Graph.Node;
 using Point = Avalonia.Point;
 
@@ -171,6 +172,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public DocumentToolsModule Tools { get; }
     public DocumentOperationsModule Operations { get; }
     public DocumentRenderer Renderer { get; }
+    public SceneRenderer SceneRenderer { get; }
     public DocumentEventsModule EventInlet { get; }
 
     public ActionDisplayList ActionDisplays { get; } =
@@ -178,28 +180,15 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public IStructureMemberHandler? SelectedStructureMember { get; private set; } = null;
 
-    public Dictionary<ChunkResolution, Texture> Surfaces { get; set; } = new()
-    {
-        [ChunkResolution.Full] = new Texture(new VecI(64, 64)),
-        [ChunkResolution.Half] = new Texture(new VecI(32, 32)),
-        [ChunkResolution.Quarter] = new Texture(new VecI(16, 16)),
-        [ChunkResolution.Eighth] = new Texture(new VecI(8, 8))
-    };
 
-    private Texture previewSurface;
+    private PreviewPainter previewSurface;
 
-    public Texture PreviewSurface
+    public PreviewPainter PreviewPainter
     {
         get => previewSurface;
         set
         {
-            VecI? oldSize = previewSurface?.Size;
             SetProperty(ref previewSurface, value);
-            OnPropertyChanged(nameof(Surfaces));
-            if (oldSize != null && value != null && oldSize != value.Size)
-            {
-                RaiseSizeChanged(new DocumentSizeChangedEventArgs(this, oldSize.Value, value.Size));
-            }
         }
     }
 
@@ -209,6 +198,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public ObservableRangeCollection<PaletteColor> Palette { get; set; } = new();
     public SnappingViewModel SnappingViewModel { get; }
     ISnappingHandler IDocument.SnappingHandler => SnappingViewModel;
+    public IReadOnlyCollection<Guid> SelectedMembers => GetSelectedMembers().AsReadOnly();
     public DocumentTransformViewModel TransformViewModel { get; }
     public ReferenceLayerViewModel ReferenceLayerViewModel { get; }
     public LineToolOverlayViewModel LineToolOverlayViewModel { get; }
@@ -266,12 +256,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             }
         };
 
-        VecI previewSize = StructureMemberViewModel.CalculatePreviewSize(SizeBindable);
-        PreviewSurface = new Texture(new VecI(previewSize.X, previewSize.Y));
-
         ReferenceLayerViewModel = new(this, Internals);
 
         Renderer = new DocumentRenderer(Internals.Tracker.Document);
+        SceneRenderer = new SceneRenderer(Internals.Tracker.Document, this);
     }
 
     /// <summary>
@@ -531,23 +519,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         try
         {
-            Surface finalSurface = new Surface(SizeBindable);
-            VecI sizeInChunks = (VecI)((VecD)SizeBindable / ChunkyImage.FullChunkSize).Ceiling();
+            Surface finalSurface = null; 
             DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
             {
-                for (int i = 0; i < sizeInChunks.X; i++)
-                {
-                    for (int j = 0; j < sizeInChunks.Y; j++)
-                    {
-                        var maybeChunk = Renderer.RenderChunk(new(i, j), ChunkResolution.Full, frameTime);
-                        if (maybeChunk.IsT1)
-                            return;
-                        using Chunk chunk = maybeChunk.AsT0;
-                        finalSurface.DrawingSurface.Canvas.DrawSurface(
-                            chunk.Surface.DrawingSurface,
-                            i * ChunkyImage.FullChunkSize, j * ChunkyImage.FullChunkSize);
-                    }
-                }
+                using Texture texture = new Texture(SizeBindable);
+                Renderer.RenderDocument(texture.DrawingSurface, frameTime);
+                
+                finalSurface = new Surface(SizeBindable);
+                finalSurface.DrawingSurface.Canvas.DrawImage(texture.DrawingSurface.Snapshot(), 0, 0);
             });
 
             return finalSurface;
@@ -575,7 +554,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         for (int i = 0; i < selectedLayers.Count; i++)
         {
-            var layerVm = StructureHelper.Find(selectedLayers[i]); 
+            var layerVm = StructureHelper.Find(selectedLayers[i]);
             IReadOnlyStructureNode? layer = Internals.Tracker.Document.FindMember(layerVm.Id);
             if (layer is null)
                 return new Error();
@@ -626,6 +605,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             output.DrawingSurface.Canvas.ClipPath(clipPath);
         }
+
         using Paint paint = new Paint() { BlendMode = BlendMode.SrcOver };
 
         foreach (var layer in selectedLayers)
@@ -633,10 +613,16 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             try
             {
                 var layerVm = Internals.Tracker.Document.FindMember(layer);
-                using Texture rendered = Renderer.RenderLayer(layerVm.Id, ChunkResolution.Full,
-                    AnimationDataViewModel.ActiveFrameTime);
-                using Image snapshot = rendered.DrawingSurface.Snapshot(bounds);
-                output.DrawingSurface.Canvas.DrawImage(snapshot, 0, 0, paint);
+
+                DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
+                {
+                    using Surface toPaintOn = new Surface(SizeBindable);
+
+                    Renderer.RenderLayer(toPaintOn.DrawingSurface, layerVm.Id, ChunkResolution.Full,
+                        AnimationDataViewModel.ActiveFrameTime);
+                    using Image snapshot = toPaintOn.DrawingSurface.Snapshot(bounds);
+                    output.DrawingSurface.Canvas.DrawImage(snapshot, 0, 0, paint);
+                });
             }
             catch (ObjectDisposedException)
             {
@@ -690,13 +676,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public Color? PickColorFromReferenceLayer(VecD pos)
     {
-        Texture? bitmap = ReferenceLayerViewModel.ReferenceBitmap;
+        Texture? bitmap = ReferenceLayerViewModel.ReferenceTexture;
         if (bitmap is null)
             return null;
 
-        Matrix matrix = ReferenceLayerViewModel.ReferenceTransformMatrix;
+        Matrix3X3 matrix = ReferenceLayerViewModel.ReferenceTransformMatrix;
         matrix = matrix.Invert();
-        var transformed = matrix.Transform(new Point(pos.X, pos.Y));
+        var transformed = matrix.MapPoint(pos);
 
         if (transformed.X < 0 || transformed.Y < 0 || transformed.X >= bitmap.Size.X || transformed.Y >= bitmap.Size.Y)
             return null;
@@ -714,7 +700,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             if (scope == DocumentScope.AllLayers)
             {
                 VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize);
-                return Renderer.RenderChunk(chunkPos, ChunkResolution.Full,
+                // TODO: Implement this
+                /*return Renderer.RenderChunk(chunkPos, ChunkResolution.Full,
                         frameTime)
                     .Match(
                         chunk =>
@@ -724,7 +711,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                             chunk.Dispose();
                             return color;
                         },
-                        _ => Colors.Transparent);
+                        _ => Colors.Transparent);*/
             }
 
             if (SelectedStructureMember is not ILayerHandler layerVm)
@@ -1001,12 +988,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public void Dispose()
     {
-        foreach (var (_, surface) in Surfaces)
-        {
-            surface.Dispose();
-        }
-
-        PreviewSurface.Dispose();
         Internals.Tracker.Dispose();
         Internals.Tracker.Document.Dispose();
     }

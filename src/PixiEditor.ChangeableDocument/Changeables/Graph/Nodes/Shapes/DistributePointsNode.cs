@@ -1,6 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes;
 
@@ -18,7 +18,7 @@ public class DistributePointsNode : ShapeNode<PointsVectorData>
         Seed = CreateInput("Seed", "SEED", 0);
     }
 
-    protected override PointsVectorData? GetShapeData(RenderingContext context)
+    protected override PointsVectorData? GetShapeData(RenderContext context)
     {
         return GetPointsRandomly(context.DocumentSize);
     }

@@ -1,128 +1,133 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
+public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 {
     protected Dictionary<(ChunkResolution, int), Texture> workingSurfaces =
         new Dictionary<(ChunkResolution, int), Texture>();
 
-    protected override Texture? OnExecute(RenderingContext context)
+    public LayerNode()
+    {
+    }
+
+    public override void Render(SceneObjectRenderContext sceneContext)
     {
         if (!IsVisible.Value || Opacity.Value <= 0 || IsEmptyMask())
         {
-            Output.Value = Background.Value;
-            return Output.Value;
+            Output.Value = Background.Value; 
+            return;
         }
 
         blendPaint.Color = new Color(255, 255, 255, 255);
-        blendPaint.BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src;
+        blendPaint.BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver;
 
-        VecI targetSize = GetTargetSize(context);
-        bool shouldClear = Background.Value == null;
+        VecI targetSize = GetTargetSize(sceneContext);
 
-        if (FilterlessOutput.Connections.Count > 0)
-        {
-            var filterlessWorkingSurface = TryInitWorkingSurface(targetSize, context, 0);
-
-            if (Background.Value != null)
-            {
-                DrawBackground(filterlessWorkingSurface, context);
-                blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
-            }
-
-            DrawLayer(context, filterlessWorkingSurface, shouldClear, useFilters: false);
-            blendPaint.BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src;
-
-            FilterlessOutput.Value = filterlessWorkingSurface;
-        }
-
-        var rendered = RenderImage(targetSize, context, shouldClear);
-        Output.Value = rendered;
-
-        return rendered;
+        RenderContent(targetSize, sceneContext, sceneContext.RenderSurface,
+            sceneContext.TargetPropertyOutput != FilterlessOutput);
     }
 
-    private Texture RenderImage(VecI size, RenderingContext context, bool shouldClear)
+    private void RenderContent(VecI size, SceneObjectRenderContext context, DrawingSurface renderOnto, bool useFilters)
     {
-        if (Output.Connections.Count > 0)
+        if (!HasOperations())
         {
-            var outputWorkingSurface = TryInitWorkingSurface(size, context, 1);
-
-            if (!HasOperations())
-            {
-                if (Background.Value != null)
-                {
-                    DrawBackground(outputWorkingSurface, context);
-                    blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
-                }
-
-                DrawLayer(context, outputWorkingSurface, shouldClear);
-
-                return outputWorkingSurface;
-            }
-
-            DrawLayer(context, outputWorkingSurface, true);
-
-            // shit gets downhill with mask on big canvases, TODO: optimize
-            ApplyMaskIfPresent(outputWorkingSurface, context);
-
             if (Background.Value != null)
             {
-                Texture tempSurface = RequestTexture(4, outputWorkingSurface.Size, true);
-                DrawBackground(tempSurface, context);
-                ApplyRasterClip(outputWorkingSurface, tempSurface);
-                blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
-                tempSurface.DrawingSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0,
-                    blendPaint);
-
-                return tempSurface;
+                blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
             }
 
-            return outputWorkingSurface;
+            DrawLayerInScene(context, renderOnto, useFilters);
+            return;
         }
 
-        return null;
+        var outputWorkingSurface = TryInitWorkingSurface(size, context.ChunkResolution, 1);
+        outputWorkingSurface.DrawingSurface.Canvas.Clear();
+
+        DrawLayerOnTexture(context, outputWorkingSurface.DrawingSurface, useFilters);
+
+        ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, context);
+
+        if (Background.Value != null)
+        {
+            Texture tempSurface = TryInitWorkingSurface(size, context.ChunkResolution, 4);
+            tempSurface.DrawingSurface.Canvas.Clear();
+            if (Background.Connection is { Node: IClipSource clipSource } && ClipToPreviousMember)
+            {
+                DrawClipSource(tempSurface.DrawingSurface, clipSource, context);
+            }
+
+            ApplyRasterClip(outputWorkingSurface.DrawingSurface, tempSurface.DrawingSurface);
+        }
+
+        DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, context.ChunkResolution, size);
     }
 
-    protected abstract VecI GetTargetSize(RenderingContext ctx);
+    protected internal virtual void DrawLayerOnTexture(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+        bool useFilters)
+    {
+        int scaled = workingSurface.Canvas.Save();
+        workingSurface.Canvas.Scale((float)ctx.ChunkResolution.Multiplier());
 
-    protected virtual void DrawLayer(RenderingContext ctx, Texture workingSurface, bool shouldClear,
+        DrawLayerOnto(ctx, workingSurface, useFilters);
+
+        workingSurface.Canvas.RestoreToCount(scaled);
+    }
+
+    private void DrawWithResolution(DrawingSurface source, DrawingSurface target, ChunkResolution resolution, VecI size)
+    {
+        int scaled = target.Canvas.Save();
+        float multiplier = (float)resolution.InvertedMultiplier();
+        target.Canvas.Scale(multiplier, multiplier);
+
+        target.Canvas.DrawSurface(source, 0, 0, blendPaint);
+
+        target.Canvas.RestoreToCount(scaled);
+    }
+
+    protected abstract VecI GetTargetSize(RenderContext ctx);
+
+    protected internal virtual void DrawLayerInScene(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         bool useFilters = true)
     {
-        blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255));
+        DrawLayerOnto(ctx, workingSurface, useFilters);
+    }
+
+    protected void DrawLayerOnto(SceneObjectRenderContext ctx, DrawingSurface workingSurface, bool useFilters)
+    {
+        blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * ctx.Opacity * 255));
 
         if (useFilters && Filters.Value != null)
         {
             blendPaint.SetFilters(Filters.Value);
-            DrawWithFilters(ctx, workingSurface, shouldClear, blendPaint);
+            DrawWithFilters(ctx, workingSurface, blendPaint);
         }
         else
         {
             blendPaint.SetFilters(null);
-            DrawWithoutFilters(ctx, workingSurface, shouldClear, blendPaint);
+            DrawWithoutFilters(ctx, workingSurface, blendPaint);
         }
     }
-    
-    protected abstract void DrawWithoutFilters(RenderingContext ctx, Texture workingSurface, bool shouldClear,
-        Paint paint);
-    
-    protected abstract void DrawWithFilters(RenderingContext ctx, Texture workingSurface, bool shouldClear,
+
+    protected abstract void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         Paint paint);
 
-    protected Texture TryInitWorkingSurface(VecI imageSize, RenderingContext context, int id)
+    protected abstract void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+        Paint paint);
+
+    protected Texture TryInitWorkingSurface(VecI imageSize, ChunkResolution resolution, int id)
     {
-        ChunkResolution targetResolution = context.ChunkResolution;
+        ChunkResolution targetResolution = resolution;
         bool hasSurface = workingSurfaces.TryGetValue((targetResolution, id), out Texture workingSurface);
         VecI targetSize = (VecI)(imageSize * targetResolution.Multiplier());
-        
+
         targetSize = new VecI(Math.Max(1, targetSize.X), Math.Max(1, targetSize.Y));
 
         if (!hasSurface || workingSurface.Size != targetSize || workingSurface.IsDisposed)
@@ -134,5 +139,8 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
         return workingSurface;
     }
 
-    public abstract bool RenderPreview(Texture renderOn, VecI chunk, ChunkResolution resolution, int frame);
+    void IClipSource.DrawOnTexture(SceneObjectRenderContext context, DrawingSurface drawOnto)
+    {
+        DrawLayerOnTexture(context, drawOnto, false);
+    }
 }

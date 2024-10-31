@@ -1,46 +1,59 @@
-﻿using PixiEditor.ChangeableDocument.Helpers;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
 [NodeInfo("ApplyFilter")]
-public class ApplyFilterNode : Node
+public class ApplyFilterNode : RenderNode, IRenderInput
 {
     private Paint _paint = new();
-    
-    
-    public OutputProperty<Texture?> Output { get; }
-
-    public InputProperty<Texture?> Input { get; }
-    
     public InputProperty<Filter?> Filter { get; }
-    
-    private Texture _workingSurface;
+
+    public RenderInputProperty Background { get; }
 
     public ApplyFilterNode()
     {
-        Output = CreateOutput<Texture>(nameof(Output), "IMAGE", null);
-        Input = CreateInput<Texture>(nameof(Input), "IMAGE", null);
-        Filter = CreateInput<Filter>(nameof(Filter), "FILTER", null);
+        Background = CreateRenderInput("Input", "IMAGE");
+        Filter = CreateInput<Filter>("Filter", "FILTER", null);
+        Output.FirstInChain = null;
     }
-    
-    protected override Texture? OnExecute(RenderingContext context)
+
+    protected override void OnPaint(RenderContext context, DrawingSurface surface)
     {
-        if (Input.Value is not { } input)
-        {
-            return null;
-        }
+        if (Background.Value == null || Filter.Value == null)
+            return;
         
         _paint.SetFilters(Filter.Value);
+        var layer = surface.Canvas.SaveLayer(_paint);
         
-        _workingSurface = RequestTexture(0, input.Size, true);
+        Background.Value.Paint(context, surface);
         
-        _workingSurface.DrawingSurface.Canvas.DrawSurface(input.DrawingSurface, 0, 0, _paint);
+        surface.Canvas.RestoreToCount(layer);
+    }
 
-        Output.Value = _workingSurface;
-        return _workingSurface;
+    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    {
+        return PreviewUtils.FindPreviewBounds(Background.Connection, frame, elementToRenderName); 
+    }
+
+    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,
+        string elementToRenderName)
+    {
+        if(Background.Value == null)
+            return false;
+
+        RenderContext context = new(renderOn, frame, ChunkResolution.Full, VecI.One);
+        
+        int layer = renderOn.Canvas.SaveLayer(_paint);
+        Background.Value.Paint(context, renderOn);
+        renderOn.Canvas.RestoreToCount(layer);
+
+        return true;
     }
 
     public override Node CreateCopy() => new ApplyFilterNode();

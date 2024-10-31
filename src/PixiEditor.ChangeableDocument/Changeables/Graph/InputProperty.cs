@@ -3,7 +3,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.Common;
-using PixiEditor.DrawingApi.Core.Shaders.Generation;
+using Drawie.Backend.Core.Shaders.Generation;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 

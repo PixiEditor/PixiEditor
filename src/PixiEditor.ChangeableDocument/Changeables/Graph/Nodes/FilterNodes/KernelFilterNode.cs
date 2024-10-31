@@ -1,6 +1,6 @@
-﻿using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.Numerics;
+﻿using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
@@ -27,7 +27,7 @@ public class KernelFilterNode : FilterNode
 
     public KernelFilterNode()
     {
-        Kernel = CreateInput(nameof(Kernel), "KERNEL", Numerics.Kernel.Identity(3, 3));
+        Kernel = CreateInput(nameof(Kernel), "KERNEL", Drawie.Numerics.Kernel.Identity(3, 3));
         Gain = CreateInput(nameof(Gain), "GAIN", 1d);
         Bias = CreateInput(nameof(Bias), "BIAS", 0d);
         Tile = CreateInput(nameof(Tile), "TILE_MODE", TileMode.Clamp);

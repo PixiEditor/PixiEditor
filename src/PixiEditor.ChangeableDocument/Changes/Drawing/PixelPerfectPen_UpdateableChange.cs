@@ -1,8 +1,8 @@
 ﻿using ChunkyImageLib.Operations;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surfaces;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
@@ -73,8 +73,8 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
         (pixelsToConfirm2, pixelsToConfirm) = (pixelsToConfirm, pixelsToConfirm2);
         pixelsToConfirm.Clear();
 
-        Point[] line = BresenhamLineHelper.GetBresenhamLine(incomingPoints[pointsCount - 2], incomingPoints[pointsCount - 1]);
-        foreach (Point pixel in line)
+        VecF[] line = BresenhamLineHelper.GetBresenhamLine(incomingPoints[pointsCount - 2], incomingPoints[pointsCount - 1]);
+        foreach (VecF pixel in line)
         {
             pixelsToConfirm.Add(pixel);
         }

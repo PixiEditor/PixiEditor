@@ -5,8 +5,8 @@ using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
 using FFMpegCore.Pipes;
 using PixiEditor.AnimationRenderer.Core;
-using PixiEditor.DrawingApi.Core.Surfaces.ImageData;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Numerics;
 
 namespace PixiEditor.AnimationRenderer.FFmpeg;
 

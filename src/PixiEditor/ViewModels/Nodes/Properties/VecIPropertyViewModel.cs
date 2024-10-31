@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-using PixiEditor.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.ViewModels.Nodes.Properties;
 

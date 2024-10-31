@@ -3,10 +3,11 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surfaces.PaintImpl;
-using PixiEditor.Numerics;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -15,214 +16,169 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 {
     public const string ImageFramesKey = "Frames";
     public const string ImageLayerKey = "LayerImage";
-    public OutputProperty<Texture> RawOutput { get; }
+
+    public override VecD GetScenePosition(KeyFrameTime time) => layerImage.CommittedSize / 2f;
+    public override VecD GetSceneSize(KeyFrameTime time) => layerImage.CommittedSize;
 
     public bool LockTransparency { get; set; }
 
-    private VecI size;
+    private VecI startSize;
     private ChunkyImage layerImage => keyFrames[0]?.Data as ChunkyImage;
 
-
-    protected Dictionary<(ChunkResolution, int), Texture> workingSurfaces =
-        new Dictionary<(ChunkResolution, int), Texture>();
-
-    private static readonly Paint clearPaint = new()
-    {
-        BlendMode = DrawingApi.Core.Surfaces.BlendMode.Src,
-        Color = PixiEditor.DrawingApi.Core.ColorsImpl.Colors.Transparent
-    };
-
-    // Handled by overriden CacheChanged
-    protected override bool AffectedByAnimation => true;
-
-    protected override bool AffectedByChunkResolution => true;
-
-    protected override bool AffectedByChunkToUpdate => true;
+    private Texture fullResrenderedSurface;
+    private int renderedSurfaceFrame = -1;
 
     public ImageLayerNode(VecI size)
     {
-        RawOutput = CreateOutput<Texture>(nameof(RawOutput), "RAW_LAYER_OUTPUT", null);
-
         if (keyFrames.Count == 0)
         {
             keyFrames.Add(new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = new ChunkyImage(size) });
         }
 
-        this.size = size;
+        this.startSize = size;
     }
-
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
         return (RectD?)GetLayerImageAtFrame(frameTime.Frame).FindTightCommittedBounds();
     }
 
-    protected override Texture? OnExecute(RenderingContext context)
-    {
-        var rendered = base.OnExecute(context);
-
-        if (RawOutput.Connections.Count > 0)
-        {
-            var rawWorkingSurface = TryInitWorkingSurface(GetTargetSize(context), context, 2);
-            DrawLayer(context, rawWorkingSurface, true, useFilters: false);
-
-            RawOutput.Value = rawWorkingSurface;
-        }
-
-        return rendered;
-    }
-
-    protected override VecI GetTargetSize(RenderingContext ctx)
+    protected override VecI GetTargetSize(RenderContext ctx)
     {
         return (GetFrameWithImage(ctx.FrameTime).Data as ChunkyImage).LatestSize;
     }
 
-    protected override void DrawWithoutFilters(RenderingContext ctx, Texture workingSurface, bool shouldClear,
+    protected internal override void DrawLayerInScene(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+        bool useFilters = true)
+    {
+        int scaled = workingSurface.Canvas.Save();
+        float multiplier = (float)ctx.ChunkResolution.InvertedMultiplier();
+        workingSurface.Canvas.Translate(GetScenePosition(ctx.FrameTime));
+        base.DrawLayerInScene(ctx, workingSurface, useFilters);
+
+        workingSurface.Canvas.RestoreToCount(scaled);
+    }
+
+    protected internal override void DrawLayerOnTexture(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+        bool useFilters)
+    {
+        int scaled = workingSurface.Canvas.Save();
+        workingSurface.Canvas.Translate(GetScenePosition(ctx.FrameTime) * ctx.ChunkResolution.Multiplier());
+        workingSurface.Canvas.Scale((float)ctx.ChunkResolution.Multiplier());
+
+        DrawLayerOnto(ctx, workingSurface, useFilters);
+
+        workingSurface.Canvas.RestoreToCount(scaled);
+    }
+
+    protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         Paint paint)
     {
-        var frameImage = GetFrameWithImage(ctx.FrameTime).Data as ChunkyImage;
-        if (!frameImage.DrawMostUpToDateChunkOn(
-                ctx.ChunkToUpdate,
-                ctx.ChunkResolution,
-                workingSurface.DrawingSurface,
-                ctx.ChunkToUpdate * ctx.ChunkResolution.PixelSize(),
-                blendPaint) && shouldClear)
+        DrawLayer(workingSurface, paint, ctx);
+    }
+
+    protected override void DrawWithFilters(SceneObjectRenderContext context, DrawingSurface workingSurface,
+        Paint paint)
+    {
+        DrawLayer(workingSurface, paint, context);
+    }
+
+    private void DrawLayer(DrawingSurface workingSurface, Paint paint, SceneObjectRenderContext ctx)
+    {
+        int saved = workingSurface.Canvas.Save();
+
+        var sceneSize = GetSceneSize(ctx.FrameTime);
+        VecD topLeft = sceneSize / 2f;
+        if (renderedSurfaceFrame == null || ctx.FullRerender || ctx.FrameTime.Frame != renderedSurfaceFrame)
         {
-            workingSurface.DrawingSurface.Canvas.DrawRect(CalculateDestinationRect(ctx), clearPaint);
+            GetLayerImageAtFrame(ctx.FrameTime.Frame).DrawMostUpToDateRegionOn(
+                new RectI(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y),
+                ChunkResolution.Full,
+                workingSurface, -(VecI)topLeft, paint);
+        }
+        else
+        {
+            workingSurface.Canvas.DrawSurface(fullResrenderedSurface.DrawingSurface, -(VecI)topLeft, paint);
+        }
+
+        workingSurface.Canvas.RestoreToCount(saved);
+    }
+
+    public override RectD? GetPreviewBounds(int frame, string elementFor = "")
+    {
+        if (IsDisposed)
+        {
+            return null;
+        }
+
+        if (elementFor == nameof(EmbeddedMask))
+        {
+            return base.GetPreviewBounds(frame, elementFor);
+        }
+
+        if (Guid.TryParse(elementFor, out Guid guid))
+        {
+            var keyFrame = keyFrames.FirstOrDefault(x => x.KeyFrameGuid == guid);
+
+            if (keyFrame != null)
+            {
+                return (RectD?)GetLayerImageByKeyFrameGuid(keyFrame.KeyFrameGuid).FindTightCommittedBounds();
+            }
+        }
+
+        try
+        {
+            return (RectD?)GetLayerImageAtFrame(frame).FindTightCommittedBounds();
+        }
+        catch (ObjectDisposedException)
+        {
+            return null;
         }
     }
 
-    // Draw with filters is a bit tricky since some filters sample data from chunks surrounding the chunk being drawn,
-    // this is why we need to do intermediate drawing to a temporary surface and then apply filters to that surface
-    protected override void DrawWithFilters(RenderingContext context, Texture workingSurface,
-        bool shouldClear, Paint paint)
+    public override bool RenderPreview(DrawingSurface renderOnto, ChunkResolution resolution, int frame,
+        string elementToRenderName)
     {
-        var frameImage = GetFrameWithImage(context.FrameTime).Data as ChunkyImage;
-        
-        VecI imageChunksSize = frameImage.LatestSize / context.ChunkResolution.PixelSize();
-        bool requiresTopLeft = context.ChunkToUpdate.X > 0 || context.ChunkToUpdate.Y > 0;
-        bool requiresTop = context.ChunkToUpdate.Y > 0;
-        bool requiresLeft = context.ChunkToUpdate.X > 0;
-        bool requiresTopRight = context.ChunkToUpdate.X < imageChunksSize.X - 1 && context.ChunkToUpdate.Y > 0;
-        bool requiresRight = context.ChunkToUpdate.X < imageChunksSize.X - 1;
-        bool requiresBottomRight = context.ChunkToUpdate.X < imageChunksSize.X - 1 &&
-                                   context.ChunkToUpdate.Y < imageChunksSize.Y - 1;
-        bool requiresBottom = context.ChunkToUpdate.Y < imageChunksSize.Y - 1;
-        bool requiresBottomLeft = context.ChunkToUpdate.X > 0 && context.ChunkToUpdate.Y < imageChunksSize.Y - 1;
-
-        VecI tempSizeInChunks = new VecI(1, 1);
-        if (requiresLeft)
+        if (IsDisposed)
         {
-            tempSizeInChunks.X++;
+            return false;
         }
 
-        if (requiresRight)
+        if (elementToRenderName == nameof(EmbeddedMask))
         {
-            tempSizeInChunks.X++;
+            return base.RenderPreview(renderOnto, resolution, frame, elementToRenderName);
         }
 
-        if (requiresTop)
-        {
-            tempSizeInChunks.Y++;
-        }
-
-        if (requiresBottom)
-        {
-            tempSizeInChunks.Y++;
-        }
-
-        VecI tempSize = tempSizeInChunks * context.ChunkResolution.PixelSize();
-        tempSize = new VecI(Math.Min(tempSize.X, workingSurface.Size.X), Math.Min(tempSize.Y, workingSurface.Size.Y));
-
-        if (shouldClear)
-        {
-            workingSurface.DrawingSurface.Canvas.DrawRect(
-                new RectI(
-                    VecI.Zero,
-                    tempSize),
-                clearPaint);
-        }
-
-        using Texture tempSurface = new Texture(tempSize);
-
-        if (requiresTopLeft)
-        {
-            DrawChunk(frameImage, context, tempSurface, new VecI(-1, -1), paint);
-        }
-
-        if (requiresTop)
-        {
-            DrawChunk(frameImage, context, tempSurface, new VecI(0, -1), paint);
-        }
-
-        if (requiresLeft)
-        {
-            DrawChunk(frameImage, context, tempSurface, new VecI(-1, 0), paint);
-        }
-
-        if (requiresTopRight)
-        {
-            DrawChunk(frameImage, context, tempSurface, new VecI(1, -1), paint);
-        }
-
-        if (requiresRight)
-        {
-            DrawChunk(frameImage, context, tempSurface, new VecI(1, 0), paint);
-        }
-
-        if (requiresBottomRight)
-        {
-            DrawChunk(frameImage, context, tempSurface, new VecI(1, 1), paint);
-        }
-
-        if (requiresBottom)
-        {
-            DrawChunk(frameImage, context, tempSurface, new VecI(0, 1), paint);
-        }
-
-        if (requiresBottomLeft)
-        {
-            DrawChunk(frameImage, context, tempSurface, new VecI(-1, 1), paint);
-        }
-
-        DrawChunk(frameImage, context, tempSurface, new VecI(0, 0), paint);
-
-        workingSurface.DrawingSurface.Canvas.DrawSurface(tempSurface.DrawingSurface, VecI.Zero, paint);
-    }
-
-    public override bool RenderPreview(Texture renderOn, VecI chunk, ChunkResolution resolution, int frame)
-    {
         var img = GetLayerImageAtFrame(frame);
-        
+
+        if (Guid.TryParse(elementToRenderName, out Guid guid))
+        {
+            var keyFrame = keyFrames.FirstOrDefault(x => x.KeyFrameGuid == guid);
+
+            if (keyFrame != null)
+            {
+                img = GetLayerImageByKeyFrameGuid(keyFrame.KeyFrameGuid);
+            }
+        }
+
         if (img is null)
         {
             return false;
         }
-        
-        img.DrawMostUpToDateChunkOn(
-            chunk,
-            resolution,
-            renderOn.DrawingSurface,
-            chunk * resolution.PixelSize(),
-            blendPaint);
-        
-        return true;
-    }
 
-
-    private void DrawChunk(ChunkyImage frameImage, RenderingContext context, Texture tempSurface, VecI vecI,
-        Paint paint)
-    {
-        VecI chunkPos = context.ChunkToUpdate + vecI;
-        if (frameImage.LatestOrCommittedChunkExists(chunkPos))
+        if (renderedSurfaceFrame == frame)
         {
-            frameImage.DrawMostUpToDateChunkOn(
-                chunkPos,
-                context.ChunkResolution,
-                tempSurface.DrawingSurface,
-                chunkPos * context.ChunkResolution.PixelSize(),
-                paint);
+            renderOnto.Canvas.DrawSurface(fullResrenderedSurface.DrawingSurface, VecI.Zero, blendPaint);
         }
+        else
+        {
+            img.DrawMostUpToDateRegionOn(
+                new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
+                resolution,
+                renderOnto, VecI.Zero, blendPaint);
+        }
+
+        return true;
     }
 
     private KeyFrameData GetFrameWithImage(KeyFrameTime frame)
@@ -237,14 +193,14 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return frameImage;
     }
 
-    protected override bool CacheChanged(RenderingContext context)
+    protected override bool CacheChanged(RenderContext context)
     {
         var frame = GetFrameWithImage(context.FrameTime);
 
         return base.CacheChanged(context) || frame?.RequiresUpdate == true;
     }
 
-    protected override void UpdateCache(RenderingContext context)
+    protected override void UpdateCache(RenderContext context)
     {
         base.UpdateCache(context);
         var imageFrame = GetFrameWithImage(context.FrameTime);
@@ -256,7 +212,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public override Node CreateCopy()
     {
-        var image = new ImageLayerNode(size) { MemberName = this.MemberName, };
+        var image = new ImageLayerNode(startSize) { MemberName = this.MemberName, };
 
         image.keyFrames.Clear();
 
@@ -273,7 +229,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
     }
 
-
     IReadOnlyChunkyImage IReadOnlyImageNode.GetLayerImageAtFrame(int frame) => GetLayerImageAtFrame(frame);
 
     IReadOnlyChunkyImage IReadOnlyImageNode.GetLayerImageByKeyFrameGuid(Guid keyFrameGuid) =>
@@ -283,6 +238,16 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         SetLayerImageAtFrame(frame, (ChunkyImage)newLayerImage);
 
     void IReadOnlyImageNode.ForEveryFrame(Action<IReadOnlyChunkyImage> action) => ForEveryFrame(action);
+
+    public override void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime)
+    {
+        base.RenderChunk(chunkPos, resolution, frameTime);
+
+        var img = GetLayerImageAtFrame(frameTime.Frame);
+
+        RenderChunkyImageChunk(chunkPos, resolution, img, 85, ref fullResrenderedSurface);
+        renderedSurfaceFrame = frameTime.Frame;
+    }
 
     public void ForEveryFrame(Action<ChunkyImage> action)
     {
