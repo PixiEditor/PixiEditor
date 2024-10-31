@@ -59,7 +59,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         {
             Texture tempSurface = TryInitWorkingSurface(size, context.ChunkResolution, 4);
             tempSurface.DrawingSurface.Canvas.Clear();
-            if (Background.Connection.Node is IClipSource clipSource && ClipToPreviousMember)
+            if (Background.Connection is { Node: IClipSource clipSource } && ClipToPreviousMember)
             {
                 DrawClipSource(tempSurface.DrawingSurface, clipSource, context);
             }
@@ -74,7 +74,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         bool useFilters)
     {
         int scaled = workingSurface.Canvas.Save();
-        workingSurface.Canvas.Translate(GetScenePosition(ctx.FrameTime));
+        workingSurface.Canvas.Scale((float)ctx.ChunkResolution.Multiplier());
 
         DrawLayerOnto(ctx, workingSurface, useFilters);
 
@@ -100,7 +100,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         DrawLayerOnto(ctx, workingSurface, useFilters);
     }
 
-    private void DrawLayerOnto(SceneObjectRenderContext ctx, DrawingSurface workingSurface, bool useFilters)
+    protected void DrawLayerOnto(SceneObjectRenderContext ctx, DrawingSurface workingSurface, bool useFilters)
     {
         blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * ctx.Opacity * 255));
 

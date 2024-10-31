@@ -49,12 +49,13 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         set => DisplayName = value;
     }
 
-    protected Paint maskPaint = new Paint() { BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.DstIn };
+    protected Paint maskPaint = new Paint() { BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.DstIn, ColorFilter = Nodes.Filters.MaskFilter };
     protected Paint blendPaint = new Paint() { BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver };
 
     protected Paint maskPreviewPaint = new Paint()
     {
-        BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver, ColorFilter = Nodes.Filters.AlphaGrayscaleFilter
+        BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver, 
+        ColorFilter = ColorFilter.CreateCompose(Nodes.Filters.AlphaGrayscaleFilter, Nodes.Filters.MaskFilter)
     };
 
     private int maskCacheHash = 0;
@@ -63,6 +64,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     {
         Painter filterlessPainter = new Painter(OnFilterlessPaint);
         Painter rawPainter = new Painter(OnRawPaint);
+
         Background = CreateRenderInput("Background", "BACKGROUND");
         Opacity = CreateInput<float>("Opacity", "OPACITY", 1);
         IsVisible = CreateInput<bool>("IsVisible", "IS_VISIBLE", true);
@@ -136,6 +138,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
             if (CustomMask.Value != null)
             {
                 int layer = surface.Canvas.SaveLayer(maskPaint);
+                surface.Canvas.Scale((float)context.ChunkResolution.Multiplier());
                 CustomMask.Value.Paint(context, surface);
                 
                 surface.Canvas.RestoreToCount(layer);

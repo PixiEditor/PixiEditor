@@ -37,5 +37,6 @@ public static class Filters
     /// </summary>
     public static readonly ColorFilter AverageGrayscaleFilter =
         ColorFilter.CreateColorMatrix(ColorMatrix.AverageGrayscale + ColorMatrix.OpaqueAlphaOffset);
-    
+
+    public static ColorFilter MaskFilter => ColorFilter.CreateColorMatrix(ColorMatrix.WeightedWavelengthAlphaGrayscale);
 }

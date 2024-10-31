@@ -42,7 +42,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     {
         return (RectD?)GetLayerImageAtFrame(frameTime.Frame).FindTightCommittedBounds();
     }
-    
+
     protected override VecI GetTargetSize(RenderContext ctx)
     {
         return (GetFrameWithImage(ctx.FrameTime).Data as ChunkyImage).LatestSize;
@@ -55,6 +55,18 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         float multiplier = (float)ctx.ChunkResolution.InvertedMultiplier();
         workingSurface.Canvas.Translate(GetScenePosition(ctx.FrameTime));
         base.DrawLayerInScene(ctx, workingSurface, useFilters);
+
+        workingSurface.Canvas.RestoreToCount(scaled);
+    }
+
+    protected internal override void DrawLayerOnTexture(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+        bool useFilters)
+    {
+        int scaled = workingSurface.Canvas.Save();
+        workingSurface.Canvas.Translate(GetScenePosition(ctx.FrameTime) * ctx.ChunkResolution.Multiplier());
+        workingSurface.Canvas.Scale((float)ctx.ChunkResolution.Multiplier());
+
+        DrawLayerOnto(ctx, workingSurface, useFilters);
 
         workingSurface.Canvas.RestoreToCount(scaled);
     }
@@ -94,11 +106,11 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public override RectD? GetPreviewBounds(int frame, string elementFor = "")
     {
-        if(IsDisposed)
+        if (IsDisposed)
         {
             return null;
         }
-        
+
         if (elementFor == nameof(EmbeddedMask))
         {
             return base.GetPreviewBounds(frame, elementFor);
@@ -131,7 +143,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         {
             return false;
         }
-        
+
         if (elementToRenderName == nameof(EmbeddedMask))
         {
             return base.RenderPreview(renderOnto, resolution, frame, elementToRenderName);
