@@ -56,7 +56,7 @@
             Grid.Column="2"
             Orientation="Horizontal">
             <Button
-                IsVisible="{Binding UpdateSubViewModel.UpdateReadyToInstall, FallbackValue=Hidden}"
+                IsVisible="{Binding UpdateSubViewModel.UpdateReadyToInstall, FallbackValue=False}"
                 FontSize="14"
                 Height="20"
                 Command="{xaml:Command PixiEditor.Restart}" ui:Translator.Key="RESTART" />
