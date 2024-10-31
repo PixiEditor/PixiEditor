@@ -45,7 +45,7 @@
                 HorizontalAlignment="Right"
                 VerticalAlignment="Center">
                 <TextBlock
-                    Text="{Binding ElementName=mainWindow, Path=DataContext.DocumentManagerSubViewModel.ActiveDocument.CoordinatesString}"
+                    Text="{Binding DocumentManagerSubViewModel.ActiveDocument.CoordinatesString}"
                     Foreground="White"
                     FontSize="16" />
             </StackPanel>
