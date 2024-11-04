@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Views.Animations;
 
 namespace PixiEditor.ViewModels.Document;
@@ -11,7 +12,15 @@ internal class KeyFrameCollection : ObservableCollection<KeyFrameGroupViewModel>
     {
         
     }
-    
+
+    public KeyFrameCollection(IEnumerable<KeyFrameGroupViewModel> source)
+    {
+        foreach (var handler in source)
+        {
+            Add(handler);
+        }
+    }
+
     public event Action<KeyFrameViewModel> KeyFrameAdded; 
     public event Action<KeyFrameViewModel> KeyFrameRemoved; 
     

@@ -119,6 +119,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     {
         Document = document;
         Internals = internals;
+        Document.LayersChanged += (sender, args) => SortByLayers();
     }
 
     public KeyFrameTime ActiveFrameTime => new KeyFrameTime(ActiveFrameBindable, ActiveNormalizedTime);
@@ -251,6 +252,8 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         {
             allKeyFrames.Add(keyFrame);
         }
+        
+        SortByLayers();
     }
 
     public void RemoveKeyFrame(Guid keyFrameId)
@@ -356,5 +359,31 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
         result = default;
         return false;
+    }
+    
+    public void SortByLayers()
+    {
+        var allLayers = Document.StructureHelper.GetAllLayers();
+        var unsortedKeyFrames = keyFrames.ToList();
+        var layerKeyFrames = new List<KeyFrameGroupViewModel>();
+        foreach (var layer in allLayers)
+        {
+            var group = unsortedKeyFrames.FirstOrDefault(x => x is KeyFrameGroupViewModel group && group.LayerGuid == layer.Id) as KeyFrameGroupViewModel; 
+            if(group != null)
+            {
+                layerKeyFrames.Insert(0, group);
+            }
+        }
+
+        foreach (var remaining in unsortedKeyFrames)
+        {
+            if (remaining is KeyFrameGroupViewModel group && !layerKeyFrames.Contains(group))
+            {
+                layerKeyFrames.Add(group);
+            }
+        }
+        
+        this.keyFrames = new KeyFrameCollection(layerKeyFrames);
+        OnPropertyChanged(nameof(KeyFrames));
     }
 }

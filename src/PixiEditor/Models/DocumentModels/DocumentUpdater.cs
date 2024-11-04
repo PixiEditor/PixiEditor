@@ -433,6 +433,7 @@ internal class DocumentUpdater
     {
         IStructureMemberHandler? memberVM = doc.StructureHelper.FindOrThrow(info.Id);
         memberVM.SetIsVisible(info.IsVisible);
+        
     }
 
     private void ProcessUpdateStructureMemberName(StructureMemberName_ChangeInfo info)
@@ -449,7 +450,7 @@ internal class DocumentUpdater
 
     private void ProcessMoveStructureMember(MoveStructureMember_ChangeInfo info)
     {
-        // TODO: uh why is this empty, find out why
+        doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.Id, LayerAction.Move));
     }
 
     private void ProcessToggleOnionSkinning(ToggleOnionSkinning_PassthroughAction info)
