@@ -33,12 +33,12 @@ internal class MemberPreviewUpdater
     }
 
     public void UpdatePreviews(bool rerenderPreviews, IEnumerable<Guid> membersToUpdate,
-        IEnumerable<Guid> masksToUpdate, IEnumerable<Guid> nodesToUpdate)
+        IEnumerable<Guid> masksToUpdate, IEnumerable<Guid> nodesToUpdate, IEnumerable<Guid> keyFramesToUpdate)
     {
         if (!rerenderPreviews)
             return;
 
-        UpdatePreviewPainters(membersToUpdate, masksToUpdate, nodesToUpdate);
+        UpdatePreviewPainters(membersToUpdate, masksToUpdate, nodesToUpdate, keyFramesToUpdate);
     }
 
     /// <summary>
@@ -47,16 +47,17 @@ internal class MemberPreviewUpdater
     /// <param name="members">Members that should be rendered</param>
     /// <param name="masksToUpdate">Masks that should be rendered</param>
     private void UpdatePreviewPainters(IEnumerable<Guid> members, IEnumerable<Guid> masksToUpdate,
-        IEnumerable<Guid> nodesToUpdate)
+        IEnumerable<Guid> nodesToUpdate, IEnumerable<Guid> keyFramesToUpdate)
     {
         Guid[] memberGuids = members as Guid[] ?? members.ToArray();
         Guid[] maskGuids = masksToUpdate as Guid[] ?? masksToUpdate.ToArray();
         Guid[] nodesGuids = nodesToUpdate as Guid[] ?? nodesToUpdate.ToArray();
+        Guid[] keyFramesGuids = keyFramesToUpdate as Guid[] ?? keyFramesToUpdate.ToArray();
 
         RenderWholeCanvasPreview();
         RenderLayersPreview(memberGuids);
         RenderMaskPreviews(maskGuids);
-        RenderAnimationPreviews(memberGuids);
+        RenderAnimationPreviews(memberGuids, keyFramesGuids);
         RenderNodePreviews(nodesGuids);
     }
 
@@ -106,7 +107,7 @@ internal class MemberPreviewUpdater
         }
     }
 
-    private void RenderAnimationPreviews(Guid[] memberGuids)
+    private void RenderAnimationPreviews(Guid[] memberGuids, Guid[] keyFramesGuids)
     {
         foreach (var keyFrame in doc.AnimationHandler.KeyFrames)
         {
@@ -114,8 +115,11 @@ internal class MemberPreviewUpdater
             {
                 foreach (var childFrame in groupHandler.Children)
                 {
-                    if (!memberGuids.Contains(childFrame.LayerGuid) || !IsInFrame(childFrame))
-                        continue;
+                    if (!keyFramesGuids.Contains(childFrame.Id))
+                    {
+                        if (!memberGuids.Contains(childFrame.LayerGuid) || !IsInFrame(childFrame))
+                            continue;
+                    }
 
                     RenderFramePreview(childFrame);
                 }
@@ -136,7 +140,7 @@ internal class MemberPreviewUpdater
 
     private void RenderFramePreview(IKeyFrameHandler keyFrame)
     {
-        if (internals.Tracker.Document.AnimationData.TryFindKeyFrame(keyFrame.Id, out KeyFrame foundKeyFrame))
+        if (internals.Tracker.Document.AnimationData.TryFindKeyFrame(keyFrame.Id, out KeyFrame _))
         {
             keyFrame.PreviewPainter ??= new PreviewPainter(AnimationKeyFramePreviewRenderer, keyFrame.Id.ToString());
             keyFrame.PreviewPainter.Repaint();

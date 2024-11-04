@@ -115,7 +115,7 @@ internal class ActionAccumulator
             }
 
             previewUpdater.UpdatePreviews(undoBoundaryPassed, affectedAreas.ImagePreviewAreas.Keys, affectedAreas.MaskPreviewAreas.Keys,
-                affectedAreas.ChangedNodes);
+                affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames);
 
             // force refresh viewports for better responsiveness
             foreach (var (_, value) in internals.State.Viewports)

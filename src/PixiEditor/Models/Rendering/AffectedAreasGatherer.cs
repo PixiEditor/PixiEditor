@@ -30,6 +30,7 @@ internal class AffectedAreasGatherer
     public AffectedArea MainImageArea { get; private set; } = new();
     public Dictionary<Guid, AffectedArea> ImagePreviewAreas { get; private set; } = new();
     public Dictionary<Guid, AffectedArea> MaskPreviewAreas { get; private set; } = new();
+    public List<Guid> ChangedKeyFrames { get; private set; } = new();
     
 
     private KeyFrameTime ActiveFrame { get; set; }
@@ -144,6 +145,7 @@ internal class AffectedAreasGatherer
                         AddWholeCanvasToImagePreviews(info.TargetLayerGuid);
                     }
 
+                    AddKeyFrame(info.KeyFrameId);
                     break;
                 case SetActiveFrame_PassthroughAction:
                     AddWholeCanvasToMainImage();
@@ -189,6 +191,13 @@ internal class AffectedAreasGatherer
                     break;
             }
         }
+    }
+
+    private void AddKeyFrame(Guid infoKeyFrameId)
+    {
+        ChangedKeyFrames ??= new List<Guid>();
+        if (!ChangedKeyFrames.Contains(infoKeyFrameId))
+            ChangedKeyFrames.Add(infoKeyFrameId);
     }
 
     private void AddToNodePreviews(Guid nodeId)
