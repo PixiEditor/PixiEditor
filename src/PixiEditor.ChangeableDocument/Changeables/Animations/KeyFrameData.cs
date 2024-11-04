@@ -57,14 +57,16 @@ public class KeyFrameData : IDisposable, IReadOnlyKeyFrameData
         }
     }
 
-    public KeyFrameData Clone()
+    public KeyFrameData Clone(bool newGuid = false)
     {
         if (Data is not ICloneable && !Data.GetType().IsValueType && Data is not string)
         {
             throw new InvalidOperationException("Data must be ICloneable, ValueType or string to be cloned");
         }
         
-        return new KeyFrameData(KeyFrameGuid, StartFrame, Duration, AffectedElement)
+        Guid newGuidValue = newGuid ? Guid.NewGuid() : KeyFrameGuid;
+        
+        return new KeyFrameData(newGuidValue, StartFrame, Duration, AffectedElement)
         {
             Data = Data is ICloneable cloneable ? cloneable.Clone() : Data,
             IsVisible = IsVisible

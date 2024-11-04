@@ -51,7 +51,7 @@ internal class SceneRenderer
             texture.Dispose();
         }
     }
-
+    
     private void RenderOnionSkin(DrawingSurface target, ChunkResolution resolution)
     {
         var animationData = Document.AnimationData;

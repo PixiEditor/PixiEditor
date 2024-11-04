@@ -6,6 +6,8 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
@@ -14,23 +16,21 @@ internal class CombineStructureMembersOnto_Change : Change
     private HashSet<Guid> membersToMerge;
 
     private HashSet<Guid> layersToCombine = new();
-    private int frame;
 
-    private Guid targetLayer;
-    private CommittedChunkStorage? originalChunks;
+    private Guid targetLayerGuid;
+    private Dictionary<int, CommittedChunkStorage> originalChunks = new();
     
 
     [GenerateMakeChangeAction]
-    public CombineStructureMembersOnto_Change(HashSet<Guid> membersToMerge, Guid targetLayer, int frame)
+    public CombineStructureMembersOnto_Change(HashSet<Guid> membersToMerge, Guid targetLayer)
     {
         this.membersToMerge = new HashSet<Guid>(membersToMerge);
-        this.targetLayer = targetLayer;
-        this.frame = frame;
+        this.targetLayerGuid = targetLayer;
     }
 
     public override bool InitializeAndValidate(Document target)
     {
-        if (!target.HasMember(targetLayer) || membersToMerge.Count == 0)
+        if (!target.HasMember(targetLayerGuid) || membersToMerge.Count == 0)
             return false;
         foreach (Guid guid in membersToMerge)
         {
@@ -66,14 +66,34 @@ internal class CombineStructureMembersOnto_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
         out bool ignoreInUndo)
     {
-        // TODO: add merging similar layers (vector -> vector)
-        var toDrawOn = target.FindMemberOrThrow<LayerNode>(targetLayer);
+        List<IChangeInfo> changes = new();
+        var targetLayer = target.FindMemberOrThrow<LayerNode>(targetLayerGuid);
 
+        // TODO: add merging similar layers (vector -> vector)
+        int maxFrame = GetMaxFrame(target, targetLayer);
+
+        for (int frame = 0; frame < maxFrame || frame == 0; frame++)
+        {
+            changes.AddRange(ApplyToFrame(target, targetLayer, frame));
+        }
+
+        ignoreInUndo = false;
+
+        return changes;
+    }
+
+    private List<IChangeInfo> ApplyToFrame(Document target, LayerNode targetLayer, int frame)
+    {
         var chunksToCombine = new HashSet<VecI>();
+        List<IChangeInfo> changes = new();
+
         foreach (var guid in layersToCombine)
         {
             var layer = target.FindMemberOrThrow<LayerNode>(guid);
-            if(layer is not IRasterizable or ImageLayerNode)
+
+            AddMissingKeyFrame(targetLayer, frame, layer, changes, target);
+            
+            if (layer is not IRasterizable or ImageLayerNode)
                 continue;
 
             if (layer is ImageLayerNode imageLayerNode)
@@ -83,53 +103,91 @@ internal class CombineStructureMembersOnto_Change : Change
             }
             else
             {
-                AddChunksByTightBounds(layer, chunksToCombine);
+                AddChunksByTightBounds(layer, chunksToCombine, frame);
             }
         }
-        
-        List<IChangeInfo> changes = new();
-        
-        var toDrawOnImage = ((ImageLayerNode)toDrawOn).GetLayerImageAtFrame(frame);
+
+        var toDrawOnImage = ((ImageLayerNode)targetLayer).GetLayerImageAtFrame(frame);
         toDrawOnImage.EnqueueClear();
 
         Texture tempTexture = new Texture(target.Size);
-        
+
         DocumentRenderer renderer = new(target);
 
         AffectedArea affArea = new();
         DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
         {
-            RectI? globalClippingRect = new RectI(0, 0, target.Size.X, target.Size.Y);
-            /*foreach (var chunk in chunksToCombine)
+            if (frame == 0)
             {
-                OneOf<Chunk, EmptyChunk> combined =
-                    renderer.RenderLayersChunk(chunk, ChunkResolution.Full, frame, layersToCombine, globalClippingRect);
-                if (combined.IsT0)
+                renderer.RenderLayers(tempTexture.DrawingSurface, layersToCombine, frame, ChunkResolution.Full);
+            }
+            else
+            {
+                HashSet<Guid> layersToRender = new();
+                foreach (var layer in layersToCombine)
                 {
-                    toDrawOnImage.EnqueueDrawImage(chunk * ChunkyImage.FullChunkSize, combined.AsT0.Surface);
-                    combined.AsT0.Dispose();
+                    if (target.FindMember(layer) is LayerNode node)
+                    {
+                        if (node.KeyFrames.Any(x => x.IsInFrame(frame)))
+                        {
+                            layersToRender.Add(layer);
+                        }
+                    }
                 }
-            }*/
-            
-            renderer.RenderLayers(tempTexture.DrawingSurface, layersToCombine, frame, ChunkResolution.Full);
-            
+                
+                renderer.RenderLayers(tempTexture.DrawingSurface, layersToRender, frame, ChunkResolution.Full);
+            }
+
             toDrawOnImage.EnqueueDrawTexture(VecI.Zero, tempTexture);
 
             affArea = toDrawOnImage.FindAffectedArea();
-            originalChunks = new CommittedChunkStorage(toDrawOnImage, affArea.Chunks);
+            originalChunks.Add(frame, new CommittedChunkStorage(toDrawOnImage, affArea.Chunks));
             toDrawOnImage.CommitChanges();
-            
+
             tempTexture.Dispose();
         });
 
-
-        ignoreInUndo = false;
-        
-        changes.Add(new LayerImageArea_ChangeInfo(targetLayer, affArea));
+        changes.Add(new LayerImageArea_ChangeInfo(targetLayerGuid, affArea));
         return changes;
     }
 
-    private void AddChunksByTightBounds(LayerNode layer, HashSet<VecI> chunksToCombine)
+    private void AddMissingKeyFrame(LayerNode targetLayer, int frame, LayerNode layer, List<IChangeInfo> changes,
+        Document target)
+    {
+        bool hasKeyframe = targetLayer.KeyFrames.Any(x => x.IsInFrame(frame));
+        if (hasKeyframe)
+            return;
+
+        if (layer is not ImageLayerNode)
+            return;
+
+        var keyFrameData = layer.KeyFrames.FirstOrDefault(x => x.IsInFrame(frame));
+        if (keyFrameData is null)
+            return;
+
+        var clonedData = keyFrameData.Clone(true);
+        
+        targetLayer.AddFrame(keyFrameData.KeyFrameGuid, clonedData);
+        
+        changes.Add(new CreateRasterKeyFrame_ChangeInfo(targetLayerGuid, frame, clonedData.KeyFrameGuid, true));
+        changes.Add(new KeyFrameLength_ChangeInfo(targetLayerGuid, clonedData.StartFrame, clonedData.Duration));
+
+        target.AnimationData.AddKeyFrame(new RasterKeyFrame(clonedData.KeyFrameGuid, targetLayerGuid, frame, target));
+    }
+
+    private int GetMaxFrame(Document target, LayerNode targetLayer)
+    {
+        int maxFrame = targetLayer.KeyFrames.Max(x => x.StartFrame + x.Duration);
+        foreach (var toMerge in membersToMerge)
+        {
+            var member = target.FindMemberOrThrow<LayerNode>(toMerge);
+            maxFrame = Math.Max(maxFrame, member.KeyFrames.Max(x => x.StartFrame + x.Duration));
+        }
+
+        return maxFrame;
+    }
+
+    private void AddChunksByTightBounds(LayerNode layer, HashSet<VecI> chunksToCombine, int frame)
     {
         var tightBounds = layer.GetTightBounds(frame);
         if (tightBounds.HasValue)
@@ -149,19 +207,45 @@ internal class CombineStructureMembersOnto_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var toDrawOn = target.FindMemberOrThrow<ImageLayerNode>(targetLayer);
-        var affectedArea =
-            DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(toDrawOn.GetLayerImageAtFrame(frame),
-                ref originalChunks);
-        
-        List<IChangeInfo> changes = new();
-        changes.Add(new LayerImageArea_ChangeInfo(targetLayer, affectedArea));
+        var toDrawOn = target.FindMemberOrThrow<ImageLayerNode>(targetLayerGuid);
 
-        return changes; 
+        List<IChangeInfo> changes = new();
+
+        int maxFrame = GetMaxFrame(target, toDrawOn);
+
+        for (int frame = 0; frame < maxFrame || frame == 0; frame++)
+        {
+            changes.Add(RevertFrame(toDrawOn, frame));
+        }
+        
+        target.AnimationData.RemoveKeyFrame(targetLayerGuid);
+        originalChunks.Clear();
+        changes.Add(new DeleteKeyFrame_ChangeInfo(targetLayerGuid));
+
+        return changes;
+    }
+
+    private IChangeInfo RevertFrame(ImageLayerNode targetLayer, int frame)
+    {
+        var toDrawOnImage = targetLayer.GetLayerImageAtFrame(frame);
+        toDrawOnImage.EnqueueClear();
+
+        CommittedChunkStorage? storedChunks = originalChunks[frame];
+
+        var affectedArea =
+            DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(
+                targetLayer.GetLayerImageAtFrame(frame),
+                ref storedChunks);
+        
+        toDrawOnImage.CommitChanges();
+        return new LayerImageArea_ChangeInfo(targetLayerGuid, affectedArea);
     }
 
     public override void Dispose()
     {
-        originalChunks?.Dispose();
+        foreach (var originalChunk in originalChunks)
+        {
+            originalChunk.Value.Dispose();
+        }
     }
 }

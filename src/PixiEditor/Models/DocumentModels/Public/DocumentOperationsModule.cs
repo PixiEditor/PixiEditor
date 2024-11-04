@@ -518,8 +518,7 @@ internal class DocumentOperationsModule : IDocumentOperations
         Internals.ActionAccumulator.AddActions(
             new CreateStructureMember_Action(parent.Id, newGuid, typeof(ImageLayerNode)),
             new StructureMemberName_Action(newGuid, node.NodeNameBindable),
-            new CombineStructureMembersOnto_Action(members.ToHashSet(), newGuid,
-                Document.AnimationHandler.ActiveFrameBindable));
+            new CombineStructureMembersOnto_Action(members.ToHashSet(), newGuid));
         foreach (var member in members)
             Internals.ActionAccumulator.AddActions(new DeleteStructureMember_Action(member));
         Internals.ActionAccumulator.AddActions(new ChangeBoundary_Action());
