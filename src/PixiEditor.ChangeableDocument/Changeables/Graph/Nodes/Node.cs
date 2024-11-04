@@ -375,7 +375,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
                 Data = keyFrame.Data is ICloneable cloneable ? cloneable.Clone() : keyFrame.Data
             };
 
-            clone.keyFrames.Add(newKeyFrame);
+            clone.AddFrame(newKeyFrame.KeyFrameGuid, newKeyFrame);
         }
 
         return clone;

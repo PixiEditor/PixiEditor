@@ -20,7 +20,7 @@ internal class DurationToWidthConverter : SingleInstanceMultiValueConverter<Dura
         
         if(values[0] is int duration && values[1] is double scale)
         {
-            return scale * duration;
+            return scale * (duration - 1);
         }
         
         return 0.0;

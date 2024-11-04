@@ -28,6 +28,10 @@ internal class AnimationData : IReadOnlyAnimationData
         else if (keyFrame is GroupKeyFrame groupKeyFrame)
         {
             keyFrames.Add(groupKeyFrame);
+            foreach (var child in groupKeyFrame.Children)
+            {
+                SubscribeToKeyFrameEvents(child);
+            }
         }
         else
         {

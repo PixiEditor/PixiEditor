@@ -46,7 +46,7 @@ public class KeyFrameData : IDisposable, IReadOnlyKeyFrameData
 
     public bool IsInFrame(int frame)
     {
-        return IsVisible && frame >= StartFrame && frame <= StartFrame + Duration;
+        return IsVisible && frame >= StartFrame && frame < StartFrame + Duration;
     }
 
     public void Dispose()

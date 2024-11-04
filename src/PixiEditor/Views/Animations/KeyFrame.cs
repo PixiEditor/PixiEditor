@@ -123,7 +123,7 @@ internal class KeyFrame : TemplatedControl
         
         if (e.GetCurrentPoint(_resizePanelRight).Properties.IsLeftButtonPressed)
         {
-            Item.ChangeFrameLength(Item.StartFrameBindable, MousePosToFrame(e) - Item.StartFrameBindable);
+            Item.ChangeFrameLength(Item.StartFrameBindable, MousePosToFrame(e) - Item.StartFrameBindable + 1);
         }
         
         e.Handled = true;
@@ -146,7 +146,7 @@ internal class KeyFrame : TemplatedControl
             }
             
             int oldStartFrame = Item.StartFrameBindable;
-            Item.ChangeFrameLength(frame, Item.DurationBindable + oldStartFrame - frame);
+            Item.ChangeFrameLength(frame, Item.DurationBindable + oldStartFrame - frame + 1);
         }
         
         e.Handled = true;
