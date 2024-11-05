@@ -204,13 +204,13 @@ internal class AnimationDataBuilder
         FrameRate = frameRate;
         return this;
     }
-    
+
     public AnimationDataBuilder WithOnionFrames(int onionFrames)
     {
         OnionFrames = onionFrames;
         return this;
     }
-    
+
     public AnimationDataBuilder WithOnionOpacity(double onionOpacity)
     {
         OnionOpacity = onionOpacity;
@@ -276,7 +276,7 @@ internal class NodeGraphBuilder
     public NodeGraphBuilder WithOutputNode(int? toConnectNodeId, string? toConnectPropName)
     {
         var node = this.WithNodeOfType(typeof(OutputNode))
-            .WithId(AllNodes.Count + 1);
+            .WithId(AllNodes.Count);
 
         if (toConnectNodeId != null && toConnectPropName != null)
         {
@@ -291,27 +291,25 @@ internal class NodeGraphBuilder
             });
         }
 
-        AllNodes.Add(node);
         return this;
     }
 
     public NodeGraphBuilder WithImageLayerNode(string name, Surface image, out int id)
     {
-        AllNodes.Add(
-            this.WithNodeOfType(typeof(ImageLayerNode))
-                .WithName(name)
-                .WithId(AllNodes.Count + 1)
-                .WithKeyFrames(
-                [
-                    new KeyFrameData
-                    {
-                        AffectedElement = ImageLayerNode.ImageLayerKey,
-                        Data = new ChunkyImage(image),
-                        Duration = 0,
-                        StartFrame = 0,
-                        IsVisible = true
-                    }
-                ]));
+        this.WithNodeOfType(typeof(ImageLayerNode))
+            .WithName(name)
+            .WithId(AllNodes.Count)
+            .WithKeyFrames(
+            [
+                new KeyFrameData
+                {
+                    AffectedElement = ImageLayerNode.ImageLayerKey,
+                    Data = new ChunkyImage(image),
+                    Duration = 0,
+                    StartFrame = 0,
+                    IsVisible = true
+                }
+            ]);
 
         id = AllNodes.Count;
         return this;
@@ -319,21 +317,20 @@ internal class NodeGraphBuilder
 
     public NodeGraphBuilder WithImageLayerNode(string name, VecI size, out int id)
     {
-        AllNodes.Add(
-            this.WithNodeOfType(typeof(ImageLayerNode))
-                .WithName(name)
-                .WithId(AllNodes.Count + 1)
-                .WithKeyFrames(
-                [
-                    new KeyFrameData
-                    {
-                        AffectedElement = ImageLayerNode.ImageLayerKey,
-                        Data = new ChunkyImage(size),
-                        Duration = 0,
-                        StartFrame = 0,
-                        IsVisible = true
-                    }
-                ]));
+        this.WithNodeOfType(typeof(ImageLayerNode))
+            .WithName(name)
+            .WithId(AllNodes.Count)
+            .WithKeyFrames(
+            [
+                new KeyFrameData
+                {
+                    AffectedElement = ImageLayerNode.ImageLayerKey,
+                    Data = new ChunkyImage(size),
+                    Duration = 0,
+                    StartFrame = 0,
+                    IsVisible = true
+                }
+            ]);
 
         id = AllNodes.Count;
         return this;
@@ -343,6 +340,8 @@ internal class NodeGraphBuilder
     {
         var node = new NodeBuilder();
         node.WithUniqueNodeName(nodeType.GetCustomAttribute<NodeInfoAttribute>().UniqueName);
+
+        AllNodes.Add(node);
 
         return node;
     }

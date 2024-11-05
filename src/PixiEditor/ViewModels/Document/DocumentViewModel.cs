@@ -307,7 +307,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         AddNodes(builderInstance.Graph);
 
-        if (builderInstance.Graph.AllNodes.Count == 0)
+        if (builderInstance.Graph.AllNodes.Count == 0 || !builderInstance.Graph.AllNodes.Any(x => x is OutputNode))
         {
             Guid outputNodeGuid = Guid.NewGuid();
             acc.AddActions(new CreateNode_Action(typeof(OutputNode), outputNodeGuid));

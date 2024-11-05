@@ -660,7 +660,37 @@ internal class DocumentUpdater
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
         var property = node.FindInputProperty(info.Property);
 
+        ProcessStructureMemberProperty(info, property);
+        
         property.InternalSetValue(info.Value);
+    }
+    
+    private void ProcessStructureMemberProperty(PropertyValueUpdated_ChangeInfo info, INodePropertyHandler property)
+    {
+        // TODO: This most likely can be handled inside viewmodel itself
+        if (property.Node is IStructureMemberHandler structureMemberHandler)
+        {
+            if (info.Property == StructureNode.IsVisiblePropertyName)
+            {
+                structureMemberHandler.SetIsVisible((bool)info.Value);
+            }
+            else if (info.Property == StructureNode.OpacityPropertyName)
+            {
+                structureMemberHandler.SetOpacity((float)info.Value);
+            }
+            else if (info.Property == StructureNode.ClipToPreviousMemberPropertyName)
+            {
+                structureMemberHandler.SetClipToMemberBelowEnabled((bool)info.Value);
+            }
+            else if (info.Property == StructureNode.MaskIsVisiblePropertyName)
+            {
+                structureMemberHandler.SetMaskIsVisible((bool)info.Value);
+            }
+            else if (info.Property == StructureNode.BlendModePropertyName)
+            {
+                structureMemberHandler.SetBlendMode((BlendMode)info.Value);
+            }
+        }
     }
 
     private void ProcessNodeName(NodeName_ChangeInfo info)

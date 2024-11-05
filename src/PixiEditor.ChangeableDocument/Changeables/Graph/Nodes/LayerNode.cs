@@ -67,6 +67,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
             ApplyRasterClip(outputWorkingSurface.DrawingSurface, tempSurface.DrawingSurface);
         }
 
+        blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
         DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, context.ChunkResolution, size);
     }
 
@@ -139,8 +140,8 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         return workingSurface;
     }
 
-    void IClipSource.DrawOnTexture(SceneObjectRenderContext context, DrawingSurface drawOnto)
+    void IClipSource.DrawClipSource(SceneObjectRenderContext context, DrawingSurface drawOnto)
     {
-        DrawLayerOnTexture(context, drawOnto, false);
+        RenderContent(GetTargetSize(context), context, drawOnto, false);
     }
 }

@@ -16,6 +16,16 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRenderInput
 {
     public const string DefaultMemberName = "DEFAULT_MEMBER_NAME";
+    public const string IsVisiblePropertyName = "IsVisible";
+    public const string OpacityPropertyName = "Opacity";
+    public const string BlendModePropertyName = "BlendMode";
+    public const string ClipToPreviousMemberPropertyName = "ClipToPreviousMember";
+    public const string MaskIsVisiblePropertyName = "MaskIsVisible";
+    public const string MaskPropertyName = "Mask";
+    public const string FiltersPropertyName = "Filters";
+    public const string FilterlessOutputPropertyName = "FilterlessOutput";
+    public const string RawOutputPropertyName = "RawOutput";
+
     public InputProperty<float> Opacity { get; }
     public InputProperty<bool> IsVisible { get; }
     public bool ClipToPreviousMember { get; set; }
@@ -36,6 +46,11 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     protected static readonly Paint clearPaint = new Paint()
     {
         BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src, Color = Colors.Transparent
+    };
+    
+    protected static readonly Paint clipPaint = new Paint()
+    {
+        BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.DstIn
     };
 
     public virtual ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
@@ -66,17 +81,17 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         Painter rawPainter = new Painter(OnRawPaint);
 
         Background = CreateRenderInput("Background", "BACKGROUND");
-        Opacity = CreateInput<float>("Opacity", "OPACITY", 1);
-        IsVisible = CreateInput<bool>("IsVisible", "IS_VISIBLE", true);
-        BlendMode = CreateInput("BlendMode", "BLEND_MODE", Enums.BlendMode.Normal);
-        CustomMask = CreateRenderInput("Mask", "MASK");
-        MaskIsVisible = CreateInput<bool>("MaskIsVisible", "MASK_IS_VISIBLE", true);
-        Filters = CreateInput<Filter>(nameof(Filters), "FILTERS", null);
+        Opacity = CreateInput<float>(OpacityPropertyName, "OPACITY", 1);
+        IsVisible = CreateInput<bool>(IsVisiblePropertyName, "IS_VISIBLE", true);
+        BlendMode = CreateInput(BlendModePropertyName, "BLEND_MODE", Enums.BlendMode.Normal);
+        CustomMask = CreateRenderInput(MaskPropertyName, "MASK");
+        MaskIsVisible = CreateInput<bool>(MaskIsVisiblePropertyName, "MASK_IS_VISIBLE", true);
+        Filters = CreateInput<Filter>(FiltersPropertyName, "FILTERS", null);
 
-        FilterlessOutput = CreateRenderOutput(nameof(FilterlessOutput), "WITHOUT_FILTERS",
+        FilterlessOutput = CreateRenderOutput(FilterlessOutputPropertyName, "WITHOUT_FILTERS",
             () => filterlessPainter, () => Background.Value);
 
-        RawOutput = CreateRenderOutput(nameof(RawOutput), "RAW_LAYER_OUTPUT", () => rawPainter);
+        RawOutput = CreateRenderOutput(RawOutputPropertyName, "RAW_LAYER_OUTPUT", () => rawPainter);
 
         MemberName = DefaultMemberName;
     }
@@ -152,7 +167,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
                         ChunkResolution.Full,
                         surface, VecI.Zero, maskPaint);
                 }
-                else
+                else if(renderedMask != null)
                 {
                     surface.Canvas.DrawSurface(renderedMask.DrawingSurface, 0, 0, maskPaint);
                 }
@@ -211,7 +226,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     {
         if (ClipToPreviousMember && Background.Value != null)
         {
-            toClip.Canvas.DrawSurface(clipSource, 0, 0, maskPaint);
+            toClip.Canvas.DrawSurface(clipSource, 0, 0, clipPaint);
         }
     }
 
@@ -228,7 +243,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     protected void DrawClipSource(DrawingSurface drawOnto, IClipSource clipSource, SceneObjectRenderContext context)
     {
         blendPaint.Color = Colors.White;
-        clipSource.DrawOnTexture(context, drawOnto);
+        clipSource.DrawClipSource(context, drawOnto);
     }
 
     public abstract RectD? GetTightBounds(KeyFrameTime frameTime);
@@ -239,6 +254,10 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         if (EmbeddedMask != null)
         {
             additionalData["embeddedMask"] = EmbeddedMask;
+        }
+        if (ClipToPreviousMember)
+        {
+            additionalData["clipToPreviousMember"] = ClipToPreviousMember;
         }
     }
 
@@ -255,6 +274,12 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
             EmbeddedMask = mask;
 
             return new List<IChangeInfo> { new StructureMemberMask_ChangeInfo(Id, mask != null) };
+        }
+        
+        if (data.ContainsKey("clipToPreviousMember"))
+        {
+            ClipToPreviousMember = (bool)data["clipToPreviousMember"];
+            return new List<IChangeInfo> { new StructureMemberClipToMemberBelow_ChangeInfo(Id, ClipToPreviousMember) };
         }
 
         return new None();

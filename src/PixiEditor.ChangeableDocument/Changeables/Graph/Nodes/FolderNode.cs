@@ -12,12 +12,13 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("Folder")]
 public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPreviewRenderable
 {
+    public const string ContentInternalName = "Content";
     private VecI documentSize;
     public RenderInputProperty Content { get; }
 
     public FolderNode()
     {
-        Content = CreateRenderInput("Content", "CONTENT");
+        Content = CreateRenderInput(ContentInternalName, "CONTENT");
     }
 
     public override Node CreateCopy() => new FolderNode { MemberName = MemberName };
@@ -103,6 +104,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
 
         AdjustPaint(useFilters);
 
+        blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
         sceneContext.RenderSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
     }
 
@@ -187,22 +189,6 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
             MaskIsVisible = MaskIsVisible
         };
     }*/
-    public void DrawOnTexture(SceneObjectRenderContext context, DrawingSurface drawOnto)
-    {
-        if (Content.Connection != null)
-        {
-            var executionQueue = GraphUtils.CalculateExecutionQueue(Content.Connection.Node);
-
-            while (executionQueue.Count > 0)
-            {
-                IReadOnlyNode node = executionQueue.Dequeue();
-                if (node is IClipSource clipSource)
-                {
-                    clipSource.DrawOnTexture(context, drawOnto);
-                }
-            }
-        }
-    }
 
     public override RectD? GetPreviewBounds(int frame, string elementFor = "")
     {
@@ -238,5 +224,22 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
         }
 
         return true;
+    }
+
+    void IClipSource.DrawClipSource(SceneObjectRenderContext context, DrawingSurface drawOnto)
+    {
+        if (Content.Connection != null)
+        {
+            var executionQueue = GraphUtils.CalculateExecutionQueue(Content.Connection.Node);
+
+            while (executionQueue.Count > 0)
+            {
+                IReadOnlyNode node = executionQueue.Dequeue();
+                if (node is IClipSource clipSource)
+                {
+                    clipSource.DrawClipSource(context, drawOnto);
+                }
+            }
+        }
     }
 }
