@@ -39,6 +39,11 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
     public override VecD GetScenePosition(KeyFrameTime time) => ShapeData?.TransformedAABB.Center ?? VecD.Zero;
     public override VecD GetSceneSize(KeyFrameTime time) => ShapeData?.TransformedAABB.Size ?? VecD.Zero;
+
+    public VectorLayerNode()
+    {
+        AllowHighDpiRendering = true;
+    }
     
     protected override VecI GetTargetSize(RenderContext ctx)
     {

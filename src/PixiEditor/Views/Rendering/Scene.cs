@@ -199,6 +199,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         try
         {
             var selfVisual = ElementComposition.GetElementVisual(this);
+            if (selfVisual == null)
+            {
+                return;
+            }
+            
             compositor = selfVisual.Compositor;
 
             surface = compositor.CreateDrawingSurface();

@@ -668,7 +668,7 @@ internal class DocumentUpdater
     private void ProcessStructureMemberProperty(PropertyValueUpdated_ChangeInfo info, INodePropertyHandler property)
     {
         // TODO: This most likely can be handled inside viewmodel itself
-        if (property.Node is IStructureMemberHandler structureMemberHandler)
+        if (property.Node is IStructureMemberHandler structureMemberHandler && info.Value != null)
         {
             if (info.Property == StructureNode.IsVisiblePropertyName)
             {

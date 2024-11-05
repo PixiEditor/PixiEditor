@@ -7,6 +7,8 @@ using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.Rendering;
@@ -35,7 +37,7 @@ internal class SceneRenderer
         DrawingSurface renderTarget = target;
         Texture? texture = null;
         
-        if (!HighResRendering)
+        if (!HighResRendering || !HighDpiRenderNodePresent(Document.NodeGraph))
         {
             texture = new(Document.Size);
             renderTarget = texture.DrawingSurface;
@@ -51,7 +53,21 @@ internal class SceneRenderer
             texture.Dispose();
         }
     }
-    
+
+    private bool HighDpiRenderNodePresent(IReadOnlyNodeGraph documentNodeGraph)
+    {
+        bool highDpiRenderNodePresent = false;
+        documentNodeGraph.TryTraverse(n =>
+        {
+            if (n is IHighDpiRenderNode { AllowHighDpiRendering: true })
+            {
+                highDpiRenderNodePresent = true;
+            } 
+        });
+        
+        return highDpiRenderNodePresent;
+    }
+
     private void RenderOnionSkin(DrawingSurface target, ChunkResolution resolution)
     {
         var animationData = Document.AnimationData;
