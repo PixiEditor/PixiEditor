@@ -25,7 +25,7 @@ internal class RasterEllipseToolViewModel : ShapeTool, IRasterEllipseToolHandler
     public override LocalizedString Tooltip => new LocalizedString("ELLIPSE_TOOL_TOOLTIP", Shortcut);
     public bool DrawCircle { get; private set; }
 
-    public override string Icon => PixiPerfectIcons.Circle;
+    public override string Icon => PixiPerfectIcons.LowResCircle;
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
 
