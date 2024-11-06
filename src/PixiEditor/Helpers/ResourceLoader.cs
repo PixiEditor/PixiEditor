@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Media;
+using Avalonia.Platform;
 using Avalonia.Styling;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Helpers.Extensions;
@@ -8,9 +9,24 @@ namespace PixiEditor.Helpers;
 
 public static class ResourceLoader
 {
+    public static Stream LoadResourceStream(Uri uri)
+    {
+        return AssetLoader.Open(uri);
+    }
+
     public static T GetResource<T>(string key)
     {
         if (Application.Current.Styles.TryGetResource(key, null, out object resource))
+        {
+            return (T)resource;
+        }
+
+        return default!;
+    }
+
+    public static T GetResource<T>(string key, ThemeVariant? themeVariant)
+    {
+        if (Application.Current.Styles.TryGetResource(key, themeVariant, out object resource))
         {
             return (T)resource;
         }

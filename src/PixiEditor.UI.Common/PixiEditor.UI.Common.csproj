@@ -11,7 +11,6 @@
       <AvaloniaResource Include="Fonts\pixiperfect.ttf" />
       <None Remove="Assets\Animations\LoadingIndicator.json" />
       <AvaloniaResource Include="Assets\Animations\LoadingIndicator.json" />
-      <None Remove="Accents\Img_illust_mikunt-3.png" />
     </ItemGroup>
 
     <ItemGroup>
