@@ -13,10 +13,12 @@ using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Surfaces.Vector;
+using Drawie.Backend.Core.Text;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers.InputDevice;
 using Drawie.Numerics;
+using PixiEditor.Views.Overlays.Drawables;
 using PixiEditor.Views.Overlays.Handles;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 using Point = Avalonia.Point;
@@ -282,6 +284,8 @@ internal class TransformOverlay : Overlay
 
         moveHandle.OnPress += OnMoveHandlePressed;
         moveHandle.OnRelease += OnMoveHandleReleased;
+
+        infoBox = new InfoBox();
     }
 
     private VecD pos;
@@ -408,6 +412,25 @@ internal class TransformOverlay : Overlay
         }
 
         context.RestoreToCount(saved);
+
+        infoBox.ZoomScale = ZoomScale;
+        if (capturedAnchor is not null && capturedAnchor != Anchor.Origin)
+        {
+            VecD rectSize = Corners.RectSize;
+            string sizeText = $"W: {rectSize.X:0.#} H: {rectSize.Y:0.#} px";
+            infoBox.DrawInfo(context, sizeText, lastPointerPos);
+        }
+        else if (isRotating)
+        {
+            infoBox.DrawInfo(context, $"{(RadiansToDegreesNormalized(corners.RectRotation)):0.#}\u00b0", lastPointerPos);
+        }
+    }
+    
+    private double RadiansToDegreesNormalized(double radians)
+    {
+        double degrees = double.RadiansToDegrees(radians);
+        degrees = (degrees + 360) % 360;
+        return degrees;
     }
 
     private void OnAnchorHandlePressed(Handle source, VecD position)

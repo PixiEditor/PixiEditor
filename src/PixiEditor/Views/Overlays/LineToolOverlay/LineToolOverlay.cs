@@ -10,6 +10,7 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Surfaces.Vector;
 using PixiEditor.Extensions.UI.Overlays;
 using Drawie.Numerics;
+using PixiEditor.Views.Overlays.Drawables;
 using PixiEditor.Views.Overlays.Handles;
 using PixiEditor.Views.Overlays.TransformOverlay;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
@@ -68,12 +69,17 @@ internal class LineToolOverlay : Overlay
     private VecD mouseDownPos = VecD.Zero;
     private VecD lineStartOnMouseDown = VecD.Zero;
     private VecD lineEndOnMouseDown = VecD.Zero;
+    
+    private VecD lastMousePos = VecD.Zero;
 
     private bool movedWhileMouseDown = false;
 
     private RectangleHandle startHandle;
     private RectangleHandle endHandle;
     private TransformHandle moveHandle;
+    
+    private bool isDraggingHandle = false;
+    private InfoBox infoBox;
 
     private VecD startPos;
     private VecD endPos;
@@ -105,6 +111,8 @@ internal class LineToolOverlay : Overlay
         moveHandle.OnHover += handle => Refresh();
         moveHandle.OnRelease += OnHandleRelease;
         AddHandle(moveHandle);
+        
+        infoBox = new InfoBox();
     }
 
     private void OnHandleRelease(Handle obj)
@@ -115,6 +123,8 @@ internal class LineToolOverlay : Overlay
             SnappingController.HighlightedYAxis = null;
             Refresh();
         }
+        
+        isDraggingHandle = false;
     }
 
     protected override void ZoomChanged(double newZoom)
@@ -130,6 +140,8 @@ internal class LineToolOverlay : Overlay
         dashes[1] = whiteDashPaint.StrokeWidth * 3;
         
         whiteDashPaint.PathEffect = PathEffect.CreateDash(dashes, 2);
+        
+        infoBox.ZoomScale = newZoom;
     }
 
     public override void RenderOverlay(Canvas context, RectD canvasBounds)
@@ -151,6 +163,12 @@ internal class LineToolOverlay : Overlay
         startHandle.Draw(context);
         endHandle.Draw(context);
         moveHandle.Draw(context);
+
+        if (isDraggingHandle)
+        {
+            string length = $"L: {(mappedEnd - mappedStart).Length:0.#} px";
+            infoBox.DrawInfo(context, length, lastMousePos);
+        }
     }
 
     protected override void OnOverlayPointerPressed(OverlayPointerArgs args)
@@ -171,6 +189,9 @@ internal class LineToolOverlay : Overlay
         VecD delta = position - mouseDownPos;
         LineStart = SnapAndHighlight(lineStartOnMouseDown + delta);
         movedWhileMouseDown = true;
+        
+        lastMousePos = position;
+        isDraggingHandle = true;
     }
 
     private void EndHandleOnDrag(Handle source, VecD position)
@@ -180,6 +201,9 @@ internal class LineToolOverlay : Overlay
         
         LineEnd = final;
         movedWhileMouseDown = true;
+        
+        isDraggingHandle = true;
+        lastMousePos = position;
     }
 
     private VecD SnapAndHighlight(VecD position)
