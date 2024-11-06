@@ -91,6 +91,8 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     public Cursor Cursor { get; set; } = new Cursor(StandardCursorType.Arrow);
 
     public IToolbar Toolbar { get; set; } = new EmptyToolbar();
+    
+    public Dictionary<IToolSetHandler, Dictionary<string, object>> ToolSetSettings { get; } = new();
 
     internal ToolViewModel()
     {
@@ -149,6 +151,16 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
     public virtual void OnDeselecting()
     {
+    }
+
+    public void SetToolSetSettings(IToolSetHandler toolset, Dictionary<string, object>? settings)
+    {
+        if (settings == null || settings.Count == 0 || toolset == null)
+        {
+            return;
+        }
+        
+        ToolSetSettings[toolset] = settings;
     }
 
     protected T GetValue<T>([CallerMemberName] string name = null)

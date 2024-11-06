@@ -61,4 +61,5 @@ internal interface IToolHandler : IHandler
     public void OnSelected();
 
     public void OnDeselecting();
+    public void SetToolSetSettings(IToolSetHandler toolset, Dictionary<string, object>? settings);
 }
