@@ -301,4 +301,27 @@ internal static class TransformHelper
             _ => throw new ArgumentException($"{capturedAnchor} is not a corner or a side"),
         };
     }
+
+    public static Anchor GetOppositeAnchor(Anchor anchor)
+    {
+        return anchor switch
+        {
+            Anchor.TopLeft => Anchor.BottomRight,
+            Anchor.TopRight => Anchor.BottomLeft,
+            Anchor.BottomLeft => Anchor.TopRight,
+            Anchor.BottomRight => Anchor.TopLeft,
+            Anchor.Top => Anchor.Bottom,
+            Anchor.Bottom => Anchor.Top,
+            Anchor.Left => Anchor.Right,
+            Anchor.Right => Anchor.Left,
+            _ => throw new ArgumentException($"{anchor} is not a corner or a side"),
+        };
+    }
+
+    public static bool RotationIsAlmostCardinal(double radians, double threshold = 0.03)
+    {
+        double normalized = Math.Abs(radians % (2 * Math.PI));
+        double[] cardinals = { 0, Math.PI / 2, Math.PI, 3 * Math.PI / 2, 2 * Math.PI };
+        return cardinals.Any(cardinal => Math.Abs(normalized - cardinal) < threshold);
+    }
 }
