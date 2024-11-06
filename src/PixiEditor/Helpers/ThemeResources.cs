@@ -16,4 +16,7 @@ public static class ThemeResources
     
     public static Color BackgroundColor =>
         ResourceLoader.GetResource<SolidColorBrush>("ThemeBackgroundBrush", Application.Current.ActualThemeVariant).Color.ToColor();
+
+    public static Color BorderMidColor =>
+        ResourceLoader.GetResource<SolidColorBrush>("ThemeBorderMidBrush", Application.Current.ActualThemeVariant).Color.ToColor();
 }

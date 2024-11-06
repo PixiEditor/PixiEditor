@@ -18,6 +18,11 @@ public class InfoBox
     {
         Color = Colors.White, StrokeWidth = 1, Style = PaintStyle.Fill, IsAntiAliased = true
     };
+    
+    private Paint borderPen = new Paint()
+    {
+        Color = Colors.Black, StrokeWidth = 1, Style = PaintStyle.Stroke, IsAntiAliased = true
+    };
 
     public double ZoomScale { get; set; } = 1;
 
@@ -28,21 +33,29 @@ public class InfoBox
         font = ThemeResources.ThemeFont;
         fontPen.Color = ThemeResources.ForegroundColor;
         backgroundPen.Color = ThemeResources.BackgroundColor;
+        borderPen.Color = ThemeResources.BorderMidColor;
     }
 
     public void DrawInfo(Canvas context, string text, VecD pointerPos)
     {
+        const float padding = 10;
         font.FontSize = 14 / ZoomScale;
 
         double widthTextSize = font.MeasureText(text);
 
         VecD aboveCursor = pointerPos + new VecD(0, -20 / ZoomScale);
-        float rectWidth = (float)widthTextSize + (10 / (float)ZoomScale);
-        float rectHeight = 20 / (float)ZoomScale;
+        float rectWidth = (float)widthTextSize + (padding * 2 / (float)ZoomScale);
+        float rectHeight = (float)font.FontSize + padding / (float)ZoomScale;
         float x = (float)aboveCursor.X - rectWidth / 2;
-        float y = (float)aboveCursor.Y - ((float)font.FontSize);
+        float y = (float)aboveCursor.Y - ((float)font.FontSize) - (padding / 4) / (float)ZoomScale;
+        
         context.DrawRoundRect(x, y, rectWidth, rectHeight, 5 / (float)ZoomScale,
             5 / (float)ZoomScale, backgroundPen);
+        
+        borderPen.StrokeWidth = 1 / (float)ZoomScale;
+        
+        context.DrawRoundRect(x, y, rectWidth, rectHeight, 5 / (float)ZoomScale,
+            5 / (float)ZoomScale, borderPen);
 
         context.DrawText(text, aboveCursor, TextAlign.Center, font, fontPen);
     }
