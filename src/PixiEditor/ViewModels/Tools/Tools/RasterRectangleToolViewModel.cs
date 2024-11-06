@@ -49,8 +49,10 @@ internal class RasterRectangleToolViewModel : ShapeTool, IRasterRectangleToolHan
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseRasterRectangleTool();
     }
 
-    public override void OnSelected()
+    public override void OnSelected(bool restoring)
     {
+        if(restoring) return;
+        
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseRasterRectangleTool();
     }
 }
