@@ -1,6 +1,7 @@
 ﻿using ChunkyImageLib.Operations;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
@@ -34,6 +35,10 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         this.drawOnMask = drawOnMask;
         points.Add(pos);
         this.frame = frame;
+        if (this.antiAliasing)
+        {
+            srcPaint.BlendMode = BlendMode.SrcOver;
+        }
     }
 
     [UpdateChangeMethod]
@@ -69,6 +74,11 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         foreach (var point in bresenham)
         {
             var rect = new RectI(point - new VecI(strokeWidth / 2), new VecI(strokeWidth));
+            if (antiAliasing)
+            {
+                ApplySoftnessGradient((VecD)point);
+            }
+
             image.EnqueueDrawEllipse(rect, color, color, 1, 0, srcPaint);
         }
 
@@ -89,8 +99,23 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         for (int i = 0; i < points.Count; i++)
         {
             var rect = new RectI(points[i] - new VecI(strokeWidth / 2), new VecI(strokeWidth));
+            if (antiAliasing)
+            {
+                ApplySoftnessGradient(points[i]);
+            }
+
             targetImage.EnqueueDrawEllipse(rect, color, color, 1, 0, srcPaint);
         }
+    }
+
+    private void ApplySoftnessGradient(VecD pos)
+    {
+        srcPaint.Shader?.Dispose();
+        float radius = strokeWidth / 2f;
+        radius = MathF.Max(1, radius);
+        srcPaint.Shader = Shader.CreateRadialGradient(
+            pos, radius, new Color[] { color, color.WithAlpha(0) },
+            new float[] { 0.5f, 1 }, ShaderTileMode.Clamp);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,

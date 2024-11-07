@@ -25,6 +25,7 @@ internal class EllipseOperation : IMirroredDrawOperation
     private VecF[]? ellipse;
     private VecF[]? ellipseFill;
     private RectI? ellipseFillRect;
+    private bool antialiased;
 
     public EllipseOperation(RectI location, Color strokeColor, Color fillColor, int strokeWidth, double rotationRad, Paint? paint = null)
     {
@@ -34,6 +35,7 @@ internal class EllipseOperation : IMirroredDrawOperation
         this.strokeWidth = strokeWidth;
         this.rotation = rotationRad;
         this.paint = paint?.Clone() ?? new Paint();
+        antialiased = paint?.IsAntiAliased ?? false;
     }
 
     private void Init()
@@ -76,8 +78,22 @@ internal class EllipseOperation : IMirroredDrawOperation
         surf.Canvas.Scale((float)targetChunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);
 
-        paint.IsAntiAliased = targetChunk.Resolution != ChunkResolution.Full;
+        paint.IsAntiAliased = antialiased || targetChunk.Resolution != ChunkResolution.Full;
 
+        if (antialiased)
+        {
+            DrawAntiAliased(surf);   
+        }
+        else
+        {
+            DrawAliased(surf);
+        }
+
+        surf.Canvas.Restore();
+    }
+
+    private void DrawAliased(DrawingSurface surf)
+    {
         if (strokeWidth == 1)
         {
             if (Math.Abs(rotation) < 0.001)
@@ -131,6 +147,24 @@ internal class EllipseOperation : IMirroredDrawOperation
             surf.Canvas.DrawColor(strokeColor, paint.BlendMode);
             surf.Canvas.Restore();
         }
+    }
+
+    private void DrawAntiAliased(DrawingSurface surf)
+    {
+        surf.Canvas.Save();
+        surf.Canvas.RotateRadians((float)rotation, (float)location.Center.X, (float)location.Center.Y);
+        
+        paint.Color = fillColor;
+        paint.Style = PaintStyle.Fill;
+        
+        surf.Canvas.DrawOval(location.Center, location.Size / 2f, paint);
+        
+        paint.Color = strokeColor;
+        paint.Style = PaintStyle.Stroke;
+        paint.StrokeWidth = strokeWidth;
+        
+        surf.Canvas.DrawOval(location.Center, location.Size / 2f, paint);
+        
         surf.Canvas.Restore();
     }
 

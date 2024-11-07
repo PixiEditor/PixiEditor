@@ -33,7 +33,8 @@
       {
         "ToolName": "Pen",
         "Settings": {
-          "AntiAliasing": true
+          "AntiAliasing": true,
+          "ExposeHardness": true
         }
       },
       "Select",
