@@ -60,6 +60,8 @@ internal static class ToolbarFactory
             Settings.ColorAttribute => new ColorSettingViewModel(name,
                 ((Color)(attribute.DefaultValue ?? Colors.White)).ToColor(), label),
             Settings.EnumAttribute => GetEnumSetting(propertyType, name, attribute),
+            Settings.PercentAttribute percentAttribute => new PercentSettingViewModel(name, (float)(attribute.DefaultValue ?? 0f), label,
+                percentAttribute.Min, percentAttribute.Max),
             Settings.FloatAttribute floatAttribute => new FloatSettingViewModel(name, (float)(attribute.DefaultValue ?? 0f), label,
                 floatAttribute.Min, floatAttribute.Max),
             Settings.SizeAttribute => new SizeSettingViewModel(name, label),

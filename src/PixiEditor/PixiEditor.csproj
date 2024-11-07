@@ -133,4 +133,11 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Views\Tools\ToolSettings\Settings\PercentSettingView.axaml.cs">
+      <DependentUpon>PercentSettingView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
 </Project>
