@@ -230,6 +230,7 @@ internal class TransformOverlay : Overlay
 
     private VecD lastPointerPos;
     private InfoBox infoBox;
+    private VecD lastSize;
     
     public TransformOverlay()
     {
@@ -291,7 +292,7 @@ internal class TransformOverlay : Overlay
 
     public override void RenderOverlay(Canvas drawingContext, RectD canvasBounds)
     {
-        DrawOverlay(drawingContext, new(Bounds.Width, Bounds.Height), Corners, InternalState.Origin, (float)ZoomScale);
+        DrawOverlay(drawingContext, canvasBounds.Size, Corners, InternalState.Origin, (float)ZoomScale);
 
         if (capturedAnchor is null)
             UpdateRotationCursor(lastPointerPos);
@@ -323,6 +324,7 @@ internal class TransformOverlay : Overlay
     private void DrawOverlay
         (Canvas context, VecD size, ShapeCorners corners, VecD origin, float zoomboxScale)
     {
+        lastSize = size;
         // draw transparent background to enable mouse input
         DrawMouseInputArea(context, size);
 
@@ -709,6 +711,11 @@ internal class TransformOverlay : Overlay
             VecD targetPos = originalAnchorPos + pos - mousePosOnStartAnchorDrag;
 
             VecD projected = targetPos.ProjectOntoLine(originalAnchorPos, InternalState.Origin);
+            if (projected.IsNaNOrInfinity())
+            {
+                projected = targetPos;
+            }
+            
             VecD anchorRelativeDelta = projected - originalAnchorPos;
 
             var adjacentAnchors = TransformHelper.GetAdjacentAnchors((Anchor)capturedAnchor);
@@ -733,11 +740,25 @@ internal class TransformOverlay : Overlay
             }
             else
             {
-                snapped = FindProjectedAnchorSnap(projected);
-                if (snapped.Delta == VecI.Zero)
+                // If rotation is almost cardinal, projecting snapping points result in extreme values when perpendicular to the axis
+                if (!TransformHelper.RotationIsAlmostCardinal(cornersOnStartAnchorDrag.RectRotation))
                 {
-                    snapped = FindAdjacentCornersSnap(adjacentAnchors, anchorRelativeDelta);
+                    snapped = FindProjectedAnchorSnap(projected);
+                    if (snapped.Delta == VecI.Zero)
+                    {
+                        snapped = FindAdjacentCornersSnap(adjacentAnchors, anchorRelativeDelta);
+                    }
                 }
+                else
+                {
+                    snapped = TrySnapAnchor(targetPos);
+                }
+            }
+            
+            VecD potentialPos = targetPos + snapped.Delta;
+            if(potentialPos.X < 0 || potentialPos.Y < 0 || potentialPos.X > lastSize.X || potentialPos.Y > lastSize.Y)
+            {
+                snapped = new SnapData();
             }
 
             ShapeCorners? newCorners = TransformUpdateHelper.UpdateShapeFromSide
@@ -778,7 +799,13 @@ internal class TransformOverlay : Overlay
 
         VecD snapOrigin = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, adjacent) + anchorRelativeDelta;
         var snapped = TrySnapAnchorAlongLine(adjacentAnchorPos, snapOrigin);
-
+        double maxDistance = GetSizeToOppositeSide(cornersOnStartAnchorDrag, capturedAnchor.Value) / 8f;
+        
+        if(snapped.Delta.Length > maxDistance)
+        {
+            snapped = new SnapData();
+        }
+        
         if (snapped.Delta == VecI.Zero)
         {
             adjacentAnchorPos = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, adjacentAnchors.Item2) +
@@ -788,9 +815,21 @@ internal class TransformOverlay : Overlay
             snapOrigin = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, adjacent) + anchorRelativeDelta;
 
             snapped = TrySnapAnchorAlongLine(adjacentAnchorPos, snapOrigin);
+            if(snapped.Delta.Length > maxDistance)
+            {
+                snapped = new SnapData();
+            }
         }
 
         return snapped;
+    }
+    
+    private double GetSizeToOppositeSide(ShapeCorners corners, Anchor anchor1)
+    {
+        Anchor opposite = TransformHelper.GetOppositeAnchor(anchor1);
+        VecD oppositePos = TransformHelper.GetAnchorPosition(corners, opposite);
+        VecD anchorPos = TransformHelper.GetAnchorPosition(corners, anchor1);
+        return (oppositePos - anchorPos).Length;
     }
 
     private SnapData FindProjectedAnchorSnap(VecD projected)

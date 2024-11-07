@@ -58,7 +58,7 @@ internal interface IToolHandler : IHandler
 
     public void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown);
     public void UseTool(VecD pos);
-    public void OnSelected();
+    public void OnSelected(bool restoring);
 
-    public void OnDeselecting();
+    public void OnDeselecting(bool transient);
 }

@@ -77,7 +77,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
             actualToolSize = oldSetting.Value;
         }
 
-        public override void OnDeselecting()
+        public override void OnDeselecting(bool transient)
         {
             if (!PixelPerfectEnabled)
             {

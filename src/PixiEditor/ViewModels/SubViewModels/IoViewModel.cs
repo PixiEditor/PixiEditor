@@ -280,8 +280,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             return;
         var tools = Owner.ToolsSubViewModel;
 
-        var rightCanUp = (button == MouseButton.Right && tools.RightClickMode == RightClickMode.Erase ||
-                          tools.RightClickMode == RightClickMode.SecondaryColor);
+        var rightCanUp = (button == MouseButton.Right) && tools.RightClickMode is RightClickMode.Erase or RightClickMode.SecondaryColor;
 
         if (button == MouseButton.Left || rightCanUp)
         {

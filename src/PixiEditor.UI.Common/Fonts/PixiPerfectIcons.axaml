@@ -3,7 +3,7 @@
                     xmlns:system="clr-namespace:System;assembly=System.Runtime">
     <Styles.Resources>
         <ResourceDictionary>
-            <FontFamily x:Key="PixiPerfectIcons">avares://PixiEditor.UI.Common/Fonts/pixiperfect.ttf#pixiperfect</FontFamily>
+            <FontFamily x:Key="PixiPerfectIcons">avares://PixiEditor.UI.Common/Fonts/PixiPerfect.ttf#PixiPerfect</FontFamily>
             
             <system:String x:Key="icon-add-reference">&#xE900;</system:String>
             <system:String x:Key="icon-add-to-mask">&#xE901;</system:String>
@@ -132,7 +132,10 @@
             <system:String x:Key="icon-nodes">&#xe984;</system:String>
             <system:String x:Key="icon-onion">&#xe985;</system:String>
             
-            <system:String x:Key="icon-snapping">&#xfffd;</system:String>
+            <system:String x:Key="icon-lowres-circle">&#xe986;</system:String>
+            <system:String x:Key="icon-snapping">&#xe987;</system:String>
+            <system:String x:Key="icon-lowres-square">&#xe988;</system:String>
+            <system:String x:Key="icon-lowres-line">&#xe989;</system:String>
         </ResourceDictionary>
     </Styles.Resources>
     

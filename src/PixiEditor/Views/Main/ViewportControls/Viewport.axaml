@@ -91,7 +91,7 @@
                                           ui:Translator.TooltipKey="LOW_RES_PREVIEW"
                                           Classes="OverlayButton pixi-icon"
                                           BorderBrush="{DynamicResource ThemeBorderMidBrush}"
-                                          Content="{DynamicResource icon-circle}"
+                                          Content="{DynamicResource icon-lowres-circle}"
                                           IsChecked="{Binding !HighResPreview, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
                                           Cursor="Hand" />
                         </StackPanel>
