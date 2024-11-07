@@ -39,8 +39,10 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorEllipseTool();
     }
 
-    public override void OnSelected()
+    public override void OnSelected(bool restoring)
     {
+        if (restoring) return;
+        
         var document = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
         var layer = document.SelectedStructureMember;
         if (layer is IVectorLayerHandler vectorLayer && 
@@ -56,7 +58,7 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
 
     protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
     {
-        OnDeselecting();
-        OnSelected();
+        OnDeselecting(false);
+        OnSelected(false);
     }
 }

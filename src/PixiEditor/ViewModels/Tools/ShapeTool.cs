@@ -20,8 +20,11 @@ internal abstract class ShapeTool : ToolViewModel, IShapeToolHandler
         Toolbar = new BasicShapeToolbar();
     }
 
-    public override void OnDeselecting()
+    public override void OnDeselecting(bool transient)
     {
-        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
+        if (!transient)
+        {
+            ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
+        }
     }
 }

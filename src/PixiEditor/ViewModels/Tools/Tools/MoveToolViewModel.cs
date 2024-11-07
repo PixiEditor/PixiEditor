@@ -77,14 +77,23 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         }
     }
 
-    public override void OnSelected()
+    public override void OnSelected(bool restoring)
     {
+        if (TransformingSelectedArea)
+        {
+            return;
+        }
+        
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(true);
     }
 
-    public override void OnDeselecting()
+    public override void OnDeselecting(bool transient)
     {
-        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
+        var vm = ViewModelMain.Current;
+        if (!transient)
+        {
+            vm.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
+        }
     }
 
     protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
@@ -93,8 +102,8 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         {
             return;
         }
-        
-        OnDeselecting();
-        OnSelected();
+
+        OnDeselecting(false);
+        OnSelected(false);
     }
 }

@@ -224,10 +224,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
         if (ActiveTool != null)
         {
-            ActiveTool.OnDeselecting();
+            ActiveTool.OnDeselecting(transient);
             ActiveTool.Toolbar.SettingChanged -= ToolbarSettingChanged;
         }
 
+        bool wasTransient = ActiveTool?.IsTransient ?? false;
         if (ActiveTool != null) ActiveTool.IsTransient = false;
         bool shareToolbar = EnableSharedToolbar;
         if (ActiveTool is not null)
@@ -248,13 +249,15 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         }
 
         if (LastActionTool != ActiveTool)
+        {
             SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(LastActionTool, ActiveTool));
+        }
 
         //update old tool
         LastActionTool?.ModifierKeyChanged(false, false, false);
         //update new tool
         ActiveTool.ModifierKeyChanged(ctrlIsDown, shiftIsDown, altIsDown);
-        ActiveTool.OnSelected();
+        ActiveTool.OnSelected(wasTransient);
 
         tool.IsActive = true;
         ActiveTool.IsTransient = transient;

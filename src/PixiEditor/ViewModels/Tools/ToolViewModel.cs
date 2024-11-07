@@ -147,11 +147,11 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     public virtual void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown) { }
 
     public virtual void UseTool(VecD pos) { }
-    public virtual void OnSelected() { }
-
+    public virtual void OnSelected(bool restoring) { }
+    
     protected virtual void OnSelectedLayersChanged(IStructureMemberHandler[] layers) { }
 
-    public virtual void OnDeselecting()
+    public virtual void OnDeselecting(bool transient)
     {
     }
 

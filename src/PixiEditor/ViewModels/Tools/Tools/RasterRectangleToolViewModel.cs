@@ -26,7 +26,7 @@ internal class RasterRectangleToolViewModel : ShapeTool, IRasterRectangleToolHan
     public bool Filled { get; set; } = false;
     public bool DrawSquare { get; private set; } = false;
 
-    public override string Icon => PixiPerfectIcons.Square;
+    public override string Icon => PixiPerfectIcons.LowResSquare;
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
 
@@ -49,8 +49,10 @@ internal class RasterRectangleToolViewModel : ShapeTool, IRasterRectangleToolHan
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseRasterRectangleTool();
     }
 
-    public override void OnSelected()
+    public override void OnSelected(bool restoring)
     {
+        if(restoring) return;
+        
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseRasterRectangleTool();
     }
 }
