@@ -8,7 +8,8 @@
       {
         "ToolName": "Pen",
         "Settings": {
-          "ExposePixelPerfectEnabled": true
+          "ExposePixelPerfectEnabled": true,
+          "Spacing": 0
         }
       },
       "Select",
@@ -34,7 +35,8 @@
         "ToolName": "Pen",
         "Settings": {
           "AntiAliasing": true,
-          "ExposeHardness": true
+          "ExposeHardness": true,
+          "ExposeSpacing": true
         }
       },
       "Select",

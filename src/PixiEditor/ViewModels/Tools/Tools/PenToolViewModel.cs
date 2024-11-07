@@ -43,6 +43,13 @@ namespace PixiEditor.ViewModels.Tools.Tools
         [Settings.Bool("__antiAliasing", false, ExposedByDefault = false)]
         public bool AntiAliasing => GetValue<bool>();
         
+        // TODO: Percent
+        [Settings.Float("HARDNESS_SETTING", 0.8f, ExposedByDefault = false, Min = 0, Max = 1)]
+        public float Hardness => GetValue<float>();
+
+        [Settings.Float("SPACING_SETTING", 0.15f, ExposedByDefault = false, Min = 0, Max = 1)]
+        public float Spacing => GetValue<float>();
+
         public override string Icon => PixiPerfectIcons.Pen;
 
         public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);

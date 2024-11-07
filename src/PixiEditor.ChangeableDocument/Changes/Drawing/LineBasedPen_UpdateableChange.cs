@@ -16,15 +16,20 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private readonly bool replacing;
     private readonly bool drawOnMask;
     private readonly bool antiAliasing;
+    private float hardness;
+    private float spacing = 1;
     private readonly Paint srcPaint = new Paint() { BlendMode = BlendMode.Src };
 
     private CommittedChunkStorage? storedChunks;
     private readonly List<VecI> points = new();
     private int frame;
+    private VecF lastPos;
 
     [GenerateUpdateableChangeActions]
     public LineBasedPen_UpdateableChange(Guid memberGuid, Color color, VecI pos, int strokeWidth, bool replacing,
         bool antiAliasing,
+        float hardness,
+        float spacing,
         bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
@@ -33,6 +38,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         this.replacing = replacing;
         this.antiAliasing = antiAliasing;
         this.drawOnMask = drawOnMask;
+        this.hardness = hardness;
+        this.spacing = spacing;
         points.Add(pos);
         this.frame = frame;
         if (this.antiAliasing)
@@ -71,8 +78,15 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         int opCount = image.QueueLength;
 
         var bresenham = BresenhamLineHelper.GetBresenhamLine(from, to);
+        
+        float spacingPixels = strokeWidth * spacing;
+
         foreach (var point in bresenham)
         {
+            if (points.Count > 1 && VecF.Distance(lastPos, point) < spacingPixels)
+                continue;
+
+            lastPos = point;
             var rect = new RectI(point - new VecI(strokeWidth / 2), new VecI(strokeWidth));
             if (antiAliasing)
             {
@@ -96,8 +110,16 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             return;
         }
 
+        VecF lastPos = points[0];
+        
+        float spacingInPixels = strokeWidth * this.spacing;
+
         for (int i = 0; i < points.Count; i++)
         {
+            if (i > 0 && VecF.Distance(lastPos, points[i]) < spacingInPixels)
+                continue;
+
+            lastPos = points[i];
             var rect = new RectI(points[i] - new VecI(strokeWidth / 2), new VecI(strokeWidth));
             if (antiAliasing)
             {
@@ -115,7 +137,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         radius = MathF.Max(1, radius);
         srcPaint.Shader = Shader.CreateRadialGradient(
             pos, radius, new Color[] { color, color.WithAlpha(0) },
-            new float[] { 0.5f, 1 }, ShaderTileMode.Clamp);
+            new float[] { hardness, 1 }, ShaderTileMode.Clamp);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,

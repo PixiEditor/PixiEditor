@@ -756,5 +756,7 @@
   "NEW_ELLIPSE_LAYER_NAME": "Ellipse",
   "NEW_RECTANGLE_LAYER_NAME": "Rectangle",
   "NEW_LINE_LAYER_NAME": "Line",
-  "RENDER_OUTPUT": "Render Output"
+  "RENDER_OUTPUT": "Render Output",
+  "HARDNESS_SETTING": "Hardness",
+  "SPACING_SETTING": "Spacing"
 }

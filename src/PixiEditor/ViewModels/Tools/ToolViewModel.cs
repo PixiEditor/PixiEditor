@@ -162,6 +162,13 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
             return;
         }
 
+        foreach (var valueSetting in settings)
+        {
+            if (valueSetting.Value is long)
+            {
+                settings[valueSetting.Key] = Convert.ToSingle(valueSetting.Value);
+            }
+        }
         ToolSetSettings[toolset] = settings;
     }
 
@@ -179,7 +186,6 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
         foreach (var setting in settings)
         {
-
             if (IsExposeSetting(setting, out bool expose))
             {
                 string settingName = setting.Key.Replace("Expose", string.Empty);
@@ -188,7 +194,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
                 {
                     continue;
                 }
-                
+
                 foundSetting.SetOverwriteExposed(expose);
             }
             else
@@ -200,7 +206,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
                     {
                         continue;
                     }
-                    
+
                     foundSetting.SetOverwriteValue(setting.Value);
                 }
                 catch (InvalidCastException)
@@ -237,7 +243,19 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
             return (T)property!.GetValue(setting);
         }
 
-        return (T)setting.Value;
+        try
+        {
+            return (T)setting.Value;
+        }
+        catch (InvalidCastException)
+        {
+            if(typeof(T) == typeof(float) || typeof(T) == typeof(double) || typeof(T) == typeof(int))
+            {
+                return (T)(object)Convert.ToSingle(setting.Value);
+            }
+            
+            throw;
+        }
     }
 
     private bool IsExposeSetting(KeyValuePair<string, object> settingConfig, out bool expose)
