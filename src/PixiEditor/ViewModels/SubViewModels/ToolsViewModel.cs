@@ -131,6 +131,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     public void SetActiveToolSet(IToolSetHandler toolSetHandler)
     {
         ActiveToolSet = toolSetHandler;
+        ActiveToolSet.ApplyToolSetSettings();
         UpdateEnabledState();
     }
 
@@ -423,8 +424,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     {
         foreach (ToolSetConfig toolSet in toolSetConfig)
         {
-            List<IToolHandler> tools = new List<IToolHandler>();
-            var toolSetViewModel = new ToolSetViewModel(toolSet.Name, tools);
+            var toolSetViewModel = new ToolSetViewModel(toolSet.Name);
     
             foreach (var toolFromToolset in toolSet.Tools)
             {
@@ -440,7 +440,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                     continue;
                 }
 
-                tools.Add(tool);
+                toolSetViewModel.AddTool(tool);
             }
 
             AllToolSets.Add(toolSetViewModel);

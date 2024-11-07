@@ -47,6 +47,13 @@ internal abstract class Setting<T> : Setting
 internal abstract class Setting : ObservableObject
 {
     private object _value;
+    private bool isExposed = true;
+    
+    private bool overwrittenExposed;
+    private object overwrittenValue;
+
+    private bool hasOverwrittenValue;
+    private bool hasOverwrittenExposed;
     
     protected Setting(string name)
     {
@@ -57,7 +64,7 @@ internal abstract class Setting : ObservableObject
 
     public object Value
     {
-        get => _value;
+        get => hasOverwrittenValue ? overwrittenValue : _value;
         set
         {
             var old = _value;
@@ -68,6 +75,12 @@ internal abstract class Setting : ObservableObject
         }
     }
 
+    public bool IsExposed
+    {
+        get => hasOverwrittenExposed ? overwrittenExposed : isExposed;
+        set => SetProperty(ref isExposed, value);
+    }
+
     public string Name { get; }
 
     public LocalizedString Label { get; set; }
@@ -75,4 +88,31 @@ internal abstract class Setting : ObservableObject
     public bool HasLabel => !string.IsNullOrEmpty(Label);
 
     public abstract Type GetSettingType();
+    
+    public void SetOverwriteValue(object value)
+    {
+        overwrittenValue = value;
+        hasOverwrittenValue = true;
+        
+        OnPropertyChanged(nameof(Value));
+    }
+    
+    public void SetOverwriteExposed(bool value)
+    {
+        overwrittenExposed = value;
+        hasOverwrittenExposed = true;
+        
+        OnPropertyChanged(nameof(IsExposed));
+    }
+    
+    public void ResetOverwrite()
+    {
+        overwrittenValue = null;
+        overwrittenExposed = false;
+        hasOverwrittenValue = false;
+        hasOverwrittenExposed = false;
+        
+        OnPropertyChanged(nameof(Value));
+        OnPropertyChanged(nameof(IsExposed));
+    }
 }

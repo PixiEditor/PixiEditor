@@ -73,6 +73,8 @@ public static class Settings
         public string Name { get; set; }
         
         public string Notify { get; set; }
+        
+        public bool ExposedByDefault { get; set; } = true;
 
         public SettingsAttribute() { }
         

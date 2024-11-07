@@ -6,6 +6,7 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
+
 internal class LineBasedPen_UpdateableChange : UpdateableChange
 {
     private readonly Guid memberGuid;
@@ -13,6 +14,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private int strokeWidth;
     private readonly bool replacing;
     private readonly bool drawOnMask;
+    private readonly bool antiAliasing;
     private readonly Paint srcPaint = new Paint() { BlendMode = BlendMode.Src };
 
     private CommittedChunkStorage? storedChunks;
@@ -21,16 +23,18 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
     [GenerateUpdateableChangeActions]
     public LineBasedPen_UpdateableChange(Guid memberGuid, Color color, VecI pos, int strokeWidth, bool replacing,
+        bool antiAliasing,
         bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.color = color;
         this.strokeWidth = strokeWidth;
         this.replacing = replacing;
+        this.antiAliasing = antiAliasing;
         this.drawOnMask = drawOnMask;
         points.Add(pos);
         this.frame = frame;
-}
+    }
 
     [UpdateChangeMethod]
     public void Update(VecI pos, int strokeWidth)
@@ -49,6 +53,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         if (!replacing)
             image.SetBlendMode(BlendMode.SrcOver);
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
+        srcPaint.IsAntiAliased = antiAliasing;
         return true;
     }
 
@@ -60,25 +65,13 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
         int opCount = image.QueueLength;
 
-        if (strokeWidth == 1)
+        var bresenham = BresenhamLineHelper.GetBresenhamLine(from, to);
+        foreach (var point in bresenham)
         {
-            image.EnqueueDrawBresenhamLine(from, to, color, BlendMode.Src);
-        }
-        else if (strokeWidth <= 10)
-        {
-            var bresenham = BresenhamLineHelper.GetBresenhamLine(from, to);
-            foreach (var point in bresenham)
-            {
-                var rect = new RectI(point - new VecI(strokeWidth / 2), new VecI(strokeWidth));
-                image.EnqueueDrawEllipse(rect, color, color, 1, 0, srcPaint);
-            }
-        }
-        else
-        {
-            var rect = new RectI(to - new VecI(strokeWidth / 2), new VecI(strokeWidth));
+            var rect = new RectI(point - new VecI(strokeWidth / 2), new VecI(strokeWidth));
             image.EnqueueDrawEllipse(rect, color, color, 1, 0, srcPaint);
-            image.EnqueueDrawSkiaLine(from, to, StrokeCap.Butt, strokeWidth, color, BlendMode.Src);
         }
+
         var affChunks = image.FindAffectedArea(opCount);
 
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affChunks, drawOnMask);
@@ -88,37 +81,20 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     {
         if (points.Count == 1)
         {
-            if (strokeWidth == 1)
-            {
-                targetImage.EnqueueDrawBresenhamLine(points[0], points[0], color, BlendMode.Src);
-            }
-            else
-            {
-                var rect = new RectI(points[0] - new VecI(strokeWidth / 2), new VecI(strokeWidth));
-                targetImage.EnqueueDrawEllipse(rect, color, color, 1, 0, srcPaint);
-            }
+            var rect = new RectI(points[0] - new VecI(strokeWidth / 2), new VecI(strokeWidth));
+            targetImage.EnqueueDrawEllipse(rect, color, color, 1, 0, srcPaint);
             return;
         }
 
-        var firstRect = new RectI(points[0] - new VecI(strokeWidth / 2), new VecI(strokeWidth));
-        targetImage.EnqueueDrawEllipse(firstRect, color, color, 1, 0, srcPaint);
-
-        for (int i = 1; i < points.Count; i++)
+        for (int i = 0; i < points.Count; i++)
         {
-            if (strokeWidth == 1)
-            {
-                targetImage.EnqueueDrawBresenhamLine(points[i - 1], points[i], color, BlendMode.Src);
-            }
-            else
-            {
-                var rect = new RectI(points[i] - new VecI(strokeWidth / 2), new VecI(strokeWidth));
-                targetImage.EnqueueDrawEllipse(rect, color, color, 1, 0, srcPaint);
-                targetImage.EnqueueDrawSkiaLine(points[i - 1], points[i], StrokeCap.Butt, strokeWidth, color, BlendMode.Src);
-            }
+            var rect = new RectI(points[i] - new VecI(strokeWidth / 2), new VecI(strokeWidth));
+            targetImage.EnqueueDrawEllipse(rect, color, color, 1, 0, srcPaint);
         }
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
+        out bool ignoreInUndo)
     {
         if (storedChunks is not null)
             throw new InvalidOperationException("Trying to save chunks while there are saved chunks already");
@@ -150,7 +126,9 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, frame, ref storedChunks);
+        var affected =
+            DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, frame,
+                ref storedChunks);
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affected, drawOnMask);
     }
 

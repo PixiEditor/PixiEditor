@@ -19,6 +19,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
     public int ToolSize => basicToolbar.ToolSize;
     private bool drawOnMask;
     private bool pixelPerfect;
+    private bool antiAliasing;
 
     private IBasicToolbar basicToolbar;
 
@@ -40,11 +41,12 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         guidValue = member.Id;
         color = colorsHandler.PrimaryColor;
         pixelPerfect = penTool.PixelPerfectEnabled;
+        antiAliasing = penTool.AntiAliasing;
 
         colorsHandler.AddSwatch(new PaletteColor(color.R, color.G, color.B));
         IAction? action = pixelPerfect switch
         {
-            false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, ToolSize, false, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
+            false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, ToolSize, false, antiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
             true => new PixelPerfectPen_Action(guidValue, controller!.LastPixelPosition, color, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)
         };
         internals!.ActionAccumulator.AddActions(action);
@@ -56,7 +58,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
     {
         IAction? action = pixelPerfect switch
         {
-            false => new LineBasedPen_Action(guidValue, color, pos, ToolSize, false, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
+            false => new LineBasedPen_Action(guidValue, color, pos, ToolSize, false, antiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
             true => new PixelPerfectPen_Action(guidValue, pos, color, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)
         };
         internals!.ActionAccumulator.AddActions(action);

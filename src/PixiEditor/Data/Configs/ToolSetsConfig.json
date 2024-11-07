@@ -5,7 +5,12 @@
       "MoveViewport",
       "RotateViewport",
       "Move",
-      "Pen",
+      {
+        "ToolName": "Pen",
+        "Settings": {
+          "ExposePixelPerfectEnabled": true
+        }
+      },
       "Select",
       "MagicWand",
       "Lasso",

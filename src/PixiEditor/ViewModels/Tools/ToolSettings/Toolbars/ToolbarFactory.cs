@@ -21,6 +21,7 @@ internal static class ToolbarFactory
 
             var name = attribute.Name ?? property.Name;
             var label = attribute.LabelKey ?? name;
+            bool exposedByDefault = attribute.ExposedByDefault;
 
             if (attribute is Settings.InheritedAttribute)
             {
@@ -28,7 +29,7 @@ internal static class ToolbarFactory
             }
             else
             {
-                var setting = CreateSetting(property.PropertyType, name, attribute, label);
+                var setting = CreateSetting(property.PropertyType, name, attribute, label, exposedByDefault);
                 AddValueChangedHandlerIfRequired(toolType, tool, setting, attribute);
                 toolbar.AddSetting(setting);
             }
@@ -51,9 +52,9 @@ internal static class ToolbarFactory
     }
 
     private static Setting CreateSetting(Type propertyType, string name, Settings.SettingsAttribute attribute,
-        string label)
+        string label, bool exposedByDefault)
     {
-        return attribute switch
+        var attr = attribute switch
         {
             Settings.BoolAttribute => new BoolSettingViewModel(name, (bool)(attribute.DefaultValue ?? false), label),
             Settings.ColorAttribute => new ColorSettingViewModel(name,
@@ -65,6 +66,10 @@ internal static class ToolbarFactory
             _ => throw new NotImplementedException(
                 $"SettingsAttribute of type '{attribute.GetType().FullName}' has not been implemented")
         };
+        
+        attr.IsExposed = exposedByDefault;
+        
+        return attr;
     }
 
     private static void AddValueChangedHandlerIfRequired(Type toolType, ToolViewModel tool, Setting setting,

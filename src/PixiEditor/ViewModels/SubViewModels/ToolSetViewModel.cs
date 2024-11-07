@@ -9,14 +9,24 @@ internal class ToolSetViewModel : PixiObservableObject, IToolSetHandler
 {
     public string Name { get; }
     ICollection<IToolHandler> IToolSetHandler.Tools => Tools;
+
     public ObservableCollection<IToolHandler> Tools { get; } = new();
-    
-    public ToolSetViewModel(string setName, List<IToolHandler> tools)
+
+    public ToolSetViewModel(string setName)
     {
         Name = setName;
-        foreach (var tool in tools)
+    }
+
+    public void AddTool(IToolHandler tool)
+    {
+        Tools.Add(tool);
+    }
+
+    public void ApplyToolSetSettings()
+    {
+        foreach (IToolHandler tool in Tools)
         {
-            Tools.Add(tool);
-        }    
+            tool.ApplyToolSetSettings(this);
+        }
     }
 }

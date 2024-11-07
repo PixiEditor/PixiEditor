@@ -37,9 +37,12 @@ namespace PixiEditor.ViewModels.Tools.Tools
         [Settings.Inherited]
         public int ToolSize => GetValue<int>();
 
-        [Settings.Bool("PIXEL_PERFECT_SETTING", Notify = nameof(PixelPerfectChanged))]
+        [Settings.Bool("PIXEL_PERFECT_SETTING", Notify = nameof(PixelPerfectChanged), ExposedByDefault = false)]
         public bool PixelPerfectEnabled => GetValue<bool>();
 
+        [Settings.Bool("__antiAliasing", false, ExposedByDefault = false)]
+        public bool AntiAliasing => GetValue<bool>();
+        
         public override string Icon => PixiPerfectIcons.Pen;
 
         public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
