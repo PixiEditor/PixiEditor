@@ -61,7 +61,7 @@ internal abstract class Toolbar : ObservableObject, IToolbar
         {
             if (SharedSettings.Any(x => x.Name == Settings[i].Name))
             {
-                SharedSettings.First(x => x.Name == Settings[i].Name).Value = Settings[i].Value;
+                SharedSettings.First(x => x.Name == Settings[i].Name).UserValue = Settings[i].UserValue;
             }
             else
             {
@@ -79,7 +79,7 @@ internal abstract class Toolbar : ObservableObject, IToolbar
         {
             if (Settings.Any(x => x.Name == SharedSettings[i].Name))
             {
-                Settings.First(x => x.Name == SharedSettings[i].Name).Value = SharedSettings[i].Value;
+                Settings.First(x => x.Name == SharedSettings[i].Name).UserValue = SharedSettings[i].UserValue;
             }
         }
 

@@ -14,14 +14,14 @@ internal class PenToolExecutor : UpdateableChangeExecutor
 {
     private Guid guidValue;
     private Color color;
-    public int ToolSize => basicToolbar.ToolSize;
+    public int ToolSize => penToolbar.ToolSize;
     private bool drawOnMask;
     private bool pixelPerfect;
     private bool antiAliasing;
     private float hardness;
     private float spacing = 1;
 
-    private IBasicToolbar basicToolbar;
+    private IBasicToolbar penToolbar;
 
     public override ExecutionState Start()
     {
@@ -29,7 +29,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         IColorsHandler? colorsHandler = GetHandler<IColorsHandler>();
 
         IPenToolHandler? penTool = GetHandler<IPenToolHandler>();
-        if (colorsHandler is null || penTool is null || member is null || penTool?.Toolbar is not IBasicToolbar toolbar)
+        if (colorsHandler is null || penTool is null || member is null || penTool?.Toolbar is not IPenToolbar toolbar)
             return ExecutionState.Error;
         drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
         if (drawOnMask && !member.HasMaskBindable)
@@ -37,13 +37,13 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         if (!drawOnMask && member is not ILayerHandler)
             return ExecutionState.Error;
 
-        basicToolbar = toolbar;
+        penToolbar = toolbar;
         guidValue = member.Id;
         color = colorsHandler.PrimaryColor;
         pixelPerfect = penTool.PixelPerfectEnabled;
-        antiAliasing = penTool.AntiAliasing;
-        hardness = penTool.Hardness;
-        spacing = penTool.Spacing;
+        antiAliasing = toolbar.AntiAliasing;
+        hardness = toolbar.Hardness;
+        spacing = toolbar.Spacing;
 
         colorsHandler.AddSwatch(new PaletteColor(color.R, color.G, color.B));
         IAction? action = pixelPerfect switch

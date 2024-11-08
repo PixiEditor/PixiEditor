@@ -18,7 +18,7 @@ internal class EraserToolViewModel : ToolViewModel, IEraserToolHandler
     public EraserToolViewModel()
     {
         ActionDisplay = "ERASER_TOOL_ACTION_DISPLAY";
-        Toolbar = ToolbarFactory.Create<EraserToolViewModel, BasicToolbar>(this);
+        Toolbar = ToolbarFactory.Create<EraserToolViewModel, PenToolbar>(this);
     }
 
     [Settings.Inherited]

@@ -17,18 +17,22 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
     private Guid guidValue;
     private Color color;
     private int toolSize;
+    private bool antiAliasing;
+    private float hardness;
+    private float spacing;
+    
     private bool drawOnMask;
 
     public override ExecutionState Start()
     {
         IStructureMemberHandler? member = document!.SelectedStructureMember;
         IEraserToolHandler? eraserTool = GetHandler<IEraserToolHandler>();
-        IBasicToolbar? toolbar = eraserTool?.Toolbar as IBasicToolbar;
+        IPenToolbar? toolbar = eraserTool?.Toolbar as IPenToolbar;
         IColorsHandler? colorsHandler = GetHandler<IColorsHandler>();
 
         if (colorsHandler is null || eraserTool is null || member is null || toolbar is null)
             return ExecutionState.Error;
-        drawOnMask = member is ILayerHandler layer ? layer.ShouldDrawOnMask : true;
+        drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
         if (drawOnMask && !member.HasMaskBindable)
             return ExecutionState.Error;
         if (!drawOnMask && member is not ILayerHandler)
@@ -38,10 +42,13 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
         guidValue = member.Id;
         color = GetHandler<IColorsHandler>().PrimaryColor;
         toolSize = toolbar.ToolSize;
+        antiAliasing = toolbar.AntiAliasing;
+        hardness = toolbar.Hardness;
+        spacing = toolbar.Spacing;
 
         colorsHandler.AddSwatch(new PaletteColor(color.R, color.G, color.B));
-        IAction? action = new LineBasedPen_Action(guidValue, Colors.Transparent, controller!.LastPixelPosition, toolSize, true,
-            false, 1, 0, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+        IAction? action = new LineBasedPen_Action(guidValue, Colors.White, controller!.LastPixelPosition, toolSize, true,
+            antiAliasing, hardness, spacing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);
 
         return ExecutionState.Success;
@@ -49,7 +56,7 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        IAction? action = new LineBasedPen_Action(guidValue, Colors.Transparent, pos, toolSize, true, false, 1, 0, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+        IAction? action = new LineBasedPen_Action(guidValue, Colors.White, pos, toolSize, true, antiAliasing, hardness, spacing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);
     }
 

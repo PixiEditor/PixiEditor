@@ -13,7 +13,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private readonly Guid memberGuid;
     private readonly Color color;
     private int strokeWidth;
-    private readonly bool replacing;
+    private readonly bool erasing;
     private readonly bool drawOnMask;
     private readonly bool antiAliasing;
     private float hardness;
@@ -26,7 +26,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private VecF lastPos;
 
     [GenerateUpdateableChangeActions]
-    public LineBasedPen_UpdateableChange(Guid memberGuid, Color color, VecI pos, int strokeWidth, bool replacing,
+    public LineBasedPen_UpdateableChange(Guid memberGuid, Color color, VecI pos, int strokeWidth, bool erasing,
         bool antiAliasing,
         float hardness,
         float spacing,
@@ -35,16 +35,20 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         this.memberGuid = memberGuid;
         this.color = color;
         this.strokeWidth = strokeWidth;
-        this.replacing = replacing;
+        this.erasing = erasing;
         this.antiAliasing = antiAliasing;
         this.drawOnMask = drawOnMask;
         this.hardness = hardness;
         this.spacing = spacing;
         points.Add(pos);
         this.frame = frame;
-        if (this.antiAliasing)
+        if (this.antiAliasing && !erasing)
         {
             srcPaint.BlendMode = BlendMode.SrcOver;
+        }
+        else if (erasing)
+        {
+            srcPaint.BlendMode = BlendMode.DstOut;
         }
     }
 
@@ -62,7 +66,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         if (strokeWidth < 1)
             return false;
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
-        if (!replacing)
+        if (!erasing)
             image.SetBlendMode(BlendMode.SrcOver);
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
         srcPaint.IsAntiAliased = antiAliasing;
@@ -136,7 +140,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         float radius = strokeWidth / 2f;
         radius = MathF.Max(1, radius);
         srcPaint.Shader = Shader.CreateRadialGradient(
-            pos, radius, new Color[] { color, color.WithAlpha(0) },
+            pos, radius, new Color[] { color, color.WithAlpha(0) }, 
             new float[] { hardness, 1 }, ShaderTileMode.Clamp);
     }
 
@@ -158,7 +162,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         }
         else
         {
-            if (!replacing)
+            if (!erasing)
                 image.SetBlendMode(BlendMode.SrcOver);
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
 

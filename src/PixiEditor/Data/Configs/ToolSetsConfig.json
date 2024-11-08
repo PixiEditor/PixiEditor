@@ -19,7 +19,12 @@
       "RasterLine",
       "RasterEllipse",
       "RasterRectangle",
-      "Eraser",
+      {
+        "ToolName": "Eraser",
+        "Settings": {
+          "Spacing": 0
+        }
+      },
       "ColorPicker",
       "Brightness",
       "Zoom"
@@ -59,22 +64,24 @@
           "AntiAliasing": true
         }
       },
-        {
-            "ToolName": "RasterEllipse",
-            "Settings": {
-            "AntiAliasing": true
-            }
-        },
-        {
-            "ToolName": "RasterRectangle",
-            "Settings": {
-            "AntiAliasing": true
-            }
-        },
+      {
+        "ToolName": "RasterEllipse",
+        "Settings": {
+          "AntiAliasing": true
+        }
+      },
+      {
+        "ToolName": "RasterRectangle",
+        "Settings": {
+          "AntiAliasing": true
+        }
+      },
       {
         "ToolName": "Eraser",
         "Settings": {
-          "AntiAliasing": true
+          "AntiAliasing": true,
+          "ExposeHardness": true,
+          "ExposeSpacing": true
         }
       },
       "ColorPicker",

@@ -87,6 +87,12 @@ internal abstract class Setting : ObservableObject
 
     public bool HasLabel => !string.IsNullOrEmpty(Label);
 
+    public object UserValue
+    {
+        get => _value;
+        set => _value = value;
+    }
+
     public abstract Type GetSettingType();
     
     public void SetOverwriteValue(object value)

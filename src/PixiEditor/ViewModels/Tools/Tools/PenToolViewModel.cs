@@ -27,7 +27,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
         public PenToolViewModel()
         {
             Cursor = Cursors.PreciseCursor;
-            Toolbar = ToolbarFactory.Create<PenToolViewModel, BasicToolbar>(this);
+            Toolbar = ToolbarFactory.Create<PenToolViewModel, PenToolbar>(this);
             
             ViewModelMain.Current.ToolsSubViewModel.SelectedToolChanged += SelectedToolChanged;
         }
@@ -39,15 +39,6 @@ namespace PixiEditor.ViewModels.Tools.Tools
 
         [Settings.Bool("PIXEL_PERFECT_SETTING", Notify = nameof(PixelPerfectChanged), ExposedByDefault = false)]
         public bool PixelPerfectEnabled => GetValue<bool>();
-
-        [Settings.Bool("__antiAliasing", false, ExposedByDefault = false)]
-        public bool AntiAliasing => GetValue<bool>();
-        
-        [Settings.Percent("HARDNESS_SETTING", 0.8f, ExposedByDefault = false)]
-        public float Hardness => GetValue<float>();
-
-        [Settings.Percent("SPACING_SETTING", 0.15f, ExposedByDefault = false, Max = 5)]
-        public float Spacing => GetValue<float>();
 
         public override string Icon => PixiPerfectIcons.Pen;
 
