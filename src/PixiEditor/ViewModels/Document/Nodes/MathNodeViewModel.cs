@@ -14,12 +14,18 @@ internal class MathNodeViewModel : NodeViewModel<MathNode>
 {
     private GenericEnumPropertyViewModel Mode { get; set; }
     
+    private NodePropertyViewModel X { get; set; }
+    
     private NodePropertyViewModel Y { get; set; }
+    
+    private NodePropertyViewModel Z { get; set; }
     
     public override void OnInitialized()
     {
         Mode = FindInputProperty("Mode") as GenericEnumPropertyViewModel;
+        X = FindInputProperty("X");
         Y = FindInputProperty("Y");
+        Z = FindInputProperty("Z");
         
         Mode.ValueChanged += ModeChanged;
     }
@@ -31,5 +37,16 @@ internal class MathNodeViewModel : NodeViewModel<MathNode>
 
         DisplayName = mode.GetDescription();
         Y.IsVisible = mode.UsesYValue();
+        Z.IsVisible = mode.UsesZValue();
+
+        var (x, y, z) = mode.GetNaming();
+
+        x = new LocalizedString(x);
+        y = new LocalizedString(y);
+        z = new LocalizedString(z);
+
+        X.DisplayName = x;
+        Y.DisplayName = y;
+        Z.DisplayName = z;
     }
 }
