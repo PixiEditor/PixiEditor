@@ -16,10 +16,12 @@ internal class DrawRasterLine_UpdateableChange : UpdateableChange
     private readonly bool drawOnMask;
     private CommittedChunkStorage? savedChunks;
     private int frame;
+    private bool antiAliasing;
+    private Paint paint;
 
     [GenerateUpdateableChangeActions]
     public DrawRasterLine_UpdateableChange
-        (Guid memberGuid, VecI from, VecI to, int strokeWidth, Color color, StrokeCap caps, bool drawOnMask, int frame)
+        (Guid memberGuid, VecI from, VecI to, int strokeWidth, Color color, StrokeCap caps, bool antiAliasing, bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.from = from;
@@ -29,6 +31,10 @@ internal class DrawRasterLine_UpdateableChange : UpdateableChange
         this.caps = caps;
         this.drawOnMask = drawOnMask;
         this.frame = frame;
+        this.antiAliasing = antiAliasing;
+
+        paint = new Paint() { Color = color, 
+            StrokeWidth = strokeWidth, StrokeCap = caps, IsAntiAliased = antiAliasing, BlendMode = BlendMode.SrcOver };
     }
 
     [UpdateChangeMethod]
@@ -39,6 +45,10 @@ internal class DrawRasterLine_UpdateableChange : UpdateableChange
         this.color = color;
         this.caps = caps;
         this.strokeWidth = strokeWidth;
+        
+        paint.Color = color;
+        paint.StrokeWidth = strokeWidth;
+        paint.StrokeCap = caps;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -54,10 +64,14 @@ internal class DrawRasterLine_UpdateableChange : UpdateableChange
         if (from != to)
         {
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
-            if (strokeWidth == 1)
+            if (strokeWidth == 1 && !antiAliasing)
+            {
                 image.EnqueueDrawBresenhamLine(from, to, color, BlendMode.SrcOver);
+            }
             else
-                image.EnqueueDrawSkiaLine(from, to, caps, strokeWidth, color, BlendMode.SrcOver);
+            {
+                image.EnqueueDrawSkiaLine(from, to, paint);
+            }
         }
         var totalAffected = image.FindAffectedArea();
         totalAffected.UnionWith(oldAffected);
@@ -98,5 +112,6 @@ internal class DrawRasterLine_UpdateableChange : UpdateableChange
     public override void Dispose()
     {
         savedChunks?.Dispose();
+        paint?.Dispose();
     }
 }

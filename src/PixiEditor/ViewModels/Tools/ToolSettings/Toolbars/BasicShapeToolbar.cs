@@ -52,7 +52,19 @@ internal class BasicShapeToolbar : BasicToolbar, IBasicShapeToolbar
         {
             GetSetting<BoolSettingViewModel>(nameof(SyncWithPrimaryColor)).Value = value;
         }
-    } 
+    }
+
+    public bool AntiAliasing
+    {
+        get
+        {
+            return GetSetting<BoolSettingViewModel>(nameof(AntiAliasing)).Value;
+        }
+        set
+        {
+            GetSetting<BoolSettingViewModel>(nameof(AntiAliasing)).Value = value;
+        }
+    }
 
     public BasicShapeToolbar()
     {
@@ -60,5 +72,6 @@ internal class BasicShapeToolbar : BasicToolbar, IBasicShapeToolbar
         AddSetting(new BoolSettingViewModel(nameof(Fill), "FILL_SHAPE_LABEL") { Value = true });
         AddSetting(new ColorSettingViewModel(nameof(FillColor), "FILL_COLOR_LABEL"));
         AddSetting(new BoolSettingViewModel(nameof(SyncWithPrimaryColor), "SYNC_WITH_PRIMARY_COLOR_LABEL") { Value = true });
+        AddSetting(new BoolSettingViewModel(nameof(AntiAliasing), "ANTI_ALIASING_LABEL") { Value = false, IsExposed = false});
     }
 }

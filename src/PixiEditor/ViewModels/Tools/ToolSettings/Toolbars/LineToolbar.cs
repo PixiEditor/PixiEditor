@@ -19,8 +19,21 @@ internal class LineToolbar : BasicToolbar, ILineToolbar
         }
     }
 
+    public bool AntiAliasing
+    {
+        get
+        {
+            return GetSetting<BoolSettingViewModel>(nameof(AntiAliasing)).Value;
+        }
+        set
+        {
+            GetSetting<BoolSettingViewModel>(nameof(AntiAliasing)).Value = value;
+        }
+    }
+
     public LineToolbar()
     {
         AddSetting(new ColorSettingViewModel(nameof(StrokeColor), "STROKE_COLOR_LABEL"));
+        AddSetting(new BoolSettingViewModel(nameof(AntiAliasing), "ANTI_ALIASING_LABEL") { IsExposed = false, Value = false });
     }
 }

@@ -13,6 +13,7 @@ internal class DrawingSurfaceLineOperation : IMirroredDrawOperation
     private Paint paint;
     private readonly VecI from;
     private readonly VecI to;
+    private bool isAntiAliased;
 
     public DrawingSurfaceLineOperation(VecI from, VecI to, StrokeCap strokeCap, float strokeWidth, Color color, BlendMode blendMode)
     {
@@ -27,10 +28,18 @@ internal class DrawingSurfaceLineOperation : IMirroredDrawOperation
         this.from = from;
         this.to = to;
     }
+    
+    public DrawingSurfaceLineOperation(VecI from, VecI to, Paint paint)
+    {
+        this.paint = paint.Clone();
+        this.from = from;
+        this.to = to;
+        isAntiAliased = paint.IsAntiAliased;
+    }
 
     public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
-        paint.IsAntiAliased = targetChunk.Resolution != ChunkResolution.Full;
+        paint.IsAntiAliased = isAntiAliased || targetChunk.Resolution != ChunkResolution.Full;
         var surf = targetChunk.Surface.DrawingSurface;
         surf.Canvas.Save();
         surf.Canvas.Scale((float)targetChunk.Resolution.Multiplier());

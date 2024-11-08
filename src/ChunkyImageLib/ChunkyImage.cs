@@ -738,6 +738,16 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         }
     }
 
+    public void EnqueueDrawSkiaLine(VecI from, VecI to, Paint paint)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            DrawingSurfaceLineOperation operation = new(from, to, paint);
+            EnqueueOperation(operation);
+        }
+    }
+
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueDrawPixels(IEnumerable<VecI> pixels, Color color, BlendMode blendMode)
     {

@@ -148,7 +148,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
     public virtual void UseTool(VecD pos) { }
     public virtual void OnSelected(bool restoring) { }
-    
+
     protected virtual void OnSelectedLayersChanged(IStructureMemberHandler[] layers) { }
 
     public virtual void OnDeselecting(bool transient)
@@ -169,19 +169,20 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
                 settings[valueSetting.Key] = Convert.ToSingle(valueSetting.Value);
             }
         }
+
         ToolSetSettings[toolset] = settings;
     }
 
     public void ApplyToolSetSettings(IToolSetHandler toolset)
     {
-        if (!ToolSetSettings.TryGetValue(toolset, out var settings))
-        {
-            return;
-        }
-
         foreach (var toolbarSetting in Toolbar.Settings)
         {
             toolbarSetting.ResetOverwrite();
+        }
+
+        if (!ToolSetSettings.TryGetValue(toolset, out var settings))
+        {
+            return;
         }
 
         foreach (var setting in settings)
@@ -249,11 +250,11 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
         }
         catch (InvalidCastException)
         {
-            if(typeof(T) == typeof(float) || typeof(T) == typeof(double) || typeof(T) == typeof(int))
+            if (typeof(T) == typeof(float) || typeof(T) == typeof(double) || typeof(T) == typeof(int))
             {
                 return (T)(object)Convert.ToSingle(setting.Value);
             }
-            
+
             throw;
         }
     }
