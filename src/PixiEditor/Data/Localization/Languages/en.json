@@ -760,5 +760,6 @@
   "PAINT_TOOLSET": "Painting",
   "HARDNESS_SETTING": "Hardness",
   "SPACING_SETTING": "Spacing",
-  "ANTI_ALIASING_SETTING": "Anti-aliasing"
+  "ANTI_ALIASING_SETTING": "Anti-aliasing",
+  "TOLERANCE_LABEL": "Tolerance"
 }

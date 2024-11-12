@@ -14,6 +14,7 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
     private bool drawOnMask;
     private List<Guid> memberGuids;
     private SelectionMode mode;
+    private float tolerance;
 
     public override ExecutionState Start()
     {
@@ -29,8 +30,9 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
         if (considerAllLayers)
             memberGuids = document!.StructureHelper.GetAllLayers().Select(x => x.Id).ToList();
         var pos = controller!.LastPixelPosition;
+        tolerance = (float)magicWand.Tolerance;
 
-        internals!.ActionAccumulator.AddActions(new MagicWand_Action(memberGuids, pos, mode, document!.AnimationHandler.ActiveFrameBindable));
+        internals!.ActionAccumulator.AddActions(new MagicWand_Action(memberGuids, pos, mode, tolerance, document!.AnimationHandler.ActiveFrameBindable));
 
         return ExecutionState.Success;
     }
