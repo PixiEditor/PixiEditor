@@ -29,7 +29,7 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
     protected double lastRadians;
 
     private bool noMovement = true;
-    private IBasicShapeToolbar toolbar;
+    protected IBasicShapeToolbar toolbar;
     private IColorsHandler? colorsVM;
 
     public override bool CanUndo => document.TransformHandler.HasUndo;
@@ -141,7 +141,7 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
 
         var rect = RectD.FromCenterAndSize(corners.RectCenter, corners.RectSize);
         ShapeData shapeData = new ShapeData(rect.Center, rect.Size, corners.RectRotation, StrokeWidth, StrokeColor,
-            FillColor);
+            FillColor) { AntiAliasing = toolbar.AntiAliasing };
         IAction drawAction = TransformMovedAction(shapeData, corners);
 
         internals!.ActionAccumulator.AddActions(drawAction);
