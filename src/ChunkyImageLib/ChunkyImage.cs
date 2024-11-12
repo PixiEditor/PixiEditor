@@ -591,13 +591,13 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueDrawEllipse(RectI location, Color strokeColor, Color fillColor, int strokeWidth,
-        double rotationRad = 0,
+        double rotationRad = 0, bool antiAliased = false,
         Paint? paint = null)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
-            EllipseOperation operation = new(location, strokeColor, fillColor, strokeWidth, rotationRad, paint);
+            EllipseOperation operation = new(location, strokeColor, fillColor, strokeWidth, rotationRad, antiAliased, paint);
             EnqueueOperation(operation);
         }
     }

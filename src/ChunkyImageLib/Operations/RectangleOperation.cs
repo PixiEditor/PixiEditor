@@ -41,7 +41,7 @@ internal class RectangleOperation : IMirroredDrawOperation
 
         if (Data.AntiAliasing)
         {
-            DrawAntiAliased(surf, rect, innerRect);
+            DrawAntiAliased(surf, rect);
         }
         else
         {
@@ -69,7 +69,7 @@ internal class RectangleOperation : IMirroredDrawOperation
         surf.Canvas.DrawColor(Data.StrokeColor, Data.BlendMode);
     }
 
-    private void DrawAntiAliased(DrawingSurface surf, RectD rect, RectD innerRect)
+    private void DrawAntiAliased(DrawingSurface surf, RectD rect)
     {
         // draw fill
         if (Data.FillColor.A > 0)
@@ -89,7 +89,8 @@ internal class RectangleOperation : IMirroredDrawOperation
         paint.StrokeWidth = (float)Data.StrokeWidth;
         paint.Color = Data.StrokeColor;
         paint.Style = PaintStyle.Stroke;
-        surf.Canvas.DrawRect((float)rect.Left, (float)rect.Top, (float)rect.Width, (float)rect.Height, paint);
+        RectD innerRect = rect.Inflate(-Data.StrokeWidth / 2f);
+        surf.Canvas.DrawRect((float)innerRect.Left, (float)innerRect.Top, (float)innerRect.Width, (float)innerRect.Height, paint);
     }
 
     public AffectedArea FindAffectedArea(VecI imageSize)
