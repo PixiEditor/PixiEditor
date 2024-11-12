@@ -32,7 +32,7 @@ internal class FloodFillToolViewModel : ToolViewModel, IFloodFillToolHandler
     [Settings.Percent("TOLERANCE_LABEL", ExposedByDefault = false)]
     public float Tolerance => GetValue<float>();
 
-    public override string Icon => PixiPerfectIcons.Bucket;
+    public override string DefaultIcon => PixiPerfectIcons.Bucket;
 
     public FloodFillToolViewModel()
     {

@@ -33,7 +33,7 @@ internal class EraserToolViewModel : ToolViewModel, IEraserToolHandler
         typeof(IRasterLayerHandler)
     };
 
-    public override string Icon => PixiPerfectIcons.Eraser;
+    public override string DefaultIcon => PixiPerfectIcons.Eraser;
 
     public override LocalizedString Tooltip => new LocalizedString("ERASER_TOOL_TOOLTIP", Shortcut);
 

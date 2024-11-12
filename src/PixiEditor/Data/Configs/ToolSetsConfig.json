@@ -62,19 +62,22 @@
         "ToolName": "RasterLine",
         "Settings": {
           "AntiAliasing": true
-        }
+        },
+        "Icon": "\ue93a"
       },
       {
         "ToolName": "RasterEllipse",
         "Settings": {
           "AntiAliasing": true
-        }
+        },
+        "Icon": "\ue910"
       },
       {
         "ToolName": "RasterRectangle",
         "Settings": {
           "AntiAliasing": true
-        }
+        },
+        "Icon": "\uE953" 
       },
       {
         "ToolName": "Eraser",

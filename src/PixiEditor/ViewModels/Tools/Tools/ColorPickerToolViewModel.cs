@@ -30,7 +30,7 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
     public override string ToolNameLocalizationKey => "COLOR_PICKER_TOOL";
     public override BrushShape BrushShape => BrushShape.Pixel;
 
-    public override string Icon => PixiPerfectIcons.Picker;
+    public override string DefaultIcon => PixiPerfectIcons.Picker;
 
     public override Type[]? SupportedLayerTypes { get; } = null;  // all layer types are supported
 

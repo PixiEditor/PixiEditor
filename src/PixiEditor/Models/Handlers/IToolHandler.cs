@@ -12,7 +12,7 @@ internal interface IToolHandler : IHandler
     public LocalizedString DisplayName => new LocalizedString(ToolNameLocalizationKey);
     public string ToolName => GetType().Name.Replace("Tool", string.Empty).Replace("ViewModel", string.Empty);
     public string ToolNameLocalizationKey { get; }
-    public string Icon => $"icon-{ToolName.ToLower()}";
+    public string DefaultIcon => $"icon-{ToolName.ToLower()}";
     public Type[]? SupportedLayerTypes { get; }
 
     public bool HideHighlight { get; }

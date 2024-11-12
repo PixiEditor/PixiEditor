@@ -16,7 +16,7 @@ internal class MoveViewportToolViewModel : ToolViewModel
     public override bool HideHighlight => true;
     public override LocalizedString Tooltip => new LocalizedString("MOVE_VIEWPORT_TOOLTIP", Shortcut);
 
-    public override string Icon => PixiPerfectIcons.MoveView;
+    public override string DefaultIcon => PixiPerfectIcons.MoveView;
 
     public override bool StopsLinkedToolOnUse => false;
 

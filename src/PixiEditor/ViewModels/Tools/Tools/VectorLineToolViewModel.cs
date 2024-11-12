@@ -30,7 +30,7 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
     public override string ToolNameLocalizationKey => "LINE_TOOL";
     public override LocalizedString Tooltip => new LocalizedString("LINE_TOOL_TOOLTIP", Shortcut);
 
-    public override string Icon => PixiPerfectIcons.Line;
+    public override string DefaultIcon => PixiPerfectIcons.Line;
     public override Type[]? SupportedLayerTypes { get; } = [];
     public string? DefaultNewLayerName { get; } = new LocalizedString("NEW_LINE_LAYER_NAME");
 

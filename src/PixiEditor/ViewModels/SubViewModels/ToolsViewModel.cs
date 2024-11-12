@@ -428,11 +428,16 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         foreach (ToolSetConfig toolSet in toolSetConfig)
         {
             var toolSetViewModel = new ToolSetViewModel(toolSet.Name);
-    
+            
             foreach (var toolFromToolset in toolSet.Tools)
             {
                 IToolHandler? tool = allTools.FirstOrDefault(tool => tool.ToolName == toolFromToolset.ToolName);
                 tool.SetToolSetSettings(toolSetViewModel, toolFromToolset.Settings);
+
+                if (!string.IsNullOrEmpty(toolFromToolset.Icon))
+                {
+                    toolSetViewModel.IconOverwrites[tool] = toolFromToolset.Icon;
+                }
                 
                 if (tool is null)
                 {

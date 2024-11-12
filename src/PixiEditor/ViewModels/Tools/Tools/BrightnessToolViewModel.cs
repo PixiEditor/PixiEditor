@@ -31,7 +31,7 @@ internal class BrightnessToolViewModel : ToolViewModel, IBrightnessToolHandler
 
     public override BrushShape BrushShape => BrushShape.Circle;
 
-    public override string Icon => PixiPerfectIcons.Sun;
+    public override string DefaultIcon => PixiPerfectIcons.Sun;
 
     public override Type[]? SupportedLayerTypes { get; } =
     {

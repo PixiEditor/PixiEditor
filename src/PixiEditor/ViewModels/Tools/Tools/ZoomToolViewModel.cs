@@ -24,7 +24,7 @@ internal class ZoomToolViewModel : ToolViewModel
 
     public override bool StopsLinkedToolOnUse => false;
 
-    public override string Icon => PixiPerfectIcons.ZoomIn;
+    public override string DefaultIcon => PixiPerfectIcons.ZoomIn;
 
     public ZoomToolViewModel()
     {

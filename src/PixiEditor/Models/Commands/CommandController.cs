@@ -203,7 +203,7 @@ internal class CommandController
                 InternalName = internalName,
                 DisplayName = displayName,
                 Description = displayName,
-                Icon = toolInstance.Icon,
+                Icon = toolInstance.DefaultIcon,
                 IconEvaluator = IconEvaluator.Default,
                 TransientKey = toolAttr.Transient,
                 DefaultShortcut = toolAttr.GetShortcut(),

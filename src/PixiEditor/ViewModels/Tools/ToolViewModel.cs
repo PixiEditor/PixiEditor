@@ -26,7 +26,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     public abstract string ToolNameLocalizationKey { get; }
     public virtual LocalizedString DisplayName => new LocalizedString(ToolNameLocalizationKey);
 
-    public virtual string Icon => $"\u25a1";
+    public virtual string DefaultIcon => $"\u25a1";
 
     public virtual BrushShape BrushShape => BrushShape.Square;
 
@@ -77,6 +77,10 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
             OnPropertyChanged(nameof(ActionDisplay));
         }
     }
+    
+    public string IconOverwrite { get; set; }
+    
+    public string IconToUse => IconOverwrite ?? DefaultIcon;
 
     private bool isActive;
 
@@ -175,9 +179,15 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
     public void ApplyToolSetSettings(IToolSetHandler toolset)
     {
+        IconOverwrite = null;
         foreach (var toolbarSetting in Toolbar.Settings)
         {
             toolbarSetting.ResetOverwrite();
+        }
+        
+        if(toolset.IconOverwrites.TryGetValue(this, out var icon))
+        {
+            IconOverwrite = icon;
         }
 
         if (!ToolSetSettings.TryGetValue(toolset, out var settings))

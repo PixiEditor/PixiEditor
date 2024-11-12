@@ -40,7 +40,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
         [Settings.Bool("PIXEL_PERFECT_SETTING", Notify = nameof(PixelPerfectChanged), ExposedByDefault = false)]
         public bool PixelPerfectEnabled => GetValue<bool>();
 
-        public override string Icon => PixiPerfectIcons.Pen;
+        public override string DefaultIcon => PixiPerfectIcons.Pen;
 
         public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
 
