@@ -14,6 +14,12 @@ variables:
   wasiUrl: 'https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-24/$(wasiVer).tar.gz'
 
 steps:
+- task: UseDotNet@2
+  displayName: 'Install .NET SDK'
+  inputs:
+    packageType: 'sdk'
+    version: '$(dotnetVersion)'
+    
 - task: CmdLine@2
   displayName: 'Download WASI SDK'
   inputs:
