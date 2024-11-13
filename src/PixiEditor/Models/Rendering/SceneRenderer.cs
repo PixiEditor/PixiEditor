@@ -15,7 +15,6 @@ namespace PixiEditor.Models.Rendering;
 
 internal class SceneRenderer
 {
-    
     public IReadOnlyDocument Document { get; }
     public IDocument DocumentViewModel { get; }
     public bool HighResRendering { get; set; } = true;
@@ -28,6 +27,7 @@ internal class SceneRenderer
 
     public void RenderScene(DrawingSurface target, ChunkResolution resolution)
     {
+        if(Document.Renderer.IsBusy) return;
         RenderOnionSkin(target, resolution);
         RenderGraph(target, resolution);
     }
