@@ -54,6 +54,12 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
 
         if (ActiveMode == ShapeToolMode.Drawing)
         {
+            if (toolbar.SyncWithPrimaryColor)
+            {
+                toolbar.FillColor = colorsVM.PrimaryColor.ToColor();
+                toolbar.StrokeColor = colorsVM.PrimaryColor.ToColor();
+            }
+
             return ExecutionState.Success;
         }
 
@@ -66,7 +72,7 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
                 return ExecutionState.Error;
             }
 
-            if (!InitShapeData(node.ShapeData))
+            if (node.ShapeData == null || !InitShapeData(node.ShapeData))
             {
                 ActiveMode = ShapeToolMode.Preview;
                 return ExecutionState.Success;
@@ -168,7 +174,7 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
 
     public override void OnColorChanged(Color color, bool primary)
     {
-        if (primary && toolbar.SyncWithPrimaryColor)
+        if (primary && toolbar.SyncWithPrimaryColor && ActiveMode == ShapeToolMode.Transform)
         {
             toolbar.StrokeColor = color.ToColor();
             toolbar.FillColor = color.ToColor();

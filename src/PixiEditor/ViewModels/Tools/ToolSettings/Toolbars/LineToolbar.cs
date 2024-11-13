@@ -31,9 +31,19 @@ internal class LineToolbar : BasicToolbar, ILineToolbar
         }
     }
 
+    public bool SyncWithPrimaryColor
+    {
+        get => GetSetting<BoolSettingViewModel>(nameof(SyncWithPrimaryColor)).Value;
+        set
+        {
+            GetSetting<BoolSettingViewModel>(nameof(SyncWithPrimaryColor)).Value = value;
+        }
+    }
+
     public LineToolbar()
     {
         AddSetting(new ColorSettingViewModel(nameof(StrokeColor), "STROKE_COLOR_LABEL"));
         AddSetting(new BoolSettingViewModel(nameof(AntiAliasing), "ANTI_ALIASING_LABEL") { IsExposed = false, Value = false });
+        AddSetting(new BoolSettingViewModel(nameof(SyncWithPrimaryColor), "SYNC_WITH_PRIMARY_COLOR_LABEL") { Value = true });
     }
 }
