@@ -19,7 +19,7 @@ public class KernelFilterNode : FilterNode
 
     public InputProperty<bool> OnAlpha { get; }
 
-    private ImageFilter filter;
+    private DrawieImageFilter? filter;
     private Kernel lastKernel;
     private TileMode lastTile;
     private double lastGain;
@@ -34,7 +34,7 @@ public class KernelFilterNode : FilterNode
         OnAlpha = CreateInput(nameof(OnAlpha), "ON_ALPHA", false);
     }
 
-    protected override ImageFilter? GetImageFilter()
+    protected override Filter? GetFilter(Filter? parent)
     {
         var kernel = Kernel.Value;
         
@@ -50,7 +50,9 @@ public class KernelFilterNode : FilterNode
         
         var kernelOffset = new VecI(kernel.RadiusX, kernel.RadiusY);
         
-        filter = ImageFilter.CreateMatrixConvolution(kernel, (float)Gain.Value, (float)Bias.Value, kernelOffset, Tile.Value, OnAlpha.Value);
+        var drawieFilter = ImageFilter.CreateMatrixConvolution(kernel, (float)Gain.Value, (float)Bias.Value, kernelOffset, Tile.Value, OnAlpha.Value);
+        filter = new DrawieImageFilter(parent, drawieFilter);
+        
         return filter;
     }
 

@@ -107,12 +107,11 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         if (useFilters && Filters.Value != null)
         {
-            blendPaint.SetFilters(Filters.Value);
+            Filters.Value.Apply(workingSurface);
             DrawWithFilters(ctx, workingSurface, blendPaint);
         }
         else
         {
-            blendPaint.SetFilters(null);
             DrawWithoutFilters(ctx, workingSurface, blendPaint);
         }
     }

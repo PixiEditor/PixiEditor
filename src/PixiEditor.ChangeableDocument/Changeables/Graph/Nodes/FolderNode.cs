@@ -48,12 +48,6 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
             using Paint paint = new();
             paint.Color = Colors.White.WithAlpha((byte)Math.Round(Opacity.Value * 255f));
 
-            if (sceneContext.TargetPropertyOutput == Output)
-            {
-                paint.ColorFilter = Filters.Value?.ColorFilter;
-                paint.ImageFilter = Filters.Value?.ImageFilter;
-            }
-
             int saved = sceneContext.RenderSurface.Canvas.SaveLayer(paint);
             Content.Value?.Paint(sceneContext, sceneContext.RenderSurface);
 
@@ -102,25 +96,20 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
             ApplyRasterClip(outputWorkingSurface.DrawingSurface, tempSurface.DrawingSurface);
         }
 
-        AdjustPaint(useFilters);
+        AdjustPaint();
+        
+        if (useFilters)
+        {
+            Filters.Value.Apply(outputWorkingSurface.DrawingSurface);
+        }
 
         blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
         sceneContext.RenderSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
     }
 
-    private void AdjustPaint(bool useFilters)
+    private void AdjustPaint()
     {
         blendPaint.Color = Colors.White.WithAlpha((byte)Math.Round(Opacity.Value * 255f));
-        if (useFilters)
-        {
-            blendPaint.ColorFilter = Filters.Value?.ColorFilter;
-            blendPaint.ImageFilter = Filters.Value?.ImageFilter;
-        }
-        else
-        {
-            blendPaint.ColorFilter = null;
-            blendPaint.ImageFilter = null;
-        }
     }
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)

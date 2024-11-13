@@ -11,7 +11,6 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 [NodeInfo("ApplyFilter")]
 public class ApplyFilterNode : RenderNode, IRenderInput
 {
-    private Paint _paint = new();
     public InputProperty<Filter?> Filter { get; }
 
     public RenderInputProperty Background { get; }
@@ -25,15 +24,11 @@ public class ApplyFilterNode : RenderNode, IRenderInput
 
     protected override void OnPaint(RenderContext context, DrawingSurface surface)
     {
-        if (Background.Value == null || Filter.Value == null)
+        if (Background.Value == null)
             return;
-        
-        _paint.SetFilters(Filter.Value);
-        var layer = surface.Canvas.SaveLayer(_paint);
-        
+
         Background.Value.Paint(context, surface);
-        
-        surface.Canvas.RestoreToCount(layer);
+        Filter.Value?.Apply(surface);
     }
 
     public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
@@ -49,7 +44,7 @@ public class ApplyFilterNode : RenderNode, IRenderInput
 
         RenderContext context = new(renderOn, frame, ChunkResolution.Full, VecI.One);
         
-        int layer = renderOn.Canvas.SaveLayer(_paint);
+        int layer = renderOn.Canvas.SaveLayer();
         Background.Value.Paint(context, renderOn);
         renderOn.Canvas.RestoreToCount(layer);
 

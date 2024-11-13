@@ -8,7 +8,7 @@ public class ColorMatrixFilterNode : FilterNode
 {
     public InputProperty<ColorMatrix> Matrix { get; }
 
-    private ColorFilter filter;
+    private DrawieColorFilter? filter;
     private ColorMatrix lastMatrix;
     
     public ColorMatrixFilterNode()
@@ -16,7 +16,8 @@ public class ColorMatrixFilterNode : FilterNode
         Matrix = CreateInput(nameof(Matrix), "MATRIX", ColorMatrix.Identity);
     }
 
-    protected override ColorFilter? GetColorFilter()
+
+    protected override Filter? GetFilter(Filter? parent)
     {
         if (Matrix.Value.Equals(lastMatrix))
         {
@@ -26,7 +27,7 @@ public class ColorMatrixFilterNode : FilterNode
         lastMatrix = Matrix.Value;
         filter?.Dispose();
         
-        filter = ColorFilter.CreateColorMatrix(Matrix.Value);
+        filter = new DrawieColorFilter(parent, ColorFilter.CreateColorMatrix(Matrix.Value));
         return filter;
     }
 

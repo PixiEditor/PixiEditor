@@ -18,21 +18,8 @@ public abstract class FilterNode : Node
     
     protected override void OnExecute(RenderContext context)
     {
-        var colorFilter = GetColorFilter();
-        var imageFilter = GetImageFilter();
-
-        if (colorFilter == null && imageFilter == null)
-        {
-            Output.Value = Input.Value;
-            return;
-        }
-
-        var filter = Input.Value;
-
-        Output.Value = filter == null ? new Filter(colorFilter, imageFilter) : filter.Add(colorFilter, imageFilter);
+        Output.Value = GetFilter(Input.Value) ?? Input.Value;
     }
 
-    protected virtual ColorFilter? GetColorFilter() => null;
-    
-    protected virtual ImageFilter? GetImageFilter() => null;
+    protected abstract Filter? GetFilter(Filter? parent);
 }

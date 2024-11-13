@@ -23,7 +23,7 @@ public class GrayscaleNode : FilterNode
     private bool lastNormalize;
     private Vec3D lastCustomWeight;
     
-    private ColorFilter? filter;
+    private DrawieColorFilter? filter;
     
     public GrayscaleNode()
     {
@@ -34,7 +34,7 @@ public class GrayscaleNode : FilterNode
         CustomWeight = CreateInput("CustomWeight", "WEIGHT_FACTOR", new Vec3D(1, 1, 1));
     }
 
-    protected override ColorFilter GetColorFilter()
+    protected override Filter? GetFilter(Filter? parent)
     {
         if (Mode.Value == lastMode 
             && Factor.Value == lastFactor 
@@ -43,21 +43,28 @@ public class GrayscaleNode : FilterNode
         {
             return filter;
         }
+
+        if (Factor.Value == 0)
+        {
+            return null;
+        }
         
         lastMode = Mode.Value;
         lastFactor = Factor.Value;
         lastNormalize = Normalize.Value;
         lastCustomWeight = CustomWeight.Value;
-        
+
         filter?.Dispose();
-        
-        filter = ColorFilter.CreateColorMatrix(Mode.Value switch
+
+        var colorFilter = ColorFilter.CreateColorMatrix(Mode.Value switch
         {
             GrayscaleMode.Weighted => UseFactor(WeightedMatrix),
             GrayscaleMode.Average => UseFactor(AverageMatrix),
             GrayscaleMode.Custom => UseFactor(ColorMatrix.WeightedGrayscale(GetAdjustedCustomWeight()) +
                                               ColorMatrix.UseAlpha)
         });
+        
+        filter = new DrawieColorFilter(parent, colorFilter);
         
         return filter;
     }
