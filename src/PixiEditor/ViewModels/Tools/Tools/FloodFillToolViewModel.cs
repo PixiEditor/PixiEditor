@@ -7,6 +7,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using Drawie.Numerics;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.Overlays.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.Tools.Tools;
@@ -28,10 +29,14 @@ internal class FloodFillToolViewModel : ToolViewModel, IFloodFillToolHandler
 
     public bool ConsiderAllLayers { get; private set; }
 
-    public override string Icon => PixiPerfectIcons.Bucket;
+    [Settings.Percent("TOLERANCE_LABEL", ExposedByDefault = false)]
+    public float Tolerance => GetValue<float>();
+
+    public override string DefaultIcon => PixiPerfectIcons.Bucket;
 
     public FloodFillToolViewModel()
     {
+        Toolbar = ToolbarFactory.Create(this);
         ActionDisplay = defaultActionDisplay;
     }
 

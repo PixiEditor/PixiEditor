@@ -27,6 +27,9 @@ public record struct ShapeData
     public double Angle { get; }
     public int StrokeWidth { get; }
 
+    public bool AntiAliasing { get; set; } = false;
+    
+
     public ShapeData AsMirroredAcrossHorAxis(double horAxisY)
         => new ShapeData(Center.ReflectY(horAxisY), new(Size.X, -Size.Y), -Angle, StrokeWidth, StrokeColor, FillColor, BlendMode);
     public ShapeData AsMirroredAcrossVerAxis(double verAxisX)

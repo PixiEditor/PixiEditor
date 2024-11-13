@@ -29,7 +29,7 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
     protected double lastRadians;
 
     private bool noMovement = true;
-    private IBasicShapeToolbar toolbar;
+    protected IBasicShapeToolbar toolbar;
     private IColorsHandler? colorsVM;
 
     public override bool CanUndo => document.TransformHandler.HasUndo;
@@ -54,6 +54,12 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
 
         if (ActiveMode == ShapeToolMode.Drawing)
         {
+            if (toolbar.SyncWithPrimaryColor)
+            {
+                toolbar.FillColor = colorsVM.PrimaryColor.ToColor();
+                toolbar.StrokeColor = colorsVM.PrimaryColor.ToColor();
+            }
+
             return ExecutionState.Success;
         }
 
@@ -61,7 +67,12 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
         {
             var node = (VectorLayerNode)internals.Tracker.Document.FindMember(member.Id);
 
-            if (!InitShapeData(node.ShapeData))
+            if (node == null)
+            {
+                return ExecutionState.Error;
+            }
+
+            if (node.ShapeData == null || !InitShapeData(node.ShapeData))
             {
                 ActiveMode = ShapeToolMode.Preview;
                 return ExecutionState.Success;
@@ -141,7 +152,7 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
 
         var rect = RectD.FromCenterAndSize(corners.RectCenter, corners.RectSize);
         ShapeData shapeData = new ShapeData(rect.Center, rect.Size, corners.RectRotation, StrokeWidth, StrokeColor,
-            FillColor);
+            FillColor) { AntiAliasing = toolbar.AntiAliasing };
         IAction drawAction = TransformMovedAction(shapeData, corners);
 
         internals!.ActionAccumulator.AddActions(drawAction);
@@ -163,7 +174,7 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
 
     public override void OnColorChanged(Color color, bool primary)
     {
-        if (primary && toolbar.SyncWithPrimaryColor)
+        if (primary && toolbar.SyncWithPrimaryColor && ActiveMode == ShapeToolMode.Transform)
         {
             toolbar.StrokeColor = color.ToColor();
             toolbar.FillColor = color.ToColor();

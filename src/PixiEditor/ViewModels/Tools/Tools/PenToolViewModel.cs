@@ -27,7 +27,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
         public PenToolViewModel()
         {
             Cursor = Cursors.PreciseCursor;
-            Toolbar = ToolbarFactory.Create<PenToolViewModel, BasicToolbar>(this);
+            Toolbar = ToolbarFactory.Create<PenToolViewModel, PenToolbar>(this);
             
             ViewModelMain.Current.ToolsSubViewModel.SelectedToolChanged += SelectedToolChanged;
         }
@@ -37,10 +37,10 @@ namespace PixiEditor.ViewModels.Tools.Tools
         [Settings.Inherited]
         public int ToolSize => GetValue<int>();
 
-        [Settings.Bool("PIXEL_PERFECT_SETTING", Notify = nameof(PixelPerfectChanged))]
+        [Settings.Bool("PIXEL_PERFECT_SETTING", Notify = nameof(PixelPerfectChanged), ExposedByDefault = false)]
         public bool PixelPerfectEnabled => GetValue<bool>();
 
-        public override string Icon => PixiPerfectIcons.Pen;
+        public override string DefaultIcon => PixiPerfectIcons.Pen;
 
         public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
 

@@ -18,7 +18,7 @@ internal class EraserToolViewModel : ToolViewModel, IEraserToolHandler
     public EraserToolViewModel()
     {
         ActionDisplay = "ERASER_TOOL_ACTION_DISPLAY";
-        Toolbar = ToolbarFactory.Create<EraserToolViewModel, BasicToolbar>(this);
+        Toolbar = ToolbarFactory.Create<EraserToolViewModel, PenToolbar>(this);
     }
 
     [Settings.Inherited]
@@ -33,7 +33,7 @@ internal class EraserToolViewModel : ToolViewModel, IEraserToolHandler
         typeof(IRasterLayerHandler)
     };
 
-    public override string Icon => PixiPerfectIcons.Eraser;
+    public override string DefaultIcon => PixiPerfectIcons.Eraser;
 
     public override LocalizedString Tooltip => new LocalizedString("ERASER_TOOL_TOOLTIP", Shortcut);
 

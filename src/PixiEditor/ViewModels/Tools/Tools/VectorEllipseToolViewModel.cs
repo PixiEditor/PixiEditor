@@ -28,7 +28,7 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
     public override LocalizedString Tooltip => new LocalizedString("ELLIPSE_TOOL_TOOLTIP", Shortcut);
     public bool DrawCircle { get; private set; }
 
-    public override string Icon => PixiPerfectIcons.Circle;
+    public override string DefaultIcon => PixiPerfectIcons.Circle;
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
 

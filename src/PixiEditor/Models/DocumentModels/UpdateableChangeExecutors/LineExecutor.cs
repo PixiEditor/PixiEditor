@@ -24,11 +24,11 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
     private bool startedDrawing = false;
     private T? toolViewModel;
     private IColorsHandler? colorsVM;
-    private ILineToolbar? toolbar;
+    protected ILineToolbar? toolbar;
 
-    public override bool CanUndo => document.LineToolOverlayHandler.HasUndo; 
+    public override bool CanUndo => document.LineToolOverlayHandler.HasUndo;
     public override bool CanRedo => document.LineToolOverlayHandler.HasRedo;
-    
+
     public override ExecutionState Start()
     {
         if (base.Start() == ExecutionState.Error)
@@ -49,6 +49,11 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
 
         if (ActiveMode == ShapeToolMode.Drawing)
         {
+            if (toolbar.SyncWithPrimaryColor)
+            {
+                toolbar.StrokeColor = colorsVM.PrimaryColor.ToColor();
+            }
+
             return ExecutionState.Success;
         }
 
@@ -62,7 +67,6 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
                 return ExecutionState.Success;
             }
 
-            toolbar.StrokeColor = data.StrokeColor.ToColor();
 
             if (!InitShapeData(data))
             {
@@ -133,7 +137,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
 
     public override void OnColorChanged(Color color, bool primary)
     {
-        if (!primary)
+        if (!primary || !toolbar!.SyncWithPrimaryColor || ActiveMode != ShapeToolMode.Transform)
             return;
 
         toolbar!.StrokeColor = color.ToColor();

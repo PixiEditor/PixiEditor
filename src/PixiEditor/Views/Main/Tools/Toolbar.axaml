@@ -5,6 +5,7 @@
              xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              xmlns:decorators="clr-namespace:PixiEditor.Views.Decorators"
+             xmlns:settings="clr-namespace:PixiEditor.ViewModels.Tools.ToolSettings.Settings"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Main.Tools.Toolbar">
     <Border CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -56,8 +57,8 @@
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5,0,5,0">
+                    <DataTemplate x:DataType="settings:Setting">
+                        <StackPanel IsVisible="{Binding IsExposed}" Orientation="Horizontal" VerticalAlignment="Center" Margin="5,0,5,0">
                             <Label
                                 IsVisible="{Binding HasLabel}" VerticalAlignment="Center"
                                 Foreground="{DynamicResource ThemeForegroundBrush}" ui:Translator.Key="{Binding Label.Key}" />

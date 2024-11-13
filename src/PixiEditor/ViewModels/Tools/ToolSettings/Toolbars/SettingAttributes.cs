@@ -4,6 +4,27 @@ namespace PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 
 public static class Settings
 {
+    public class PercentAttribute : SettingsAttribute
+    {
+        public float Min { get; set; } = 0;
+
+        public float Max { get; set; } = 1;
+        
+        public PercentAttribute(string labelKey) : base(labelKey) { }
+
+        public PercentAttribute(string labelKey, float defaultValue) : base(labelKey, defaultValue)
+        {
+            
+        }
+        
+        public PercentAttribute(string labelKey, float defaultValue, float min, float max) : base(labelKey, defaultValue)
+        {
+            Min = min;
+            Max = max;
+        }
+        
+    }
+    
     /// <summary>
     /// A toolbar setting of type <see cref="bool"/>
     /// </summary>
@@ -73,6 +94,8 @@ public static class Settings
         public string Name { get; set; }
         
         public string Notify { get; set; }
+        
+        public bool ExposedByDefault { get; set; } = true;
 
         public SettingsAttribute() { }
         

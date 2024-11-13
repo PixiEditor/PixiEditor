@@ -27,7 +27,7 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
     public override LocalizedString Tooltip => new LocalizedString("RECTANGLE_TOOL_TOOLTIP", Shortcut);
     public bool DrawSquare { get; private set; }
 
-    public override string Icon => PixiPerfectIcons.Square;
+    public override string DefaultIcon => PixiPerfectIcons.Square;
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
     public string? DefaultNewLayerName { get; } = new LocalizedString("NEW_RECTANGLE_LAYER_NAME");

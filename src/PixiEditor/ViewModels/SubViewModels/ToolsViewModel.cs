@@ -131,6 +131,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     public void SetActiveToolSet(IToolSetHandler toolSetHandler)
     {
         ActiveToolSet = toolSetHandler;
+        ActiveToolSet.ApplyToolSetSettings();
         UpdateEnabledState();
     }
 
@@ -426,24 +427,31 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     {
         foreach (ToolSetConfig toolSet in toolSetConfig)
         {
-            List<IToolHandler> tools = new List<IToolHandler>();
-
-            foreach (string toolName in toolSet.Tools)
+            var toolSetViewModel = new ToolSetViewModel(toolSet.Name);
+            
+            foreach (var toolFromToolset in toolSet.Tools)
             {
-                IToolHandler? tool = allTools.FirstOrDefault(tool => tool.ToolName == toolName);
+                IToolHandler? tool = allTools.FirstOrDefault(tool => tool.ToolName == toolFromToolset.ToolName);
+                tool.SetToolSetSettings(toolSetViewModel, toolFromToolset.Settings);
+
+                if (!string.IsNullOrEmpty(toolFromToolset.Icon))
+                {
+                    toolSetViewModel.IconOverwrites[tool] = toolFromToolset.Icon;
+                }
+                
                 if (tool is null)
                 {
 #if DEBUG
-                    throw new InvalidOperationException($"Tool '{toolName}' not found.");
+                    throw new InvalidOperationException($"Tool '{tool}' not found.");
 #endif
 
                     continue;
                 }
 
-                tools.Add(tool);
+                toolSetViewModel.AddTool(tool);
             }
 
-            AllToolSets.Add(new ToolSetViewModel(toolSet.Name, tools));
+            AllToolSets.Add(toolSetViewModel);
         }
     }
 

@@ -7,4 +7,5 @@ internal interface IMagicWandToolHandler : IToolHandler
 {
     public SelectionMode SelectMode { get; }
     public DocumentScope DocumentScope { get; }
+    public float Tolerance { get; }
 }

@@ -28,7 +28,10 @@ internal class MagicWandToolViewModel : ToolViewModel, IMagicWandToolHandler
     [Settings.Enum("SCOPE_LABEL")]
     public DocumentScope DocumentScope => GetValue<DocumentScope>();
 
-    public override string Icon => PixiPerfectIcons.MagicWand;
+    [Settings.Percent("TOLERANCE_LABEL", ExposedByDefault = false)]
+    public float Tolerance => GetValue<float>();
+
+    public override string DefaultIcon => PixiPerfectIcons.MagicWand;
 
     public MagicWandToolViewModel()
     {

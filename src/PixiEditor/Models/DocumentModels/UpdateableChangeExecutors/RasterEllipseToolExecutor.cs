@@ -25,7 +25,7 @@ internal class RasterEllipseToolExecutor : ComplexShapeToolExecutor<IRasterEllip
         lastRect = rect;
         lastRadians = rotationRad;
 
-        internals!.ActionAccumulator.AddActions(new DrawRasterEllipse_Action(memberId, rect, rotationRad, StrokeColor, FillColor, StrokeWidth, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
+        internals!.ActionAccumulator.AddActions(new DrawRasterEllipse_Action(memberId, rect, rotationRad, StrokeColor, FillColor, StrokeWidth, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     public override ExecutorType Type => ExecutorType.ToolLinked;
@@ -33,7 +33,7 @@ internal class RasterEllipseToolExecutor : ComplexShapeToolExecutor<IRasterEllip
     protected override void DrawShape(VecI currentPos, double rotationRad, bool firstDraw) => DrawEllipseOrCircle(currentPos, rotationRad, firstDraw);
     protected override IAction SettingsChangedAction()
     {
-        return new DrawRasterEllipse_Action(memberId, lastRect, lastRadians, StrokeColor, FillColor, StrokeWidth, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+        return new DrawRasterEllipse_Action(memberId, lastRect, lastRadians, StrokeColor, FillColor, StrokeWidth, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
     }
 
     protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners)
@@ -45,7 +45,7 @@ internal class RasterEllipseToolExecutor : ComplexShapeToolExecutor<IRasterEllip
         lastRadians = radians;
         
         return new DrawRasterEllipse_Action(memberId, lastRect, lastRadians, StrokeColor,
-            FillColor, StrokeWidth, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+            FillColor, StrokeWidth, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
     }
 
     protected override IAction EndDrawAction() => new EndDrawRasterEllipse_Action();

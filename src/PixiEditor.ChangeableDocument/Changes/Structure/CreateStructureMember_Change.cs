@@ -13,6 +13,8 @@ internal class CreateStructureMember_Change : Change
 
     private Guid parentGuid;
     private Type structureMemberOfType;
+    
+    private ConnectionsData? connectionsData;
 
     [GenerateMakeChangeAction]
     public CreateStructureMember_Change(Guid parent, Guid newGuid,
@@ -43,7 +45,6 @@ internal class CreateStructureMember_Change : Change
         
         InputProperty<Painter> targetInput = parentNode.InputProperties.FirstOrDefault(x => 
             x.ValueType == typeof(Painter)) as InputProperty<Painter>;
-        
         
         if (member is FolderNode folder)
         {
@@ -77,10 +78,9 @@ internal class CreateStructureMember_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document document)
     {
         var container = document.FindNodeOrThrow<Node>(parentGuid);
-        if (container is not IRenderInput backgroundInput)
-        {
-            throw new InvalidOperationException("Parent folder is not a valid container.");
-        }
+
+       InputProperty<Painter> backgroundInput = container.InputProperties.FirstOrDefault(x => 
+            x.ValueType == typeof(Painter)) as InputProperty<Painter>;
 
         StructureNode child = document.FindMemberOrThrow(newMemberGuid);
         var childBackgroundConnection = child.Background.Connection;
@@ -92,10 +92,10 @@ internal class CreateStructureMember_Change : Change
 
         if (childBackgroundConnection != null)
         {
-            childBackgroundConnection?.ConnectTo(backgroundInput.Background);
+            childBackgroundConnection?.ConnectTo(backgroundInput);
             ConnectProperty_ChangeInfo change = new(childBackgroundConnection.Node.Id,
-                backgroundInput.Background.Node.Id, childBackgroundConnection.InternalPropertyName,
-                backgroundInput.Background.InternalPropertyName);
+                backgroundInput.Node.Id, childBackgroundConnection.InternalPropertyName,
+                backgroundInput.InternalPropertyName);
             changes.Add(change);
         }
 

@@ -65,6 +65,7 @@
   "UPDATE_CHECK_FAILED": "Update check failed",
   "COULD_NOT_CHECK_FOR_UPDATES": "Could not check if there is an update available.",
   "VERSION": "Version {0}",
+  "BUILD_ID": "Build ID: {0}",
   "OPEN_TEMP_DIR": "Open temp directory",
   "OPEN_LOCAL_APPDATA_DIR": "Open Local AppData directory",
   "OPEN_ROAMING_APPDATA_DIR": "Open Roaming AppData directory",
@@ -756,5 +757,10 @@
   "NEW_ELLIPSE_LAYER_NAME": "Ellipse",
   "NEW_RECTANGLE_LAYER_NAME": "Rectangle",
   "NEW_LINE_LAYER_NAME": "Line",
-  "RENDER_OUTPUT": "Render Output"
+  "RENDER_OUTPUT": "Render Output",
+  "PAINT_TOOLSET": "Painting",
+  "HARDNESS_SETTING": "Hardness",
+  "SPACING_SETTING": "Spacing",
+  "ANTI_ALIASING_SETTING": "Anti-aliasing",
+  "TOLERANCE_LABEL": "Tolerance"
 }

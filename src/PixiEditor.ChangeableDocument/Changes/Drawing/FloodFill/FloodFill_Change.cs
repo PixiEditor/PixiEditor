@@ -14,9 +14,10 @@ internal class FloodFill_Change : Change
     private readonly bool drawOnMask;
     private CommittedChunkStorage? chunkStorage = null;
     private int frame;
+    private float tolerance;
 
     [GenerateMakeChangeAction]
-    public FloodFill_Change(Guid memberGuid, VecI pos, Color color, bool referenceAll, bool drawOnMask, int frame)
+    public FloodFill_Change(Guid memberGuid, VecI pos, Color color, bool referenceAll, float tolerance, bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.pos = pos;
@@ -24,6 +25,7 @@ internal class FloodFill_Change : Change
         this.referenceAll = referenceAll;
         this.drawOnMask = drawOnMask;
         this.frame = frame;
+        this.tolerance = tolerance;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -44,7 +46,7 @@ internal class FloodFill_Change : Change
             target.ForEveryReadonlyMember(member => membersToReference.Add(member.Id));
         else
             membersToReference.Add(memberGuid);
-        var floodFilledChunks = FloodFillHelper.FloodFill(membersToReference, target, selection, pos, color, frame);
+        var floodFilledChunks = FloodFillHelper.FloodFill(membersToReference, target, selection, pos, color, tolerance, frame);
         if (floodFilledChunks.Count == 0)
         {
             ignoreInUndo = true;

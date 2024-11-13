@@ -87,7 +87,9 @@ internal class CombineStructureMembersOnto_Change : Change
         var chunksToCombine = new HashSet<VecI>();
         List<IChangeInfo> changes = new();
 
-        foreach (var guid in layersToCombine)
+        var ordererd = OrderLayers(layersToCombine, target);
+
+        foreach (var guid in ordererd)
         {
             var layer = target.FindMemberOrThrow<LayerNode>(guid);
 
@@ -149,6 +151,20 @@ internal class CombineStructureMembersOnto_Change : Change
 
         changes.Add(new LayerImageArea_ChangeInfo(targetLayerGuid, affArea));
         return changes;
+    }
+    
+    private HashSet<Guid> OrderLayers(HashSet<Guid> layersToCombine, Document document)
+    {
+        HashSet<Guid> ordered = new();
+        document.NodeGraph.TryTraverse(node =>
+        {
+            if (node is LayerNode layer && layersToCombine.Contains(layer.Id))
+            {
+                ordered.Add(layer.Id);
+            }
+        });
+
+        return ordered.Reverse().ToHashSet();
     }
 
     private void AddMissingKeyFrame(LayerNode targetLayer, int frame, LayerNode layer, List<IChangeInfo> changes,

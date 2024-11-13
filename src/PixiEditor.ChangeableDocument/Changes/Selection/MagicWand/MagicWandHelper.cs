@@ -108,10 +108,13 @@ internal class MagicWandHelper
     }
 
     public static VectorPath DoMagicWandFloodFill(VecI startingPos, HashSet<Guid> membersToFloodFill,
+        double tolerance,
         IReadOnlyDocument document, int frame)
     {
         if (startingPos.X < 0 || startingPos.Y < 0 || startingPos.X >= document.Size.X || startingPos.Y >= document.Size.Y)
             return new VectorPath();
+        
+        tolerance = Math.Clamp(tolerance, 0, 1);
 
         int chunkSize = ChunkResolution.Full.PixelSize();
 
@@ -127,7 +130,7 @@ internal class MagicWandHelper
             static (EmptyChunk _) => Colors.Transparent
         );
 
-        ColorBounds colorRange = new(colorToReplace);
+        ColorBounds colorRange = new(colorToReplace, tolerance);
 
         HashSet<VecI> processedEmptyChunks = new();
 

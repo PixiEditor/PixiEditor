@@ -18,7 +18,7 @@ internal class SelectToolViewModel : ToolViewModel, ISelectToolHandler
     private string defaultActionDisplay = "SELECT_TOOL_ACTION_DISPLAY_DEFAULT";
     public override string ToolNameLocalizationKey => "SELECT_TOOL_NAME";
 
-    public override string Icon => PixiPerfectIcons.RectangleSelection;
+    public override string DefaultIcon => PixiPerfectIcons.RectangleSelection;
 
     public SelectToolViewModel()
     {

@@ -19,7 +19,7 @@ internal class RasterLineToolExecutor : LineExecutor<ILineToolHandler>
         VecD dir = GetSignedDirection(startDrawingPos, pos);
         VecD oppositeDir = new VecD(-dir.X, -dir.Y);
         return new DrawRasterLine_Action(memberId, ToPixelPos(startDrawingPos, oppositeDir), ToPixelPos(pos, dir), StrokeWidth,
-            StrokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+            StrokeColor, StrokeCap.Butt, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
     }
 
     protected override IAction TransformOverlayMoved(VecD start, VecD end)
@@ -27,7 +27,7 @@ internal class RasterLineToolExecutor : LineExecutor<ILineToolHandler>
         VecD dir = GetSignedDirection(start, end);
         VecD oppositeDir = new VecD(-dir.X, -dir.Y);
         return new DrawRasterLine_Action(memberId, ToPixelPos(start, oppositeDir), ToPixelPos(end, dir), 
-            StrokeWidth, StrokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+            StrokeWidth, StrokeColor, StrokeCap.Butt, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
     }
 
     protected override IAction SettingsChange()
@@ -35,15 +35,18 @@ internal class RasterLineToolExecutor : LineExecutor<ILineToolHandler>
         VecD dir = GetSignedDirection(startDrawingPos, curPos);
         VecD oppositeDir = new VecD(-dir.X, -dir.Y);
         return new DrawRasterLine_Action(memberId, ToPixelPos(startDrawingPos, oppositeDir), ToPixelPos(curPos, dir), StrokeWidth,
-            StrokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+            StrokeColor, StrokeCap.Butt, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
     }
 
     private VecI ToPixelPos(VecD pos, VecD dir)
     {
+        if (StrokeWidth > 1) return (VecI)pos.Round();
+        
         double xAdjustment = dir.X > 0 ? 0.5 : -0.5;
         double yAdjustment = dir.Y > 0 ? 0.5 : -0.5;
         
         VecD adjustment = new VecD(xAdjustment, yAdjustment);
+
         
         VecI finalPos = (VecI)(pos - adjustment);
 

@@ -13,11 +13,12 @@ internal class DrawRasterEllipse_UpdateableChange : UpdateableChange
     private int strokeWidth;
     private readonly bool drawOnMask;
     private int frame;
+    private bool antialiased;
 
     private CommittedChunkStorage? storedChunks;
 
     [GenerateUpdateableChangeActions]
-    public DrawRasterEllipse_UpdateableChange(Guid memberGuid, RectI location, double rotationRad, Color strokeColor, Color fillColor, int strokeWidth, bool drawOnMask, int frame)
+    public DrawRasterEllipse_UpdateableChange(Guid memberGuid, RectI location, double rotationRad, Color strokeColor, Color fillColor, int strokeWidth, bool antialiased, bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.location = location;
@@ -27,6 +28,7 @@ internal class DrawRasterEllipse_UpdateableChange : UpdateableChange
         this.strokeWidth = strokeWidth;
         this.drawOnMask = drawOnMask;
         this.frame = frame;
+        this.antialiased = antialiased;
     }
 
     [UpdateChangeMethod]
@@ -53,7 +55,7 @@ internal class DrawRasterEllipse_UpdateableChange : UpdateableChange
         if (!location.IsZeroOrNegativeArea)
         {
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, targetImage, memberGuid, drawOnMask);
-            targetImage.EnqueueDrawEllipse(location, strokeColor, fillColor, strokeWidth, rotation);
+            targetImage.EnqueueDrawEllipse(location, strokeColor, fillColor, strokeWidth, rotation, antialiased);
         }
 
         var affectedArea = targetImage.FindAffectedArea();

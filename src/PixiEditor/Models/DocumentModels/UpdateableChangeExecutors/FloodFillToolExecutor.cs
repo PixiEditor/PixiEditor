@@ -16,6 +16,7 @@ internal class FloodFillToolExecutor : UpdateableChangeExecutor
     private bool drawOnMask;
     private Guid memberGuid;
     private Color color;
+    private float tolerance;
 
     public override ExecutionState Start()
     {
@@ -37,15 +38,16 @@ internal class FloodFillToolExecutor : UpdateableChangeExecutor
         considerAllLayers = fillTool.ConsiderAllLayers;
         color = colorsVM.PrimaryColor;
         var pos = controller!.LastPixelPosition;
+        tolerance = fillTool.Tolerance;
 
-        internals!.ActionAccumulator.AddActions(new FloodFill_Action(memberGuid, pos, color, considerAllLayers, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
+        internals!.ActionAccumulator.AddActions(new FloodFill_Action(memberGuid, pos, color, considerAllLayers, tolerance, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
 
         return ExecutionState.Success;
     }
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        internals!.ActionAccumulator.AddActions(new FloodFill_Action(memberGuid, pos, color, considerAllLayers, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
+        internals!.ActionAccumulator.AddActions(new FloodFill_Action(memberGuid, pos, color, considerAllLayers, tolerance, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     public override void OnLeftMouseButtonUp()

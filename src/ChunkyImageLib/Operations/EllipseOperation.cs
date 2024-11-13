@@ -25,8 +25,10 @@ internal class EllipseOperation : IMirroredDrawOperation
     private VecF[]? ellipse;
     private VecF[]? ellipseFill;
     private RectI? ellipseFillRect;
+    private bool antialiased;
 
-    public EllipseOperation(RectI location, Color strokeColor, Color fillColor, int strokeWidth, double rotationRad, Paint? paint = null)
+    public EllipseOperation(RectI location, Color strokeColor, Color fillColor, int strokeWidth, double rotationRad,
+        bool antiAliased, Paint? paint = null)
     {
         this.location = location;
         this.strokeColor = strokeColor;
@@ -34,6 +36,7 @@ internal class EllipseOperation : IMirroredDrawOperation
         this.strokeWidth = strokeWidth;
         this.rotation = rotationRad;
         this.paint = paint?.Clone() ?? new Paint();
+        antialiased = antiAliased;
     }
 
     private void Init()
@@ -76,8 +79,23 @@ internal class EllipseOperation : IMirroredDrawOperation
         surf.Canvas.Scale((float)targetChunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);
 
-        paint.IsAntiAliased = targetChunk.Resolution != ChunkResolution.Full;
+        paint.IsAntiAliased = antialiased || targetChunk.Resolution != ChunkResolution.Full;
 
+        if (antialiased)
+        {
+            DrawAntiAliased(surf);   
+        }
+        else
+        {
+            DrawAliased(surf);
+        }
+
+        surf.Canvas.Restore();
+    }
+
+    private void DrawAliased(DrawingSurface surf)
+    {
+        paint.IsAntiAliased = false;
         if (strokeWidth == 1)
         {
             if (Math.Abs(rotation) < 0.001)
@@ -131,6 +149,30 @@ internal class EllipseOperation : IMirroredDrawOperation
             surf.Canvas.DrawColor(strokeColor, paint.BlendMode);
             surf.Canvas.Restore();
         }
+    }
+
+    private void DrawAntiAliased(DrawingSurface surf)
+    {
+        surf.Canvas.Save();
+        surf.Canvas.RotateRadians((float)rotation, (float)location.Center.X, (float)location.Center.Y);
+        
+        paint.IsAntiAliased = false;
+        paint.Color = fillColor;
+        paint.Style = PaintStyle.Fill;
+        
+        RectD fillRect = ((RectD)location).Inflate(-strokeWidth / 2f);
+        
+        surf.Canvas.DrawOval(fillRect.Center, fillRect.Size / 2f, paint);
+        
+        paint.IsAntiAliased = true;
+        paint.Color = strokeColor;
+        paint.Style = PaintStyle.Stroke;
+        paint.StrokeWidth = strokeWidth;
+        
+        RectD strokeRect = ((RectD)location).Inflate((-strokeWidth / 2f));
+        
+        surf.Canvas.DrawOval(strokeRect.Center, strokeRect.Size / 2f, paint);
+        
         surf.Canvas.Restore();
     }
 
@@ -157,7 +199,7 @@ internal class EllipseOperation : IMirroredDrawOperation
             newLocation = (RectI)newLocation.ReflectX((double)verAxisX).Round();
         if (horAxisY is not null)
             newLocation = (RectI)newLocation.ReflectY((double)horAxisY).Round();
-        return new EllipseOperation(newLocation, strokeColor, fillColor, strokeWidth, rotation, paint);
+        return new EllipseOperation(newLocation, strokeColor, fillColor, strokeWidth, rotation, antialiased, paint);
     }
 
     public void Dispose()

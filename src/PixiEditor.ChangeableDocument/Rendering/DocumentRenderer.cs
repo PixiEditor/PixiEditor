@@ -24,6 +24,7 @@ public class DocumentRenderer : IPreviewRenderable
     }
 
     private IReadOnlyDocument Document { get; }
+    public bool IsBusy { get; private set; }
 
     public void UpdateChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime)
     {
@@ -42,19 +43,10 @@ public class DocumentRenderer : IPreviewRenderable
         }
     }
 
-    private static RectI? TransformClipRect(RectI? globalClippingRect, ChunkResolution resolution, VecI chunkPos)
-    {
-        if (globalClippingRect is not RectI rect)
-            return null;
-
-        double multiplier = resolution.Multiplier();
-        VecI pixelChunkPos = chunkPos * (int)(ChunkyImage.FullChunkSize * multiplier);
-        return (RectI?)rect.Scale(multiplier).Translate(-pixelChunkPos).RoundOutwards();
-    }
-
     public void RenderLayers(DrawingSurface toDrawOn, HashSet<Guid> layersToCombine, int frame,
         ChunkResolution resolution)
     {
+        IsBusy = true;
         RenderContext context = new(toDrawOn, frame, resolution, Document.Size);
         context.FullRerender = true;
         IReadOnlyNodeGraph membersOnlyGraph = ConstructMembersOnlyGraph(layersToCombine, Document.NodeGraph);
@@ -64,6 +56,10 @@ public class DocumentRenderer : IPreviewRenderable
         }
         catch (ObjectDisposedException)
         {
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 
@@ -76,11 +72,14 @@ public class DocumentRenderer : IPreviewRenderable
         {
             return;
         }
+        
+        IsBusy = true;
 
         RenderContext context = new(renderOn, frameTime, resolution, Document.Size);
         context.FullRerender = true;
         
         node.RenderForOutput(context, renderOn, null);
+        IsBusy = false;
     }
 
     public static IReadOnlyNodeGraph ConstructMembersOnlyGraph(IReadOnlyNodeGraph fullGraph)
@@ -135,7 +134,9 @@ public class DocumentRenderer : IPreviewRenderable
 
     public void RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime)
     {
+        IsBusy = true;
         RenderContext context = new(toRenderOn, frameTime, ChunkResolution.Full, Document.Size) { FullRerender = true };
         Document.NodeGraph.Execute(context);
+        IsBusy = false;
     }
 }

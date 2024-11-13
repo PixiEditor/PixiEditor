@@ -7,6 +7,9 @@ public partial class AboutPopup : PixiEditorPopup
 {
     public static LocalizedString VersionText =>
         new LocalizedString("VERSION", VersionHelpers.GetCurrentAssemblyVersionString(true));
+    
+    public static LocalizedString BuildIdText =>
+        new LocalizedString("BUILD_ID", VersionHelpers.GetBuildId());
 
     public bool DisplayDonationButton
     {

@@ -24,7 +24,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
     private bool transformingSelectedArea = false;
     public bool MoveAllLayers { get; set; }
 
-    public override string Icon => PixiPerfectIcons.MousePointer;
+    public override string DefaultIcon => PixiPerfectIcons.MousePointer;
 
     public MoveToolViewModel()
     {
@@ -93,6 +93,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         if (!transient)
         {
             vm.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
+            TransformingSelectedArea = false;
         }
     }
 

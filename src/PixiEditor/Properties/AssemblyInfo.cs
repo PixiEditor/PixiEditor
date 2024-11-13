@@ -6,11 +6,11 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("PixiEditor")]
-[assembly: AssemblyDescription("A fast, nice looking universal graphics editor.")]
+[assembly: AssemblyDescription("Fast, universal graphics editor.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("PixiEditor")]
 [assembly: AssemblyProduct("PixiEditor")]
-[assembly: AssemblyCopyright("Copyright PixiEditor © 2017 - 2024")]
+[assembly: AssemblyCopyright("Copyright PixiEditor © 2017 - 2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -42,5 +42,5 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.0.0.19")]
-[assembly: AssemblyFileVersion("2.0.0.19")]
+[assembly: AssemblyVersion("2.0.0.20")]
+[assembly: AssemblyFileVersion("2.0.0.20")]

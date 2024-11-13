@@ -8,4 +8,5 @@ internal interface IBasicShapeToolbar : IBasicToolbar
     public bool Fill { get; set; }
     public Color FillColor { get; set; }
     public bool SyncWithPrimaryColor { get; set; }
+    public bool AntiAliasing { get; set; }
 }

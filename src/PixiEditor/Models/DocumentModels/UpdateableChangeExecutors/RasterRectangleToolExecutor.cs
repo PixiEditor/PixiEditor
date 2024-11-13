@@ -25,7 +25,10 @@ internal class RasterRectangleToolExecutor : ComplexShapeToolExecutor<IRasterRec
         lastRect = rect;
         lastRadians = rotationRad;
         
-        lastData = new ShapeData(rect.Center, rect.Size, rotationRad, StrokeWidth, StrokeColor, FillColor);
+        lastData = new ShapeData(rect.Center, rect.Size, rotationRad, StrokeWidth, StrokeColor, FillColor)
+        {
+            AntiAliasing = toolbar.AntiAliasing
+        };
 
         internals!.ActionAccumulator.AddActions(new DrawRasterRectangle_Action(memberId, lastData, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
@@ -33,7 +36,10 @@ internal class RasterRectangleToolExecutor : ComplexShapeToolExecutor<IRasterRec
     protected override void DrawShape(VecI currentPos, double rotationRad, bool first) => DrawRectangle(currentPos, rotationRad, first);
     protected override IAction SettingsChangedAction()
     {
-        lastData = new ShapeData(lastData.Center, lastData.Size, lastRadians, StrokeWidth, StrokeColor, FillColor);
+        lastData = new ShapeData(lastData.Center, lastData.Size, lastRadians, StrokeWidth, StrokeColor, FillColor)
+        {
+            AntiAliasing = toolbar.AntiAliasing
+        };
         return new DrawRasterRectangle_Action(memberId, lastData, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);   
     }
 

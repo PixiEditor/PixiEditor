@@ -42,6 +42,7 @@ public static class FloodFillHelper
         VectorPath? selection,
         VecI startingPos,
         Color drawingColor,
+        float tolerance,
         int frame)
     {
         if (selection is not null && !selection.Contains(startingPos.X + 0.5f, startingPos.Y + 0.5f))
@@ -66,7 +67,7 @@ public static class FloodFillHelper
 
         // Pre-multiplies the color and convert it to floats. Since floats are imprecise, a range is used.
         // Used for faster pixel checking
-        ColorBounds colorRange = new(colorToReplace);
+        ColorBounds colorRange = new(colorToReplace, tolerance);
         ulong uLongColor = drawingColor.ToULong();
 
         Dictionary<VecI, Chunk> drawingChunks = new();
