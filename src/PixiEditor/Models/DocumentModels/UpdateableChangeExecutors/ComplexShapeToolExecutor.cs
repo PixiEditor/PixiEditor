@@ -61,6 +61,11 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
         {
             var node = (VectorLayerNode)internals.Tracker.Document.FindMember(member.Id);
 
+            if (node == null)
+            {
+                return ExecutionState.Error;
+            }
+
             if (!InitShapeData(node.ShapeData))
             {
                 ActiveMode = ShapeToolMode.Preview;

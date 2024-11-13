@@ -119,6 +119,11 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
 
     public void RenderForOutput(RenderContext context, DrawingSurface renderTarget, RenderOutputProperty output)
     {
+        if(IsDisposed)
+        {
+            return;
+        }
+        
         var renderObjectContext = CreateSceneContext(context, renderTarget, output);
 
         int renderSaved = renderTarget.Canvas.Save();
