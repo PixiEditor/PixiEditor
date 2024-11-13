@@ -22,6 +22,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     public override ExecutorType Type { get; }
 
     public override bool BlocksOtherActions => false; 
+    
+    private List<Guid> selectedMembers = new();
 
     public TransformSelectedExecutor(bool toolLinked)
     {
@@ -85,6 +87,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             document.SnappingHandler.Remove(structureMemberHandler.Id.ToString());
         }
         
+        selectedMembers = members.Select(m => m.Id).ToList();
+        
         document.TransformHandler.ShowTransform(mode, true, masterCorners, Type == ExecutorType.Regular);
         internals!.ActionAccumulator.AddActions(
             new TransformSelected_Action(masterCorners, tool.KeepOriginalImage, memberCorners, false,
@@ -100,8 +104,9 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         {
             internals.ActionAccumulator.AddActions(new EndTransformSelected_Action());
             document!.TransformHandler.HideTransform();
-            AddSnappingForMembers(memberGuids);
+            AddSnappingForMembers(selectedMembers);
             
+            selectedMembers.Clear();
             memberCorners.Clear();
             isInProgress = false;
         }

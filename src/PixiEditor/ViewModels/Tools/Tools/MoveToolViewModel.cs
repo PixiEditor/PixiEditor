@@ -93,6 +93,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         if (!transient)
         {
             vm.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
+            TransformingSelectedArea = false;
         }
     }
 
