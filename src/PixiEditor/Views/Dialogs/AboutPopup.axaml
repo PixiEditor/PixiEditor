@@ -11,8 +11,8 @@
         x:Class="PixiEditor.Views.Dialogs.AboutPopup"
         Name="aboutPopup"
         CanResize="True"
-        Width="440" Height="520"
-        MaxWidth="440" MaxHeight="520"
+        Width="440" Height="540"
+        MaxWidth="440" MaxHeight="540"
         Title="ABOUT">
     <StackPanel DataContext="{Binding ElementName=aboutPopup}" Orientation="Vertical" DockPanel.Dock="Bottom" Margin="10">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
@@ -20,6 +20,7 @@
                 <TextBlock FontSize="40" FontWeight="SemiBold" Foreground="{DynamicResource ThemeForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0">PixiEditor</TextBlock>
             </StackPanel>
             <TextBlock Foreground="{DynamicResource ThemeForegroundBrush}" HorizontalAlignment="Center" FontSize="20" FontWeight="Medium" ui:Translator.LocalizedString="{Binding VersionText}"/>
+            <TextBlock Foreground="{DynamicResource ThemeForegroundBrush}" HorizontalAlignment="Left" FontSize="11" Margin="25 5 0 0" ui:Translator.LocalizedString="{Binding BuildIdText}"/>
             <Label ui:Translator.Key="PROJECT_MAINTAINERS" Classes="h2" Margin="10 20 0 5"/>
             <StackPanel Orientation="Horizontal" Margin="20 0">
                 <Ellipse Width="32" Height="32" FlowDirection="LeftToRight">

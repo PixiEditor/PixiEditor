@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using PixiEditor.Helpers;
@@ -44,10 +45,10 @@ public class AnalyticsClient
         {
             return await response.Content.ReadFromJsonAsync<Guid?>(_options, cancellationToken);
         }
-
+        
         if (response.StatusCode is not HttpStatusCode.ServiceUnavailable)
         {
-            await ReportInvalidStatusCodeAsync(response.StatusCode);
+            await ReportInvalidStatusCodeAsync(response.StatusCode, await response.Content.ReadAsStringAsync(cancellationToken));
         }
             
         return null;
@@ -66,7 +67,7 @@ public class AnalyticsClient
 
         if (response.StatusCode is not (HttpStatusCode.NotFound or HttpStatusCode.ServiceUnavailable))
         {
-            await ReportInvalidStatusCodeAsync(response.StatusCode);
+            await ReportInvalidStatusCodeAsync(response.StatusCode, await response.Content.ReadAsStringAsync(cancellationToken));
         }
             
         return false;
@@ -84,9 +85,9 @@ public class AnalyticsClient
         await _client.DeleteAsync($"sessions/{sessionId}", cancellationToken);
     }
 
-    private static async Task ReportInvalidStatusCodeAsync(HttpStatusCode statusCode)
+    private static async Task ReportInvalidStatusCodeAsync(HttpStatusCode statusCode, string message)
     {
-        await CrashHelper.SendExceptionInfoToWebhookAsync(new InvalidOperationException($"Invalid status code from analytics API '{statusCode}'"));
+        await CrashHelper.SendExceptionInfoToWebhookAsync(new InvalidOperationException($"Invalid status code from analytics API '{statusCode}', message: {message}"));
     }
 
     class KeyCombinationConverter : JsonConverter<KeyCombination>

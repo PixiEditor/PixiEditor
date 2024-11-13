@@ -65,6 +65,7 @@
   "UPDATE_CHECK_FAILED": "Update check failed",
   "COULD_NOT_CHECK_FOR_UPDATES": "Could not check if there is an update available.",
   "VERSION": "Version {0}",
+  "BUILD_ID": "Build ID: {0}",
   "OPEN_TEMP_DIR": "Open temp directory",
   "OPEN_LOCAL_APPDATA_DIR": "Open Local AppData directory",
   "OPEN_ROAMING_APPDATA_DIR": "Open Roaming AppData directory",
