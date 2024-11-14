@@ -35,7 +35,21 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
                 LineMoved?.Invoke(this, (lineStart, lineEnd));
         }
     }
-    
+
+    private bool showHandles;
+    public bool ShowHandles
+    {
+        get => showHandles;
+        set => SetProperty(ref showHandles, value);
+    }
+
+    private bool isSizeBoxEnabled;
+    public bool IsSizeBoxEnabled
+    {
+        get => isSizeBoxEnabled;
+        set => SetProperty(ref isSizeBoxEnabled, value);
+    }
+
     private bool isEnabled;
 
     public bool IsEnabled
@@ -78,6 +92,8 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
         LineEnd = endPos; 
         IsEnabled = true;
         ShowApplyButton = showApplyButton;
+        ShowHandles = true;
+        IsSizeBoxEnabled = false;
     }
 
     public bool HasUndo => undoStack is not null && undoStack.UndoCount > 0;

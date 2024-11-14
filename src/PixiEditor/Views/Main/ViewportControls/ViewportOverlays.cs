@@ -219,12 +219,24 @@ internal class ViewportOverlays
         {
             Source = Viewport, Path = "Document.LineToolOverlayViewModel.LineEnd", Mode = BindingMode.TwoWay
         };
+        
+        Binding showHandlesBinding = new()
+        {
+            Source = Viewport, Path = "Document.LineToolOverlayViewModel.ShowHandles", Mode = BindingMode.TwoWay
+        };
+        
+        Binding isSizeBoxEnabledBinding = new()
+        {
+            Source = Viewport, Path = "Document.LineToolOverlayViewModel.IsSizeBoxEnabled", Mode = BindingMode.TwoWay
+        };
 
         lineToolOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         lineToolOverlay.Bind(LineToolOverlay.SnappingControllerProperty, snappingBinding);
         lineToolOverlay.Bind(LineToolOverlay.ActionCompletedProperty, actionCompletedBinding);
         lineToolOverlay.Bind(LineToolOverlay.LineStartProperty, lineStartBinding);
         lineToolOverlay.Bind(LineToolOverlay.LineEndProperty, lineEndBinding);
+        lineToolOverlay.Bind(LineToolOverlay.ShowHandlesProperty, showHandlesBinding);
+        lineToolOverlay.Bind(LineToolOverlay.IsSizeBoxEnabledProperty, isSizeBoxEnabledBinding);
     }
 
     private void BindTransformOverlay()
@@ -285,6 +297,16 @@ internal class ViewportOverlays
         {
             Source = Viewport, Path = "Document.TransformViewModel.InternalState", Mode = BindingMode.TwoWay
         };
+        
+        Binding showHandlesBinding = new()
+        {
+            Source = Viewport, Path = "Document.TransformViewModel.ShowHandles", Mode = BindingMode.TwoWay
+        };
+        
+        Binding isSizeBoxEnabledBinding = new()
+        {
+            Source = Viewport, Path = "Document.TransformViewModel.IsSizeBoxEnabled", Mode = BindingMode.TwoWay
+        };
 
         Binding zoomboxAngleBinding = new() { Source = Viewport, Path = "Zoombox.Angle", Mode = BindingMode.OneWay };
 
@@ -300,6 +322,8 @@ internal class ViewportOverlays
         transformOverlay.Bind(TransformOverlay.SnapToAnglesProperty, snapToAnglesBinding);
         transformOverlay.Bind(TransformOverlay.InternalStateProperty, internalStateBinding);
         transformOverlay.Bind(TransformOverlay.ZoomboxAngleProperty, zoomboxAngleBinding);
+        transformOverlay.Bind(TransformOverlay.ShowHandlesProperty, showHandlesBinding);
+        transformOverlay.Bind(TransformOverlay.IsSizeBoxEnabledProperty, isSizeBoxEnabledBinding);
     }
 
     private void BindSnappingOverlay()
