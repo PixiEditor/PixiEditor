@@ -759,5 +759,6 @@
   "HARDNESS_SETTING": "Hardness",
   "SPACING_SETTING": "Spacing",
   "ANTI_ALIASING_SETTING": "Anti-aliasing",
-  "TOLERANCE_LABEL": "Tolerance"
+  "TOLERANCE_LABEL": "Tolerance",
+  "TOGGLE_SNAPPING": "Toggle snapping"
 }

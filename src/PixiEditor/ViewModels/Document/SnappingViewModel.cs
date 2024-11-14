@@ -1,7 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Drawing;
+using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
+using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.ViewModels.Document;
 
@@ -10,21 +13,11 @@ public class SnappingViewModel : PixiObservableObject, ISnappingHandler
     private bool snappingEnabled = true;
     public SnappingController SnappingController { get; } = new SnappingController();
 
-    public bool SnappingEnabled
-    {
-        get => snappingEnabled;
-        set
-        {
-            SetProperty(ref snappingEnabled, value);
-            SnappingController.SnappingEnabled = value;
-        }
-    }
-
     public SnappingViewModel()
     {
         SnappingController.AddXYAxis("Root", VecD.Zero);
     }
-
+    
     public void AddFromDocumentSize(VecD documentSize)
     {
         SnappingController.AddXYAxis("DocumentSize", documentSize);

@@ -35,6 +35,7 @@
         FlipY="{Binding FlipY, Mode=TwoWay}"
         Channels="{Binding Channels, Mode=TwoWay}"
         SnappingViewModel="{Binding ActiveDocument.SnappingViewModel, Source={viewModels1:MainVM DocumentManagerSVM}}"
+        SnappingEnabled="{Binding ViewportSubViewModel.SnappingEnabled, Source={viewModels1:MainVM}, Mode=TwoWay}"
         ContextRequested="Viewport_OnContextMenuOpening"
         Document="{Binding Document}">
         <viewportControls:Viewport.ContextFlyout>
