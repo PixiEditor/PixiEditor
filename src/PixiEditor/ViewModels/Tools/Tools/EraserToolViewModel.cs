@@ -27,7 +27,7 @@ internal class EraserToolViewModel : ToolViewModel, IEraserToolHandler
     public override bool IsErasable => true;
 
     public override string ToolNameLocalizationKey => "ERASER_TOOL";
-    public override BrushShape BrushShape => BrushShape.Circle;
+    public override BrushShape BrushShape => BrushShape.CirclePixelated;
     public override Type[]? SupportedLayerTypes { get; } =
     {
         typeof(IRasterLayerHandler)

@@ -41,7 +41,8 @@
         "Settings": {
           "AntiAliasing": true,
           "ExposeHardness": true,
-          "ExposeSpacing": true
+          "ExposeSpacing": true,
+          "BrushShapeSetting": "CircleSmooth" 
         }
       },
       "Select",
