@@ -116,6 +116,7 @@ internal static class ClipboardController
         byte[] layerIdsBytes = System.Text.Encoding.UTF8.GetBytes(layerIdsString);
 
         data.Set(ClipboardDataFormats.LayerIdList, layerIdsBytes);
+        data.Set(ClipboardDataFormats.DocumentFormat, document.Id);
 
         await Clipboard.SetDataObjectAsync(data);
     }
@@ -144,7 +145,13 @@ internal static class ClipboardController
     /// </summary>
     public static bool TryPaste(DocumentViewModel document, IEnumerable<IDataObject> data, bool pasteAsNew = false)
     {
+        Guid sourceDocument = GetSourceDocument(data); 
         Guid[] layerIds = GetLayerIds(data);
+        
+        if (sourceDocument != document.Id)
+        {
+            layerIds = [];
+        }
 
         bool hasPos = data.Any(x => x.Contains(ClipboardDataFormats.PositionFormat));
 
@@ -234,6 +241,21 @@ internal static class ClipboardController
         }
 
         return [];
+    }
+    
+    private static Guid GetSourceDocument(IEnumerable<IDataObject> data)
+    {
+        foreach (var dataObject in data)
+        {
+            if (dataObject.Contains(ClipboardDataFormats.DocumentFormat))
+            {
+                byte[] guidBytes = (byte[])dataObject.Get(ClipboardDataFormats.DocumentFormat);
+                string guidString = System.Text.Encoding.UTF8.GetString(guidBytes);
+                return Guid.Parse(guidString);
+            }
+        }
+
+        return Guid.Empty;
     }
 
     /// <summary>

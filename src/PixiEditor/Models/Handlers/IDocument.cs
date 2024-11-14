@@ -20,6 +20,7 @@ namespace PixiEditor.Models.Handlers;
 
 internal interface IDocument : IHandler
 {
+    public Guid Id { get; }
     public ObservableRangeCollection<PaletteColor> Palette { get; set; }
     public VecI SizeBindable { get; }
     public IStructureMemberHandler? SelectedStructureMember { get; }
