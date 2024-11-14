@@ -34,7 +34,7 @@ namespace PixiEditor.Models.Controllers;
 internal static class ClipboardController
 {
     public static IClipboard Clipboard { get; private set; }
-    
+
     public static void Initialize(IClipboard clipboard)
     {
         Clipboard = clipboard;
@@ -74,25 +74,27 @@ internal static class ClipboardController
                 NoticeDialog.Show("SELECTED_AREA_EMPTY", "NOTHING_TO_COPY");
                 return;
             }
-            
+
             (surfaceToCopy, copyArea) = surface.AsT2;
         }
-        else if(document.TransformViewModel.TransformActive)
+        else if (document.TransformViewModel.TransformActive)
         {
-            var surface = document.TryExtractAreaFromSelected((RectI)document.TransformViewModel.Corners.AABBBounds.RoundOutwards());
+            var surface =
+                document.TryExtractAreaFromSelected(
+                    (RectI)document.TransformViewModel.Corners.AABBBounds.RoundOutwards());
             if (surface.IsT0 || surface.IsT1)
                 return;
-            
+
             (surfaceToCopy, copyArea) = surface.AsT2;
         }
         else if (document.SelectedStructureMember != null)
         {
             RectI bounds = new RectI(VecI.Zero, document.SizeBindable);
-            
+
             var surface = document.TryExtractAreaFromSelected(bounds);
             if (surface.IsT0 || surface.IsT1)
                 return;
-            
+
             (surfaceToCopy, copyArea) = surface.AsT2;
         }
 
@@ -100,19 +102,19 @@ internal static class ClipboardController
         {
             return;
         }
-        
+
         await AddImageToClipboard(surfaceToCopy, data);
 
         if (copyArea.Size != document.SizeBindable && copyArea.Pos != VecI.Zero && copyArea != RectI.Empty)
         {
             data.SetVecI(ClipboardDataFormats.PositionFormat, copyArea.Pos);
         }
-        
+
         string[] layerIds = document.GetSelectedMembers().Select(x => x.ToString()).ToArray();
         string layerIdsString = string.Join(";", layerIds);
-        
+
         byte[] layerIdsBytes = System.Text.Encoding.UTF8.GetBytes(layerIdsString);
-        
+
         data.Set(ClipboardDataFormats.LayerIdList, layerIdsBytes);
 
         await Clipboard.SetDataObjectAsync(data);
@@ -145,17 +147,17 @@ internal static class ClipboardController
         Guid[] layerIds = GetLayerIds(data);
 
         bool hasPos = data.Any(x => x.Contains(ClipboardDataFormats.PositionFormat));
-        
-        if (layerIds is { Length: > 0 } && !hasPos)
+
+        if (layerIds is { Length: > 0 } && (!hasPos || AllMatchesPos(layerIds, data, document)))
         {
             foreach (var layerId in layerIds)
             {
                 document.Operations.DuplicateLayer(layerId);
             }
-            
+
             return true;
         }
-        
+
         List<DataImage> images = GetImage(data);
         if (images.Count == 0)
             return false;
@@ -172,7 +174,8 @@ internal static class ClipboardController
 
             if (pasteAsNew)
             {
-                var guid = document.Operations.CreateStructureMember(StructureMemberType.Layer, new LocalizedString("NEW_LAYER"), false);
+                var guid = document.Operations.CreateStructureMember(StructureMemberType.Layer,
+                    new LocalizedString("NEW_LAYER"), false);
 
                 if (guid == null)
                 {
@@ -191,6 +194,30 @@ internal static class ClipboardController
         }
 
         document.Operations.PasteImagesAsLayers(images, document.AnimationDataViewModel.ActiveFrameBindable);
+        return true;
+    }
+    
+    private static bool AllMatchesPos(Guid[] layerIds, IEnumerable<IDataObject> data, DocumentViewModel doc)
+    {
+        var dataObjects = data as IDataObject[] ?? data.ToArray();
+        
+        var dataObjectWithPos = dataObjects.FirstOrDefault(x => x.Contains(ClipboardDataFormats.PositionFormat));
+        VecI pos = VecI.Zero;
+
+        if (dataObjectWithPos != null)
+        {
+            pos = dataObjectWithPos.GetVecI(ClipboardDataFormats.PositionFormat);
+        }
+        
+        for (var i = 0; i < layerIds.Length; i++)
+        {
+            var layerId = layerIds[i];
+
+            var layer = doc.StructureHelper.Find(layerId);
+            if (layer is not { TightBounds: not null } || layer.TightBounds.Value.Pos != pos)
+                return false;
+        }
+        
         return true;
     }
 
@@ -269,7 +296,9 @@ internal static class ClipboardController
             if (TryExtractSingleImage(dataObject, out var singleImage))
             {
                 surfaces.Add(new DataImage(singleImage,
-                    dataObject.Contains(ClipboardDataFormats.PositionFormat) ? dataObject.GetVecI(ClipboardDataFormats.PositionFormat) : pos));
+                    dataObject.Contains(ClipboardDataFormats.PositionFormat)
+                        ? dataObject.GetVecI(ClipboardDataFormats.PositionFormat)
+                        : pos));
                 continue;
             }
 
@@ -314,7 +343,8 @@ internal static class ClipboardController
                     }
 
                     string filename = Path.GetFullPath(path);
-                    surfaces.Add(new DataImage(filename, imported, dataObject.GetVecI(ClipboardDataFormats.PositionFormat)));
+                    surfaces.Add(new DataImage(filename, imported,
+                        dataObject.GetVecI(ClipboardDataFormats.PositionFormat)));
                 }
                 catch
                 {
@@ -410,11 +440,11 @@ internal static class ClipboardController
     {
         foreach (var format in formats)
         {
-            if(format == ClipboardDataFormats.Png)
+            if (format == ClipboardDataFormats.Png)
             {
                 return true;
             }
-            
+
             if (Importer.IsSupportedFile(format))
             {
                 return true;
