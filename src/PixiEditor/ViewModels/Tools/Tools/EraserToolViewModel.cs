@@ -21,17 +21,13 @@ internal class EraserToolViewModel : ToolViewModel, IEraserToolHandler
         Toolbar = ToolbarFactory.Create<EraserToolViewModel, PenToolbar>(this);
     }
 
-    [Settings.Inherited]
-    public int ToolSize => GetValue<int>();
+    [Settings.Inherited] public int ToolSize => GetValue<int>();
 
     public override bool IsErasable => true;
 
     public override string ToolNameLocalizationKey => "ERASER_TOOL";
-    public override BrushShape BrushShape => BrushShape.CirclePixelated;
-    public override Type[]? SupportedLayerTypes { get; } =
-    {
-        typeof(IRasterLayerHandler)
-    };
+    public override BrushShape BrushShape => BrushShapeSetting;
+    public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
 
     public override string DefaultIcon => PixiPerfectIcons.Eraser;
 
@@ -39,8 +35,17 @@ internal class EraserToolViewModel : ToolViewModel, IEraserToolHandler
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
 
+    [Settings.Enum("BRUSH_SHAPE_SETTING", BrushShape.CirclePixelated, ExposedByDefault = false,
+        Notify = nameof(BrushShapeChanged))]
+    public BrushShape BrushShapeSetting => GetValue<BrushShape>();
+
     public override void UseTool(VecD pos)
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseEraserTool();
+    }
+
+    private void BrushShapeChanged()
+    {
+        OnPropertyChanged(nameof(BrushShape));
     }
 }
