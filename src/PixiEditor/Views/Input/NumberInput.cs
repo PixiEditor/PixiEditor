@@ -12,6 +12,7 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Xaml.Interactivity;
 using PixiEditor.Helpers.Behaviours;
+using Action = System.Action;
 
 namespace PixiEditor.Views.Input;
 

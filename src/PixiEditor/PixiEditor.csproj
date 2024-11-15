@@ -86,10 +86,10 @@
     <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.3.0" />
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)"/>
     <PackageReference Include="Avalonia.Headless" Version="$(AvaloniaVersion)"/>
-    <PackageReference Include="Avalonia.Labs.Lottie" Version="11.0.10.1"/>
+    <PackageReference Include="Avalonia.Labs.Lottie" Version="11.2.0"/>
     <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)"/>
     <PackageReference Include="Avalonia.Skia" Version="$(AvaloniaVersion)"/>
-    <PackageReference Include="Avalonia.Svg.Skia" Version="11.1.0"/>
+    <PackageReference Include="Avalonia.Svg.Skia" Version="11.2.0" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)"/>
     <PackageReference Include="ByteSize" Version="2.1.2" />
