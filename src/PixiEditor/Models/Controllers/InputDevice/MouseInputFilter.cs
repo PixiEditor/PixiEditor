@@ -51,13 +51,13 @@ internal class MouseInputFilter
 
     public void DeactivatedInlet(object? sender, EventArgs e)
     {
-        MouseOnCanvasEventArgs argsLeft = new(MouseButton.Left, VecD.Zero);
+        MouseOnCanvasEventArgs argsLeft = new(MouseButton.Left, VecD.Zero, KeyModifiers.None);
         MouseUpInlet(argsLeft);
         
-        MouseOnCanvasEventArgs argsMiddle = new(MouseButton.Middle, VecD.Zero);
+        MouseOnCanvasEventArgs argsMiddle = new(MouseButton.Middle, VecD.Zero, KeyModifiers.None);
         MouseUpInlet(argsMiddle);
         
-        MouseOnCanvasEventArgs argsRight = new(MouseButton.Right, VecD.Zero);
+        MouseOnCanvasEventArgs argsRight = new(MouseButton.Right, VecD.Zero, KeyModifiers.None);
         MouseUpInlet(argsRight);
     }
 }

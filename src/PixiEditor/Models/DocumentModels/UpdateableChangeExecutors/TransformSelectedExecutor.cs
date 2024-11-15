@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using Drawie.Backend.Core.Numerics;
@@ -10,6 +11,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
@@ -104,22 +106,76 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         return ExecutionState.Success;
     }
 
-    public override void OnLeftMouseButtonDown(VecD pos)
+    public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
         var allLayers = document.StructureHelper.GetAllLayers();
         var topMostWithinClick = allLayers.Where(x =>
-                x is { IsVisibleBindable: true, TightBounds: not null } && x.TightBounds.Value.ContainsInclusive(pos))
+                x is { IsVisibleBindable: true, TightBounds: not null } &&
+                x.TightBounds.Value.ContainsInclusive(args.PositionOnCanvas))
             .OrderByDescending(x => allLayers.IndexOf(x));
 
         var nonSelected = topMostWithinClick.Where(x => x != document.SelectedStructureMember
                                                         && !document.SoftSelectedStructureMembers.Contains(x))
             .ToArray();
+        
+        bool isHoldingShift = args.KeyModifiers.HasFlag(KeyModifiers.Shift);
 
         if (nonSelected.Any())
         {
             var topMost = nonSelected.First();
 
-            document.Operations.SetSelectedMember(topMost.Id);
+            if (!isHoldingShift)
+            {
+                document.Operations.ClearSoftSelectedMembers();
+                document.Operations.SetSelectedMember(topMost.Id);
+            }
+            else
+            {
+                document.Operations.AddSoftSelectedMember(topMost.Id);
+            }
+        }
+        else if (isHoldingShift)
+        {
+            var topMostList = topMostWithinClick.ToList();
+            if (document.SoftSelectedStructureMembers.Count > 0)
+            {
+                Deselect(topMostList);
+            }
+        }
+    }
+
+    private void Deselect(List<ILayerHandler> topMostWithinClick)
+    {
+        var topMost = topMostWithinClick.FirstOrDefault();
+        if (topMost is not null)
+        {
+            bool deselectingWasMain = document.SelectedStructureMember.Id == topMost.Id;
+            if (deselectingWasMain)
+            {
+                Guid? nextMain = document.SoftSelectedStructureMembers.FirstOrDefault().Id;
+                List<Guid> softSelected = document.SoftSelectedStructureMembers
+                    .Select(x => x.Id).Where(x => x != nextMain.Value).ToList();
+                    
+                document.Operations.ClearSoftSelectedMembers();
+                document.Operations.SetSelectedMember(nextMain.Value);
+                    
+                foreach (var guid in softSelected)
+                {
+                    document.Operations.AddSoftSelectedMember(guid);
+                }
+            }
+            else
+            {
+                List<Guid> softSelected = document.SoftSelectedStructureMembers
+                    .Select(x => x.Id).Where(x => x != topMost.Id).ToList();
+                    
+                document.Operations.ClearSoftSelectedMembers();
+                    
+                foreach (var guid in softSelected)
+                {
+                    document.Operations.AddSoftSelectedMember(guid);
+                }
+            }
         }
     }
 

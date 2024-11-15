@@ -3,6 +3,7 @@ using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.Models.Controllers.InputDevice;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -107,7 +108,7 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
         document!.LineToolOverlayHandler.Hide();
     }
 
-    public override void OnLeftMouseButtonDown(VecD pos)
+    public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
         if (ActiveMode == ShapeToolMode.Preview)
         {

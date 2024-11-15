@@ -524,7 +524,8 @@ internal class TransformOverlay : Overlay
 
         if (!isRotating && !actuallyMoved)
         {
-            PassthroughPointerPressedCommand?.Execute(e.Point);
+            MouseOnCanvasEventArgs args = new(MouseButton.Left, e.Point, e.Modifiers);
+            PassthroughPointerPressedCommand?.Execute(args);
         }
 
         if (isRotating)

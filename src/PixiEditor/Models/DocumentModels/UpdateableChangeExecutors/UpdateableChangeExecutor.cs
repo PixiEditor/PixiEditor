@@ -7,6 +7,7 @@ using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
@@ -48,7 +49,7 @@ internal abstract class UpdateableChangeExecutor
     public abstract void ForceStop();
     public virtual void OnPixelPositionChange(VecI pos) { }
     public virtual void OnPrecisePositionChange(VecD pos) { }
-    public virtual void OnLeftMouseButtonDown(VecD pos) { }
+    public virtual void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args) { }
     public virtual void OnLeftMouseButtonUp(VecD pos) { }
     public virtual void OnOpacitySliderDragStarted() { }
     public virtual void OnOpacitySliderDragged(float newValue) { }

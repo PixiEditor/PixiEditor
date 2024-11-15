@@ -10,6 +10,7 @@ using PixiEditor.Helpers.UI;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
+using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Views.Overlays.TransformOverlay;
 
 namespace PixiEditor.ViewModels.Document.TransformOverlays;
@@ -85,7 +86,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         set => SetProperty(ref showTransformControls, value);
     }
 
-    public event Action<VecD>? PassthroughPointerPressed;
+    public event Action<MouseOnCanvasEventArgs>? PassthroughPointerPressed;
 
     private bool coverWholeScreen;
     public bool CoverWholeScreen
@@ -127,12 +128,12 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         set => SetProperty(ref actionCompletedCommand, value);
     }
 
-    private RelayCommand<VecD>? passThroughPointerPressedCommand; 
-    public RelayCommand<VecD> PassThroughPointerPressedCommand
+    private RelayCommand<MouseOnCanvasEventArgs>? passThroughPointerPressedCommand; 
+    public RelayCommand<MouseOnCanvasEventArgs> PassThroughPointerPressedCommand
     {
         get
         {
-            return passThroughPointerPressedCommand ??= new RelayCommand<VecD>(x => PassthroughPointerPressed?.Invoke(x));
+            return passThroughPointerPressedCommand ??= new RelayCommand<MouseOnCanvasEventArgs>(x => PassthroughPointerPressed?.Invoke(x));
         }
     }
 

@@ -2,6 +2,7 @@
 using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.DocumentModels;
 using Drawie.Numerics;
+using PixiEditor.Models.Controllers.InputDevice;
 
 namespace PixiEditor.Models.Handlers;
 
@@ -16,5 +17,5 @@ internal interface ITransformHandler : IHandler
     public bool HasUndo { get; }
     public bool HasRedo { get; }
     public bool ShowTransformControls { get; set; }
-    public event Action<VecD> PassthroughPointerPressed;
+    public event Action<MouseOnCanvasEventArgs> PassthroughPointerPressed;
 }

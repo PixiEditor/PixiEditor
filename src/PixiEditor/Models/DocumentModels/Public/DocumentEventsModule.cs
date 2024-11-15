@@ -5,6 +5,7 @@ using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
+using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 
 namespace PixiEditor.Models.DocumentModels.Public;
@@ -33,7 +34,7 @@ internal class DocumentEventsModule
         DocumentsHandler.TransformHandler.KeyModifiersInlet(args.IsShiftDown, args.IsCtrlDown, args.IsAltDown);
     }
 
-    public void OnCanvasLeftMouseButtonDown(VecD pos) => Internals.ChangeController.LeftMouseButtonDownInlet(pos);
+    public void OnCanvasLeftMouseButtonDown(MouseOnCanvasEventArgs args) => Internals.ChangeController.LeftMouseButtonDownInlet(args);
     public void OnCanvasMouseMove(VecD newPos)
     {
         DocumentsHandler.CoordinatesString = $"X: {(int)newPos.X} Y: {(int)newPos.Y}";

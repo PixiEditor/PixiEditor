@@ -193,7 +193,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             return;
 
         drawingWithRight = args.Button == MouseButton.Right;
-        activeDocument.EventInlet.OnCanvasLeftMouseButtonDown(args.PositionOnCanvas);
+        activeDocument.EventInlet.OnCanvasLeftMouseButtonDown(args);
         Owner.ToolsSubViewModel.UseToolEventInlet(args.PositionOnCanvas, args.Button);
 
         Analytics.SendUseTool(Owner.ToolsSubViewModel.ActiveTool, args.PositionOnCanvas, activeDocument.SizeBindable);
