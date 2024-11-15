@@ -57,6 +57,7 @@
             <system:String x:Key="icon-folder">&#xE92D;</system:String>
             <system:String x:Key="icon-globe">&#xE92E;</system:String>
             <system:String x:Key="icon-grid">&#xE92F;</system:String>
+            <system:String x:Key="icon-gridlines">&#xE941;</system:String>
             <system:String x:Key="icon-home">&#xE930;</system:String>
             <system:String x:Key="icon-image-90">&#xE931;</system:String>
             <system:String x:Key="icon-image">&#xE932;</system:String>

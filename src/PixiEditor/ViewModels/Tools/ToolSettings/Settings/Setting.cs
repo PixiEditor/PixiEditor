@@ -1,5 +1,6 @@
 ﻿using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
+using DiscordRPC;
 using PixiEditor.Extensions.Common.Localization;
 
 #pragma warning disable SA1402 // File may only contain a single type, Justification: "Same class with generic value"
@@ -49,11 +50,11 @@ internal abstract class Setting : ObservableObject
     private object _value;
     private bool isExposed = true;
     
-    private bool overwrittenExposed;
-    private object overwrittenValue;
+    protected bool overwrittenExposed;
+    protected object overwrittenValue;
 
-    private bool hasOverwrittenValue;
-    private bool hasOverwrittenExposed;
+    protected bool hasOverwrittenValue;
+    protected bool hasOverwrittenExposed;
     
     protected Setting(string name)
     {
@@ -101,6 +102,7 @@ internal abstract class Setting : ObservableObject
         hasOverwrittenValue = true;
         
         OnPropertyChanged(nameof(Value));
+        ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<object>(_value, value));
     }
     
     public void SetOverwriteExposed(bool value)
@@ -113,6 +115,8 @@ internal abstract class Setting : ObservableObject
     
     public void ResetOverwrite()
     {
+        var old = overwrittenValue;
+        bool hadOverwrittenValue = hasOverwrittenValue;
         overwrittenValue = null;
         overwrittenExposed = false;
         hasOverwrittenValue = false;
@@ -120,5 +124,10 @@ internal abstract class Setting : ObservableObject
         
         OnPropertyChanged(nameof(Value));
         OnPropertyChanged(nameof(IsExposed));
+
+        if (hadOverwrittenValue)
+        {
+            ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<object>(old, _value));
+        }
     }
 }

@@ -197,7 +197,8 @@ public class DocumentChangeTracker : IDisposable
         undoStack.Clear();
     }
 
-    private OneOf<None, IChangeInfo, List<IChangeInfo>> ProcessMakeChangeAction(IMakeChangeAction act)
+    private OneOf<None, IChangeInfo, List<IChangeInfo>> ProcessMakeChangeAction(IMakeChangeAction act,
+        ActionSource source)
     {
         if (activeUpdateableChange is not null)
         {
@@ -216,13 +217,14 @@ public class DocumentChangeTracker : IDisposable
 
         var info = change.Apply(document, true, out bool ignoreInUndo);
         if (!ignoreInUndo)
-            AddToUndo(change, ActionSource.User);
+            AddToUndo(change, source);
         else
             change.Dispose();
         return info;
     }
 
-    private OneOf<None, IChangeInfo, List<IChangeInfo>> ProcessStartOrUpdateChangeAction(IStartOrUpdateChangeAction act)
+    private OneOf<None, IChangeInfo, List<IChangeInfo>> ProcessStartOrUpdateChangeAction(IStartOrUpdateChangeAction act,
+        ActionSource source)
     {
         if (activeUpdateableChange is null)
         {
@@ -237,7 +239,7 @@ public class DocumentChangeTracker : IDisposable
             {
                 var applyInfo = activeUpdateableChange.Apply(document, false, out bool ignoreInUndo);
                 if (!ignoreInUndo)
-                    AddToUndo(activeUpdateableChange, ActionSource.User);
+                    AddToUndo(activeUpdateableChange, source);
                 else
                     activeUpdateableChange.Dispose();
 
@@ -287,7 +289,8 @@ public class DocumentChangeTracker : IDisposable
         return false;
     }
 
-    private OneOf<None, IChangeInfo, List<IChangeInfo>> ProcessEndChangeAction(IEndChangeAction act)
+    private OneOf<None, IChangeInfo, List<IChangeInfo>> ProcessEndChangeAction(IEndChangeAction act,
+        ActionSource source)
     {
         if (activeUpdateableChange is null)
         {
@@ -304,7 +307,7 @@ public class DocumentChangeTracker : IDisposable
 
         var info = activeUpdateableChange.Apply(document, true, out bool ignoreInUndo);
         if (!ignoreInUndo)
-            AddToUndo(activeUpdateableChange, ActionSource.User);
+            AddToUndo(activeUpdateableChange, source);
         else
             activeUpdateableChange.Dispose();
         activeUpdateableChange = null;
@@ -326,13 +329,13 @@ public class DocumentChangeTracker : IDisposable
             switch (action.Item2)
             {
                 case IMakeChangeAction act:
-                    AddInfo(ProcessMakeChangeAction(act));
+                    AddInfo(ProcessMakeChangeAction(act, action.Item1));
                     break;
                 case IStartOrUpdateChangeAction act:
-                    AddInfo(ProcessStartOrUpdateChangeAction(act));
+                    AddInfo(ProcessStartOrUpdateChangeAction(act, action.Item1));
                     break;
                 case IEndChangeAction act:
-                    AddInfo(ProcessEndChangeAction(act));
+                    AddInfo(ProcessEndChangeAction(act, action.Item1));
                     break;
                 case Undo_Action:
                     AddInfo(Undo());

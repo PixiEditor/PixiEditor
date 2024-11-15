@@ -4,5 +4,6 @@ internal enum BrushShape
     Hidden,
     Pixel,
     Square,
-    Circle
+    CirclePixelated,
+    CircleSmooth
 }

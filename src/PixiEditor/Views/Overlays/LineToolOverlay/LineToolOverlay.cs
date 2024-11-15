@@ -55,6 +55,24 @@ internal class LineToolOverlay : Overlay
         set => SetValue(SnappingControllerProperty, value);
     }
 
+    public static readonly StyledProperty<bool> ShowHandlesProperty = AvaloniaProperty.Register<LineToolOverlay, bool>(
+        nameof(ShowHandles), defaultValue: true);
+
+    public bool ShowHandles
+    {
+        get => GetValue(ShowHandlesProperty);
+        set => SetValue(ShowHandlesProperty, value);
+    }
+
+    public static readonly StyledProperty<bool> IsSizeBoxEnabledProperty = AvaloniaProperty.Register<LineToolOverlay, bool>(
+        nameof(IsSizeBoxEnabled));
+
+    public bool IsSizeBoxEnabled
+    {
+        get => GetValue(IsSizeBoxEnabledProperty);
+        set => SetValue(IsSizeBoxEnabledProperty, value);
+    }
+    
     static LineToolOverlay()
     {
         LineStartProperty.Changed.Subscribe(RenderAffectingPropertyChanged);
@@ -115,6 +133,12 @@ internal class LineToolOverlay : Overlay
         infoBox = new InfoBox();
     }
 
+    protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
+    {
+        base.OnOverlayPointerMoved(args);
+        lastMousePos = args.Point;
+    }
+
     private void OnHandleRelease(Handle obj)
     {
         if (SnappingController != null)
@@ -125,6 +149,7 @@ internal class LineToolOverlay : Overlay
         }
         
         isDraggingHandle = false;
+        IsSizeBoxEnabled = false;
     }
 
     protected override void ZoomChanged(double newZoom)
@@ -159,12 +184,15 @@ internal class LineToolOverlay : Overlay
 
         context.DrawLine(new VecD(mappedStart.X, mappedStart.Y), new VecD(mappedEnd.X, mappedEnd.Y), blackPaint);
         context.DrawLine(new VecD(mappedStart.X, mappedStart.Y), new VecD(mappedEnd.X, mappedEnd.Y), whiteDashPaint);
-        
-        startHandle.Draw(context);
-        endHandle.Draw(context);
-        moveHandle.Draw(context);
 
-        if (isDraggingHandle)
+        if (ShowHandles)
+        {
+            startHandle.Draw(context);
+            endHandle.Draw(context);
+            moveHandle.Draw(context);
+        }
+
+        if (IsSizeBoxEnabled)
         {
             string length = $"L: {(mappedEnd - mappedStart).Length:0.#} px";
             infoBox.DrawInfo(context, length, lastMousePos);
@@ -192,6 +220,7 @@ internal class LineToolOverlay : Overlay
         
         lastMousePos = position;
         isDraggingHandle = true;
+        IsSizeBoxEnabled = true;
     }
 
     private void EndHandleOnDrag(Handle source, VecD position)
@@ -204,6 +233,7 @@ internal class LineToolOverlay : Overlay
         
         isDraggingHandle = true;
         lastMousePos = position;
+        IsSizeBoxEnabled = true;
     }
 
     private VecD SnapAndHighlight(VecD position)

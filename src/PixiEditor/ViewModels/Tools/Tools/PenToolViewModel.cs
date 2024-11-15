@@ -20,7 +20,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
         private int actualToolSize;
 
         public override string ToolNameLocalizationKey => "PEN_TOOL";
-        public override BrushShape BrushShape => BrushShape.Circle;
+        public override BrushShape BrushShape => BrushShapeSetting;
         
         public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
 
@@ -39,6 +39,9 @@ namespace PixiEditor.ViewModels.Tools.Tools
 
         [Settings.Bool("PIXEL_PERFECT_SETTING", Notify = nameof(PixelPerfectChanged), ExposedByDefault = false)]
         public bool PixelPerfectEnabled => GetValue<bool>();
+        
+        [Settings.Enum("BRUSH_SHAPE_SETTING", BrushShape.CirclePixelated, ExposedByDefault = false, Notify = nameof(BrushShapeChanged))]
+        public BrushShape BrushShapeSetting => GetValue<BrushShape>();
 
         public override string DefaultIcon => PixiPerfectIcons.Pen;
 
@@ -105,6 +108,11 @@ namespace PixiEditor.ViewModels.Tools.Tools
             {
                 setting.Value = actualToolSize;
             }
+        }
+        
+        private void BrushShapeChanged()
+        {
+            OnPropertyChanged(nameof(BrushShape));
         }
     }
 }

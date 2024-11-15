@@ -54,6 +54,10 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
                 toolbar.StrokeColor = colorsVM.PrimaryColor.ToColor();
             }
 
+            document.LineToolOverlayHandler.Show(startDrawingPos, startDrawingPos, false);
+            document.LineToolOverlayHandler.ShowHandles = false;
+            document.LineToolOverlayHandler.IsSizeBoxEnabled = true;
+            
             return ExecutionState.Success;
         }
 
@@ -103,6 +107,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         }
 
         HighlightSnapping(snapX, snapY);
+        document!.LineToolOverlayHandler.LineEnd = snapped;
 
         curPos = snapped;
 
@@ -119,6 +124,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
             return;
         }
 
+        document!.LineToolOverlayHandler.Hide();
         document!.LineToolOverlayHandler.Show(startDrawingPos, curPos, true);
         base.OnLeftMouseButtonUp();
     }

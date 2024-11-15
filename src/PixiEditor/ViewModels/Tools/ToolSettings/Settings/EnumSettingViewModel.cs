@@ -32,7 +32,7 @@ internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum, ComboBox>
     /// </summary>
     public override TEnum Value
     {
-        get => Enum.GetValues<TEnum>()[SelectedIndex];
+        get => hasOverwrittenValue ? GetOverwrittenEnum() : Enum.GetValues<TEnum>()[SelectedIndex];
         set
         {
             var values = Enum.GetValues<TEnum>();
@@ -62,5 +62,28 @@ internal sealed class EnumSettingViewModel<TEnum> : Setting<TEnum, ComboBox>
         : this(name, label)
     {
         Value = defaultValue;
+    }
+    
+    private TEnum GetOverwrittenEnum()
+    {
+        int index;
+        if (overwrittenValue is float floatVal)
+        {
+            index = (int)floatVal;
+        }
+        else if (overwrittenValue is int intVal)
+        {
+            index = intVal;
+        }
+        else if (overwrittenValue is string stringVal)
+        {
+            return Enum.Parse<TEnum>(stringVal);
+        }
+        else
+        {
+            throw new InvalidCastException("Overwritten value is not a valid type.");
+        }
+
+        return Enum.GetValues<TEnum>()[index];
     }
 }

@@ -290,6 +290,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private MouseUpdateController? mouseUpdateController;
     private ViewportOverlays builtInOverlays = new();
+    public static readonly StyledProperty<bool> SnappingEnabledProperty = AvaloniaProperty.Register<Viewport, bool>("SnappingEnabled");
 
     static Viewport()
     {
@@ -335,6 +336,12 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         get { return (bool)GetValue(HighResPreviewProperty); }
         set { SetValue(HighResPreviewProperty, value); }
+    }
+
+    public bool SnappingEnabled
+    {
+        get { return (bool)GetValue(SnappingEnabledProperty); }
+        set { SetValue(SnappingEnabledProperty, value); }
     }
 
     private void ForceRefreshFinalImage()
@@ -491,7 +498,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private static void OnHighResPreviewChanged(AvaloniaPropertyChangedEventArgs<bool> e)
     {
         Viewport? viewport = (Viewport)e.Sender;
-        viewport.Document.SceneRenderer.HighResRendering = e.NewValue.Value; 
         viewport.ForceRefreshFinalImage();
     }
 }
