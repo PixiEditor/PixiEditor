@@ -58,6 +58,12 @@ steps:
       custom: 'workload'
       arguments: 'install wasi-experimental'
 
+  - task: DotNetCoreCLI@2
+    displayName: Install wasm-tools
+    inputs:
+      command: 'custom'
+      custom: 'workload'
+      arguments: 'install wasm-tools'
 
   - task: NuGetCommand@2
     displayName: 'Restore solution'
