@@ -498,7 +498,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private static void OnHighResPreviewChanged(AvaloniaPropertyChangedEventArgs<bool> e)
     {
         Viewport? viewport = (Viewport)e.Sender;
-        viewport.Document.SceneRenderer.HighResRendering = e.NewValue.Value; 
         viewport.ForceRefreshFinalImage();
     }
 }

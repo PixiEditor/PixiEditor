@@ -24,6 +24,17 @@ internal class ViewOptionsViewModel : SubViewModel<ViewModelMain>
             Owner.DocumentManagerSubViewModel.ActiveDocument.SnappingViewModel.SnappingController.SnappingEnabled = value;
         }
     }
+    
+    private bool highResRender = true;
+    public bool HighResRender
+    {
+        get => highResRender;
+        set
+        {
+            SetProperty(ref highResRender, value);
+            Owner.DocumentManagerSubViewModel.ActiveDocument.SceneRenderer.HighResRendering = value;
+        }
+    }
 
     public ViewOptionsViewModel(ViewModelMain owner)
         : base(owner)
