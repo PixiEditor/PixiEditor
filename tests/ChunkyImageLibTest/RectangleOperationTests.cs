@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using ChunkyImageLib;
 using ChunkyImageLib.Operations;
+using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Numerics;
+using Drawie.Skia;
 using Xunit;
 
 namespace ChunkyImageLibTest;
@@ -10,6 +12,16 @@ namespace ChunkyImageLibTest;
 public class RectangleOperationTests
 {
     const int chunkSize = ChunkPool.FullChunkSize;
+    public RectangleOperationTests()
+    {
+        try
+        {
+            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend(), null);
+        }
+        catch
+        {
+        }
+    }
 // to keep expected rectangles aligned
 #pragma warning disable format
     [Fact]
@@ -45,7 +57,7 @@ public class RectangleOperationTests
         HashSet<VecI> expected = new()
         {
             new(1, 1), new(2, 1), new(3, 1),
-            new(1, 2),            new(3, 2),
+            new(1, 2), new(3, 2),
             new(1, 3), new(2, 3), new(3, 3),
         };
         var actual = operation.FindAffectedArea(new(chunkSize)).Chunks;
@@ -56,13 +68,14 @@ public class RectangleOperationTests
     [Fact]
     public void FindAffectedArea_3x3NegativeStrokeOnly_FindsCorrectChunks()
     {
-        var (x, y, w, h) = (-chunkSize * 2 - chunkSize / 2, -chunkSize * 2 - chunkSize / 2, chunkSize * 2, chunkSize * 2);
+        var (x, y, w, h) = (-chunkSize * 2 - chunkSize / 2, -chunkSize * 2 - chunkSize / 2, chunkSize * 2,
+            chunkSize * 2);
         RectangleOperation operation = new(new(new(x, y), new(w, h), 0, 1, Colors.Black, Colors.Transparent));
 
         HashSet<VecI> expected = new()
         {
             new(-4, -4), new(-3, -4), new(-2, -4),
-            new(-4, -3),              new(-2, -3),
+            new(-4, -3), new(-2, -3),
             new(-4, -2), new(-3, -2), new(-2, -2),
         };
         var actual = operation.FindAffectedArea(new(chunkSize)).Chunks;
@@ -78,7 +91,7 @@ public class RectangleOperationTests
 
         HashSet<VecI> expected = new()
         {
-            new(1, 1), new(2, 1), new(3, 1), 
+            new(1, 1), new(2, 1), new(3, 1),
             new(1, 2), new(2, 2), new(3, 2),
             new(1, 3), new(2, 3), new(3, 3),
         };
@@ -97,7 +110,7 @@ public class RectangleOperationTests
         {
             new(0, 0), new(1, 0), new(2, 0), new(3, 0), new(4, 0),
             new(0, 1), new(1, 1), new(2, 1), new(3, 1), new(4, 1),
-            new(0, 2), new(1, 2),            new(3, 2), new(4, 2),
+            new(0, 2), new(1, 2), new(3, 2), new(4, 2),
             new(0, 3), new(1, 3), new(2, 3), new(3, 3), new(4, 3),
             new(0, 4), new(1, 4), new(2, 4), new(3, 4), new(4, 4),
         };

@@ -13,6 +13,7 @@ public class MockDocument : IReadOnlyDocument
         throw new NotImplementedException();
     }
 
+    public Guid DocumentId { get; }
     public IReadOnlyNodeGraph NodeGraph { get; }
     public IReadOnlySelection Selection { get; }
     public IReadOnlyAnimationData AnimationData { get; }
