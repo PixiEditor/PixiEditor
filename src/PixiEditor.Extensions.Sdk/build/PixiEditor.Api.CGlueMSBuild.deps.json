@@ -9,8 +9,8 @@
     ".NETStandard,Version=v2.0/": {
       "PixiEditor.Api.CGlueMSBuild/1.0.0": {
         "dependencies": {
-          "Microsoft.Build.Utilities.Core": "17.9.5",
-          "Mono.Cecil": "0.11.5",
+          "Microsoft.Build.Utilities.Core": "17.12.6",
+          "Mono.Cecil": "0.11.6",
           "NETStandard.Library": "2.0.3",
           "StyleCop.Analyzers": "1.1.118"
         },
@@ -18,7 +18,7 @@
           "PixiEditor.Api.CGlueMSBuild.dll": {}
         }
       },
-      "Microsoft.Build.Framework/17.9.5": {
+      "Microsoft.Build.Framework/17.12.6": {
         "dependencies": {
           "Microsoft.Win32.Registry": "5.0.0",
           "System.Memory": "4.5.5",
@@ -26,10 +26,10 @@
           "System.Security.Principal.Windows": "5.0.0"
         }
       },
-      "Microsoft.Build.Utilities.Core/17.9.5": {
+      "Microsoft.Build.Utilities.Core/17.12.6": {
         "dependencies": {
-          "Microsoft.Build.Framework": "17.9.5",
-          "Microsoft.NET.StringTools": "17.9.5",
+          "Microsoft.Build.Framework": "17.12.6",
+          "Microsoft.NET.StringTools": "17.12.6",
           "Microsoft.Win32.Registry": "5.0.0",
           "System.Collections.Immutable": "8.0.0",
           "System.Configuration.ConfigurationManager": "8.0.0",
@@ -39,7 +39,7 @@
           "System.Text.Encoding.CodePages": "7.0.0"
         }
       },
-      "Microsoft.NET.StringTools/17.9.5": {
+      "Microsoft.NET.StringTools/17.12.6": {
         "dependencies": {
           "System.Memory": "4.5.5",
           "System.Runtime.CompilerServices.Unsafe": "6.0.0"
@@ -54,23 +54,23 @@
           "System.Security.Principal.Windows": "5.0.0"
         }
       },
-      "Mono.Cecil/0.11.5": {
+      "Mono.Cecil/0.11.6": {
         "runtime": {
           "lib/netstandard2.0/Mono.Cecil.Mdb.dll": {
-            "assemblyVersion": "0.11.5.0",
-            "fileVersion": "0.11.5.0"
+            "assemblyVersion": "0.11.6.0",
+            "fileVersion": "0.11.6.0"
           },
           "lib/netstandard2.0/Mono.Cecil.Pdb.dll": {
-            "assemblyVersion": "0.11.5.0",
-            "fileVersion": "0.11.5.0"
+            "assemblyVersion": "0.11.6.0",
+            "fileVersion": "0.11.6.0"
           },
           "lib/netstandard2.0/Mono.Cecil.Rocks.dll": {
-            "assemblyVersion": "0.11.5.0",
-            "fileVersion": "0.11.5.0"
+            "assemblyVersion": "0.11.6.0",
+            "fileVersion": "0.11.6.0"
           },
           "lib/netstandard2.0/Mono.Cecil.dll": {
-            "assemblyVersion": "0.11.5.0",
-            "fileVersion": "0.11.5.0"
+            "assemblyVersion": "0.11.6.0",
+            "fileVersion": "0.11.6.0"
           }
         }
       },
@@ -126,26 +126,26 @@
       "serviceable": false,
       "sha512": ""
     },
-    "Microsoft.Build.Framework/17.9.5": {
+    "Microsoft.Build.Framework/17.12.6": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-CjRmqu9Wv2fyC1d7NKOuBDXcNMI8+GiXGM6izygB+skGGu4Vf0cBcoPq7AFqZCcMpn5DtZ+y7RpaLpB2qrzanQ==",
-      "path": "microsoft.build.framework/17.9.5",
-      "hashPath": "microsoft.build.framework.17.9.5.nupkg.sha512"
+      "sha512": "sha512-jleteC0seumLGTmTVwob97lcwPj/dfgzL/V3g/VVcMZgo2Ic7jzdy8AYpByPDh8e3uRq0SjCl6HOFCjhy5GzRQ==",
+      "path": "microsoft.build.framework/17.12.6",
+      "hashPath": "microsoft.build.framework.17.12.6.nupkg.sha512"
     },
-    "Microsoft.Build.Utilities.Core/17.9.5": {
+    "Microsoft.Build.Utilities.Core/17.12.6": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-H2hpVdm7cX/uGJD1HOfab3RKgD5tlnvzQkFqvsrAqGHRi0sqb2w1+hRwERFm23witCjmERnqNgiQjYks6/ds8A==",
-      "path": "microsoft.build.utilities.core/17.9.5",
-      "hashPath": "microsoft.build.utilities.core.17.9.5.nupkg.sha512"
+      "sha512": "sha512-pU3GnHcXp8VRMGKxdJCq+tixfhFn+QwEbpqmZmc/nqFHFyuhlGwjonWZMIWcwuCv/8EHgxoOttFvna1vrN+RrA==",
+      "path": "microsoft.build.utilities.core/17.12.6",
+      "hashPath": "microsoft.build.utilities.core.17.12.6.nupkg.sha512"
     },
-    "Microsoft.NET.StringTools/17.9.5": {
+    "Microsoft.NET.StringTools/17.12.6": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-C/oPRnjcIZBRzcpl1V06R1eEMCxOGt6mIm+8ioyblELgJEXLM8XjUPuCwljMO52VetsHw54xMcYwU8UEeHEIEg==",
-      "path": "microsoft.net.stringtools/17.9.5",
-      "hashPath": "microsoft.net.stringtools.17.9.5.nupkg.sha512"
+      "sha512": "sha512-w8Ehofqte5bJoR+Fa3f6JwkwFEkGtXxqvQHGOVOSHDzgNVySvL5FSNhavbQSZ864el9c3rjdLPLAtBW8dq6fmg==",
+      "path": "microsoft.net.stringtools/17.12.6",
+      "hashPath": "microsoft.net.stringtools.17.12.6.nupkg.sha512"
     },
     "Microsoft.NETCore.Platforms/1.1.0": {
       "type": "package",
@@ -161,12 +161,12 @@
       "path": "microsoft.win32.registry/5.0.0",
       "hashPath": "microsoft.win32.registry.5.0.0.nupkg.sha512"
     },
-    "Mono.Cecil/0.11.5": {
+    "Mono.Cecil/0.11.6": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-fxfX+0JGTZ8YQeu1MYjbBiK2CYTSzDyEeIixt+yqKKTn7FW8rv7JMY70qevup4ZJfD7Kk/VG/jDzQQTpfch87g==",
-      "path": "mono.cecil/0.11.5",
-      "hashPath": "mono.cecil.0.11.5.nupkg.sha512"
+      "sha512": "sha512-f33RkDtZO8VlGXCtmQIviOtxgnUdym9xx/b1p9h91CRGOsJFxCFOFK1FDbVt1OCf1aWwYejUFa2MOQyFWTFjbA==",
+      "path": "mono.cecil/0.11.6",
+      "hashPath": "mono.cecil.0.11.6.nupkg.sha512"
     },
     "NETStandard.Library/2.0.3": {
       "type": "package",
