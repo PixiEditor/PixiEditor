@@ -15,4 +15,6 @@ internal interface ITransformHandler : IHandler
     public bool Nudge(VecD distance);
     public bool HasUndo { get; }
     public bool HasRedo { get; }
+    public bool ShowTransformControls { get; set; }
+    public event Action<VecD> PassthroughPointerPressed;
 }

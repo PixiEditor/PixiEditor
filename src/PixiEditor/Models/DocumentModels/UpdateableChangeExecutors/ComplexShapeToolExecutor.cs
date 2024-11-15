@@ -250,7 +250,7 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
         internals!.ActionAccumulator.AddActions(SettingsChangedAction());
     }
 
-    public override void OnLeftMouseButtonUp()
+    public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
     {
         if (ActiveMode != ShapeToolMode.Transform)
         {
@@ -259,13 +259,13 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
                 internals!.ActionAccumulator.AddFinishedActions(EndDrawAction());
                 AddMemberToSnapping();
 
-                base.OnLeftMouseButtonUp();
+                base.OnLeftMouseButtonUp(argsPositionOnCanvas);
                 onEnded?.Invoke(this);
                 return;
             }
         }
 
-        base.OnLeftMouseButtonUp();
+        base.OnLeftMouseButtonUp(argsPositionOnCanvas);
     }
 
     protected override void StartMode(ShapeToolMode mode)

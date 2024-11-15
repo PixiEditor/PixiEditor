@@ -85,6 +85,8 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         set => SetProperty(ref showTransformControls, value);
     }
 
+    public event Action<VecD>? PassthroughPointerPressed;
+
     private bool coverWholeScreen;
     public bool CoverWholeScreen
     {
@@ -110,6 +112,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         set => SetProperty(ref enableSnapping, value);
     }
     
+    
     private ExecutionTrigger<ShapeCorners> requestedCornersExecutor;
     public ExecutionTrigger<ShapeCorners> RequestCornersExecutor
     {
@@ -122,6 +125,15 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
     {
         get => actionCompletedCommand;
         set => SetProperty(ref actionCompletedCommand, value);
+    }
+
+    private RelayCommand<VecD>? passThroughPointerPressedCommand; 
+    public RelayCommand<VecD> PassThroughPointerPressedCommand
+    {
+        get
+        {
+            return passThroughPointerPressedCommand ??= new RelayCommand<VecD>(x => PassthroughPointerPressed?.Invoke(x));
+        }
     }
 
     public event EventHandler<ShapeCorners>? TransformMoved;

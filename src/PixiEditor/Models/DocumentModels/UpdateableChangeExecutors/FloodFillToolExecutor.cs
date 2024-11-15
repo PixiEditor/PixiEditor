@@ -50,7 +50,7 @@ internal class FloodFillToolExecutor : UpdateableChangeExecutor
         internals!.ActionAccumulator.AddActions(new FloodFill_Action(memberGuid, pos, color, considerAllLayers, tolerance, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
 
-    public override void OnLeftMouseButtonUp()
+    public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
     {
         internals!.ActionAccumulator.AddActions(new ChangeBoundary_Action());
         onEnded!(this);

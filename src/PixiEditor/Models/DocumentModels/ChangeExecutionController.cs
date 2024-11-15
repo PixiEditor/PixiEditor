@@ -210,13 +210,13 @@ internal class ChangeExecutionController
         currentSession?.OnLeftMouseButtonDown(canvasPos);
     }
 
-    public void LeftMouseButtonUpInlet()
+    public void LeftMouseButtonUpInlet(VecD argsPositionOnCanvas)
     {
         //update internal state
         LeftMousePressed = false;
 
         //call session events
-        currentSession?.OnLeftMouseButtonUp();
+        currentSession?.OnLeftMouseButtonUp(argsPositionOnCanvas);
     }
 
     public void TransformMovedInlet(ShapeCorners corners)

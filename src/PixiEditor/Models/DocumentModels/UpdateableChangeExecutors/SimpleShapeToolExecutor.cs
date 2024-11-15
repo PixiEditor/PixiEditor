@@ -131,7 +131,7 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
         }
     }
 
-    public override void OnLeftMouseButtonUp()
+    public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
     {
         HighlightSnapping(null, null);
         ActiveMode = ShapeToolMode.Transform;

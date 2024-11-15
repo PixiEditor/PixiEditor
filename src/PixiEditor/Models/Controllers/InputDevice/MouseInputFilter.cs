@@ -10,7 +10,7 @@ internal class MouseInputFilter
 {
     public EventHandler<MouseOnCanvasEventArgs> OnMouseDown;
     public EventHandler<VecD> OnMouseMove;
-    public EventHandler<MouseButton> OnMouseUp;
+    public EventHandler<MouseOnCanvasEventArgs> OnMouseUp;
 
 
     private Dictionary<MouseButton, bool> buttonStates = new()
@@ -36,23 +36,28 @@ internal class MouseInputFilter
 
     public void MouseMoveInlet(object args) => OnMouseMove?.Invoke(this, ((MouseOnCanvasEventArgs)args).PositionOnCanvas);
 
-    public void MouseUpInlet(object args) => MouseUpInlet(((MouseOnCanvasEventArgs)args).Button);
+    public void MouseUpInlet(object args) => MouseUpInlet(((MouseOnCanvasEventArgs)args));
     public void MouseUpInlet(object? sender, Point p, MouseButton button) => MouseUpInlet(button);
-    public void MouseUpInlet(MouseButton button)
+    public void MouseUpInlet(MouseOnCanvasEventArgs args)
     {
-        if (button is MouseButton.XButton1 or MouseButton.XButton2 or MouseButton.None)
+        if (args.Button is MouseButton.XButton1 or MouseButton.XButton2 or MouseButton.None)
             return;
-        if (!buttonStates[button])
+        if (!buttonStates[args.Button])
             return;
-        buttonStates[button] = false;
+        buttonStates[args.Button] = false;
 
-        OnMouseUp?.Invoke(this, button);
+        OnMouseUp?.Invoke(this, args);
     }
 
     public void DeactivatedInlet(object? sender, EventArgs e)
     {
-        MouseUpInlet(MouseButton.Left);
-        MouseUpInlet(MouseButton.Middle);
-        MouseUpInlet(MouseButton.Right);
+        MouseOnCanvasEventArgs argsLeft = new(MouseButton.Left, VecD.Zero);
+        MouseUpInlet(argsLeft);
+        
+        MouseOnCanvasEventArgs argsMiddle = new(MouseButton.Middle, VecD.Zero);
+        MouseUpInlet(argsMiddle);
+        
+        MouseOnCanvasEventArgs argsRight = new(MouseButton.Right, VecD.Zero);
+        MouseUpInlet(argsRight);
     }
 }

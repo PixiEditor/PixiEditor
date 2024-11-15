@@ -110,17 +110,17 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         internals!.ActionAccumulator.AddActions(drawLineAction);
     }
 
-    public override void OnLeftMouseButtonUp()
+    public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
     {
         if (!startedDrawing)
         {
-            base.OnLeftMouseButtonUp();
+            base.OnLeftMouseButtonUp(argsPositionOnCanvas);
             onEnded!(this);
             return;
         }
 
         document!.LineToolOverlayHandler.Show(startDrawingPos, curPos, true);
-        base.OnLeftMouseButtonUp();
+        base.OnLeftMouseButtonUp(argsPositionOnCanvas);
     }
 
     public override void OnLineOverlayMoved(VecD start, VecD end)

@@ -78,6 +78,15 @@ internal class TransformOverlay : Overlay
         AvaloniaProperty.Register<TransformOverlay, TransformState>(nameof(InternalState),
             defaultValue: default(TransformState));
 
+    public static readonly StyledProperty<ICommand> PassthroughPointerPressedCommandProperty = AvaloniaProperty.Register<TransformOverlay, ICommand>(
+        nameof(PassthroughPointerPressedCommand));
+
+    public ICommand PassthroughPointerPressedCommand
+    {
+        get => GetValue(PassthroughPointerPressedCommandProperty);
+        set => SetValue(PassthroughPointerPressedCommandProperty, value);
+    }
+
     public TransformState InternalState
     {
         get => GetValue(InternalStateProperty);
@@ -231,6 +240,7 @@ internal class TransformOverlay : Overlay
     private VecD lastPointerPos;
     private InfoBox infoBox;
     private VecD lastSize;
+    private bool actuallyMoved = false;
     
     public TransformOverlay()
     {
@@ -298,35 +308,10 @@ internal class TransformOverlay : Overlay
             UpdateRotationCursor(lastPointerPos);
     }
 
-    private void DrawMouseInputArea(Canvas context, VecD size)
-    {
-        if (CoverWholeScreen)
-        {
-            // TODO: Is it needed? Seems like it makes a hit area for avalonia
-            //context.DrawRect(new RectD(new VecD(-size.X * 50, -size.Y * 50), new VecD(size.X * 101, size.Y * 101)));
-            return;
-        }
-
-        StreamGeometry geometry = new();
-        using (StreamGeometryContext ctx = geometry.Open())
-        {
-            ctx.BeginFigure(TransformHelper.ToPoint(Corners.TopLeft), true);
-            ctx.LineTo(TransformHelper.ToPoint(Corners.TopRight));
-            ctx.LineTo(TransformHelper.ToPoint(Corners.BottomRight));
-            ctx.LineTo(TransformHelper.ToPoint(Corners.BottomLeft));
-            ctx.EndFigure(true);
-        }
-
-        // TODO: Is it needed? Seems like it makes a hit area for avalonia
-        //context.DrawGeometry(Brushes.Transparent, null, geometry);
-    }
-
     private void DrawOverlay
         (Canvas context, VecD size, ShapeCorners corners, VecD origin, float zoomboxScale)
     {
         lastSize = size;
-        // draw transparent background to enable mouse input
-        DrawMouseInputArea(context, size);
 
         handlePen.StrokeWidth = 1 / zoomboxScale;
         blackDashedPen.StrokeWidth = 1 / zoomboxScale;
@@ -480,7 +465,7 @@ internal class TransformOverlay : Overlay
         {
             return;
         }
-
+        
         args.Pointer.Capture(this);
         args.Handled = true;
     }
@@ -496,6 +481,7 @@ internal class TransformOverlay : Overlay
         {
             HandleTransform(pos);
             finalCursor = new Cursor(StandardCursorType.DragMove);
+            actuallyMoved = true;
         }
 
         if (capturedAnchor is not null)
@@ -536,6 +522,11 @@ internal class TransformOverlay : Overlay
         if (e.InitialPressMouseButton != MouseButton.Left)
             return;
 
+        if (!isRotating && !actuallyMoved)
+        {
+            PassthroughPointerPressedCommand?.Execute(e.Point);
+        }
+
         if (isRotating)
         {
             isRotating = false;
@@ -575,6 +566,7 @@ internal class TransformOverlay : Overlay
         mousePosOnStartMove = position;
         originOnStartMove = InternalState.Origin;
         cornersOnStartMove = Corners;
+        actuallyMoved = false;
     }
 
     private void HandleTransform(VecD pos)

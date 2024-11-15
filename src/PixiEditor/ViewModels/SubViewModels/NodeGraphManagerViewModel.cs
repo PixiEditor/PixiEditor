@@ -19,7 +19,7 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
     public void DeleteSelectedNodes()
     {
         var nodes = Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.AllNodes
-            .Where(x => x.IsSelected).ToList();
+            .Where(x => x.IsNodeSelected).ToList();
         
         if (nodes == null || nodes.Count == 0)
             return;

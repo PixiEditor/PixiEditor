@@ -39,7 +39,7 @@ internal class DocumentEventsModule
         DocumentsHandler.CoordinatesString = $"X: {(int)newPos.X} Y: {(int)newPos.Y}";
         Internals.ChangeController.MouseMoveInlet(newPos);
     }
-    public void OnCanvasLeftMouseButtonUp() => Internals.ChangeController.LeftMouseButtonUpInlet();
+    public void OnCanvasLeftMouseButtonUp(VecD argsPositionOnCanvas) => Internals.ChangeController.LeftMouseButtonUpInlet(argsPositionOnCanvas);
     public void OnOpacitySliderDragStarted() => Internals.ChangeController.OpacitySliderDragStartedInlet();
     public void OnOpacitySliderDragged(float newValue) => Internals.ChangeController.OpacitySliderDraggedInlet(newValue);
     public void OnOpacitySliderDragEnded() => Internals.ChangeController.OpacitySliderDragEndedInlet();

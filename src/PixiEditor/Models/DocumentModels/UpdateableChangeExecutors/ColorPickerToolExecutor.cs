@@ -42,7 +42,7 @@ internal class ColorPickerToolExecutor : UpdateableChangeExecutor
         colorsViewModel.PrimaryColor = document.PickColor(pos, scope, includeReference, includeCanvas, document.AnimationHandler.ActiveFrameBindable, document.ReferenceLayerHandler.IsTopMost);
     }
 
-    public override void OnLeftMouseButtonUp()
+    public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
     {
         onEnded?.Invoke(this);
     }

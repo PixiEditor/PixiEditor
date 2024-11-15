@@ -49,7 +49,7 @@ internal abstract class UpdateableChangeExecutor
     public virtual void OnPixelPositionChange(VecI pos) { }
     public virtual void OnPrecisePositionChange(VecD pos) { }
     public virtual void OnLeftMouseButtonDown(VecD pos) { }
-    public virtual void OnLeftMouseButtonUp() { }
+    public virtual void OnLeftMouseButtonUp(VecD pos) { }
     public virtual void OnOpacitySliderDragStarted() { }
     public virtual void OnOpacitySliderDragged(float newValue) { }
     public virtual void OnOpacitySliderDragEnded() { }

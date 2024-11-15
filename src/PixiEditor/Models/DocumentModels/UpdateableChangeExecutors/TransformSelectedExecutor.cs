@@ -21,9 +21,11 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     private bool isInProgress;
     public override ExecutorType Type { get; }
 
-    public override bool BlocksOtherActions => false; 
-    
+    public override bool BlocksOtherActions => false;
+
     private List<Guid> selectedMembers = new();
+
+    private ShapeCorners lastCorners = new();
 
     public TransformSelectedExecutor(bool toolLinked)
     {
@@ -46,6 +48,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         if (!members.Any())
             return ExecutionState.Error;
 
+        document.TransformHandler.PassthroughPointerPressed += OnLeftMouseButtonDown;
         return SelectMembers(members);
     }
 
@@ -81,21 +84,51 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         DocumentTransformMode mode = allRaster
             ? DocumentTransformMode.Scale_Rotate_Shear_Perspective
             : DocumentTransformMode.Scale_Rotate_Shear_NoPerspective;
-        
+
         foreach (var structureMemberHandler in members)
         {
             document.SnappingHandler.Remove(structureMemberHandler.Id.ToString());
         }
-        
+
         selectedMembers = members.Select(m => m.Id).ToList();
-        
-        document.TransformHandler.ShowTransform(mode, true, masterCorners, Type == ExecutorType.Regular);
+
+        lastCorners = masterCorners;
+        document.TransformHandler.ShowTransform(mode, true, masterCorners,
+            Type == ExecutorType.Regular || tool.KeepOriginalImage);
+
         internals!.ActionAccumulator.AddActions(
             new TransformSelected_Action(masterCorners, tool.KeepOriginalImage, memberCorners, false,
                 document.AnimationHandler.ActiveFrameBindable));
 
         isInProgress = true;
         return ExecutionState.Success;
+    }
+
+    public override void OnLeftMouseButtonDown(VecD pos)
+    {
+        var allLayers = document.StructureHelper.GetAllLayers();
+        var topMostWithinClick = allLayers.Where(x =>
+                x is { IsVisibleBindable: true, TightBounds: not null } && x.TightBounds.Value.ContainsInclusive(pos))
+            .OrderByDescending(x => allLayers.IndexOf(x));
+
+        var nonSelected = topMostWithinClick.Where(x => x != document.SelectedStructureMember
+                                                        && !document.SoftSelectedStructureMembers.Contains(x))
+            .ToArray();
+
+        if (nonSelected.Any())
+        {
+            var topMost = nonSelected.First();
+
+            document.Operations.SetSelectedMember(topMost.Id);
+        }
+    }
+
+    public override void OnSettingsChanged(string name, object value)
+    {
+        if (name == nameof(IMoveToolHandler.KeepOriginalImage))
+        {
+            DoTransform(lastCorners);
+        }
     }
 
     public override void OnMembersSelected(List<Guid> memberGuids)
@@ -105,7 +138,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             internals.ActionAccumulator.AddActions(new EndTransformSelected_Action());
             document!.TransformHandler.HideTransform();
             AddSnappingForMembers(selectedMembers);
-            
+
             selectedMembers.Clear();
             memberCorners.Clear();
             isInProgress = false;
@@ -123,6 +156,12 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
     public void OnTransformMoved(ShapeCorners corners)
     {
+        DoTransform(corners);
+        lastCorners = corners;
+    }
+
+    private void DoTransform(ShapeCorners corners)
+    {
         if (!isInProgress)
             return;
 
@@ -138,7 +177,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     public void OnMidChangeUndo() => document!.TransformHandler.Undo();
 
     public void OnMidChangeRedo() => document!.TransformHandler.Redo();
-    public bool CanUndo => document!.TransformHandler.HasUndo; 
+    public bool CanUndo => document!.TransformHandler.HasUndo;
     public bool CanRedo => document!.TransformHandler.HasRedo;
 
     public void OnTransformApplied()
@@ -160,6 +199,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         }
 
         isInProgress = false;
+        document.TransformHandler.PassthroughPointerPressed -= OnLeftMouseButtonDown;
     }
 
     public override void ForceStop()
@@ -175,8 +215,9 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         AddSnappingForMembers(memberCorners.Keys.ToList());
 
         isInProgress = false;
+        document.TransformHandler.PassthroughPointerPressed -= OnLeftMouseButtonDown;
     }
-    
+
     private void AddSnappingForMembers(List<Guid> memberGuids)
     {
         foreach (Guid memberGuid in memberGuids)
