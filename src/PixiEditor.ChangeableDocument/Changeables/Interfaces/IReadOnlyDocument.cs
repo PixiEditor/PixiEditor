@@ -10,6 +10,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 public interface IReadOnlyDocument : IDisposable
 {    
+    public Guid DocumentId { get; }
     /// <summary>
     /// The root folder of the document
     /// </summary>

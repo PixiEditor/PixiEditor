@@ -60,7 +60,8 @@ public static class PixiPerfectIcons
     public const string FolderPlus = "\ue92c";
     public const string Folder = "\ue92d";
     public const string Globe = "\ue92e";
-    public const string Grid = "\uE941";
+    public const string Grid = "\uE92F";
+    public const string GridLines = "\uE941";
     public const string Home = "\ue930";
     public const string RotateImageMinus90 = "\ue931";
     public const string Image = "\ue932";
@@ -130,10 +131,11 @@ public static class PixiPerfectIcons
     public const string Reset = "R"; // TODO: Create a reset icon
     public const string ToggleLayerVisible = "\u25a1;"; // TODO: Create a toggle layer visible icon
     public const string ToggleMask = "\u25a1;"; // TODO: Create a toggle mask icon
-    public static string Pen => "\uE971";
-    public static string LowResCircle => "\uE986";
-    public static string LowResSquare => "\uE988";
-    public static string LowResLine => "\uE989";
+    public const string Pen = "\uE971";
+    public const string LowResCircle = "\uE986";
+    public const string Snapping = "\ue987";
+    public const string LowResSquare = "\uE988";
+    public const string LowResLine = "\uE989";
 
     public static Stream GetFontStream()
     {

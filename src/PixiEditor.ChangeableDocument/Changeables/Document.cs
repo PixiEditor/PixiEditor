@@ -15,6 +15,7 @@ namespace PixiEditor.ChangeableDocument.Changeables;
 
 internal class Document : IChangeable, IReadOnlyDocument
 {
+    public Guid DocumentId { get; } = Guid.NewGuid();
     IReadOnlyNodeGraph IReadOnlyDocument.NodeGraph => NodeGraph;
     IReadOnlySelection IReadOnlyDocument.Selection => Selection;
     IReadOnlyAnimationData IReadOnlyDocument.AnimationData => AnimationData;

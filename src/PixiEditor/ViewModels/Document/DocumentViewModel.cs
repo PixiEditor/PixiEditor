@@ -195,6 +195,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     private VectorPath selectionPath = new VectorPath();
     public VectorPath SelectionPathBindable => selectionPath;
     public ObservableCollection<PaletteColor> Swatches { get; set; } = new();
+    public Guid Id => Internals.Tracker.Document.DocumentId;
     public ObservableRangeCollection<PaletteColor> Palette { get; set; } = new();
     public SnappingViewModel SnappingViewModel { get; }
     ISnappingHandler IDocument.SnappingHandler => SnappingViewModel;
@@ -620,7 +621,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
                     Renderer.RenderLayer(toPaintOn.DrawingSurface, layerVm.Id, ChunkResolution.Full,
                         AnimationDataViewModel.ActiveFrameTime);
-                    using Image snapshot = toPaintOn.DrawingSurface.Snapshot(bounds);
+                    using Image snapshot = toPaintOn.DrawingSurface.Snapshot(finalBounds);
                     output.DrawingSurface.Canvas.DrawImage(snapshot, 0, 0, paint);
                 });
             }
@@ -632,7 +633,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
 
         output.DrawingSurface.Canvas.Restore();
-        return (output, bounds);
+        return (output, finalBounds);
     }
 
     /// <summary>

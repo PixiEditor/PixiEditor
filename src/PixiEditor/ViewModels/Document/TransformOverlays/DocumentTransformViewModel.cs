@@ -105,7 +105,23 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
             TransformMoved?.Invoke(this, value);
         }
     }
+
+    private bool showHandles;
+
+    public bool ShowHandles
+    {
+        get => showHandles;
+        set => SetProperty(ref showHandles, value);
+    } 
     
+    private bool isSizeBoxEnabled;
+
+    public bool IsSizeBoxEnabled
+    {
+        get => isSizeBoxEnabled;
+        set => SetProperty(ref isSizeBoxEnabled, value);
+    } 
+
     private bool enableSnapping = true;
     public bool EnableSnapping
     {
@@ -218,6 +234,9 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         CoverWholeScreen = coverWholeScreen;
         TransformActive = true;
         ShowTransformControls = showApplyButton;
+
+        IsSizeBoxEnabled = false;
+        ShowHandles = true;
 
         RequestCornersExecutor?.Execute(this, initPos);
         undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Initial);

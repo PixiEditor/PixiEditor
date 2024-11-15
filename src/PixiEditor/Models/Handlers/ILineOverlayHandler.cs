@@ -12,4 +12,8 @@ internal interface ILineOverlayHandler
     public void Show(VecD startPos, VecD endPos, bool showApplyButton);
     public bool HasUndo { get; }
     public bool HasRedo { get; }
+    public VecD LineStart { get; set; }
+    public VecD LineEnd { get; set; }
+    public bool ShowHandles { get; set; }
+    public bool IsSizeBoxEnabled { get; set; }
 }

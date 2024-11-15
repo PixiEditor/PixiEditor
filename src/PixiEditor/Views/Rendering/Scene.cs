@@ -143,11 +143,13 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         CheckerImagePathProperty.Changed.AddClassHandler<Scene>(CheckerImagePathChanged);
         AllOverlaysProperty.Changed.AddClassHandler<Scene>(ActiveOverlaysChanged);
         DefaultCursorProperty.Changed.AddClassHandler<Scene>(DefaultCursorChanged);
-        ChannelsProperty.Changed.AddClassHandler<Scene>(ChannelsChanged);
+        ChannelsProperty.Changed.AddClassHandler<Scene>(Refresh);
         DocumentProperty.Changed.AddClassHandler<Scene>(DocumentChanged);
+        FlipXProperty.Changed.AddClassHandler<Scene>(Refresh);
+        FlipYProperty.Changed.AddClassHandler<Scene>(Refresh);
     }
 
-    private static void ChannelsChanged(Scene scene, AvaloniaPropertyChangedEventArgs args)
+    private static void Refresh(Scene scene, AvaloniaPropertyChangedEventArgs args)
     {
         scene.InvalidateVisual();
     }

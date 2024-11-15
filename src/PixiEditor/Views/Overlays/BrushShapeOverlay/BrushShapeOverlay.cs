@@ -17,7 +17,8 @@ internal class BrushShapeOverlay : Overlay
         AvaloniaProperty.Register<BrushShapeOverlay, int>(nameof(BrushSize), defaultValue: 1);
 
     public static readonly StyledProperty<BrushShape> BrushShapeProperty =
-        AvaloniaProperty.Register<BrushShapeOverlay, BrushShape>(nameof(BrushShape), defaultValue: BrushShape.Circle);
+        AvaloniaProperty.Register<BrushShapeOverlay, BrushShape>(nameof(BrushShape),
+            defaultValue: BrushShape.CirclePixelated);
 
     public static readonly StyledProperty<Scene> SceneProperty = AvaloniaProperty.Register<BrushShapeOverlay, Scene>(
         nameof(Scene));
@@ -40,7 +41,7 @@ internal class BrushShapeOverlay : Overlay
         set => SetValue(BrushSizeProperty, value);
     }
 
-    private Paint paint = new Paint() { Color = Colors.LightGray, StrokeWidth = 1, Style = PaintStyle.Stroke};
+    private Paint paint = new Paint() { Color = Colors.LightGray, StrokeWidth = 1, Style = PaintStyle.Stroke };
     private VecD lastMousePos = new();
 
     private VectorPath threePixelCircle;
@@ -65,7 +66,7 @@ internal class BrushShapeOverlay : Overlay
             return;
 
         VecD rawPoint = args.Point;
-        lastMousePos = rawPoint; 
+        lastMousePos = rawPoint;
         Refresh();
     }
 
@@ -80,6 +81,7 @@ internal class BrushShapeOverlay : Overlay
         switch (BrushShape)
         {
             case BrushShape.Pixel:
+                paint.IsAntiAliased = false;
                 targetCanvas.DrawRect(
                     new RectD(new VecD(Math.Floor(lastMousePos.X), Math.Floor(lastMousePos.Y)), new VecD(1, 1)),
                     paint);
@@ -87,14 +89,19 @@ internal class BrushShapeOverlay : Overlay
             case BrushShape.Square:
                 targetCanvas.DrawRect(winRect, paint);
                 break;
-            case BrushShape.Circle:
+            case BrushShape.CirclePixelated:
                 DrawCircleBrushShape(targetCanvas, winRect);
+                break;
+            case BrushShape.CircleSmooth:
+                DrawCircleBrushShapeSmooth(targetCanvas, lastMousePos, BrushSize / 2f);
                 break;
         }
     }
 
     private void DrawCircleBrushShape(Canvas drawingContext, RectD winRect)
     {
+        paint.IsAntiAliased = false;
+        
         var rectI = new RectI((int)winRect.X, (int)winRect.Y, (int)winRect.Width, (int)winRect.Height);
         if (BrushSize < 3)
         {
@@ -124,9 +131,19 @@ internal class BrushShapeOverlay : Overlay
 
             var lp = new VecI((int)lastMousePos.X, (int)lastMousePos.Y);
             using VectorPath shifted = new VectorPath(lastNonTranslatedCircle);
-            shifted.Transform(Matrix3X3.CreateTranslation(lp.X - rectI.Width / 2, lp.Y - rectI.Height / 2)); // don't use float, truncation is intended 
+            shifted.Transform(Matrix3X3.CreateTranslation(lp.X - rectI.Width / 2,
+                lp.Y - rectI.Height / 2)); // don't use float, truncation is intended 
             drawingContext.DrawPath(shifted, paint);
         }
+    }
+
+    private void DrawCircleBrushShapeSmooth(Canvas drawingContext, VecD lastMousePos, float radius)
+    {
+        VecD center = lastMousePos; 
+        paint.IsAntiAliased = true;
+        
+        drawingContext.DrawOval(new VecD(center.X, center.Y), new VecD(radius, radius),
+            paint);
     }
 
     protected override void ZoomChanged(double newZoom)

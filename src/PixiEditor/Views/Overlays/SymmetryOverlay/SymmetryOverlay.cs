@@ -135,7 +135,6 @@ internal class SymmetryOverlay : Overlay
         checkerWhite.StrokeWidth = PenThickness;
         rulerPen.StrokeWidth = PenThickness;
 
-
         if (HorizontalAxisVisible)
         {
             if (capturedDirection == SymmetryAxisDirection.Horizontal || hoveredDirection == SymmetryAxisDirection.Horizontal)
@@ -221,9 +220,6 @@ internal class SymmetryOverlay : Overlay
 
         string text = upper ? $"{start - horizontalAxisY}{new LocalizedString("PIXEL_UNIT")} ({(start - horizontalAxisY) / Size.Y * 100:F1}%)" : $"{horizontalAxisY}{new LocalizedString("PIXEL_UNIT")} ({horizontalAxisY / Size.Y * 100:F1}%)";
 
-        /*var formattedText = new FormattedText(text, CultureInfo.GetCultureInfo("en-us"),
-            ILocalizationProvider.Current.CurrentLanguage.FlowDirection, new Typeface("Segeo UI"), 14.0 / ZoomScale, Brushes.White);*/
-
         using Font font = Font.CreateDefault(14f / (float)ZoomScale);
         
         if (Size.Y < font.FontSize * 2.5 || horizontalAxisY == (int)Size.Y && upper || horizontalAxisY == 0 && !upper)
@@ -252,9 +248,6 @@ internal class SymmetryOverlay : Overlay
         drawingContext.DrawLine(new VecD(verticalAxisX, (RulerOffset - RulerWidth) * PenThickness + yOffset), new VecD(verticalAxisX, (RulerOffset + RulerWidth) * PenThickness + yOffset), rulerPen);
 
         string text = right ? $"{start - verticalAxisX}{new LocalizedString("PIXEL_UNIT")} ({(start - verticalAxisX) / Size.X * 100:F1}%)" : $"{verticalAxisX}{new LocalizedString("PIXEL_UNIT")} ({verticalAxisX / Size.X * 100:F1}%)";
-
-        /*var formattedText = new FormattedText(text, CultureInfo.GetCultureInfo("en-us"),
-            ILocalizationProvider.Current.CurrentLanguage.FlowDirection, new Typeface("Segeo UI"), 14.0 / ZoomScale, Brushes.White);*/
 
         using Font font = Font.CreateDefault(14f / (float)ZoomScale);
         
@@ -320,9 +313,12 @@ internal class SymmetryOverlay : Overlay
         var dir = IsTouchingHandle(args.Point);
         if (dir is null)
             return;
+        
         capturedDirection = dir.Value;
         args.Pointer.Capture(this);
         CallSymmetryDragStartCommand(dir.Value);
+
+        args.Handled = TestHit(args.Point);
     }
 
     protected override void OnOverlayPointerEntered(OverlayPointerArgs args)

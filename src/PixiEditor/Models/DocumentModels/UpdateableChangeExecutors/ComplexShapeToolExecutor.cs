@@ -60,6 +60,9 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
                 toolbar.StrokeColor = colorsVM.PrimaryColor.ToColor();
             }
 
+            document!.TransformHandler.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect.Inflate(1)), false);
+            document.TransformHandler.ShowHandles = false;
+            document.TransformHandler.IsSizeBoxEnabled = true;
             return ExecutionState.Success;
         }
 
@@ -209,6 +212,9 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
         noMovement = false;
 
         DrawShape((VecI)snapped.Floor(), lastRadians, false);
+
+        document!.TransformHandler.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect), false);
+        document!.TransformHandler.Corners = new ShapeCorners((RectD)lastRect);
     }
 
     protected VecD Snap(VecD pos, VecD adjustPos, bool highlight = false)
@@ -273,6 +279,7 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
         base.StartMode(mode);
         if (mode == ShapeToolMode.Transform)
         {
+            document.TransformHandler.HideTransform();
             document!.TransformHandler.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect), true);
         }
     }
