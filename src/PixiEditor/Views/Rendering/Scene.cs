@@ -13,15 +13,13 @@ using Avalonia.Skia;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
-using Drawie.Interop.VulkanAvalonia;
-using Drawie.Interop.VulkanAvalonia.Vulkan;
+using Drawie.Interop.Avalonia.Core;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Converters;
@@ -128,7 +126,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private string info = string.Empty;
     private bool initialized = false;
-    private VulkanResources resources;
+    private RenderApiResources resources;
     private DrawingSurface renderSurface;
     private PixelSize lastSize = PixelSize.Empty;
     private Cursor lastCursor;
@@ -205,7 +203,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             {
                 return;
             }
-            
+
             compositor = selfVisual.Compositor;
 
             surface = compositor.CreateDrawingSurface();
@@ -236,7 +234,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     public void Draw(DrawingSurface renderTexture)
     {
         if (Document == null || SceneRenderer == null) return;
-        
+
         renderTexture.Canvas.Save();
         var matrix = CalculateTransformMatrix();
 
@@ -564,10 +562,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     protected (bool success, string info) InitializeGraphicsResources(Compositor targetCompositor,
         CompositionDrawingSurface compositionDrawingSurface, ICompositionGpuInterop interop)
     {
-        resources = new VulkanResources(
-            DrawieInterop.VulkanInteropContext,
-            new VulkanSwapchain(DrawieInterop.VulkanInteropContext, interop, compositionDrawingSurface),
-            new VulkanContent(DrawieInterop.VulkanInteropContext));
+        resources = IDrawieInteropContext.Current.CreateResources(compositionDrawingSurface, interop);
 
         return (true, string.Empty);
     }
@@ -580,7 +575,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         resources = null;
     }
 
-    protected void RenderFrame(PixelSize size)
+    protected  void RenderFrame(PixelSize size)
     {
         if (resources != null)
         {
@@ -591,7 +586,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
             if (renderSurface == null || lastSize != size)
             {
-                resources.Content.CreateTemporalObjects(size);
+                resources.CreateTemporalObjects(size);
 
                 VecI sizeVec = new VecI(size.Width, size.Height);
 
@@ -599,19 +594,17 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
                 renderSurface =
                     DrawingBackendApi.Current.CreateRenderSurface(sizeVec,
-                        resources.Content.texture, SurfaceOrigin.BottomLeft);
+                        resources.Texture, SurfaceOrigin.BottomLeft);
 
                 lastSize = size;
             }
 
-            using (resources.Swapchain.BeginDraw(size, out var image))
+            resources.Render(size, () =>
             {
                 renderSurface.Canvas.Clear();
                 Draw(renderSurface);
                 renderSurface.Flush();
-
-                resources.Content.Render(image);
-            }
+            });
         }
     }
 

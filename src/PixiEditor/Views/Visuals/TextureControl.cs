@@ -1,14 +1,8 @@
 ﻿using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Media;
-using Avalonia.Rendering.SceneGraph;
-using Avalonia.Skia;
 using Avalonia.Threading;
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.Bridge;
-using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
-using Drawie.Interop.VulkanAvalonia.Controls;
+using Drawie.Interop.Avalonia.Core.Controls;
 using Drawie.Numerics;
 
 namespace PixiEditor.Views.Visuals;
