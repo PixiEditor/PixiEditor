@@ -22,7 +22,7 @@ public interface INodeHandler : INotifyPropertyChanged
     public ObservableRangeCollection<INodePropertyHandler> Outputs { get; }
     public PreviewPainter? ResultPainter { get; set; }
     public VecD PositionBindable { get; set; }
-    public bool IsSelected { get; set; }
+    public bool IsNodeSelected { get; set; }
     public void TraverseBackwards(Func<INodeHandler, bool> func);
     public void TraverseBackwards(Func<INodeHandler, INodeHandler, bool> func);
     public void TraverseBackwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, bool> func);

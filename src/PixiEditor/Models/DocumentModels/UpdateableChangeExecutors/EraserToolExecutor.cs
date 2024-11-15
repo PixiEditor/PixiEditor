@@ -60,7 +60,7 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
         internals!.ActionAccumulator.AddActions(action);
     }
 
-    public override void OnLeftMouseButtonUp()
+    public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
     {
         internals!.ActionAccumulator.AddFinishedActions(new EndLineBasedPen_Action());
         onEnded?.Invoke(this);

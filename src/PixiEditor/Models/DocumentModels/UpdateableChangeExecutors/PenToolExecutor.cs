@@ -66,7 +66,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         internals!.ActionAccumulator.AddActions(action);
     }
 
-    public override void OnLeftMouseButtonUp()
+    public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
     {
         IAction? action = pixelPerfect switch
         {

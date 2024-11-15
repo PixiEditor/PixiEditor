@@ -117,7 +117,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         set => SetProperty(ref resultPainter, value);
     }
     
-    public bool IsSelected
+    public bool IsNodeSelected
     {
         get => isSelected;
         set => SetProperty(ref isSelected, value);

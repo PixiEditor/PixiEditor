@@ -193,7 +193,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             return;
 
         drawingWithRight = args.Button == MouseButton.Right;
-        activeDocument.EventInlet.OnCanvasLeftMouseButtonDown(args.PositionOnCanvas);
+        activeDocument.EventInlet.OnCanvasLeftMouseButtonDown(args);
         Owner.ToolsSubViewModel.UseToolEventInlet(args.PositionOnCanvas, args.Button);
 
         Analytics.SendUseTool(Owner.ToolsSubViewModel.ActiveTool, args.PositionOnCanvas, activeDocument.SizeBindable);
@@ -267,8 +267,9 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         activeDocument.EventInlet.OnCanvasMouseMove(pos);
     }
 
-    private void OnMouseUp(object? sender, MouseButton button)
+    private void OnMouseUp(object? sender, MouseOnCanvasEventArgs args)
     {
+        var button = args.Button;
         bool toLeftRightClick = drawingWithRight == null ||
                                 (button == MouseButton.Left && drawingWithRight.Value) ||
                                 (button == MouseButton.Right && !drawingWithRight.Value);
@@ -284,7 +285,8 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
         if (button == MouseButton.Left || rightCanUp)
         {
-            Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.OnCanvasLeftMouseButtonUp();
+            Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet
+                .OnCanvasLeftMouseButtonUp(args.PositionOnCanvas);
         }
 
         drawingWithRight = null;
