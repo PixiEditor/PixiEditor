@@ -297,11 +297,13 @@ internal class ViewportOverlays
         {
             Source = Viewport, Path = "Document.TransformViewModel.InternalState", Mode = BindingMode.TwoWay
         };
-        
+
         Binding passThroughPointerPressedBinding = new()
         {
-            Source = Viewport, Path = "Document.TransformViewModel.PassThroughPointerPressedCommand", Mode = BindingMode.OneWay
-        }
+            Source = Viewport,
+            Path = "Document.TransformViewModel.PassThroughPointerPressedCommand",
+            Mode = BindingMode.OneWay
+        };
         
         Binding showHandlesBinding = new()
         {
