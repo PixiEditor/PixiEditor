@@ -25,7 +25,7 @@ internal sealed class LassoToolExecutor : UpdateableChangeExecutor
 
     public override void OnPixelPositionChange(VecI pos) => AddStartAction(pos);
 
-    public override void OnLeftMouseButtonUp()
+    public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
     {
         internals!.ActionAccumulator.AddFinishedActions(new EndSelectLasso_Action());
         onEnded!(this);

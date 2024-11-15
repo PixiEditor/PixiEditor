@@ -297,6 +297,13 @@ internal class ViewportOverlays
         {
             Source = Viewport, Path = "Document.TransformViewModel.InternalState", Mode = BindingMode.TwoWay
         };
+
+        Binding passThroughPointerPressedBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.TransformViewModel.PassThroughPointerPressedCommand",
+            Mode = BindingMode.OneWay
+        };
         
         Binding showHandlesBinding = new()
         {
@@ -321,6 +328,7 @@ internal class ViewportOverlays
         transformOverlay.Bind(TransformOverlay.CoverWholeScreenProperty, coverWholeScreenBinding);
         transformOverlay.Bind(TransformOverlay.SnapToAnglesProperty, snapToAnglesBinding);
         transformOverlay.Bind(TransformOverlay.InternalStateProperty, internalStateBinding);
+        transformOverlay.Bind(TransformOverlay.PassthroughPointerPressedCommandProperty, passThroughPointerPressedBinding);
         transformOverlay.Bind(TransformOverlay.ZoomboxAngleProperty, zoomboxAngleBinding);
         transformOverlay.Bind(TransformOverlay.ShowHandlesProperty, showHandlesBinding);
         transformOverlay.Bind(TransformOverlay.IsSizeBoxEnabledProperty, isSizeBoxEnabledBinding);

@@ -42,7 +42,7 @@ internal class BrightnessToolExecutor : UpdateableChangeExecutor
         internals!.ActionAccumulator.AddActions(action);
     }
 
-    public override void OnLeftMouseButtonUp()
+    public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
     {
         internals!.ActionAccumulator.AddFinishedActions(new EndChangeBrightness_Action());
         onEnded?.Invoke(this);

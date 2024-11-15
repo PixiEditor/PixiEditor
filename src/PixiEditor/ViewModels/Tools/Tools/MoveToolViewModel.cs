@@ -35,7 +35,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
 
     public override LocalizedString Tooltip => new LocalizedString("MOVE_TOOL_TOOLTIP", Shortcut);
 
-    [Settings.Bool("KEEP_ORIGINAL_IMAGE_SETTING")]
+    [Settings.Bool("KEEP_ORIGINAL_IMAGE_SETTING", Notify = nameof(KeepOriginalChanged))]
     public bool KeepOriginalImage => GetValue<bool>();
 
     public override BrushShape BrushShape => BrushShape.Hidden;
@@ -55,7 +55,8 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
 
     public override void UseTool(VecD pos)
     {
-        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseShiftLayerTool();
+        //ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseShiftLayerTool();
+        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(true);
     }
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
@@ -106,5 +107,11 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
 
         OnDeselecting(false);
         OnSelected(false);
+    }
+    
+    public void KeepOriginalChanged()
+    {
+        var activeDocument = ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument;
+        activeDocument.TransformViewModel.ShowTransformControls = KeepOriginalImage;
     }
 }

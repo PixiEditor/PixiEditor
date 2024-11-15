@@ -10,6 +10,7 @@ using PixiEditor.Helpers.UI;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
+using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Views.Overlays.TransformOverlay;
 
 namespace PixiEditor.ViewModels.Document.TransformOverlays;
@@ -85,6 +86,8 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         set => SetProperty(ref showTransformControls, value);
     }
 
+    public event Action<MouseOnCanvasEventArgs>? PassthroughPointerPressed;
+
     private bool coverWholeScreen;
     public bool CoverWholeScreen
     {
@@ -126,6 +129,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         set => SetProperty(ref enableSnapping, value);
     }
     
+    
     private ExecutionTrigger<ShapeCorners> requestedCornersExecutor;
     public ExecutionTrigger<ShapeCorners> RequestCornersExecutor
     {
@@ -138,6 +142,15 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
     {
         get => actionCompletedCommand;
         set => SetProperty(ref actionCompletedCommand, value);
+    }
+
+    private RelayCommand<MouseOnCanvasEventArgs>? passThroughPointerPressedCommand; 
+    public RelayCommand<MouseOnCanvasEventArgs> PassThroughPointerPressedCommand
+    {
+        get
+        {
+            return passThroughPointerPressedCommand ??= new RelayCommand<MouseOnCanvasEventArgs>(x => PassthroughPointerPressed?.Invoke(x));
+        }
     }
 
     public event EventHandler<ShapeCorners>? TransformMoved;

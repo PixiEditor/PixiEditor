@@ -8,6 +8,7 @@ using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 
 namespace PixiEditor.Models.DocumentModels;
@@ -196,7 +197,7 @@ internal class ChangeExecutionController
 
     public void SymmetryDragEndedInlet(SymmetryAxisDirection dir) => currentSession?.OnSymmetryDragEnded(dir);
 
-    public void LeftMouseButtonDownInlet(VecD canvasPos)
+    public void LeftMouseButtonDownInlet(MouseOnCanvasEventArgs args)
     {
         //update internal state
         LeftMousePressed = true;
@@ -207,16 +208,16 @@ internal class ChangeExecutionController
         }
 
         //call session event
-        currentSession?.OnLeftMouseButtonDown(canvasPos);
+        currentSession?.OnLeftMouseButtonDown(args);
     }
 
-    public void LeftMouseButtonUpInlet()
+    public void LeftMouseButtonUpInlet(VecD argsPositionOnCanvas)
     {
         //update internal state
         LeftMousePressed = false;
 
         //call session events
-        currentSession?.OnLeftMouseButtonUp();
+        currentSession?.OnLeftMouseButtonUp(argsPositionOnCanvas);
     }
 
     public void TransformMovedInlet(ShapeCorners corners)

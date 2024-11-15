@@ -150,7 +150,7 @@ internal class NodeGraphView : Zoombox.Zoombox
     }
 
     public List<INodeHandler> SelectedNodes => NodeGraph != null
-        ? NodeGraph.AllNodes.Where(x => x.IsSelected).ToList()
+        ? NodeGraph.AllNodes.Where(x => x.IsNodeSelected).ToList()
         : new List<INodeHandler>();
 
     protected override Type StyleKeyOverride => typeof(NodeGraphView);
@@ -478,14 +478,14 @@ internal class NodeGraphView : Zoombox.Zoombox
             ClearSelection();
         }
 
-        viewModel.IsSelected = true;
+        viewModel.IsNodeSelected = true;
     }
 
     private void ClearSelection()
     {
         foreach (var node in SelectedNodes)
         {
-            node.IsSelected = false;
+            node.IsNodeSelected = false;
         }
     }
 }
