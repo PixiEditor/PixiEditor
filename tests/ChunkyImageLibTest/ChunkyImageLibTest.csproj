@@ -22,7 +22,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\ChunkyImageLib\ChunkyImageLib.csproj" />
     <ProjectReference Include="..\..\src\Drawie\src\Drawie.Backend.Skia\Drawie.Backend.Skia.csproj" />
-    <ProjectReference Include="..\..\src\PixiEditor.DrawingApi.Skia\PixiEditor.DrawingApi.Skia.csproj" />
   </ItemGroup>
 
 </Project>

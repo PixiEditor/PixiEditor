@@ -1,5 +1,6 @@
 using System.Reflection;
 using Drawie.Backend.Core.Bridge;
+using Drawie.Interop.Avalonia.Core;
 using Drawie.Interop.VulkanAvalonia;
 using Drawie.Skia;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
