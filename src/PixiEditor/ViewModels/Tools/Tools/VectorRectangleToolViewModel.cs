@@ -25,7 +25,6 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
 
     public override Type[]? SupportedLayerTypes { get; } = [];
     public override LocalizedString Tooltip => new LocalizedString("RECTANGLE_TOOL_TOOLTIP", Shortcut);
-    public bool DrawSquare { get; private set; }
 
     public override string DefaultIcon => PixiPerfectIcons.Square;
 
@@ -36,12 +35,12 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
     {
         if (shiftIsDown)
         {
-            DrawSquare = true;
+            DrawEven = true;
             ActionDisplay = "RECTANGLE_TOOL_ACTION_DISPLAY_SHIFT";
         }
         else
         {
-            DrawSquare = false;
+            DrawEven = false;
             ActionDisplay = defaultActionDisplay;
         }
     }

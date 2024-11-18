@@ -5,7 +5,7 @@ namespace PixiEditor.Models.Controllers.InputDevice;
 public class SnappingController
 {
     public const double DefaultSnapDistance = 16;
-    
+
     private string highlightedXAxis = string.Empty;
     private string highlightedYAxis = string.Empty;
     private VecD? highlightedPoint = null;
@@ -76,7 +76,7 @@ public class SnappingController
             snapAxis = string.Empty;
             return null;
         }
-        
+
         if (HorizontalSnapPoints.Count == 0)
         {
             snapAxis = string.Empty;
@@ -110,7 +110,7 @@ public class SnappingController
             snapAxisKey = string.Empty;
             return null;
         }
-        
+
         if (VerticalSnapPoints.Count == 0)
         {
             snapAxisKey = string.Empty;
@@ -183,7 +183,7 @@ public class SnappingController
             yAxis = string.Empty;
             return VecD.Zero;
         }
-        
+
         bool hasXSnap = false;
         bool hasYSnap = false;
         VecD snapDelta = VecD.Zero;
@@ -230,13 +230,13 @@ public class SnappingController
             yAxis = string.Empty;
             return pos;
         }
-        
+
         double? snapX = SnapToHorizontal(pos.X, out string snapAxisX);
         double? snapY = SnapToVertical(pos.Y, out string snapAxisY);
 
         xAxis = snapAxisX;
         yAxis = snapAxisY;
-        
+
         return new VecD(snapX ?? pos.X, snapY ?? pos.Y);
     }
 
@@ -248,7 +248,7 @@ public class SnappingController
             yAxis = string.Empty;
             return VecD.Zero;
         }
-        
+
         double? snapX = SnapToHorizontal(pos.X, out string snapAxisX);
         double? snapY = SnapToVertical(pos.Y, out string snapAxisY);
 
@@ -258,5 +258,95 @@ public class SnappingController
         VecD snappedPos = new VecD(snapX ?? pos.X, snapY ?? pos.Y);
 
         return snappedPos - pos;
+    }
+
+    /// <summary>
+    ///     Gets the intersection of closest snap axis along projected axis.
+    /// </summary>
+    /// <param name="pos">Position to snap</param>
+    /// <param name="direction">Direction to project from <paramref name="pos">/></param>
+    /// <param name="xAxis">Intersected horizontal axis</param>
+    /// <param name="yAxis">Intersected vertical axis</param>
+    /// <returns>Snapped position to the closest snap point along projected axis from <paramref name="pos">/></returns> 
+    public VecD GetSnapPoint(VecD pos, VecD direction, out string xAxis, out string yAxis)
+    {
+        if (!SnappingEnabled)
+        {
+            xAxis = string.Empty;
+            yAxis = string.Empty;
+            return pos;
+        }
+
+        if (direction == VecD.Zero)
+        {
+            return GetSnapPoint(pos, out xAxis, out yAxis);
+        }
+
+        VecD snapDelta = GetSnapPoint(pos, out string closestXAxis, out string closestYAxis);
+
+        double? closestX = closestXAxis != string.Empty ? snapDelta.X : null;
+        double? closestY = closestYAxis != string.Empty ? snapDelta.Y : null;
+
+
+        VecD? xIntersect = null;
+        if (closestX != null)
+        {
+            double x = closestX.Value;
+            double y = pos.Y + direction.Y * (x - pos.X) / direction.X;
+            xIntersect = new VecD(x, y);
+        }
+
+        VecD? yIntersect = null;
+        if (closestY != null)
+        {
+            double y = closestY.Value;
+            double x = pos.X + direction.X * (y - pos.Y) / direction.Y;
+            yIntersect = new VecD(x, y);
+        }
+
+        if (xIntersect.HasValue && yIntersect.HasValue)
+        {
+            if (Math.Abs(xIntersect.Value.X - yIntersect.Value.X) < float.Epsilon
+                && Math.Abs(xIntersect.Value.Y - yIntersect.Value.Y) < float.Epsilon)
+            {
+                xAxis = closestXAxis;
+                yAxis = closestYAxis;
+                return xIntersect.Value;
+            }
+
+            double xDist = (xIntersect.Value - pos).LengthSquared;
+            double yDist = (yIntersect.Value - pos).LengthSquared;
+
+            if (xDist < yDist)
+            {
+                xAxis = closestXAxis;
+                yAxis = null;
+                return xIntersect.Value;
+            }
+
+            xAxis = null;
+            yAxis = closestYAxis;
+            return yIntersect.Value;
+        }
+
+        if (xIntersect != null)
+        {
+            xAxis = closestXAxis;
+            yAxis = null;
+
+            return xIntersect.Value;
+        }
+
+        if (yIntersect != null)
+        {
+            xAxis = null;
+            yAxis = closestYAxis;
+
+            return yIntersect.Value;
+        }
+
+        xAxis = string.Empty;
+        yAxis = string.Empty;
+        return pos;
     }
 }

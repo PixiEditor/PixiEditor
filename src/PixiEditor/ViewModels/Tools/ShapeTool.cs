@@ -13,6 +13,7 @@ internal abstract class ShapeTool : ToolViewModel, IShapeToolHandler
     public override bool UsesColor => true;
 
     public override bool IsErasable => true;
+    public bool DrawEven { get; protected set; }
 
     public ShapeTool()
     {
@@ -27,4 +28,5 @@ internal abstract class ShapeTool : ToolViewModel, IShapeToolHandler
             ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
         }
     }
+
 }

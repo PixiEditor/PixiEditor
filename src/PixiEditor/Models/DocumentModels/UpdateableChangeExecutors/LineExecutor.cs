@@ -9,6 +9,7 @@ using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.Helpers;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -98,13 +99,24 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
     {
         startedDrawing = true;
 
-        VecD snapped =
-            document!.SnappingHandler.SnappingController.GetSnapPoint(pos, out string snapX, out string snapY);
-
+        VecD endPos = pos;
+        VecD snapped = endPos;
+        string snapX = "";
+        string snapY = "";
+        
         if (toolViewModel!.Snap)
         {
-            snapped = ComplexShapeToolExecutor<IShapeToolHandler>.Get45IncrementedPosition(startDrawingPos, pos);
+            endPos = GeometryHelper.Get45IncrementedPosition(startDrawingPos, pos);
+            VecD directionConstraint = endPos - startDrawingPos;
+            snapped =
+                document!.SnappingHandler.SnappingController.GetSnapPoint(endPos, directionConstraint, out snapX,
+                    out snapY);
         }
+        else
+        {
+            snapped = document!.SnappingHandler.SnappingController.GetSnapPoint(endPos, out snapX, out snapY);
+        }
+        
 
         HighlightSnapping(snapX, snapY);
         document!.LineToolOverlayHandler.LineEnd = snapped;

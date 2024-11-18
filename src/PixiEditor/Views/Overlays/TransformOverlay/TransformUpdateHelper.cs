@@ -1,20 +1,27 @@
 ﻿using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
+using PixiEditor.Models.Controllers.InputDevice;
 
 namespace PixiEditor.Views.Overlays.TransformOverlay;
 #nullable enable
 internal static class TransformUpdateHelper
 {
     private const double epsilon = 0.00001;
+
     public static ShapeCorners? UpdateShapeFromCorner
-        (Anchor targetCorner, TransformCornerFreedom freedom, double propAngle1, double propAngle2, ShapeCorners corners, VecD desiredPos)
+    (Anchor targetCorner, TransformCornerFreedom freedom, double propAngle1, double propAngle2, ShapeCorners corners,
+        VecD desiredPos,
+        SnappingController? snappingController, out string snapX, out string snapY)
     {
         if (!TransformHelper.IsCorner(targetCorner))
             throw new ArgumentException($"{targetCorner} is not a corner");
 
         if (freedom == TransformCornerFreedom.Locked)
+        {
+            snapX = snapY = "";
             return corners;
+        }
 
         if (freedom is TransformCornerFreedom.ScaleProportionally or TransformCornerFreedom.Scale)
         {
@@ -23,15 +30,36 @@ internal static class TransformUpdateHelper
             Anchor opposite = TransformHelper.GetOpposite(targetCorner);
             VecD oppositePos = TransformHelper.GetAnchorPosition(corners, opposite);
 
+            snapX = snapY = "";
+
             // constrain desired pos to a "propotional" diagonal line if needed
             if (freedom == TransformCornerFreedom.ScaleProportionally && corners.IsRect)
             {
                 double correctAngle = targetCorner is Anchor.TopLeft or Anchor.BottomRight ? propAngle1 : propAngle2;
-                desiredPos = desiredPos.ProjectOntoLine(oppositePos, oppositePos + VecD.FromAngleAndLength(correctAngle, 1));
+                VecD direction = VecD.FromAngleAndLength(correctAngle, 1);
+                desiredPos = desiredPos.ProjectOntoLine(oppositePos, oppositePos + direction);
+
+                if (snappingController is not null)
+                {
+                    desiredPos = snappingController.GetSnapPoint(desiredPos, direction, out snapX, out snapY);
+                }
             }
             else if (freedom == TransformCornerFreedom.ScaleProportionally)
             {
                 desiredPos = desiredPos.ProjectOntoLine(oppositePos, targetPos);
+                VecD direction = (targetPos - oppositePos);
+
+                if (snappingController is not null)
+                {
+                    desiredPos = snappingController.GetSnapPoint(desiredPos, direction, out snapX, out snapY);
+                }
+            }
+            else
+            {
+                if (snappingController is not null)
+                {
+                    desiredPos = snappingController.GetSnapPoint(desiredPos, out snapX, out snapY);
+                }
             }
 
             // find neighboring corners
@@ -59,8 +87,10 @@ internal static class TransformUpdateHelper
             }
             else
             {
-                VecD? newLeftPos = TransformHelper.TwoLineIntersection(VecD.Zero, leftNeighTrans, targetTrans + delta, leftNeighTrans + delta);
-                VecD? newRightPos = TransformHelper.TwoLineIntersection(VecD.Zero, rightNeighTrans, targetTrans + delta, rightNeighTrans + delta);
+                VecD? newLeftPos = TransformHelper.TwoLineIntersection(VecD.Zero, leftNeighTrans, targetTrans + delta,
+                    leftNeighTrans + delta);
+                VecD? newRightPos = TransformHelper.TwoLineIntersection(VecD.Zero, rightNeighTrans, targetTrans + delta,
+                    rightNeighTrans + delta);
                 if (newLeftPos is null || newRightPos is null)
                     return null;
                 leftNeighDelta = newLeftPos.Value - leftNeighTrans;
@@ -83,7 +113,7 @@ internal static class TransformUpdateHelper
             {
                 rightNeighDelta = TransferZeros(SwapAxes(leftNeighTrans), delta);
             }
-            
+
             // move the corners, while reapplying the transform rotation
             corners = TransformHelper.UpdateCorner(corners, targetCorner,
                 (targetTrans + delta).Rotate(angle) + oppositePos);
@@ -100,9 +130,11 @@ internal static class TransformUpdateHelper
 
         if (freedom == TransformCornerFreedom.Free)
         {
+            snapX = snapY = "";
             ShapeCorners newCorners = TransformHelper.UpdateCorner(corners, targetCorner, desiredPos);
             return newCorners.IsLegal ? newCorners : null;
         }
+
         throw new ArgumentException($"Freedom degree {freedom} is not supported");
     }
 
@@ -118,10 +150,13 @@ internal static class TransformUpdateHelper
     }
 
     public static ShapeCorners? UpdateShapeFromSide
-        (Anchor targetSide, TransformSideFreedom freedom, double propAngle1, double propAngle2, ShapeCorners corners, VecD desiredPos)
+    (Anchor targetSide, TransformSideFreedom freedom, double propAngle1, double propAngle2, ShapeCorners corners,
+        VecD desiredPos, SnappingController? snappingController, out string snapX, out string snapY)
     {
         if (!TransformHelper.IsSide(targetSide))
             throw new ArgumentException($"{targetSide} is not a side");
+
+        snapX = snapY = "";
 
         if (freedom == TransformSideFreedom.Locked)
             return corners;
@@ -134,9 +169,15 @@ internal static class TransformUpdateHelper
 
             desiredPos = desiredPos.ProjectOntoLine(targetPos, oppositePos);
 
-            VecD thing = targetPos - oppositePos;
-            thing = VecD.FromAngleAndLength(thing.Angle, 1 / thing.Length);
-            double scalingFactor = (desiredPos - oppositePos) * thing;
+            VecD direction = targetPos - oppositePos;
+            direction = VecD.FromAngleAndLength(direction.Angle, 1 / direction.Length);
+            
+            if (snappingController is not null)
+            {
+                desiredPos = snappingController.GetSnapPoint(desiredPos, direction, out snapX, out snapY);
+            }
+
+            double scalingFactor = (desiredPos - oppositePos) * direction;
             if (!double.IsNormal(scalingFactor))
                 return corners;
 
@@ -154,12 +195,18 @@ internal static class TransformUpdateHelper
                 var leftOppCornPos = TransformHelper.GetAnchorPosition(corners, leftOppCorn);
                 var rightOppCornPos = TransformHelper.GetAnchorPosition(corners, rightOppCorn);
 
-                var (leftAngle, rightAngle) = leftCorn is Anchor.TopLeft or Anchor.BottomRight ? (propAngle1, propAngle2) : (propAngle2, propAngle1);
+                var (leftAngle, rightAngle) = leftCorn is Anchor.TopLeft or Anchor.BottomRight
+                    ? (propAngle1, propAngle2)
+                    : (propAngle2, propAngle1);
 
-                var updLeftCorn = TransformHelper.TwoLineIntersection(leftCornPos + delta, rightCornPos + delta, center, center + VecD.FromAngleAndLength(leftAngle, 1));
-                var updRightCorn = TransformHelper.TwoLineIntersection(leftCornPos + delta, rightCornPos + delta, center, center + VecD.FromAngleAndLength(rightAngle, 1));
-                var updLeftOppCorn = TransformHelper.TwoLineIntersection(leftOppCornPos, rightOppCornPos, center, center + VecD.FromAngleAndLength(rightAngle, 1));
-                var updRightOppCorn = TransformHelper.TwoLineIntersection(leftOppCornPos, rightOppCornPos, center, center + VecD.FromAngleAndLength(leftAngle, 1));
+                var updLeftCorn = TransformHelper.TwoLineIntersection(leftCornPos + delta, rightCornPos + delta, center,
+                    center + VecD.FromAngleAndLength(leftAngle, 1));
+                var updRightCorn = TransformHelper.TwoLineIntersection(leftCornPos + delta, rightCornPos + delta,
+                    center, center + VecD.FromAngleAndLength(rightAngle, 1));
+                var updLeftOppCorn = TransformHelper.TwoLineIntersection(leftOppCornPos, rightOppCornPos, center,
+                    center + VecD.FromAngleAndLength(rightAngle, 1));
+                var updRightOppCorn = TransformHelper.TwoLineIntersection(leftOppCornPos, rightOppCornPos, center,
+                    center + VecD.FromAngleAndLength(leftAngle, 1));
 
                 if (updLeftCorn is null || updRightCorn is null || updLeftOppCorn is null || updRightOppCorn is null)
                     goto fallback;
@@ -171,7 +218,8 @@ internal static class TransformUpdateHelper
 
                 return corners;
             }
-fallback:
+
+            fallback:
             corners.TopLeft = (corners.TopLeft - oppositePos) * scalingFactor + oppositePos;
             corners.BottomRight = (corners.BottomRight - oppositePos) * scalingFactor + oppositePos;
             corners.TopRight = (corners.TopRight - oppositePos) * scalingFactor + oppositePos;
@@ -207,7 +255,8 @@ fallback:
                 if ((targetPos - oppPos).TaxicabLength > epsilon)
                     desiredPos = desiredPos.ProjectOntoLine(targetPos, oppPos);
                 else
-                    desiredPos = desiredPos.ProjectOntoLine(targetPos, (leftCornerPos - targetPos).Rotate(Math.PI / 2) + targetPos);
+                    desiredPos = desiredPos.ProjectOntoLine(targetPos,
+                        (leftCornerPos - targetPos).Rotate(Math.PI / 2) + targetPos);
             }
 
             var delta = desiredPos - targetPos;
@@ -216,6 +265,7 @@ fallback:
 
             return newCorners.IsLegal ? newCorners : null;
         }
+
         throw new ArgumentException($"Freedom degree {freedom} is not supported");
     }
 

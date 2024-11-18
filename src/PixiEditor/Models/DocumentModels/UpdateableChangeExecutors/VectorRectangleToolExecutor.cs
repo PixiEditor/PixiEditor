@@ -38,9 +38,9 @@ internal class VectorRectangleToolExecutor : ComplexShapeToolExecutor<IVectorRec
         VecI startPos = (VecI)Snap(startDrawingPos, curPos).Floor();
         if (firstDraw)
             rect = new RectI(curPos, VecI.Zero);
-        else if (toolViewModel!.DrawSquare)
+        /*else if (toolViewModel!.DrawSquare)
             rect = GetSquaredCoordinates(startPos, curPos);
-        else
+        else*/
             rect = RectI.FromTwoPixels(startPos, curPos);
 
         firstCenter = rect.Center;

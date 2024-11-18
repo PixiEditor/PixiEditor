@@ -38,9 +38,9 @@ internal class VectorEllipseToolExecutor : ComplexShapeToolExecutor<IVectorEllip
         VecI startPos = (VecI)Snap(startDrawingPos, curPos).Floor();
         if (firstDraw)
             rect = new RectI(curPos, VecI.Zero);
-        else if (toolViewModel!.DrawCircle)
+        /*else if (toolViewModel!.DrawCircle)
             rect = GetSquaredCoordinates(startPos, curPos);
-        else
+        else*/
             rect = RectI.FromTwoPixels(startPos, curPos);
 
         firstCenter = rect.Center;

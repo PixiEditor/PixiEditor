@@ -23,7 +23,6 @@ internal class RasterEllipseToolViewModel : ShapeTool, IRasterEllipseToolHandler
 
     public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
     public override LocalizedString Tooltip => new LocalizedString("ELLIPSE_TOOL_TOOLTIP", Shortcut);
-    public bool DrawCircle { get; private set; }
 
     public override string DefaultIcon => PixiPerfectIcons.LowResCircle;
 
@@ -34,12 +33,12 @@ internal class RasterEllipseToolViewModel : ShapeTool, IRasterEllipseToolHandler
         if (shiftIsDown)
         {
             ActionDisplay = "ELLIPSE_TOOL_ACTION_DISPLAY_SHIFT";
-            DrawCircle = true;
+            DrawEven = true;
         }
         else
         {
             ActionDisplay = defaultActionDisplay;
-            DrawCircle = false;
+            DrawEven = false;
         }
     }
 

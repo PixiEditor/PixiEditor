@@ -17,9 +17,9 @@ internal class RasterEllipseToolExecutor : ComplexShapeToolExecutor<IRasterEllip
         VecI startPos = (VecI)Snap(startDrawingPos, curPos).Floor();
         if (firstDraw)
             rect = new RectI(curPos, VecI.Zero);
-        else if (toolViewModel!.DrawCircle)
+        /*else if (toolViewModel!.DrawCircle)
             rect = GetSquaredCoordinates(startPos, curPos);
-        else
+        else*/
             rect = RectI.FromTwoPixels(startPos, curPos);
 
         lastRect = rect;

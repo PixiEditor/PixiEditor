@@ -2,5 +2,4 @@
 
 internal interface IRasterRectangleToolHandler : IShapeToolHandler
 {
-    public bool DrawSquare { get; }
 }

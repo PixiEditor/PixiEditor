@@ -26,7 +26,6 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
     // This doesn't include a Vector layer because it is designed to create new layer each use
     public override Type[]? SupportedLayerTypes { get; } = [];
     public override LocalizedString Tooltip => new LocalizedString("ELLIPSE_TOOL_TOOLTIP", Shortcut);
-    public bool DrawCircle { get; private set; }
 
     public override string DefaultIcon => PixiPerfectIcons.Circle;
 
@@ -39,13 +38,27 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorEllipseTool();
     }
 
+    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    {
+        if (shiftIsDown)
+        {
+            DrawEven = true;
+            ActionDisplay = "RECTANGLE_TOOL_ACTION_DISPLAY_SHIFT";
+        }
+        else
+        {
+            DrawEven = false;
+            ActionDisplay = defaultActionDisplay;
+        }
+    }
+
     public override void OnSelected(bool restoring)
     {
         if (restoring) return;
-        
+
         var document = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
         var layer = document.SelectedStructureMember;
-        if (layer is IVectorLayerHandler vectorLayer && 
+        if (layer is IVectorLayerHandler vectorLayer &&
             vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) is IReadOnlyEllipseData)
         {
             ShapeCorners corners = vectorLayer.TransformationCorners;

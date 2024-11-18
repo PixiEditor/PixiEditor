@@ -24,7 +24,6 @@ internal class RasterRectangleToolViewModel : ShapeTool, IRasterRectangleToolHan
     public override LocalizedString Tooltip => new LocalizedString("RECTANGLE_TOOL_TOOLTIP", Shortcut);
 
     public bool Filled { get; set; } = false;
-    public bool DrawSquare { get; private set; } = false;
 
     public override string DefaultIcon => PixiPerfectIcons.LowResSquare;
 
@@ -34,12 +33,12 @@ internal class RasterRectangleToolViewModel : ShapeTool, IRasterRectangleToolHan
     {
         if (shiftIsDown)
         {
-            DrawSquare = true;
+            DrawEven = true;
             ActionDisplay = "RECTANGLE_TOOL_ACTION_DISPLAY_SHIFT";
         }
         else
         {
-            DrawSquare = false;
+            DrawEven = false;
             ActionDisplay = defaultActionDisplay;
         }
     }
