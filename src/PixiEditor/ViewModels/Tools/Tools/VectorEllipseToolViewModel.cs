@@ -39,13 +39,27 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorEllipseTool();
     }
 
+    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    {
+        if (shiftIsDown)
+        {
+            DrawCircle = true;
+            ActionDisplay = "RECTANGLE_TOOL_ACTION_DISPLAY_SHIFT";
+        }
+        else
+        {
+            DrawCircle = false;
+            ActionDisplay = defaultActionDisplay;
+        }
+    }
+
     public override void OnSelected(bool restoring)
     {
         if (restoring) return;
-        
+
         var document = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
         var layer = document.SelectedStructureMember;
-        if (layer is IVectorLayerHandler vectorLayer && 
+        if (layer is IVectorLayerHandler vectorLayer &&
             vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) is IReadOnlyEllipseData)
         {
             ShapeCorners corners = vectorLayer.TransformationCorners;
