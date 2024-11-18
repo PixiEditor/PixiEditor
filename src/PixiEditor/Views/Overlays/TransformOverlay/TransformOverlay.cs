@@ -718,6 +718,7 @@ internal class TransformOverlay : Overlay
             ShapeCorners? newCorners = TransformUpdateHelper.UpdateShapeFromCorner
             ((Anchor)capturedAnchor, CornerFreedom, InternalState.ProportionalAngle1,
                 InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos, SnappingController, out string snapX, out string snapY);
+            
             HighlightSnappedAxis(snapX, snapY);
 
             if (newCorners is not null)
@@ -752,7 +753,7 @@ internal class TransformOverlay : Overlay
             VecD anchorRelativeDelta = projected - originalAnchorPos;
 
             var adjacentAnchors = TransformHelper.GetAdjacentAnchors((Anchor)capturedAnchor);
-            SnapData snapped;
+            SnapData snapped = new SnapData();
 
             if (SideFreedom is TransformSideFreedom.Shear or TransformSideFreedom.Free)
             {
@@ -771,7 +772,7 @@ internal class TransformOverlay : Overlay
                     snapped = TrySnapAnchor(adjacentPos + rawDelta);
                 }
             }
-            else
+            else if(SideFreedom is not TransformSideFreedom.ScaleProportionally)
             {
                 // If rotation is almost cardinal, projecting snapping points result in extreme values when perpendicular to the axis
                 if (!TransformHelper.RotationIsAlmostCardinal(cornersOnStartAnchorDrag.RectRotation))
@@ -796,9 +797,13 @@ internal class TransformOverlay : Overlay
 
             ShapeCorners? newCorners = TransformUpdateHelper.UpdateShapeFromSide
             ((Anchor)capturedAnchor, SideFreedom, InternalState.ProportionalAngle1,
-                InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos + snapped.Delta);
+                InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos + snapped.Delta,
+                SnappingController, out string snapX, out string snapY);
 
-            HighlightSnappedAxis(snapped.SnapAxisXName, snapped.SnapAxisYName);
+            string finalSnapX = snapped.SnapAxisXName ?? snapX;
+            string finalSnapY = snapped.SnapAxisYName ?? snapY;
+            
+            HighlightSnappedAxis(finalSnapX, finalSnapY);
 
             if (newCorners is not null)
             {

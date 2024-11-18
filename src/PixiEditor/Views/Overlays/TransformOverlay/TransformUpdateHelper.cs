@@ -48,7 +48,7 @@ internal static class TransformUpdateHelper
             {
                 desiredPos = desiredPos.ProjectOntoLine(oppositePos, targetPos);
                 VecD direction = (targetPos - oppositePos);
-                
+
                 if (snappingController is not null)
                 {
                     desiredPos = snappingController.GetSnapPoint(desiredPos, direction, out snapX, out snapY);
@@ -59,7 +59,7 @@ internal static class TransformUpdateHelper
                 if (snappingController is not null)
                 {
                     desiredPos = snappingController.GetSnapPoint(desiredPos, out snapX, out snapY);
-                } 
+                }
             }
 
             // find neighboring corners
@@ -151,10 +151,12 @@ internal static class TransformUpdateHelper
 
     public static ShapeCorners? UpdateShapeFromSide
     (Anchor targetSide, TransformSideFreedom freedom, double propAngle1, double propAngle2, ShapeCorners corners,
-        VecD desiredPos)
+        VecD desiredPos, SnappingController? snappingController, out string snapX, out string snapY)
     {
         if (!TransformHelper.IsSide(targetSide))
             throw new ArgumentException($"{targetSide} is not a side");
+
+        snapX = snapY = "";
 
         if (freedom == TransformSideFreedom.Locked)
             return corners;
@@ -167,9 +169,15 @@ internal static class TransformUpdateHelper
 
             desiredPos = desiredPos.ProjectOntoLine(targetPos, oppositePos);
 
-            VecD thing = targetPos - oppositePos;
-            thing = VecD.FromAngleAndLength(thing.Angle, 1 / thing.Length);
-            double scalingFactor = (desiredPos - oppositePos) * thing;
+            VecD direction = targetPos - oppositePos;
+            direction = VecD.FromAngleAndLength(direction.Angle, 1 / direction.Length);
+            
+            if (snappingController is not null)
+            {
+                desiredPos = snappingController.GetSnapPoint(desiredPos, direction, out snapX, out snapY);
+            }
+
+            double scalingFactor = (desiredPos - oppositePos) * direction;
             if (!double.IsNormal(scalingFactor))
                 return corners;
 
