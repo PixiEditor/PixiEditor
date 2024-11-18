@@ -26,7 +26,6 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
     // This doesn't include a Vector layer because it is designed to create new layer each use
     public override Type[]? SupportedLayerTypes { get; } = [];
     public override LocalizedString Tooltip => new LocalizedString("ELLIPSE_TOOL_TOOLTIP", Shortcut);
-    public bool DrawCircle { get; private set; }
 
     public override string DefaultIcon => PixiPerfectIcons.Circle;
 
@@ -43,12 +42,12 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
     {
         if (shiftIsDown)
         {
-            DrawCircle = true;
+            DrawEven = true;
             ActionDisplay = "RECTANGLE_TOOL_ACTION_DISPLAY_SHIFT";
         }
         else
         {
-            DrawCircle = false;
+            DrawEven = false;
             ActionDisplay = defaultActionDisplay;
         }
     }

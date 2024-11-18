@@ -60,7 +60,8 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
                 toolbar.StrokeColor = colorsVM.PrimaryColor.ToColor();
             }
 
-            document!.TransformHandler.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect.Inflate(1)), false);
+            document!.TransformHandler.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect.Inflate(1)),
+                false);
             document.TransformHandler.ShowHandles = false;
             document.TransformHandler.IsSizeBoxEnabled = true;
             return ExecutionState.Success;
@@ -207,7 +208,19 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
 
     protected override void PrecisePositionChangeDrawingMode(VecD pos)
     {
-        var snapped = Snap(pos, startDrawingPos, true);
+        VecI adjustedPos = (VecI)pos.Floor();
+
+        VecD snapped = adjustedPos;
+        if (toolViewModel.DrawEven)
+        {
+            adjustedPos = GetSquaredPosition((VecI)startDrawingPos, adjustedPos);
+            VecD dir = (adjustedPos - startDrawingPos).Normalize();
+            snapped = Snap(adjustedPos, startDrawingPos, dir, true);
+        }
+        else
+        {
+            snapped = Snap(adjustedPos, startDrawingPos, true);
+        }
 
         noMovement = false;
 
@@ -221,6 +234,33 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
     {
         VecD snapped =
             document.SnappingHandler.SnappingController.GetSnapPoint(pos, out string snapXAxis,
+                out string snapYAxis);
+
+        if (highlight)
+        {
+            HighlightSnapAxis(snapXAxis, snapYAxis);
+        }
+
+        if (snapped != VecI.Zero)
+        {
+            if (adjustPos.X < pos.X)
+            {
+                snapped -= new VecI(1, 0);
+            }
+
+            if (adjustPos.Y < pos.Y)
+            {
+                snapped -= new VecI(0, 1);
+            }
+        }
+
+        return snapped;
+    }
+
+    protected VecD Snap(VecD pos, VecD adjustPos, VecD dir, bool highlight = false)
+    {
+        VecD snapped =
+            document.SnappingHandler.SnappingController.GetSnapPoint(pos, dir, out string snapXAxis,
                 out string snapYAxis);
 
         if (highlight)

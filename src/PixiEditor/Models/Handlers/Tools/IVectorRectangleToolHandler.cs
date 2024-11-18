@@ -2,5 +2,4 @@
 
 internal interface IVectorRectangleToolHandler : IShapeToolHandler
 {
-    public bool DrawSquare { get; }
 }
