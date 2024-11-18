@@ -9,6 +9,7 @@ using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.Helpers;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -105,7 +106,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         
         if (toolViewModel!.Snap)
         {
-            endPos = ComplexShapeToolExecutor<IShapeToolHandler>.Get45IncrementedPosition(startDrawingPos, pos);
+            endPos = GeometryHelper.Get45IncrementedPosition(startDrawingPos, pos);
             VecD directionConstraint = endPos - startDrawingPos;
             snapped =
                 document!.SnappingHandler.SnappingController.GetSnapPoint(endPos, directionConstraint, out snapX,

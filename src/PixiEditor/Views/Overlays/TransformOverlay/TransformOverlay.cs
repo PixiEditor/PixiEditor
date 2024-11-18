@@ -78,8 +78,9 @@ internal class TransformOverlay : Overlay
         AvaloniaProperty.Register<TransformOverlay, TransformState>(nameof(InternalState),
             defaultValue: default(TransformState));
 
-    public static readonly StyledProperty<ICommand> PassthroughPointerPressedCommandProperty = AvaloniaProperty.Register<TransformOverlay, ICommand>(
-        nameof(PassthroughPointerPressedCommand));
+    public static readonly StyledProperty<ICommand> PassthroughPointerPressedCommandProperty =
+        AvaloniaProperty.Register<TransformOverlay, ICommand>(
+            nameof(PassthroughPointerPressedCommand));
 
     public ICommand PassthroughPointerPressedCommand
     {
@@ -260,7 +261,7 @@ internal class TransformOverlay : Overlay
     private InfoBox infoBox;
     private VecD lastSize;
     private bool actuallyMoved = false;
-    
+
     public TransformOverlay()
     {
         topLeftHandle = new AnchorHandle(this);
@@ -313,7 +314,7 @@ internal class TransformOverlay : Overlay
 
         moveHandle.OnPress += OnMoveHandlePressed;
         moveHandle.OnRelease += OnMoveHandleReleased;
-        
+
         infoBox = new InfoBox();
     }
 
@@ -494,7 +495,7 @@ internal class TransformOverlay : Overlay
         {
             return;
         }
-        
+
         args.Pointer.Capture(this);
         args.Handled = true;
     }
@@ -627,15 +628,20 @@ internal class TransformOverlay : Overlay
         SnappingController.HighlightedXAxis = snapDeltaResult.SnapAxisXName;
         SnappingController.HighlightedYAxis = snapDeltaResult.SnapAxisYName;
 
-        Corners = new ShapeCorners()
-        {
-            BottomLeft = cornersOnStartMove.BottomLeft + delta + snapDelta,
-            BottomRight = cornersOnStartMove.BottomRight + delta + snapDelta,
-            TopLeft = cornersOnStartMove.TopLeft + delta + snapDelta,
-            TopRight = cornersOnStartMove.TopRight + delta + snapDelta,
-        };
+        Corners = ApplyCornersWithDelta(cornersOnStartMove, delta, snapDelta);
 
         InternalState = InternalState with { Origin = originOnStartMove + delta + snapDelta };
+    }
+
+    private ShapeCorners ApplyCornersWithDelta(ShapeCorners corners, VecD delta, VecD snapDelta)
+    {
+        return new ShapeCorners()
+        {
+            BottomLeft = corners.BottomLeft + delta + snapDelta,
+            BottomRight = corners.BottomRight + delta + snapDelta,
+            TopLeft = corners.TopLeft + delta + snapDelta,
+            TopRight = corners.TopRight + delta + snapDelta,
+        };
     }
 
     private SnapData TrySnapCorners(ShapeCorners rawCorners)
@@ -709,11 +715,13 @@ internal class TransformOverlay : Overlay
             VecD targetPos = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, (Anchor)capturedAnchor) + pos -
                              mousePosOnStartAnchorDrag;
 
-            var snapped = TrySnapAnchor(targetPos);
-
             ShapeCorners? newCorners = TransformUpdateHelper.UpdateShapeFromCorner
             ((Anchor)capturedAnchor, CornerFreedom, InternalState.ProportionalAngle1,
-                InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos + snapped.Delta);
+                InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos);
+
+            var snapped =
+                TrySnapAnchorAlongLine(TransformHelper.GetAnchorPosition(newCorners.Value, (Anchor)capturedAnchor),
+                    originOnStartAnchorDrag);
 
             HighlightSnappedAxis(snapped.SnapAxisXName, snapped.SnapAxisYName);
 
@@ -723,9 +731,12 @@ internal class TransformOverlay : Overlay
                     (CornerFreedom is TransformCornerFreedom.ScaleProportionally or TransformCornerFreedom.Scale) &&
                     Corners.IsAlignedToPixels;
 
-                Corners = shouldAlign
+                newCorners = SnapAnchorInCorners(capturedAnchor.Value, newCorners.Value, snapped.Delta);
+                newCorners = shouldAlign
                     ? TransformHelper.AlignToPixels((ShapeCorners)newCorners)
                     : (ShapeCorners)newCorners;
+
+                Corners = (ShapeCorners)newCorners;
             }
 
             UpdateOriginPos();
@@ -814,6 +825,57 @@ internal class TransformOverlay : Overlay
         }
 
         Refresh();
+    }
+
+    private ShapeCorners SnapAnchorInCorners(Anchor anchor, ShapeCorners corners, VecD delta)
+    {
+        var newCorners = SnapSelectedAnchorsCorners(corners, delta, anchor);
+
+        return newCorners;
+    }
+
+    private static ShapeCorners SnapSelectedAnchorsCorners(ShapeCorners corners, VecD delta, Anchor anchor)
+    {
+        VecD anchorPos = TransformHelper.GetAnchorPosition(corners, anchor);
+        VecD targetAnchorPos = anchorPos + delta;
+
+        VecD topLeftPos = corners.TopLeft;
+        VecD topRightPos = corners.TopRight;
+        VecD bottomLeftPos = corners.BottomLeft;
+        VecD bottomRightPos = corners.BottomRight;
+
+        if (anchor == Anchor.TopLeft)
+        {
+            topLeftPos = targetAnchorPos;
+            topRightPos = new VecD(topRightPos.X, targetAnchorPos.Y);
+            bottomLeftPos = new VecD(targetAnchorPos.X, bottomLeftPos.Y);
+        }
+        else if (anchor == Anchor.TopRight)
+        {
+            topRightPos = targetAnchorPos;
+            topLeftPos = new VecD(topLeftPos.X, targetAnchorPos.Y);
+            bottomRightPos = new VecD(targetAnchorPos.X, bottomRightPos.Y);
+        }
+        else if (anchor == Anchor.BottomLeft)
+        {
+            bottomLeftPos = targetAnchorPos;
+            topLeftPos = new VecD(targetAnchorPos.X, topLeftPos.Y);
+            bottomRightPos = new VecD(bottomRightPos.X, targetAnchorPos.Y);
+        }
+        else if (anchor == Anchor.BottomRight)
+        {
+            bottomRightPos = targetAnchorPos;
+            topRightPos = new VecD(targetAnchorPos.X, topRightPos.Y);
+            bottomLeftPos = new VecD(bottomLeftPos.X, targetAnchorPos.Y);
+        }
+
+        return new ShapeCorners()
+        {
+            TopLeft = topLeftPos,
+            TopRight = topRightPos,
+            BottomLeft = bottomLeftPos,
+            BottomRight = bottomRightPos,
+        };
     }
 
     private SnapData FindAdjacentCornersSnap((Anchor, Anchor) adjacentAnchors, VecD anchorRelativeDelta)
