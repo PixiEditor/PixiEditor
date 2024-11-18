@@ -717,21 +717,15 @@ internal class TransformOverlay : Overlay
 
             ShapeCorners? newCorners = TransformUpdateHelper.UpdateShapeFromCorner
             ((Anchor)capturedAnchor, CornerFreedom, InternalState.ProportionalAngle1,
-                InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos);
-
-            var snapped =
-                TrySnapAnchorAlongLine(TransformHelper.GetAnchorPosition(newCorners.Value, (Anchor)capturedAnchor),
-                    originOnStartAnchorDrag);
-
-            HighlightSnappedAxis(snapped.SnapAxisXName, snapped.SnapAxisYName);
+                InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos, SnappingController, out string snapX, out string snapY);
+            HighlightSnappedAxis(snapX, snapY);
 
             if (newCorners is not null)
             {
                 bool shouldAlign =
                     (CornerFreedom is TransformCornerFreedom.ScaleProportionally or TransformCornerFreedom.Scale) &&
                     Corners.IsAlignedToPixels;
-
-                newCorners = SnapAnchorInCorners(capturedAnchor.Value, newCorners.Value, snapped.Delta);
+                
                 newCorners = shouldAlign
                     ? TransformHelper.AlignToPixels((ShapeCorners)newCorners)
                     : (ShapeCorners)newCorners;
@@ -847,26 +841,26 @@ internal class TransformOverlay : Overlay
         if (anchor == Anchor.TopLeft)
         {
             topLeftPos = targetAnchorPos;
-            topRightPos = new VecD(topRightPos.X, targetAnchorPos.Y);
-            bottomLeftPos = new VecD(targetAnchorPos.X, bottomLeftPos.Y);
+            topRightPos = new VecD(topRightPos.X, topRightPos.Y + delta.Y);
+            bottomLeftPos = new VecD(bottomLeftPos.X + delta.X, bottomLeftPos.Y);
         }
         else if (anchor == Anchor.TopRight)
         {
             topRightPos = targetAnchorPos;
-            topLeftPos = new VecD(topLeftPos.X, targetAnchorPos.Y);
-            bottomRightPos = new VecD(targetAnchorPos.X, bottomRightPos.Y);
+            topLeftPos = new VecD(topLeftPos.X, topLeftPos.Y + delta.Y);
+            bottomRightPos = new VecD(bottomRightPos.X + delta.X, bottomRightPos.Y);
         }
         else if (anchor == Anchor.BottomLeft)
         {
             bottomLeftPos = targetAnchorPos;
-            topLeftPos = new VecD(targetAnchorPos.X, topLeftPos.Y);
-            bottomRightPos = new VecD(bottomRightPos.X, targetAnchorPos.Y);
+            topLeftPos = new VecD(topLeftPos.X + delta.X, topLeftPos.Y);
+            bottomRightPos = new VecD(bottomRightPos.X, bottomRightPos.Y + delta.Y);
         }
         else if (anchor == Anchor.BottomRight)
         {
             bottomRightPos = targetAnchorPos;
-            topRightPos = new VecD(targetAnchorPos.X, topRightPos.Y);
-            bottomLeftPos = new VecD(bottomLeftPos.X, targetAnchorPos.Y);
+            topRightPos = new VecD(topRightPos.X + delta.X, topRightPos.Y);
+            bottomLeftPos = new VecD(bottomLeftPos.X, bottomLeftPos.Y + delta.Y);
         }
 
         return new ShapeCorners()
