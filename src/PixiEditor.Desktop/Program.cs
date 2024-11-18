@@ -19,11 +19,13 @@ public class Program
             .UsePlatformDetect()
             .With(new Win32PlatformOptions()
             {
-                RenderingMode = new Win32RenderingMode[] { Win32RenderingMode.Vulkan },
+                RenderingMode = new Win32RenderingMode[] { Win32RenderingMode.Vulkan, Win32RenderingMode.Wgl },
+                OverlayPopups = true
             })
             .With(new X11PlatformOptions()
             {
-                RenderingMode = new X11RenderingMode[] { X11RenderingMode.Vulkan },
+                RenderingMode = new X11RenderingMode[] { X11RenderingMode.Vulkan, X11RenderingMode.Glx },
+                OverlayPopups = true
             })
             .WithDrawie()
             .LogToTrace();

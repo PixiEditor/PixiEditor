@@ -1,13 +1,8 @@
 ﻿using System.ComponentModel;
-using System.Threading.Tasks;
 using Avalonia.Threading;
-using CommunityToolkit.Mvvm.Input;
 using PixiDocks.Core.Docking;
 using PixiDocks.Core.Docking.Events;
-using Drawie.Backend.Core.Numerics;
-using Drawie.Interop.VulkanAvalonia.Controls;
 using PixiEditor.Helpers.UI;
-using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentModels;
 using Drawie.Numerics;
 using PixiEditor.ViewModels.Dock;

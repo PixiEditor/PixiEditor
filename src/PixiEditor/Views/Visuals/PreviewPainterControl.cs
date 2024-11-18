@@ -1,11 +1,7 @@
 ﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Media;
-using Avalonia.Rendering.SceneGraph;
-using Avalonia.Skia;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.Surfaces;
-using Drawie.Interop.VulkanAvalonia.Controls;
+using Drawie.Interop.Avalonia.Core.Controls;
 using PixiEditor.Models.Rendering;
 using Drawie.Numerics;
 
