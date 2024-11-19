@@ -98,6 +98,7 @@ internal static class ServiceCollectionHelpers
             .AddTool<IVectorEllipseToolHandler, VectorEllipseToolViewModel>()
             .AddTool<IVectorRectangleToolHandler, VectorRectangleToolViewModel>()
             .AddTool<IVectorLineToolHandler, VectorLineToolViewModel>()
+            .AddTool<IVectorPathToolHandler, VectorPathToolViewModel>()
             .AddTool<ZoomToolViewModel>()
             // File types
             .AddSingleton<IoFileType, PixiFileType>()

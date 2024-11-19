@@ -74,4 +74,6 @@ internal class DocumentToolsModule
     public void UseLassoTool() => Internals.ChangeController.TryStartExecutor<LassoToolExecutor>();
 
     public void UseMagicWandTool() => Internals.ChangeController.TryStartExecutor<MagicWandToolExecutor>();
+
+    public void UseVectorPathTool() => Internals.ChangeController.TryStartExecutor<VectorPathToolExecutor>();
 }
