@@ -236,6 +236,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         TransformViewModel.TransformMoved += (_, args) => Internals.ChangeController.TransformMovedInlet(args);
         
         PathOverlayViewModel = new(this, Internals);
+        PathOverlayViewModel.PathChanged += path =>
+        {
+            Internals.ChangeController.PathOverlayChangedInlet(path);
+        };
         
         LineToolOverlayViewModel = new();
         LineToolOverlayViewModel.LineMoved += (_, args) =>

@@ -763,5 +763,6 @@
   "TOGGLE_SNAPPING": "Toggle snapping",
   "HIGH_RES_PREVIEW": "High Resolution Preview",
   "LOW_RES_PREVIEW": "Document Resolution Preview",
-  "TOGGLE_HIGH_RES_PREVIEW": "Toggle high resolution preview"
+  "TOGGLE_HIGH_RES_PREVIEW": "Toggle high resolution preview",
+  "FACTOR": "Factor"
 }

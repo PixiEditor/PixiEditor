@@ -14,15 +14,22 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
     public VectorPath Path
     {
         get => path;
-        set => SetProperty(ref path, value);
+        set
+        {
+            if (SetProperty(ref path, value))
+            {
+                PathChanged?.Invoke(value);
+            }
+        }
     }
+
+    public event Action<VectorPath>? PathChanged;
     
     public PathOverlayViewModel(DocumentViewModel documentViewModel, DocumentInternalParts internals)
     {
         this.documentViewModel = documentViewModel;
         this.internals = internals;
     }
-
 
     public void Show(VectorPath path)
     {

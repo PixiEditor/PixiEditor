@@ -19,6 +19,7 @@ public class AnchorHandle : RectangleHandle
         StrokePaint.Style = PaintStyle.Stroke;
     }
 
+
     public override void Draw(Canvas context)
     {
         paint.StrokeWidth = (float)(1.0 / ZoomScale);

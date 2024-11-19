@@ -7,6 +7,7 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers.InputDevice;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Tools;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
@@ -14,7 +15,7 @@ using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
-internal class VectorPathToolExecutor : UpdateableChangeExecutor
+internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor
 {
     private IStructureMemberHandler member;
     private VectorPath startingPath;
@@ -95,5 +96,11 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor
             StrokeColor = toolbar.StrokeColor.ToColor(),
             FillColor = toolbar.Fill ? toolbar.FillColor.ToColor() : Colors.Transparent,
         };
+    }
+
+    public void OnPathChanged(VectorPath path)
+    {
+        startingPath = path;
+        internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
     }
 }

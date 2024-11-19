@@ -17,6 +17,7 @@ using Path = Avalonia.Controls.Shapes.Path;
 namespace PixiEditor.Views.Overlays.Handles;
 
 public delegate void HandleEvent(Handle source, VecD position);
+
 public abstract class Handle : IHandle
 {
     public Paint? FillPaint { get; set; } = GetPaint("HandleBackgroundBrush");
@@ -32,16 +33,20 @@ public abstract class Handle : IHandle
     public event Action<Handle> OnRelease;
     public event Action<Handle> OnHover;
     public event Action<Handle> OnExit;
+    public event Action<Handle> OnTap;
     public Cursor? Cursor { get; set; }
 
     private bool isPressed;
     private bool isHovered;
+    private bool moved;
 
     public Handle(IOverlay owner)
     {
         Owner = owner;
         Position = VecD.Zero;
-        Size = Application.Current.TryGetResource("HandleSize", out object size) ? new VecD((double)size) : new VecD(16);
+        Size = Application.Current.TryGetResource("HandleSize", out object size)
+            ? new VecD((double)size)
+            : new VecD(16);
 
         Owner.PointerPressedOverlay += OnPointerPressed;
         Owner.PointerMovedOverlay += OnPointerMoved;
@@ -59,7 +64,7 @@ public abstract class Handle : IHandle
 
     public static T? GetResource<T>(string key)
     {
-       return ResourceLoader.GetResource<T>(key); 
+        return ResourceLoader.GetResource<T>(key);
     }
 
     public static VectorPath GetHandleGeometry(string handleName)
@@ -77,7 +82,7 @@ public abstract class Handle : IHandle
 
     protected static Paint? GetPaint(string key, PaintStyle style = PaintStyle.Fill)
     {
-       return ResourceLoader.GetPaint(key, style);
+        return ResourceLoader.GetPaint(key, style);
     }
 
     private void OnPointerPressed(OverlayPointerArgs args)
@@ -93,6 +98,7 @@ public abstract class Handle : IHandle
         {
             args.Handled = true;
             OnPressed(args);
+            moved = false;
             OnPress?.Invoke(this, args.Point);
             isPressed = true;
             args.Pointer.Capture(Owner);
@@ -128,6 +134,7 @@ public abstract class Handle : IHandle
         }
 
         OnDrag?.Invoke(this, args.Point);
+        moved = true;
     }
 
     private void OnPointerReleased(OverlayPointerArgs args)
@@ -142,6 +149,11 @@ public abstract class Handle : IHandle
             isPressed = false;
             OnRelease?.Invoke(this);
             args.Pointer.Capture(null);
+            
+            if (!moved)
+            {
+                OnTap?.Invoke(this);
+            }
         }
     }
 }

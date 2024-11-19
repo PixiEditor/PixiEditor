@@ -5,4 +5,5 @@ namespace PixiEditor.Models.Handlers;
 public interface IPathOverlayHandler : IHandler
 {
     public void Show(VectorPath path);
+    public event Action<VectorPath> PathChanged; 
 }

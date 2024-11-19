@@ -3,6 +3,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
@@ -279,5 +280,13 @@ internal class ChangeExecutionController
             return feature;
         
         return default;
+    }
+
+    public void PathOverlayChangedInlet(VectorPath path)
+    {
+        if (currentSession is IPathExecutor vectorPathToolExecutor)
+        {
+            vectorPathToolExecutor.OnPathChanged(path);
+        }
     }
 }

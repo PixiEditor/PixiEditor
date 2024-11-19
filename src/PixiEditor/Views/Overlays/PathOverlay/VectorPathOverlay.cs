@@ -29,7 +29,7 @@ public class VectorPathOverlay : Overlay
     {
         dashedStroke.UpdateZoom((float)newZoom);
     }
-    
+
     public override void RenderOverlay(Canvas context, RectD canvasBounds)
     {
         if (Path is null)
@@ -44,32 +44,89 @@ public class VectorPathOverlay : Overlay
         RenderHandles(context, points);
     }
 
-    private void RenderHandles(Canvas context, VecF[] points)
+    private void RenderHandles(Canvas context, IReadOnlyList<VecF> points)
     {
-        for (int i = 0; i < points.Length; i++)
+        for (int i = 0; i < points.Count; i++)
         {
             pointsHandles[i].Position = new VecD(points[i].X, points[i].Y);
             pointsHandles[i].Draw(context);
         }
     }
 
-    private void AdjustHandles(VecF[] points)
+    private void AdjustHandles(IReadOnlyList<VecF> points)
     {
-        if (pointsHandles.Count != points.Length)
+        if (pointsHandles.Count != points.Count)
         {
-            if (pointsHandles.Count > points.Length)
+            if (pointsHandles.Count > points.Count)
             {
-                pointsHandles.RemoveRange(points.Length, pointsHandles.Count - points.Length);
-                Handles.RemoveRange(points.Length, Handles.Count - points.Length);
+                pointsHandles.RemoveRange(points.Count, pointsHandles.Count - points.Count);
+                Handles.RemoveRange(points.Count, Handles.Count - points.Count);
             }
             else
             {
-                for (int i = pointsHandles.Count; i < points.Length; i++)
+                for (int i = pointsHandles.Count; i < points.Count; i++)
                 {
-                    pointsHandles.Add(new AnchorHandle(this));
+                    var handle = new AnchorHandle(this);
+                    handle.OnDrag += HandleOnOnDrag;
+                    handle.OnTap += OnHandleTap;
+                    pointsHandles.Add(handle);
                     AddHandle(pointsHandles[i]);
                 }
             }
         }
+    }
+
+    private void OnHandleTap(Handle handle)
+    {
+        VectorPath newPath = new VectorPath(Path);
+        
+        if(IsLastHandle(handle)) return;
+        
+        if (IsFirstHandle(handle))
+        {
+            newPath.Close();
+        }
+        else
+        {
+            VecD pos = handle.Position;
+            newPath.LineTo(new VecF((float)pos.X, (float)pos.Y));
+        }
+
+        Path = newPath;
+    }
+
+    private bool IsFirstHandle(Handle handle)
+    {
+        return pointsHandles.IndexOf((AnchorHandle)handle) == 0;
+    }
+    
+    private bool IsLastHandle(Handle handle)
+    {
+        return pointsHandles.IndexOf((AnchorHandle)handle) == pointsHandles.Count - 1;
+    }
+
+    private void HandleOnOnDrag(Handle source, VecD position)
+    {
+        var handle = (AnchorHandle)source;
+        var index = pointsHandles.IndexOf(handle);
+        VecF[] updatedPoints = Path.Points.ToArray();
+        updatedPoints[index] = new VecF((float)position.X, (float)position.Y);
+        VectorPath newPath = new VectorPath();
+
+        newPath.MoveTo(updatedPoints[0]);
+
+        for (var i = 1; i < updatedPoints.Length; i++)
+        {
+            var point = updatedPoints[i];
+            newPath.LineTo(point);
+        }
+
+        using var iterator = Path.CreateIterator(false);
+        if (iterator.IsCloseContour)
+        {
+            newPath.Close();
+        }
+
+        Path = newPath;
     }
 }

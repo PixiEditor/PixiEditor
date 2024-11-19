@@ -344,7 +344,7 @@ internal class ViewportOverlays
     {
         Binding pathBinding = new()
         {
-            Source = Viewport, Path = "Document.PathOverlayViewModel.Path", Mode = BindingMode.OneWay
+            Source = Viewport, Path = "Document.PathOverlayViewModel.Path", Mode = BindingMode.TwoWay
         };
 
         vectorPathOverlay.Bind(VectorPathOverlay.PathProperty, pathBinding);
