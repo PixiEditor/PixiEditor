@@ -1,6 +1,5 @@
 ﻿using Avalonia.Media;
 using Avalonia.Styling;
-using Drawie.Backend.Core.Surfaces.Vector;
 
 namespace PixiEditor.Animation;
 

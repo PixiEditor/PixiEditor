@@ -29,7 +29,7 @@ internal abstract class Toolbar : ObservableObject, IToolbar
     /// </summary>
     /// <param name="name">Setting name, non case sensitive.</param>
     /// <returns>Generic Setting.</returns>
-    public virtual Setting GetSetting(string name)
+    public virtual Setting? GetSetting(string name)
     {
         return Settings.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.CurrentCultureIgnoreCase));
     }

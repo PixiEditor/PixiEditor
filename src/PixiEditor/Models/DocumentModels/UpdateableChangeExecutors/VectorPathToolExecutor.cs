@@ -1,5 +1,5 @@
 ﻿using Avalonia.Media;
-using Drawie.Backend.Core.Surfaces.Vector;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Models.Handlers;
@@ -51,8 +51,9 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor
             }
 
             startingPath.MoveTo((VecF)controller.LastPrecisePosition);
-            internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id,
-                new PathVectorData(new VectorPath(startingPath))));
+            internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
+
+            document.PathOverlayHandler.Show(startingPath);
         }
 
         return ExecutionState.Success;
@@ -61,15 +62,11 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
         startingPath.LineTo((VecF)args.PositionOnCanvas);
-        PathVectorData vectorData = new PathVectorData(new VectorPath(startingPath))
-        {
-            StrokeWidth = toolbar.ToolSize,
-            StrokeColor = toolbar.StrokeColor.ToColor(),
-            FillColor = toolbar.Fill ? toolbar.FillColor.ToColor() : Colors.Transparent,
-        };
+        PathVectorData vectorData = ConstructShapeData();
 
         internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, vectorData));
     }
+
 
     public override void OnColorChanged(Color color, bool primary)
     {
@@ -82,17 +79,21 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor
 
     public override void OnSettingsChanged(string name, object value)
     {
-        internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id,
-            new PathVectorData(new VectorPath(startingPath))
-            {
-                StrokeWidth = toolbar.ToolSize,
-                StrokeColor = toolbar.StrokeColor.ToColor(),
-                FillColor = toolbar.Fill ? toolbar.FillColor.ToColor() : Colors.Transparent,
-            }));
+        internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
     }
 
     public override void ForceStop()
     {
         internals.ActionAccumulator.AddActions(new EndSetShapeGeometry_Action());
+    }
+
+    private PathVectorData ConstructShapeData()
+    {
+        return new PathVectorData(new VectorPath(startingPath))
+        {
+            StrokeWidth = toolbar.ToolSize,
+            StrokeColor = toolbar.StrokeColor.ToColor(),
+            FillColor = toolbar.Fill ? toolbar.FillColor.ToColor() : Colors.Transparent,
+        };
     }
 }

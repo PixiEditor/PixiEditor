@@ -57,7 +57,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     }
 
     public virtual bool CanRender() => true;
-    
+
     public abstract void RenderOverlay(Canvas context, RectD canvasBounds);
 
     public void Refresh()
@@ -106,6 +106,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         if (Handles.Contains(handle)) return;
 
         Handles.Add(handle);
+        handle.ZoomScale = ZoomScale; 
     }
 
     public void ForAllHandles(Action<Handle> action)
@@ -176,29 +177,25 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     }
 
     protected virtual void ZoomChanged(double newZoom) { }
+
     protected virtual void OnOverlayPointerReleased(OverlayPointerArgs args)
     {
-
     }
 
     protected virtual void OnOverlayPointerPressed(OverlayPointerArgs args)
     {
-
     }
 
     protected virtual void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
-
     }
 
     protected virtual void OnOverlayPointerExited(OverlayPointerArgs args)
     {
-
     }
 
     protected virtual void OnOverlayPointerEntered(OverlayPointerArgs args)
     {
-
     }
 
     private static void OnZoomScaleChanged(AvaloniaPropertyChangedEventArgs<double> e)
@@ -212,7 +209,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
             }
         }
     }
-    
+
     private void OnIsVisibleChanged(AvaloniaPropertyChangedEventArgs<bool> e)
     {
         if (e.NewValue.Value)
@@ -220,7 +217,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
             Refresh();
         }
     }
-    
+
     protected static void AffectsOverlayRender(params AvaloniaProperty[] properties)
     {
         foreach (var property in properties)

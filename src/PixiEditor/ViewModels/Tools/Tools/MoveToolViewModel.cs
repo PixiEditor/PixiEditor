@@ -3,7 +3,6 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using Drawie.Backend.Core.Numerics;
-using Drawie.Backend.Core.Surfaces.Vector;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers.Tools;
