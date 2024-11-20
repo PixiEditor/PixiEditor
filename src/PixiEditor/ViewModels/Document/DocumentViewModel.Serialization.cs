@@ -14,6 +14,7 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -137,6 +138,10 @@ internal partial class DocumentViewModel
         {
             elementToAdd = AddLine(resizeFactor, lineData);
         }
+        else if (vectorNode.ShapeData is IReadOnlyPathData shapeData)
+        {
+            elementToAdd = AddVectorPath(resizeFactor, shapeData);
+        }
 
         if (elementToAdd != null)
         {
@@ -151,12 +156,12 @@ internal partial class DocumentViewModel
         line.Y1.Unit = SvgNumericUnit.FromUserUnits(lineData.Start.Y * resizeFactor.Y);
         line.X2.Unit = SvgNumericUnit.FromUserUnits(lineData.End.X * resizeFactor.X);
         line.Y2.Unit = SvgNumericUnit.FromUserUnits(lineData.End.Y * resizeFactor.Y);
-        
+
         line.Stroke.Unit = SvgColorUnit.FromRgba(lineData.StrokeColor.R, lineData.StrokeColor.G,
             lineData.StrokeColor.B, lineData.StrokeColor.A);
         line.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(lineData.StrokeWidth * resizeFactor.X);
         line.Transform.Unit = new SvgTransformUnit(lineData.TransformationMatrix);
-        
+
         return line;
     }
 
@@ -194,8 +199,29 @@ internal partial class DocumentViewModel
             rectangleData.StrokeColor.B, rectangleData.StrokeColor.A);
         rect.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(rectangleData.StrokeWidth);
         rect.Transform.Unit = new SvgTransformUnit(rectangleData.TransformationMatrix);
-        
+
         return rect;
+    }
+
+    private SvgPath AddVectorPath(VecD resizeFactor, IReadOnlyPathData data)
+    {
+        var path = new SvgPath();
+        if (data.Path != null)
+        {
+            string pathData = data.Path.ToSvgPathData();
+            path.PathData.Unit = new SvgStringUnit(pathData);
+            Matrix3X3 transform = data.TransformationMatrix;
+            transform = transform.PostConcat(Matrix3X3.CreateScale((float)resizeFactor.X, (float)resizeFactor.Y));
+            path.Transform.Unit = new SvgTransformUnit?(new SvgTransformUnit(transform));
+
+            path.Fill.Unit =
+                SvgColorUnit.FromRgba(data.FillColor.R, data.FillColor.G, data.FillColor.B, data.FillColor.A);
+            path.Stroke.Unit = SvgColorUnit.FromRgba(data.StrokeColor.R, data.StrokeColor.G, data.StrokeColor.B,
+                data.StrokeColor.A);
+            path.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(data.StrokeWidth);
+        }
+
+        return path;
     }
 
     private void AddSvgImage(IElementContainer elementContainer, KeyFrameTime atTime, INodeHandler member,
@@ -210,7 +236,7 @@ internal partial class DocumentViewModel
         Image toSave = null;
         DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
         {
-            using Surface surface = new Surface(SizeBindable); 
+            using Surface surface = new Surface(SizeBindable);
             Renderer.RenderLayer(surface.DrawingSurface, imageNode.Id, ChunkResolution.Full, atTime.Frame);
 
             toSave = surface.DrawingSurface.Snapshot((RectI)tightBounds.Value);
@@ -220,6 +246,7 @@ internal partial class DocumentViewModel
 
         elementContainer.Children.Add(image);
     }
+
 
     private static SvgImage CreateImageElement(VecD resizeFactor, RectD tightBounds,
         Image toSerialize, bool useNearestNeighborForImageUpscaling)
