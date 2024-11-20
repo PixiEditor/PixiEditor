@@ -2,7 +2,7 @@
 
 namespace PixiEditor.ViewModels.Document.TransformOverlays;
 
-internal class PathOverlayUndoStack<TState> where TState : class
+internal class PathOverlayUndoStack<TState> : IDisposable where TState : class
 {
     private struct StackItem<TState>
     {
@@ -20,7 +20,10 @@ internal class PathOverlayUndoStack<TState> where TState : class
 
     public void AddState(TState state)
     {
+        foreach (var item in redoStack)
+            (item.State as IDisposable)?.Dispose();
         redoStack.Clear();
+        
         if (current is not null)
             undoStack.Push(current.Value);
 
@@ -61,5 +64,18 @@ internal class PathOverlayUndoStack<TState> where TState : class
     {
         undoStack.Push(current.Value);
         current = redoStack.Pop();
+    }
+
+    public void Dispose()
+    {
+        foreach (var item in undoStack)
+            (item.State as IDisposable)?.Dispose();
+        foreach (var item in redoStack)
+            (item.State as IDisposable)?.Dispose();
+        (current?.State as IDisposable)?.Dispose();
+
+        undoStack.Clear();
+        redoStack.Clear();
+        current = null;
     }
 }

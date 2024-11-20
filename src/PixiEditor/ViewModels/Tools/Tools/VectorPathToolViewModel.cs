@@ -14,6 +14,8 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
     public override LocalizedString Tooltip => new LocalizedString("PATH_TOOL_TOOLTIP", Shortcut);
 
+    public override bool StopsLinkedToolOnUse => false; 
+
     public VectorPathToolViewModel()
     {
         var fillSetting = Toolbar.GetSetting(nameof(BasicShapeToolbar.Fill));
@@ -25,9 +27,17 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
 
     public override void UseTool(VecD pos)
     {
-        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorPathTool();
-    }
+        var doc =
+            ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
+        
+        if (doc is null) return;
 
+        if (!doc.PathOverlayViewModel.IsActive)
+        {
+            doc?.Tools.UseVectorPathTool();
+        }
+    }
+    
     public override void OnSelected(bool restoring)
     {
         if (restoring) return;

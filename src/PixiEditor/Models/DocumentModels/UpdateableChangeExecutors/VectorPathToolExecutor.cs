@@ -15,7 +15,7 @@ using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
-internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor
+internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor, IMidChangeUndoableExecutor
 {
     private IStructureMemberHandler member;
     private VectorPath startingPath;
@@ -23,6 +23,9 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor
     private IBasicShapeToolbar toolbar;
 
     public override ExecutorType Type => ExecutorType.ToolLinked;
+    
+    public bool CanUndo => document.PathOverlayHandler.HasUndo;
+    public bool CanRedo => document.PathOverlayHandler.HasRedo;
 
     public override ExecutionState Start()
     {
@@ -73,7 +76,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor
     {
         startingPath.LineTo((VecF)args.PositionOnCanvas);
         PathVectorData vectorData = ConstructShapeData();
-
+        
         internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, vectorData));
     }
 
@@ -115,5 +118,24 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor
             startingPath = path;
             internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
         }
+    }
+
+    public bool IsFeatureEnabled(IExecutorFeature feature)
+    {
+        return feature switch
+        {
+            IPathExecutor _ => true,
+            _ => false
+        };
+    }
+
+    public void OnMidChangeUndo()
+    {
+        document.PathOverlayHandler.Undo();
+    }
+
+    public void OnMidChangeRedo()
+    {
+        document.PathOverlayHandler.Redo();
     }
 }

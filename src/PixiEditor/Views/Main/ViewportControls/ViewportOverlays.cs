@@ -346,8 +346,14 @@ internal class ViewportOverlays
         {
             Source = Viewport, Path = "Document.PathOverlayViewModel.Path", Mode = BindingMode.TwoWay
         };
+        
+        Binding addToUndoCommandBinding = new()
+        {
+            Source = Viewport, Path = "Document.PathOverlayViewModel.AddToUndoCommand", Mode = BindingMode.OneWay
+        };
 
         vectorPathOverlay.Bind(VectorPathOverlay.PathProperty, pathBinding);
+        vectorPathOverlay.Bind(VectorPathOverlay.AddToUndoCommandProperty, addToUndoCommandBinding);
     }
 
     private void BindSnappingOverlay()

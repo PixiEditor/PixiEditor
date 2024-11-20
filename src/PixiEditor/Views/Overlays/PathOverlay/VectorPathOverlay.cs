@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System.Windows.Input;
+using Avalonia;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
@@ -19,6 +20,15 @@ public class VectorPathOverlay : Overlay
     {
         get => GetValue(PathProperty);
         set => SetValue(PathProperty, value);
+    }
+
+    public static readonly StyledProperty<ICommand> AddToUndoCommandProperty = AvaloniaProperty.Register<VectorPathOverlay, ICommand>(
+        nameof(AddToUndoCommand));
+
+    public ICommand AddToUndoCommand
+    {
+        get => GetValue(AddToUndoCommandProperty);
+        set => SetValue(AddToUndoCommandProperty, value);
     }
 
     private DashedStroke dashedStroke = new DashedStroke();
@@ -73,6 +83,7 @@ public class VectorPathOverlay : Overlay
                 {
                     var handle = new AnchorHandle(this);
                     handle.OnDrag += HandleOnOnDrag;
+                    handle.OnRelease += OnHandleRelease;
                     handle.OnTap += OnHandleTap;
                     pointsHandles.Add(handle);
                     AddHandle(pointsHandles[i]);
@@ -84,9 +95,9 @@ public class VectorPathOverlay : Overlay
     private void OnHandleTap(Handle handle)
     {
         VectorPath newPath = new VectorPath(Path);
-        
-        if(IsLastHandle(handle)) return;
-        
+
+        if (IsLastHandle(handle)) return;
+
         if (IsFirstHandle(handle))
         {
             newPath.Close();
@@ -133,5 +144,10 @@ public class VectorPathOverlay : Overlay
         }
 
         Path = newPath;
+    }
+    
+    private void OnHandleRelease(Handle source)
+    {
+        AddToUndoCommand.Execute(Path);
     }
 }

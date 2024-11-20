@@ -147,13 +147,14 @@ public abstract class Handle : IHandle
         if (isPressed)
         {
             isPressed = false;
-            OnRelease?.Invoke(this);
-            args.Pointer.Capture(null);
-            
             if (!moved)
             {
                 OnTap?.Invoke(this);
             }
+            
+            OnRelease?.Invoke(this);
+            args.Pointer.Capture(null);
+            
         }
     }
 }

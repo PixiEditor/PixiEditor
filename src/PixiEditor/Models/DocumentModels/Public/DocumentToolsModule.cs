@@ -58,11 +58,17 @@ internal class DocumentToolsModule
         bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
         Internals.ChangeController.TryStartExecutor<VectorRectangleToolExecutor>(force);
     }
-    
+
     public void UseVectorLineTool()
     {
         bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
         Internals.ChangeController.TryStartExecutor<VectorLineToolExecutor>(force);
+    }
+
+    public void UseVectorPathTool()
+    {
+        bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
+        Internals.ChangeController.TryStartExecutor<VectorPathToolExecutor>(force);
     }
 
     public void UseSelectTool() => Internals.ChangeController.TryStartExecutor<SelectToolExecutor>();
@@ -74,6 +80,4 @@ internal class DocumentToolsModule
     public void UseLassoTool() => Internals.ChangeController.TryStartExecutor<LassoToolExecutor>();
 
     public void UseMagicWandTool() => Internals.ChangeController.TryStartExecutor<MagicWandToolExecutor>();
-
-    public void UseVectorPathTool() => Internals.ChangeController.TryStartExecutor<VectorPathToolExecutor>();
 }
