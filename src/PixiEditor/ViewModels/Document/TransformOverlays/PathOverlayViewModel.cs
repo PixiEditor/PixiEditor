@@ -9,8 +9,12 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
 {
     private DocumentViewModel documentViewModel;
     private DocumentInternalParts internals;
-    
+
+
+    private PathOverlayUndoStack<VectorPath>? undoStack = null;
+
     private VectorPath path;
+
     public VectorPath Path
     {
         get => path;
@@ -24,7 +28,8 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
     }
 
     public event Action<VectorPath>? PathChanged;
-    
+    public bool IsActive { get; set; }
+
     public PathOverlayViewModel(DocumentViewModel documentViewModel, DocumentInternalParts internals)
     {
         this.documentViewModel = documentViewModel;
@@ -33,6 +38,13 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
 
     public void Show(VectorPath path)
     {
-        Path = path;        
+        Path = path;
+        IsActive = true;
+    }
+    
+    public void Hide()
+    {
+        IsActive = false;
+        Path = null;
     }
 }

@@ -27,4 +27,19 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorPathTool();
     }
+
+    public override void OnSelected(bool restoring)
+    {
+        if (restoring) return;
+
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorPathTool();
+    }
+
+    public override void OnDeselecting(bool transient)
+    {
+        if (!transient)
+        {
+            ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
+        }
+    }
 }

@@ -22,6 +22,8 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor
     private IVectorPathToolHandler vectorPathToolHandler;
     private IBasicShapeToolbar toolbar;
 
+    public override ExecutorType Type => ExecutorType.ToolLinked;
+
     public override ExecutionState Start()
     {
         vectorPathToolHandler = GetHandler<IVectorPathToolHandler>();
@@ -51,10 +53,17 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor
                 return ExecutionState.Error;
             }
 
-            startingPath.MoveTo((VecF)controller.LastPrecisePosition);
-            internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
+            if (controller.LeftMousePressed)
+            {
+                startingPath.MoveTo((VecF)controller.LastPrecisePosition);
+                internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
+            }
 
             document.PathOverlayHandler.Show(startingPath);
+        }
+        else
+        {
+            return ExecutionState.Error;
         }
 
         return ExecutionState.Success;
@@ -85,6 +94,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor
 
     public override void ForceStop()
     {
+        document.PathOverlayHandler.Hide();
         internals.ActionAccumulator.AddActions(new EndSetShapeGeometry_Action());
     }
 
@@ -100,7 +110,10 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor
 
     public void OnPathChanged(VectorPath path)
     {
-        startingPath = path;
-        internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
+        if (document.PathOverlayHandler.IsActive)
+        {
+            startingPath = path;
+            internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
+        }
     }
 }

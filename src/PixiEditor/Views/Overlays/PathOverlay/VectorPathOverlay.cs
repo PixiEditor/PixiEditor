@@ -24,6 +24,11 @@ public class VectorPathOverlay : Overlay
     private DashedStroke dashedStroke = new DashedStroke();
 
     private List<AnchorHandle> pointsHandles = new List<AnchorHandle>();
+    
+    static VectorPathOverlay()
+    {
+        AffectsOverlayRender(PathProperty);
+    }
 
     protected override void ZoomChanged(double newZoom)
     {
