@@ -16,7 +16,7 @@ using Path = Avalonia.Controls.Shapes.Path;
 
 namespace PixiEditor.Views.Overlays.Handles;
 
-public delegate void HandleEvent(Handle source, VecD position);
+public delegate void HandleEvent(Handle source, OverlayPointerArgs args);
 
 public abstract class Handle : IHandle
 {
@@ -30,10 +30,10 @@ public abstract class Handle : IHandle
 
     public event HandleEvent OnPress;
     public event HandleEvent OnDrag;
-    public event Action<Handle> OnRelease;
-    public event Action<Handle> OnHover;
-    public event Action<Handle> OnExit;
-    public event Action<Handle> OnTap;
+    public event HandleEvent OnRelease;
+    public event HandleEvent OnHover;
+    public event HandleEvent OnExit;
+    public event HandleEvent OnTap;
     public Cursor? Cursor { get; set; }
 
     private bool isPressed;
@@ -91,6 +91,11 @@ public abstract class Handle : IHandle
         {
             return;
         }
+        
+        if(args.Handled)
+        {
+            return;
+        }
 
         VecD handlePos = Position;
 
@@ -99,7 +104,7 @@ public abstract class Handle : IHandle
             args.Handled = true;
             OnPressed(args);
             moved = false;
-            OnPress?.Invoke(this, args.Point);
+            OnPress?.Invoke(this, args);
             isPressed = true;
             args.Pointer.Capture(Owner);
         }
@@ -108,7 +113,12 @@ public abstract class Handle : IHandle
     protected virtual void OnPointerMoved(OverlayPointerArgs args)
     {
         VecD handlePos = Position;
-
+        
+        if(args.Handled)
+        {
+            return;
+        }
+        
         bool isWithinHandle = IsWithinHandle(handlePos, args.Point, ZoomScale);
 
         if (!isHovered && isWithinHandle)
@@ -119,13 +129,13 @@ public abstract class Handle : IHandle
                 Owner.Cursor = Cursor;
             }
 
-            OnHover?.Invoke(this);
+            OnHover?.Invoke(this, args);
         }
         else if (isHovered && !isWithinHandle)
         {
             isHovered = false;
             Owner.Cursor = null;
-            OnExit?.Invoke(this);
+            OnExit?.Invoke(this, args);
         }
 
         if (!isPressed)
@@ -133,7 +143,8 @@ public abstract class Handle : IHandle
             return;
         }
 
-        OnDrag?.Invoke(this, args.Point);
+        OnDrag?.Invoke(this, args);
+        args.Handled = true;
         moved = true;
     }
 
@@ -143,18 +154,23 @@ public abstract class Handle : IHandle
         {
             return;
         }
+        
+        if(args.Handled)
+        {
+            return;
+        }
 
         if (isPressed)
         {
             isPressed = false;
             if (!moved)
             {
-                OnTap?.Invoke(this);
+                OnTap?.Invoke(this, args);
             }
-            
-            OnRelease?.Invoke(this);
+
+            OnRelease?.Invoke(this, args);
             args.Pointer.Capture(null);
-            
+            args.Handled = true;
         }
     }
 }

@@ -114,7 +114,7 @@ internal class LineToolOverlay : Overlay
         startHandle = new AnchorHandle(this);
         startHandle.StrokePaint = blackPaint;
         startHandle.OnDrag += StartHandleOnDrag;
-        startHandle.OnHover += handle => Refresh();
+        startHandle.OnHover += (handle, _) => Refresh();
         startHandle.OnRelease += OnHandleRelease;
         startHandle.Cursor = new Cursor(StandardCursorType.Arrow);
         AddHandle(startHandle);
@@ -123,7 +123,7 @@ internal class LineToolOverlay : Overlay
         endHandle.StrokePaint = blackPaint;
         endHandle.OnDrag += EndHandleOnDrag;
         endHandle.Cursor = new Cursor(StandardCursorType.Arrow);
-        endHandle.OnHover += handle => Refresh();
+        endHandle.OnHover += (handle, _) => Refresh();
         endHandle.OnRelease += OnHandleRelease;
         AddHandle(endHandle);
 
@@ -131,7 +131,7 @@ internal class LineToolOverlay : Overlay
         moveHandle.StrokePaint = blackPaint;
         moveHandle.OnDrag += MoveHandleOnDrag;
         endHandle.Cursor = new Cursor(StandardCursorType.Arrow);
-        moveHandle.OnHover += handle => Refresh();
+        moveHandle.OnHover += (handle, _)=> Refresh();
         moveHandle.OnRelease += OnHandleRelease;
         AddHandle(moveHandle);
 
@@ -144,7 +144,7 @@ internal class LineToolOverlay : Overlay
         lastMousePos = args.Point;
     }
 
-    private void OnHandleRelease(Handle obj)
+    private void OnHandleRelease(Handle obj, OverlayPointerArgs args)
     {
         if (SnappingController != null)
         {
@@ -206,27 +206,27 @@ internal class LineToolOverlay : Overlay
         args.Pointer.Capture(this);
     }
 
-    private void StartHandleOnDrag(Handle source, VecD position)
+    private void StartHandleOnDrag(Handle source, OverlayPointerArgs args)
     {
-        VecD delta = position - mouseDownPos;
+        VecD delta = args.Point - mouseDownPos;
         LineStart = SnapAndHighlight(lineStartOnMouseDown + delta);
         movedWhileMouseDown = true;
 
-        lastMousePos = position;
+        lastMousePos = args.Point;
         isDraggingHandle = true;
         IsSizeBoxEnabled = true;
     }
 
-    private void EndHandleOnDrag(Handle source, VecD position)
+    private void EndHandleOnDrag(Handle source, OverlayPointerArgs args)
     {
-        VecD delta = position - mouseDownPos;
+        VecD delta = args.Point - mouseDownPos;
         VecD final = SnapAndHighlight(lineEndOnMouseDown + delta);
 
         LineEnd = final;
         movedWhileMouseDown = true;
 
         isDraggingHandle = true;
-        lastMousePos = position;
+        lastMousePos = args.Point;
         IsSizeBoxEnabled = true;
     }
 
@@ -255,9 +255,9 @@ internal class LineToolOverlay : Overlay
         return final;
     }
 
-    private void MoveHandleOnDrag(Handle source, VecD position)
+    private void MoveHandleOnDrag(Handle source, OverlayPointerArgs args)
     {
-        var delta = position - mouseDownPos;
+        var delta = args.Point - mouseDownPos;
 
         VecD mappedStart = lineStartOnMouseDown;
         VecD mappedEnd = lineEndOnMouseDown;

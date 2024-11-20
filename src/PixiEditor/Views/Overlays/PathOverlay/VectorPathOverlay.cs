@@ -1,9 +1,8 @@
 ﻿using System.Windows.Input;
 using Avalonia;
-using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
+using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Views.Overlays.Drawables;
 using PixiEditor.Views.Overlays.Handles;
 using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
@@ -22,8 +21,9 @@ public class VectorPathOverlay : Overlay
         set => SetValue(PathProperty, value);
     }
 
-    public static readonly StyledProperty<ICommand> AddToUndoCommandProperty = AvaloniaProperty.Register<VectorPathOverlay, ICommand>(
-        nameof(AddToUndoCommand));
+    public static readonly StyledProperty<ICommand> AddToUndoCommandProperty =
+        AvaloniaProperty.Register<VectorPathOverlay, ICommand>(
+            nameof(AddToUndoCommand));
 
     public ICommand AddToUndoCommand
     {
@@ -34,7 +34,7 @@ public class VectorPathOverlay : Overlay
     private DashedStroke dashedStroke = new DashedStroke();
 
     private List<AnchorHandle> pointsHandles = new List<AnchorHandle>();
-    
+
     static VectorPathOverlay()
     {
         AffectsOverlayRender(PathProperty);
@@ -63,6 +63,8 @@ public class VectorPathOverlay : Overlay
     {
         for (int i = 0; i < points.Count; i++)
         {
+            pointsHandles[i].IsSelected = i == points.Count - 1;
+
             pointsHandles[i].Position = new VecD(points[i].X, points[i].Y);
             pointsHandles[i].Draw(context);
         }
@@ -82,7 +84,8 @@ public class VectorPathOverlay : Overlay
                 for (int i = pointsHandles.Count; i < points.Count; i++)
                 {
                     var handle = new AnchorHandle(this);
-                    handle.OnDrag += HandleOnOnDrag;
+                    handle.OnPress += OnHandlePress;
+                    handle.OnDrag += OnHandleDrag;
                     handle.OnRelease += OnHandleRelease;
                     handle.OnTap += OnHandleTap;
                     pointsHandles.Add(handle);
@@ -92,21 +95,14 @@ public class VectorPathOverlay : Overlay
         }
     }
 
-    private void OnHandleTap(Handle handle)
+    private void OnHandleTap(Handle handle, OverlayPointerArgs args)
     {
         VectorPath newPath = new VectorPath(Path);
-
         if (IsLastHandle(handle)) return;
 
-        if (IsFirstHandle(handle))
-        {
-            newPath.Close();
-        }
-        else
-        {
-            VecD pos = handle.Position;
-            newPath.LineTo(new VecF((float)pos.X, (float)pos.Y));
-        }
+
+        VecD pos = handle.Position;
+        newPath.LineTo(new VecF((float)pos.X, (float)pos.Y));
 
         Path = newPath;
     }
@@ -115,39 +111,85 @@ public class VectorPathOverlay : Overlay
     {
         return pointsHandles.IndexOf((AnchorHandle)handle) == 0;
     }
-    
+
     private bool IsLastHandle(Handle handle)
     {
         return pointsHandles.IndexOf((AnchorHandle)handle) == pointsHandles.Count - 1;
     }
 
-    private void HandleOnOnDrag(Handle source, VecD position)
+    private void OnHandleDrag(Handle source, OverlayPointerArgs args)
     {
         var handle = (AnchorHandle)source;
         var index = pointsHandles.IndexOf(handle);
-        VecF[] updatedPoints = Path.Points.ToArray();
-        updatedPoints[index] = new VecF((float)position.X, (float)position.Y);
         VectorPath newPath = new VectorPath();
 
-        newPath.MoveTo(updatedPoints[0]);
-
-        for (var i = 1; i < updatedPoints.Length; i++)
+        bool pointHandled = false;
+        int i = 0;
+        foreach (var data in Path)
         {
-            var point = updatedPoints[i];
-            newPath.LineTo(point);
-        }
+            VecF point;
+            switch (data.verb)
+            {
+                case PathVerb.Move:
+                    point = data.points[0];
+                    if (i == index)
+                    {
+                        point = (VecF)args.Point;
+                    }
 
-        using var iterator = Path.CreateIterator(false);
-        if (iterator.IsCloseContour)
-        {
-            newPath.Close();
+                    newPath.MoveTo(point);
+                    i++;
+                    break;
+                case PathVerb.Line:
+                    point = data.points[1];
+                    if (i == index)
+                    {
+                        point = (VecF)args.Point;
+                    }
+
+                    newPath.LineTo(point);
+                    i++;
+                    break;
+                /*case PathVerb.Quad:
+                    newPath.QuadTo(data.points[0], point);
+                    break;
+                case PathVerb.Conic:
+                    newPath.ConicTo(data.points[0], point, data.points[2].X);
+                    break;
+                case PathVerb.Cubic:
+                    newPath.CubicTo(data.points[0], data.points[1], point);
+                    break;*/
+                case PathVerb.Close:
+                    newPath.Close();
+                    break;
+                case PathVerb.Done:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         Path = newPath;
     }
-    
-    private void OnHandleRelease(Handle source)
+
+    private void OnHandlePress(Handle source, OverlayPointerArgs args)
+    {
+        if (args.Modifiers.HasFlag(Avalonia.Input.KeyModifiers.Control))
+        {
+            if (!IsLastHandle(source))
+            {
+                VectorPath newPath = new VectorPath(Path);
+                newPath.MoveTo(new VecF((float)source.Position.X, (float)source.Position.Y));
+
+                Path = newPath;
+            }
+        }
+    }
+
+    private void OnHandleRelease(Handle source, OverlayPointerArgs args)
     {
         AddToUndoCommand.Execute(Path);
+
+        Refresh();
     }
 }

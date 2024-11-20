@@ -446,7 +446,7 @@ internal class TransformOverlay : Overlay
         return degrees;
     }
 
-    private void OnAnchorHandlePressed(Handle source, VecD position)
+    private void OnAnchorHandlePressed(Handle source, OverlayPointerArgs args)
     {
         capturedAnchor = anchorMap[source];
         cornersOnStartAnchorDrag = Corners;
@@ -461,9 +461,9 @@ internal class TransformOverlay : Overlay
         }
     }
 
-    private void OnMoveHandlePressed(Handle source, VecD position)
+    private void OnMoveHandlePressed(Handle source, OverlayPointerArgs args)
     {
-        StartMoving(position);
+        StartMoving(args.Point);
     }
 
     protected override void OnOverlayPointerExited(OverlayPointerArgs args)
@@ -580,7 +580,7 @@ internal class TransformOverlay : Overlay
         return base.TestHit(point) || Corners.AsScaled(1.25f).IsPointInside(point);
     }
 
-    private void OnMoveHandleReleased(Handle obj)
+    private void OnMoveHandleReleased(Handle obj, OverlayPointerArgs args)
     {
         StopMoving();
     }
@@ -1043,7 +1043,7 @@ internal class TransformOverlay : Overlay
         return originOnStartAnchorDrag + pos - mousePosOnStartAnchorDrag;
     }
 
-    private void OnAnchorHandleReleased(Handle source)
+    private void OnAnchorHandleReleased(Handle source, OverlayPointerArgs args)
     {
         capturedAnchor = null;
 

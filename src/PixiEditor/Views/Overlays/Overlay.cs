@@ -66,34 +66,52 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         InvalidateVisual(); // For elements in visual tree
     }
 
+    // Logically, subscribers (handles) of these events are rendered in 0 to n order, so the last one is rendered on top
+    // that's why reversing invocation order makes pointer events be handled in the order of rendering,
+    // which is more intuitive for the user since the topmost element should be the one to handle the event first
+    
     public void EnterPointer(OverlayPointerArgs args)
     {
         OnOverlayPointerEntered(args);
-        PointerEnteredOverlay?.Invoke(args);
+        ReverseInvoke(PointerEnteredOverlay, args);
     }
 
     public void ExitPointer(OverlayPointerArgs args)
     {
         OnOverlayPointerExited(args);
-        PointerExitedOverlay?.Invoke(args);
+        ReverseInvoke(PointerExitedOverlay, args);
     }
 
     public void MovePointer(OverlayPointerArgs args)
     {
         OnOverlayPointerMoved(args);
-        PointerMovedOverlay?.Invoke(args);
+        ReverseInvoke(PointerMovedOverlay, args);
     }
 
     public void PressPointer(OverlayPointerArgs args)
     {
         OnOverlayPointerPressed(args);
-        PointerPressedOverlay?.Invoke(args);
+        ReverseInvoke(PointerPressedOverlay, args);
     }
 
     public void ReleasePointer(OverlayPointerArgs args)
     {
         OnOverlayPointerReleased(args);
-        PointerReleasedOverlay?.Invoke(args);
+        ReverseInvoke(PointerReleasedOverlay, args);
+    }
+    
+    
+    private void ReverseInvoke(PointerEvent? pointerEvent, OverlayPointerArgs args)
+    {
+        if(pointerEvent == null) return;
+        
+        var invokeList = pointerEvent.GetInvocationList();
+        
+        for (int i = invokeList.Length - 1; i >= 0; i--)
+        {
+            var handler = (PointerEvent)invokeList[i];
+            handler.Invoke(args);
+        }
     }
 
     public virtual bool TestHit(VecD point)
@@ -106,7 +124,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         if (Handles.Contains(handle)) return;
 
         Handles.Add(handle);
-        handle.ZoomScale = ZoomScale; 
+        handle.ZoomScale = ZoomScale;
     }
 
     public void ForAllHandles(Action<Handle> action)
