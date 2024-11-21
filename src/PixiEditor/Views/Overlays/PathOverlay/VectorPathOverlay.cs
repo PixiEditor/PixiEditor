@@ -16,7 +16,7 @@ public class VectorPathOverlay : Overlay
     public static readonly StyledProperty<VectorPath> PathProperty =
         AvaloniaProperty.Register<VectorPathOverlay, VectorPath>(
             nameof(Path));
-
+    
     public static readonly StyledProperty<SnappingController> SnappingControllerProperty =
         AvaloniaProperty.Register<VectorPathOverlay, SnappingController>(
             nameof(SnappingController));

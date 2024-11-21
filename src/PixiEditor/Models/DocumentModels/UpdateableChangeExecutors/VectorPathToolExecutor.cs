@@ -47,7 +47,8 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor,
             var shapeData = vectorLayerHandler.GetShapeData(document.AnimationHandler.ActiveFrameTime);
             if (shapeData is PathVectorData pathData)
             {
-                startingPath = pathData.Path;
+                startingPath = new VectorPath(pathData.Path);
+                startingPath.Transform(pathData.TransformationMatrix);
             }
             else if (shapeData is null)
             {
