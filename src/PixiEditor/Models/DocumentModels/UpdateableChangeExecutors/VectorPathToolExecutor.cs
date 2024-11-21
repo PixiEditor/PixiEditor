@@ -74,6 +74,11 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor,
 
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
+        if (startingPath.IsClosed)
+        {
+            return;
+        }
+        
         startingPath.LineTo((VecF)args.PositionOnCanvas);
         PathVectorData vectorData = ConstructShapeData();
         

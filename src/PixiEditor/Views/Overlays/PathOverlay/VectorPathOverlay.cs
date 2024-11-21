@@ -1,5 +1,6 @@
 ﻿using System.Windows.Input;
 using Avalonia;
+using Avalonia.Input;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
@@ -33,7 +34,6 @@ public class VectorPathOverlay : Overlay
 
     private DashedStroke dashedStroke = new DashedStroke();
 
-    private List<AnchorHandle> pointsHandles = new List<AnchorHandle>();
 
     static VectorPathOverlay()
     {
@@ -55,7 +55,7 @@ public class VectorPathOverlay : Overlay
         dashedStroke.Draw(context, Path);
         var points = Path.Points;
 
-        AdjustHandles(points);
+        AdjustHandles(points, Path.IsClosed);
         RenderHandles(context, points);
     }
 
@@ -63,33 +63,31 @@ public class VectorPathOverlay : Overlay
     {
         for (int i = 0; i < points.Count; i++)
         {
-            pointsHandles[i].IsSelected = i == points.Count - 1;
+            GetHandleAt(i).IsSelected = i == points.Count - 1;
 
-            pointsHandles[i].Position = new VecD(points[i].X, points[i].Y);
-            pointsHandles[i].Draw(context);
+            Handles[i].Position = new VecD(points[i].X, points[i].Y);
+            Handles[i].Draw(context);
         }
     }
 
-    private void AdjustHandles(IReadOnlyList<VecF> points)
+    private void AdjustHandles(IReadOnlyList<VecF> points, bool isClosed)
     {
-        if (pointsHandles.Count != points.Count)
+        if (Handles.Count != points.Count)
         {
-            if (pointsHandles.Count > points.Count)
+            if (Handles.Count > points.Count)
             {
-                pointsHandles.RemoveRange(points.Count, pointsHandles.Count - points.Count);
                 Handles.RemoveRange(points.Count, Handles.Count - points.Count);
             }
             else
             {
-                for (int i = pointsHandles.Count; i < points.Count; i++)
+                for (int i = Handles.Count; i < points.Count; i++)
                 {
                     var handle = new AnchorHandle(this);
                     handle.OnPress += OnHandlePress;
                     handle.OnDrag += OnHandleDrag;
                     handle.OnRelease += OnHandleRelease;
                     handle.OnTap += OnHandleTap;
-                    pointsHandles.Add(handle);
-                    AddHandle(pointsHandles[i]);
+                    AddHandle(handle);
                 }
             }
         }
@@ -97,30 +95,37 @@ public class VectorPathOverlay : Overlay
 
     private void OnHandleTap(Handle handle, OverlayPointerArgs args)
     {
+        if (Path.IsClosed)
+        {
+            return;    
+        }
+        
         VectorPath newPath = new VectorPath(Path);
-        if (IsLastHandle(handle)) return;
+        if (args.Modifiers.HasFlag(KeyModifiers.Control)) return;
 
-
-        VecD pos = handle.Position;
-        newPath.LineTo(new VecF((float)pos.X, (float)pos.Y));
+        if (IsFirstHandle(handle))
+        {
+            newPath.Close();
+        }
+        else
+        {
+            VecD pos = handle.Position;
+            newPath.LineTo(new VecF((float)pos.X, (float)pos.Y));
+        }
 
         Path = newPath;
     }
 
     private bool IsFirstHandle(Handle handle)
     {
-        return pointsHandles.IndexOf((AnchorHandle)handle) == 0;
-    }
-
-    private bool IsLastHandle(Handle handle)
-    {
-        return pointsHandles.IndexOf((AnchorHandle)handle) == pointsHandles.Count - 1;
+        return Handles.IndexOf(handle) == 0;
     }
 
     private void OnHandleDrag(Handle source, OverlayPointerArgs args)
     {
         var handle = (AnchorHandle)source;
-        var index = pointsHandles.IndexOf(handle);
+
+        var index = Handles.IndexOf(handle);
         VectorPath newPath = new VectorPath();
 
         bool pointHandled = false;
@@ -161,6 +166,7 @@ public class VectorPathOverlay : Overlay
                     break;*/
                 case PathVerb.Close:
                     newPath.Close();
+                    i++;
                     break;
                 case PathVerb.Done:
                     break;
@@ -174,16 +180,21 @@ public class VectorPathOverlay : Overlay
 
     private void OnHandlePress(Handle source, OverlayPointerArgs args)
     {
-        if (args.Modifiers.HasFlag(Avalonia.Input.KeyModifiers.Control))
-        {
-            if (!IsLastHandle(source))
-            {
-                VectorPath newPath = new VectorPath(Path);
-                newPath.MoveTo(new VecF((float)source.Position.X, (float)source.Position.Y));
+    }
 
-                Path = newPath;
-            }
+    private AnchorHandle GetHandleAt(int index)
+    {
+        if (index < 0 || index >= Handles.Count)
+        {
+            return null;
         }
+
+        if (Handles[index] is AnchorHandle handle)
+        {
+            return handle;
+        }
+
+        return null;
     }
 
     private void OnHandleRelease(Handle source, OverlayPointerArgs args)
