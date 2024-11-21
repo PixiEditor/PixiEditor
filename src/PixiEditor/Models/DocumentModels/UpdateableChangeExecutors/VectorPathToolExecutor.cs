@@ -23,11 +23,11 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor,
     private IBasicShapeToolbar toolbar;
 
     public override ExecutorType Type => ExecutorType.ToolLinked;
-    
+
     public bool CanUndo => document.PathOverlayHandler.HasUndo;
     public bool CanRedo => document.PathOverlayHandler.HasRedo;
 
-    public override bool BlocksOtherActions => false; 
+    public override bool BlocksOtherActions => false;
 
     public override ExecutionState Start()
     {
@@ -71,6 +71,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor,
             return ExecutionState.Error;
         }
 
+        document.SnappingHandler.Remove(member.Id.ToString()); // This disables self-snapping
         return ExecutionState.Success;
     }
 
@@ -80,10 +81,10 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor,
         {
             return;
         }
-        
+
         startingPath.LineTo((VecF)args.PositionOnCanvas);
         PathVectorData vectorData = ConstructShapeData();
-        
+
         internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, vectorData));
     }
 
@@ -105,6 +106,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor,
     public override void ForceStop()
     {
         document.PathOverlayHandler.Hide();
+        document.SnappingHandler.AddFromBounds(member.Id.ToString(), () => member.TightBounds ?? RectD.Empty);
         internals.ActionAccumulator.AddActions(new EndSetShapeGeometry_Action());
     }
 
