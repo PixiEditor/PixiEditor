@@ -27,6 +27,8 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor,
     public bool CanUndo => document.PathOverlayHandler.HasUndo;
     public bool CanRedo => document.PathOverlayHandler.HasRedo;
 
+    public override bool BlocksOtherActions => false; 
+
     public override ExecutionState Start()
     {
         vectorPathToolHandler = GetHandler<IVectorPathToolHandler>();

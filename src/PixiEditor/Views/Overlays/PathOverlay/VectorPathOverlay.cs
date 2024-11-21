@@ -55,7 +55,7 @@ public class VectorPathOverlay : Overlay
         dashedStroke.Draw(context, Path);
         var points = Path.Points;
 
-        AdjustHandles(points, Path.IsClosed);
+        AdjustHandles(points);
         RenderHandles(context, points);
     }
 
@@ -70,13 +70,13 @@ public class VectorPathOverlay : Overlay
         }
     }
 
-    private void AdjustHandles(IReadOnlyList<VecF> points, bool isClosed)
+    private void AdjustHandles(IReadOnlyList<VecF> points)
     {
         if (Handles.Count != points.Count)
         {
             if (Handles.Count > points.Count)
             {
-                Handles.RemoveRange(points.Count, Handles.Count - points.Count);
+                RecreateHandles(points);
             }
             else
             {
@@ -90,6 +90,28 @@ public class VectorPathOverlay : Overlay
                     AddHandle(handle);
                 }
             }
+        }
+    }
+
+    private void RecreateHandles(IReadOnlyList<VecF> points)
+    {
+        for (int i = Handles.Count - 1; i >= 0; i--)
+        {
+            Handles[i].OnPress -= OnHandlePress;
+            Handles[i].OnDrag -= OnHandleDrag;
+            Handles[i].OnRelease -= OnHandleRelease;
+            Handles[i].OnTap -= OnHandleTap;
+            Handles.RemoveAt(i);
+        }
+
+        for (int i = 0; i < points.Count; i++)
+        {
+            var handle = new AnchorHandle(this);
+            handle.OnPress += OnHandlePress;
+            handle.OnDrag += OnHandleDrag;
+            handle.OnRelease += OnHandleRelease;
+            handle.OnTap += OnHandleTap;
+            AddHandle(handle);
         }
     }
 
