@@ -1,4 +1,5 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
@@ -10,7 +11,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 public class PathVectorData : ShapeVectorData, IReadOnlyPathData
 {
     public VectorPath Path { get; }
-    public override RectD GeometryAABB => Path.Bounds.Inflate(StrokeWidth);
+    public override RectD GeometryAABB => Path.TightBounds.Inflate(StrokeWidth);
 
     public override ShapeCorners TransformationCorners =>
         new ShapeCorners(GeometryAABB).WithMatrix(TransformationMatrix);

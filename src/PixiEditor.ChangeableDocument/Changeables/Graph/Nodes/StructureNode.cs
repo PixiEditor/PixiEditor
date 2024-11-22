@@ -129,7 +129,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         int renderSaved = renderTarget.Canvas.Save();
         VecD scenePos = GetScenePosition(context.FrameTime);
         VecD sceneSize = GetSceneSize(context.FrameTime);
-        renderTarget.Canvas.ClipRect(new RectD(scenePos - (sceneSize / 2f), sceneSize));
+        //renderTarget.Canvas.ClipRect(new RectD(scenePos - (sceneSize / 2f), sceneSize));
 
         Render(renderObjectContext);
 
