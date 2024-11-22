@@ -99,9 +99,15 @@ public class VectorPathOverlay : Overlay
 
     private void RenderHandles(Canvas context, IReadOnlyList<VecF> points)
     {
+        bool anySelected = false;
         for (int i = 0; i < points.Count; i++)
         {
-            GetHandleAt(i).IsSelected = i == points.Count - 1;
+            if (i == points.Count - 1 && !anySelected)
+            {
+                GetHandleAt(i).IsSelected = true;
+            }
+            
+            anySelected = anySelected || GetHandleAt(i).IsSelected;
 
             anchorHandles[i].Position = new VecD(points[i].X, points[i].Y);
             anchorHandles[i].Draw(context);
@@ -126,19 +132,29 @@ public class VectorPathOverlay : Overlay
                 {
                     CreateHandle(i);
                 }
+                
+                SelectAnchor(GetHandleAt(points.Count - 1));
             }
         }
     }
 
     private void RecreateHandles(IReadOnlyList<VecF> points)
     {
+        int previouslySelectedIndex = -1;
+        
         for (int i = anchorHandles.Count - 1; i >= 0; i--)
         {
-            anchorHandles[i].OnPress -= OnHandlePress;
-            anchorHandles[i].OnDrag -= OnHandleDrag;
-            anchorHandles[i].OnRelease -= OnHandleRelease;
-            anchorHandles[i].OnTap -= OnHandleTap;
-            Handles.Remove(anchorHandles[i]);
+            var handle = anchorHandles[i];
+            handle.OnPress -= OnHandlePress;
+            handle.OnDrag -= OnHandleDrag;
+            handle.OnRelease -= OnHandleRelease;
+            handle.OnTap -= OnHandleTap;
+            if (handle.IsSelected)
+            {
+                previouslySelectedIndex = i;
+            }
+            
+            Handles.Remove(handle);
         }
 
         anchorHandles.Clear();
@@ -147,6 +163,10 @@ public class VectorPathOverlay : Overlay
         for (int i = 0; i < points.Count; i++)
         {
             CreateHandle(i); 
+            if (i == previouslySelectedIndex)
+            {
+                GetHandleAt(i).IsSelected = true;
+            }
         }
     }
     
@@ -209,7 +229,11 @@ public class VectorPathOverlay : Overlay
         }
 
         VectorPath newPath = new VectorPath(Path);
-        if (args.Modifiers.HasFlag(KeyModifiers.Control)) return;
+        if (args.Modifiers.HasFlag(KeyModifiers.Control))
+        {
+            SelectAnchor(anchorHandle);
+            return;
+        }
 
         if (IsFirstHandle(anchorHandle))
         {
@@ -227,6 +251,14 @@ public class VectorPathOverlay : Overlay
     private bool IsFirstHandle(AnchorHandle handle)
     {
         return anchorHandles.IndexOf(handle) == 0;
+    }
+
+    private void SelectAnchor(AnchorHandle handle)
+    {
+        foreach (var anchorHandle in anchorHandles)
+        {
+            anchorHandle.IsSelected = anchorHandle == handle;
+        }
     }
 
     private void OnHandleDrag(Handle source, OverlayPointerArgs args)
