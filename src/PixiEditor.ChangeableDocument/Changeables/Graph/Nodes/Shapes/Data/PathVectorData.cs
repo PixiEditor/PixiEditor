@@ -40,7 +40,10 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
             ApplyTransformTo(drawingSurface);
         }
 
-        using Paint paint = new Paint() { IsAntiAliased = true };
+        using Paint paint = new Paint()
+        {
+            IsAntiAliased = true, StrokeJoin = StrokeJoin.Round, StrokeCap = StrokeCap.Round
+        };
 
         if (FillColor.A > 0)
         {

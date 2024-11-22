@@ -14,7 +14,7 @@ public class AnchorHandle : RectangleHandle
     private Paint selectedPaint;
     
     public bool IsSelected { get; set; } = false;
-    
+
     public AnchorHandle(Overlay owner) : base(owner)
     {
         Size = new VecD(GetResource<double>("AnchorHandleSize"));

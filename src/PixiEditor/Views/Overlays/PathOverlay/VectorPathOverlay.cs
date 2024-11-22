@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using Avalonia;
 using Avalonia.Input;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
@@ -44,7 +45,12 @@ public class VectorPathOverlay : Overlay
     }
 
     private DashedStroke dashedStroke = new DashedStroke();
+    private TransformHandle transformHandle;
+    
+    private List<AnchorHandle> anchorHandles = new();
 
+    private VecD posOnStartDrag;
+    private VectorPath pathOnStartDrag;
 
     static VectorPathOverlay()
     {
@@ -52,9 +58,19 @@ public class VectorPathOverlay : Overlay
         PathProperty.Changed.Subscribe(OnPathChanged);
     }
 
+    public VectorPathOverlay()
+    {
+        transformHandle = new TransformHandle(this);
+        transformHandle.OnPress += MoveHandlePress;
+        transformHandle.OnDrag += MoveHandleDrag;
+        
+        AddHandle(transformHandle);
+    }
+
     protected override void ZoomChanged(double newZoom)
     {
         dashedStroke.UpdateZoom((float)newZoom);
+        transformHandle.ZoomScale = newZoom;
     }
 
     public override void RenderOverlay(Canvas context, RectD canvasBounds)
@@ -69,6 +85,11 @@ public class VectorPathOverlay : Overlay
 
         AdjustHandles(points);
         RenderHandles(context, points);
+        
+        if(IsOverAnyHandle())
+        {
+            TryHighlightSnap(null, null);
+        }
     }
 
     public override bool CanRender()
@@ -82,22 +103,26 @@ public class VectorPathOverlay : Overlay
         {
             GetHandleAt(i).IsSelected = i == points.Count - 1;
 
-            Handles[i].Position = new VecD(points[i].X, points[i].Y);
-            Handles[i].Draw(context);
+            anchorHandles[i].Position = new VecD(points[i].X, points[i].Y);
+            anchorHandles[i].Draw(context);
         }
+
+        transformHandle.Position = Path.TightBounds.BottomRight + new VecD(1, 1);
+        transformHandle.Draw(context);
     }
 
     private void AdjustHandles(IReadOnlyList<VecF> points)
     {
-        if (Handles.Count != points.Count)
+        int anchorCount = anchorHandles.Count;
+        if (anchorCount != points.Count)
         {
-            if (Handles.Count > points.Count)
+            if (anchorCount > points.Count)
             {
                 RecreateHandles(points);
             }
             else
             {
-                for (int i = Handles.Count; i < points.Count; i++)
+                for (int i = anchorCount; i < points.Count; i++)
                 {
                     CreateHandle(i);
                 }
@@ -107,27 +132,54 @@ public class VectorPathOverlay : Overlay
 
     private void RecreateHandles(IReadOnlyList<VecF> points)
     {
-        for (int i = Handles.Count - 1; i >= 0; i--)
+        for (int i = anchorHandles.Count - 1; i >= 0; i--)
         {
-            Handles[i].OnPress -= OnHandlePress;
-            Handles[i].OnDrag -= OnHandleDrag;
-            Handles[i].OnRelease -= OnHandleRelease;
-            Handles[i].OnTap -= OnHandleTap;
-            Handles.RemoveAt(i);
+            anchorHandles[i].OnPress -= OnHandlePress;
+            anchorHandles[i].OnDrag -= OnHandleDrag;
+            anchorHandles[i].OnRelease -= OnHandleRelease;
+            anchorHandles[i].OnTap -= OnHandleTap;
+            Handles.Remove(anchorHandles[i]);
         }
 
+        anchorHandles.Clear();
         SnappingController.RemoveAll("editingPath");
 
         for (int i = 0; i < points.Count; i++)
         {
-            var handle = new AnchorHandle(this);
-            handle.OnPress += OnHandlePress;
-            handle.OnDrag += OnHandleDrag;
-            handle.OnRelease += OnHandleRelease;
-            handle.OnTap += OnHandleTap;
-            AddHandle(handle);
-            SnappingController.AddXYAxis($"editingPath[{i}]", () => handle.Position);
+            CreateHandle(i); 
         }
+    }
+    
+    private bool IsOverAnyHandle()
+    {
+        return Handles.Any(handle => handle.IsHovered);
+    }
+    
+    private void MoveHandlePress(Handle source, OverlayPointerArgs args)
+    {
+        posOnStartDrag = args.Point;
+        pathOnStartDrag?.Dispose();
+        pathOnStartDrag = new VectorPath(Path);
+        TryHighlightSnap(null, null);
+        args.Pointer.Capture(this);
+        args.Handled = true;
+    }
+
+    
+    private void MoveHandleDrag(Handle source, OverlayPointerArgs args)
+    {
+        var delta = args.Point - posOnStartDrag;
+        
+        VectorPath updatedPath = new VectorPath(pathOnStartDrag);
+        
+        delta = TryFindAnySnap(delta, pathOnStartDrag, out string axisX, out string axisY);
+        
+        updatedPath.Transform(Matrix3X3.CreateTranslation((float)delta.X, (float)delta.Y));
+        
+        TryHighlightSnap(axisX, axisY);
+        
+        Path = updatedPath;
+        args.Handled = true;
     }
 
     private void CreateHandle(int atIndex)
@@ -137,12 +189,20 @@ public class VectorPathOverlay : Overlay
         handle.OnDrag += OnHandleDrag;
         handle.OnRelease += OnHandleRelease;
         handle.OnTap += OnHandleTap;
+        
+        anchorHandles.Add(handle);
         AddHandle(handle);
+        
         SnappingController.AddXYAxis($"editingPath[{atIndex}]", () => handle.Position);
     }
 
     private void OnHandleTap(Handle handle, OverlayPointerArgs args)
     {
+        if (handle is not AnchorHandle anchorHandle)
+        {
+            return;
+        }
+        
         if (Path.IsClosed)
         {
             return;
@@ -151,29 +211,32 @@ public class VectorPathOverlay : Overlay
         VectorPath newPath = new VectorPath(Path);
         if (args.Modifiers.HasFlag(KeyModifiers.Control)) return;
 
-        if (IsFirstHandle(handle))
+        if (IsFirstHandle(anchorHandle))
         {
             newPath.Close();
         }
         else
         {
-            VecD pos = handle.Position;
+            VecD pos = anchorHandle.Position;
             newPath.LineTo(new VecF((float)pos.X, (float)pos.Y));
         }
 
         Path = newPath;
     }
 
-    private bool IsFirstHandle(Handle handle)
+    private bool IsFirstHandle(AnchorHandle handle)
     {
-        return Handles.IndexOf(handle) == 0;
+        return anchorHandles.IndexOf(handle) == 0;
     }
 
     private void OnHandleDrag(Handle source, OverlayPointerArgs args)
     {
-        var handle = (AnchorHandle)source;
+        if(source is not AnchorHandle handle)
+        {
+            return;
+        }
 
-        var index = Handles.IndexOf(handle);
+        var index = anchorHandles.IndexOf(handle);
         VectorPath newPath = new VectorPath();
 
         bool pointHandled = false;
@@ -234,14 +297,22 @@ public class VectorPathOverlay : Overlay
 
     private void OnHandlePress(Handle source, OverlayPointerArgs args)
     {
-        SnappingController.RemoveAll($"editingPath[{Handles.IndexOf(source)}]");
+        if (source is AnchorHandle anchorHandle)
+        {
+            SnappingController.RemoveAll($"editingPath[{anchorHandles.IndexOf(anchorHandle)}]");
+        }
     }
 
     private void OnHandleRelease(Handle source, OverlayPointerArgs args)
     {
+        if (source is not AnchorHandle anchorHandle)
+        {
+            return;
+        }
+        
         AddToUndoCommand.Execute(Path);
 
-        SnappingController.AddXYAxis($"editingPath[{Handles.IndexOf(source)}]", () => source.Position);
+        SnappingController.AddXYAxis($"editingPath[{anchorHandles.IndexOf(anchorHandle)}]", () => source.Position);
         
         SnappingController.HighlightedXAxis = null;
         SnappingController.HighlightedYAxis = null;
@@ -258,17 +329,74 @@ public class VectorPathOverlay : Overlay
     
     private AnchorHandle GetHandleAt(int index)
     {
-        if (index < 0 || index >= Handles.Count)
+        if (index < 0 || index >= anchorHandles.Count)
         {
             return null;
         }
 
-        if (Handles[index] is AnchorHandle handle)
+        return anchorHandles[index];
+    }
+    
+    private void ClearAnchorHandles()
+    {
+        foreach (var handle in anchorHandles)
         {
-            return handle;
+            handle.OnPress -= OnHandlePress;
+            handle.OnDrag -= OnHandleDrag;
+            handle.OnRelease -= OnHandleRelease;
+            handle.OnTap -= OnHandleTap;
+            Handles.Remove(handle);
         }
 
-        return null;
+        anchorHandles.Clear();
+    }
+    
+    private VecD TryFindAnySnap(VecD delta, VectorPath path, out string? axisX, out string? axisY)
+    {
+        VecD closestSnapDelta = new VecD(double.PositiveInfinity, double.PositiveInfinity);
+        axisX = null;
+        axisY = null;
+        
+        SnappingController.RemoveAll("editingPath");
+        
+        foreach (var point in path.Points)
+        {
+            var snap = SnappingController.GetSnapDeltaForPoint((VecD)point + delta, out string x, out string y);
+            if (snap.X < closestSnapDelta.X && !string.IsNullOrEmpty(x))
+            {
+                closestSnapDelta = new VecD(snap.X, closestSnapDelta.Y);
+                axisX = x;
+            }
+            
+            if (snap.Y < closestSnapDelta.Y && !string.IsNullOrEmpty(y))
+            {
+                closestSnapDelta = new VecD(closestSnapDelta.X, snap.Y);
+                axisY = y;
+            }
+        }
+        
+        AddAllSnaps();
+
+        if (closestSnapDelta.X == double.PositiveInfinity)
+        {
+            closestSnapDelta = new VecD(0, closestSnapDelta.Y);
+        }
+        
+        if (closestSnapDelta.Y == double.PositiveInfinity)
+        {
+            closestSnapDelta = new VecD(closestSnapDelta.X, 0);
+        }
+        
+        return delta + closestSnapDelta;
+    }
+    
+    private void AddAllSnaps()
+    {
+        for (int i = 0; i < anchorHandles.Count; i++)
+        {
+            var i1 = i;
+            SnappingController.AddXYAxis($"editingPath[{i}]", () => anchorHandles[i1].Position);
+        }
     }
     
     private static void OnPathChanged(AvaloniaPropertyChangedEventArgs<VectorPath> args)
@@ -277,7 +405,7 @@ public class VectorPathOverlay : Overlay
         {
             var overlay = args.Sender as VectorPathOverlay;
             overlay.SnappingController.RemoveAll("editingPath");
-            overlay.Handles.Clear(); 
+            overlay.ClearAnchorHandles();
         }
     }
 }

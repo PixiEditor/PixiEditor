@@ -27,6 +27,7 @@ public abstract class Handle : IHandle
     public VecD Position { get; set; }
     public VecD Size { get; set; }
     public RectD HandleRect => new(Position, Size);
+    public bool IsHovered => isHovered;
 
     public event HandleEvent OnPress;
     public event HandleEvent OnDrag;
@@ -91,8 +92,8 @@ public abstract class Handle : IHandle
         {
             return;
         }
-        
-        if(args.Handled)
+
+        if (args.Handled)
         {
             return;
         }
@@ -113,12 +114,12 @@ public abstract class Handle : IHandle
     protected virtual void OnPointerMoved(OverlayPointerArgs args)
     {
         VecD handlePos = Position;
-        
-        if(args.Handled)
+
+        if (args.Handled)
         {
             return;
         }
-        
+
         bool isWithinHandle = IsWithinHandle(handlePos, args.Point, ZoomScale);
 
         if (!isHovered && isWithinHandle)
@@ -154,8 +155,8 @@ public abstract class Handle : IHandle
         {
             return;
         }
-        
-        if(args.Handled)
+
+        if (args.Handled)
         {
             return;
         }

@@ -764,5 +764,6 @@
   "HIGH_RES_PREVIEW": "High Resolution Preview",
   "LOW_RES_PREVIEW": "Document Resolution Preview",
   "TOGGLE_HIGH_RES_PREVIEW": "Toggle high resolution preview",
-  "FACTOR": "Factor"
+  "FACTOR": "Factor",
+  "PATH_TOOL": "Path"
 }
