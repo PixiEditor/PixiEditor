@@ -18,7 +18,9 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
     public override LocalizedString Tooltip => new LocalizedString("PATH_TOOL_TOOLTIP", Shortcut);
 
-    public override bool StopsLinkedToolOnUse => false; 
+    public override bool StopsLinkedToolOnUse => false;
+
+    private bool isActivated;
 
     public VectorPathToolViewModel()
     {
@@ -33,37 +35,22 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
     {
         var doc =
             ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
-        
-        if (doc is null) return;
-        
-        if(NeedsNewLayer(doc.SelectedStructureMember, doc.AnimationDataViewModel.ActiveFrameTime))
-        {
-            Guid? created = doc.Operations.CreateStructureMember(typeof(VectorLayerNode), ActionSource.Automated);
-            
-            if (created is null) return;
 
-            doc.Operations.SetSelectedMember(created.Value);
-            
-            doc.Operations.InvokeCustomAction(() =>
-            {
-                OnDeselecting(false);
-                OnSelected(false);
-            });
-        }
-        else
+        if (doc is null || isActivated) return;
+        
+        if (!doc.PathOverlayViewModel.IsActive)
         {
-            if (!doc.PathOverlayViewModel.IsActive)
-            {
-                doc?.Tools.UseVectorPathTool();
-            }
+            doc?.Tools.UseVectorPathTool();
+            isActivated = true;
         }
     }
-    
+
     public override void OnSelected(bool restoring)
     {
         if (restoring) return;
 
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorPathTool();
+        isActivated = true;
     }
 
     public override void OnDeselecting(bool transient)
@@ -71,17 +58,13 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
         if (!transient)
         {
             ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
+            isActivated = false;
         }
     }
-    
-    private bool NeedsNewLayer(IStructureMemberHandler? member, KeyFrameTime frameTime)
+
+    protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
     {
-        var shapeData = (member as IVectorLayerHandler).GetShapeData(frameTime);
-        if (shapeData is null)
-        {
-            return false;
-        }
-        
-        return shapeData is not IReadOnlyPathData pathData || pathData.Path.IsClosed;
+        OnDeselecting(false);
+        OnSelected(false);
     }
 }

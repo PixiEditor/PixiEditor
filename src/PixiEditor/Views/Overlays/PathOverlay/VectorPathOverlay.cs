@@ -253,6 +253,7 @@ public class VectorPathOverlay : Overlay
     {
         SnappingController.HighlightedXAxis = axisX;
         SnappingController.HighlightedYAxis = axisY;
+        SnappingController.HighlightedPoint = null;
     }
     
     private AnchorHandle GetHandleAt(int index)
