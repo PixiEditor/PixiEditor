@@ -11,7 +11,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
-internal class VectorEllipseToolExecutor : ComplexShapeToolExecutor<IVectorEllipseToolHandler>
+internal class VectorEllipseToolExecutor : DrawableShapeToolExecutor<IVectorEllipseToolHandler>
 {
     public override ExecutorType Type => ExecutorType.ToolLinked;
     protected override DocumentTransformMode TransformMode => DocumentTransformMode.Scale_Rotate_Shear_NoPerspective;

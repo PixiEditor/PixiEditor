@@ -2,7 +2,7 @@
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 
-public interface IPathExecutor : IExecutorFeature
+public interface IPathExecutorFeature : IExecutorFeature
 {
     public void OnPathChanged(VectorPath path);
 }

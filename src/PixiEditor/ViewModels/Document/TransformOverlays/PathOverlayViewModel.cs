@@ -45,6 +45,14 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
     public bool HasRedo => undoStack.RedoCount > 0;
 
     public RelayCommand<VectorPath> AddToUndoCommand { get; }
+    
+    private bool showApplyButton;
+
+    public bool ShowApplyButton
+    {
+        get => showApplyButton;
+        set => SetProperty(ref showApplyButton, value);
+    }
 
     private bool suppressUndo = false;
 
@@ -57,7 +65,7 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
         undoStack = new PathOverlayUndoStack<VectorPath>();
     }
 
-    public void Show(VectorPath newPath)
+    public void Show(VectorPath newPath, bool showApplyButton)
     {
         if (IsActive)
         {
@@ -69,12 +77,14 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
         undoStack.AddState(new VectorPath(newPath));
         Path = newPath;
         IsActive = true;
+        ShowApplyButton = showApplyButton;
     }
 
     public void Hide()
     {
         IsActive = false;
         Path = null;
+        ShowApplyButton = false;
     }
 
     public void Undo()

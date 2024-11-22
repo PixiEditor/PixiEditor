@@ -50,10 +50,12 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
                 OnSelected(false);
             });
         }
-
-        if (!doc.PathOverlayViewModel.IsActive)
+        else
         {
-            doc?.Tools.UseVectorPathTool();
+            if (!doc.PathOverlayViewModel.IsActive)
+            {
+                doc?.Tools.UseVectorPathTool();
+            }
         }
     }
     

@@ -15,7 +15,7 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
 #nullable enable
 
-internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor where T : IShapeToolHandler
+internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor where T : IShapeToolHandler
 {
     protected int StrokeWidth => toolbar.ToolSize;
 
@@ -295,5 +295,10 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
     {
         base.ForceStop();
         internals!.ActionAccumulator.AddFinishedActions(EndDrawAction());
+    }
+
+    protected override void StopTransformMode()
+    {
+        document!.TransformHandler.HideTransform();
     }
 }

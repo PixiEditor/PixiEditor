@@ -102,11 +102,7 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
         }
     }
 
-    private void StopTransformMode()
-    {
-        document!.TransformHandler.HideTransform();
-        document!.LineToolOverlayHandler.Hide();
-    }
+    protected abstract void StopTransformMode();
 
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
@@ -211,7 +207,7 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
     public abstract bool CanUndo { get; } 
     public abstract bool CanRedo { get; }
 
-    public bool IsFeatureEnabled(IExecutorFeature feature)
+    public virtual bool IsFeatureEnabled(IExecutorFeature feature)
     {
         if (feature is ITransformableExecutor)
         {

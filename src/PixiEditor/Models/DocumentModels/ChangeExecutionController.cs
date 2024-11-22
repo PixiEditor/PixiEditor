@@ -284,7 +284,7 @@ internal class ChangeExecutionController
 
     public void PathOverlayChangedInlet(VectorPath path)
     {
-        if (currentSession is IPathExecutor vectorPathToolExecutor)
+        if (currentSession is IPathExecutorFeature vectorPathToolExecutor)
         {
             vectorPathToolExecutor.OnPathChanged(path);
         }

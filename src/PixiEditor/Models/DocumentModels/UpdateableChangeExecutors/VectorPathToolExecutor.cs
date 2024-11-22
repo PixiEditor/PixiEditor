@@ -1,4 +1,5 @@
 ﻿using Avalonia.Media;
+using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
@@ -15,7 +16,7 @@ using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
-internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor, IMidChangeUndoableExecutor
+internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorFeature, IMidChangeUndoableExecutor
 {
     private IStructureMemberHandler member;
     private VectorPath startingPath;
@@ -45,6 +46,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor,
         if (member is IVectorLayerHandler vectorLayerHandler)
         {
             var shapeData = vectorLayerHandler.GetShapeData(document.AnimationHandler.ActiveFrameTime);
+            bool wasNull = false;
             if (shapeData is PathVectorData pathData)
             {
                 startingPath = new VectorPath(pathData.Path);
@@ -52,6 +54,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor,
             }
             else if (shapeData is null)
             {
+                wasNull = true;
                 startingPath = new VectorPath();
             }
             else
@@ -61,11 +64,22 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor,
 
             if (controller.LeftMousePressed)
             {
-                startingPath.MoveTo((VecF)controller.LastPrecisePosition);
+                if (wasNull)
+                {
+                    startingPath.MoveTo((VecF)controller.LastPrecisePosition);
+                }
+                else
+                {
+                    startingPath.LineTo((VecF)controller.LastPrecisePosition);
+                }
+
+                //below forces undo before starting new path
+                internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
+                
                 internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
             }
 
-            document.PathOverlayHandler.Show(startingPath);
+            document.PathOverlayHandler.Show(startingPath, false);
         }
         else
         {
@@ -108,7 +122,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor,
     {
         document.PathOverlayHandler.Hide();
         document.SnappingHandler.AddFromBounds(member.Id.ToString(), () => member.TightBounds ?? RectD.Empty);
-        internals.ActionAccumulator.AddActions(new EndSetShapeGeometry_Action());
+        internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
     }
 
     private PathVectorData ConstructShapeData()
@@ -134,7 +148,9 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutor,
     {
         return feature switch
         {
-            IPathExecutor _ => true,
+            IPathExecutorFeature _ => true,
+            IMidChangeUndoableExecutor _ => true,
+            ITransformableExecutor _ => true,
             _ => false
         };
     }
