@@ -148,7 +148,7 @@ public class VectorPathOverlay : Overlay
         int totalHandles = anchorCount + controlPointHandles.Count;
         if (totalHandles != pointsCount)
         {
-            if (anchorCount > pointsCount)
+            if (totalHandles > pointsCount)
             {
                 RecreateHandles();
             }
@@ -579,6 +579,7 @@ public class VectorPathOverlay : Overlay
             VecD mirroredControlPoint = GetMirroredControlPoint(
                 previousControlPoint, data.points[0]);
             controlPoint1 = (VecF)mirroredControlPoint;
+            wasPreviousControlPoint = false;
         }
 
         newPath.CubicTo(controlPoint1, controlPoint2, endPoint);
