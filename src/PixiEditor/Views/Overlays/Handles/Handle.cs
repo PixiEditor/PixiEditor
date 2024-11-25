@@ -158,6 +158,7 @@ public abstract class Handle : IHandle
 
         if (args.Handled)
         {
+            isPressed = false;
             return;
         }
 

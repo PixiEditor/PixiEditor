@@ -309,13 +309,14 @@ public class VectorPathOverlay : Overlay
         {
             return;
         }
-
+        
         var index = anchorHandles.IndexOf(handle);
         VectorPath newPath = new VectorPath();
 
         bool pointHandled = false;
         int i = 0;
 
+        bool convertNextToCubic = false;
         foreach (var data in Path)
         {
             VecF point;
@@ -335,10 +336,19 @@ public class VectorPathOverlay : Overlay
                     if (i == index && args.Modifiers.HasFlag(KeyModifiers.Control))
                     {
                         newPath.CubicTo(data.points[0], point, point);
+                        convertNextToCubic = true;
                     }
                     else
                     {
-                        newPath.LineTo(point);
+                        if (convertNextToCubic)
+                        {
+                            newPath.CubicTo(data.points[0], point, point);
+                            convertNextToCubic = false;
+                        }
+                        else
+                        {
+                            newPath.LineTo(point);
+                        }
                     }
 
                     i++;
@@ -349,7 +359,7 @@ public class VectorPathOverlay : Overlay
 
                     if (i == index && args.Modifiers.HasFlag(KeyModifiers.Control))
                     {
-                        newPath.CubicTo(point, data.points[2], data.points[3]);
+                        newPath.CubicTo(data.points[1], point, data.points[3]);
                     }
                     else
                     {
@@ -377,7 +387,7 @@ public class VectorPathOverlay : Overlay
 
         Path = newPath;
     }
-    
+
     private void OnControlPointDrag(Handle source, OverlayPointerArgs args)
     {
         if (source is not ControlPointHandle controlPointHandle)
@@ -389,6 +399,8 @@ public class VectorPathOverlay : Overlay
         VectorPath newPath = new VectorPath();
 
         int i = 0;
+        bool wasPreviousControlPoint = false;
+        VecF previousControlPoint = new VecF();
 
         foreach (var data in Path)
         {
@@ -405,11 +417,12 @@ public class VectorPathOverlay : Overlay
                 case PathVerb.Cubic:
                     bool isFirstControlPoint = i == index;
                     bool isSecondControlPoint = i + 1 == index;
-                    
+                    bool isNextFirstControlPoint = i + 2 == index;
+
                     VecF controlPoint1 = data.points[1];
                     VecF controlPoint2 = data.points[2];
                     VecF endPoint = data.points[3];
-                    
+
                     if (isFirstControlPoint)
                     {
                         controlPoint1 = TryApplyNewPos(args, i, index, controlPoint1);
@@ -417,8 +430,22 @@ public class VectorPathOverlay : Overlay
                     else if (isSecondControlPoint)
                     {
                         controlPoint2 = TryApplyNewPos(args, i + 1, index, controlPoint2);
+                        wasPreviousControlPoint = true;
+                        previousControlPoint = controlPoint2;
                     }
-                    
+                    else if (isNextFirstControlPoint)
+                    {
+                        VecD mirroredControlPoint = GetMirroredControlPoint(
+                            TryApplyNewPos(args, i + 2, index, controlPoint1), endPoint);
+                        controlPoint2 = (VecF)mirroredControlPoint;
+                    }
+                    else if (wasPreviousControlPoint)
+                    {
+                        VecD mirroredControlPoint = GetMirroredControlPoint(
+                            previousControlPoint, data.points[0]);
+                        controlPoint1 = (VecF)mirroredControlPoint;
+                    }
+
                     newPath.CubicTo(controlPoint1, controlPoint2, endPoint);
                     i += 2;
                     break;
@@ -440,6 +467,11 @@ public class VectorPathOverlay : Overlay
         }
 
         Path = newPath;
+    }
+
+    private VecD GetMirroredControlPoint(VecF controlPoint, VecF endPoint)
+    {
+        return new VecD(2 * endPoint.X - controlPoint.X, 2 * endPoint.Y - controlPoint.Y);
     }
 
     private VecF GetVerbPointPos((PathVerb verb, VecF[] points) data)
