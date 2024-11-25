@@ -48,10 +48,6 @@ public abstract class Handle : IHandle
         Size = Application.Current.TryGetResource("HandleSize", out object size)
             ? new VecD((double)size)
             : new VecD(16);
-
-        Owner.PointerPressedOverlay += OnPointerPressed;
-        Owner.PointerMovedOverlay += OnPointerMoved;
-        Owner.PointerReleasedOverlay += OnPointerReleased;
     }
 
     public abstract void Draw(Canvas target);
@@ -84,6 +80,21 @@ public abstract class Handle : IHandle
     protected static Paint? GetPaint(string key, PaintStyle style = PaintStyle.Fill)
     {
         return ResourceLoader.GetPaint(key, style);
+    }
+
+    public void InvokePress(OverlayPointerArgs args)
+    {
+        OnPointerPressed(args);
+    }
+
+    public void InvokeMove(OverlayPointerArgs args)
+    {
+        OnPointerMoved(args);
+    }
+
+    public void InvokeRelease(OverlayPointerArgs args)
+    {
+        OnPointerReleased(args);
     }
 
     private void OnPointerPressed(OverlayPointerArgs args)

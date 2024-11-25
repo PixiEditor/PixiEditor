@@ -19,6 +19,15 @@ using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 
 namespace PixiEditor.Views.Overlays;
 
+enum HandleEventType
+{
+    PointerEnteredOverlay,
+    PointerExitedOverlay,
+    PointerMovedOverlay,
+    PointerPressedOverlay,
+    PointerReleasedOverlay
+}
+
 public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not avalonia element
 {
     public List<Handle> Handles { get; } = new();
@@ -40,6 +49,8 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     public event PointerEvent? PointerMovedOverlay;
     public event PointerEvent? PointerPressedOverlay;
     public event PointerEvent? PointerReleasedOverlay;
+    
+    public Handle? CapturedHandle { get; set; } = null!;
 
     private readonly Dictionary<AvaloniaProperty, OverlayTransition> activeTransitions = new();
 
@@ -66,52 +77,46 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         InvalidateVisual(); // For elements in visual tree
     }
 
-    // Logically, subscribers (handles) of these events are rendered in 0 to n order, so the last one is rendered on top
-    // that's why reversing invocation order makes pointer events be handled in the order of rendering,
-    // which is more intuitive for the user since the topmost element should be the one to handle the event first
+    public void CaptureHandle(Handle handle)
+    {
+        CapturedHandle = handle;
+    }
     
     public void EnterPointer(OverlayPointerArgs args)
     {
         OnOverlayPointerEntered(args);
-        ReverseInvoke(PointerEnteredOverlay, args);
+        InvokeHandleEvent(HandleEventType.PointerEnteredOverlay, args);
+        PointerEnteredOverlay?.Invoke(args);
     }
 
     public void ExitPointer(OverlayPointerArgs args)
     {
         OnOverlayPointerExited(args);
-        ReverseInvoke(PointerExitedOverlay, args);
+        InvokeHandleEvent(HandleEventType.PointerExitedOverlay, args);
+        PointerExitedOverlay?.Invoke(args);
     }
 
     public void MovePointer(OverlayPointerArgs args)
     {
         OnOverlayPointerMoved(args);
-        ReverseInvoke(PointerMovedOverlay, args);
+        InvokeHandleEvent(HandleEventType.PointerMovedOverlay, args);
+        PointerMovedOverlay?.Invoke(args);
     }
 
     public void PressPointer(OverlayPointerArgs args)
     {
         OnOverlayPointerPressed(args);
-        ReverseInvoke(PointerPressedOverlay, args);
+        InvokeHandleEvent(HandleEventType.PointerPressedOverlay, args);
+        PointerPressedOverlay?.Invoke(args);
     }
 
     public void ReleasePointer(OverlayPointerArgs args)
     {
         OnOverlayPointerReleased(args);
-        ReverseInvoke(PointerReleasedOverlay, args);
-    }
-    
-    
-    private void ReverseInvoke(PointerEvent? pointerEvent, OverlayPointerArgs args)
-    {
-        if(pointerEvent == null) return;
+        InvokeHandleEvent(HandleEventType.PointerReleasedOverlay, args);
+        PointerReleasedOverlay?.Invoke(args);
         
-        var invokeList = pointerEvent.GetInvocationList();
-        
-        for (int i = invokeList.Length - 1; i >= 0; i--)
-        {
-            var handler = (PointerEvent)invokeList[i];
-            handler.Invoke(args);
-        }
+        CaptureHandle(null);
     }
 
     public virtual bool TestHit(VecD point)
@@ -143,6 +148,40 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
             {
                 action(tHandle);
             }
+        }
+    }
+    
+    private void InvokeHandleEvent(HandleEventType eventName, OverlayPointerArgs args)
+    {
+        if (CapturedHandle != null)
+        {
+            InvokeHandleEvent(CapturedHandle, args, eventName);
+        }
+        else
+        {
+            var reversedHandles = Handles.Reverse<Handle>();
+            foreach (var handle in reversedHandles)
+            {
+                InvokeHandleEvent(handle, args, eventName);
+            }
+        }
+    }
+    
+    private void InvokeHandleEvent(Handle handle, OverlayPointerArgs args, HandleEventType pointerEvent)
+    {
+        if(pointerEvent == null) return;
+        
+        if (pointerEvent == HandleEventType.PointerMovedOverlay)
+        {
+            handle.InvokeMove(args);
+        }
+        else if (pointerEvent == HandleEventType.PointerPressedOverlay)
+        {
+            handle.InvokePress(args);
+        }
+        else if (pointerEvent == HandleEventType.PointerReleasedOverlay)
+        {
+            handle.InvokeRelease(args);
         }
     }
 

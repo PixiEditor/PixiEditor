@@ -7,7 +7,7 @@ namespace PixiEditor.Views.Overlays.Handles;
 
 public class ControlPointHandle : Handle
 {
-    public VecF ConnectToPosition { get; set; }
+    public Handle ConnectedTo { get; set; }
 
     public ControlPointHandle(IOverlay owner) : base(owner)
     {
@@ -28,6 +28,9 @@ public class ControlPointHandle : Handle
             target.DrawCircle(Position, radius, StrokePaint);
         }
 
-        target.DrawLine(Position, (VecD)ConnectToPosition, FillPaint);
+        if (ConnectedTo != null)
+        {
+            target.DrawLine(Position, ConnectedTo.Position, FillPaint);
+        }
     }
 }
