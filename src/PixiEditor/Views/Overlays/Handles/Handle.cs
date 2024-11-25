@@ -21,7 +21,7 @@ public delegate void HandleEvent(Handle source, OverlayPointerArgs args);
 public abstract class Handle : IHandle
 {
     public Paint? FillPaint { get; set; } = GetPaint("HandleBackgroundBrush");
-    public Paint? StrokePaint { get; set; } = GetPaint("HandleStrokeBrush", PaintStyle.Stroke);
+    public Paint? StrokePaint { get; set; } = GetPaint("HandleBrush", PaintStyle.Stroke);
     public double ZoomScale { get; set; } = 1.0;
     public IOverlay Owner { get; set; } = null!;
     public VecD Position { get; set; }
