@@ -12,6 +12,7 @@ using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 
 namespace PixiEditor.Views.Overlays.PathOverlay;
 
+// If you need to make any changes in this overlay, I feel sorry for you
 public class VectorPathOverlay : Overlay
 {
     public static readonly StyledProperty<VectorPath> PathProperty =
@@ -368,6 +369,7 @@ public class VectorPathOverlay : Overlay
         }
     }
 
+    // To have continous spline, verb before and after a point must be a cubic with proper control points
     private VectorPath ConvertTouchingLineVerbsToCubic(AnchorHandle anchorHandle)
     {
         bool convertNextToCubic = false;
@@ -421,6 +423,7 @@ public class VectorPathOverlay : Overlay
         bool pointHandled = false;
         int i = 0;
 
+        VecF previousDelta = new VecF();
         bool wasPreviousControlPoint = false;
         VecF previousControlPoint = new VecF();
         int controlPointIndex = 0;
@@ -437,6 +440,7 @@ public class VectorPathOverlay : Overlay
                     point = TryApplyNewPos(args, i, index, point);
 
                     newPath.MoveTo(point);
+                    previousDelta = point - data.points[0];
                     i++;
                     break;
                 case PathVerb.Line:
@@ -450,7 +454,7 @@ public class VectorPathOverlay : Overlay
                 case PathVerb.Cubic:
                     if (args.Modifiers.HasFlag(KeyModifiers.Control))
                     {
-                        HandleCubicControlContinousDrag(args, controlPointIndex, 1, data, ref wasPreviousControlPoint,
+                        HandleCubicControlContinousDrag(args, controlPointIndex, targetControlPointIndex, data, ref wasPreviousControlPoint,
                             ref previousControlPoint, newPath);
                         controlPointIndex += 2;
                     }
@@ -458,7 +462,14 @@ public class VectorPathOverlay : Overlay
                     {
                         point = data.points[3];
                         point = TryApplyNewPos(args, i, index, point);
-                        newPath.CubicTo(data.points[1], data.points[2], point);
+
+                        VecF mid1Delta = previousDelta;
+
+                        VecF mid2Delta = point - data.points[3];
+                        
+                        newPath.CubicTo(data.points[1] + mid1Delta, data.points[2] + mid2Delta, point);
+                        
+                        previousDelta = mid2Delta;
                     }
 
                     i++;
