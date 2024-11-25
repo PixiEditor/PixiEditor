@@ -103,9 +103,10 @@ public class VectorPathOverlay : Overlay
         bool anySelected = false;
         int anchor = 0;
         int controlPoint = 0;
+        int verbCountWithoutClose = Path.VerbCount - (Path.IsClosed ? 1 : 0);
         foreach (var verb in Path)
         {
-            if (anchor == Path.VerbCount - 1 && !anySelected)
+            if (anchor == verbCountWithoutClose - 1 && !anySelected)
             {
                 GetHandleAt(anchor).IsSelected = true;
             }
@@ -128,6 +129,11 @@ public class VectorPathOverlay : Overlay
                 controlPoint += 2;
             }
             else if (verb.verb == PathVerb.Close)
+            {
+                continue;
+            }
+            
+            if(Path.IsClosed && anchor == Path.PointCount - 1)
             {
                 continue;
             }
@@ -246,6 +252,8 @@ public class VectorPathOverlay : Overlay
 
         foreach (var path in Path)
         {
+            if(path.verb == PathVerb.Close) continue;
+            
             CreateHandle(anchorHandles.Count);
             if (path.verb == PathVerb.Cubic)
             {
@@ -330,6 +338,7 @@ public class VectorPathOverlay : Overlay
 
         if (IsFirstHandle(anchorHandle))
         {
+            newPath.LineTo((VecF)anchorHandle.Position);
             newPath.Close();
         }
         else
@@ -399,6 +408,18 @@ public class VectorPathOverlay : Overlay
                     }
                 }
             }
+            /*else if (data.verb == PathVerb.Close && index == 0)
+            {
+                if (convertNextToCubic)
+                {
+                    newPath.CubicTo(data.points[0], data.points[1], data.points[1]);
+                    convertNextToCubic = false;
+                }
+                else
+                {
+                    newPath.Close();
+                }
+            }*/
             else
             {
                 DefaultPathVerb(data, newPath);
@@ -437,7 +458,7 @@ public class VectorPathOverlay : Overlay
             {
                 case PathVerb.Move:
                     point = data.points[0];
-                    point = TryApplyNewPos(args, i, index, point);
+                    point = TryApplyNewPos(args, i, index, point, Path.IsClosed);
 
                     newPath.MoveTo(point);
                     previousDelta = point - data.points[0];
@@ -445,7 +466,7 @@ public class VectorPathOverlay : Overlay
                     break;
                 case PathVerb.Line:
                     point = data.points[1];
-                    point = TryApplyNewPos(args, i, index, point);
+                    point = TryApplyNewPos(args, i, index, point, Path.IsClosed);
 
                     newPath.LineTo(point);
 
@@ -461,7 +482,7 @@ public class VectorPathOverlay : Overlay
                     else
                     {
                         point = data.points[3];
-                        point = TryApplyNewPos(args, i, index, point);
+                        point = TryApplyNewPos(args, i, index, point, Path.IsClosed);
 
                         VecF mid1Delta = previousDelta;
 
@@ -560,18 +581,18 @@ public class VectorPathOverlay : Overlay
 
         if (isFirstControlPoint)
         {
-            controlPoint1 = TryApplyNewPos(args, i, index, controlPoint1);
+            controlPoint1 = TryApplyNewPos(args, i, index, controlPoint1, Path.IsClosed);
         }
         else if (isSecondControlPoint)
         {
-            controlPoint2 = TryApplyNewPos(args, i + 1, index, controlPoint2);
+            controlPoint2 = TryApplyNewPos(args, i + 1, index, controlPoint2, Path.IsClosed);
             wasPreviousControlPoint = true;
             previousControlPoint = controlPoint2;
         }
         else if (isNextFirstControlPoint)
         {
             VecD mirroredControlPoint = GetMirroredControlPoint(
-                TryApplyNewPos(args, i + 2, index, controlPoint1), endPoint);
+                TryApplyNewPos(args, i + 2, index, controlPoint1, Path.IsClosed), endPoint);
             controlPoint2 = (VecF)mirroredControlPoint;
         }
         else if (wasPreviousControlPoint)
@@ -613,9 +634,9 @@ public class VectorPathOverlay : Overlay
         }
     }
 
-    private VecF TryApplyNewPos(OverlayPointerArgs args, int i, int index, VecF point)
+    private VecF TryApplyNewPos(OverlayPointerArgs args, int i, int index, VecF point, bool isClosed)
     {
-        if (i == index)
+        if (i == index || (isClosed && i == Path.PointCount - 1))
         {
             var snappedPoint = SnappingController.GetSnapPoint(args.Point, out string axisX, out string axisY);
             point = new VecF((float)snappedPoint.X, (float)snappedPoint.Y);
