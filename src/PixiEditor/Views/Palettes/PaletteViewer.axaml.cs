@@ -10,6 +10,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
+using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Extensions.CommonApi.Palettes;
@@ -112,11 +113,19 @@ internal partial class PaletteViewer : UserControl
         get => GetValue(IsCompactProperty);
         set => SetValue(IsCompactProperty, value);
     }
+    
+    public ICommand DropColorCommand { get; set; }
 
     public PaletteViewer()
     {
         InitializeComponent();
         SizeChanged += OnSizeChanged;
+        
+        MainDropTarget.AddHandler(DragDrop.DragEnterEvent, Grid_PreviewDragEnter);
+        MainDropTarget.AddHandler(DragDrop.DragLeaveEvent, Grid_PreviewDragLeave);
+        MainDropTarget.AddHandler(DragDrop.DropEvent, Grid_Drop);
+
+        DropColorCommand = new RelayCommand<DragEventArgs>(PaletteColor_Drop);
     }
 
     private void OnSizeChanged(object? sender, SizeChangedEventArgs e)
@@ -310,7 +319,7 @@ internal partial class PaletteViewer : UserControl
         return false;
     }
 
-    private void PaletteColor_Drop(object sender, DragEventArgs e)
+    private void PaletteColor_Drop( DragEventArgs e)
     {
         if (e.Data.Contains(PaletteColorControl.PaletteColorDaoFormat))
         {
@@ -319,7 +328,7 @@ internal partial class PaletteViewer : UserControl
             PaletteColor paletteColor = PaletteColor.Parse(data);
             if (Colors.Contains(paletteColor))
             {
-                PaletteColorControl paletteColorControl = sender as PaletteColorControl;
+                PaletteColorControl paletteColorControl = e.Source as PaletteColorControl;
                 int currIndex = Colors.IndexOf(paletteColor);
                 if (paletteColorControl != null)
                 {

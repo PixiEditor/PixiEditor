@@ -68,7 +68,7 @@ public class VectorPathOverlay : Overlay
 
         AddHandle(transformHandle);
     }
-
+    
     protected override void ZoomChanged(double newZoom)
     {
         dashedStroke.UpdateZoom((float)newZoom);
@@ -809,11 +809,13 @@ public class VectorPathOverlay : Overlay
         {
             overlay.SnappingController.RemoveAll("editingPath");
             overlay.ClearAnchorHandles();
+            overlay.IsVisible = false;
         }
         else
         {
             var path = args.NewValue.Value;
             overlay.AdjustHandles(path.PointCount - (path.IsClosed ? 1 : 0));
+            overlay.IsVisible = true;
         }
 
         if (args.OldValue.Value != null)

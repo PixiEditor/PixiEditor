@@ -97,7 +97,10 @@ public class DocumentChangeTracker : IDisposable
              (IsHomologous(undoStack.Peek()) &&
               undoStack.Peek().changes[^1].IsMergeableWith(activePacket[0].change))))
         {
-            undoStack.Peek().changes.Add(activePacket[0].change);
+            var last = undoStack.Pop();
+            last.changes.Add(activePacket[0].change);
+            last.source = activePacket.Any(x => x.source == ActionSource.User) ? ActionSource.User : source;
+            undoStack.Push(last);
         }
         else
         {

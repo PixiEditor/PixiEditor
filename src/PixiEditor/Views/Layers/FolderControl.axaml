@@ -40,8 +40,8 @@
                 <RowDefinition Height="16"/>
                 <RowDefinition Height="10"/>
             </Grid.RowDefinitions>
-            <Grid DragDrop.AllowDrop="True" helpers:DragDropEvents.DragEnter="Grid_DragEnter" helpers:DragDropEvents.Drop="Grid_Drop_Top" helpers:DragDropEvents.DragLeave="Grid_DragLeave" Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent" Panel.ZIndex="3"/>
-            <Grid IsVisible="True" Margin="20, 0, 0,0" x:Name="middleDropGrid" Grid.Row="1" DragDrop.AllowDrop="True" Panel.ZIndex="2" Background="Transparent" helpers:DragDropEvents.DragEnter="Grid_CenterEnter" helpers:DragDropEvents.Drop="Grid_Drop_Center" helpers:DragDropEvents.DragLeave="Grid_CenterLeave" />
+            <Grid DragDrop.AllowDrop="True" Name="TopDropGrid" Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent" Panel.ZIndex="3"/>
+            <Grid IsVisible="True" Margin="20, 0, 0,0" x:Name="middleDropGrid" Grid.Row="1" DragDrop.AllowDrop="True" Panel.ZIndex="2" Background="Transparent"  />
             <Grid x:Name="centerGrid" Grid.Row="0" Grid.RowSpan="3" Background="Transparent">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="24"/>
@@ -130,9 +130,8 @@
             </Grid>
             <Grid
                   Grid.Row="2"
-                  helpers:DragDropEvents.DragEnter="Grid_DragEnter" helpers:DragDropEvents.Drop="Grid_Drop_Bottom"
-                  helpers:DragDropEvents.DragLeave="Grid_DragLeave"
-                  DragDrop.AllowDrop="false"
+                  Name="BottomDropGrid"
+                  DragDrop.AllowDrop="True"
                   Grid.ColumnSpan="2" Background="Transparent"/>
         </Grid>
         <Border.ContextMenu>

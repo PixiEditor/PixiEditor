@@ -5,6 +5,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.Input;
+using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
@@ -86,6 +87,16 @@ internal partial class LayerControl : UserControl
         {
             highlightColor = value as IBrush;
         }
+     
+        TopGrid.AddHandler(DragDrop.DragEnterEvent, Grid_DragEnter);
+        TopGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_DragLeave);
+        TopGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Top);
+        dropBelowGrid.AddHandler(DragDrop.DragEnterEvent, Grid_DragEnter);
+        dropBelowGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_DragLeave);
+        dropBelowGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Below);
+        thirdDropGrid.AddHandler(DragDrop.DragEnterEvent, Grid_DragEnter);
+        thirdDropGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_DragLeave);
+        thirdDropGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Bottom);
     }
     
     private void LayerControl_Unloaded(object? sender, RoutedEventArgs e)

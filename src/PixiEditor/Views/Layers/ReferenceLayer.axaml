@@ -23,10 +23,8 @@
         </Style>
     </UserControl.Styles>
     <Border BorderThickness="0 2 0 0" MinWidth="60"
-            Focusable="True" DragDrop.AllowDrop="True"
-            ui1:DragDropEvents.DragEnter="ReferenceLayer_DragEnter"
-            ui1:DragDropEvents.Drop="ReferenceLayer_Drop"
-            ui1:DragDropEvents.DragLeave="ReferenceLayer_DragLeave">
+            Name="DragBorder"
+            Focusable="True" DragDrop.AllowDrop="True">
         <Interaction.Behaviors>
             <behaviours:ClearFocusOnClickBehavior />
         </Interaction.Behaviors>

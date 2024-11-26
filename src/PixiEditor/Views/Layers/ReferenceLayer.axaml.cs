@@ -32,6 +32,10 @@ internal partial class ReferenceLayer : UserControl
     {
         command = CommandController.Current.Commands["PixiEditor.Clipboard.PasteReferenceLayer"];
         InitializeComponent();
+        
+        DragBorder.AddHandler(DragDrop.DragEnterEvent, ReferenceLayer_DragEnter);
+        DragBorder.AddHandler(DragDrop.DragLeaveEvent, ReferenceLayer_DragLeave);
+        DragBorder.AddHandler(DragDrop.DropEvent, ReferenceLayer_Drop);
     }
     
     private static void OnDocumentChanged(AvaloniaPropertyChangedEventArgs<DocumentViewModel> e)

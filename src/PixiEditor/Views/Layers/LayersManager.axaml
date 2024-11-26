@@ -155,7 +155,7 @@
                     </DataTemplate>
                 </TreeView.DataTemplates>
             </TreeView>
-            <Border Name="dropBorder" ui1:DragDropEvents.DragEnter="Grid_DragEnter" ui1:DragDropEvents.DragLeave="Grid_DragLeave" DragDrop.AllowDrop="True" ui1:DragDropEvents.Drop="Grid_Drop" Background="Transparent" BorderThickness="0, 5, 0, 0" />
+            <Border Name="dropBorder" DragDrop.AllowDrop="True" Background="Transparent" BorderThickness="0, 5, 0, 0" />
         </DockPanel>
     </Grid>
 </UserControl>

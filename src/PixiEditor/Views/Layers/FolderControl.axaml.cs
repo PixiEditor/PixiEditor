@@ -48,6 +48,18 @@ internal partial class FolderControl : UserControl
 
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
+        
+        TopDropGrid.AddHandler(DragDrop.DragEnterEvent, Grid_DragEnter);
+        TopDropGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_DragLeave);
+        TopDropGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Top);
+        
+        BottomDropGrid.AddHandler(DragDrop.DragEnterEvent, Grid_DragEnter);
+        BottomDropGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_DragLeave);
+        BottomDropGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Bottom);
+        
+        middleDropGrid.AddHandler(DragDrop.DragEnterEvent, Grid_CenterEnter);
+        middleDropGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_CenterLeave);
+        middleDropGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Center);
     }
 
     private void OnUnloaded(object? sender, RoutedEventArgs e)

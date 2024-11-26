@@ -197,7 +197,10 @@ internal class CombineStructureMembersOnto_Change : Change
         foreach (var toMerge in membersToMerge)
         {
             var member = target.FindMemberOrThrow<LayerNode>(toMerge);
-            maxFrame = Math.Max(maxFrame, member.KeyFrames.Max(x => x.StartFrame + x.Duration));
+            if (member.KeyFrames.Count > 0)
+            {
+                maxFrame = Math.Max(maxFrame, member.KeyFrames.Max(x => x.StartFrame + x.Duration));
+            }
         }
 
         return maxFrame;
