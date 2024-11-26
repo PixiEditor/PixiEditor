@@ -4,6 +4,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
 using PixiEditor.Helpers;
+using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
@@ -28,6 +29,10 @@ internal partial class LayersManager : UserControl
         {
             highlightColor = value as IBrush;
         }
+      
+        dropBorder.AddHandler(DragDrop.DragEnterEvent, Grid_DragEnter);
+        dropBorder.AddHandler(DragDrop.DragLeaveEvent, Grid_DragLeave);
+        dropBorder.AddHandler(DragDrop.DropEvent, Grid_Drop);
     }
 
     private void LayerControl_MouseDown(object sender, PointerPressedEventArgs e)
