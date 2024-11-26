@@ -496,6 +496,7 @@ internal class TransformOverlay : Overlay
             return;
         }
 
+        IsSizeBoxEnabled = true;
         args.Pointer.Capture(this);
         args.Handled = true;
     }
@@ -573,6 +574,7 @@ internal class TransformOverlay : Overlay
         }
 
         StopMoving();
+        IsSizeBoxEnabled = false;
     }
 
     public override bool TestHit(VecD point)
