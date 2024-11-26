@@ -614,6 +614,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 finalBounds = finalBounds.Union(combinedBounds);
             }
         }
+        
+        if (finalBounds.IsZeroOrNegativeArea)
+            return new None();
 
         Surface output = new(finalBounds.Size);
 
