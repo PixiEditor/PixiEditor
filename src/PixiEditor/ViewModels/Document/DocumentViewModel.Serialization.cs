@@ -88,7 +88,7 @@ internal partial class DocumentViewModel
         float resizeFactorY = (float)exportSize.Y / Height;
         VecD resizeFactor = new VecD(resizeFactorX, resizeFactorY);
 
-        AddElements(NodeGraph.StructureTree.Members, svgDocument, atTime, resizeFactor, vectorExportConfig);
+        AddElements(NodeGraph.StructureTree.Members.Reverse().ToList(), svgDocument, atTime, resizeFactor, vectorExportConfig);
 
         return svgDocument;
     }
@@ -102,7 +102,7 @@ internal partial class DocumentViewModel
             {
                 var group = new SvgGroup();
 
-                AddElements(folderNodeViewModel.Children, group, atTime, resizeFactor, vectorExportConfig);
+                AddElements(folderNodeViewModel.Children.Reverse().ToList(), group, atTime, resizeFactor, vectorExportConfig);
                 elementContainer.Children.Add(group);
             }
 
