@@ -174,28 +174,27 @@ public class VectorPathOverlay : Overlay
         {
             if (totalHandles > pointsCount)
             {
-                RecreateHandles();
+                RemoveAllHandles();
             }
-            else
+
+            int missingControlPoints = CalculateMissingControlPoints(controlPointHandles.Count);
+            int missingAnchors = GetAnchorCount() - anchorHandles.Count;
+            for (int i = 0; i < missingAnchors; i++)
             {
-                int missingControlPoints = CalculateMissingControlPoints(controlPointHandles.Count);
-                int missingAnchors = GetAnchorCount() - anchorHandles.Count;
-                for (int i = 0; i < missingAnchors; i++)
-                {
-                    CreateHandle(anchorHandles.Count);
-                }
-
-                for (int i = 0; i < missingControlPoints; i++)
-                {
-                    CreateHandle(controlPointHandles.Count, true);
-                }
-
-
-                SelectAnchor(GetHandleAt(pointsCount - 1));
+                CreateHandle(anchorHandles.Count);
             }
+
+            for (int i = 0; i < missingControlPoints; i++)
+            {
+                CreateHandle(controlPointHandles.Count, true);
+            }
+
+
+            SelectAnchor(GetHandleAt(pointsCount - 1));
 
             ConnectControlPointsToAnchors();
         }
+        Refresh();
     }
 
     private void ConnectControlPointsToAnchors()
@@ -206,13 +205,21 @@ public class VectorPathOverlay : Overlay
         {
             if (data.verb == PathVerb.Cubic)
             {
-                AnchorHandle previousAnchor = anchorHandles.ElementAtOrDefault(anchorIndex - 1);
-                if (anchorIndex >= anchorHandles.Count)
+                int targetAnchorIndex1 = anchorIndex - 1;
+                if (targetAnchorIndex1 < 0)
                 {
-                    anchorIndex = 0;
+                    targetAnchorIndex1 = anchorHandles.Count - 1;
                 }
 
-                AnchorHandle nextAnchor = anchorHandles.ElementAtOrDefault(anchorIndex);
+                AnchorHandle previousAnchor = anchorHandles.ElementAtOrDefault(targetAnchorIndex1);
+
+                int targetAnchorIndex2 = anchorIndex;
+                if (targetAnchorIndex2 >= anchorHandles.Count)
+                {
+                    targetAnchorIndex2 = 0;
+                }
+
+                AnchorHandle nextAnchor = anchorHandles.ElementAtOrDefault(targetAnchorIndex2);
 
                 if (previousAnchor != null)
                 {
@@ -242,7 +249,7 @@ public class VectorPathOverlay : Overlay
         return totalControlPoints - handleCount;
     }
 
-    private void RecreateHandles()
+    private void RemoveAllHandles()
     {
         int previouslySelectedIndex = -1;
 
@@ -263,24 +270,16 @@ public class VectorPathOverlay : Overlay
 
         for (int i = controlPointHandles.Count - 1; i >= 0; i--)
         {
+            var handle = controlPointHandles[i];
+            handle.OnDrag -= OnControlPointDrag;
+            handle.OnRelease -= OnHandleRelease;
+
             Handles.Remove(controlPointHandles[i]);
         }
 
         anchorHandles.Clear();
         controlPointHandles.Clear();
         SnappingController.RemoveAll("editingPath");
-
-        foreach (var path in Path)
-        {
-            if (path.verb == PathVerb.Close) continue;
-
-            CreateHandle(anchorHandles.Count);
-            if (path.verb == PathVerb.Cubic)
-            {
-                CreateHandle(controlPointHandles.Count, true);
-                CreateHandle(controlPointHandles.Count, true);
-            }
-        }
     }
 
     private bool IsOverAnyHandle()
@@ -332,6 +331,7 @@ public class VectorPathOverlay : Overlay
         {
             var controlPoint = new ControlPointHandle(this);
             controlPoint.OnDrag += OnControlPointDrag;
+            controlPoint.OnRelease += OnHandleRelease;
             controlPointHandles.Add(controlPoint);
             AddHandle(controlPoint);
         }
@@ -415,7 +415,7 @@ public class VectorPathOverlay : Overlay
                     newPath.CubicTo(data.points[0], data.points[1], data.points[1]);
                     convertNextToCubic = true;
                 }
-                else if(i + 1 == index)
+                else if (i + 1 == index)
                 {
                     newPath.CubicTo(data.points[0], data.points[1], data.points[1]);
                 }
@@ -672,17 +672,14 @@ public class VectorPathOverlay : Overlay
 
     private void OnHandleRelease(Handle source, OverlayPointerArgs args)
     {
-        if (source is not AnchorHandle anchorHandle)
-        {
-            return;
-        }
-
         AddToUndoCommand.Execute(Path);
 
-        SnappingController.AddXYAxis($"editingPath[{anchorHandles.IndexOf(anchorHandle)}]", () => source.Position);
+        if (source is AnchorHandle anchorHandle)
+        {
+            SnappingController.AddXYAxis($"editingPath[{anchorHandles.IndexOf(anchorHandle)}]", () => source.Position);
+        }
 
-        SnappingController.HighlightedXAxis = null;
-        SnappingController.HighlightedYAxis = null;
+        TryHighlightSnap(null, null);
 
         Refresh();
     }
