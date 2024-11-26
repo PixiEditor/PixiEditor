@@ -6,6 +6,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
+using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 
@@ -18,6 +19,7 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
     public override LocalizedString Tooltip => new LocalizedString("PATH_TOOL_TOOLTIP", Shortcut);
 
+    public override string DefaultIcon => PixiPerfectIcons.VectorPen; 
     public override bool StopsLinkedToolOnUse => false;
 
     private bool isActivated;
