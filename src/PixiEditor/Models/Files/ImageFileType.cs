@@ -32,17 +32,19 @@ internal abstract class ImageFileType : IoFileType
         }
         else
         {
-            job?.Report(0, new LocalizedString("RENDERING_IMAGE")); 
-            var maybeBitmap = document.TryRenderWholeImage(0);
+            job?.Report(0, new LocalizedString("RENDERING_IMAGE"));
+            
+            var exportSize = exportConfig.ExportSize;
+            if (exportSize.X <= 0 || exportSize.Y <= 0)
+            {
+                return SaveResult.UnknownError; // TODO: Add InvalidParameters error type
+            }
+            
+            var maybeBitmap = document.TryRenderWholeImage(0, exportSize);
             if (maybeBitmap.IsT0)
                 return SaveResult.ConcurrencyError;
 
             finalSurface = maybeBitmap.AsT1;
-            if (maybeBitmap.AsT1.Size != exportConfig.ExportSize && exportConfig.ExportSize.X > 0 && exportConfig.ExportSize.Y > 0)
-            {
-                finalSurface = finalSurface.ResizeNearestNeighbor(exportConfig.ExportSize);
-                maybeBitmap.AsT1.Dispose();
-            }
         }
 
         EncodedImageFormat mappedFormat = EncodedImageFormat;

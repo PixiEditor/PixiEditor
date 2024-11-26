@@ -234,13 +234,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         TransformViewModel = new(this);
         TransformViewModel.TransformMoved += (_, args) => Internals.ChangeController.TransformMovedInlet(args);
-        
+
         PathOverlayViewModel = new(this, Internals);
         PathOverlayViewModel.PathChanged += path =>
         {
             Internals.ChangeController.PathOverlayChangedInlet(path);
         };
-        
+
         LineToolOverlayViewModel = new();
         LineToolOverlayViewModel.LineMoved += (_, args) =>
             Internals.ChangeController.LineOverlayMovedInlet(args.Item1, args.Item2);
@@ -519,22 +519,22 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         OnPropertyChanged(nameof(AllChangesSaved));
     }
 
-
-    /// <summary>
-    /// Tries rendering the whole document
-    /// </summary>
-    /// <returns><see cref="Error"/> if the ChunkyImage was disposed, otherwise a <see cref="Surface"/> of the rendered document</returns>
-    public OneOf<Error, Surface> TryRenderWholeImage(KeyFrameTime frameTime)
+    public OneOf<Error, Surface> TryRenderWholeImage(KeyFrameTime frameTime, VecI renderSize)
     {
         try
         {
-            Surface finalSurface = null; 
+            Surface finalSurface = null;
             DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
             {
-                using Texture texture = new Texture(SizeBindable);
-                Renderer.RenderDocument(texture.DrawingSurface, frameTime);
+                using Texture texture = new Texture(renderSize);
+                texture.DrawingSurface.Canvas.Save();
+                VecD scaling = new VecD(renderSize.X / (double)SizeBindable.X, renderSize.Y / (double)SizeBindable.Y);
                 
-                finalSurface = new Surface(SizeBindable);
+                texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
+                Renderer.RenderDocument(texture.DrawingSurface, frameTime);
+
+                texture.DrawingSurface.Canvas.Restore();
+                finalSurface = new Surface(renderSize);
                 finalSurface.DrawingSurface.Canvas.DrawImage(texture.DrawingSurface.Snapshot(), 0, 0);
             });
 
@@ -545,6 +545,16 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             return new Error();
         }
     }
+
+    /// <summary>
+    /// Tries rendering the whole document
+    /// </summary>
+    /// <returns><see cref="Error"/> if the ChunkyImage was disposed, otherwise a <see cref="Surface"/> of the rendered document</returns>
+    public OneOf<Error, Surface> TryRenderWholeImage(KeyFrameTime frameTime)
+    {
+        return TryRenderWholeImage(frameTime, SizeBindable);
+    }
+
 
     /// <summary>
     /// Takes the selected area and converts it into a surface
