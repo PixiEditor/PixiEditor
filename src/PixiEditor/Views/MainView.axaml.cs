@@ -16,6 +16,9 @@ public partial class MainView : UserControl
     {
         InitializeComponent();
         TextBoxFocusBehavior.FallbackFocusElement = FocusableGrid;
+        DropGrid.AddHandler(DragDrop.DragEnterEvent, MainView_DragEnter);
+        DropGrid.AddHandler(DragDrop.DragLeaveEvent, MainView_DragLeave);
+        DropGrid.AddHandler(DragDrop.DropEvent, MainView_Drop);
     }
     
     private void MainView_Drop(object sender, DragEventArgs e)

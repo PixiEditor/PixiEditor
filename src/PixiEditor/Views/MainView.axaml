@@ -19,8 +19,7 @@
             <InvokeCommandAction Command="{Binding StartupCommand}" />
         </EventTriggerBehavior>
     </Interaction.Behaviors>
-    <Grid DragDrop.AllowDrop="True" ui:DragDropEvents.DragEnter="MainView_DragEnter" ui:DragDropEvents.DragLeave="MainView_DragLeave"
-          ui:DragDropEvents.Drop="MainView_Drop">
+    <Grid DragDrop.AllowDrop="True" Name="DropGrid">
         <DockPanel>
             <main1:MainTitleBar DockPanel.Dock="Top" DataContext="{Binding MenuBarViewModel}"/>
             <Grid Focusable="True" Name="FocusableGrid">

@@ -14,9 +14,8 @@
                                     IsVisible="{Binding !IsCompact, ElementName=paletteControl}"
                                     ReplaceColorsCommand="{Binding ElementName=paletteControl, Path=ReplaceColorsCommand}"
                                     HintColor="{Binding ElementName=paletteControl, Path=HintColor}" />
-            <Grid DragDrop.AllowDrop="True" ui1:DragDropEvents.DragEnter="Grid_PreviewDragEnter"
-                  ui1:DragDropEvents.DragLeave="Grid_PreviewDragLeave"
-                  ui1:DragDropEvents.Drop="Grid_Drop">
+            <Grid DragDrop.AllowDrop="True"
+                  Name="MainDropTarget">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="35" />
                     <RowDefinition Height="5" />
@@ -72,7 +71,7 @@
                                                               ui:Translator.TooltipKey="PALETTE_COLOR_TOOLTIP"
                                                               DragDrop.AllowDrop="True" Color="{Binding}"
                                                               Margin="2.5"
-                                                              ui1:DragDropEvents.Drop="PaletteColor_Drop">
+                                                              DropCommand="{Binding ElementName=paletteControl, Path=DropColorCommand}">
                                     <palettes:PaletteColorControl.AssociatedKey>
                                         <MultiBinding Converter="{converters:IndexToAssociatedKeyConverter}">
                                             <Binding Path="." />
@@ -122,7 +121,8 @@
                                                           ui:Translator.TooltipKey="PALETTE_COLOR_TOOLTIP"
                                                           DragDrop.AllowDrop="True" Color="{Binding}"
                                                           Height="24" Width="24" CornerRadius="0"
-                                                          ui1:DragDropEvents.Drop="PaletteColor_Drop">
+                                                          DropCommand="{Binding ElementName=paletteControl, Path=DropColorCommand}">
+                                >
                                 <Interaction.Behaviors>
                                     <EventTriggerBehavior EventName="PointerReleased">
                                         <InvokeCommandAction

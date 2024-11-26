@@ -36,7 +36,7 @@
                                                Height="35"
                                                Width="35"
                                                ui:Translator.TooltipKey="REPLACER_TOOLTIP"
-                                               ui1:DragDropEvents.Drop="PaletteColorControl_OnDrop"
+                                               Name="DropTarget"
                                                DragDrop.AllowDrop="True" />
                     <TextBlock Name="arrow" VerticalAlignment="Center" Text="{DynamicResource icon-arrow-right}" Classes="pixi-icon" 
                                FontSize="24" Margin="10 0" ui:Translator.UseLanguageFlowDirection="True"/>

@@ -65,6 +65,12 @@ internal partial class ColorReplacer : UserControl
         set => SetValue(IsCollapsedProperty, value);
     }
 
+    public ColorReplacer()
+    {
+        InitializeComponent();
+        DropTarget.AddHandler(DragDrop.DropEvent, PaletteColorControl_OnDrop);
+    }
+
     private void PaletteColorControl_OnDrop(object sender, DragEventArgs e)
     {
         if (e.Data.Contains(PaletteColorControl.PaletteColorDaoFormat))
@@ -77,11 +83,6 @@ internal partial class ColorReplacer : UserControl
 
             ColorToReplace = PaletteColor.Parse(hex);
         }
-    }
-
-    public ColorReplacer()
-    {
-        InitializeComponent();
     }
 
     private void ReplaceButton_OnClick(object sender, RoutedEventArgs e)
