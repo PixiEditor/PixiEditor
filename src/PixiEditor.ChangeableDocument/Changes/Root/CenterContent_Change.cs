@@ -1,7 +1,11 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+﻿using ChunkyImageLib.Operations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changes.Drawing;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.ChangeInfos.Objects;
+using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
@@ -11,6 +15,7 @@ internal class CenterContent_Change : Change
     private List<Guid> affectedLayers;
     private Dictionary<Guid, CommittedChunkStorage>? originalLayerChunks;
     private int frame;
+    private VecD oldDelta;
 
     [GenerateMakeChangeAction]
     public CenterContent_Change(List<Guid> layers, int frame)
@@ -18,7 +23,7 @@ internal class CenterContent_Change : Change
         this.frame = frame;
         affectedLayers = layers;
     }
-    
+
     public override bool InitializeAndValidate(Document target)
     {
         if (affectedLayers.Count == 0)
@@ -34,7 +39,7 @@ internal class CenterContent_Change : Change
         }
 
         _oldOffset = CalculateCurrentOffset(target);
-        
+
         return true;
     }
 
@@ -54,31 +59,42 @@ internal class CenterContent_Change : Change
                     currentBounds.Value.Y + currentBounds.Value.Height / 2);
             }
         }
-        
+
         return currentCenter;
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
+        out bool ignoreInUndo)
     {
         VecI documentCenter = target.Size / 2;
         VecI currentOffset = _oldOffset;
         
         VecI shift = documentCenter - currentOffset;
 
+        oldDelta = shift;
+        
         List<IChangeInfo> changes = new List<IChangeInfo>();
         originalLayerChunks = new Dictionary<Guid, CommittedChunkStorage>();
-        
+
         foreach (var layerGuid in affectedLayers)
         {
-            ImageLayerNode node = target.FindMemberOrThrow<ImageLayerNode>(layerGuid);
-            var chunks = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, false, shift, frame);
-            changes.Add(new LayerImageArea_ChangeInfo(layerGuid, chunks));
+            LayerNode node = target.FindMemberOrThrow<LayerNode>(layerGuid);
 
-            // TODO: Adding support for non-raster layer should be easy, add
-            
-            var image = node.GetLayerImageAtFrame(frame);
-            originalLayerChunks[layerGuid] = new CommittedChunkStorage(image, image.FindAffectedArea().Chunks);
-            image.CommitChanges();
+            if (node is ImageLayerNode imageLayerNode)
+            {
+                var chunks = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, false, shift, frame);
+                changes.Add(new LayerImageArea_ChangeInfo(layerGuid, chunks));
+                var image = imageLayerNode.GetLayerImageAtFrame(frame);
+                originalLayerChunks[layerGuid] = new CommittedChunkStorage(image, image.FindAffectedArea().Chunks);
+                image.CommitChanges();
+            }
+            else if (node is ITransformableObject transformable)
+            {
+                transformable.TransformationMatrix = transformable.TransformationMatrix.PostConcat(
+                    Matrix3X3.CreateTranslation(shift.X, shift.Y));
+                var affectedArea = FromSize(target);
+                changes.Add(new TransformObject_ChangeInfo(layerGuid, affectedArea));
+            }
         }
 
         ignoreInUndo = shift.TaxicabLength == 0;
@@ -90,13 +106,32 @@ internal class CenterContent_Change : Change
         List<IChangeInfo> changes = new List<IChangeInfo>();
         foreach (var layerGuid in affectedLayers)
         {
-            var image = target.FindMemberOrThrow<ImageLayerNode>(layerGuid).GetLayerImageAtFrame(frame);
-            CommittedChunkStorage? originalChunks = originalLayerChunks?[layerGuid];
-            var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(image, ref originalChunks);
-            changes.Add(new LayerImageArea_ChangeInfo(layerGuid, affected));
+            var layerNode = target.FindMemberOrThrow<LayerNode>(layerGuid);
+
+            if (layerNode is ImageLayerNode imageNode)
+            {
+                var image = imageNode.GetLayerImageAtFrame(frame);
+                CommittedChunkStorage? originalChunks = originalLayerChunks?[layerGuid];
+                var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(image, ref originalChunks);
+                changes.Add(new LayerImageArea_ChangeInfo(layerGuid, affected));
+            }
+            else if (layerNode is ITransformableObject transformable)
+            {
+                transformable.TransformationMatrix = transformable.TransformationMatrix.PostConcat(
+                    Matrix3X3.CreateTranslation((float)-oldDelta.X, (float)-oldDelta.Y));
+                
+                var affectedArea = FromSize(target);
+                changes.Add(new TransformObject_ChangeInfo(layerGuid, affectedArea));
+            }
         }
-        
+
         return changes;
+    }
+
+    private AffectedArea FromSize(Document target)
+    {
+        RectI bounds = new RectI(VecI.Zero, target.Size);
+        return new AffectedArea(OperationHelper.FindChunksTouchingRectangle(bounds, ChunkyImage.FullChunkSize));
     }
 
     public override void Dispose()
@@ -110,7 +145,7 @@ internal class CenterContent_Change : Change
         {
             layerChunk.Value.Dispose();
         }
-        
+
         originalLayerChunks = null;
     }
 }
