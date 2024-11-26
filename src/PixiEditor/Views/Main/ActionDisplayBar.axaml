@@ -24,8 +24,8 @@
                 Width="290" />
         </Grid.ColumnDefinitions>
         <!--<visuals:ColorsPreviewer/>-->
-        <colorPicker:ColorDisplay SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Converter={converters:GenericColorToMediaColorConverter}}"
-                                  SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Converter={converters:GenericColorToMediaColorConverter}}">
+        <colorPicker:ColorDisplay SelectedColor="{Binding DataContext.ColorsSubViewModel.PrimaryColor, Converter={converters:GenericColorToMediaColorConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                                  SecondaryColor="{Binding DataContext.ColorsSubViewModel.SecondaryColor, Converter={converters:GenericColorToMediaColorConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}">
             <colorPicker:ColorDisplay.Styles>
                 <Style Selector="Button">
                     <Setter Property="IsVisible" Value="False"/>
@@ -34,7 +34,7 @@
         </colorPicker:ColorDisplay>
         <DockPanel Grid.Column="1">
             <TextBlock
-                ui:Translator.LocalizedString="{Binding ActiveActionDisplay}"
+                ui:Translator.LocalizedString="{Binding DataContext.ActiveActionDisplay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                 Foreground="White"
                 FontSize="15"
                 Margin="10,0,0,0"
@@ -45,7 +45,7 @@
                 HorizontalAlignment="Right"
                 VerticalAlignment="Center">
                 <TextBlock
-                    Text="{Binding DocumentManagerSubViewModel.ActiveDocument.CoordinatesString}"
+                    Text="{Binding DataContext.DocumentManagerSubViewModel.ActiveDocument.CoordinatesString, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                     Foreground="White"
                     FontSize="16" />
             </StackPanel>
@@ -56,17 +56,17 @@
             Grid.Column="2"
             Orientation="Horizontal">
             <Button
-                IsVisible="{Binding UpdateSubViewModel.UpdateReadyToInstall, FallbackValue=False}"
+                IsVisible="{Binding DataContext.UpdateSubViewModel.UpdateReadyToInstall, FallbackValue=False, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                 FontSize="14"
                 Height="20"
                 Command="{xaml:Command PixiEditor.Restart}" ui:Translator.Key="RESTART" />
             <TextBlock
                 VerticalAlignment="Center"
-                Padding="10"
+                Padding="10, 0"
                 HorizontalAlignment="Right"
                 Foreground="White"
                 FontSize="14"
-                Text="{Binding UpdateSubViewModel.VersionText}" />
+                Text="{Binding DataContext.UpdateSubViewModel.VersionText, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
         </StackPanel>
     </Grid>
 </UserControl>
