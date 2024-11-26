@@ -555,6 +555,11 @@ public class VectorPathOverlay : Overlay
             GetMirroredControlPoint((VecF)targetPos, (VecF)controlPointHandle.ConnectedTo.Position);
         VectorPath newPath = new VectorPath();
 
+        if (args.Modifiers.HasFlag(KeyModifiers.Alt))
+        {
+            symmetricIndex = -1;
+        }
+
         int i = 0;
 
         foreach (var data in Path)
