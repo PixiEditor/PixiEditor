@@ -19,6 +19,15 @@ using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 
 namespace PixiEditor.Views.Overlays;
 
+enum HandleEventType
+{
+    PointerEnteredOverlay,
+    PointerExitedOverlay,
+    PointerMovedOverlay,
+    PointerPressedOverlay,
+    PointerReleasedOverlay
+}
+
 public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not avalonia element
 {
     public List<Handle> Handles { get; } = new();
@@ -40,6 +49,8 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     public event PointerEvent? PointerMovedOverlay;
     public event PointerEvent? PointerPressedOverlay;
     public event PointerEvent? PointerReleasedOverlay;
+    
+    public Handle? CapturedHandle { get; set; } = null!;
 
     private readonly Dictionary<AvaloniaProperty, OverlayTransition> activeTransitions = new();
 
@@ -57,7 +68,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     }
 
     public virtual bool CanRender() => true;
-    
+
     public abstract void RenderOverlay(Canvas context, RectD canvasBounds);
 
     public void Refresh()
@@ -66,34 +77,46 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         InvalidateVisual(); // For elements in visual tree
     }
 
+    public void CaptureHandle(Handle handle)
+    {
+        CapturedHandle = handle;
+    }
+    
     public void EnterPointer(OverlayPointerArgs args)
     {
         OnOverlayPointerEntered(args);
+        InvokeHandleEvent(HandleEventType.PointerEnteredOverlay, args);
         PointerEnteredOverlay?.Invoke(args);
     }
 
     public void ExitPointer(OverlayPointerArgs args)
     {
         OnOverlayPointerExited(args);
+        InvokeHandleEvent(HandleEventType.PointerExitedOverlay, args);
         PointerExitedOverlay?.Invoke(args);
     }
 
     public void MovePointer(OverlayPointerArgs args)
     {
         OnOverlayPointerMoved(args);
+        InvokeHandleEvent(HandleEventType.PointerMovedOverlay, args);
         PointerMovedOverlay?.Invoke(args);
     }
 
     public void PressPointer(OverlayPointerArgs args)
     {
         OnOverlayPointerPressed(args);
+        InvokeHandleEvent(HandleEventType.PointerPressedOverlay, args);
         PointerPressedOverlay?.Invoke(args);
     }
 
     public void ReleasePointer(OverlayPointerArgs args)
     {
         OnOverlayPointerReleased(args);
+        InvokeHandleEvent(HandleEventType.PointerReleasedOverlay, args);
         PointerReleasedOverlay?.Invoke(args);
+        
+        CaptureHandle(null);
     }
 
     public virtual bool TestHit(VecD point)
@@ -106,6 +129,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         if (Handles.Contains(handle)) return;
 
         Handles.Add(handle);
+        handle.ZoomScale = ZoomScale;
     }
 
     public void ForAllHandles(Action<Handle> action)
@@ -124,6 +148,40 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
             {
                 action(tHandle);
             }
+        }
+    }
+    
+    private void InvokeHandleEvent(HandleEventType eventName, OverlayPointerArgs args)
+    {
+        if (CapturedHandle != null)
+        {
+            InvokeHandleEvent(CapturedHandle, args, eventName);
+        }
+        else
+        {
+            var reversedHandles = Handles.Reverse<Handle>();
+            foreach (var handle in reversedHandles)
+            {
+                InvokeHandleEvent(handle, args, eventName);
+            }
+        }
+    }
+    
+    private void InvokeHandleEvent(Handle handle, OverlayPointerArgs args, HandleEventType pointerEvent)
+    {
+        if(pointerEvent == null) return;
+        
+        if (pointerEvent == HandleEventType.PointerMovedOverlay)
+        {
+            handle.InvokeMove(args);
+        }
+        else if (pointerEvent == HandleEventType.PointerPressedOverlay)
+        {
+            handle.InvokePress(args);
+        }
+        else if (pointerEvent == HandleEventType.PointerReleasedOverlay)
+        {
+            handle.InvokeRelease(args);
         }
     }
 
@@ -176,29 +234,25 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     }
 
     protected virtual void ZoomChanged(double newZoom) { }
+
     protected virtual void OnOverlayPointerReleased(OverlayPointerArgs args)
     {
-
     }
 
     protected virtual void OnOverlayPointerPressed(OverlayPointerArgs args)
     {
-
     }
 
     protected virtual void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
-
     }
 
     protected virtual void OnOverlayPointerExited(OverlayPointerArgs args)
     {
-
     }
 
     protected virtual void OnOverlayPointerEntered(OverlayPointerArgs args)
     {
-
     }
 
     private static void OnZoomScaleChanged(AvaloniaPropertyChangedEventArgs<double> e)
@@ -212,7 +266,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
             }
         }
     }
-    
+
     private void OnIsVisibleChanged(AvaloniaPropertyChangedEventArgs<bool> e)
     {
         if (e.NewValue.Value)
@@ -220,7 +274,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
             Refresh();
         }
     }
-    
+
     protected static void AffectsOverlayRender(params AvaloniaProperty[] properties)
     {
         foreach (var property in properties)

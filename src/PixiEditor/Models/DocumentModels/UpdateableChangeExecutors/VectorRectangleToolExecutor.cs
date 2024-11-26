@@ -7,10 +7,11 @@ using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
-internal class VectorRectangleToolExecutor : ComplexShapeToolExecutor<IVectorRectangleToolHandler>
+internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRectangleToolHandler>
 {
     public override ExecutorType Type => ExecutorType.ToolLinked;
     protected override DocumentTransformMode TransformMode => DocumentTransformMode.Scale_Rotate_Shear_NoPerspective;
@@ -20,7 +21,7 @@ internal class VectorRectangleToolExecutor : ComplexShapeToolExecutor<IVectorRec
 
     private Matrix3X3 lastMatrix = Matrix3X3.Identity;
 
-    protected override bool InitShapeData(ShapeVectorData data)
+    protected override bool InitShapeData(IReadOnlyShapeVectorData data)
     {
         if (data is not RectangleVectorData rectData)
             return false;

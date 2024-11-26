@@ -349,4 +349,10 @@ public class SnappingController
         yAxis = string.Empty;
         return pos;
     }
+
+    public void AddXYAxis(string identifier, Func<VecD> pointFunc)
+    {
+        HorizontalSnapPoints[identifier] = () => pointFunc().X;
+        VerticalSnapPoints[identifier] = () => pointFunc().Y;
+    }
 }

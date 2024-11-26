@@ -4,7 +4,6 @@ using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using Drawie.Backend.Core.Numerics;
-using Drawie.Backend.Core.Surfaces.Vector;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;

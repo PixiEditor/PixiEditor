@@ -31,7 +31,7 @@ using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
-using Drawie.Backend.Core.Surfaces.Vector;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers;
@@ -201,6 +201,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     ISnappingHandler IDocument.SnappingHandler => SnappingViewModel;
     public IReadOnlyCollection<Guid> SelectedMembers => GetSelectedMembers().AsReadOnly();
     public DocumentTransformViewModel TransformViewModel { get; }
+    public PathOverlayViewModel PathOverlayViewModel { get; }
     public ReferenceLayerViewModel ReferenceLayerViewModel { get; }
     public LineToolOverlayViewModel LineToolOverlayViewModel { get; }
     public AnimationDataViewModel AnimationDataViewModel { get; }
@@ -210,6 +211,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     INodeGraphHandler IDocument.NodeGraphHandler => NodeGraph;
     IDocumentOperations IDocument.Operations => Operations;
     ITransformHandler IDocument.TransformHandler => TransformViewModel;
+    IPathOverlayHandler IDocument.PathOverlayHandler => PathOverlayViewModel;
     ILineOverlayHandler IDocument.LineToolOverlayHandler => LineToolOverlayViewModel;
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
     IAnimationHandler IDocument.AnimationHandler => AnimationDataViewModel;
@@ -232,7 +234,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         TransformViewModel = new(this);
         TransformViewModel.TransformMoved += (_, args) => Internals.ChangeController.TransformMovedInlet(args);
-
+        
+        PathOverlayViewModel = new(this, Internals);
+        PathOverlayViewModel.PathChanged += path =>
+        {
+            Internals.ChangeController.PathOverlayChangedInlet(path);
+        };
+        
         LineToolOverlayViewModel = new();
         LineToolOverlayViewModel.LineMoved += (_, args) =>
             Internals.ChangeController.LineOverlayMovedInlet(args.Item1, args.Item2);

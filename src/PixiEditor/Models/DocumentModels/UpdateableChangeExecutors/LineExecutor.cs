@@ -72,7 +72,6 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
                 return ExecutionState.Success;
             }
 
-
             if (!InitShapeData(data))
             {
                 ActiveMode = ShapeToolMode.Preview;
@@ -207,5 +206,10 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         base.ForceStop();
         var endDrawAction = EndDraw();
         internals!.ActionAccumulator.AddFinishedActions(endDrawAction);
+    }
+
+    protected override void StopTransformMode()
+    {
+        document!.LineToolOverlayHandler.Hide();
     }
 }

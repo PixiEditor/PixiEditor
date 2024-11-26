@@ -182,6 +182,7 @@
                     <MultiBinding.Bindings>
                         <Binding ElementName="vpUc" Path="Document.TransformViewModel.ShowTransformControls" />
                         <Binding ElementName="vpUc" Path="Document.LineToolOverlayViewModel.ShowApplyButton" />
+                        <Binding ElementName="vpUc" Path="Document.PathOverlayViewModel.ShowApplyButton" />
                     </MultiBinding.Bindings>
                 </MultiBinding>
             </Button.IsVisible>

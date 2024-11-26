@@ -9,7 +9,7 @@ using Drawie.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
-internal class RasterEllipseToolExecutor : ComplexShapeToolExecutor<IRasterEllipseToolHandler>
+internal class RasterEllipseToolExecutor : DrawableShapeToolExecutor<IRasterEllipseToolHandler>
 {
     private void DrawEllipseOrCircle(VecI curPos, double rotationRad, bool firstDraw)
     {

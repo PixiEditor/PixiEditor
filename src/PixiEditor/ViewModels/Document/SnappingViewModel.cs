@@ -29,6 +29,11 @@ public class SnappingViewModel : PixiObservableObject, ISnappingHandler
         SnappingController.AddBounds(id, tightBounds);
     }
 
+    public void AddFromPoint(string id, Func<VecD> func)
+    {
+        SnappingController.AddXYAxis(id, func);
+    }
+
     public void Remove(string id)
     {
         SnappingController.RemoveAll(id);

@@ -1,4 +1,5 @@
-﻿using Drawie.Backend.Core.ColorsImpl;
+﻿using System.Text;
+using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
 
@@ -80,5 +81,18 @@ public class ByteExtractor
         Position += sizeof(double);
         
         return value;
+    }
+
+    public string GetString()
+    {
+        int length = GetInt();
+        StringBuilder builder = new StringBuilder();
+        
+        for (int i = 0; i < length; i++)
+        {
+            builder.Append((char)GetInt());
+        }
+        
+        return builder.ToString();
     }
 }

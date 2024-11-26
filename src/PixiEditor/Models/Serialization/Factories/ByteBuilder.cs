@@ -66,4 +66,13 @@ public class ByteBuilder
             AddVecD(point);
         }
     }
+
+    public void AddString(string str)
+    {
+        AddInt(str.Length);
+        foreach (var c in str)
+        {
+            AddInt(c);
+        }
+    }
 }

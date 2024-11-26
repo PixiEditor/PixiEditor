@@ -17,7 +17,7 @@
     <Button Command="{xaml:Command PixiEditor.Tools.SelectTool, UseProvided=true}"
             CommandParameter="{Binding}"
             Width="44" Height="34"
-            ui:Translator.TooltipKey="{Binding DisplayName}"
+            ui:Translator.TooltipLocalizedString="{Binding Tooltip}"
             Background="{DynamicResource ThemeBackgroundBrush1}">
         <Button.Template>
             <ControlTemplate>

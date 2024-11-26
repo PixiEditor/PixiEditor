@@ -67,55 +67,6 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
         {
             drawingSurface.Canvas.RestoreToCount(num);
         }
-
-        /*
-        RectD adjustedAABB = GeometryAABB.RoundOutwards();
-        adjustedAABB = adjustedAABB with { Size = adjustedAABB.Size + new VecD(1, 1) };
-        var imageSize = (VecI)adjustedAABB.Size;
-
-        using ChunkyImage img = new ChunkyImage(imageSize);
-
-        if (StrokeWidth == 1)
-        {
-            VecD adjustment = new VecD(0.5, 0.5);
-
-            img.EnqueueDrawBresenhamLine(
-                (VecI)(Start - adjustedAABB.TopLeft - adjustment),
-                (VecI)(End - adjustedAABB.TopLeft - adjustment), StrokeColor, BlendMode.SrcOver);
-        }
-        else
-        {
-            img.EnqueueDrawSkiaLine(
-                (VecI)Start.Round() - (VecI)adjustedAABB.TopLeft,
-                (VecI)End.Round() - (VecI)adjustedAABB.TopLeft, StrokeCap.Butt, StrokeWidth, StrokeColor, BlendMode.SrcOver);
-        }
-
-        img.CommitChanges();
-
-        VecI topLeft = (VecI)(adjustedAABB.TopLeft * resolution.Multiplier());
-
-        RectI region = new(VecI.Zero, imageSize);
-
-        int num = 0;
-
-        if (applyTransform)
-        {
-            num = drawingSurface.Canvas.Save();
-            Matrix3X3 final = TransformationMatrix with
-            {
-                TransX = TransformationMatrix.TransX * (float)resolution.Multiplier(),
-                TransY = TransformationMatrix.TransY * (float)resolution.Multiplier()
-            };
-            drawingSurface.Canvas.SetMatrix(final);
-        }
-
-        img.DrawMostUpToDateRegionOn(region, resolution, drawingSurface, topLeft, paint);
-
-        if (applyTransform)
-        {
-            drawingSurface.Canvas.RestoreToCount(num);
-        }
-    */
     }
 
     public override bool IsValid()

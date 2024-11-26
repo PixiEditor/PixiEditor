@@ -7,10 +7,11 @@ using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
-internal class VectorEllipseToolExecutor : ComplexShapeToolExecutor<IVectorEllipseToolHandler>
+internal class VectorEllipseToolExecutor : DrawableShapeToolExecutor<IVectorEllipseToolHandler>
 {
     public override ExecutorType Type => ExecutorType.ToolLinked;
     protected override DocumentTransformMode TransformMode => DocumentTransformMode.Scale_Rotate_Shear_NoPerspective;
@@ -20,7 +21,7 @@ internal class VectorEllipseToolExecutor : ComplexShapeToolExecutor<IVectorEllip
     
     private Matrix3X3 lastMatrix = Matrix3X3.Identity;
 
-    protected override bool InitShapeData(ShapeVectorData data)
+    protected override bool InitShapeData(IReadOnlyShapeVectorData data)
     {
         if (data is not EllipseVectorData ellipseData)
             return false;

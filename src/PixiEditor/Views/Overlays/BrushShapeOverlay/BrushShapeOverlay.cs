@@ -2,7 +2,7 @@
 using ChunkyImageLib.Operations;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
-using Drawie.Backend.Core.Surfaces.Vector;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.UI.Overlays;
 using Drawie.Numerics;
 using PixiEditor.Views.Rendering;

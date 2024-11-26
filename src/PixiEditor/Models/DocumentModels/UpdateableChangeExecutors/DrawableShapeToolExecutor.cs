@@ -9,12 +9,13 @@ using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
 #nullable enable
 
-internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor where T : IShapeToolHandler
+internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor where T : IShapeToolHandler
 {
     protected int StrokeWidth => toolbar.ToolSize;
 
@@ -67,25 +68,19 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
             return ExecutionState.Success;
         }
 
-        if (member is IVectorLayerHandler)
+        if (member is IVectorLayerHandler vectorLayerHandler)
         {
-            var node = (VectorLayerNode)internals.Tracker.Document.FindMember(member.Id);
-
-            if (node == null)
-            {
-                return ExecutionState.Error;
-            }
-
-            if (node.ShapeData == null || !InitShapeData(node.ShapeData))
+            var shapeData = vectorLayerHandler.GetShapeData(document.AnimationHandler.ActiveFrameTime);
+            if (shapeData == null || !InitShapeData(shapeData))
             {
                 ActiveMode = ShapeToolMode.Preview;
                 return ExecutionState.Success;
             }
 
-            toolbar.StrokeColor = node.ShapeData.StrokeColor.ToColor();
-            toolbar.FillColor = node.ShapeData.FillColor.ToColor();
-            toolbar.ToolSize = node.ShapeData.StrokeWidth;
-            toolbar.Fill = node.ShapeData.FillColor != Colors.Transparent;
+            toolbar.StrokeColor = shapeData.StrokeColor.ToColor();
+            toolbar.FillColor = shapeData.FillColor.ToColor();
+            toolbar.ToolSize = shapeData.StrokeWidth;
+            toolbar.Fill = shapeData.FillColor != Colors.Transparent;
             ActiveMode = ShapeToolMode.Transform;
         }
         else
@@ -99,7 +94,7 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
     protected abstract void DrawShape(VecI currentPos, double rotationRad, bool firstDraw);
     protected abstract IAction SettingsChangedAction();
     protected abstract IAction TransformMovedAction(ShapeData data, ShapeCorners corners);
-    protected virtual bool InitShapeData(ShapeVectorData data) { return true; }
+    protected virtual bool InitShapeData(IReadOnlyShapeVectorData data) { return true; }
     protected abstract IAction EndDrawAction();
     protected virtual DocumentTransformMode TransformMode => DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective;
 
@@ -300,5 +295,10 @@ internal abstract class ComplexShapeToolExecutor<T> : SimpleShapeToolExecutor wh
     {
         base.ForceStop();
         internals!.ActionAccumulator.AddFinishedActions(EndDrawAction());
+    }
+
+    protected override void StopTransformMode()
+    {
+        document!.TransformHandler.HideTransform();
     }
 }

@@ -10,6 +10,7 @@ using PixiEditor.ViewModels;
 using PixiEditor.Views.Overlays;
 using PixiEditor.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.Views.Overlays.LineToolOverlay;
+using PixiEditor.Views.Overlays.PathOverlay;
 using PixiEditor.Views.Overlays.Pointers;
 using PixiEditor.Views.Overlays.SelectionOverlay;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
@@ -29,6 +30,7 @@ internal class ViewportOverlays
     private ReferenceLayerOverlay referenceLayerOverlay;
     private SnappingOverlay snappingOverlay;
     private BrushShapeOverlay brushShapeOverlay;
+    private VectorPathOverlay vectorPathOverlay;
 
     public void Init(Viewport viewport)
     {
@@ -56,6 +58,9 @@ internal class ViewportOverlays
 
         brushShapeOverlay = new BrushShapeOverlay();
         BindMouseOverlayPointer();
+        
+        vectorPathOverlay = new VectorPathOverlay();
+        BindVectorPathOverlay();
 
         Viewport.ActiveOverlays.Add(gridLinesOverlay);
         Viewport.ActiveOverlays.Add(referenceLayerOverlay);
@@ -63,6 +68,7 @@ internal class ViewportOverlays
         Viewport.ActiveOverlays.Add(symmetryOverlay);
         Viewport.ActiveOverlays.Add(lineToolOverlay);
         Viewport.ActiveOverlays.Add(transformOverlay);
+        Viewport.ActiveOverlays.Add(vectorPathOverlay);
         Viewport.ActiveOverlays.Add(snappingOverlay);
         Viewport.ActiveOverlays.Add(brushShapeOverlay);
     }
@@ -333,6 +339,28 @@ internal class ViewportOverlays
         transformOverlay.Bind(TransformOverlay.ShowHandlesProperty, showHandlesBinding);
         transformOverlay.Bind(TransformOverlay.IsSizeBoxEnabledProperty, isSizeBoxEnabledBinding);
     }
+    
+    private void BindVectorPathOverlay()
+    {
+        Binding pathBinding = new()
+        {
+            Source = Viewport, Path = "Document.PathOverlayViewModel.Path", Mode = BindingMode.TwoWay
+        };
+        
+        Binding addToUndoCommandBinding = new()
+        {
+            Source = Viewport, Path = "Document.PathOverlayViewModel.AddToUndoCommand", Mode = BindingMode.OneWay
+        };
+        
+        Binding snappingBinding = new()
+        {
+            Source = Viewport, Path = "Document.SnappingViewModel.SnappingController", Mode = BindingMode.OneWay
+        };
+
+        vectorPathOverlay.Bind(VectorPathOverlay.PathProperty, pathBinding);
+        vectorPathOverlay.Bind(VectorPathOverlay.AddToUndoCommandProperty, addToUndoCommandBinding);
+        vectorPathOverlay.Bind(VectorPathOverlay.SnappingControllerProperty, snappingBinding);
+    }
 
     private void BindSnappingOverlay()
     {
@@ -344,25 +372,6 @@ internal class ViewportOverlays
         snappingOverlay.Bind(SnappingOverlay.SnappingControllerProperty, snappingControllerBinding);
     }
 
-/**  <brushShapeOverlay:BrushShapeOverlay
-               DataContext="{Binding ElementName=vpUc}"
-               RenderTransform="{Binding #scene.CanvasTransform}"
-               RenderTransformOrigin="0, 0"
-               Name="brushShapeOverlay"
-               Focusable="False" ZIndex="6"
-               IsHitTestVisible="False"
-               ZoomScale="{Binding #scene.Scale}"
-               Scene="{Binding #scene, Mode=OneTime}"
-               BrushSize="{Binding ToolsSubViewModel.ActiveBasicToolbar.ToolSize, Source={viewModels:MainVM}}"
-               BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={viewModels:MainVM}, FallbackValue={x:Static brushShapeOverlay:BrushShape.Hidden}}"
-               FlowDirection="LeftToRight">
-               <brushShapeOverlay:BrushShapeOverlay.IsVisible>
-                   <MultiBinding Converter="{converters:AllTrueConverter}">
-                       <Binding Path="!Document.TransformViewModel.TransformActive" />
-                       <Binding Path="IsOverCanvas" />
-                   </MultiBinding>
-               </brushShapeOverlay:BrushShapeOverlay.IsVisible>
-           </brushShapeOverlay:BrushShapeOverlay>*/
     private void BindMouseOverlayPointer()
     {
         Binding isTransformingBinding = new()

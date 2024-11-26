@@ -1,6 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Surfaces.Vector;
+using Drawie.Backend.Core.Vector;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 

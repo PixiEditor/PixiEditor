@@ -1,4 +1,4 @@
-﻿using Drawie.Backend.Core.Surfaces.Vector;
+﻿using Drawie.Backend.Core.Vector;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection;
 

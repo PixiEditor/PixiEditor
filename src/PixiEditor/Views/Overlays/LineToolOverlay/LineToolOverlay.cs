@@ -7,7 +7,6 @@ using PixiEditor.Models.Controllers.InputDevice;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
-using Drawie.Backend.Core.Surfaces.Vector;
 using PixiEditor.Extensions.UI.Overlays;
 using Drawie.Numerics;
 using PixiEditor.Views.Overlays.Drawables;
@@ -17,6 +16,7 @@ using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 using Point = Avalonia.Point;
 
 namespace PixiEditor.Views.Overlays.LineToolOverlay;
+
 internal class LineToolOverlay : Overlay
 {
     public static readonly StyledProperty<VecD> LineStartProperty =
@@ -46,8 +46,9 @@ internal class LineToolOverlay : Overlay
         set => SetValue(ActionCompletedProperty, value);
     }
 
-    public static readonly StyledProperty<SnappingController> SnappingControllerProperty = AvaloniaProperty.Register<LineToolOverlay, SnappingController>(
-        nameof(SnappingController));
+    public static readonly StyledProperty<SnappingController> SnappingControllerProperty =
+        AvaloniaProperty.Register<LineToolOverlay, SnappingController>(
+            nameof(SnappingController));
 
     public SnappingController SnappingController
     {
@@ -64,30 +65,34 @@ internal class LineToolOverlay : Overlay
         set => SetValue(ShowHandlesProperty, value);
     }
 
-    public static readonly StyledProperty<bool> IsSizeBoxEnabledProperty = AvaloniaProperty.Register<LineToolOverlay, bool>(
-        nameof(IsSizeBoxEnabled));
+    public static readonly StyledProperty<bool> IsSizeBoxEnabledProperty =
+        AvaloniaProperty.Register<LineToolOverlay, bool>(
+            nameof(IsSizeBoxEnabled));
 
     public bool IsSizeBoxEnabled
     {
         get => GetValue(IsSizeBoxEnabledProperty);
         set => SetValue(IsSizeBoxEnabledProperty, value);
     }
-    
+
     static LineToolOverlay()
     {
         LineStartProperty.Changed.Subscribe(RenderAffectingPropertyChanged);
         LineEndProperty.Changed.Subscribe(RenderAffectingPropertyChanged);
     }
-    
 
-    private Paint blackPaint = new Paint() { Color = Colors.Black, StrokeWidth = 1, Style = PaintStyle.Stroke, IsAntiAliased = true };
-    private Paint whiteDashPaint = new Paint() { Color = Colors.White, StrokeWidth = 1, Style = PaintStyle.Stroke, PathEffect = PathEffect.CreateDash(
-        [2, 2], 2), IsAntiAliased = true };
+
+    private DashedStroke dashedStroke = new DashedStroke();
+
+    private Paint blackPaint = new Paint()
+    {
+        Color = Colors.Black, StrokeWidth = 1, Style = PaintStyle.Stroke, IsAntiAliased = true
+    };
 
     private VecD mouseDownPos = VecD.Zero;
     private VecD lineStartOnMouseDown = VecD.Zero;
     private VecD lineEndOnMouseDown = VecD.Zero;
-    
+
     private VecD lastMousePos = VecD.Zero;
 
     private bool movedWhileMouseDown = false;
@@ -95,7 +100,7 @@ internal class LineToolOverlay : Overlay
     private RectangleHandle startHandle;
     private RectangleHandle endHandle;
     private TransformHandle moveHandle;
-    
+
     private bool isDraggingHandle = false;
     private InfoBox infoBox;
 
@@ -109,7 +114,7 @@ internal class LineToolOverlay : Overlay
         startHandle = new AnchorHandle(this);
         startHandle.StrokePaint = blackPaint;
         startHandle.OnDrag += StartHandleOnDrag;
-        startHandle.OnHover += handle => Refresh();
+        startHandle.OnHover += (handle, _) => Refresh();
         startHandle.OnRelease += OnHandleRelease;
         startHandle.Cursor = new Cursor(StandardCursorType.Arrow);
         AddHandle(startHandle);
@@ -118,7 +123,7 @@ internal class LineToolOverlay : Overlay
         endHandle.StrokePaint = blackPaint;
         endHandle.OnDrag += EndHandleOnDrag;
         endHandle.Cursor = new Cursor(StandardCursorType.Arrow);
-        endHandle.OnHover += handle => Refresh();
+        endHandle.OnHover += (handle, _) => Refresh();
         endHandle.OnRelease += OnHandleRelease;
         AddHandle(endHandle);
 
@@ -126,10 +131,10 @@ internal class LineToolOverlay : Overlay
         moveHandle.StrokePaint = blackPaint;
         moveHandle.OnDrag += MoveHandleOnDrag;
         endHandle.Cursor = new Cursor(StandardCursorType.Arrow);
-        moveHandle.OnHover += handle => Refresh();
+        moveHandle.OnHover += (handle, _)=> Refresh();
         moveHandle.OnRelease += OnHandleRelease;
         AddHandle(moveHandle);
-        
+
         infoBox = new InfoBox();
     }
 
@@ -139,7 +144,7 @@ internal class LineToolOverlay : Overlay
         lastMousePos = args.Point;
     }
 
-    private void OnHandleRelease(Handle obj)
+    private void OnHandleRelease(Handle obj, OverlayPointerArgs args)
     {
         if (SnappingController != null)
         {
@@ -147,25 +152,15 @@ internal class LineToolOverlay : Overlay
             SnappingController.HighlightedYAxis = null;
             Refresh();
         }
-        
+
         isDraggingHandle = false;
         IsSizeBoxEnabled = false;
     }
 
     protected override void ZoomChanged(double newZoom)
     {
-        blackPaint.StrokeWidth = (float)(1.0 / newZoom);
-        
-        whiteDashPaint.StrokeWidth = (float)(2.0 / newZoom);
-        whiteDashPaint?.PathEffect?.Dispose();
-        
-        float[] dashes = new float[] { whiteDashPaint.StrokeWidth * 4, whiteDashPaint.StrokeWidth * 3 }; 
-
-        dashes[0] = whiteDashPaint.StrokeWidth * 4;
-        dashes[1] = whiteDashPaint.StrokeWidth * 3;
-        
-        whiteDashPaint.PathEffect = PathEffect.CreateDash(dashes, 2);
-        
+        blackPaint.StrokeWidth = 1 / (float)newZoom;
+        dashedStroke.UpdateZoom((float)newZoom);
         infoBox.ZoomScale = newZoom;
     }
 
@@ -173,17 +168,16 @@ internal class LineToolOverlay : Overlay
     {
         VecD mappedStart = LineStart;
         VecD mappedEnd = LineEnd;
-        
+
         startHandle.Position = mappedStart;
-        endHandle.Position = mappedEnd; 
-        
+        endHandle.Position = mappedEnd;
+
         VecD center = (mappedStart + mappedEnd) / 2;
         VecD size = mappedEnd - mappedStart;
-        
+
         moveHandle.Position = TransformHelper.GetHandlePos(new ShapeCorners(center, size), ZoomScale, moveHandle.Size);
 
-        context.DrawLine(new VecD(mappedStart.X, mappedStart.Y), new VecD(mappedEnd.X, mappedEnd.Y), blackPaint);
-        context.DrawLine(new VecD(mappedStart.X, mappedStart.Y), new VecD(mappedEnd.X, mappedEnd.Y), whiteDashPaint);
+        dashedStroke.Draw(context, mappedStart, mappedEnd);
 
         if (ShowHandles)
         {
@@ -212,27 +206,27 @@ internal class LineToolOverlay : Overlay
         args.Pointer.Capture(this);
     }
 
-    private void StartHandleOnDrag(Handle source, VecD position)
+    private void StartHandleOnDrag(Handle source, OverlayPointerArgs args)
     {
-        VecD delta = position - mouseDownPos;
+        VecD delta = args.Point - mouseDownPos;
         LineStart = SnapAndHighlight(lineStartOnMouseDown + delta);
         movedWhileMouseDown = true;
-        
-        lastMousePos = position;
+
+        lastMousePos = args.Point;
         isDraggingHandle = true;
         IsSizeBoxEnabled = true;
     }
 
-    private void EndHandleOnDrag(Handle source, VecD position)
+    private void EndHandleOnDrag(Handle source, OverlayPointerArgs args)
     {
-        VecD delta = position - mouseDownPos;
+        VecD delta = args.Point - mouseDownPos;
         VecD final = SnapAndHighlight(lineEndOnMouseDown + delta);
-        
+
         LineEnd = final;
         movedWhileMouseDown = true;
-        
+
         isDraggingHandle = true;
-        lastMousePos = position;
+        lastMousePos = args.Point;
         IsSizeBoxEnabled = true;
     }
 
@@ -243,17 +237,17 @@ internal class LineToolOverlay : Overlay
         {
             double? x = SnappingController.SnapToHorizontal(position.X, out string snapAxisX);
             double? y = SnappingController.SnapToVertical(position.Y, out string snapAxisY);
-            
+
             if (x.HasValue)
             {
                 final = new VecD(x.Value, final.Y);
             }
-            
+
             if (y.HasValue)
             {
                 final = new VecD(final.X, y.Value);
             }
-            
+
             SnappingController.HighlightedXAxis = snapAxisX;
             SnappingController.HighlightedYAxis = snapAxisY;
         }
@@ -261,10 +255,10 @@ internal class LineToolOverlay : Overlay
         return final;
     }
 
-    private void MoveHandleOnDrag(Handle source, VecD position)
+    private void MoveHandleOnDrag(Handle source, OverlayPointerArgs args)
     {
-        var delta = position - mouseDownPos;
-        
+        var delta = args.Point - mouseDownPos;
+
         VecD mappedStart = lineStartOnMouseDown;
         VecD mappedEnd = lineEndOnMouseDown;
 
@@ -275,7 +269,7 @@ internal class LineToolOverlay : Overlay
             SnappingController.HighlightedXAxis = snapDeltaResult.Item1.Item1;
             SnappingController.HighlightedYAxis = snapDeltaResult.Item1.Item2;
         }
-        
+
         LineStart = lineStartOnMouseDown + delta + snapDeltaResult.Item2;
         LineEnd = lineEndOnMouseDown + delta + snapDeltaResult.Item2;
 
@@ -289,7 +283,6 @@ internal class LineToolOverlay : Overlay
 
         if (movedWhileMouseDown && ActionCompleted is not null && ActionCompleted.CanExecute(null))
             ActionCompleted.Execute(null);
-        
     }
 
     private ((string, string), VecD) TrySnapLine(VecD originalStart, VecD originalEnd, VecD delta)
@@ -298,21 +291,17 @@ internal class LineToolOverlay : Overlay
         {
             return ((string.Empty, string.Empty), delta);
         }
-        
-        VecD center = (originalStart + originalEnd) / 2f;
-        VecD[] pointsToTest = new VecD[]
-        {
-            center + delta,
-            originalStart + delta,
-            originalEnd + delta,
-        };
 
-        VecD snapDelta = SnappingController.GetSnapDeltaForPoints(pointsToTest, out string snapAxisX, out string snapAxisY);
+        VecD center = (originalStart + originalEnd) / 2f;
+        VecD[] pointsToTest = new VecD[] { center + delta, originalStart + delta, originalEnd + delta, };
+
+        VecD snapDelta =
+            SnappingController.GetSnapDeltaForPoints(pointsToTest, out string snapAxisX, out string snapAxisY);
 
         return ((snapAxisX, snapAxisY), snapDelta);
     }
-    
-    
+
+
     private static void RenderAffectingPropertyChanged(AvaloniaPropertyChangedEventArgs<VecD> e)
     {
         if (e.Sender is LineToolOverlay overlay)

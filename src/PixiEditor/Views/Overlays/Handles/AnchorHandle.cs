@@ -11,17 +11,25 @@ namespace PixiEditor.Views.Overlays.Handles;
 public class AnchorHandle : RectangleHandle
 {
     private Paint paint;
+    private Paint selectedPaint;
+    
+    public bool IsSelected { get; set; } = false;
+
     public AnchorHandle(Overlay owner) : base(owner)
     {
         Size = new VecD(GetResource<double>("AnchorHandleSize"));
         paint = GetPaint("HandleBrush");
+        selectedPaint = GetPaint("SelectedHandleBrush");
         StrokePaint = paint;
-        StrokePaint.Style = PaintStyle.Stroke;
     }
 
     public override void Draw(Canvas context)
     {
         paint.StrokeWidth = (float)(1.0 / ZoomScale);
+        selectedPaint.StrokeWidth = (float)(2.5 / ZoomScale);
+        
+        StrokePaint = IsSelected ? selectedPaint : paint;
+        StrokePaint.Style = PaintStyle.Stroke;
         base.Draw(context);
     }
 }

@@ -124,6 +124,12 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     {
         base.DeserializeAdditionalData(target, data);
         ShapeData = (ShapeVectorData)data["ShapeData"];
+
+        if (ShapeData == null)
+        {
+            return new None();
+        }
+        
         var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
             (RectI)ShapeData.TransformedAABB, ChunkyImage.FullChunkSize));
 

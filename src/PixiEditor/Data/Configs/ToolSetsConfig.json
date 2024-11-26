@@ -101,7 +101,8 @@
       "Move",
       "VectorLine",
       "VectorEllipse",
-      "VectorRectangle"
+      "VectorRectangle",
+      "VectorPath"
     ]
   }
 ]

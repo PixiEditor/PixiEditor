@@ -1,5 +1,5 @@
 ﻿using Drawie.Backend.Core.Numerics;
-using Drawie.Backend.Core.Surfaces.Vector;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection;

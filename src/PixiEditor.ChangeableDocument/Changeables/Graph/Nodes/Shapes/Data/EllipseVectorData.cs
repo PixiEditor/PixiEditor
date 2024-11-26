@@ -3,7 +3,6 @@ using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
-using Drawie.Backend.Core.Surfaces.Vector;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
@@ -61,43 +60,6 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
         {
             drawingSurface.Canvas.RestoreToCount(saved);
         }
-
-        // Do not remove below, it might be used (directly or as a reference) for pixelated rendering
-        /*var imageSize = (VecI)(Radius * 2);
-
-        using ChunkyImage img = new ChunkyImage((VecI)GeometryAABB.Size);
-
-        RectD rotated = new ShapeCorners(RectD.FromTwoPoints(VecD.Zero, imageSize)).AABBBounds;
-
-        VecI shift = new VecI((int)Math.Floor(-rotated.Left), (int)Math.Floor(-rotated.Top));
-        RectI drawRect = new(shift, imageSize);
-
-        img.EnqueueDrawEllipse(drawRect, StrokeColor, FillColor, StrokeWidth);
-        img.CommitChanges();
-
-        VecI topLeft = new VecI((int)Math.Round(Center.X - Radius.X), (int)Math.Round(Center.Y - Radius.Y)) - shift;
-        topLeft = (VecI)(topLeft * resolution.Multiplier());
-
-        RectI region = new(VecI.Zero, (VecI)GeometryAABB.Size);
-
-        int num = 0;
-        if (applyTransform)
-        {
-            num = drawingSurface.Canvas.Save();
-            Matrix3X3 final = TransformationMatrix with
-            {
-                TransX = TransformationMatrix.TransX * (float)resolution.Multiplier(),
-                TransY = TransformationMatrix.TransY * (float)resolution.Multiplier()
-            };
-            drawingSurface.Canvas.SetMatrix(final);
-        }
-
-        img.DrawMostUpToDateRegionOn(region, resolution, drawingSurface, topLeft, paint);
-
-        if (applyTransform)
-        {
-            drawingSurface.Canvas.RestoreToCount(num);
-        }*/
     }
     
     public override bool IsValid()

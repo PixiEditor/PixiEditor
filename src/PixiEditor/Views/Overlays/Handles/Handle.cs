@@ -6,7 +6,7 @@ using Avalonia.Media;
 using PixiEditor.Helpers;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
-using Drawie.Backend.Core.Surfaces.Vector;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.UI.Overlays;
 using Drawie.Numerics;
 using PixiEditor.Helpers.Extensions;
@@ -16,36 +16,39 @@ using Path = Avalonia.Controls.Shapes.Path;
 
 namespace PixiEditor.Views.Overlays.Handles;
 
-public delegate void HandleEvent(Handle source, VecD position);
+public delegate void HandleEvent(Handle source, OverlayPointerArgs args);
+
 public abstract class Handle : IHandle
 {
     public Paint? FillPaint { get; set; } = GetPaint("HandleBackgroundBrush");
-    public Paint? StrokePaint { get; set; } = GetPaint("HandleStrokeBrush", PaintStyle.Stroke);
+    public Paint? StrokePaint { get; set; } = GetPaint("HandleBrush", PaintStyle.Stroke);
     public double ZoomScale { get; set; } = 1.0;
     public IOverlay Owner { get; set; } = null!;
     public VecD Position { get; set; }
     public VecD Size { get; set; }
     public RectD HandleRect => new(Position, Size);
+    public bool HitTestVisible { get; set; } = true;
+    public bool IsHovered => isHovered;
 
     public event HandleEvent OnPress;
     public event HandleEvent OnDrag;
-    public event Action<Handle> OnRelease;
-    public event Action<Handle> OnHover;
-    public event Action<Handle> OnExit;
+    public event HandleEvent OnRelease;
+    public event HandleEvent OnHover;
+    public event HandleEvent OnExit;
+    public event HandleEvent OnTap;
     public Cursor? Cursor { get; set; }
 
     private bool isPressed;
     private bool isHovered;
+    private bool moved;
 
     public Handle(IOverlay owner)
     {
         Owner = owner;
         Position = VecD.Zero;
-        Size = Application.Current.TryGetResource("HandleSize", out object size) ? new VecD((double)size) : new VecD(16);
-
-        Owner.PointerPressedOverlay += OnPointerPressed;
-        Owner.PointerMovedOverlay += OnPointerMoved;
-        Owner.PointerReleasedOverlay += OnPointerReleased;
+        Size = Application.Current.TryGetResource("HandleSize", out object size)
+            ? new VecD((double)size)
+            : new VecD(16);
     }
 
     public abstract void Draw(Canvas target);
@@ -59,7 +62,7 @@ public abstract class Handle : IHandle
 
     public static T? GetResource<T>(string key)
     {
-       return ResourceLoader.GetResource<T>(key); 
+        return ResourceLoader.GetResource<T>(key);
     }
 
     public static VectorPath GetHandleGeometry(string handleName)
@@ -77,7 +80,22 @@ public abstract class Handle : IHandle
 
     protected static Paint? GetPaint(string key, PaintStyle style = PaintStyle.Fill)
     {
-       return ResourceLoader.GetPaint(key, style);
+        return ResourceLoader.GetPaint(key, style);
+    }
+
+    public void InvokePress(OverlayPointerArgs args)
+    {
+        OnPointerPressed(args);
+    }
+
+    public void InvokeMove(OverlayPointerArgs args)
+    {
+        OnPointerMoved(args);
+    }
+
+    public void InvokeRelease(OverlayPointerArgs args)
+    {
+        OnPointerReleased(args);
     }
 
     private void OnPointerPressed(OverlayPointerArgs args)
@@ -87,13 +105,19 @@ public abstract class Handle : IHandle
             return;
         }
 
+        if (args.Handled)
+        {
+            return;
+        }
+
         VecD handlePos = Position;
 
-        if (IsWithinHandle(handlePos, args.Point, ZoomScale))
+        if (IsWithinHandle(handlePos, args.Point, ZoomScale) && HitTestVisible)
         {
             args.Handled = true;
             OnPressed(args);
-            OnPress?.Invoke(this, args.Point);
+            moved = false;
+            OnPress?.Invoke(this, args);
             isPressed = true;
             args.Pointer.Capture(Owner);
         }
@@ -102,6 +126,11 @@ public abstract class Handle : IHandle
     protected virtual void OnPointerMoved(OverlayPointerArgs args)
     {
         VecD handlePos = Position;
+
+        if (args.Handled || !HitTestVisible)
+        {
+            return;
+        }
 
         bool isWithinHandle = IsWithinHandle(handlePos, args.Point, ZoomScale);
 
@@ -113,13 +142,13 @@ public abstract class Handle : IHandle
                 Owner.Cursor = Cursor;
             }
 
-            OnHover?.Invoke(this);
+            OnHover?.Invoke(this, args);
         }
         else if (isHovered && !isWithinHandle)
         {
             isHovered = false;
             Owner.Cursor = null;
-            OnExit?.Invoke(this);
+            OnExit?.Invoke(this, args);
         }
 
         if (!isPressed)
@@ -127,7 +156,9 @@ public abstract class Handle : IHandle
             return;
         }
 
-        OnDrag?.Invoke(this, args.Point);
+        OnDrag?.Invoke(this, args);
+        args.Handled = true;
+        moved = true;
     }
 
     private void OnPointerReleased(OverlayPointerArgs args)
@@ -137,11 +168,23 @@ public abstract class Handle : IHandle
             return;
         }
 
+        if (args.Handled || !HitTestVisible)
+        {
+            isPressed = false;
+            return;
+        }
+
         if (isPressed)
         {
             isPressed = false;
-            OnRelease?.Invoke(this);
+            if (!moved)
+            {
+                OnTap?.Invoke(this, args);
+            }
+
+            OnRelease?.Invoke(this, args);
             args.Pointer.Capture(null);
+            args.Handled = true;
         }
     }
 }
