@@ -119,11 +119,25 @@ public class VectorPathOverlay : Overlay
                 VecD controlPoint1 = (VecD)verb.points[1];
                 VecD controlPoint2 = (VecD)verb.points[2];
 
-                controlPointHandles[controlPoint].Position = controlPoint1;
-                controlPointHandles[controlPoint].Draw(context);
+                var controlPointHandle1 = controlPointHandles[controlPoint];
+                var controlPointHandle2 = controlPointHandles[controlPoint + 1];
 
-                controlPointHandles[controlPoint + 1].Position = controlPoint2;
-                controlPointHandles[controlPoint + 1].Draw(context);
+                controlPointHandle1.HitTestVisible = controlPoint1 != controlPointHandle1.ConnectedTo.Position;
+                controlPointHandle2.HitTestVisible = controlPoint2 != controlPointHandle2.ConnectedTo.Position;
+
+                controlPointHandle1.Position = controlPoint1;
+
+                if (controlPointHandle1.HitTestVisible)
+                {
+                    controlPointHandle1.Draw(context);
+                }
+
+                controlPointHandle2.Position = controlPoint2;
+
+                if (controlPointHandle2.HitTestVisible)
+                {
+                    controlPointHandle2.Draw(context);
+                }
 
                 controlPoint += 2;
             }
@@ -388,7 +402,7 @@ public class VectorPathOverlay : Overlay
     private VectorPath ConvertTouchingLineVerbsToCubic(AnchorHandle anchorHandle)
     {
         bool convertNextToCubic = false;
-        int i = 0;
+        int i = -1;
         VectorPath newPath = new VectorPath();
         int index = anchorHandles.IndexOf(anchorHandle);
 
@@ -401,7 +415,11 @@ public class VectorPathOverlay : Overlay
                     newPath.CubicTo(data.points[0], data.points[1], data.points[1]);
                     convertNextToCubic = true;
                 }
-                else if (i == 1 && index == 0 || (Path.IsClosed && i == Path.PointCount - 1 && index == 0))
+                else if(i + 1 == index)
+                {
+                    newPath.CubicTo(data.points[0], data.points[1], data.points[1]);
+                }
+                else if (i == 0 && index == 0 || (Path.IsClosed && i == Path.PointCount - 2 && index == 0))
                 {
                     newPath.CubicTo(data.points[0], data.points[1], data.points[1]);
                 }
@@ -417,6 +435,11 @@ public class VectorPathOverlay : Overlay
                         newPath.LineTo(data.points[1]);
                     }
                 }
+            }
+            else if (data.verb == PathVerb.Cubic && i == index)
+            {
+                newPath.CubicTo(data.points[1], data.points[2], data.points[3]);
+                convertNextToCubic = true;
             }
             else
             {

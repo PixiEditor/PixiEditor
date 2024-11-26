@@ -27,6 +27,7 @@ public abstract class Handle : IHandle
     public VecD Position { get; set; }
     public VecD Size { get; set; }
     public RectD HandleRect => new(Position, Size);
+    public bool HitTestVisible { get; set; } = true;
     public bool IsHovered => isHovered;
 
     public event HandleEvent OnPress;
@@ -111,7 +112,7 @@ public abstract class Handle : IHandle
 
         VecD handlePos = Position;
 
-        if (IsWithinHandle(handlePos, args.Point, ZoomScale))
+        if (IsWithinHandle(handlePos, args.Point, ZoomScale) && HitTestVisible)
         {
             args.Handled = true;
             OnPressed(args);
@@ -126,7 +127,7 @@ public abstract class Handle : IHandle
     {
         VecD handlePos = Position;
 
-        if (args.Handled)
+        if (args.Handled || !HitTestVisible)
         {
             return;
         }
@@ -167,7 +168,7 @@ public abstract class Handle : IHandle
             return;
         }
 
-        if (args.Handled)
+        if (args.Handled || !HitTestVisible)
         {
             isPressed = false;
             return;
