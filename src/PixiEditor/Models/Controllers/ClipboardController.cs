@@ -3,6 +3,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.Unicode;
 using System.Threading.Tasks;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
@@ -107,16 +109,16 @@ internal static class ClipboardController
 
         if (copyArea.Size != document.SizeBindable && copyArea.Pos != VecI.Zero && copyArea != RectI.Empty)
         {
-            data.SetVecI(ClipboardDataFormats.PositionFormat, copyArea.Pos);
+            data.SetVecD(ClipboardDataFormats.PositionFormat, copyArea.Pos);
         }
 
         string[] layerIds = document.GetSelectedMembers().Select(x => x.ToString()).ToArray();
         string layerIdsString = string.Join(";", layerIds);
 
-        byte[] layerIdsBytes = System.Text.Encoding.UTF8.GetBytes(layerIdsString);
+        byte[] layerIdsBytes = Encoding.UTF8.GetBytes(layerIdsString);
 
         data.Set(ClipboardDataFormats.LayerIdList, layerIdsBytes);
-        data.Set(ClipboardDataFormats.DocumentFormat, document.Id);
+        data.Set(ClipboardDataFormats.DocumentFormat, Encoding.UTF8.GetBytes(document.Id.ToString()));
 
         await Clipboard.SetDataObjectAsync(data);
     }
@@ -209,11 +211,11 @@ internal static class ClipboardController
         var dataObjects = data as IDataObject[] ?? data.ToArray();
         
         var dataObjectWithPos = dataObjects.FirstOrDefault(x => x.Contains(ClipboardDataFormats.PositionFormat));
-        VecI pos = VecI.Zero;
+        VecD pos = VecD.Zero;
 
         if (dataObjectWithPos != null)
         {
-            pos = dataObjectWithPos.GetVecI(ClipboardDataFormats.PositionFormat);
+            pos = dataObjectWithPos.GetVecD(ClipboardDataFormats.PositionFormat);
         }
         
         for (var i = 0; i < layerIds.Length; i++)
@@ -221,7 +223,7 @@ internal static class ClipboardController
             var layerId = layerIds[i];
 
             var layer = doc.StructureHelper.Find(layerId);
-            if (layer is not { TightBounds: not null } || layer.TightBounds.Value.Pos != pos)
+            if (layer is not { TightBounds: not null } || layer.TightBounds.Value.Pos.AlmostEquals(pos))
                 return false;
         }
         
@@ -311,7 +313,7 @@ internal static class ClipboardController
         if (data == null)
             return surfaces;
 
-        VecI pos = VecI.Zero;
+        VecD pos = VecD.Zero;
 
         foreach (var dataObject in data)
         {
@@ -319,18 +321,18 @@ internal static class ClipboardController
             {
                 surfaces.Add(new DataImage(singleImage,
                     dataObject.Contains(ClipboardDataFormats.PositionFormat)
-                        ? dataObject.GetVecI(ClipboardDataFormats.PositionFormat)
-                        : pos));
+                        ? (VecI)dataObject.GetVecD(ClipboardDataFormats.PositionFormat)
+                        : (VecI)pos));
                 continue;
             }
 
             if (dataObject.Contains(ClipboardDataFormats.PositionFormat))
             {
-                pos = dataObject.GetVecI(ClipboardDataFormats.PositionFormat);
+                pos = dataObject.GetVecD(ClipboardDataFormats.PositionFormat);
                 for (var i = 0; i < surfaces.Count; i++)
                 {
                     var surface = surfaces[i];
-                    surfaces[i] = surface with { Position = pos };
+                    surfaces[i] = surface with { Position = (VecI)pos };
                 }
             }
 
@@ -366,7 +368,7 @@ internal static class ClipboardController
 
                     string filename = Path.GetFullPath(path);
                     surfaces.Add(new DataImage(filename, imported,
-                        dataObject.GetVecI(ClipboardDataFormats.PositionFormat)));
+                        (VecI)dataObject.GetVecD(ClipboardDataFormats.PositionFormat)));
                 }
                 catch
                 {

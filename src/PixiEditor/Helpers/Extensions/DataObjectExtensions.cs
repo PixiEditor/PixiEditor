@@ -61,6 +61,20 @@ public static class DataObjectExtensions
 
         return VecI.FromBytes(bytes);
     }
+    
+    public static VecD GetVecD(this IDataObject data, string format)
+    {
+        if (!data.Contains(format))
+            return new VecD(-1, -1);
+
+        byte[] bytes = (byte[])data.Get(format);
+
+        if (bytes is { Length: < 16 })
+            return new VecD(-1, -1);
+
+        return VecD.FromBytes(bytes);
+    }
 
     public static void SetVecI(this DataObject data, string format, VecI value) => data.Set(format, value.ToByteArray());
+    public static void SetVecD(this DataObject data, string format, VecD value) => data.Set(format, value.ToByteArray());
 }
