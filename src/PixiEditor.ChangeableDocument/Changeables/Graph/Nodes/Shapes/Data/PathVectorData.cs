@@ -82,6 +82,12 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
 
     public override object Clone()
     {
-        return new PathVectorData(new VectorPath(Path));
+        return new PathVectorData(new VectorPath(Path))
+        {
+            StrokeColor = StrokeColor,
+            FillColor = FillColor,
+            StrokeWidth = StrokeWidth,
+            TransformationMatrix = TransformationMatrix
+        };
     }
 }

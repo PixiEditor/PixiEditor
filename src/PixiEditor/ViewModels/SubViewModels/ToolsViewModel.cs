@@ -135,11 +135,14 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         UpdateEnabledState();
     }
 
-    public void SetupToolsTooltipShortcuts(IServiceProvider services)
+    public void SetupToolsTooltipShortcuts()
     {
-        foreach (ToolViewModel tool in ActiveToolSet.Tools!)
+        foreach (IToolHandler tool in allTools)
         {
-            tool.Shortcut = Owner.ShortcutController.GetToolShortcut(tool.GetType());
+            if (tool is ToolViewModel toolVm)
+            {
+                toolVm.Shortcut = Owner.ShortcutController.GetToolShortcut(tool.GetType());
+            }
         }
     }
 

@@ -40,7 +40,8 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
             StartMode(activeMode);
         }
     }
-
+    protected virtual bool AlignToPixels { get; } = true;
+    
     protected Guid memberId;
     protected VecD startDrawingPos;
 
@@ -85,7 +86,15 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
 
     private void StartDrawingMode()
     {
-        startDrawingPos = SnapAndHighlight(controller.LastPrecisePosition);
+        var snapped = SnapAndHighlight(controller.LastPrecisePosition);
+        if (AlignToPixels)
+        {
+            startDrawingPos = (VecI)snapped;
+        }
+        else
+        {
+            startDrawingPos = snapped;
+        }
     }
 
     protected virtual void StopMode(ShapeToolMode mode)
@@ -180,7 +189,7 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
     {
         VecD snapped = document.SnappingHandler.SnappingController.GetSnapPoint(pos, out string snapX, out string snapY);
         HighlightSnapping(snapX, snapY);
-        return (VecI)snapped;
+        return snapped;
     }
 
     protected virtual void PrecisePositionChangePreviewMode(VecD pos)

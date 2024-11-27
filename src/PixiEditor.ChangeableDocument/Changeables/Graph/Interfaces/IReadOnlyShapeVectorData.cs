@@ -12,4 +12,5 @@ public interface IReadOnlyShapeVectorData
     public int StrokeWidth { get; }
     public RectD GeometryAABB { get; }
     public RectD TransformedAABB { get; }
+    public ShapeCorners TransformationCorners { get; }
 }

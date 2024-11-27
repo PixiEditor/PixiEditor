@@ -17,6 +17,7 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
 {
     private string defaultActionDisplay = "RECTANGLE_TOOL_ACTION_DISPLAY_DEFAULT";
     public override string ToolNameLocalizationKey => "RECTANGLE_TOOL";
+    public override bool IsErasable => false;
 
     public VectorRectangleToolViewModel()
     {
@@ -53,17 +54,17 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
     public override void OnSelected(bool restoring)
     {
         if (restoring) return;
-        
+
         var document = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
         var layer = document.SelectedStructureMember;
-        if (layer is IVectorLayerHandler vectorLayer && 
+        if (layer is IVectorLayerHandler vectorLayer &&
             vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) is IReadOnlyRectangleData)
         {
             ShapeCorners corners = vectorLayer.TransformationCorners;
             ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument.TransformViewModel.ShowTransform(
                 DocumentTransformMode.Scale_Rotate_Shear_NoPerspective, false, corners, false);
         }
-        
+
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorRectangleTool();
     }
 

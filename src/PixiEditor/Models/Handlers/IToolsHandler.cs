@@ -21,7 +21,7 @@ internal interface IToolsHandler : IHandler
     public bool EnableSharedToolbar { get; set; }
     public event EventHandler<SelectedToolEventArgs> SelectedToolChanged;
     public void SetupTools(IServiceProvider services, ToolSetsConfig toolSetConfig);
-    public void SetupToolsTooltipShortcuts(IServiceProvider services);
+    public void SetupToolsTooltipShortcuts();
     public void SetActiveTool<T>(bool transient) where T : IToolHandler;
     public void SetActiveTool(Type toolType, bool transient);
     public void ConvertedKeyDownInlet(FilteredKeyEventArgs args);

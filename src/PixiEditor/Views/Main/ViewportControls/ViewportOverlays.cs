@@ -60,6 +60,7 @@ internal class ViewportOverlays
         BindMouseOverlayPointer();
         
         vectorPathOverlay = new VectorPathOverlay();
+        vectorPathOverlay.IsVisible = false;
         BindVectorPathOverlay();
 
         Viewport.ActiveOverlays.Add(gridLinesOverlay);

@@ -11,18 +11,16 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
 internal class RasterEllipseToolExecutor : DrawableShapeToolExecutor<IRasterEllipseToolHandler>
 {
-    private void DrawEllipseOrCircle(VecI curPos, double rotationRad, bool firstDraw)
+    private void DrawEllipseOrCircle(VecD curPos, double rotationRad, bool firstDraw)
     {
         RectI rect;
         VecI startPos = (VecI)Snap(startDrawingPos, curPos).Floor();
         if (firstDraw)
-            rect = new RectI(curPos, VecI.Zero);
-        /*else if (toolViewModel!.DrawCircle)
-            rect = GetSquaredCoordinates(startPos, curPos);
-        else*/
-            rect = RectI.FromTwoPixels(startPos, curPos);
+            rect = new RectI((VecI)curPos, VecI.Zero);
+        else
+            rect = RectI.FromTwoPixels(startPos, (VecI)curPos);
 
-        lastRect = rect;
+        lastRect = (RectD)rect;
         lastRadians = rotationRad;
 
         internals!.ActionAccumulator.AddActions(new DrawRasterEllipse_Action(memberId, rect, rotationRad, StrokeColor, FillColor, StrokeWidth, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
@@ -30,10 +28,10 @@ internal class RasterEllipseToolExecutor : DrawableShapeToolExecutor<IRasterElli
 
     public override ExecutorType Type => ExecutorType.ToolLinked;
     protected override DocumentTransformMode TransformMode => DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective;
-    protected override void DrawShape(VecI currentPos, double rotationRad, bool firstDraw) => DrawEllipseOrCircle(currentPos, rotationRad, firstDraw);
+    protected override void DrawShape(VecD currentPos, double rotationRad, bool firstDraw) => DrawEllipseOrCircle(currentPos, rotationRad, firstDraw);
     protected override IAction SettingsChangedAction()
     {
-        return new DrawRasterEllipse_Action(memberId, lastRect, lastRadians, StrokeColor, FillColor, StrokeWidth, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+        return new DrawRasterEllipse_Action(memberId, (RectI)lastRect, lastRadians, StrokeColor, FillColor, StrokeWidth, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
     }
 
     protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners)
@@ -41,10 +39,10 @@ internal class RasterEllipseToolExecutor : DrawableShapeToolExecutor<IRasterElli
         RectI rect = (RectI)RectD.FromCenterAndSize(data.Center, data.Size);
         double radians = corners.RectRotation;
         
-        lastRect = rect;
+        lastRect = (RectD)rect;
         lastRadians = radians;
         
-        return new DrawRasterEllipse_Action(memberId, lastRect, lastRadians, StrokeColor,
+        return new DrawRasterEllipse_Action(memberId, (RectI)lastRect, lastRadians, StrokeColor,
             FillColor, StrokeWidth, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
     }
 

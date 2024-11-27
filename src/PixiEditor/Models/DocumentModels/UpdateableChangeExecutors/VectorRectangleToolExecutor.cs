@@ -21,28 +21,31 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
 
     private Matrix3X3 lastMatrix = Matrix3X3.Identity;
 
+    protected override bool AlignToPixels => false;
+
     protected override bool InitShapeData(IReadOnlyShapeVectorData data)
     {
         if (data is not RectangleVectorData rectData)
             return false;
-        
+
         firstCenter = rectData.Center;
         firstSize = rectData.Size;
         lastMatrix = rectData.TransformationMatrix;
-        
         return true;
     }
 
-    protected override void DrawShape(VecI curPos, double rotationRad, bool firstDraw)
+    protected override void DrawShape(VecD curPos, double rotationRad, bool firstDraw)
     {
-        RectI rect;
-        VecI startPos = (VecI)Snap(startDrawingPos, curPos).Floor();
+        RectD rect;
+        VecD startPos = Snap(startDrawingPos, curPos);
         if (firstDraw)
-            rect = new RectI(curPos, VecI.Zero);
-        /*else if (toolViewModel!.DrawSquare)
-            rect = GetSquaredCoordinates(startPos, curPos);
-        else*/
-            rect = RectI.FromTwoPixels(startPos, curPos);
+        {
+            rect = new RectD(curPos, VecD.Zero);
+        }
+        else
+        {
+            rect = RectD.FromTwoPoints(startPos, curPos);
+        }
 
         firstCenter = rect.Center;
         firstSize = rect.Size;
@@ -62,7 +65,9 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
         return new SetShapeGeometry_Action(memberId,
             new RectangleVectorData(firstCenter, firstSize)
             {
-                StrokeColor = StrokeColor, FillColor = FillColor, StrokeWidth = StrokeWidth,
+                StrokeColor = StrokeColor,
+                FillColor = FillColor,
+                StrokeWidth = StrokeWidth,
                 TransformationMatrix = lastMatrix
             });
     }
@@ -75,13 +80,29 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
             firstSize = data.Size;
         }
 
-        RectD firstRect = RectD.FromCenterAndSize(firstCenter, firstSize);
-        Matrix3X3 matrix = OperationHelper.CreateMatrixFromPoints(corners, firstSize);
-        matrix = matrix.Concat(Matrix3X3.CreateTranslation(-(float)firstRect.TopLeft.X, -(float)firstRect.TopLeft.Y));
+        Matrix3X3 matrix = Matrix3X3.Identity;
+        
+        if (!corners.IsRect)
+        {
+            RectD firstRect = RectD.FromCenterAndSize(firstCenter, firstSize);
+            matrix = OperationHelper.CreateMatrixFromPoints(corners, firstSize);
+            matrix = matrix.Concat(
+                Matrix3X3.CreateTranslation(-(float)firstRect.TopLeft.X, -(float)firstRect.TopLeft.Y));
+        }
+        else
+        {
+            firstCenter = data.Center;
+            firstSize = data.Size;
+            
+            if(corners.RectRotation != 0)
+                matrix = Matrix3X3.CreateRotation((float)corners.RectRotation, (float)firstCenter.X, (float)firstCenter.Y);
+        }
 
         RectangleVectorData newData = new RectangleVectorData(firstCenter, firstSize)
         {
-            StrokeColor = data.StrokeColor, FillColor = data.FillColor, StrokeWidth = data.StrokeWidth,
+            StrokeColor = data.StrokeColor,
+            FillColor = data.FillColor,
+            StrokeWidth = data.StrokeWidth,
             TransformationMatrix = matrix
         };
 

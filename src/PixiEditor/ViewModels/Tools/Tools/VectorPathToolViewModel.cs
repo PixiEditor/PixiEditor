@@ -18,10 +18,15 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
     public override LocalizedString Tooltip => new LocalizedString("PATH_TOOL_TOOLTIP", Shortcut);
 
-    public override string DefaultIcon => PixiPerfectIcons.VectorPen; 
+    public override string DefaultIcon => PixiPerfectIcons.VectorPen;
     public override bool StopsLinkedToolOnUse => false;
+    public override bool IsErasable => false;
 
     private bool isActivated;
+
+    private LocalizedString actionDisplayDefault;
+    private LocalizedString actionDisplayCtrl;
+    private LocalizedString actionDisplayAlt;
 
     public VectorPathToolViewModel()
     {
@@ -30,6 +35,10 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
         {
             fillSetting.Value = false;
         }
+        
+        actionDisplayDefault = new LocalizedString("PATH_TOOL_ACTION_DISPLAY");
+        actionDisplayCtrl = new LocalizedString("PATH_TOOL_ACTION_DISPLAY_CTRL");
+        actionDisplayAlt = new LocalizedString("PATH_TOOL_ACTION_DISPLAY_ALT");
     }
 
     public override void UseTool(VecD pos)
@@ -38,11 +47,27 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
             ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
 
         if (doc is null || isActivated) return;
-        
+
         if (!doc.PathOverlayViewModel.IsActive)
         {
             doc?.Tools.UseVectorPathTool();
             isActivated = true;
+        }
+    }
+
+    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    {
+        if (ctrlIsDown)
+        {
+            ActionDisplay = actionDisplayCtrl;
+        }
+        else if (altIsDown)
+        {
+            ActionDisplay = actionDisplayAlt;
+        }
+        else
+        {
+            ActionDisplay = actionDisplayDefault;
         }
     }
 

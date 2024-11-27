@@ -13,6 +13,8 @@ internal class VectorLineToolExecutor : LineExecutor<IVectorLineToolHandler>
     private VecD startPoint;
     private VecD endPoint;
 
+    protected override bool AlignToPixels => false;
+
     protected override bool InitShapeData(IReadOnlyLineData? data)
     {
         if (data is null)

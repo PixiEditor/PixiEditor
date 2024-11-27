@@ -12,7 +12,7 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
     public VecD Center { get; }
     public VecD Size { get; }
 
-    public override RectD GeometryAABB => RectD.FromCenterAndSize(Center, Size); 
+    public override RectD GeometryAABB => RectD.FromCenterAndSize(Center, Size);
 
     public override ShapeCorners TransformationCorners =>
         new ShapeCorners(Center, Size).WithMatrix(TransformationMatrix);
@@ -44,15 +44,25 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         }
 
         using Paint paint = new Paint() { IsAntiAliased = true };
-        
-        paint.Color = FillColor;
-        paint.Style = PaintStyle.Fill;
-        drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
 
-        paint.Color = StrokeColor;
-        paint.Style = PaintStyle.Stroke;
-        paint.StrokeWidth = StrokeWidth;
-        drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size - new VecD(StrokeWidth)), paint);
+        if (Size.ShortestAxis < StrokeWidth)
+        {
+            paint.Color = StrokeColor;
+            paint.Style = PaintStyle.Fill;
+            drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
+        }
+        else
+        {
+            paint.Color = FillColor;
+            paint.Style = PaintStyle.Fill;
+            drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
+
+            paint.Color = StrokeColor;
+            paint.Style = PaintStyle.Stroke;
+
+            paint.StrokeWidth = StrokeWidth;
+            drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size - new VecD(StrokeWidth)), paint);
+        }
 
         if (applyTransform)
         {

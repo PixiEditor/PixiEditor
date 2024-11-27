@@ -19,6 +19,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
     public FolderNode()
     {
         Content = CreateRenderInput(ContentInternalName, "CONTENT");
+        AllowHighDpiRendering = true;
     }
 
     public override Node CreateCopy() => new FolderNode { MemberName = MemberName };

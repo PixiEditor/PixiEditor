@@ -46,15 +46,24 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
         }
 
         using Paint shapePaint = new Paint() { IsAntiAliased = true };
-        
-        shapePaint.Color = FillColor;
-        shapePaint.Style = PaintStyle.Fill;
-        drawingSurface.Canvas.DrawOval(Center, Radius, shapePaint);
 
-        shapePaint.Color = StrokeColor;
-        shapePaint.Style = PaintStyle.Stroke;
-        shapePaint.StrokeWidth = StrokeWidth;
-        drawingSurface.Canvas.DrawOval(Center, Radius - new VecD(StrokeWidth / 2f), shapePaint);
+        if (Radius.ShortestAxis < StrokeWidth)
+        {
+            shapePaint.Color = StrokeColor;
+            shapePaint.Style = PaintStyle.Fill;
+            drawingSurface.Canvas.DrawOval(Center, Radius, shapePaint);
+        }
+        else
+        {
+            shapePaint.Color = FillColor;
+            shapePaint.Style = PaintStyle.Fill;
+            drawingSurface.Canvas.DrawOval(Center, Radius, shapePaint);
+
+            shapePaint.Color = StrokeColor;
+            shapePaint.Style = PaintStyle.Stroke;
+            shapePaint.StrokeWidth = StrokeWidth;
+            drawingSurface.Canvas.DrawOval(Center, Radius - new VecD(StrokeWidth / 2f), shapePaint);
+        }
 
         if (applyTransform)
         {

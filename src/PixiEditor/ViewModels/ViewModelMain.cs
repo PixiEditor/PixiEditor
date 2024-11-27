@@ -148,7 +148,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
         ShortcutController = new ShortcutController();
 
-        ToolsSubViewModel?.SetupToolsTooltipShortcuts(services);
+        ToolsSubViewModel?.SetupToolsTooltipShortcuts();
 
         SearchSubViewModel = services.GetService<SearchViewModel>();
         
