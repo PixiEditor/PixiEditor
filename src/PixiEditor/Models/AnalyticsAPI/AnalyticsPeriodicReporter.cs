@@ -92,6 +92,9 @@ public class AnalyticsPeriodicReporter
         {
             try
             {
+                if (_backlog.Any(x => x.ExpectingEndTimeReport))
+                    WaitForEndTimes();
+                
                 await SendBacklogAsync();
 
                 await Task.Delay(TimeSpan.FromSeconds(10));
@@ -101,6 +104,23 @@ public class AnalyticsPeriodicReporter
             {
                 await SendExceptionAsync(e);
             }
+        }
+    }
+
+    private void WaitForEndTimes()
+    {
+        var totalTimeout = DateTime.Now + TimeSpan.FromSeconds(10);
+
+        foreach (var backlog in _backlog)
+        {
+            var timeout = totalTimeout - DateTime.Now;
+
+            if (timeout < TimeSpan.Zero)
+            {
+                break;
+            }
+
+            backlog.WaitForEndTime(timeout);
         }
     }
 

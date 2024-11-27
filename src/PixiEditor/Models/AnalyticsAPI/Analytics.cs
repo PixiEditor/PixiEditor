@@ -40,13 +40,16 @@ public static class Analytics
     internal static AnalyticEvent? SendSwitchToTool(IToolHandler? newTool, IToolHandler? oldTool, ICommandExecutionSourceInfo? sourceInfo) =>
         SendEvent(AnalyticEventTypes.SwitchTool, ("NewTool", newTool?.ToolName), ("OldTool", oldTool?.ToolName), ("Source", sourceInfo));
 
-    internal static AnalyticEvent? SendCommand(string commandName, ICommandExecutionSourceInfo? source) =>
-        source is ShortcutSourceInfo { IsRepeat: true } ? null : SendEvent(AnalyticEventTypes.GeneralCommand, ("CommandName", commandName), ("Source", source));
+    internal static AnalyticEvent? SendCommand(string commandName, ICommandExecutionSourceInfo? source, bool expectingEndTime = false) =>
+        source is ShortcutSourceInfo { IsRepeat: true } ? null : SendEvent(AnalyticEventTypes.GeneralCommand, expectingEndTime, ("CommandName", commandName), ("Source", source));
 
     private static AnalyticEvent? SendEvent(string name, params (string, object)[] data) =>
         SendEvent(name, data.ToDictionary());
+    
+    private static AnalyticEvent? SendEvent(string name, bool expectingEndTime, params (string, object)[] data) =>
+        SendEvent(name, data.ToDictionary(), expectingEndTime);
 
-    private static AnalyticEvent? SendEvent(string name, Dictionary<string, object> data)
+    private static AnalyticEvent? SendEvent(string name, Dictionary<string, object> data, bool expectingEndTime = false)
     {
         var reporter = AnalyticsPeriodicReporter.Instance;
 
@@ -59,6 +62,7 @@ public static class Analytics
         {
             EventType = name,
             Time = DateTime.UtcNow,
+            ExpectingEndTimeReport = expectingEndTime,
             Data = data
         };
         
