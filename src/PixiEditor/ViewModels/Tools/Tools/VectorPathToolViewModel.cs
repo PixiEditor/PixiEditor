@@ -24,6 +24,10 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
 
     private bool isActivated;
 
+    private LocalizedString actionDisplayDefault;
+    private LocalizedString actionDisplayCtrl;
+    private LocalizedString actionDisplayAlt;
+
     public VectorPathToolViewModel()
     {
         var fillSetting = Toolbar.GetSetting(nameof(BasicShapeToolbar.Fill));
@@ -31,6 +35,10 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
         {
             fillSetting.Value = false;
         }
+        
+        actionDisplayDefault = new LocalizedString("PATH_TOOL_ACTION_DISPLAY");
+        actionDisplayCtrl = new LocalizedString("PATH_TOOL_ACTION_DISPLAY_CTRL");
+        actionDisplayAlt = new LocalizedString("PATH_TOOL_ACTION_DISPLAY_ALT");
     }
 
     public override void UseTool(VecD pos)
@@ -44,6 +52,22 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
         {
             doc?.Tools.UseVectorPathTool();
             isActivated = true;
+        }
+    }
+
+    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    {
+        if (ctrlIsDown)
+        {
+            ActionDisplay = actionDisplayCtrl;
+        }
+        else if (altIsDown)
+        {
+            ActionDisplay = actionDisplayAlt;
+        }
+        else
+        {
+            ActionDisplay = actionDisplayDefault;
         }
     }
 
