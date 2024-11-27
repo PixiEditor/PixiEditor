@@ -240,6 +240,9 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         if (currentToolSize != null)
         {
             tools.EnableSharedToolbar = false;
+            var eraserTool = tools.GetTool<EraserToolViewModel>();
+            if(eraserTool == null) return;
+            
             var toolSize = tools.GetTool<EraserToolViewModel>().Toolbar.Settings.First(x => x.Name == "ToolSize");
             previousEraseSize = (int)toolSize.Value;
             toolSize.Value = tools.ActiveTool is PenToolViewModel { PixelPerfectEnabled: true }

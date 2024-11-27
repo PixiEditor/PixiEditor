@@ -18,6 +18,8 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
     private string defaultActionDisplay = "ELLIPSE_TOOL_ACTION_DISPLAY_DEFAULT";
     public override string ToolNameLocalizationKey => "ELLIPSE_TOOL";
 
+    public override bool IsErasable => false;
+
     public VectorEllipseToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;

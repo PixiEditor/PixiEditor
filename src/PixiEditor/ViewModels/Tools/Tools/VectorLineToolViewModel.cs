@@ -21,6 +21,8 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
 {
     private string defaultActionDisplay = "LINE_TOOL_ACTION_DISPLAY_DEFAULT";
 
+    public override bool IsErasable => false;
+    
     public VectorLineToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;

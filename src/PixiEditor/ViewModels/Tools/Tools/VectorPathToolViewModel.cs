@@ -18,8 +18,9 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
     public override LocalizedString Tooltip => new LocalizedString("PATH_TOOL_TOOLTIP", Shortcut);
 
-    public override string DefaultIcon => PixiPerfectIcons.VectorPen; 
+    public override string DefaultIcon => PixiPerfectIcons.VectorPen;
     public override bool StopsLinkedToolOnUse => false;
+    public override bool IsErasable => false;
 
     private bool isActivated;
 
@@ -38,7 +39,7 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
             ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
 
         if (doc is null || isActivated) return;
-        
+
         if (!doc.PathOverlayViewModel.IsActive)
         {
             doc?.Tools.UseVectorPathTool();
