@@ -27,6 +27,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
     private IVectorPathToolHandler vectorPathToolHandler;
     private IBasicShapeToolbar toolbar;
     private IColorsHandler colorHandler;
+    private bool isValidPathLayer;
 
     public override ExecutorType Type => ExecutorType.ToolLinked;
 
@@ -55,6 +56,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         {
             var shapeData = vectorLayerHandler.GetShapeData(document.AnimationHandler.ActiveFrameTime);
             bool wasNull = false;
+            isValidPathLayer = true;
             if (shapeData is PathVectorData pathData)
             {
                 startingPath = new VectorPath(pathData.Path);
@@ -67,7 +69,8 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
             }
             else
             {
-                return ExecutionState.Error;
+                isValidPathLayer = false;
+                return ExecutionState.Success;
             }
 
             document.PathOverlayHandler.Show(startingPath, false);
@@ -130,7 +133,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
 
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
-        if (startingPath.IsClosed)
+        if (!isValidPathLayer || startingPath.IsClosed) 
         {
             if (NeedsNewLayer(document.SelectedStructureMember, document.AnimationHandler.ActiveFrameTime))
             {
