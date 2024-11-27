@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.Models.Commands.CommandContext;
 using PixiEditor.Models.Files;

@@ -9,6 +9,7 @@ public class AnalyticsPeriodicReporter
     
     private readonly SemaphoreSlim _semaphore = new(1, 1);
     private readonly AnalyticsClient _client;
+    private readonly PeriodicPerformanceReporter _performanceReporter;
     
     private readonly List<AnalyticEvent> _backlog = new();
     private readonly CancellationTokenSource _cancellationToken = new();
@@ -27,6 +28,7 @@ public class AnalyticsPeriodicReporter
         Instance = this;
         
         _client = client;
+        _performanceReporter = new PeriodicPerformanceReporter(this);
     }
 
     public void Start(Guid? sessionId)
@@ -40,6 +42,7 @@ public class AnalyticsPeriodicReporter
         }
 
         Task.Run(RunAsync);
+        _performanceReporter.StartPeriodicReporting();
     }
 
     public async Task StopAsync()
