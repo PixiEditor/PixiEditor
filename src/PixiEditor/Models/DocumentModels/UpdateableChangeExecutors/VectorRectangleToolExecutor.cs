@@ -80,9 +80,23 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
             firstSize = data.Size;
         }
 
-        RectD firstRect = RectD.FromCenterAndSize(firstCenter, firstSize);
-        Matrix3X3 matrix = OperationHelper.CreateMatrixFromPoints(corners, firstSize);
-        matrix = matrix.Concat(Matrix3X3.CreateTranslation(-(float)firstRect.TopLeft.X, -(float)firstRect.TopLeft.Y));
+        Matrix3X3 matrix = Matrix3X3.Identity;
+        
+        if (!corners.IsRect)
+        {
+            RectD firstRect = RectD.FromCenterAndSize(firstCenter, firstSize);
+            matrix = OperationHelper.CreateMatrixFromPoints(corners, firstSize);
+            matrix = matrix.Concat(
+                Matrix3X3.CreateTranslation(-(float)firstRect.TopLeft.X, -(float)firstRect.TopLeft.Y));
+        }
+        else
+        {
+            firstCenter = data.Center;
+            firstSize = data.Size;
+            
+            if(corners.RectRotation != 0)
+                matrix = Matrix3X3.CreateRotation((float)corners.RectRotation, (float)firstCenter.X, (float)firstCenter.Y);
+        }
 
         RectangleVectorData newData = new RectangleVectorData(firstCenter, firstSize)
         {

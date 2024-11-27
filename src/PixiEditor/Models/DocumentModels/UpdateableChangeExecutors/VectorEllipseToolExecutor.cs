@@ -73,8 +73,22 @@ internal class VectorEllipseToolExecutor : DrawableShapeToolExecutor<IVectorElli
     {
         RectD rect = RectD.FromCenterAndSize(data.Center, data.Size);
         RectD firstRect = RectD.FromCenterAndSize(firstCenter, firstRadius * 2);
-        Matrix3X3 matrix = OperationHelper.CreateMatrixFromPoints(corners, firstRadius * 2);
-        matrix = matrix.Concat(Matrix3X3.CreateTranslation(-(float)firstRect.TopLeft.X, -(float)firstRect.TopLeft.Y));
+
+        Matrix3X3 matrix = Matrix3X3.Identity;
+        if (corners.IsRect)
+        {
+            firstCenter = corners.RectCenter;
+            firstRadius = corners.RectSize / 2f;
+            
+            if(corners.RectRotation != 0)
+                matrix = Matrix3X3.CreateRotation((float)corners.RectRotation, (float)firstCenter.X, (float)firstCenter.Y);
+        }
+        else
+        {
+            matrix = OperationHelper.CreateMatrixFromPoints(corners, firstRadius * 2);
+            matrix = matrix.Concat(
+                Matrix3X3.CreateTranslation(-(float)firstRect.TopLeft.X, -(float)firstRect.TopLeft.Y));
+        }
 
         EllipseVectorData ellipseData = new EllipseVectorData(firstCenter, firstRadius)
         {
