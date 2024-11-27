@@ -1,17 +1,16 @@
-﻿using Drawie.Numerics;
-using PixiEditor.ChangeableDocument;
-using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
+﻿using Avalonia.Input;
+using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.UI.Common.Fonts;
-using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.ViewModels.Tools.Tools;
 
+[Command.Tool(Key = Key.P)]
 internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
 {
     public override string ToolNameLocalizationKey => "PATH_TOOL";

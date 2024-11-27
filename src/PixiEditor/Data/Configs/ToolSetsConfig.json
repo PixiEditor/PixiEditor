@@ -99,10 +99,10 @@
       "MoveViewport",
       "RotateViewport",
       "Move",
+      "VectorPath",
       "VectorLine",
       "VectorEllipse",
-      "VectorRectangle",
-      "VectorPath"
+      "VectorRectangle"
     ]
   }
 ]
