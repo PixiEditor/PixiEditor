@@ -26,7 +26,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
     protected bool drawOnMask;
 
     protected T? toolViewModel;
-    protected RectI lastRect;
+    protected RectD lastRect;
     protected double lastRadians;
     
     private ShapeCorners initialCorners;
@@ -61,6 +61,8 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
                 toolbar.FillColor = colorsVM.PrimaryColor.ToColor();
                 toolbar.StrokeColor = colorsVM.PrimaryColor.ToColor();
             }
+            
+            lastRect = new RectD(startDrawingPos, VecD.Zero);
 
             document!.TransformHandler.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect.Inflate(1)),
                 false);
@@ -94,7 +96,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
         return ExecutionState.Success;
     }
 
-    protected abstract void DrawShape(VecI currentPos, double rotationRad, bool firstDraw);
+    protected abstract void DrawShape(VecD currentPos, double rotationRad, bool firstDraw);
     protected abstract IAction SettingsChangedAction();
     protected abstract IAction TransformMovedAction(ShapeData data, ShapeCorners corners);
     protected virtual bool InitShapeData(IReadOnlyShapeVectorData data) { return true; }
@@ -111,6 +113,17 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
         if ((pos1 - curPos).LengthSquared > (pos2 - curPos).LengthSquared)
             return (VecI)pos2;
         return (VecI)pos1;
+    }
+
+    public static VecD GetSquaredPosition(VecD startPos, VecD curPos)
+    {
+        VecD pos1 = curPos.ProjectOntoLine(startPos, startPos + new VecD(1, 1)) -
+                    new VecD(0.25).Multiply((curPos - (VecI)startPos).Signs());
+        VecD pos2 = curPos.ProjectOntoLine(startPos, startPos + new VecD(1, -1)) -
+                    new VecD(0.25).Multiply((curPos - (VecI)startPos).Signs());
+        if ((pos1 - curPos).LengthSquared > (pos2 - curPos).LengthSquared)
+            return pos2;
+        return pos1;
     }
 
     public static RectI GetSquaredCoordinates(VecI startPos, VecI curPos)
@@ -178,12 +191,12 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
     protected override void PrecisePositionChangeDrawingMode(VecD pos)
     {
-        VecI adjustedPos = (VecI)pos.Floor();
+        VecD adjustedPos = AlignToPixels ? (VecI)pos.Floor() : pos;
 
         VecD snapped = adjustedPos;
         if (toolViewModel.DrawEven)
         {
-            adjustedPos = GetSquaredPosition((VecI)startDrawingPos, adjustedPos);
+            adjustedPos = AlignToPixels ? GetSquaredPosition((VecI)startDrawingPos, (VecI)adjustedPos) : GetSquaredPosition(startDrawingPos, adjustedPos);
             VecD dir = (adjustedPos - startDrawingPos).Normalize();
             snapped = Snap(adjustedPos, startDrawingPos, dir, true);
         }
@@ -194,7 +207,14 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
         noMovement = false;
 
-        DrawShape((VecI)snapped.Floor(), lastRadians, false);
+        if (AlignToPixels)
+        {
+            DrawShape((VecI)snapped.Floor(), lastRadians, false);
+        }
+        else
+        {
+            DrawShape(snapped, lastRadians, false);
+        }
 
         document!.TransformHandler.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect), false);
         document!.TransformHandler.Corners = new ShapeCorners((RectD)lastRect);
@@ -211,16 +231,19 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
             HighlightSnapAxis(snapXAxis, snapYAxis);
         }
 
-        if (snapped != VecI.Zero)
+        if (AlignToPixels)
         {
-            if (adjustPos.X < pos.X)
+            if (snapped != VecI.Zero)
             {
-                snapped -= new VecI(1, 0);
-            }
+                if (adjustPos.X < pos.X)
+                {
+                    snapped -= new VecI(1, 0);
+                }
 
-            if (adjustPos.Y < pos.Y)
-            {
-                snapped -= new VecI(0, 1);
+                if (adjustPos.Y < pos.Y)
+                {
+                    snapped -= new VecI(0, 1);
+                }
             }
         }
 

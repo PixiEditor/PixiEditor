@@ -12,44 +12,49 @@ internal class RasterRectangleToolExecutor : DrawableShapeToolExecutor<IRasterRe
 {
     private ShapeData lastData;
     public override ExecutorType Type => ExecutorType.ToolLinked;
-    private void DrawRectangle(VecI curPos, double rotationRad, bool firstDraw)
+
+    private void DrawRectangle(VecD curPos, double rotationRad, bool firstDraw)
     {
         RectI rect;
         VecI startPos = (VecI)Snap(startDrawingPos, curPos).Floor();
         if (firstDraw)
-            rect = new RectI(curPos, VecI.Zero);
-        /*else if (toolViewModel!.DrawSquare)
-            rect = GetSquaredCoordinates(startPos, curPos);
-        else*/
-            rect = RectI.FromTwoPixels(startPos, curPos);
-        lastRect = rect;
-        lastRadians = rotationRad;
+            rect = new RectI((VecI)curPos, VecI.Zero);
+        else
+            rect = RectI.FromTwoPixels(startPos, (VecI)curPos);
         
+        lastRect = (RectD)rect;
+        lastRadians = rotationRad;
+
         lastData = new ShapeData(rect.Center, rect.Size, rotationRad, StrokeWidth, StrokeColor, FillColor)
         {
             AntiAliasing = toolbar.AntiAliasing
         };
 
-        internals!.ActionAccumulator.AddActions(new DrawRasterRectangle_Action(memberId, lastData, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
+        internals!.ActionAccumulator.AddActions(new DrawRasterRectangle_Action(memberId, lastData, drawOnMask,
+            document!.AnimationHandler.ActiveFrameBindable));
     }
 
-    protected override void DrawShape(VecI currentPos, double rotationRad, bool first) => DrawRectangle(currentPos, rotationRad, first);
+    protected override void DrawShape(VecD currentPos, double rotationRad, bool first) =>
+        DrawRectangle(currentPos, rotationRad, first);
+
     protected override IAction SettingsChangedAction()
     {
         lastData = new ShapeData(lastData.Center, lastData.Size, lastRadians, StrokeWidth, StrokeColor, FillColor)
         {
             AntiAliasing = toolbar.AntiAliasing
         };
-        return new DrawRasterRectangle_Action(memberId, lastData, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);   
+        return new DrawRasterRectangle_Action(memberId, lastData, drawOnMask,
+            document!.AnimationHandler.ActiveFrameBindable);
     }
 
     protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners)
     {
         lastData = data;
-        
+
         lastRadians = corners.RectRotation;
-        
-        return new DrawRasterRectangle_Action(memberId, data, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+
+        return new DrawRasterRectangle_Action(memberId, data, drawOnMask,
+            document!.AnimationHandler.ActiveFrameBindable);
     }
 
     protected override IAction EndDrawAction() => new EndDrawRasterRectangle_Action();
