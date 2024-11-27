@@ -19,6 +19,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
 
     protected Color StrokeColor => toolbar!.StrokeColor.ToColor();
     protected int StrokeWidth => toolViewModel!.ToolSize;
+    
     protected bool drawOnMask;
 
     protected VecD curPos;
