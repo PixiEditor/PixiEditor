@@ -29,7 +29,6 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
         firstCenter = rectData.Center;
         firstSize = rectData.Size;
         lastMatrix = rectData.TransformationMatrix;
-        
         return true;
     }
 

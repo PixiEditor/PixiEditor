@@ -28,7 +28,8 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
     protected T? toolViewModel;
     protected RectI lastRect;
     protected double lastRadians;
-
+    
+    private ShapeCorners initialCorners;
     private bool noMovement = true;
     protected IBasicShapeToolbar toolbar;
     private IColorsHandler? colorsVM;
@@ -81,6 +82,8 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
             toolbar.FillColor = shapeData.FillColor.ToColor();
             toolbar.ToolSize = shapeData.StrokeWidth;
             toolbar.Fill = shapeData.FillColor != Colors.Transparent;
+            initialCorners = shapeData.TransformationCorners;
+            
             ActiveMode = ShapeToolMode.Transform;
         }
         else
@@ -281,13 +284,22 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
         base.OnLeftMouseButtonUp(argsPositionOnCanvas);
     }
 
+    protected override void StopMode(ShapeToolMode mode)
+    {
+        base.StopMode(mode);
+        if (mode == ShapeToolMode.Drawing)
+        {
+            initialCorners = new ShapeCorners((RectD)lastRect);
+        }
+    }
+
     protected override void StartMode(ShapeToolMode mode)
     {
         base.StartMode(mode);
         if (mode == ShapeToolMode.Transform)
         {
             document.TransformHandler.HideTransform();
-            document!.TransformHandler.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect), true);
+            document!.TransformHandler.ShowTransform(TransformMode, false, initialCorners, true);
         }
     }
 
