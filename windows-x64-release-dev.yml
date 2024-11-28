@@ -30,9 +30,54 @@ steps:
     packageType: 'sdk'
     version: '8.x'
 
+- task: CmdLine@2
+  displayName: 'Download WASI SDK'
+  inputs:
+    script: |
+      curl -L -o $(wasiVer).tar.gz $(wasiUrl)
+
+- task: CmdLine@2
+  displayName: 'Unpack WASI SDK'
+  inputs:
+    script: |
+      tar -xzf $(wasiVer).tar.gz
+      echo "Contents of directory after extraction:"
+      dir $(wasiVer)
+
+- task: PowerShell@2
+  displayName: 'Set Environment Path for WASI SDK'
+  inputs:
+    targetType: 'inline'
+    script: |
+      $env:WASI_SDK_PATH = "$(Get-Location)\$(wasiVer)"
+      Write-Host "##vso[task.setvariable variable=WASI_SDK_PATH]$env:WASI_SDK_PATH"
+
+- task: PowerShell@2
+  displayName: 'Verify Environment Path'
+  inputs:
+    targetType: 'inline'
+    script: |
+      Write-Host "Environment path set to: $env:WASI_SDK_PATH"
+
+
 - task: NuGetToolInstaller@1
 
+- task: DotNetCoreCLI@2
+  displayName: Install wasi-wasm
+  inputs:
+    command: 'custom'
+    custom: 'workload'
+    arguments: 'install wasi-experimental'
+
+- task: DotNetCoreCLI@2
+  displayName: Install wasm-tools
+  inputs:
+    command: 'custom'
+    custom: 'workload'
+    arguments: 'install wasm-tools'
+
 - task: NuGetCommand@2
+  displayName: 'Restore solution'
   inputs:
     restoreSolution: '$(solution)'
 
