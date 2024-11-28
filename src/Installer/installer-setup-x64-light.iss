@@ -4,8 +4,8 @@
 // requires netcorecheck.exe and netcorecheck_x64.exe (see download link below)
 #define UseNetCoreCheck
 #ifdef UseNetCoreCheck
-  ;#define UseDotNet70
-  #define UseDotNet70Desktop
+  ;#define UseDotNet80
+  #define UseDotNet80Desktop
 #endif
 
 // custom setup info
@@ -401,24 +401,24 @@ var
   Version: String;
 begin
 
-#ifdef UseDotNet70
-  // https://dotnet.microsoft.com/download/dotnet/7.0
-  if not IsNetCoreInstalled('Microsoft.NETCore.App 7.0.0') then begin
-    AddDependency('dotnet70' + GetArchitectureSuffix + '.exe',
+#ifdef UseDotNet80
+  // https://dotnet.microsoft.com/download/dotnet/8.0
+  if not IsNetCoreInstalled('Microsoft.NETCore.App 8.0.0') then begin
+    AddDependency('dotnet80' + GetArchitectureSuffix + '.exe',
       '/lcid ' + IntToStr(GetUILanguage) + ' /passive /norestart',
-      '.NET Runtime 7.0' + GetArchitectureTitle,
-      GetString('https://download.visualstudio.microsoft.com/download/pr/75c0d7c7-9f30-46fd-9675-a301f0e051f4/ec04d5cc40aa6537a4af21fad6bf8ba9/dotnet-runtime-7.0.0-win-x86.exe', 'https://download.visualstudio.microsoft.com/download/pr/87bc5966-97cc-498c-8381-bff4c43aafc6/baca88b989e7d2871e989d33a667d8e9/dotnet-runtime-7.0.0-win-x64.exe'),
+      '.NET Runtime 8.0' + GetArchitectureTitle,
+      GetString('https://download.visualstudio.microsoft.com/download/pr/53e9e41c-b362-4598-9985-45f989518016/53c5e1919ba2fe23273f2abaff65595b/dotnet-runtime-8.0.11-win-x64.exe', 'https://download.visualstudio.microsoft.com/download/pr/53e9e41c-b362-4598-9985-45f989518016/53c5e1919ba2fe23273f2abaff65595b/dotnet-runtime-8.0.11-win-x64.exe'),
       '', False, False, False);
   end;
 #endif
 
-#ifdef UseDotNet70Desktop
-  // https://dotnet.microsoft.com/download/dotnet/7.0
-  if not IsNetCoreInstalled('Microsoft.WindowsDesktop.App 7.0.0') then begin
+#ifdef UseDotNet80Desktop
+  // https://dotnet.microsoft.com/download/dotnet/8.0
+  if not IsNetCoreInstalled('Microsoft.WindowsDesktop.App 8.0.0') then begin
     AddDependency('dotnet70desktop' + GetArchitectureSuffix + '.exe',
       '/lcid ' + IntToStr(GetUILanguage) + ' /passive /norestart',
-      '.NET Desktop Runtime 7.0' + GetArchitectureTitle,
-      GetString('https://download.visualstudio.microsoft.com/download/pr/d05a833c-2cf9-4d06-89ae-a0f3e10c5c91/c668ff42e23c2f67aa3d80227860585f/windowsdesktop-runtime-7.0.0-win-x86.exe', 'https://download.visualstudio.microsoft.com/download/pr/5b2fbe00-507e-450e-8b52-43ab052aadf2/79d54c3a19ce3fce314f2367cf4e3b21/windowsdesktop-runtime-7.0.0-win-x64.exe'),
+      '.NET Desktop Runtime 8.0' + GetArchitectureTitle,
+      GetString('https://download.visualstudio.microsoft.com/download/pr/27bcdd70-ce64-4049-ba24-2b14f9267729/d4a435e55182ce5424a7204c2cf2b3ea/windowsdesktop-runtime-8.0.11-win-x64.exe', 'https://download.visualstudio.microsoft.com/download/pr/27bcdd70-ce64-4049-ba24-2b14f9267729/d4a435e55182ce5424a7204c2cf2b3ea/windowsdesktop-runtime-8.0.11-win-x64.exe'),
       '', False, False, False);
   end;
 #endif
