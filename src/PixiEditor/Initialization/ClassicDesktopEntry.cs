@@ -96,7 +96,7 @@ internal class ClassicDesktopEntry
         //TODO: fetch from extension store
         extensionLoader.AddOfficialExtension("pixieditor.supporterpack",
             new OfficialExtensionData("supporter-pack.snk", AdditionalContentProduct.SupporterPack));
-        extensionLoader.AddOfficialExtension("pixieditor.closedbeta1", new OfficialExtensionData());
+        extensionLoader.AddOfficialExtension("pixieditor.beta", new OfficialExtensionData());
         extensionLoader.LoadExtensions();
 
         return extensionLoader;

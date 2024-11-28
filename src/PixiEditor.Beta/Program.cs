@@ -1,4 +1,4 @@
-﻿namespace PixiEditor.ClosedBeta;
+﻿namespace PixiEditor.Beta;
 
 public static class Program
 {

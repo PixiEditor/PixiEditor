@@ -1,7 +1,7 @@
 {
-  "displayName": "PixiEditor Closed Beta 1",
-  "uniqueName": "PixiEditor.ClosedBeta1",
-  "description": "First Closed Beta of PixiEditor 2.0",
+  "displayName": "PixiEditor Beta",
+  "uniqueName": "PixiEditor.Beta",
+  "description": "Open Beta of PixiEditor 2.0",
   "version": "1.0.0",
   "author": {
     "name": "PixiEditor",

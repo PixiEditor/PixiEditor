@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <RuntimeIdentifier>wasi-wasm</RuntimeIdentifier>
         <OutputType>Exe</OutputType>
         <PublishTrimmed>true</PublishTrimmed>
         <WasmSingleFileBundle>true</WasmSingleFileBundle>
         <GenerateExtensionPackage>true</GenerateExtensionPackage>
-        <PixiExtOutputPath>..\..\src\PixiEditor.AvaloniaUI.Desktop\bin\Debug\net9.0\win-x64\Extensions</PixiExtOutputPath>
+        <PixiExtOutputPath>..\..\src\PixiEditor.AvaloniaUI.Desktop\bin\Debug\net8.0\win-x64\Extensions</PixiExtOutputPath>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
         <RootNamespace>FlyUISample</RootNamespace>
