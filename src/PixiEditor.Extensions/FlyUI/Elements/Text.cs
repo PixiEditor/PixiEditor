@@ -70,7 +70,7 @@ public class Text : StatelessElement, IPropertyDeserializable
         return textBlock;
     }
 
-    IEnumerable<object> IPropertyDeserializable.GetProperties()
+    public virtual IEnumerable<object> GetProperties()
     {
         yield return Value;
         yield return TextWrap;
@@ -78,7 +78,7 @@ public class Text : StatelessElement, IPropertyDeserializable
         yield return FontSize;
     }
 
-    void IPropertyDeserializable.DeserializeProperties(ImmutableList<object> values)
+    public virtual void DeserializeProperties(ImmutableList<object> values)
     {
         Value = (string)values.ElementAtOrDefault(0);
         TextWrap = (TextWrap)values.ElementAtOrDefault(1);

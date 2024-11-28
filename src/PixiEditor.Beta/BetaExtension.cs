@@ -6,9 +6,9 @@ public class BetaExtension : PixiEditorExtension
 {
     public override void OnInitialized()
     {
-        if (Api.Preferences.GetPreference<bool>("BetaWelcomeShown"))
+        //if (Api.Preferences.GetPreference<bool>("BetaWelcomeShown"))
         {
-            return;
+         //   return;
         }
 
         WelcomeMessage welcomeMessage = new();

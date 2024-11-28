@@ -29,7 +29,7 @@
                     </Ellipse.Fill>
                 </Ellipse>
                 <Label  Margin="10 0 0 0" FontSize="14">
-                    <TextBlock ui1:Hyperlink.Url="https://github.com/flabbet" >
+                    <TextBlock ui:Hyperlink.Url="https://github.com/flabbet" >
                         <Run Text="Krzysztof Krysiński (flabbet)"/>
                         <Run Text="{DynamicResource icon-link}" Classes="pixi-icon"/>
                     </TextBlock>
@@ -42,7 +42,7 @@
                     </Ellipse.Fill>
                 </Ellipse>
                 <Label Margin="10 0 0 0" FontSize="14">
-                    <TextBlock ui1:Hyperlink.Url="https://github.com/equbuxu" >
+                    <TextBlock ui:Hyperlink.Url="https://github.com/equbuxu" >
                         <Run Text="Egor Mozgovoy (Equbuxu)"/>
                         <Run Text="{DynamicResource icon-link}" Classes="pixi-icon"/>
                     </TextBlock>
@@ -55,7 +55,7 @@
                     </Ellipse.Fill>
                 </Ellipse>
                 <Label Margin="10 0 0 0" FontSize="14">
-                    <TextBlock ui1:Hyperlink.Url="https://github.com/CPKreuz" >
+                    <TextBlock ui:Hyperlink.Url="https://github.com/CPKreuz" >
                         <Run Text="Philip Kreuz (cpk)"/>
                         <Run Text="{DynamicResource icon-link}" Classes="pixi-icon"/>
                     </TextBlock>
@@ -63,7 +63,7 @@
             </StackPanel>
 
             <Label Margin="20 10 0 0" FontSize="14">
-                <TextBlock ui1:Hyperlink.Url="https://github.com/PixiEditor/PixiEditor/graphs/contributors">
+                <TextBlock ui:Hyperlink.Url="https://github.com/PixiEditor/PixiEditor/graphs/contributors">
                     <Run ui:Translator.Key="OTHER_AWESOME_CONTRIBUTORS" />
                     <Run Text="{DynamicResource icon-link}" Classes="pixi-icon"/>
                 </TextBlock>
@@ -72,21 +72,21 @@
             <Separator Margin="0 10 0 0"/>
 
             <Label Margin="20 10 0 0" FontSize="14">
-                <TextBlock ui1:Hyperlink.Url="LICENSE">
+                <TextBlock ui:Hyperlink.Url="LICENSE">
                     <Run ui:Translator.Key="LICENSE"/>
                     <Run Text="{DynamicResource icon-link}" Classes="pixi-icon"/>
                 </TextBlock>
             </Label>
 
             <Label Margin="20 10 0 0" FontSize="14">
-                <TextBlock ui1:Hyperlink.Url="Third Party Licenses">
+                <TextBlock ui:Hyperlink.Url="Third Party Licenses">
                     <Run ui:Translator.Key="THIRD_PARTY_LICENSES"/>
                     <Run Text="{DynamicResource icon-link}" Classes="pixi-icon"/>
                 </TextBlock>
             </Label>
 
             <Label Margin="20 10 0 0" FontSize="14">
-                <TextBlock ui1:Hyperlink.Url="https://pixieditor.net/docs/introduction">
+                <TextBlock ui:Hyperlink.Url="https://pixieditor.net/docs/introduction">
                     <Run ui:Translator.Key="DOCUMENTATION" />
                     <Run Text="{DynamicResource icon-link}" Classes="pixi-icon"/>
                 </TextBlock>

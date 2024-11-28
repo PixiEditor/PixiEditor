@@ -24,5 +24,6 @@
       <ProjectReference Include="..\Drawie\src\Drawie.Backend.Core\Drawie.Backend.Core.csproj" />
       <ProjectReference Include="..\Drawie\src\Drawie.Numerics\Drawie.Numerics.csproj" />
       <ProjectReference Include="..\PixiEditor.Extensions.CommonApi\PixiEditor.Extensions.CommonApi.csproj" />
+      <ProjectReference Include="..\PixiEditor.OperatingSystem\PixiEditor.OperatingSystem.csproj" />
     </ItemGroup>
 </Project>

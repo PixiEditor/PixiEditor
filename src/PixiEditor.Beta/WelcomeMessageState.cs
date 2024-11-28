@@ -5,15 +5,17 @@ namespace PixiEditor.Beta;
 
 public class WelcomeMessageState : State
 {
-    private const string Body = @"
-We are extremely exicted to share this version to you, early testers. Before you jump in and test all the new things,
-we have a few things to note:
+    private const string Body1 = @"
+We are extremely excited to share this version with you, early testers. Before you jump in and test all the new things, we have a few things to note:
 
 - This is a very early version of PixiEditor 2.0. Not every feature promised in the roadmap is
   implemented yet. 
+
 - App is not production ready! Expect bugs, crashes, unfinished features, placeholders and other signs of development.
-- Your feedback is the most important thing of this beta, please take a moment to report any issues and suggestions on PixiEditor Forum.
-(forum.pixieditor.net)
+";
+    
+private const string Body2 = "- Your feedback is the most important thing of this beta, please take a moment to report any issues and suggestions on PixiEditor Forum.";
+private const string Body3 = @"
 - We are collecting anonymous usage data to fix bugs, crashes and performance issues. This data will help us to improve the app. During the beta 
 there is no option to opt-out. No personal data is collected.
 
@@ -35,7 +37,10 @@ I understand that:
                     new Center(new Text("Welcome to the open beta of PixiEditor 2.0!", TextWrap.Wrap,
                         FontStyle.Normal,
                         fontSize: 24)),
-                    new Text(Body, TextWrap.Wrap, fontSize: 16),
+                    new Text(Body1, TextWrap.Wrap, fontSize: 16),
+                    new Hyperlink("https://forum.pixieditor.net", Body2,
+                        fontSize: 16, textWrap: TextWrap.Wrap),
+                    new Text(Body3, TextWrap.Wrap, fontSize: 16),
                     new CheckBox(
                         new Text("The app may be unstable, crash or freeze", fontSize: 16,
                             fontStyle: FontStyle.Italic),
