@@ -141,7 +141,7 @@ steps:
   displayName: "Compile installer"
   inputs:
     targetType: 'inline'
-    script: '& "$env:userprofile\.nuget\packages\tools.innosetup\6.2.1\tools\ISCC.exe" src\Installer\installer-setup-$(architecture)-light.iss'
+    script: '& "$env:userprofile\.nuget\packages\tools.innosetup\6.3.1\tools\ISCC.exe" src\Installer\installer-setup-$(architecture)-light.iss'
 
 - task: PublishPipelineArtifact@1
   displayName: "Publish artifact"
