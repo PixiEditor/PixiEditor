@@ -14,4 +14,5 @@ public class ExtensionMetadata
     public string? License { get; init; }
     public string[]? Categories { get; init; }
     public LocalizationData? Localization { get; init; }
+    public ExtensionPermissions Permissions { get; init; }
 }

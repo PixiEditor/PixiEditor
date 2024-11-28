@@ -1,19 +1,20 @@
-﻿using System.Diagnostics;
-using System.IO;
-using System.Net.Http;
-using System.Text;
-using System.Windows;
-using System.Windows.Threading;
+﻿using System.ComponentModel;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Threading;
+using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
-using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels;
 
-internal class CrashReportViewModel : ViewModelBase
+internal partial class CrashReportViewModel : Window
 {
     private bool hasRecoveredDocuments = true;
 
@@ -23,13 +24,9 @@ internal class CrashReportViewModel : ViewModelBase
 
     public int DocumentCount { get; }
 
-    public RelayCommand OpenSendCrashReportCommand { get; }
-
-    public RelayCommand RecoverDocumentsCommand { get; }
-
-    public RelayCommand AttachDebuggerCommand { get; }
-
     public bool IsDebugBuild { get; set; }
+
+    public RelayCommand OpenSendCrashReportCommand { get; }
 
     public CrashReportViewModel(CrashReport report)
     {
@@ -38,40 +35,52 @@ internal class CrashReportViewModel : ViewModelBase
         CrashReport = report;
         ReportText = report.ReportText;
         DocumentCount = report.GetDocumentCount();
-        OpenSendCrashReportCommand = new((_) => new SendCrashReportWindow(CrashReport).Show());
-        RecoverDocumentsCommand = new(RecoverDocuments, (_) => hasRecoveredDocuments);
-        AttachDebuggerCommand = new(AttachDebugger);
+        OpenSendCrashReportCommand = new RelayCommand(() => new SendCrashReportDialog(CrashReport).Show());
 
         if (!IsDebugBuild)
             _ = CrashHelper.SendReportTextToWebhookAsync(report);
     }
 
-    public void RecoverDocuments(object args)
+    [RelayCommand(CanExecute = nameof(CanRecoverDocuments))]
+    public async Task RecoverDocuments()
     {
+        if (!hasRecoveredDocuments)
+        {
+            return;
+        }
+
         MainWindow window = MainWindow.CreateWithRecoveredDocuments(CrashReport, out var showMissingFilesDialog);
 
-        Application.Current.MainWindow = window;
-        window.Show();
-        hasRecoveredDocuments = false;
-
-        if (showMissingFilesDialog)
+        window.Loaded += (sender, args) =>
         {
-            var dialog = new OptionsDialog<LocalizedString>(
-                "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE",
-                new LocalizedString("CRASH_NOT_ALL_DOCUMENTS_RECOVERED"))
+            if (showMissingFilesDialog)
             {
+                var dialog = new OptionsDialog<LocalizedString>(
+                    "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE",
+                    new LocalizedString("CRASH_NOT_ALL_DOCUMENTS_RECOVERED"),
+                    MainWindow.Current!)
                 {
-                    "SEND", _ =>
                     {
-                        var sendReportDialog = new SendCrashReportWindow(CrashReport);
-                        sendReportDialog.ShowDialog();
-                    }
-                },
-                "CLOSE"
-            };
+                        "SEND", _ =>
+                        {
+                            var sendReportDialog = new SendCrashReportDialog(CrashReport);
+                            sendReportDialog.ShowDialog(window);
+                        }
+                    },
+                    "CLOSE"
+                };
 
-            dialog.ShowDialog(true);
-        }
+                _ = dialog.ShowDialog(true);
+            }
+        };
+
+        hasRecoveredDocuments = false;
+        Application.Current.Run(window);
+    }
+
+    public bool CanRecoverDocuments()
+    {
+        return hasRecoveredDocuments;
     }
 
     [Conditional("DEBUG")]
@@ -80,11 +89,12 @@ internal class CrashReportViewModel : ViewModelBase
         IsDebugBuild = true;
     }
 
-    private void AttachDebugger(object args)
+    [RelayCommand]
+    private void AttachDebugger()
     {
         if (!Debugger.Launch())
         {
-            MessageBox.Show("Starting debugger failed", "Starting debugger failed", MessageBoxButton.OK, MessageBoxImage.Error);
+            /*TODO: MessageBox.Show("Starting debugger failed", "Starting debugger failed", MessageBoxButton.OK, MessageBoxImage.Error);*/
         }
     }
 }

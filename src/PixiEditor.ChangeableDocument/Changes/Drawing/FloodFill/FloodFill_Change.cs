@@ -1,6 +1,7 @@
-﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+﻿using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 
@@ -12,15 +13,19 @@ internal class FloodFill_Change : Change
     private readonly bool referenceAll;
     private readonly bool drawOnMask;
     private CommittedChunkStorage? chunkStorage = null;
+    private int frame;
+    private float tolerance;
 
     [GenerateMakeChangeAction]
-    public FloodFill_Change(Guid memberGuid, VecI pos, Color color, bool referenceAll, bool drawOnMask)
+    public FloodFill_Change(Guid memberGuid, VecI pos, Color color, bool referenceAll, float tolerance, bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.pos = pos;
         this.color = color;
         this.referenceAll = referenceAll;
         this.drawOnMask = drawOnMask;
+        this.frame = frame;
+        this.tolerance = tolerance;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -33,15 +38,15 @@ internal class FloodFill_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
 
         VectorPath? selection = target.Selection.SelectionPath.IsEmpty ? null : target.Selection.SelectionPath;
         HashSet<Guid> membersToReference = new();
         if (referenceAll)
-            target.ForEveryReadonlyMember(member => membersToReference.Add(member.GuidValue));
+            target.ForEveryReadonlyMember(member => membersToReference.Add(member.Id));
         else
             membersToReference.Add(memberGuid);
-        var floodFilledChunks = FloodFillHelper.FloodFill(membersToReference, target, selection, pos, color);
+        var floodFilledChunks = FloodFillHelper.FloodFill(membersToReference, target, selection, pos, color, tolerance, frame);
         if (floodFilledChunks.Count == 0)
         {
             ignoreInUndo = true;
@@ -64,7 +69,7 @@ internal class FloodFill_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var affArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref chunkStorage);
+        var affArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, frame, ref chunkStorage);
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask);
     }
 

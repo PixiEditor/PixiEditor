@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <AvaloniaResource Include="Assets\*"/>
+      <AvaloniaResource Include="Fonts\pixiperfect.ttf" />
+      <None Remove="Assets\Animations\LoadingIndicator.json" />
+      <AvaloniaResource Include="Assets\Animations\LoadingIndicator.json" />
+      <AvaloniaResource Include="Fonts\PixiPerfect.ttf" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+      <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
+      <PackageReference Include="Avalonia.Xaml.Behaviors" Version="11.0.5" />
+    </ItemGroup>
+</Project>

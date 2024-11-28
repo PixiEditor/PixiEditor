@@ -1,8 +1,11 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 
@@ -11,8 +14,9 @@ internal class FloodFillChunkCache : IDisposable
     private Paint ReplacingPaint { get; } = new Paint() { BlendMode = BlendMode.Src };
 
     private readonly HashSet<Guid>? membersToRender;
-    private readonly IReadOnlyFolder? structureRoot;
+    private readonly IReadOnlyDocument? document;
     private readonly IReadOnlyChunkyImage? image;
+    private readonly int frame;
 
     private readonly Dictionary<VecI, OneOf<Chunk, EmptyChunk>> acquiredChunks = new();
 
@@ -21,10 +25,11 @@ internal class FloodFillChunkCache : IDisposable
         this.image = image;
     }
 
-    public FloodFillChunkCache(HashSet<Guid> membersToRender, IReadOnlyFolder structureRoot)
+    public FloodFillChunkCache(HashSet<Guid> membersToRender, IReadOnlyDocument document, int frame)
     {
         this.membersToRender = membersToRender;
-        this.structureRoot = structureRoot;
+        this.document = document;
+        this.frame = frame;
     }
 
     public bool ChunkExistsInStorage(VecI pos)
@@ -37,15 +42,25 @@ internal class FloodFillChunkCache : IDisposable
     public OneOf<Chunk, EmptyChunk> GetChunk(VecI pos)
     {
         // the chunk was already acquired before, return cached
-        if (acquiredChunks.ContainsKey(pos))
-            return acquiredChunks[pos];
+        if (acquiredChunks.TryGetValue(pos, out var foundChunk))
+            return foundChunk;
 
         // need to get the chunk by merging multiple members
         if (image is null)
         {
-            if (structureRoot is null || membersToRender is null)
+            if (document is null || membersToRender is null)
                 throw new InvalidOperationException();
-            var chunk = ChunkRenderer.MergeChosenMembers(pos, ChunkResolution.Full, structureRoot, membersToRender);
+            Chunk chunk = Chunk.Create();
+            chunk.Surface.DrawingSurface.Canvas.Save();
+            
+            VecI chunkPos = pos * ChunkyImage.FullChunkSize;
+            
+            chunk.Surface.DrawingSurface.Canvas.Translate(-chunkPos.X, -chunkPos.Y);
+            
+            document.Renderer.RenderLayers(chunk.Surface.DrawingSurface, membersToRender, frame, ChunkResolution.Full);
+            
+            chunk.Surface.DrawingSurface.Canvas.Restore();
+            
             acquiredChunks[pos] = chunk;
             return chunk;
         }

@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Xml;
 using PixiEditor.Exceptions;
+using PixiEditor.Extensions.Exceptions;
 
-namespace PixiEditor.Models.Commands.Templates.Parsers;
+namespace PixiEditor.Models.Commands.Templates.Providers.Parsers;
 
 /// <summary>
 ///     Aseprite uses XML (under .aseprite-keys file) to store keybindings.

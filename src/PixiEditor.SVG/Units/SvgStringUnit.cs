@@ -1,0 +1,15 @@
+﻿namespace PixiEditor.SVG.Units;
+
+public struct SvgStringUnit : ISvgUnit
+{
+    public SvgStringUnit(string value)
+    {
+        Value = value;
+    }
+
+    public string Value { get; set; }
+    public string ToXml()
+    {
+        return Value;
+    }
+}

@@ -1,7 +1,9 @@
 ﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace ChunkyImageLib;
 
@@ -20,7 +22,18 @@ public class Chunk : IDisposable
     /// <summary>
     /// The surface of the chunk
     /// </summary>
-    public Surface Surface { get; }
+    public Surface Surface
+    {
+        get
+        {
+            if (returned)
+            {
+                throw new ObjectDisposedException("Chunk has been disposed");
+            }
+            
+            return internalSurface;
+        }
+    }
 
     /// <summary>
     /// The size of the chunk
@@ -31,13 +44,17 @@ public class Chunk : IDisposable
     /// The resolution of the chunk
     /// </summary>
     public ChunkResolution Resolution { get; }
+    
+    public bool Disposed => returned;
+
+    private Surface internalSurface;
     private Chunk(ChunkResolution resolution)
     {
         int size = resolution.PixelSize();
 
         Resolution = resolution;
         PixelSize = new(size, size);
-        Surface = new Surface(PixelSize);
+        internalSurface = new Surface(PixelSize);
     }
 
     /// <summary>
@@ -56,7 +73,7 @@ public class Chunk : IDisposable
     /// </summary>
     /// <param name="pos">The destination for the <paramref name="surface"/></param>
     /// <param name="paint">The paint to use while drawing</param>
-    public void DrawOnSurface(DrawingSurface surface, VecI pos, Paint? paint = null)
+    public void DrawChunkOn(DrawingSurface surface, VecI pos, Paint? paint = null)
     {
         surface.Canvas.DrawSurface(Surface.DrawingSurface, pos.X, pos.Y, paint);
     }
@@ -98,9 +115,9 @@ public class Chunk : IDisposable
     {
         if (returned)
             return;
-        returned = true;
         Interlocked.Decrement(ref chunkCounter);
-        Surface.DrawingSurface.Canvas.RestoreToCount(-1);
+        Surface.DrawingSurface.Canvas.Clear();
         ChunkPool.Instance.Push(this);
+        returned = true;
     }
 }

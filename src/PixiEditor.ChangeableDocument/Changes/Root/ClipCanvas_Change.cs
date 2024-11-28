@@ -1,25 +1,31 @@
-﻿using PixiEditor.ChangeableDocument.ChangeInfos.Root;
-using PixiEditor.DrawingApi.Core.Numerics;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.Root;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
 internal class ClipCanvas_Change : ResizeBasedChangeBase
 {
+    private int frameToClip;
     [GenerateMakeChangeAction]
-    public ClipCanvas_Change() { }
+    public ClipCanvas_Change(int clipToFrame)
+    {
+        frameToClip = clipToFrame;
+    }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         RectI? bounds = null;
         target.ForEveryMember((member) =>
         {
-            if (member is Layer layer)
+            if (member is LayerNode layer)
             {
-                var layerBounds = layer.LayerImage.FindTightCommittedBounds();
+                var layerBounds = layer.GetTightBounds(frameToClip);
                 if (layerBounds.HasValue)
                 {
-                    bounds ??= layerBounds.Value;
-                    bounds = bounds.Value.Union(layerBounds.Value);
+                    bounds ??= (RectI)layerBounds.Value;
+                    bounds = bounds.Value.Union((RectI)layerBounds.Value);
                 }
             }
         });
@@ -38,15 +44,18 @@ internal class ClipCanvas_Change : ResizeBasedChangeBase
         
         target.ForEveryMember((member) =>
         {
-            if (member is Layer layer)
+            if (member is ImageLayerNode layer)
             {
-                Resize(layer.LayerImage, layer.GuidValue, newBounds.Size, -newBounds.Pos, deletedChunks);
+                layer.ForEveryFrame(img =>
+                {
+                    Resize(img, layer.Id, newBounds.Size, -newBounds.Pos, deletedChunks);
+                });
             }
             
-            if (member.Mask is null)
+            if (member.EmbeddedMask is null)
                 return;
             
-            Resize(member.Mask, member.GuidValue, newBounds.Size, -newBounds.Pos, deletedMaskChunks);
+            Resize(member.EmbeddedMask, member.Id, newBounds.Size, -newBounds.Pos, deletedMaskChunks);
         });
 
         ignoreInUndo = false;

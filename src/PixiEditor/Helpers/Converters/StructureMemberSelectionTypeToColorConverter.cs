@@ -1,15 +1,16 @@
 ﻿using System.Globalization;
-using System.Windows.Data;
-using System.Windows.Media;
-using PixiEditor.Models.Enums;
+using Avalonia.Media;
+using PixiEditor.Models.Layers;
 
 namespace PixiEditor.Helpers.Converters;
-internal class StructureMemberSelectionTypeToColorConverter : IValueConverter
+internal class StructureMemberSelectionTypeToColorConverter : SingleInstanceConverter<StructureMemberSelectionTypeToColorConverter>
 {
-    public SolidColorBrush NoneColor { get; set; }
-    public SolidColorBrush SoftColor { get; set; }
-    public SolidColorBrush HardColor { get; set; }
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    // Can't use DynamicResource, because properties are not AvaloniaProperty
+    public IBrush NoneColor { get; set; }
+    public IBrush SoftColor { get; set; }
+    public IBrush HardColor { get; set; }
+
+    public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         return value switch
         {
@@ -18,10 +19,5 @@ internal class StructureMemberSelectionTypeToColorConverter : IValueConverter
             StructureMemberSelectionType.None => NoneColor,
             _ => NoneColor,
         };
-    }
-
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        throw new NotImplementedException();
     }
 }

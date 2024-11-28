@@ -12,6 +12,7 @@ public abstract class Extension
     public ExtensionServices Api { get; private set; }
     public ExtensionMetadata Metadata { get; private set; }
     public Assembly Assembly => GetType().Assembly;
+    public virtual string Location => Assembly.Location;
 
     public void ProvideMetadata(ExtensionMetadata metadata)
     {

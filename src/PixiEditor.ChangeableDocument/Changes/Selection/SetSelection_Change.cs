@@ -1,5 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+﻿using Drawie.Backend.Core.Vector;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection;
 internal class SetSelection_Change : Change

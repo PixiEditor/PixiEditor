@@ -1,6 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection;
 internal class SelectLasso_UpdateableChange : UpdateableChange

@@ -1,8 +1,9 @@
 ﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace ChunkyImageLib.Operations;
 internal class BresenhamLineOperation : IMirroredDrawOperation
@@ -12,7 +13,7 @@ internal class BresenhamLineOperation : IMirroredDrawOperation
     private readonly VecI to;
     private readonly Color color;
     private readonly BlendMode blendMode;
-    private readonly Point[] points;
+    private readonly VecF[] points;
     private Paint paint;
 
     public BresenhamLineOperation(VecI from, VecI to, Color color, BlendMode blendMode)

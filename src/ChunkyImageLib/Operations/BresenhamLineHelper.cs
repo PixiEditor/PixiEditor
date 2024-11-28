@@ -1,20 +1,20 @@
-﻿using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
+﻿using Drawie.Backend.Core.Numerics;
+using Drawie.Numerics;
 
 namespace ChunkyImageLib.Operations;
 public static class BresenhamLineHelper
 {
-    public static Point[] GetBresenhamLine(VecI start, VecI end)
+    public static VecF[] GetBresenhamLine(VecI start, VecI end)
     {
         int count = Math.Abs((start - end).LongestAxis) + 1;
         if (count > 100000)
-            return Array.Empty<Point>();
-        Point[] output = new Point[count];
+            return Array.Empty<VecF>();
+        VecF[] output = new VecF[count];
         CalculateBresenhamLine(start, end, output);
         return output;
     }
 
-    private static void CalculateBresenhamLine(VecI start, VecI end, Point[] output)
+    private static void CalculateBresenhamLine(VecI start, VecI end, VecF[] output)
     {
         int index = 0;
 
@@ -25,7 +25,7 @@ public static class BresenhamLineHelper
 
         if (x1 == x2 && y1 == y2)
         {
-            output[index] = new Point(start);
+            output[index] = new VecF(start);
             return;
         }
 
@@ -54,7 +54,7 @@ public static class BresenhamLineHelper
             dy = y1 - y2;
         }
 
-        output[index] = new Point(x, y);
+        output[index] = new VecF(x, y);
         index++;
 
         if (dx > dy)
@@ -77,7 +77,7 @@ public static class BresenhamLineHelper
                     x += xi;
                 }
 
-                output[index] = new Point(x, y);
+                output[index] = new VecF(x, y);
                 index++;
             }
         }
@@ -101,7 +101,7 @@ public static class BresenhamLineHelper
                     y += yi;
                 }
 
-                output[index] = new Point(x, y);
+                output[index] = new VecF(x, y);
                 index++;
             }
         }

@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.3.2" />
+      <PackageReference Include="Wasmtime" Version="22.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PixiEditor.Extensions\PixiEditor.Extensions.csproj" />
+      <ProjectReference Include="..\PixiEditor.WasmApi.Gen\PixiEditor.WasmApi.Gen.csproj" OutputItemType="Analyzer"/>
+    </ItemGroup>
+
+</Project>

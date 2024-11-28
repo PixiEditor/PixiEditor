@@ -1,0 +1,109 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="clr-namespace:Avalonia.Controls.Converters;assembly=Avalonia.Controls"
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime"
+                    xmlns:converters1="clr-namespace:PixiEditor.UI.Common.Converters"
+                    xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls">
+    <ControlTheme x:Key="{x:Type controls:ToggleableMenuItem}"
+                  TargetType="controls:ToggleableMenuItem">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+        <Setter Property="Padding" Value="6 0" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Name="root"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="20" />
+                            <ColumnDefinition Width="5" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto"
+                                              SharedSizeGroup="MenuItemIGT" />
+                            <ColumnDefinition Width="20" />
+                        </Grid.ColumnDefinitions>
+                        <ContentPresenter Name="icon"
+                                          Width="16"
+                                          Height="16"
+                                          Margin="3"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          Content="{TemplateBinding Icon}" />
+                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                            <ContentPresenter Name="PART_HeaderPresenter"
+                                              Margin="{TemplateBinding Padding}"
+                                              VerticalAlignment="Center"
+                                              Content="{TemplateBinding Header}"
+                                              ContentTemplate="{TemplateBinding HeaderTemplate}">
+                                <ContentPresenter.DataTemplates>
+                                    <DataTemplate DataType="system:String">
+                                        <AccessText Text="{Binding}" />
+                                    </DataTemplate>
+                                </ContentPresenter.DataTemplates>
+                            </ContentPresenter>
+                            <Grid Width="12" Margin="3">
+                                <Path Name="check"
+                                      VerticalAlignment="Center"
+                                      Data="F1M10,1.2L4.7,9.1 4.5,9.1 0,5.2 1.3,3.5 4.3,6.1 8.3,0 10,1.2z"
+                                      Fill="{TemplateBinding Foreground}"
+                                      IsVisible="{TemplateBinding IsChecked}" />
+                            </Grid>
+                        </StackPanel>
+                        <TextBlock x:Name="PART_InputGestureText"
+                                   Grid.Column="3"
+                                   VerticalAlignment="Center"
+                                   Text="{TemplateBinding InputGesture,
+                                              Converter={converters1:MenuItemKeyGestureConverter}}" />
+                        <Path Name="rightArrow"
+                              Grid.Column="4"
+                              Margin="10,0,0,0"
+                              VerticalAlignment="Center"
+                              Data="M0,0L4,3.5 0,7z"
+                              Fill="{DynamicResource ThemeForegroundBrush}" />
+                        <Popup Name="PART_Popup"
+                               IsLightDismissEnabled="False"
+                               IsOpen="{TemplateBinding IsSubMenuOpen,
+                                            Mode=TwoWay}"
+                               Placement="RightEdgeAlignedTop">
+                            <Border Background="{DynamicResource ThemeBackgroundBrush}"
+                                    BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                    CornerRadius="{TemplateBinding CornerRadius}"
+                                    BorderThickness="{TemplateBinding BorderThickness}">
+                                <ScrollViewer>
+                                    <ItemsPresenter Name="PART_ItemsPresenter"
+                                                    Margin="2"
+                                                    Grid.IsSharedSizeScope="True"
+                                                    ItemsPanel="{TemplateBinding ItemsPanel}" />
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^:separator">
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Separator />
+                </ControlTemplate>
+            </Setter>
+        </Style>
+
+        <Style Selector="^:selected /template/ Border#root">
+            <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+        </Style>
+
+        <Style Selector="^:empty /template/ Path#rightArrow">
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
+
+        <Style Selector="^:disabled">
+            <Setter Property="Opacity" Value="{DynamicResource ThemeDisabledOpacity}" />
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

@@ -1,6 +1,8 @@
-﻿using PixiEditor.ChangeableDocument.ChangeInfos.Root;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
@@ -20,11 +22,12 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
     {
         if (newSize.X < 1 || newSize.Y < 1)
             return false;
-        
+
         return base.InitializeAndValidate(target);
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
+        out bool ignoreInUndo)
     {
         if (_originalSize == newSize)
         {
@@ -33,23 +36,33 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
         }
 
         target.Size = newSize;
-        target.VerticalSymmetryAxisX = Math.Clamp(_originalVerAxisX, 0, target.Size.X);
-        target.HorizontalSymmetryAxisY = Math.Clamp(_originalHorAxisY, 0, target.Size.Y);
+        float normalizedX = (float)_originalVerAxisX / _originalSize.X;
+        float normalizedY = (float)_originalHorAxisY / _originalSize.Y;
+        float newVerticalSymmetryAxisX = newSize.X * normalizedX;
+        float newHorizontalSymmetryAxisY = newSize.Y * normalizedY;
+        target.VerticalSymmetryAxisX = Math.Clamp(newVerticalSymmetryAxisX, 0, target.Size.X);
+        target.HorizontalSymmetryAxisY = Math.Clamp(newHorizontalSymmetryAxisY, 0, target.Size.Y);
 
         VecI offset = anchor.FindOffsetFor(_originalSize, newSize);
 
         target.ForEveryMember((member) =>
         {
-            if (member is Layer layer)
+            if (member is ImageLayerNode layer)
             {
-                Resize(layer.LayerImage, layer.GuidValue, newSize, offset, deletedChunks);
+                layer.ForEveryFrame(img =>
+                {
+                    Resize(img, layer.Id, newSize, offset, deletedChunks);
+                });
             }
-            if (member.Mask is null)
+
+            // TODO: Check if adding support for different Layer types is necessary
+
+            if (member.EmbeddedMask is null)
                 return;
 
-            Resize(member.Mask, member.GuidValue, newSize, offset, deletedMaskChunks);
+            Resize(member.EmbeddedMask, member.Id, newSize, offset, deletedMaskChunks);
         });
-        
+
         ignoreInUndo = false;
         return new Size_ChangeInfo(newSize, target.VerticalSymmetryAxisX, target.HorizontalSymmetryAxisY);
     }

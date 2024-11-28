@@ -1,5 +1,6 @@
-﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class ReplaceColor_Change : Change
@@ -8,14 +9,16 @@ internal class ReplaceColor_Change : Change
     private readonly Color newColor;
 
     private Dictionary<Guid, CommittedChunkStorage>? savedChunks;
+    private int frame;
 
     [GenerateMakeChangeAction]
-    public ReplaceColor_Change(Color oldColor, Color newColor)
+    public ReplaceColor_Change(Color oldColor, Color newColor, int frame)
     {
         this.oldColor = oldColor;
         this.newColor = newColor;
+        this.frame = frame;
     }
-
+   
     public override bool InitializeAndValidate(Document target)
     {
         return true;
@@ -29,14 +32,16 @@ internal class ReplaceColor_Change : Change
         List<IChangeInfo> infos = new();
         target.ForEveryMember(member =>
         {
-            if (member is not Layer layer)
+            if (member is not ImageLayerNode layer)
                 return;
-            layer.LayerImage.EnqueueReplaceColor(oldColor, newColor);
-            var affArea = layer.LayerImage.FindAffectedArea();
-            CommittedChunkStorage storage = new(layer.LayerImage, affArea.Chunks);
-            savedChunks[layer.GuidValue] = storage;
-            layer.LayerImage.CommitChanges();
-            infos.Add(new LayerImageArea_ChangeInfo(layer.GuidValue, affArea));
+            //TODO: Add support for replacing in different Layer types
+            var layerImage = layer.GetLayerImageAtFrame(frame);
+            layerImage.EnqueueReplaceColor(oldColor, newColor);
+            var affArea = layerImage.FindAffectedArea();
+            CommittedChunkStorage storage = new(layerImage, affArea.Chunks);
+            savedChunks[layer.Id] = storage;
+            layerImage.CommitChanges();
+            infos.Add(new LayerImageArea_ChangeInfo(layer.Id, affArea));
         });
         ignoreInUndo = !savedChunks.Any();
         return infos;
@@ -49,11 +54,11 @@ internal class ReplaceColor_Change : Change
         List<IChangeInfo> infos = new();
         target.ForEveryMember(member =>
         {
-            if (member is not Layer layer)
+            if (member is not ImageLayerNode layer)
                 return;
-            CommittedChunkStorage? storage = savedChunks[member.GuidValue];
-            var affArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(layer.LayerImage, ref storage);
-            infos.Add(new LayerImageArea_ChangeInfo(layer.GuidValue, affArea));
+            CommittedChunkStorage? storage = savedChunks[member.Id];
+            var affArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(layer.GetLayerImageAtFrame(frame), ref storage);
+            infos.Add(new LayerImageArea_ChangeInfo(layer.Id, affArea));
         });
         savedChunks = null;
         return infos;

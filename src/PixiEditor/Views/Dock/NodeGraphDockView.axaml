@@ -1,0 +1,21 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
+             xmlns:dock="clr-namespace:PixiEditor.ViewModels.Dock"
+             xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="dock:NodeGraphDockViewModel"
+             x:Class="PixiEditor.Views.Dock.NodeGraphDockView">
+    <Design.DataContext>
+        <dock:NodeGraphDockViewModel/>
+    </Design.DataContext>
+    <nodes:NodeGraphView
+        ConnectPropertiesCommand="{xaml:Command PixiEditor.NodeGraph.ConnectProperties, UseProvided=True}"
+        CreateNodeCommand="{xaml:Command PixiEditor.NodeGraph.CreateNode, UseProvided=True}"
+        ChangeNodePosCommand="{xaml:Command PixiEditor.NodeGraph.ChangeNodePos, UseProvided=True}"
+        EndChangeNodePosCommand="{xaml:Command PixiEditor.NodeGraph.EndChangeNodePos, UseProvided=True}"
+        ActiveFrame="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable}"
+        NodeGraph="{Binding DocumentManagerSubViewModel.ActiveDocument.NodeGraph}"/>
+</UserControl>

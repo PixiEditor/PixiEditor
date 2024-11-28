@@ -1,0 +1,108 @@
+﻿[
+  {
+    "Name": "PIXEL_ART_TOOLSET",
+    "Tools": [
+      "MoveViewport",
+      "RotateViewport",
+      "Move",
+      {
+        "ToolName": "Pen",
+        "Settings": {
+          "ExposePixelPerfectEnabled": true,
+          "Spacing": 0
+        }
+      },
+      "Select",
+      "MagicWand",
+      "Lasso",
+      "FloodFill",
+      "RasterLine",
+      "RasterEllipse",
+      "RasterRectangle",
+      {
+        "ToolName": "Eraser",
+        "Settings": {
+          "Spacing": 0
+        }
+      },
+      "ColorPicker",
+      "Brightness",
+      "Zoom"
+    ]
+  },
+  {
+    "Name": "PAINT_TOOLSET",
+    "Tools": [
+      "MoveViewport",
+      "RotateViewport",
+      "Move",
+      {
+        "ToolName": "Pen",
+        "Settings": {
+          "AntiAliasing": true,
+          "ExposeHardness": true,
+          "ExposeSpacing": true,
+          "BrushShapeSetting": "CircleSmooth" 
+        }
+      },
+      "Select",
+      {
+        "ToolName": "MagicWand",
+        "Settings": {
+          "ExposeTolerance": true
+        }
+      },
+      "Lasso",
+      {
+        "ToolName": "FloodFill",
+        "Settings": {
+          "ExposeTolerance": true
+        }
+      },
+      {
+        "ToolName": "RasterLine",
+        "Settings": {
+          "AntiAliasing": true
+        },
+        "Icon": "\ue93a"
+      },
+      {
+        "ToolName": "RasterEllipse",
+        "Settings": {
+          "AntiAliasing": true
+        },
+        "Icon": "\ue910"
+      },
+      {
+        "ToolName": "RasterRectangle",
+        "Settings": {
+          "AntiAliasing": true
+        },
+        "Icon": "\uE953" 
+      },
+      {
+        "ToolName": "Eraser",
+        "Settings": {
+          "AntiAliasing": true,
+          "ExposeHardness": true,
+          "ExposeSpacing": true,
+          "BrushShapeSetting": "CircleSmooth"
+        }
+      },
+      "ColorPicker",
+      "Zoom"
+    ]
+  },
+  {
+    "Name": "VECTOR_TOOLSET",
+    "Tools": [
+      "MoveViewport",
+      "RotateViewport",
+      "Move",
+      "VectorPath",
+      "VectorLine",
+      "VectorEllipse",
+      "VectorRectangle"
+    ]
+  }
+]

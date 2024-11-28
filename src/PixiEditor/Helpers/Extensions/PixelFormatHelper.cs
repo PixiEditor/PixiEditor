@@ -1,5 +1,5 @@
-﻿using System.Windows.Media;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+﻿using Avalonia.Platform;
+using Drawie.Backend.Core.Surfaces.ImageData;
 
 namespace PixiEditor.Helpers.Extensions;
 
@@ -14,6 +14,16 @@ internal static class PixelFormatHelper
 
         throw new NotImplementedException($"Skia does not support the '{format}' format");
     }
+    
+    public static ColorType ToColorType(this SKColorType colorType)
+    { 
+        return (ColorType)colorType;
+    }
+    
+    public static AlphaType ToAlphaType(this SKAlphaType alphaType)
+    {
+        return (AlphaType)alphaType;
+    }
 
     public static bool TryConvertToColorType(this PixelFormat format, out ColorType colorType, out AlphaType alphaType)
     {
@@ -24,19 +34,26 @@ internal static class PixelFormatHelper
             return true;
         }
 
-        if (format == PixelFormats.Bgra32)
+        if (format == PixelFormats.Bgra8888)
         {
             alphaType = AlphaType.Unpremul;
             colorType = ColorType.Bgra8888;
             return true;
         }
 
-        if (format == PixelFormats.Default)
+        /*if (format == PixelFormats.Bgra32)
+        {
+            alphaType = AlphaType.Unpremul;
+            colorType = ColorType.Bgra8888;
+            return true;
+        }*/
+
+        /*if (format == PixelFormats.Default)
         {
             alphaType = AlphaType.Unpremul;
             colorType = ColorType.RgbaF16;
             return true;
-        }
+        }*/
 
         if (format == PixelFormats.Gray8)
         {
@@ -45,24 +62,17 @@ internal static class PixelFormatHelper
             return true;
         }
 
-        if (format == PixelFormats.Pbgra32)
+        /*if (format == PixelFormats.Pbgra32)
         {
             alphaType = AlphaType.Premul;
             colorType = ColorType.Bgra8888;
             return true;
-        }
+        }*/
 
-        if (format == PixelFormats.Bgr101010 || format == PixelFormats.Bgr24 || format == PixelFormats.Bgr32 ||
-            format == PixelFormats.Bgr555 ||
-            format == PixelFormats.Bgr565 || format == PixelFormats.BlackWhite || format == PixelFormats.Cmyk32 ||
+        if (format == PixelFormats.Bgr24 || format == PixelFormats.BlackWhite ||
             format == PixelFormats.Gray16 ||
-            format == PixelFormats.Gray2 || format == PixelFormats.Gray32Float || format == PixelFormats.Gray4 ||
-            format == PixelFormats.Indexed1 ||
-            format == PixelFormats.Indexed2 || format == PixelFormats.Indexed4 || format == PixelFormats.Indexed8 ||
-            format == PixelFormats.Prgba128Float ||
-            format == PixelFormats.Prgba64 || format == PixelFormats.Rgb128Float || format == PixelFormats.Rgb24 ||
-            format == PixelFormats.Rgb48 ||
-            format == PixelFormats.Rgba128Float)
+            format == PixelFormats.Gray2 || format == PixelFormats.Gray32Float || format == PixelFormats.Gray4
+            || format == PixelFormats.Rgb24)
         {
             alphaType = AlphaType.Unknown;
             colorType = ColorType.Unknown;

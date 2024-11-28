@@ -1,0 +1,21 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
+                    xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+                    xmlns:input="clr-namespace:PixiEditor.Views.Input">
+    <ControlTheme TargetType="nodes:NodeFrameView" x:Key="{x:Type nodes:NodeFrameView}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Grid Width="{Binding Size.X, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeFrameView}}">
+                        <Rectangle Fill="{TemplateBinding Background}"
+                                   Stroke="{TemplateBinding BorderBrush}"
+                                   StrokeThickness="2" RadiusX="10" RadiusY="10"
+                                   Width="{Binding Size.X, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeFrameView}}"
+                                   Height="{Binding Size.Y, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeFrameView}}" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

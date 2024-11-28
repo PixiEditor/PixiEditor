@@ -1,24 +1,25 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace ChunkyImageLib.Operations;
 
 internal class PixelsOperation : IMirroredDrawOperation
 {
     public bool IgnoreEmptyChunks => false;
-    private readonly Point[] pixels;
+    private readonly VecF[] pixels;
     private readonly Color color;
     private readonly BlendMode blendMode;
     private readonly Paint paint;
 
     public PixelsOperation(IEnumerable<VecI> pixels, Color color, BlendMode blendMode)
     {
-        this.pixels = pixels.Select(pixel => new Point(pixel.X, pixel.Y)).ToArray();
+        this.pixels = pixels.Select(pixel => new VecF(pixel.X, pixel.Y)).ToArray();
         this.color = color;
         this.blendMode = blendMode;
         paint = new Paint() { BlendMode = blendMode };

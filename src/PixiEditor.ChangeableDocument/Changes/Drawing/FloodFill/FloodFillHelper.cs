@@ -1,10 +1,13 @@
 ﻿using ChunkyImageLib.Operations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Core.Surface.Vector;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Backend.Core.Vector;
+using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 
@@ -18,17 +21,19 @@ public static class FloodFillHelper
     private static readonly VecI Left = new VecI(-1, 0);
     private static readonly VecI Right = new VecI(1, 0);
 
-    internal static FloodFillChunkCache CreateCache(HashSet<Guid> membersToFloodFill, IReadOnlyDocument document)
+    internal static FloodFillChunkCache CreateCache(HashSet<Guid> membersToFloodFill, IReadOnlyDocument document, int frame)
     {
         if (membersToFloodFill.Count == 1)
         {
             Guid guid = membersToFloodFill.First();
             var member = document.FindMemberOrThrow(guid);
-            if (member is IReadOnlyFolder folder)
-                return new FloodFillChunkCache(membersToFloodFill, document.StructureRoot);
-            return new FloodFillChunkCache(((IReadOnlyLayer)member).LayerImage);
+            if (member is IReadOnlyFolderNode)
+                return new FloodFillChunkCache(membersToFloodFill, document, frame);
+            if (member is not IReadOnlyImageNode rasterLayer)
+                throw new InvalidOperationException("Member is not a raster layer");
+            return new FloodFillChunkCache(rasterLayer.GetLayerImageAtFrame(frame));
         }
-        return new FloodFillChunkCache(membersToFloodFill, document.StructureRoot);
+        return new FloodFillChunkCache(membersToFloodFill, document, frame);
     }
 
     public static Dictionary<VecI, Chunk> FloodFill(
@@ -36,14 +41,16 @@ public static class FloodFillHelper
         IReadOnlyDocument document,
         VectorPath? selection,
         VecI startingPos,
-        Color drawingColor)
+        Color drawingColor,
+        float tolerance,
+        int frame)
     {
         if (selection is not null && !selection.Contains(startingPos.X + 0.5f, startingPos.Y + 0.5f))
             return new();
 
         int chunkSize = ChunkResolution.Full.PixelSize();
 
-        FloodFillChunkCache cache = CreateCache(membersToFloodFill, document);
+        FloodFillChunkCache cache = CreateCache(membersToFloodFill, document, frame);
 
         VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
         VecI imageSizeInChunks = (VecI)(document.Size / (double)chunkSize).Ceiling();
@@ -60,7 +67,7 @@ public static class FloodFillHelper
 
         // Pre-multiplies the color and convert it to floats. Since floats are imprecise, a range is used.
         // Used for faster pixel checking
-        ColorBounds colorRange = new(colorToReplace);
+        ColorBounds colorRange = new(colorToReplace, tolerance);
         ulong uLongColor = drawingColor.ToULong();
 
         Dictionary<VecI, Chunk> drawingChunks = new();

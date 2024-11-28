@@ -4,15 +4,16 @@
 
 **PixiEditor** is a Pixel art editing software. Create beautiful sprites for your games, animations (coming soon!), and edit images. All packed in eye-friendly dark theme.
 
-[![Build Status](https://img.shields.io/azure-devops/build/flabbet/PixiEditor/6/master)](https://dev.azure.com/flabbet/PixiEditor/_build?definitionId=6) 
-[![CodeFactor](https://www.codefactor.io/repository/github/pixieditor/pixieditor/badge)](https://www.codefactor.io/repository/github/pixieditor/pixieditor)
 [![Release](https://img.shields.io/github/v/release/flabbet/PixiEditor)](https://github.com/flabbet/PixiEditor/releases) 
 [![Downloads](https://img.shields.io/github/downloads/PixiEditor/PixiEditor/total)](https://github.com/flabbet/PixiEditor/releases)
 [![Discord Server](https://badgen.net/badge/discord/join%20chat/7289DA?icon=discord)](https://discord.gg/qSRMYmq)
 [![Subreddit subscribers](https://img.shields.io/reddit/subreddit-subscribers/PixiEditor?label=%20r%2FPixiEditor&logoColor=%23e3002d)](https://reddit.com/r/PixiEditor)
-[![contributions](https://img.shields.io/badge/contributions-open-brightgreen)](https://github.com/flabbet/PixiEditor/pulls)
 
 ### Check out our website [pixieditor.net](https://pixieditor.net)
+
+# Contributions temporarily freezed!
+
+PixiEditor is undergoing massive changes, master branch is unstable. We will not accept any contributions at the moment, until version 2.0 comes out.
 
 ## About PixiEditor
 

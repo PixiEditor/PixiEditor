@@ -1,5 +1,6 @@
-﻿using System.Globalization;
-using System.Windows.Input;
+﻿using System.Collections.Generic;
+using System.Globalization;
+using Avalonia.Input;
 
 namespace PixiEditor.Helpers.Converters;
 
@@ -7,26 +8,26 @@ internal class ModifierFlagToModifiersConverter : SingleInstanceConverter<Modifi
 {
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        return GetModifiers((ModifierKeys)value);
+        return GetModifiers((KeyModifiers)value);
     }
 
-    private IEnumerable<ModifierKeys> GetModifiers(ModifierKeys keys)
+    private IEnumerable<KeyModifiers> GetModifiers(KeyModifiers keys)
     {
-        if (keys.HasFlag(ModifierKeys.Windows))
+        if (keys.HasFlag(KeyModifiers.Meta))
         {
-            yield return ModifierKeys.Windows;
+            yield return KeyModifiers.Meta;
         }
-        else if (keys.HasFlag(ModifierKeys.Control))
+        else if (keys.HasFlag(KeyModifiers.Control))
         {
-            yield return ModifierKeys.Control;
+            yield return KeyModifiers.Control;
         }
-        else if (keys.HasFlag(ModifierKeys.Shift))
+        else if (keys.HasFlag(KeyModifiers.Shift))
         {
-            yield return ModifierKeys.Shift;
+            yield return KeyModifiers.Shift;
         }
-        else if (keys.HasFlag(ModifierKeys.Alt))
+        else if (keys.HasFlag(KeyModifiers.Alt))
         {
-            yield return ModifierKeys.Alt;
+            yield return KeyModifiers.Alt;
         }
     }
 }

@@ -1,0 +1,21 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:tools="clr-namespace:PixiEditor.Views.Main.Tools"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime">
+
+    <Styles.Resources>
+        <Color x:Key="SelectedToolBorderColor">#fff</Color>
+        <CornerRadius x:Key="SelectedToolCornerRadius">5</CornerRadius>
+        <SolidColorBrush x:Key="SelectedToolBorderBrush" Color="{StaticResource SelectedToolBorderColor}"/>
+    </Styles.Resources>
+
+    <Style Selector="tools|ToolPickerButton Border">
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="CornerRadius" Value="{DynamicResource SelectedToolCornerRadius}" />
+    </Style>
+
+    <Style Selector="tools|ToolPickerButton:selected Border">
+        <Setter Property="BorderBrush" Value="{DynamicResource SelectedToolBorderBrush}" />
+    </Style>
+</Styles>

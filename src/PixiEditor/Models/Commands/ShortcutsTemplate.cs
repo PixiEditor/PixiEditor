@@ -1,8 +1,7 @@
-﻿using System.Drawing;
-using System.IO;
-using System.Windows.Input;
-using PixiEditor.Models.Commands.Templates.Parsers;
-using PixiEditor.Models.DataHolders;
+﻿using System.Collections.Generic;
+using Avalonia.Input;
+using PixiEditor.Models.Commands.Templates.Providers.Parsers;
+using PixiEditor.Models.Input;
 
 namespace PixiEditor.Models.Commands;
 
@@ -48,9 +47,9 @@ public sealed class Shortcut
         Commands = new List<string> { command };
     }
     
-    public Shortcut(Key key, ModifierKeys modifierKeys, string command)
+    public Shortcut(Key key, KeyModifiers KeyModifiers, string command)
     {
-        KeyCombination = new KeyCombination(key, modifierKeys);
+        KeyCombination = new KeyCombination(key, KeyModifiers);
         Commands = new List<string> { command };
     }
 }

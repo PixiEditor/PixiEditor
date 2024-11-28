@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.Numerics;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Numerics;
 
 namespace PixiEditor.Models.Position;
 
@@ -12,6 +13,6 @@ internal readonly record struct ViewportInfo(
     VecD RealDimensions,
     VecD Dimensions,
     ChunkResolution Resolution,
-    Guid GuidValue,
+    Guid Id,
     bool Delayed,
     Action InvalidateVisual);

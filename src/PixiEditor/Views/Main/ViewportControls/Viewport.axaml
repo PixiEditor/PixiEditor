@@ -1,0 +1,198 @@
+﻿<UserControl
+    x:Class="PixiEditor.Views.Main.ViewportControls.Viewport"
+    x:ClassModifier="internal"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+    xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+    xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+    xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
+    xmlns:brushShapeOverlay="clr-namespace:PixiEditor.Views.Overlays.BrushShapeOverlay"
+    xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
+    xmlns:symmetryOverlay="clr-namespace:PixiEditor.Views.Overlays.SymmetryOverlay"
+    xmlns:lineToolOverlay="clr-namespace:PixiEditor.Views.Overlays.LineToolOverlay"
+    xmlns:transformOverlay="clr-namespace:PixiEditor.Views.Overlays.TransformOverlay"
+    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+    xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
+    xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
+    xmlns:viewportControls="clr-namespace:PixiEditor.Views.Main.ViewportControls"
+    xmlns:overlays="clr-namespace:PixiEditor.Views.Overlays"
+    xmlns:selectionOverlay="clr-namespace:PixiEditor.Views.Overlays.SelectionOverlay"
+    xmlns:rendering="clr-namespace:PixiEditor.Views.Rendering"
+    xmlns:tools="clr-namespace:PixiEditor.Views.Main.Tools"
+    mc:Ignorable="d"
+    x:Name="vpUc"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    FlowDirection="LeftToRight">
+    <Grid
+        x:Name="viewportGrid">
+        <Interaction.Behaviors>
+            <!--TODO: Implement stylus support-->
+            <!--<EventTriggerBehavior EventName="StylusButtonDown">
+                <InvokeCommandAction Command="{Binding StylusButtonDownCommand, ElementName=vpUc}"
+                                        PassEventArgsToCommand="True"/>
+            </EventTriggerBehavior>
+            <EventTriggerBehavior EventName="StylusButtonUp">
+                <InvokeCommandAction Command="{Binding StylusButtonUpCommand, ElementName=vpUc}"
+                                        PassEventArgsToCommand="True"/>
+            </EventTriggerBehavior>
+            <EventTriggerBehavior EventName="StylusSystemGesture">
+                <InvokeCommandAction Command="{Binding StylusGestureCommand, ElementName=vpUc}"
+                                        PassEventArgsToCommand="True"/>
+            </EventTriggerBehavior>
+            <EventTriggerBehavior EventName="StylusOutOfRange">
+                <InvokeCommandAction Command="{Binding StylusOutOfRangeCommand, ElementName=vpUc}"
+                                        PassEventArgsToCommand="True"/>
+            </EventTriggerBehavior>-->
+        </Interaction.Behaviors>
+        <overlays:TogglableFlyout Margin="5" Icon="{DynamicResource icon-tool}"
+                                  ui:Translator.TooltipKey="VIEWPORT_SETTINGS"
+                                  ZIndex="2" HorizontalAlignment="Right" VerticalAlignment="Top">
+            <overlays:TogglableFlyout.Child>
+                <Border Padding="5"
+                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                        BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                        BorderThickness="{DynamicResource ThemeBorderThickness}"
+                        Background="{DynamicResource ThemeBackgroundBrush1}" ZIndex="2">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="35" Height="35" Margin="5 0"
+                                    BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                    BorderThickness="{DynamicResource ThemeBorderThickness}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Background="{DynamicResource ThemeControlHighBrush}"
+                                    VerticalAlignment="Center">
+                                <TextBlock TextAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Text="{Binding Path=AngleRadians, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport},
+             Converter={converters:RadiansToDegreesConverter}, StringFormat={}{0}°}"
+                                           Foreground="{DynamicResource ThemeForegroundBrush}"
+                                           FontSize="16" />
+                            </Border>
+                            <Button Width="32" Height="32" ui:Translator.TooltipKey="RESET_VIEWPORT"
+                                    Classes="OverlayButton pixi-icon"
+                                    Click="ResetViewportClicked"
+                                    BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                    Content="{DynamicResource icon-reset}"
+                                    Cursor="Hand" />
+                        </StackPanel>
+                        <Separator />
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="HIGH_RES_PREVIEW"
+                                          Classes="OverlayButton pixi-icon"
+                                          BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                          Content="{DynamicResource icon-circle}"
+                                          IsChecked="{Binding HighResPreview, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+                                          Cursor="Hand" />
+                            <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
+                                          ui:Translator.TooltipKey="LOW_RES_PREVIEW"
+                                          Classes="OverlayButton pixi-icon"
+                                          BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                          Content="{DynamicResource icon-lowres-circle}"
+                                          IsChecked="{Binding !HighResPreview, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+                                          Cursor="Hand" />
+                        </StackPanel>
+                        <Separator />
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                            <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="TOGGLE_VERTICAL_SYMMETRY"
+                                          Classes="OverlayToggleButton pixi-icon"
+                                          IsChecked="{Binding Document.VerticalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+                                          Content="{DynamicResource icon-y-symmetry}"
+                                          Cursor="Hand" />
+                            <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
+                                          ui:Translator.TooltipKey="TOGGLE_HORIZONTAL_SYMMETRY"
+                                          Classes="OverlayToggleButton pixi-icon"
+                                          IsChecked="{Binding Document.HorizontalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+                                          Content="{DynamicResource icon-x-symmetry}"
+                                          Cursor="Hand" />
+                        </StackPanel>
+                        <Separator />
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                            <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="FLIP_VIEWPORT_HORIZONTALLY"
+                                          Classes="OverlayToggleButton pixi-icon"
+                                          IsChecked="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+                                          Content="{DynamicResource icon-y-flip}"
+                                          Cursor="Hand" />
+                            <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
+                                          ui:Translator.TooltipKey="FLIP_VIEWPORT_VERTICALLY"
+                                          Classes="OverlayToggleButton pixi-icon"
+                                          IsChecked="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+                                          Content="{DynamicResource icon-x-flip}"
+                                          Cursor="Hand" />
+                        </StackPanel>
+                        <Separator />
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                            <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
+                                          ui:Translator.TooltipKey="TOGGLE_SNAPPING"
+                                          Classes="OverlayToggleButton pixi-icon"
+                                          Content="{DynamicResource icon-gridlines}"
+                                          IsChecked="{Binding GridLinesVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
+                            
+                            <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
+                                          ui:Translator.TooltipKey="TOGGLE_SNAPPING"
+                                          Classes="OverlayToggleButton pixi-icon"
+                                          Content="{DynamicResource icon-snapping}"
+                                          IsChecked="{Binding SnappingEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </overlays:TogglableFlyout.Child>
+        </overlays:TogglableFlyout>
+        <tools:Toolbar ZIndex="100" VerticalAlignment="Top" DataContext="{Binding Source={viewModels:MainVM}, Path=.}" />
+
+        <tools:ToolsPicker ZIndex="100"
+                           Margin="10 55 0 0"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Top"
+                           ToolSet="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet}"
+                           SwitchToolSetCommand="{xaml:Command Name=PixiEditor.Tools.SwitchToolSet, UseProvided=True}" />
+        <rendering:Scene
+            Focusable="False" Name="scene"
+            ZIndex="1"
+            SceneRenderer="{Binding Source={viewModels:MainVM DocumentManagerSVM}, Path=ActiveDocument.SceneRenderer}"
+            Document="{Binding Document, ElementName=vpUc, Mode=OneWay}"
+            UseTouchGestures="{Binding UseTouchGestures, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
+            Center="{Binding Center, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
+            AngleRadians="{Binding AngleRadians, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
+            RealDimensions="{Binding RealDimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
+            Dimensions="{Binding Dimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
+            ZoomMode="{Binding ZoomMode, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+            ZoomOutOnClick="{Binding ZoomOutOnClick, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+            FlipX="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+            FlipY="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+            AllOverlays="{Binding ElementName=vpUc, Path=ActiveOverlays}"
+            FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
+            DefaultCursor="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolCursor, Mode=OneWay}"
+            CheckerImagePath="/Images/CheckerTile.png"
+            ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}" />
+        <Button
+            ZIndex="99999"
+            DockPanel.Dock="Bottom"
+            Margin="5"
+            Padding="8,5,5,5"
+            VerticalAlignment="Bottom"
+            HorizontalAlignment="Center"
+            Classes="GrayRoundButton"
+            Command="{xaml:Command PixiEditor.Tools.ApplyTransform}">
+            <Button.IsVisible>
+                <MultiBinding Converter="{converters:BoolOrToVisibilityConverter}">
+                    <MultiBinding.Bindings>
+                        <Binding ElementName="vpUc" Path="Document.TransformViewModel.ShowTransformControls" />
+                        <Binding ElementName="vpUc" Path="Document.LineToolOverlayViewModel.ShowApplyButton" />
+                        <Binding ElementName="vpUc" Path="Document.PathOverlayViewModel.ShowApplyButton" />
+                    </MultiBinding.Bindings>
+                </MultiBinding>
+            </Button.IsVisible>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock ui:Translator.Key="APPLY_TRANSFORM" VerticalAlignment="Center" Margin="0,0,5,0" />
+                <Border Padding="10,3" CornerRadius="5" Background="{DynamicResource ThemeControlLowBrush}"
+                        IsVisible="{xaml:ShortcutBinding PixiEditor.Tools.ApplyTransform, Converter={converters:NotNullToVisibilityConverter}}">
+                    <TextBlock Text="{xaml:ShortcutBinding PixiEditor.Tools.ApplyTransform, UseAvaloniaGesture=False}" />
+                </Border>
+            </StackPanel>
+        </Button>
+    </Grid>
+</UserControl>

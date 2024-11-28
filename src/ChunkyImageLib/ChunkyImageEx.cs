@@ -1,8 +1,9 @@
 ﻿using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Numerics;
 
 namespace ChunkyImageLib;
 public static class IReadOnlyChunkyImageEx
@@ -47,7 +48,7 @@ public static class IReadOnlyChunkyImageEx
         Func<VecI, ChunkResolution, DrawingSurface, VecI, Paint?, bool> drawingFunc,
         Paint? paint = null)
     {
-        surface.Canvas.Save();
+        int count = surface.Canvas.Save();
         surface.Canvas.ClipRect(RectD.Create(pos, fullResRegion.Size));
 
         VecI chunkTopLeft = OperationHelper.GetChunkPos(fullResRegion.TopLeft, ChunkyImage.FullChunkSize);
@@ -64,6 +65,6 @@ public static class IReadOnlyChunkyImageEx
             }
         }
 
-        surface.Canvas.Restore();
+        surface.Canvas.RestoreToCount(count);
     }
 }

@@ -1,6 +1,7 @@
-﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
+﻿using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Numerics;
 
 namespace ChunkyImageLib.DataHolders;
 
@@ -25,6 +26,9 @@ public record struct ShapeData
     public VecD Size { get; }
     public double Angle { get; }
     public int StrokeWidth { get; }
+
+    public bool AntiAliasing { get; set; } = false;
+    
 
     public ShapeData AsMirroredAcrossHorAxis(double horAxisY)
         => new ShapeData(Center.ReflectY(horAxisY), new(Size.X, -Size.Y), -Angle, StrokeWidth, StrokeColor, FillColor, BlendMode);

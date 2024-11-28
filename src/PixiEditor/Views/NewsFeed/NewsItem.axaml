@@ -1,0 +1,49 @@
+<UserControl x:Class="PixiEditor.Views.NewsFeed.NewsItem"
+             x:ClassModifier="internal"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             mc:Ignorable="d" Name="newsItem"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Border Background="{DynamicResource ThemeBackgroundBrush1}" CornerRadius="5">
+        <StackPanel Orientation="Vertical">
+            <Grid>
+                <Border Name="Mask" CornerRadius="8 8 0 0" ClipToBounds="True">
+                    <StackPanel>
+                        <Image Cursor="Hand" Margin="-1"
+                               asyncImageLoader:ImageLoader.Source="{Binding ElementName=newsItem, Path=News.CoverImageUrl}"
+                               PointerPressed="CoverImageClicked" Name="coverImage" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+            <StackPanel Margin="5 0" Spacing="2" Orientation="Horizontal">
+                <TextBlock Padding="0" Width="25" Height="25" Classes="pixi-icon"
+                           FontSize="24"
+                       Text="{Binding ElementName=newsItem, Path=News.ResolvedIcon}" />
+                <Label VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Width="200" TextTrimming="CharacterEllipsis" MaxHeight="50"
+                               ui1:Hyperlink.Url="{Binding ElementName=newsItem, Path=News.Url}"
+                               TextWrapping="Wrap">
+                        <Run Text="{Binding ElementName=newsItem, Path=News.Title}" />
+                        <Run Text="{DynamicResource icon-link}" Classes="pixi-icon" />
+                    </TextBlock>
+                </Label>
+            </StackPanel>
+            <Grid>
+                <Border IsVisible="{Binding ElementName=newsItem, Path=News.IsNew}"
+                        Margin="2.5 2.5" Background="{DynamicResource ThemeAccentBrush}" HorizontalAlignment="Left"
+                        Padding="5 2.5" CornerRadius="5">
+                    <TextBlock Text="New!" Foreground="White" FontSize="12" FontStyle="Italic" />
+                </Border>
+                <TextBlock Margin="8 5" HorizontalAlignment="Right" FontSize="12" Foreground="LightGray"
+                           Text="{Binding ElementName=newsItem, Path=News.Date, StringFormat=d}" />
+                <!--TODO: Converter culture was in above date-->
+            </Grid>
+        </StackPanel>
+    </Border>
+</UserControl>

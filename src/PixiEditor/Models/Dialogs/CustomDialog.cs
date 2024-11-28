@@ -1,6 +1,16 @@
-﻿namespace PixiEditor.Models.Dialogs;
+﻿using System.Threading.Tasks;
+using Avalonia.Controls;
+using CommunityToolkit.Mvvm.ComponentModel;
 
-internal abstract class CustomDialog : NotifyableObject
+namespace PixiEditor.Models.Dialogs;
+
+internal abstract class CustomDialog : ObservableObject
 {
-    public abstract bool ShowDialog();
+    protected Window OwnerWindow { get; }
+
+    public CustomDialog(Window ownerWindow)
+    {
+        this.OwnerWindow = ownerWindow;
+    }
+    public abstract Task<bool> ShowDialog();
 }

@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RuntimeIdentifier>wasi-wasm</RuntimeIdentifier>
+    <OutputType>Exe</OutputType>
+    <PublishTrimmed>true</PublishTrimmed>
+    <WasmSingleFileBundle>true</WasmSingleFileBundle>
+    <GenerateExtensionPackage>false</GenerateExtensionPackage>
+    <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
+  </PropertyGroup>
+
+  <Import Project="..\..\src\PixiEditor.Extensions.Sdk\build\PixiEditor.Extensions.Sdk.targets"/>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\PixiEditor.Extensions.Sdk\PixiEditor.Extensions.Sdk.csproj" />
+    </ItemGroup>
+
+</Project>

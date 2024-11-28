@@ -1,0 +1,44 @@
+﻿<UserControl x:Class="PixiEditor.Views.Palettes.PaletteColorControl"
+             x:ClassModifier="internal"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:palettes1="clr-namespace:PixiEditor.Views.Palettes"
+             mc:Ignorable="d" 
+             d:DesignHeight="45" d:DesignWidth="45" 
+             x:Name="uc" 
+             PointerPressed="PaletteColor_OnMouseDown"
+             PointerMoved="PaletteColor_OnMouseMove"
+             PointerReleased="PaletteColor_OnMouseUp">
+    <UserControl.Styles>
+        <Style Selector="palettes1|PaletteColorControl">
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="36"/>
+        </Style>
+    </UserControl.Styles>
+    <Grid Width="{Binding ElementName=uc, Path=Width}" Height="{Binding ElementName=uc, Path=Height}">
+        <Border CornerRadius="{Binding ElementName=uc, Path=CornerRadius}" Width="{Binding ElementName=uc, Path=Width}" Height="{Binding ElementName=uc, Path=Height}"
+                RenderOptions.BitmapInterpolationMode="None">
+            <Border.Background>
+                <VisualBrush>
+                    <VisualBrush.Visual>
+                        <Image Source="/Images/CheckerTile.png" RenderOptions.BitmapInterpolationMode="None"/>
+                    </VisualBrush.Visual>
+                </VisualBrush>
+            </Border.Background>
+        </Border>
+        <Border CornerRadius="{Binding ElementName=uc, Path=CornerRadius}" BorderThickness="0 0 0 0.1" BorderBrush="White">
+            <Border.Background>
+                <SolidColorBrush Color="{Binding Color, Converter={converters:GenericColorToMediaColorConverter}, ElementName=uc}" />
+            </Border.Background>
+        </Border>
+        <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="15" Margin="0 0 0 -1"
+                IsVisible="{Binding ElementName=uc, Path=AssociatedKey, Converter={converters:NotNullToVisibilityConverter}}"
+                Background="{DynamicResource ThemeBackgroundBrush1}" CornerRadius="3.5 0 3.5 0">
+            <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="1 0 0 0"
+                                        Text="{Binding AssociatedKey, ElementName=uc}"/>
+        </Border>
+    </Grid>
+</UserControl>

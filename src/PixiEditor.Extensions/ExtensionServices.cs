@@ -1,14 +1,19 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using PixiEditor.Extensions.Palettes;
-using PixiEditor.Extensions.Windowing;
+using PixiEditor.Extensions.CommonApi.Palettes;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Extensions.CommonApi.Windowing;
+using PixiEditor.Extensions.IO;
 
 namespace PixiEditor.Extensions;
 
 public class ExtensionServices
 {
     public IServiceProvider Services { get; private set; }
-    public IWindowProvider WindowProvider => Services.GetRequiredService<IWindowProvider>();
-    public IPaletteProvider PaletteProvider => Services.GetRequiredService<IPaletteProvider>();
+    public IWindowProvider? Windowing => Services.GetService<IWindowProvider>();
+    public IFileSystemProvider? FileSystem => Services.GetService<IFileSystemProvider>();
+    public IPreferences? Preferences => Services.GetService<IPreferences>();
+    
+    public IPalettesProvider? Palettes => Services.GetService<IPalettesProvider>();
 
     public ExtensionServices(IServiceProvider services)
     {
