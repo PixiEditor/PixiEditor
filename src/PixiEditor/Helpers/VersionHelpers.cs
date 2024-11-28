@@ -11,7 +11,7 @@ internal static class VersionHelpers
 
     public static string GetCurrentAssemblyVersionString(bool moreSpecific = false)
     {
-        StringBuilder builder = new($"{GetCurrentAssemblyVersion().ToString()} Closed Beta");
+        StringBuilder builder = new($"{GetCurrentAssemblyVersion().ToString()} Beta");
 
         // TODO: Dev Build removed for closed beta
 #if MSIX_DEBUG
@@ -39,15 +39,15 @@ internal static class VersionHelpers
     public static string GetBuildId()
     {
 #if DEBUG
-        return "ClosedBetaDebug";
+        return "BetaDebug";
 #elif DEVRELEASE
-        return "ClosedBetaDevRelease";
+        return "BetaDevRelease";
 #elif RELEASE
-        return "ClosedBetaRelease";
+        return "BetaRelease";
 #elif STEAM
-        return "ClosedBetaSteam";
+        return "BetaSteam";
 #elif MSIX
-        return "ClosedBetaMSIX";
+        return "BetaMSIX";
 #else
         #error No build name configured for this configuration
 #endif
