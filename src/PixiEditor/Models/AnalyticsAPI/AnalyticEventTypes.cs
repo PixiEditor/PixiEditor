@@ -13,6 +13,7 @@ public class AnalyticEventTypes
     public static string SwitchTool { get; } = GetEventType("SwitchTool");
     public static string UseTool { get; } = GetEventType("UseTool");
     public static string ResumeSession { get; } = GetEventType("ResumeSession");
+    public static string PeriodicPerformanceReport { get; } = GetEventType("PeriodicPerformanceReport");
 
     private static string GetEventType(string value) => $"PixiEditor.{value}";
 }
