@@ -1,35 +1,45 @@
 ﻿using System.Collections.Immutable;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 using PixiEditor.Extensions.CommonApi.FlyUI;
+using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 
 namespace PixiEditor.Extensions.FlyUI.Elements;
 
-public class Hyperlink : StatelessElement, IPropertyDeserializable
+public class Hyperlink : Text
 {
     public string Url { get; set; }
-    public string Text { get; set; }
-    
-    public Hyperlink(string url, string text)
+
+    public Hyperlink(string text, string url, TextWrap textWrap = TextWrap.None, FontStyle fontStyle = FontStyle.Normal,
+        double fontSize = 12) : base(text, textWrap, fontStyle, fontSize)
     {
         Url = url;
-        Text = text;
     }
 
     public override Control BuildNative()
     {
-        Hyperlink
-        
-       
+        TextBlock hyperlink = (TextBlock)base.BuildNative();
+
+        Binding urlBinding = new Binding() { Source = this, Path = nameof(Url), };
+
+        hyperlink.Bind(UI.Hyperlink.UrlProperty, urlBinding);
+
         return hyperlink;
     }
 
-    public IEnumerable<object> GetProperties()
+    public override IEnumerable<object> GetProperties()
     {
-        throw new NotImplementedException();
+        yield return Value;
+        yield return TextWrap;
+        yield return FontStyle;
+        yield return FontSize;
+        yield return Url;
     }
 
-    public void DeserializeProperties(ImmutableList<object> values)
+    public override void DeserializeProperties(ImmutableList<object> values)
     {
-        throw new NotImplementedException();
+        base.DeserializeProperties(values);
+        Url = (string)values[4];
     }
 }

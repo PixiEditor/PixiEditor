@@ -36,11 +36,11 @@ public class Hyperlink : AvaloniaObject
 
     static Hyperlink()
     {
-        UrlProperty.Changed.AddClassHandler<Hyperlink>(OnUrlSet);
-        CommandProperty.Changed.AddClassHandler<Hyperlink>(OnCommandSet);
+        UrlProperty.Changed.AddClassHandler<TextBlock>(OnUrlSet);
+        CommandProperty.Changed.AddClassHandler<TextBlock>(OnCommandSet);
     }
 
-    private static void OnUrlSet(Hyperlink hyperlink, AvaloniaPropertyChangedEventArgs e)
+    private static void OnUrlSet(TextBlock textBlock, AvaloniaPropertyChangedEventArgs e)
     {
         if (e.Sender is TextBlock tb)
         {
@@ -59,7 +59,7 @@ public class Hyperlink : AvaloniaObject
         }
     }
 
-    private static void OnCommandSet(Hyperlink hyperlink, AvaloniaPropertyChangedEventArgs e)
+    private static void OnCommandSet(TextBlock textBlock, AvaloniaPropertyChangedEventArgs e)
     {
         if (e.Sender is TextBlock tb)
         {

@@ -115,7 +115,7 @@
                                TextAlignment="Center" />
                     <TextBlock Margin="0 10 0 0">
                         <TextBlock ui:Translator.Key="LOSPEC_LINK_TEXT"
-                                   ui1:Hyperlink.Url="https://lospec.com/palette-list" />
+                                   ui:Hyperlink.Url="https://lospec.com/palette-list" />
                     </TextBlock>
                     <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" 
                                FontSize="128" Text="{DynamicResource icon-search}" Classes="pixi-icon" 

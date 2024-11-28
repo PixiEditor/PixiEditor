@@ -7,6 +7,7 @@
              xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              mc:Ignorable="d" Name="newsItem"
              d:DesignHeight="300" d:DesignWidth="300">
     <Border Background="{DynamicResource ThemeBackgroundBrush1}" CornerRadius="5">
@@ -26,7 +27,7 @@
                        Text="{Binding ElementName=newsItem, Path=News.ResolvedIcon}" />
                 <Label VerticalAlignment="Center" HorizontalAlignment="Center">
                     <TextBlock Width="200" TextTrimming="CharacterEllipsis" MaxHeight="50"
-                               ui:Hyperlink.Url="{Binding ElementName=newsItem, Path=News.Url}"
+                               ui1:Hyperlink.Url="{Binding ElementName=newsItem, Path=News.Url}"
                                TextWrapping="Wrap">
                         <Run Text="{Binding ElementName=newsItem, Path=News.Title}" />
                         <Run Text="{DynamicResource icon-link}" Classes="pixi-icon" />

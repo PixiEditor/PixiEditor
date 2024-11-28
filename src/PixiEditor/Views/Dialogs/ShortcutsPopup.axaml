@@ -33,10 +33,10 @@
         <DockPanel>
             <TextBlock Margin="10"
                        HorizontalAlignment="Left" DockPanel.Dock="Bottom"
-                       ui1:Hyperlink.Command="{commands1:Command PixiEditor.Window.OpenSettingsWindow, UseProvided=True}">
-                <ui1:Hyperlink.CommandParameter>
+                       ui:Hyperlink.Command="{commands1:Command PixiEditor.Window.OpenSettingsWindow, UseProvided=True}">
+                <ui:Hyperlink.CommandParameter>
                         <system:Int32>2</system:Int32>
-                    </ui1:Hyperlink.CommandParameter>
+                    </ui:Hyperlink.CommandParameter>
                     <Run ui:Translator.Key="EDIT"/>
                     <Run Text="{DynamicResource icon-link}" Classes="pixi-icon"/>
             </TextBlock>

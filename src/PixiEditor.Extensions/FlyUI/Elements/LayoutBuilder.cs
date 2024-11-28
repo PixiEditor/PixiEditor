@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Reflection;
 using System.Text;
 using Avalonia.Controls;
 using PixiEditor.Extensions.CommonApi.FlyUI;
@@ -165,8 +166,18 @@ public class LayoutBuilder
 
         var constructorWithParams = typeToSpawn.GetConstructors()[0];
         var parameters = constructorWithParams.GetParameters();
-        var parameterValues = parameters.Select(x => x.DefaultValue).ToArray();
+        var parameterValues = parameters.Select(x => x.HasDefaultValue ? x.DefaultValue : TryGetDefault(x)).ToArray(); 
         return (ILayoutElement<Control>)Activator.CreateInstance(typeToSpawn, parameterValues);
+    }
+
+    private static object? TryGetDefault(ParameterInfo x)
+    {
+        if (x.ParameterType == typeof(string))
+        {
+            return string.Empty;
+        }
+        
+        return Activator.CreateInstance(x.ParameterType);
     }
 
     private void RemoveChildren(IChildHost childHost)

@@ -128,7 +128,7 @@
                         <Border Background="{Binding SelectedLanguage.StatusBrush}" CornerRadius="2" />
                         <TextBlock Grid.Column="1"
                                    ui:Translator.LocalizedString="{Binding SelectedLanguage.StatusText}" Margin="5,0" />
-                        <TextBlock ui1:Hyperlink.Command="{Binding CopySelectedUpdatedCommand}" Grid.Column="2" ui:Translator.TooltipKey="COPY_TO_CLIPBOARD">
+                        <TextBlock ui:Hyperlink.Command="{Binding CopySelectedUpdatedCommand}" Grid.Column="2" ui:Translator.TooltipKey="COPY_TO_CLIPBOARD">
                             <Run
                                 Text="{Binding SelectedLanguage.UpdatedLocal, Mode=OneWay, StringFormat='g'}" />
                             <Run Text=" &#xe855;" FontFamily="{DynamicResource Feather}" />
