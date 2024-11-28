@@ -2,26 +2,26 @@
 
 namespace PixiEditor.ClosedBeta;
 
-public class ClosedBetaExtension : PixiEditorExtension
+public class BetaExtension : PixiEditorExtension
 {
     public override void OnInitialized()
     {
-        if (Api.Preferences.GetPreference<bool>("ClosedBetaWelcomeShown"))
+        if (Api.Preferences.GetPreference<bool>("BetaWelcomeShown"))
         {
-            return;   
+            return;
         }
-        
+
         WelcomeMessage welcomeMessage = new();
-        var window = Api.WindowProvider.CreatePopupWindow("Welcome to the closed beta!", welcomeMessage);
+        var window = Api.WindowProvider.CreatePopupWindow("Welcome to the PixiEditor 2.0 beta!", welcomeMessage);
         welcomeMessage.OnContinue += () =>
         {
-            Api.Preferences.UpdatePreference("ClosedBetaWelcomeShown", true);
+            Api.Preferences.UpdatePreference("BetaWelcomeShown", true);
             window.Close();
         };
 
         window.Width = 800;
         window.Height = 600;
-        
+
         window.CanResize = false;
         window.CanMinimize = false;
         window.ShowDialog();

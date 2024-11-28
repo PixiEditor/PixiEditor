@@ -11,6 +11,7 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <PixiExtOutputPath>..\PixiEditor.AvaloniaUI.Desktop\bin\Debug\net9.0\win-x64\Extensions</PixiExtOutputPath>
     <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
+    <RootNamespace>PixiEditor.Beta</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
