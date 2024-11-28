@@ -10,6 +10,7 @@
     <RootNamespace>PixiEditor.Desktop</RootNamespace>
     <ApplicationIcon>..\PixiEditor\Images\favicon.ico</ApplicationIcon>
   </PropertyGroup>
+  
 
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>

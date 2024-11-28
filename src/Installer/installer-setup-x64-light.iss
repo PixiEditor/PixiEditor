@@ -10,7 +10,7 @@
 
 // custom setup info
 #define MyAppName "PixiEditor"
-#define MyAppVersion GetFileVersion("..\..\Builds\PixiEditor-x64-light\PixiEditor\PixiEditor.exe")     ;Not perfect solution, it's enviroment dependend
+#define MyAppVersion GetFileVersion("..\..\Builds\PixiEditor-x64-light\PixiEditor\PixiEditor.dll")     ;Not perfect solution, it's enviroment dependend
 #define MyAppPublisher "PixiEditor"
 #define MyAppURL "https://github.com/PixiEditor/PixiEditor"
 #define MyAppExeName "PixiEditor.exe"
@@ -41,7 +41,7 @@ SolidCompression=yes
 WizardStyle=modern
 ChangesAssociations = yes
 
-MinVersion=6.0
+MinVersion=6.1
 PrivilegesRequired=admin
 ArchitecturesInstallIn64BitMode=x64
 
@@ -364,7 +364,6 @@ Name: de; MessagesFile: "compiler:Languages\German.isl"
 #ifdef UseNetCoreCheck
 // download netcorecheck.exe: https://go.microsoft.com/fwlink/?linkid=2135256
 // download netcorecheck_x64.exe: https://go.microsoft.com/fwlink/?linkid=2135504
-Source: "netcorecheck.exe"; Flags: dontcopy noencryption
 Source: "netcorecheck_x64.exe"; Flags: dontcopy noencryption
 #endif
 
