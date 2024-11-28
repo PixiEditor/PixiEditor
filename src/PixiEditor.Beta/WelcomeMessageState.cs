@@ -6,14 +6,16 @@ namespace PixiEditor.Beta;
 public class WelcomeMessageState : State
 {
     private const string Body = @"
-We are extremely exicted to share this version to you, early testers. Before you jump in and test all the new things,
-we have a few things to note:
+We are extremely excited to share this version with you, early testers. Before you jump in and test all the new things, we have a few things to note:
 
 - This is a very early version of PixiEditor 2.0. Not every feature promised in the roadmap is
   implemented yet. 
+
 - App is not production ready! Expect bugs, crashes, unfinished features, placeholders and other signs of development.
+
 - Your feedback is the most important thing of this beta, please take a moment to report any issues and suggestions on PixiEditor Forum.
 (forum.pixieditor.net)
+
 - We are collecting anonymous usage data to fix bugs, crashes and performance issues. This data will help us to improve the app. During the beta 
 there is no option to opt-out. No personal data is collected.
 

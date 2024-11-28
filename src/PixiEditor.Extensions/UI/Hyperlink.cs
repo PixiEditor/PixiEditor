@@ -4,7 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using PixiEditor.OperatingSystem;
 
-namespace PixiEditor.Helpers.UI;
+namespace PixiEditor.Extensions.UI;
 
 public class Hyperlink : AvaloniaObject
 {
@@ -36,11 +36,11 @@ public class Hyperlink : AvaloniaObject
 
     static Hyperlink()
     {
-        UrlProperty.Changed.Subscribe(OnUrlSet);
-        CommandProperty.Changed.Subscribe(OnCommandSet);
+        UrlProperty.Changed.AddClassHandler<Hyperlink>(OnUrlSet);
+        CommandProperty.Changed.AddClassHandler<Hyperlink>(OnCommandSet);
     }
 
-    private static void OnUrlSet(AvaloniaPropertyChangedEventArgs e)
+    private static void OnUrlSet(Hyperlink hyperlink, AvaloniaPropertyChangedEventArgs e)
     {
         if (e.Sender is TextBlock tb)
         {
@@ -59,7 +59,7 @@ public class Hyperlink : AvaloniaObject
         }
     }
 
-    private static void OnCommandSet(AvaloniaPropertyChangedEventArgs e)
+    private static void OnCommandSet(Hyperlink hyperlink, AvaloniaPropertyChangedEventArgs e)
     {
         if (e.Sender is TextBlock tb)
         {
