@@ -22,8 +22,10 @@ variables:
   value: 'win-$(architecture)'
 - name: buildConfiguration
   value: 'DevRelease'
-  wasiVer: 'wasi-sdk-24.0-$(wasi-arch)-windows'
-  wasiUrl: 'https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-24/$(wasiVer).tar.gz'
+- name: wasiVer
+  value: 'wasi-sdk-24.0-$(wasi-arch)-windows'
+- name: wasiUrl
+  value: 'https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-24/$(wasiVer).tar.gz'
 
 steps:
 
