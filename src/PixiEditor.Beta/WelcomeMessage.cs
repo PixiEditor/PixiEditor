@@ -1,6 +1,6 @@
 ﻿using PixiEditor.Extensions.Sdk.Api.FlyUI;
 
-namespace PixiEditor.ClosedBeta;
+namespace PixiEditor.Beta;
 
 public class WelcomeMessage : StatefulElement<WelcomeMessageState>
 {

@@ -1,8 +1,7 @@
-﻿using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
-using PixiEditor.Extensions.Sdk;
-using PixiEditor.Extensions.Sdk.Api.FlyUI;
+﻿using PixiEditor.Extensions.Sdk.Api.FlyUI;
+using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 
-namespace PixiEditor.ClosedBeta;
+namespace PixiEditor.Beta;
 
 public class WelcomeMessageState : State
 {

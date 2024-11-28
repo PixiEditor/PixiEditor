@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RuntimeIdentifier>wasi-wasm</RuntimeIdentifier>
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -9,7 +9,7 @@
     <PublishTrimmed>true</PublishTrimmed>
     <WasmSingleFileBundle>true</WasmSingleFileBundle>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <PixiExtOutputPath>..\PixiEditor.AvaloniaUI.Desktop\bin\Debug\net9.0\win-x64\Extensions</PixiExtOutputPath>
+    <PixiExtOutputPath>..\PixiEditor.Desktop\bin\Debug\net8.0\Extensions</PixiExtOutputPath>
     <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
     <RootNamespace>PixiEditor.Beta</RootNamespace>
   </PropertyGroup>

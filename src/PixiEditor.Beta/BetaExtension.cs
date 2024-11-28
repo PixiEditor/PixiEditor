@@ -1,6 +1,6 @@
 ﻿using PixiEditor.Extensions.Sdk;
 
-namespace PixiEditor.ClosedBeta;
+namespace PixiEditor.Beta;
 
 public class BetaExtension : PixiEditorExtension
 {
@@ -20,7 +20,7 @@ public class BetaExtension : PixiEditorExtension
         };
 
         window.Width = 800;
-        window.Height = 600;
+        window.Height = 650;
 
         window.CanResize = false;
         window.CanMinimize = false;
