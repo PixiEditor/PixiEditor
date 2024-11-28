@@ -24,4 +24,14 @@
       <ProjectReference Include="..\..\PixiEditor.UI.Common\PixiEditor.UI.Common.csproj" />
       <ProjectReference Include="..\..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <UpToDateCheckInput Remove="Assets\avalonia-logo.ico" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AvaloniaResource Include="..\..\PixiEditor\Images\favicon.ico">
+        <Link>Assets\favicon.ico</Link>
+      </AvaloniaResource>
+    </ItemGroup>
 </Project>

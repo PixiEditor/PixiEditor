@@ -1,8 +1,9 @@
 ﻿using System;
 using Avalonia;
 using Avalonia.ReactiveUI;
+using PixiEditor.UpdateInstaller.New;
 
-namespace PixiEditor.UpdateInstaller.New.Desktop;
+namespace PixiEditor.UpdateInstaller.Desktop;
 
 class Program
 {

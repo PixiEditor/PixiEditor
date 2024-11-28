@@ -13,7 +13,7 @@
   </Design.DataContext>
 
     <StackPanel Margin="40" Spacing="50">
-        <Image Width="64" Source="avares://PixiEditor.UI.Common/Assets/PixiEditorLogo.png"/>
+        <Image Width="128" Source="avares://PixiEditor.UI.Common/Assets/PixiEditorLogo.png"/>
         <TextBlock Classes="h4" Text="Installing Update"/>
         <ProgressBar Minimum="0" Maximum="100" Value="{Binding ProgressValue}" ShowProgressText="True"/>
         </StackPanel>

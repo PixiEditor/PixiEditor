@@ -8,6 +8,6 @@
         ExtendClientAreaChromeHints="NoChrome" ExtendClientAreaTitleBarHeightHint="30" ExtendClientAreaToDecorationsHint="True"
         Width="250" Height="350" CanResize="False" WindowStartupLocation="CenterScreen"
         x:Class="PixiEditor.UpdateInstaller.New.Views.MainWindow" Loaded="Window_OnLoaded"
-        Icon="/Assets/avalonia-logo.ico" Background="{DynamicResource Background0}">
+        Icon="/Assets/favicon.ico" Background="{DynamicResource Background0}">
         <views:MainView />
 </Window>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using PixiEditor.UpdateModule;
 using ReactiveUI;
 
@@ -16,7 +17,7 @@ public class MainViewModel : ViewModelBase
         string updateDirectory = Path.GetDirectoryName(Extensions.GetExecutablePath());
 
 #if DEBUG
-        updateDirectory = Environment.GetCommandLineArgs()[1];
+        updateDirectory = Path.GetDirectoryName(Environment.GetCommandLineArgs().FirstOrDefault());
 #endif
         UpdateDirectory = updateDirectory;
     }
