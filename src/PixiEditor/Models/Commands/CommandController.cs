@@ -372,17 +372,25 @@ internal class CommandController
     private static void CommandMethodInvoker(MethodInfo method, string name, object? instance, object parameter, ParameterInfo[] parameterInfos, bool isTracking)
     {
         var parameters = GetParameters(parameter, parameterInfos);
+        AnalyticEvent? analytics = null;
                 
         if (isTracking)
         {
-            Analytics.SendCommand(name, (parameter as CommandExecutionContext)?.SourceInfo);
+            analytics = Analytics.SendCommand(name, (parameter as CommandExecutionContext)?.SourceInfo, expectingEndTime: true);
         }
 
         try
         {
             object result = method.Invoke(instance, parameters);
             if (result is Task task)
+            {
                 task.ContinueWith(ActionOnException, TaskContinuationOptions.OnlyOnFaulted);
+                task.ContinueWith(ReportEndTime, TaskContinuationOptions.OnlyOnRanToCompletion);
+            }
+            else
+            {
+                analytics?.ReportEndTime();
+            }
         }
         catch (TargetInvocationException e)
         {
@@ -396,6 +404,12 @@ internal class CommandController
             // since this method is "async void" and not "async Task", the runtime will propagate exceptions out if it
             // (instead of putting them into the returned task and forgetting about them)
             await faultedTask; // this instantly throws the exception from the already faulted task
+        }
+
+        ValueTask ReportEndTime(Task originalTask)
+        {
+            analytics?.ReportEndTime();
+            return ValueTask.CompletedTask;
         }
 
         static object?[]? GetParameters(object parameter, ParameterInfo[] parameterInfos)
