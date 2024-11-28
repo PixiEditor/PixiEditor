@@ -132,6 +132,9 @@
     <None Include="../../Third Party Licenses/**" LinkBase="Third Party Licenses/">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Extensions\PixiEditor.Beta.pixiext">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -139,6 +142,10 @@
       <DependentUpon>PercentSettingView.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Extensions\" />
   </ItemGroup>
 
 </Project>

@@ -9,7 +9,8 @@
     <PublishTrimmed>true</PublishTrimmed>
     <WasmSingleFileBundle>true</WasmSingleFileBundle>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <PixiExtOutputPath>..\PixiEditor.Desktop\bin\Debug\net8.0\Extensions</PixiExtOutputPath>
+    <!--TODO: Temp solution, make it properly build by build system and copy to target dir on publish-->
+    <PixiExtOutputPath>$(MSBuildProjectDirectory)\..\PixiEditor\Extensions</PixiExtOutputPath>
     <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
     <RootNamespace>PixiEditor.Beta</RootNamespace>
   </PropertyGroup>
