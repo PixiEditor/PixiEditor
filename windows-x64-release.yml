@@ -97,7 +97,7 @@ steps:
   inputs:
     command: 'publish'
     publishWebProjects: false
-    projects: '**/PixiEditor.UpdateInstaller.csproj'
+    projects: '**/PixiEditor.UpdateInstaller.Desktop.csproj'
     arguments: '-o "UpdateInstaller" -r "$(buildPlatform)" --self-contained=false -p:PublishSingleFile=true -c $(buildConfiguration)'
     zipAfterPublish: false
 
