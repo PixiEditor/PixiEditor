@@ -156,6 +156,7 @@
                                           SelectedValue="{Binding SettingsSubViewModel.Update.UpdateChannelName}"/>
                                 <Image Cursor="Help" Source="/Images/Commands/PixiEditor/Links/OpenDocumentation.png"
                                        VerticalAlignment="Center"
+                                       ToolTip.ShowDelay="0"
                                        IsVisible="{Binding !ShowUpdateTab}"
                                        ui:Translator.TooltipKey="UPDATE_CHANNEL_HELP_TOOLTIP"/>
                                 <!-- ToolTipService.InitialShowDelay="0"-->

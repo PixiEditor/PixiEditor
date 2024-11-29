@@ -57,8 +57,7 @@
             Orientation="Horizontal">
             <Button
                 IsVisible="{Binding DataContext.UpdateSubViewModel.UpdateReadyToInstall, FallbackValue=False, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                FontSize="14"
-                Height="20"
+                Background="{DynamicResource ThemeAccentBrush}"
                 Command="{xaml:Command PixiEditor.Restart}" ui:Translator.Key="RESTART" />
             <TextBlock
                 VerticalAlignment="Center"
