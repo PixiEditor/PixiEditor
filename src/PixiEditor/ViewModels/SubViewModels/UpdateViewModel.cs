@@ -108,7 +108,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         return false;
     }
 
-    private void AskToInstall()
+    private async void AskToInstall()
     {
 #if RELEASE || DEVRELEASE
         if (!PixiEditorSettings.Update.CheckUpdatesOnStartup.Value)
@@ -141,10 +141,9 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         }
 
         ViewModelMain.Current.UpdateSubViewModel.UpdateReadyToInstall = true;
-        var result = ConfirmationDialog.Show("UPDATE_READY", "NEW_UPDATE");
-        result.Wait();
+        var result = await ConfirmationDialog.Show("UPDATE_READY", "NEW_UPDATE");
         
-        if (result.Result != ConfirmationType.Yes)
+        if (result != ConfirmationType.Yes)
         {
             return;
         }

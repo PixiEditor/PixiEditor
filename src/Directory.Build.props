@@ -85,27 +85,27 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(RuntimeIdentifier)'=='win-x64'">
-    <DefineConstants>WINDOWS</DefineConstants>
+    <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(RuntimeIdentifier)'=='win-arm64'">
-    <DefineConstants>WINDOWS</DefineConstants>
+    <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(RuntimeIdentifier)'=='linux-x64'">
-    <DefineConstants>LINUX</DefineConstants>
+    <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(RuntimeIdentifier)'=='linux-arm64'">
-    <DefineConstants>LINUX</DefineConstants>
+    <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(RuntimeIdentifier)'=='osx-x64'">
-    <DefineConstants>MACOS</DefineConstants>
+    <DefineConstants>$(DefineConstants);MACOS</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(RuntimeIdentifier)'=='osx-arm64'">
-    <DefineConstants>MACOS</DefineConstants>
+    <DefineConstants>$(DefineConstants);MACOS</DefineConstants>
   </PropertyGroup>
   
 </Project>
