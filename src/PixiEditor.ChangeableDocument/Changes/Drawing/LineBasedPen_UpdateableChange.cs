@@ -97,7 +97,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
                 ApplySoftnessGradient((VecD)point);
             }
 
-            image.EnqueueDrawEllipse(rect, color, color, 1, 0, antiAliasing, srcPaint);
+            srcPaint.IsAntiAliased = true;
+            image.EnqueueDrawEllipse(rect, color, color, 0, 0, antiAliasing, srcPaint);
         }
 
         var affChunks = image.FindAffectedArea(opCount);
@@ -130,7 +131,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
                 ApplySoftnessGradient(points[i]);
             }
 
-            targetImage.EnqueueDrawEllipse(rect, color, color, 1, 0, antiAliasing, srcPaint);
+            targetImage.EnqueueDrawEllipse(rect, color, color, 0, 0, antiAliasing, srcPaint);
         }
     }
 
