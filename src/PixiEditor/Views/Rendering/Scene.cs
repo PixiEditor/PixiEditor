@@ -259,7 +259,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         if (checkerBitmap == null) return;
 
         RectD operationSurfaceRectToRender = new RectD(0, 0, dirtyBounds.Width, dirtyBounds.Height);
-        float checkerScale = (float)ZoomToViewportConverter.ZoomToViewport(16, Scale) * 0.25f;
+        float checkerScale = (float)ZoomToViewportConverter.ZoomToViewport(16, Scale) * 0.5f;
         checkerPaint?.Dispose();
         checkerPaint = new Paint
         {

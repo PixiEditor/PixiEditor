@@ -158,6 +158,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
     }
 
     internal const double ScaleFactor = 1.09050773267; //2^(1/8)
+    internal const double ScrollStep = 0.5;
 
     public VecD ToScreenSpace(VecD p)
     {
@@ -429,10 +430,10 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     private void OnScroll(object? sender, PointerWheelEventArgs e)
     {
-        double abs = Math.Abs(e.Delta.Y / 100.0);
+        double abs = Math.Abs(e.Delta.Y / ScrollStep);
         for (int i = 0; i < abs; i++)
         {
-            ZoomInto(ToVecD(e.GetPosition(this)), e.Delta.Y / 100.0);
+            ZoomInto(ToVecD(e.GetPosition(this)), e.Delta.Y / ScrollStep);
         }
     }
 
