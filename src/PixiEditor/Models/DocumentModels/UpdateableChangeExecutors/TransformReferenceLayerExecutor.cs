@@ -14,7 +14,7 @@ internal class TransformReferenceLayerExecutor : UpdateableChangeExecutor, ITran
             return ExecutionState.Error;
 
         ShapeCorners corners = document.ReferenceLayerHandler.ReferenceShapeBindable;
-        document.TransformHandler.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_NoPerspective, true, corners, true);
+        document.TransformHandler.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, corners, true);
         document.ReferenceLayerHandler.IsTransforming = true;
         internals!.ActionAccumulator.AddActions(new TransformReferenceLayer_Action(corners));
         return ExecutionState.Success;
