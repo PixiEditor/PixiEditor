@@ -96,8 +96,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             {
                 ApplySoftnessGradient((VecD)point);
             }
-
-            srcPaint.IsAntiAliased = true;
+            
             image.EnqueueDrawEllipse(rect, color, color, 0, 0, antiAliasing, srcPaint);
         }
 
@@ -141,8 +140,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         float radius = strokeWidth / 2f;
         radius = MathF.Max(1, radius);
         srcPaint.Shader = Shader.CreateRadialGradient(
-            pos, radius, new Color[] { color, color.WithAlpha(0) }, 
-            new float[] { hardness, 1 }, ShaderTileMode.Clamp);
+            pos, radius, [color, color.WithAlpha(0)],
+            [hardness - 0.03f, 1f], ShaderTileMode.Clamp);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
