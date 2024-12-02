@@ -136,12 +136,13 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
     private void ApplySoftnessGradient(VecD pos)
     {
+        if (hardness >= 1) return;
         srcPaint.Shader?.Dispose();
         float radius = strokeWidth / 2f;
         radius = MathF.Max(1, radius);
         srcPaint.Shader = Shader.CreateRadialGradient(
             pos, radius, [color, color.WithAlpha(0)],
-            [hardness - 0.03f, 1f], ShaderTileMode.Clamp);
+            [hardness - 0.04f, 1f], ShaderTileMode.Clamp);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
