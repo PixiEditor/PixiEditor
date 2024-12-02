@@ -82,8 +82,6 @@ internal class LineToolOverlay : Overlay
     }
 
 
-    private DashedStroke dashedStroke = new DashedStroke();
-
     private Paint blackPaint = new Paint()
     {
         Color = Colors.Black, StrokeWidth = 1, Style = PaintStyle.Stroke, IsAntiAliased = true
@@ -131,7 +129,7 @@ internal class LineToolOverlay : Overlay
         moveHandle.StrokePaint = blackPaint;
         moveHandle.OnDrag += MoveHandleOnDrag;
         endHandle.Cursor = new Cursor(StandardCursorType.Arrow);
-        moveHandle.OnHover += (handle, _)=> Refresh();
+        moveHandle.OnHover += (handle, _) => Refresh();
         moveHandle.OnRelease += OnHandleRelease;
         AddHandle(moveHandle);
 
@@ -141,7 +139,13 @@ internal class LineToolOverlay : Overlay
     protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
         base.OnOverlayPointerMoved(args);
+
         lastMousePos = args.Point;
+    }
+
+    public override bool TestHit(VecD point)
+    {
+        return IsVisible;
     }
 
     private void OnHandleRelease(Handle obj, OverlayPointerArgs args)
@@ -160,7 +164,6 @@ internal class LineToolOverlay : Overlay
     protected override void ZoomChanged(double newZoom)
     {
         blackPaint.StrokeWidth = 1 / (float)newZoom;
-        dashedStroke.UpdateZoom((float)newZoom);
         infoBox.ZoomScale = newZoom;
     }
 
@@ -176,8 +179,6 @@ internal class LineToolOverlay : Overlay
         VecD size = mappedEnd - mappedStart;
 
         moveHandle.Position = TransformHelper.GetHandlePos(new ShapeCorners(center, size), ZoomScale, moveHandle.Size);
-
-        dashedStroke.Draw(context, mappedStart, mappedEnd);
 
         if (ShowHandles)
         {
@@ -200,6 +201,7 @@ internal class LineToolOverlay : Overlay
 
         movedWhileMouseDown = false;
         mouseDownPos = args.Point;
+        
         lineStartOnMouseDown = LineStart;
         lineEndOnMouseDown = LineEnd;
 
@@ -278,11 +280,14 @@ internal class LineToolOverlay : Overlay
 
     protected override void OnOverlayPointerReleased(OverlayPointerArgs args)
     {
+        IsSizeBoxEnabled = false;
+        
         if (args.InitialPressMouseButton != MouseButton.Left)
             return;
 
         if (movedWhileMouseDown && ActionCompleted is not null && ActionCompleted.CanExecute(null))
             ActionCompleted.Execute(null);
+        
     }
 
     private ((string, string), VecD) TrySnapLine(VecD originalStart, VecD originalEnd, VecD delta)

@@ -106,6 +106,7 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
         undoStack = null;
         IsEnabled = false;
         ShowApplyButton = false;
+        IsSizeBoxEnabled = false;
     }
 
     public bool Nudge(VecD distance)

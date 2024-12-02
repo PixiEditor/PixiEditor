@@ -10,6 +10,7 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers.InputDevice;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -56,6 +57,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
                 toolbar.StrokeColor = colorsVM.PrimaryColor.ToColor();
             }
 
+            document.LineToolOverlayHandler.Hide();
             document.LineToolOverlayHandler.Show(startDrawingPos, startDrawingPos, false);
             document.LineToolOverlayHandler.ShowHandles = false;
             document.LineToolOverlayHandler.IsSizeBoxEnabled = true;
