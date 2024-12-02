@@ -126,7 +126,7 @@
                         <Separator />
                         <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                             <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
-                                          ui:Translator.TooltipKey="TOGGLE_SNAPPING"
+                                          ui:Translator.TooltipKey="TOGGLE_GRIDLINES"
                                           Classes="OverlayToggleButton pixi-icon"
                                           Content="{DynamicResource icon-gridlines}"
                                           IsChecked="{Binding GridLinesVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
