@@ -39,7 +39,8 @@ public static class Filters
         ColorFilter.CreateColorMatrix(ColorMatrix.AverageGrayscale + ColorMatrix.OpaqueAlphaOffset);
 
     /// <summary>
-    ///     R,G,B values are set to 0. Alpha is set to the average of R,G,B values.
+    ///     R,G,B values are set to 0. Alpha is set to the average of R,G,B values. Multiplied by alpha
     /// </summary>
-    public static readonly ColorFilter MaskFilter = ColorFilter.CreateColorMatrix(ColorMatrix.WeightedWavelengthAlphaGrayscale);
+    public static readonly ColorFilter MaskFilter = ColorFilter.CreateLumaColor();
+
 }

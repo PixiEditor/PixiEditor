@@ -19,7 +19,7 @@ internal class ZoomToViewportConverter
 
     public static double ZoomToViewport(double factor, double scale)
     {
-        double newSize = Math.Clamp(factor / scale, 2, 9999);
+        double newSize = Math.Clamp(factor / scale, 1, 9999);
 
         double log = Math.Log(newSize, 2);
         //round to power of 2

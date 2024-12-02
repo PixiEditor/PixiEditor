@@ -96,8 +96,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             {
                 ApplySoftnessGradient((VecD)point);
             }
-
-            image.EnqueueDrawEllipse(rect, color, color, 1, 0, antiAliasing, srcPaint);
+            
+            image.EnqueueDrawEllipse(rect, color, color, 0, 0, antiAliasing, srcPaint);
         }
 
         var affChunks = image.FindAffectedArea(opCount);
@@ -130,18 +130,19 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
                 ApplySoftnessGradient(points[i]);
             }
 
-            targetImage.EnqueueDrawEllipse(rect, color, color, 1, 0, antiAliasing, srcPaint);
+            targetImage.EnqueueDrawEllipse(rect, color, color, 0, 0, antiAliasing, srcPaint);
         }
     }
 
     private void ApplySoftnessGradient(VecD pos)
     {
+        if (hardness >= 1) return;
         srcPaint.Shader?.Dispose();
         float radius = strokeWidth / 2f;
         radius = MathF.Max(1, radius);
         srcPaint.Shader = Shader.CreateRadialGradient(
-            pos, radius, new Color[] { color, color.WithAlpha(0) }, 
-            new float[] { hardness, 1 }, ShaderTileMode.Clamp);
+            pos, radius, [color, color.WithAlpha(0)],
+            [hardness - 0.04f, 1f], ShaderTileMode.Clamp);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,

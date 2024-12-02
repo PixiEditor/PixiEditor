@@ -6,9 +6,9 @@ using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.ViewModels.Document;
 
-internal class KeyFrameGroupViewModel : KeyFrameViewModel, IKeyFrameGroupHandler
+internal class CelGroupViewModel : CelViewModel, ICelGroupHandler
 {
-    public ObservableCollection<IKeyFrameHandler> Children { get; } = new ObservableCollection<IKeyFrameHandler>();
+    public ObservableCollection<ICelHandler> Children { get; } = new ObservableCollection<ICelHandler>();
 
     public override int StartFrameBindable => Children.Count > 0 ? Children.Min(x => x.StartFrameBindable) : 0;
     public override int DurationBindable => Children.Count > 0 ? Children.Max(x => x.StartFrameBindable + x.DurationBindable) - StartFrameBindable : 0;
@@ -23,7 +23,7 @@ internal class KeyFrameGroupViewModel : KeyFrameViewModel, IKeyFrameGroupHandler
             SetProperty(ref _isCollapsed, value);
             foreach (var child in Children)
             {
-                if (child is KeyFrameViewModel keyFrame)
+                if (child is CelViewModel keyFrame)
                 {
                     keyFrame.IsCollapsed = value;
                 }
@@ -37,7 +37,7 @@ internal class KeyFrameGroupViewModel : KeyFrameViewModel, IKeyFrameGroupHandler
     {
         foreach (var child in Children)
         {
-            if(child is KeyFrameViewModel keyFrame)
+            if(child is CelViewModel keyFrame)
             {
                 keyFrame.SetVisibility(isVisible);
             }
@@ -46,7 +46,7 @@ internal class KeyFrameGroupViewModel : KeyFrameViewModel, IKeyFrameGroupHandler
         base.SetVisibility(isVisible);
     }
 
-    public KeyFrameGroupViewModel(int startFrame, int duration, Guid layerGuid, Guid id, DocumentViewModel doc, DocumentInternalParts internalParts) 
+    public CelGroupViewModel(int startFrame, int duration, Guid layerGuid, Guid id, DocumentViewModel doc, DocumentInternalParts internalParts) 
         : base(startFrame, duration, layerGuid, id, doc, internalParts)
     {
         Children.CollectionChanged += ChildrenOnCollectionChanged;
@@ -68,7 +68,7 @@ internal class KeyFrameGroupViewModel : KeyFrameViewModel, IKeyFrameGroupHandler
         {
             foreach (var item in e.NewItems)
             {
-                if (item is KeyFrameViewModel keyFrame)
+                if (item is CelViewModel keyFrame)
                 {
                     keyFrame.IsCollapsed = IsCollapsed;
                     keyFrame.SetVisibility(IsVisible);

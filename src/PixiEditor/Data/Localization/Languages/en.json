@@ -769,5 +769,14 @@
   "PATH_TOOL_TOOLTIP": "Create vector paths and curves ({0}).",
   "PATH_TOOL_ACTION_DISPLAY": "Click to add a point.",
   "PATH_TOOL_ACTION_DISPLAY_CTRL": "Click on existing point and drag to make it a curve.", 
-  "PATH_TOOL_ACTION_DISPLAY_ALT": "Click on a control point and move to adjust only one side of the curve."
+  "PATH_TOOL_ACTION_DISPLAY_ALT": "Click on a control point and move to adjust only one side of the curve.",
+  "DEFAULT_PATH_LAYER_NAME": "Path",
+  "DELETE_NODES": "Delete nodes",
+  "DELETE_NODES_DESCRIPTIVE": "Delete selected nodes",
+  "DELETE_CELS": "Delete cels",
+  "DELETE_CELS_DESCRIPTIVE": "Delete selected cels",
+  "COPY_COLOR_TO_CLIPBOARD": "Copy color to clipboard",
+  "VIEWPORT_ROTATION": "Viewport rotation",
+  "NEXT_TOOL_SET": "Next tool set",
+  "PREVIOUS_TOOL_SET": "Previous tool set"
 }

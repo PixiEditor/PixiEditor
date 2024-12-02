@@ -18,6 +18,8 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
     public override LocalizedString Tooltip => new LocalizedString("PATH_TOOL_TOOLTIP", Shortcut);
 
+    public string? DefaultNewLayerName => new LocalizedString("DEFAULT_PATH_LAYER_NAME");
+
     public override string DefaultIcon => PixiPerfectIcons.VectorPen;
     public override bool StopsLinkedToolOnUse => false;
     public override bool IsErasable => false;

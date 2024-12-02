@@ -236,7 +236,7 @@ internal class ViewportOverlays
         {
             Source = Viewport, Path = "Document.LineToolOverlayViewModel.IsSizeBoxEnabled", Mode = BindingMode.TwoWay
         };
-
+        
         lineToolOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         lineToolOverlay.Bind(LineToolOverlay.SnappingControllerProperty, snappingBinding);
         lineToolOverlay.Bind(LineToolOverlay.ActionCompletedProperty, actionCompletedBinding);
@@ -244,6 +244,9 @@ internal class ViewportOverlays
         lineToolOverlay.Bind(LineToolOverlay.LineEndProperty, lineEndBinding);
         lineToolOverlay.Bind(LineToolOverlay.ShowHandlesProperty, showHandlesBinding);
         lineToolOverlay.Bind(LineToolOverlay.IsSizeBoxEnabledProperty, isSizeBoxEnabledBinding);
+        lineToolOverlay.Bind(LineToolOverlay.ShowHandlesProperty, showHandlesBinding);
+        lineToolOverlay.Bind(LineToolOverlay.IsSizeBoxEnabledProperty, isSizeBoxEnabledBinding);
+        lineToolOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
     }
 
     private void BindTransformOverlay()

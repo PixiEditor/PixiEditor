@@ -203,10 +203,29 @@ public class DocumentChangeTracker : IDisposable
     private OneOf<None, IChangeInfo, List<IChangeInfo>> ProcessMakeChangeAction(IMakeChangeAction act,
         ActionSource source)
     {
-        if (activeUpdateableChange is not null)
+        if (activeUpdateableChange is not null && activeUpdateableChange is not InterruptableUpdateableChange)
         {
             Trace.WriteLine($"Attempted to execute make change action {act} while {activeUpdateableChange} is active");
             return new None();
+        }
+        
+        bool ignoreInUndo = false;
+        List<IChangeInfo> changeInfos = new();
+
+        if (activeUpdateableChange is InterruptableUpdateableChange interruptable)
+        {
+            var applyInfo = interruptable.Apply(document, false, out ignoreInUndo);
+            if (!ignoreInUndo)
+                AddToUndo(interruptable, source);
+            else
+                interruptable.Dispose();
+            
+            applyInfo.Switch(
+                static (None _) => { },
+                (IChangeInfo info) => changeInfos.Add(info),
+                (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
+            
+            activeUpdateableChange = null;
         }
 
         var change = act.CreateCorrespondingChange();
@@ -218,12 +237,18 @@ public class DocumentChangeTracker : IDisposable
             return new None();
         }
 
-        var info = change.Apply(document, true, out bool ignoreInUndo);
+        var info = change.Apply(document, true, out ignoreInUndo);
+        
+        info.Switch(
+            static (None _) => { },
+            (IChangeInfo changeInfo) => changeInfos.Add(changeInfo),
+            (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
+        
         if (!ignoreInUndo)
             AddToUndo(change, source);
         else
             change.Dispose();
-        return info;
+        return changeInfos;
     }
 
     private OneOf<None, IChangeInfo, List<IChangeInfo>> ProcessStartOrUpdateChangeAction(IStartOrUpdateChangeAction act,

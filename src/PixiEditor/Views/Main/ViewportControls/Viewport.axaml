@@ -49,7 +49,6 @@
             </EventTriggerBehavior>-->
         </Interaction.Behaviors>
         <overlays:TogglableFlyout Margin="5" Icon="{DynamicResource icon-tool}"
-                                  ui:Translator.TooltipKey="VIEWPORT_SETTINGS"
                                   ZIndex="2" HorizontalAlignment="Right" VerticalAlignment="Top">
             <overlays:TogglableFlyout.Child>
                 <Border Padding="5"
@@ -64,6 +63,7 @@
                                     BorderThickness="{DynamicResource ThemeBorderThickness}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Background="{DynamicResource ThemeControlHighBrush}"
+                                    ui:Translator.TooltipKey="VIEWPORT_ROTATION"
                                     VerticalAlignment="Center">
                                 <TextBlock TextAlignment="Center"
                                            VerticalAlignment="Center"
@@ -126,7 +126,7 @@
                         <Separator />
                         <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                             <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
-                                          ui:Translator.TooltipKey="TOGGLE_SNAPPING"
+                                          ui:Translator.TooltipKey="TOGGLE_GRIDLINES"
                                           Classes="OverlayToggleButton pixi-icon"
                                           Content="{DynamicResource icon-gridlines}"
                                           IsChecked="{Binding GridLinesVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />

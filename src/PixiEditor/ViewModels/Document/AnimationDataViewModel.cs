@@ -20,12 +20,12 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     
     public DocumentViewModel Document { get; }
     protected DocumentInternalParts Internals { get; }
-    public IReadOnlyCollection<IKeyFrameHandler> KeyFrames => keyFrames;
+    public IReadOnlyCollection<ICelHandler> KeyFrames => keyFrames;
 
-    public IReadOnlyCollection<IKeyFrameHandler> AllKeyFrames => allKeyFrames;
+    public IReadOnlyCollection<ICelHandler> AllCels => allCels;
 
     private KeyFrameCollection keyFrames = new KeyFrameCollection();
-    private List<IKeyFrameHandler> allKeyFrames = new List<IKeyFrameHandler>();
+    private List<ICelHandler> allCels = new List<ICelHandler>();
     private bool onionSkinningEnabled;
     private bool isPlayingBindable;
 
@@ -135,7 +135,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         }
     }
 
-    public void DeleteKeyFrames(List<Guid> keyFrameIds)
+    public void DeleteCels(List<Guid> keyFrameIds)
     {
         if (!Document.BlockingUpdateableChangeActive)
         {
@@ -213,7 +213,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public void SetFrameLength(Guid keyFrameId, int newStartFrame, int newDuration)
     {
-        if (TryFindKeyFrame(keyFrameId, out KeyFrameViewModel keyFrame))
+        if (TryFindCels(keyFrameId, out CelViewModel keyFrame))
         {
             keyFrame.SetStartFrame(newStartFrame);
             keyFrame.SetDuration(newDuration);
@@ -223,34 +223,34 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public void SetKeyFrameVisibility(Guid keyFrameId, bool isVisible)
     {
-        if (TryFindKeyFrame(keyFrameId, out KeyFrameViewModel keyFrame))
+        if (TryFindCels(keyFrameId, out CelViewModel keyFrame))
         {
             keyFrame.SetVisibility(isVisible);
             keyFrames.NotifyCollectionChanged();
         }
     }
 
-    public void AddKeyFrame(IKeyFrameHandler keyFrame)
+    public void AddKeyFrame(ICelHandler iCel)
     {
-        Guid id = keyFrame.LayerGuid;
-        if (TryFindKeyFrame(id, out KeyFrameGroupViewModel foundGroup))
+        Guid id = iCel.LayerGuid;
+        if (TryFindCels(id, out CelGroupViewModel foundGroup))
         {
-            foundGroup.Children.Add((KeyFrameViewModel)keyFrame);
+            foundGroup.Children.Add((CelViewModel)iCel);
         }
         else
         {
             var group =
-                new KeyFrameGroupViewModel(keyFrame.StartFrameBindable, keyFrame.DurationBindable, id, id, Document,
+                new CelGroupViewModel(iCel.StartFrameBindable, iCel.DurationBindable, id, id, Document,
                     Internals);
-            group.Children.Add((KeyFrameViewModel)keyFrame);
+            group.Children.Add((CelViewModel)iCel);
             keyFrames.Add(group);
         }
 
-        keyFrames.NotifyCollectionChanged(NotifyCollectionChangedAction.Add, (KeyFrameViewModel)keyFrame);
+        keyFrames.NotifyCollectionChanged(NotifyCollectionChangedAction.Add, (CelViewModel)iCel);
 
-        if (!allKeyFrames.Contains(keyFrame))
+        if (!allCels.Contains(iCel))
         {
-            allKeyFrames.Add(keyFrame);
+            allCels.Add(iCel);
         }
         
         SortByLayers();
@@ -258,16 +258,16 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public void RemoveKeyFrame(Guid keyFrameId)
     {
-        TryFindKeyFrame<KeyFrameViewModel>(keyFrameId, out _, (frame, parent) =>
+        TryFindCels<CelViewModel>(keyFrameId, out _, (frame, parent) =>
         {
-            if (frame is not KeyFrameGroupViewModel group)
+            if (frame is not CelGroupViewModel group)
             {
                 parent.Children.Remove(frame);
-                keyFrames.NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, (KeyFrameViewModel)frame);
+                keyFrames.NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, (CelViewModel)frame);
 
                 if (parent.Children.Count == 0)
                 {
-                    keyFrames.Remove(parent as KeyFrameGroupViewModel);
+                    keyFrames.Remove(parent as CelGroupViewModel);
                 }
             }
             else
@@ -276,12 +276,12 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             }
         });
 
-        allKeyFrames.RemoveAll(x => x.Id == keyFrameId);
+        allCels.RemoveAll(x => x.Id == keyFrameId);
     }
 
     public void AddSelectedKeyFrame(Guid keyFrameId)
     {
-        if (TryFindKeyFrame(keyFrameId, out KeyFrameViewModel keyFrame))
+        if (TryFindCels(keyFrameId, out CelViewModel keyFrame))
         {
             keyFrame.IsSelected = true;
         }
@@ -289,7 +289,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public void RemoveSelectedKeyFrame(Guid keyFrameId)
     {
-        if (TryFindKeyFrame(keyFrameId, out KeyFrameViewModel keyFrame))
+        if (TryFindCels(keyFrameId, out CelViewModel keyFrame))
         {
             keyFrame.IsSelected = false;
         }
@@ -297,7 +297,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public void ClearSelectedKeyFrames()
     {
-        var selectedFrames = keyFrames.SelectChildrenBy<KeyFrameViewModel>(x => x.IsSelected);
+        var selectedFrames = keyFrames.SelectChildrenBy<CelViewModel>(x => x.IsSelected);
         foreach (var frame in selectedFrames)
         {
             frame.IsSelected = false;
@@ -306,36 +306,36 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public void RemoveKeyFrames(List<Guid> keyFrameIds)
     {
-        List<KeyFrameViewModel> framesToRemove = new List<KeyFrameViewModel>();
+        List<CelViewModel> framesToRemove = new List<CelViewModel>();
         foreach (var keyFrame in keyFrameIds)
         {
-            TryFindKeyFrame<KeyFrameViewModel>(keyFrame, out _, (frame, parent) =>
+            TryFindCels<CelViewModel>(keyFrame, out _, (frame, parent) =>
             {
                 parent.Children.Remove(frame);
-                framesToRemove.Add((KeyFrameViewModel)frame);
+                framesToRemove.Add((CelViewModel)frame);
             });
 
-            allKeyFrames.RemoveAll(x => x.Id == keyFrame);
+            allCels.RemoveAll(x => x.Id == keyFrame);
         }
 
         keyFrames.NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, framesToRemove);
     }
 
-    public bool FindKeyFrame<T>(Guid guid, out T keyFrameHandler) where T : IKeyFrameHandler
+    public bool FindKeyFrame<T>(Guid guid, out T keyFrameHandler) where T : ICelHandler
     {
-        return TryFindKeyFrame<T>(keyFrames, null, guid, out keyFrameHandler, null);
+        return TryFindCels<T>(keyFrames, null, guid, out keyFrameHandler, null);
     }
 
     // TODO: Use the same structure functions as layers
-    public bool TryFindKeyFrame<T>(Guid id, out T? foundKeyFrame,
-        Action<IKeyFrameHandler, IKeyFrameGroupHandler?> onFound = null) where T : IKeyFrameHandler
+    public bool TryFindCels<T>(Guid id, out T? foundKeyFrame,
+        Action<ICelHandler, ICelGroupHandler?> onFound = null) where T : ICelHandler
     {
-        return TryFindKeyFrame(keyFrames, null, id, out foundKeyFrame, onFound);
+        return TryFindCels(keyFrames, null, id, out foundKeyFrame, onFound);
     }
 
-    private bool TryFindKeyFrame<T>(IReadOnlyCollection<IKeyFrameHandler> root, IKeyFrameGroupHandler parent, Guid id,
+    private bool TryFindCels<T>(IReadOnlyCollection<ICelHandler> root, ICelGroupHandler parent, Guid id,
         out T? result,
-        Action<IKeyFrameHandler, IKeyFrameGroupHandler?> onFound) where T : IKeyFrameHandler
+        Action<ICelHandler, ICelGroupHandler?> onFound) where T : ICelHandler
     {
         for (var i = 0; i < root.Count; i++)
         {
@@ -347,9 +347,9 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
                 return true;
             }
 
-            if (frame is IKeyFrameGroupHandler { Children.Count: > 0 } group)
+            if (frame is ICelGroupHandler { Children.Count: > 0 } group)
             {
-                bool found = TryFindKeyFrame(group.Children, group, id, out result, onFound);
+                bool found = TryFindCels(group.Children, group, id, out result, onFound);
                 if (found)
                 {
                     return true;
@@ -365,10 +365,10 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     {
         var allLayers = Document.StructureHelper.GetAllLayers();
         var unsortedKeyFrames = keyFrames.ToList();
-        var layerKeyFrames = new List<KeyFrameGroupViewModel>();
+        var layerKeyFrames = new List<CelGroupViewModel>();
         foreach (var layer in allLayers)
         {
-            var group = unsortedKeyFrames.FirstOrDefault(x => x is KeyFrameGroupViewModel group && group.LayerGuid == layer.Id) as KeyFrameGroupViewModel; 
+            var group = unsortedKeyFrames.FirstOrDefault(x => x is CelGroupViewModel group && group.LayerGuid == layer.Id) as CelGroupViewModel; 
             if(group != null)
             {
                 layerKeyFrames.Insert(0, group);
@@ -377,7 +377,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
         foreach (var remaining in unsortedKeyFrames)
         {
-            if (remaining is KeyFrameGroupViewModel group && !layerKeyFrames.Contains(group))
+            if (remaining is CelGroupViewModel group && !layerKeyFrames.Contains(group))
             {
                 layerKeyFrames.Add(group);
             }
