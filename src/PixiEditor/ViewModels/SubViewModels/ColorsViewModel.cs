@@ -50,6 +50,8 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
     public LocalPalettesFetcher LocalPaletteFetcher => _localPaletteFetcher ??=
         (LocalPalettesFetcher)PaletteProvider.DataSources.FirstOrDefault(x => x is LocalPalettesFetcher)!;
 
+    public bool ColorsTempSwapped { get; private set; }
+    
     private Color primaryColor = Colors.Black;
     private Color secondaryColor = Colors.White;
     private ColorState primaryColorState;
@@ -364,8 +366,18 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         Icon = PixiPerfectIcons.ColorsSwap, AnalyticsTrack = true)]
     public void SwapColors(object parameter)
     {
+        if (parameter is true)
+        {
+            ColorsTempSwapped = !ColorsTempSwapped;
+        }
+        else
+        {
+            ColorsTempSwapped = false;    
+        }
+        
         (PrimaryColor, SecondaryColor) = (SecondaryColor, PrimaryColor);
     }
+
 
     public void AddSwatch(PaletteColor color)
     {

@@ -18,6 +18,7 @@ using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Input;
 using Drawie.Numerics;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Tools.Tools;
 using PixiEditor.Views;
@@ -26,7 +27,6 @@ namespace PixiEditor.ViewModels.SubViewModels;
 #nullable enable
 internal class IoViewModel : SubViewModel<ViewModelMain>
 {
-    private bool hadSwapped;
     private int? previousEraseSize;
     private bool hadSharedToolbar;
     private bool? drawingWithRight;
@@ -196,6 +196,11 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         activeDocument.EventInlet.OnCanvasLeftMouseButtonDown(args);
         Owner.ToolsSubViewModel.UseToolEventInlet(args.PositionOnCanvas, args.Button);
 
+        if (args.Button == MouseButton.Right)
+        {
+            HandleRightSwapColor();
+        }
+
         Analytics.SendUseTool(Owner.ToolsSubViewModel.ActiveTool, args.PositionOnCanvas, activeDocument.SizeBindable);
     }
 
@@ -208,17 +213,15 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         switch (tools.RightClickMode)
         {
             case RightClickMode.SecondaryColor when tools.ActiveTool.UsesColor:
-            case RightClickMode.Erase when tools.ActiveTool is ColorPickerToolViewModel:
-                if (!Owner.DocumentManagerSubViewModel.ActiveDocument.BlockingUpdateableChangeActive)
+                if (Owner.DocumentManagerSubViewModel.ActiveDocument.IsChangeFeatureActive<IDelayedColorSwapFeature>())
                 {
-                    Owner.ColorsSubViewModel.SwapColors(null);
-                }
-                else
-                {
-                    Owner.DocumentManagerSubViewModel.ActiveDocument.ToolSessionFinished += ToolSessionFinished;
+                    return true;
                 }
 
-                hadSwapped = true;
+                Owner.ColorsSubViewModel.SwapColors(true);
+                return true;
+            case RightClickMode.Erase when tools.ActiveTool is ColorPickerToolViewModel:
+                Owner.ColorsSubViewModel.SwapColors(true);
                 return true;
             case RightClickMode.Erase when tools.ActiveTool.IsErasable:
             {
@@ -233,6 +236,22 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         }
     }
 
+    private void HandleRightSwapColor()
+    {
+        if (Owner.DocumentManagerSubViewModel.ActiveDocument is null)
+            return;
+        
+        if(Owner.ColorsSubViewModel.ColorsTempSwapped)
+            return;
+
+        var tools = Owner.ToolsSubViewModel;
+        
+        if (tools is { RightClickMode: RightClickMode.SecondaryColor, ActiveTool.UsesColor: true })
+        {
+            Owner.ColorsSubViewModel.SwapColors(true);
+        }
+    }
+    
     private void HandleRightMouseEraseDown(IToolsHandler tools)
     {
         var currentToolSize = tools.ActiveTool.Toolbar.Settings.FirstOrDefault(x => x.Name == "ToolSize");
@@ -295,8 +314,6 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         drawingWithRight = null;
 
         HandleRightMouseUp(button, tools);
-
-        hadSwapped = false;
     }
 
     private void HandleRightMouseUp(MouseButton button, IToolsHandler tools)
@@ -306,7 +323,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             case MouseButton.Middle:
                 tools.RestorePreviousTool();
                 break;
-            case MouseButton.Right when hadSwapped &&
+            case MouseButton.Right when Owner.ColorsSubViewModel.ColorsTempSwapped &&
                                         (tools.RightClickMode == RightClickMode.SecondaryColor ||
                                          tools is
                                          {

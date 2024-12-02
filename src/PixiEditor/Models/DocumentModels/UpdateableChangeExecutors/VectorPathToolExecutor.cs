@@ -196,6 +196,16 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
 
     private PathVectorData ConstructShapeData()
     {
+        if(startingPath == null)
+        {
+            return new PathVectorData(new VectorPath())
+            {
+                StrokeWidth = toolbar.ToolSize,
+                StrokeColor = toolbar.StrokeColor.ToColor(),
+                FillColor = toolbar.Fill ? toolbar.FillColor.ToColor() : Colors.Transparent,
+            };
+        }
+        
         return new PathVectorData(new VectorPath(startingPath))
         {
             StrokeWidth = toolbar.ToolSize,

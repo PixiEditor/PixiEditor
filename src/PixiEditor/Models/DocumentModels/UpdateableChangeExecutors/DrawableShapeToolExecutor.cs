@@ -10,6 +10,7 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -33,6 +34,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
     private bool noMovement = true;
     protected IBasicShapeToolbar toolbar;
     private IColorsHandler? colorsVM;
+    private bool ignoreNextColorChange = false;
 
     public override bool CanUndo => document.TransformHandler.HasUndo;
     public override bool CanRedo => document.TransformHandler.HasRedo;
@@ -60,6 +62,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
             {
                 toolbar.FillColor = colorsVM.PrimaryColor.ToColor();
                 toolbar.StrokeColor = colorsVM.PrimaryColor.ToColor();
+                ignoreNextColorChange = colorsVM.ColorsTempSwapped;
             }
             
             lastRect = new RectD(startDrawingPos, VecD.Zero);
@@ -161,11 +164,19 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
     public override void OnColorChanged(Color color, bool primary)
     {
-        if (primary && toolbar.SyncWithPrimaryColor && ActiveMode == ShapeToolMode.Transform)
+        if (!primary || !toolbar.SyncWithPrimaryColor || ActiveMode == ShapeToolMode.Preview || ignoreNextColorChange)
         {
-            toolbar.StrokeColor = color.ToColor();
-            toolbar.FillColor = color.ToColor();
+            if (primary)
+            {
+                ignoreNextColorChange = false;
+            }
+            return;
         }
+        
+        ignoreNextColorChange = ActiveMode == ShapeToolMode.Drawing;
+
+        toolbar.StrokeColor = color.ToColor();
+        toolbar.FillColor = color.ToColor();
     }
 
     public override void OnSelectedObjectNudged(VecI distance)

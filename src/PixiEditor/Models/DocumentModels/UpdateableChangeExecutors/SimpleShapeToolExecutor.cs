@@ -26,7 +26,7 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 ///         - Transform -> Drawing (when user clicks outside of shape transform bounds)
 /// </summary>
 internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor, 
-    ITransformableExecutor, IMidChangeUndoableExecutor
+    ITransformableExecutor, IMidChangeUndoableExecutor, IDelayedColorSwapFeature
 {
     private ShapeToolMode activeMode;
 
@@ -226,6 +226,11 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
         if (feature is IMidChangeUndoableExecutor)
         {
             return ActiveMode == ShapeToolMode.Transform;
+        }
+        
+        if (feature is IDelayedColorSwapFeature)
+        {
+            return true;
         }
         
         return false;
