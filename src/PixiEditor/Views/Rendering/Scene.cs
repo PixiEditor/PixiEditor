@@ -373,11 +373,13 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             }
             else
             {
-                for (var i = 0; i < mouseOverOverlays.Count; i++)
+                foreach (var overlay in AllOverlays)
                 {
-                    var overlay = mouseOverOverlays[i];
                     if (args.Handled) break;
                     if (!overlay.IsVisible) continue;
+                    
+                    if(!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) continue;
+                    
                     overlay.PressPointer(args);
                 }
             }
@@ -421,11 +423,13 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             }
             else
             {
-                foreach (Overlay overlay in mouseOverOverlays)
+                foreach (Overlay overlay in AllOverlays)
                 {
                     if (args.Handled) break;
                     if (!overlay.IsVisible) continue;
 
+                    if(!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) continue;
+                    
                     overlay.ReleasePointer(args);
                 }
             }
