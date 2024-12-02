@@ -277,7 +277,7 @@ public class SnappingController
             return pos;
         }
 
-        if (direction == VecD.Zero)
+        if (direction.X == 0 || direction.Y == 0)
         {
             return GetSnapPoint(pos, out xAxis, out yAxis);
         }
