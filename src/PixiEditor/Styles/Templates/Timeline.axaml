@@ -205,7 +205,7 @@
                                 <ItemsControl
                                     ItemsSource="{Binding KeyFrames, RelativeSource={RelativeSource TemplatedParent}}">
                                     <ItemsControl.DataTemplates>
-                                        <DataTemplate DataType="document:KeyFrameGroupViewModel">
+                                        <DataTemplate DataType="document:CelGroupViewModel">
                                             <animations:TimelineGroupHeader Height="70"
                                                                             Item="{Binding}" />
                                         </DataTemplate>
@@ -234,7 +234,7 @@
                                 <ItemsControl ClipToBounds="False" Name="PART_KeyFramesHost"
                                               ItemsSource="{Binding KeyFrames, RelativeSource={RelativeSource TemplatedParent}}">
                                     <ItemsControl.DataTemplates>
-                                        <DataTemplate DataType="document:KeyFrameGroupViewModel">
+                                        <DataTemplate DataType="document:CelGroupViewModel">
                                             <ItemsControl ClipToBounds="False"
                                                           BorderThickness="0, 0, 0, 1"
                                                           BorderBrush="{DynamicResource ThemeBorderMidBrush}"
@@ -256,7 +256,7 @@
                                                 </ItemsControl.ItemsPanel>
                                             </ItemsControl>
                                         </DataTemplate>
-                                        <DataTemplate DataType="document:RasterKeyFrameViewModel">
+                                        <DataTemplate DataType="document:IRasterCelViewModel">
                                             <animations:KeyFrame
                                                 Scale="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
                                                 IsEnabled="{Binding IsVisible}"

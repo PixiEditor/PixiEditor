@@ -12,10 +12,10 @@ namespace PixiEditor.Views.Animations;
 [PseudoClasses(":collapsed")]
 internal class TimelineGroupHeader : TemplatedControl
 {
-    public static readonly StyledProperty<KeyFrameGroupViewModel> ItemProperty = AvaloniaProperty.Register<TimelineGroupHeader, KeyFrameGroupViewModel>(
+    public static readonly StyledProperty<CelGroupViewModel> ItemProperty = AvaloniaProperty.Register<TimelineGroupHeader, CelGroupViewModel>(
         nameof(Item));
 
-    public KeyFrameGroupViewModel Item
+    public CelGroupViewModel Item
     {
         get => GetValue(ItemProperty);
         set => SetValue(ItemProperty, value);

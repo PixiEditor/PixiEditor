@@ -8,7 +8,7 @@ using PixiEditor.Models.Rendering;
 
 namespace PixiEditor.ViewModels.Document;
 
-internal abstract class KeyFrameViewModel : ObservableObject, IKeyFrameHandler
+internal abstract class CelViewModel : ObservableObject, ICelHandler
 {
     private PreviewPainter? previewPainter;
     private int startFrameBindable;
@@ -26,7 +26,7 @@ internal abstract class KeyFrameViewModel : ObservableObject, IKeyFrameHandler
     public DocumentViewModel Document { get; }
     protected DocumentInternalParts Internals { get; }
 
-    IDocument IKeyFrameHandler.Document => Document;
+    IDocument ICelHandler.Document => Document;
 
     public PreviewPainter? PreviewPainter
     {
@@ -93,7 +93,7 @@ internal abstract class KeyFrameViewModel : ObservableObject, IKeyFrameHandler
         set => SetProperty(ref isSelected, value);
     }
 
-    protected KeyFrameViewModel(int startFrame, int duration, Guid layerGuid, Guid id,
+    protected CelViewModel(int startFrame, int duration, Guid layerGuid, Guid id,
         DocumentViewModel document, DocumentInternalParts internalParts)
     {
         startFrameBindable = startFrame;

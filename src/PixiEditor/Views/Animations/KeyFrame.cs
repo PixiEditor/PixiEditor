@@ -17,7 +17,7 @@ namespace PixiEditor.Views.Animations;
 [PseudoClasses(":selected")]
 internal class KeyFrame : TemplatedControl
 {
-    public static readonly StyledProperty<KeyFrameViewModel> ItemProperty = AvaloniaProperty.Register<KeyFrame, KeyFrameViewModel>(
+    public static readonly StyledProperty<CelViewModel> ItemProperty = AvaloniaProperty.Register<KeyFrame, CelViewModel>(
         nameof(Item));
 
     public static readonly StyledProperty<double> ScaleProperty = AvaloniaProperty.Register<KeyFrame, double>(nameof(Scale), 100);
@@ -49,7 +49,7 @@ internal class KeyFrame : TemplatedControl
         set => SetValue(IsSelectedProperty, value);
     }
 
-    public KeyFrameViewModel Item
+    public CelViewModel Item
     {
         get => GetValue(ItemProperty);
         set => SetValue(ItemProperty, value);
@@ -85,7 +85,7 @@ internal class KeyFrame : TemplatedControl
         _resizePanelLeft.PointerCaptureLost += UpdateKeyFrame;
         _resizePanelRight.PointerCaptureLost += UpdateKeyFrame;
 
-        if (Item is not KeyFrameGroupViewModel)
+        if (Item is not CelGroupViewModel)
         {
             MultiBinding marginBinding = new MultiBinding
             {

@@ -23,6 +23,6 @@
         OnionOpacity="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.OnionOpacityBindable, Mode=TwoWay}"
         IsPlaying="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.IsPlayingBindable, Mode=TwoWay}"
         DuplicateKeyFrameCommand="{xaml:Command PixiEditor.Animation.DuplicateRasterKeyFrame}"
-        DeleteKeyFrameCommand="{xaml:Command PixiEditor.Animation.DeleteKeyFrames, UseProvided=True}"
+        DeleteKeyFrameCommand="{xaml:Command PixiEditor.Animation.DeleteCels, UseProvided=True}"
         ChangeKeyFramesLengthCommand="{xaml:Command PixiEditor.Animation.ChangeKeyFramesStartPos, UseProvided=True}"/>
 </UserControl>

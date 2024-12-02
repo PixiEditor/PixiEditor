@@ -173,8 +173,8 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     public ICommand ClearSelectedKeyFramesCommand { get; }
     public ICommand PressedKeyFrameCommand { get; }
 
-    public IReadOnlyCollection<KeyFrameViewModel> SelectedKeyFrames => KeyFrames != null
-        ? KeyFrames.SelectChildrenBy<KeyFrameViewModel>(x => x.IsSelected).ToList()
+    public IReadOnlyCollection<CelViewModel> SelectedKeyFrames => KeyFrames != null
+        ? KeyFrames.SelectChildrenBy<CelViewModel>(x => x.IsSelected).ToList()
         : [];
 
     private ToggleButton? _playToggle;
@@ -190,7 +190,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     private Vector clickPos;
     
     private bool shouldClearNextSelection = true;
-    private KeyFrameViewModel clickedKeyFrame;
+    private CelViewModel clickedCel;
     private bool dragged;
     private int dragStartFrame;
 
@@ -210,12 +210,12 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
             new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromMilliseconds(1000f / Fps) };
         _playTimer.Tick += PlayTimerOnTick;
         PressedKeyFrameCommand = new RelayCommand<PointerPressedEventArgs>(KeyFramePressed);
-        ClearSelectedKeyFramesCommand = new RelayCommand<KeyFrameViewModel>(ClearSelectedKeyFrames);
+        ClearSelectedKeyFramesCommand = new RelayCommand<CelViewModel>(ClearSelectedKeyFrames);
         DraggedKeyFrameCommand = new RelayCommand<PointerEventArgs>(KeyFramesDragged);
-        ReleasedKeyFrameCommand = new RelayCommand<KeyFrameViewModel>(KeyFramesReleased);
+        ReleasedKeyFrameCommand = new RelayCommand<CelViewModel>(KeyFramesReleased);
     }
     
-    public void SelectKeyFrame(KeyFrameViewModel? keyFrame, bool clearSelection = true)
+    public void SelectKeyFrame(CelViewModel? keyFrame, bool clearSelection = true)
     {
         if (clearSelection)
         {
@@ -245,7 +245,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         {
             ChangeKeyFramesLengthCommand.Execute((SelectedKeyFrames.Select(x => x.Id).ToArray(), 0, true));
         }
-        clickedKeyFrame = null;
+        clickedCel = null;
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -280,7 +280,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         _keyFramesHost = e.NameScope.Find<ItemsControl>("PART_KeyFramesHost");
     }
     
-    private void KeyFramesReleased(KeyFrameViewModel? e)
+    private void KeyFramesReleased(CelViewModel? e)
     {
         if (!dragged)
         {
@@ -293,21 +293,21 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         }
 
         dragged = false;
-        clickedKeyFrame = null;
+        clickedCel = null;
     }
 
     private void KeyFramesDragged(PointerEventArgs? e)
     {
-        if (clickedKeyFrame == null) return;
+        if (clickedCel == null) return;
 
         int frameUnderMouse = MousePosToFrame(e);
         int delta = frameUnderMouse - dragStartFrame;
 
         if (delta != 0)
         {
-            if (!clickedKeyFrame.IsSelected)
+            if (!clickedCel.IsSelected)
             {
-                SelectKeyFrame(clickedKeyFrame);
+                SelectKeyFrame(clickedCel);
             }
 
             dragged = true;
@@ -318,7 +318,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         }
     }
 
-    private void ClearSelectedKeyFrames(KeyFrameViewModel? keyFrame)
+    private void ClearSelectedKeyFrames(CelViewModel? keyFrame)
     {
         ClearSelectedKeyFrames();
     }
@@ -335,7 +335,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         }
 
         e.Pointer.Capture(target);
-        clickedKeyFrame = target.Item;
+        clickedCel = target.Item;
         dragStartFrame = MousePosToFrame(e);
         e.Handled = true;
     }
@@ -608,19 +608,19 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         }
     }
 
-    private void KeyFrames_KeyFrameAdded(KeyFrameViewModel keyFrame)
+    private void KeyFrames_KeyFrameAdded(CelViewModel cel)
     {
-        keyFrame.PropertyChanged += KeyFrameOnPropertyChanged;
+        cel.PropertyChanged += KeyFrameOnPropertyChanged;
         PropertyChanged(this, new PropertyChangedEventArgs(nameof(SelectedKeyFrames)));
         PropertyChanged(this, new PropertyChangedEventArgs(nameof(EndFrame)));
     }
 
-    private void KeyFrames_KeyFrameRemoved(KeyFrameViewModel keyFrame)
+    private void KeyFrames_KeyFrameRemoved(CelViewModel cel)
     {
-        if (SelectedKeyFrames.Contains(keyFrame))
+        if (SelectedKeyFrames.Contains(cel))
         {
-            keyFrame.Document.AnimationDataViewModel.RemoveSelectedKeyFrame(keyFrame.Id);
-            keyFrame.PropertyChanged -= KeyFrameOnPropertyChanged;
+            cel.Document.AnimationDataViewModel.RemoveSelectedKeyFrame(cel.Id);
+            cel.PropertyChanged -= KeyFrameOnPropertyChanged;
         }
         
         PropertyChanged(this, new PropertyChangedEventArgs(nameof(SelectedKeyFrames)));
@@ -642,13 +642,13 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     
     private void KeyFrameOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (sender is KeyFrameViewModel keyFrame)
+        if (sender is CelViewModel keyFrame)
         {
-            if (e.PropertyName == nameof(KeyFrameViewModel.IsSelected))
+            if (e.PropertyName == nameof(CelViewModel.IsSelected))
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(nameof(SelectedKeyFrames)));
             }
-            else if (e.PropertyName == nameof(KeyFrameViewModel.StartFrameBindable) || e.PropertyName == nameof(KeyFrameViewModel.DurationBindable))
+            else if (e.PropertyName == nameof(CelViewModel.StartFrameBindable) || e.PropertyName == nameof(CelViewModel.DurationBindable))
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(nameof(EndFrame)));
             }

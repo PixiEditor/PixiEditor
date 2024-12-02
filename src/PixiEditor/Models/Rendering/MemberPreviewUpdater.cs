@@ -111,7 +111,7 @@ internal class MemberPreviewUpdater
     {
         foreach (var keyFrame in doc.AnimationHandler.KeyFrames)
         {
-            if (keyFrame is IKeyFrameGroupHandler groupHandler)
+            if (keyFrame is ICelGroupHandler groupHandler)
             {
                 foreach (var childFrame in groupHandler.Children)
                 {
@@ -132,22 +132,22 @@ internal class MemberPreviewUpdater
         }
     }
     
-    private bool IsInFrame(IKeyFrameHandler keyFrame)
+    private bool IsInFrame(ICelHandler iCel)
     {
-        return keyFrame.StartFrameBindable <= doc.AnimationHandler.ActiveFrameBindable &&
-               keyFrame.StartFrameBindable + keyFrame.DurationBindable >= doc.AnimationHandler.ActiveFrameBindable;
+        return iCel.StartFrameBindable <= doc.AnimationHandler.ActiveFrameBindable &&
+               iCel.StartFrameBindable + iCel.DurationBindable >= doc.AnimationHandler.ActiveFrameBindable;
     }
 
-    private void RenderFramePreview(IKeyFrameHandler keyFrame)
+    private void RenderFramePreview(ICelHandler iCel)
     {
-        if (internals.Tracker.Document.AnimationData.TryFindKeyFrame(keyFrame.Id, out KeyFrame _))
+        if (internals.Tracker.Document.AnimationData.TryFindKeyFrame(iCel.Id, out KeyFrame _))
         {
-            keyFrame.PreviewPainter ??= new PreviewPainter(AnimationKeyFramePreviewRenderer, keyFrame.Id.ToString());
-            keyFrame.PreviewPainter.Repaint();
+            iCel.PreviewPainter ??= new PreviewPainter(AnimationKeyFramePreviewRenderer, iCel.Id.ToString());
+            iCel.PreviewPainter.Repaint();
         }
     }
     
-    private void RenderGroupPreview(IKeyFrameGroupHandler groupHandler)
+    private void RenderGroupPreview(ICelGroupHandler groupHandler)
     {
         var group = internals.Tracker.Document.AnimationData.KeyFrames.FirstOrDefault(x => x.Id == groupHandler.Id);
         if (group != null)
