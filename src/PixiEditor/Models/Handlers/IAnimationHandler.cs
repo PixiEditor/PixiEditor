@@ -4,7 +4,7 @@ namespace PixiEditor.Models.Handlers;
 
 internal interface IAnimationHandler
 {
-    public IReadOnlyCollection<IKeyFrameHandler> KeyFrames { get; }
+    public IReadOnlyCollection<ICelHandler> KeyFrames { get; }
     public int ActiveFrameBindable { get; set; }
     public KeyFrameTime ActiveFrameTime { get; }
     public bool OnionSkinningEnabledBindable { get; set; }
@@ -16,8 +16,8 @@ internal interface IAnimationHandler
     public void SetActiveFrame(int newFrame);
     public void SetFrameLength(Guid keyFrameId, int newStartFrame, int newDuration);
     public void SetKeyFrameVisibility(Guid infoKeyFrameId, bool infoIsVisible);
-    public bool FindKeyFrame<T>(Guid guid, out T keyFrameHandler) where T : IKeyFrameHandler;
-    internal void AddKeyFrame(IKeyFrameHandler keyFrame);
+    public bool FindKeyFrame<T>(Guid guid, out T keyFrameHandler) where T : ICelHandler;
+    internal void AddKeyFrame(ICelHandler iCel);
     internal void RemoveKeyFrame(Guid keyFrameId);
     public void AddSelectedKeyFrame(Guid keyFrameId);
     public void RemoveSelectedKeyFrame(Guid keyFrameId);

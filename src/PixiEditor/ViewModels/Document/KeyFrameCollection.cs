@@ -6,14 +6,14 @@ using PixiEditor.Views.Animations;
 
 namespace PixiEditor.ViewModels.Document;
 
-internal class KeyFrameCollection : ObservableCollection<KeyFrameGroupViewModel>
+internal class KeyFrameCollection : ObservableCollection<CelGroupViewModel>
 {
     public KeyFrameCollection()
     {
         
     }
 
-    public KeyFrameCollection(IEnumerable<KeyFrameGroupViewModel> source)
+    public KeyFrameCollection(IEnumerable<CelGroupViewModel> source)
     {
         foreach (var handler in source)
         {
@@ -21,28 +21,28 @@ internal class KeyFrameCollection : ObservableCollection<KeyFrameGroupViewModel>
         }
     }
 
-    public event Action<KeyFrameViewModel> KeyFrameAdded; 
-    public event Action<KeyFrameViewModel> KeyFrameRemoved; 
+    public event Action<CelViewModel> KeyFrameAdded; 
+    public event Action<CelViewModel> KeyFrameRemoved; 
     
     public void NotifyCollectionChanged()
     {
         OnPropertyChanged(new PropertyChangedEventArgs(nameof(FrameCount)));
     }
 
-    public void NotifyCollectionChanged(NotifyCollectionChangedAction action, KeyFrameViewModel keyFrame)
+    public void NotifyCollectionChanged(NotifyCollectionChangedAction action, CelViewModel cel)
     {
         NotifyCollectionChanged();
         if (action == NotifyCollectionChangedAction.Add)
         {
-            KeyFrameAdded?.Invoke(keyFrame);
+            KeyFrameAdded?.Invoke(cel);
         }
         else if (action == NotifyCollectionChangedAction.Remove)
         {
-            KeyFrameRemoved?.Invoke(keyFrame);
+            KeyFrameRemoved?.Invoke(cel);
         }
     }
     
-    public void NotifyCollectionChanged(NotifyCollectionChangedAction action, List<KeyFrameViewModel> fames)
+    public void NotifyCollectionChanged(NotifyCollectionChangedAction action, List<CelViewModel> fames)
     {
         foreach (var frame in fames)
         {

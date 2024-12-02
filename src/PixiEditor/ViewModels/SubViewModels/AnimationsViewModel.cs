@@ -75,7 +75,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             "Raster",
             activeDocument.AnimationDataViewModel.FrameRateBindable,
             activeDocument.AnimationDataViewModel.FramesCount,
-            activeDocument.AnimationDataViewModel.AllKeyFrames.Count);
+            activeDocument.AnimationDataViewModel.AllCels.Count);
     }
 
     [Command.Basic("PixiEditor.Animation.ToggleOnionSkinning", "TOGGLE_ONION_SKINNING",
@@ -89,28 +89,28 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
         Owner.DocumentManagerSubViewModel.ActiveDocument?.AnimationDataViewModel.ToggleOnionSkinning(value);
     }
 
-    [Command.Basic("PixiEditor.Animation.DeleteKeyFrames", "DELETE_KEY_FRAMES", "DELETE_KEY_FRAMES_DESCRIPTIVE",
+    [Command.Basic("PixiEditor.Animation.DeleteCels", "DELETE_CELS", "DELETE_CELS_DESCRIPTIVE",
         ShortcutContext = typeof(TimelineDockViewModel), Key = Key.Delete, AnalyticsTrack = true)]
-    public void DeleteKeyFrames()
+    public void DeleteCels()
     {
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        var selected = activeDocument.AnimationDataViewModel.AllKeyFrames.Where(x => x.IsSelected).ToArray();
+        var selected = activeDocument.AnimationDataViewModel.AllCels.Where(x => x.IsSelected).ToArray();
 
         if (activeDocument is null || selected.Length == 0)
             return;
 
-        List<Guid> keyFrameIds = selected.Select(x => x.Id).ToList();
+        List<Guid> celIds = selected.Select(x => x.Id).ToList();
 
-        for (int i = 0; i < keyFrameIds.Count; i++)
+        for (int i = 0; i < celIds.Count; i++)
         {
-            if (!activeDocument.AnimationDataViewModel.TryFindKeyFrame<KeyFrameViewModel>(keyFrameIds[i], out _))
+            if (!activeDocument.AnimationDataViewModel.TryFindCels<CelViewModel>(celIds[i], out _))
             {
-                keyFrameIds.RemoveAt(i);
+                celIds.RemoveAt(i);
                 i--;
             }
         }
 
-        activeDocument.AnimationDataViewModel.DeleteKeyFrames(keyFrameIds);
+        activeDocument.AnimationDataViewModel.DeleteCels(celIds);
     }
 
     [Command.Internal("PixiEditor.Animation.ChangeKeyFramesStartPos")]
@@ -135,8 +135,8 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
     private static int GetActiveFrame(DocumentViewModel activeDocument, Guid targetLayer)
     {
         int active = activeDocument.AnimationDataViewModel.ActiveFrameBindable;
-        if (activeDocument.AnimationDataViewModel.TryFindKeyFrame<KeyFrameGroupViewModel>(targetLayer,
-                out KeyFrameGroupViewModel groupViewModel))
+        if (activeDocument.AnimationDataViewModel.TryFindCels<CelGroupViewModel>(targetLayer,
+                out CelGroupViewModel groupViewModel))
         {
             if (active == groupViewModel.StartFrameBindable + groupViewModel.DurationBindable - 1)
             {

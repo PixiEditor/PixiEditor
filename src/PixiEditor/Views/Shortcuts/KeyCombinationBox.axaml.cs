@@ -52,7 +52,7 @@ internal partial class KeyCombinationBox : UserControl
 
         ViewModelMain.Current.LocalizationProvider.OnLanguageChanged += _ => UpdateText();
 
-        //TOOD: Fix
+        //TODO: Fix
         //InputLanguageManager.Current.InputLanguageChanged += (_, _) => UpdateText();
     }
 

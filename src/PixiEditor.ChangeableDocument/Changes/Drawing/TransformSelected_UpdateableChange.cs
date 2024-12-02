@@ -12,7 +12,7 @@ using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
-internal class TransformSelected_UpdateableChange : UpdateableChange
+internal class TransformSelected_UpdateableChange : InterruptableUpdateableChange
 {
     private readonly bool drawOnMask;
     private bool keepOriginal;

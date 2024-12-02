@@ -128,7 +128,13 @@
                                       Name="rightClickModeComboBox"
                                       ItemsSource="{markupExtensions:Enum preferences:RightClickMode}"
                                       Width="160"
-                                      VerticalAlignment="Center"/>
+                                      VerticalAlignment="Center">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock ui:Translator.Key="{Binding Converter={converters:EnumToLocalizedStringConverter}}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                             <!--Styles="{StaticResource TranslatedEnum}"-->
                         </StackPanel>
 

@@ -259,7 +259,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         if (checkerBitmap == null) return;
 
         RectD operationSurfaceRectToRender = new RectD(0, 0, dirtyBounds.Width, dirtyBounds.Height);
-        float checkerScale = (float)ZoomToViewportConverter.ZoomToViewport(16, Scale) * 0.25f;
+        float checkerScale = (float)ZoomToViewportConverter.ZoomToViewport(16, Scale) * 0.5f;
         checkerPaint?.Dispose();
         checkerPaint = new Paint
         {
@@ -317,6 +317,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         {
             OverlayPointerArgs args = ConstructPointerArgs(e);
 
+            Cursor = DefaultCursor;
+            
             if (capturedOverlay != null)
             {
                 capturedOverlay.MovePointer(args);
@@ -371,11 +373,13 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             }
             else
             {
-                for (var i = 0; i < mouseOverOverlays.Count; i++)
+                foreach (var overlay in AllOverlays)
                 {
-                    var overlay = mouseOverOverlays[i];
                     if (args.Handled) break;
                     if (!overlay.IsVisible) continue;
+                    
+                    if(!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) continue;
+                    
                     overlay.PressPointer(args);
                 }
             }
@@ -419,11 +423,13 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             }
             else
             {
-                foreach (Overlay overlay in mouseOverOverlays)
+                foreach (Overlay overlay in AllOverlays)
                 {
                     if (args.Handled) break;
                     if (!overlay.IsVisible) continue;
 
+                    if(!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) continue;
+                    
                     overlay.ReleasePointer(args);
                 }
             }
@@ -494,6 +500,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             foreach (Overlay overlay in e.OldItems)
             {
                 overlay.RefreshRequested -= QueueRender;
+                overlay.RefreshCursorRequested -= RefreshCursor;
             }
         }
 
@@ -502,6 +509,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             foreach (Overlay overlay in e.NewItems)
             {
                 overlay.RefreshRequested += QueueRender;
+                overlay.RefreshCursorRequested += RefreshCursor;
             }
         }
     }
@@ -610,6 +618,23 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     #endregion
 
+    public void RefreshCursor()
+    {
+        Cursor = DefaultCursor;
+        if (AllOverlays != null)
+        {
+            foreach (Overlay overlay in AllOverlays)
+            {
+                if (!overlay.IsVisible) continue;
+                
+                if (overlay.IsHitTestVisible)
+                {
+                    Cursor = overlay.Cursor ?? DefaultCursor;
+                }
+            }
+        }
+    }
+    
     private void QueueRender()
     {
         Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);

@@ -44,6 +44,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     }
 
     public event Action? RefreshRequested;
+    public event Action? RefreshCursorRequested;
     public event PointerEvent? PointerEnteredOverlay;
     public event PointerEvent? PointerExitedOverlay;
     public event PointerEvent? PointerMovedOverlay;
@@ -75,6 +76,11 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     {
         RefreshRequested?.Invoke(); // For scene hosted overlays
         InvalidateVisual(); // For elements in visual tree
+    }
+
+    public void ForceRefreshCursor()
+    {
+        RefreshCursorRequested?.Invoke();
     }
 
     public void CaptureHandle(Handle handle)
@@ -272,6 +278,11 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         if (e.NewValue.Value)
         {
             Refresh();
+        }
+        else
+        {
+            Cursor = null;
+            RefreshCursorRequested?.Invoke();
         }
     }
 

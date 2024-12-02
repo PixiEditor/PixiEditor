@@ -10,6 +10,7 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers.InputDevice;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -27,6 +28,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
     private T? toolViewModel;
     private IColorsHandler? colorsVM;
     protected ILineToolbar? toolbar;
+    private bool ignoreNextColorChange = false;
 
     public override bool CanUndo => document.LineToolOverlayHandler.HasUndo;
     public override bool CanRedo => document.LineToolOverlayHandler.HasRedo;
@@ -54,8 +56,10 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
             if (toolbar.SyncWithPrimaryColor)
             {
                 toolbar.StrokeColor = colorsVM.PrimaryColor.ToColor();
+                ignoreNextColorChange = colorsVM.ColorsTempSwapped;
             }
 
+            document.LineToolOverlayHandler.Hide();
             document.LineToolOverlayHandler.Show(startDrawingPos, startDrawingPos, false);
             document.LineToolOverlayHandler.ShowHandles = false;
             document.LineToolOverlayHandler.IsSizeBoxEnabled = true;
@@ -155,9 +159,16 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
 
     public override void OnColorChanged(Color color, bool primary)
     {
-        if (!primary || !toolbar!.SyncWithPrimaryColor || ActiveMode != ShapeToolMode.Transform)
+        if (!primary || !toolbar!.SyncWithPrimaryColor || ActiveMode == ShapeToolMode.Preview || ignoreNextColorChange)
+        {
+            if (primary)
+            {
+                ignoreNextColorChange = false;
+            }
             return;
+        }
 
+        ignoreNextColorChange = ActiveMode == ShapeToolMode.Drawing;
         toolbar!.StrokeColor = color.ToColor();
         var colorChangedAction = SettingsChange();
         internals!.ActionAccumulator.AddActions(colorChangedAction);
