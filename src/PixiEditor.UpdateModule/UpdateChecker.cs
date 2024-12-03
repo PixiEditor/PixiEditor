@@ -70,6 +70,12 @@ public class UpdateChecker
 
     private static bool TryParseToFloatVersion(string normalizedString, out float ver)
     {
+        if (string.IsNullOrEmpty(normalizedString))
+        {
+            ver = 0;
+            return false;
+        }
+        
         return float.TryParse(normalizedString.Replace(".", string.Empty).Insert(1, "."), NumberStyles.Any, CultureInfo.InvariantCulture, out ver);
     }
 

@@ -22,4 +22,6 @@ public static class Paths
         $"avares://{Assembly.GetExecutingAssembly().GetName().Name}/Data";
     
     public static string TempRenderingPath { get; } = Path.Combine(Path.GetTempPath(), "PixiEditor", "Rendering");
+    
+    public static string TempFilesPath { get; } = Path.Combine(Path.GetTempPath(), "PixiEditor");
 }

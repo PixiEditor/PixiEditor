@@ -20,16 +20,19 @@ public class FuncContext
     ///     Original position of the pixel in the image. This is the input argument of the main function.
     /// </summary>
     public Float2 OriginalPosition { get; private set; }
-    
+
     /// <summary>
     ///     Modified position of the pixel. This should be used to sample the texture, unless you want to sample the texture at the original position only.
     /// </summary>
     public Float2 SamplePosition { get; private set; }
+
     public VecI Size { get; private set; }
     public bool HasContext { get; private set; }
     public RenderContext RenderContext { get; set; }
 
     public ShaderBuilder Builder { get; set; }
+
+    private Dictionary<IFuncInputProperty, ShaderExpressionVariable> _cachedValues = new();
 
     public void ThrowOnMissingContext()
     {
@@ -49,10 +52,10 @@ public class FuncContext
         Builder = builder;
         HasContext = true;
         OriginalPosition = new Float2("coords"); // input argument 'half4 main(float2 coords)'
-        SamplePosition = Builder.ConstructFloat2(OriginalPosition.X, OriginalPosition.Y); 
+        SamplePosition = Builder.ConstructFloat2(OriginalPosition.X, OriginalPosition.Y);
     }
 
-    public Half4 SampleSurface(DrawingSurface surface, Float2 pos)
+    public Half4 SampleSurface(DrawingSurface surface, Expression pos)
     {
         SurfaceSampler texName = Builder.AddOrGetSurface(surface);
         return Builder.Sample(texName, pos);
@@ -66,7 +69,7 @@ public class FuncContext
             constantFloat.ConstantValue = new VecD(firstFloat.ConstantValue, secondFloat.ConstantValue);
             return constantFloat;
         }
-        
+
         return Builder.ConstructFloat2(x, y);
     }
 
@@ -78,7 +81,7 @@ public class FuncContext
             constantFloat.ConstantValue = float1.ConstantValue;
             return constantFloat;
         }
-        
+
         return Builder.ConstructFloat1(result);
     }
 
@@ -91,13 +94,14 @@ public class FuncContext
             constantInt.ConstantValue = new VecI(firstInt.ConstantValue, secondInt.ConstantValue);
             return constantInt;
         }
-        
+
         return Builder.ConstructInt2(first, second);
     }
 
     public Half4 NewHalf4(Expression r, Expression g, Expression b, Expression a)
     {
-        if (!HasContext && r is Float1 firstFloat && g is Float1 secondFloat && b is Float1 thirdFloat && a is Float1 fourthFloat)
+        if (!HasContext && r is Float1 firstFloat && g is Float1 secondFloat && b is Float1 thirdFloat &&
+            a is Float1 fourthFloat)
         {
             Half4 constantHalf4 = new Half4("");
             byte rByte = firstFloat.AsConstantColorByte();
@@ -107,13 +111,14 @@ public class FuncContext
             constantHalf4.ConstantValue = new Color(rByte, gByte, bByte, aByte);
             return constantHalf4;
         }
-        
+
         return Builder.ConstructHalf4(r, g, b, a);
     }
 
     public Half4 HsvaToRgba(Expression h, Expression s, Expression v, Expression a)
     {
-        if (!HasContext && h is Float1 firstFloat && s is Float1 secondFloat && v is Float1 thirdFloat && a is Float1 fourthFloat)
+        if (!HasContext && h is Float1 firstFloat && s is Float1 secondFloat && v is Float1 thirdFloat &&
+            a is Float1 fourthFloat)
         {
             Half4 constantHalf4 = new Half4("");
             var hValue = firstFloat.ConstantValue * 360;
@@ -129,7 +134,8 @@ public class FuncContext
 
     public Half4 HslaToRgba(Expression h, Expression s, Expression l, Expression a)
     {
-        if (!HasContext && h is Float1 firstFloat && s is Float1 secondFloat && l is Float1 thirdFloat && a is Float1 fourthFloat)
+        if (!HasContext && h is Float1 firstFloat && s is Float1 secondFloat && l is Float1 thirdFloat &&
+            a is Float1 fourthFloat)
         {
             Half4 constantHalf4 = new Half4("");
             var hValue = firstFloat.ConstantValue * 360;
@@ -142,29 +148,31 @@ public class FuncContext
 
         return Builder.AssignNewHalf4(Builder.Functions.GetHslToRgb(h, s, l, a));
     }
-    
+
     public Half4 RgbaToHsva(Expression color)
     {
         if (!HasContext && color is Half4 constantColor)
         {
             var variable = new Half4(string.Empty);
             constantColor.ConstantValue.ToHsv(out float h, out float s, out float l);
-            variable.ConstantValue = new Color((byte)(h * 255), (byte)(s * 255), (byte)(l * 255), constantColor.ConstantValue.A);
-            
+            variable.ConstantValue = new Color((byte)(h * 255), (byte)(s * 255), (byte)(l * 255),
+                constantColor.ConstantValue.A);
+
             return variable;
         }
 
         return Builder.AssignNewHalf4(Builder.Functions.GetRgbToHsv(color));
     }
-    
+
     public Half4 RgbaToHsla(Expression color)
     {
         if (!HasContext && color is Half4 constantColor)
         {
             var variable = new Half4(string.Empty);
             constantColor.ConstantValue.ToHsl(out float h, out float s, out float l);
-            variable.ConstantValue = new Color((byte)(h * 255), (byte)(s * 255), (byte)(l * 255), constantColor.ConstantValue.A);
-            
+            variable.ConstantValue = new Color((byte)(h * 255), (byte)(s * 255), (byte)(l * 255),
+                constantColor.ConstantValue.A);
+
             return variable;
         }
 
@@ -179,7 +187,7 @@ public class FuncContext
             constantHalf4.ConstantValue = half4.ConstantValue;
             return constantHalf4;
         }
-        
+
         return Builder.AssignNewHalf4(assignment);
     }
 
@@ -193,12 +201,24 @@ public class FuncContext
                 Builder.AddUniform(uniformName, (float)getFrom.Value(this).ConstantValue);
                 return new Float1(uniformName);
             }
+
+            if (_cachedValues.TryGetValue(getFrom, out ShaderExpressionVariable cachedValue))
+            {
+                if (cachedValue is Float1 float1)
+                {
+                    return float1;
+                }
+            }
         }
 
-        return getFrom.Value(this);
+
+        var val = getFrom.Value(this);
+        _cachedValues[getFrom] = val;
+
+        return val;
     }
 
-    public Expression GetValue(FuncInputProperty<Int1> getFrom)
+    public Int1 GetValue(FuncInputProperty<Int1> getFrom)
     {
         if (HasContext)
         {
@@ -206,11 +226,22 @@ public class FuncContext
             {
                 string uniformName = $"int_{Builder.GetUniqueNameNumber()}";
                 Builder.AddUniform(uniformName, (int)getFrom.Value(this).ConstantValue);
-                return new Expression(uniformName);
+                return new Int1(uniformName);
+            }
+
+            if (_cachedValues.TryGetValue(getFrom, out ShaderExpressionVariable cachedValue))
+            {
+                if (cachedValue is Int1 int1)
+                {
+                    return int1;
+                }
             }
         }
 
-        return getFrom.Value(this);
+        var val = getFrom.Value(this);
+        _cachedValues[getFrom] = val;
+
+        return val;
     }
 
     private static bool IsFuncType<T>(FuncInputProperty<T> getFrom)
@@ -218,7 +249,7 @@ public class FuncContext
         return getFrom.Connection.ValueType.IsAssignableTo(typeof(Delegate));
     }
 
-    public ShaderExpressionVariable GetValue(FuncInputProperty<Half4> getFrom)
+    public Half4 GetValue(FuncInputProperty<Half4> getFrom)
     {
         if (HasContext)
         {
@@ -229,9 +260,20 @@ public class FuncContext
                 Builder.AddUniform(color.VariableName, color.ConstantValue);
                 return color;
             }
+
+            if (_cachedValues.TryGetValue(getFrom, out ShaderExpressionVariable cachedValue))
+            {
+                if (cachedValue is Half4 half4)
+                {
+                    return half4;
+                }
+            }
         }
 
-        return getFrom.Value(this);
+        var val = getFrom.Value(this);
+        _cachedValues[getFrom] = val;
+
+        return val;
     }
 
     public Float2 GetValue(FuncInputProperty<Float2> getFrom)
@@ -245,8 +287,46 @@ public class FuncContext
                 Builder.AddUniform(value.VariableName, value.ConstantValue);
                 return value;
             }
+
+            if (_cachedValues.TryGetValue(getFrom, out ShaderExpressionVariable cachedValue))
+            {
+                if (cachedValue is Float2 float2)
+                {
+                    return float2;
+                }
+            }
         }
 
-        return getFrom.Value(this);
+        var val = getFrom.Value(this);
+        _cachedValues[getFrom] = val;
+
+        return val;
+    }
+
+    public Int2 GetValue(FuncInputProperty<Int2>? getFrom)
+    {
+        if (HasContext)
+        {
+            if (getFrom?.Connection == null || !IsFuncType(getFrom))
+            {
+                Int2 value = getFrom.Value(this);
+                value.VariableName = $"int2_{Builder.GetUniqueNameNumber()}";
+                Builder.AddUniform(value.VariableName, value.ConstantValue);
+                return value;
+            }
+
+            if (_cachedValues.TryGetValue(getFrom, out ShaderExpressionVariable cachedValue))
+            {
+                if (cachedValue is Int2 int2)
+                {
+                    return int2;
+                }
+            }
+        }
+
+        var val = getFrom.Value(this);
+        _cachedValues[getFrom] = val;
+
+        return val;
     }
 }

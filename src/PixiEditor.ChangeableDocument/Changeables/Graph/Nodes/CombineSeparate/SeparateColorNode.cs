@@ -56,7 +56,7 @@ public class SeparateColorNode : Node
         };
 
     private Half4 GetRgba(FuncContext ctx) => 
-        contextVariables.GetOrAttachNew(ctx, Color, () => Color.Value(ctx));
+        contextVariables.GetOrAttachNew(ctx, Color, () => ctx.GetValue(Color));
 
     private Half4 GetHsva(FuncContext ctx) =>
         contextVariables.GetOrAttachNew(ctx, Color, () => ctx.RgbaToHsva(ctx.GetValue(Color)));

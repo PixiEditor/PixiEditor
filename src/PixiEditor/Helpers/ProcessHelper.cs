@@ -14,4 +14,9 @@ internal static class ProcessHelper
     {
         return IOperatingSystem.Current.ProcessUtility.IsRunningAsAdministrator();
     }
+
+    public static void RunAsAdmin(string updaterPath, bool showWindow)
+    {
+        IOperatingSystem.Current.ProcessUtility.RunAsAdmin(updaterPath, showWindow);
+    }
 }
