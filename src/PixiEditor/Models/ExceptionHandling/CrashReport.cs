@@ -341,10 +341,10 @@ internal class CrashReport : IDisposable
         Process process = new();
 
         //TODO: Handle different name for the executable, .Desktop.exe
-#if DEBUG
-        string fileName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location) + ".Desktop.exe";
-        #else
         string fileName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location) + ".exe";
+#if DEBUG
+        if(!File.Exists(fileName))
+            fileName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location) + ".Desktop.exe";
 #endif
 
         process.StartInfo = new()

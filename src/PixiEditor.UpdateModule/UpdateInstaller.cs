@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 
 namespace PixiEditor.UpdateModule;
 
@@ -9,46 +10,39 @@ public class UpdateInstaller
 {
     public const string TargetDirectoryName = "UpdateFiles";
 
-    private float progress = 0;
-
     public UpdateInstaller(string archiveFileName, string targetDirectory)
     {
         ArchiveFileName = archiveFileName;
         TargetDirectory = targetDirectory;
     }
 
-    public event EventHandler<UpdateProgressChangedEventArgs> ProgressChanged;
-
     public static string UpdateFilesPath { get; set; } = Path.Join(UpdateDownloader.DownloadLocation, TargetDirectoryName);
-
-    public float Progress
-    {
-        get => progress;
-        set
-        {
-            progress = value;
-            ProgressChanged?.Invoke(this, new UpdateProgressChangedEventArgs(value));
-        }
-    }
 
     public string ArchiveFileName { get; set; }
 
     public string TargetDirectory { get; set; }
 
-    public void Install()
+    public void Install(StringBuilder log)
     {
         var processes = Process.GetProcessesByName("PixiEditor");
+        log.AppendLine($"Found {processes.Length} PixiEditor processes running.");
         if (processes.Length > 0)
         {
+            log.AppendLine("Killing PixiEditor processes...");
             processes[0].WaitForExit();
+            log.AppendLine("Processes killed.");
         }
 
+        log.AppendLine("Extracting files");
         ZipFile.ExtractToDirectory(ArchiveFileName, UpdateFilesPath, true);
-        Progress = 25; // 25% for unzip
+        
+        log.AppendLine("Files extracted");
         string dirWithFiles = Directory.GetDirectories(UpdateFilesPath)[0];
-        CopyFilesToDestination(dirWithFiles);
+        log.AppendLine($"Copying files from {dirWithFiles} to {TargetDirectory}");
+        CopyFilesToDestination(dirWithFiles, log);
+        log.AppendLine("Files copied");
+        log.AppendLine("Deleting archive and update files");
         DeleteArchive();
-        Progress = 100;
     }
 
     private void DeleteArchive()
@@ -57,33 +51,37 @@ public class UpdateInstaller
         Directory.Delete(UpdateFilesPath, true);
     }
 
-    private void CopyFilesToDestination(string sourceDirectory)
+    private void CopyFilesToDestination(string sourceDirectory, StringBuilder log)
     {
         int totalFiles = Directory.GetFiles(UpdateFilesPath, "*", SearchOption.AllDirectories).Length;
+        log.AppendLine($"Found {totalFiles} files to copy.");
 
         string[] files = Directory.GetFiles(sourceDirectory);
-        float fileCopiedVal = 74f / totalFiles; // 74% is reserved for copying
 
         foreach (string file in files)
         {
             string targetFileName = Path.GetFileName(file);
-            File.Copy(file, Path.Join(TargetDirectory, targetFileName), true);
-            Progress += fileCopiedVal;
+            string targetFilePath = Path.Join(TargetDirectory, targetFileName);
+            log.AppendLine($"Copying {file} to {targetFilePath}");
+            File.Copy(file, targetFilePath, true);
         }
 
-        CopySubDirectories(sourceDirectory, TargetDirectory, fileCopiedVal);
+        CopySubDirectories(sourceDirectory, TargetDirectory, log);
     }
 
-    private void CopySubDirectories(string originDirectory, string targetDirectory, float percentPerFile)
+    private void CopySubDirectories(string originDirectory, string targetDirectory, StringBuilder log)
     {
         string[] subDirs = Directory.GetDirectories(originDirectory);
+        log.AppendLine($"Found {subDirs.Length} subdirectories to copy.");
         if(subDirs.Length == 0) return;
 
         foreach (string subDir in subDirs)
         {
             string targetDirPath = Path.Join(targetDirectory, Path.GetFileName(subDir));
+            
+            log.AppendLine($"Copying {subDir} to {targetDirPath}");
 
-            CopySubDirectories(subDir, targetDirPath, percentPerFile);
+            CopySubDirectories(subDir, targetDirPath, log);
 
             string[] files = Directory.GetFiles(subDir);
 
@@ -95,10 +93,9 @@ public class UpdateInstaller
             foreach (string file in files)
             {
                 string targetFileName = Path.GetFileName(file);
+                log.AppendLine($"Copying {file} to {Path.Join(targetDirPath, targetFileName)}");
                 File.Copy(file, Path.Join(targetDirPath, targetFileName), true);
             }
-
-            Progress += percentPerFile;
         }
     }
 }

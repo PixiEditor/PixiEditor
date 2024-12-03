@@ -9,13 +9,21 @@ public class WindowsProcessUtility : IProcessUtility
 {
     public Process RunAsAdmin(string path)
     {
-        var proc = new Process();
-        proc.StartInfo.FileName = path;
-        proc.StartInfo.Verb = "runas";
-        proc.StartInfo.UseShellExecute = true;
-        proc.Start();
+        return RunAsAdmin(path, true);
+    }
 
-        return proc;
+    public Process RunAsAdmin(string path, bool createWindow)
+    {
+        ProcessStartInfo startInfo = new ProcessStartInfo
+        {
+            FileName = path,
+            Verb = "runas",
+            UseShellExecute = true,
+            CreateNoWindow = !createWindow,
+            WindowStyle = createWindow ? ProcessWindowStyle.Normal : ProcessWindowStyle.Minimized,
+        };
+
+        return Process.Start(startInfo);  
     }
 
     public bool IsRunningAsAdministrator()
