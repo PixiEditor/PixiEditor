@@ -13,7 +13,12 @@ public static class UpdateDownloader
 
     public static async Task DownloadReleaseZip(ReleaseInfo release)
     {
-        Asset matchingAsset = GetMatchingAsset(release);
+        Asset? matchingAsset = GetMatchingAsset(release);
+        
+        if(matchingAsset == null)
+        {
+            throw new FileNotFoundException("No matching update for your system found.");
+        }
 
         using (HttpClient client = new HttpClient())
         {
@@ -31,7 +36,12 @@ public static class UpdateDownloader
 
     public static async Task DownloadInstaller(ReleaseInfo info)
     {
-        Asset matchingAsset = GetMatchingAsset(info, "application/x-msdownload");
+        Asset? matchingAsset = GetMatchingAsset(info, "application/x-msdownload");
+
+        if(matchingAsset == null)
+        {
+            throw new FileNotFoundException("No matching update for your system found.");
+        }
 
         using (HttpClient client = new HttpClient())
         {
@@ -55,10 +65,10 @@ public static class UpdateDownloader
         }
     }
 
-    private static Asset GetMatchingAsset(ReleaseInfo release, string assetType = "zip")
+    private static Asset? GetMatchingAsset(ReleaseInfo release, string assetType = "zip")
     {
         string arch = IntPtr.Size == 8 ? "x64" : "x86";
-        return release.Assets.First(x => x.ContentType.Contains(assetType)
+        return release.Assets.FirstOrDefault(x => x.ContentType.Contains(assetType)
                                          && x.Name.Contains(arch));
     }
 }

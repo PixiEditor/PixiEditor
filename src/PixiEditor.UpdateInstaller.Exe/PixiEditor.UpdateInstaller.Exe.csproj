@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <PublishSingleFile>true</PublishSingleFile>
+  </PropertyGroup>
+
+  <!--Debug symbols none on release-->
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Tools.InnoSetup" Version="6.3.1"/>
+    <ProjectReference Include="..\PixiEditor.UpdateInstaller\PixiEditor.UpdateInstaller\PixiEditor.UpdateInstaller.csproj"/>
+  </ItemGroup>
+  
+  <Target Name="Rename" AfterTargets="AfterBuild">
+    <Move SourceFiles="$(OutDir)PixiEditor.UpdateInstaller.Exe.exe" DestinationFiles="$(OutDir)PixiEditor.UpdateInstaller.exe"/>
+    <Message Text="Renamed build executable file." Importance="high"/>
+  </Target>
+
+  <Target Name="Rename" AfterTargets="Publish">
+    <Move SourceFiles="$(PublishDir)PixiEditor.UpdateInstaller.Exe.exe" DestinationFiles="$(PublishDir)PixiEditor.UpdateInstaller.exe"/>
+    <Message Text="Renamed published executable file." Importance="high"/>
+  </Target>
+</Project>

@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace PixiEditor.UpdateInstaller.New;
+namespace PixiEditor.UpdateInstaller;
 
 public static class Extensions
 {

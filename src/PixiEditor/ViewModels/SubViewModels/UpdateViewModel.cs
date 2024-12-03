@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -12,6 +13,7 @@ using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.IO;
 using PixiEditor.Platform;
 using PixiEditor.UpdateModule;
 
@@ -19,6 +21,7 @@ namespace PixiEditor.ViewModels.SubViewModels;
 
 internal class UpdateViewModel : SubViewModel<ViewModelMain>
 {
+    public const int MaxRetryCount = 3;
     private bool updateReadyToInstall = false;
 
     public UpdateChecker UpdateChecker { get; set; }
@@ -70,24 +73,34 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     public async Task<bool> CheckForUpdate()
     {
         bool updateAvailable = await UpdateChecker.CheckUpdateAvailable();
+        if(!UpdateChecker.LatestReleaseInfo.WasDataFetchSuccessful || string.IsNullOrEmpty(UpdateChecker.LatestReleaseInfo.TagName))
+        {
+            return false;
+        }
+        
         bool updateCompatible = await UpdateChecker.IsUpdateCompatible();
+        bool autoUpdateFailed = CheckAutoupdateFailed();
         bool updateFileDoesNotExists = !File.Exists(
             Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip"));
         bool updateExeDoesNotExists = !File.Exists(
             Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.exe"));
-        if (updateAvailable && updateFileDoesNotExists && updateExeDoesNotExists)
+        if (updateAvailable && (updateFileDoesNotExists && updateExeDoesNotExists) || autoUpdateFailed)
         {
             UpdateReadyToInstall = false;
             VersionText = new LocalizedString("DOWNLOADING_UPDATE");
             try
             {
-                if (updateCompatible)
+                if (updateCompatible && !autoUpdateFailed)
                 {
                     await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
                 }
                 else
                 {
                     await UpdateDownloader.DownloadInstaller(UpdateChecker.LatestReleaseInfo);
+                    if (autoUpdateFailed)
+                    {
+                        RemoveZipIfExists();
+                    }
                 }
 
                 UpdateReadyToInstall = true;
@@ -108,7 +121,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         return false;
     }
 
-    private async void AskToInstall()
+    private async void Install()
     {
 #if RELEASE || DEVRELEASE
         if (!PixiEditorSettings.Update.CheckUpdatesOnStartup.Value)
@@ -137,13 +150,27 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
         if (!updateFileExists && !updateExeExists)
         {
+            EnsureUpdateFilesDeleted();
             return;
         }
 
         ViewModelMain.Current.UpdateSubViewModel.UpdateReadyToInstall = true;
-        var result = await ConfirmationDialog.Show("UPDATE_READY", "NEW_UPDATE");
+        if (!UpdateInfoExists())
+        {
+            CreateUpdateInfo(UpdateChecker.LatestReleaseInfo.TagName);
+            return;
+        }
+
+        string[] info = IncrementUpdateInfo();
+
+        if (!UpdateInfoValid(UpdateChecker.LatestReleaseInfo.TagName, info))
+        {
+            File.Delete(Path.Join(Paths.TempFilesPath, "updateInfo.txt"));
+            CreateUpdateInfo(UpdateChecker.LatestReleaseInfo.TagName);
+            return;
+        }
         
-        if (result != ConfirmationType.Yes)
+        if(!CanInstallUpdate(UpdateChecker.LatestReleaseInfo.TagName, info) && !updateExeExists)
         {
             return;
         }
@@ -163,7 +190,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     {
         try
         {
-            ProcessHelper.RunAsAdmin(updaterPath);
+            ProcessHelper.RunAsAdmin(updaterPath, false);
             Shutdown();
         }
         catch (Win32Exception)
@@ -228,6 +255,10 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             try
             {
                 await CheckForUpdate();
+                if(UpdateChecker.LatestReleaseInfo != null && UpdateChecker.LatestReleaseInfo.TagName == VersionHelpers.GetCurrentAssemblyVersionString())
+                {
+                    EnsureUpdateFilesDeleted();
+                }
             }
             catch (System.Net.Http.HttpRequestException)
             {
@@ -239,7 +270,80 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
                 NoticeDialog.Show("COULD_NOT_CHECK_FOR_UPDATES", "UPDATE_CHECK_FAILED");
             }
 
-            AskToInstall();
+            Install();
+        }
+    }
+    
+    private bool UpdateInfoExists()
+    {
+        return File.Exists(Path.Join(Paths.TempFilesPath, "updateInfo.txt"));
+    }
+    
+    private void CreateUpdateInfo(string targetVersion)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine(targetVersion);
+        sb.AppendLine("0");
+        File.WriteAllText(Path.Join(Paths.TempFilesPath, "updateInfo.txt"), sb.ToString());
+    }
+    
+    private string[] IncrementUpdateInfo()
+    {
+        string[] lines = File.ReadAllLines(Path.Join(Paths.TempFilesPath, "updateInfo.txt"));
+        int.TryParse(lines[1], out int count);
+        count++;
+        lines[1] = count.ToString();
+        File.WriteAllLines(Path.Join(Paths.TempFilesPath, "updateInfo.txt"), lines);
+        
+        return lines;
+    }
+    
+    private void EnsureUpdateFilesDeleted()
+    {
+        string path = Path.Combine(Paths.TempFilesPath, "updateInfo.txt");
+        if(File.Exists(path))
+        {
+            File.Delete(path);
+        }
+    }
+    
+    private bool CanInstallUpdate(string forVersion, string[] lines)
+    {
+        if (lines.Length != 2) return false;
+        
+        if (lines[0] != forVersion) return false;
+        
+        return int.TryParse(lines[1], out int count) && count < MaxRetryCount;
+    }
+    
+    private bool UpdateInfoValid(string forVersion, string[] lines)
+    {
+        if (lines.Length != 2) return false;
+        
+        if (lines[0] != forVersion) return false;
+        
+        return int.TryParse(lines[1], out _);
+    }
+    
+    private bool CheckAutoupdateFailed()
+    {
+        string path = Path.Combine(Paths.TempFilesPath, "updateInfo.txt");
+        if (!File.Exists(path)) return false;
+        
+        string[] lines = File.ReadAllLines(path);
+        if (lines.Length != 2) return false;
+        
+        if (!int.TryParse(lines[1], out int count)) return false;
+        
+        return count >= MaxRetryCount;
+    }
+    
+    private void RemoveZipIfExists()
+    {
+        string zipPath = Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip");
+        if (File.Exists(zipPath))
+        {
+            File.Delete(zipPath);
         }
     }
 
