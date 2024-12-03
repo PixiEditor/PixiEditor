@@ -57,7 +57,12 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
                 }
                 else if (sourceObj is Expression expression)
                 {
-                    ((ShaderExpressionVariable)toReturn).OverrideExpression = Adjust(expression, toReturn);
+                    ShaderExpressionVariable shaderExpressionVariable = (ShaderExpressionVariable)toReturn;
+                    shaderExpressionVariable.OverrideExpression = Adjust(expression, toReturn, out var adjustNested);
+                    if (adjustNested)
+                    {
+                        AdjustNested(((IMultiValueVariable)toReturn), expression);
+                    }
                 }
 
                 return (T)toReturn;
@@ -68,14 +73,49 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
         return func;
     }
     
-    private Expression Adjust(Expression expression, object toReturn)
+    private Expression Adjust(Expression expression, object toReturn, out bool adjustNestedVariables)
     {
+        adjustNestedVariables = false;
         if (expression is IMultiValueVariable multiVal && toReturn is not IMultiValueVariable)
         {
             return multiVal.GetValueAt(0);
         }
 
+        if (toReturn is IMultiValueVariable)
+        {
+            adjustNestedVariables = true;
+            return expression;
+        }
+
         return expression;
+    }
+    
+    private void AdjustNested(IMultiValueVariable toReturn, Expression expression)
+    {
+        if (toReturn is not ShaderExpressionVariable shaderExpressionVariable)
+        {
+            return;
+        }
+
+        if (expression is not IMultiValueVariable multiVal)
+        {
+            int count = toReturn.GetValuesCount();
+            for (int i = 0; i < count; i++)
+            {
+                toReturn.OverrideExpressionAt(i, expression);
+            }
+        }
+        else
+        {
+            int sourceCount = multiVal.GetValuesCount();
+            int targetCount = toReturn.GetValuesCount();
+
+            int count = Math.Min(sourceCount, targetCount);
+            for (int i = 0; i < count; i++)
+            {
+                toReturn.OverrideExpressionAt(i, multiVal.GetValueAt(i));
+            }
+        }
     }
 
     object? IFuncInputProperty.GetFuncConstantValue() => constantNonOverrideValue;
