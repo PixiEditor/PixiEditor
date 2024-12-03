@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -55,8 +56,8 @@ public class MathNode : Node
             return context.NewFloat1(result);
         }
 
-        var xConst = x.ConstantValue;
-        var yConst = y.ConstantValue;
+        var xConst = (x.GetConstant() as Float1)?.ConstantValue ?? 0;
+        var yConst = (y.GetConstant() as Float1)?.ConstantValue ?? 0;
             
         var constValue = Mode.Value switch
         {
@@ -72,7 +73,7 @@ public class MathNode : Node
         return new Float1(string.Empty) { ConstantValue = constValue };
     }
 
-    private (Float1 xConst, Float1 y) GetValues(FuncContext context)
+    private (ShaderExpressionVariable xConst, ShaderExpressionVariable y) GetValues(FuncContext context)
     {
         return (context.GetValue(X), context.GetValue(Y));
     }

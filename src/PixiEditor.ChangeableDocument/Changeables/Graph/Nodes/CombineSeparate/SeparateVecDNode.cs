@@ -17,8 +17,8 @@ public class SeparateVecDNode : Node
     
     public SeparateVecDNode()
     {
-        X = CreateFuncOutput("X", "X", ctx => Vector.Value(ctx).X);
-        Y = CreateFuncOutput("Y", "Y", ctx => Vector.Value(ctx).Y);
+        X = CreateFuncOutput<Float1>("X", "X", ctx => ctx.GetValue(Vector).X);
+        Y = CreateFuncOutput("Y", "Y", ctx => ctx.GetValue(Vector).Y);
         Vector = CreateFuncInput<Float2>("Vector", "VECTOR", VecD.Zero);
     }
 

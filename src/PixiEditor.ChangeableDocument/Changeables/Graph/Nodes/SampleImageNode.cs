@@ -33,7 +33,7 @@ public class SampleImageNode : Node
             return new Half4("");
         }
 
-        Float2 uv = context.GetValue(Coordinate);
+        Expression uv = context.GetValue(Coordinate);
 
         return context.SampleSurface(Image.Value.DrawingSurface, uv);
     }

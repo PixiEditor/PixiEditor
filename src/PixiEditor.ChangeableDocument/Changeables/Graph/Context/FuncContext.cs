@@ -30,6 +30,8 @@ public class FuncContext
     public RenderContext RenderContext { get; set; }
 
     public ShaderBuilder Builder { get; set; }
+    
+    private Dictionary<IFuncInputProperty, ShaderExpressionVariable> _cachedValues = new();
 
     public void ThrowOnMissingContext()
     {
@@ -52,7 +54,7 @@ public class FuncContext
         SamplePosition = Builder.ConstructFloat2(OriginalPosition.X, OriginalPosition.Y); 
     }
 
-    public Half4 SampleSurface(DrawingSurface surface, Float2 pos)
+    public Half4 SampleSurface(DrawingSurface surface, Expression pos)
     {
         SurfaceSampler texName = Builder.AddOrGetSurface(surface);
         return Builder.Sample(texName, pos);
@@ -194,11 +196,22 @@ public class FuncContext
                 return new Float1(uniformName);
             }
         }
+        
+        if (_cachedValues.TryGetValue(getFrom, out ShaderExpressionVariable cachedValue))
+        {
+            if (cachedValue is Float1 float1)
+            {
+                return float1;
+            }
+        }
 
-        return getFrom.Value(this);
+        var val = getFrom.Value(this);
+        _cachedValues[getFrom] = val;
+        
+        return val;
     }
 
-    public Expression GetValue(FuncInputProperty<Int1> getFrom)
+    public Int1 GetValue(FuncInputProperty<Int1> getFrom)
     {
         if (HasContext)
         {
@@ -206,11 +219,22 @@ public class FuncContext
             {
                 string uniformName = $"int_{Builder.GetUniqueNameNumber()}";
                 Builder.AddUniform(uniformName, (int)getFrom.Value(this).ConstantValue);
-                return new Expression(uniformName);
+                return new Int1(uniformName);
+            }
+        }
+        
+        if (_cachedValues.TryGetValue(getFrom, out ShaderExpressionVariable cachedValue))
+        {
+            if (cachedValue is Int1 int1)
+            {
+                return int1;
             }
         }
 
-        return getFrom.Value(this);
+        var val = getFrom.Value(this);
+        _cachedValues[getFrom] = val;
+        
+        return val;
     }
 
     private static bool IsFuncType<T>(FuncInputProperty<T> getFrom)
@@ -218,7 +242,7 @@ public class FuncContext
         return getFrom.Connection.ValueType.IsAssignableTo(typeof(Delegate));
     }
 
-    public ShaderExpressionVariable GetValue(FuncInputProperty<Half4> getFrom)
+    public Half4 GetValue(FuncInputProperty<Half4> getFrom)
     {
         if (HasContext)
         {
@@ -230,8 +254,19 @@ public class FuncContext
                 return color;
             }
         }
+        
+        if (_cachedValues.TryGetValue(getFrom, out ShaderExpressionVariable cachedValue))
+        {
+            if (cachedValue is Half4 half4)
+            {
+                return half4;
+            }
+        }
 
-        return getFrom.Value(this);
+        var val = getFrom.Value(this);
+        _cachedValues[getFrom] = val;
+        
+        return val;
     }
 
     public Float2 GetValue(FuncInputProperty<Float2> getFrom)
@@ -246,7 +281,45 @@ public class FuncContext
                 return value;
             }
         }
+        
+        if (_cachedValues.TryGetValue(getFrom, out ShaderExpressionVariable cachedValue))
+        {
+            if (cachedValue is Float2 float2)
+            {
+                return float2;
+            }
+        }
 
-        return getFrom.Value(this);
+        var val = getFrom.Value(this);
+        _cachedValues[getFrom] = val;
+        
+        return val;
+    }
+
+    public Int2 GetValue(FuncInputProperty<Int2>? getFrom)
+    {
+        if (HasContext)
+        {
+            if (getFrom?.Connection == null || !IsFuncType(getFrom))
+            {
+                Int2 value = getFrom.Value(this);
+                value.VariableName = $"int2_{Builder.GetUniqueNameNumber()}";
+                Builder.AddUniform(value.VariableName, value.ConstantValue);
+                return value;
+            }
+        }
+        
+        if (_cachedValues.TryGetValue(getFrom, out ShaderExpressionVariable cachedValue))
+        {
+            if (cachedValue is Int2 int2)
+            {
+                return int2;
+            }
+        }
+
+        var val = getFrom.Value(this);
+        _cachedValues[getFrom] = val;
+        
+        return val;
     }
 }
