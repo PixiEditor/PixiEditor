@@ -8,9 +8,9 @@ namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class DrawRasterLine_UpdateableChange : UpdateableChange
 {
     private readonly Guid memberGuid;
-    private VecI from;
-    private VecI to;
-    private int strokeWidth;
+    private VecD from;
+    private VecD to;
+    private float strokeWidth;
     private Color color;
     private StrokeCap caps;
     private readonly bool drawOnMask;
@@ -21,7 +21,7 @@ internal class DrawRasterLine_UpdateableChange : UpdateableChange
 
     [GenerateUpdateableChangeActions]
     public DrawRasterLine_UpdateableChange
-        (Guid memberGuid, VecI from, VecI to, int strokeWidth, Color color, StrokeCap caps, bool antiAliasing, bool drawOnMask, int frame)
+        (Guid memberGuid, VecD from, VecD to, float strokeWidth, Color color, StrokeCap caps, bool antiAliasing, bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.from = from;
@@ -38,7 +38,7 @@ internal class DrawRasterLine_UpdateableChange : UpdateableChange
     }
 
     [UpdateChangeMethod]
-    public void Update(VecI from, VecI to, int strokeWidth, Color color, StrokeCap caps)
+    public void Update(VecD from, VecD to, float strokeWidth, Color color, StrokeCap caps)
     {
         this.from = from;
         this.to = to;
@@ -64,9 +64,9 @@ internal class DrawRasterLine_UpdateableChange : UpdateableChange
         if (from != to)
         {
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
-            if (strokeWidth == 1 && !antiAliasing)
+            if (Math.Abs(strokeWidth - 1) < 0.01f && !antiAliasing)
             {
-                image.EnqueueDrawBresenhamLine(from, to, color, BlendMode.SrcOver);
+                image.EnqueueDrawBresenhamLine((VecI)from, (VecI)to, color, BlendMode.SrcOver);
             }
             else
             {

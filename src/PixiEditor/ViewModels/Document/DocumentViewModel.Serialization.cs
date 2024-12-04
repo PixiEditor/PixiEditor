@@ -65,6 +65,8 @@ internal partial class DocumentViewModel
 
         var document = new PixiDocument
         {
+            SerializerName = "PixiEditor",
+            SerializerVersion = VersionHelpers.GetCurrentAssemblyVersion().ToString(),
             Width = Width,
             Height = Height,
             Swatches = ToCollection(Swatches),
@@ -88,12 +90,12 @@ internal partial class DocumentViewModel
         float resizeFactorY = (float)exportSize.Y / Height;
         VecD resizeFactor = new VecD(resizeFactorX, resizeFactorY);
 
-        AddElements(NodeGraph.StructureTree.Members.Reverse().ToList(), svgDocument, atTime, resizeFactor, vectorExportConfig);
+        AddElements(NodeGraph.StructureTree.Members.Where(x => x.IsVisibleBindable).Reverse().ToList(), svgDocument, atTime, resizeFactor, vectorExportConfig);
 
         return svgDocument;
     }
 
-    private void AddElements(IEnumerable<INodeHandler> root, IElementContainer elementContainer, KeyFrameTime atTime,
+    private void AddElements(IEnumerable<IStructureMemberHandler> root, IElementContainer elementContainer, KeyFrameTime atTime,
         VecD resizeFactor, VectorExportConfig? vectorExportConfig)
     {
         foreach (var member in root)
@@ -102,7 +104,7 @@ internal partial class DocumentViewModel
             {
                 var group = new SvgGroup();
 
-                AddElements(folderNodeViewModel.Children.Reverse().ToList(), group, atTime, resizeFactor, vectorExportConfig);
+                AddElements(folderNodeViewModel.Children.Where(x => x.IsVisibleBindable).Reverse().ToList(), group, atTime, resizeFactor, vectorExportConfig);
                 elementContainer.Children.Add(group);
             }
 
@@ -159,7 +161,7 @@ internal partial class DocumentViewModel
 
         line.Stroke.Unit = SvgColorUnit.FromRgba(lineData.StrokeColor.R, lineData.StrokeColor.G,
             lineData.StrokeColor.B, lineData.StrokeColor.A);
-        line.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(lineData.StrokeWidth * resizeFactor.X);
+        line.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(lineData.StrokeWidth);
         line.Transform.Unit = new SvgTransformUnit(lineData.TransformationMatrix);
 
         return line;

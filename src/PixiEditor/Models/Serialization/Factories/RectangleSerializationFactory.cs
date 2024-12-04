@@ -17,7 +17,7 @@ internal class RectangleSerializationFactory : VectorShapeSerializationFactory<R
     }
 
     protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor, Color fillColor,
-        int strokeWidth, out RectangleVectorData original)
+        float strokeWidth, out RectangleVectorData original)
     {
         VecD center = extractor.GetVecD();
         VecD size = extractor.GetVecD();

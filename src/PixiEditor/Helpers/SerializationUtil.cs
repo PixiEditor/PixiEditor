@@ -47,7 +47,8 @@ public static class SerializationUtil
     }
 
     public static object Deserialize(object value, SerializationConfig config,
-        IReadOnlyList<SerializationFactory> allFactories)
+        IReadOnlyList<SerializationFactory> allFactories,
+        (string serializerName, string serializerVersion) serializerData)
     {
         if (IsComplexObject(value))
         {
@@ -63,7 +64,7 @@ public static class SerializationUtil
                 {
                     return factory.Deserialize(data is Dictionary<object, object> processableDict
                     ? ToDictionary(processableDict)
-                    : data);
+                    : data, serializerData);
                 }
                 catch (Exception e)
                 {
@@ -78,7 +79,7 @@ public static class SerializationUtil
 
 
     public static Dictionary<string, object> DeserializeDict(Dictionary<string, object> data,
-        SerializationConfig config, List<SerializationFactory> allFactories)
+        SerializationConfig config, List<SerializationFactory> allFactories, (string serializerName, string serializerVersion) serializerData)
     {
         var dict = new Dictionary<string, object>();
 
@@ -88,17 +89,17 @@ public static class SerializationUtil
             {
                 if (IsComplexObject(value))
                 {
-                    dict[key] = Deserialize(value, config, allFactories);
+                    dict[key] = Deserialize(value, config, allFactories, serializerData);
                 }
                 else
                 {
-                    var deserialized = Deserialize(objArr[0], config, allFactories);
+                    var deserialized = Deserialize(objArr[0], config, allFactories, serializerData);
                     var targetArr = Array.CreateInstance(deserialized.GetType(), objArr.Length);
                     targetArr.SetValue(deserialized, 0);
 
                     for (int i = 1; i < objArr.Length; i++)
                     {
-                        targetArr.SetValue(Deserialize(objArr[i], config, allFactories), i);
+                        targetArr.SetValue(Deserialize(objArr[i], config, allFactories, serializerData), i);
                     }
 
                     dict[key] = targetArr;
@@ -106,7 +107,7 @@ public static class SerializationUtil
             }
             else
             {
-                dict[key] = Deserialize(value, config, allFactories);
+                dict[key] = Deserialize(value, config, allFactories, serializerData);
             }
         }
 

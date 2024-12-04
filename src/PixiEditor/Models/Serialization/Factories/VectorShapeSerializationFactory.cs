@@ -12,7 +12,7 @@ public abstract class VectorShapeSerializationFactory<T> : SerializationFactory<
         builder.AddMatrix3X3(original.TransformationMatrix);
         builder.AddColor(original.StrokeColor);
         builder.AddColor(original.FillColor);
-        builder.AddInt(original.StrokeWidth);
+        builder.AddFloat(original.StrokeWidth);
         
         AddSpecificData(builder, original);
         
@@ -21,7 +21,8 @@ public abstract class VectorShapeSerializationFactory<T> : SerializationFactory<
     
     protected abstract void AddSpecificData(ByteBuilder builder, T original);
 
-    public override bool TryDeserialize(object serialized, out T original)
+    public override bool TryDeserialize(object serialized, out T original,
+        (string serializerName, string serializerVersion) serializerData)
     {
         if (serialized is not byte[] data)
         {
@@ -34,10 +35,19 @@ public abstract class VectorShapeSerializationFactory<T> : SerializationFactory<
         Matrix3X3 matrix = extractor.GetMatrix3X3();
         Color strokeColor = extractor.GetColor();
         Color fillColor = extractor.GetColor();
-        int strokeWidth = extractor.GetInt();
-        
+        float strokeWidth;
+        // Previous versions of the serializer saved stroke as int, and serializer data didn't exist
+        if (string.IsNullOrEmpty(serializerData.serializerVersion) && string.IsNullOrEmpty(serializerData.serializerName))
+        {
+            strokeWidth = extractor.GetInt();
+        }
+        else
+        {
+            strokeWidth = extractor.GetFloat();
+        }
+
         return DeserializeVectorData(extractor, matrix, strokeColor, fillColor, strokeWidth, out original);
     }
     
-    protected abstract bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor, Color fillColor, int strokeWidth, out T original);
+    protected abstract bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor, Color fillColor, float strokeWidth, out T original);
 }

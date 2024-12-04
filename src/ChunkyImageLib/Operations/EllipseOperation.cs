@@ -11,10 +11,10 @@ internal class EllipseOperation : IMirroredDrawOperation
 {
     public bool IgnoreEmptyChunks => false;
 
-    private readonly RectI location;
+    private readonly RectD location;
     private readonly Color strokeColor;
     private readonly Color fillColor;
-    private readonly int strokeWidth;
+    private readonly float strokeWidth;
     private readonly double rotation;
     private readonly Paint paint;
     private bool init = false;
@@ -27,7 +27,7 @@ internal class EllipseOperation : IMirroredDrawOperation
     private RectI? ellipseFillRect;
     private bool antialiased;
 
-    public EllipseOperation(RectI location, Color strokeColor, Color fillColor, int strokeWidth, double rotationRad,
+    public EllipseOperation(RectD location, Color strokeColor, Color fillColor, float strokeWidth, double rotationRad,
         bool antiAliased, Paint? paint = null)
     {
         this.location = location;
@@ -42,17 +42,17 @@ internal class EllipseOperation : IMirroredDrawOperation
     private void Init()
     {
         init = true;
-        if (strokeWidth == 1)
+        if (strokeWidth - 1 < 0.01)
         {
             if (Math.Abs(rotation) < 0.001)
             {
-                var ellipseList = EllipseHelper.GenerateEllipseFromRect(location);
+                var ellipseList = EllipseHelper.GenerateEllipseFromRect((RectI)location);
 
                 ellipse = ellipseList.Select(a => new VecF(a)).ToArray();
 
                 if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
                 {
-                    (var fill, ellipseFillRect) = EllipseHelper.SplitEllipseFillIntoRegions(ellipseList.ToList(), location);
+                    (var fill, ellipseFillRect) = EllipseHelper.SplitEllipseFillIntoRegions(ellipseList.ToList(), (RectI)location);
                     ellipseFill = fill.Select(a => new VecF(a)).ToArray();
                 }
             }
@@ -96,7 +96,7 @@ internal class EllipseOperation : IMirroredDrawOperation
     private void DrawAliased(DrawingSurface surf)
     {
         paint.IsAntiAliased = false;
-        if (strokeWidth == 1)
+        if (strokeWidth - 1 < 0.01)
         {
             if (Math.Abs(rotation) < 0.001)
             {
@@ -194,11 +194,11 @@ internal class EllipseOperation : IMirroredDrawOperation
 
     public IDrawOperation AsMirrored(double? verAxisX, double? horAxisY)
     {
-        RectI newLocation = location;
+        RectD newLocation = location;
         if (verAxisX is not null)
-            newLocation = (RectI)newLocation.ReflectX((double)verAxisX).Round();
+            newLocation = newLocation.ReflectX((double)verAxisX).Round();
         if (horAxisY is not null)
-            newLocation = (RectI)newLocation.ReflectY((double)horAxisY).Round();
+            newLocation = newLocation.ReflectY((double)horAxisY).Round();
         return new EllipseOperation(newLocation, strokeColor, fillColor, strokeWidth, rotation, antialiased, paint);
     }
 

@@ -17,7 +17,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
     [Command.Tool(Key = Key.B)]
     internal class PenToolViewModel : ShapeTool, IPenToolHandler
     {
-        private int actualToolSize;
+        private double actualToolSize;
 
         public override string ToolNameLocalizationKey => "PEN_TOOL";
         public override BrushShape BrushShape => BrushShapeSetting;
@@ -35,7 +35,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
         public override LocalizedString Tooltip => new LocalizedString("PEN_TOOL_TOOLTIP", Shortcut);
 
         [Settings.Inherited]
-        public int ToolSize => GetValue<int>();
+        public double ToolSize => GetValue<int>();
 
         [Settings.Bool("PIXEL_PERFECT_SETTING", Notify = nameof(PixelPerfectChanged), ExposedByDefault = false)]
         public bool PixelPerfectEnabled => GetValue<bool>();
@@ -61,8 +61,8 @@ namespace PixiEditor.ViewModels.Tools.Tools
         {
             if (e.NewTool == this && PixelPerfectEnabled)
             {
-                var toolbar = (BasicToolbar)Toolbar;
-                var setting = (SizeSettingViewModel)toolbar.Settings.First(x => x.Name == "ToolSize");
+                var toolbar = (PenToolbar)Toolbar;
+                var setting = toolbar.Settings.FirstOrDefault(x => x.Name == nameof(toolbar.ToolSize));
                 setting.Value = 1;
             }
             
@@ -71,13 +71,13 @@ namespace PixiEditor.ViewModels.Tools.Tools
                 return;
             }
 
-            if (e.OldTool is not { Toolbar: BasicToolbar oldToolbar })
+            if (e.OldTool is not { Toolbar: PenToolbar oldToolbar })
             {
                 return;
             }
             
             var oldSetting = (SizeSettingViewModel)oldToolbar.Settings[0];
-            actualToolSize = oldSetting.Value;
+            actualToolSize = (int)oldSetting.Value;
         }
 
         public override void OnDeselecting(bool transient)
@@ -87,14 +87,14 @@ namespace PixiEditor.ViewModels.Tools.Tools
                 return;
             }
 
-            var toolbar = (BasicToolbar)Toolbar;
+            var toolbar = (PenToolbar)Toolbar;
             var setting = (SizeSettingViewModel)toolbar.Settings[0];
             setting.Value = actualToolSize;
         }
 
         private void PixelPerfectChanged()
         {
-            var toolbar = (BasicToolbar)Toolbar;
+            var toolbar = (PenToolbar)Toolbar;
             var setting = (SizeSettingViewModel)toolbar.Settings[0];
 
             setting.IsEnabled = !PixelPerfectEnabled;

@@ -16,7 +16,7 @@ public class EllipseSerializationFactory : VectorShapeSerializationFactory<Ellip
     }
 
     protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor, Color fillColor,
-        int strokeWidth, out EllipseVectorData original)
+        float strokeWidth, out EllipseVectorData original)
     {
         VecD center = extractor.GetVecD();
         VecD radius = extractor.GetVecD();

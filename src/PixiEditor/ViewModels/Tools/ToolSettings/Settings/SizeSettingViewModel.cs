@@ -6,7 +6,7 @@ using PixiEditor.Views.Input;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
-internal sealed class SizeSettingViewModel : Setting<int>
+internal sealed class SizeSettingViewModel : Setting<double>
 {
     private bool isEnabled = true;
     public SizeSettingViewModel(string name, string label = null)

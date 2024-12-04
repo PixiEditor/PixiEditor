@@ -26,7 +26,7 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
     public VectorLineToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
-        Toolbar = ToolbarFactory.Create<VectorLineToolViewModel, LineToolbar>(this);
+        Toolbar = ToolbarFactory.Create<VectorLineToolViewModel, ShapeToolbar>(this);
     }
 
     public override string ToolNameLocalizationKey => "LINE_TOOL";
@@ -36,7 +36,8 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
     public override Type[]? SupportedLayerTypes { get; } = [];
     public string? DefaultNewLayerName { get; } = new LocalizedString("NEW_LINE_LAYER_NAME");
 
-    [Settings.Inherited] public int ToolSize => GetValue<int>();
+    [Settings.Inherited] 
+    public double ToolSize => GetValue<double>();
 
     public bool Snap { get; private set; }
 
@@ -69,9 +70,7 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
         var layer = document.SelectedStructureMember;
         if (layer is IVectorLayerHandler vectorLayer)
         {
-            IReadOnlyLineData? lineVectorData =
-                vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) as IReadOnlyLineData;
-            if (lineVectorData is not null)
+            if (vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) is IReadOnlyLineData lineVectorData)
             {
                 document.LineToolOverlayViewModel.Show(lineVectorData.TransformedStart, lineVectorData.TransformedEnd,
                     false);

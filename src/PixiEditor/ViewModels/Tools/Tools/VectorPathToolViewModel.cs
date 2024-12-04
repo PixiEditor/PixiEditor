@@ -32,7 +32,7 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
 
     public VectorPathToolViewModel()
     {
-        var fillSetting = Toolbar.GetSetting(nameof(BasicShapeToolbar.Fill));
+        var fillSetting = Toolbar.GetSetting(nameof(FillableShapeToolbar.Fill));
         if (fillSetting != null)
         {
             fillSetting.Value = false;

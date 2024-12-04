@@ -4,9 +4,20 @@ using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 
-internal class LineToolbar : BasicToolbar, ILineToolbar
+internal class ShapeToolbar : Toolbar, IShapeToolbar
 {
-    
+    public double ToolSize
+    {
+        get
+        {
+            return GetSetting<SizeSettingViewModel>(nameof(ToolSize)).Value;
+        }
+        set
+        {
+            GetSetting<SizeSettingViewModel>(nameof(ToolSize)).Value = value;
+        }
+    }
+
     public Color StrokeColor
     {
         get
@@ -40,10 +51,15 @@ internal class LineToolbar : BasicToolbar, ILineToolbar
         }
     }
 
-    public LineToolbar()
+    public ShapeToolbar()
     {
+        AddSetting(new SizeSettingViewModel(nameof(ToolSize), "STROKE_THICKNESS_LABEL"));
         AddSetting(new ColorSettingViewModel(nameof(StrokeColor), "STROKE_COLOR_LABEL"));
-        AddSetting(new BoolSettingViewModel(nameof(AntiAliasing), "ANTI_ALIASING_LABEL") { IsExposed = false, Value = false });
-        AddSetting(new BoolSettingViewModel(nameof(SyncWithPrimaryColor), "SYNC_WITH_PRIMARY_COLOR_LABEL") { Value = true });
+        AddSetting(new BoolSettingViewModel(nameof(AntiAliasing), "ANTI_ALIASING_LABEL")
+        {
+            IsExposed = false, Value = false
+        });
+        AddSetting(
+            new BoolSettingViewModel(nameof(SyncWithPrimaryColor), "SYNC_WITH_PRIMARY_COLOR_LABEL") { Value = true });
     }
 }

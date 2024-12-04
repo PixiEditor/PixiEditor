@@ -15,7 +15,8 @@ public class VecD3SerializationFactory : SerializationFactory<byte[], Vec3D>
         return result;
     }
 
-    public override bool TryDeserialize(object serialized, out Vec3D original)
+    public override bool TryDeserialize(object serialized, out Vec3D original,
+        (string serializerName, string serializerVersion) serializerData)
     {
         if (serialized is byte[] { Length: sizeof(double) * 3 } bytes)
         {

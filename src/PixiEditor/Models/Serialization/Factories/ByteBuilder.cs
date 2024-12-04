@@ -75,4 +75,9 @@ public class ByteBuilder
             AddInt(c);
         }
     }
+
+    public void AddFloat(float value)
+    {
+        _data.AddRange(BitConverter.GetBytes(value));
+    }
 }

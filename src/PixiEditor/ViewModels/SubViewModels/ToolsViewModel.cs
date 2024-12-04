@@ -18,6 +18,7 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
+using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Tools;
 using PixiEditor.ViewModels.Tools.Tools;
@@ -68,9 +69,9 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         set => SetProperty(ref toolCursor, value);
     }
 
-    public BasicToolbar? ActiveBasicToolbar
+    public IToolSizeToolbar? ActiveBasicToolbar
     {
-        get => ActiveTool?.Toolbar as BasicToolbar;
+        get => ActiveTool?.Toolbar as IToolSizeToolbar;
     }
 
     private IToolHandler? activeTool;
@@ -303,15 +304,15 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         CanExecute = "PixiEditor.Tools.CanChangeToolSize", Key = Key.OemOpenBrackets, AnalyticsTrack = true)]
     public void ChangeToolSize(int increment)
     {
-        if (ActiveTool?.Toolbar is not BasicToolbar toolbar)
+        if (ActiveTool?.Toolbar is not IToolSizeToolbar toolbar)
             return;
-        int newSize = toolbar.ToolSize + increment;
+        double newSize = toolbar.ToolSize + increment;
         if (newSize > 0)
             toolbar.ToolSize = newSize;
     }
 
     [Evaluator.CanExecute("PixiEditor.Tools.CanChangeToolSize")]
-    public bool CanChangeToolSize() => Owner.ToolsSubViewModel.ActiveTool?.Toolbar is BasicToolbar
+    public bool CanChangeToolSize() => Owner.ToolsSubViewModel.ActiveTool?.Toolbar is PenToolbar
                                        && Owner.ToolsSubViewModel.ActiveTool is not PenToolViewModel
                                        {
                                            PixelPerfectEnabled: true

@@ -15,7 +15,8 @@ public class ColorSerializationFactory : SerializationFactory<byte[], Color>
         return result; 
     }
 
-    public override bool TryDeserialize(object serialized, out Color original)
+    public override bool TryDeserialize(object serialized, out Color original,
+        (string serializerName, string serializerVersion) serializerData)
     {
         if (serialized is byte[] { Length: 4 } bytes)
         {
