@@ -70,8 +70,20 @@ internal class ConnectProperties_Change : Change
         {
             return true;
         }
+        
+        bool isLoop = false;
+        input.Node.TraverseForwards(x =>
+        {
+            if (x == output.Node)
+            {
+                isLoop = true;
+                return false;
+            }
 
-        return false;
+            return true;
+        });
+
+        return isLoop;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
