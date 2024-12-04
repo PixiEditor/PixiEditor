@@ -53,7 +53,7 @@ internal class ShapeToolbar : Toolbar, IShapeToolbar
 
     public ShapeToolbar()
     {
-        AddSetting(new SizeSettingViewModel(nameof(ToolSize), "STROKE_THICKNESS_LABEL"));
+        AddSetting(new SizeSettingViewModel(nameof(ToolSize), "STROKE_THICKNESS_LABEL", 0, decimalPlaces: 2));
         AddSetting(new ColorSettingViewModel(nameof(StrokeColor), "STROKE_COLOR_LABEL"));
         AddSetting(new BoolSettingViewModel(nameof(AntiAliasing), "ANTI_ALIASING_LABEL")
         {

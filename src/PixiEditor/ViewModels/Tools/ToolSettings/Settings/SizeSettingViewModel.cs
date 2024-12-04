@@ -9,11 +9,19 @@ namespace PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 internal sealed class SizeSettingViewModel : Setting<double>
 {
     private bool isEnabled = true;
-    public SizeSettingViewModel(string name, string label = null)
+    private double min;
+    private double max;
+    private int decimalPlaces;
+    
+    public SizeSettingViewModel(string name, string label = null, double min = 1, double max = double.PositiveInfinity, int decimalPlaces = 0)
         : base(name)
     {
         Label = label;
         Value = 1;
+        
+        this.min = min;
+        this.max = max;
+        this.decimalPlaces = decimalPlaces;
     }
 
     public bool IsEnabled
@@ -22,6 +30,33 @@ internal sealed class SizeSettingViewModel : Setting<double>
         set
         {
             SetProperty(ref isEnabled, value);
+        }
+    }
+    
+    public double Min
+    {
+        get => min;
+        set
+        {
+            SetProperty(ref min, value);
+        }
+    }
+    
+    public double Max
+    {
+        get => max;
+        set
+        {
+            SetProperty(ref max, value);
+        }
+    }
+    
+    public int DecimalPlaces
+    {
+        get => decimalPlaces;
+        set
+        {
+            SetProperty(ref decimalPlaces, value);
         }
     }
 }

@@ -10,6 +10,10 @@
         <settings:SizeSettingViewModel/>
     </Design.DataContext>
     
-    <input:SizeInput VerticalAlignment="Center" MaxSize="9999" IsEnabled="{Binding IsEnabled}" FocusNext="False"
+    <input:SizeInput VerticalAlignment="Center"
+                     MaxSize="{Binding Max}" 
+                     MinSize="{Binding Min}"
+                     Decimals="{Binding DecimalPlaces}"
+                     IsEnabled="{Binding IsEnabled}" FocusNext="False"
                      Size="{Binding Value, Mode=TwoWay}"/>
 </UserControl>
