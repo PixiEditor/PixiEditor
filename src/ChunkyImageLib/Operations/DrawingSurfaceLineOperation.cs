@@ -11,11 +11,11 @@ internal class DrawingSurfaceLineOperation : IMirroredDrawOperation
     public bool IgnoreEmptyChunks => false;
 
     private Paint paint;
-    private readonly VecI from;
-    private readonly VecI to;
+    private readonly VecD from;
+    private readonly VecD to;
     private bool isAntiAliased;
 
-    public DrawingSurfaceLineOperation(VecI from, VecI to, StrokeCap strokeCap, float strokeWidth, Color color, BlendMode blendMode)
+    public DrawingSurfaceLineOperation(VecD from, VecD to, StrokeCap strokeCap, float strokeWidth, Color color, BlendMode blendMode)
     {
         paint = new()
         {
@@ -29,7 +29,7 @@ internal class DrawingSurfaceLineOperation : IMirroredDrawOperation
         this.to = to;
     }
     
-    public DrawingSurfaceLineOperation(VecI from, VecI to, Paint paint)
+    public DrawingSurfaceLineOperation(VecD from, VecD to, Paint paint)
     {
         this.paint = paint.Clone();
         this.from = from;
@@ -50,14 +50,14 @@ internal class DrawingSurfaceLineOperation : IMirroredDrawOperation
 
     public AffectedArea FindAffectedArea(VecI imageSize)
     {
-        RectI bounds = RectI.FromTwoPoints(from, to).Inflate((int)Math.Ceiling(paint.StrokeWidth));
+        RectI bounds = (RectI)RectD.FromTwoPoints(from, to).Inflate((int)Math.Ceiling(paint.StrokeWidth));
         return new AffectedArea(OperationHelper.FindChunksTouchingRectangle(bounds, ChunkyImage.FullChunkSize), bounds);
     }
 
     public IDrawOperation AsMirrored(double? verAxisX, double? horAxisY)
     {
-        VecI newFrom = from;
-        VecI newTo = to;
+        VecD newFrom = from;
+        VecD newTo = to;
         if (verAxisX is not null)
         {
             newFrom = (VecI)newFrom.ReflectX((double)verAxisX).Round();

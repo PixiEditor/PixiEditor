@@ -45,24 +45,15 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
 
         using Paint paint = new Paint() { IsAntiAliased = true };
 
-        if (Size.ShortestAxis < StrokeWidth)
-        {
-            paint.Color = StrokeColor;
-            paint.Style = PaintStyle.Fill;
-            drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
-        }
-        else
-        {
-            paint.Color = FillColor;
-            paint.Style = PaintStyle.Fill;
-            drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
+        paint.Color = FillColor;
+        paint.Style = PaintStyle.Fill;
+        drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
 
-            paint.Color = StrokeColor;
-            paint.Style = PaintStyle.Stroke;
+        paint.Color = StrokeColor;
+        paint.Style = PaintStyle.Stroke;
 
-            paint.StrokeWidth = StrokeWidth;
-            drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size - new VecD(StrokeWidth)), paint);
-        }
+        paint.StrokeWidth = StrokeWidth;
+        drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
 
         if (applyTransform)
         {

@@ -65,6 +65,8 @@ internal partial class DocumentViewModel
 
         var document = new PixiDocument
         {
+            SerializerName = "PixiEditor",
+            SerializerVersion = VersionHelpers.GetCurrentAssemblyVersion().ToString(),
             Width = Width,
             Height = Height,
             Swatches = ToCollection(Swatches),
@@ -88,12 +90,14 @@ internal partial class DocumentViewModel
         float resizeFactorY = (float)exportSize.Y / Height;
         VecD resizeFactor = new VecD(resizeFactorX, resizeFactorY);
 
-        AddElements(NodeGraph.StructureTree.Members.Reverse().ToList(), svgDocument, atTime, resizeFactor, vectorExportConfig);
+        AddElements(NodeGraph.StructureTree.Members.Where(x => x.IsVisibleBindable).Reverse().ToList(), svgDocument,
+            atTime, resizeFactor, vectorExportConfig);
 
         return svgDocument;
     }
 
-    private void AddElements(IEnumerable<INodeHandler> root, IElementContainer elementContainer, KeyFrameTime atTime,
+    private void AddElements(IEnumerable<IStructureMemberHandler> root, IElementContainer elementContainer,
+        KeyFrameTime atTime,
         VecD resizeFactor, VectorExportConfig? vectorExportConfig)
     {
         foreach (var member in root)
@@ -102,7 +106,8 @@ internal partial class DocumentViewModel
             {
                 var group = new SvgGroup();
 
-                AddElements(folderNodeViewModel.Children.Reverse().ToList(), group, atTime, resizeFactor, vectorExportConfig);
+                AddElements(folderNodeViewModel.Children.Where(x => x.IsVisibleBindable).Reverse().ToList(), group,
+                    atTime, resizeFactor, vectorExportConfig);
                 elementContainer.Children.Add(group);
             }
 
@@ -123,24 +128,36 @@ internal partial class DocumentViewModel
     {
         IReadOnlyVectorNode vectorNode =
             (IReadOnlyVectorNode)Internals.Tracker.Document.FindNode(vectorLayerHandler.Id);
-
         SvgElement? elementToAdd = null;
 
         if (vectorNode.ShapeData is IReadOnlyEllipseData ellipseData)
         {
-            elementToAdd = AddEllipse(resizeFactor, ellipseData);
+            elementToAdd = AddEllipse(ellipseData);
         }
         else if (vectorNode.ShapeData is IReadOnlyRectangleData rectangleData)
         {
-            elementToAdd = AddRectangle(resizeFactor, rectangleData);
+            elementToAdd = AddRectangle(rectangleData);
         }
         else if (vectorNode.ShapeData is IReadOnlyLineData lineData)
         {
-            elementToAdd = AddLine(resizeFactor, lineData);
+            elementToAdd = AddLine(lineData);
         }
         else if (vectorNode.ShapeData is IReadOnlyPathData shapeData)
         {
-            elementToAdd = AddVectorPath(resizeFactor, shapeData);
+            elementToAdd = AddVectorPath(shapeData);
+        }
+
+        if (vectorNode.ShapeData != null)
+        {
+            IReadOnlyShapeVectorData data = vectorNode.ShapeData;
+
+            if (data != null && elementToAdd is SvgPrimitive primitive)
+            {
+                Matrix3X3 transform = data.TransformationMatrix;
+
+                transform = transform.PostConcat(Matrix3X3.CreateScale((float)resizeFactor.X, (float)resizeFactor.Y));
+                primitive.Transform.Unit = new SvgTransformUnit?(new SvgTransformUnit(transform));
+            }
         }
 
         if (elementToAdd != null)
@@ -149,70 +166,67 @@ internal partial class DocumentViewModel
         }
     }
 
-    private static SvgLine AddLine(VecD resizeFactor, IReadOnlyLineData lineData)
+    private static SvgLine AddLine(IReadOnlyLineData lineData)
     {
         SvgLine line = new SvgLine();
-        line.X1.Unit = SvgNumericUnit.FromUserUnits(lineData.Start.X * resizeFactor.X);
-        line.Y1.Unit = SvgNumericUnit.FromUserUnits(lineData.Start.Y * resizeFactor.Y);
-        line.X2.Unit = SvgNumericUnit.FromUserUnits(lineData.End.X * resizeFactor.X);
-        line.Y2.Unit = SvgNumericUnit.FromUserUnits(lineData.End.Y * resizeFactor.Y);
+        line.X1.Unit = SvgNumericUnit.FromUserUnits(lineData.Start.X);
+        line.Y1.Unit = SvgNumericUnit.FromUserUnits(lineData.Start.Y);
+        line.X2.Unit = SvgNumericUnit.FromUserUnits(lineData.End.X);
+        line.Y2.Unit = SvgNumericUnit.FromUserUnits(lineData.End.Y);
 
         line.Stroke.Unit = SvgColorUnit.FromRgba(lineData.StrokeColor.R, lineData.StrokeColor.G,
             lineData.StrokeColor.B, lineData.StrokeColor.A);
-        line.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(lineData.StrokeWidth * resizeFactor.X);
-        line.Transform.Unit = new SvgTransformUnit(lineData.TransformationMatrix);
-
+        line.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(lineData.StrokeWidth);
+        
         return line;
     }
 
-    private static SvgEllipse AddEllipse(VecD resizeFactor, IReadOnlyEllipseData ellipseData)
+    private static SvgEllipse AddEllipse(IReadOnlyEllipseData ellipseData)
     {
         SvgEllipse ellipse = new SvgEllipse();
-        ellipse.Cx.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Center.X * resizeFactor.X);
-        ellipse.Cy.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Center.Y * resizeFactor.Y);
-        ellipse.Rx.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Radius.X * resizeFactor.X);
-        ellipse.Ry.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Radius.Y * resizeFactor.Y);
+        ellipse.Cx.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Center.X);
+        ellipse.Cy.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Center.Y);
+        ellipse.Rx.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Radius.X);
+        ellipse.Ry.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Radius.Y);
         ellipse.Fill.Unit = SvgColorUnit.FromRgba(ellipseData.FillColor.R, ellipseData.FillColor.G,
             ellipseData.FillColor.B, ellipseData.FillColor.A);
         ellipse.Stroke.Unit = SvgColorUnit.FromRgba(ellipseData.StrokeColor.R, ellipseData.StrokeColor.G,
             ellipseData.StrokeColor.B, ellipseData.StrokeColor.A);
         ellipse.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(ellipseData.StrokeWidth);
-        ellipse.Transform.Unit = new SvgTransformUnit(ellipseData.TransformationMatrix);
 
         return ellipse;
     }
 
-    private SvgRectangle AddRectangle(VecD resizeFactor, IReadOnlyRectangleData rectangleData)
+    private SvgRectangle AddRectangle(IReadOnlyRectangleData rectangleData)
     {
         SvgRectangle rect = new SvgRectangle();
-        rect.X.Unit =
-            SvgNumericUnit.FromUserUnits(rectangleData.Center.X * resizeFactor.X -
-                                         rectangleData.Size.X / 2 * resizeFactor.X);
-        rect.Y.Unit =
-            SvgNumericUnit.FromUserUnits(rectangleData.Center.Y * resizeFactor.Y -
-                                         rectangleData.Size.Y / 2 * resizeFactor.Y);
-        rect.Width.Unit = SvgNumericUnit.FromUserUnits(rectangleData.Size.X * resizeFactor.X);
-        rect.Height.Unit = SvgNumericUnit.FromUserUnits(rectangleData.Size.Y * resizeFactor.Y);
+
+        float centerX = (float)rectangleData.Center.X;
+        float centerY = (float)rectangleData.Center.Y;
+        float halfWidth = (float)rectangleData.Size.X / 2f;
+        float halfHeight = (float)rectangleData.Size.Y / 2f;
+
+        rect.X.Unit = SvgNumericUnit.FromUserUnits(centerX - halfWidth);
+        rect.Y.Unit = SvgNumericUnit.FromUserUnits(centerY - halfHeight);
+
+        rect.Width.Unit = SvgNumericUnit.FromUserUnits(rectangleData.Size.X);
+        rect.Height.Unit = SvgNumericUnit.FromUserUnits(rectangleData.Size.Y);
         rect.Fill.Unit = SvgColorUnit.FromRgba(rectangleData.FillColor.R, rectangleData.FillColor.G,
             rectangleData.FillColor.B, rectangleData.FillColor.A);
         rect.Stroke.Unit = SvgColorUnit.FromRgba(rectangleData.StrokeColor.R, rectangleData.StrokeColor.G,
             rectangleData.StrokeColor.B, rectangleData.StrokeColor.A);
         rect.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(rectangleData.StrokeWidth);
-        rect.Transform.Unit = new SvgTransformUnit(rectangleData.TransformationMatrix);
 
         return rect;
     }
 
-    private SvgPath AddVectorPath(VecD resizeFactor, IReadOnlyPathData data)
+    private SvgPath AddVectorPath(IReadOnlyPathData data)
     {
         var path = new SvgPath();
         if (data.Path != null)
         {
             string pathData = data.Path.ToSvgPathData();
             path.PathData.Unit = new SvgStringUnit(pathData);
-            Matrix3X3 transform = data.TransformationMatrix;
-            transform = transform.PostConcat(Matrix3X3.CreateScale((float)resizeFactor.X, (float)resizeFactor.Y));
-            path.Transform.Unit = new SvgTransformUnit?(new SvgTransformUnit(transform));
 
             path.Fill.Unit =
                 SvgColorUnit.FromRgba(data.FillColor.R, data.FillColor.G, data.FillColor.B, data.FillColor.A);

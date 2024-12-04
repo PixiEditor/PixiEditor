@@ -18,7 +18,7 @@ internal abstract class ShapeTool : ToolViewModel, IShapeToolHandler
     public ShapeTool()
     {
         Cursor = new Cursor(StandardCursorType.Cross);
-        Toolbar = new BasicShapeToolbar();
+        Toolbar = new FillableShapeToolbar();
     }
 
     public override void OnDeselecting(bool transient)

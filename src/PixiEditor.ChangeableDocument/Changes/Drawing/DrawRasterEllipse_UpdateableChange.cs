@@ -10,7 +10,7 @@ internal class DrawRasterEllipse_UpdateableChange : UpdateableChange
     private double rotation;
     private Color strokeColor;
     private Color fillColor;
-    private int strokeWidth;
+    private float strokeWidth;
     private readonly bool drawOnMask;
     private int frame;
     private bool antialiased;
@@ -18,7 +18,7 @@ internal class DrawRasterEllipse_UpdateableChange : UpdateableChange
     private CommittedChunkStorage? storedChunks;
 
     [GenerateUpdateableChangeActions]
-    public DrawRasterEllipse_UpdateableChange(Guid memberGuid, RectI location, double rotationRad, Color strokeColor, Color fillColor, int strokeWidth, bool antialiased, bool drawOnMask, int frame)
+    public DrawRasterEllipse_UpdateableChange(Guid memberGuid, RectI location, double rotationRad, Color strokeColor, Color fillColor, float strokeWidth, bool antialiased, bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.location = location;
@@ -32,7 +32,7 @@ internal class DrawRasterEllipse_UpdateableChange : UpdateableChange
     }
 
     [UpdateChangeMethod]
-    public void Update(RectI location, double rotationRad, Color strokeColor, Color fillColor, int strokeWidth)
+    public void Update(RectI location, double rotationRad, Color strokeColor, Color fillColor, float strokeWidth)
     {
         this.location = location;
         rotation = rotationRad;
@@ -55,7 +55,7 @@ internal class DrawRasterEllipse_UpdateableChange : UpdateableChange
         if (!location.IsZeroOrNegativeArea)
         {
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, targetImage, memberGuid, drawOnMask);
-            targetImage.EnqueueDrawEllipse(location, strokeColor, fillColor, strokeWidth, rotation, antialiased);
+            targetImage.EnqueueDrawEllipse((RectD)location, strokeColor, fillColor, strokeWidth, rotation, antialiased);
         }
 
         var affectedArea = targetImage.FindAffectedArea();

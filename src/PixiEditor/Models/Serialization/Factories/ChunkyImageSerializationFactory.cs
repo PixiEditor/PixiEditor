@@ -23,12 +23,13 @@ public class ChunkyImageSerializationFactory : SerializationFactory<byte[], Chun
         return surfaceFactory.Serialize(surface);
     }
 
-    public override bool TryDeserialize(object serialized, out ChunkyImage original)
+    public override bool TryDeserialize(object serialized, out ChunkyImage original,
+        (string serializerName, string serializerVersion) serializerData)
     {
         if (serialized is byte[] imgBytes)
         {
             surfaceFactory.Config = Config;
-            if (!surfaceFactory.TryDeserialize(imgBytes, out Surface surface))
+            if (!surfaceFactory.TryDeserialize(imgBytes, out Surface surface, serializerData))
             {
                 original = null;
                 return false;

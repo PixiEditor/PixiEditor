@@ -16,7 +16,7 @@ internal class VectorPathSerializationFactory : VectorShapeSerializationFactory<
     }
 
     protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor, Color fillColor,
-        int strokeWidth, out PathVectorData original)
+        float strokeWidth, out PathVectorData original)
     {
         string path = extractor.GetString();
 

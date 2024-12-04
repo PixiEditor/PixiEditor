@@ -14,14 +14,14 @@ internal class PenToolExecutor : UpdateableChangeExecutor
 {
     private Guid guidValue;
     private Color color;
-    public int ToolSize => penToolbar.ToolSize;
+    public double ToolSize => penToolbar.ToolSize;
     private bool drawOnMask;
     private bool pixelPerfect;
     private bool antiAliasing;
     private float hardness;
     private float spacing = 1;
 
-    private IBasicToolbar penToolbar;
+    private IPenToolbar penToolbar;
 
     public override ExecutionState Start()
     {
@@ -48,7 +48,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         colorsHandler.AddSwatch(new PaletteColor(color.R, color.G, color.B));
         IAction? action = pixelPerfect switch
         {
-            false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, ToolSize, false, antiAliasing, hardness, spacing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
+            false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, (float)ToolSize, false, antiAliasing, hardness, spacing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
             true => new PixelPerfectPen_Action(guidValue, controller!.LastPixelPosition, color, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)
         };
         internals!.ActionAccumulator.AddActions(action);
@@ -60,7 +60,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
     {
         IAction? action = pixelPerfect switch
         {
-            false => new LineBasedPen_Action(guidValue, color, pos, ToolSize, false, antiAliasing, hardness, spacing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
+            false => new LineBasedPen_Action(guidValue, color, pos, (float)ToolSize, false, antiAliasing, hardness, spacing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
             true => new PixelPerfectPen_Action(guidValue, pos, color, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)
         };
         internals!.ActionAccumulator.AddActions(action);

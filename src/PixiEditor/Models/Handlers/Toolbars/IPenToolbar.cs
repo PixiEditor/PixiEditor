@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Models.Handlers.Toolbars;
 
-internal interface IPenToolbar : IBasicToolbar
+internal interface IPenToolbar : IToolbar, IToolSizeToolbar
 {
     public bool AntiAliasing { get; set; }
     public float Hardness { get; set; }
