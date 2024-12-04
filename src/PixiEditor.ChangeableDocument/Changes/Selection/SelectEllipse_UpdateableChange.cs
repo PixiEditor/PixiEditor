@@ -37,7 +37,7 @@ internal class SelectEllipse_UpdateableChange : UpdateableChange
     {
         using var ellipsePath = new VectorPath() { FillType = PathFillType.EvenOdd };
         if (!borders.IsZeroArea)
-            ellipsePath.AddOval(borders);
+            ellipsePath.AddOval((RectD)borders);
 
         using var inConstraint = ellipsePath.Op(documentConstraint!, VectorPathOp.Intersect);
 

@@ -9,7 +9,7 @@ public abstract class SerializationFactory
     public SerializationConfig Config { get; set; }
 
     public abstract object Serialize(object original);
-    public abstract object Deserialize(object rawData);
+    public abstract object Deserialize(object rawData, (string serializerName, string serializerVersion) serializerData);
     
     protected int ExtractInt(object value)
     {
@@ -36,7 +36,8 @@ public abstract class SerializationFactory
 public abstract class SerializationFactory<TSerializable, TOriginal> : SerializationFactory
 {
     public abstract TSerializable Serialize(TOriginal original);
-    public abstract bool TryDeserialize(object serialized, out TOriginal original);
+    public abstract bool TryDeserialize(object serialized, out TOriginal original,
+        (string serializerName, string serializerVersion) serializerData);
     
     public override object Serialize(object original)
     {
@@ -49,9 +50,9 @@ public abstract class SerializationFactory<TSerializable, TOriginal> : Serializa
         return serialized;
     }
     
-    public override object Deserialize(object rawData)
+    public override object Deserialize(object rawData, (string serializerName, string serializerVersion) serializerData)
     {
-        return TryDeserialize(rawData, out TOriginal original) ? original : default;
+        return TryDeserialize(rawData, out TOriginal original, serializerData) ? original : default;
     }
     
     public override Type OriginalType => typeof(TOriginal);

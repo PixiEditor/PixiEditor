@@ -95,4 +95,13 @@ public class ByteExtractor
         
         return builder.ToString();
     }
+
+    public float GetFloat()
+    {
+        float value = BitConverter.ToSingle(_data, Position);
+        
+        Position += sizeof(float);
+        
+        return value;
+    }
 }

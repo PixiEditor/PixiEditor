@@ -25,7 +25,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
     private IStructureMemberHandler member;
     private VectorPath startingPath;
     private IVectorPathToolHandler vectorPathToolHandler;
-    private IBasicShapeToolbar toolbar;
+    private IFillableShapeToolbar toolbar;
     private IColorsHandler colorHandler;
     private bool isValidPathLayer;
 
@@ -49,7 +49,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
             return ExecutionState.Error;
         }
 
-        toolbar = (IBasicShapeToolbar)vectorPathToolHandler.Toolbar;
+        toolbar = (IFillableShapeToolbar)vectorPathToolHandler.Toolbar;
         colorHandler = GetHandler<IColorsHandler>();
 
         if (member is IVectorLayerHandler vectorLayerHandler)
@@ -200,7 +200,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         {
             return new PathVectorData(new VectorPath())
             {
-                StrokeWidth = toolbar.ToolSize,
+                StrokeWidth = (float)toolbar.ToolSize,
                 StrokeColor = toolbar.StrokeColor.ToColor(),
                 FillColor = toolbar.Fill ? toolbar.FillColor.ToColor() : Colors.Transparent,
             };
@@ -208,7 +208,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         
         return new PathVectorData(new VectorPath(startingPath))
         {
-            StrokeWidth = toolbar.ToolSize,
+            StrokeWidth = (float)toolbar.ToolSize,
             StrokeColor = toolbar.StrokeColor.ToColor(),
             FillColor = toolbar.Fill ? toolbar.FillColor.ToColor() : Colors.Transparent,
         };

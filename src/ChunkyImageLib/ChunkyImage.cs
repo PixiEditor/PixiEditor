@@ -590,7 +590,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawEllipse(RectI location, Color strokeColor, Color fillColor, int strokeWidth,
+    public void EnqueueDrawEllipse(RectD location, Color strokeColor, Color fillColor, float strokeWidth,
         double rotationRad = 0, bool antiAliased = false,
         Paint? paint = null)
     {
@@ -727,7 +727,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawSkiaLine(VecI from, VecI to, StrokeCap strokeCap, float strokeWidth, Color color,
+    public void EnqueueDrawSkiaLine(VecD from, VecD to, StrokeCap strokeCap, float strokeWidth, Color color,
         BlendMode blendMode)
     {
         lock (lockObject)
@@ -738,7 +738,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         }
     }
 
-    public void EnqueueDrawSkiaLine(VecI from, VecI to, Paint paint)
+    public void EnqueueDrawSkiaLine(VecD from, VecD to, Paint paint)
     {
         lock (lockObject)
         {

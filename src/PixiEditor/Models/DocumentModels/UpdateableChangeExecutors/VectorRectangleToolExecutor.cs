@@ -52,7 +52,7 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
 
         RectangleVectorData data = new RectangleVectorData(firstCenter, firstSize)
         {
-            StrokeColor = StrokeColor, FillColor = FillColor, StrokeWidth = StrokeWidth,
+            StrokeColor = StrokeColor, FillColor = FillColor, StrokeWidth = (float)StrokeWidth,
         };
 
         lastRect = rect;
@@ -67,7 +67,7 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
             {
                 StrokeColor = StrokeColor,
                 FillColor = FillColor,
-                StrokeWidth = StrokeWidth,
+                StrokeWidth = (float)StrokeWidth,
                 TransformationMatrix = lastMatrix
             });
     }

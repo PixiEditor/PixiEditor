@@ -380,7 +380,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
         else
         {
-            var result = await Exporter.TrySaveAsync(document, document.FullFilePath, ExportConfig.Empty, null);
+            ExportConfig config = new ExportConfig() { ExportSize = document.SizeBindable };
+            var result = await Exporter.TrySaveAsync(document, document.FullFilePath, config, null);
             if (result != SaveResult.Success)
             {
                 ShowSaveError((DialogSaveResult)result);

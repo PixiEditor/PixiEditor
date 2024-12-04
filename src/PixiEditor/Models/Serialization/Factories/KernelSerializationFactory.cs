@@ -14,7 +14,8 @@ public class KernelSerializationFactory : SerializationFactory<SerializableKerne
         };    
     }
 
-    public override bool TryDeserialize(object raw, out Kernel original)
+    public override bool TryDeserialize(object raw, out Kernel original,
+        (string serializerName, string serializerVersion) serializerData)
     {
         if (raw is not Dictionary<string, object> serialized)
         {

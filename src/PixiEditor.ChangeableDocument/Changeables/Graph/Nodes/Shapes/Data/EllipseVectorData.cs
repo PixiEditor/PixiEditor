@@ -10,7 +10,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
 {
     public VecD Radius { get; set; }
-    
+
     public VecD Center { get; set; }
 
     public override RectD GeometryAABB =>
@@ -47,30 +47,21 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
 
         using Paint shapePaint = new Paint() { IsAntiAliased = true };
 
-        if (Radius.ShortestAxis < StrokeWidth)
-        {
-            shapePaint.Color = StrokeColor;
-            shapePaint.Style = PaintStyle.Fill;
-            drawingSurface.Canvas.DrawOval(Center, Radius, shapePaint);
-        }
-        else
-        {
-            shapePaint.Color = FillColor;
-            shapePaint.Style = PaintStyle.Fill;
-            drawingSurface.Canvas.DrawOval(Center, Radius, shapePaint);
+        shapePaint.Color = FillColor;
+        shapePaint.Style = PaintStyle.Fill;
+        drawingSurface.Canvas.DrawOval(Center, Radius, shapePaint);
 
-            shapePaint.Color = StrokeColor;
-            shapePaint.Style = PaintStyle.Stroke;
-            shapePaint.StrokeWidth = StrokeWidth;
-            drawingSurface.Canvas.DrawOval(Center, Radius - new VecD(StrokeWidth / 2f), shapePaint);
-        }
+        shapePaint.Color = StrokeColor;
+        shapePaint.Style = PaintStyle.Stroke;
+        shapePaint.StrokeWidth = StrokeWidth;
+        drawingSurface.Canvas.DrawOval(Center, Radius, shapePaint);
 
         if (applyTransform)
         {
             drawingSurface.Canvas.RestoreToCount(saved);
         }
     }
-    
+
     public override bool IsValid()
     {
         return Radius is { X: > 0, Y: > 0 };

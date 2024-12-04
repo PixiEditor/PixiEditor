@@ -31,7 +31,7 @@ internal class VectorLineToolExecutor : LineExecutor<IVectorLineToolHandler>
         LineVectorData data = new LineVectorData(startDrawingPos, pos)
         {
             StrokeColor = StrokeColor,
-            StrokeWidth = StrokeWidth,
+            StrokeWidth = (float)StrokeWidth,
         };
         
         startPoint = startDrawingPos;
@@ -45,7 +45,7 @@ internal class VectorLineToolExecutor : LineExecutor<IVectorLineToolHandler>
         LineVectorData data = new LineVectorData(start, end)
         {
             StrokeColor = StrokeColor,
-            StrokeWidth = StrokeWidth,
+            StrokeWidth = (float)StrokeWidth,
         };
         
         startPoint = start;

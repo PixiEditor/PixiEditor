@@ -20,7 +20,7 @@ internal class RasterLineToolViewModel : ShapeTool, ILineToolHandler
     public RasterLineToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
-        Toolbar = ToolbarFactory.Create<RasterLineToolViewModel, LineToolbar>(this);
+        Toolbar = ToolbarFactory.Create<RasterLineToolViewModel, ShapeToolbar>(this);
     }
 
     public override string ToolNameLocalizationKey => "LINE_TOOL";
@@ -29,7 +29,8 @@ internal class RasterLineToolViewModel : ShapeTool, ILineToolHandler
     public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
     public override string DefaultIcon => PixiPerfectIcons.LowResLine;
 
-    [Settings.Inherited] public int ToolSize => GetValue<int>();
+    [Settings.Inherited] 
+    public double ToolSize => GetValue<double>();
 
     public bool Snap { get; private set; }
 

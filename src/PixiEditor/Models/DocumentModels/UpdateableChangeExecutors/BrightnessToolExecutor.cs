@@ -20,14 +20,14 @@ internal class BrightnessToolExecutor : UpdateableChangeExecutor
     {
         IStructureMemberHandler? member = document!.SelectedStructureMember;
         IBrightnessToolHandler? tool = GetHandler<IBrightnessToolHandler>();
-        if (tool is null || member is null || tool.Toolbar is not IBasicToolbar toolbar)
+        if (tool is null || member is null || tool.Toolbar is not IToolSizeToolbar toolbar)
             return ExecutionState.Error;
         if (member is not ILayerHandler layer || layer.ShouldDrawOnMask)
             return ExecutionState.Error;
 
         guidValue = member.Id;
         repeat = tool.BrightnessMode == BrightnessMode.Repeat;
-        toolSize = toolbar.ToolSize;
+        toolSize = (int)toolbar.ToolSize;
         correctionFactor = tool.Darken || tool.UsedWith == MouseButton.Right ? -tool.CorrectionFactor : tool.CorrectionFactor;
 
         ChangeBrightness_Action action = new(guidValue, controller!.LastPixelPosition, correctionFactor, toolSize, repeat, document.AnimationHandler.ActiveFrameBindable);

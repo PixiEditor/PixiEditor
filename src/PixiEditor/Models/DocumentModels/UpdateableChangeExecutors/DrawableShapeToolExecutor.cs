@@ -18,7 +18,7 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
 internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor where T : IShapeToolHandler
 {
-    protected int StrokeWidth => toolbar.ToolSize;
+    protected double StrokeWidth => toolbar.ToolSize;
 
     protected Color FillColor =>
         toolbar.Fill ? toolbar.FillColor.ToColor() : Colors.Transparent;
@@ -32,7 +32,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
     
     private ShapeCorners initialCorners;
     private bool noMovement = true;
-    protected IBasicShapeToolbar toolbar;
+    protected IFillableShapeToolbar toolbar;
     private IColorsHandler? colorsVM;
     private bool ignoreNextColorChange = false;
 
@@ -46,7 +46,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
         colorsVM = GetHandler<IColorsHandler>();
         toolViewModel = GetHandler<T>();
-        toolbar = (IBasicShapeToolbar?)toolViewModel?.Toolbar;
+        toolbar = (IFillableShapeToolbar?)toolViewModel?.Toolbar;
         IStructureMemberHandler? member = document?.SelectedStructureMember;
         if (colorsVM is null || toolbar is null || member is null)
             return ExecutionState.Error;
@@ -141,7 +141,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
             return;
 
         var rect = RectD.FromCenterAndSize(corners.RectCenter, corners.RectSize);
-        ShapeData shapeData = new ShapeData(rect.Center, rect.Size, corners.RectRotation, StrokeWidth, StrokeColor,
+        ShapeData shapeData = new ShapeData(rect.Center, rect.Size, corners.RectRotation, (float)StrokeWidth, StrokeColor,
             FillColor) { AntiAliasing = toolbar.AntiAliasing };
         IAction drawAction = TransformMovedAction(shapeData, corners);
 

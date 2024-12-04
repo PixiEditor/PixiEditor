@@ -7,7 +7,7 @@ namespace ChunkyImageLib.DataHolders;
 
 public record struct ShapeData
 {
-    public ShapeData(VecD center, VecD size, double rotation, int strokeWidth, Color strokeColor, Color fillColor, BlendMode blendMode = BlendMode.SrcOver)
+    public ShapeData(VecD center, VecD size, double rotation, float strokeWidth, Color strokeColor, Color fillColor, BlendMode blendMode = BlendMode.SrcOver)
     {
         StrokeColor = strokeColor;
         FillColor = fillColor;
@@ -25,7 +25,7 @@ public record struct ShapeData
     /// <summary>Can be negative to show flipping </summary>
     public VecD Size { get; }
     public double Angle { get; }
-    public int StrokeWidth { get; }
+    public float StrokeWidth { get; }
 
     public bool AntiAliasing { get; set; } = false;
     

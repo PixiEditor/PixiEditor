@@ -16,7 +16,8 @@ internal class ColorMatrixSerializationFactory : SerializationFactory<Serializab
         };    
     }
 
-    public override bool TryDeserialize(object raw, out ColorMatrix original)
+    public override bool TryDeserialize(object raw, out ColorMatrix original,
+        (string serializerName, string serializerVersion) serializerData)
     {
         if (raw is not Dictionary<string, object> serialized)
         {
