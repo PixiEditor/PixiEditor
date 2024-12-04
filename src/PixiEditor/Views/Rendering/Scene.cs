@@ -317,11 +317,15 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         {
             OverlayPointerArgs args = ConstructPointerArgs(e);
 
-            Cursor = DefaultCursor;
-            
+            Cursor finalCursor = DefaultCursor;
+
             if (capturedOverlay != null)
             {
                 capturedOverlay.MovePointer(args);
+                if (capturedOverlay.IsHitTestVisible)
+                {
+                    finalCursor = capturedOverlay.Cursor ?? DefaultCursor;
+                }
             }
             else
             {
@@ -352,11 +356,12 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                     overlay.MovePointer(args);
                     if (overlay.IsHitTestVisible)
                     {
-                        Cursor = overlay.Cursor ?? DefaultCursor;
+                        finalCursor = overlay.Cursor ?? DefaultCursor;
                     }
                 }
             }
 
+            Cursor = finalCursor;
             e.Handled = args.Handled;
         }
     }
@@ -377,9 +382,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 {
                     if (args.Handled) break;
                     if (!overlay.IsVisible) continue;
-                    
-                    if(!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) continue;
-                    
+
+                    if (!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) continue;
+
                     overlay.PressPointer(args);
                 }
             }
@@ -428,8 +433,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                     if (args.Handled) break;
                     if (!overlay.IsVisible) continue;
 
-                    if(!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) continue;
-                    
+                    if (!overlay.IsHitTestVisible || !overlay.TestHit(args.Point)) continue;
+
                     overlay.ReleasePointer(args);
                 }
             }
@@ -583,7 +588,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         resources = null;
     }
 
-    protected  void RenderFrame(PixelSize size)
+    protected void RenderFrame(PixelSize size)
     {
         if (resources != null)
         {
@@ -626,7 +631,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             foreach (Overlay overlay in AllOverlays)
             {
                 if (!overlay.IsVisible) continue;
-                
+
                 if (overlay.IsHitTestVisible)
                 {
                     Cursor = overlay.Cursor ?? DefaultCursor;
@@ -634,7 +639,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             }
         }
     }
-    
+
     private void QueueRender()
     {
         Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);

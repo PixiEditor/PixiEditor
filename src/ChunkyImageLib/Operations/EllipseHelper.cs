@@ -345,7 +345,7 @@ public class EllipseHelper
         }
     }
 
-    public static VectorPath GenerateEllipseVectorFromRect(RectI location)
+    public static VectorPath GenerateEllipseVectorFromRect(RectD location)
     {
         VectorPath path = new();
         path.AddOval(location);

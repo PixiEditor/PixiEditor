@@ -18,6 +18,8 @@ namespace PixiEditor.Helpers;
 
 internal class DocumentViewModelBuilder
 {
+    public string SerializerName { get; set; }
+    public string SerializerVersion { get; set; }
     public int Width { get; set; }
     public int Height { get; set; }
 
@@ -189,6 +191,13 @@ internal class DocumentViewModelBuilder
 
             return this;
         }
+    }
+
+    public DocumentViewModelBuilder WithSerializerData(string documentSerializerName, string documentSerializerVersion)
+    {
+        SerializerName = documentSerializerName;
+        SerializerVersion = documentSerializerVersion;
+        return this;
     }
 }
 

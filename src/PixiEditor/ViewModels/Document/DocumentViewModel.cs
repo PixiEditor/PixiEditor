@@ -279,6 +279,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         var builderInstance = new DocumentViewModelBuilder();
         builder(builderInstance);
+        
+        (string serializerName, string serializerVersion) serializerData = (builderInstance.SerializerName, builderInstance.SerializerVersion);
 
         Dictionary<int, Guid> mappedNodeIds = new();
         Dictionary<int, Guid> mappedKeyFrameIds = new();
@@ -346,7 +348,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 if (serializedNode.AdditionalData != null && serializedNode.AdditionalData.Count > 0)
                 {
                     acc.AddActions(new DeserializeNodeAdditionalData_Action(nodeGuid,
-                        SerializationUtil.DeserializeDict(serializedNode.AdditionalData, config, allFactories)));
+                        SerializationUtil.DeserializeDict(serializedNode.AdditionalData, config, allFactories, serializerData)));
                 }
 
                 if (node.InputConnections != null)
@@ -378,7 +380,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 foreach (var propertyValue in serializedNode.InputValues)
                 {
-                    object value = SerializationUtil.Deserialize(propertyValue.Value, config, allFactories);
+                    object value = SerializationUtil.Deserialize(propertyValue.Value, config, allFactories, serializerData);
                     acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, value));
                 }
             }
@@ -394,7 +396,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                         new SetKeyFrameData_Action(
                             guid,
                             keyFrameGuid,
-                            SerializationUtil.Deserialize(keyFrame.Data, config, allFactories),
+                            SerializationUtil.Deserialize(keyFrame.Data, config, allFactories, serializerData),
                             keyFrame.StartFrame,
                             keyFrame.Duration, keyFrame.AffectedElement, keyFrame.IsVisible));
                 }

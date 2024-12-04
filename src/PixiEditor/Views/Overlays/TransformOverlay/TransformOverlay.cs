@@ -579,7 +579,18 @@ internal class TransformOverlay : Overlay
 
     public override bool TestHit(VecD point)
     {
-        return base.TestHit(point) || Corners.AsScaled(1.25f).IsPointInside(point);
+        const double offsetInPixels = 30;
+        double offsetToScale = offsetInPixels / ZoomScale;
+        ShapeCorners scaled = Corners;
+        ShapeCorners scaledCorners = new ShapeCorners()
+        {
+            BottomLeft = scaled.BottomLeft - new VecD(offsetToScale, -offsetToScale),
+            BottomRight = scaled.BottomRight + new VecD(offsetToScale, offsetToScale),
+            TopLeft = scaled.TopLeft - new VecD(offsetToScale, offsetToScale),
+            TopRight = scaled.TopRight - new VecD(-offsetToScale, offsetToScale),
+        };
+        
+        return base.TestHit(point) || scaledCorners.IsPointInside(point);
     }
 
     private void OnMoveHandleReleased(Handle obj, OverlayPointerArgs args)

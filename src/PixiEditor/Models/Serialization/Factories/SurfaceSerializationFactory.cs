@@ -16,7 +16,8 @@ public class SurfaceSerializationFactory : SerializationFactory<byte[], Surface>
         return result;
     }
 
-    public override bool TryDeserialize(object serialized, out Surface original)
+    public override bool TryDeserialize(object serialized, out Surface original,
+        (string serializerName, string serializerVersion) serializerData)
     {
         if (serialized is byte[] imgBytes)
         {

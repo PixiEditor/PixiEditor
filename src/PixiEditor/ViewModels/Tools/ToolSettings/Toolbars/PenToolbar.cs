@@ -3,7 +3,7 @@ using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 
-internal class PenToolbar : BasicToolbar, IPenToolbar
+internal class PenToolbar : Toolbar, IPenToolbar
 {
     public bool AntiAliasing
     {
@@ -23,10 +23,24 @@ internal class PenToolbar : BasicToolbar, IPenToolbar
         set => GetSetting<PercentSettingViewModel>(nameof(Spacing)).Value = value;
     }
 
+    public double ToolSize
+    {
+        get => GetSetting<SizeSettingViewModel>(nameof(ToolSize)).Value;
+        set => GetSetting<SizeSettingViewModel>(nameof(ToolSize)).Value = value;
+    }
+
+    public override void OnLoadedSettings()
+    {
+        OnPropertyChanged(nameof(ToolSize));
+    }
+
     public PenToolbar()
     {
         AddSetting(new BoolSettingViewModel(nameof(AntiAliasing), "ANTI_ALIASING_SETTING") { IsExposed = false });
         AddSetting(new PercentSettingViewModel(nameof(Hardness), 0.8f, "HARDNESS_SETTING") { IsExposed = false });
         AddSetting(new PercentSettingViewModel(nameof(Spacing), 0.15f, "SPACING_SETTING") { IsExposed = false });
+        var setting = new SizeSettingViewModel(nameof(ToolSize), "TOOL_SIZE_LABEL");
+        setting.ValueChanged += (_, _) => OnPropertyChanged(nameof(ToolSize));
+        AddSetting(setting);
     }
 }

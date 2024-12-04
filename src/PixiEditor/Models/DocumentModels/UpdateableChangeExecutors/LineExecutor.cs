@@ -19,7 +19,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
     public override ExecutorType Type => ExecutorType.ToolLinked;
 
     protected Color StrokeColor => toolbar!.StrokeColor.ToColor();
-    protected int StrokeWidth => toolViewModel!.ToolSize;
+    protected double StrokeWidth => toolViewModel!.ToolSize;
     
     protected bool drawOnMask;
 
@@ -27,7 +27,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
     private bool startedDrawing = false;
     private T? toolViewModel;
     private IColorsHandler? colorsVM;
-    protected ILineToolbar? toolbar;
+    protected IShapeToolbar? toolbar;
     private bool ignoreNextColorChange = false;
 
     public override bool CanUndo => document.LineToolOverlayHandler.HasUndo;
@@ -41,7 +41,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         colorsVM = GetHandler<IColorsHandler>();
         toolViewModel = GetHandler<T>();
         IStructureMemberHandler? member = document?.SelectedStructureMember;
-        toolbar = (ILineToolbar?)toolViewModel?.Toolbar;
+        toolbar = (IShapeToolbar)toolViewModel?.Toolbar;
         if (colorsVM is null || toolViewModel is null || member is null)
             return ExecutionState.Error;
 

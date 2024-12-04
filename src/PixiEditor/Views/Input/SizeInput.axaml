@@ -32,7 +32,7 @@
                      BorderThickness="0" Background="Transparent"
                      Foreground="{Binding Foreground, ElementName=uc}" Focusable="True"
                      Margin="0,0,5,0" VerticalAlignment="Center"
-                     Decimals="0"
+                     Decimals="{Binding Decimals, RelativeSource={RelativeSource FindAncestor, AncestorType=input:SizeInput}}"
                      x:Name="input"
                      Value="{Binding Size, RelativeSource={RelativeSource FindAncestor, AncestorType=input:SizeInput}, Mode=TwoWay}"
                      Min="{Binding MinSize, RelativeSource={RelativeSource FindAncestor, AncestorType=input:SizeInput}}"

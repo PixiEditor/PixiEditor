@@ -10,8 +10,8 @@ namespace PixiEditor.Views.Input;
 /// </summary>
 internal partial class SizeInput : UserControl
 {
-    public static readonly StyledProperty<int> SizeProperty =
-        AvaloniaProperty.Register<SizeInput, int>(nameof(Size), defaultValue: 1);
+    public static readonly StyledProperty<double> SizeProperty =
+        AvaloniaProperty.Register<SizeInput, double>(nameof(Size), defaultValue: 1);
 
     public static readonly StyledProperty<int> MinSizeProperty = AvaloniaProperty.Register<SizeInput, int>(
         nameof(MinSize), defaultValue: 1);
@@ -28,6 +28,15 @@ internal partial class SizeInput : UserControl
     public static readonly StyledProperty<bool> FocusNextProperty = AvaloniaProperty.Register<SizeInput, bool>(
         nameof(FocusNext), defaultValue: true);
 
+    public static readonly StyledProperty<int> DecimalsProperty = AvaloniaProperty.Register<SizeInput, int>(
+        nameof(Decimals), defaultValue: 0);
+
+    public int Decimals
+    {
+        get => GetValue(DecimalsProperty);
+        set => SetValue(DecimalsProperty, value);
+    }
+
     public bool FocusNext
     {
         get => GetValue(FocusNextProperty);
@@ -43,9 +52,9 @@ internal partial class SizeInput : UserControl
     public static readonly StyledProperty<Action> OnScrollActionProperty =
         AvaloniaProperty.Register<SizeInput, Action>(nameof(OnScrollAction));
 
-    public int Size
+    public double Size
     {
-        get => (int)GetValue(SizeProperty);
+        get => (double)GetValue(SizeProperty);
         set => SetValue(SizeProperty, value);
     }
 

@@ -49,7 +49,7 @@ internal class VectorEllipseToolExecutor : DrawableShapeToolExecutor<IVectorElli
 
         EllipseVectorData data = new EllipseVectorData(firstCenter, firstRadius)
         {
-            StrokeColor = StrokeColor, FillColor = FillColor, StrokeWidth = StrokeWidth,
+            StrokeColor = StrokeColor, FillColor = FillColor, StrokeWidth = (float)StrokeWidth,
         };
 
         lastRect = rect;
@@ -64,7 +64,7 @@ internal class VectorEllipseToolExecutor : DrawableShapeToolExecutor<IVectorElli
             {
                 StrokeColor = StrokeColor,
                 FillColor = FillColor,
-                StrokeWidth = StrokeWidth,
+                StrokeWidth = (float)StrokeWidth,
                 TransformationMatrix = lastMatrix
             });
     }
@@ -94,7 +94,7 @@ internal class VectorEllipseToolExecutor : DrawableShapeToolExecutor<IVectorElli
         {
             StrokeColor = StrokeColor,
             FillColor = FillColor,
-            StrokeWidth = StrokeWidth,
+            StrokeWidth = (float)StrokeWidth,
             TransformationMatrix = matrix
         };
 
