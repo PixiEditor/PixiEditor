@@ -53,13 +53,13 @@ internal class ShapeToolbar : Toolbar, IShapeToolbar
 
     public ShapeToolbar()
     {
-        AddSetting(new SizeSettingViewModel(nameof(ToolSize), "STROKE_THICKNESS_LABEL", 0, decimalPlaces: 2));
-        AddSetting(new ColorSettingViewModel(nameof(StrokeColor), "STROKE_COLOR_LABEL"));
+        AddSetting(new SizeSettingViewModel(nameof(ToolSize), "STROKE_WIDTH", 0, decimalPlaces: 2));
         AddSetting(new BoolSettingViewModel(nameof(AntiAliasing), "ANTI_ALIASING_LABEL")
         {
             IsExposed = false, Value = false
         });
         AddSetting(
             new BoolSettingViewModel(nameof(SyncWithPrimaryColor), "SYNC_WITH_PRIMARY_COLOR_LABEL") { Value = true });
+        AddSetting(new ColorSettingViewModel(nameof(StrokeColor), "STROKE_COLOR_LABEL"));
     }
 }

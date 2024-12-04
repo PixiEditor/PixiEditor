@@ -91,14 +91,14 @@ internal partial class DocumentViewModel
         VecD resizeFactor = new VecD(resizeFactorX, resizeFactorY);
 
         AddElements(NodeGraph.StructureTree.Members.Where(x => x.IsVisibleBindable).Reverse().ToList(), svgDocument,
-            atTime, resizeFactor, vectorExportConfig, exportSize);
+            atTime, resizeFactor, vectorExportConfig);
 
         return svgDocument;
     }
 
     private void AddElements(IEnumerable<IStructureMemberHandler> root, IElementContainer elementContainer,
         KeyFrameTime atTime,
-        VecD resizeFactor, VectorExportConfig? vectorExportConfig, VecI exportSize)
+        VecD resizeFactor, VectorExportConfig? vectorExportConfig)
     {
         foreach (var member in root)
         {
@@ -107,7 +107,7 @@ internal partial class DocumentViewModel
                 var group = new SvgGroup();
 
                 AddElements(folderNodeViewModel.Children.Where(x => x.IsVisibleBindable).Reverse().ToList(), group,
-                    atTime, resizeFactor, vectorExportConfig, exportSize);
+                    atTime, resizeFactor, vectorExportConfig);
                 elementContainer.Children.Add(group);
             }
 
@@ -118,13 +118,13 @@ internal partial class DocumentViewModel
             }
             else if (member is IVectorLayerHandler vectorLayerHandler)
             {
-                AddSvgShape(elementContainer, vectorLayerHandler, resizeFactor, exportSize);
+                AddSvgShape(elementContainer, vectorLayerHandler, resizeFactor);
             }
         }
     }
 
     private void AddSvgShape(IElementContainer elementContainer, IVectorLayerHandler vectorLayerHandler,
-        VecD resizeFactor, VecI exportSize)
+        VecD resizeFactor)
     {
         IReadOnlyVectorNode vectorNode =
             (IReadOnlyVectorNode)Internals.Tracker.Document.FindNode(vectorLayerHandler.Id);
