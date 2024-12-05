@@ -25,6 +25,8 @@ public class KernelFilterNode : FilterNode
     private double lastGain;
     private double lastBias;
 
+    private float[] lastKernelValues = new float[9];
+
     public KernelFilterNode()
     {
         Kernel = CreateInput(nameof(Kernel), "KERNEL", Drawie.Numerics.Kernel.Identity(3, 3));
@@ -38,7 +40,7 @@ public class KernelFilterNode : FilterNode
     {
         var kernel = Kernel.Value;
         
-        if (kernel.Equals(lastKernel) && Tile.Value == lastTile && Gain.Value == lastGain && Bias.Value == lastBias)
+        if (kernel.AsSpan().SequenceEqual(lastKernelValues) && Tile.Value == lastTile && Gain.Value == lastGain && Bias.Value == lastBias)
             return filter;
         
         lastKernel = kernel;
@@ -51,6 +53,7 @@ public class KernelFilterNode : FilterNode
         var kernelOffset = new VecI(kernel.RadiusX, kernel.RadiusY);
         
         filter = ImageFilter.CreateMatrixConvolution(kernel, (float)Gain.Value, (float)Bias.Value, kernelOffset, Tile.Value, OnAlpha.Value);
+        lastKernelValues = kernel.AsSpan().ToArray();
         return filter;
     }
 

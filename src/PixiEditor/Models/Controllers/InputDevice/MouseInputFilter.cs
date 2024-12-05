@@ -25,7 +25,7 @@ internal class MouseInputFilter
     {
         var button = args.Button;
 
-        if (button is MouseButton.XButton1 or MouseButton.XButton2)
+        if (button is MouseButton.XButton1 or MouseButton.XButton2 or MouseButton.None)
             return;
         if (buttonStates[button])
             return;

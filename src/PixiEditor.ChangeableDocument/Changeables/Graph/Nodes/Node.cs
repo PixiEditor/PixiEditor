@@ -9,6 +9,7 @@ using PixiEditor.Common;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Shaders;
+using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -347,23 +348,26 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public Node Clone()
     {
         var clone = CreateCopy();
+
         clone.DisplayName = DisplayName;
         clone.Id = Guid.NewGuid();
         clone.Position = Position;
 
         for (var i = 0; i < clone.inputs.Count; i++)
         {
-            var cloneInput = inputs[i];
-            var newInput = cloneInput.Clone(clone);
-            clone.inputs[i].NonOverridenValue = newInput.NonOverridenValue;
+            var toClone = inputs[i];
+            object value = CloneValue(toClone.NonOverridenValue, clone.inputs[i]);
+            clone.inputs[i].NonOverridenValue = value;
         }
-
-        for (var i = 0; i < clone.outputs.Count; i++)
+        
+        // This makes shader outputs copy old delegate, also I don't think it's required because output is calculated based on inputs,
+        // leaving commented in case I'm wrong
+        
+        /*for (var i = 0; i < clone.outputs.Count; i++)
         {
             var cloneOutput = outputs[i];
-            var newOutput = cloneOutput.Clone(clone);
-            clone.outputs[i].Value = newOutput.Value;
-        }
+            clone.outputs[i].Value = CloneValue(cloneOutput.Value, null);
+        }*/
 
         foreach (var keyFrame in keyFrames)
         {
@@ -420,5 +424,35 @@ public abstract class Node : IReadOnlyNode, IDisposable
         IReadOnlyDictionary<string, object> data)
     {
         return new None();
+    }
+    
+    private static object CloneValue(object? value, InputProperty? input)
+    {
+        if (value is null)
+        {
+            return null;
+        }
+
+        if (input != null && value is Delegate del)
+        {
+            object constant = del.DynamicInvoke(FuncContext.NoContext);
+            if (constant is ShaderExpressionVariable expr)
+            {
+                return input.FuncFactory(expr.GetConstant());
+            }
+        }
+        
+        if (value is ICloneable cloneable)
+        {
+            return cloneable.Clone();
+        }
+
+        Type type = value.GetType();
+        if (type.IsValueType || type == typeof(string))
+        {
+            return value;
+        }
+        
+        return default;
     }
 }

@@ -32,6 +32,7 @@ using PixiEditor.Views.Overlays;
 using PixiEditor.Views.Overlays.Pointers;
 using PixiEditor.Views.Visuals;
 using Bitmap = Drawie.Backend.Core.Surfaces.Bitmap;
+using Color = Drawie.Backend.Core.ColorsImpl.Color;
 using Point = Avalonia.Point;
 
 namespace PixiEditor.Views.Rendering;
@@ -537,7 +538,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             return;
         }
 
-        var size = PixelSize.FromSize(Bounds.Size, root.RenderScaling);
+        var size = new PixelSize((int)Bounds.Width, (int)Bounds.Height);
         RenderFrame(size);
     }
 
