@@ -7,7 +7,9 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.Changes.Structure;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Surfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
@@ -225,6 +227,27 @@ public static class NodeOperations
                 output.DisconnectFrom(input);
                 changes.Add(new ConnectProperty_ChangeInfo(null, input.Node.Id, null, input.InternalPropertyName));
             }
+        }
+
+        return changes;
+    }
+
+    public static List<IChangeInfo> CreateUpdateInputs(Node copy)
+    {
+        List<IChangeInfo> changes = new();
+        foreach (var input in copy.InputProperties)
+        {
+            object value = input.NonOverridenValue;
+            if (value is Delegate del)
+            {
+                value = del.DynamicInvoke(FuncContext.NoContext);
+                if (value is ShaderExpressionVariable expressionVariable)
+                {
+                    value = expressionVariable.GetConstant();
+                }
+            }
+            
+            changes.Add(new PropertyValueUpdated_ChangeInfo(copy.Id, input.InternalPropertyName, value));
         }
 
         return changes;

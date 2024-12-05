@@ -36,8 +36,12 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         get => _value;
         set
         {
+            var oldValue = _value;
             ViewModelMain.Current.NodeGraphManager.UpdatePropertyValue((node, PropertyName, value));
-            //ValueChanged?.Invoke(this, new NodePropertyValueChangedArgs(oldValue, value));
+            if(SetProperty(ref _value, value))
+            {
+                ValueChanged?.Invoke(this, new NodePropertyValueChangedArgs(oldValue, value));
+            }
         }
     }
 

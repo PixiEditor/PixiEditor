@@ -68,6 +68,8 @@ internal class DeleteNode_Change : Change
             target.AnimationData.RemoveKeyFrame(savedKeyFrameGroup.Id);
             changes.Add(new DeleteKeyFrame_ChangeInfo(savedKeyFrameGroup.Id));
         }
+        
+        node.Dispose();
 
         return changes;
     }
@@ -90,6 +92,7 @@ internal class DeleteNode_Change : Change
 
         changes.Add(createChange);
 
+        changes.AddRange(NodeOperations.CreateUpdateInputs(copy));
         changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, copy, doc.NodeGraph));
 
         RevertKeyFrames(doc, savedKeyFrameGroup, changes);
