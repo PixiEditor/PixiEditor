@@ -18,8 +18,6 @@ public class MergeNode : RenderNode
 
     private Paint paint = new Paint();
     
-    private static readonly Paint blendPaint = new Paint() { BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver };
-
     private int topLayer;
     private int bottomLayer;
     
@@ -58,6 +56,11 @@ public class MergeNode : RenderNode
             int saved = target.Canvas.SaveLayer();
             Bottom.Value.Paint(context, target);
 
+            if (paint == null)
+            {
+                paint = new Paint();
+            }
+            
             paint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
             target.Canvas.SaveLayer(paint);
             
