@@ -26,7 +26,7 @@ public sealed class Filter : IDisposable
         }
 
         ImageFilter? image = ImageFilter;
-        if (imageFilter == null)
+        if (imageFilter != null)
         {
             image = ImageFilter == null ? imageFilter : ImageFilter.CreateCompose(imageFilter, ImageFilter);
         }
