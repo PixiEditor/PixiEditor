@@ -63,7 +63,7 @@ public class InputProperty : IInputProperty
         }
     }
 
-    protected virtual object FuncFactory(object toReturn)
+    protected internal virtual object FuncFactory(object toReturn)
     {
         Func<FuncContext, object> func = _ => toReturn;
         return func;
@@ -130,38 +130,6 @@ public class InputProperty : IInputProperty
         _internalValue = defaultValue;
         Node = node;
         ValueType = valueType;
-    }
-
-    public InputProperty Clone(Node forNode)
-    {
-        if(NonOverridenValue is ICloneable cloneable)
-            return new InputProperty(forNode, InternalPropertyName, DisplayName, cloneable.Clone(), ValueType);
-
-        if (NonOverridenValue is Enum enumVal)
-        {
-            return new InputProperty(forNode, InternalPropertyName, DisplayName, enumVal, ValueType);
-        }
-
-        if (NonOverridenValue is null || (!NonOverridenValue.GetType().IsValueType && NonOverridenValue.GetType() != typeof(string)))
-        {
-            object? nullValue = null;
-            if (ValueType.IsValueType)
-            {
-                nullValue = Activator.CreateInstance(ValueType);
-            }
-            
-            return new InputProperty(forNode, InternalPropertyName, DisplayName, nullValue, ValueType);
-        }
-        
-        /*if(!NonOverridenValue.GetType().IsValueType && NonOverridenValue.GetType() != typeof(string))
-            throw new InvalidOperationException($"Value of type {NonOverridenValue.GetType()} is not cloneable and not a primitive type");*/
-
-        if (!NonOverridenValue.GetType().IsValueType && NonOverridenValue.GetType() != typeof(string))
-        {
-            
-        }
-        
-        return new InputProperty(forNode, InternalPropertyName, DisplayName, NonOverridenValue, ValueType);
     }
 }
 

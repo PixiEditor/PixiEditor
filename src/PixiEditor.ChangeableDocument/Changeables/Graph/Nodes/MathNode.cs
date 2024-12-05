@@ -22,6 +22,7 @@ public class MathNode : Node
     
     public FuncInputProperty<Float1> Y { get; }
     
+
     public MathNode()
     {
         Result = CreateFuncOutput<Float1>(nameof(Result), "RESULT", Calculate);

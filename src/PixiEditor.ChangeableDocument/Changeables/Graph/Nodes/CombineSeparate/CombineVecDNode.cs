@@ -34,6 +34,7 @@ public class CombineVecDNode : Node
 
     protected override void OnExecute(RenderContext context)
     {
+        
     }
 
 
