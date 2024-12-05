@@ -27,7 +27,7 @@ namespace PixiEditor.ViewModels.SubViewModels;
 #nullable enable
 internal class IoViewModel : SubViewModel<ViewModelMain>
 {
-    private int? previousEraseSize;
+    private double? previousEraseSize;
     private bool hadSharedToolbar;
     private bool? drawingWithRight;
     private bool startedWithEraser;
@@ -263,7 +263,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             if(eraserTool == null) return;
             
             var toolSize = tools.GetTool<EraserToolViewModel>().Toolbar.Settings.First(x => x.Name == "ToolSize");
-            previousEraseSize = (int)toolSize.Value;
+            previousEraseSize = (double)toolSize.Value;
             toolSize.Value = tools.ActiveTool is PenToolViewModel { PixelPerfectEnabled: true }
                 ? 1
                 : currentToolSize.Value;
