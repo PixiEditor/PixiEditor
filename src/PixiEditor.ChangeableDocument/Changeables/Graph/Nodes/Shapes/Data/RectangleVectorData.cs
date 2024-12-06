@@ -14,6 +14,16 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
 
     public override RectD GeometryAABB => RectD.FromCenterAndSize(Center, Size);
 
+    public override RectD VisualAABB
+    {
+        get
+        {
+            RectD bounds = RectD.FromCenterAndSize(Center, Size);
+            bounds = bounds.Inflate(StrokeWidth / 2);
+            return bounds;
+        }
+    }
+
     public override ShapeCorners TransformationCorners =>
         new ShapeCorners(Center, Size).WithMatrix(TransformationMatrix);
 
@@ -49,11 +59,14 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         paint.Style = PaintStyle.Fill;
         drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
 
-        paint.Color = StrokeColor;
-        paint.Style = PaintStyle.Stroke;
+        if (StrokeWidth > 0)
+        {
+            paint.Color = StrokeColor;
+            paint.Style = PaintStyle.Stroke;
 
-        paint.StrokeWidth = StrokeWidth;
-        drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
+            paint.StrokeWidth = StrokeWidth;
+            drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
+        }
 
         if (applyTransform)
         {

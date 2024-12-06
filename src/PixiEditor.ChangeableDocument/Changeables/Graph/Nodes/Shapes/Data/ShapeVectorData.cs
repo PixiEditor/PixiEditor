@@ -15,8 +15,10 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
     public Color StrokeColor { get; set; } = Colors.White;
     public Color FillColor { get; set; } = Colors.White;
     public float StrokeWidth { get; set; } = 1;
-    public abstract RectD GeometryAABB { get; }
+    public abstract RectD GeometryAABB { get; } 
+    public abstract RectD VisualAABB { get; }
     public RectD TransformedAABB => new ShapeCorners(GeometryAABB).WithMatrix(TransformationMatrix).AABBBounds;
+    public RectD TransformedVisualAABB => new ShapeCorners(VisualAABB).WithMatrix(TransformationMatrix).AABBBounds;
     public abstract ShapeCorners TransformationCorners { get; } 
     
     protected void ApplyTransformTo(DrawingSurface drawingSurface)
