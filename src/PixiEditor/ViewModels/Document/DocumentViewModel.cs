@@ -279,8 +279,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         var builderInstance = new DocumentViewModelBuilder();
         builder(builderInstance);
-        
-        (string serializerName, string serializerVersion) serializerData = (builderInstance.SerializerName, builderInstance.SerializerVersion);
+
+        (string serializerName, string serializerVersion) serializerData = (builderInstance.SerializerName,
+            builderInstance.SerializerVersion);
 
         Dictionary<int, Guid> mappedNodeIds = new();
         Dictionary<int, Guid> mappedKeyFrameIds = new();
@@ -327,7 +328,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         AddAnimationData(builderInstance.AnimationData, mappedNodeIds, mappedKeyFrameIds);
 
         acc.AddFinishedActions(new ChangeBoundary_Action(), new DeleteRecordedChanges_Action());
-        viewModel.MarkAsSaved();
+        acc.AddActions(new InvokeAction_PassthroughAction(() =>
+        {
+            viewModel.MarkAsSaved();
+        }));
 
         return viewModel;
 
@@ -348,7 +352,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 if (serializedNode.AdditionalData != null && serializedNode.AdditionalData.Count > 0)
                 {
                     acc.AddActions(new DeserializeNodeAdditionalData_Action(nodeGuid,
-                        SerializationUtil.DeserializeDict(serializedNode.AdditionalData, config, allFactories, serializerData)));
+                        SerializationUtil.DeserializeDict(serializedNode.AdditionalData, config, allFactories,
+                            serializerData)));
                 }
 
                 if (node.InputConnections != null)
@@ -380,7 +385,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 foreach (var propertyValue in serializedNode.InputValues)
                 {
-                    object value = SerializationUtil.Deserialize(propertyValue.Value, config, allFactories, serializerData);
+                    object value =
+                        SerializationUtil.Deserialize(propertyValue.Value, config, allFactories, serializerData);
                     acc.AddActions(new UpdatePropertyValue_Action(guid, propertyValue.Key, value));
                 }
             }
@@ -531,7 +537,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 using Texture texture = new Texture(renderSize);
                 texture.DrawingSurface.Canvas.Save();
                 VecD scaling = new VecD(renderSize.X / (double)SizeBindable.X, renderSize.Y / (double)SizeBindable.Y);
-                
+
                 texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
                 Renderer.RenderDocument(texture.DrawingSurface, frameTime);
 
@@ -616,7 +622,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 finalBounds = finalBounds.Union(combinedBounds);
             }
         }
-        
+
         if (finalBounds.IsZeroOrNegativeArea)
             return new None();
 
