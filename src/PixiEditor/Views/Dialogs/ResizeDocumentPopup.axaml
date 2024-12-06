@@ -8,7 +8,7 @@
                              xmlns:input="clr-namespace:PixiEditor.Views.Input"
                              xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
                              mc:Ignorable="d" Name="window"
-                             Title="RESIZE_IMAGE"
+                             ui:Translator.Key="RESIZE_IMAGE"
                              CanResize="False"
                              CanMinimize="False"
                              Height="305" Width="310" MinHeight="305" MinWidth="310">

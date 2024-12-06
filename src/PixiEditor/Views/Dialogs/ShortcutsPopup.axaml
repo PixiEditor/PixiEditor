@@ -16,7 +16,7 @@
                          x:Class="PixiEditor.Views.Dialogs.ShortcutsPopup"
                          CloseIsHide="True"
                          x:ClassModifier="internal"
-                         Title="SHORTCUTS_TITLE">
+                         ui:Translator.Key="SHORTCUTS_TITLE">
     <Grid>
         <Grid.Styles>
             <Style Selector="ItemsControl">
