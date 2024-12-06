@@ -6,16 +6,19 @@ namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
 internal class NodePosition_UpdateableChange : UpdateableChange
 {
-    public Guid NodeId { get; }
-    public VecD NewPosition { get; private set; } 
+    public Guid[] NodeIds { get; }
+    public VecD NewPosition { get; private set; }
+
+    private Dictionary<Guid, VecD> originalPositions;
     
-    private VecD originalPosition;
-    
+    private VecD startPosition;
+
     [GenerateUpdateableChangeActions]
-    public NodePosition_UpdateableChange(Guid nodeId, VecD newPosition)
+    public NodePosition_UpdateableChange(IEnumerable<Guid> nodeIds, VecD newPosition)
     {
-        NodeId = nodeId;
+        NodeIds = nodeIds.ToArray();
         NewPosition = newPosition;
+        startPosition = newPosition;
     }
 
     [UpdateChangeMethod]
@@ -23,43 +26,76 @@ internal class NodePosition_UpdateableChange : UpdateableChange
     {
         NewPosition = newPosition;
     }
-    
+
     public override bool InitializeAndValidate(Document target)
     {
-        var node = target.FindNode<Node>(NodeId);
-        if (node == null)
+        originalPositions = new Dictionary<Guid, VecD>();
+        foreach (var nodeId in NodeIds)
         {
-            return false;
+            var node = target.FindNode<Node>(nodeId);
+            if (node == null)
+            {
+                return false;
+            }
+            
+            originalPositions.Add(nodeId, node.Position);
         }
 
-        originalPosition = node.Position;
         return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
-        var node = target.FindNode<Node>(NodeId);
-        node.Position = NewPosition;
-        return new NodePosition_ChangeInfo(NodeId, NewPosition);
+        List<IChangeInfo> changes = new();
+        VecD delta = NewPosition - startPosition;
+        foreach (var nodeId in NodeIds)
+        {
+            var node = target.FindNode<Node>(nodeId);
+            node.Position = originalPositions[nodeId] + delta;
+            changes.Add(new NodePosition_ChangeInfo(nodeId, node.Position));
+        }
+        
+        return changes;
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
+        out bool ignoreInUndo)
     {
         ignoreInUndo = false;
-        var node = target.FindNode<Node>(NodeId);
-        node.Position = NewPosition;
-        return new NodePosition_ChangeInfo(NodeId, NewPosition);
+      
+        VecD delta = NewPosition - startPosition;
+        if (NewPosition == startPosition)
+        {
+            delta = NewPosition;
+        }
+            
+        List<IChangeInfo> changes = new();
+        
+        foreach (var nodeId in NodeIds)
+        {
+            var node = target.FindNode<Node>(nodeId);
+            node.Position = originalPositions[nodeId] + delta;
+            changes.Add(new NodePosition_ChangeInfo(nodeId, node.Position));
+        }
+        
+        return changes;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var node = target.FindNode<Node>(NodeId);
-        node.Position = originalPosition;
-        return new NodePosition_ChangeInfo(NodeId, originalPosition);
+        List<IChangeInfo> changes = new();
+        foreach (var nodeId in NodeIds)
+        {
+            var node = target.FindNode<Node>(nodeId);
+            node.Position = originalPositions[nodeId];
+            changes.Add(new NodePosition_ChangeInfo(nodeId, node.Position));
+        }
+        
+        return changes;
     }
 
     public override bool IsMergeableWith(Change other)
     {
-        return other is NodePosition_UpdateableChange change && change.NodeId == NodeId;
+        return other is NodePosition_UpdateableChange change && change.NodeIds.SequenceEqual(NodeIds);
     }
 }

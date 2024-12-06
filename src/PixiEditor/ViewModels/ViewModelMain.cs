@@ -244,6 +244,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         const string ConfirmationDialogTitle = "UNSAVED_CHANGES";
         const string ConfirmationDialogMessage = "DOCUMENT_MODIFIED_SAVE";
 
+
         ConfirmationType result = ConfirmationType.No;
         if (!document.AllChangesSaved)
         {
@@ -267,13 +268,6 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
                 else
                     WindowSubViewModel.MakeDocumentViewportActive(null);
             }
-
-            // TODO: this thing should actually dispose the document to free up ram
-            // We need the UI to be able to handle disposed documents
-            // Like, the viewports should show nothing, the commands shouldn't work, etc. At least nothing should crash or behave unexpectedly
-            // Mostly we only care about this because avalondock doesn't remove the UI elements of closed viewports (at least not right away)
-            // So they remain alive and keep "showing" the now disposed DocumentViewModel
-            // And since they reference the DocumentViewModel it doesn't get collected by GC
 
             WindowSubViewModel.CloseViewportsForDocument(document);
             document.Dispose();

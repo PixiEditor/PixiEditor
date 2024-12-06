@@ -98,7 +98,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
         else
         {
-            workingSurface.Canvas.DrawSurface(fullResrenderedSurface.DrawingSurface, -(VecI)topLeft, paint);
+            workingSurface.Canvas.DrawSurface(fullResrenderedSurface.DrawingSurface, -topLeft, paint);
         }
 
         workingSurface.Canvas.RestoreToCount(saved);

@@ -79,7 +79,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         }
         else
         {
-            return ShapeData?.TransformedAABB;
+            return ShapeData?.TransformedVisualAABB;
         }
         
         return null;
@@ -95,7 +95,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
         using var paint = new Paint();
 
-        VecI tightBoundsSize = (VecI)ShapeData.TransformedAABB.Size;
+        VecI tightBoundsSize = (VecI)ShapeData.TransformedVisualAABB.Size;
 
         VecI translation = new VecI(
             (int)Math.Max(ShapeData.TransformedAABB.TopLeft.X, 0),
@@ -149,7 +149,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
-        return ShapeData?.TransformedAABB ?? null;
+        return ShapeData?.TransformedVisualAABB ?? null;
     }
 
     public override ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)

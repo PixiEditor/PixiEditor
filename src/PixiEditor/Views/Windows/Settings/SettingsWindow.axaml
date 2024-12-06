@@ -24,7 +24,7 @@
     MinWidth="665" MinHeight="500"
     DataContext="{DynamicResource SettingsWindowViewModel}"
     BorderBrush="Black" BorderThickness="1"
-    Title="SETTINGS">
+    ui:Translator.Key="SETTINGS">
 
     <Window.Resources>
         <vm:SettingsWindowViewModel x:Key="SettingsWindowViewModel"/>

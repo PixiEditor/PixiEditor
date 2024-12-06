@@ -87,6 +87,12 @@ internal class ConnectionView : TemplatedControl
             EndPoint = CalculateSocketPoint(OutputProperty);
         }, DispatcherPriority.Render);
     }
+    
+    public void UpdateSocketPoints()
+    {
+        StartPoint = CalculateSocketPoint(InputProperty);
+        EndPoint = CalculateSocketPoint(OutputProperty);
+    }
 
     private Point CalculateSocketPoint(BindingValue<NodePropertyViewModel> argsNewValue)
     {

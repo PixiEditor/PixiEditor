@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Extensions.CommonApi;
 using PixiEditor.Extensions.CommonApi.Async;
 using PixiEditor.Extensions.CommonApi.Windowing;
+using PixiEditor.Extensions.UI;
 
 namespace PixiEditor.Views.Dialogs;
 

@@ -241,6 +241,11 @@ public partial class NodePicker : TemplatedControl
         }
 
         var nodes = NodeAbbreviation.FromString(SearchQuery, AllNodeTypeInfos);
+        
+        if(nodes == null || nodes.Count == 0)
+        {
+            return;
+        }
 
         if (nodes == null && FilteredNodeGroups.Count > 0)
         {

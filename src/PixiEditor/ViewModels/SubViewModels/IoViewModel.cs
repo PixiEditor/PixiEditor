@@ -254,15 +254,19 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     
     private void HandleRightMouseEraseDown(IToolsHandler tools)
     {
+        EraserToolViewModel? eraserTool = tools.GetTool<EraserToolViewModel>();
+        if (eraserTool == null)
+        {
+            return;
+        }
+        
         var currentToolSize = tools.ActiveTool.Toolbar.Settings.FirstOrDefault(x => x.Name == "ToolSize");
         hadSharedToolbar = tools.EnableSharedToolbar;
         if (currentToolSize != null)
         {
             tools.EnableSharedToolbar = false;
-            var eraserTool = tools.GetTool<EraserToolViewModel>();
-            if(eraserTool == null) return;
             
-            var toolSize = tools.GetTool<EraserToolViewModel>().Toolbar.Settings.First(x => x.Name == "ToolSize");
+            var toolSize = eraserTool.Toolbar.Settings.First(x => x.Name == "ToolSize");
             previousEraseSize = (double)toolSize.Value;
             toolSize.Value = tools.ActiveTool is PenToolViewModel { PixelPerfectEnabled: true }
                 ? 1
@@ -364,8 +368,12 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         tools.EnableSharedToolbar = hadSharedToolbar;
         if (previousEraseSize != null)
         {
-            tools.GetTool<EraserToolViewModel>().Toolbar.Settings.First(x => x.Name == "ToolSize").Value =
-                previousEraseSize.Value;
+            EraserToolViewModel? eraserTool = tools.GetTool<EraserToolViewModel>();
+            if (eraserTool != null)
+            {
+                eraserTool.Toolbar.Settings.First(x => x.Name == "ToolSize").Value =
+                    previousEraseSize.Value;
+            }
         }
 
         tools.RestorePreviousTool();

@@ -67,9 +67,9 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Internal("PixiEditor.NodeGraph.ChangeNodePos")]
-    public void ChangeNodePos((INodeHandler node, VecD newPos) args)
+    public void ChangeNodePos((List<INodeHandler> nodes, VecD newPos) args)
     {
-        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.SetNodePosition(args.node, args.newPos);
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.SetNodePositions(args.nodes, args.newPos);
     }
 
     [Command.Internal("PixiEditor.NodeGraph.UpdateValue", AnalyticsTrack = true)]

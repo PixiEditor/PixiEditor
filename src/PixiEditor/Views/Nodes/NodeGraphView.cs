@@ -7,6 +7,7 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Helpers;
@@ -74,8 +75,9 @@ internal class NodeGraphView : Zoombox.Zoombox
         AvaloniaProperty.Register<NodeGraphView, ICommand>(
             "ConnectPropertiesCommand");
 
-    public static readonly StyledProperty<ICommand> CreateNodeFromContextCommandProperty = AvaloniaProperty.Register<NodeGraphView, ICommand>(
-        "CreateNodeFromContextCommand");
+    public static readonly StyledProperty<ICommand> CreateNodeFromContextCommandProperty =
+        AvaloniaProperty.Register<NodeGraphView, ICommand>(
+            "CreateNodeFromContextCommand");
 
     public ICommand CreateNodeFromContextCommand
     {
@@ -94,7 +96,7 @@ internal class NodeGraphView : Zoombox.Zoombox
         get => GetValue(AllNodeTypesProperty);
         set => SetValue(AllNodeTypesProperty, value);
     }
-    
+
     public ObservableCollection<NodeTypeInfo> AllNodeTypeInfos
     {
         get => GetValue(AllNodeTypeInfosProperty);
@@ -188,7 +190,12 @@ internal class NodeGraphView : Zoombox.Zoombox
     private NodeConnectionViewModel? _hiddenConnection;
     private Color _startingPropColor;
     private VecD _lastMouseClickPos;
-    public static readonly StyledProperty<int> ActiveFrameProperty = AvaloniaProperty.Register<NodeGraphView, int>("ActiveFrame");
+
+    private ItemsControl nodeItemsControl;
+    private ItemsControl connectionItemsControl;
+
+    public static readonly StyledProperty<int> ActiveFrameProperty =
+        AvaloniaProperty.Register<NodeGraphView, int>("ActiveFrame");
 
     public NodeGraphView()
     {
@@ -202,7 +209,53 @@ internal class NodeGraphView : Zoombox.Zoombox
         AllNodeTypes = new ObservableCollection<Type>(GatherAssemblyTypes<NodeViewModel>());
         AllNodeTypeInfos = new ObservableCollection<NodeTypeInfo>(AllNodeTypes.Select(x => new NodeTypeInfo(x)));
     }
-    
+
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
+        base.OnApplyTemplate(e);
+        nodeItemsControl = e.NameScope.Find<ItemsControl>("PART_Nodes");
+        connectionItemsControl = e.NameScope.Find<ItemsControl>("PART_Connections");
+
+        Dispatcher.UIThread.Post(() =>
+        {
+            nodeItemsControl.ItemsPanelRoot.Children.CollectionChanged += Items_CollectionChanged;
+        });
+    }
+
+    private void Items_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.Action == NotifyCollectionChangedAction.Add)
+        {
+            foreach (Control control in e.NewItems)
+            {
+                if (control is not ContentPresenter presenter)
+                {
+                    continue;
+                }
+
+                if (presenter.Child == null)
+                {
+                    presenter.PropertyChanged += OnPresenterPropertyChanged;
+                    continue;
+                }
+
+                NodeView nodeView = (NodeView)presenter.Child;
+                nodeView.PropertyChanged += NodeView_PropertyChanged;
+            }
+        }
+    }
+
+    private void OnPresenterPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Property == ContentPresenter.ChildProperty)
+        {
+            if (e.NewValue is NodeView nodeView)
+            {
+                nodeView.PropertyChanged += NodeView_PropertyChanged;
+            }
+        }
+    }
+
     private void CreateNodeType(NodeTypeInfo nodeType)
     {
         var type = nodeType.NodeType;
@@ -221,7 +274,7 @@ internal class NodeGraphView : Zoombox.Zoombox
         {
             ClearSelection();
         }
-        
+
         Point pos = e.GetPosition(this);
         _lastMouseClickPos = ToZoomboxSpace(new VecD(pos.X, pos.Y));
     }
@@ -240,7 +293,7 @@ internal class NodeGraphView : Zoombox.Zoombox
         VecD currentPoint = ToZoomboxSpace(new VecD(pos.X, pos.Y));
 
         NodeSocket? nodeSocket = e.Source as NodeSocket;
-        
+
         if (nodeSocket != null)
         {
             Canvas canvas = nodeSocket.FindAncestorOfType<Canvas>();
@@ -276,8 +329,7 @@ internal class NodeGraphView : Zoombox.Zoombox
             {
                 GradientStops = new GradientStops()
                 {
-                    new GradientStop(gradientStopFirstColor, 0),
-                    new GradientStop(gradientStopSecondColor, 1),
+                    new GradientStop(gradientStopFirstColor, 0), new GradientStop(gradientStopSecondColor, 1),
                 }
             };
         }
@@ -299,8 +351,8 @@ internal class NodeGraphView : Zoombox.Zoombox
         {
             return gradientBrush.GradientStops.FirstOrDefault()?.Color;
         }
-        
-        return null; 
+
+        return null;
     }
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
@@ -320,6 +372,11 @@ internal class NodeGraphView : Zoombox.Zoombox
 
             isDraggingConnection = false;
             _hiddenConnection = null;
+        }
+
+        if (e.Source is NodeView nodeView)
+        {
+            UpdateConnections(nodeView);
         }
     }
 
@@ -363,6 +420,15 @@ internal class NodeGraphView : Zoombox.Zoombox
         }
     }
 
+    private void NodeView_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Property == BoundsProperty)
+        {
+            NodeView nodeView = (NodeView)sender!;
+            UpdateConnections(nodeView);
+        }
+    }
+
     private NodeView FindNodeView(INodeHandler node)
     {
         return this.GetVisualDescendants().OfType<NodeView>().FirstOrDefault(x => x.Node == node);
@@ -380,13 +446,10 @@ internal class NodeGraphView : Zoombox.Zoombox
         }
 
         _previewConnectionLine.IsVisible = true;
-        _startingPropColor = GetSocketColor(nodeSocket) ?? Colors.White; 
+        _startingPropColor = GetSocketColor(nodeSocket) ?? Colors.White;
         _previewConnectionLine.LineBrush = new LinearGradientBrush()
         {
-            GradientStops = new GradientStops()
-            {
-                new GradientStop(_startingPropColor, 1),
-            }
+            GradientStops = new GradientStops() { new GradientStop(_startingPropColor, 1), }
         };
 
         _previewConnectionLine.StartPoint = nodeSocket.ConnectPort.TranslatePoint(
@@ -394,6 +457,32 @@ internal class NodeGraphView : Zoombox.Zoombox
             canvas) ?? default;
         _previewConnectionLine.EndPoint = _previewConnectionLine.StartPoint;
         startDragConnectionPoint = _previewConnectionLine.StartPoint;
+    }
+
+    private void UpdateConnections(NodeView nodeView)
+    {
+        foreach (NodePropertyView propertyView in nodeView.GetVisualDescendants().OfType<NodePropertyView>())
+        {
+            NodePropertyViewModel property = (NodePropertyViewModel)propertyView.DataContext;
+            UpdateConnectionView(property);
+        }
+    }
+
+    private void UpdateConnectionView(NodePropertyViewModel? propertyView)
+    {
+        foreach (var connection in connectionItemsControl.ItemsPanelRoot.Children)
+        {
+            if (connection is ContentPresenter contentPresenter)
+            {
+                ConnectionView connectionView = (ConnectionView)contentPresenter.FindDescendantOfType<ConnectionView>();
+
+                if (connectionView.InputProperty == propertyView || connectionView.OutputProperty == propertyView)
+                {
+                    connectionView.UpdateSocketPoints();
+                    connectionView.InvalidateVisual();
+                }
+            }
+        }
     }
 
     private void Dragged(PointerEventArgs e)
@@ -404,10 +493,7 @@ internal class NodeGraphView : Zoombox.Zoombox
             VecD currentPoint = ToZoomboxSpace(new VecD(pos.X, pos.Y));
 
             VecD delta = currentPoint - clickPointOffset;
-            foreach (var node in SelectedNodes)
-            {
-                ChangeNodePosCommand?.Execute((node, initialNodePositions[SelectedNodes.IndexOf(node)] + delta));
-            }
+            ChangeNodePosCommand?.Execute((SelectedNodes, initialNodePositions[0] + delta));
         }
     }
 

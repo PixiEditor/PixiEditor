@@ -10,4 +10,9 @@ internal class GenericEnumPropertyViewModel : NodePropertyViewModel
     }
 
     public Array Values { get; }
+    public int SelectedIndex
+    {
+        get => Value == null ? -1 : Array.IndexOf(Values, Value);
+        set => Value = Values.GetValue(value);
+    }
 }

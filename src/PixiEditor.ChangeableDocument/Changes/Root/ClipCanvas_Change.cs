@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
@@ -16,29 +17,34 @@ internal class ClipCanvas_Change : ResizeBasedChangeBase
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        RectI? bounds = null;
+        RectD? bounds = null;
         target.ForEveryMember((member) =>
         {
-            if (member is LayerNode layer)
+            if (member.IsVisible.Value)
             {
-                var layerBounds = layer.GetTightBounds(frameToClip);
-                if (layerBounds.HasValue)
+                if (member is LayerNode layer)
                 {
-                    bounds ??= (RectI)layerBounds.Value;
-                    bounds = bounds.Value.Union((RectI)layerBounds.Value);
+                    var layerBounds = layer.GetTightBounds(frameToClip);
+                    if (layerBounds is { IsZeroOrNegativeArea: false })
+                    {
+                        bounds ??= layerBounds.Value;
+                        bounds = bounds.Value.Union(layerBounds.Value);
+                    }
                 }
             }
         });
 
-        if (!bounds.HasValue || bounds.Value.IsZeroOrNegativeArea || bounds.Value == new RectI(VecI.Zero, target.Size))
+        if (!bounds.HasValue || bounds.Value.IsZeroOrNegativeArea || bounds.Value == new RectD(VecI.Zero, target.Size))
         {
             ignoreInUndo = true;
             return new None();
         }
         
-        RectI newBounds = bounds.Value;
+        RectD newBounds = bounds.Value;
         
-        target.Size = newBounds.Size;
+        VecI size = (VecI)newBounds.Size.Ceiling();
+        
+        target.Size = size;
         target.VerticalSymmetryAxisX = Math.Clamp(_originalVerAxisX, 0, target.Size.X);
         target.HorizontalSymmetryAxisY = Math.Clamp(_originalHorAxisY, 0, target.Size.Y);
         
@@ -48,17 +54,23 @@ internal class ClipCanvas_Change : ResizeBasedChangeBase
             {
                 layer.ForEveryFrame(img =>
                 {
-                    Resize(img, layer.Id, newBounds.Size, -newBounds.Pos, deletedChunks);
+                    Resize(img, layer.Id, size, -(VecI)newBounds.Pos, deletedChunks);
                 });
             }
-            
+            else if (member is ITransformableObject transformableObject)
+            {
+                originalTransformations[member.Id] = transformableObject.TransformationMatrix;
+                VecD floor = new VecD(-(float)newBounds.Pos.X, -(float)newBounds.Pos.Y);
+                transformableObject.TransformationMatrix = transformableObject.TransformationMatrix.PostConcat(Matrix3X3.CreateTranslation((float)floor.X, (float)floor.Y));
+            }
+
             if (member.EmbeddedMask is null)
                 return;
             
-            Resize(member.EmbeddedMask, member.Id, newBounds.Size, -newBounds.Pos, deletedMaskChunks);
+            Resize(member.EmbeddedMask, member.Id, size, -(VecI)newBounds.Pos, deletedMaskChunks);
         });
 
         ignoreInUndo = false;
-        return new Size_ChangeInfo(newBounds.Size, target.VerticalSymmetryAxisX, target.HorizontalSymmetryAxisY);
+        return new Size_ChangeInfo(size, target.VerticalSymmetryAxisX, target.HorizontalSymmetryAxisY);
     }
 }

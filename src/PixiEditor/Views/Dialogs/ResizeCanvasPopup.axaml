@@ -11,7 +11,7 @@
                          x:Name="window"
                          CanResize="False"
                          CanMinimize="False"
-                         Title="RESIZE_CANVAS"
+                         ui:Translator.Key="RESIZE_CANVAS"
                          Height="410" Width="320">
     <DockPanel Focusable="True">
         <Button DockPanel.Dock="Bottom" HorizontalAlignment="Center" Margin="15"
