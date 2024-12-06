@@ -74,8 +74,9 @@ internal class NodeGraphView : Zoombox.Zoombox
         AvaloniaProperty.Register<NodeGraphView, ICommand>(
             "ConnectPropertiesCommand");
 
-    public static readonly StyledProperty<ICommand> CreateNodeFromContextCommandProperty = AvaloniaProperty.Register<NodeGraphView, ICommand>(
-        "CreateNodeFromContextCommand");
+    public static readonly StyledProperty<ICommand> CreateNodeFromContextCommandProperty =
+        AvaloniaProperty.Register<NodeGraphView, ICommand>(
+            "CreateNodeFromContextCommand");
 
     public ICommand CreateNodeFromContextCommand
     {
@@ -94,7 +95,7 @@ internal class NodeGraphView : Zoombox.Zoombox
         get => GetValue(AllNodeTypesProperty);
         set => SetValue(AllNodeTypesProperty, value);
     }
-    
+
     public ObservableCollection<NodeTypeInfo> AllNodeTypeInfos
     {
         get => GetValue(AllNodeTypeInfosProperty);
@@ -188,7 +189,9 @@ internal class NodeGraphView : Zoombox.Zoombox
     private NodeConnectionViewModel? _hiddenConnection;
     private Color _startingPropColor;
     private VecD _lastMouseClickPos;
-    public static readonly StyledProperty<int> ActiveFrameProperty = AvaloniaProperty.Register<NodeGraphView, int>("ActiveFrame");
+
+    public static readonly StyledProperty<int> ActiveFrameProperty =
+        AvaloniaProperty.Register<NodeGraphView, int>("ActiveFrame");
 
     public NodeGraphView()
     {
@@ -202,7 +205,7 @@ internal class NodeGraphView : Zoombox.Zoombox
         AllNodeTypes = new ObservableCollection<Type>(GatherAssemblyTypes<NodeViewModel>());
         AllNodeTypeInfos = new ObservableCollection<NodeTypeInfo>(AllNodeTypes.Select(x => new NodeTypeInfo(x)));
     }
-    
+
     private void CreateNodeType(NodeTypeInfo nodeType)
     {
         var type = nodeType.NodeType;
@@ -221,7 +224,7 @@ internal class NodeGraphView : Zoombox.Zoombox
         {
             ClearSelection();
         }
-        
+
         Point pos = e.GetPosition(this);
         _lastMouseClickPos = ToZoomboxSpace(new VecD(pos.X, pos.Y));
     }
@@ -240,7 +243,7 @@ internal class NodeGraphView : Zoombox.Zoombox
         VecD currentPoint = ToZoomboxSpace(new VecD(pos.X, pos.Y));
 
         NodeSocket? nodeSocket = e.Source as NodeSocket;
-        
+
         if (nodeSocket != null)
         {
             Canvas canvas = nodeSocket.FindAncestorOfType<Canvas>();
@@ -276,8 +279,7 @@ internal class NodeGraphView : Zoombox.Zoombox
             {
                 GradientStops = new GradientStops()
                 {
-                    new GradientStop(gradientStopFirstColor, 0),
-                    new GradientStop(gradientStopSecondColor, 1),
+                    new GradientStop(gradientStopFirstColor, 0), new GradientStop(gradientStopSecondColor, 1),
                 }
             };
         }
@@ -299,8 +301,8 @@ internal class NodeGraphView : Zoombox.Zoombox
         {
             return gradientBrush.GradientStops.FirstOrDefault()?.Color;
         }
-        
-        return null; 
+
+        return null;
     }
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
@@ -380,13 +382,10 @@ internal class NodeGraphView : Zoombox.Zoombox
         }
 
         _previewConnectionLine.IsVisible = true;
-        _startingPropColor = GetSocketColor(nodeSocket) ?? Colors.White; 
+        _startingPropColor = GetSocketColor(nodeSocket) ?? Colors.White;
         _previewConnectionLine.LineBrush = new LinearGradientBrush()
         {
-            GradientStops = new GradientStops()
-            {
-                new GradientStop(_startingPropColor, 1),
-            }
+            GradientStops = new GradientStops() { new GradientStop(_startingPropColor, 1), }
         };
 
         _previewConnectionLine.StartPoint = nodeSocket.ConnectPort.TranslatePoint(
@@ -404,10 +403,7 @@ internal class NodeGraphView : Zoombox.Zoombox
             VecD currentPoint = ToZoomboxSpace(new VecD(pos.X, pos.Y));
 
             VecD delta = currentPoint - clickPointOffset;
-            foreach (var node in SelectedNodes)
-            {
-                ChangeNodePosCommand?.Execute((node, initialNodePositions[SelectedNodes.IndexOf(node)] + delta));
-            }
+            ChangeNodePosCommand?.Execute((SelectedNodes, initialNodePositions[0] + delta));
         }
     }
 

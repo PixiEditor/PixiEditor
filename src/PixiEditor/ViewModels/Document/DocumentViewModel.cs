@@ -378,7 +378,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             Guid guid = Guid.NewGuid();
             mappedNodeIds.Add(id, guid);
             acc.AddActions(new CreateNodeFromName_Action(serializedNode.UniqueNodeName, guid));
-            acc.AddFinishedActions(new NodePosition_Action(guid, serializedNode.Position.ToVecD()),
+            acc.AddFinishedActions(new NodePosition_Action([guid], serializedNode.Position.ToVecD()),
                 new EndNodePosition_Action());
 
             if (serializedNode.InputValues != null)

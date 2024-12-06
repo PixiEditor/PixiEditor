@@ -93,7 +93,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
             if (!Document.BlockingUpdateableChangeActive)
             {
                 Internals.ActionAccumulator.AddFinishedActions(
-                    new NodePosition_Action(Id, value),
+                    new NodePosition_Action([Id], value),
                     new EndNodePosition_Action());
             }
         }
