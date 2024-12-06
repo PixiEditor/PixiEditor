@@ -17,6 +17,8 @@ public class PointsVectorData : ShapeVectorData
     public override RectD GeometryAABB => new RectD(Points.Min(p => p.X), Points.Min(p => p.Y), Points.Max(p => p.X),
         Points.Max(p => p.Y));
 
+    public override RectD VisualAABB => GeometryAABB;
+
     public override ShapeCorners TransformationCorners => new ShapeCorners(
         GeometryAABB).WithMatrix(TransformationMatrix);
 

@@ -209,9 +209,10 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
         return new Queue<INodeHandler>(finalQueue);
     }
 
-    public void SetNodePosition(INodeHandler node, VecD newPos)
+    public void SetNodePositions(List<INodeHandler> node, VecD startPos)
     {
-        Internals.ActionAccumulator.AddActions(new NodePosition_Action(node.Id, newPos));
+        Guid[] nodeIds = node.Select(x => x.Id).ToArray();
+        Internals.ActionAccumulator.AddActions(new NodePosition_Action(nodeIds, startPos));
     }
 
     public void UpdatePropertyValue(INodeHandler node, string property, object? value)
@@ -240,9 +241,9 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
 
             if (pos != default)
             {
-                changes.Add(new NodePosition_Action(startId, pos));
+                changes.Add(new NodePosition_Action([startId], pos));
                 changes.Add(new EndNodePosition_Action());
-                changes.Add(new NodePosition_Action(endId, new VecD(pos.X + 400, pos.Y)));
+                changes.Add(new NodePosition_Action([endId], new VecD(pos.X + 400, pos.Y)));
                 changes.Add(new EndNodePosition_Action());
             }
         }
@@ -253,7 +254,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
 
             if (pos != default)
             {
-                changes.Add(new NodePosition_Action(nodeId, pos));
+                changes.Add(new NodePosition_Action([nodeId], pos));
                 changes.Add(new EndNodePosition_Action());
             }
         }

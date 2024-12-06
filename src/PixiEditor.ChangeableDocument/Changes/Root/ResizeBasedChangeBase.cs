@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
@@ -12,6 +13,8 @@ internal abstract class ResizeBasedChangeBase : Change
     protected double _originalVerAxisX;
     protected Dictionary<Guid, List<CommittedChunkStorage>> deletedChunks = new();
     protected Dictionary<Guid, List<CommittedChunkStorage>> deletedMaskChunks = new();
+    
+    protected Dictionary<Guid, Matrix3X3> originalTransformations = new();
 
     public ResizeBasedChangeBase()
     {
@@ -57,8 +60,13 @@ internal abstract class ResizeBasedChangeBase : Change
                     img.CommitChanges();
                 });
             }
-
-            // TODO: Add support for different Layer types?
+            else if (member is ITransformableObject transformableObject)
+            {
+                if (originalTransformations.TryGetValue(member.Id, out var transformation))
+                {
+                    transformableObject.TransformationMatrix = transformation;
+                }
+            }
 
             if (member.EmbeddedMask is null)
                 return;

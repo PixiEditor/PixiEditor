@@ -12,7 +12,7 @@
         CanResize="False"
         CanMinimize="False"
         Name="popup"
-        Title="CREATE_NEW_IMAGE">
+        ui:Translator.Key="CREATE_NEW_IMAGE">
     <StackPanel Background="{DynamicResource ThemeBackgroundBrush}" Focusable="True" Orientation="Vertical">
         <input:SizePicker HorizontalAlignment="Center" MinWidth="230" Height="125" Margin="15,30,15,0"
                           PreserveAspectRatio="False"

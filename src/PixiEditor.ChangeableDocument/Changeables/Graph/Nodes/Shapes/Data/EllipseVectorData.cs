@@ -16,6 +16,9 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
     public override RectD GeometryAABB =>
         new ShapeCorners(Center, Radius * 2).AABBBounds;
 
+    public override RectD VisualAABB =>
+        RectD.FromCenterAndSize(Center, Radius * 2).Inflate(StrokeWidth / 2);
+
     public override ShapeCorners TransformationCorners =>
         new ShapeCorners(Center, Radius * 2).WithMatrix(TransformationMatrix);
 
@@ -51,10 +54,13 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
         shapePaint.Style = PaintStyle.Fill;
         drawingSurface.Canvas.DrawOval(Center, Radius, shapePaint);
 
-        shapePaint.Color = StrokeColor;
-        shapePaint.Style = PaintStyle.Stroke;
-        shapePaint.StrokeWidth = StrokeWidth;
-        drawingSurface.Canvas.DrawOval(Center, Radius, shapePaint);
+        if (StrokeWidth > 0)
+        {
+            shapePaint.Color = StrokeColor;
+            shapePaint.Style = PaintStyle.Stroke;
+            shapePaint.StrokeWidth = StrokeWidth;
+            drawingSurface.Canvas.DrawOval(Center, Radius, shapePaint);
+        }
 
         if (applyTransform)
         {

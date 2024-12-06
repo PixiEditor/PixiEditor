@@ -29,9 +29,25 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
     {
         get
         {
-            return RectD.FromTwoPoints(Start, End).Inflate(StrokeWidth);
+            var dir = (End - Start).Normalize();
+            var cross = new VecD(-dir.Y, dir.X);
+            VecD offset = cross * StrokeWidth / 2;
+
+            VecD topLeft = Start + offset;
+            VecD bottomRight = End - offset;
+            VecD bottomLeft = Start - offset;
+            VecD topRight = End + offset;
+
+            ShapeCorners corners = new ShapeCorners()
+            {
+                TopLeft = topLeft, BottomRight = bottomRight, BottomLeft = bottomLeft, TopRight = topRight
+            };
+
+            return corners.AABBBounds;
         }
     }
+
+    public override RectD VisualAABB => GeometryAABB;
 
     public override ShapeCorners TransformationCorners => new ShapeCorners(GeometryAABB)
         .WithMatrix(TransformationMatrix);

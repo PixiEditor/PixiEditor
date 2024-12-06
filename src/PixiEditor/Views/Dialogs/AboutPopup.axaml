@@ -13,7 +13,7 @@
         CanResize="True"
         Width="440" Height="540"
         MaxWidth="440" MaxHeight="540"
-        Title="ABOUT">
+        ui:Translator.Key="ABOUT">
     <StackPanel DataContext="{Binding ElementName=aboutPopup}" Orientation="Vertical" DockPanel.Dock="Bottom" Margin="10">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
                 <Svg Path="../../Images/PixiEditorLogo.svg" Height="40" VerticalAlignment="Center"/>
