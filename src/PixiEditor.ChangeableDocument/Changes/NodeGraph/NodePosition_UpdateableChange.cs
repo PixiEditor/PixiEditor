@@ -64,6 +64,11 @@ internal class NodePosition_UpdateableChange : UpdateableChange
         ignoreInUndo = false;
       
         VecD delta = NewPosition - startPosition;
+        if (NewPosition == startPosition)
+        {
+            delta = NewPosition;
+        }
+            
         List<IChangeInfo> changes = new();
         
         foreach (var nodeId in NodeIds)
