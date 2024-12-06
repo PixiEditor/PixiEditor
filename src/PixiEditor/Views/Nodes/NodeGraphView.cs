@@ -7,6 +7,7 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Helpers;
@@ -190,6 +191,9 @@ internal class NodeGraphView : Zoombox.Zoombox
     private Color _startingPropColor;
     private VecD _lastMouseClickPos;
 
+    private ItemsControl nodeItemsControl;
+    private ItemsControl connectionItemsControl;
+
     public static readonly StyledProperty<int> ActiveFrameProperty =
         AvaloniaProperty.Register<NodeGraphView, int>("ActiveFrame");
 
@@ -204,6 +208,52 @@ internal class NodeGraphView : Zoombox.Zoombox
 
         AllNodeTypes = new ObservableCollection<Type>(GatherAssemblyTypes<NodeViewModel>());
         AllNodeTypeInfos = new ObservableCollection<NodeTypeInfo>(AllNodeTypes.Select(x => new NodeTypeInfo(x)));
+    }
+
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
+        base.OnApplyTemplate(e);
+        nodeItemsControl = e.NameScope.Find<ItemsControl>("PART_Nodes");
+        connectionItemsControl = e.NameScope.Find<ItemsControl>("PART_Connections");
+
+        Dispatcher.UIThread.Post(() =>
+        {
+            nodeItemsControl.ItemsPanelRoot.Children.CollectionChanged += Items_CollectionChanged;
+        });
+    }
+
+    private void Items_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.Action == NotifyCollectionChangedAction.Add)
+        {
+            foreach (Control control in e.NewItems)
+            {
+                if (control is not ContentPresenter presenter)
+                {
+                    continue;
+                }
+
+                if (presenter.Child == null)
+                {
+                    presenter.PropertyChanged += OnPresenterPropertyChanged;
+                    continue;
+                }
+
+                NodeView nodeView = (NodeView)presenter.Child;
+                nodeView.PropertyChanged += NodeView_PropertyChanged;
+            }
+        }
+    }
+
+    private void OnPresenterPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Property == ContentPresenter.ChildProperty)
+        {
+            if (e.NewValue is NodeView nodeView)
+            {
+                nodeView.PropertyChanged += NodeView_PropertyChanged;
+            }
+        }
     }
 
     private void CreateNodeType(NodeTypeInfo nodeType)
@@ -323,6 +373,11 @@ internal class NodeGraphView : Zoombox.Zoombox
             isDraggingConnection = false;
             _hiddenConnection = null;
         }
+
+        if (e.Source is NodeView nodeView)
+        {
+            UpdateConnections(nodeView);
+        }
     }
 
     private IEnumerable<Type> GatherAssemblyTypes<T>()
@@ -365,6 +420,15 @@ internal class NodeGraphView : Zoombox.Zoombox
         }
     }
 
+    private void NodeView_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Property == BoundsProperty)
+        {
+            NodeView nodeView = (NodeView)sender!;
+            UpdateConnections(nodeView);
+        }
+    }
+
     private NodeView FindNodeView(INodeHandler node)
     {
         return this.GetVisualDescendants().OfType<NodeView>().FirstOrDefault(x => x.Node == node);
@@ -393,6 +457,32 @@ internal class NodeGraphView : Zoombox.Zoombox
             canvas) ?? default;
         _previewConnectionLine.EndPoint = _previewConnectionLine.StartPoint;
         startDragConnectionPoint = _previewConnectionLine.StartPoint;
+    }
+
+    private void UpdateConnections(NodeView nodeView)
+    {
+        foreach (NodePropertyView propertyView in nodeView.GetVisualDescendants().OfType<NodePropertyView>())
+        {
+            NodePropertyViewModel property = (NodePropertyViewModel)propertyView.DataContext;
+            UpdateConnectionView(property);
+        }
+    }
+
+    private void UpdateConnectionView(NodePropertyViewModel? propertyView)
+    {
+        foreach (var connection in connectionItemsControl.ItemsPanelRoot.Children)
+        {
+            if (connection is ContentPresenter contentPresenter)
+            {
+                ConnectionView connectionView = (ConnectionView)contentPresenter.FindDescendantOfType<ConnectionView>();
+
+                if (connectionView.InputProperty == propertyView || connectionView.OutputProperty == propertyView)
+                {
+                    connectionView.UpdateSocketPoints();
+                    connectionView.InvalidateVisual();
+                }
+            }
+        }
     }
 
     private void Dragged(PointerEventArgs e)
