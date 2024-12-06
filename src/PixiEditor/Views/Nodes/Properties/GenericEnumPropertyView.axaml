@@ -6,11 +6,16 @@
                              xmlns:input="clr-namespace:PixiEditor.Views.Input"
                              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
                              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                             xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                              x:Class="PixiEditor.Views.Nodes.Properties.GenericEnumPropertyView">
+    <Design.DataContext>
+        <properties1:GenericEnumPropertyViewModel />
+    </Design.DataContext>
+    
     <Grid HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
         <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}"/>
         <ComboBox HorizontalAlignment="Right" MinWidth="100" IsVisible="{Binding ShowInputField}"
-                  SelectedValue="{Binding Value, Mode=TwoWay}" ItemsSource="{Binding Values}" />
+                  SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" ItemsSource="{Binding Values}" />
     </Grid>
 </properties:NodePropertyView>
