@@ -8,7 +8,7 @@
     <ControlTheme TargetType="nodes:NodePicker" x:Key="{x:Type nodes:NodePicker}">
         <Setter Property="Template">
             <ControlTemplate>
-                <Grid MinWidth="200" MaxHeight="400">
+                <Grid Height="400" Width="450">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
