@@ -3,6 +3,7 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
@@ -98,5 +99,12 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
             StrokeWidth = StrokeWidth,
             TransformationMatrix = TransformationMatrix
         };
+    }
+
+    public override VectorPath ToPath()
+    {
+        VectorPath path = new VectorPath();
+        path.AddRect(RectD.FromCenterAndSize(Center, Size));
+        return path;
     }
 }

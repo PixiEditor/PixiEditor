@@ -91,4 +91,9 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
             TransformationMatrix = TransformationMatrix
         };
     }
+
+    public override VectorPath ToPath()
+    {
+        return new VectorPath(Path);
+    }
 }
