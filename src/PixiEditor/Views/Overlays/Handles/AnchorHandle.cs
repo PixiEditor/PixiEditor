@@ -14,6 +14,8 @@ public class AnchorHandle : RectangleHandle
     private Paint selectedPaint;
     
     public bool IsSelected { get; set; } = false;
+    
+    public string DebugName { get; set; } = "AnchorHandle";
 
     public AnchorHandle(Overlay owner) : base(owner)
     {
@@ -31,5 +33,11 @@ public class AnchorHandle : RectangleHandle
         StrokePaint = IsSelected ? selectedPaint : paint;
         StrokePaint.Style = PaintStyle.Stroke;
         base.Draw(context);
+    }
+
+
+    public override string ToString()
+    {
+        return DebugName;
     }
 }

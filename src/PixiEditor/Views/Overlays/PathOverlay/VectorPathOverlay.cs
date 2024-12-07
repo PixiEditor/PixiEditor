@@ -108,7 +108,6 @@ public class VectorPathOverlay : Overlay
         int subPath = 1;
         int anchorCount = GetAnchorCount();
         int closeAtIndexInSubPath = GetCloseIndexInSubPath(Path, subPath);
-        int anchorCountInSubPath = CountAnchorsInSubPath(Path, subPath);
 
         foreach (var verb in Path)
         {
@@ -157,7 +156,6 @@ public class VectorPathOverlay : Overlay
 
             if (globalAnchor == closeAtIndexInSubPath - 1)
             {
-                //globalAnchor++;
                 continue;
             }
 
@@ -253,22 +251,26 @@ public class VectorPathOverlay : Overlay
     {
         int controlPointIndex = 0;
         int anchorIndex = 0;
+        int startingIndexInSubPath = 0;
+        int lastAnchorIndexInSubPath = CountAnchorsInSubPath(Path, 1) - 1;
+        int subPath = 1;
         foreach (var data in Path)
         {
+            int localAnchorIndex = anchorIndex - startingIndexInSubPath;
             if (data.verb == PathVerb.Cubic)
             {
                 int targetAnchorIndex1 = anchorIndex - 1;
-                if (targetAnchorIndex1 < 0)
+                if (targetAnchorIndex1 < startingIndexInSubPath)
                 {
-                    targetAnchorIndex1 = anchorHandles.Count - 1;
+                    targetAnchorIndex1 = lastAnchorIndexInSubPath;
                 }
 
                 AnchorHandle previousAnchor = anchorHandles.ElementAtOrDefault(targetAnchorIndex1);
 
                 int targetAnchorIndex2 = anchorIndex;
-                if (targetAnchorIndex2 >= anchorHandles.Count)
+                if (targetAnchorIndex2 > lastAnchorIndexInSubPath)
                 {
-                    targetAnchorIndex2 = 0;
+                    targetAnchorIndex2 = startingIndexInSubPath;
                 }
 
                 AnchorHandle nextAnchor = anchorHandles.ElementAtOrDefault(targetAnchorIndex2);
@@ -281,8 +283,18 @@ public class VectorPathOverlay : Overlay
                 controlPointHandles[controlPointIndex + 1].ConnectedTo = nextAnchor;
                 controlPointIndex += 2;
             }
-
-            anchorIndex++;
+            
+            if (data.verb == PathVerb.Close)
+            {
+                subPath++;
+                startingIndexInSubPath = anchorIndex;
+                lastAnchorIndexInSubPath = CountAnchorsInSubPath(Path, subPath) - 1;
+                anchorIndex--;
+            }
+            else 
+            {
+                anchorIndex++;
+            }
         }
     }
 
@@ -381,6 +393,7 @@ public class VectorPathOverlay : Overlay
             anchor.OnDrag += OnHandleDrag;
             anchor.OnRelease += OnHandleRelease;
             anchor.OnTap += OnHandleTap;
+            anchor.DebugName = $"{atIndex}";
             AddHandle(anchor);
             SnappingController.AddXYAxis($"editingPath[{atIndex}]", () => anchor.Position);
         }
@@ -484,55 +497,87 @@ public class VectorPathOverlay : Overlay
     // To have continous spline, verb before and after a point must be a cubic with proper control points
     private VectorPath ConvertTouchingLineVerbsToCubic(AnchorHandle anchorHandle)
     {
-        bool convertNextToCubic = false;
-        int i = -1;
         VectorPath newPath = new VectorPath();
         int index = anchorHandles.IndexOf(anchorHandle);
+        
+        int anchorIndex1 = index - 1;
+        int anchorIndex2 = index;
+        
+        int targetSubPath = GetSubPathIndexForAnchor(Path, index);
+        
+        int lastAnchorIndexInSubPath = GetCloseAnchorIndexInSubPath(Path, targetSubPath);
+        int firstAnchorIndexInSubPath = lastAnchorIndexInSubPath - CountAnchorsInSubPath(Path, targetSubPath);
+        
+        if(anchorIndex1 < firstAnchorIndexInSubPath)
+        {
+            anchorIndex1 = lastAnchorIndexInSubPath - 1;
+        }
+        
+        if(anchorIndex2 >= lastAnchorIndexInSubPath)
+        {
+            anchorIndex2 = firstAnchorIndexInSubPath;
+        }
 
+        int anchor = 0;
         foreach (var data in Path)
         {
-            if (data.verb == PathVerb.Line)
+            if (data.verb == PathVerb.Close)
             {
-                if (i == index)
-                {
-                    newPath.CubicTo(data.points[0], data.points[1], data.points[1]);
-                    convertNextToCubic = true;
-                }
-                else if (i + 1 == index)
-                {
-                    newPath.CubicTo(data.points[0], data.points[1], data.points[1]);
-                }
-                else if (i == 0 && index == 0 || (Path.IsClosed && i == Path.PointCount - 2 && index == 0))
-                {
-                    newPath.CubicTo(data.points[0], data.points[1], data.points[1]);
-                }
-                else
-                {
-                    if (convertNextToCubic)
-                    {
-                        newPath.CubicTo(data.points[0], data.points[1], data.points[1]);
-                        convertNextToCubic = false;
-                    }
-                    else
-                    {
-                        newPath.LineTo(data.points[1]);
-                    }
-                }
-            }
-            else if (data.verb == PathVerb.Cubic && i == index)
-            {
-                newPath.CubicTo(data.points[1], data.points[2], data.points[3]);
-                convertNextToCubic = true;
+                anchor--;
+                DefaultPathVerb(data, newPath);
             }
             else
             {
-                DefaultPathVerb(data, newPath);
-            }
+                if (anchor == anchorIndex1 || anchor == anchorIndex2)
+                {
+                    if (data.verb == PathVerb.Line)
+                    {
+                        newPath.CubicTo(data.points[0], data.points[1], data.points[1]);
+                    }
+                    else
+                    {
+                        DefaultPathVerb(data, newPath);
+                    }
+                }
+                else
+                {
+                    DefaultPathVerb(data, newPath);
+                }
 
-            i++;
+                if (data.verb != PathVerb.Move)
+                {
+                    anchor++;
+                }
+            }
         }
 
         return newPath;
+    }
+    
+    private int GetSubPathIndexForAnchor(VectorPath path, int anchorIndex)
+    {
+        int subPath = 1;
+        int anchor = 0;
+
+        foreach (var data in path)
+        {
+            if (data.verb == PathVerb.Close)
+            {
+                subPath++;
+                anchor--;
+            }
+            else
+            {
+                if (anchor == anchorIndex)
+                {
+                    return subPath;
+                }
+
+                anchor++;
+            }
+        }
+
+        return -1;
     }
 
     private void OnHandleDrag(Handle source, OverlayPointerArgs args)
