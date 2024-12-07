@@ -478,14 +478,14 @@ public class VectorPathOverlay : Overlay
 
             if (!args.Modifiers.HasFlag(KeyModifiers.Control)) return;
 
-            var newPath = ConvertTouchingLineVerbsToCubic(anchorHandle);
+            var newPath = ConvertTouchingVerbsToCubic(anchorHandle);
 
             Path = newPath;
         }
     }
 
     // To have continous spline, verb before and after a point must be a cubic with proper control points
-    private VectorPath ConvertTouchingLineVerbsToCubic(AnchorHandle anchorHandle)
+    private VectorPath ConvertTouchingVerbsToCubic(AnchorHandle anchorHandle)
     {
         VectorPath newPath = new VectorPath();
         int index = anchorHandles.IndexOf(anchorHandle);
@@ -523,6 +523,10 @@ public class VectorPathOverlay : Overlay
                     {
                         newPath.CubicTo(data.points[0], data.points[1], data.points[1]);
                     }
+                    else if (data.verb is PathVerb.Conic or PathVerb.Quad)
+                    {
+                        newPath.CubicTo(data.points[0], data.points[1], data.points[2]);
+                    }
                     else
                     {
                         DefaultPathVerb(data, newPath);
@@ -553,7 +557,7 @@ public class VectorPathOverlay : Overlay
             if (data.verb == PathVerb.Close)
             {
                 subPath++;
-                anchor--;
+                //anchor--;
             }
             else
             {
@@ -654,7 +658,30 @@ public class VectorPathOverlay : Overlay
 
                         previousDelta = mid2Delta;
                     }
+                    break;
+                case PathVerb.Quad:
+                    if (ctrlPressed)
+                    {
+                        DefaultPathVerb(data, newPath);
+                        break;
+                    }
 
+                    point = data.points[2];
+                    point = TryApplyNewPos(args, i, index, point, isSubPathClosed, firstSubPathPoint, lastAnchorAt);
+
+                    newPath.QuadTo(data.points[1], point);
+                    break;
+                case PathVerb.Conic:
+                    if (ctrlPressed)
+                    {
+                        DefaultPathVerb(data, newPath);
+                        break;
+                    }
+
+                    point = data.points[2];
+                    point = TryApplyNewPos(args, i, index, point, isSubPathClosed, firstSubPathPoint, lastAnchorAt);
+
+                    newPath.ConicTo(data.points[1], point, data.conicWeight);
                     break;
                 default:
                     DefaultPathVerb(data, newPath);
@@ -754,7 +781,7 @@ public class VectorPathOverlay : Overlay
 
     private void HandleCubicControlContinousDrag(int i, int targetIndex, int symmetricIndex,
         VecD targetPos, VecD targetSymmetryPos,
-        (PathVerb verb, VecF[] points) data,
+        (PathVerb verb, VecF[] points, float conicWeight) data,
         VectorPath newPath)
     {
         bool isFirstControlPoint = i == targetIndex;
@@ -812,7 +839,7 @@ public class VectorPathOverlay : Overlay
         return new VecD(2 * anchor.X - controlPoint.X, 2 * anchor.Y - controlPoint.Y);
     }
 
-    private VecF GetVerbPointPos((PathVerb verb, VecF[] points) data)
+    private VecF GetVerbPointPos((PathVerb verb, VecF[] points, float conicWeight) data)
     {
         switch (data.verb)
         {
@@ -956,7 +983,7 @@ public class VectorPathOverlay : Overlay
         AdjustHandles(newPath);
     }
 
-    private static void DefaultPathVerb((PathVerb verb, VecF[] points) data, VectorPath newPath)
+    private static void DefaultPathVerb((PathVerb verb, VecF[] points, float conicWeight) data, VectorPath newPath)
     {
         switch (data.verb)
         {
@@ -970,7 +997,7 @@ public class VectorPathOverlay : Overlay
                 newPath.QuadTo(data.points[1], data.points[2]);
                 break;
             case PathVerb.Conic:
-                newPath.ConicTo(data.points[1], data.points[2], data.points[3].X);
+                newPath.ConicTo(data.points[1], data.points[2], data.conicWeight);
                 break;
             case PathVerb.Cubic:
                 newPath.CubicTo(data.points[1], data.points[2], data.points[3]);
