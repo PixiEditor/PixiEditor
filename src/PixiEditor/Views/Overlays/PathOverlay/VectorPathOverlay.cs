@@ -1,7 +1,10 @@
 ﻿using System.Windows.Input;
 using Avalonia;
 using Avalonia.Input;
+using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
@@ -68,7 +71,7 @@ public class VectorPathOverlay : Overlay
 
         AddHandle(transformHandle);
     }
-    
+
     protected override void ZoomChanged(double newZoom)
     {
         dashedStroke.UpdateZoom((float)newZoom);
@@ -100,17 +103,21 @@ public class VectorPathOverlay : Overlay
     private void RenderHandles(Canvas context)
     {
         bool anySelected = false;
-        int anchor = 0;
+        int globalAnchor = 0;
         int controlPoint = 0;
+        int subPath = 1;
         int anchorCount = GetAnchorCount();
+        int closeAtIndexInSubPath = GetCloseIndexInSubPath(Path, subPath);
+        int anchorCountInSubPath = CountAnchorsInSubPath(Path, subPath);
+
         foreach (var verb in Path)
         {
-            if (anchor == anchorCount - 1 && !anySelected)
+            if (globalAnchor == anchorCount - 1 && !anySelected)
             {
-                GetHandleAt(anchor).IsSelected = true;
+                GetHandleAt(globalAnchor).IsSelected = true;
             }
 
-            anySelected = anySelected || GetHandleAt(anchor).IsSelected;
+            anySelected = anySelected || GetHandleAt(globalAnchor).IsSelected;
 
             VecF verbPointPos = GetVerbPointPos(verb);
 
@@ -143,18 +150,35 @@ public class VectorPathOverlay : Overlay
             }
             else if (verb.verb == PathVerb.Close)
             {
+                subPath++;
+                closeAtIndexInSubPath = GetCloseIndexInSubPath(Path, subPath);
                 continue;
             }
 
-            if (anchor == anchorCount)
+            if (globalAnchor == closeAtIndexInSubPath - 1)
             {
+                //globalAnchor++;
                 continue;
             }
 
-            anchorHandles[anchor].Position = new VecD(verbPointPos.X, verbPointPos.Y);
-            anchorHandles[anchor].Draw(context);
+            if (globalAnchor == anchorCount)
+            {
+                break;
+            }
 
-            anchor++;
+            using Font font = Font.CreateDefault();
+            font.FontSize = 24 / ZoomScale;
+
+            using Paint paint = new Paint();
+            paint.Color = Colors.White;
+
+            anchorHandles[globalAnchor].Position = new VecD(verbPointPos.X, verbPointPos.Y);
+            anchorHandles[globalAnchor].Draw(context);
+
+            context.DrawText($"i: {globalAnchor}, sub: {subPath}", new VecD(verbPointPos.X, verbPointPos.Y), font,
+                paint);
+
+            globalAnchor++;
         }
 
         transformHandle.Position = Path.TightBounds.BottomRight + new VecD(1, 1);
@@ -163,11 +187,38 @@ public class VectorPathOverlay : Overlay
 
     private int GetAnchorCount()
     {
-        return Path.VerbCount - (Path.IsClosed ? 2 : 0);
+        int closeVerbs = Path.Count(x => x.verb == PathVerb.Close);
+        return Path.VerbCount - closeVerbs * 2;
     }
 
-    private void AdjustHandles(int pointsCount)
+    private int GetCloseIndexInSubPath(VectorPath path, int subPath)
     {
+        int closeIndex = 0;
+        int subPathIndex = 1;
+
+        foreach (var data in path)
+        {
+            if (data.verb == PathVerb.Close)
+            {
+                if (subPathIndex == subPath)
+                {
+                    return closeIndex;
+                }
+
+                subPathIndex++;
+            }
+            else
+            {
+                closeIndex++;
+            }
+        }
+
+        return -1;
+    }
+
+    private void AdjustHandles(VectorPath path)
+    {
+        int pointsCount = GetPointCount(path);
         int anchorCount = anchorHandles.Count;
         int totalHandles = anchorCount + controlPointHandles.Count;
         if (totalHandles != pointsCount)
@@ -194,6 +245,7 @@ public class VectorPathOverlay : Overlay
 
             ConnectControlPointsToAnchors();
         }
+
         Refresh();
     }
 
@@ -232,6 +284,11 @@ public class VectorPathOverlay : Overlay
 
             anchorIndex++;
         }
+    }
+
+    private int GetPointCount(VectorPath path)
+    {
+        return path.PointCount - path.Count(x => x.verb == PathVerb.Close);
     }
 
     private int CalculateMissingControlPoints(int handleCount)
@@ -370,6 +427,32 @@ public class VectorPathOverlay : Overlay
         Path = newPath;
     }
 
+    private int CountAnchorsInSubPath(VectorPath path, int subPath)
+    {
+        int anchorCount = 0;
+        int subPathIndex = 1;
+
+        foreach (var data in path)
+        {
+            if (data.verb == PathVerb.Close)
+            {
+                if (subPathIndex == subPath)
+                {
+                    return anchorCount - 1;
+                }
+
+                subPathIndex++;
+                anchorCount = 0;
+            }
+            else if (data.verb != PathVerb.Done)
+            {
+                anchorCount++;
+            }
+        }
+
+        return anchorCount;
+    }
+
     private bool IsFirstHandle(AnchorHandle handle)
     {
         return anchorHandles.IndexOf(handle) == 0;
@@ -476,6 +559,11 @@ public class VectorPathOverlay : Overlay
         VecD targetSymmetryPos = GetMirroredControlPoint((VecF)targetPos, (VecF)handle.Position);
 
         bool ctrlPressed = args.Modifiers.HasFlag(KeyModifiers.Control);
+        int subPathNum = 1;
+
+        VecF firstSubPathPoint = Path.Points.First();
+        bool isSubPathClosed = IsSubPathClosed(subPathNum, Path);
+        int lastAnchorAt = GetCloseAnchorIndexInSubPath(Path, subPathNum);
         foreach (var data in Path)
         {
             VecF point;
@@ -489,9 +577,10 @@ public class VectorPathOverlay : Overlay
                     }
 
                     point = data.points[0];
-                    point = TryApplyNewPos(args, i, index, point, Path.IsClosed, data.points[0]);
+                    point = TryApplyNewPos(args, i, index, point, isSubPathClosed, data.points[0], lastAnchorAt);
 
                     newPath.MoveTo(point);
+                    firstSubPathPoint = point;
                     previousDelta = point - data.points[0];
                     break;
                 case PathVerb.Line:
@@ -502,7 +591,7 @@ public class VectorPathOverlay : Overlay
                     }
 
                     point = data.points[1];
-                    point = TryApplyNewPos(args, i, index, point, Path.IsClosed, newPath.Points[0]);
+                    point = TryApplyNewPos(args, i, index, point, isSubPathClosed, firstSubPathPoint, lastAnchorAt);
 
                     newPath.LineTo(point);
                     break;
@@ -517,7 +606,7 @@ public class VectorPathOverlay : Overlay
                     else
                     {
                         point = data.points[3];
-                        point = TryApplyNewPos(args, i, index, point, Path.IsClosed, newPath.Points[0]);
+                        point = TryApplyNewPos(args, i, index, point, isSubPathClosed, firstSubPathPoint, lastAnchorAt);
 
                         VecF mid1Delta = previousDelta;
 
@@ -534,10 +623,46 @@ public class VectorPathOverlay : Overlay
                     break;
             }
 
-            i++;
+            if (data.verb == PathVerb.Close)
+            {
+                subPathNum++;
+                isSubPathClosed = IsSubPathClosed(subPathNum, Path);
+                lastAnchorAt = GetCloseAnchorIndexInSubPath(Path, subPathNum);
+                i--;
+            }
+            else
+            {
+                i++;
+            }
         }
 
         Path = newPath;
+    }
+    
+    private int GetCloseAnchorIndexInSubPath(VectorPath path, int subPath)
+    {
+        int anchorIndex = 0;
+        int subPathIndex = 1;
+
+        foreach (var data in path)
+        {
+            if (data.verb == PathVerb.Close)
+            {
+                if (subPathIndex == subPath)
+                {
+                    return anchorIndex - 1;
+                }
+
+                subPathIndex++;
+                anchorIndex--;
+            }
+            else
+            {
+                anchorIndex++;
+            }
+        }
+
+        return -1;
     }
 
     private void OnControlPointDrag(Handle source, OverlayPointerArgs args)
@@ -624,6 +749,26 @@ public class VectorPathOverlay : Overlay
         newPath.CubicTo(controlPoint1, controlPoint2, endPoint);
     }
 
+    private bool IsSubPathClosed(int subPathIndex, VectorPath path)
+    {
+        int subPath = 1;
+
+        foreach (var data in path)
+        {
+            if (data.verb == PathVerb.Close)
+            {
+                if (subPathIndex == subPath)
+                {
+                    return true;
+                }
+
+                subPath++;
+            }
+        }
+
+        return false;
+    }
+
     private VecD GetMirroredControlPoint(VecF controlPoint, VecF anchor)
     {
         return new VecD(2 * anchor.X - controlPoint.X, 2 * anchor.Y - controlPoint.Y);
@@ -653,13 +798,13 @@ public class VectorPathOverlay : Overlay
     }
 
     private VecF TryApplyNewPos(OverlayPointerArgs args, int i, int index, VecF point, bool firstIsLast,
-        VecF firstPoint)
+        VecF firstPoint, int lastAnchorAt)
     {
-        if (i == index)
+        if (i == index && i != lastAnchorAt)
         {
             point = (VecF)ApplySymmetry(args.Point);
         }
-        else if (firstIsLast && i == GetAnchorCount())
+        else if (firstIsLast && i == lastAnchorAt)
         {
             point = firstPoint;
         }
@@ -770,7 +915,7 @@ public class VectorPathOverlay : Overlay
 
     private void PathChanged(VectorPath newPath)
     {
-        AdjustHandles(newPath.PointCount - (newPath.IsClosed ? 1 : 0));
+        AdjustHandles(newPath);
     }
 
     private static void DefaultPathVerb((PathVerb verb, VecF[] points) data, VectorPath newPath)
@@ -814,7 +959,7 @@ public class VectorPathOverlay : Overlay
         else
         {
             var path = args.NewValue.Value;
-            overlay.AdjustHandles(path.PointCount - (path.IsClosed ? 1 : 0));
+            overlay.AdjustHandles(path);
             overlay.IsVisible = true;
         }
 
