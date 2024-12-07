@@ -27,10 +27,11 @@ internal class MathNodeViewModel : NodeViewModel<MathNode>
         Y = FindInputProperty("Y");
         Z = FindInputProperty("Z");
         
-        Mode.ValueChanged += ModeChanged;
+        Mode.ValueChanged += (_, _) => ModeChanged();
+        ModeChanged();
     }
 
-    private void ModeChanged(INodePropertyHandler property, NodePropertyValueChangedArgs args)
+    private void ModeChanged()
     {
         if (Mode.Value is not MathNodeMode mode)
             return;
