@@ -15,8 +15,6 @@ public class AnchorHandle : RectangleHandle
     
     public bool IsSelected { get; set; } = false;
     
-    public string DebugName { get; set; } = "AnchorHandle";
-
     public AnchorHandle(Overlay owner) : base(owner)
     {
         Size = new VecD(GetResource<double>("AnchorHandleSize"));
@@ -33,11 +31,5 @@ public class AnchorHandle : RectangleHandle
         StrokePaint = IsSelected ? selectedPaint : paint;
         StrokePaint.Style = PaintStyle.Stroke;
         base.Draw(context);
-    }
-
-
-    public override string ToString()
-    {
-        return DebugName;
     }
 }

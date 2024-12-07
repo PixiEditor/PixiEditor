@@ -164,17 +164,8 @@ public class VectorPathOverlay : Overlay
                 break;
             }
 
-            using Font font = Font.CreateDefault();
-            font.FontSize = 24 / ZoomScale;
-
-            using Paint paint = new Paint();
-            paint.Color = Colors.White;
-
             anchorHandles[globalAnchor].Position = new VecD(verbPointPos.X, verbPointPos.Y);
             anchorHandles[globalAnchor].Draw(context);
-
-            context.DrawText($"i: {globalAnchor}, sub: {subPath}", new VecD(verbPointPos.X, verbPointPos.Y), font,
-                paint);
 
             globalAnchor++;
         }
@@ -287,9 +278,9 @@ public class VectorPathOverlay : Overlay
             if (data.verb == PathVerb.Close)
             {
                 subPath++;
-                startingIndexInSubPath = anchorIndex;
-                lastAnchorIndexInSubPath = CountAnchorsInSubPath(Path, subPath) - 1;
                 anchorIndex--;
+                startingIndexInSubPath = anchorIndex;
+                lastAnchorIndexInSubPath = CountAnchorsInSubPath(Path, subPath) - 1 + startingIndexInSubPath;
             }
             else 
             {
@@ -393,7 +384,6 @@ public class VectorPathOverlay : Overlay
             anchor.OnDrag += OnHandleDrag;
             anchor.OnRelease += OnHandleRelease;
             anchor.OnTap += OnHandleTap;
-            anchor.DebugName = $"{atIndex}";
             AddHandle(anchor);
             SnappingController.AddXYAxis($"editingPath[{atIndex}]", () => anchor.Position);
         }
@@ -523,7 +513,6 @@ public class VectorPathOverlay : Overlay
         {
             if (data.verb == PathVerb.Close)
             {
-                anchor--;
                 DefaultPathVerb(data, newPath);
             }
             else
@@ -573,7 +562,10 @@ public class VectorPathOverlay : Overlay
                     return subPath;
                 }
 
-                anchor++;
+                if (data.verb != PathVerb.Move)
+                {
+                    anchor++;
+                }
             }
         }
 
@@ -588,7 +580,8 @@ public class VectorPathOverlay : Overlay
         }
 
         var index = anchorHandles.IndexOf(handle);
-        VectorPath newPath = new VectorPath();
+        VectorPath newPath = new VectorPath(Path);
+        newPath.Reset();
 
         bool pointHandled = false;
         int i = 0;
