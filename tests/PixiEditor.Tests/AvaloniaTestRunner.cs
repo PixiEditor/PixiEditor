@@ -2,6 +2,9 @@
 using Avalonia.Headless;
 using Avalonia.Platform;
 using Avalonia.Threading;
+using Drawie.Backend.Core.Bridge;
+using Drawie.Skia;
+using DrawiEngine;
 using PixiEditor.Desktop;
 using Xunit.Abstractions;
 using Xunit.Sdk;
