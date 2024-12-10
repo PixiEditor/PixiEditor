@@ -159,7 +159,9 @@ internal class CombineStructureMembersOnto_Change : Change
         ShapeVectorData targetData = vectorLayer.ShapeData ?? null;
         VectorPath? targetPath = targetData?.ToPath();
 
-        foreach (var guid in toCombine)
+        var reversed = toCombine.Reverse().ToHashSet();
+        
+        foreach (var guid in reversed)
         {
             if (target.FindMember(guid) is not VectorLayerNode vectorNode)
                 continue;
@@ -185,8 +187,6 @@ internal class CombineStructureMembersOnto_Change : Change
                 path.Dispose();
             }
         }
-
-        targetPath.FillType = PathFillType.EvenOdd;
 
         var pathData = new PathVectorData(targetPath)
         {

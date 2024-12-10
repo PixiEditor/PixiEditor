@@ -60,6 +60,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
             if (shapeData is PathVectorData pathData)
             {
                 startingPath = new VectorPath(pathData.Path);
+                ApplySettings(pathData);
                 startingPath.Transform(pathData.TransformationMatrix);
             }
             else if (shapeData is null)
@@ -260,5 +261,14 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         }
 
         return shapeData is not IReadOnlyPathData pathData || pathData.Path.IsClosed;
+    }
+    
+    private void ApplySettings(PathVectorData pathData)
+    {
+        toolbar.ToolSize = pathData.StrokeWidth;
+        toolbar.StrokeColor = pathData.StrokeColor.ToColor();
+        toolbar.ToolSize = pathData.StrokeWidth;
+        toolbar.Fill = pathData.FillColor.A > 0;
+        toolbar.FillColor = pathData.FillColor.ToColor();
     }
 }
