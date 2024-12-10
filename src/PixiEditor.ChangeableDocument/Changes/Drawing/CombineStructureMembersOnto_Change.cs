@@ -5,9 +5,12 @@ using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
+using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
@@ -20,6 +23,8 @@ internal class CombineStructureMembersOnto_Change : Change
     private Guid targetLayerGuid;
     private Dictionary<int, CommittedChunkStorage> originalChunks = new();
     
+    private Dictionary<int, VectorPath> originalPaths = new();
+
 
     [GenerateMakeChangeAction]
     public CombineStructureMembersOnto_Change(HashSet<Guid> membersToMerge, Guid targetLayer)
@@ -69,7 +74,6 @@ internal class CombineStructureMembersOnto_Change : Change
         List<IChangeInfo> changes = new();
         var targetLayer = target.FindMemberOrThrow<LayerNode>(targetLayerGuid);
 
-        // TODO: add merging similar layers (vector -> vector)
         int maxFrame = GetMaxFrame(target, targetLayer);
 
         for (int frame = 0; frame < maxFrame || frame == 0; frame++)
@@ -78,6 +82,26 @@ internal class CombineStructureMembersOnto_Change : Change
         }
 
         ignoreInUndo = false;
+
+        return changes;
+    }
+
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
+    {
+        var toDrawOn = target.FindMemberOrThrow<LayerNode>(targetLayerGuid);
+
+        List<IChangeInfo> changes = new();
+
+        int maxFrame = GetMaxFrame(target, toDrawOn);
+
+        for (int frame = 0; frame < maxFrame || frame == 0; frame++)
+        {
+            changes.Add(RevertFrame(toDrawOn, frame));
+        }
+
+        target.AnimationData.RemoveKeyFrame(targetLayerGuid);
+        originalChunks.Clear();
+        changes.Add(new DeleteKeyFrame_ChangeInfo(targetLayerGuid));
 
         return changes;
     }
@@ -94,7 +118,7 @@ internal class CombineStructureMembersOnto_Change : Change
             var layer = target.FindMemberOrThrow<LayerNode>(guid);
 
             AddMissingKeyFrame(targetLayer, frame, layer, changes, target);
-            
+
             if (layer is not IRasterizable or ImageLayerNode)
                 continue;
 
@@ -109,6 +133,75 @@ internal class CombineStructureMembersOnto_Change : Change
             }
         }
 
+        bool allVector = layersToCombine.All(x => target.FindMember(x) is VectorLayerNode);
+
+        AffectedArea affArea = new();
+
+        // TODO: add custom layer merge
+        if (!allVector)
+        {
+            affArea = RasterMerge(target, targetLayer, frame);
+        }
+        else
+        {
+            affArea = VectorMerge(target, targetLayer, frame, layersToCombine);
+        }
+
+        changes.Add(new LayerImageArea_ChangeInfo(targetLayerGuid, affArea));
+        return changes;
+    }
+
+    private AffectedArea VectorMerge(Document target, LayerNode targetLayer, int frame, HashSet<Guid> toCombine)
+    {
+        if (targetLayer is not VectorLayerNode vectorLayer)
+            throw new InvalidOperationException("Target layer is not a vector layer");
+
+        ShapeVectorData targetData = vectorLayer.ShapeData ?? null;
+        VectorPath? targetPath = targetData?.ToPath();
+
+        var reversed = toCombine.Reverse().ToHashSet();
+        
+        foreach (var guid in reversed)
+        {
+            if (target.FindMember(guid) is not VectorLayerNode vectorNode)
+                continue;
+
+            if (vectorNode.ShapeData == null)
+                continue;
+
+            VectorPath path = vectorNode.ShapeData.ToPath();
+
+            if (targetData == null)
+            {
+                targetData = vectorNode.ShapeData;
+                targetPath = path;
+                
+                if(originalPaths.ContainsKey(frame))
+                    originalPaths[frame].Dispose();
+                
+                originalPaths[frame] = new VectorPath(path);
+            }
+            else
+            {
+                targetPath.AddPath(path, AddPathMode.Append);
+                path.Dispose();
+            }
+        }
+
+        var pathData = new PathVectorData(targetPath)
+        {
+            StrokeWidth = targetData.StrokeWidth,
+            StrokeColor = targetData.StrokeColor,
+            FillColor = targetData.FillColor
+        };
+
+        vectorLayer.ShapeData = pathData;
+
+        return new AffectedArea(new HashSet<VecI>());
+    }
+
+    private AffectedArea RasterMerge(Document target, LayerNode targetLayer, int frame)
+    {
         var toDrawOnImage = ((ImageLayerNode)targetLayer).GetLayerImageAtFrame(frame);
         toDrawOnImage.EnqueueClear();
 
@@ -136,7 +229,7 @@ internal class CombineStructureMembersOnto_Change : Change
                         }
                     }
                 }
-                
+
                 renderer.RenderLayers(tempTexture.DrawingSurface, layersToRender, frame, ChunkResolution.Full);
             }
 
@@ -148,11 +241,9 @@ internal class CombineStructureMembersOnto_Change : Change
 
             tempTexture.Dispose();
         });
-
-        changes.Add(new LayerImageArea_ChangeInfo(targetLayerGuid, affArea));
-        return changes;
+        return affArea;
     }
-    
+
     private HashSet<Guid> OrderLayers(HashSet<Guid> layersToCombine, Document document)
     {
         HashSet<Guid> ordered = new();
@@ -182,9 +273,9 @@ internal class CombineStructureMembersOnto_Change : Change
             return;
 
         var clonedData = keyFrameData.Clone(true);
-        
+
         targetLayer.AddFrame(keyFrameData.KeyFrameGuid, clonedData);
-        
+
         changes.Add(new CreateRasterKeyFrame_ChangeInfo(targetLayerGuid, frame, clonedData.KeyFrameGuid, true));
         changes.Add(new KeyFrameLength_ChangeInfo(targetLayerGuid, clonedData.StartFrame, clonedData.Duration));
 
@@ -193,6 +284,9 @@ internal class CombineStructureMembersOnto_Change : Change
 
     private int GetMaxFrame(Document target, LayerNode targetLayer)
     {
+        if (targetLayer.KeyFrames.Count == 0)
+            return 0;
+
         int maxFrame = targetLayer.KeyFrames.Max(x => x.StartFrame + x.Duration);
         foreach (var toMerge in membersToMerge)
         {
@@ -224,27 +318,21 @@ internal class CombineStructureMembersOnto_Change : Change
         }
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
+    private IChangeInfo RevertFrame(LayerNode targetLayer, int frame)
     {
-        var toDrawOn = target.FindMemberOrThrow<ImageLayerNode>(targetLayerGuid);
-
-        List<IChangeInfo> changes = new();
-
-        int maxFrame = GetMaxFrame(target, toDrawOn);
-
-        for (int frame = 0; frame < maxFrame || frame == 0; frame++)
+        if (targetLayer is ImageLayerNode imageLayerNode)
         {
-            changes.Add(RevertFrame(toDrawOn, frame));
+            return RasterRevert(imageLayerNode, frame);
+        }
+        else if (targetLayer is VectorLayerNode vectorLayerNode)
+        {
+            return VectorRevert(vectorLayerNode, frame);
         }
         
-        target.AnimationData.RemoveKeyFrame(targetLayerGuid);
-        originalChunks.Clear();
-        changes.Add(new DeleteKeyFrame_ChangeInfo(targetLayerGuid));
-
-        return changes;
+        throw new InvalidOperationException("Layer type not supported");
     }
 
-    private IChangeInfo RevertFrame(ImageLayerNode targetLayer, int frame)
+    private IChangeInfo RasterRevert(ImageLayerNode targetLayer, int frame)
     {
         var toDrawOnImage = targetLayer.GetLayerImageAtFrame(frame);
         toDrawOnImage.EnqueueClear();
@@ -255,9 +343,18 @@ internal class CombineStructureMembersOnto_Change : Change
             DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(
                 targetLayer.GetLayerImageAtFrame(frame),
                 ref storedChunks);
-        
+
         toDrawOnImage.CommitChanges();
         return new LayerImageArea_ChangeInfo(targetLayerGuid, affectedArea);
+    }
+    
+    private IChangeInfo VectorRevert(VectorLayerNode targetLayer, int frame)
+    {
+        if (!originalPaths.TryGetValue(frame, out var path))
+            throw new InvalidOperationException("Original path not found");
+
+        targetLayer.ShapeData = new PathVectorData(path);
+        return new VectorShape_ChangeInfo(targetLayer.Id, new AffectedArea(new HashSet<VecI>()));
     }
 
     public override void Dispose()
@@ -266,5 +363,14 @@ internal class CombineStructureMembersOnto_Change : Change
         {
             originalChunk.Value.Dispose();
         }
+        
+        originalChunks.Clear();
+        
+        foreach (var originalPath in originalPaths)
+        {
+            originalPath.Value.Dispose();
+        }
+        
+        originalPaths.Clear();
     }
 }

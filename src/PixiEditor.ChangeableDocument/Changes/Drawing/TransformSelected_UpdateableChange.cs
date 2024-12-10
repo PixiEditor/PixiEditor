@@ -147,7 +147,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
         {
             RectD tightBounds = layer.GetTightBounds(frame).GetValueOrDefault();
             pathToExtract = new VectorPath();
-            pathToExtract.AddRect((RectI)tightBounds);
+            pathToExtract.AddRect((RectD)(RectI)tightBounds);
         }
 
         member.OriginalPath = pathToExtract;

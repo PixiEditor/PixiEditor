@@ -256,8 +256,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             if (args.LayerChangeType == LayerAction.Add)
             {
                 IReadOnlyStructureNode layer = Internals.Tracker.Document.FindMember(args.LayerAffectedGuid);
-                SnappingViewModel.AddFromBounds(layer.Id.ToString(),
-                    () => layer.GetTightBounds(AnimationDataViewModel.ActiveFrameTime) ?? RectD.Empty);
+                if (layer is not null)
+                {
+                    SnappingViewModel.AddFromBounds(layer.Id.ToString(),
+                        () => layer.GetTightBounds(AnimationDataViewModel.ActiveFrameTime) ?? RectD.Empty);
+                }
             }
             else if (args.LayerChangeType == LayerAction.Remove)
             {
