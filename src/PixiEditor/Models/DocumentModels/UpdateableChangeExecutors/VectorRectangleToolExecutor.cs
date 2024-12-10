@@ -8,6 +8,7 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -32,6 +33,16 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
         firstSize = rectData.Size;
         lastMatrix = rectData.TransformationMatrix;
         return true;
+    }
+
+    protected override bool CanEditShape(IStructureMemberHandler layer)
+    {
+        IVectorLayerHandler vectorLayer = layer as IVectorLayerHandler;
+        if (vectorLayer is null)
+            return false;
+
+        var shapeData = vectorLayer.GetShapeData(document.AnimationHandler.ActiveFrameTime);
+        return shapeData is RectangleVectorData;
     }
 
     protected override void DrawShape(VecD curPos, double rotationRad, bool firstDraw)
@@ -81,7 +92,7 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
         }
 
         Matrix3X3 matrix = Matrix3X3.Identity;
-        
+
         if (!corners.IsRect)
         {
             RectD firstRect = RectD.FromCenterAndSize(firstCenter, firstSize);
@@ -93,9 +104,10 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
         {
             firstCenter = data.Center;
             firstSize = data.Size;
-            
-            if(corners.RectRotation != 0)
-                matrix = Matrix3X3.CreateRotation((float)corners.RectRotation, (float)firstCenter.X, (float)firstCenter.Y);
+
+            if (corners.RectRotation != 0)
+                matrix = Matrix3X3.CreateRotation((float)corners.RectRotation, (float)firstCenter.X,
+                    (float)firstCenter.Y);
         }
 
         RectangleVectorData newData = new RectangleVectorData(firstCenter, firstSize)

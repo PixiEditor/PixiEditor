@@ -77,7 +77,8 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
         if (member is IVectorLayerHandler vectorLayerHandler)
         {
             var shapeData = vectorLayerHandler.GetShapeData(document.AnimationHandler.ActiveFrameTime);
-            if (shapeData == null || !InitShapeData(shapeData))
+            bool shapeIsValid = InitShapeData(shapeData);
+            if (shapeData == null || !shapeIsValid)
             {
                 ActiveMode = ShapeToolMode.Preview;
                 return ExecutionState.Success;
@@ -103,6 +104,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
     protected abstract IAction SettingsChangedAction();
     protected abstract IAction TransformMovedAction(ShapeData data, ShapeCorners corners);
     protected virtual bool InitShapeData(IReadOnlyShapeVectorData data) { return true; }
+    protected abstract bool CanEditShape(IStructureMemberHandler layer);
     protected abstract IAction EndDrawAction();
     protected virtual DocumentTransformMode TransformMode => DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective;
 
@@ -297,7 +299,14 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
     public override void OnSettingsChanged(string name, object value)
     {
-        internals!.ActionAccumulator.AddActions(SettingsChangedAction());
+        var layer = document.StructureHelper.Find(memberId);
+        if (layer is null)
+            return;
+        
+        if (CanEditShape(layer))
+        {
+            internals!.ActionAccumulator.AddActions(SettingsChangedAction());
+        }
     }
 
     public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)

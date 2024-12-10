@@ -185,7 +185,10 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
 
     public override void OnSettingsChanged(string name, object value)
     {
-        internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
+        if (document.PathOverlayHandler.IsActive)
+        {
+            internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
+        }
     }
 
     public override void ForceStop()

@@ -6,6 +6,7 @@ using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
@@ -44,6 +45,11 @@ internal class RasterEllipseToolExecutor : DrawableShapeToolExecutor<IRasterElli
         
         return new DrawRasterEllipse_Action(memberId, (RectI)lastRect, lastRadians, StrokeColor,
             FillColor, (float)StrokeWidth, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+    }
+
+    protected override bool CanEditShape(IStructureMemberHandler layer)
+    {
+        return true;
     }
 
     protected override IAction EndDrawAction() => new EndDrawRasterEllipse_Action();
