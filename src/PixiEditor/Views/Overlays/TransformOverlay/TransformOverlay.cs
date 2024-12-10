@@ -421,21 +421,26 @@ internal class TransformOverlay : Overlay
 
         context.RestoreToCount(saved);
 
-        infoBox.ZoomScale = ZoomScale;
-
         if (IsSizeBoxEnabled)
         {
+            int toRestore = context.Save();
+            var matrix = context.TotalMatrix;
+            VecD pos = matrix.MapPoint(lastPointerPos);
+            context.SetMatrix(Matrix3X3.Identity);
+
             if (isRotating)
             {
                 infoBox.DrawInfo(context, $"{(RadiansToDegreesNormalized(corners.RectRotation)):0.#}\u00b0",
-                    lastPointerPos);
+                    pos);
             }
             else
             {
                 VecD rectSize = Corners.RectSize;
                 string sizeText = $"W: {rectSize.X:0.#} H: {rectSize.Y:0.#} px";
-                infoBox.DrawInfo(context, sizeText, lastPointerPos);
+                infoBox.DrawInfo(context, sizeText, pos);
             }
+
+            context.RestoreToCount(toRestore);
         }
     }
 
@@ -589,7 +594,7 @@ internal class TransformOverlay : Overlay
             TopLeft = scaled.TopLeft - new VecD(offsetToScale, offsetToScale),
             TopRight = scaled.TopRight - new VecD(-offsetToScale, offsetToScale),
         };
-        
+
         return base.TestHit(point) || scaledCorners.IsPointInside(point);
     }
 
@@ -730,8 +735,9 @@ internal class TransformOverlay : Overlay
 
             ShapeCorners? newCorners = TransformUpdateHelper.UpdateShapeFromCorner
             ((Anchor)capturedAnchor, CornerFreedom, InternalState.ProportionalAngle1,
-                InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos, SnappingController, out string snapX, out string snapY);
-            
+                InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos, SnappingController,
+                out string snapX, out string snapY);
+
             HighlightSnappedAxis(snapX, snapY);
 
             if (newCorners is not null)
@@ -739,7 +745,7 @@ internal class TransformOverlay : Overlay
                 bool shouldAlign =
                     (CornerFreedom is TransformCornerFreedom.ScaleProportionally or TransformCornerFreedom.Scale) &&
                     Corners.IsAlignedToPixels;
-                
+
                 newCorners = shouldAlign
                     ? TransformHelper.AlignToPixels((ShapeCorners)newCorners)
                     : (ShapeCorners)newCorners;
@@ -785,7 +791,7 @@ internal class TransformOverlay : Overlay
                     snapped = TrySnapAnchor(adjacentPos + rawDelta);
                 }
             }
-            else if(SideFreedom is not TransformSideFreedom.ScaleProportionally)
+            else if (SideFreedom is not TransformSideFreedom.ScaleProportionally)
             {
                 // If rotation is almost cardinal, projecting snapping points result in extreme values when perpendicular to the axis
                 if (!TransformHelper.RotationIsAlmostCardinal(cornersOnStartAnchorDrag.RectRotation))
@@ -815,7 +821,7 @@ internal class TransformOverlay : Overlay
 
             string finalSnapX = snapped.SnapAxisXName ?? snapX;
             string finalSnapY = snapped.SnapAxisYName ?? snapY;
-            
+
             HighlightSnappedAxis(finalSnapX, finalSnapY);
 
             if (newCorners is not null)
@@ -883,10 +889,7 @@ internal class TransformOverlay : Overlay
 
         return new ShapeCorners()
         {
-            TopLeft = topLeftPos,
-            TopRight = topRightPos,
-            BottomLeft = bottomLeftPos,
-            BottomRight = bottomRightPos,
+            TopLeft = topLeftPos, TopRight = topRightPos, BottomLeft = bottomLeftPos, BottomRight = bottomRightPos,
         };
     }
 

@@ -164,7 +164,6 @@ internal class LineToolOverlay : Overlay
     protected override void ZoomChanged(double newZoom)
     {
         blackPaint.StrokeWidth = 1 / (float)newZoom;
-        infoBox.ZoomScale = newZoom;
     }
 
     public override void RenderOverlay(Canvas context, RectD canvasBounds)
@@ -189,8 +188,15 @@ internal class LineToolOverlay : Overlay
 
         if (IsSizeBoxEnabled)
         {
+            int toRestore = context.Save();
+            var matrix = context.TotalMatrix;
+            VecD pos = matrix.MapPoint(lastMousePos);
+            context.SetMatrix(Matrix3X3.Identity);
+            
             string length = $"L: {(mappedEnd - mappedStart).Length:0.#} px";
-            infoBox.DrawInfo(context, length, lastMousePos);
+            infoBox.DrawInfo(context, length, pos);
+            
+            context.RestoreToCount(toRestore);
         }
     }
 
@@ -201,7 +207,7 @@ internal class LineToolOverlay : Overlay
 
         movedWhileMouseDown = false;
         mouseDownPos = args.Point;
-        
+
         lineStartOnMouseDown = LineStart;
         lineEndOnMouseDown = LineEnd;
 
@@ -281,13 +287,12 @@ internal class LineToolOverlay : Overlay
     protected override void OnOverlayPointerReleased(OverlayPointerArgs args)
     {
         IsSizeBoxEnabled = false;
-        
+
         if (args.InitialPressMouseButton != MouseButton.Left)
             return;
 
         if (movedWhileMouseDown && ActionCompleted is not null && ActionCompleted.CanExecute(null))
             ActionCompleted.Execute(null);
-        
     }
 
     private ((string, string), VecD) TrySnapLine(VecD originalStart, VecD originalEnd, VecD delta)
