@@ -4,7 +4,7 @@ namespace PixiEditor.Models.Serialization.Factories;
 
 public class VecD3SerializationFactory : SerializationFactory<byte[], Vec3D>
 {
-    public override string DeserializationId { get; } = "PixiEditor.VecD";
+    public override string DeserializationId { get; } = "PixiEditor.VecD3";
 
     public override byte[] Serialize(Vec3D original)
     {

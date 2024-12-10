@@ -366,7 +366,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         string finalPath = null;
         if (asNew || string.IsNullOrEmpty(document.FullFilePath))
         {
-            var result = await Exporter.TrySaveWithDialog(document, ExportConfig.Empty, null);
+            ExportConfig config = new ExportConfig() { ExportSize = document.SizeBindable };
+            var result = await Exporter.TrySaveWithDialog(document, config, null);
             if (result.Result == DialogSaveResult.Cancelled)
                 return false;
             if (result.Result != DialogSaveResult.Success)
