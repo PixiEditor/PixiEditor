@@ -8,6 +8,7 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -33,6 +34,16 @@ internal class VectorEllipseToolExecutor : DrawableShapeToolExecutor<IVectorElli
         lastMatrix = ellipseData.TransformationMatrix;
 
         return true;
+    }
+
+    protected override bool CanEditShape(IStructureMemberHandler layer)
+    {
+        IVectorLayerHandler vectorLayer = layer as IVectorLayerHandler;
+        if (vectorLayer is null)
+            return false;
+        
+        var shapeData = vectorLayer.GetShapeData(document.AnimationHandler.ActiveFrameTime);
+        return shapeData is EllipseVectorData;
     }
 
     protected override void DrawShape(VecD curPos, double rotationRad, bool firstDraw)

@@ -201,7 +201,7 @@ public static class FloodFillHelper
         Surface surface = new Surface(document.Size);
 
         var inverse = new VectorPath();
-        inverse.AddRect(new RectI(new(0, 0), document.Size));
+        inverse.AddRect((RectD)new RectI(new(0, 0), document.Size));
 
         surface.DrawingSurface.Canvas.Clear(new Color(255, 255, 255, 255));
         surface.DrawingSurface.Canvas.Flush();
@@ -220,7 +220,7 @@ public static class FloodFillHelper
         if (selection is null)
         {
             selection = new VectorPath();
-            selection.AddRect(globalBounds);
+            selection.AddRect((RectD)globalBounds);
         }
 
         RectI localBounds = globalBounds.Offset(-chunkPos * chunkSize).Intersect(new(0, 0, chunkSize, chunkSize));

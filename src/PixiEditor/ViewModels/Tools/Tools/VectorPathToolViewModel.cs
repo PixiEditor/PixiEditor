@@ -1,4 +1,5 @@
 ﻿using Avalonia.Input;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Extensions.Common.Localization;
@@ -30,8 +31,15 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
     private LocalizedString actionDisplayCtrl;
     private LocalizedString actionDisplayAlt;
 
+    [Settings.Enum("FILL_MODE", PathFillType.Winding)]
+    public PathFillType FillMode
+    {
+        get => GetValue<PathFillType>();
+    }
+
     public VectorPathToolViewModel()
     {
+        Toolbar = ToolbarFactory.Create<VectorPathToolViewModel, FillableShapeToolbar>(this);
         var fillSetting = Toolbar.GetSetting(nameof(FillableShapeToolbar.Fill));
         if (fillSetting != null)
         {

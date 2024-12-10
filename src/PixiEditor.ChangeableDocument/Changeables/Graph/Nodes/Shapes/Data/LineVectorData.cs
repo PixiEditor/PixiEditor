@@ -4,6 +4,7 @@ using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
@@ -106,5 +107,15 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
         {
             StrokeColor = StrokeColor, StrokeWidth = StrokeWidth, TransformationMatrix = TransformationMatrix
         };
+    }
+
+    public override VectorPath ToPath()
+    {
+        // TODO: Apply transformation matrix
+        
+        VectorPath path = new VectorPath();
+        path.MoveTo((VecF)Start);
+        path.LineTo((VecF)End);
+        return path;
     }
 }

@@ -5,6 +5,7 @@ using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
@@ -55,6 +56,11 @@ internal class RasterRectangleToolExecutor : DrawableShapeToolExecutor<IRasterRe
 
         return new DrawRasterRectangle_Action(memberId, data, drawOnMask,
             document!.AnimationHandler.ActiveFrameBindable);
+    }
+
+    protected override bool CanEditShape(IStructureMemberHandler layer)
+    {
+        return true;
     }
 
     protected override IAction EndDrawAction() => new EndDrawRasterRectangle_Action();

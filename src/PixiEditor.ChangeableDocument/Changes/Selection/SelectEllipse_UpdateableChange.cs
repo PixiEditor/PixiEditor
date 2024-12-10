@@ -29,7 +29,7 @@ internal class SelectEllipse_UpdateableChange : UpdateableChange
     {
         originalPath = new VectorPath(target.Selection.SelectionPath);
         documentConstraint = new VectorPath();
-        documentConstraint.AddRect(new RectI(VecI.Zero, target.Size));
+        documentConstraint.AddRect((RectD)new RectI(VecI.Zero, target.Size));
         return true;
     }
 

@@ -778,5 +778,6 @@
   "COPY_COLOR_TO_CLIPBOARD": "Copy color to clipboard",
   "VIEWPORT_ROTATION": "Viewport rotation",
   "NEXT_TOOL_SET": "Next tool set",
-  "PREVIOUS_TOOL_SET": "Previous tool set"
+  "PREVIOUS_TOOL_SET": "Previous tool set",
+  "FILL_MODE": "Fill mode"
 }

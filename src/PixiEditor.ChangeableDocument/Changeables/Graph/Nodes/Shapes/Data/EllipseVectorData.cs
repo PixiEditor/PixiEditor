@@ -3,6 +3,7 @@ using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
@@ -48,11 +49,15 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
             ApplyTransformTo(drawingSurface);
         }
 
-        using Paint shapePaint = new Paint() { IsAntiAliased = true };
+        using Paint shapePaint = new Paint();
+        shapePaint.IsAntiAliased = true;
 
-        shapePaint.Color = FillColor;
-        shapePaint.Style = PaintStyle.Fill;
-        drawingSurface.Canvas.DrawOval(Center, Radius, shapePaint);
+        if (Fill)
+        {
+            shapePaint.Color = FillColor;
+            shapePaint.Style = PaintStyle.Fill;
+            drawingSurface.Canvas.DrawOval(Center, Radius, shapePaint);
+        }
 
         if (StrokeWidth > 0)
         {
@@ -92,5 +97,13 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
             StrokeWidth = StrokeWidth,
             TransformationMatrix = TransformationMatrix
         };
+    }
+
+    public override VectorPath ToPath()
+    {
+        // TODO: Apply transformation matrix
+        VectorPath path = new VectorPath();
+        path.AddOval(RectD.FromCenterAndSize(Center, Radius * 2));
+        return path;
     }
 }

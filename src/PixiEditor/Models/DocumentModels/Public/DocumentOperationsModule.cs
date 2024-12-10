@@ -515,8 +515,10 @@ internal class DocumentOperationsModule : IDocumentOperations
         Guid newGuid = Guid.NewGuid();
 
         //make a new layer, put combined image onto it, delete layers that were merged
+        bool allVectorNodes = members.All(x => Document.StructureHelper.Find(x) is IVectorLayerHandler);
+        Type layerToCreate = allVectorNodes ? typeof(VectorLayerNode) : typeof(ImageLayerNode);
         Internals.ActionAccumulator.AddActions(
-            new CreateStructureMember_Action(parent.Id, newGuid, typeof(ImageLayerNode)),
+            new CreateStructureMember_Action(parent.Id, newGuid, layerToCreate),
             new StructureMemberName_Action(newGuid, node.NodeNameBindable),
             new CombineStructureMembersOnto_Action(members.ToHashSet(), newGuid));
         foreach (var member in members)
@@ -783,7 +785,7 @@ internal class DocumentOperationsModule : IDocumentOperations
         
         var selection = Document.SelectionPathBindable;
         var inverse = new VectorPath();
-        inverse.AddRect(new RectI(new(0, 0), Document.SizeBindable));
+        inverse.AddRect(new RectD(new(0, 0), Document.SizeBindable));
 
         Internals.ActionAccumulator.AddFinishedActions(
             new SetSelection_Action(inverse.Op(selection, VectorPathOp.Difference)));
