@@ -170,6 +170,29 @@ public class NodeSystemTests
         }
     }
 
+    [Fact]
+    public void TestThatSerializationFactoriesIdsAreNotDuplicated()
+    {
+        var factoryTypes = typeof(SerializationFactory).Assembly.GetTypes()
+            .Where(x => x.IsAssignableTo(typeof(SerializationFactory))
+                        && x is { IsAbstract: false, IsInterface: false }).ToList();
+
+        List<SerializationFactory> factories = new();
+        
+        foreach (var factoryType in factoryTypes)
+        {
+            var factory = (SerializationFactory)Activator.CreateInstance(factoryType);
+            factories.Add(factory);
+        }
+
+        List<string> ids = new();
+        foreach (var factory in factories)
+        {
+            Assert.DoesNotContain(factory.DeserializationId, ids);
+            ids.Add(factory.DeserializationId);
+        }
+    }
+
     private static List<Type> GetNodeTypesWithoutPairs()
     {
         var allNodeTypes = typeof(Node).Assembly.GetTypes()
