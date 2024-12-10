@@ -343,7 +343,7 @@ public class EditableVectorPathTests
         
         EditableVectorPath editablePath = new EditableVectorPath(path);
         
-        editablePath.SubShapes[0].SetPointPosition(1, new VecF(3, 3));
+        editablePath.SubShapes[0].SetPointPosition(1, new VecF(3, 3), true);
         
         VectorPath newPath = editablePath.ToVectorPath();
         
