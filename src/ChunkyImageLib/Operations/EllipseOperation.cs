@@ -165,9 +165,9 @@ internal class EllipseOperation : IMirroredDrawOperation
         surf.Canvas.DrawOval(fillRect.Center, fillRect.Size / 2f, paint);
         
         paint.IsAntiAliased = true;
-        paint.Color = strokeColor;
+        paint.Color = strokeWidth <= 0 ? fillColor : strokeColor;
         paint.Style = PaintStyle.Stroke;
-        paint.StrokeWidth = strokeWidth;
+        paint.StrokeWidth = strokeWidth <= 0 ? 1f : strokeWidth;
         
         RectD strokeRect = ((RectD)location).Inflate((-strokeWidth / 2f));
         
