@@ -3,6 +3,7 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
@@ -53,11 +54,15 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
             ApplyTransformTo(drawingSurface);
         }
 
-        using Paint paint = new Paint() { IsAntiAliased = true };
+        using Paint paint = new Paint();
+        paint.IsAntiAliased = true;
 
-        paint.Color = FillColor;
-        paint.Style = PaintStyle.Fill;
-        drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
+        if (Fill && FillColor.A > 0)
+        {
+            paint.Color = FillColor;
+            paint.Style = PaintStyle.Fill;
+            drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
+        }
 
         if (StrokeWidth > 0)
         {
@@ -98,5 +103,12 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
             StrokeWidth = StrokeWidth,
             TransformationMatrix = TransformationMatrix
         };
+    }
+
+    public override VectorPath ToPath()
+    {
+        VectorPath path = new VectorPath();
+        path.AddRect(RectD.FromCenterAndSize(Center, Size));
+        return path;
     }
 }
