@@ -54,11 +54,15 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
             ApplyTransformTo(drawingSurface);
         }
 
-        using Paint paint = new Paint() { IsAntiAliased = true };
+        using Paint paint = new Paint();
+        paint.IsAntiAliased = true;
 
-        paint.Color = FillColor;
-        paint.Style = PaintStyle.Fill;
-        drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
+        if (Fill && FillColor.A > 0)
+        {
+            paint.Color = FillColor;
+            paint.Style = PaintStyle.Fill;
+            drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
+        }
 
         if (StrokeWidth > 0)
         {

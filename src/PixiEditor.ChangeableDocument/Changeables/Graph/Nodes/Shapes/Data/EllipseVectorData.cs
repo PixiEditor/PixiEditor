@@ -49,11 +49,15 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
             ApplyTransformTo(drawingSurface);
         }
 
-        using Paint shapePaint = new Paint() { IsAntiAliased = true };
+        using Paint shapePaint = new Paint();
+        shapePaint.IsAntiAliased = true;
 
-        shapePaint.Color = FillColor;
-        shapePaint.Style = PaintStyle.Fill;
-        drawingSurface.Canvas.DrawOval(Center, Radius, shapePaint);
+        if (Fill)
+        {
+            shapePaint.Color = FillColor;
+            shapePaint.Style = PaintStyle.Fill;
+            drawingSurface.Canvas.DrawOval(Center, Radius, shapePaint);
+        }
 
         if (StrokeWidth > 0)
         {

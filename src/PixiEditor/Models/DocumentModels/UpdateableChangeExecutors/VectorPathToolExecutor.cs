@@ -15,6 +15,7 @@ using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Tools;
+using PixiEditor.ViewModels.Tools.Tools;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
@@ -199,7 +200,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
     {
         if(startingPath == null)
         {
-            return new PathVectorData(new VectorPath())
+            return new PathVectorData(new VectorPath() { FillType = vectorPathToolHandler.FillMode })
             {
                 StrokeWidth = (float)toolbar.ToolSize,
                 StrokeColor = toolbar.StrokeColor.ToColor(),
@@ -207,7 +208,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
             };
         }
         
-        return new PathVectorData(new VectorPath(startingPath))
+        return new PathVectorData(new VectorPath(startingPath) { FillType = vectorPathToolHandler.FillMode })
         {
             StrokeWidth = (float)toolbar.ToolSize,
             StrokeColor = toolbar.StrokeColor.ToColor(),
@@ -268,7 +269,8 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         toolbar.ToolSize = pathData.StrokeWidth;
         toolbar.StrokeColor = pathData.StrokeColor.ToColor();
         toolbar.ToolSize = pathData.StrokeWidth;
-        toolbar.Fill = pathData.FillColor.A > 0;
+        toolbar.Fill = pathData.Fill;
         toolbar.FillColor = pathData.FillColor.ToColor();
+        toolbar.GetSetting(nameof(VectorPathToolViewModel.FillMode)).Value = pathData.Path.FillType;
     }
 }

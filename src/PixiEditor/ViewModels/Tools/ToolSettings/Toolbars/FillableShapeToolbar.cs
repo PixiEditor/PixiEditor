@@ -34,5 +34,6 @@ internal class FillableShapeToolbar : ShapeToolbar, IFillableShapeToolbar
     {
         AddSetting(new BoolSettingViewModel(nameof(Fill), "FILL_SHAPE_LABEL") { Value = true });
         AddSetting(new ColorSettingViewModel(nameof(FillColor), "FILL_COLOR_LABEL"));
+        GetSetting<SizeSettingViewModel>(nameof(ToolSize)).Value = 0;
     }
 }

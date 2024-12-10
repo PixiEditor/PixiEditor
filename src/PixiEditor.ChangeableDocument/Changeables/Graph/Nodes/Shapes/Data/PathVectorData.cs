@@ -46,7 +46,7 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
             IsAntiAliased = true, StrokeJoin = StrokeJoin.Round, StrokeCap = StrokeCap.Round
         };
 
-        if (FillColor.A > 0)
+        if (Fill && FillColor.A > 0)
         {
             paint.Color = FillColor;
             paint.Style = PaintStyle.Fill;
@@ -54,11 +54,14 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
             drawingSurface.Canvas.DrawPath(Path, paint);
         }
 
-        paint.Color = StrokeColor;
-        paint.Style = PaintStyle.Stroke;
-        paint.StrokeWidth = StrokeWidth;
-
-        drawingSurface.Canvas.DrawPath(Path, paint);
+        if (StrokeWidth > 0)
+        {
+            paint.Color = StrokeColor;
+            paint.Style = PaintStyle.Stroke;
+            paint.StrokeWidth = StrokeWidth;
+            
+            drawingSurface.Canvas.DrawPath(Path, paint);
+        }
 
         if (applyTransform)
         {
