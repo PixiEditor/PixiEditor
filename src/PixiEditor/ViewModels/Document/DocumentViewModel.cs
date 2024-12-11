@@ -292,7 +292,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         var viewModel = new DocumentViewModel();
         viewModel.Operations.ResizeCanvas(new VecI(builderInstance.Width, builderInstance.Height), ResizeAnchor.Center);
 
+
         var acc = viewModel.Internals.ActionAccumulator;
+
+        if (builderInstance.UsesLegacyColorBlending || IsFileWithOldColorBlending(serializerData))
+        {
+            acc.AddFinishedActions(new ChangeProcessingColorSpace_Action(ColorSpace.CreateSrgb()));
+        }
 
         viewModel.Internals.ChangeController.SymmetryDraggedInlet(
             new SymmetryAxisDragInfo(SymmetryAxisDirection.Horizontal, builderInstance.Height / 2));
@@ -417,80 +423,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             }
         }
 
-        /*void AddMember(Guid parentGuid, DocumentViewModelBuilder.StructureMemberBuilder member)
-        {
-            acc.AddActions(
-                new CreateStructureMember_Action(parentGuid, member.Id,
-                    member is DocumentViewModelBuilder.LayerBuilder
-                        ? StructureMemberType.Layer
-                        : StructureMemberType.Folder),
-                new StructureMemberName_Action(member.Id, member.Name)
-            );
-
-            if (!member.IsVisible)
-                acc.AddActions(new StructureMemberIsVisible_Action(member.IsVisible, member.Id));
-
-            acc.AddActions(new StructureMemberBlendMode_Action(member.BlendMode, member.Id));
-
-            acc.AddActions(new StructureMemberClipToMemberBelow_Action(member.ClipToMemberBelow, member.Id));
-
-            if (member is DocumentViewModelBuilder.LayerBuilder layerBuilder)
-            {
-                acc.AddActions(new LayerLockTransparency_Action(layerBuilder.Id, layerBuilder.LockAlpha));
-            }
-
-            if (member is DocumentViewModelBuilder.LayerBuilder layer && layer.Surface is not null)
-            {
-                PasteImage(member.Id, layer.Surface, layer.Width, layer.Height, layer.OffsetX, layer.OffsetY,
-                    false, 0);
-            }
-
-            acc.AddActions(
-                new StructureMemberOpacity_Action(member.Id, member.Opacity),
-                new EndStructureMemberOpacity_Action());
-
-            if (member.HasMask)
-            {
-                var maskSurface = member.Mask.Surface.Surface;
-
-                acc.AddActions(new CreateStructureMemberMask_Action(member.Id));
-
-                if (!member.Mask.IsVisible)
-                    acc.AddActions(new StructureMemberMaskIsVisible_Action(member.Mask.IsVisible, member.Id));
-
-                PasteImage(member.Id, member.Mask.Surface, maskSurface.Size.X, maskSurface.Size.Y, 0, 0, true, 0);
-            }
-
-            acc.AddFinishedActions();
-
-            if (member is DocumentViewModelBuilder.FolderBuilder { Children: not null } folder)
-            {
-                AddMembers(member.Id, folder.Children);
-            }
-        }*/
-
-        /*void PasteImage(Guid guid, DocumentViewModelBuilder.SurfaceBuilder surface, int width, int height, int offsetX,
-            int offsetY, bool onMask, int frame, Guid? keyFrameGuid = default)
-        {
-            acc.AddActions(
-                new PasteImage_Action(surface.Surface, new(new RectD(new VecD(offsetX, offsetY), new(width, height))),
-                    guid, true, onMask, frame, keyFrameGuid ?? default),
-                new EndPasteImage_Action());
-        }*/
-
-        /*void AddMembers(Guid parentGuid, IEnumerable<DocumentViewModelBuilder.StructureMemberBuilder> builders)
-        {
-            foreach (var child in builders.Reverse())
-            {
-                if (child.Id == default)
-                {
-                    child.Id = Guid.NewGuid();
-                }
-
-                AddMember(parentGuid, child);
-            }
-        }*/
-
         void AddAnimationData(AnimationDataBuilder? data, Dictionary<int, Guid> mappedIds,
             Dictionary<int, Guid> mappedKeyFrameIds)
         {
@@ -514,6 +446,26 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                         acc.AddFinishedActions();
                     }
                 }
+            }
+        }
+        
+        bool IsFileWithOldColorBlending((string serializerName, string serializerVersion) serializerData)
+        {
+            if(string.IsNullOrEmpty(serializerData.serializerName) && string.IsNullOrEmpty(serializerData.serializerVersion))
+            {
+                return true;
+            }
+
+            try
+            {
+                Version parsedVersion = new Version(serializerData.serializerVersion);
+
+                return serializerData.serializerName == "PixiEditor" 
+                       && parsedVersion is { Major: 2, Minor: 0, Build: 0, Revision: >= 28 and <= 31 };
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
     }

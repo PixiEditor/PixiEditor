@@ -36,14 +36,14 @@ public class CreateImageNode : Node
             return;
         }
 
-        var surface = RequestTexture(0, Size.Value, false);
+        var surface = RequestTexture(0, Size.Value, context.ProcessingColorSpace, false);
 
         surface.DrawingSurface.Canvas.Clear(Fill.Value);
 
         int saved = surface.DrawingSurface.Canvas.Save();
 
         RenderContext ctx = new RenderContext(surface.DrawingSurface, context.FrameTime, context.ChunkResolution,
-            context.DocumentSize);
+            context.DocumentSize, context.ProcessingColorSpace);
 
         Content.Value?.Paint(ctx, surface.DrawingSurface);
 

@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 
@@ -19,10 +20,13 @@ internal class FloodFillChunkCache : IDisposable
     private readonly int frame;
 
     private readonly Dictionary<VecI, OneOf<Chunk, EmptyChunk>> acquiredChunks = new();
+    
+    private ColorSpace processingColorSpace = ColorSpace.CreateSrgbLinear();
 
     public FloodFillChunkCache(IReadOnlyChunkyImage image)
     {
         this.image = image;
+        this.processingColorSpace = image.ProcessingColorSpace;
     }
 
     public FloodFillChunkCache(HashSet<Guid> membersToRender, IReadOnlyDocument document, int frame)
@@ -30,6 +34,7 @@ internal class FloodFillChunkCache : IDisposable
         this.membersToRender = membersToRender;
         this.document = document;
         this.frame = frame;
+        processingColorSpace = document.ProcessingColorSpace;
     }
 
     public bool ChunkExistsInStorage(VecI pos)
@@ -50,7 +55,7 @@ internal class FloodFillChunkCache : IDisposable
         {
             if (document is null || membersToRender is null)
                 throw new InvalidOperationException();
-            Chunk chunk = Chunk.Create();
+            Chunk chunk = Chunk.Create(processingColorSpace);
             chunk.Surface.DrawingSurface.Canvas.Save();
             
             VecI chunkPos = pos * ChunkyImage.FullChunkSize;
@@ -68,7 +73,7 @@ internal class FloodFillChunkCache : IDisposable
         // there is only a single image, just get the chunk from it
         if (!image.LatestOrCommittedChunkExists(pos))
             return new EmptyChunk();
-        Chunk chunkOnImage = Chunk.Create(ChunkResolution.Full);
+        Chunk chunkOnImage = Chunk.Create(processingColorSpace, ChunkResolution.Full);
 
         if (!image.DrawMostUpToDateChunkOn(pos, ChunkResolution.Full, chunkOnImage.Surface.DrawingSurface, VecI.Zero, ReplacingPaint))
         {

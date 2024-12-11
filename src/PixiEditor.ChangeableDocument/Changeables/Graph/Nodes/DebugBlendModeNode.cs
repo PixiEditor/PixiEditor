@@ -36,7 +36,7 @@ public class DebugBlendModeNode : Node
             return;
 
         var size = new VecI(Math.Max(src.Size.X, dst.Size.X), int.Max(src.Size.Y, dst.Size.Y));
-        var workingSurface = RequestTexture(0, size);
+        var workingSurface = RequestTexture(0, size, context.ProcessingColorSpace);
 
         workingSurface.DrawingSurface.Canvas.DrawSurface(dst.DrawingSurface, 0, 0, blendModeOpacityPaint);
 

@@ -2,6 +2,7 @@
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 
@@ -48,21 +49,21 @@ public class Chunk : IDisposable
     public bool Disposed => returned;
 
     private Surface internalSurface;
-    private Chunk(ChunkResolution resolution)
+    private Chunk(ChunkResolution resolution, ColorSpace colorSpace)
     {
         int size = resolution.PixelSize();
 
         Resolution = resolution;
         PixelSize = new(size, size);
-        internalSurface = Surface.ForProcessing(PixelSize);
+        internalSurface = new Surface(new ImageInfo(size, size, ColorType.RgbaF16, AlphaType.Premul, colorSpace));
     }
 
     /// <summary>
     /// Tries to take a chunk with the <paramref name="resolution"/> from the pool, or creates a new one
     /// </summary>
-    public static Chunk Create(ChunkResolution resolution = ChunkResolution.Full)
+    public static Chunk Create(ColorSpace chunkCs, ChunkResolution resolution = ChunkResolution.Full)
     {
-        var chunk = ChunkPool.Instance.Get(resolution) ?? new Chunk(resolution);
+        var chunk = ChunkPool.Instance.Get(resolution) ?? new Chunk(resolution, chunkCs);
         chunk.returned = false;
         Interlocked.Increment(ref chunkCounter);
         return chunk;

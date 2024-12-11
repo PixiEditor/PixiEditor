@@ -85,7 +85,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return null;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,
+    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
         if (ShapeData == null)

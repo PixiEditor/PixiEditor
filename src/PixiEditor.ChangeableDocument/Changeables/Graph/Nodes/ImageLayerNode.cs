@@ -6,6 +6,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 
@@ -136,7 +137,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
     }
 
-    public override bool RenderPreview(DrawingSurface renderOnto, ChunkResolution resolution, int frame,
+    public override bool RenderPreview(DrawingSurface renderOnto, RenderContext context,
         string elementToRenderName)
     {
         if (IsDisposed)
@@ -146,10 +147,10 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         if (elementToRenderName == nameof(EmbeddedMask))
         {
-            return base.RenderPreview(renderOnto, resolution, frame, elementToRenderName);
+            return base.RenderPreview(renderOnto, context, elementToRenderName);
         }
 
-        var img = GetLayerImageAtFrame(frame);
+        var img = GetLayerImageAtFrame(context.FrameTime.Frame);
 
         if (Guid.TryParse(elementToRenderName, out Guid guid))
         {
@@ -166,7 +167,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             return false;
         }
 
-        if (renderedSurfaceFrame == frame)
+        if (renderedSurfaceFrame == context.FrameTime.Frame)
         {
             renderOnto.Canvas.DrawSurface(fullResrenderedSurface.DrawingSurface, VecI.Zero, blendPaint);
         }
@@ -174,7 +175,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         {
             img.DrawMostUpToDateRegionOn(
                 new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
-                resolution,
+                context.ChunkResolution,
                 renderOnto, VecI.Zero, blendPaint);
         }
 
@@ -239,13 +240,13 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     void IReadOnlyImageNode.ForEveryFrame(Action<IReadOnlyChunkyImage> action) => ForEveryFrame(action);
 
-    public override void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime)
+    public override void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime, ColorSpace processColorSpace)
     {
-        base.RenderChunk(chunkPos, resolution, frameTime);
+        base.RenderChunk(chunkPos, resolution, frameTime, processColorSpace);
 
         var img = GetLayerImageAtFrame(frameTime.Frame);
 
-        RenderChunkyImageChunk(chunkPos, resolution, img, 85, ref fullResrenderedSurface);
+        RenderChunkyImageChunk(chunkPos, resolution, img, 85, processColorSpace, ref fullResrenderedSurface);
         renderedSurfaceFrame = frameTime.Frame;
     }
 

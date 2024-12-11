@@ -10,6 +10,7 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Shaders.Generation;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -83,14 +84,14 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
     }
 
-    protected Texture RequestTexture(int id, VecI size, bool clear = true)
+    protected Texture RequestTexture(int id, VecI size, ColorSpace processingCs, bool clear = true)
     {
         if (_managedTextures.TryGetValue(id, out var texture))
         {
             if (texture.Size != size || texture.IsDisposed)
             {
                 texture.Dispose();
-                texture = Texture.ForProcessing(size);
+                texture = new Texture(CreateImageInfo(size, processingCs));
                 _managedTextures[id] = texture;
                 return texture;
             }
@@ -103,8 +104,18 @@ public abstract class Node : IReadOnlyNode, IDisposable
             return texture;
         }
 
-        _managedTextures[id] = Texture.ForProcessing(size);
+        _managedTextures[id] = new Texture(CreateImageInfo(size, processingCs));
         return _managedTextures[id];
+    }
+    
+    private ImageInfo CreateImageInfo(VecI size, ColorSpace processingCs)
+    {
+        if (processingCs == null)
+        {
+            return new ImageInfo(size.X, size.Y, ColorType.RgbaF16, AlphaType.Premul, ColorSpace.CreateSrgbLinear()) { GpuBacked = true};
+        }
+
+        return new ImageInfo(size.X, size.Y, ColorType.RgbaF16, AlphaType.Premul, processingCs) { GpuBacked = true };
     }
 
     public void TraverseBackwards(Func<IReadOnlyNode, bool> action)

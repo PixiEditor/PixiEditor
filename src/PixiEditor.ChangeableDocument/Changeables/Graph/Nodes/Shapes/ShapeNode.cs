@@ -23,21 +23,7 @@ public abstract class ShapeNode<T> : Node where T : ShapeVectorData
         var data = GetShapeData(context);
 
         Output.Value = data;
-        
-        /*if (data == null || !data.IsValid())
-            return;
-
-        return RasterizePreview(data, context.DocumentSize);*/
     }
     
     protected abstract T? GetShapeData(RenderContext context);
-
-    public Texture RasterizePreview(ShapeVectorData vectorData, VecI size)
-    {
-        Texture texture = RequestTexture(0, size);
-        
-        vectorData.RasterizeTransformed(texture.DrawingSurface);
-        
-        return texture;
-    }
 }

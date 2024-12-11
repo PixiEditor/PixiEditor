@@ -79,8 +79,7 @@ public class PreviewPainterControl : DrawieControl
             UniformScale(x, y, surface, previewBounds.Value);
         }
 
-        // TODO: Implement ChunkResolution and frame
-        PreviewPainter.Paint(surface, ChunkResolution.Full, FrameToRender);
+        PreviewPainter.Paint(surface);
 
         surface.Canvas.Restore();
     }

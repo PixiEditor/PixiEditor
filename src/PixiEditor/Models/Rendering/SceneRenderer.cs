@@ -3,6 +3,7 @@ using Drawie.Backend.Core;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Handlers;
@@ -35,12 +36,12 @@ internal class SceneRenderer
         
         if (!HighResRendering || !HighDpiRenderNodePresent(Document.NodeGraph))
         {
-            texture = Texture.ForProcessing(Document.Size);
+            texture = Texture.ForProcessing(Document.Size, Document.ProcessingColorSpace);
             renderTarget = texture.DrawingSurface;
         }
 
         RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
-            resolution, Document.Size);
+            resolution, Document.Size, Document.ProcessingColorSpace);
         Document.NodeGraph.Execute(context);
         
         if(texture != null)
@@ -86,7 +87,7 @@ internal class SceneRenderer
 
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
 
-            RenderContext onionContext = new(target, frame, resolution, Document.Size, finalOpacity);
+            RenderContext onionContext = new(target, frame, resolution, Document.Size, Document.ProcessingColorSpace, finalOpacity);
             Document.NodeGraph.Execute(onionContext);
         }
 
@@ -100,7 +101,7 @@ internal class SceneRenderer
             }
 
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
-            RenderContext onionContext = new(target, frame, resolution, Document.Size, finalOpacity);
+            RenderContext onionContext = new(target, frame, resolution, Document.Size, Document.ProcessingColorSpace, finalOpacity);
             Document.NodeGraph.Execute(onionContext);
         }
     }
