@@ -24,19 +24,21 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     public bool LockTransparency { get; set; }
 
     private VecI startSize;
+    private ColorSpace colorSpace;
     private ChunkyImage layerImage => keyFrames[0]?.Data as ChunkyImage;
 
     private Texture fullResrenderedSurface;
     private int renderedSurfaceFrame = -1;
 
-    public ImageLayerNode(VecI size)
+    public ImageLayerNode(VecI size, ColorSpace colorSpace)
     {
         if (keyFrames.Count == 0)
         {
-            keyFrames.Add(new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = new ChunkyImage(size) });
+            keyFrames.Add(new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = new ChunkyImage(size, colorSpace) });
         }
 
         this.startSize = size;
+        this.colorSpace = colorSpace;
     }
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
@@ -213,7 +215,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public override Node CreateCopy()
     {
-        var image = new ImageLayerNode(startSize) { MemberName = this.MemberName, };
+        var image = new ImageLayerNode(startSize, colorSpace) { MemberName = this.MemberName, };
 
         image.keyFrames.Clear();
 

@@ -44,7 +44,7 @@ internal class RasterizeMember_Change : Change
         
         IRasterizable rasterizable = (IRasterizable)node;
         
-        ImageLayerNode imageLayer = new ImageLayerNode(target.Size);
+        ImageLayerNode imageLayer = new ImageLayerNode(target.Size, target.ProcessingColorSpace);
         imageLayer.MemberName = node.DisplayName;
 
         target.NodeGraph.AddNode(imageLayer);

@@ -3,6 +3,7 @@ using ChunkyImageLib;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using Drawie.Numerics;
@@ -100,7 +101,7 @@ internal static class PixiParserPixiV4DocumentEx
             if (folder.Mask is not null)
             {
                 inputValues["MaskIsVisible"] = folder.Mask.Enabled;
-                additionalValues["embeddedMask"] = new ChunkyImage(ConvertToNewMaskFormat(Surface.Load(folder.Mask.ImageBytes), document.Width, document.Height));
+                additionalValues["embeddedMask"] = new ChunkyImage(ConvertToNewMaskFormat(Surface.Load(folder.Mask.ImageBytes), document.Width, document.Height), ColorSpace.CreateSrgb());
             }
 
             PropertyConnection contentConnection = new PropertyConnection()
@@ -141,7 +142,7 @@ internal static class PixiParserPixiV4DocumentEx
             if (layer.Mask is not null)
             {
                 inputValues["MaskIsVisible"] = layer.Mask.Enabled;
-                additionalValues["embeddedMask"] = new ChunkyImage(ConvertToNewMaskFormat(Surface.Load(layer.Mask.ImageBytes), document.Width, document.Height)); 
+                additionalValues["embeddedMask"] = new ChunkyImage(ConvertToNewMaskFormat(Surface.Load(layer.Mask.ImageBytes), document.Width, document.Height), ColorSpace.CreateSrgb()); 
             }
 
             PropertyConnection connection = new PropertyConnection()
@@ -160,7 +161,7 @@ internal static class PixiParserPixiV4DocumentEx
                     new KeyFrameData()
                     {
                         AffectedElement = ImageLayerNode.ImageLayerKey,
-                        Data = new ChunkyImage(Surface.Load(layer.ImageBytes)),
+                        Data = new ChunkyImage(Surface.Load(layer.ImageBytes), ColorSpace.CreateSrgb()),
                         Duration = 0,
                         StartFrame = 0,
                         IsVisible = true

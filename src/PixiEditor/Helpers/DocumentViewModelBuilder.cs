@@ -7,6 +7,7 @@ using PixiEditor.ViewModels.Document;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using Drawie.Numerics;
 using PixiEditor.Parser;
@@ -310,7 +311,7 @@ internal class NodeGraphBuilder
         return this;
     }
 
-    public NodeGraphBuilder WithImageLayerNode(string name, Surface image, out int id)
+    public NodeGraphBuilder WithImageLayerNode(string name, Surface image, ColorSpace colorSpace, out int id)
     {
         this.WithNodeOfType(typeof(ImageLayerNode))
             .WithName(name)
@@ -320,7 +321,7 @@ internal class NodeGraphBuilder
                 new KeyFrameData
                 {
                     AffectedElement = ImageLayerNode.ImageLayerKey,
-                    Data = new ChunkyImage(image),
+                    Data = new ChunkyImage(image, colorSpace),
                     Duration = 0,
                     StartFrame = 0,
                     IsVisible = true
@@ -331,7 +332,7 @@ internal class NodeGraphBuilder
         return this;
     }
 
-    public NodeGraphBuilder WithImageLayerNode(string name, VecI size, out int id)
+    public NodeGraphBuilder WithImageLayerNode(string name, VecI size, ColorSpace colorSpace, out int id)
     {
         this.WithNodeOfType(typeof(ImageLayerNode))
             .WithName(name)
@@ -341,7 +342,7 @@ internal class NodeGraphBuilder
                 new KeyFrameData
                 {
                     AffectedElement = ImageLayerNode.ImageLayerKey,
-                    Data = new ChunkyImage(size),
+                    Data = new ChunkyImage(size, colorSpace),
                     Duration = 0,
                     StartFrame = 0,
                     IsVisible = true

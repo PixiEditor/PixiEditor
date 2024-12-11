@@ -294,8 +294,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         var acc = viewModel.Internals.ActionAccumulator;
 
+        ColorSpace targetProcessingColorSpace = ColorSpace.CreateSrgbLinear();
         if (builderInstance.UsesLegacyColorBlending || IsFileWithOldColorBlending(serializerData))
         {
+            targetProcessingColorSpace = ColorSpace.CreateSrgb();
             acc.AddFinishedActions(new ChangeProcessingColorSpace_Action(ColorSpace.CreateSrgb()));
         }
 
@@ -320,7 +322,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         viewModel.Palette = new ObservableRangeCollection<PaletteColor>(builderInstance.Palette);
 
         SerializationConfig config =
-            new SerializationConfig(BuiltInEncoders.Encoders[builderInstance.ImageEncoderUsed]);
+            new SerializationConfig(BuiltInEncoders.Encoders[builderInstance.ImageEncoderUsed], targetProcessingColorSpace);
 
         List<SerializationFactory> allFactories =
             ViewModelMain.Current.Services.GetServices<SerializationFactory>().ToList();

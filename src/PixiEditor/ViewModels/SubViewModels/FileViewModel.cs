@@ -16,6 +16,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using PixiEditor.Exceptions;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
@@ -261,7 +262,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             .WithGraph(x => x
                 .WithImageLayerNode(
                     new LocalizedString("IMAGE"),
-                    image, out int id)
+                    image, 
+                    ColorSpace.CreateSrgbLinear(),
+                    out int id)
                 .WithOutputNode(id, "Output")
             ));
 
@@ -297,7 +300,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             .WithGraph(x => x
                 .WithImageLayerNode(
                     new LocalizedString("IMAGE"),
-                    surface, out int id)
+                    surface,
+                    ColorSpace.CreateSrgbLinear(),
+                    out int id)
                 .WithOutputNode(id, "Output")
             ));
 
@@ -325,7 +330,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 .WithGraph(x => x
                     .WithImageLayerNode(
                         new LocalizedString("BASE_LAYER_NAME"),
-                        new VecI(newFile.Width, newFile.Height), out int id)
+                        new VecI(newFile.Width, newFile.Height), 
+                        ColorSpace.CreateSrgbLinear(),
+                        out int id)
                     .WithOutputNode(id, "Output")
                 ));
 

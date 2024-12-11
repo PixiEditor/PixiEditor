@@ -105,7 +105,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     private readonly Dictionary<ChunkResolution, Dictionary<VecI, Chunk>> latestChunks;
     private readonly Dictionary<ChunkResolution, Dictionary<VecI, LatestChunkData>> latestChunksData;
 
-    public ChunkyImage(VecI size)
+    public ChunkyImage(VecI size, ColorSpace colorSpace)
     {
         CommittedSize = size;
         LatestSize = size;
@@ -130,9 +130,11 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             [ChunkResolution.Quarter] = new(),
             [ChunkResolution.Eighth] = new(),
         };
+        
+        ProcessingColorSpace = colorSpace;
     }
 
-    public ChunkyImage(Surface image) : this(image.Size)
+    public ChunkyImage(Surface image, ColorSpace colorSpace) : this(image.Size, colorSpace)
     {
         EnqueueDrawImage(VecI.Zero, image);
         CommitChanges();
@@ -252,7 +254,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         lock (lockObject)
         {
             ThrowIfDisposed();
-            ChunkyImage output = new(LatestSize);
+            ChunkyImage output = new(LatestSize, ProcessingColorSpace);
             var chunks = FindCommittedChunks();
             foreach (var chunk in chunks)
             {
