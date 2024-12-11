@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 using DrawingApiBlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
@@ -16,16 +17,19 @@ public class RenderContext
     
     public DrawingSurface RenderSurface { get; set; }
     public bool FullRerender { get; set; } = false;
+    
+    public ColorSpace ProcessingColorSpace { get; set; } 
 
 
     public RenderContext(DrawingSurface renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution,
-        VecI docSize, double opacity = 1) 
+        VecI docSize, ColorSpace processingColorSpace, double opacity = 1) 
     {
         RenderSurface = renderSurface;
         FrameTime = frameTime;
         ChunkResolution = chunkResolution;
         DocumentSize = docSize;
         Opacity = opacity;
+        ProcessingColorSpace = processingColorSpace;
     }
 
     public static DrawingApiBlendMode GetDrawingBlendMode(BlendMode blendMode)

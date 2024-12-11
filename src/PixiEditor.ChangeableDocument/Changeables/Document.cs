@@ -32,6 +32,7 @@ internal class Document : IChangeable, IReadOnlyDocument
 
     IReadOnlyReferenceLayer? IReadOnlyDocument.ReferenceLayer => ReferenceLayer;
     public DocumentRenderer Renderer { get; }
+    public ColorSpace ProcessingColorSpace { get; internal set; } = ColorSpace.CreateSrgbLinear();
 
     /// <summary>
     /// The default size for a new document

@@ -20,7 +20,7 @@ internal class TextBlockExtensions : AvaloniaObject
 
     private static void OnBindableInlinesChanged(AvaloniaPropertyChangedEventArgs<IEnumerable<Inline>> e)
     {
-        if (e.Sender is not TextBlock target)
+        if (e.Sender is not TextBlock target || e.NewValue.Value is null)
         {
             return;
         }

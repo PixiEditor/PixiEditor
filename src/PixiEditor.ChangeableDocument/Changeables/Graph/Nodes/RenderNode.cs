@@ -2,7 +2,6 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -40,7 +39,7 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
                                && surface.DeviceClipBounds.Size != context.DocumentSize;
         if (useIntermediate)
         {
-            Texture intermediate = RequestTexture(0, context.DocumentSize);
+            Texture intermediate = RequestTexture(0, context.DocumentSize, context.ProcessingColorSpace);
             target = intermediate.DrawingSurface;
         }
 
@@ -56,6 +55,6 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
 
     public abstract RectD? GetPreviewBounds(int frame, string elementToRenderName = "");
 
-    public abstract bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,
+    public abstract bool RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName);
 }

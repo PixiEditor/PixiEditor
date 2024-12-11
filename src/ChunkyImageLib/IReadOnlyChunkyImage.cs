@@ -2,6 +2,7 @@
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 
@@ -22,4 +23,5 @@ public interface IReadOnlyChunkyImage
     HashSet<VecI> FindAllChunks();
     VecI CommittedSize { get; }
     VecI LatestSize { get; }
+    public ColorSpace ProcessingColorSpace { get; }
 }

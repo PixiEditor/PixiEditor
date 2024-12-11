@@ -84,7 +84,7 @@ public static class FloodFillHelper
 
             if (!drawingChunks.ContainsKey(chunkPos))
             {
-                var chunk = Chunk.Create();
+                var chunk = Chunk.Create(document.ProcessingColorSpace);
                 chunk.Surface.DrawingSurface.Canvas.Clear(Colors.Transparent);
                 drawingChunks[chunkPos] = chunk;
             }

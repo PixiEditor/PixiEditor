@@ -83,7 +83,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
     private void RenderFolderContent(SceneObjectRenderContext sceneContext, RectD bounds, bool useFilters)
     {
         VecI size = (VecI)bounds.Size;
-        var outputWorkingSurface = RequestTexture(0, size, true);
+        var outputWorkingSurface = RequestTexture(0, size, sceneContext.ProcessingColorSpace, true);
 
         blendPaint.ImageFilter = null;
         blendPaint.ColorFilter = null;
@@ -94,7 +94,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
 
         if (Background.Value != null && sceneContext.TargetPropertyOutput != RawOutput)
         {
-            Texture tempSurface = RequestTexture(1, outputWorkingSurface.Size);
+            Texture tempSurface = RequestTexture(1, outputWorkingSurface.Size, sceneContext.ProcessingColorSpace);
             if (Background.Connection.Node is IClipSource clipSource && ClipToPreviousMember)
             {
                 DrawClipSource(tempSurface.DrawingSurface, clipSource, sceneContext);
@@ -201,12 +201,12 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
         return GetTightBounds(frame);
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,
+    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
         if (elementToRenderName == nameof(EmbeddedMask))
         {
-            return base.RenderPreview(renderOn, resolution, frame, elementToRenderName);
+            return base.RenderPreview(renderOn, context, elementToRenderName);
         }
 
         // TODO: Make preview better, with filters, clips and stuff
@@ -219,7 +219,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
                 IReadOnlyNode node = executionQueue.Dequeue();
                 if (node is IPreviewRenderable previewRenderable)
                 {
-                    previewRenderable.RenderPreview(renderOn, resolution, frame, elementToRenderName);
+                    previewRenderable.RenderPreview(renderOn, context, elementToRenderName);
                 }
             }
         }
