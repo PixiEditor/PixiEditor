@@ -88,7 +88,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
         if (_managedTextures.TryGetValue(id, out var texture))
         {
-            if (texture.Size != size || texture.IsDisposed)
+            if (texture.Size != size || texture.IsDisposed || texture.ColorSpace != processingCs)
             {
                 texture.Dispose();
                 texture = new Texture(CreateImageInfo(size, processingCs));

@@ -215,7 +215,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     ILineOverlayHandler IDocument.LineToolOverlayHandler => LineToolOverlayViewModel;
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
     IAnimationHandler IDocument.AnimationHandler => AnimationDataViewModel;
-
+    public bool UsesLegacyBlending { get; private set; }
 
     private DocumentViewModel()
     {
@@ -291,7 +291,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         var viewModel = new DocumentViewModel();
         viewModel.Operations.ResizeCanvas(new VecI(builderInstance.Width, builderInstance.Height), ResizeAnchor.Center);
-
 
         var acc = viewModel.Internals.ActionAccumulator;
 
@@ -757,6 +756,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         this.horizontalSymmetryAxisY = horizontalSymmetryAxisY;
         OnPropertyChanged(nameof(HorizontalSymmetryAxisYBindable));
+    }
+
+    public void SetProcessingColorSpace(ColorSpace infoColorSpace)
+    {
+        UsesLegacyBlending = infoColorSpace.IsSrgb;
     }
 
     public void SetSize(VecI size)

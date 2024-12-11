@@ -1,4 +1,5 @@
 ﻿using Drawie.Backend.Core.Surfaces.ImageData;
+using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 
 namespace PixiEditor.ChangeableDocument.Changes.Properties;
 
@@ -24,12 +25,13 @@ internal class ChangeProcessingColorSpace_Change : Change
         ignoreInUndo = false;
         target.ProcessingColorSpace = toColorSpace;
 
-        return new None();
+        return new ProcessingColorSpace_ChangeInfo(toColorSpace);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         target.ProcessingColorSpace = original;
-        return new None();
+        
+        return new ProcessingColorSpace_ChangeInfo(original);
     }
 }
