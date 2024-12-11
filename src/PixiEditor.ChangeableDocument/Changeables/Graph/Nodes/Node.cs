@@ -90,7 +90,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
             if (texture.Size != size || texture.IsDisposed)
             {
                 texture.Dispose();
-                texture = new Texture(size);
+                texture = Texture.ForProcessing(size);
                 _managedTextures[id] = texture;
                 return texture;
             }
@@ -103,7 +103,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
             return texture;
         }
 
-        _managedTextures[id] = new Texture(size);
+        _managedTextures[id] = Texture.ForProcessing(size);
         return _managedTextures[id];
     }
 

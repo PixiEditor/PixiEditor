@@ -39,7 +39,7 @@ internal class SceneRenderer
         
         if (!HighResRendering || !HighDpiRenderNodePresent(Document.NodeGraph))
         {
-            texture = new(Document.Size);
+            texture = Texture.ForProcessing(Document.Size);
             renderTarget = texture.DrawingSurface;
         }
 
@@ -49,7 +49,9 @@ internal class SceneRenderer
         
         if(texture != null)
         {
-            target.Canvas.DrawSurface(texture.DrawingSurface, 0, 0);
+            using Texture srgbTexture = Texture.ForDisplay(Document.Size);
+            srgbTexture.DrawingSurface.Canvas.DrawSurface(texture.DrawingSurface, 0, 0);
+            target.Canvas.DrawSurface(srgbTexture.DrawingSurface, 0, 0);
             texture.Dispose();
         }
     }

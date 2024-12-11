@@ -54,7 +54,7 @@ public class Chunk : IDisposable
 
         Resolution = resolution;
         PixelSize = new(size, size);
-        internalSurface = new Surface(PixelSize);
+        internalSurface = Surface.ForProcessing(PixelSize);
     }
 
     /// <summary>
