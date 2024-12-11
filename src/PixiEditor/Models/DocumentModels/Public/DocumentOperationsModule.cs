@@ -8,6 +8,7 @@ using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Models.Clipboard;
@@ -811,5 +812,10 @@ internal class DocumentOperationsModule : IDocumentOperations
         IAction targetAction = new InvokeAction_PassthroughAction(action);
 
         Internals.ActionAccumulator.AddActions(targetAction);
+    }
+
+    public void UseLinearSrgbProcessing()
+    {
+        Internals.ActionAccumulator.AddFinishedActions(new ChangeProcessingColorSpace_Action(ColorSpace.CreateSrgbLinear()));
     }
 }

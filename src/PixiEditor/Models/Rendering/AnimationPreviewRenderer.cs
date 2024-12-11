@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Models.DocumentModels;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.Models.Rendering;
 
@@ -21,7 +22,7 @@ internal class AnimationKeyFramePreviewRenderer(DocumentInternalParts internals)
         return null;
     }
 
-    public bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
+    public bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         if (internals.Tracker.Document.AnimationData.TryFindKeyFrame(
                 Guid.Parse(elementToRenderName),
@@ -32,7 +33,7 @@ internal class AnimationKeyFramePreviewRenderer(DocumentInternalParts internals)
             
             if (node is IPreviewRenderable previewRenderable)
             {
-                return previewRenderable.RenderPreview(renderOn, resolution, frame, elementToRenderName);
+                return previewRenderable.RenderPreview(renderOn, context, elementToRenderName);
             }
         }
         

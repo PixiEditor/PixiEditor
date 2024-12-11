@@ -7,6 +7,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
@@ -144,6 +145,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
 
         SceneObjectRenderContext renderObjectContext = new SceneObjectRenderContext(output, renderTarget, localBounds,
             context.FrameTime, context.ChunkResolution, context.DocumentSize, renderTarget == context.RenderSurface,
+            context.ProcessingColorSpace,
             context.Opacity);
         renderObjectContext.FullRerender = context.FullRerender;
         return renderObjectContext;
@@ -192,13 +194,13 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         maskCacheHash = EmbeddedMask?.GetCacheHash() ?? 0;
     }
 
-    public virtual void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime)
+    public virtual void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime, ColorSpace processingColorSpace)
     {
-        RenderChunkyImageChunk(chunkPos, resolution, EmbeddedMask, 55, ref renderedMask);
+        RenderChunkyImageChunk(chunkPos, resolution, EmbeddedMask, 55, processingColorSpace, ref renderedMask);
     }
 
     protected void RenderChunkyImageChunk(VecI chunkPos, ChunkResolution resolution, ChunkyImage img,
-        int textureId,
+        int textureId, ColorSpace processingColorSpace,
         ref Texture? renderSurface)
     {
         if (img is null)
@@ -208,7 +210,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
 
         VecI targetSize = img.LatestSize;
         
-        renderSurface = RequestTexture(textureId, targetSize, false);
+        renderSurface = RequestTexture(textureId, targetSize, processingColorSpace, false);
 
         int saved = renderSurface.DrawingSurface.Canvas.Save();
         
@@ -300,7 +302,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         return null;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,
+    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
         if (elementToRenderName != nameof(EmbeddedMask))

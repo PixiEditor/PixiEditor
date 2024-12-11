@@ -40,13 +40,11 @@ public class ApplyFilterNode : RenderNode, IRenderInput
         return PreviewUtils.FindPreviewBounds(Background.Connection, frame, elementToRenderName);
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,
+    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
         if (Background.Value == null)
             return false;
-
-        RenderContext context = new(renderOn, frame, ChunkResolution.Full, VecI.One);
 
         int layer = renderOn.Canvas.SaveLayer(_paint);
         Background.Value.Paint(context, renderOn);

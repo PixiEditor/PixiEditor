@@ -189,6 +189,10 @@ internal class AffectedAreasGatherer
                     AddToImagePreviews(info.LayerId, info.Affected);
                     AddToNodePreviews(info.LayerId);
                     break;
+                case ProcessingColorSpace_ChangeInfo:
+                    AddWholeCanvasToMainImage();
+                    AddWholeCanvasToEveryImagePreview();
+                    break;
             }
         }
     }

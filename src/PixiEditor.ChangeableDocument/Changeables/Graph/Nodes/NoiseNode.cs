@@ -94,7 +94,7 @@ public class NoiseNode : RenderNode
         return new RectD(0, 0, 128, 128); 
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
+    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         var shader = SelectShader();
         if (shader == null)

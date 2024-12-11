@@ -35,7 +35,7 @@ public class RasterizeShapeNode : RenderNode
         return Data?.Value?.TransformedAABB;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
+    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         var shape = Data.Value;
 

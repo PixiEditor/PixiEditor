@@ -75,6 +75,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     private static Paint AddingPaint { get; } = new Paint() { BlendMode = BlendMode.Plus };
     private readonly Paint blendModePaint = new Paint() { BlendMode = BlendMode.Src };
 
+    public ColorSpace ProcessingColorSpace { get; set; } = ColorSpace.CreateSrgbLinear();
+    
     public int CommitCounter => commitCounter;
 
     public VecI CommittedSize { get; private set; }
@@ -324,7 +326,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                     : latestChunk.Surface.GetSRGBPixel(posInChunk);
                 // using a whole chunk just to draw 1 pixel is kinda dumb,
                 // but this should be faster than any approach that requires allocations
-                using Chunk tempChunk = Chunk.Create(ChunkResolution.Eighth);
+                using Chunk tempChunk = Chunk.Create(ProcessingColorSpace, ChunkResolution.Eighth);
                 using Paint committedPaint = new Paint() { Color = committedColor, BlendMode = BlendMode.Src };
                 using Paint latestPaint = new Paint() { Color = latestColor, BlendMode = this.blendMode };
                 tempChunk.Surface.DrawingSurface.Canvas.DrawPixel(VecI.Zero, committedPaint);
@@ -381,7 +383,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             }
 
             // combine with committed and then draw
-            using var tempChunk = Chunk.Create(resolution);
+            using var tempChunk = Chunk.Create(ProcessingColorSpace, resolution);
             tempChunk.Surface.DrawingSurface.Canvas.DrawSurface(committedChunk.Surface.DrawingSurface, 0, 0,
                 ReplacingPaint);
             blendModePaint.BlendMode = blendMode;
@@ -1022,7 +1024,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                     blendModePaint.BlendMode = blendMode;
                     if (lockTransparency)
                     {
-                        using Chunk tempChunk = Chunk.Create(resolution);
+                        using Chunk tempChunk = Chunk.Create(ProcessingColorSpace, resolution);
                         tempChunk.Surface.DrawingSurface.Canvas.DrawSurface(maybeCommitted.Surface.DrawingSurface, 0, 0,
                             ReplacingPaint);
                         maybeCommitted.Surface.DrawingSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface, 0, 0,
@@ -1197,7 +1199,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             return new FilledChunk();
         }
 
-        var intersection = Chunk.Create(resolution);
+        var intersection = Chunk.Create(ProcessingColorSpace, resolution);
         intersection.Surface.DrawingSurface.Canvas.Clear(Colors.White);
 
         foreach (var mask in activeClips)
@@ -1250,7 +1252,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             // drawing with raster clipping
             var clip = combinedRasterClips.AsT2;
 
-            using var tempChunk = Chunk.Create(targetChunk.Resolution);
+            using var tempChunk = Chunk.Create(ProcessingColorSpace, targetChunk.Resolution);
             targetChunk.DrawChunkOn(tempChunk.Surface.DrawingSurface, VecI.Zero, ReplacingPaint);
 
             CallDrawWithClip(chunkOperation, operationAffectedArea.GlobalArea, tempChunk, resolution, chunkPos);
@@ -1365,7 +1367,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         // for full res chunks: nothing exists, create brand new chunk
         if (resolution == ChunkResolution.Full)
         {
-            var newChunk = Chunk.Create(resolution);
+            var newChunk = Chunk.Create(ProcessingColorSpace, resolution);
             committedChunks[resolution][chunkPos] = newChunk;
             return newChunk;
         }
@@ -1374,7 +1376,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         Chunk? existingFullResChunk = MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full);
         if (existingFullResChunk is not null)
         {
-            var newChunk = Chunk.Create(resolution);
+            var newChunk = Chunk.Create(ProcessingColorSpace, resolution);
             newChunk.Surface.DrawingSurface.Canvas.Save();
             newChunk.Surface.DrawingSurface.Canvas.Scale((float)resolution.Multiplier());
 
@@ -1388,7 +1390,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         // for low res chunks: full res version doesn't exist
         {
             GetOrCreateCommittedChunk(chunkPos, ChunkResolution.Full);
-            var newChunk = Chunk.Create(resolution);
+            var newChunk = Chunk.Create(ProcessingColorSpace, resolution);
             committedChunks[resolution][chunkPos] = newChunk;
             return newChunk;
         }
@@ -1408,7 +1410,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         var maybeCommittedAnyRes = MaybeGetCommittedChunk(chunkPos, resolution);
         if (maybeCommittedAnyRes is not null)
         {
-            Chunk newChunk = Chunk.Create(resolution);
+            Chunk newChunk = Chunk.Create(ProcessingColorSpace, resolution);
             if (blendMode == BlendMode.Src)
                 maybeCommittedAnyRes.Surface.CopyTo(newChunk.Surface);
             else
@@ -1424,14 +1426,14 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             //create low res committed chunk
             var committedChunkLowRes = GetOrCreateCommittedChunk(chunkPos, resolution);
             //create latest based on it
-            Chunk newChunk = Chunk.Create(resolution);
+            Chunk newChunk = Chunk.Create(ProcessingColorSpace, resolution);
             committedChunkLowRes.Surface.CopyTo(newChunk.Surface);
             latestChunks[resolution][chunkPos] = newChunk;
             return newChunk;
         }
 
         // no previous chunks exist
-        var newLatestChunk = Chunk.Create(resolution);
+        var newLatestChunk = Chunk.Create(ProcessingColorSpace, resolution);
         newLatestChunk.Surface.DrawingSurface.Canvas.Clear();
         latestChunks[resolution][chunkPos] = newLatestChunk;
         return newLatestChunk;

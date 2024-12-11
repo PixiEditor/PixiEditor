@@ -31,6 +31,7 @@ internal class DocumentViewModelBuilder
 
     public NodeGraphBuilder Graph { get; set; }
     public string ImageEncoderUsed { get; set; } = "QOI";
+    public bool UsesLegacyColorBlending { get; set; } = false;
 
     public DocumentViewModelBuilder WithSize(int width, int height)
     {
@@ -119,6 +120,12 @@ internal class DocumentViewModelBuilder
     public DocumentViewModelBuilder WithImageEncoder(string encoder)
     {
         ImageEncoderUsed = encoder;
+        return this;
+    }
+    
+    public DocumentViewModelBuilder WithLegacyColorBlending(bool usesLegacyColorBlending)
+    {
+        UsesLegacyColorBlending = usesLegacyColorBlending;
         return this;
     }
 

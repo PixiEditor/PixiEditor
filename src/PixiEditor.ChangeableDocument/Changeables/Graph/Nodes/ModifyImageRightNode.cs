@@ -110,7 +110,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         return null;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
+    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         //TODO: Implement
         return false;
