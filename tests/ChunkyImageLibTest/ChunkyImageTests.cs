@@ -3,6 +3,7 @@ using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using Drawie.Skia;
 using Xunit;
@@ -24,7 +25,7 @@ public class ChunkyImageTests
     {
         ChunkyImage image = new ChunkyImage(new VecI(ChunkyImage.FullChunkSize, ChunkyImage.FullChunkSize));
         image.EnqueueDrawRectangle(new(new(5, 5), new(80, 80), 0, 2, Colors.AliceBlue, Colors.Snow));
-        using (Chunk target = Chunk.Create())
+        using (Chunk target = Chunk.Create(ColorSpace.CreateSrgb()))
         {
             image.DrawMostUpToDateChunkOn(new(0, 0), ChunkResolution.Full, target.Surface.DrawingSurface, VecI.Zero);
             image.CancelChanges();

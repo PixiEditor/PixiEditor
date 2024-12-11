@@ -34,7 +34,7 @@ public class DocumentRenderer : IPreviewRenderable
             {
                 if (node is IChunkRenderable imageNode)
                 {
-                    imageNode.RenderChunk(chunkPos, resolution, frameTime);
+                    imageNode.RenderChunk(chunkPos, resolution, frameTime, Document.ProcessingColorSpace);
                 }
             }));
         }
@@ -47,7 +47,7 @@ public class DocumentRenderer : IPreviewRenderable
         ChunkResolution resolution)
     {
         IsBusy = true;
-        RenderContext context = new(toDrawOn, frame, resolution, Document.Size);
+        RenderContext context = new(toDrawOn, frame, resolution, Document.Size, Document.ProcessingColorSpace);
         context.FullRerender = true;
         IReadOnlyNodeGraph membersOnlyGraph = ConstructMembersOnlyGraph(layersToCombine, Document.NodeGraph);
         try
@@ -75,7 +75,7 @@ public class DocumentRenderer : IPreviewRenderable
         
         IsBusy = true;
 
-        RenderContext context = new(renderOn, frameTime, resolution, Document.Size);
+        RenderContext context = new(renderOn, frameTime, resolution, Document.Size, Document.ProcessingColorSpace);
         context.FullRerender = true;
         
         node.RenderForOutput(context, renderOn, null);
@@ -123,10 +123,9 @@ public class DocumentRenderer : IPreviewRenderable
     public RectD? GetPreviewBounds(int frame, string elementNameToRender = "") =>
         new(0, 0, Document.Size.X, Document.Size.Y);
 
-    public bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,
+    public bool RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
-        RenderContext context = new(renderOn, frame, resolution, Document.Size);
         Document.NodeGraph.Execute(context);
 
         return true;
@@ -135,7 +134,7 @@ public class DocumentRenderer : IPreviewRenderable
     public void RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime)
     {
         IsBusy = true;
-        RenderContext context = new(toRenderOn, frameTime, ChunkResolution.Full, Document.Size) { FullRerender = true };
+        RenderContext context = new(toRenderOn, frameTime, ChunkResolution.Full, Document.Size, Document.ProcessingColorSpace) { FullRerender = true };
         Document.NodeGraph.Execute(context);
         IsBusy = false;
     }

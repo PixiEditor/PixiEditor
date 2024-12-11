@@ -71,6 +71,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
     public void Execute(RenderContext context)
     {
         if (OutputNode == null) return;
+        if(!CanExecute()) return;
 
         var queue = CalculateExecutionQueue(OutputNode);
         
@@ -87,5 +88,18 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
                 node.Execute(context);
             }
         }
+    }
+    
+    private bool CanExecute()
+    {
+        foreach (var node in Nodes)
+        {
+            if (node.IsDisposed)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

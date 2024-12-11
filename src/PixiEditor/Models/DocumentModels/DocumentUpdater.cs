@@ -204,6 +204,9 @@ internal class DocumentUpdater
             case SetPlayingState_PassthroughAction info:
                 ProcessPlayAnimation(info);
                 break;
+            case ProcessingColorSpace_ChangeInfo info:
+                ProcessProcessingColorSpace(info);
+                break;
         }
     }
 
@@ -707,5 +710,10 @@ internal class DocumentUpdater
     private void ProcessSetOnionFrames(OnionFrames_ChangeInfo info)
     {
         doc.AnimationHandler.SetOnionFrames(info.OnionFrames, info.Opacity);
+    }
+    
+    private void ProcessProcessingColorSpace(ProcessingColorSpace_ChangeInfo info)
+    {
+        doc.SetProcessingColorSpace(info.NewColorSpace);
     }
 }

@@ -55,7 +55,7 @@ public class ModifyImageLeftNode : Node, IPairNode, IPreviewRenderable
         return new RectD(0, 0, Image.Value.Size.X, Image.Value.Size.Y);
     }
 
-    public bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
+    public bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         if(Image.Value is null)
         {

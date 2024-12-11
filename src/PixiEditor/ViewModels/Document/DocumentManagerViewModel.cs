@@ -208,4 +208,17 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         
         ActiveDocument.Operations.CenterContent(ActiveDocument.GetSelectedMembers(), activeDocument.AnimationDataViewModel.ActiveFrameBindable);
     }
+    
+    [Command.Basic("PixiEditor.Document.UseLinearSrgbProcessing", "USE_LINEAR_SRGB_PROCESSING", "USE_LINEAR_SRGB_PROCESSING_DESC", CanExecute = "PixiEditor.DocumentUsesLegacyBlending", 
+        AnalyticsTrack = true)]
+    public void UseLinearSrgbProcessing()
+    {
+        if (ActiveDocument is null)
+            return;
+        
+        ActiveDocument.Operations.UseLinearSrgbProcessing();
+    }
+    
+    [Evaluator.CanExecute("PixiEditor.DocumentUsesLegacyBlending", nameof(ActiveDocument))]
+    public bool DocumentUsesLegacyBlending() => ActiveDocument?.UsesLegacyBlending ?? false;
 }
