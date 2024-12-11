@@ -86,8 +86,8 @@ internal class RectangleOperation : IMirroredDrawOperation
 
         // draw stroke
         surf.Canvas.Save();
-        paint.StrokeWidth = (float)Data.StrokeWidth;
-        paint.Color = Data.StrokeColor;
+        paint.StrokeWidth = Data.StrokeWidth > 0 ? Data.StrokeWidth : 1;
+        paint.Color = Data.StrokeWidth > 0 ? Data.StrokeColor : Data.FillColor;
         paint.Style = PaintStyle.Stroke;
         RectD innerRect = rect.Inflate(-Data.StrokeWidth / 2f);
         surf.Canvas.DrawRect((float)innerRect.Left, (float)innerRect.Top, (float)innerRect.Width, (float)innerRect.Height, paint);
