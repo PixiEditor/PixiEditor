@@ -1,12 +1,8 @@
 ﻿using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.ColorsImpl;
-using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
-using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Handlers;
@@ -49,9 +45,7 @@ internal class SceneRenderer
         
         if(texture != null)
         {
-            using Texture srgbTexture = Texture.ForDisplay(Document.Size);
-            srgbTexture.DrawingSurface.Canvas.DrawSurface(texture.DrawingSurface, 0, 0);
-            target.Canvas.DrawSurface(srgbTexture.DrawingSurface, 0, 0);
+            target.Canvas.DrawSurface(texture.DrawingSurface, 0, 0);
             texture.Dispose();
         }
     }

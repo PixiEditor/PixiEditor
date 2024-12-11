@@ -14,7 +14,7 @@ public interface IReadOnlyNode
     public IReadOnlyList<IReadOnlyKeyFrameData> KeyFrames { get; }
     public VecD Position { get; }
     string DisplayName { get; }
-
+    
     public void Execute(RenderContext context);
     
     /// <summary>

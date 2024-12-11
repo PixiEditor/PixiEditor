@@ -41,7 +41,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     protected virtual bool ExecuteOnlyOnCacheChange => false;
 
-    protected bool IsDisposed => _isDisposed;
+    protected internal bool IsDisposed => _isDisposed;
     private bool _isDisposed;
 
     private Dictionary<int, Texture> _managedTextures = new();
