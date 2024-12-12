@@ -71,6 +71,7 @@ public partial class BetaExampleButton : UserControl
         CloseCommand.Execute(null);
         
         ViewModelMain.Current.FileSubViewModel.OpenRecoveredDotPixi(null, bytes);
+        ViewModelMain.Current.DocumentManagerSubViewModel.Documents[^1].Operations.UseSrgbProcessing();
         Analytics.SendOpenExample(FileName);
     }
 
