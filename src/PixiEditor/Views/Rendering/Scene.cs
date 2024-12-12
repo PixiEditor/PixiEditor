@@ -139,7 +139,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty, ScaleProperty, AngleRadiansProperty,
             FlipXProperty,
-            FlipYProperty, DocumentProperty, AllOverlaysProperty);
+            FlipYProperty, DocumentProperty, AllOverlaysProperty, ContentDimensionsProperty);
 
         FadeOutProperty.Changed.AddClassHandler<Scene>(FadeOutChanged);
         CheckerImagePathProperty.Changed.AddClassHandler<Scene>(CheckerImagePathChanged);
@@ -153,7 +153,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private static void Refresh(Scene scene, AvaloniaPropertyChangedEventArgs args)
     {
-        scene.InvalidateVisual();
+        scene.QueueNextFrame();
     }
 
     public Scene()
