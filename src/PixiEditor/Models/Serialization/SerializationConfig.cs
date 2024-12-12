@@ -6,7 +6,7 @@ namespace PixiEditor.Models.Serialization;
 public class SerializationConfig
 {
     public ImageEncoder Encoder { get; set; }
-    public ColorSpace ProcessingProcessingColorSpace { get; set; } = ColorSpace.CreateSrgbLinear();
+    public ColorSpace ProcessingProcessingColorSpace { get; set; }
     
     public SerializationConfig(ImageEncoder encoder, ColorSpace processingColorSpace)
     {

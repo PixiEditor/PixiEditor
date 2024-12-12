@@ -33,6 +33,7 @@ internal class DocumentViewModelBuilder
     public NodeGraphBuilder Graph { get; set; }
     public string ImageEncoderUsed { get; set; } = "QOI";
     public bool UsesLegacyColorBlending { get; set; } = false;
+    public Version? PixiParserVersionUsed { get; set; }
 
     public DocumentViewModelBuilder WithSize(int width, int height)
     {
@@ -205,6 +206,12 @@ internal class DocumentViewModelBuilder
     {
         SerializerName = documentSerializerName;
         SerializerVersion = documentSerializerVersion;
+        return this;
+    }
+
+    public DocumentViewModelBuilder WithPixiParserVersion(Version version)
+    {
+        PixiParserVersionUsed = version;
         return this;
     }
 }

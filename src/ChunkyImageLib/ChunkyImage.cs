@@ -75,7 +75,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     private static Paint AddingPaint { get; } = new Paint() { BlendMode = BlendMode.Plus };
     private readonly Paint blendModePaint = new Paint() { BlendMode = BlendMode.Src };
 
-    public ColorSpace ProcessingColorSpace { get; set; } = ColorSpace.CreateSrgbLinear();
+    public ColorSpace ProcessingColorSpace { get; set; }
     
     public int CommitCounter => commitCounter;
 

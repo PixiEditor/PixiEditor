@@ -295,10 +295,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         var acc = viewModel.Internals.ActionAccumulator;
 
         ColorSpace targetProcessingColorSpace = ColorSpace.CreateSrgbLinear();
-        if (builderInstance.UsesLegacyColorBlending || IsFileWithOldColorBlending(serializerData))
+        if (builderInstance.UsesLegacyColorBlending ||
+            IsFileWithOldColorBlending(serializerData, builderInstance.PixiParserVersionUsed))
         {
             targetProcessingColorSpace = ColorSpace.CreateSrgb();
-            acc.AddFinishedActions(new ChangeProcessingColorSpace_Action(ColorSpace.CreateSrgb()));
+            viewModel.Internals.Tracker.Document.InitProcessingColorSpace(ColorSpace.CreateSrgb());
+            viewModel.UsesLegacyBlending = true;
         }
 
         viewModel.Internals.ChangeController.SymmetryDraggedInlet(
@@ -322,7 +324,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         viewModel.Palette = new ObservableRangeCollection<PaletteColor>(builderInstance.Palette);
 
         SerializationConfig config =
-            new SerializationConfig(BuiltInEncoders.Encoders[builderInstance.ImageEncoderUsed], targetProcessingColorSpace);
+            new SerializationConfig(BuiltInEncoders.Encoders[builderInstance.ImageEncoderUsed],
+                targetProcessingColorSpace);
 
         List<SerializationFactory> allFactories =
             ViewModelMain.Current.Services.GetServices<SerializationFactory>().ToList();
@@ -449,19 +452,25 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 }
             }
         }
-        
-        bool IsFileWithOldColorBlending((string serializerName, string serializerVersion) serializerData)
+
+        bool IsFileWithOldColorBlending((string serializerName, string serializerVersion) serializerData,
+            Version? pixiParserVersionUsed)
         {
-            if(string.IsNullOrEmpty(serializerData.serializerName) && string.IsNullOrEmpty(serializerData.serializerVersion))
+            if (pixiParserVersionUsed != null && pixiParserVersionUsed.Major < 5)
             {
                 return true;
+            }
+
+            if (serializerData.serializerVersion == null || serializerData.serializerName == null)
+            {
+                return false;
             }
 
             try
             {
                 Version parsedVersion = new Version(serializerData.serializerVersion);
 
-                return serializerData.serializerName == "PixiEditor" 
+                return serializerData.serializerName == "PixiEditor"
                        && parsedVersion is { Major: 2, Minor: 0, Build: 0, Revision: >= 28 and <= 31 };
             }
             catch (Exception)

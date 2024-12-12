@@ -25,6 +25,7 @@ internal static class PixiParserPixiV4DocumentEx
         return DocumentViewModel.Build(b =>
         {
             b.ImageEncoderUsed = "PNG";
+            b.PixiParserVersionUsed = document.Version;
             b.WithSize(document.Width, document.Height)
                 .WithPalette(document.Palette, x => new PaletteColor(x.R, x.G, x.B))
                 .WithSwatches(document.Swatches, x => new(x.R, x.G, x.B))

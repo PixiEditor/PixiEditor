@@ -90,13 +90,13 @@ internal class Document : IChangeable, IReadOnlyDocument
         using var paint = new Paint();
 
         Surface image;
-        
+
         if (layer is IReadOnlyImageNode imageNode)
         {
             var chunkyImage = imageNode.GetLayerImageAtFrame(frame);
             using Surface chunkSurface = new Surface(chunkyImage.CommittedSize);
             chunkyImage.DrawCommittedRegionOn(
-                new RectI(0, 0, chunkyImage.CommittedSize.X, chunkyImage.CommittedSize.Y), 
+                new RectI(0, 0, chunkyImage.CommittedSize.X, chunkyImage.CommittedSize.Y),
                 ChunkResolution.Full,
                 chunkSurface.DrawingSurface,
                 VecI.Zero);
@@ -109,7 +109,7 @@ internal class Document : IChangeable, IReadOnlyDocument
             /*TODO: this*/
             // image = new Surface(layer.Execute(new RenderingContext(frame, Size)));
         }
-        
+
         //todo: idk if it's correct
         surface.DrawingSurface.Canvas.DrawSurface(image.DrawingSurface, 0, 0, paint);
 
@@ -138,6 +138,11 @@ internal class Document : IChangeable, IReadOnlyDocument
     /// Performs the specified action on each member of the document
     /// </summary>
     public void ForEveryMember(Action<StructureNode> action) => ForEveryMember(NodeGraph, action);
+
+    public void InitProcessingColorSpace(ColorSpace processingColorSpace)
+    {
+        ProcessingColorSpace = processingColorSpace;
+    }
 
     private void ForEveryReadonlyMember(IReadOnlyNodeGraph graph, Action<IReadOnlyStructureNode> action)
     {
@@ -174,7 +179,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     {
         return NodeGraph.Nodes.Any(x => x.Id == id);
     }
-    
+
     /// <summary>
     ///     Checks if a node in NodeGraph with the given <paramref name="id"/> exists and is of type <typeparamref name="T"/>.
     /// </summary>
@@ -193,7 +198,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     /// <returns>True if the member can be found, otherwise false</returns>
     public bool HasMember(Guid guid)
     {
-        return HasNode<StructureNode>(guid); 
+        return HasNode<StructureNode>(guid);
     }
 
     /// <summary>
@@ -248,7 +253,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     {
         return NodeGraph.Nodes.FirstOrDefault(x => x.Id == guid);
     }
-    
+
     IReadOnlyNode IReadOnlyDocument.FindNode(Guid guid) => FindNodeOrThrow<Node>(guid);
 
     public T? FindNode<T>(Guid guid) where T : Node
@@ -278,7 +283,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     public bool TryFindMember(Guid guid, [NotNullWhen(true)] out StructureNode? member)
     {
         member = FindMember(guid);
-        return member != null; 
+        return member != null;
     }
 
     /// <summary>
@@ -342,13 +347,13 @@ internal class Document : IChangeable, IReadOnlyDocument
         if (NodeGraph.OutputNode == null) return [];
 
         var list = new List<Node>();
-        
+
         var targetNode = FindNode(guid);
         if (targetNode == null)
         {
             return [];
         }
-        
+
         FillNodePath(targetNode, list);
         return list;
     }
@@ -367,6 +372,7 @@ internal class Document : IChangeable, IReadOnlyDocument
         {
             return [];
         }
+
         FillNodePath<StructureNode>(targetNode, list);
         return list.ToList();
     }
@@ -382,7 +388,7 @@ internal class Document : IChangeable, IReadOnlyDocument
 
             return true;
         });
-        
+
         return true;
     }
 

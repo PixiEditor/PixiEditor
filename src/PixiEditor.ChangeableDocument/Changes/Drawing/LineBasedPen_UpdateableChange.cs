@@ -151,7 +151,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         radius = MathF.Max(1, radius);
         srcPaint.Shader = Shader.CreateRadialGradient(
             pos, radius, [color, color.WithAlpha(0)],
-            [Math.Max(hardness - 0.04f, 0), 1f], ShaderTileMode.Clamp);
+            [Math.Max(hardness + 0.04f, 0), 1f], ShaderTileMode.Clamp);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
