@@ -1,5 +1,6 @@
 using System.Reflection;
 using Drawie.Backend.Core.Bridge;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Interop.Avalonia.Core;
 using Drawie.Interop.VulkanAvalonia;
 using Drawie.Skia;
@@ -113,7 +114,7 @@ public class NodeSystemTests
 
         List<SerializationFactory> factories = new();
         QoiEncoder encoder = new QoiEncoder();
-        SerializationConfig config = new SerializationConfig(encoder);
+        SerializationConfig config = new SerializationConfig(encoder, ColorSpace.CreateSrgbLinear());
 
         foreach (var factoryType in allFoundFactories)
         {
@@ -149,7 +150,7 @@ public class NodeSystemTests
                         && x is { IsAbstract: false, IsInterface: false }).ToList();
 
         QoiEncoder encoder = new QoiEncoder();
-        SerializationConfig config = new SerializationConfig(encoder);
+        SerializationConfig config = new SerializationConfig(encoder, ColorSpace.CreateSrgbLinear());
 
         var factoryTypes = typeof(SerializationFactory).Assembly.GetTypes()
             .Where(x => x.IsAssignableTo(typeof(SerializationFactory))

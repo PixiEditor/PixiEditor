@@ -103,4 +103,5 @@ public interface IReadOnlyDocument : IDisposable
     IReadOnlyReferenceLayer? ReferenceLayer { get; }
     public DocumentRenderer Renderer { get; }
     public ColorSpace ProcessingColorSpace { get; }
+    public void InitProcessingColorSpace(ColorSpace processingColorSpace);
 }

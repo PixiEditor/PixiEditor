@@ -22,7 +22,7 @@ internal class CreateStructureMemberMask_Change : Change
         var member = target.FindMemberOrThrow(targetMember);
         if (member.EmbeddedMask is not null)
             throw new InvalidOperationException("Cannot create a mask; the target member already has one");
-        member.EmbeddedMask = new ChunkyImage(target.Size);
+        member.EmbeddedMask = new ChunkyImage(target.Size, target.ProcessingColorSpace);
 
         ignoreInUndo = false;
         return new StructureMemberMask_ChangeInfo(targetMember, true);

@@ -32,16 +32,19 @@ public class UpdateInstaller
             processes[0].WaitForExit();
             log.AppendLine("Processes killed.");
         }
-
+        
         log.AppendLine("Extracting files");
+        
         ZipFile.ExtractToDirectory(ArchiveFileName, UpdateFilesPath, true);
         
         log.AppendLine("Files extracted");
         string dirWithFiles = Directory.GetDirectories(UpdateFilesPath)[0];
         log.AppendLine($"Copying files from {dirWithFiles} to {TargetDirectory}");
+        
         CopyFilesToDestination(dirWithFiles, log);
         log.AppendLine("Files copied");
         log.AppendLine("Deleting archive and update files");
+        
         DeleteArchive();
     }
 

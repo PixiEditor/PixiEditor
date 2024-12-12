@@ -130,7 +130,7 @@
                                           Classes="OverlayToggleButton pixi-icon"
                                           Content="{DynamicResource icon-gridlines}"
                                           IsChecked="{Binding GridLinesVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
-                            
+
                             <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
                                           ui:Translator.TooltipKey="TOGGLE_SNAPPING"
                                           Classes="OverlayToggleButton pixi-icon"
@@ -141,14 +141,33 @@
                 </Border>
             </overlays:TogglableFlyout.Child>
         </overlays:TogglableFlyout>
-        <tools:Toolbar ZIndex="100" VerticalAlignment="Top" DataContext="{Binding Source={viewModels:MainVM}, Path=.}" />
-
-        <tools:ToolsPicker ZIndex="100"
-                           Margin="10 55 0 0"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Top"
-                           ToolSet="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet}"
-                           SwitchToolSetCommand="{xaml:Command Name=PixiEditor.Tools.SwitchToolSet, UseProvided=True}" />
+        <Grid ZIndex="100" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="45" />
+                <RowDefinition Height="35" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <tools:Toolbar
+                DataContext="{Binding Source={viewModels:MainVM}, Path=.}" />
+            <Border Grid.Row="1" ClipToBounds="False"
+                    HorizontalAlignment="Left"
+                    Padding="5 0"
+                    Margin="0 2.5 0 5"
+                    Height="25"
+                    BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                    BorderThickness="1"
+                    Background="{DynamicResource ThemeBackgroundBrush2}"
+                    CornerRadius="{DynamicResource ControlCornerRadius}">
+                <TextBlock
+                    ui:Translator.Key="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Name}"
+                    VerticalAlignment="Center" />
+            </Border>
+            <tools:ToolsPicker Grid.Row="2" 
+                HorizontalAlignment="Left"
+                ToolSet="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet, Mode=TwoWay}"
+                               ToolSets="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.AllToolSets, Mode=OneWay}"
+                               SwitchToolSetCommand="{xaml:Command Name=PixiEditor.Tools.SwitchToolSet, UseProvided=True}" />
+        </Grid>
         <rendering:Scene
             Focusable="False" Name="scene"
             ZIndex="1"

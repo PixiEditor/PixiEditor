@@ -13,7 +13,6 @@
             BorderThickness="{DynamicResource ThemeBorderThickness}"
             Cursor="Arrow"
             Padding="5"
-            Margin="10"
             Height="40"
             HorizontalAlignment="Left"
             Background="{DynamicResource ThemeBackgroundBrush1}">
