@@ -7,6 +7,6 @@ public class ImageLayerNodeFactory : NodeFactory<ImageLayerNode>
 {
     public override ImageLayerNode CreateNode(IReadOnlyDocument document)
     {
-        return new ImageLayerNode(document.Size);
+        return new ImageLayerNode(document.Size, document.ProcessingColorSpace);
     }
 }

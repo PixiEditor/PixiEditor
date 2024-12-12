@@ -16,8 +16,13 @@
             Cursor="Arrow"
             Width="48"
             Background="{DynamicResource ThemeBackgroundBrush1}">
-        <StackPanel>
-            <Border Background="{DynamicResource ThemeBackgroundBrush2}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="25" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            
+            <Border Grid.Row="0" Background="{DynamicResource ThemeBackgroundBrush2}">
                 <StackPanel Orientation="Horizontal">
                     <Button Classes="pixi-icon" Content="{DynamicResource icon-chevron-left}"
                             Command="{Binding SwitchToolSetCommand, ElementName=picker}">
@@ -31,17 +36,22 @@
                             <system:Boolean>True</system:Boolean>
                         </Button.CommandParameter>
                     </Button>
-                    <Border Padding="5" Margin="5 0" ClipToBounds="False" Background="{DynamicResource ThemeBackgroundBrush2}"
-                            CornerRadius="{DynamicResource ControlCornerRadius}">
-                       <TextBlock ui:Translator.Key="{Binding ElementName=picker, Path=ToolSet.Name}" VerticalAlignment="Center"/> 
-                    </Border>
+                    <!--<ComboBox ItemsSource="{Binding ElementName=picker, Path=ToolSets}"
+                              SelectedItem="{Binding ElementName=picker, Path=ToolSet}"
+                              SelectedIndex="0">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock ui:Translator.Key="{Binding Name}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>-->
                 </StackPanel>
             </Border>
-            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                 <ItemsControl ItemsSource="{Binding ElementName=picker, Path=ToolSet.Tools}" Padding="0 2">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="tools:ToolViewModel">
-                            <tools1:ToolPickerButton DataContext="{Binding}" 
+                            <tools1:ToolPickerButton DataContext="{Binding}"
                                                      IsSelected="{Binding IsActive}" />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -52,6 +62,6 @@
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
             </ScrollViewer>
-        </StackPanel>
+        </Grid>
     </Border>
 </UserControl>

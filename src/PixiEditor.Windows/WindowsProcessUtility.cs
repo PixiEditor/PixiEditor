@@ -18,12 +18,18 @@ public class WindowsProcessUtility : IProcessUtility
         {
             FileName = path,
             Verb = "runas",
-            UseShellExecute = true,
+            UseShellExecute = createWindow,
             CreateNoWindow = !createWindow,
-            WindowStyle = createWindow ? ProcessWindowStyle.Normal : ProcessWindowStyle.Minimized,
+            RedirectStandardOutput = !createWindow,
+            RedirectStandardError = !createWindow,
+            WindowStyle = createWindow ? ProcessWindowStyle.Normal : ProcessWindowStyle.Hidden
         };
 
-        return Process.Start(startInfo);  
+        Process p = new Process();
+        p.StartInfo = startInfo;
+
+        p.Start();
+        return p;
     }
 
     public bool IsRunningAsAdministrator()

@@ -75,4 +75,8 @@ public class MockDocument : IReadOnlyDocument
     public IReadOnlyReferenceLayer? ReferenceLayer { get; }
     public DocumentRenderer Renderer { get; }
     public ColorSpace ProcessingColorSpace { get; }
+    public void InitProcessingColorSpace(ColorSpace processingColorSpace)
+    {
+        throw new NotImplementedException();
+    }
 }
