@@ -50,6 +50,7 @@ public class VectorPathOverlay : Overlay
 
     private DashedStroke dashedStroke = new DashedStroke();
     private TransformHandle transformHandle;
+    private AnchorHandle insertPreviewHandle;
 
     private List<AnchorHandle> anchorHandles = new();
     private List<ControlPointHandle> controlPointHandles = new();
@@ -58,6 +59,7 @@ public class VectorPathOverlay : Overlay
     private VectorPath pathOnStartDrag;
 
     private EditableVectorPath editableVectorPath;
+    private bool canInsert = false;
 
     static VectorPathOverlay()
     {
@@ -72,6 +74,10 @@ public class VectorPathOverlay : Overlay
         transformHandle.OnDrag += MoveHandleDrag;
 
         AddHandle(transformHandle);
+        
+        insertPreviewHandle = new AnchorHandle(this);
+        
+        AddHandle(insertPreviewHandle);
     }
 
     protected override void ZoomChanged(double newZoom)
@@ -90,8 +96,13 @@ public class VectorPathOverlay : Overlay
         dashedStroke.Draw(context, Path);
 
         RenderHandles(context);
+        
+        if (canInsert)
+        {
+            insertPreviewHandle.Draw(context);
+        }
 
-        if (IsOverAnyHandle())
+        if (IsOverAnyHandle() || canInsert)
         {
             TryHighlightSnap(null, null);
         }
@@ -366,6 +377,41 @@ public class VectorPathOverlay : Overlay
         {
             anchorHandle.IsSelected = anchorHandle == handle;
         }
+    }
+
+    protected override void OnOverlayPointerPressed(OverlayPointerArgs args)
+    {
+        if(args.Modifiers.HasFlag(KeyModifiers.Shift) && IsOverPath(args.Point, out VecD closestPoint))
+        {
+            AddPointAt(closestPoint);
+        }
+    }
+
+    protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
+    {
+        if(args.Modifiers.HasFlag(KeyModifiers.Shift) && IsOverPath(args.Point, out VecD closestPoint))
+        {
+            insertPreviewHandle.Position = closestPoint;
+            canInsert = true;
+        }
+        else
+        {
+            canInsert = false;
+        }
+    }
+
+    private void AddPointAt(VecD point)
+    {
+        editableVectorPath.AddPointAt((VecF)point);
+        Path = editableVectorPath.ToVectorPath();
+    }
+    
+    private bool IsOverPath(VecD point, out VecD closestPoint)
+    {
+        VecD? closest = editableVectorPath.GetClosestPointOnPath(point, 20 / (float)ZoomScale);
+        closestPoint = closest ?? point;
+        
+        return closest != null;
     }
 
     private void OnHandlePress(Handle source, OverlayPointerArgs args)

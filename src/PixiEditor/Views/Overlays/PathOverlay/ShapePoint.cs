@@ -9,7 +9,7 @@ public class ShapePoint
 {
     public VecF Position { get; set; }
 
-    public int Index { get; }
+    public int Index { get; set; }
     public Verb Verb { get; set; }
 
     public ShapePoint(VecF position, int index, Verb verb)

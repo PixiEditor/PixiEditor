@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 
 namespace PixiEditor.Views.Overlays.PathOverlay;
@@ -51,7 +52,6 @@ public class SubShape
             {
                 shapePoint.Verb.ControlPoint1 = shapePoint.Verb.ControlPoint1.Value + delta;
             }
-            
         }
 
         var previousPoint = GetPreviousPoint(i);
@@ -59,7 +59,7 @@ public class SubShape
         if (previousPoint?.Verb != null && previousPoint.Verb.To == oldPos)
         {
             previousPoint.Verb.To = newPos;
-            
+
             if (updateControlPoints)
             {
                 if (previousPoint.Verb.ControlPoint2 != null)
@@ -68,5 +68,53 @@ public class SubShape
                 }
             }
         }
+    }
+
+    public void AddPointAt(VecF point, Verb onVerb)
+    {
+        var oldTo = onVerb.To;
+        onVerb.To = point; 
+        int indexOfVerb = this.points.FirstOrDefault(x => x.Verb == onVerb)?.Index ?? -1;
+        if (indexOfVerb == -1)
+        {
+            throw new ArgumentException("Verb not found in points list");
+        }
+        
+        VecF[] data = [ onVerb.To, oldTo, VecF.Zero, VecF.Zero ];
+        this.points.Insert(indexOfVerb + 1, new ShapePoint(point, indexOfVerb + 1, new Verb((PathVerb.Line, data, 0))));
+        
+        for (int i = indexOfVerb + 2; i < this.points.Count; i++)
+        {
+            this.points[i].Index++;
+        }
+    }
+
+    public VecD? GetClosestPointOnPath(VecD point, float maxDistanceInPixels)
+    {
+        for (int i = 0; i < points.Count; i++)
+        {
+            var currentPoint = points[i];
+
+            VecD? closest = VectorMath.GetClosestPointOnSegment(point, currentPoint.Verb);
+            if (closest != null && VecD.Distance(closest.Value, point) < maxDistanceInPixels)
+            {
+                return closest;
+            }
+        }
+
+        return null;
+    }
+    
+    public Verb? FindVerbContainingPoint(VecF point)
+    {
+        foreach (var shapePoint in points)
+        {
+            if (VectorMath.IsPointOnSegment(point, shapePoint.Verb))
+            {
+                return shapePoint.Verb;
+            }
+        }
+
+        return null;
     }
 }
