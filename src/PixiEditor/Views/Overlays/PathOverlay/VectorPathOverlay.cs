@@ -157,7 +157,8 @@ public class VectorPathOverlay : Overlay
         if (point.Verb.ControlPoint1 != null)
         {
             var controlPoint1 = controlPointHandles[controlPointIndex];
-            controlPoint1.HitTestVisible = CapturedHandle == controlPoint1 || controlPoint1.Position != controlPoint1.ConnectedTo.Position;
+            controlPoint1.HitTestVisible = CapturedHandle == controlPoint1 ||
+                                           controlPoint1.Position != controlPoint1.ConnectedTo.Position;
             controlPoint1.Position = (VecD)point.Verb.ControlPoint1;
             if (controlPoint1.HitTestVisible)
             {
@@ -171,7 +172,8 @@ public class VectorPathOverlay : Overlay
         {
             var controlPoint2 = controlPointHandles[controlPointIndex];
             controlPoint2.Position = (VecD)point.Verb.ControlPoint2;
-            controlPoint2.HitTestVisible = CapturedHandle == controlPoint2 || controlPoint2.Position != controlPoint2.ConnectedTo.Position;
+            controlPoint2.HitTestVisible = CapturedHandle == controlPoint2 ||
+                                           controlPoint2.Position != controlPoint2.ConnectedTo.Position;
 
             if (controlPoint2.HitTestVisible)
             {
@@ -212,7 +214,34 @@ public class VectorPathOverlay : Overlay
             ConnectControlPointsToAnchors();
         }
 
+        UpdatePointsPositions();
         Refresh();
+    }
+
+    private void UpdatePointsPositions()
+    {
+        int controlPointIndex = 0;
+        foreach (var subShape in editableVectorPath.SubShapes)
+        {
+            int anchorIndex = 0;
+            foreach (var point in subShape.Points)
+            {
+                if (point.Verb.VerbType == PathVerb.Cubic)
+                {
+                    var controlPoint1 = controlPointHandles[controlPointIndex];
+                    var controlPoint2 = controlPointHandles[controlPointIndex + 1];
+
+                    controlPoint1.Position = (VecD)point.Verb.ControlPoint1;
+                    controlPoint2.Position = (VecD)point.Verb.ControlPoint2;
+
+                    controlPointIndex += 2;
+                }
+
+                var anchor = anchorHandles[anchorIndex];
+                anchor.Position = (VecD)point.Position;
+                anchorIndex++;
+            }
+        }
     }
 
     private void ConnectControlPointsToAnchors()
@@ -387,6 +416,7 @@ public class VectorPathOverlay : Overlay
         {
             AddPointAt(closestPoint);
             AddToUndoCommand.Execute(Path);
+            args.Handled = true;
         }
     }
 
@@ -510,7 +540,7 @@ public class VectorPathOverlay : Overlay
 
             double length = VecD.Distance(handle.Position, controlPos);
             if (!direction.IsNaNOrInfinity())
-            { 
+            {
                 symmetricPos = handle.Position - direction * length;
             }
             else
@@ -553,7 +583,8 @@ public class VectorPathOverlay : Overlay
         {
             bool isDraggingFirst = controlPointHandles.IndexOf(controlPointHandle) % 2 == 0;
             bool constrainRatio = args.Modifiers.HasFlag(KeyModifiers.Control);
-            HandleContinousCubicDrag(targetPos, to, subShapeContainingIndex, localIndex, constrainRatio, !isDraggingFirst);
+            HandleContinousCubicDrag(targetPos, to, subShapeContainingIndex, localIndex, constrainRatio,
+                !isDraggingFirst);
         }
         else
         {
@@ -587,7 +618,7 @@ public class VectorPathOverlay : Overlay
         TryHighlightSnap(axisX, axisY);
         return snapped;
     }
-    
+
     private void OnControlPointPress(Handle source, OverlayPointerArgs args)
     {
         CaptureHandle(source);

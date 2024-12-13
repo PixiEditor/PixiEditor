@@ -45,17 +45,21 @@ internal static class VectorMath
         switch (shapePointVerb.VerbType)
         {
             case PathVerb.Move:
-                return Math.Abs(point.X - shapePointVerb.From.X) < 0.0001 && Math.Abs(point.Y - shapePointVerb.From.Y) < 0.0001;
+                return Math.Abs(point.X - shapePointVerb.From.X) < 0.0001 &&
+                       Math.Abs(point.Y - shapePointVerb.From.Y) < 0.0001;
             case PathVerb.Line:
                 return IsPointOnLine(point, (VecD)shapePointVerb.From, (VecD)shapePointVerb.To);
             case PathVerb.Quad:
-                return IsPointOnQuad(point, (VecD)shapePointVerb.From, (VecD)(shapePointVerb.ControlPoint1 ?? shapePointVerb.From),
+                return IsPointOnQuad(point, (VecD)shapePointVerb.From,
+                    (VecD)(shapePointVerb.ControlPoint1 ?? shapePointVerb.From),
                     (VecD)shapePointVerb.To);
             case PathVerb.Conic:
-                return IsPointOnConic(point, (VecD)shapePointVerb.From, (VecD)(shapePointVerb.ControlPoint1 ?? shapePointVerb.From),
+                return IsPointOnConic(point, (VecD)shapePointVerb.From,
+                    (VecD)(shapePointVerb.ControlPoint1 ?? shapePointVerb.From),
                     (VecD)shapePointVerb.To, shapePointVerb.ConicWeight);
             case PathVerb.Cubic:
-                return IsPointOnCubic(point, (VecD)shapePointVerb.From, (VecD)(shapePointVerb.ControlPoint1 ?? shapePointVerb.From),
+                return IsPointOnCubic(point, (VecD)shapePointVerb.From,
+                    (VecD)(shapePointVerb.ControlPoint1 ?? shapePointVerb.From),
                     (VecD)(shapePointVerb.ControlPoint2 ?? shapePointVerb.To), (VecD)shapePointVerb.To);
             case PathVerb.Close:
                 break;
@@ -113,20 +117,40 @@ internal static class VectorMath
     {
         return FindClosestPointBruteForce(point, (t) => ConicBezier(start, controlPoint, end, weight, t));
     }
-    
+
     public static bool IsPointOnQuad(VecD point, VecD start, VecD controlPoint, VecD end)
     {
         return IsPointOnPath(point, (t) => QuadraticBezier(start, controlPoint, end, t));
     }
-    
+
     public static bool IsPointOnCubic(VecD point, VecD start, VecD controlPoint1, VecD controlPoint2, VecD end)
     {
         return IsPointOnPath(point, (t) => CubicBezier(start, controlPoint1, controlPoint2, end, t));
     }
-    
+
     public static bool IsPointOnConic(VecD point, VecD start, VecD controlPoint, VecD end, float weight)
     {
         return IsPointOnPath(point, (t) => ConicBezier(start, controlPoint, end, weight, t));
+    }
+
+    /// <summary>
+    ///     Finds value from 0 to 1 that represents the position of point on the segment.
+    /// </summary>
+    /// <param name="onVerb">Verb that represents the segment.</param>
+    /// <param name="point">Point that is on the segment.</param>
+    /// <returns>Value from 0 to 1 that represents the position of point on the segment.</returns>
+    public static float GetNormalizedSegmentPosition(Verb onVerb, VecF point)
+    {
+        if (onVerb.IsEmptyVerb()) return 0;
+
+        if (onVerb.VerbType == PathVerb.Cubic)
+        {
+            return (float)FindNormalizedSegmentPositionBruteForce(point, (t) =>
+                CubicBezier((VecD)onVerb.From, (VecD)(onVerb.ControlPoint1 ?? onVerb.From),
+                    (VecD)(onVerb.ControlPoint2 ?? onVerb.To), (VecD)onVerb.To, t));
+        }
+        
+        throw new NotImplementedException();
     }
 
     private static VecD FindClosestPointBruteForce(VecD point, Func<double, VecD> func, double step = 0.001)
@@ -146,7 +170,26 @@ internal static class VectorMath
 
         return closestPoint;
     }
-    
+
+    private static double FindNormalizedSegmentPositionBruteForce(VecF point, Func<double, VecD> func,
+        double step = 0.001)
+    {
+        double minDistance = float.MaxValue;
+        double closestT = 0;
+        for (double t = 0; t <= 1; t += step)
+        {
+            VecD currentPoint = func(t);
+            float distance = (point - currentPoint).Length;
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                closestT = t;
+            }
+        }
+
+        return closestT;
+    }
+
     private static bool IsPointOnPath(VecD point, Func<double, VecD> func, double step = 0.001)
     {
         for (double t = 0; t <= 1; t += step)

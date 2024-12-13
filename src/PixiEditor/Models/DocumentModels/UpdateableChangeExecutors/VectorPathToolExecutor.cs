@@ -1,4 +1,5 @@
-﻿using Avalonia.Media;
+﻿using Avalonia.Input;
+using Avalonia.Media;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
@@ -150,23 +151,27 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
             return;
         }
 
-        VecD mouseSnap =
-            document.SnappingHandler.SnappingController.GetSnapPoint(args.PositionOnCanvas, out _,
-                out _);
-
-        if (startingPath.Points.Count > 0 && startingPath.Points[0] == (VecF)mouseSnap)
+        if (args.KeyModifiers == KeyModifiers.None)
         {
-            startingPath.Close();
-        }
-        else
-        {
-            startingPath.LineTo((VecF)mouseSnap);
-        }
 
-        PathVectorData vectorData = ConstructShapeData();
+            VecD mouseSnap =
+                document.SnappingHandler.SnappingController.GetSnapPoint(args.PositionOnCanvas, out _,
+                    out _);
 
-        internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, vectorData));
-        mouseDown = true;
+            if (startingPath.Points.Count > 0 && startingPath.Points[0] == (VecF)mouseSnap)
+            {
+                startingPath.Close();
+            }
+            else
+            {
+                startingPath.LineTo((VecF)mouseSnap);
+            }
+
+            PathVectorData vectorData = ConstructShapeData();
+
+            internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, vectorData));
+            mouseDown = true;
+        }
     }
 
     public override void OnLeftMouseButtonUp(VecD pos)

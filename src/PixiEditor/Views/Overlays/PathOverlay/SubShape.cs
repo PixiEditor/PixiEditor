@@ -79,12 +79,43 @@ public class SubShape
         }
 
         var oldTo = onVerb.To;
-        onVerb.To = point;
-        AdjustControlPoints(point, onVerb);
+        VecF[] data = new VecF[4];
+        VecF insertPoint = point;
 
-        VecF[] data = GetDataForNewPoint(onVerb, oldTo);
+        if (onVerb.VerbType == PathVerb.Line)
+        {
+            onVerb.To = point;
+            data = [onVerb.To, oldTo, VecF.Zero, VecF.Zero];
+        }
+        else
+        {
+            float t = VectorMath.GetNormalizedSegmentPosition(onVerb, point);
+            VecD oldControlPoint1 = (VecD)onVerb.ControlPoint1.Value;
+            VecD oldControlPoint2 = (VecD)onVerb.ControlPoint2.Value;
+            
+            // de Casteljau's algorithm
+            
+            var q0 = ((VecD)onVerb.From).Lerp(oldControlPoint1, t);
+            var q1 = oldControlPoint1.Lerp(oldControlPoint2, t);
+            var q2 = oldControlPoint2.Lerp((VecD)oldTo, t);
+            
+            var r0 = q0.Lerp(q1, t);
+            var r1 = q1.Lerp(q2, t);
+            
+            var s0 = r0.Lerp(r1, t);
+            
+            onVerb.ControlPoint1 = (VecF)q0;
+            onVerb.ControlPoint2 = (VecF)r0;
+            
+            onVerb.To = (VecF)s0;
+            
+            data = [(VecF)s0, (VecF)r1, (VecF)q2, oldTo];
+            
+            insertPoint = (VecF)s0;
+        }
+
         this.points.Insert(indexOfVerb + 1,
-            new ShapePoint(point, indexOfVerb + 1, new Verb((onVerb.VerbType.Value, data, 0))));
+            new ShapePoint(insertPoint, indexOfVerb + 1, new Verb((onVerb.VerbType.Value, data, 0))));
 
         for (int i = indexOfVerb + 2; i < this.points.Count; i++)
         {
@@ -119,28 +150,5 @@ public class SubShape
         }
 
         return null;
-    }
-
-    private static VecF[] GetDataForNewPoint(Verb onVerb, VecF to)
-    {
-        if (onVerb.VerbType.Value == PathVerb.Line)
-        {
-            return [onVerb.To, to, VecF.Zero, VecF.Zero];
-        }
-
-        if (onVerb.VerbType.Value == PathVerb.Cubic)
-        {
-            return [onVerb.To, onVerb.To, to, to];
-        }
-        
-        return [onVerb.To, to, VecF.Zero, VecF.Zero];
-    }
-
-    private static void AdjustControlPoints(VecF point, Verb onVerb)
-    {
-        if (onVerb.ControlPoint2 != null)
-        {
-            onVerb.ControlPoint2 = point;
-        }
     }
 }
