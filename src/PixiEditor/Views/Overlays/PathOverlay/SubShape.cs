@@ -72,17 +72,20 @@ public class SubShape
 
     public void AddPointAt(VecF point, Verb onVerb)
     {
-        var oldTo = onVerb.To;
-        onVerb.To = point; 
         int indexOfVerb = this.points.FirstOrDefault(x => x.Verb == onVerb)?.Index ?? -1;
         if (indexOfVerb == -1)
         {
             throw new ArgumentException("Verb not found in points list");
         }
-        
-        VecF[] data = [ onVerb.To, oldTo, VecF.Zero, VecF.Zero ];
-        this.points.Insert(indexOfVerb + 1, new ShapePoint(point, indexOfVerb + 1, new Verb((PathVerb.Line, data, 0))));
-        
+
+        var oldTo = onVerb.To;
+        onVerb.To = point;
+        AdjustControlPoints(point, onVerb);
+
+        VecF[] data = GetDataForNewPoint(onVerb, oldTo);
+        this.points.Insert(indexOfVerb + 1,
+            new ShapePoint(point, indexOfVerb + 1, new Verb((onVerb.VerbType.Value, data, 0))));
+
         for (int i = indexOfVerb + 2; i < this.points.Count; i++)
         {
             this.points[i].Index++;
@@ -104,8 +107,8 @@ public class SubShape
 
         return null;
     }
-    
-    public Verb? FindVerbContainingPoint(VecF point)
+
+    public Verb? FindVerbContainingPoint(VecD point)
     {
         foreach (var shapePoint in points)
         {
@@ -116,5 +119,28 @@ public class SubShape
         }
 
         return null;
+    }
+
+    private static VecF[] GetDataForNewPoint(Verb onVerb, VecF to)
+    {
+        if (onVerb.VerbType.Value == PathVerb.Line)
+        {
+            return [onVerb.To, to, VecF.Zero, VecF.Zero];
+        }
+
+        if (onVerb.VerbType.Value == PathVerb.Cubic)
+        {
+            return [onVerb.To, onVerb.To, to, to];
+        }
+        
+        return [onVerb.To, to, VecF.Zero, VecF.Zero];
+    }
+
+    private static void AdjustControlPoints(VecF point, Verb onVerb)
+    {
+        if (onVerb.ControlPoint2 != null)
+        {
+            onVerb.ControlPoint2 = point;
+        }
     }
 }

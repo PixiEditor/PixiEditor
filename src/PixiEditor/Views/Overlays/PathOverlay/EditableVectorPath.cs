@@ -277,7 +277,7 @@ public class EditableVectorPath
         return closest;
     }
 
-    public void AddPointAt(VecF point)
+    public void AddPointAt(VecD point)
     {
         SubShape targetSubShape = null;
         Verb verb = null;
@@ -291,6 +291,6 @@ public class EditableVectorPath
             }
         }
 
-        targetSubShape?.AddPointAt(point, verb);
+        targetSubShape?.AddPointAt((VecF)point, verb);
     }
 }

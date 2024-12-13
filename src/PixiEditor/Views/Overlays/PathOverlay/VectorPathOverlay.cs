@@ -74,9 +74,9 @@ public class VectorPathOverlay : Overlay
         transformHandle.OnDrag += MoveHandleDrag;
 
         AddHandle(transformHandle);
-        
+
         insertPreviewHandle = new AnchorHandle(this);
-        
+
         AddHandle(insertPreviewHandle);
     }
 
@@ -96,7 +96,7 @@ public class VectorPathOverlay : Overlay
         dashedStroke.Draw(context, Path);
 
         RenderHandles(context);
-        
+
         if (canInsert)
         {
             insertPreviewHandle.Draw(context);
@@ -157,7 +157,7 @@ public class VectorPathOverlay : Overlay
         if (point.Verb.ControlPoint1 != null)
         {
             var controlPoint1 = controlPointHandles[controlPointIndex];
-            controlPoint1.HitTestVisible = controlPoint1.Position != controlPoint1.ConnectedTo.Position;
+            controlPoint1.HitTestVisible = CapturedHandle == controlPoint1 || controlPoint1.Position != controlPoint1.ConnectedTo.Position;
             controlPoint1.Position = (VecD)point.Verb.ControlPoint1;
             if (controlPoint1.HitTestVisible)
             {
@@ -171,7 +171,7 @@ public class VectorPathOverlay : Overlay
         {
             var controlPoint2 = controlPointHandles[controlPointIndex];
             controlPoint2.Position = (VecD)point.Verb.ControlPoint2;
-            controlPoint2.HitTestVisible = controlPoint2.Position != controlPoint2.ConnectedTo.Position;
+            controlPoint2.HitTestVisible = CapturedHandle == controlPoint2 || controlPoint2.Position != controlPoint2.ConnectedTo.Position;
 
             if (controlPoint2.HitTestVisible)
             {
@@ -272,6 +272,7 @@ public class VectorPathOverlay : Overlay
         for (int i = controlPointHandles.Count - 1; i >= 0; i--)
         {
             var handle = controlPointHandles[i];
+            handle.OnPress -= OnControlPointPress;
             handle.OnDrag -= OnControlPointDrag;
             handle.OnRelease -= OnHandleRelease;
 
@@ -331,6 +332,7 @@ public class VectorPathOverlay : Overlay
         else
         {
             var controlPoint = new ControlPointHandle(this);
+            controlPoint.OnPress += OnControlPointPress;
             controlPoint.OnDrag += OnControlPointDrag;
             controlPoint.OnRelease += OnHandleRelease;
             controlPointHandles.Add(controlPoint);
@@ -381,15 +383,16 @@ public class VectorPathOverlay : Overlay
 
     protected override void OnOverlayPointerPressed(OverlayPointerArgs args)
     {
-        if(args.Modifiers.HasFlag(KeyModifiers.Shift) && IsOverPath(args.Point, out VecD closestPoint))
+        if (args.Modifiers.HasFlag(KeyModifiers.Shift) && IsOverPath(args.Point, out VecD closestPoint))
         {
             AddPointAt(closestPoint);
+            AddToUndoCommand.Execute(Path);
         }
     }
 
     protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
-        if(args.Modifiers.HasFlag(KeyModifiers.Shift) && IsOverPath(args.Point, out VecD closestPoint))
+        if (args.Modifiers.HasFlag(KeyModifiers.Shift) && IsOverPath(args.Point, out VecD closestPoint))
         {
             insertPreviewHandle.Position = closestPoint;
             canInsert = true;
@@ -402,15 +405,15 @@ public class VectorPathOverlay : Overlay
 
     private void AddPointAt(VecD point)
     {
-        editableVectorPath.AddPointAt((VecF)point);
+        editableVectorPath.AddPointAt(point);
         Path = editableVectorPath.ToVectorPath();
     }
-    
+
     private bool IsOverPath(VecD point, out VecD closestPoint)
     {
         VecD? closest = editableVectorPath.GetClosestPointOnPath(point, 20 / (float)ZoomScale);
         closestPoint = closest ?? point;
-        
+
         return closest != null;
     }
 
@@ -429,7 +432,7 @@ public class VectorPathOverlay : Overlay
             SubShape subShapeContainingIndex = editableVectorPath.GetSubShapeContainingIndex(index);
             int localIndex = editableVectorPath.GetSubShapePointIndex(index, subShapeContainingIndex);
 
-            HandleContinousCubicDrag(anchorHandle.Position, anchorHandle, subShapeContainingIndex, localIndex);
+            HandleContinousCubicDrag(anchorHandle.Position, anchorHandle, subShapeContainingIndex, localIndex, true);
 
             Path = newPath.ToVectorPath();
         }
@@ -473,7 +476,7 @@ public class VectorPathOverlay : Overlay
 
         if (isDraggingControlPoints)
         {
-            HandleContinousCubicDrag(targetPos, handle, subShapeContainingIndex, localIndex);
+            HandleContinousCubicDrag(targetPos, handle, subShapeContainingIndex, localIndex, true);
         }
         else
         {
@@ -484,9 +487,37 @@ public class VectorPathOverlay : Overlay
     }
 
     private void HandleContinousCubicDrag(VecD targetPos, AnchorHandle handle, SubShape subShapeContainingIndex,
-        int localIndex, bool swapOrder = false)
+        int localIndex, bool constrainRatio, bool swapOrder = false)
     {
-        var symmetricPos = GetMirroredControlPoint((VecF)targetPos, (VecF)handle.Position);
+        var previousPoint = subShapeContainingIndex.GetPreviousPoint(localIndex);
+
+        VecD symmetricPos = targetPos;
+        bool canMirror = true;
+
+        if (constrainRatio)
+        {
+            symmetricPos = GetMirroredControlPoint((VecF)targetPos, (VecF)handle.Position);
+        }
+        else
+        {
+            VecD direction = targetPos - handle.Position;
+            direction = direction.Normalize();
+            var controlPos = ((VecD?)previousPoint?.Verb.ControlPoint2 ?? targetPos);
+            if (swapOrder)
+            {
+                controlPos = ((VecD?)subShapeContainingIndex.Points[localIndex]?.Verb.ControlPoint1 ?? targetPos);
+            }
+
+            double length = VecD.Distance(handle.Position, controlPos);
+            if (!direction.IsNaNOrInfinity())
+            { 
+                symmetricPos = handle.Position - direction * length;
+            }
+            else
+            {
+                canMirror = false;
+            }
+        }
 
         if (swapOrder)
         {
@@ -495,9 +526,7 @@ public class VectorPathOverlay : Overlay
 
         subShapeContainingIndex.Points[localIndex].Verb.ControlPoint1 = (VecF)targetPos;
 
-        var previousPoint = subShapeContainingIndex.GetPreviousPoint(localIndex);
-
-        if (previousPoint != null)
+        if (previousPoint != null && canMirror)
         {
             previousPoint.Verb.ControlPoint2 = (VecF)symmetricPos;
         }
@@ -523,7 +552,8 @@ public class VectorPathOverlay : Overlay
         if (!dragOnlyOne)
         {
             bool isDraggingFirst = controlPointHandles.IndexOf(controlPointHandle) % 2 == 0;
-            HandleContinousCubicDrag(targetPos, to, subShapeContainingIndex, localIndex, !isDraggingFirst);
+            bool constrainRatio = args.Modifiers.HasFlag(KeyModifiers.Control);
+            HandleContinousCubicDrag(targetPos, to, subShapeContainingIndex, localIndex, constrainRatio, !isDraggingFirst);
         }
         else
         {
@@ -556,6 +586,11 @@ public class VectorPathOverlay : Overlay
         var snapped = new VecD((float)snappedPoint.X, (float)snappedPoint.Y);
         TryHighlightSnap(axisX, axisY);
         return snapped;
+    }
+    
+    private void OnControlPointPress(Handle source, OverlayPointerArgs args)
+    {
+        CaptureHandle(source);
     }
 
     private void OnHandleRelease(Handle source, OverlayPointerArgs args)
