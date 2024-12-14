@@ -125,7 +125,11 @@ public class EditableVectorPath
                 isSubShapeClosed = false;
                 if (data.verb == PathVerb.Move)
                 {
-                    currentSubShapePoints.Clear();
+                    if (currentSubShapePoints.Count > 0)
+                    {
+                        subShapes.Add(new SubShape(currentSubShapePoints, isSubShapeClosed));
+                        currentSubShapePoints.Clear();
+                    }
                 }
                 else
                 {
