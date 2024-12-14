@@ -117,8 +117,6 @@ public class EditableVectorPath
                 subShapes.Add(new SubShape(currentSubShapePoints, isSubShapeClosed));
 
                 currentSubShapePoints.Clear();
-
-                currentSubShapeStartingIndex = globalVerbIndex;
             }
             else
             {
@@ -129,6 +127,12 @@ public class EditableVectorPath
                     {
                         subShapes.Add(new SubShape(currentSubShapePoints, isSubShapeClosed));
                         currentSubShapePoints.Clear();
+                        
+                        currentSubShapePoints.Add(new ShapePoint(data.points[0], 0, new Verb()));
+                    }
+                    else
+                    {
+                        currentSubShapePoints.Add(new ShapePoint(data.points[0], 0, new Verb()));
                     }
                 }
                 else
@@ -264,14 +268,15 @@ public class EditableVectorPath
     public VecD? GetClosestPointOnPath(VecD point, float maxDistanceInPixels)
     {
         VecD? closest = null;
-        
+
         foreach (var subShape in subShapes)
         {
             VecD? closestInSubShape = subShape.GetClosestPointOnPath(point, maxDistanceInPixels);
-            
+
             if (closestInSubShape != null)
             {
-                if (closest == null || VecD.Distance(closestInSubShape.Value, point) < VecD.Distance(closest.Value, point))
+                if (closest == null ||
+                    VecD.Distance(closestInSubShape.Value, point) < VecD.Distance(closest.Value, point))
                 {
                     closest = closestInSubShape;
                 }
@@ -294,7 +299,7 @@ public class EditableVectorPath
                 break;
             }
         }
-        
-        targetSubShape?.AddPointAt((VecF)point, verb);
+
+        targetSubShape?.InsertPointAt((VecF)point, verb);
     }
 }

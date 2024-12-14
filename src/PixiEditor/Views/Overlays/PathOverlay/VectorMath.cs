@@ -92,15 +92,7 @@ internal static class VectorMath
 
     public static bool IsPointOnLine(VecD point, VecD start, VecD end)
     {
-        VecD startToPoint = point - start;
-        VecD startToEnd = end - start;
-
-        double sqrtMagnitudeToEnd = Math.Pow(startToEnd.X, 2) + Math.Pow(startToEnd.Y, 2);
-
-        double dot = startToPoint.X * startToEnd.X + startToPoint.Y * startToEnd.Y;
-        var t = dot / sqrtMagnitudeToEnd;
-
-        return t is >= 0 and <= 1;
+        return Math.Abs(VecD.Distance(start, point) + VecD.Distance(end, point) - VecD.Distance(start, end)) < 0.001f;
     }
 
     public static VecD GetClosestPointOnQuad(VecD point, VecD start, VecD controlPoint, VecD end)

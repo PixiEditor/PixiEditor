@@ -10,7 +10,7 @@ public class SubShape
     private List<ShapePoint> points;
 
     public IReadOnlyList<ShapePoint> Points => points;
-    public bool IsClosed { get; }
+    public bool IsClosed { get; private set; }
 
     public ShapePoint? GetNextPoint(int nextToIndex)
     {
@@ -69,8 +69,27 @@ public class SubShape
             }
         }
     }
+    
+    public void AppendPoint(VecF point)
+    {
+        if (points.Count == 0)
+        {
+            VecF[] data = new VecF[4];
+            data[0] = VecF.Zero;
+            data[1] = point;
+            points.Add(new ShapePoint(point, 0, new Verb((PathVerb.Move, data, 0))));
+        }
+        else
+        {
+            var lastPoint = points[^1];
+            VecF[] data = new VecF[4];
+            data[0] = lastPoint.Position;
+            data[1] = point;
+            points.Add(new ShapePoint(point, lastPoint.Index + 1, new Verb((PathVerb.Line, data, 0))));
+        }
+    }
 
-    public void AddPointAt(VecF point, Verb pointVerb)
+    public void InsertPointAt(VecF point, Verb pointVerb)
     {
         int indexOfVerb = this.points.FirstOrDefault(x => x.Verb == pointVerb)?.Index ?? -1;
         if (indexOfVerb == -1)
@@ -158,5 +177,23 @@ public class SubShape
         }
 
         return null;
+    }
+
+    public void Close()
+    {
+        if (IsClosed)
+        {
+            return;
+        }
+
+        IsClosed = true;
+        
+        if (points.Count > 1)
+        {
+            VecF[] data = new VecF[4];
+            data[0] = points[^1].Position;
+            data[1] = points[0].Position;
+            points.Add(new ShapePoint(points[0].Position, points[^1].Index + 1, new Verb((PathVerb.Line, data, 0))));
+        }
     }
 }

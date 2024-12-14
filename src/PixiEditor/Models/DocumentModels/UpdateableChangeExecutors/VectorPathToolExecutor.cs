@@ -17,6 +17,7 @@ using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Tools;
 using PixiEditor.ViewModels.Tools.Tools;
+using PixiEditor.Views.Overlays.PathOverlay;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
@@ -136,7 +137,8 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
 
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
-        if (!isValidPathLayer || startingPath.IsClosed) 
+        bool allClosed = WholePathClosed();
+        if (!isValidPathLayer || allClosed)
         {
             if (NeedsNewLayer(document.SelectedStructureMember, document.AnimationHandler.ActiveFrameTime))
             {
@@ -151,7 +153,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
             return;
         }
 
-        if (args.KeyModifiers == KeyModifiers.None)
+        /*if (args.KeyModifiers == KeyModifiers.None)
         {
 
             VecD mouseSnap =
@@ -171,7 +173,14 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
 
             internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, vectorData));
             mouseDown = true;
-        }
+        }*/
+    }
+    
+    private bool WholePathClosed()
+    {
+        EditableVectorPath editablePath = new EditableVectorPath(startingPath);
+        
+        return editablePath.SubShapes.Count > 0 && editablePath.SubShapes.All(x => x.IsClosed);
     }
 
     public override void OnLeftMouseButtonUp(VecD pos)
