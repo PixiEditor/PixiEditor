@@ -302,4 +302,12 @@ public class EditableVectorPath
 
         targetSubShape?.InsertPointAt((VecF)point, verb);
     }
+
+    public void RemoveSubShape(SubShape subShapeContainingIndex)
+    {
+        if (subShapes.Contains(subShapeContainingIndex))
+        {
+            subShapes.Remove(subShapeContainingIndex);
+        }
+    }
 }

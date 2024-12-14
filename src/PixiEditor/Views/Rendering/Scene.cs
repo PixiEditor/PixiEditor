@@ -445,6 +445,32 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        base.OnKeyDown(e);
+        if (AllOverlays != null)
+        {
+            foreach (Overlay overlay in AllOverlays)
+            {
+                if (!overlay.IsVisible) continue;
+                overlay.KeyPressed(e);
+            }
+        }
+    }
+    
+    protected override void OnKeyUp(KeyEventArgs e)
+    {
+        base.OnKeyUp(e);
+        if (AllOverlays != null)
+        {
+            foreach (Overlay overlay in AllOverlays)
+            {
+                if (!overlay.IsVisible) continue;
+                overlay.KeyReleased(e);
+            }
+        }
+    }
+
     private OverlayPointerArgs ConstructPointerArgs(PointerEventArgs e)
     {
         return new OverlayPointerArgs

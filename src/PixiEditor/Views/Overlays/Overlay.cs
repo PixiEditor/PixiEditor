@@ -50,6 +50,8 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     public event PointerEvent? PointerMovedOverlay;
     public event PointerEvent? PointerPressedOverlay;
     public event PointerEvent? PointerReleasedOverlay;
+    public event KeyEvent? KeyPressedOverlay;
+    public event KeyEvent? KeyReleasedOverlay;
 
     public Handle? CapturedHandle { get; set; } = null!;
 
@@ -140,6 +142,18 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         }
 
         PointerReleasedOverlay?.Invoke(args);
+    }
+    
+    public void KeyPressed(KeyEventArgs args)
+    {
+        OnKeyPressed(args.Key, args.KeyModifiers);
+        KeyPressedOverlay?.Invoke(args.Key, args.KeyModifiers);
+    }
+
+    public void KeyReleased(KeyEventArgs keyEventArgs)
+    {
+        OnKeyReleased(keyEventArgs.Key, keyEventArgs.KeyModifiers);
+        KeyReleasedOverlay?.Invoke(keyEventArgs.Key, keyEventArgs.KeyModifiers);
     }
 
     public virtual bool TestHit(VecD point)
@@ -259,6 +273,14 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     protected virtual void ZoomChanged(double newZoom) { }
 
     protected virtual void OnOverlayPointerReleased(OverlayPointerArgs args)
+    {
+    }
+    
+    protected virtual void OnKeyPressed(Key key, KeyModifiers keyModifiers)
+    {
+    }
+    
+    protected virtual void OnKeyReleased(Key key, KeyModifiers keyModifiers)
     {
     }
 
