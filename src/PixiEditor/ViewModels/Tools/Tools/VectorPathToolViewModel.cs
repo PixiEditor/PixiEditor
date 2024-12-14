@@ -30,6 +30,8 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
     private LocalizedString actionDisplayDefault;
     private LocalizedString actionDisplayCtrl;
     private LocalizedString actionDisplayAlt;
+    private LocalizedString actionDisplayShift;
+    private LocalizedString actionDisplayCtrlShift;
 
     [Settings.Enum("FILL_MODE", PathFillType.Winding)]
     public PathFillType FillMode
@@ -49,6 +51,8 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
         actionDisplayDefault = new LocalizedString("PATH_TOOL_ACTION_DISPLAY");
         actionDisplayCtrl = new LocalizedString("PATH_TOOL_ACTION_DISPLAY_CTRL");
         actionDisplayAlt = new LocalizedString("PATH_TOOL_ACTION_DISPLAY_ALT");
+        actionDisplayShift = new LocalizedString("PATH_TOOL_ACTION_DISPLAY_SHIFT");
+        actionDisplayCtrlShift = new LocalizedString("PATH_TOOL_ACTION_DISPLAY_CTRL_SHIFT");
     }
 
     public override void UseTool(VecD pos)
@@ -69,11 +73,22 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
     {
         if (ctrlIsDown)
         {
-            ActionDisplay = actionDisplayCtrl;
+            if (shiftIsDown)
+            {
+                ActionDisplay = actionDisplayCtrlShift;
+            }
+            else
+            {
+                ActionDisplay = actionDisplayCtrl;
+            }
         }
         else if (altIsDown)
         {
             ActionDisplay = actionDisplayAlt;
+        }
+        else if (shiftIsDown)
+        {
+            ActionDisplay = actionDisplayShift;
         }
         else
         {

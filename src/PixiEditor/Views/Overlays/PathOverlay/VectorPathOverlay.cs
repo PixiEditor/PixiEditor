@@ -111,7 +111,7 @@ public class VectorPathOverlay : Overlay
 
     public override bool CanRender()
     {
-        return Path != null;
+        return Path is { IsEmpty: false };
     }
 
     private void RenderHandles(Canvas context)
@@ -367,27 +367,34 @@ public class VectorPathOverlay : Overlay
 
     private void DeleteSelectedPoints()
     {
-        var selectedHandle = anchorHandles.FirstOrDefault(h => h.IsSelected);
-        if (selectedHandle == null)
+        var selectedHandles = anchorHandles.Where(h => h.IsSelected).ToList();
+        if (selectedHandles == null || selectedHandles.Count == 0)
         {
             return;
         }
+        
+        int handleAdjustment = 0;
 
-        int index = anchorHandles.IndexOf(selectedHandle);
-        SubShape subShapeContainingIndex = editableVectorPath.GetSubShapeContainingIndex(index);
-        int localIndex = editableVectorPath.GetSubShapePointIndex(index, subShapeContainingIndex);
-
-        if (subShapeContainingIndex.Points.Count == 1)
+        foreach (var handle in selectedHandles)
         {
-            editableVectorPath.RemoveSubShape(subShapeContainingIndex);
-        }
-        else
-        {
-            subShapeContainingIndex.RemovePoint(localIndex);
-        }
+            int index = anchorHandles.IndexOf(handle) - handleAdjustment;
+            SubShape subShapeContainingIndex = editableVectorPath.GetSubShapeContainingIndex(index);
+            int localIndex = editableVectorPath.GetSubShapePointIndex(index, subShapeContainingIndex);
 
-        AddToUndoCommand.Execute(Path);
+            if (subShapeContainingIndex.Points.Count == 1)
+            {
+                editableVectorPath.RemoveSubShape(subShapeContainingIndex);
+            }
+            else
+            {
+                subShapeContainingIndex.RemovePoint(localIndex);
+            }
+            
+            handleAdjustment++;
+        }
+        
         Path = editableVectorPath.ToVectorPath();
+        AddToUndoCommand.Execute(Path);
     }
 
     private void CreateHandle(int atIndex, bool isControlPoint = false)
@@ -429,7 +436,8 @@ public class VectorPathOverlay : Overlay
 
         if (args.Modifiers.HasFlag(KeyModifiers.Control))
         {
-            SelectAnchor(anchorHandle);
+            bool append = args.Modifiers.HasFlag(KeyModifiers.Shift);
+            SelectAnchor(anchorHandle, append);
             return;
         }
 
@@ -469,8 +477,14 @@ public class VectorPathOverlay : Overlay
         Path = editableVectorPath.ToVectorPath();
     }
 
-    private void SelectAnchor(AnchorHandle handle)
+    private void SelectAnchor(AnchorHandle handle, bool append = false)
     {
+        if (append)
+        {
+            handle.IsSelected = !handle.IsSelected;
+            return;
+        }
+
         foreach (var anchorHandle in anchorHandles)
         {
             anchorHandle.IsSelected = anchorHandle == handle;
@@ -484,7 +498,7 @@ public class VectorPathOverlay : Overlay
             return;
         }
 
-        if (args.Modifiers.HasFlag(KeyModifiers.Shift) && IsOverPath(args.Point, out VecD closestPoint))
+        if (args.Modifiers == KeyModifiers.Shift && IsOverPath(args.Point, out VecD closestPoint))
         {
             AddPointAt(closestPoint);
             AddToUndoCommand.Execute(Path);
@@ -492,15 +506,14 @@ public class VectorPathOverlay : Overlay
         }
         else if (args.Modifiers == KeyModifiers.None)
         {
-            AddNewPointFromClick(args.Point);
+            args.Handled = AddNewPointFromClick(args.Point);
             AddToUndoCommand.Execute(Path);
-            args.Handled = true;
         }
     }
 
     protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
-        if (args.Modifiers.HasFlag(KeyModifiers.Shift) && IsOverPath(args.Point, out VecD closestPoint))
+        if (args.Modifiers == KeyModifiers.Shift && IsOverPath(args.Point, out VecD closestPoint))
         {
             insertPreviewHandle.Position = closestPoint;
             canInsert = true;
@@ -511,20 +524,20 @@ public class VectorPathOverlay : Overlay
         }
     }
 
-    private void AddNewPointFromClick(VecD point)
+    private bool AddNewPointFromClick(VecD point)
     {
         var selectedHandle = anchorHandles.FirstOrDefault(h => h.IsSelected);
         SubShape subShape = editableVectorPath.GetSubShapeContainingIndex(anchorHandles.IndexOf(selectedHandle));
 
         if (subShape.IsClosed)
         {
-            return;
+            return false;
         }
 
         if (Path.IsEmpty)
         {
             Path = new VectorPath();
-            Path.LineTo((VecF)point);
+            Path.MoveTo((VecF)point);
             SelectAnchor(anchorHandles[0]);
         }
         else
@@ -533,6 +546,8 @@ public class VectorPathOverlay : Overlay
             Path = editableVectorPath.ToVectorPath();
             SelectAnchor(anchorHandles.Last());
         }
+        
+        return true;
     }
 
     private void AddPointAt(VecD point)
@@ -554,7 +569,6 @@ public class VectorPathOverlay : Overlay
         if (source is AnchorHandle anchorHandle)
         {
             SnappingController.RemoveAll($"editingPath[{anchorHandles.IndexOf(anchorHandle)}]");
-            SelectAnchor(anchorHandle);
             CaptureHandle(source);
             args.Handled = true;
         }
@@ -604,10 +618,10 @@ public class VectorPathOverlay : Overlay
         if (isDraggingControlPoints)
         {
             var newPath = ConvertTouchingVerbsToCubic(handle);
-            
+
             subShapeContainingIndex = newPath.GetSubShapeContainingIndex(index);
             localIndex = newPath.GetSubShapePointIndex(index, subShapeContainingIndex);
-            
+
             HandleContinousCubicDrag(targetPos, handle, subShapeContainingIndex, localIndex, true);
         }
         else

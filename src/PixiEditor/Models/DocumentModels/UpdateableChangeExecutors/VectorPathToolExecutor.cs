@@ -99,9 +99,9 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
                 }
 
                 //below forces undo before starting new path
-                internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
+                //internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
 
-                internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
+                //internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
             }
         }
         else
@@ -149,31 +149,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
 
                 document.Operations.SetSelectedMember(created.Value);
             }
-
-            return;
         }
-
-        /*if (args.KeyModifiers == KeyModifiers.None)
-        {
-
-            VecD mouseSnap =
-                document.SnappingHandler.SnappingController.GetSnapPoint(args.PositionOnCanvas, out _,
-                    out _);
-
-            if (startingPath.Points.Count > 0 && startingPath.Points[0] == (VecF)mouseSnap)
-            {
-                startingPath.Close();
-            }
-            else
-            {
-                startingPath.LineTo((VecF)mouseSnap);
-            }
-
-            PathVectorData vectorData = ConstructShapeData();
-
-            internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, vectorData));
-            mouseDown = true;
-        }*/
     }
     
     private bool WholePathClosed()
