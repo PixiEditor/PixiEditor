@@ -70,12 +70,20 @@ public class SubShape
         }
     }
 
-    public void AddPointAt(VecF point, Verb onVerb)
+    public void AddPointAt(VecF point, Verb pointVerb)
     {
-        int indexOfVerb = this.points.FirstOrDefault(x => x.Verb == onVerb)?.Index ?? -1;
+        int indexOfVerb = this.points.FirstOrDefault(x => x.Verb == pointVerb)?.Index ?? -1;
         if (indexOfVerb == -1)
         {
             throw new ArgumentException("Verb not found in points list");
+        }
+
+        Verb onVerb = pointVerb;
+        
+        if (onVerb.VerbType is PathVerb.Quad or PathVerb.Conic)
+        {
+            this.points[indexOfVerb].ConvertVerbToCubic();
+            onVerb = this.points[indexOfVerb].Verb;
         }
 
         var oldTo = onVerb.To;
@@ -92,25 +100,25 @@ public class SubShape
             float t = VectorMath.GetNormalizedSegmentPosition(onVerb, point);
             VecD oldControlPoint1 = (VecD)onVerb.ControlPoint1.Value;
             VecD oldControlPoint2 = (VecD)onVerb.ControlPoint2.Value;
-            
+
             // de Casteljau's algorithm
-            
+
             var q0 = ((VecD)onVerb.From).Lerp(oldControlPoint1, t);
             var q1 = oldControlPoint1.Lerp(oldControlPoint2, t);
             var q2 = oldControlPoint2.Lerp((VecD)oldTo, t);
-            
+
             var r0 = q0.Lerp(q1, t);
             var r1 = q1.Lerp(q2, t);
-            
+
             var s0 = r0.Lerp(r1, t);
-            
+
             onVerb.ControlPoint1 = (VecF)q0;
             onVerb.ControlPoint2 = (VecF)r0;
-            
+
             onVerb.To = (VecF)s0;
-            
+
             data = [(VecF)s0, (VecF)r1, (VecF)q2, oldTo];
-            
+
             insertPoint = (VecF)s0;
         }
 

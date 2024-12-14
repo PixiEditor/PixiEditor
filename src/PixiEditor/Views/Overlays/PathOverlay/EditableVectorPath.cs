@@ -294,7 +294,7 @@ public class EditableVectorPath
                 break;
             }
         }
-
+        
         targetSubShape?.AddPointAt((VecF)point, verb);
     }
 }

@@ -222,8 +222,14 @@ internal static class VectorMath
 
     private static VecD ConicBezier(VecD start, VecD control, VecD end, float weight, double t)
     {
-        double x = Math.Pow(1 - t, 2) * start.X + 2 * (1 - t) * t * control.X + Math.Pow(t, 2) * end.X;
-        double y = Math.Pow(1 - t, 2) * start.Y + 2 * (1 - t) * t * control.Y + Math.Pow(t, 2) * end.Y;
-        return new VecD(x, y);
+        double b0 = (1 - t) * (1 - t);
+        double b1 = 2 * t * (1 - t);
+        double b2 = t * t;
+
+        VecD numerator = (start * b0) + (control * b1 * weight) + (end * b2);
+
+        double denominator = b0 + (b1 * weight) + b2;
+
+        return numerator / denominator;
     }
 }
