@@ -40,6 +40,12 @@ public class SvgDocument(RectD viewBox) : IElementContainer
         return builder.ToString();
     }
 
+    public static SvgDocument Parse(string xml)
+    {
+        SvgParser parser = new(xml);
+        return parser.Parse();
+    }
+
     private void GatherRequiredNamespaces(Dictionary<string, string> usedNamespaces, List<SvgElement> elements)
     {
         foreach (SvgElement child in elements)

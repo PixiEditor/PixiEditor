@@ -2,7 +2,7 @@
 
 namespace PixiEditor.SVG.Units;
 
-public struct SvgEnumUnit<T> : ISvgUnit where T : Enum
+public struct SvgEnumUnit<T> : ISvgUnit where T : struct, Enum
 {
     public T Value { get; set; }
 
@@ -14,5 +14,13 @@ public struct SvgEnumUnit<T> : ISvgUnit where T : Enum
     public string ToXml()
     {
         return Value.ToString().ToKebabCase();
+    }
+
+    public void ValuesFromXml(string readerValue)
+    {
+        if (Enum.TryParse(readerValue.FromKebabToTitleCase(), out T result))
+        {
+            Value = result;
+        }
     }
 }

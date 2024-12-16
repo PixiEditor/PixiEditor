@@ -9,4 +9,11 @@ public class SvgLine() : SvgPrimitive("line")
     
     public SvgProperty<SvgNumericUnit> X2 { get; } = new("x2");
     public SvgProperty<SvgNumericUnit> Y2 { get; } = new("y2");
+    protected override IEnumerable<SvgProperty> GetProperties()
+    {
+        yield return X1;
+        yield return Y1;
+        yield return X2;
+        yield return Y2;
+    }
 }

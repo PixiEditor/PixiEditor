@@ -1,8 +1,26 @@
-﻿namespace PixiEditor.SVG.Units;
+﻿using Drawie.Backend.Core.ColorsImpl;
+using PixiEditor.SVG.Exceptions;
+using PixiEditor.SVG.Utils;
+
+namespace PixiEditor.SVG.Units;
 
 public struct SvgColorUnit : ISvgUnit
 {
-    public string Value { get; set; }
+    private string value;
+
+    public string Value
+    {
+        get => value;
+        set
+        {
+            value = this.value;
+            if(SvgColorUtility.TryConvertStringToColor(value, out Color color))
+            {
+                Color = color;
+            }
+        }
+    }
+    public Color Color { get; private set; }
 
     public SvgColorUnit(string value)
     {
@@ -38,4 +56,19 @@ public struct SvgColorUnit : ISvgUnit
     {
         return Value;
     }
+
+    public void ValuesFromXml(string readerValue)
+    {
+        Value = readerValue;
+    }
+}
+
+public enum SvgColorType
+{
+    Hex,
+    Rgb,
+    Rgba,
+    Hsl,
+    Hsla,
+    Named
 }

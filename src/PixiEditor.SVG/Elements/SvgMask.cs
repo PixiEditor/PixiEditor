@@ -1,4 +1,5 @@
-﻿using PixiEditor.SVG.Features;
+﻿using System.Xml;
+using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG.Elements;
@@ -11,4 +12,10 @@ public class SvgMask() : SvgElement("mask"), IElementContainer
     public SvgProperty<SvgNumericUnit> Width { get; } = new("width");
     public SvgProperty<SvgNumericUnit> Height { get; } = new("height");
     public List<SvgElement> Children { get; } = new();
+
+    public override void ParseData(XmlReader reader)
+    {
+        List<SvgProperty> properties = new List<SvgProperty>() { X, Y, Width, Height };
+        ParseAttributes(properties, reader);
+    }
 }

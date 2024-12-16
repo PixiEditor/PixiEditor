@@ -12,4 +12,14 @@ public class SvgRectangle() : SvgPrimitive("rect")
     
     public SvgProperty<SvgNumericUnit> Rx { get; } = new("rx");
     public SvgProperty<SvgNumericUnit> Ry { get; } = new("ry");
+    
+    protected override IEnumerable<SvgProperty> GetProperties()
+    {
+        yield return X;
+        yield return Y;
+        yield return Width;
+        yield return Height;
+        yield return Rx;
+        yield return Ry;
+    }
 }
