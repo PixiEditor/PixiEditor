@@ -13,14 +13,14 @@ public class EditableVectorPath
         set
         {
             UpdatePathFrom(value);
-            path = value;            
+            path = value;
         }
     }
 
     private List<SubShape> subShapes = new List<SubShape>();
 
     public IReadOnlyList<SubShape> SubShapes => subShapes;
-    
+
     public int TotalPoints => subShapes.Sum(x => x.Points.Count);
 
     public int ControlPointsCount
@@ -65,12 +65,12 @@ public class EditableVectorPath
 
         return newPath;
     }
-    
+
     private static Verb CreateMoveToVerb(SubShape subShape)
     {
         VecF[] points = new VecF[4];
         points[0] = subShape.Points[0].Position;
-        
+
         return new Verb((PathVerb.Move, points, 0));
     }
 
@@ -89,7 +89,7 @@ public class EditableVectorPath
 
         List<ShapePoint> currentSubShapePoints = new List<ShapePoint>();
 
-        foreach(var data in from)
+        foreach (var data in from)
         {
             if (data.verb == PathVerb.Done)
             {
@@ -117,15 +117,23 @@ public class EditableVectorPath
                 subShapes.Add(new SubShape(currentSubShapePoints, isSubShapeClosed));
 
                 currentSubShapePoints.Clear();
-
-                currentSubShapeStartingIndex = globalVerbIndex;
             }
             else
             {
                 isSubShapeClosed = false;
                 if (data.verb == PathVerb.Move)
                 {
-                    currentSubShapePoints.Clear();
+                    if (currentSubShapePoints.Count > 0)
+                    {
+                        subShapes.Add(new SubShape(currentSubShapePoints, isSubShapeClosed));
+                        currentSubShapePoints.Clear();
+                        
+                        currentSubShapePoints.Add(new ShapePoint(data.points[0], 0, new Verb()));
+                    }
+                    else
+                    {
+                        currentSubShapePoints.Add(new ShapePoint(data.points[0], 0, new Verb()));
+                    }
                 }
                 else
                 {
@@ -136,7 +144,7 @@ public class EditableVectorPath
             globalVerbIndex++;
         }
     }
-    
+
     private void AddVerbToPath(Verb verb, VectorPath newPath)
     {
         if (verb.IsEmptyVerb())
@@ -203,13 +211,14 @@ public class EditableVectorPath
 
         return null;
     }
-    
+
     private int CountControlPoints(IReadOnlyList<ShapePoint> points)
     {
         int count = 0;
         foreach (var point in points)
         {
-            if(point.Verb.VerbType != PathVerb.Cubic) continue; // temporarily only cubic is supported for control points
+            if (point.Verb.VerbType != PathVerb.Cubic)
+                continue; // temporarily only cubic is supported for control points
             if (point.Verb.ControlPoint1 != null)
             {
                 count++;
@@ -254,5 +263,51 @@ public class EditableVectorPath
         }
 
         return -1;
+    }
+
+    public VecD? GetClosestPointOnPath(VecD point, float maxDistanceInPixels)
+    {
+        VecD? closest = null;
+
+        foreach (var subShape in subShapes)
+        {
+            VecD? closestInSubShape = subShape.GetClosestPointOnPath(point, maxDistanceInPixels);
+
+            if (closestInSubShape != null)
+            {
+                if (closest == null ||
+                    VecD.Distance(closestInSubShape.Value, point) < VecD.Distance(closest.Value, point))
+                {
+                    closest = closestInSubShape;
+                }
+            }
+        }
+
+        return closest;
+    }
+
+    public void AddPointAt(VecD point)
+    {
+        SubShape targetSubShape = null;
+        Verb verb = null;
+        foreach (var subShape in subShapes)
+        {
+            verb = subShape.FindVerbContainingPoint(point);
+            if (verb != null && !verb.IsEmptyVerb())
+            {
+                targetSubShape = subShape;
+                break;
+            }
+        }
+
+        targetSubShape?.InsertPointAt((VecF)point, verb);
+    }
+
+    public void RemoveSubShape(SubShape subShapeContainingIndex)
+    {
+        if (subShapes.Contains(subShapeContainingIndex))
+        {
+            subShapes.Remove(subShapeContainingIndex);
+        }
     }
 }
