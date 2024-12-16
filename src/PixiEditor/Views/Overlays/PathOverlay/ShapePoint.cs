@@ -9,7 +9,7 @@ public class ShapePoint
 {
     public VecF Position { get; set; }
 
-    public int Index { get; }
+    public int Index { get; set; }
     public Verb Verb { get; set; }
 
     public ShapePoint(VecF position, int index, Verb verb)
@@ -38,11 +38,22 @@ public class ShapePoint
         {
             VecF mid1 = Verb.ControlPoint1 ?? Verb.From;
             
-            float factor = 2 * Verb.ConicWeight / (1 + Verb.ConicWeight);
+            float fixedConic = 1 - Verb.ConicWeight;
 
-            VecF control1 = mid1;// + new VecF((mid1.X - Verb.From.X) * factor, (mid1.Y - Verb.From.Y) * factor);
-            VecF control2 = Verb.To + new VecF((mid1.X - Verb.To.X) * factor, (mid1.Y - Verb.To.Y) * factor);
+            // TODO: Make sure it is adjusted/works for other cases
+            // 0.77 works for oval case, it probably will need to be adjusted for other cases
+            // we don't have a case for any other shape than oval so right now it's hardcoded like so.
+            float factor = 2 * fixedConic / (0.77f + fixedConic);
+
+            VecF from1 = (mid1 - Verb.From);
+            from1 = new VecF(from1.X * factor, from1.Y * factor);
             
+            VecF from2 = (mid1 - Verb.To);
+            from2 = new VecF(from2.X * factor, from2.Y * factor);
+
+            VecF control1 = Verb.From + from1;
+            VecF control2 = Verb.To + from2;
+
             return [Verb.From, control1, control2, Verb.To];
         }
         

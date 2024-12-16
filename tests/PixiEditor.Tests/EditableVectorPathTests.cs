@@ -333,6 +333,68 @@ public class EditableVectorPathTests
     }
 
     [Fact]
+    public void TestThatMultiSubShapesWithUnclosedReturnsCorrectPoints()
+    {
+        VectorPath path = new VectorPath();
+        
+        path.LineTo(new VecF(2, 2));
+        path.LineTo(new VecF(0, 4));
+        
+        path.AddOval(RectD.FromCenterAndSize(new VecD(5, 5), new VecD(10, 10)));
+        
+        EditableVectorPath editablePath = new EditableVectorPath(path);
+        
+        Assert.Equal(2, editablePath.SubShapes.Count);
+        
+        Assert.Equal(3, editablePath.SubShapes[0].Points.Count);
+        Assert.Equal(new VecF(0, 0), editablePath.SubShapes[0].Points[0].Position);
+        Assert.Equal(new VecF(2, 2), editablePath.SubShapes[0].Points[1].Position);
+        Assert.Equal(new VecF(0, 4), editablePath.SubShapes[0].Points[2].Position);
+        
+        Assert.False(editablePath.SubShapes[0].IsClosed);
+        
+        Assert.Equal(4, editablePath.SubShapes[1].Points.Count);
+        Assert.Equal(new VecF(10, 5), editablePath.SubShapes[1].Points[0].Position);
+        Assert.Equal(new VecF(5, 10), editablePath.SubShapes[1].Points[1].Position);
+        Assert.Equal(new VecF(0, 5), editablePath.SubShapes[1].Points[2].Position);
+        Assert.Equal(new VecF(5, 0), editablePath.SubShapes[1].Points[3].Position);
+        
+        Assert.True(editablePath.SubShapes[1].IsClosed);
+    }
+    
+    [Fact]
+    public void TestThatMoveToProducesEmptyVerb()
+    {
+        VectorPath path = new VectorPath();
+        path.MoveTo(new VecF(0, 0));
+        
+        EditableVectorPath editablePath = new EditableVectorPath(path);
+        
+        Assert.Single(editablePath.SubShapes);
+        Assert.Single(editablePath.SubShapes[0].Points);
+        
+        Assert.Equal(null, editablePath.SubShapes[0].Points[0].Verb.VerbType);
+    }
+    
+    [Fact]
+    public void TestThatMultipleMoveToProduceEmptyVerbs()
+    {
+        VectorPath path = new VectorPath();
+        path.MoveTo(new VecF(0, 0));
+        path.MoveTo(new VecF(2, 2));
+        
+        EditableVectorPath editablePath = new EditableVectorPath(path);
+        
+        Assert.Equal(2, editablePath.SubShapes.Count);
+        
+        Assert.Single(editablePath.SubShapes[0].Points);
+        Assert.Single(editablePath.SubShapes[1].Points);
+        
+        Assert.Null(editablePath.SubShapes[0].Points[0].Verb.VerbType);
+        Assert.Null(editablePath.SubShapes[1].Points[0].Verb.VerbType);
+    }
+
+    [Fact]
     public void TestThatEditingPointResultsInCorrectVectorPath()
     {
         VectorPath path = new VectorPath();

@@ -1,4 +1,5 @@
-﻿using Avalonia.Media;
+﻿using Avalonia.Input;
+using Avalonia.Media;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
@@ -16,6 +17,7 @@ using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Tools;
 using PixiEditor.ViewModels.Tools.Tools;
+using PixiEditor.Views.Overlays.PathOverlay;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
@@ -97,9 +99,9 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
                 }
 
                 //below forces undo before starting new path
-                internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
+                //internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
 
-                internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
+                //internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
             }
         }
         else
@@ -135,7 +137,8 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
 
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
-        if (!isValidPathLayer || startingPath.IsClosed) 
+        bool allClosed = WholePathClosed();
+        if (!isValidPathLayer || allClosed)
         {
             if (NeedsNewLayer(document.SelectedStructureMember, document.AnimationHandler.ActiveFrameTime))
             {
@@ -146,27 +149,14 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
 
                 document.Operations.SetSelectedMember(created.Value);
             }
-
-            return;
         }
-
-        VecD mouseSnap =
-            document.SnappingHandler.SnappingController.GetSnapPoint(args.PositionOnCanvas, out _,
-                out _);
-
-        if (startingPath.Points.Count > 0 && startingPath.Points[0] == (VecF)mouseSnap)
-        {
-            startingPath.Close();
-        }
-        else
-        {
-            startingPath.LineTo((VecF)mouseSnap);
-        }
-
-        PathVectorData vectorData = ConstructShapeData();
-
-        internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, vectorData));
-        mouseDown = true;
+    }
+    
+    private bool WholePathClosed()
+    {
+        EditableVectorPath editablePath = new EditableVectorPath(startingPath);
+        
+        return editablePath.SubShapes.Count > 0 && editablePath.SubShapes.All(x => x.IsClosed);
     }
 
     public override void OnLeftMouseButtonUp(VecD pos)

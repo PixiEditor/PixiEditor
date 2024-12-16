@@ -169,7 +169,7 @@
                                SwitchToolSetCommand="{xaml:Command Name=PixiEditor.Tools.SwitchToolSet, UseProvided=True}" />
         </Grid>
         <rendering:Scene
-            Focusable="False" Name="scene"
+            Focusable="True" Name="scene"
             ZIndex="1"
             SceneRenderer="{Binding Source={viewModels:MainVM DocumentManagerSVM}, Path=ActiveDocument.SceneRenderer}"
             Document="{Binding Document, ElementName=vpUc, Mode=OneWay}"
