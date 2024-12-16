@@ -53,7 +53,15 @@ public static class SvgColorUtility
                 {
                     if (float.TryParse(values[i], out float alpha))
                     {
-                        colorValues[i - 1] = (byte)(alpha * 255);
+                        if (alpha > 0 && alpha < 1)
+                        {
+                            colorValues[i - 1] = (byte)(alpha * 255);
+                        }
+                        else
+                        {
+                            colorValues[i - 1] = Math.Clamp(alpha, 0, 255);
+                        }
+
                         continue;
                     }
 

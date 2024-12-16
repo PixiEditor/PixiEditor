@@ -43,13 +43,13 @@ public struct SvgTransformUnit : ISvgUnit
                     float.TryParse(values[4], NumberStyles.Any, CultureInfo.InvariantCulture, out float translateX) &&
                     float.TryParse(values[5], NumberStyles.Any, CultureInfo.InvariantCulture, out float translateY))
                 {
-                    MatrixValue = new Matrix3X3(scaleX, skewY, skewX, scaleY, translateX, translateY, 0, 0, 1);
+                    MatrixValue = new Matrix3X3(scaleX, skewX, translateX, skewY, scaleY, translateY, 0, 0, 1);
                 }
             }
         }
         else
         {
-            
+            // todo: parse other types of transformation syntax (rotate, translate, scale etc)
         }
     }
 }

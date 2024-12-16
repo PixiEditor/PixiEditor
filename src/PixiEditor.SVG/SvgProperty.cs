@@ -20,7 +20,7 @@ public class SvgProperty<T> : SvgProperty where T : struct, ISvgUnit
         get => (T?)base.Unit;
         set => base.Unit = value;
     }
-
+    
     public SvgProperty(string svgName) : base(svgName)
     {
     }

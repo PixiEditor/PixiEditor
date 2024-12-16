@@ -13,7 +13,7 @@ public struct SvgColorUnit : ISvgUnit
         get => value;
         set
         {
-            value = this.value;
+            this.value = value;
             if(SvgColorUtility.TryConvertStringToColor(value, out Color color))
             {
                 Color = color;

@@ -19,6 +19,7 @@ using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
+using PixiEditor.Models.IO.CustomDocumentFormats;
 using PixiEditor.Models.IO.PaletteParsers;
 using PixiEditor.Models.IO.PaletteParsers.JascPalFile;
 using PixiEditor.Models.Localization;
@@ -110,6 +111,8 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IoFileType, SvgFileType>()
             // Serialization Factories
             .AddAssemblyTypes<SerializationFactory>()
+            // Custom document builders
+            .AddSingleton<IDocumentBuilder, SvgDocumentBuilder>()
             // Palette Parsers
             .AddSingleton<IPalettesProvider, PaletteProvider>()
             .AddSingleton<PaletteFileParser, JascFileParser>()
