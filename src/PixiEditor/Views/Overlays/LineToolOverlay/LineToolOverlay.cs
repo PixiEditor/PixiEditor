@@ -111,6 +111,7 @@ internal class LineToolOverlay : Overlay
 
         startHandle = new AnchorHandle(this);
         startHandle.StrokePaint = blackPaint;
+        startHandle.OnPress += OnHandlePress;
         startHandle.OnDrag += StartHandleOnDrag;
         startHandle.OnHover += (handle, _) => Refresh();
         startHandle.OnRelease += OnHandleRelease;
@@ -119,6 +120,7 @@ internal class LineToolOverlay : Overlay
 
         endHandle = new AnchorHandle(this);
         endHandle.StrokePaint = blackPaint;
+        endHandle.OnPress += OnHandlePress;
         endHandle.OnDrag += EndHandleOnDrag;
         endHandle.Cursor = new Cursor(StandardCursorType.Arrow);
         endHandle.OnHover += (handle, _) => Refresh();
@@ -127,6 +129,7 @@ internal class LineToolOverlay : Overlay
 
         moveHandle = new TransformHandle(this);
         moveHandle.StrokePaint = blackPaint;
+        moveHandle.OnPress += OnHandlePress;
         moveHandle.OnDrag += MoveHandleOnDrag;
         endHandle.Cursor = new Cursor(StandardCursorType.Arrow);
         moveHandle.OnHover += (handle, _) => Refresh();
@@ -192,10 +195,10 @@ internal class LineToolOverlay : Overlay
             var matrix = context.TotalMatrix;
             VecD pos = matrix.MapPoint(lastMousePos);
             context.SetMatrix(Matrix3X3.Identity);
-            
+
             string length = $"L: {(mappedEnd - mappedStart).Length:0.#} px";
             infoBox.DrawInfo(context, length, pos);
-            
+
             context.RestoreToCount(toRestore);
         }
     }
@@ -261,6 +264,15 @@ internal class LineToolOverlay : Overlay
         }
 
         return final;
+    }
+
+    private void OnHandlePress(Handle source, OverlayPointerArgs args)
+    {
+        movedWhileMouseDown = false;
+        mouseDownPos = args.Point;
+
+        lineStartOnMouseDown = LineStart;
+        lineEndOnMouseDown = LineEnd;
     }
 
     private void MoveHandleOnDrag(Handle source, OverlayPointerArgs args)

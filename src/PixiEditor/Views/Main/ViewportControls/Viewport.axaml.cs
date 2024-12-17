@@ -394,7 +394,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private void Image_MouseDown(object? sender, PointerPressedEventArgs e)
     {
-        if (Document is null)
+        if (Document is null || e.Source != Scene)
             return;
 
         bool isMiddle = e.GetCurrentPoint(this).Properties.IsMiddleButtonPressed;

@@ -162,7 +162,7 @@
                     ui:Translator.Key="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Name}"
                     VerticalAlignment="Center" />
             </Border>
-            <tools:ToolsPicker Grid.Row="2" 
+            <tools:ToolsPicker Grid.Row="2" IsHitTestVisible="True"
                 HorizontalAlignment="Left"
                 ToolSet="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet, Mode=TwoWay}"
                                ToolSets="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.AllToolSets, Mode=OneWay}"
