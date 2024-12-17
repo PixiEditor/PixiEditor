@@ -27,7 +27,17 @@ public enum MathNodeMode
     [Description("LESS_THAN_OR_EQUAL")]
     LessThanOrEqual,
     [Description("COMPARE")]
-    Compare
+    Compare,
+    [Description("MATH_POWER")]
+    Power,
+    [Description("LOGARITHM")]
+    Logarithm,
+    [Description("NATURAL_LOGARITHM")]
+    NaturalLogarithm,
+    [Description("ROOT")]
+    Root,
+    [Description("INVERSE_ROOT")]
+    InverseRoot
 }
 
 public static class MathNodeModeExtensions

@@ -53,7 +53,12 @@ public class MathNode : Node
                 MathNodeMode.GreaterThanOrEqual => ShaderMath.GreaterThanOrEqual(x, y),
                 MathNodeMode.LessThan => ShaderMath.LessThan(x, y),
                 MathNodeMode.LessThanOrEqual => ShaderMath.LessThanOrEqual(x, y),
-                MathNodeMode.Compare => ShaderMath.Compare(x, y, z)
+                MathNodeMode.Compare => ShaderMath.Compare(x, y, z),
+                MathNodeMode.Power => ShaderMath.Power(x, y),
+                MathNodeMode.Logarithm => ShaderMath.Log(x, y),
+                MathNodeMode.NaturalLogarithm => ShaderMath.LogE(x),
+                MathNodeMode.Root => ShaderMath.Root(x, y),
+                MathNodeMode.InverseRoot => ShaderMath.InverseRoot(x, y),
             };
 
             if (Clamp.Value)
@@ -81,7 +86,12 @@ public class MathNode : Node
             MathNodeMode.GreaterThanOrEqual => xConst >= yConst ? 1 : 0,
             MathNodeMode.LessThan => xConst < yConst ? 1 : 0,
             MathNodeMode.LessThanOrEqual => xConst <= yConst ? 1 : 0,
-            MathNodeMode.Compare => Math.Abs(xConst - yConst) < zConst ? 1 : 0
+            MathNodeMode.Compare => Math.Abs(xConst - yConst) < zConst ? 1 : 0,
+            MathNodeMode.Power => Math.Pow(xConst, yConst),
+            MathNodeMode.Logarithm => Math.Log(xConst, yConst),
+            MathNodeMode.NaturalLogarithm => Math.Log(xConst),
+            MathNodeMode.Root => Math.Pow(xConst, 1.0 / yConst),
+            MathNodeMode.InverseRoot => 1.0 / Math.Pow(xConst, 1.0 / yConst)
         };
             
         return new Float1(string.Empty) { ConstantValue = constValue };
