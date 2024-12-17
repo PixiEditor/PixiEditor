@@ -15,8 +15,10 @@ internal class LineSerializationFactory : VectorShapeSerializationFactory<LineVe
         builder.AddVecD(original.End);
     }
 
-    protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor, Color fillColor,
-        float strokeWidth, out LineVectorData original)
+    protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor,
+        Color fillColor,
+        float strokeWidth, (string serializerName, string serializerVersion) serializerData,
+        out LineVectorData original)
     {
         VecD start = extractor.GetVecD();
         VecD end = extractor.GetVecD();

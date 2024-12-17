@@ -78,6 +78,16 @@ public class Verb
         VerbType = null;
     }
     
+    public Verb(PathVerb verb, VecF from, VecF to, VecF? controlPoint1, VecF? controlPoint2, float conicWeight)
+    {
+        VerbType = verb;
+        From = from;
+        To = to;
+        ControlPoint1 = controlPoint1;
+        ControlPoint2 = controlPoint2;
+        ConicWeight = conicWeight;
+    }
+    
     public Verb((PathVerb verb, VecF[] points, float conicWeight) verbData)
     {
         VerbType = verbData.verb;

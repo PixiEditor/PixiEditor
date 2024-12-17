@@ -46,8 +46,10 @@ public abstract class VectorShapeSerializationFactory<T> : SerializationFactory<
             strokeWidth = extractor.GetFloat();
         }
 
-        return DeserializeVectorData(extractor, matrix, strokeColor, fillColor, strokeWidth, out original);
+        return DeserializeVectorData(extractor, matrix, strokeColor, fillColor, strokeWidth, serializerData, out original);
     }
     
-    protected abstract bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor, Color fillColor, float strokeWidth, out T original);
+    protected abstract bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor,
+        Color fillColor, float strokeWidth, (string serializerName, string serializerVersion) serializerData,
+        out T original);
 }
