@@ -100,6 +100,12 @@ public static class SvgColorUtility
     {
         try
         {
+            if(input == "none")
+            {
+                color = Colors.Transparent;
+                return true;
+            }
+            
             SvgColorType colorType = ResolveColorType(input);
             float[]? values = ExtractColorValues(input, colorType);
             int requiredValues = colorType switch

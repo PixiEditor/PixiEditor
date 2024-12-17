@@ -23,19 +23,22 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         string xml = File.ReadAllText(path);
         SvgDocument document = SvgDocument.Parse(xml);
 
-        builder.WithSize((int)document.ViewBox.Width, (int)document.ViewBox.Height)
+        StyleContext styleContext = new(document);
+
+        builder.WithSize((int)document.ViewBox.Unit.Value.Value.Width, (int)document.ViewBox.Unit.Value.Value.Height)
             .WithGraph(graph =>
             {
                 int? lastId = null;
                 foreach (SvgElement element in document.Children)
                 {
+                    StyleContext style = styleContext.WithElement(element);
                     if (element is SvgPrimitive primitive)
                     {
-                        lastId = AddPrimitive(element, primitive, graph, lastId);
+                        lastId = AddPrimitive(element, style, graph, lastId);
                     }
                     else if (element is SvgGroup group)
                     {
-                        lastId = AddGroup(group, graph, lastId);
+                        lastId = AddGroup(group, graph, style, lastId);
                     }
                 }
 
@@ -44,7 +47,8 @@ internal class SvgDocumentBuilder : IDocumentBuilder
     }
 
     [return: NotNull]
-    private int? AddPrimitive(SvgElement element, SvgPrimitive primitive, NodeGraphBuilder graph,
+    private int? AddPrimitive(SvgElement element, StyleContext styleContext,
+        NodeGraphBuilder graph,
         int? lastId, string connectionName = "Background")
     {
         LocalizedString name = "";
@@ -70,7 +74,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             name = VectorRectangleToolViewModel.NewLayerKey;
         }
 
-        AddCommonShapeData(primitive, shapeData);
+        AddCommonShapeData(shapeData, styleContext);
 
         NodeGraphBuilder.NodeBuilder nBuilder = graph.WithNodeOfType<VectorLayerNode>(out int id)
             .WithName(name)
@@ -90,22 +94,22 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         return lastId;
     }
 
-    private int? AddGroup(SvgGroup group, NodeGraphBuilder graph, int? lastId, string connectionName = "Background")
+    private int? AddGroup(SvgGroup group, NodeGraphBuilder graph, StyleContext style, int? lastId, string connectionName = "Background")
     {
-        string connectTo = FolderNode.ContentInternalName;
-
         int? childId = null;
-        connectTo = "Background";
+        var connectTo = "Background";
         
         foreach (var child in group.Children)
         {
+            StyleContext childStyle = style.WithElement(child);
+            
             if (child is SvgPrimitive primitive)
             {
-                childId = AddPrimitive(child, primitive, graph, childId, connectTo);
+                childId = AddPrimitive(child, childStyle, graph, childId, connectTo);
             }
             else if (child is SvgGroup childGroup)
             {
-                childId = AddGroup(childGroup, graph, childId, connectTo);
+                childId = AddGroup(childGroup, graph, childStyle, childId, connectTo);
             }
         }
 
@@ -180,32 +184,37 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             element.Width.Unit.Value.Value, element.Height.Unit.Value.Value);
     }
 
-    private void AddCommonShapeData(SvgPrimitive primitive, ShapeVectorData? shapeData)
+    private void AddCommonShapeData(ShapeVectorData? shapeData, StyleContext styleContext)
     {
         if (shapeData == null)
         {
             return;
         }
 
-        bool hasFill = primitive.Fill.Unit is { Color.A: > 0 };
-        bool hasStroke = primitive.Stroke.Unit is { Color.A: > 0 };
-        bool hasTransform = primitive.Transform.Unit is { MatrixValue.IsIdentity: false };
+        bool hasFill = styleContext.Fill.Unit is { Color.A: > 0 };
+        bool hasStroke = styleContext.Stroke.Unit is { Color.A: > 0 };
+        bool hasTransform = styleContext.Transform.Unit is { MatrixValue.IsIdentity: false };
 
         shapeData.Fill = hasFill;
         if (hasFill)
         {
-            shapeData.FillColor = primitive.Fill.Unit.Value.Color;
+            var target = styleContext.Fill.Unit;
+            shapeData.FillColor = target.Value.Color;
         }
 
         if (hasStroke)
         {
-            shapeData.StrokeColor = primitive.Stroke.Unit.Value.Color;
-            shapeData.StrokeWidth = (float)primitive.StrokeWidth.Unit.Value.Value;
+            var targetColor = styleContext.Stroke.Unit;
+            var targetWidth = styleContext.StrokeWidth.Unit;
+            
+            shapeData.StrokeColor = targetColor.Value.Color;
+            shapeData.StrokeWidth = (float)targetWidth.Value.Value;
         }
 
         if (hasTransform)
         {
-            shapeData.TransformationMatrix = primitive.Transform.Unit.Value.MatrixValue;
+            var target = styleContext.Transform.Unit;
+            shapeData.TransformationMatrix = target.Value.MatrixValue;
         }
     }
 }

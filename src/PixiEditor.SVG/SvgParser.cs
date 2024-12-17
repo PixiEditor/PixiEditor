@@ -3,6 +3,7 @@ using System.Xml.Linq;
 using Drawie.Numerics;
 using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Features;
+using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG;
 
@@ -18,6 +19,7 @@ public class SvgParser
         { "g", typeof(SvgGroup) },
         { "mask", typeof(SvgMask) },
         { "image", typeof(SvgImage) },
+        { "svg", typeof(SvgDocument) }
     };
 
     public string Source { get; set; }
@@ -37,9 +39,12 @@ public class SvgParser
         {
             return null;
         }
+        
+        SvgDocument root = (SvgDocument)ParseElement(reader)!;
 
-        RectD bounds = ParseBounds(reader);
-        SvgDocument svgDocument = new(bounds);
+        RectD bounds = ParseBounds(reader); // this takes into account viewBox, width, height, x, y
+        
+        root.ViewBox.Unit = new SvgRectUnit(bounds);
 
         while (reader.Read())
         {
@@ -48,7 +53,7 @@ public class SvgParser
                 SvgElement? element = ParseElement(reader);
                 if (element != null)
                 {
-                    svgDocument.Children.Add(element);
+                    root.Children.Add(element);
 
                     if (element is IElementContainer container)
                     {
@@ -58,7 +63,7 @@ public class SvgParser
             }
         }
 
-        return svgDocument;
+        return root;
     }
 
     private void ParseChildren(XmlReader reader, IElementContainer container, string tagName)
