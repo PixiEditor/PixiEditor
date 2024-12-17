@@ -15,6 +15,7 @@ namespace PixiEditor.ViewModels.Tools.Tools;
 [Command.Tool(Key = Key.C)]
 internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
 {
+    public const string NewLayerKey = "NEW_ELLIPSE_LAYER_NAME"; 
     private string defaultActionDisplay = "ELLIPSE_TOOL_ACTION_DISPLAY_DEFAULT";
     public override string ToolNameLocalizationKey => "ELLIPSE_TOOL";
 
@@ -33,7 +34,7 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
 
-    public string? DefaultNewLayerName { get; } = new LocalizedString("NEW_ELLIPSE_LAYER_NAME");
+    public string? DefaultNewLayerName { get; } = new LocalizedString(NewLayerKey);
 
     public override void UseTool(VecD pos)
     {

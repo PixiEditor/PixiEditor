@@ -1,19 +1,15 @@
-﻿using System.Drawing;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Threading;
-using FFMpegCore.Enums;
 using Drawie.Backend.Core;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Models;
 using PixiEditor.Models.IO;
 using Drawie.Numerics;
-using PixiEditor.Parser;
-using Image = Avalonia.Controls.Image;
 
 namespace PixiEditor.Views.Visuals;
 
-internal class PixiFilePreviewImage : SurfaceControl
+internal class PixiFilePreviewImage : TextureControl
 {
     public static readonly StyledProperty<string> FilePathProperty =
         AvaloniaProperty.Register<PixiFilePreviewImage, string>(nameof(FilePath));
@@ -56,18 +52,18 @@ internal class PixiFilePreviewImage : SurfaceControl
 
     private void LoadImage(string path)
     {
-        var surface = LoadPreviewSurface(path);
+        var surface = LoadPreviewTexture(path);
 
         Dispatcher.UIThread.Post(() => SetImage(surface));
     }
 
-    private void SetImage(Surface? surface)
+    private void SetImage(Texture? texture)
     {
-        Surface = surface!;
+        Texture = texture!;
 
-        if (surface != null)
+        if (texture != null)
         {
-            ImageSize = surface.Size;
+            ImageSize = texture.Size;
         }
     }
 
@@ -75,14 +71,14 @@ internal class PixiFilePreviewImage : SurfaceControl
     {
         if (args.NewValue == null)
         {
-            previewImage.Surface = null;
+            previewImage.Texture = null;
             return;
         }
 
         previewImage.RunLoadImage();
     }
 
-    private Surface? LoadPreviewSurface(string filePath)
+    private Texture? LoadPreviewTexture(string filePath)
     {
         if (!File.Exists(filePath))
         {
@@ -96,7 +92,7 @@ internal class PixiFilePreviewImage : SurfaceControl
             return LoadPixiPreview(filePath);
         }
 
-        if (SupportedFilesHelper.IsExtensionSupported(fileExtension))
+        if (SupportedFilesHelper.IsExtensionSupported(fileExtension) && SupportedFilesHelper.IsRasterFormat(fileExtension))
         {
             return LoadNonPixiPreview(filePath);
         }
@@ -105,11 +101,11 @@ internal class PixiFilePreviewImage : SurfaceControl
 
     }
 
-    private Surface LoadPixiPreview(string filePath)
+    private Texture LoadPixiPreview(string filePath)
     {
         try
         {
-            var loaded = Importer.GetPreviewSurface(filePath);
+            var loaded = Importer.GetPreviewTexture(filePath);
 
             if (loaded.Size is { X: <= Constants.MaxPreviewWidth, Y: <= Constants.MaxPreviewHeight })
             {
@@ -127,13 +123,13 @@ internal class PixiFilePreviewImage : SurfaceControl
         }
     }
 
-    private Surface LoadNonPixiPreview(string filePath)
+    private Texture LoadNonPixiPreview(string filePath)
     {
-        Surface loaded = null;
+        Texture loaded = null;
 
         try
         {
-            loaded = Surface.Load(filePath);
+            loaded = Texture.Load(filePath);
         }
         catch (RecoverableException)
         {
@@ -154,7 +150,7 @@ internal class PixiFilePreviewImage : SurfaceControl
 
     }
 
-    private static Surface DownscaleSurface(Surface surface)
+    private static Texture DownscaleSurface(Texture surface)
     {
         double factor = Math.Min(
             Constants.MaxPreviewWidth / (double)surface.Size.X,
@@ -172,5 +168,11 @@ internal class PixiFilePreviewImage : SurfaceControl
     void SetCorrupt()
     {
         Dispatcher.UIThread.Post(() => Corrupt = true);
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        Texture?.Dispose();
     }
 }

@@ -23,12 +23,9 @@ public class SvgElement(string tagName)
             if (property.PropertyType.IsAssignableTo(typeof(SvgProperty)))
             {
                 SvgProperty prop = (SvgProperty)property.GetValue(this);
-                if (prop != null)
+                if (prop?.Unit != null)
                 {
-                    if (prop.Unit != null)
-                    {
-                        builder.Append($" {prop.SvgName}=\"{prop.Unit.ToXml()}\"");
-                    }
+                    builder.Append($" {prop.SvgName}=\"{prop.Unit.ToXml()}\"");
                 }
             }
         }
