@@ -373,7 +373,7 @@ internal class NodeGraphBuilder
 
     public NodeBuilder WithNodeOfType<T>(out int id) where T : IReadOnlyNode
     {
-        NodeBuilder builder = this.WithNodeOfType(typeof(VectorLayerNode))
+        NodeBuilder builder = this.WithNodeOfType(typeof(T))
             .WithId(AllNodes.Count);
 
         id = AllNodes.Count;

@@ -1,4 +1,5 @@
-﻿using Drawie.Backend.Core.Vector;
+﻿using System.Diagnostics.CodeAnalysis;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -28,58 +29,106 @@ internal class SvgDocumentBuilder : IDocumentBuilder
                 int? lastId = null;
                 foreach (SvgElement element in document.Children)
                 {
-                    LocalizedString name = "";
                     if (element is SvgPrimitive primitive)
                     {
-                        ShapeVectorData shapeData = null;
-                        if (element is SvgEllipse or SvgCircle)
-                        {
-                            shapeData = AddEllipse(element);
-                            name = VectorEllipseToolViewModel.NewLayerKey;
-                        }
-                        else if (element is SvgLine line)
-                        {
-                            shapeData = AddLine(line);
-                            name = VectorLineToolViewModel.NewLayerKey;
-                        }
-                        else if (element is SvgPath pathElement)
-                        {
-                            shapeData = AddPath(pathElement);
-                            name = VectorPathToolViewModel.NewLayerKey;
-                        }
-                        /*else if (element is SvgRectangle rect)
-                        {
-                            AddRect(graph, rect);
-                        }
-                        else if (element is SvgGroup group)
-                        {
-                            AddGroup(graph, group);
-                        }*/
-
-                        AddCommonShapeData(primitive, shapeData);
-
-                        NodeGraphBuilder.NodeBuilder nBuilder = graph.WithNodeOfType<VectorLayerNode>(out int id)
-                            .WithName(name)
-                            .WithAdditionalData(new Dictionary<string, object>() { { "ShapeData", shapeData } });
-
-                        if (lastId != null)
-                        {
-                            nBuilder.WithConnections([
-                                new PropertyConnection()
-                                {
-                                    InputPropertyName = "Background",
-                                    OutputPropertyName = "Output",
-                                    OutputNodeId = lastId.Value
-                                }
-                            ]);
-                        }
-
-                        lastId = id;
+                        lastId = AddPrimitive(element, primitive, graph, lastId);
+                    }
+                    else if (element is SvgGroup group)
+                    {
+                        lastId = AddGroup(group, graph, lastId);
                     }
                 }
 
                 graph.WithOutputNode(lastId, "Output");
             });
+    }
+
+    [return: NotNull]
+    private int? AddPrimitive(SvgElement element, SvgPrimitive primitive, NodeGraphBuilder graph,
+        int? lastId, string connectionName = "Background")
+    {
+        LocalizedString name = "";
+        ShapeVectorData shapeData = null;
+        if (element is SvgEllipse or SvgCircle)
+        {
+            shapeData = AddEllipse(element);
+            name = VectorEllipseToolViewModel.NewLayerKey;
+        }
+        else if (element is SvgLine line)
+        {
+            shapeData = AddLine(line);
+            name = VectorLineToolViewModel.NewLayerKey;
+        }
+        else if (element is SvgPath pathElement)
+        {
+            shapeData = AddPath(pathElement);
+            name = VectorPathToolViewModel.NewLayerKey;
+        }
+        else if (element is SvgRectangle rect)
+        {
+            shapeData = AddRect(rect);
+            name = VectorRectangleToolViewModel.NewLayerKey;
+        }
+
+        AddCommonShapeData(primitive, shapeData);
+
+        NodeGraphBuilder.NodeBuilder nBuilder = graph.WithNodeOfType<VectorLayerNode>(out int id)
+            .WithName(name)
+            .WithAdditionalData(new Dictionary<string, object>() { { "ShapeData", shapeData } });
+
+        if (lastId != null)
+        {
+            nBuilder.WithConnections([
+                new PropertyConnection()
+                {
+                    InputPropertyName = connectionName, OutputPropertyName = "Output", OutputNodeId = lastId.Value
+                }
+            ]);
+        }
+
+        lastId = id;
+        return lastId;
+    }
+
+    private int? AddGroup(SvgGroup group, NodeGraphBuilder graph, int? lastId, string connectionName = "Background")
+    {
+        string connectTo = FolderNode.ContentInternalName;
+
+        int? childId = null;
+        connectTo = "Background";
+        
+        foreach (var child in group.Children)
+        {
+            if (child is SvgPrimitive primitive)
+            {
+                childId = AddPrimitive(child, primitive, graph, childId, connectTo);
+            }
+            else if (child is SvgGroup childGroup)
+            {
+                childId = AddGroup(childGroup, graph, childId, connectTo);
+            }
+        }
+
+        NodeGraphBuilder.NodeBuilder nBuilder = graph.WithNodeOfType<FolderNode>(out int id)
+            .WithName(group.Id.Unit != null ? group.Id.Unit.Value.Value : new LocalizedString("NEW_FOLDER"));
+
+        if (lastId != null)
+        {
+            nBuilder.WithConnections([
+                new PropertyConnection()
+                {
+                    InputPropertyName = connectionName, OutputPropertyName = "Output", OutputNodeId = lastId.Value
+                },
+                new PropertyConnection()
+                {
+                    InputPropertyName = "Content", OutputPropertyName = "Output", OutputNodeId = childId.Value
+                }
+            ]);
+        }
+
+        lastId = id;
+
+        return lastId;
     }
 
     private EllipseVectorData AddEllipse(SvgElement element)
@@ -111,8 +160,8 @@ internal class SvgDocumentBuilder : IDocumentBuilder
     private PathVectorData AddPath(SvgPath element)
     {
         VectorPath path = VectorPath.FromSvgPath(element.PathData.Unit.Value.Value);
-        
-        if(element.FillRule.Unit != null)
+
+        if (element.FillRule.Unit != null)
         {
             path.FillType = element.FillRule.Unit.Value.Value switch
             {
@@ -121,8 +170,14 @@ internal class SvgDocumentBuilder : IDocumentBuilder
                 _ => PathFillType.Winding
             };
         }
-        
+
         return new PathVectorData(path);
+    }
+
+    private RectangleVectorData AddRect(SvgRectangle element)
+    {
+        return new RectangleVectorData(element.X.Unit.Value.Value, element.Y.Unit.Value.Value,
+            element.Width.Unit.Value.Value, element.Height.Unit.Value.Value);
     }
 
     private void AddCommonShapeData(SvgPrimitive primitive, ShapeVectorData? shapeData)

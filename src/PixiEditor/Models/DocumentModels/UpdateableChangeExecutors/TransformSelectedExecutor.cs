@@ -73,9 +73,24 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             memberCorners.Add(member.Id, targetCorners);
         }
 
-        ShapeCorners masterCorners = memberCorners.Count == 1
-            ? memberCorners.FirstOrDefault().Value
-            : new ShapeCorners(memberCorners.Values.Select(static c => c.AABBBounds).Aggregate((a, b) => a.Union(b)));
+        ShapeCorners masterCorners;
+        if (memberCorners.Count == 1)
+        {
+            masterCorners = memberCorners.FirstOrDefault().Value;
+        }
+        else
+        {
+            var aabbBounds = memberCorners.Values.Select(static c => c.AABBBounds);
+            var bounds = aabbBounds as RectD[] ?? aabbBounds.ToArray();
+            if (bounds.Length != 0)
+            {
+                masterCorners = new ShapeCorners(bounds.Aggregate((a, b) => a.Union(b)));
+            }
+            else
+            {
+                return ExecutionState.Error;
+            }
+        }
 
         if (masterCorners.AABBBounds.Width == 0 || masterCorners.AABBBounds.Height == 0)
         {

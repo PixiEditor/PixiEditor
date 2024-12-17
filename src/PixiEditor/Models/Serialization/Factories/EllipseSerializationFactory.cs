@@ -16,6 +16,7 @@ public class EllipseSerializationFactory : VectorShapeSerializationFactory<Ellip
     }
 
     protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor,
+        bool fill,
         Color fillColor,
         float strokeWidth, (string serializerName, string serializerVersion) serializerData,
         out EllipseVectorData original)
@@ -26,6 +27,7 @@ public class EllipseSerializationFactory : VectorShapeSerializationFactory<Ellip
         original = new EllipseVectorData(center, radius)
         {
             StrokeColor = strokeColor,
+            Fill = fill,
             FillColor = fillColor,
             StrokeWidth = strokeWidth,
             TransformationMatrix = matrix

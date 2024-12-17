@@ -34,6 +34,12 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         Center = center;
         Size = size;
     }
+    
+    public RectangleVectorData(double x, double y, double width, double height)
+    {
+        Center = new VecD(x + width / 2, y + height / 2);
+        Size = new VecD(width, height);
+    }
 
     public override void RasterizeGeometry(DrawingSurface drawingSurface)
     {

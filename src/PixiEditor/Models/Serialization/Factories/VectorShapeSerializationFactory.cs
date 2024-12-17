@@ -11,6 +11,7 @@ public abstract class VectorShapeSerializationFactory<T> : SerializationFactory<
         ByteBuilder builder = new ByteBuilder();
         builder.AddMatrix3X3(original.TransformationMatrix);
         builder.AddColor(original.StrokeColor);
+        builder.AddBool(original.Fill);
         builder.AddColor(original.FillColor);
         builder.AddFloat(original.StrokeWidth);
         
@@ -34,6 +35,7 @@ public abstract class VectorShapeSerializationFactory<T> : SerializationFactory<
         
         Matrix3X3 matrix = extractor.GetMatrix3X3();
         Color strokeColor = extractor.GetColor();
+        bool fill = TryGetBool(extractor, serializerData);
         Color fillColor = extractor.GetColor();
         float strokeWidth;
         // Previous versions of the serializer saved stroke as int, and serializer data didn't exist
@@ -46,10 +48,25 @@ public abstract class VectorShapeSerializationFactory<T> : SerializationFactory<
             strokeWidth = extractor.GetFloat();
         }
 
-        return DeserializeVectorData(extractor, matrix, strokeColor, fillColor, strokeWidth, serializerData, out original);
+        return DeserializeVectorData(extractor, matrix, strokeColor, fill, fillColor, strokeWidth, serializerData, out original);
     }
     
     protected abstract bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor,
+        bool fill,
         Color fillColor, float strokeWidth, (string serializerName, string serializerVersion) serializerData,
         out T original);
+
+    private bool TryGetBool(ByteExtractor extractor, (string serializerName, string serializerVersion) serializerData)
+    {
+        // Previous versions didn't have fill bool
+        if (serializerData.serializerName == "PixiEditor")
+        {
+            if(Version.TryParse(serializerData.serializerVersion, out Version version) && version is { Major: 2, Minor: 0, Build: 0, Revision: < 35 })
+            {
+                return true;
+            }
+        }
+
+        return extractor.GetBool();
+    }
 }
