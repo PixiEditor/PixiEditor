@@ -306,13 +306,16 @@ internal class TransformOverlay : Overlay
         ForAllHandles<AnchorHandle>(x =>
         {
             x.OnPress += OnAnchorHandlePressed;
+            x.OnDrag += OnAnchorHandleDrag;
             x.OnRelease += OnAnchorHandleReleased;
         });
 
         originHandle.OnPress += OnAnchorHandlePressed;
+        originHandle.OnDrag += OnAnchorHandleDrag;
         originHandle.OnRelease += OnAnchorHandleReleased;
 
         moveHandle.OnPress += OnMoveHandlePressed;
+        moveHandle.OnDrag += OnMoveHandleDrag;
         moveHandle.OnRelease += OnMoveHandleReleased;
 
         infoBox = new InfoBox();
@@ -506,6 +509,20 @@ internal class TransformOverlay : Overlay
         args.Handled = true;
     }
 
+    private void OnAnchorHandleDrag(Handle source, OverlayPointerArgs args)
+    {
+        HandleCapturedAnchorMovement(args.Point);
+        lastPointerPos = args.Point;
+    }
+
+    private void OnMoveHandleDrag(Handle source, OverlayPointerArgs args)
+    {
+        HandleTransform(lastPointerPos);
+        Cursor = new Cursor(StandardCursorType.DragMove);
+        actuallyMoved = true;
+        lastPointerPos = args.Point;
+    }
+
     protected override void OnOverlayPointerMoved(OverlayPointerArgs e)
     {
         Cursor finalCursor = new Cursor(StandardCursorType.Arrow);
@@ -522,7 +539,7 @@ internal class TransformOverlay : Overlay
 
         if (capturedAnchor is not null)
         {
-            HandleCapturedAnchorMovement(e);
+            HandleCapturedAnchorMovement(e.Point);
             return;
         }
 
@@ -594,7 +611,7 @@ internal class TransformOverlay : Overlay
             TopLeft = scaled.TopLeft - new VecD(offsetToScale, offsetToScale),
             TopRight = scaled.TopRight - new VecD(-offsetToScale, offsetToScale),
         };
-        
+
         scaledCorners = scaledCorners.AsRotated(Corners.RectRotation, Corners.RectCenter);
 
         return base.TestHit(point) || scaledCorners.IsPointInside(point);
@@ -719,7 +736,7 @@ internal class TransformOverlay : Overlay
         return true;
     }
 
-    private void HandleCapturedAnchorMovement(OverlayPointerArgs e)
+    private void HandleCapturedAnchorMovement(VecD point)
     {
         if (capturedAnchor is null)
             throw new InvalidOperationException("No anchor is captured");
@@ -728,7 +745,7 @@ internal class TransformOverlay : Overlay
             (TransformHelper.IsSide((Anchor)capturedAnchor) && SideFreedom == TransformSideFreedom.Locked))
             return;
 
-        pos = e.Point;
+        pos = point;
 
         if (TransformHelper.IsCorner((Anchor)capturedAnchor))
         {
@@ -1073,6 +1090,8 @@ internal class TransformOverlay : Overlay
 
         if (ActionCompleted is not null && ActionCompleted.CanExecute(null))
             ActionCompleted.Execute(null);
+
+        IsSizeBoxEnabled = false;
     }
 
     private Handle? GetSnapHandleOfOrigin()
