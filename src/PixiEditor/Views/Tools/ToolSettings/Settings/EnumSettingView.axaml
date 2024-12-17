@@ -22,5 +22,10 @@
                 <Setter Property="(ui:Translator.Key)" Value="{Binding ., Converter={helpers:EnumDescriptionConverter}}"/>
             </ControlTheme>
         </ComboBox.ItemContainerTheme>
+       <ComboBox.ItemTemplate>
+           <DataTemplate>
+               <TextBlock ui:Translator.Key="{Binding ., Converter={helpers:EnumDescriptionConverter}}"/>
+           </DataTemplate>
+       </ComboBox.ItemTemplate>
     </ComboBox>
 </UserControl>

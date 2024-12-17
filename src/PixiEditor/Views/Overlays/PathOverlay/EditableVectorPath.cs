@@ -5,9 +5,9 @@ namespace PixiEditor.Views.Overlays.PathOverlay;
 
 public class EditableVectorPath
 {
-    private VectorPath path;
+    private VectorPath? path;
 
-    public VectorPath Path
+    public VectorPath? Path
     {
         get => path;
         set
@@ -23,6 +23,8 @@ public class EditableVectorPath
 
     public int TotalPoints => subShapes.Sum(x => x.Points.Count);
 
+    public PathFillType FillType { get; set; }
+
     public int ControlPointsCount
     {
         get
@@ -30,6 +32,12 @@ public class EditableVectorPath
             // count verbs with control points
             return subShapes.Sum(x => CountControlPoints(x.Points));
         }
+    }
+
+    public EditableVectorPath(IEnumerable<SubShape> subShapes, PathFillType fillType)
+    {
+        this.subShapes = new List<SubShape>(subShapes);
+        FillType = fillType;
     }
 
     public EditableVectorPath(VectorPath path)
@@ -47,8 +55,19 @@ public class EditableVectorPath
 
     public VectorPath ToVectorPath()
     {
-        VectorPath newPath = new VectorPath(Path);
-        newPath.Reset(); // preserve fill type and other properties
+        VectorPath newPath;
+        if (Path != null)
+        {
+            newPath = new VectorPath(Path);
+            newPath.Reset(); // preserve fill type and other properties
+        }
+        else
+        {
+            newPath = new VectorPath();
+        }
+        
+        newPath.FillType = FillType;
+
         foreach (var subShape in subShapes)
         {
             AddVerbToPath(CreateMoveToVerb(subShape), newPath);
@@ -127,7 +146,7 @@ public class EditableVectorPath
                     {
                         subShapes.Add(new SubShape(currentSubShapePoints, isSubShapeClosed));
                         currentSubShapePoints.Clear();
-                        
+
                         currentSubShapePoints.Add(new ShapePoint(data.points[0], 0, new Verb()));
                     }
                     else
@@ -143,6 +162,8 @@ public class EditableVectorPath
 
             globalVerbIndex++;
         }
+
+        FillType = from.FillType;
     }
 
     private void AddVerbToPath(Verb verb, VectorPath newPath)

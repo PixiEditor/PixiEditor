@@ -12,6 +12,7 @@
             BorderBrush="{DynamicResource ThemeBorderMidBrush}"
             BorderThickness="{DynamicResource ThemeBorderThickness}"
             Cursor="Arrow"
+            IsHitTestVisible="True"
             Padding="5"
             Height="40"
             HorizontalAlignment="Left"

@@ -359,6 +359,8 @@ internal class SymmetryOverlay : Overlay
 
             CallSymmetryDragCommand((SymmetryAxisDirection)capturedDirection, verticalAxisX);
         }
+        
+        Refresh();
     }
 
     protected override void OnOverlayPointerExited(OverlayPointerArgs args)
