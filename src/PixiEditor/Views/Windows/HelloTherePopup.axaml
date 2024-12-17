@@ -14,8 +14,6 @@
                          xmlns:newsFeed1="clr-namespace:PixiEditor.Views.NewsFeed"
                          xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
                          xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
-                         xmlns:skiaSharp="clr-namespace:SkiaSharp;assembly=SkiaSharp"
-                         xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
                          xmlns:windows="clr-namespace:PixiEditor.Views.Windows"
                          mc:Ignorable="d"
                          Title="Hello there!" Height="680" Width="982" MinHeight="500" MinWidth="600"

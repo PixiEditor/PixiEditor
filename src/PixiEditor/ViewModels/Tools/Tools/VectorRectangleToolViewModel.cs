@@ -15,6 +15,8 @@ namespace PixiEditor.ViewModels.Tools.Tools;
 [Command.Tool(Key = Key.R)]
 internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHandler
 {
+    public const string NewLayerKey = "NEW_RECTANGLE_LAYER_NAME";
+    
     private string defaultActionDisplay = "RECTANGLE_TOOL_ACTION_DISPLAY_DEFAULT";
     public override string ToolNameLocalizationKey => "RECTANGLE_TOOL";
     public override bool IsErasable => false;
@@ -30,7 +32,7 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
     public override string DefaultIcon => PixiPerfectIcons.Square;
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
-    public string? DefaultNewLayerName { get; } = new LocalizedString("NEW_RECTANGLE_LAYER_NAME");
+    public string? DefaultNewLayerName { get; } = new LocalizedString(NewLayerKey);
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {

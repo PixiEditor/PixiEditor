@@ -18,6 +18,7 @@ using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Handlers;
@@ -148,17 +149,22 @@ internal partial class DocumentViewModel
             elementToAdd = AddVectorPath(shapeData);
         }
 
-        if (vectorNode.ShapeData != null)
+        IReadOnlyShapeVectorData data = vectorNode.ShapeData;
+
+        if (data != null && elementToAdd is SvgPrimitive primitive)
         {
-            IReadOnlyShapeVectorData data = vectorNode.ShapeData;
+            Matrix3X3 transform = data.TransformationMatrix;
 
-            if (data != null && elementToAdd is SvgPrimitive primitive)
-            {
-                Matrix3X3 transform = data.TransformationMatrix;
+            transform = transform.PostConcat(Matrix3X3.CreateScale((float)resizeFactor.X, (float)resizeFactor.Y));
+            primitive.Transform.Unit = new SvgTransformUnit?(new SvgTransformUnit(transform));
 
-                transform = transform.PostConcat(Matrix3X3.CreateScale((float)resizeFactor.X, (float)resizeFactor.Y));
-                primitive.Transform.Unit = new SvgTransformUnit?(new SvgTransformUnit(transform));
-            }
+            primitive.Fill.Unit = SvgColorUnit.FromRgba(data.FillColor.R, data.FillColor.G,
+                data.FillColor.B, data.Fill ? data.FillColor.A : 0);
+                
+            primitive.Stroke.Unit = SvgColorUnit.FromRgba(data.StrokeColor.R, data.StrokeColor.G,
+                data.StrokeColor.B, data.StrokeColor.A);
+                
+            primitive.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(data.StrokeWidth);
         }
 
         if (elementToAdd != null)
@@ -178,7 +184,7 @@ internal partial class DocumentViewModel
         line.Stroke.Unit = SvgColorUnit.FromRgba(lineData.StrokeColor.R, lineData.StrokeColor.G,
             lineData.StrokeColor.B, lineData.StrokeColor.A);
         line.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(lineData.StrokeWidth);
-        
+
         return line;
     }
 
@@ -189,11 +195,6 @@ internal partial class DocumentViewModel
         ellipse.Cy.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Center.Y);
         ellipse.Rx.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Radius.X);
         ellipse.Ry.Unit = SvgNumericUnit.FromUserUnits(ellipseData.Radius.Y);
-        ellipse.Fill.Unit = SvgColorUnit.FromRgba(ellipseData.FillColor.R, ellipseData.FillColor.G,
-            ellipseData.FillColor.B, ellipseData.FillColor.A);
-        ellipse.Stroke.Unit = SvgColorUnit.FromRgba(ellipseData.StrokeColor.R, ellipseData.StrokeColor.G,
-            ellipseData.StrokeColor.B, ellipseData.StrokeColor.A);
-        ellipse.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(ellipseData.StrokeWidth);
 
         return ellipse;
     }
@@ -212,11 +213,6 @@ internal partial class DocumentViewModel
 
         rect.Width.Unit = SvgNumericUnit.FromUserUnits(rectangleData.Size.X);
         rect.Height.Unit = SvgNumericUnit.FromUserUnits(rectangleData.Size.Y);
-        rect.Fill.Unit = SvgColorUnit.FromRgba(rectangleData.FillColor.R, rectangleData.FillColor.G,
-            rectangleData.FillColor.B, rectangleData.FillColor.A);
-        rect.Stroke.Unit = SvgColorUnit.FromRgba(rectangleData.StrokeColor.R, rectangleData.StrokeColor.G,
-            rectangleData.StrokeColor.B, rectangleData.StrokeColor.A);
-        rect.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(rectangleData.StrokeWidth);
 
         return rect;
     }
@@ -228,12 +224,15 @@ internal partial class DocumentViewModel
         {
             string pathData = data.Path.ToSvgPathData();
             path.PathData.Unit = new SvgStringUnit(pathData);
-
-            path.Fill.Unit =
-                SvgColorUnit.FromRgba(data.FillColor.R, data.FillColor.G, data.FillColor.B, data.FillColor.A);
-            path.Stroke.Unit = SvgColorUnit.FromRgba(data.StrokeColor.R, data.StrokeColor.G, data.StrokeColor.B,
-                data.StrokeColor.A);
-            path.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(data.StrokeWidth);
+            SvgFillRule fillRule = data.Path.FillType switch
+            {
+                PathFillType.EvenOdd => SvgFillRule.EvenOdd,
+                PathFillType.Winding => SvgFillRule.NonZero,
+                PathFillType.InverseWinding => SvgFillRule.NonZero,
+                PathFillType.InverseEvenOdd => SvgFillRule.EvenOdd,
+            };
+            
+            path.FillRule.Unit = new SvgEnumUnit<SvgFillRule>(fillRule);
         }
 
         return path;

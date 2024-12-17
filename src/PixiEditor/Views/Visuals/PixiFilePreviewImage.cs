@@ -1,7 +1,5 @@
-﻿using System.Drawing;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Threading;
-using FFMpegCore.Enums;
 using Drawie.Backend.Core;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Helpers;
@@ -9,11 +7,10 @@ using PixiEditor.Models;
 using PixiEditor.Models.IO;
 using Drawie.Numerics;
 using PixiEditor.Parser;
-using Image = Avalonia.Controls.Image;
 
 namespace PixiEditor.Views.Visuals;
 
-internal class PixiFilePreviewImage : SurfaceControl
+internal class PixiFilePreviewImage : TextureControl
 {
     public static readonly StyledProperty<string> FilePathProperty =
         AvaloniaProperty.Register<PixiFilePreviewImage, string>(nameof(FilePath));
@@ -54,20 +51,42 @@ internal class PixiFilePreviewImage : SurfaceControl
         Task.Run(() => LoadImage(path));
     }
 
-    private void LoadImage(string path)
+    private async Task LoadImage(string path)
     {
-        var surface = LoadPreviewSurface(path);
+        string fileExtension = Path.GetExtension(path);
 
-        Dispatcher.UIThread.Post(() => SetImage(surface));
+        byte[] imageBytes;
+
+        bool isPixi = fileExtension == ".pixi";
+        if (isPixi)
+        {
+            await using FileStream fileStream = File.OpenRead(path);
+            imageBytes = await PixiParser.ReadPreviewAsync(fileStream);
+        }
+        else if (SupportedFilesHelper.IsExtensionSupported(fileExtension) &&
+                 SupportedFilesHelper.IsRasterFormat(fileExtension))
+        {
+            imageBytes = await File.ReadAllBytesAsync(path);
+        }
+        else
+        {
+            return;
+        }
+
+        Dispatcher.UIThread.Post(() =>
+        {
+            var surface = LoadTexture(imageBytes);
+            SetImage(surface);
+        });
     }
 
-    private void SetImage(Surface? surface)
+    private void SetImage(Texture? texture)
     {
-        Surface = surface!;
+        Texture = texture!;
 
-        if (surface != null)
+        if (texture != null)
         {
-            ImageSize = surface.Size;
+            ImageSize = texture.Size;
         }
     }
 
@@ -75,65 +94,20 @@ internal class PixiFilePreviewImage : SurfaceControl
     {
         if (args.NewValue == null)
         {
-            previewImage.Surface = null;
+            previewImage.Texture = null;
             return;
         }
 
         previewImage.RunLoadImage();
     }
 
-    private Surface? LoadPreviewSurface(string filePath)
+    private Texture LoadTexture(byte[] textureBytes)
     {
-        if (!File.Exists(filePath))
-        {
-            return null;
-        }
-
-        var fileExtension = Path.GetExtension(filePath);
-
-        if (fileExtension == ".pixi")
-        {
-            return LoadPixiPreview(filePath);
-        }
-
-        if (SupportedFilesHelper.IsExtensionSupported(fileExtension))
-        {
-            return LoadNonPixiPreview(filePath);
-        }
-
-        return null;
-
-    }
-
-    private Surface LoadPixiPreview(string filePath)
-    {
-        try
-        {
-            var loaded = Importer.GetPreviewSurface(filePath);
-
-            if (loaded.Size is { X: <= Constants.MaxPreviewWidth, Y: <= Constants.MaxPreviewHeight })
-            {
-                return loaded;
-            }
-
-            var downscaled = DownscaleSurface(loaded);
-            loaded.Dispose();
-            return downscaled;
-        }
-        catch
-        {
-            SetCorrupt();
-            return null;
-        }
-    }
-
-    private Surface LoadNonPixiPreview(string filePath)
-    {
-        Surface loaded = null;
+        Texture loaded = null;
 
         try
         {
-            loaded = Surface.Load(filePath);
+            loaded = Texture.Load(textureBytes);
         }
         catch (RecoverableException)
         {
@@ -151,26 +125,31 @@ internal class PixiFilePreviewImage : SurfaceControl
         var downscaled = DownscaleSurface(loaded);
         loaded.Dispose();
         return downscaled;
-
     }
 
-    private static Surface DownscaleSurface(Surface surface)
+    private static Texture DownscaleSurface(Texture surface)
     {
         double factor = Math.Min(
             Constants.MaxPreviewWidth / (double)surface.Size.X,
             Constants.MaxPreviewHeight / (double)surface.Size.Y);
 
         var newSize = new VecI((int)(surface.Size.X * factor), (int)(surface.Size.Y * factor));
-        
+
         var scaledBitmap = surface.Resize(newSize, ResizeMethod.HighQuality);
 
         surface.Dispose();
         return scaledBitmap;
     }
-    
+
     // TODO: This does not actually set the dot to gray
     void SetCorrupt()
     {
         Dispatcher.UIThread.Post(() => Corrupt = true);
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        Texture?.Dispose();
     }
 }

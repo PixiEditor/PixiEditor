@@ -12,4 +12,9 @@ public struct SvgStringUnit : ISvgUnit
     {
         return Value;
     }
+
+    public void ValuesFromXml(string readerValue)
+    {
+        Value = readerValue;
+    }
 }

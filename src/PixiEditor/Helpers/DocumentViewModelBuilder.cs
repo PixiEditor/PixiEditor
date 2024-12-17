@@ -10,6 +10,7 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Graph;
 using PixiEditor.Parser.Skia;
@@ -124,7 +125,7 @@ internal class DocumentViewModelBuilder
         ImageEncoderUsed = encoder;
         return this;
     }
-    
+
     public DocumentViewModelBuilder WithLegacyColorBlending(bool usesLegacyColorBlending)
     {
         UsesLegacyColorBlending = usesLegacyColorBlending;
@@ -368,6 +369,15 @@ internal class NodeGraphBuilder
         AllNodes.Add(node);
 
         return node;
+    }
+
+    public NodeBuilder WithNodeOfType<T>(out int id) where T : IReadOnlyNode
+    {
+        NodeBuilder builder = this.WithNodeOfType(typeof(T))
+            .WithId(AllNodes.Count);
+
+        id = AllNodes.Count;
+        return builder;
     }
 
     internal class NodeBuilder

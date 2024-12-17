@@ -80,4 +80,9 @@ public class ByteBuilder
     {
         _data.AddRange(BitConverter.GetBytes(value));
     }
+
+    public void AddBool(bool value)
+    {
+        _data.Add(value ? (byte)1 : (byte)0);
+    }
 }
