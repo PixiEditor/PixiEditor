@@ -6,6 +6,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models;
 using PixiEditor.Models.IO;
 using Drawie.Numerics;
+using PixiEditor.Parser;
 
 namespace PixiEditor.Views.Visuals;
 
@@ -50,11 +51,33 @@ internal class PixiFilePreviewImage : TextureControl
         Task.Run(() => LoadImage(path));
     }
 
-    private void LoadImage(string path)
+    private async Task LoadImage(string path)
     {
-        var surface = LoadPreviewTexture(path);
+        string fileExtension = Path.GetExtension(path);
 
-        Dispatcher.UIThread.Post(() => SetImage(surface));
+        byte[] imageBytes;
+
+        bool isPixi = fileExtension == ".pixi";
+        if (isPixi)
+        {
+            await using FileStream fileStream = File.OpenRead(path);
+            imageBytes = await PixiParser.ReadPreviewAsync(fileStream);
+        }
+        else if (SupportedFilesHelper.IsExtensionSupported(fileExtension) &&
+                 SupportedFilesHelper.IsRasterFormat(fileExtension))
+        {
+            imageBytes = await File.ReadAllBytesAsync(path);
+        }
+        else
+        {
+            return;
+        }
+
+        Dispatcher.UIThread.Post(() =>
+        {
+            var surface = LoadTexture(imageBytes);
+            SetImage(surface);
+        });
     }
 
     private void SetImage(Texture? texture)
@@ -78,58 +101,13 @@ internal class PixiFilePreviewImage : TextureControl
         previewImage.RunLoadImage();
     }
 
-    private Texture? LoadPreviewTexture(string filePath)
-    {
-        if (!File.Exists(filePath))
-        {
-            return null;
-        }
-
-        var fileExtension = Path.GetExtension(filePath);
-
-        if (fileExtension == ".pixi")
-        {
-            return LoadPixiPreview(filePath);
-        }
-
-        if (SupportedFilesHelper.IsExtensionSupported(fileExtension) && SupportedFilesHelper.IsRasterFormat(fileExtension))
-        {
-            return LoadNonPixiPreview(filePath);
-        }
-
-        return null;
-
-    }
-
-    private Texture LoadPixiPreview(string filePath)
-    {
-        try
-        {
-            var loaded = Importer.GetPreviewTexture(filePath);
-
-            if (loaded.Size is { X: <= Constants.MaxPreviewWidth, Y: <= Constants.MaxPreviewHeight })
-            {
-                return loaded;
-            }
-
-            var downscaled = DownscaleSurface(loaded);
-            loaded.Dispose();
-            return downscaled;
-        }
-        catch
-        {
-            SetCorrupt();
-            return null;
-        }
-    }
-
-    private Texture LoadNonPixiPreview(string filePath)
+    private Texture LoadTexture(byte[] textureBytes)
     {
         Texture loaded = null;
 
         try
         {
-            loaded = Texture.Load(filePath);
+            loaded = Texture.Load(textureBytes);
         }
         catch (RecoverableException)
         {
@@ -147,7 +125,6 @@ internal class PixiFilePreviewImage : TextureControl
         var downscaled = DownscaleSurface(loaded);
         loaded.Dispose();
         return downscaled;
-
     }
 
     private static Texture DownscaleSurface(Texture surface)
@@ -157,13 +134,13 @@ internal class PixiFilePreviewImage : TextureControl
             Constants.MaxPreviewHeight / (double)surface.Size.Y);
 
         var newSize = new VecI((int)(surface.Size.X * factor), (int)(surface.Size.Y * factor));
-        
+
         var scaledBitmap = surface.Resize(newSize, ResizeMethod.HighQuality);
 
         surface.Dispose();
         return scaledBitmap;
     }
-    
+
     // TODO: This does not actually set the dot to gray
     void SetCorrupt()
     {
