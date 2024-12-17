@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using PixiEditor.SVG.Exceptions;
 using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
@@ -13,10 +14,9 @@ public class SvgElement(string tagName)
     public string TagName { get; } = tagName;
 
 
-    public string ToXml()
+    public XElement ToXml(XNamespace nameSpace)
     {
-        StringBuilder builder = new();
-        builder.Append($"<{TagName}");
+        XElement element = new XElement(nameSpace + TagName);
 
         foreach (var property in GetType().GetProperties())
         {
@@ -25,27 +25,20 @@ public class SvgElement(string tagName)
                 SvgProperty prop = (SvgProperty)property.GetValue(this);
                 if (prop?.Unit != null)
                 {
-                    builder.Append($" {prop.SvgName}=\"{prop.Unit.ToXml()}\"");
+                    element.Add(new XAttribute(prop.SvgName, prop.Unit.ToXml()));
                 }
             }
         }
 
-        if (this is not IElementContainer container)
+        if (this is IElementContainer container)
         {
-            builder.Append(" />");
-        }
-        else
-        {
-            builder.Append(">");
             foreach (SvgElement child in container.Children)
             {
-                builder.AppendLine(child.ToXml());
+                element.Add(child.ToXml(nameSpace));
             }
-
-            builder.Append($"</{TagName}>");
         }
-
-        return builder.ToString();
+        
+        return element;
     }
 
     public virtual void ParseData(XmlReader reader)
