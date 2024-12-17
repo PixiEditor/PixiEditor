@@ -26,10 +26,10 @@ public class SvgTests
     public void TestThatSvgBoundsAreParsedCorrectly(string svg, double x, double y, double width, double height)
     {
         SvgDocument document = SvgDocument.Parse(svg);
-        Assert.Equal(x, document.ViewBox.X);
-        Assert.Equal(y, document.ViewBox.Y);
-        Assert.Equal(width, document.ViewBox.Width);
-        Assert.Equal(height, document.ViewBox.Height);
+        Assert.Equal(x, document.ViewBox.Unit.Value.Value.X);
+        Assert.Equal(y, document.ViewBox.Unit.Value.Value.Y);
+        Assert.Equal(width, document.ViewBox.Unit.Value.Value.Width);
+        Assert.Equal(height, document.ViewBox.Unit.Value.Value.Height);
     }
 
     [Theory]
@@ -234,8 +234,8 @@ public class SvgTests
     [InlineData("#ff0000")]
     [InlineData("rgb(255, 0, 0)")]
     [InlineData("hsl(0, 100%, 50%)")]
-    [InlineData("hsla(0, 100%, 50%, 1)")]
-    [InlineData("rgba(255, 0, 0, 1)")]
+    [InlineData("hsla(0, 100%, 50%, 255)")]
+    [InlineData("rgba(255, 0, 0, 255)")]
     public void TestThatDifferentColorFormatsGetsParsedToTheSameRedValue(string colorInput)
     {
         if(SvgColorUtility.TryConvertStringToColor(colorInput, out Color color))
