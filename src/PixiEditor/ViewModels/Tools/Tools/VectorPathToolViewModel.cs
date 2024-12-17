@@ -1,4 +1,5 @@
-﻿using Avalonia.Input;
+﻿using System.ComponentModel;
+using Avalonia.Input;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -33,10 +34,10 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
     private LocalizedString actionDisplayShift;
     private LocalizedString actionDisplayCtrlShift;
 
-    [Settings.Enum("FILL_MODE", PathFillType.Winding)]
-    public PathFillType FillMode
+    [Settings.Enum("FILL_MODE", VectorPathFillType.Winding)]
+    public VectorPathFillType FillMode
     {
-        get => GetValue<PathFillType>();
+        get => GetValue<VectorPathFillType>();
     }
 
     public VectorPathToolViewModel()
@@ -118,4 +119,19 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
         OnDeselecting(false);
         OnSelected(false);
     }
+}
+
+enum VectorPathFillType
+{
+    [Description("FILL_TYPE_WINDING")]
+    
+    Winding,
+    [Description("FILL_TYPE_EVEN_ODD")]
+    EvenOdd,
+    
+    [Description("FILL_TYPE_INVERSE_WINDING")]
+    InverseWinding,
+    
+    [Description("FILL_TYPE_INVERSE_EVEN_ODD")]
+    InverseEvenOdd
 }
