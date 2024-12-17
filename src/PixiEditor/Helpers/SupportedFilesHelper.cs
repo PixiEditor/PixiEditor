@@ -92,4 +92,9 @@ internal class SupportedFilesHelper
         var any = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Any).GetFormattedTypes(true);
         return any.ToList();
     }
+
+    public static bool IsRasterFormat(string fileExtension)
+    {
+        return FileTypes.Any(i => i.Extensions.Contains(fileExtension) && i.SetKind == FileTypeDialogDataSet.SetKind.Image);
+    }
 }

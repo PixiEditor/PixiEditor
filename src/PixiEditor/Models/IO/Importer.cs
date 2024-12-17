@@ -151,22 +151,6 @@ internal class Importer : ObservableObject
         }
     }
 
-    public static Texture GetPreviewTexture(string path)
-    {
-        if (!IsSupportedFile(path))
-        {
-            throw new InvalidFileTypeException(new LocalizedString("FILE_EXTENSION_NOT_SUPPORTED",
-                Path.GetExtension(path)));
-        }
-
-        if (Path.GetExtension(path) != ".pixi")
-            return Texture.Load(path);
-
-        using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
-
-        return Texture.Load(PixiParser.ReadPreview(fileStream));
-    }
-
     public static Surface GetPreviewSurface(string path)
     {
         if (!IsSupportedFile(path))

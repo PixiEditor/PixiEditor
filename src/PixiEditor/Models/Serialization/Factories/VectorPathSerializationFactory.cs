@@ -30,6 +30,7 @@ internal class VectorPathSerializationFactory : VectorShapeSerializationFactory<
     }
 
     protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor,
+        bool fill,
         Color fillColor,
         float strokeWidth, (string serializerName, string serializerVersion) serializerData,
         out PathVectorData original)
@@ -50,7 +51,8 @@ internal class VectorPathSerializationFactory : VectorShapeSerializationFactory<
             StrokeColor = strokeColor,
             FillColor = fillColor,
             StrokeWidth = strokeWidth,
-            TransformationMatrix = matrix
+            TransformationMatrix = matrix,
+            Fill = fill
         };
 
         return true;

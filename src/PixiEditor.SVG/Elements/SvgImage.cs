@@ -1,4 +1,5 @@
-﻿using PixiEditor.SVG.Enums;
+﻿using System.Xml;
+using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG.Elements;
@@ -18,5 +19,11 @@ public class SvgImage : SvgElement
     public SvgImage() : base("image")
     {
         RequiredNamespaces.Add("xlink", "http://www.w3.org/1999/xlink");
+    }
+
+    public override void ParseData(XmlReader reader)
+    {
+        List<SvgProperty> properties = new List<SvgProperty>() { X, Y, Width, Height, Href, Mask, ImageRendering };
+        ParseAttributes(properties, reader);
     }
 }

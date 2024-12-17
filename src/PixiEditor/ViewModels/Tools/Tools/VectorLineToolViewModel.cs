@@ -19,6 +19,7 @@ namespace PixiEditor.ViewModels.Tools.Tools;
 [Command.Tool(Key = Key.L)]
 internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
 {
+    public const string NewLayerKey = "NEW_LINE_LAYER_NAME";
     private string defaultActionDisplay = "LINE_TOOL_ACTION_DISPLAY_DEFAULT";
 
     public override bool IsErasable => false;
@@ -34,7 +35,7 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
 
     public override string DefaultIcon => PixiPerfectIcons.Line;
     public override Type[]? SupportedLayerTypes { get; } = [];
-    public string? DefaultNewLayerName { get; } = new LocalizedString("NEW_LINE_LAYER_NAME");
+    public string? DefaultNewLayerName { get; } = new LocalizedString(NewLayerKey);
 
     [Settings.Inherited] 
     public double ToolSize => GetValue<double>();

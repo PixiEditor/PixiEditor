@@ -104,4 +104,13 @@ public class ByteExtractor
         
         return value;
     }
+
+    public bool GetBool()
+    {
+        bool value = BitConverter.ToBoolean(_data, Position);
+        
+        Position += sizeof(bool);
+        
+        return value;
+    }
 }

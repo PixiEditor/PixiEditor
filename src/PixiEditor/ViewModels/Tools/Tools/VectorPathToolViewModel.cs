@@ -15,12 +15,13 @@ namespace PixiEditor.ViewModels.Tools.Tools;
 [Command.Tool(Key = Key.P)]
 internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
 {
+    public const string NewLayerKey = "DEFAULT_PATH_LAYER_NAME";
     public override string ToolNameLocalizationKey => "PATH_TOOL";
     public override Type[]? SupportedLayerTypes { get; } = [typeof(IVectorLayerHandler)];
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
     public override LocalizedString Tooltip => new LocalizedString("PATH_TOOL_TOOLTIP", Shortcut);
 
-    public string? DefaultNewLayerName => new LocalizedString("DEFAULT_PATH_LAYER_NAME");
+    public string? DefaultNewLayerName => new LocalizedString(NewLayerKey);
 
     public override string DefaultIcon => PixiPerfectIcons.VectorPen;
     public override bool StopsLinkedToolOnUse => false;
