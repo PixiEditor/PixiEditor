@@ -212,17 +212,7 @@ internal static class TransformUpdateHelper
 
                 if (scaleFromCenter)
                 {
-                    VecD currentCenter = corners.RectCenter;
-                    float targetPosToCenter = (float)(targetPos - currentCenter).Length;
-                    
-                    VecD reflectedDesiredPos = desiredPos.ReflectAcrossLine(currentCenter, targetPos);
-                    
-                    float desiredPosToCenter = (float)(reflectedDesiredPos - currentCenter).Length;
-                    
-                    float scaling = desiredPosToCenter / targetPosToCenter;
-
-                    corners = corners.AsScaled(scaling);
-                    return corners;
+                    return ScaleEvenlyToPos(corners, desiredPos, targetPos);
                 }
 
                 var (leftCorn, rightCorn) = TransformHelper.GetCornersOnSide(targetSide);
@@ -260,6 +250,12 @@ internal static class TransformUpdateHelper
             }
 
             fallback:
+
+            if (scaleFromCenter)
+            {
+                return ScaleEvenlyToPos(corners, desiredPos, targetPos);
+            }
+
             corners.TopLeft = (corners.TopLeft - oppositePos) * scalingFactor + oppositePos;
             corners.BottomRight = (corners.BottomRight - oppositePos) * scalingFactor + oppositePos;
             corners.TopRight = (corners.TopRight - oppositePos) * scalingFactor + oppositePos;
@@ -305,7 +301,7 @@ internal static class TransformUpdateHelper
 
                 if (snappingController is not null)
                 {
-                    VecD direction = corners.RectCenter - desiredPos;
+                    VecD direction = desiredPos - targetPos;
                     desiredPos = snappingController.GetSnapPoint(desiredPos, direction, out snapX, out snapY);
                 }
             }
@@ -333,6 +329,24 @@ internal static class TransformUpdateHelper
         }
 
         throw new ArgumentException($"Freedom degree {freedom} is not supported");
+    }
+
+    private static ShapeCorners ScaleEvenlyToPos(ShapeCorners corners, VecD desiredPos, VecD targetPos)
+    {
+        VecD currentCenter = corners.RectCenter;
+        float targetPosToCenter = (float)(targetPos - currentCenter).Length;
+        
+        if(targetPosToCenter < epsilon)
+            return corners;
+
+        VecD reflectedDesiredPos = desiredPos.ReflectAcrossLine(currentCenter, targetPos);
+
+        float desiredPosToCenter = (float)(reflectedDesiredPos - currentCenter).Length;
+
+        float scaling = desiredPosToCenter / targetPosToCenter;
+
+        corners = corners.AsScaled(scaling);
+        return corners;
     }
 
     public static ShapeCorners UpdateShapeFromRotation(ShapeCorners corners, VecD origin, double angle)
