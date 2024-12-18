@@ -326,6 +326,11 @@ internal class ViewportOverlays
         };
 
         Binding zoomboxAngleBinding = new() { Source = Viewport, Path = "Zoombox.Angle", Mode = BindingMode.OneWay };
+        
+        Binding scaleFromCenterBinding = new()
+        {
+            Source = Viewport, Path = "Document.TransformViewModel.ScaleFromCenter", Mode = BindingMode.OneWay
+        };
 
         transformOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         transformOverlay.Bind(TransformOverlay.ActionCompletedProperty, actionCompletedBinding);
@@ -342,6 +347,7 @@ internal class ViewportOverlays
         transformOverlay.Bind(TransformOverlay.ZoomboxAngleProperty, zoomboxAngleBinding);
         transformOverlay.Bind(TransformOverlay.ShowHandlesProperty, showHandlesBinding);
         transformOverlay.Bind(TransformOverlay.IsSizeBoxEnabledProperty, isSizeBoxEnabledBinding);
+        transformOverlay.Bind(TransformOverlay.ScaleFromCenterProperty, scaleFromCenterBinding);
     }
     
     private void BindVectorPathOverlay()

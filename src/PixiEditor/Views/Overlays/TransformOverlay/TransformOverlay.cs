@@ -160,6 +160,15 @@ internal class TransformOverlay : Overlay
         set => SetValue(IsSizeBoxEnabledProperty, value);
     }
 
+    public static readonly StyledProperty<bool> ScaleFromCenterProperty = AvaloniaProperty.Register<TransformOverlay, bool>(
+        nameof(ScaleFromCenter));
+
+    public bool ScaleFromCenter
+    {
+        get => GetValue(ScaleFromCenterProperty);
+        set => SetValue(ScaleFromCenterProperty, value);
+    }
+
     static TransformOverlay()
     {
         AffectsRender<TransformOverlay>(CornersProperty, ZoomScaleProperty, SideFreedomProperty, CornerFreedomProperty,
@@ -754,7 +763,9 @@ internal class TransformOverlay : Overlay
 
             ShapeCorners? newCorners = TransformUpdateHelper.UpdateShapeFromCorner
             ((Anchor)capturedAnchor, CornerFreedom, InternalState.ProportionalAngle1,
-                InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos, SnappingController,
+                InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos,
+                ScaleFromCenter,
+                SnappingController,
                 out string snapX, out string snapY);
 
             HighlightSnappedAxis(snapX, snapY);
@@ -836,6 +847,7 @@ internal class TransformOverlay : Overlay
             ShapeCorners? newCorners = TransformUpdateHelper.UpdateShapeFromSide
             ((Anchor)capturedAnchor, SideFreedom, InternalState.ProportionalAngle1,
                 InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos + snapped.Delta,
+                ScaleFromCenter,
                 SnappingController, out string snapX, out string snapY);
 
             string finalSnapX = snapped.SnapAxisXName ?? snapX;
