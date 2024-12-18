@@ -1104,6 +1104,9 @@ internal class TransformOverlay : Overlay
             ActionCompleted.Execute(null);
 
         IsSizeBoxEnabled = false;
+        
+        SnappingController.HighlightedXAxis = string.Empty;
+        SnappingController.HighlightedYAxis = string.Empty;
     }
 
     private Handle? GetSnapHandleOfOrigin()

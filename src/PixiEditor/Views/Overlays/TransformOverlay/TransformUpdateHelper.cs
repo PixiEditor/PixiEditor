@@ -1,4 +1,5 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿using Avalonia;
+using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
 using PixiEditor.Models.Controllers.InputDevice;
@@ -172,7 +173,8 @@ internal static class TransformUpdateHelper
 
     public static ShapeCorners? UpdateShapeFromSide
     (Anchor targetSide, TransformSideFreedom freedom, double propAngle1, double propAngle2, ShapeCorners corners,
-        VecD desiredPos, bool scaleFromCenter, SnappingController? snappingController, out string snapX, out string snapY)
+        VecD desiredPos, bool scaleFromCenter, SnappingController? snappingController, out string snapX,
+        out string snapY)
     {
         if (!TransformHelper.IsSide(targetSide))
             throw new ArgumentException($"{targetSide} is not a side");
@@ -195,7 +197,8 @@ internal static class TransformUpdateHelper
 
             if (snappingController is not null)
             {
-                desiredPos = snappingController.GetSnapPoint(desiredPos, direction, out snapX, out snapY);
+                VecD scaleDirection = corners.RectCenter - oppositePos;
+                desiredPos = snappingController.GetSnapPoint(desiredPos, scaleDirection, out snapX, out snapY);
             }
 
             double scalingFactor = (desiredPos - oppositePos) * direction;
@@ -204,8 +207,23 @@ internal static class TransformUpdateHelper
 
             if (corners.IsRect)
             {
-                var delta = desiredPos - targetPos;
+                var delta = (desiredPos - targetPos);
                 var center = oppositePos.Lerp(desiredPos, 0.5);
+
+                if (scaleFromCenter)
+                {
+                    VecD currentCenter = corners.RectCenter;
+                    float targetPosToCenter = (float)(targetPos - currentCenter).Length;
+                    
+                    VecD reflectedDesiredPos = desiredPos.ReflectAcrossLine(currentCenter, targetPos);
+                    
+                    float desiredPosToCenter = (float)(reflectedDesiredPos - currentCenter).Length;
+                    
+                    float scaling = desiredPosToCenter / targetPosToCenter;
+
+                    corners = corners.AsScaled(scaling);
+                    return corners;
+                }
 
                 var (leftCorn, rightCorn) = TransformHelper.GetCornersOnSide(targetSide);
                 var (leftOppCorn, _) = TransformHelper.GetNeighboringCorners(leftCorn);
@@ -225,23 +243,10 @@ internal static class TransformUpdateHelper
                 var updRightCorn = TransformHelper.TwoLineIntersection(leftCornPos + delta, rightCornPos + delta,
                     center, center + VecD.FromAngleAndLength(rightAngle, 1));
 
-                VecD? updLeftOppCorn = null, updRightOppCorn = null;
-                if (!scaleFromCenter)
-                {
-                    updLeftOppCorn = TransformHelper.TwoLineIntersection(leftOppCornPos, rightOppCornPos, center,
-                        center + VecD.FromAngleAndLength(rightAngle, 1));
-                    updRightOppCorn = TransformHelper.TwoLineIntersection(leftOppCornPos, rightOppCornPos, center,
-                        center + VecD.FromAngleAndLength(leftAngle, 1));
-                }
-                else if(updLeftCorn is not null && updRightCorn is not null)
-                {
-                    // Mirror the corners across the center
-                    VecD mirrorLeftOppCorn = 2 * center - ((VecD)updRightCorn + delta);
-                    VecD mirrorRightOppCorn = 2 * center - ((VecD)updLeftCorn + delta);
-
-                    updLeftOppCorn = mirrorLeftOppCorn;
-                    updRightOppCorn = mirrorRightOppCorn; 
-                }
+                var updLeftOppCorn = TransformHelper.TwoLineIntersection(leftOppCornPos, rightOppCornPos, center,
+                    center + VecD.FromAngleAndLength(rightAngle, 1));
+                var updRightOppCorn = TransformHelper.TwoLineIntersection(leftOppCornPos, rightOppCornPos, center,
+                    center + VecD.FromAngleAndLength(leftAngle, 1));
 
                 if (updLeftCorn is null || updRightCorn is null || updLeftOppCorn is null || updRightOppCorn is null)
                     goto fallback;
@@ -284,6 +289,11 @@ internal static class TransformUpdateHelper
             if (freedom == TransformSideFreedom.Shear)
             {
                 desiredPos = desiredPos.ProjectOntoLine(leftCornerPos, rightCornerPos);
+                if (snappingController is not null)
+                {
+                    VecD direction = corners.RectCenter - desiredPos;
+                    desiredPos = snappingController.GetSnapPoint(desiredPos, direction, out snapX, out snapY);
+                }
             }
             else if (freedom == TransformSideFreedom.Stretch)
             {
@@ -292,10 +302,16 @@ internal static class TransformUpdateHelper
                 else
                     desiredPos = desiredPos.ProjectOntoLine(targetPos,
                         (leftCornerPos - targetPos).Rotate(Math.PI / 2) + targetPos);
+
+                if (snappingController is not null)
+                {
+                    VecD direction = corners.RectCenter - desiredPos;
+                    desiredPos = snappingController.GetSnapPoint(desiredPos, direction, out snapX, out snapY);
+                }
             }
 
             var delta = desiredPos - targetPos;
-            
+
             var newCorners = TransformHelper.UpdateCorner(corners, leftCorner, leftCornerPos + delta);
             newCorners = TransformHelper.UpdateCorner(newCorners, rightCorner, rightCornerPos + delta);
 
@@ -304,14 +320,14 @@ internal static class TransformUpdateHelper
                 VecD oppositeDelta = -delta;
                 Anchor leftCornerOpp = TransformHelper.GetOpposite(leftCorner);
                 Anchor rightCornerOpp = TransformHelper.GetOpposite(rightCorner);
-                
+
                 var leftCornerOppPos = TransformHelper.GetAnchorPosition(corners, leftCornerOpp);
                 var rightCornerOppPos = TransformHelper.GetAnchorPosition(corners, rightCornerOpp);
-                
-                newCorners = TransformHelper.UpdateCorner(newCorners, leftCornerOpp, leftCornerOppPos + oppositeDelta);
-                newCorners = TransformHelper.UpdateCorner(newCorners, rightCornerOpp, rightCornerOppPos + oppositeDelta);
-            }
 
+                newCorners = TransformHelper.UpdateCorner(newCorners, leftCornerOpp, leftCornerOppPos + oppositeDelta);
+                newCorners =
+                    TransformHelper.UpdateCorner(newCorners, rightCornerOpp, rightCornerOppPos + oppositeDelta);
+            }
 
             return newCorners.IsLegal ? newCorners : null;
         }
