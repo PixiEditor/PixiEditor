@@ -72,6 +72,11 @@ internal static class TransformUpdateHelper
             if (double.IsNaN(angle))
                 angle = 0;
 
+            if (scaleFromCenter)
+            {
+                return ScaleCornersFromCenter(corners, targetCorner, desiredPos, angle);
+            }
+
             // find positions of neighboring corners relative to the opposite corner, while also undoing the transform rotation
             VecD targetTrans = (targetPos - oppositePos).Rotate(-angle);
             VecD leftNeighTrans = (leftNeighborPos - oppositePos).Rotate(-angle);
@@ -99,24 +104,6 @@ internal static class TransformUpdateHelper
                 rightNeighDelta = newRightPos.Value - rightNeighTrans;
             }
 
-            VecD oppositeDelta = VecD.Zero;
-            if (scaleFromCenter)
-            {
-                oppositeDelta = -delta;
-                bool swapped = leftNeighbor is Anchor.TopLeft or Anchor.BottomRight;
-
-                if (swapped)
-                {
-                    leftNeighDelta += new VecD(0, oppositeDelta.Y);
-                    rightNeighDelta += new VecD(oppositeDelta.X, 0);
-                }
-                else
-                {
-                    leftNeighDelta += new VecD(oppositeDelta.X, 0);
-                    rightNeighDelta += new VecD(0, oppositeDelta.Y);
-                }
-            }
-
             // handle cases where the transform overlay is squished into a line or a single point
             bool squishedWithLeft = leftNeighTrans.TaxicabLength < epsilon;
             bool squishedWithRight = rightNeighTrans.TaxicabLength < epsilon;
@@ -141,8 +128,6 @@ internal static class TransformUpdateHelper
                 (leftNeighTrans + leftNeighDelta).Rotate(angle) + oppositePos);
             corners = TransformHelper.UpdateCorner(corners, rightNeighbor,
                 (rightNeighTrans + rightNeighDelta).Rotate(angle) + oppositePos);
-            corners = TransformHelper.UpdateCorner(corners, opposite,
-                (oppositeDelta).Rotate(angle) + oppositePos);
 
             if (!corners.IsLegal)
                 return null;
@@ -158,6 +143,36 @@ internal static class TransformUpdateHelper
         }
 
         throw new ArgumentException($"Freedom degree {freedom} is not supported");
+    }
+
+    private static ShapeCorners? ScaleCornersFromCenter(ShapeCorners corners, Anchor targetCorner, VecD desiredPos, 
+        double angle)
+    {
+        // un rotate to properly calculate the scaling
+        // here is a skewing issue, since angle for skewed rects is already non 0
+        // (this is an issue in itself, since when user skews a non-rotated rect, the angle should be 0,
+        // so maybe if we find a way to get "un skewed" angle
+        // we can use it here and there. Idk if it's possible, It's hard to say what should be a "proper" angle for skewed rect,
+        // when you didn't see it getting skewed, so perhaps some tracking for overlay session would be the only solution)
+        desiredPos = desiredPos.Rotate(-angle, corners.RectCenter);
+        corners = corners.AsRotated(-angle, corners.RectCenter);
+
+        VecD targetPos = TransformHelper.GetAnchorPosition(corners, targetCorner);
+
+        VecD currentCenter = corners.RectCenter;
+        VecD targetPosToCenter = (targetPos - currentCenter);
+
+        if (targetPosToCenter.Length < epsilon)
+            return corners;
+
+        VecD desiredPosToCenter = (desiredPos - currentCenter);
+
+        VecD scaling = new(desiredPosToCenter.X / targetPosToCenter.X, desiredPosToCenter.Y / targetPosToCenter.Y);
+        
+        // when rect is skewed and falsely un rotated, this applies scaling in wrong directions
+        corners = corners.AsScaled((float)scaling.X, (float)scaling.Y);
+
+        return corners.AsRotated(angle, corners.RectCenter);
     }
 
     private static VecD SwapAxes(VecD vec) => new VecD(vec.Y, vec.X);
@@ -335,8 +350,8 @@ internal static class TransformUpdateHelper
     {
         VecD currentCenter = corners.RectCenter;
         float targetPosToCenter = (float)(targetPos - currentCenter).Length;
-        
-        if(targetPosToCenter < epsilon)
+
+        if (targetPosToCenter < epsilon)
             return corners;
 
         VecD reflectedDesiredPos = desiredPos.ReflectAcrossLine(currentCenter, targetPos);
