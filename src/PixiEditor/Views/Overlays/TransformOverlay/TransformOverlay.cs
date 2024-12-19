@@ -344,7 +344,9 @@ internal class TransformOverlay : Overlay
         DrawOverlay(drawingContext, canvasBounds.Size, Corners, InternalState.Origin, (float)ZoomScale);
 
         if (capturedAnchor is null)
+        {
             UpdateSpecialCursors(lastPointerPos);
+        }
     }
 
     private void DrawOverlay
@@ -430,13 +432,17 @@ internal class TransformOverlay : Overlay
             double angle = (lastPointerPos - InternalState.Origin).Angle * 180 / Math.PI - 90;
             matrix = matrix.PostConcat(Matrix3X3.CreateRotationDegrees((float)angle, (float)lastPointerPos.X,
                 (float)lastPointerPos.Y));
-            matrix = matrix.PostConcat(Matrix3X3.CreateScale(8f / (float)ZoomScale, 8 / (float)ZoomScale,
+            matrix = matrix.PostConcat(Matrix3X3.CreateScale(7f / (float)ZoomScale, 7f / (float)ZoomScale,
                 (float)lastPointerPos.X, (float)lastPointerPos.Y));
             context.SetMatrix(context.TotalMatrix.Concat(matrix));
 
             context.DrawPath(rotateCursorGeometry, whiteFillPen);
             context.DrawPath(rotateCursorGeometry, cursorBorderPaint);
         }
+        
+        context.RestoreToCount(saved);
+        
+        saved = context.Save();
 
         if (ShowHandles && shearCursorActive)
         {
@@ -813,7 +819,7 @@ internal class TransformOverlay : Overlay
     private bool UpdateSpecialCursors(VecD mousePos)
     {
         bool canShear = CanShear(mousePos, out Anchor anchor);
-        if (!canShear || (!CanRotate(mousePos) && !isRotating) || LockRotation)
+        if ((!canShear && !CanRotate(mousePos) && !isRotating) || LockRotation)
         {
             rotationCursorActive = false;
             shearCursorActive = false;
