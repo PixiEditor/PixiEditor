@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using Avalonia.Input;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -39,6 +40,18 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
     public VectorPathFillType FillMode
     {
         get => GetValue<VectorPathFillType>();
+    }
+
+    [Settings.Enum("STROKE_CAP", StrokeCap.Round)]
+    public StrokeCap StrokeLineCap
+    {
+        get => GetValue<StrokeCap>();
+    }
+
+    [Settings.Enum("STROKE_JOIN", StrokeJoin.Round)]
+    public StrokeJoin StrokeLineJoin
+    {
+        get => GetValue<StrokeJoin>();
     }
 
     public VectorPathToolViewModel()
