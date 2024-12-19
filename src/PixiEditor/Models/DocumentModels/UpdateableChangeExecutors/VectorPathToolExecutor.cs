@@ -1,6 +1,7 @@
 ﻿using Avalonia.Input;
 using Avalonia.Media;
 using ChunkyImageLib.DataHolders;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument;
@@ -25,7 +26,7 @@ using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
-internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorFeature, IMidChangeUndoableExecutor
+internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorFeature
 {
     private IStructureMemberHandler member;
     private VectorPath startingPath;
@@ -36,8 +37,6 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
 
     public override ExecutorType Type => ExecutorType.ToolLinked;
 
-    public bool CanUndo => document.PathOverlayHandler.HasUndo;
-    public bool CanRedo => document.PathOverlayHandler.HasRedo;
     public bool StopExecutionOnNormalUndo => false;
 
     public override bool BlocksOtherActions => false;
@@ -102,9 +101,9 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
                 }
 
                 //below forces undo before starting new path
-                //internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
+               // internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
 
-                //internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
+               // internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData(startingPath)));
             }
         }
         else
@@ -207,6 +206,9 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
                 StrokeWidth = (float)toolbar.ToolSize,
                 StrokeColor = toolbar.StrokeColor.ToColor(),
                 FillColor = toolbar.Fill ? toolbar.FillColor.ToColor() : Colors.Transparent,
+                Fill = toolbar.Fill,
+                StrokeLineCap = vectorPathToolHandler.StrokeLineCap,
+                StrokeLineJoin = vectorPathToolHandler.StrokeLineJoin
             };
         }
         
@@ -215,6 +217,9 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
             StrokeWidth = (float)toolbar.ToolSize,
             StrokeColor = toolbar.StrokeColor.ToColor(),
             FillColor = toolbar.Fill ? toolbar.FillColor.ToColor() : Colors.Transparent,
+            Fill = toolbar.Fill,
+            StrokeLineCap = vectorPathToolHandler.StrokeLineCap,
+            StrokeLineJoin = vectorPathToolHandler.StrokeLineJoin
         };
     }
 
@@ -236,16 +241,6 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
             ITransformableExecutor _ => true,
             _ => false
         };
-    }
-
-    public void OnMidChangeUndo()
-    {
-        document.PathOverlayHandler.Undo();
-    }
-
-    public void OnMidChangeRedo()
-    {
-        document.PathOverlayHandler.Redo();
     }
 
     protected void HighlightSnapping(string? snapX, string? snapY)
@@ -274,5 +269,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         toolbar.Fill = pathData.Fill;
         toolbar.FillColor = pathData.FillColor.ToColor();
         toolbar.GetSetting<EnumSettingViewModel<VectorPathFillType>>(nameof(VectorPathToolViewModel.FillMode)).Value = (VectorPathFillType)pathData.Path.FillType;
+        toolbar.GetSetting<EnumSettingViewModel<StrokeCap>>(nameof(VectorPathToolViewModel.StrokeLineCap)).Value = pathData.StrokeLineCap;
+        toolbar.GetSetting<EnumSettingViewModel<StrokeJoin>>(nameof(VectorPathToolViewModel.StrokeLineJoin)).Value = pathData.StrokeLineJoin;
     }
 }
