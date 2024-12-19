@@ -63,4 +63,7 @@ internal interface IToolHandler : IHandler
     public void SetToolSetSettings(IToolSetHandler toolset, Dictionary<string, object>? settings);
     public void ApplyToolSetSettings(IToolSetHandler toolset);
     public void OnDeselecting(bool transient);
+    
+    public void OnPostUndo();
+    public void OnPostRedo();
 }

@@ -31,4 +31,6 @@ internal interface IToolsHandler : IHandler
     public void UseToolEventInlet(VecD argsPositionOnCanvas, MouseButton argsButton);
     public T GetTool<T>() where T : IToolHandler;
     public void AddPropertyChangedCallback(string propertyName, Action callback);
+    public void OnPostUndoInlet();
+    public void OnPostRedoInlet();
 }
