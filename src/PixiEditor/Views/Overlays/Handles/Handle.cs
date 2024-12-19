@@ -9,7 +9,9 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.UI.Overlays;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Helpers.Extensions;
+using PixiEditor.Helpers.Resources;
 using PixiEditor.Views.Overlays.TransformOverlay;
 using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 using Path = Avalonia.Controls.Shapes.Path;
@@ -65,17 +67,22 @@ public abstract class Handle : IHandle
         return ResourceLoader.GetResource<T>(key);
     }
 
-    public static VectorPath GetHandleGeometry(string handleName)
+    public static PathVectorData GetHandleGeometry(string handleName)
     {
         if (Application.Current.Styles.TryGetResource(handleName, null, out object shape))
         {
             if (shape is string path)
             {
-                return VectorPath.FromSvgPath(path);
+                return new PathVectorData(VectorPath.FromSvgPath(path));
+            }
+
+            if (shape is VectorPathResource resource)
+            {
+                return resource.ToVectorPathData();
             }
         }
 
-        return VectorPath.FromSvgPath("M 0 0 L 1 0 M 0 0 L 0 1");
+        return new PathVectorData(VectorPath.FromSvgPath("M 0 0 L 1 0 M 0 0 L 0 1"));
     }
 
     protected static Paint? GetPaint(string key, PaintStyle style = PaintStyle.Fill)

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
@@ -174,8 +175,17 @@ internal class SvgDocumentBuilder : IDocumentBuilder
                 _ => PathFillType.Winding
             };
         }
+        
+        StrokeCap strokeLineCap = StrokeCap.Round;
+        StrokeJoin strokeLineJoin = StrokeJoin.Round;
+        
+        if(element.StrokeLineCap.Unit != null)
+        {
+            strokeLineCap = (StrokeCap)element.StrokeLineCap.Unit.Value.Value;
+            strokeLineJoin = (StrokeJoin)element.StrokeLineJoin.Unit.Value.Value;
+        }
 
-        return new PathVectorData(path);
+        return new PathVectorData(path) { StrokeLineCap = strokeLineCap, StrokeLineJoin = strokeLineJoin };
     }
 
     private RectangleVectorData AddRect(SvgRectangle element)
@@ -208,7 +218,10 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             var targetWidth = styleContext.StrokeWidth.Unit;
             
             shapeData.StrokeColor = targetColor.Value.Color;
-            shapeData.StrokeWidth = (float)targetWidth.Value.Value;
+            if (targetWidth != null)
+            {
+                shapeData.StrokeWidth = (float)targetWidth.Value.Value;
+            }
         }
 
         if (hasTransform)

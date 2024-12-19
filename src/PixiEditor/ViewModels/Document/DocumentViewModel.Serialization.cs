@@ -233,6 +233,8 @@ internal partial class DocumentViewModel
             };
             
             path.FillRule.Unit = new SvgEnumUnit<SvgFillRule>(fillRule);
+            path.StrokeLineJoin.Unit = new SvgEnumUnit<SvgStrokeLineJoin>(ToSvgLineJoin(data.StrokeLineJoin));
+            path.StrokeLineCap.Unit = new SvgEnumUnit<SvgStrokeLineCap>((SvgStrokeLineCap)data.StrokeLineCap);
         }
 
         return path;
@@ -512,5 +514,15 @@ internal partial class DocumentViewModel
         {
             NodeId = idMap[rasterKeyFrame.NodeId], KeyFrameId = keyFrameIds[rasterKeyFrame.Id],
         });
+    }
+    
+    private static SvgStrokeLineJoin ToSvgLineJoin(StrokeJoin strokeLineJoin)
+    {
+        return strokeLineJoin switch
+        {
+            StrokeJoin.Bevel => SvgStrokeLineJoin.Bevel,
+            StrokeJoin.Round => SvgStrokeLineJoin.Round,
+            _ => SvgStrokeLineJoin.Miter
+        };
     }
 }

@@ -18,6 +18,7 @@ using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers.InputDevice;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Views.Overlays.Drawables;
 using PixiEditor.Views.Overlays.Handles;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
@@ -160,8 +161,9 @@ internal class TransformOverlay : Overlay
         set => SetValue(IsSizeBoxEnabledProperty, value);
     }
 
-    public static readonly StyledProperty<bool> ScaleFromCenterProperty = AvaloniaProperty.Register<TransformOverlay, bool>(
-        nameof(ScaleFromCenter));
+    public static readonly StyledProperty<bool> ScaleFromCenterProperty =
+        AvaloniaProperty.Register<TransformOverlay, bool>(
+            nameof(ScaleFromCenter));
 
     public bool ScaleFromCenter
     {
@@ -190,6 +192,7 @@ internal class TransformOverlay : Overlay
     private double propAngle1OnStartRotate = 0;
     private double propAngle2OnStartRotate = 0;
 
+    private TransformSideFreedom beforeShearSideFreedom;
     private Anchor? capturedAnchor;
     private ShapeCorners cornersOnStartAnchorDrag;
     private VecD mousePosOnStartAnchorDrag;
@@ -263,13 +266,17 @@ internal class TransformOverlay : Overlay
     private List<Handle> snapPoints = new();
     private Handle? snapHandleOfOrigin;
 
-    private VectorPath rotateCursorGeometry = Handle.GetHandleGeometry("RotateHandle");
+    private VectorPath rotateCursorGeometry = Handle.GetHandleGeometry("RotateHandle").Path;
+    private PathVectorData shearCursorGeometry = Handle.GetHandleGeometry("ShearHandle");
     private bool rotationCursorActive = false;
+    private bool shearCursorActive = false;
+    private Anchor? hoveredAnchor;
 
     private VecD lastPointerPos;
     private InfoBox infoBox;
     private VecD lastSize;
     private bool actuallyMoved = false;
+    private bool isShearing = false;
 
     public TransformOverlay()
     {
@@ -337,7 +344,7 @@ internal class TransformOverlay : Overlay
         DrawOverlay(drawingContext, canvasBounds.Size, Corners, InternalState.Origin, (float)ZoomScale);
 
         if (capturedAnchor is null)
-            UpdateRotationCursor(lastPointerPos);
+            UpdateSpecialCursors(lastPointerPos);
     }
 
     private void DrawOverlay
@@ -431,6 +438,26 @@ internal class TransformOverlay : Overlay
             context.DrawPath(rotateCursorGeometry, cursorBorderPaint);
         }
 
+        if (ShowHandles && shearCursorActive)
+        {
+            var matrix = Matrix3X3.CreateTranslation((float)lastPointerPos.X, (float)lastPointerPos.Y);
+            
+            matrix = matrix.PostConcat(Matrix3X3.CreateTranslation(
+                (float)-shearCursorGeometry.VisualAABB.Center.X,
+                (float)-shearCursorGeometry.VisualAABB.Center.Y));
+            
+            matrix = matrix.PostConcat(Matrix3X3.CreateScale(
+                20 / zoomboxScale / (float)shearCursorGeometry.VisualAABB.Size.X, 20 / zoomboxScale / (float)shearCursorGeometry.VisualAABB.Size.Y,
+                (float)lastPointerPos.X, (float)lastPointerPos.Y));
+
+            if(hoveredAnchor is Anchor.Right or Anchor.Left)
+                matrix = matrix.PostConcat(Matrix3X3.CreateRotationDegrees(90, (float)lastPointerPos.X, (float)lastPointerPos.Y));
+
+            context.SetMatrix(context.TotalMatrix.Concat(matrix));
+
+            shearCursorGeometry.RasterizeTransformed(context);
+        }
+
         context.RestoreToCount(saved);
 
         if (IsSizeBoxEnabled)
@@ -465,17 +492,23 @@ internal class TransformOverlay : Overlay
 
     private void OnAnchorHandlePressed(Handle source, OverlayPointerArgs args)
     {
-        capturedAnchor = anchorMap[source];
-        cornersOnStartAnchorDrag = Corners;
-        originOnStartAnchorDrag = InternalState.Origin;
-        mousePosOnStartAnchorDrag = lastPointerPos;
-        IsSizeBoxEnabled = true;
+        CaptureAnchor(anchorMap[source]);
 
         if (source == originHandle)
         {
             IsSizeBoxEnabled = false;
             snapHandleOfOrigin = null;
         }
+
+        IsSizeBoxEnabled = true;
+    }
+
+    private void CaptureAnchor(Anchor anchor)
+    {
+        capturedAnchor = anchor;
+        cornersOnStartAnchorDrag = Corners;
+        originOnStartAnchorDrag = InternalState.Origin;
+        mousePosOnStartAnchorDrag = lastPointerPos;
     }
 
     private void OnMoveHandlePressed(Handle source, OverlayPointerArgs args)
@@ -486,6 +519,7 @@ internal class TransformOverlay : Overlay
     protected override void OnOverlayPointerExited(OverlayPointerArgs args)
     {
         rotationCursorActive = false;
+        shearCursorActive = false;
         Refresh();
     }
 
@@ -496,7 +530,11 @@ internal class TransformOverlay : Overlay
 
         if (Handles.Any(x => x.IsWithinHandle(x.Position, args.Point, ZoomScale))) return;
 
-        if (!CanRotate(args.Point))
+        if (CanShear(args.Point, out var side))
+        {
+            StartShearing(args, side);
+        }
+        else if (!CanRotate(args.Point))
         {
             StartMoving(args.Point);
         }
@@ -549,10 +587,11 @@ internal class TransformOverlay : Overlay
         if (capturedAnchor is not null)
         {
             HandleCapturedAnchorMovement(e.Point);
+            lastPointerPos = e.Point;
             return;
         }
 
-        if (UpdateRotationCursor(e.Point))
+        if (UpdateSpecialCursors(e.Point))
         {
             finalCursor = new Cursor(StandardCursorType.None);
         }
@@ -601,11 +640,22 @@ internal class TransformOverlay : Overlay
             e.Pointer.Capture(null);
             Cursor = new Cursor(StandardCursorType.Arrow);
             var pos = e.Point;
-            UpdateRotationCursor(pos);
+            UpdateSpecialCursors(pos);
+        }
+
+        if (isShearing)
+        {
+            isShearing = false;
+            SideFreedom = beforeShearSideFreedom;
+            e.Pointer.Capture(null);
+            Cursor = new Cursor(StandardCursorType.Arrow);
+            var pos = e.Point;
+            UpdateSpecialCursors(pos);
         }
 
         StopMoving();
         IsSizeBoxEnabled = false;
+        capturedAnchor = null;
     }
 
     public override bool TestHit(VecD point)
@@ -631,6 +681,24 @@ internal class TransformOverlay : Overlay
         StopMoving();
     }
 
+    private bool CanShear(VecD mousePos, out Anchor side)
+    {
+        double distance = 20 / ZoomScale;
+        var sides = new[] { Anchor.Top, Anchor.Bottom, Anchor.Left, Anchor.Right };
+
+        bool isOverHandle = Handles.Any(x => x.IsWithinHandle(x.Position, mousePos, ZoomScale));
+        if (isOverHandle)
+        {
+            side = default;
+            return false;
+        }
+
+        side = sides.FirstOrDefault(side => VecD.Distance(TransformHelper.GetAnchorPosition(Corners, side), mousePos)
+                                            < distance);
+
+        return side != default;
+    }
+
     private void StopMoving()
     {
         isMoving = false;
@@ -650,6 +718,15 @@ internal class TransformOverlay : Overlay
         originOnStartMove = InternalState.Origin;
         cornersOnStartMove = Corners;
         actuallyMoved = false;
+    }
+
+    private void StartShearing(OverlayPointerArgs args, Anchor side)
+    {
+        isShearing = true;
+        beforeShearSideFreedom = SideFreedom;
+        SideFreedom = TransformSideFreedom.Shear;
+        CaptureAnchor(side);
+        lastPointerPos = args.Point;
     }
 
     private void HandleTransform(VecD pos)
@@ -733,15 +810,19 @@ internal class TransformOverlay : Overlay
                Handles.All(x => !x.IsWithinHandle(x.Position, mousePos, ZoomScale)) && TestHit(mousePos);
     }
 
-    private bool UpdateRotationCursor(VecD mousePos)
+    private bool UpdateSpecialCursors(VecD mousePos)
     {
-        if ((!CanRotate(mousePos) && !isRotating) || LockRotation)
+        bool canShear = CanShear(mousePos, out Anchor anchor);
+        if (!canShear || (!CanRotate(mousePos) && !isRotating) || LockRotation)
         {
             rotationCursorActive = false;
+            shearCursorActive = false;
             return false;
         }
 
-        rotationCursorActive = true;
+        rotationCursorActive = !canShear;
+        shearCursorActive = canShear;
+        hoveredAnchor = anchor;
         return true;
     }
 
@@ -1104,7 +1185,7 @@ internal class TransformOverlay : Overlay
             ActionCompleted.Execute(null);
 
         IsSizeBoxEnabled = false;
-        
+
         SnappingController.HighlightedXAxis = string.Empty;
         SnappingController.HighlightedYAxis = string.Empty;
     }
@@ -1129,6 +1210,12 @@ internal class TransformOverlay : Overlay
     {
         isMoving = false;
         isRotating = false;
+        if (isShearing)
+        {
+            SideFreedom = beforeShearSideFreedom;
+        }
+
+        isShearing = false;
         Corners = corners;
         InternalState = new()
         {

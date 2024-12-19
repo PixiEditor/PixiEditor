@@ -23,17 +23,17 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
     public RectD TransformedVisualAABB => new ShapeCorners(VisualAABB).WithMatrix(TransformationMatrix).AABBBounds;
     public abstract ShapeCorners TransformationCorners { get; } 
     
-    protected void ApplyTransformTo(DrawingSurface drawingSurface)
+    protected void ApplyTransformTo(Canvas canvas)
     {
-        Matrix3X3 canvasMatrix = drawingSurface.Canvas.TotalMatrix;
+        Matrix3X3 canvasMatrix = canvas.TotalMatrix;
 
         Matrix3X3 final = canvasMatrix.Concat(TransformationMatrix);
 
-        drawingSurface.Canvas.SetMatrix(final);
+        canvas.SetMatrix(final);
     }
 
-    public abstract void RasterizeGeometry(DrawingSurface drawingSurface);
-    public abstract void RasterizeTransformed(DrawingSurface drawingSurface);
+    public abstract void RasterizeGeometry(Canvas canvas);
+    public abstract void RasterizeTransformed(Canvas canvas);
     public abstract bool IsValid();
     public abstract int GetCacheHash();
     public abstract int CalculateHash();
