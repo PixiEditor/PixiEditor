@@ -30,23 +30,23 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
         Radius = radius;
     }
 
-    public override void RasterizeGeometry(DrawingSurface drawingSurface)
+    public override void RasterizeGeometry(Canvas drawingSurface)
     {
         Rasterize(drawingSurface, false);
     }
 
-    public override void RasterizeTransformed(DrawingSurface drawingSurface)
+    public override void RasterizeTransformed(Canvas drawingSurface)
     {
         Rasterize(drawingSurface, true);
     }
 
-    private void Rasterize(DrawingSurface drawingSurface, bool applyTransform)
+    private void Rasterize(Canvas canvas, bool applyTransform)
     {
         int saved = 0;
         if (applyTransform)
         {
-            saved = drawingSurface.Canvas.Save();
-            ApplyTransformTo(drawingSurface);
+            saved = canvas.Save();
+            ApplyTransformTo(canvas);
         }
 
         using Paint shapePaint = new Paint();
@@ -56,7 +56,7 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
         {
             shapePaint.Color = FillColor;
             shapePaint.Style = PaintStyle.Fill;
-            drawingSurface.Canvas.DrawOval(Center, Radius, shapePaint);
+            canvas.DrawOval(Center, Radius, shapePaint);
         }
 
         if (StrokeWidth > 0)
@@ -64,12 +64,12 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
             shapePaint.Color = StrokeColor;
             shapePaint.Style = PaintStyle.Stroke;
             shapePaint.StrokeWidth = StrokeWidth;
-            drawingSurface.Canvas.DrawOval(Center, Radius, shapePaint);
+            canvas.DrawOval(Center, Radius, shapePaint);
         }
 
         if (applyTransform)
         {
-            drawingSurface.Canvas.RestoreToCount(saved);
+            canvas.RestoreToCount(saved);
         }
     }
 

@@ -223,7 +223,7 @@ internal static class ClipboardController
             var layerId = layerIds[i];
 
             var layer = doc.StructureHelper.Find(layerId);
-            if (layer is not { TightBounds: not null } || layer.TightBounds.Value.Pos.AlmostEquals(pos))
+            if (layer is not { TightBounds: not null } || !layer.TightBounds.Value.Pos.AlmostEquals(pos))
                 return false;
         }
         

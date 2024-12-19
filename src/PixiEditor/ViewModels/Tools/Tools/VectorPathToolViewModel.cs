@@ -97,7 +97,7 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
             ActionDisplay = actionDisplayDefault;
         }
     }
-
+    
     public override void OnSelected(bool restoring)
     {
         if (restoring) return;
@@ -105,13 +105,29 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorPathTool();
         isActivated = true;
     }
-
+    
     public override void OnDeselecting(bool transient)
     {
         if (!transient)
         {
             ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
             isActivated = false;
+        }
+    }
+
+    public override void OnPostUndo()
+    {
+        if (isActivated)
+        {
+            OnSelected(false);
+        }
+    }
+
+    public override void OnPostRedo()
+    {
+        if (isActivated)
+        {
+            OnSelected(false);
         }
     }
 

@@ -16,7 +16,7 @@ namespace PixiEditor.ViewModels.Tools.Tools;
 internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHandler
 {
     public const string NewLayerKey = "NEW_RECTANGLE_LAYER_NAME";
-    
+
     private string defaultActionDisplay = "RECTANGLE_TOOL_ACTION_DISPLAY_DEFAULT";
     public override string ToolNameLocalizationKey => "RECTANGLE_TOOL";
     public override bool IsErasable => false;
@@ -36,6 +36,8 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
+        DrawFromCenter = ctrlIsDown;
+
         if (shiftIsDown)
         {
             DrawEven = true;
@@ -63,8 +65,11 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
             vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) is IReadOnlyRectangleData)
         {
             ShapeCorners corners = vectorLayer.TransformationCorners;
-            ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument.TransformViewModel.ShowTransform(
+            var transformVm = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument.TransformViewModel;
+            transformVm.ShowTransform(
                 DocumentTransformMode.Scale_Rotate_Shear_NoPerspective, false, corners, false);
+            
+            transformVm.CanAlignToPixels = false;
         }
 
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorRectangleTool();

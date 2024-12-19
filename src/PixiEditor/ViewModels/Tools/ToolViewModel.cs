@@ -158,6 +158,9 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     public virtual void OnDeselecting(bool transient)
     {
     }
+    
+    public virtual void OnPostUndo() { }
+    public virtual void OnPostRedo() { }
 
     public void SetToolSetSettings(IToolSetHandler toolset, Dictionary<string, object>? settings)
     {

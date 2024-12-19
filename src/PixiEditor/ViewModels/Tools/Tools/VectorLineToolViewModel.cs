@@ -23,7 +23,7 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
     private string defaultActionDisplay = "LINE_TOOL_ACTION_DISPLAY_DEFAULT";
 
     public override bool IsErasable => false;
-    
+
     public VectorLineToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
@@ -37,8 +37,7 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
     public override Type[]? SupportedLayerTypes { get; } = [];
     public string? DefaultNewLayerName { get; } = new LocalizedString(NewLayerKey);
 
-    [Settings.Inherited] 
-    public double ToolSize => GetValue<double>();
+    [Settings.Inherited] public double ToolSize => GetValue<double>();
 
     public bool Snap { get; private set; }
 
@@ -46,6 +45,8 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
+        DrawFromCenter = ctrlIsDown;
+
         if (shiftIsDown)
         {
             ActionDisplay = "LINE_TOOL_ACTION_DISPLAY_SHIFT";
@@ -66,12 +67,13 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
     public override void OnSelected(bool restoring)
     {
         if (restoring) return;
-        
+
         var document = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
         var layer = document.SelectedStructureMember;
         if (layer is IVectorLayerHandler vectorLayer)
         {
-            if (vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) is IReadOnlyLineData lineVectorData)
+            if (vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) is IReadOnlyLineData
+                lineVectorData)
             {
                 document.LineToolOverlayViewModel.Show(lineVectorData.TransformedStart, lineVectorData.TransformedEnd,
                     false);

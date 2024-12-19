@@ -26,7 +26,7 @@ public class RasterizeShapeNode : RenderNode
         if (shape == null || !shape.IsValid())
             return;
         
-        shape.RasterizeTransformed(surface);
+        shape.RasterizeTransformed(surface.Canvas);
     }
 
     public override Node CreateCopy() => new RasterizeShapeNode();
@@ -42,7 +42,7 @@ public class RasterizeShapeNode : RenderNode
         if (shape == null || !shape.IsValid())
             return false;
 
-        shape.RasterizeTransformed(renderOn);
+        shape.RasterizeTransformed(renderOn.Canvas);
 
         return true;
     }

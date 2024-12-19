@@ -20,7 +20,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
 
     protected Color StrokeColor => toolbar!.StrokeColor.ToColor();
     protected double StrokeWidth => toolViewModel!.ToolSize;
-    
+
     protected bool drawOnMask;
 
     protected VecD curPos;
@@ -29,6 +29,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
     private IColorsHandler? colorsVM;
     protected IShapeToolbar? toolbar;
     private bool ignoreNextColorChange = false;
+    private VecD lastStartPos;
 
     public override bool CanUndo => document.LineToolOverlayHandler.HasUndo;
     public override bool CanRedo => document.LineToolOverlayHandler.HasRedo;
@@ -63,7 +64,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
             document.LineToolOverlayHandler.Show(startDrawingPos, startDrawingPos, false);
             document.LineToolOverlayHandler.ShowHandles = false;
             document.LineToolOverlayHandler.IsSizeBoxEnabled = true;
-            
+
             return ExecutionState.Success;
         }
 
@@ -107,10 +108,20 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         VecD snapped = endPos;
         string snapX = "";
         string snapY = "";
-        
+
+        VecD startPos = startDrawingPos;
+
         if (toolViewModel!.Snap)
         {
-            endPos = GeometryHelper.Get45IncrementedPosition(startDrawingPos, pos);
+            if (AlignToPixels)
+            {
+                endPos = GeometryHelper.Get45IncrementedPositionAligned(startDrawingPos, pos);
+            }
+            else
+            {
+                endPos = GeometryHelper.Get45IncrementedPosition(startDrawingPos, pos);
+            }
+
             VecD directionConstraint = endPos - startDrawingPos;
             snapped =
                 document!.SnappingHandler.SnappingController.GetSnapPoint(endPos, directionConstraint, out snapX,
@@ -120,7 +131,12 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         {
             snapped = document!.SnappingHandler.SnappingController.GetSnapPoint(endPos, out snapX, out snapY);
         }
-        
+
+        if (toolViewModel.DrawFromCenter)
+        {
+            VecD center = startDrawingPos;
+            startDrawingPos = center + (center - snapped);
+        }
 
         HighlightSnapping(snapX, snapY);
         document!.LineToolOverlayHandler.LineEnd = snapped;
@@ -129,6 +145,9 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
 
         var drawLineAction = DrawLine(curPos);
         internals!.ActionAccumulator.AddActions(drawLineAction);
+
+        lastStartPos = startDrawingPos;
+        startDrawingPos = startPos;
     }
 
     public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
@@ -141,7 +160,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         }
 
         document!.LineToolOverlayHandler.Hide();
-        document!.LineToolOverlayHandler.Show(startDrawingPos, curPos, true);
+        document!.LineToolOverlayHandler.Show(lastStartPos, curPos, true);
         base.OnLeftMouseButtonUp(argsPositionOnCanvas);
     }
 
@@ -165,6 +184,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
             {
                 ignoreNextColorChange = false;
             }
+
             return;
         }
 

@@ -14,6 +14,7 @@ internal abstract class ShapeTool : ToolViewModel, IShapeToolHandler
 
     public override bool IsErasable => true;
     public bool DrawEven { get; protected set; }
+    public bool DrawFromCenter { get; protected set; }
 
     public ShapeTool()
     {

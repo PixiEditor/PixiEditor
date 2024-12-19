@@ -17,33 +17,37 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
     public override ShapeCorners TransformationCorners =>
         new ShapeCorners(GeometryAABB).WithMatrix(TransformationMatrix);
 
+    public StrokeCap StrokeLineCap { get; set; } = StrokeCap.Round;
+    
+    public StrokeJoin StrokeLineJoin { get; set; } = StrokeJoin.Round;
+
     public PathVectorData(VectorPath path)
     {
         Path = path;
     }
 
-    public override void RasterizeGeometry(DrawingSurface drawingSurface)
+    public override void RasterizeGeometry(Canvas canvas)
     {
-        Rasterize(drawingSurface, false);
+        Rasterize(canvas, false);
     }
 
-    public override void RasterizeTransformed(DrawingSurface drawingSurface)
+    public override void RasterizeTransformed(Canvas canvas)
     {
-        Rasterize(drawingSurface, true);
+        Rasterize(canvas, true);
     }
 
-    private void Rasterize(DrawingSurface drawingSurface, bool applyTransform)
+    private void Rasterize(Canvas canvas, bool applyTransform)
     {
         int num = 0;
         if (applyTransform)
         {
-            num = drawingSurface.Canvas.Save();
-            ApplyTransformTo(drawingSurface);
+            num = canvas.Save();
+            ApplyTransformTo(canvas);
         }
 
         using Paint paint = new Paint()
         {
-            IsAntiAliased = true, StrokeJoin = StrokeJoin.Round, StrokeCap = StrokeCap.Round
+            IsAntiAliased = true, StrokeJoin = StrokeLineJoin, StrokeCap = StrokeLineCap
         };
 
         if (Fill && FillColor.A > 0)
@@ -51,7 +55,7 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
             paint.Color = FillColor;
             paint.Style = PaintStyle.Fill;
 
-            drawingSurface.Canvas.DrawPath(Path, paint);
+            canvas.DrawPath(Path, paint);
         }
 
         if (StrokeWidth > 0)
@@ -60,12 +64,12 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
             paint.Style = PaintStyle.Stroke;
             paint.StrokeWidth = StrokeWidth;
             
-            drawingSurface.Canvas.DrawPath(Path, paint);
+            canvas.DrawPath(Path, paint);
         }
 
         if (applyTransform)
         {
-            drawingSurface.Canvas.RestoreToCount(num);
+            canvas.RestoreToCount(num);
         }
     }
 

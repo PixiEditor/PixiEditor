@@ -13,6 +13,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers.InputDevice;
+using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Tools;
@@ -37,6 +38,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
 
     public bool CanUndo => document.PathOverlayHandler.HasUndo;
     public bool CanRedo => document.PathOverlayHandler.HasRedo;
+    public bool StopExecutionOnNormalUndo => false;
 
     public override bool BlocksOtherActions => false;
 
@@ -78,7 +80,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
                 return ExecutionState.Success;
             }
 
-            document.PathOverlayHandler.Show(startingPath, false);
+            document.PathOverlayHandler.Show(startingPath, false, AddToUndo);
             if (controller.LeftMousePressed)
             {
                 var snapped =
@@ -178,7 +180,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
     {
         if (document.PathOverlayHandler.IsActive)
         {
-            internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
+            internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData(startingPath)));
         }
     }
 
@@ -190,9 +192,15 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
     }
 
-    private PathVectorData ConstructShapeData()
+    private void AddToUndo(VectorPath path)
     {
-        if(startingPath == null)
+        internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action(),
+            new SetShapeGeometry_Action(member.Id, ConstructShapeData(path)), new EndSetShapeGeometry_Action());
+    }
+
+    private PathVectorData ConstructShapeData(VectorPath? path)
+    {
+        if(path is null)
         {
             return new PathVectorData(new VectorPath() { FillType = (PathFillType)vectorPathToolHandler.FillMode })
             {
@@ -202,7 +210,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
             };
         }
         
-        return new PathVectorData(new VectorPath(startingPath) { FillType = (PathFillType)vectorPathToolHandler.FillMode })
+        return new PathVectorData(new VectorPath(path) { FillType = (PathFillType)vectorPathToolHandler.FillMode })
         {
             StrokeWidth = (float)toolbar.ToolSize,
             StrokeColor = toolbar.StrokeColor.ToColor(),
@@ -215,7 +223,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         if (document.PathOverlayHandler.IsActive)
         {
             startingPath = path;
-            internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
+            internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData(startingPath)));
         }
     }
 

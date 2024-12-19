@@ -21,4 +21,5 @@ internal interface ITransformHandler : IHandler
     public ShapeCorners Corners { get; set; }
     public bool ShowHandles { get; set; }
     public bool IsSizeBoxEnabled { get; set; }
+    public bool CanAlignToPixels { get; set; }
 }

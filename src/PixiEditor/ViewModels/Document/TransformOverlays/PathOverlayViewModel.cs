@@ -2,6 +2,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core.Vector;
+using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 
@@ -44,7 +46,13 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
     public bool HasUndo => undoStack.UndoCount > 0;
     public bool HasRedo => undoStack.RedoCount > 0;
 
-    public RelayCommand<VectorPath> AddToUndoCommand { get; }
+    private RelayCommand<VectorPath> addToUndoCommand;
+
+    public RelayCommand<VectorPath> AddToUndoCommand
+    {
+        get => addToUndoCommand;
+        set => SetProperty(ref addToUndoCommand, value);
+    }
     
     private bool showApplyButton;
 
@@ -55,17 +63,20 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
     }
 
     private bool suppressUndo = false;
+    private RelayCommand<VectorPath> embeddedAddToUndo;
 
     public PathOverlayViewModel(DocumentViewModel documentViewModel, DocumentInternalParts internals)
     {
         this.documentViewModel = documentViewModel;
         this.internals = internals;
 
-        AddToUndoCommand = new RelayCommand<VectorPath>(AddToUndo);
+        embeddedAddToUndo = new RelayCommand<VectorPath>(AddToUndo);
+
+        AddToUndoCommand = embeddedAddToUndo;
         undoStack = new PathOverlayUndoStack<VectorPath>();
     }
 
-    public void Show(VectorPath newPath, bool showApplyButton)
+    public void Show(VectorPath newPath, bool showApplyButton, Action<VectorPath>? customAddToUndo = null)
     {
         if (IsActive)
         {
@@ -78,6 +89,7 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
         Path = newPath;
         IsActive = true;
         ShowApplyButton = showApplyButton;
+        AddToUndoCommand = customAddToUndo != null ? new RelayCommand<VectorPath>(customAddToUndo) : embeddedAddToUndo;
     }
 
     public void Hide()
@@ -113,6 +125,6 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
 
     private void PathDataChanged(VectorPath path)
     {
-        AddToUndo(path);
+        AddToUndoCommand.Execute(path);
     }
 }

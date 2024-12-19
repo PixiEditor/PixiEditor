@@ -160,7 +160,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     public void Rasterize(DrawingSurface surface, Paint paint)
     {
         int layer = surface.Canvas.SaveLayer(paint);
-        ShapeData?.RasterizeTransformed(surface);
+        ShapeData?.RasterizeTransformed(surface.Canvas);
         
         surface.Canvas.RestoreToCount(layer);
     }
