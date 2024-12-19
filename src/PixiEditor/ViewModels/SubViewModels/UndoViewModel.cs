@@ -25,6 +25,10 @@ internal class UndoViewModel : SubViewModel<ViewModelMain>
         if (doc is null || (!doc.IsChangeFeatureActive<IMidChangeUndoableExecutor>() && !doc.HasSavedRedo))
             return;
         doc.Operations.Redo();
+        doc.Operations.InvokeCustomAction(() =>
+        {
+            Owner.ToolsSubViewModel.OnPostRedoInlet();
+        });
     }
 
     /// <summary>
@@ -38,6 +42,10 @@ internal class UndoViewModel : SubViewModel<ViewModelMain>
         if (doc is null || (!doc.IsChangeFeatureActive<IMidChangeUndoableExecutor>() && !doc.HasSavedUndo))
             return;
         doc.Operations.Undo();
+        doc.Operations.InvokeCustomAction(() =>
+        {
+            Owner.ToolsSubViewModel.OnPostUndoInlet();
+        });
     }
 
     /// <summary>

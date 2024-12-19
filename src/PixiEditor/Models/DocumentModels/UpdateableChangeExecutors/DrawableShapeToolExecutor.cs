@@ -29,7 +29,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
     protected T? toolViewModel;
     protected RectD lastRect;
     protected double lastRadians;
-    
+
     private ShapeCorners initialCorners;
     private bool noMovement = true;
     protected IFillableShapeToolbar toolbar;
@@ -64,13 +64,15 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
                 toolbar.StrokeColor = colorsVM.PrimaryColor.ToColor();
                 ignoreNextColorChange = colorsVM.ColorsTempSwapped;
             }
-            
+
             lastRect = new RectD(startDrawingPos, VecD.Zero);
 
             document!.TransformHandler.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect.Inflate(1)),
                 false);
             document.TransformHandler.ShowHandles = false;
             document.TransformHandler.IsSizeBoxEnabled = true;
+            document.TransformHandler.CanAlignToPixels = AlignToPixels;
+            
             return ExecutionState.Success;
         }
 
@@ -89,7 +91,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
             toolbar.ToolSize = shapeData.StrokeWidth;
             toolbar.Fill = shapeData.FillColor != Colors.Transparent;
             initialCorners = shapeData.TransformationCorners;
-            
+
             ActiveMode = ShapeToolMode.Transform;
         }
         else
@@ -131,19 +133,14 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
         return pos1;
     }
 
-    public static RectI GetSquaredCoordinates(VecI startPos, VecI curPos)
-    {
-        VecI pos = GetSquaredPosition(startPos, curPos);
-        return RectI.FromTwoPixels(startPos, pos);
-    }
-
     public override void OnTransformMoved(ShapeCorners corners)
     {
         if (ActiveMode != ShapeToolMode.Transform)
             return;
 
         var rect = RectD.FromCenterAndSize(corners.RectCenter, corners.RectSize);
-        ShapeData shapeData = new ShapeData(rect.Center, rect.Size, corners.RectRotation, (float)StrokeWidth, StrokeColor,
+        ShapeData shapeData = new ShapeData(rect.Center, rect.Size, corners.RectRotation, (float)StrokeWidth,
+            StrokeColor,
             FillColor) { AntiAliasing = toolbar.AntiAliasing };
         IAction drawAction = TransformMovedAction(shapeData, corners);
 
@@ -172,9 +169,10 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
             {
                 ignoreNextColorChange = false;
             }
+
             return;
         }
-        
+
         ignoreNextColorChange = ActiveMode == ShapeToolMode.Drawing;
 
         toolbar.StrokeColor = color.ToColor();
@@ -206,10 +204,14 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
     {
         VecD adjustedPos = AlignToPixels ? (VecI)pos.Floor() : pos;
 
-        VecD snapped = adjustedPos;
+        VecD startPos = startDrawingPos;
+
+        VecD snapped;
         if (toolViewModel.DrawEven)
         {
-            adjustedPos = AlignToPixels ? GetSquaredPosition((VecI)startDrawingPos, (VecI)adjustedPos) : GetSquaredPosition(startDrawingPos, adjustedPos);
+            adjustedPos = AlignToPixels
+                ? GetSquaredPosition((VecI)startDrawingPos, (VecI)adjustedPos)
+                : GetSquaredPosition(startPos, adjustedPos);
             VecD dir = (adjustedPos - startDrawingPos).Normalize();
             snapped = Snap(adjustedPos, startDrawingPos, dir, true);
         }
@@ -220,6 +222,13 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
         noMovement = false;
 
+        if (toolViewModel.DrawFromCenter)
+        {
+            VecD center = startDrawingPos;
+
+            startDrawingPos = center + (center - snapped);
+        }
+
         if (AlignToPixels)
         {
             DrawShape((VecI)snapped.Floor(), lastRadians, false);
@@ -229,7 +238,10 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
             DrawShape(snapped, lastRadians, false);
         }
 
+        startDrawingPos = startPos;
+
         document!.TransformHandler.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect), false);
+        document.TransformHandler.CanAlignToPixels = AlignToPixels;
         document!.TransformHandler.Corners = new ShapeCorners((RectD)lastRect);
     }
 
@@ -302,7 +314,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
         var layer = document.StructureHelper.Find(memberId);
         if (layer is null)
             return;
-        
+
         if (CanEditShape(layer))
         {
             internals!.ActionAccumulator.AddActions(SettingsChangedAction());
@@ -343,6 +355,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
         {
             document.TransformHandler.HideTransform();
             document!.TransformHandler.ShowTransform(TransformMode, false, initialCorners, true);
+            document.TransformHandler.CanAlignToPixels = AlignToPixels;
         }
     }
 

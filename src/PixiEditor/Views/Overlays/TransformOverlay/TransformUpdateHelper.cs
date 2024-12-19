@@ -1,4 +1,5 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿using Avalonia;
+using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
 using PixiEditor.Models.Controllers.InputDevice;
@@ -11,7 +12,7 @@ internal static class TransformUpdateHelper
 
     public static ShapeCorners? UpdateShapeFromCorner
     (Anchor targetCorner, TransformCornerFreedom freedom, double propAngle1, double propAngle2, ShapeCorners corners,
-        VecD desiredPos,
+        VecD desiredPos, bool scaleFromCenter,
         SnappingController? snappingController, out string snapX, out string snapY)
     {
         if (!TransformHelper.IsCorner(targetCorner))
@@ -71,6 +72,11 @@ internal static class TransformUpdateHelper
             if (double.IsNaN(angle))
                 angle = 0;
 
+            if (scaleFromCenter)
+            {
+                return ScaleCornersFromCenter(corners, targetCorner, desiredPos, angle);
+            }
+
             // find positions of neighboring corners relative to the opposite corner, while also undoing the transform rotation
             VecD targetTrans = (targetPos - oppositePos).Rotate(-angle);
             VecD leftNeighTrans = (leftNeighborPos - oppositePos).Rotate(-angle);
@@ -79,6 +85,7 @@ internal static class TransformUpdateHelper
             // find by how much move each corner
             VecD delta = (desiredPos - targetPos).Rotate(-angle);
             VecD leftNeighDelta, rightNeighDelta;
+
             if (corners.IsPartiallyDegenerate)
             {
                 // handle cases where we'd need to scale by infinity
@@ -138,6 +145,36 @@ internal static class TransformUpdateHelper
         throw new ArgumentException($"Freedom degree {freedom} is not supported");
     }
 
+    private static ShapeCorners? ScaleCornersFromCenter(ShapeCorners corners, Anchor targetCorner, VecD desiredPos, 
+        double angle)
+    {
+        // un rotate to properly calculate the scaling
+        // here is a skewing issue, since angle for skewed rects is already non 0
+        // (this is an issue in itself, since when user skews a non-rotated rect, the angle should be 0,
+        // so maybe if we find a way to get "un skewed" angle
+        // we can use it here and there. Idk if it's possible, It's hard to say what should be a "proper" angle for skewed rect,
+        // when you didn't see it getting skewed, so perhaps some tracking for overlay session would be the only solution)
+        desiredPos = desiredPos.Rotate(-angle, corners.RectCenter);
+        corners = corners.AsRotated(-angle, corners.RectCenter);
+
+        VecD targetPos = TransformHelper.GetAnchorPosition(corners, targetCorner);
+
+        VecD currentCenter = corners.RectCenter;
+        VecD targetPosToCenter = (targetPos - currentCenter);
+
+        if (targetPosToCenter.Length < epsilon)
+            return corners;
+
+        VecD desiredPosToCenter = (desiredPos - currentCenter);
+
+        VecD scaling = new(desiredPosToCenter.X / targetPosToCenter.X, desiredPosToCenter.Y / targetPosToCenter.Y);
+        
+        // when rect is skewed and falsely un rotated, this applies scaling in wrong directions
+        corners = corners.AsScaled((float)scaling.X, (float)scaling.Y);
+
+        return corners.AsRotated(angle, corners.RectCenter);
+    }
+
     private static VecD SwapAxes(VecD vec) => new VecD(vec.Y, vec.X);
 
     private static VecD TransferZeros(VecD from, VecD to)
@@ -151,7 +188,8 @@ internal static class TransformUpdateHelper
 
     public static ShapeCorners? UpdateShapeFromSide
     (Anchor targetSide, TransformSideFreedom freedom, double propAngle1, double propAngle2, ShapeCorners corners,
-        VecD desiredPos, SnappingController? snappingController, out string snapX, out string snapY)
+        VecD desiredPos, bool scaleFromCenter, SnappingController? snappingController, out string snapX,
+        out string snapY)
     {
         if (!TransformHelper.IsSide(targetSide))
             throw new ArgumentException($"{targetSide} is not a side");
@@ -171,10 +209,11 @@ internal static class TransformUpdateHelper
 
             VecD direction = targetPos - oppositePos;
             direction = VecD.FromAngleAndLength(direction.Angle, 1 / direction.Length);
-            
+
             if (snappingController is not null)
             {
-                desiredPos = snappingController.GetSnapPoint(desiredPos, direction, out snapX, out snapY);
+                VecD scaleDirection = corners.RectCenter - oppositePos;
+                desiredPos = snappingController.GetSnapPoint(desiredPos, scaleDirection, out snapX, out snapY);
             }
 
             double scalingFactor = (desiredPos - oppositePos) * direction;
@@ -183,8 +222,13 @@ internal static class TransformUpdateHelper
 
             if (corners.IsRect)
             {
-                var delta = desiredPos - targetPos;
+                var delta = (desiredPos - targetPos);
                 var center = oppositePos.Lerp(desiredPos, 0.5);
+
+                if (scaleFromCenter)
+                {
+                    return ScaleEvenlyToPos(corners, desiredPos, targetPos);
+                }
 
                 var (leftCorn, rightCorn) = TransformHelper.GetCornersOnSide(targetSide);
                 var (leftOppCorn, _) = TransformHelper.GetNeighboringCorners(leftCorn);
@@ -203,6 +247,7 @@ internal static class TransformUpdateHelper
                     center + VecD.FromAngleAndLength(leftAngle, 1));
                 var updRightCorn = TransformHelper.TwoLineIntersection(leftCornPos + delta, rightCornPos + delta,
                     center, center + VecD.FromAngleAndLength(rightAngle, 1));
+
                 var updLeftOppCorn = TransformHelper.TwoLineIntersection(leftOppCornPos, rightOppCornPos, center,
                     center + VecD.FromAngleAndLength(rightAngle, 1));
                 var updRightOppCorn = TransformHelper.TwoLineIntersection(leftOppCornPos, rightOppCornPos, center,
@@ -220,6 +265,12 @@ internal static class TransformUpdateHelper
             }
 
             fallback:
+
+            if (scaleFromCenter)
+            {
+                return ScaleEvenlyToPos(corners, desiredPos, targetPos);
+            }
+
             corners.TopLeft = (corners.TopLeft - oppositePos) * scalingFactor + oppositePos;
             corners.BottomRight = (corners.BottomRight - oppositePos) * scalingFactor + oppositePos;
             corners.TopRight = (corners.TopRight - oppositePos) * scalingFactor + oppositePos;
@@ -249,6 +300,11 @@ internal static class TransformUpdateHelper
             if (freedom == TransformSideFreedom.Shear)
             {
                 desiredPos = desiredPos.ProjectOntoLine(leftCornerPos, rightCornerPos);
+                if (snappingController is not null)
+                {
+                    VecD direction = corners.RectCenter - desiredPos;
+                    desiredPos = snappingController.GetSnapPoint(desiredPos, direction, out snapX, out snapY);
+                }
             }
             else if (freedom == TransformSideFreedom.Stretch)
             {
@@ -257,16 +313,55 @@ internal static class TransformUpdateHelper
                 else
                     desiredPos = desiredPos.ProjectOntoLine(targetPos,
                         (leftCornerPos - targetPos).Rotate(Math.PI / 2) + targetPos);
+
+                if (snappingController is not null)
+                {
+                    VecD direction = desiredPos - targetPos;
+                    desiredPos = snappingController.GetSnapPoint(desiredPos, direction, out snapX, out snapY);
+                }
             }
 
             var delta = desiredPos - targetPos;
+
             var newCorners = TransformHelper.UpdateCorner(corners, leftCorner, leftCornerPos + delta);
             newCorners = TransformHelper.UpdateCorner(newCorners, rightCorner, rightCornerPos + delta);
+
+            if (scaleFromCenter)
+            {
+                VecD oppositeDelta = -delta;
+                Anchor leftCornerOpp = TransformHelper.GetOpposite(leftCorner);
+                Anchor rightCornerOpp = TransformHelper.GetOpposite(rightCorner);
+
+                var leftCornerOppPos = TransformHelper.GetAnchorPosition(corners, leftCornerOpp);
+                var rightCornerOppPos = TransformHelper.GetAnchorPosition(corners, rightCornerOpp);
+
+                newCorners = TransformHelper.UpdateCorner(newCorners, leftCornerOpp, leftCornerOppPos + oppositeDelta);
+                newCorners =
+                    TransformHelper.UpdateCorner(newCorners, rightCornerOpp, rightCornerOppPos + oppositeDelta);
+            }
 
             return newCorners.IsLegal ? newCorners : null;
         }
 
         throw new ArgumentException($"Freedom degree {freedom} is not supported");
+    }
+
+    private static ShapeCorners ScaleEvenlyToPos(ShapeCorners corners, VecD desiredPos, VecD targetPos)
+    {
+        VecD currentCenter = corners.RectCenter;
+        float targetPosToCenter = (float)(targetPos - currentCenter).Length;
+
+        if (targetPosToCenter < epsilon)
+            return corners;
+
+        VecD reflectedDesiredPos = desiredPos.ReflectAcrossLine(currentCenter, targetPos);
+
+        float desiredPosToCenter = (float)(reflectedDesiredPos - currentCenter).Length;
+
+        float scaling = desiredPosToCenter / targetPosToCenter;
+
+        corners = corners.AsScaled(scaling);
+        return corners;
     }
 
     public static ShapeCorners UpdateShapeFromRotation(ShapeCorners corners, VecD origin, double angle)

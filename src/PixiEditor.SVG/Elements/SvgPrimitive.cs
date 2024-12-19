@@ -1,4 +1,5 @@
 ﻿using System.Xml;
+using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
 
@@ -10,6 +11,10 @@ public abstract class SvgPrimitive(string tagName) : SvgElement(tagName), ITrans
     public SvgProperty<SvgColorUnit> Fill { get; } = new("fill");
     public SvgProperty<SvgColorUnit> Stroke { get; } = new("stroke");
     public SvgProperty<SvgNumericUnit> StrokeWidth { get; } = new("stroke-width");
+    
+    public SvgProperty<SvgEnumUnit<SvgStrokeLineCap>> StrokeLineCap { get; } = new("stroke-linecap");
+    
+    public SvgProperty<SvgEnumUnit<SvgStrokeLineJoin>> StrokeLineJoin { get; } = new("stroke-linejoin");
 
     public override void ParseData(XmlReader reader)
     {
@@ -19,6 +24,8 @@ public abstract class SvgPrimitive(string tagName) : SvgElement(tagName), ITrans
         properties.Add(Fill);
         properties.Add(Stroke);
         properties.Add(StrokeWidth);
+        properties.Add(StrokeLineCap);
+        properties.Add(StrokeLineJoin);
 
         do
         {

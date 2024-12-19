@@ -1,4 +1,5 @@
-﻿using PixiEditor.SVG.Features;
+﻿using PixiEditor.SVG.Enums;
+using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG;
@@ -9,6 +10,10 @@ public struct StyleContext
     public SvgProperty<SvgColorUnit> Stroke { get; }
     public SvgProperty<SvgColorUnit> Fill { get; }
     public SvgProperty<SvgTransformUnit> Transform { get; }
+    
+    public SvgProperty<SvgEnumUnit<SvgStrokeLineCap>> StrokeLineCap { get; }
+    
+    public SvgProperty<SvgEnumUnit<SvgStrokeLineJoin>> StrokeLineJoin { get; }
 
     public StyleContext()
     {
@@ -16,6 +21,8 @@ public struct StyleContext
         Stroke = new("stroke");
         Fill = new("fill");
         Transform = new("transform");
+        StrokeLineCap = new("stroke-linecap");
+        StrokeLineJoin = new("stroke-linejoin");
     }
     
     public StyleContext(SvgDocument document)
@@ -24,6 +31,8 @@ public struct StyleContext
         Stroke = document.Stroke;
         Fill = document.Fill;
         Transform = document.Transform;
+        StrokeLineCap = document.StrokeLineCap;
+        StrokeLineJoin = document.StrokeLineJoin;
     }
 
     public StyleContext WithElement(SvgElement element)
@@ -50,6 +59,16 @@ public struct StyleContext
             if (strokableElement.StrokeWidth.Unit != null)
             {
                 styleContext.StrokeWidth.Unit = strokableElement.StrokeWidth.Unit;
+            }
+            
+            if (strokableElement.StrokeLineCap.Unit != null)
+            {
+                styleContext.StrokeLineCap.Unit = strokableElement.StrokeLineCap.Unit;
+            }
+            
+            if (strokableElement.StrokeLineJoin.Unit != null)
+            {
+                styleContext.StrokeLineJoin.Unit = strokableElement.StrokeLineJoin.Unit;
             }
         }
 

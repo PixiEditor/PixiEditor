@@ -417,6 +417,16 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     {
         ActiveTool?.ModifierKeyChanged(args.IsCtrlDown, args.IsShiftDown, args.IsAltDown);
     }
+    
+    public void OnPostUndoInlet()
+    {
+        ActiveTool?.OnPostUndo();
+    }
+    
+    public void OnPostRedoInlet()
+    {
+        ActiveTool?.OnPostRedo();
+    }
 
     private void ToolbarSettingChanged(string settingName, object value)
     {

@@ -1,6 +1,7 @@
 ﻿using System.Xml;
 using System.Xml.Linq;
 using Drawie.Numerics;
+using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
 
@@ -15,6 +16,10 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
     public SvgProperty<SvgColorUnit> Fill { get; } = new("fill");
     public SvgProperty<SvgColorUnit> Stroke { get; } = new("stroke");
     public SvgProperty<SvgNumericUnit> StrokeWidth { get; } = new("stroke-width");
+    
+    public SvgProperty<SvgEnumUnit<SvgStrokeLineCap>> StrokeLineCap { get; } = new("stroke-linecap");
+    
+    public SvgProperty<SvgEnumUnit<SvgStrokeLineJoin>> StrokeLineJoin { get; } = new("stroke-linejoin");
     public SvgProperty<SvgTransformUnit> Transform { get; } = new("transform");
     public List<SvgElement> Children { get; } = new();
 
@@ -35,7 +40,10 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
             Fill,
             Stroke,
             StrokeWidth,
-            Transform
+            Transform,
+            ViewBox,
+            StrokeLineCap,
+            StrokeLineJoin
         };
         
         ParseAttributes(properties, reader);
@@ -117,6 +125,16 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
         if (Transform.Unit != null)
         {
             root.Add(new XAttribute("transform", Transform.Unit.Value.ToXml()));
+        }
+        
+        if (StrokeLineCap.Unit != null)
+        {
+            root.Add(new XAttribute("stroke-linecap", StrokeLineCap.Unit.Value.ToXml()));
+        }
+        
+        if (StrokeLineJoin.Unit != null)
+        {
+            root.Add(new XAttribute("stroke-linejoin", StrokeLineJoin.Unit.Value.ToXml()));
         }
     }
 }

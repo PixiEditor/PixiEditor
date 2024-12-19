@@ -15,7 +15,7 @@ namespace PixiEditor.ViewModels.Tools.Tools;
 [Command.Tool(Key = Key.C)]
 internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
 {
-    public const string NewLayerKey = "NEW_ELLIPSE_LAYER_NAME"; 
+    public const string NewLayerKey = "NEW_ELLIPSE_LAYER_NAME";
     private string defaultActionDisplay = "ELLIPSE_TOOL_ACTION_DISPLAY_DEFAULT";
     public override string ToolNameLocalizationKey => "ELLIPSE_TOOL";
 
@@ -43,6 +43,8 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
+        DrawFromCenter = ctrlIsDown;
+
         if (shiftIsDown)
         {
             DrawEven = true;
@@ -67,6 +69,8 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
             ShapeCorners corners = vectorLayer.TransformationCorners;
             document.TransformViewModel.ShowTransform(
                 DocumentTransformMode.Scale_Rotate_Shear_NoPerspective, false, corners, false);
+
+            document.TransformViewModel.CanAlignToPixels = false;
         }
 
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorEllipseTool();
