@@ -65,8 +65,11 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
             vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) is IReadOnlyRectangleData)
         {
             ShapeCorners corners = vectorLayer.TransformationCorners;
-            ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument.TransformViewModel.ShowTransform(
+            var transformVm = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument.TransformViewModel;
+            transformVm.ShowTransform(
                 DocumentTransformMode.Scale_Rotate_Shear_NoPerspective, false, corners, false);
+            
+            transformVm.CanAlignToPixels = false;
         }
 
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorRectangleTool();

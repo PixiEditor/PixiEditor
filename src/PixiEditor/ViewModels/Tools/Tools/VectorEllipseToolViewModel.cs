@@ -69,6 +69,8 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
             ShapeCorners corners = vectorLayer.TransformationCorners;
             document.TransformViewModel.ShowTransform(
                 DocumentTransformMode.Scale_Rotate_Shear_NoPerspective, false, corners, false);
+
+            document.TransformViewModel.CanAlignToPixels = false;
         }
 
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorEllipseTool();

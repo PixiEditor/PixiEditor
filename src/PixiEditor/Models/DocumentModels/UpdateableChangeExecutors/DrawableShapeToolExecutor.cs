@@ -71,6 +71,8 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
                 false);
             document.TransformHandler.ShowHandles = false;
             document.TransformHandler.IsSizeBoxEnabled = true;
+            document.TransformHandler.CanAlignToPixels = AlignToPixels;
+            
             return ExecutionState.Success;
         }
 
@@ -239,6 +241,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
         startDrawingPos = startPos;
 
         document!.TransformHandler.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect), false);
+        document.TransformHandler.CanAlignToPixels = AlignToPixels;
         document!.TransformHandler.Corners = new ShapeCorners((RectD)lastRect);
     }
 
@@ -352,6 +355,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
         {
             document.TransformHandler.HideTransform();
             document!.TransformHandler.ShowTransform(TransformMode, false, initialCorners, true);
+            document.TransformHandler.CanAlignToPixels = AlignToPixels;
         }
     }
 

@@ -1,18 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Avalonia;
 using Avalonia.Input;
-using Avalonia.Media;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.Helpers;
-using PixiEditor.Helpers.Extensions;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
-using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Helpers.UI;
@@ -22,7 +14,6 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Views.Overlays.Drawables;
 using PixiEditor.Views.Overlays.Handles;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
-using Point = Avalonia.Point;
 
 namespace PixiEditor.Views.Overlays.TransformOverlay;
 #nullable enable
@@ -169,6 +160,15 @@ internal class TransformOverlay : Overlay
     {
         get => GetValue(ScaleFromCenterProperty);
         set => SetValue(ScaleFromCenterProperty, value);
+    }
+
+    public static readonly StyledProperty<bool> CanAlignToPixelsProperty = AvaloniaProperty.Register<TransformOverlay, bool>(
+        nameof(CanAlignToPixels), defaultValue: true);
+
+    public bool CanAlignToPixels
+    {
+        get => GetValue(CanAlignToPixelsProperty);
+        set => SetValue(CanAlignToPixelsProperty, value);
     }
 
     static TransformOverlay()
@@ -739,7 +739,7 @@ internal class TransformOverlay : Overlay
     {
         VecD delta = pos - mousePosOnStartMove;
 
-        if (Corners.IsAlignedToPixels)
+        if (Corners.IsAlignedToPixels && CanAlignToPixels)
             delta = delta.Round();
 
         ShapeCorners rawCorners = new ShapeCorners()

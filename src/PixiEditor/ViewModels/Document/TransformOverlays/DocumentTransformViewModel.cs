@@ -101,6 +101,13 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         get => showTransformControls;
         set => SetProperty(ref showTransformControls, value);
     }
+    
+    private bool canAlignToPixels = true;
+    public bool CanAlignToPixels
+    {
+        get => canAlignToPixels;
+        set => SetProperty(ref canAlignToPixels, value);
+    }
 
     public event Action<MouseOnCanvasEventArgs>? PassthroughPointerPressed;
 
@@ -259,6 +266,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         CoverWholeScreen = coverWholeScreen;
         TransformActive = true;
         ShowTransformControls = showApplyButton;
+        CanAlignToPixels = true;
 
         IsSizeBoxEnabled = false;
         ShowHandles = true;

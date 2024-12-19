@@ -331,6 +331,11 @@ internal class ViewportOverlays
         {
             Source = Viewport, Path = "Document.TransformViewModel.ScaleFromCenter", Mode = BindingMode.OneWay
         };
+        
+        Binding canAlignToPixelsBinding = new()
+        {
+            Source = Viewport, Path = "Document.TransformViewModel.CanAlignToPixels", Mode = BindingMode.OneWay
+        };
 
         transformOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         transformOverlay.Bind(TransformOverlay.ActionCompletedProperty, actionCompletedBinding);
@@ -348,6 +353,7 @@ internal class ViewportOverlays
         transformOverlay.Bind(TransformOverlay.ShowHandlesProperty, showHandlesBinding);
         transformOverlay.Bind(TransformOverlay.IsSizeBoxEnabledProperty, isSizeBoxEnabledBinding);
         transformOverlay.Bind(TransformOverlay.ScaleFromCenterProperty, scaleFromCenterBinding);
+        transformOverlay.Bind(TransformOverlay.CanAlignToPixelsProperty, canAlignToPixelsBinding);
     }
     
     private void BindVectorPathOverlay()
