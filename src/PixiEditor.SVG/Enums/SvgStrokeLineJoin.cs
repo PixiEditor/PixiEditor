@@ -2,9 +2,9 @@
 
 public enum SvgStrokeLineJoin
 {
-    Arcs,
-    Bevel,
     Miter,
+    Round,
+    Bevel,
+    Arcs,
     MiterClip,
-    Round
 }

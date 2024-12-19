@@ -14,8 +14,6 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
     private DocumentViewModel documentViewModel;
     private DocumentInternalParts internals;
 
-    private PathOverlayUndoStack<VectorPath>? undoStack = null;
-
     private VectorPath path;
 
     public VectorPath Path
@@ -43,8 +41,6 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
 
     public event Action<VectorPath>? PathChanged;
     public bool IsActive { get; set; }
-    public bool HasUndo => undoStack.UndoCount > 0;
-    public bool HasRedo => undoStack.RedoCount > 0;
 
     private RelayCommand<VectorPath> addToUndoCommand;
 
@@ -63,33 +59,24 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
     }
 
     private bool suppressUndo = false;
-    private RelayCommand<VectorPath> embeddedAddToUndo;
 
     public PathOverlayViewModel(DocumentViewModel documentViewModel, DocumentInternalParts internals)
     {
         this.documentViewModel = documentViewModel;
         this.internals = internals;
-
-        embeddedAddToUndo = new RelayCommand<VectorPath>(AddToUndo);
-
-        AddToUndoCommand = embeddedAddToUndo;
-        undoStack = new PathOverlayUndoStack<VectorPath>();
     }
 
-    public void Show(VectorPath newPath, bool showApplyButton, Action<VectorPath>? customAddToUndo = null)
+    public void Show(VectorPath newPath, bool showApplyButton, Action<VectorPath>? customAddToUndo)
     {
         if (IsActive)
         {
             return;
         }
 
-        undoStack?.Dispose();
-        undoStack = new PathOverlayUndoStack<VectorPath>();
-        undoStack.AddState(new VectorPath(newPath));
         Path = newPath;
         IsActive = true;
         ShowApplyButton = showApplyButton;
-        AddToUndoCommand = customAddToUndo != null ? new RelayCommand<VectorPath>(customAddToUndo) : embeddedAddToUndo;
+        AddToUndoCommand = new RelayCommand<VectorPath>(customAddToUndo);
     }
 
     public void Hide()
@@ -97,30 +84,6 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
         IsActive = false;
         Path = null;
         ShowApplyButton = false;
-    }
-
-    public void Undo()
-    {
-        suppressUndo = true;
-        Path = new VectorPath(undoStack?.Undo());
-        suppressUndo = false;
-    }
-
-    public void Redo()
-    {
-        suppressUndo = true;
-        Path = new VectorPath(undoStack?.Redo());
-        suppressUndo = false;
-    }
-
-    private void AddToUndo(VectorPath toAdd)
-    {
-        if (suppressUndo)
-        {
-            return;
-        }
-
-        undoStack?.AddState(new VectorPath(path));
     }
 
     private void PathDataChanged(VectorPath path)

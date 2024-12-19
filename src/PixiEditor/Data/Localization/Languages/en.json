@@ -787,5 +787,7 @@
   "FILL_TYPE_WINDING": "Winding",
   "FILL_TYPE_EVEN_ODD": "Even Odd",
   "FILL_TYPE_INVERSE_WINDING": "Inverse Winding",
-  "FILL_TYPE_INVERSE_EVEN_ODD": "Inverse Even Odd"
+  "FILL_TYPE_INVERSE_EVEN_ODD": "Inverse Even Odd",
+  "STROKE_CAP": "Stroke Cap",
+  "STROKE_JOIN": "Stroke Join"
 }

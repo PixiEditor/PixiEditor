@@ -143,7 +143,7 @@
         </overlays:TogglableFlyout>
         <Grid ZIndex="100" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10">
             <Grid.RowDefinitions>
-                <RowDefinition Height="45" />
+                <RowDefinition MinHeight="40" MaxHeight="120"/>
                 <RowDefinition Height="35" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
