@@ -237,6 +237,11 @@ internal class ViewportOverlays
             Source = Viewport, Path = "Document.LineToolOverlayViewModel.IsSizeBoxEnabled", Mode = BindingMode.TwoWay
         };
         
+        Binding addToUndoCommandBinding = new()
+        {
+            Source = Viewport, Path = "Document.LineToolOverlayViewModel.AddToUndoCommand", Mode = BindingMode.OneWay
+        };
+        
         lineToolOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         lineToolOverlay.Bind(LineToolOverlay.SnappingControllerProperty, snappingBinding);
         lineToolOverlay.Bind(LineToolOverlay.ActionCompletedProperty, actionCompletedBinding);
@@ -247,6 +252,7 @@ internal class ViewportOverlays
         lineToolOverlay.Bind(LineToolOverlay.ShowHandlesProperty, showHandlesBinding);
         lineToolOverlay.Bind(LineToolOverlay.IsSizeBoxEnabledProperty, isSizeBoxEnabledBinding);
         lineToolOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
+        lineToolOverlay.Bind(LineToolOverlay.AddToUndoCommandProperty, addToUndoCommandBinding);
     }
 
     private void BindTransformOverlay()

@@ -23,6 +23,7 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
     private string defaultActionDisplay = "LINE_TOOL_ACTION_DISPLAY_DEFAULT";
 
     public override bool IsErasable => false;
+    private bool isActivated;
 
     public VectorLineToolViewModel()
     {
@@ -69,23 +70,35 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
         if (restoring) return;
 
         var document = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
-        var layer = document.SelectedStructureMember;
-        if (layer is IVectorLayerHandler vectorLayer)
-        {
-            if (vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) is IReadOnlyLineData
-                lineVectorData)
-            {
-                document.LineToolOverlayViewModel.Show(lineVectorData.TransformedStart, lineVectorData.TransformedEnd,
-                    false);
-            }
-        }
-
         document.Tools.UseVectorLineTool();
+        isActivated = true;
+    }
+
+    public override void OnPostUndo()
+    {
+        if (isActivated)
+        {
+            OnSelected(false);
+        }
+    }
+
+    public override void OnPostRedo()
+    {
+        if (isActivated)
+        {
+            OnSelected(false);
+        }
     }
 
     protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
     {
         OnDeselecting(false);
         OnSelected(false);
+    }
+
+    public override void OnDeselecting(bool transient)
+    {
+        base.OnDeselecting(transient);
+        isActivated = false;
     }
 }

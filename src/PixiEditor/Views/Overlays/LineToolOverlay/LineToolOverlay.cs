@@ -75,6 +75,15 @@ internal class LineToolOverlay : Overlay
         set => SetValue(IsSizeBoxEnabledProperty, value);
     }
 
+    public static readonly StyledProperty<ICommand> AddToUndoCommandProperty = AvaloniaProperty.Register<LineToolOverlay, ICommand>(
+        nameof(AddToUndoCommand));
+
+    public ICommand AddToUndoCommand
+    {
+        get => GetValue(AddToUndoCommandProperty);
+        set => SetValue(AddToUndoCommandProperty, value);
+    }
+
     static LineToolOverlay()
     {
         LineStartProperty.Changed.Subscribe(RenderAffectingPropertyChanged);
@@ -131,6 +140,7 @@ internal class LineToolOverlay : Overlay
         moveHandle.StrokePaint = blackPaint;
         moveHandle.OnPress += OnHandlePress;
         moveHandle.OnDrag += MoveHandleOnDrag;
+        moveHandle.OnRelease += OnHandleRelease;
         endHandle.Cursor = new Cursor(StandardCursorType.Arrow);
         moveHandle.OnHover += (handle, _) => Refresh();
         moveHandle.OnRelease += OnHandleRelease;
@@ -162,6 +172,8 @@ internal class LineToolOverlay : Overlay
 
         isDraggingHandle = false;
         IsSizeBoxEnabled = false;
+        
+        AddToUndoCommand.Execute((LineStart, LineEnd));
     }
 
     protected override void ZoomChanged(double newZoom)

@@ -11,8 +11,8 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
 public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnlyLineData
 {
-    public VecD Start { get; set; } = startPos; // Relative to the document top left
-    public VecD End { get; set; } = pos; // Relative to the document top left
+    public VecD Start { get; set; } = startPos;
+    public VecD End { get; set; } = pos;
 
     public VecD TransformedStart
     {

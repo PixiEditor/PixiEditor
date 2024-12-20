@@ -25,10 +25,11 @@ internal class UndoViewModel : SubViewModel<ViewModelMain>
         if (doc is null || (!doc.IsChangeFeatureActive<IMidChangeUndoableExecutor>() && !doc.HasSavedRedo))
             return;
         doc.Operations.Redo();
-        doc.Operations.InvokeCustomAction(() =>
+        doc.Operations.InvokeCustomAction(
+            () =>
         {
             Owner.ToolsSubViewModel.OnPostRedoInlet();
-        });
+        }, false);
     }
 
     /// <summary>
@@ -42,10 +43,11 @@ internal class UndoViewModel : SubViewModel<ViewModelMain>
         if (doc is null || (!doc.IsChangeFeatureActive<IMidChangeUndoableExecutor>() && !doc.HasSavedUndo))
             return;
         doc.Operations.Undo();
-        doc.Operations.InvokeCustomAction(() =>
+        doc.Operations.InvokeCustomAction(
+            () =>
         {
             Owner.ToolsSubViewModel.OnPostUndoInlet();
-        });
+        }, false);
     }
 
     /// <summary>
@@ -59,7 +61,10 @@ internal class UndoViewModel : SubViewModel<ViewModelMain>
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
             return false;
-        return doc.IsChangeFeatureActive<IMidChangeUndoableExecutor>() || doc.HasSavedUndo;
+        
+        IMidChangeUndoableExecutor executor = doc.TryGetExecutorFeature<IMidChangeUndoableExecutor>();
+        
+        return executor is { CanUndo: true } || doc.HasSavedUndo;
     }
 
     /// <summary>
@@ -73,6 +78,9 @@ internal class UndoViewModel : SubViewModel<ViewModelMain>
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
             return false;
-        return doc.IsChangeFeatureActive<IMidChangeUndoableExecutor>() || doc.HasSavedRedo;
+        
+        IMidChangeUndoableExecutor executor = doc.TryGetExecutorFeature<IMidChangeUndoableExecutor>();
+        
+        return executor is { CanRedo: true } || doc.HasSavedRedo;
     }
 }
