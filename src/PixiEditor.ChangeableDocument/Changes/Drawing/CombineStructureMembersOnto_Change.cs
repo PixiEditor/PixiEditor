@@ -188,12 +188,8 @@ internal class CombineStructureMembersOnto_Change : Change
             }
         }
 
-        var pathData = new PathVectorData(targetPath)
-        {
-            StrokeWidth = targetData.StrokeWidth,
-            StrokeColor = targetData.StrokeColor,
-            FillColor = targetData.FillColor
-        };
+        var pathData = (PathVectorData)targetData.Clone();
+        pathData.Path = targetPath;
 
         vectorLayer.ShapeData = pathData;
 

@@ -45,7 +45,7 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
         return copy;
     }
 
-    protected virtual void AdjustCopy(ShapeVectorData copy) {}
+    protected virtual void AdjustCopy(ShapeVectorData copy) { }
 
     public override int GetHashCode()
     {

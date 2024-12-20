@@ -10,7 +10,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
 public class PathVectorData : ShapeVectorData, IReadOnlyPathData
 {
-    public VectorPath Path { get; private set; }
+    public VectorPath Path { get; set; }
     public override RectD GeometryAABB => Path.TightBounds;
     public override RectD VisualAABB => GeometryAABB.Inflate(StrokeWidth / 2);
 
