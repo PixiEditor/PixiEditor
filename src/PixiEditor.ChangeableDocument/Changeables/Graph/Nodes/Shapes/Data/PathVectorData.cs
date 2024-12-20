@@ -10,7 +10,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
 public class PathVectorData : ShapeVectorData, IReadOnlyPathData
 {
-    public VectorPath Path { get; }
+    public VectorPath Path { get; private set; }
     public override RectD GeometryAABB => Path.TightBounds;
     public override RectD VisualAABB => GeometryAABB.Inflate(StrokeWidth / 2);
 
@@ -88,15 +88,12 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
         return Path.GetHashCode();
     }
 
-    public override object Clone()
+    protected override void AdjustCopy(ShapeVectorData copy)
     {
-        return new PathVectorData(new VectorPath(Path))
+        if (copy is PathVectorData pathData)
         {
-            StrokeColor = StrokeColor,
-            FillColor = FillColor,
-            StrokeWidth = StrokeWidth,
-            TransformationMatrix = TransformationMatrix
-        };
+            pathData.Path = new VectorPath(Path);
+        }
     }
 
     public override VectorPath ToPath()

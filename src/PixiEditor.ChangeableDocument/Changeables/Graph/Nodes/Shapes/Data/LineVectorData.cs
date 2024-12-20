@@ -101,14 +101,6 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
         return GetCacheHash();
     }
 
-    public override object Clone()
-    {
-        return new LineVectorData(Start, End)
-        {
-            StrokeColor = StrokeColor, StrokeWidth = StrokeWidth, TransformationMatrix = TransformationMatrix
-        };
-    }
-
     public override VectorPath ToPath()
     {
         // TODO: Apply transformation matrix

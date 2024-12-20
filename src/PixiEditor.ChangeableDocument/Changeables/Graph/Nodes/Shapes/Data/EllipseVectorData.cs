@@ -88,15 +88,9 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
         return CalculateHash();
     }
 
-    public override object Clone()
+    protected override void AdjustCopy(ShapeVectorData copy)
     {
-        return new EllipseVectorData(Center, Radius)
-        {
-            StrokeColor = StrokeColor,
-            FillColor = FillColor,
-            StrokeWidth = StrokeWidth,
-            TransformationMatrix = TransformationMatrix
-        };
+       
     }
 
     public override VectorPath ToPath()

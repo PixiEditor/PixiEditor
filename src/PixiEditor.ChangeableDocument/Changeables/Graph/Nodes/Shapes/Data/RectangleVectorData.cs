@@ -100,17 +100,6 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         return CalculateHash();
     }
 
-    public override object Clone()
-    {
-        return new RectangleVectorData(Center, Size)
-        {
-            StrokeColor = StrokeColor,
-            FillColor = FillColor,
-            StrokeWidth = StrokeWidth,
-            TransformationMatrix = TransformationMatrix
-        };
-    }
-
     public override VectorPath ToPath()
     {
         VectorPath path = new VectorPath();
