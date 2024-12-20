@@ -101,8 +101,9 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         get => showTransformControls;
         set => SetProperty(ref showTransformControls, value);
     }
-    
+
     private bool canAlignToPixels = true;
+
     public bool CanAlignToPixels
     {
         get => canAlignToPixels;
@@ -147,14 +148,6 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         set => SetProperty(ref isSizeBoxEnabled, value);
     }
 
-    private bool enableSnapping = true;
-
-    public bool EnableSnapping
-    {
-        get => enableSnapping;
-        set => SetProperty(ref enableSnapping, value);
-    }
-
 
     private ExecutionTrigger<ShapeCorners> requestedCornersExecutor;
 
@@ -170,6 +163,14 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
     {
         get => actionCompletedCommand;
         set => SetProperty(ref actionCompletedCommand, value);
+    }
+
+    private ICommand? addToUndoCommand = null;
+
+    public ICommand? AddToUndoCommand
+    {
+        get => addToUndoCommand;
+        set => SetProperty(ref addToUndoCommand, value);
     }
 
     private RelayCommand<MouseOnCanvasEventArgs>? passThroughPointerPressedCommand;
@@ -192,6 +193,8 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         this.document = document;
         ActionCompletedCommand = new RelayCommand(() =>
         {
+            AddToUndoCommand?.Execute(Corners);
+
             if (undoStack is null)
                 return;
 
@@ -230,12 +233,13 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
 
     public bool Nudge(VecD distance)
     {
-        if (undoStack is null)
-            return false;
-
         InternalState = InternalState with { Origin = InternalState.Origin + distance };
         Corners = Corners.AsTranslated(distance);
-        undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Nudge);
+        
+        AddToUndoCommand?.Execute(Corners);
+
+        undoStack?.AddState((Corners, InternalState), TransformOverlayStateType.Nudge);
+
         return true;
     }
 
@@ -244,20 +248,16 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
 
     public void HideTransform()
     {
-        if (undoStack is null)
-            return;
         undoStack = null;
-
         TransformActive = false;
         ShowTransformControls = false;
     }
 
     public void ShowTransform(DocumentTransformMode mode, bool coverWholeScreen, ShapeCorners initPos,
-        bool showApplyButton)
+        bool showApplyButton, Action<ShapeCorners>? customAddToUndo = null)
     {
-        if (undoStack is not null || initPos.IsPartiallyDegenerate)
+        if (initPos.IsPartiallyDegenerate)
             return;
-        undoStack = new();
 
         activeTransformMode = mode;
         CornerFreedom = TransformCornerFreedom.Scale;
@@ -272,7 +272,17 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         ShowHandles = true;
 
         RequestCornersExecutor?.Execute(this, initPos);
-        undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Initial);
+
+        if (customAddToUndo is not null)
+        {
+            AddToUndoCommand = new RelayCommand<ShapeCorners>(customAddToUndo);
+            undoStack = null;
+        }
+        else
+        {
+            undoStack = new TransformOverlayUndoStack<(ShapeCorners, TransformState)>();
+            undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Initial);
+        }
     }
 
     public void KeyModifiersInlet(bool isShiftDown, bool isCtrlDown, bool isAltDown)
@@ -291,11 +301,6 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
             requestedCornerFreedom = TransformCornerFreedom.Free;
             requestedSideFreedom = TransformSideFreedom.Free;
         }
-        /*else if (isAltDown)
-        {
-        TODO: Add shear to the transform overlay
-            requestedSideFreedom = TransformSideFreedom.Shear;
-        }*/
         else
         {
             requestedCornerFreedom = TransformCornerFreedom.Scale;

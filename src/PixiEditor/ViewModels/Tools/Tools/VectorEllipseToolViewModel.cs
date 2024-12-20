@@ -35,6 +35,7 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
 
     public string? DefaultNewLayerName { get; } = new LocalizedString(NewLayerKey);
+    
 
     public override void UseTool(VecD pos)
     {
@@ -61,19 +62,24 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
     {
         if (restoring) return;
 
-        var document = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
-        var layer = document.SelectedStructureMember;
-        if (layer is IVectorLayerHandler vectorLayer &&
-            vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) is IReadOnlyEllipseData)
-        {
-            ShapeCorners corners = vectorLayer.TransformationCorners;
-            document.TransformViewModel.ShowTransform(
-                DocumentTransformMode.Scale_Rotate_Shear_NoPerspective, false, corners, false);
-
-            document.TransformViewModel.CanAlignToPixels = false;
-        }
-
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorEllipseTool();
+        isActivated = true;
+    }
+
+    public override void OnPostUndo()
+    {
+        if (isActivated)
+        {
+            OnSelected(false);
+        }
+    }
+
+    public override void OnPostRedo()
+    {
+        if (isActivated)
+        {
+            OnSelected(false);
+        }
     }
 
     protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)

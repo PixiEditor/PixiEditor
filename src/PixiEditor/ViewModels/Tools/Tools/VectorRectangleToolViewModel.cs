@@ -59,20 +59,24 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
     {
         if (restoring) return;
 
-        var document = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
-        var layer = document.SelectedStructureMember;
-        if (layer is IVectorLayerHandler vectorLayer &&
-            vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) is IReadOnlyRectangleData)
-        {
-            ShapeCorners corners = vectorLayer.TransformationCorners;
-            var transformVm = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument.TransformViewModel;
-            transformVm.ShowTransform(
-                DocumentTransformMode.Scale_Rotate_Shear_NoPerspective, false, corners, false);
-            
-            transformVm.CanAlignToPixels = false;
-        }
-
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorRectangleTool();
+        isActivated = true;
+    }
+
+    public override void OnPostUndo()
+    {
+        if (isActivated)
+        {
+            OnSelected(false);
+        }
+    }
+
+    public override void OnPostRedo()
+    {
+        if (isActivated)
+        {
+            OnSelected(false);
+        }
     }
 
     protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)

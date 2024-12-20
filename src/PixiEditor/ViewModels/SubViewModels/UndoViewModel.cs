@@ -24,6 +24,7 @@ internal class UndoViewModel : SubViewModel<ViewModelMain>
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null || (!doc.IsChangeFeatureActive<IMidChangeUndoableExecutor>() && !doc.HasSavedRedo))
             return;
+        
         doc.Operations.Redo();
         doc.Operations.InvokeCustomAction(
             () =>

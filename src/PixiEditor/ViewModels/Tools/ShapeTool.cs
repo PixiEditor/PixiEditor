@@ -15,6 +15,8 @@ internal abstract class ShapeTool : ToolViewModel, IShapeToolHandler
     public override bool IsErasable => true;
     public bool DrawEven { get; protected set; }
     public bool DrawFromCenter { get; protected set; }
+    
+    protected bool isActivated;
 
     public ShapeTool()
     {
@@ -22,12 +24,21 @@ internal abstract class ShapeTool : ToolViewModel, IShapeToolHandler
         Toolbar = new FillableShapeToolbar();
     }
 
+    public override void OnSelected(bool restoring)
+    {
+        base.OnSelected(restoring);
+        if (!restoring)
+        {
+            isActivated = true;
+        }
+    }
+
     public override void OnDeselecting(bool transient)
     {
         if (!transient)
         {
             ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
+            isActivated = false;
         }
     }
-
 }

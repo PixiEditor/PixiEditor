@@ -179,8 +179,6 @@ internal class TransformOverlay : Overlay
         RequestCornersExecutorProperty.Changed.Subscribe(OnCornersExecutorChanged);
     }
 
-    private const int anchorSizeMultiplierForRotation = 15;
-
     private bool isMoving = false;
     private VecD mousePosOnStartMove = new();
     private VecD originOnStartMove = new();
