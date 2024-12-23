@@ -225,26 +225,7 @@ internal class CombineStructureMembersOnto_Change : Change
         AffectedArea affArea = new();
         DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
         {
-            if (frame == 0)
-            {
-                renderer.RenderLayers(tempTexture.DrawingSurface, layersToCombine, frame, ChunkResolution.Full);
-            }
-            else
-            {
-                HashSet<Guid> layersToRender = new();
-                foreach (var layer in layersToCombine)
-                {
-                    if (target.FindMember(layer) is LayerNode node)
-                    {
-                        if (node.KeyFrames.Any(x => x.IsInFrame(frame)))
-                        {
-                            layersToRender.Add(layer);
-                        }
-                    }
-                }
-
-                renderer.RenderLayers(tempTexture.DrawingSurface, layersToRender, frame, ChunkResolution.Full);
-            }
+            renderer.RenderLayers(tempTexture.DrawingSurface, layersToCombine, frame, ChunkResolution.Full);
 
             toDrawOnImage.EnqueueDrawTexture(VecI.Zero, tempTexture);
 
