@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PixiEditor.AnimationRenderer.Core\PixiEditor.AnimationRenderer.Core.csproj" />
+      <ProjectReference Include="..\PixiEditor.OperatingSystem\PixiEditor.OperatingSystem.csproj" />
     </ItemGroup>
 
     <ItemGroup>

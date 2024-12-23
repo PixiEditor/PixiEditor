@@ -71,12 +71,12 @@ public class PointsVectorData : ShapeVectorData
         return Points.GetHashCode();
     }
 
-    public override object Clone()
+    protected override void AdjustCopy(ShapeVectorData copy)
     {
-        return new PointsVectorData(Points)
+        if (copy is PointsVectorData pointsVectorData)
         {
-            StrokeColor = StrokeColor, FillColor = FillColor, StrokeWidth = StrokeWidth
-        };
+            pointsVectorData.Points = new List<VecD>(Points);
+        }
     }
 
     public override VectorPath ToPath()

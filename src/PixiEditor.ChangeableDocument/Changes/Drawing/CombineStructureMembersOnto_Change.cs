@@ -22,7 +22,7 @@ internal class CombineStructureMembersOnto_Change : Change
 
     private Guid targetLayerGuid;
     private Dictionary<int, CommittedChunkStorage> originalChunks = new();
-    
+
     private Dictionary<int, VectorPath> originalPaths = new();
 
 
@@ -160,7 +160,7 @@ internal class CombineStructureMembersOnto_Change : Change
         VectorPath? targetPath = targetData?.ToPath();
 
         var reversed = toCombine.Reverse().ToHashSet();
-        
+
         foreach (var guid in reversed)
         {
             if (target.FindMember(guid) is not VectorLayerNode vectorNode)
@@ -175,10 +175,10 @@ internal class CombineStructureMembersOnto_Change : Change
             {
                 targetData = vectorNode.ShapeData;
                 targetPath = path;
-                
-                if(originalPaths.ContainsKey(frame))
+
+                if (originalPaths.ContainsKey(frame))
                     originalPaths[frame].Dispose();
-                
+
                 originalPaths[frame] = new VectorPath(path);
             }
             else
@@ -188,14 +188,27 @@ internal class CombineStructureMembersOnto_Change : Change
             }
         }
 
-        var pathData = new PathVectorData(targetPath)
+        var clone = targetData.Clone();
+        PathVectorData data;
+        if (clone is not PathVectorData vectorData)
         {
-            StrokeWidth = targetData.StrokeWidth,
-            StrokeColor = targetData.StrokeColor,
-            FillColor = targetData.FillColor
-        };
+            ShapeVectorData shape = clone as ShapeVectorData;
+            data = new PathVectorData(targetPath)
+            {
+                StrokeColor = shape.StrokeColor,
+                FillColor = shape.FillColor,
+                StrokeWidth = shape.StrokeWidth,
+                Fill = shape.Fill,
+                TransformationMatrix = shape.TransformationMatrix,
+            };
+        }
+        else
+        {
+            data = vectorData;
+            data.Path = targetPath;
+        }
 
-        vectorLayer.ShapeData = pathData;
+        vectorLayer.ShapeData = data;
 
         return new AffectedArea(new HashSet<VecI>());
     }
@@ -212,26 +225,7 @@ internal class CombineStructureMembersOnto_Change : Change
         AffectedArea affArea = new();
         DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
         {
-            if (frame == 0)
-            {
-                renderer.RenderLayers(tempTexture.DrawingSurface, layersToCombine, frame, ChunkResolution.Full);
-            }
-            else
-            {
-                HashSet<Guid> layersToRender = new();
-                foreach (var layer in layersToCombine)
-                {
-                    if (target.FindMember(layer) is LayerNode node)
-                    {
-                        if (node.KeyFrames.Any(x => x.IsInFrame(frame)))
-                        {
-                            layersToRender.Add(layer);
-                        }
-                    }
-                }
-
-                renderer.RenderLayers(tempTexture.DrawingSurface, layersToRender, frame, ChunkResolution.Full);
-            }
+            renderer.RenderLayers(tempTexture.DrawingSurface, layersToCombine, frame, ChunkResolution.Full);
 
             toDrawOnImage.EnqueueDrawTexture(VecI.Zero, tempTexture);
 
@@ -328,7 +322,7 @@ internal class CombineStructureMembersOnto_Change : Change
         {
             return VectorRevert(vectorLayerNode, frame);
         }
-        
+
         throw new InvalidOperationException("Layer type not supported");
     }
 
@@ -347,7 +341,7 @@ internal class CombineStructureMembersOnto_Change : Change
         toDrawOnImage.CommitChanges();
         return new LayerImageArea_ChangeInfo(targetLayerGuid, affectedArea);
     }
-    
+
     private IChangeInfo VectorRevert(VectorLayerNode targetLayer, int frame)
     {
         if (!originalPaths.TryGetValue(frame, out var path))
@@ -363,14 +357,14 @@ internal class CombineStructureMembersOnto_Change : Change
         {
             originalChunk.Value.Dispose();
         }
-        
+
         originalChunks.Clear();
-        
+
         foreach (var originalPath in originalPaths)
         {
             originalPath.Value.Dispose();
         }
-        
+
         originalPaths.Clear();
     }
 }

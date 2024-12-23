@@ -125,6 +125,7 @@ internal class Exporter
         {
             job?.Finish();
             Console.WriteLine(e);
+            CrashHelper.SendExceptionInfoToWebhook(e);
             return SaveResult.UnknownError;
         }
     }

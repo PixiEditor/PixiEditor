@@ -3,14 +3,13 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
 namespace PixiEditor.ViewModels.Document.TransformOverlays;
 
 internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
 {
     public event EventHandler<(VecD, VecD)>? LineMoved;
-
-    private TransformOverlayUndoStack<(VecD, VecD)>? undoStack = null;
 
     private VecD lineStart;
 
@@ -66,6 +65,13 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
         set => SetProperty(ref actionCompletedCommand, value);
     }
 
+    private ICommand addToUndoCommand = null;
+    public ICommand AddToUndoCommand
+    {
+        get => addToUndoCommand;
+        set => SetProperty(ref addToUndoCommand, value);
+    }
+    
     private bool showApplyButton;
 
     public bool ShowApplyButton
@@ -76,34 +82,21 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
 
     public LineToolOverlayViewModel()
     {
-        ActionCompletedCommand =
-            new RelayCommand(() => undoStack?.AddState((LineStart, LineEnd), TransformOverlayStateType.Move));
     }
 
-    public void Show(VecD lineStart, VecD endPos, bool showApplyButton)
+    public void Show(VecD lineStart, VecD endPos, bool showApplyButton, Action<(VecD, VecD)> addToUndo)
     {
-        if (undoStack is not null)
-            return;
-        undoStack = new();
-        
-        undoStack.AddState((lineStart, endPos), TransformOverlayStateType.Initial);
-
         LineStart = lineStart;
         LineEnd = endPos; 
         IsEnabled = true;
         ShowApplyButton = showApplyButton;
         ShowHandles = true;
         IsSizeBoxEnabled = false;
+        AddToUndoCommand = new RelayCommand(() => addToUndo((LineStart, LineEnd)));
     }
-
-    public bool HasUndo => undoStack is not null && undoStack.UndoCount > 0;
-    public bool HasRedo => undoStack is not null && undoStack.RedoCount > 0; 
 
     public void Hide()
     {
-        if (undoStack is null)
-            return;
-        undoStack = null;
         IsEnabled = false;
         ShowApplyButton = false;
         IsSizeBoxEnabled = false;
@@ -111,37 +104,8 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
 
     public bool Nudge(VecD distance)
     {
-        if (undoStack is null)
-            return false;
         LineStart = LineStart + distance;
         LineEnd = LineEnd + distance;
-        undoStack.AddState((lineStart, lineEnd), TransformOverlayStateType.Nudge);
-        return true;
-    }
-
-    public bool Undo()
-    {
-        if (undoStack is null)
-            return false;
-
-        var newState = undoStack.Undo();
-        if (newState is null)
-            return false;
-        LineStart = newState.Value.Item1;
-        LineEnd = newState.Value.Item2;
-        return true;
-    }
-
-    public bool Redo()
-    {
-        if (undoStack is null)
-            return false;
-
-        var newState = undoStack.Redo();
-        if (newState is null)
-            return false;
-        LineStart = newState.Value.Item1;
-        LineEnd = newState.Value.Item2;
         return true;
     }
 }

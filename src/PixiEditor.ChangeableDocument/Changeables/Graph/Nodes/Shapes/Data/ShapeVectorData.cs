@@ -37,7 +37,15 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
     public abstract bool IsValid();
     public abstract int GetCacheHash();
     public abstract int CalculateHash();
-    public abstract object Clone();
+
+    public object Clone()
+    {
+        ShapeVectorData copy = (ShapeVectorData)MemberwiseClone();
+        AdjustCopy(copy);
+        return copy;
+    }
+
+    protected virtual void AdjustCopy(ShapeVectorData copy) { }
 
     public override int GetHashCode()
     {

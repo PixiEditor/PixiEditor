@@ -64,28 +64,33 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorLineTool();
     }
 
-    public override void OnSelected(bool restoring)
+    protected override void OnSelected(bool restoring)
     {
         if (restoring) return;
 
         var document = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
-        var layer = document.SelectedStructureMember;
-        if (layer is IVectorLayerHandler vectorLayer)
-        {
-            if (vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) is IReadOnlyLineData
-                lineVectorData)
-            {
-                document.LineToolOverlayViewModel.Show(lineVectorData.TransformedStart, lineVectorData.TransformedEnd,
-                    false);
-            }
-        }
-
         document.Tools.UseVectorLineTool();
+    }
+
+    public override void OnPostUndo()
+    {
+        if (IsActive)
+        {
+            OnToolSelected(false);
+        }
+    }
+
+    public override void OnPostRedo()
+    {
+        if (IsActive)
+        {
+            OnToolSelected(false);
+        }
     }
 
     protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
     {
         OnDeselecting(false);
-        OnSelected(false);
+        OnToolSelected(false);
     }
 }

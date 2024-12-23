@@ -160,6 +160,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public bool IsChangeFeatureActive<T>() where T : IExecutorFeature =>
         Internals.ChangeController.IsChangeOfTypeActive<T>();
+    
+    public T? TryGetExecutorFeature<T>() where T : IExecutorFeature =>
+        Internals.ChangeController.TryGetExecutorFeature<T>();
 
     public bool PointerDragChangeInProgress =>
         Internals.ChangeController.IsBlockingChangeActive && Internals.ChangeController.LeftMousePressed;
@@ -880,8 +883,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             return [];
 
         int firstFrame = AnimationDataViewModel.FirstFrame;
-        int framesCount = AnimationDataViewModel.FramesCount;
-        int lastFrame = firstFrame + framesCount;
+        int lastFrame = AnimationDataViewModel.LastFrame;
+        
+        int framesCount = lastFrame - firstFrame;
 
         Image[] images = new Image[framesCount];
 

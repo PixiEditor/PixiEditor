@@ -171,6 +171,15 @@ internal class TransformOverlay : Overlay
         set => SetValue(CanAlignToPixelsProperty, value);
     }
 
+    public static readonly StyledProperty<bool> LockShearProperty = AvaloniaProperty.Register<TransformOverlay, bool>(
+        nameof(LockShear));
+
+    public bool LockShear
+    {
+        get => GetValue(LockShearProperty);
+        set => SetValue(LockShearProperty, value);
+    }
+    
     static TransformOverlay()
     {
         AffectsRender<TransformOverlay>(CornersProperty, ZoomScaleProperty, SideFreedomProperty, CornerFreedomProperty,
@@ -178,8 +187,6 @@ internal class TransformOverlay : Overlay
             CoverWholeScreenProperty);
         RequestCornersExecutorProperty.Changed.Subscribe(OnCornersExecutorChanged);
     }
-
-    private const int anchorSizeMultiplierForRotation = 15;
 
     private bool isMoving = false;
     private VecD mousePosOnStartMove = new();
@@ -689,6 +696,12 @@ internal class TransformOverlay : Overlay
 
     private bool CanShear(VecD mousePos, out Anchor side)
     {
+        if(LockShear)
+        {
+            side = default;
+            return false;
+        }
+        
         double distance = 20 / ZoomScale;
         var sides = new[] { Anchor.Top, Anchor.Bottom, Anchor.Left, Anchor.Right };
 
@@ -702,7 +715,7 @@ internal class TransformOverlay : Overlay
         side = sides.FirstOrDefault(side => VecD.Distance(TransformHelper.GetAnchorPosition(Corners, side), mousePos)
                                             < distance);
 
-        return side != default;
+        return side != default && !Corners.IsPointInside(mousePos);
     }
 
     private void StopMoving()

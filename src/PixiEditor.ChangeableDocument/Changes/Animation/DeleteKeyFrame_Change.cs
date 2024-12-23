@@ -42,6 +42,7 @@ internal class DeleteKeyFrame_Change : Change
         out bool ignoreInUndo)
     {
         target.AnimationData.RemoveKeyFrame(_keyFrameId);
+        target.FindNode<Node>(clonedKeyFrame.NodeId).RemoveKeyFrame(_keyFrameId);
         ignoreInUndo = false;
         return new DeleteKeyFrame_ChangeInfo(_keyFrameId);
     }

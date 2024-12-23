@@ -166,7 +166,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         set { SetValue(FpsProperty, value); }
     }
 
-    public int EndFrame => KeyFrames?.FrameCount > 0 ? KeyFrames.FrameCount : DefaultEndFrame;
+    public int EndFrame => KeyFrames?.FrameCount > 0 ? KeyFrames.FrameCount - 1 : DefaultEndFrame;
 
     public ICommand DraggedKeyFrameCommand { get; }
     public ICommand ReleasedKeyFrameCommand { get; }

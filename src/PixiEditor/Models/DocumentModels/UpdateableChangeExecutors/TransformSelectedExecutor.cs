@@ -56,6 +56,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     private ExecutionState SelectMembers(List<IStructureMemberHandler> members)
     {
         bool allRaster = true;
+        bool anyRaster = false;
         memberCorners = new();
         foreach (IStructureMemberHandler member in members)
         {
@@ -68,6 +69,11 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             else if (member is not IRasterLayerHandler)
             {
                 allRaster = false;
+            }
+            
+            if (member is IRasterLayerHandler)
+            {
+                anyRaster = true;
             }
 
             memberCorners.Add(member.Id, targetCorners);
@@ -111,6 +117,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         lastCorners = masterCorners;
         document.TransformHandler.ShowTransform(mode, true, masterCorners,
             Type == ExecutorType.Regular || tool.KeepOriginalImage);
+        
+        document.TransformHandler.CanAlignToPixels = anyRaster;
 
         internals!.ActionAccumulator.AddActions(
             new TransformSelected_Action(masterCorners, tool.KeepOriginalImage, memberCorners, false,

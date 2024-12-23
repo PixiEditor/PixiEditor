@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Models.Handlers.Tools;
 using Drawie.Numerics;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -14,6 +15,9 @@ internal class VectorLineToolExecutor : LineExecutor<IVectorLineToolHandler>
     private VecD endPoint;
 
     protected override bool AlignToPixels => false;
+
+    protected override bool UseGlobalUndo => true;
+    protected override bool ShowApplyButton => false;
 
     protected override bool InitShapeData(IReadOnlyLineData? data)
     {
@@ -28,11 +32,7 @@ internal class VectorLineToolExecutor : LineExecutor<IVectorLineToolHandler>
 
     protected override IAction DrawLine(VecD pos)
     {
-        LineVectorData data = new LineVectorData(startDrawingPos, pos)
-        {
-            StrokeColor = StrokeColor,
-            StrokeWidth = (float)StrokeWidth,
-        };
+        LineVectorData data = ConstructLineData(startDrawingPos, pos);
         
         startPoint = startDrawingPos;
         endPoint = pos;
@@ -42,11 +42,7 @@ internal class VectorLineToolExecutor : LineExecutor<IVectorLineToolHandler>
 
     protected override IAction TransformOverlayMoved(VecD start, VecD end)
     {
-        LineVectorData data = new LineVectorData(start, end)
-        {
-            StrokeColor = StrokeColor,
-            StrokeWidth = (float)StrokeWidth,
-        };
+        var data = ConstructLineData(start, end);
         
         startPoint = start;
         endPoint = end;
@@ -54,13 +50,20 @@ internal class VectorLineToolExecutor : LineExecutor<IVectorLineToolHandler>
         return new SetShapeGeometry_Action(memberId, data);
     }
 
-    protected override IAction SettingsChange()
+    protected override IAction[] SettingsChange()
     {
-        return TransformOverlayMoved(startPoint, endPoint);
+        return [TransformOverlayMoved(startPoint, endPoint), new EndSetShapeGeometry_Action()];
     }
 
     protected override IAction EndDraw()
     {
         return new EndSetShapeGeometry_Action();
+    }
+
+    public override bool IsFeatureEnabled(IExecutorFeature feature)
+    {
+        if(feature is IMidChangeUndoableExecutor) return false;
+        
+        return base.IsFeatureEnabled(feature);
     }
 }

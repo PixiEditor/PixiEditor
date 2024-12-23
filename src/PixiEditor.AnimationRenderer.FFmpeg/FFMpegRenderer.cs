@@ -7,6 +7,7 @@ using FFMpegCore.Pipes;
 using PixiEditor.AnimationRenderer.Core;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
+using PixiEditor.OperatingSystem;
 
 namespace PixiEditor.AnimationRenderer.FFmpeg;
 
@@ -16,16 +17,10 @@ public class FFMpegRenderer : IAnimationRenderer
     public string OutputFormat { get; set; } = "mp4";
     public VecI Size { get; set; }
 
-    public async Task<bool> RenderAsync(List<Image> rawFrames, string outputPath, CancellationToken cancellationToken, Action<double>? progressCallback = null)
+    public async Task<bool> RenderAsync(List<Image> rawFrames, string outputPath, CancellationToken cancellationToken,
+        Action<double>? progressCallback = null)
     {
-        string path = "ThirdParty/{0}/ffmpeg";
-#if WINDOWS
-        path = string.Format(path, "Windows");
-#elif MACOS
-        path = string.Format(path, "MacOS");
-#elif LINUX
-        path = string.Format(path, "Linux");
-#endif
+        string path = $"ThirdParty/{IOperatingSystem.Current.Name}/ffmpeg";
 
         GlobalFFOptions.Configure(new FFOptions()
         {
@@ -35,26 +30,26 @@ public class FFMpegRenderer : IAnimationRenderer
         try
         {
             List<ImgFrame> frames = new();
-            
+
             foreach (var frame in rawFrames)
             {
                 frames.Add(new ImgFrame(frame));
             }
 
             RawVideoPipeSource streamPipeSource = new(frames) { FrameRate = FrameRate, };
-            
+
             string paletteTempPath = Path.Combine(Path.GetDirectoryName(outputPath), "RenderTemp", "palette.png");
-            
+
             if (!Directory.Exists(Path.GetDirectoryName(paletteTempPath)))
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(paletteTempPath));
             }
-            
+
             if (RequiresPaletteGeneration())
             {
                 GeneratePalette(streamPipeSource, paletteTempPath);
             }
-            
+
             streamPipeSource = new(frames) { FrameRate = FrameRate, };
 
             var args = FFMpegArguments
@@ -67,15 +62,15 @@ public class FFMpegRenderer : IAnimationRenderer
             TimeSpan totalTimeSpan = TimeSpan.FromSeconds(frames.Count / (float)FrameRate);
             var result = await outputArgs.CancellableThrough(cancellationToken)
                 .NotifyOnProgress(progressCallback, totalTimeSpan).ProcessAsynchronously();
-            
+
             if (RequiresPaletteGeneration())
             {
                 File.Delete(paletteTempPath);
                 Directory.Delete(Path.GetDirectoryName(paletteTempPath));
             }
-            
+
             DisposeStream(frames);
-            
+
             return result;
         }
         catch (Exception e)

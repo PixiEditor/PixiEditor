@@ -431,7 +431,7 @@ internal partial class DocumentViewModel
         var shape = layer.Shape;
         var imageSize = layer.ImageSize;
 
-        var imageBytes = config.Encoder.Encode(layer.ImageBgra8888Bytes.ToArray(), imageSize.X, imageSize.Y);
+        var imageBytes = config.Encoder.Encode(layer.ImageBgra8888Bytes.ToArray(), imageSize.X, imageSize.Y, true);
 
         return new ReferenceLayer
         {

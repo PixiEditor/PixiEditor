@@ -56,11 +56,6 @@ public class MergeNode : RenderNode
             int saved = target.Canvas.SaveLayer();
             Bottom.Value.Paint(context, target);
 
-            if (paint == null)
-            {
-                paint = new Paint();
-            }
-            
             paint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
             target.Canvas.SaveLayer(paint);
             

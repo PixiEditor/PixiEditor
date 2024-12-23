@@ -35,6 +35,9 @@ internal class RasterRectangleToolExecutor : DrawableShapeToolExecutor<IRasterRe
             document!.AnimationHandler.ActiveFrameBindable));
     }
 
+    protected override bool UseGlobalUndo => false;
+    protected override bool ShowApplyButton => true;
+
     protected override void DrawShape(VecD currentPos, double rotationRad, bool first) =>
         DrawRectangle(currentPos, rotationRad, first);
 
