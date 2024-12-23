@@ -54,7 +54,6 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
 
     public override void UseTool(VecD pos)
     {
-        //ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseShiftLayerTool();
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(true);
     }
 
@@ -77,7 +76,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         }
     }
 
-    public override void OnSelected(bool restoring)
+    protected override void OnSelected(bool restoring)
     {
         if (TransformingSelectedArea)
         {
@@ -87,13 +86,29 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(true);
     }
 
-    public override void OnDeselecting(bool transient)
+    protected override void OnDeselecting(bool transient)
     {
         var vm = ViewModelMain.Current;
         if (!transient)
         {
             vm.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
             TransformingSelectedArea = false;
+        }
+    }
+
+    public override void OnPostUndo()
+    {
+        if (IsActive)
+        {
+            OnSelected(false);
+        }
+    }
+
+    public override void OnPostRedo()
+    {
+        if (IsActive)
+        {
+            OnSelected(false);
         }
     }
 
@@ -105,7 +120,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         }
 
         OnDeselecting(false);
-        OnSelected(false);
+        OnToolSelected(false);
     }
     
     public void KeepOriginalChanged()

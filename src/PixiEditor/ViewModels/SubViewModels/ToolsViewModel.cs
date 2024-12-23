@@ -228,7 +228,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
         if (ActiveTool != null)
         {
-            ActiveTool.OnDeselecting(transient);
+            ActiveTool.OnToolDeselected(transient);
             ActiveTool.Toolbar.SettingChanged -= ToolbarSettingChanged;
         }
 
@@ -261,7 +261,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         LastActionTool?.ModifierKeyChanged(false, false, false);
         //update new tool
         ActiveTool.ModifierKeyChanged(ctrlIsDown, shiftIsDown, altIsDown);
-        ActiveTool.OnSelected(wasTransient);
+        ActiveTool.OnToolSelected(wasTransient);
 
         tool.IsActive = true;
         ActiveTool.IsTransient = transient;

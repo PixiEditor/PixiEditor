@@ -58,17 +58,16 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
         }
     }
 
-    public override void OnSelected(bool restoring)
+    protected override void OnSelected(bool restoring)
     {
         if (restoring) return;
 
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorEllipseTool();
-        isActivated = true;
     }
 
     public override void OnPostUndo()
     {
-        if (isActivated)
+        if (IsActive)
         {
             OnSelected(false);
         }
@@ -76,7 +75,7 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
 
     public override void OnPostRedo()
     {
-        if (isActivated)
+        if (IsActive)
         {
             OnSelected(false);
         }

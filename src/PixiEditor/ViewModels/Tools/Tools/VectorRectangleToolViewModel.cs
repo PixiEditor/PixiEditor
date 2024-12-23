@@ -55,33 +55,32 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorRectangleTool();
     }
 
-    public override void OnSelected(bool restoring)
+    protected override void OnSelected(bool restoring)
     {
         if (restoring) return;
 
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorRectangleTool();
-        isActivated = true;
     }
 
     public override void OnPostUndo()
     {
-        if (isActivated)
+        if (IsActive)
         {
-            OnSelected(false);
+            OnToolSelected(false);
         }
     }
 
     public override void OnPostRedo()
     {
-        if (isActivated)
+        if (IsActive)
         {
-            OnSelected(false);
+            OnToolSelected(false);
         }
     }
 
     protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
     {
         OnDeselecting(false);
-        OnSelected(false);
+        OnToolSelected(false);
     }
 }

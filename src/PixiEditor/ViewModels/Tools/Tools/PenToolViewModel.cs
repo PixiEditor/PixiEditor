@@ -92,7 +92,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
             }
         }
 
-        public override void OnDeselecting(bool transient)
+        protected override void OnDeselecting(bool transient)
         {
             if (!PixelPerfectEnabled)
             {
