@@ -96,7 +96,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
             
             ShapeCorners corners = vectorLayerHandler.TransformationCorners;
             document.TransformHandler.ShowTransform(
-                DocumentTransformMode.Scale_Rotate_Shear_NoPerspective, false, corners, false, UseGlobalUndo ? AddToUndo : null);
+                TransformMode, false, corners, false, UseGlobalUndo ? AddToUndo : null);
             document.TransformHandler.CanAlignToPixels = false;
 
             ActiveMode = ShapeToolMode.Transform;

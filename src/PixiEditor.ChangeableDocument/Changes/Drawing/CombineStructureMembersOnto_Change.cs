@@ -22,7 +22,7 @@ internal class CombineStructureMembersOnto_Change : Change
 
     private Guid targetLayerGuid;
     private Dictionary<int, CommittedChunkStorage> originalChunks = new();
-    
+
     private Dictionary<int, VectorPath> originalPaths = new();
 
 
@@ -160,7 +160,7 @@ internal class CombineStructureMembersOnto_Change : Change
         VectorPath? targetPath = targetData?.ToPath();
 
         var reversed = toCombine.Reverse().ToHashSet();
-        
+
         foreach (var guid in reversed)
         {
             if (target.FindMember(guid) is not VectorLayerNode vectorNode)
@@ -175,10 +175,10 @@ internal class CombineStructureMembersOnto_Change : Change
             {
                 targetData = vectorNode.ShapeData;
                 targetPath = path;
-                
-                if(originalPaths.ContainsKey(frame))
+
+                if (originalPaths.ContainsKey(frame))
                     originalPaths[frame].Dispose();
-                
+
                 originalPaths[frame] = new VectorPath(path);
             }
             else
@@ -188,10 +188,27 @@ internal class CombineStructureMembersOnto_Change : Change
             }
         }
 
-        var pathData = (PathVectorData)targetData.Clone();
-        pathData.Path = targetPath;
+        var clone = targetData.Clone();
+        PathVectorData data;
+        if (clone is not PathVectorData vectorData)
+        {
+            ShapeVectorData shape = clone as ShapeVectorData;
+            data = new PathVectorData(targetPath)
+            {
+                StrokeColor = shape.StrokeColor,
+                FillColor = shape.FillColor,
+                StrokeWidth = shape.StrokeWidth,
+                Fill = shape.Fill,
+                TransformationMatrix = shape.TransformationMatrix,
+            };
+        }
+        else
+        {
+            data = vectorData;
+            data.Path = targetPath;
+        }
 
-        vectorLayer.ShapeData = pathData;
+        vectorLayer.ShapeData = data;
 
         return new AffectedArea(new HashSet<VecI>());
     }
@@ -324,7 +341,7 @@ internal class CombineStructureMembersOnto_Change : Change
         {
             return VectorRevert(vectorLayerNode, frame);
         }
-        
+
         throw new InvalidOperationException("Layer type not supported");
     }
 
@@ -343,7 +360,7 @@ internal class CombineStructureMembersOnto_Change : Change
         toDrawOnImage.CommitChanges();
         return new LayerImageArea_ChangeInfo(targetLayerGuid, affectedArea);
     }
-    
+
     private IChangeInfo VectorRevert(VectorLayerNode targetLayer, int frame)
     {
         if (!originalPaths.TryGetValue(frame, out var path))
@@ -359,14 +376,14 @@ internal class CombineStructureMembersOnto_Change : Change
         {
             originalChunk.Value.Dispose();
         }
-        
+
         originalChunks.Clear();
-        
+
         foreach (var originalPath in originalPaths)
         {
             originalPath.Value.Dispose();
         }
-        
+
         originalPaths.Clear();
     }
 }

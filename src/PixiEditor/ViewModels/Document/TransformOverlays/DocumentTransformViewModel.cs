@@ -61,6 +61,13 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         get => lockRotation;
         set => SetProperty(ref lockRotation, value);
     }
+    
+    private bool lockShear;
+    public bool LockShear
+    {
+        get => lockShear;
+        set => SetProperty(ref lockShear, value);
+    }
 
     private bool snapToAngles;
 
@@ -263,6 +270,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         CornerFreedom = TransformCornerFreedom.Scale;
         SideFreedom = TransformSideFreedom.Stretch;
         LockRotation = mode == DocumentTransformMode.Scale_NoRotate_NoShear_NoPerspective;
+        LockShear = mode is DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective or DocumentTransformMode.Scale_NoRotate_NoShear_NoPerspective;
         CoverWholeScreen = coverWholeScreen;
         TransformActive = true;
         ShowTransformControls = showApplyButton;
@@ -270,7 +278,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
 
         IsSizeBoxEnabled = false;
         ShowHandles = true;
-
+        
         RequestCornersExecutor?.Execute(this, initPos);
 
         if (customAddToUndo is not null)
@@ -309,6 +317,11 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
 
         ScaleFromCenter = isCtrlDown;
 
+        UpdateFreedom(requestedCornerFreedom, requestedSideFreedom);
+    }
+
+    private void UpdateFreedom(TransformCornerFreedom requestedCornerFreedom, TransformSideFreedom requestedSideFreedom)
+    {
         switch (activeTransformMode)
         {
             case DocumentTransformMode.Scale_Rotate_Shear_Perspective:
