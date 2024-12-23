@@ -76,8 +76,20 @@ namespace PixiEditor.ViewModels.Tools.Tools
                 return;
             }
             
-            var oldSetting = (SizeSettingViewModel)oldToolbar.Settings[0];
-            actualToolSize = (int)oldSetting.Value;
+            var oldSetting = oldToolbar.Settings.FirstOrDefault(x => x.Name == nameof(oldToolbar.ToolSize));
+            if (oldSetting is null)
+            {
+                return;
+            }
+            
+            if(oldSetting.Value is int intValue)
+            {
+                actualToolSize = intValue;
+            }
+            else if(oldSetting.Value is double doubleValue)
+            {
+                actualToolSize = (int)doubleValue;
+            }
         }
 
         public override void OnDeselecting(bool transient)
