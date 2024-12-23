@@ -35,7 +35,7 @@ public class ChunkyImageSerializationFactory : SerializationFactory<byte[], Chun
                 return false;
             }
 
-            original = new ChunkyImage(surface.Size, Config.ProcessingProcessingColorSpace);
+            original = new ChunkyImage(surface.Size, Config.ProcessingColorSpace);
             original.EnqueueDrawImage(VecI.Zero, surface);
             original.CommitChanges();
             return true;

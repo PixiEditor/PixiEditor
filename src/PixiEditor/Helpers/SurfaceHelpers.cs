@@ -36,11 +36,11 @@ public static class SurfaceHelpers
         return result;
     }
 
-    public static unsafe byte[] ToByteArray(this Surface surface, ColorType colorType = ColorType.Bgra8888, AlphaType alphaType = AlphaType.Premul)
+    public static unsafe byte[] ToByteArray(this Surface surface, ColorType colorType = ColorType.Bgra8888, AlphaType alphaType = AlphaType.Premul, ColorSpace colorSpace = null)
     {
         int width = surface.Size.X;
         int height = surface.Size.Y;
-        var imageInfo = new ImageInfo(width, height, colorType, alphaType, ColorSpace.CreateSrgb());
+        var imageInfo = new ImageInfo(width, height, colorType, alphaType, colorSpace == null ? surface.ImageInfo.ColorSpace : colorSpace);
 
         byte[] buffer = new byte[width * height * imageInfo.BytesPerPixel];
         fixed (void* pointer = buffer)
