@@ -114,15 +114,20 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
 
     protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
     {
-        if (ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.TransformViewModel.TransformActive)
-        {
-            return;
-        }
+        UpdateSelection();
+    }
+    
+    public override void OnActiveFrameChanged(int newFrame)
+    {
+        UpdateSelection();
+    }
 
+    private void UpdateSelection()
+    {
         OnDeselecting(false);
         OnToolSelected(false);
     }
-    
+
     public void KeepOriginalChanged()
     {
         var activeDocument = ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument;

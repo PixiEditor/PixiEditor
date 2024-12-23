@@ -475,14 +475,21 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         {
             e.OldDocument.PropertyChanged -= DocumentOnPropertyChanged;
             e.OldDocument.LayersChanged -= DocumentOnLayersChanged;
+            e.OldDocument.AnimationDataViewModel.ActiveFrameChanged -= ActiveFrameChanged;
         }
 
         if (e.NewDocument is not null)
         {
             e.NewDocument.PropertyChanged += DocumentOnPropertyChanged;
             e.NewDocument.LayersChanged += DocumentOnLayersChanged;
+            e.NewDocument.AnimationDataViewModel.ActiveFrameChanged += ActiveFrameChanged;
             UpdateEnabledState();
         }
+    }
+    
+    private void ActiveFrameChanged(int oldFrame, int newFrame)
+    {
+        UpdateActiveFrame(newFrame);
     }
 
     private void DocumentOnLayersChanged(object? sender, LayersChangedEventArgs e)
@@ -497,7 +504,12 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             UpdateEnabledState();
         }
     }
-
+    
+    private void UpdateActiveFrame(int newFrame)
+    {
+        ActiveTool?.OnActiveFrameChanged(newFrame);
+    }
+    
     private void UpdateEnabledState()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;

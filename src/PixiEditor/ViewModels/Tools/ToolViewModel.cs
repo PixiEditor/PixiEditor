@@ -182,6 +182,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     
     public virtual void OnPostUndo() { }
     public virtual void OnPostRedo() { }
+    public virtual void OnActiveFrameChanged(int newFrame) { }
 
     public void SetToolSetSettings(IToolSetHandler toolset, Dictionary<string, object>? settings)
     {
