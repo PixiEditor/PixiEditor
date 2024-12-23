@@ -27,6 +27,18 @@ internal class CreateRasterKeyFrame_Change : Change
 
     public override bool InitializeAndValidate(Document target)
     {
+        var targetLayer = target.FindMember(_targetLayerGuid);
+        
+        if (targetLayer is null)
+        {
+            return false;
+        }
+        
+        if(_frame == -1 && targetLayer.KeyFrames.All(x => x.KeyFrameGuid != createdKeyFrameId))
+        {
+            return false;
+        }
+        
         return _frame != 0 && target.TryFindMember(_targetLayerGuid, out _layer);
     }
 
@@ -51,6 +63,11 @@ internal class CreateRasterKeyFrame_Change : Change
 
         if (existingData is null)
         {
+            if (_frame == -1)
+            {
+                ignoreInUndo = true;
+                return new None();
+            }
             targetNode.AddFrame(createdKeyFrameId,
                 new KeyFrameData(createdKeyFrameId, _frame, 1, ImageLayerNode.ImageLayerKey) { Data = img, });
         }
@@ -81,6 +98,7 @@ internal class CreateRasterKeyFrame_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         target.AnimationData.RemoveKeyFrame(createdKeyFrameId);
+        target.FindMemberOrThrow<ImageLayerNode>(_targetLayerGuid).RemoveKeyFrame(createdKeyFrameId);
         return new DeleteKeyFrame_ChangeInfo(createdKeyFrameId);
     }
 }

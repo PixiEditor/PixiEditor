@@ -883,8 +883,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             return [];
 
         int firstFrame = AnimationDataViewModel.FirstFrame;
-        int framesCount = AnimationDataViewModel.FramesCount;
-        int lastFrame = firstFrame + framesCount;
+        int lastFrame = AnimationDataViewModel.LastFrame;
+        
+        int framesCount = lastFrame - firstFrame;
 
         Image[] images = new Image[framesCount];
 
