@@ -40,8 +40,7 @@ internal class DuplicateLayer_Change : Change
 
         InputProperty<Painter?> targetInput = parent.InputProperties.FirstOrDefault(x =>
             x.ValueType == typeof(Painter) &&
-            x.Connection != null &&
-            x.Connection.Node is StructureNode) as InputProperty<Painter?>;
+            x.Connection is { Node: StructureNode }) as InputProperty<Painter?>;
 
         List<IChangeInfo> operations = new();
 

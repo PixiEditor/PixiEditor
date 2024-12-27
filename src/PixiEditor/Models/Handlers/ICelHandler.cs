@@ -14,4 +14,5 @@ internal interface ICelHandler
     public Guid Id { get; }
     public bool IsVisible { get; }
     public IDocument Document { get; }
+    bool IsWithinRange(int frame);
 }

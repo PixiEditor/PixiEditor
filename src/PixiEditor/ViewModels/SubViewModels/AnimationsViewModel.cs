@@ -138,9 +138,14 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
         if (activeDocument.AnimationDataViewModel.TryFindCels<CelGroupViewModel>(targetLayer,
                 out CelGroupViewModel groupViewModel))
         {
-            if (active == groupViewModel.StartFrameBindable + groupViewModel.DurationBindable - 1)
+            if (groupViewModel.Children.All(x => !x.IsWithinRange(active )))
             {
-                return groupViewModel.StartFrameBindable + groupViewModel.DurationBindable;
+                return active;
+            }
+            
+            if (groupViewModel.Children.All(x => !x.IsWithinRange(active + 1)))
+            {
+                return active + 1;
             }
         }
 
