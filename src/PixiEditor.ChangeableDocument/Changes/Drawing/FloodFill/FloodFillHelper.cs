@@ -59,7 +59,7 @@ public static class FloodFillHelper
         VecI initPosOnChunk = startingPos - initChunkPos * chunkSize;
         var chunkAtPos = cache.GetChunk(initChunkPos);
         Color colorToReplace = chunkAtPos.Match(
-            (Chunk chunk) => chunk.Surface.GetPixel(initPosOnChunk),
+            (Chunk chunk) => chunk.Surface.GetRawPixel(initPosOnChunk),
             static (EmptyChunk _) => Colors.Transparent
         );
 
@@ -175,9 +175,9 @@ public static class FloodFillHelper
         ColorBounds bounds,
         bool checkFirstPixel)
     {
-        if (referenceChunk.Surface.GetPixel(pos) == color || drawingChunk.Surface.GetPixel(pos) == color)
+        if (referenceChunk.Surface.GetRawPixel(pos) == color || drawingChunk.Surface.GetRawPixel(pos) == color)
             return null;
-        if (checkFirstPixel && !bounds.IsWithinBounds(referenceChunk.Surface.GetPixel(pos)))
+        if (checkFirstPixel && !bounds.IsWithinBounds(referenceChunk.Surface.GetRawPixel(pos)))
             return null;
 
         byte[] pixelStates = new byte[chunkSize * chunkSize];

@@ -76,7 +76,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     private readonly Paint blendModePaint = new Paint() { BlendMode = BlendMode.Src };
 
     public ColorSpace ProcessingColorSpace { get; set; }
-    
+
     public int CommitCounter => commitCounter;
 
     public VecI CommittedSize { get; private set; }
@@ -130,7 +130,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             [ChunkResolution.Quarter] = new(),
             [ChunkResolution.Eighth] = new(),
         };
-        
+
         ProcessingColorSpace = colorSpace;
     }
 
@@ -280,7 +280,23 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             return MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full) switch
             {
                 null => Colors.Transparent,
-                var chunk => chunk.Surface.GetPixel(posInChunk)
+                var chunk => chunk.Surface.GetSrgbPixel(posInChunk)
+            };
+        }
+    }
+
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
+    public Color GetCommittedPixelRaw(VecI posOnImage)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            var chunkPos = OperationHelper.GetChunkPos(posOnImage, FullChunkSize);
+            var posInChunk = posOnImage - chunkPos * FullChunkSize;
+            return MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full) switch
+            {
+                null => Colors.Transparent,
+                var chunk => chunk.Surface.GetRawPixel(posInChunk)
             };
         }
     }
@@ -301,7 +317,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                 return committedChunk switch
                 {
                     null => Colors.Transparent,
-                    _ => committedChunk.Surface.GetPixel(posInChunk)
+                    _ => committedChunk.Surface.GetSrgbPixel(posInChunk)
                 };
             }
 
@@ -312,7 +328,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                 return latestChunk switch
                 {
                     null => Colors.Transparent,
-                    _ => latestChunk.Surface.GetPixel(posInChunk)
+                    _ => latestChunk.Surface.GetSrgbPixel(posInChunk)
                 };
             }
 
@@ -322,10 +338,10 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                 Chunk? latestChunk = GetLatestChunk(chunkPos, ChunkResolution.Full);
                 Color committedColor = committedChunk is null
                     ? Colors.Transparent
-                    : committedChunk.Surface.GetPixel(posInChunk);
+                    : committedChunk.Surface.GetSrgbPixel(posInChunk);
                 Color latestColor = latestChunk is null
                     ? Colors.Transparent
-                    : latestChunk.Surface.GetPixel(posInChunk);
+                    : latestChunk.Surface.GetSrgbPixel(posInChunk);
                 // using a whole chunk just to draw 1 pixel is kinda dumb,
                 // but this should be faster than any approach that requires allocations
                 using Chunk tempChunk = Chunk.Create(ProcessingColorSpace, ChunkResolution.Eighth);
@@ -333,7 +349,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                 using Paint latestPaint = new Paint() { Color = latestColor, BlendMode = this.blendMode };
                 tempChunk.Surface.DrawingSurface.Canvas.DrawPixel(VecI.Zero, committedPaint);
                 tempChunk.Surface.DrawingSurface.Canvas.DrawPixel(VecI.Zero, latestPaint);
-                return tempChunk.Surface.GetPixel(VecI.Zero);
+                return tempChunk.Surface.GetSrgbPixel(VecI.Zero);
             }
         }
     }
@@ -601,7 +617,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
         lock (lockObject)
         {
             ThrowIfDisposed();
-            EllipseOperation operation = new(location, strokeColor, fillColor, strokeWidth, rotationRad, antiAliased, paint);
+            EllipseOperation operation = new(location, strokeColor, fillColor, strokeWidth, rotationRad, antiAliased,
+                paint);
             EnqueueOperation(operation);
         }
     }

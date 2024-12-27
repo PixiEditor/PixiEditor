@@ -35,7 +35,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
         public override LocalizedString Tooltip => new LocalizedString("PEN_TOOL_TOOLTIP", Shortcut);
 
         [Settings.Inherited]
-        public double ToolSize => GetValue<int>();
+        public double ToolSize => GetValue<double>();
 
         [Settings.Bool("PIXEL_PERFECT_SETTING", Notify = nameof(PixelPerfectChanged), ExposedByDefault = false)]
         public bool PixelPerfectEnabled => GetValue<bool>();
