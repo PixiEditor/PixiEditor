@@ -9,10 +9,10 @@ using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
-public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnlyLineData
+public class LineVectorData : ShapeVectorData, IReadOnlyLineData
 {
-    public VecD Start { get; set; } = startPos; // Relative to the document top left
-    public VecD End { get; set; } = pos; // Relative to the document top left
+    public VecD Start { get; set; }
+    public VecD End { get; set; }
 
     public VecD TransformedStart
     {
@@ -52,6 +52,15 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
 
     public override ShapeCorners TransformationCorners => new ShapeCorners(GeometryAABB)
         .WithMatrix(TransformationMatrix);
+
+
+    public LineVectorData(VecD startPos, VecD pos)
+    {
+        Start = startPos;
+        End = pos;
+        
+        Fill = false;
+    }
 
     public override void RasterizeGeometry(Canvas canvas)
     {
@@ -101,18 +110,10 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
         return GetCacheHash();
     }
 
-    public override object Clone()
-    {
-        return new LineVectorData(Start, End)
-        {
-            StrokeColor = StrokeColor, StrokeWidth = StrokeWidth, TransformationMatrix = TransformationMatrix
-        };
-    }
-
     public override VectorPath ToPath()
     {
         // TODO: Apply transformation matrix
-        
+
         VectorPath path = new VectorPath();
         path.MoveTo((VecF)Start);
         path.LineTo((VecF)End);

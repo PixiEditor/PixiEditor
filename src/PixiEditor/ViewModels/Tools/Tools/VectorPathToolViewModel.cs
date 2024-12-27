@@ -111,7 +111,7 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
         }
     }
     
-    public override void OnSelected(bool restoring)
+    protected override void OnSelected(bool restoring)
     {
         if (restoring) return;
 
@@ -119,7 +119,7 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
         isActivated = true;
     }
     
-    public override void OnDeselecting(bool transient)
+    protected override void OnDeselecting(bool transient)
     {
         if (!transient)
         {
@@ -132,7 +132,7 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
     {
         if (isActivated)
         {
-            OnSelected(false);
+            OnToolSelected(false);
         }
     }
 
@@ -140,14 +140,14 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
     {
         if (isActivated)
         {
-            OnSelected(false);
+            OnToolSelected(false);
         }
     }
 
     protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
     {
         OnDeselecting(false);
-        OnSelected(false);
+        OnToolSelected(false);
     }
 }
 

@@ -3,13 +3,14 @@ using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.DocumentModels;
 using Drawie.Numerics;
 using PixiEditor.Models.Controllers.InputDevice;
+using PixiEditor.Views.Overlays.TransformOverlay;
 
 namespace PixiEditor.Models.Handlers;
 
 internal interface ITransformHandler : IHandler
 {
     public void KeyModifiersInlet(bool argsIsShiftDown, bool argsIsCtrlDown, bool argsIsAltDown);
-    public void ShowTransform(DocumentTransformMode transformMode, bool coverWholeScreen, ShapeCorners shapeCorners, bool showApplyButton);
+    public void ShowTransform(DocumentTransformMode transformMode, bool coverWholeScreen, ShapeCorners shapeCorners, bool showApplyButton, Action<ShapeCorners>? customAddToUndo = null);
     public void HideTransform();
     public bool Undo();
     public bool Redo();

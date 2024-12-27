@@ -446,7 +446,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         IMidChangeUndoableExecutor executor =
             Internals.ChangeController.TryGetExecutorFeature<IMidChangeUndoableExecutor>();
-        if (executor is { CanRedo: true })
+        if (executor is { CanRedo: true }) 
         {
             executor.OnMidChangeRedo();
             return;
@@ -455,7 +455,11 @@ internal class DocumentOperationsModule : IDocumentOperations
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
-        Internals.ChangeController.TryStopActiveExecutor();
+        if (!Internals.ChangeController.IsChangeOfTypeActive<IMidChangeUndoableExecutor>())
+        {
+            Internals.ChangeController.TryStopActiveExecutor();
+        }
+
         Internals.ActionAccumulator.AddActions(new Redo_Action());
     }
 
@@ -807,12 +811,15 @@ internal class DocumentOperationsModule : IDocumentOperations
         Internals.ActionAccumulator.AddFinishedActions(new RasterizeMember_Action(memberId));
     }
 
-    public void InvokeCustomAction(Action action)
+    public void InvokeCustomAction(Action action, bool stopActiveExecutor = true)
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
-        Internals.ChangeController.TryStopActiveExecutor();
+        if (stopActiveExecutor)
+        {
+            Internals.ChangeController.TryStopActiveExecutor();
+        }
 
         IAction targetAction = new InvokeAction_PassthroughAction(action);
 

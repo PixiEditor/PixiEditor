@@ -179,7 +179,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
     {
         if (document.PathOverlayHandler.IsActive)
         {
-            internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData(startingPath)));
+            internals.ActionAccumulator.AddFinishedActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData(startingPath)), new EndSetShapeGeometry_Action());
         }
     }
 
