@@ -21,7 +21,8 @@ public static class FloodFillHelper
     private static readonly VecI Left = new VecI(-1, 0);
     private static readonly VecI Right = new VecI(1, 0);
 
-    internal static FloodFillChunkCache CreateCache(HashSet<Guid> membersToFloodFill, IReadOnlyDocument document, int frame)
+    internal static FloodFillChunkCache CreateCache(HashSet<Guid> membersToFloodFill, IReadOnlyDocument document,
+        int frame)
     {
         if (membersToFloodFill.Count == 1)
         {
@@ -33,6 +34,7 @@ public static class FloodFillHelper
                 throw new InvalidOperationException("Member is not a raster layer");
             return new FloodFillChunkCache(rasterLayer.GetLayerImageAtFrame(frame));
         }
+
         return new FloodFillChunkCache(membersToFloodFill, document, frame);
     }
 
@@ -55,8 +57,9 @@ public static class FloodFillHelper
         VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
         VecI imageSizeInChunks = (VecI)(document.Size / (double)chunkSize).Ceiling();
         VecI initPosOnChunk = startingPos - initChunkPos * chunkSize;
-        Color colorToReplace = cache.GetChunk(initChunkPos).Match(
-            (Chunk chunk) => chunk.Surface.GetSRGBPixel(initPosOnChunk),
+        var chunkAtPos = cache.GetChunk(initChunkPos);
+        Color colorToReplace = chunkAtPos.Match(
+            (Chunk chunk) => chunk.Surface.GetPixel(initPosOnChunk),
             static (EmptyChunk _) => Colors.Transparent
         );
 
@@ -69,6 +72,16 @@ public static class FloodFillHelper
         // Used for faster pixel checking
         ColorBounds colorRange = new(colorToReplace, tolerance);
         ulong uLongColor = drawingColor.ToULong();
+        if (chunkAtPos.IsT0 && !chunkAtPos.AsT0.Surface.ImageInfo.ColorSpace.IsSrgb)
+        {
+            if (chunkAtPos.AsT0.Surface?.ImageInfo.ColorSpace != null)
+            {
+                var srgbTransform = ColorSpace.CreateSrgb().GetTransformFunction();
+
+                var fixedColor = drawingColor.TransformColor(srgbTransform);
+                uLongColor = fixedColor.ToULong();
+            }
+        }
 
         Dictionary<VecI, Chunk> drawingChunks = new();
         HashSet<VecI> processedEmptyChunks = new();
@@ -88,6 +101,7 @@ public static class FloodFillHelper
                 chunk.Surface.DrawingSurface.Canvas.Clear(Colors.Transparent);
                 drawingChunks[chunkPos] = chunk;
             }
+
             var drawingChunk = drawingChunks[chunkPos];
             var referenceChunk = cache.GetChunk(chunkPos);
 
@@ -108,8 +122,10 @@ public static class FloodFillHelper
                         if (chunkPos.X < imageSizeInChunks.X - 1)
                             positionsToFloodFill.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
                     }
+
                     processedEmptyChunks.Add(chunkPos);
                 }
+
                 continue;
             }
 
@@ -142,6 +158,7 @@ public static class FloodFillHelper
                     positionsToFloodFill.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
             }
         }
+
         return drawingChunks;
     }
 
@@ -158,9 +175,9 @@ public static class FloodFillHelper
         ColorBounds bounds,
         bool checkFirstPixel)
     {
-        if (referenceChunk.Surface.GetSRGBPixel(pos) == color || drawingChunk.Surface.GetSRGBPixel(pos) == color)
+        if (referenceChunk.Surface.GetPixel(pos) == color || drawingChunk.Surface.GetPixel(pos) == color)
             return null;
-        if (checkFirstPixel && !bounds.IsWithinBounds(referenceChunk.Surface.GetSRGBPixel(pos)))
+        if (checkFirstPixel && !bounds.IsWithinBounds(referenceChunk.Surface.GetPixel(pos)))
             return null;
 
         byte[] pixelStates = new byte[chunkSize * chunkSize];
@@ -186,13 +203,17 @@ public static class FloodFillHelper
 
             if (curPos.X > 0 && pixelStates[pixelOffset - 1] == InSelection && bounds.IsWithinBounds(refPixel - 4))
                 toVisit.Push(new(curPos.X - 1, curPos.Y));
-            if (curPos.X < chunkSize - 1 && pixelStates[pixelOffset + 1] == InSelection && bounds.IsWithinBounds(refPixel + 4))
+            if (curPos.X < chunkSize - 1 && pixelStates[pixelOffset + 1] == InSelection &&
+                bounds.IsWithinBounds(refPixel + 4))
                 toVisit.Push(new(curPos.X + 1, curPos.Y));
-            if (curPos.Y > 0 && pixelStates[pixelOffset - chunkSize] == InSelection && bounds.IsWithinBounds(refPixel - 4 * chunkSize))
+            if (curPos.Y > 0 && pixelStates[pixelOffset - chunkSize] == InSelection &&
+                bounds.IsWithinBounds(refPixel - 4 * chunkSize))
                 toVisit.Push(new(curPos.X, curPos.Y - 1));
-            if (curPos.Y < chunkSize - 1 && pixelStates[pixelOffset + chunkSize] == InSelection && bounds.IsWithinBounds(refPixel + 4 * chunkSize))
+            if (curPos.Y < chunkSize - 1 && pixelStates[pixelOffset + chunkSize] == InSelection &&
+                bounds.IsWithinBounds(refPixel + 4 * chunkSize))
                 toVisit.Push(new(curPos.X, curPos.Y + 1));
         }
+
         return pixelStates;
     }
 
@@ -215,7 +236,8 @@ public static class FloodFillHelper
     /// <summary>
     /// Use skia to set all pixels in array that are inside selection to InSelection
     /// </summary>
-    private static unsafe void DrawSelection(byte[] array, VectorPath? selection, RectI globalBounds, VecI chunkPos, int chunkSize)
+    private static unsafe void DrawSelection(byte[] array, VectorPath? selection, RectI globalBounds, VecI chunkPos,
+        int chunkSize)
     {
         if (selection is null)
         {
@@ -232,7 +254,8 @@ public static class FloodFillHelper
         fixed (byte* arr = array)
         {
             using DrawingSurface drawingSurface = DrawingSurface.Create(
-                new ImageInfo(localBounds.Right, localBounds.Bottom, ColorType.Gray8, AlphaType.Opaque), (IntPtr)arr, chunkSize);
+                new ImageInfo(localBounds.Right, localBounds.Bottom, ColorType.Gray8, AlphaType.Opaque), (IntPtr)arr,
+                chunkSize);
             drawingSurface.Canvas.ClipPath(shiftedSelection);
             drawingSurface.Canvas.Clear(new Color(InSelection, InSelection, InSelection));
             drawingSurface.Canvas.Flush();

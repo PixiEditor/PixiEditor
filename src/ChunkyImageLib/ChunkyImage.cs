@@ -280,7 +280,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
             return MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full) switch
             {
                 null => Colors.Transparent,
-                var chunk => chunk.Surface.GetSRGBPixel(posInChunk)
+                var chunk => chunk.Surface.GetPixel(posInChunk)
             };
         }
     }
@@ -301,7 +301,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                 return committedChunk switch
                 {
                     null => Colors.Transparent,
-                    _ => committedChunk.Surface.GetSRGBPixel(posInChunk)
+                    _ => committedChunk.Surface.GetPixel(posInChunk)
                 };
             }
 
@@ -312,7 +312,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                 return latestChunk switch
                 {
                     null => Colors.Transparent,
-                    _ => latestChunk.Surface.GetSRGBPixel(posInChunk)
+                    _ => latestChunk.Surface.GetPixel(posInChunk)
                 };
             }
 
@@ -322,10 +322,10 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                 Chunk? latestChunk = GetLatestChunk(chunkPos, ChunkResolution.Full);
                 Color committedColor = committedChunk is null
                     ? Colors.Transparent
-                    : committedChunk.Surface.GetSRGBPixel(posInChunk);
+                    : committedChunk.Surface.GetPixel(posInChunk);
                 Color latestColor = latestChunk is null
                     ? Colors.Transparent
-                    : latestChunk.Surface.GetSRGBPixel(posInChunk);
+                    : latestChunk.Surface.GetPixel(posInChunk);
                 // using a whole chunk just to draw 1 pixel is kinda dumb,
                 // but this should be faster than any approach that requires allocations
                 using Chunk tempChunk = Chunk.Create(ProcessingColorSpace, ChunkResolution.Eighth);
@@ -333,7 +333,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                 using Paint latestPaint = new Paint() { Color = latestColor, BlendMode = this.blendMode };
                 tempChunk.Surface.DrawingSurface.Canvas.DrawPixel(VecI.Zero, committedPaint);
                 tempChunk.Surface.DrawingSurface.Canvas.DrawPixel(VecI.Zero, latestPaint);
-                return tempChunk.Surface.GetSRGBPixel(VecI.Zero);
+                return tempChunk.Surface.GetPixel(VecI.Zero);
             }
         }
     }
