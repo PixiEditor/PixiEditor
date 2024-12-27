@@ -26,7 +26,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
     public void ChangeActiveFrame(int nudgeBy)
     {
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        if (activeDocument is null || activeDocument.TransformViewModel.TransformActive)
+        if (activeDocument is null || IsTransforming())
             return;
 
         int newFrame = activeDocument.AnimationDataViewModel.ActiveFrameBindable + nudgeBy;
@@ -190,5 +190,15 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             return;
 
         document.Operations.SetActiveFrame((int)value);
+    }
+    
+    private bool IsTransforming()
+    {
+        var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (activeDocument is null)
+            return false;
+        
+        return activeDocument.TransformViewModel.TransformActive || activeDocument.LineToolOverlayViewModel.IsEnabled
+            || activeDocument.PathOverlayViewModel.IsActive;
     }
 }
