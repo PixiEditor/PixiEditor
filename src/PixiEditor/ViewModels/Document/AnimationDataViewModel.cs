@@ -24,6 +24,8 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public IReadOnlyCollection<ICelHandler> AllCels => allCels;
 
+    public event Action<int, int> ActiveFrameChanged;
+    
     private KeyFrameCollection keyFrames = new KeyFrameCollection();
     private List<ICelHandler> allCels = new List<ICelHandler>();
     private bool onionSkinningEnabled;
@@ -187,7 +189,9 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public void SetActiveFrame(int newFrame)
     {
+        int previousFrame = _activeFrameBindable;
         _activeFrameBindable = newFrame;
+        ActiveFrameChanged?.Invoke(previousFrame, newFrame);
         OnPropertyChanged(nameof(ActiveFrameBindable));
     }
     
@@ -386,4 +390,5 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         this.keyFrames = new KeyFrameCollection(layerKeyFrames);
         OnPropertyChanged(nameof(KeyFrames));
     }
+
 }

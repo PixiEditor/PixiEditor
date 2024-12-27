@@ -2,7 +2,7 @@
 
 namespace PixiEditor.ViewModels.Document.TransformOverlays;
 
-internal class PathOverlayUndoStack<TState> : IDisposable where TState : class
+internal class UndoStack<TState> : IDisposable where TState : class
 {
     private struct StackItem<TState>
     {

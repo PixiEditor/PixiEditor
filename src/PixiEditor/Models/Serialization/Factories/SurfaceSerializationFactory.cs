@@ -11,7 +11,8 @@ public class SurfaceSerializationFactory : SerializationFactory<byte[], Surface>
     public override byte[] Serialize(Surface original)
     {
         var encoder = Config.Encoder;
-        byte[] result = encoder.Encode(original.ToByteArray(), original.Size.X, original.Size.Y);
+        byte[] result = encoder.Encode(original.ToByteArray(), original.Size.X, original.Size.Y,
+            original.ImageInfo.ColorSpace?.IsSrgb ?? true);
 
         return result;
     }
@@ -21,21 +22,25 @@ public class SurfaceSerializationFactory : SerializationFactory<byte[], Surface>
     {
         if (serialized is byte[] imgBytes)
         {
-            original = DecodeSurface(imgBytes, Config.Encoder);
+            original = DecodeSurface(imgBytes, Config.Encoder, Config.ProcessingColorSpace);
             return true;
         }
-        
+
         original = null;
         return false;
     }
 
 
-    public static Surface DecodeSurface(byte[] imgBytes, ImageEncoder encoder)
+    public static Surface DecodeSurface(byte[] imgBytes, ImageEncoder encoder, ColorSpace processingColorSpace)
     {
         byte[] decoded =
             encoder.Decode(imgBytes, out SKImageInfo info);
-        using Image img = Image.FromPixels(info.ToImageInfo(), decoded);
-        Surface surface = new Surface(img.Size);
+        ImageInfo finalInfo = info.ToImageInfo();
+
+        using Image img = Image.FromPixels(finalInfo, decoded);
+        Surface surface = Surface.ForDisplay(finalInfo.Size);
+
+
         surface.DrawingSurface.Canvas.DrawImage(img, 0, 0);
 
         return surface;

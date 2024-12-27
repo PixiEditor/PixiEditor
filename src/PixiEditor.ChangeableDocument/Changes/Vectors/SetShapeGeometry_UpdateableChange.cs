@@ -96,4 +96,14 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
 
         return new VectorShape_ChangeInfo(node.Id, affected);
     }
+
+    public override bool IsMergeableWith(Change other)
+    {
+        if (other is SetShapeGeometry_UpdateableChange change)
+        {
+            return change.TargetId == TargetId;
+        }
+
+        return false;
+    }
 }

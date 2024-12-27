@@ -81,6 +81,8 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
             
             if (node is Node typedNode)
             {
+                if(typedNode.IsDisposed) continue;
+                
                 typedNode.ExecuteInternal(context);
             }
             else

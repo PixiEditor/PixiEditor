@@ -228,7 +228,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
         if (ActiveTool != null)
         {
-            ActiveTool.OnDeselecting(transient);
+            ActiveTool.OnToolDeselected(transient);
             ActiveTool.Toolbar.SettingChanged -= ToolbarSettingChanged;
         }
 
@@ -261,7 +261,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         LastActionTool?.ModifierKeyChanged(false, false, false);
         //update new tool
         ActiveTool.ModifierKeyChanged(ctrlIsDown, shiftIsDown, altIsDown);
-        ActiveTool.OnSelected(wasTransient);
+        ActiveTool.OnToolSelected(wasTransient);
 
         tool.IsActive = true;
         ActiveTool.IsTransient = transient;
@@ -475,14 +475,21 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         {
             e.OldDocument.PropertyChanged -= DocumentOnPropertyChanged;
             e.OldDocument.LayersChanged -= DocumentOnLayersChanged;
+            e.OldDocument.AnimationDataViewModel.ActiveFrameChanged -= ActiveFrameChanged;
         }
 
         if (e.NewDocument is not null)
         {
             e.NewDocument.PropertyChanged += DocumentOnPropertyChanged;
             e.NewDocument.LayersChanged += DocumentOnLayersChanged;
+            e.NewDocument.AnimationDataViewModel.ActiveFrameChanged += ActiveFrameChanged;
             UpdateEnabledState();
         }
+    }
+    
+    private void ActiveFrameChanged(int oldFrame, int newFrame)
+    {
+        UpdateActiveFrame(newFrame);
     }
 
     private void DocumentOnLayersChanged(object? sender, LayersChangedEventArgs e)
@@ -497,7 +504,12 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             UpdateEnabledState();
         }
     }
-
+    
+    private void UpdateActiveFrame(int newFrame)
+    {
+        ActiveTool?.OnActiveFrameChanged(newFrame);
+    }
+    
     private void UpdateEnabledState()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;

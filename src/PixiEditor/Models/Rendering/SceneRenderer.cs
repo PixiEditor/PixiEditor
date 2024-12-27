@@ -24,7 +24,7 @@ internal class SceneRenderer
 
     public void RenderScene(DrawingSurface target, ChunkResolution resolution)
     {
-        if(Document.Renderer.IsBusy) return;
+        if(Document.Renderer.IsBusy || DocumentViewModel.Busy) return;
         RenderOnionSkin(target, resolution);
         RenderGraph(target, resolution);
     }

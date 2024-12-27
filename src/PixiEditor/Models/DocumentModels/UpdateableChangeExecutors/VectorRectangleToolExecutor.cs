@@ -8,6 +8,7 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
@@ -44,6 +45,9 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
         var shapeData = vectorLayer.GetShapeData(document.AnimationHandler.ActiveFrameTime);
         return shapeData is RectangleVectorData;
     }
+
+    protected override bool UseGlobalUndo => true;
+    protected override bool ShowApplyButton => false;
 
     protected override void DrawShape(VecD curPos, double rotationRad, bool firstDraw)
     {
@@ -126,5 +130,11 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
     protected override IAction EndDrawAction()
     {
         return new EndSetShapeGeometry_Action();
+    }
+
+    public override bool IsFeatureEnabled(IExecutorFeature feature)
+    {
+        if (feature is IMidChangeUndoableExecutor) return false;
+        return base.IsFeatureEnabled(feature);
     }
 }

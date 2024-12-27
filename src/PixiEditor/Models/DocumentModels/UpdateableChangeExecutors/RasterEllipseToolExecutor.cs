@@ -29,6 +29,8 @@ internal class RasterEllipseToolExecutor : DrawableShapeToolExecutor<IRasterElli
 
     public override ExecutorType Type => ExecutorType.ToolLinked;
     protected override DocumentTransformMode TransformMode => DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective;
+    protected override bool UseGlobalUndo => false;
+    protected override bool ShowApplyButton => true;
     protected override void DrawShape(VecD currentPos, double rotationRad, bool firstDraw) => DrawEllipseOrCircle(currentPos, rotationRad, firstDraw);
     protected override IAction SettingsChangedAction()
     {

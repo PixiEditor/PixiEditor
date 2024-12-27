@@ -8,6 +8,7 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
@@ -41,10 +42,13 @@ internal class VectorEllipseToolExecutor : DrawableShapeToolExecutor<IVectorElli
         IVectorLayerHandler vectorLayer = layer as IVectorLayerHandler;
         if (vectorLayer is null)
             return false;
-        
+
         var shapeData = vectorLayer.GetShapeData(document.AnimationHandler.ActiveFrameTime);
         return shapeData is EllipseVectorData;
     }
+
+    protected override bool UseGlobalUndo => true;
+    protected override bool ShowApplyButton => false;
 
     protected override void DrawShape(VecD curPos, double rotationRad, bool firstDraw)
     {
@@ -90,9 +94,10 @@ internal class VectorEllipseToolExecutor : DrawableShapeToolExecutor<IVectorElli
         {
             firstCenter = corners.RectCenter;
             firstRadius = corners.RectSize / 2f;
-            
-            if(corners.RectRotation != 0)
-                matrix = Matrix3X3.CreateRotation((float)corners.RectRotation, (float)firstCenter.X, (float)firstCenter.Y);
+
+            if (corners.RectRotation != 0)
+                matrix = Matrix3X3.CreateRotation((float)corners.RectRotation, (float)firstCenter.X,
+                    (float)firstCenter.Y);
         }
         else
         {
@@ -118,5 +123,11 @@ internal class VectorEllipseToolExecutor : DrawableShapeToolExecutor<IVectorElli
     protected override IAction EndDrawAction()
     {
         return new EndSetShapeGeometry_Action();
+    }
+
+    public override bool IsFeatureEnabled(IExecutorFeature feature)
+    {
+        if(feature is IMidChangeUndoableExecutor) return false;
+        return base.IsFeatureEnabled(feature);
     }
 }

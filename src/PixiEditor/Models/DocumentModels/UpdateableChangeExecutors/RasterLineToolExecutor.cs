@@ -9,6 +9,9 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
 internal class RasterLineToolExecutor : LineExecutor<ILineToolHandler>
 {
+    protected override bool UseGlobalUndo => false;
+    protected override bool ShowApplyButton => true;
+
     protected override bool InitShapeData(IReadOnlyLineData? data)
     {
         return false;
@@ -30,12 +33,12 @@ internal class RasterLineToolExecutor : LineExecutor<ILineToolHandler>
             (float)StrokeWidth, StrokeColor, StrokeCap.Butt, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
     }
 
-    protected override IAction SettingsChange()
+    protected override IAction[] SettingsChange()
     {
         VecD dir = GetSignedDirection(startDrawingPos, curPos);
         VecD oppositeDir = new VecD(-dir.X, -dir.Y);
-        return new DrawRasterLine_Action(memberId, ToPixelPos(startDrawingPos, oppositeDir), ToPixelPos(curPos, dir), (float)StrokeWidth,
-            StrokeColor, StrokeCap.Butt, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+        return [new DrawRasterLine_Action(memberId, ToPixelPos(startDrawingPos, oppositeDir), ToPixelPos(curPos, dir), (float)StrokeWidth,
+            StrokeColor, StrokeCap.Butt, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)];
     }
 
     private VecI ToPixelPos(VecD pos, VecD dir)
