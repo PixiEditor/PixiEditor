@@ -190,8 +190,6 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
             return base.RenderPreview(renderOn, context, elementToRenderName);
         }
 
-        // TODO: Make preview better, with filters, clips and stuff
-
         if (Content.Connection != null)
         {
             var executionQueue = GraphUtils.CalculateExecutionQueue(Content.Connection.Node);
