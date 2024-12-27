@@ -154,6 +154,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         var img = GetLayerImageAtFrame(context.FrameTime.Frame);
 
+        int cacheFrame = context.FrameTime.Frame;
         if (Guid.TryParse(elementToRenderName, out Guid guid))
         {
             var keyFrame = keyFrames.FirstOrDefault(x => x.KeyFrameGuid == guid);
@@ -161,6 +162,12 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             if (keyFrame != null)
             {
                 img = GetLayerImageByKeyFrameGuid(keyFrame.KeyFrameGuid);
+                cacheFrame = keyFrame.StartFrame;
+            }
+            else if (guid == Id)
+            {
+                img = GetLayerImageAtFrame(0);
+                cacheFrame = 0;
             }
         }
 
@@ -169,7 +176,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             return false;
         }
 
-        if (renderedSurfaceFrame == context.FrameTime.Frame)
+        if (renderedSurfaceFrame == cacheFrame)
         {
             renderOnto.Canvas.DrawSurface(fullResrenderedSurface.DrawingSurface, VecI.Zero, blendPaint);
         }
