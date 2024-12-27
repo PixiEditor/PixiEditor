@@ -126,7 +126,7 @@ internal class MagicWandHelper
 
 
         Color colorToReplace = cache.GetChunk(initChunkPos).Match(
-            (Chunk chunk) => chunk.Surface.GetSRGBPixel(initPosOnChunk),
+            (Chunk chunk) => chunk.Surface.GetRawPixel(initPosOnChunk),
             static (EmptyChunk _) => Colors.Transparent
         );
 
@@ -257,7 +257,7 @@ internal class MagicWandHelper
         VecI pos,
         ColorBounds bounds, Lines lines)
     {
-        if (!bounds.IsWithinBounds(referenceChunk.Surface.GetSRGBPixel(pos)))
+        if (!bounds.IsWithinBounds(referenceChunk.Surface.GetRawPixel(pos)))
         {
             return null;
         }
