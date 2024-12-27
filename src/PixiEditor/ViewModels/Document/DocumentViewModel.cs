@@ -698,26 +698,35 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             if (scope == DocumentScope.AllLayers)
             {
                 VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize);
-                // TODO: Implement this
-                /*return Renderer.RenderChunk(chunkPos, ChunkResolution.Full,
-                        frameTime)
-                    .Match(
-                        chunk =>
-                        {
-                            VecI posOnChunk = pos - chunkPos * ChunkyImage.FullChunkSize;
-                            var color = chunk.Surface.GetSRGBPixel(posOnChunk);
-                            chunk.Dispose();
-                            return color;
-                        },
-                        _ => Colors.Transparent);*/
+                using Texture tmpTexture = Texture.ForProcessing(SizeBindable);
+                HashSet<Guid> layers = StructureHelper.GetAllLayers().Select(x => x.Id).ToHashSet();
+                Renderer.RenderLayers(tmpTexture.DrawingSurface, layers, frameTime.Frame, ChunkResolution.Full);
+                
+                using Surface tmpSurface = new Surface(tmpTexture.Size);
+                tmpSurface.DrawingSurface.Canvas.DrawImage(tmpTexture.DrawingSurface.Snapshot(), 0, 0);
+                
+                return tmpSurface.GetSrgbPixel(pos);
             }
 
             if (SelectedStructureMember is not ILayerHandler layerVm)
                 return Colors.Transparent;
             IReadOnlyStructureNode? maybeMember = Internals.Tracker.Document.FindMember(layerVm.Id);
             if (maybeMember is not IReadOnlyImageNode layer)
-                return Colors.Transparent;
-            return layer.GetLayerImageAtFrame(frameTime.Frame).GetMostUpToDatePixel(pos);
+            {
+                if (maybeMember is IRasterizable rasterizable)
+                {
+                    using Texture texture = new Texture(SizeBindable);
+                    using Paint paint = new Paint();
+                    rasterizable.Rasterize(texture.DrawingSurface, paint);
+                    return texture.GetSRGBPixel(pos);
+                }
+            }
+            else
+            {
+                return layer.GetLayerImageAtFrame(frameTime.Frame).GetMostUpToDatePixel(pos);
+            }
+            
+            return Colors.Transparent;
         }
         catch (ObjectDisposedException)
         {

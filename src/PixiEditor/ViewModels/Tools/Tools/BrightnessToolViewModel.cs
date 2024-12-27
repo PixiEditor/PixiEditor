@@ -23,7 +23,7 @@ internal class BrightnessToolViewModel : ToolViewModel, IBrightnessToolHandler
     public BrightnessToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
-        Toolbar = ToolbarFactory.Create<BrightnessToolViewModel, EmptyToolbar>(this);
+        Toolbar = ToolbarFactory.Create<BrightnessToolViewModel, BrightnessToolbar>(this);
     }
 
     public override bool IsErasable => true;
@@ -43,8 +43,8 @@ internal class BrightnessToolViewModel : ToolViewModel, IBrightnessToolHandler
         get => BrightnessMode;
     }
 
-    [Settings.Size("TOOL_SIZE_LABEL", Name = "ToolSize")]
-    public int ToolSize => GetValue<int>();
+    [Settings.Inherited]
+    public double ToolSize => GetValue<double>();
     
     [Settings.Float("STRENGTH_LABEL", 5, 0, 50)]
     public float CorrectionFactor => GetValue<float>();

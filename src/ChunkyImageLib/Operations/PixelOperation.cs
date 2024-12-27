@@ -55,7 +55,7 @@ internal class PixelOperation : IMirroredDrawOperation
         if (colorProcessor != null && getCommitedPixelFunc != null)
         {
             var pos = pixel - chunkPos * ChunkyImage.FullChunkSize;
-            pixelColor = colorProcessor(getCommitedPixelFunc(pixel), chunk.Surface.GetSRGBPixel(pos));
+            pixelColor = colorProcessor(getCommitedPixelFunc(pixel), chunk.Surface.GetSrgbPixel(pos));
         }
 
         return new Color(pixelColor.R, pixelColor.G, pixelColor.B, (byte)(pixelColor.A * chunk.Resolution.Multiplier()));

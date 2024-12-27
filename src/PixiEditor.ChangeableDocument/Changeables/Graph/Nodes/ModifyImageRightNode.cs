@@ -33,10 +33,10 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
 
     protected override void OnPaint(RenderContext renderContext, DrawingSurface targetSurface)
     {
-        if (OtherNode == null)
+        if (OtherNode == null || OtherNode == default)
         {
-            FindStartNode();
-            if (OtherNode == null)
+            OtherNode = FindStartNode()?.Id ?? default;
+            if (OtherNode == null || OtherNode == default)
             {
                 return;
             }
@@ -47,6 +47,8 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         {
             return;
         }
+        
+        OtherNode = startNode.Id;
 
         if (startNode.Image.Value is not { Size: var size })
         {
@@ -106,13 +108,29 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
 
     public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
     {
-        //TODO: Implement
+        var startNode = FindStartNode();
+        if (startNode != null)
+        {
+            return startNode.GetPreviewBounds(frame, elementToRenderName);
+        }
+        
         return null;
     }
 
     public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
-        //TODO: Implement
+        var startNode = FindStartNode();
+        if (drawingPaint != null && startNode != null && startNode.Image.Value != null)
+        {
+            int saved = renderOn.Canvas.SaveLayer(drawingPaint);
+            
+            renderOn.Canvas.DrawRect(0, 0, startNode.Image.Value.Size.X, startNode.Image.Value.Size.Y, drawingPaint);
+            
+            renderOn.Canvas.RestoreToCount(saved);
+            
+            return true;
+        }
+
         return false;
     }
 
@@ -130,7 +148,6 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
             if (node is ModifyImageLeftNode leftNode)
             {
                 startNode = leftNode;
-                OtherNode = leftNode.Id;
                 return false;
             }
 
