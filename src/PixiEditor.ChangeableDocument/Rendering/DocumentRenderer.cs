@@ -18,6 +18,8 @@ public class DocumentRenderer : IPreviewRenderable
         BlendMode = BlendMode.Src, Color = Drawie.Backend.Core.ColorsImpl.Colors.Transparent
     };
 
+    private Texture renderTexture;
+    
     public DocumentRenderer(IReadOnlyDocument document)
     {
         Document = document;
@@ -126,7 +128,21 @@ public class DocumentRenderer : IPreviewRenderable
     public bool RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
+        IsBusy = true;
+        
+        if(renderTexture == null || renderTexture.Size != Document.Size)
+        {
+            renderTexture?.Dispose();
+            renderTexture = Texture.ForProcessing(Document.Size, Document.ProcessingColorSpace);
+        }
+        
+        renderTexture.DrawingSurface.Canvas.Clear();
+        context.RenderSurface = renderTexture.DrawingSurface;
         Document.NodeGraph.Execute(context);
+        
+        renderOn.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
+        
+        IsBusy = false;
 
         return true;
     }
@@ -134,8 +150,18 @@ public class DocumentRenderer : IPreviewRenderable
     public void RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime)
     {
         IsBusy = true;
-        RenderContext context = new(toRenderOn, frameTime, ChunkResolution.Full, Document.Size, Document.ProcessingColorSpace) { FullRerender = true };
+        
+        if(renderTexture == null || renderTexture.Size != Document.Size)
+        {
+            renderTexture?.Dispose();
+            renderTexture = Texture.ForProcessing(Document.Size, Document.ProcessingColorSpace);
+        }
+        
+        renderTexture.DrawingSurface.Canvas.Clear();
+        RenderContext context = new(renderTexture.DrawingSurface, frameTime, ChunkResolution.Full, Document.Size, Document.ProcessingColorSpace) { FullRerender = true };
         Document.NodeGraph.Execute(context);
+        
+        toRenderOn.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
         IsBusy = false;
     }
 }

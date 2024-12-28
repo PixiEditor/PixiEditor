@@ -502,17 +502,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             Surface finalSurface = null;
             DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
             {
-                using Texture texture = Texture.ForProcessing(renderSize, Internals.Tracker.Document.ProcessingColorSpace);
-                texture.DrawingSurface.Canvas.Save();
+                finalSurface = new Surface(renderSize);
+                finalSurface.DrawingSurface.Canvas.Save();
                 VecD scaling = new VecD(renderSize.X / (double)SizeBindable.X, renderSize.Y / (double)SizeBindable.Y);
 
-                texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
-                Renderer.RenderDocument(texture.DrawingSurface, frameTime);
+                finalSurface.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
+                Renderer.RenderDocument(finalSurface.DrawingSurface, frameTime);
 
-                texture.DrawingSurface.Canvas.Restore();
-                
-                finalSurface = new Surface(renderSize);
-                finalSurface.DrawingSurface.Canvas.DrawSurface(texture.DrawingSurface, 0, 0);
+                finalSurface.DrawingSurface.Canvas.Restore();
             });
 
             return finalSurface;

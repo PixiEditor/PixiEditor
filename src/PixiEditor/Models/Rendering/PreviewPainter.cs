@@ -1,4 +1,6 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿using Avalonia;
+using ChunkyImageLib.DataHolders;
+using Drawie.Backend.Core;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using Drawie.Backend.Core.Surfaces;
@@ -17,6 +19,8 @@ public class PreviewPainter
     public KeyFrameTime FrameTime { get; set; }
     public VecI DocumentSize { get; set; }
     
+    private Texture renderTexture;
+    
     public PreviewPainter(IPreviewRenderable previewRenderable, KeyFrameTime frameTime, VecI documentSize, ColorSpace processingColorSpace, string elementToRenderName = "")
     {
         PreviewRenderable = previewRenderable;
@@ -26,16 +30,26 @@ public class PreviewPainter
         DocumentSize = documentSize;
     }
 
-    public void Paint(DrawingSurface renderOn) 
+    public void Paint(DrawingSurface renderOn, VecI boundsSize) 
     {
         if (PreviewRenderable == null)
         {
             return;
         }
 
-        RenderContext context = new(renderOn, FrameTime, ChunkResolution.Full, DocumentSize, ProcessingColorSpace);
+        if (renderTexture == null || renderTexture.Size != boundsSize)
+        {
+            renderTexture?.Dispose();
+            renderTexture = Texture.ForProcessing(boundsSize, ProcessingColorSpace);
+        }
+        
+        renderTexture.DrawingSurface.Canvas.Clear();
+        
+        RenderContext context = new(renderTexture.DrawingSurface, FrameTime, ChunkResolution.Full, DocumentSize, ProcessingColorSpace);
 
-        PreviewRenderable.RenderPreview(renderOn, context, ElementToRenderName);
+        PreviewRenderable.RenderPreview(renderTexture.DrawingSurface, context, ElementToRenderName);
+        
+        renderOn.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
     }
 
     public void Repaint()

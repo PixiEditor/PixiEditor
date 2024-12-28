@@ -79,7 +79,7 @@ public class PreviewPainterControl : DrawieControl
             UniformScale(x, y, surface, previewBounds.Value);
         }
 
-        PreviewPainter.Paint(surface);
+        PreviewPainter.Paint(surface, new VecI((int)Bounds.Size.Width, (int)Bounds.Size.Height));
 
         surface.Canvas.Restore();
     }
