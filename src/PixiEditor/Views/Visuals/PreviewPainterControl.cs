@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using ChunkyImageLib.DataHolders;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Interop.Avalonia.Core.Controls;
 using PixiEditor.Models.Rendering;
@@ -74,17 +75,18 @@ public class PreviewPainterControl : DrawieControl
 
         surface.Canvas.Save();
 
+        Matrix3X3 matrix = Matrix3X3.Identity;
         if (previewBounds != null)
         {
-            UniformScale(x, y, surface, previewBounds.Value);
+            matrix = UniformScale(x, y, previewBounds.Value);
         }
 
-        PreviewPainter.Paint(surface, new VecI((int)Bounds.Size.Width, (int)Bounds.Size.Height));
+        PreviewPainter.Paint(surface, new VecI((int)Bounds.Size.Width, (int)Bounds.Size.Height), matrix);
 
         surface.Canvas.Restore();
     }
 
-    private void UniformScale(float x, float y, DrawingSurface target, RectD previewBounds)
+    private Matrix3X3 UniformScale(float x, float y,  RectD previewBounds)
     {
         float scaleX = (float)Bounds.Width / x;
         float scaleY = (float)Bounds.Height / y;
@@ -93,7 +95,7 @@ public class PreviewPainterControl : DrawieControl
         dX -= (float)previewBounds.X;
         float dY = (float)Bounds.Height / 2 / scale - y / 2;
         dY -= (float)previewBounds.Y;
-        target.Canvas.Scale(scale, scale);
-        target.Canvas.Translate(dX, dY);
+        Matrix3X3 matrix = Matrix3X3.CreateScale(scale, scale);
+        return matrix.Concat(Matrix3X3.CreateTranslation(dX, dY));
     }
 }

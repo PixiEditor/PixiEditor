@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using Drawie.Backend.Core.Surfaces;
@@ -30,7 +31,7 @@ public class PreviewPainter
         DocumentSize = documentSize;
     }
 
-    public void Paint(DrawingSurface renderOn, VecI boundsSize) 
+    public void Paint(DrawingSurface renderOn, VecI boundsSize, Matrix3X3 matrix) 
     {
         if (PreviewRenderable == null)
         {
@@ -44,10 +45,14 @@ public class PreviewPainter
         }
         
         renderTexture.DrawingSurface.Canvas.Clear();
+        renderTexture.DrawingSurface.Canvas.Save();
+
+        renderTexture.DrawingSurface.Canvas.SetMatrix(matrix);
         
         RenderContext context = new(renderTexture.DrawingSurface, FrameTime, ChunkResolution.Full, DocumentSize, ProcessingColorSpace);
 
         PreviewRenderable.RenderPreview(renderTexture.DrawingSurface, context, ElementToRenderName);
+        renderTexture.DrawingSurface.Canvas.Restore();
         
         renderOn.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
     }
