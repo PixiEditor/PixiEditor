@@ -502,7 +502,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             Surface finalSurface = null;
             DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
             {
-                using Texture texture = new Texture(renderSize);
+                using Texture texture = Texture.ForProcessing(renderSize, Internals.Tracker.Document.ProcessingColorSpace);
                 texture.DrawingSurface.Canvas.Save();
                 VecD scaling = new VecD(renderSize.X / (double)SizeBindable.X, renderSize.Y / (double)SizeBindable.Y);
 
@@ -510,8 +510,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 Renderer.RenderDocument(texture.DrawingSurface, frameTime);
 
                 texture.DrawingSurface.Canvas.Restore();
+                
                 finalSurface = new Surface(renderSize);
-                finalSurface.DrawingSurface.Canvas.DrawImage(texture.DrawingSurface.Snapshot(), 0, 0);
+                finalSurface.DrawingSurface.Canvas.DrawSurface(texture.DrawingSurface, 0, 0);
             });
 
             return finalSurface;
