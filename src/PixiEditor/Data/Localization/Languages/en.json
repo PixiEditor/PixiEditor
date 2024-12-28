@@ -789,5 +789,7 @@
   "FILL_TYPE_INVERSE_WINDING": "Inverse Winding",
   "FILL_TYPE_INVERSE_EVEN_ODD": "Inverse Even Odd",
   "STROKE_CAP": "Stroke Cap",
-  "STROKE_JOIN": "Stroke Join"
+  "STROKE_JOIN": "Stroke Join",
+  "COPY_VISIBLE": "Copy visible",
+    "COPY_VISIBLE_DESCRIPTIVE": "Copy visible pixels"
 }

@@ -18,6 +18,7 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Constants;
@@ -122,6 +123,39 @@ internal static class ClipboardController
 
         data.Set(ClipboardDataFormats.LayerIdList, layerIdsBytes);
         data.Set(ClipboardDataFormats.DocumentFormat, Encoding.UTF8.GetBytes(document.Id.ToString()));
+
+        await Clipboard.SetDataObjectAsync(data);
+    }
+    
+    public static async Task CopyVisibleToClipboard(DocumentViewModel document)
+    {
+        await Clipboard.ClearAsync();
+
+        DataObject data = new DataObject();
+
+        RectD copyArea = new RectD(VecD.Zero, document.SizeBindable);
+        
+        if (!document.SelectionPathBindable.IsEmpty)
+        {
+            copyArea = document.SelectionPathBindable.TightBounds;
+        }
+        else if (document.TransformViewModel.TransformActive)
+        {
+            copyArea = document.TransformViewModel.Corners.AABBBounds;
+        }
+
+        using Surface documentSurface = new Surface(document.SizeBindable);
+        
+        document.Renderer.RenderDocument(documentSurface.DrawingSurface, document.AnimationDataViewModel.ActiveFrameTime);
+        
+        Surface surfaceToCopy = new Surface((VecI)copyArea.Size.Ceiling());
+        using Paint paint = new Paint();
+        
+        surfaceToCopy.DrawingSurface.Canvas.DrawImage(
+        documentSurface.DrawingSurface.Snapshot(),
+        copyArea, new RectD(0, 0, copyArea.Size.X, copyArea.Size.Y), paint);
+
+        await AddImageToClipboard(surfaceToCopy, data);
 
         await Clipboard.SetDataObjectAsync(data);
     }
