@@ -120,9 +120,9 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         
         document.TransformHandler.CanAlignToPixels = anyRaster;
 
-        internals!.ActionAccumulator.AddActions(
+        /*internals!.ActionAccumulator.AddActions(
             new TransformSelected_Action(masterCorners, tool.KeepOriginalImage, memberCorners, false,
-                document.AnimationHandler.ActiveFrameBindable));
+                document.AnimationHandler.ActiveFrameBindable));*/
 
         isInProgress = true;
         return ExecutionState.Success;
