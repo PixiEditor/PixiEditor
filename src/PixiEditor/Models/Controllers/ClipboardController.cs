@@ -63,7 +63,7 @@ internal static class ClipboardController
         DataObject data = new DataObject();
 
         Surface surfaceToCopy = null;
-        RectI copyArea = RectI.Empty;
+        RectD copyArea = RectD.Empty;
 
         if (!document.SelectionPathBindable.IsEmpty)
         {
@@ -77,7 +77,8 @@ internal static class ClipboardController
                 return;
             }
 
-            (surfaceToCopy, copyArea) = surface.AsT2;
+            surfaceToCopy = surface.AsT2.Item1;
+            copyArea = (RectD)surface.AsT2.Item2;
         }
         else if (document.TransformViewModel.TransformActive)
         {
@@ -87,7 +88,8 @@ internal static class ClipboardController
             if (surface.IsT0 || surface.IsT1)
                 return;
 
-            (surfaceToCopy, copyArea) = surface.AsT2;
+            surfaceToCopy = surface.AsT2.Item1;
+            copyArea = document.TransformViewModel.Corners.AABBBounds;
         }
         else if (document.SelectedStructureMember != null)
         {
@@ -97,7 +99,8 @@ internal static class ClipboardController
             if (surface.IsT0 || surface.IsT1)
                 return;
 
-            (surfaceToCopy, copyArea) = surface.AsT2;
+            surfaceToCopy = surface.AsT2.Item1;
+            copyArea = (RectD)bounds;
         }
 
         if (surfaceToCopy == null)
@@ -107,7 +110,7 @@ internal static class ClipboardController
 
         await AddImageToClipboard(surfaceToCopy, data);
 
-        if (copyArea.Size != document.SizeBindable && copyArea.Pos != VecI.Zero && copyArea != RectI.Empty)
+        if (copyArea.Size != document.SizeBindable && copyArea.Pos != VecI.Zero && copyArea != RectD.Empty)
         {
             data.SetVecD(ClipboardDataFormats.PositionFormat, copyArea.Pos);
         }
