@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using System.Collections.Concurrent;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -19,7 +20,7 @@ public class DocumentRenderer : IPreviewRenderable
     };
 
     private Texture renderTexture;
-
+    
     public DocumentRenderer(IReadOnlyDocument document)
     {
         Document = document;
@@ -81,6 +82,20 @@ public class DocumentRenderer : IPreviewRenderable
         context.FullRerender = true;
 
         node.RenderForOutput(context, renderOn, null);
+        IsBusy = false;
+    }
+    
+    public void RenderNodePreview(IPreviewRenderable previewRenderable, DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    {
+        if (IsBusy)
+        {
+            return;
+        }
+        
+        IsBusy = true;
+        
+        previewRenderable.RenderPreview(renderOn, context, elementToRenderName);
+        
         IsBusy = false;
     }
 

@@ -19,16 +19,18 @@ public class PreviewPainter
     public event Action RequestRepaint;
     public KeyFrameTime FrameTime { get; set; }
     public VecI DocumentSize { get; set; }
+    public DocumentRenderer Renderer { get; set; }
     
     private Texture renderTexture;
     
-    public PreviewPainter(IPreviewRenderable previewRenderable, KeyFrameTime frameTime, VecI documentSize, ColorSpace processingColorSpace, string elementToRenderName = "")
+    public PreviewPainter(DocumentRenderer renderer, IPreviewRenderable previewRenderable, KeyFrameTime frameTime, VecI documentSize, ColorSpace processingColorSpace, string elementToRenderName = "")
     {
         PreviewRenderable = previewRenderable;
         ElementToRenderName = elementToRenderName;
         ProcessingColorSpace = processingColorSpace;
         FrameTime = frameTime;
         DocumentSize = documentSize;
+        Renderer = renderer;
     }
 
     public void Paint(DrawingSurface renderOn, VecI boundsSize, Matrix3X3 matrix) 
@@ -51,7 +53,7 @@ public class PreviewPainter
         
         RenderContext context = new(renderTexture.DrawingSurface, FrameTime, ChunkResolution.Full, DocumentSize, ProcessingColorSpace);
 
-        PreviewRenderable.RenderPreview(renderTexture.DrawingSurface, context, ElementToRenderName);
+        Renderer.RenderNodePreview(PreviewRenderable, renderTexture.DrawingSurface, context, ElementToRenderName);
         renderTexture.DrawingSurface.Canvas.Restore();
         
         renderOn.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
