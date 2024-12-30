@@ -223,6 +223,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         if (ActiveTool == tool)
         {
             ActiveTool.IsTransient = transient;
+            LastActionTool = ActiveTool;
             return;
         }
 
@@ -367,7 +368,6 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         if (ActiveTool == null) return;
         if (ActiveTool.IsTransient && LastActionTool is { } tool)
             SetActiveTool(tool, false);
-        ShortcutController.UnblockShortcutExecution("ShortcutDown");
     }
 
     public void UseToolEventInlet(VecD canvasPos, MouseButton button)

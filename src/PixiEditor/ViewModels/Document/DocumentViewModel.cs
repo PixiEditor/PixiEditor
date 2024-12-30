@@ -445,7 +445,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                     foreach (var child in group.Children)
                     {
                         acc.AddActions(
-                            new CreateRasterKeyFrame_Action(
+                            new CreateCel_Action(
                                 mappedIds[child.NodeId],
                                 mappedKeyFrameIds[child.KeyFrameId],
                                 -1, -1, default));
@@ -502,16 +502,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             Surface finalSurface = null;
             DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
             {
-                using Texture texture = new Texture(renderSize);
-                texture.DrawingSurface.Canvas.Save();
+                finalSurface = new Surface(renderSize);
+                finalSurface.DrawingSurface.Canvas.Save();
                 VecD scaling = new VecD(renderSize.X / (double)SizeBindable.X, renderSize.Y / (double)SizeBindable.Y);
 
-                texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
-                Renderer.RenderDocument(texture.DrawingSurface, frameTime);
+                finalSurface.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
+                Renderer.RenderDocument(finalSurface.DrawingSurface, frameTime);
 
-                texture.DrawingSurface.Canvas.Restore();
-                finalSurface = new Surface(renderSize);
-                finalSurface.DrawingSurface.Canvas.DrawImage(texture.DrawingSurface.Snapshot(), 0, 0);
+                finalSurface.DrawingSurface.Canvas.Restore();
             });
 
             return finalSurface;
@@ -699,7 +697,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize);
                 using Texture tmpTexture = Texture.ForProcessing(SizeBindable);
-                HashSet<Guid> layers = StructureHelper.GetAllLayers().Select(x => x.Id).ToHashSet();
+                HashSet<Guid> layers = StructureHelper.GetAllMembers().Select(x => x.Id).ToHashSet();
                 Renderer.RenderLayers(tmpTexture.DrawingSurface, layers, frameTime.Frame, ChunkResolution.Full);
                 
                 using Surface tmpSurface = new Surface(tmpTexture.Size);

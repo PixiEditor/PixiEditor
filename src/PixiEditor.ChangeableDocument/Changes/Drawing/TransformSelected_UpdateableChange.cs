@@ -140,14 +140,14 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
     {
         ChunkyImage image =
             DrawingChangeHelper.GetTargetImageOrThrow(target, member.MemberId, drawOnMask, frame);
-        VectorPath pathToExtract = originalPath;
+        VectorPath? pathToExtract = originalPath;
         RectD targetBounds = originalTightBounds;
 
         if (pathToExtract == null)
         {
             RectD tightBounds = layer.GetTightBounds(frame).GetValueOrDefault();
             pathToExtract = new VectorPath();
-            pathToExtract.AddRect((RectD)(RectI)tightBounds);
+            pathToExtract.AddRect(tightBounds.RoundOutwards());
         }
 
         member.OriginalPath = pathToExtract;

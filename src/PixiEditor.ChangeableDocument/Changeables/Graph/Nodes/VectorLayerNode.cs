@@ -167,6 +167,6 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
     public override Node CreateCopy()
     {
-        return new VectorLayerNode() { ShapeData = (ShapeVectorData?)ShapeData?.Clone(), };
+        return new VectorLayerNode() { ShapeData = (ShapeVectorData?)ShapeData?.Clone(), ClipToPreviousMember = this.ClipToPreviousMember };
     }
 }

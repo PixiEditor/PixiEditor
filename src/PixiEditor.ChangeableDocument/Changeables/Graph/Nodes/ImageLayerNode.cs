@@ -222,7 +222,11 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public override Node CreateCopy()
     {
-        var image = new ImageLayerNode(startSize, colorSpace) { MemberName = this.MemberName, };
+        var image = new ImageLayerNode(startSize, colorSpace)
+        {
+            MemberName = this.MemberName, LockTransparency = this.LockTransparency,
+            ClipToPreviousMember = this.ClipToPreviousMember
+        };
 
         image.keyFrames.Clear();
 

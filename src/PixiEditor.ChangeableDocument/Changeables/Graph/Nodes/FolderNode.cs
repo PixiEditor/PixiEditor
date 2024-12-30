@@ -22,7 +22,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
         AllowHighDpiRendering = true;
     }
 
-    public override Node CreateCopy() => new FolderNode { MemberName = MemberName };
+    public override Node CreateCopy() => new FolderNode { MemberName = MemberName, ClipToPreviousMember = this.ClipToPreviousMember };
 
     public override VecD GetScenePosition(KeyFrameTime time) =>
         documentSize / 2f; 

@@ -3,6 +3,7 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -48,6 +49,7 @@ public class CreateImageNode : Node
         Content.Value?.Paint(ctx, surface.DrawingSurface);
 
         surface.DrawingSurface.Canvas.RestoreToCount(saved);
+        
         Output.Value = surface;
 
         RenderOutput.ChainToPainterValue();

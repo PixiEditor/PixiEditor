@@ -4,7 +4,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 
 namespace PixiEditor.ChangeableDocument.Changes.Animation;
 
-internal class CreateRasterKeyFrame_Change : Change
+internal class CreateCel_Change : Change
 {
     private readonly Guid _targetLayerGuid;
     private int _frame;
@@ -14,7 +14,7 @@ internal class CreateRasterKeyFrame_Change : Change
     private Guid createdKeyFrameId;
 
     [GenerateMakeChangeAction]
-    public CreateRasterKeyFrame_Change(Guid targetLayerGuid, Guid newKeyFrameGuid, int frame,
+    public CreateCel_Change(Guid targetLayerGuid, Guid newKeyFrameGuid, int frame,
         int cloneFromFrame = -1,
         Guid cloneFromExisting = default)
     {

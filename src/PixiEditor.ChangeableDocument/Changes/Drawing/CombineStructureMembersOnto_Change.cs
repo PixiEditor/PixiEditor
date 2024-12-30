@@ -42,13 +42,44 @@ internal class CombineStructureMembersOnto_Change : Change
             if (!target.TryFindMember(guid, out var member))
                 return false;
 
-            if (member is LayerNode layer)
-                layersToCombine.Add(layer.Id);
-            else if (member is FolderNode innerFolder)
-                AddChildren(innerFolder, layersToCombine);
+            AddMember(member);
         }
 
         return true;
+    }
+
+    private void AddMember(StructureNode member)
+    {
+        if (member is LayerNode layer)
+        {
+            layersToCombine.Add(layer.Id);
+        }
+        else if (member is FolderNode innerFolder)
+        {
+            layersToCombine.Add(innerFolder.Id);
+            AddChildren(innerFolder, layersToCombine);
+        }
+
+        if (member is { ClipToPreviousMember: true, Background.Connection: not null })
+        {
+            if (member.Background.Connection.Node is StructureNode structureNode)
+            {
+                AddMember(structureNode);
+            }
+            else
+            {
+                member.Background.Connection.Node.TraverseBackwards(node =>
+                {
+                    if (node is StructureNode strNode)
+                    {
+                        layersToCombine.Add(strNode.Id);
+                        return false;
+                    }
+
+                    return true;
+                });
+            }
+        }
     }
 
     private void AddChildren(FolderNode folder, HashSet<Guid> collection)
@@ -72,7 +103,7 @@ internal class CombineStructureMembersOnto_Change : Change
         out bool ignoreInUndo)
     {
         List<IChangeInfo> changes = new();
-        var targetLayer = target.FindMemberOrThrow<LayerNode>(targetLayerGuid);
+        var targetLayer = target.FindMemberOrThrow<StructureNode>(targetLayerGuid);
 
         int maxFrame = GetMaxFrame(target, targetLayer);
 
@@ -106,7 +137,7 @@ internal class CombineStructureMembersOnto_Change : Change
         return changes;
     }
 
-    private List<IChangeInfo> ApplyToFrame(Document target, LayerNode targetLayer, int frame)
+    private List<IChangeInfo> ApplyToFrame(Document target, StructureNode targetLayer, int frame)
     {
         var chunksToCombine = new HashSet<VecI>();
         List<IChangeInfo> changes = new();
@@ -115,7 +146,7 @@ internal class CombineStructureMembersOnto_Change : Change
 
         foreach (var guid in ordererd)
         {
-            var layer = target.FindMemberOrThrow<LayerNode>(guid);
+            var layer = target.FindMemberOrThrow<StructureNode>(guid);
 
             AddMissingKeyFrame(targetLayer, frame, layer, changes, target);
 
@@ -151,7 +182,7 @@ internal class CombineStructureMembersOnto_Change : Change
         return changes;
     }
 
-    private AffectedArea VectorMerge(Document target, LayerNode targetLayer, int frame, HashSet<Guid> toCombine)
+    private AffectedArea VectorMerge(Document target, StructureNode targetLayer, int frame, HashSet<Guid> toCombine)
     {
         if (targetLayer is not VectorLayerNode vectorLayer)
             throw new InvalidOperationException("Target layer is not a vector layer");
@@ -213,8 +244,11 @@ internal class CombineStructureMembersOnto_Change : Change
         return new AffectedArea(new HashSet<VecI>());
     }
 
-    private AffectedArea RasterMerge(Document target, LayerNode targetLayer, int frame)
+    private AffectedArea RasterMerge(Document target, StructureNode targetLayer, int frame)
     {
+        if(targetLayer is not ImageLayerNode)
+            throw new InvalidOperationException("Target layer is not a raster layer");
+        
         var toDrawOnImage = ((ImageLayerNode)targetLayer).GetLayerImageAtFrame(frame);
         toDrawOnImage.EnqueueClear();
 
@@ -252,7 +286,7 @@ internal class CombineStructureMembersOnto_Change : Change
         return ordered.Reverse().ToHashSet();
     }
 
-    private void AddMissingKeyFrame(LayerNode targetLayer, int frame, LayerNode layer, List<IChangeInfo> changes,
+    private void AddMissingKeyFrame(StructureNode targetLayer, int frame, StructureNode layer, List<IChangeInfo> changes,
         Document target)
     {
         bool hasKeyframe = targetLayer.KeyFrames.Any(x => x.IsInFrame(frame));
@@ -276,7 +310,7 @@ internal class CombineStructureMembersOnto_Change : Change
         target.AnimationData.AddKeyFrame(new RasterKeyFrame(clonedData.KeyFrameGuid, targetLayerGuid, frame, target));
     }
 
-    private int GetMaxFrame(Document target, LayerNode targetLayer)
+    private int GetMaxFrame(Document target, StructureNode targetLayer)
     {
         if (targetLayer.KeyFrames.Count == 0)
             return 0;
@@ -284,7 +318,7 @@ internal class CombineStructureMembersOnto_Change : Change
         int maxFrame = targetLayer.KeyFrames.Max(x => x.StartFrame + x.Duration);
         foreach (var toMerge in membersToMerge)
         {
-            var member = target.FindMemberOrThrow<LayerNode>(toMerge);
+            var member = target.FindMemberOrThrow<StructureNode>(toMerge);
             if (member.KeyFrames.Count > 0)
             {
                 maxFrame = Math.Max(maxFrame, member.KeyFrames.Max(x => x.StartFrame + x.Duration));
@@ -294,7 +328,7 @@ internal class CombineStructureMembersOnto_Change : Change
         return maxFrame;
     }
 
-    private void AddChunksByTightBounds(LayerNode layer, HashSet<VecI> chunksToCombine, int frame)
+    private void AddChunksByTightBounds(StructureNode layer, HashSet<VecI> chunksToCombine, int frame)
     {
         var tightBounds = layer.GetTightBounds(frame);
         if (tightBounds.HasValue)

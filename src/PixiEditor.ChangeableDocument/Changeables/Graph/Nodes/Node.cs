@@ -107,15 +107,48 @@ public abstract class Node : IReadOnlyNode, IDisposable
         _managedTextures[id] = new Texture(CreateImageInfo(size, processingCs));
         return _managedTextures[id];
     }
-    
+
     private ImageInfo CreateImageInfo(VecI size, ColorSpace processingCs)
     {
         if (processingCs == null)
         {
-            return new ImageInfo(size.X, size.Y, ColorType.RgbaF16, AlphaType.Premul, ColorSpace.CreateSrgbLinear()) { GpuBacked = true};
+            return new ImageInfo(size.X, size.Y, ColorType.RgbaF16, AlphaType.Premul, ColorSpace.CreateSrgbLinear())
+            {
+                GpuBacked = true
+            };
         }
 
         return new ImageInfo(size.X, size.Y, ColorType.RgbaF16, AlphaType.Premul, processingCs) { GpuBacked = true };
+    }
+
+    public void TraverseBackwards(Func<IReadOnlyNode, IInputProperty, bool> action)
+    {
+        var visited = new HashSet<IReadOnlyNode>();
+        var queueNodes = new Queue<(IReadOnlyNode, IInputProperty)>();
+        queueNodes.Enqueue((this, null));
+
+        while (queueNodes.Count > 0)
+        {
+            var node = queueNodes.Dequeue();
+
+            if (!visited.Add((node.Item1)))
+            {
+                continue;
+            }
+
+            if (!action(node.Item1, node.Item2))
+            {
+                return;
+            }
+
+            foreach (var inputProperty in node.Item1.InputProperties)
+            {
+                if (inputProperty.Connection != null)
+                {
+                    queueNodes.Enqueue((inputProperty.Connection.Node, inputProperty));
+                }
+            }
+        }
     }
 
     public void TraverseBackwards(Func<IReadOnlyNode, bool> action)
@@ -175,6 +208,39 @@ public abstract class Node : IReadOnlyNode, IDisposable
                     if (connection.Connection != null)
                     {
                         queueNodes.Enqueue(connection.Node);
+                    }
+                }
+            }
+        }
+    }
+
+    public void TraverseForwards(Func<IReadOnlyNode, IInputProperty, bool> action)
+    {
+        var visited = new HashSet<IReadOnlyNode>();
+        var queueNodes = new Queue<(IReadOnlyNode, IInputProperty)>();
+        queueNodes.Enqueue((this, null));
+
+        while (queueNodes.Count > 0)
+        {
+            var node = queueNodes.Dequeue();
+
+            if (!visited.Add((node.Item1)))
+            {
+                continue;
+            }
+
+            if (!action(node.Item1, node.Item2))
+            {
+                return;
+            }
+
+            foreach (var outputProperty in node.Item1.OutputProperties)
+            {
+                foreach (var connection in outputProperty.Connections)
+                {
+                    if (connection.Connection != null)
+                    {
+                        queueNodes.Enqueue((connection.Node, connection));
                     }
                 }
             }
@@ -370,10 +436,10 @@ public abstract class Node : IReadOnlyNode, IDisposable
             object value = CloneValue(toClone.NonOverridenValue, clone.inputs[i]);
             clone.inputs[i].NonOverridenValue = value;
         }
-        
+
         // This makes shader outputs copy old delegate, also I don't think it's required because output is calculated based on inputs,
         // leaving commented in case I'm wrong
-        
+
         /*for (var i = 0; i < clone.outputs.Count; i++)
         {
             var cloneOutput = outputs[i];
@@ -436,7 +502,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
         return new None();
     }
-    
+
     private static object CloneValue(object? value, InputProperty? input)
     {
         if (value is null)
@@ -452,7 +518,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
                 return input.FuncFactory(expr.GetConstant());
             }
         }
-        
+
         if (value is ICloneable cloneable)
         {
             return cloneable.Clone();
@@ -463,7 +529,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
         {
             return value;
         }
-        
+
         return default;
     }
 }
