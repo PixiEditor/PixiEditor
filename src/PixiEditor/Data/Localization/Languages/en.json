@@ -791,6 +791,10 @@
   "STROKE_CAP": "Stroke Cap",
   "STROKE_JOIN": "Stroke Join",
   "COPY_VISIBLE": "Copy visible",
-    "COPY_VISIBLE_DESCRIPTIVE": "Copy visible pixels",
-  "COLOR_SAMPLE_MODE": "Sample mode"
+  "COPY_VISIBLE_DESCRIPTIVE": "Copy visible pixels",
+  "COLOR_SAMPLE_MODE": "Sample mode",
+  "CREATE_CEL": "Create cel",
+  "CREATE_CEL_DESCRIPTIVE": "Create a new cel",
+  "DUPLICATE_CEL": "Duplicate cel",
+  "DUPLICATE_CEL_DESCRIPTIVE": "Duplicate cel in the current frame",
 }
