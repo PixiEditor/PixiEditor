@@ -397,6 +397,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         if (Document is null || e.Source != Scene)
             return;
 
+        Scene.Focus(NavigationMethod.Pointer);
+
         bool isMiddle = e.GetCurrentPoint(this).Properties.IsMiddleButtonPressed;
         HandleMiddleMouse(isMiddle);
 

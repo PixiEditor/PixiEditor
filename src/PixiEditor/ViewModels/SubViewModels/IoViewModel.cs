@@ -177,6 +177,8 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         {
             Owner.ToolsSubViewModel.HandleToolShortcutUp();
         }
+
+        ShortcutController.UnblockShortcutExecution("ShortcutDown");
     }
 
     private void OnMouseDown(object? sender, MouseOnCanvasEventArgs args)
@@ -240,18 +242,18 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is null)
             return;
-        
-        if(Owner.ColorsSubViewModel.ColorsTempSwapped)
+
+        if (Owner.ColorsSubViewModel.ColorsTempSwapped)
             return;
 
         var tools = Owner.ToolsSubViewModel;
-        
+
         if (tools is { RightClickMode: RightClickMode.SecondaryColor, ActiveTool.UsesColor: true })
         {
             Owner.ColorsSubViewModel.SwapColors(true);
         }
     }
-    
+
     private void HandleRightMouseEraseDown(IToolsHandler tools)
     {
         EraserToolViewModel? eraserTool = tools.GetTool<EraserToolViewModel>();
@@ -259,13 +261,13 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         {
             return;
         }
-        
+
         var currentToolSize = tools.ActiveTool.Toolbar.Settings.FirstOrDefault(x => x.Name == "ToolSize");
         hadSharedToolbar = tools.EnableSharedToolbar;
         if (currentToolSize != null)
         {
             tools.EnableSharedToolbar = false;
-            
+
             var toolSize = eraserTool.Toolbar.Settings.First(x => x.Name == "ToolSize");
             previousEraseSize = (double)toolSize.Value;
             toolSize.Value = tools.ActiveTool is PenToolViewModel { PixelPerfectEnabled: true }
@@ -307,7 +309,8 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             return;
         var tools = Owner.ToolsSubViewModel;
 
-        var rightCanUp = (button == MouseButton.Right) && tools.RightClickMode is RightClickMode.Erase or RightClickMode.SecondaryColor;
+        var rightCanUp = (button == MouseButton.Right) &&
+                         tools.RightClickMode is RightClickMode.Erase or RightClickMode.SecondaryColor;
 
         if (button == MouseButton.Left || rightCanUp)
         {
@@ -351,7 +354,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
                 break;
         }
     }
-    
+
     private void ToolSessionFinished()
     {
         Owner.ColorsSubViewModel.SwapColors(null);
