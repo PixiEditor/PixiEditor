@@ -223,6 +223,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         if (ActiveTool == tool)
         {
             ActiveTool.IsTransient = transient;
+            LastActionTool = ActiveTool;
             return;
         }
 

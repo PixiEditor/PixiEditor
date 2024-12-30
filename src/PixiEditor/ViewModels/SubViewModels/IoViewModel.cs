@@ -147,7 +147,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void ProcessShortcutDown(bool isRepeat, Key key, KeyModifiers argsModifiers)
     {
-        if (argsModifiers == KeyModifiers.None)
+        if (argsModifiers == KeyModifiers.None && !isRepeat)
         {
             HandleTransientKey(key);
         }
