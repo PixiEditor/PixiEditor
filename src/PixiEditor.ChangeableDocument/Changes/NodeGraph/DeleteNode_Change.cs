@@ -94,6 +94,7 @@ internal class DeleteNode_Change : Change
 
         changes.AddRange(NodeOperations.CreateUpdateInputs(copy));
         changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, copy, doc.NodeGraph));
+        changes.Add(new NodePosition_ChangeInfo(copy.Id, copy.Position));
 
         RevertKeyFrames(doc, savedKeyFrameGroup, changes);
 

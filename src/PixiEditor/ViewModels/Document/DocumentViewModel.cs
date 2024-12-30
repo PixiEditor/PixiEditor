@@ -697,7 +697,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize);
                 using Texture tmpTexture = Texture.ForProcessing(SizeBindable);
-                HashSet<Guid> layers = StructureHelper.GetAllLayers().Select(x => x.Id).ToHashSet();
+                HashSet<Guid> layers = StructureHelper.GetAllMembers().Select(x => x.Id).ToHashSet();
                 Renderer.RenderLayers(tmpTexture.DrawingSurface, layers, frameTime.Frame, ChunkResolution.Full);
                 
                 using Surface tmpSurface = new Surface(tmpTexture.Size);
