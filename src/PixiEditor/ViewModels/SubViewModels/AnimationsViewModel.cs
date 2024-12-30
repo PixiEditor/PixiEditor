@@ -42,14 +42,15 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
         if (activeDocument is null)
             return;
 
-        activeDocument.AnimationDataViewModel.IsPlayingBindable = !activeDocument.AnimationDataViewModel.IsPlayingBindable;
+        activeDocument.AnimationDataViewModel.IsPlayingBindable =
+            !activeDocument.AnimationDataViewModel.IsPlayingBindable;
     }
 
-    [Command.Basic("PixiEditor.Animation.CreateRasterKeyFrame", "Create Raster Key Frame", "Create a raster key frame",
+    [Command.Basic("PixiEditor.Animation.CreateCel", "CREATE_CEL", "CREATE_CEL_DESCRIPTIVE",
         Parameter = false, AnalyticsTrack = true)]
-    [Command.Basic("PixiEditor.Animation.DuplicateRasterKeyFrame", "Duplicate Raster Key Frame",
-        "Duplicate a raster key frame", Parameter = true, AnalyticsTrack = true)]
-    public void CreateRasterKeyFrame(bool duplicate)
+    [Command.Basic("PixiEditor.Animation.DuplicateCel", "DUPLICATE_CEL",
+        "DUPLICATE_CEL_DESCRIPTIVE", Parameter = true, AnalyticsTrack = true)]
+    public void CreateCel(bool duplicate)
     {
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (activeDocument?.SelectedStructureMember is null)
@@ -57,12 +58,12 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        int newFrame = GetActiveFrame(activeDocument, activeDocument.SelectedStructureMember.Id);
+        int newFrame = GetFirstEmptyFrame(activeDocument, activeDocument.SelectedStructureMember.Id);
 
         Guid toCloneFrom = duplicate ? activeDocument.SelectedStructureMember.Id : Guid.Empty;
         int frameToCopyFrom = duplicate ? activeDocument.AnimationDataViewModel.ActiveFrameBindable : -1;
 
-        activeDocument.AnimationDataViewModel.CreateRasterKeyFrame(
+        activeDocument.AnimationDataViewModel.CreateCel(
             activeDocument.SelectedStructureMember.Id,
             newFrame,
             toCloneFrom,
@@ -132,23 +133,28 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
     }
 
 
-    private static int GetActiveFrame(DocumentViewModel activeDocument, Guid targetLayer)
+    private static int GetFirstEmptyFrame(DocumentViewModel activeDocument, Guid targetLayer)
     {
         int active = activeDocument.AnimationDataViewModel.ActiveFrameBindable;
-        if (activeDocument.AnimationDataViewModel.TryFindCels<CelGroupViewModel>(targetLayer,
+        if (activeDocument.AnimationDataViewModel.TryFindCels(targetLayer,
                 out CelGroupViewModel groupViewModel))
         {
-            if (groupViewModel.Children.All(x => !x.IsWithinRange(active )))
+            if (groupViewModel.Children.All(x => !x.IsWithinRange(active)))
             {
                 return active;
             }
-            
-            if (groupViewModel.Children.All(x => !x.IsWithinRange(active + 1)))
-            {
-                return active + 1;
-            }
-        }
 
+            for (int i = active + 1; i < activeDocument.AnimationDataViewModel.FramesCount; i++)
+            {
+                if (groupViewModel.Children.All(x => !x.IsWithinRange(i)))
+                {
+                    return i;
+                }
+            }
+
+            return activeDocument.AnimationDataViewModel.FramesCount + 1;
+        }
+        
         return active;
     }
 
@@ -191,14 +197,14 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
 
         document.Operations.SetActiveFrame((int)value);
     }
-    
+
     private bool IsTransforming()
     {
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (activeDocument is null)
             return false;
-        
+
         return activeDocument.TransformViewModel.TransformActive || activeDocument.LineToolOverlayViewModel.IsEnabled
-            || activeDocument.PathOverlayViewModel.IsActive;
+                                                                 || activeDocument.PathOverlayViewModel.IsActive;
     }
 }

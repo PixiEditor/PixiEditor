@@ -111,7 +111,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         ? keyFrames.Max(x => x.StartFrameBindable + x.DurationBindable)
         : DefaultEndFrame;
 
-    public int FramesCount => LastFrame - FirstFrame + 1;
+    public int FramesCount => LastFrame - FirstFrame;
 
     private double ActiveNormalizedTime => (double)(ActiveFrameBindable - FirstFrame) / FramesCount;
 
@@ -126,12 +126,12 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public KeyFrameTime ActiveFrameTime => new KeyFrameTime(ActiveFrameBindable, ActiveNormalizedTime);
 
-    public void CreateRasterKeyFrame(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null,
+    public void CreateCel(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null,
         int? frameToCopyFrom = null)
     {
         if (!Document.BlockingUpdateableChangeActive)
         {
-            Internals.ActionAccumulator.AddFinishedActions(new CreateRasterKeyFrame_Action(targetLayerGuid,
+            Internals.ActionAccumulator.AddFinishedActions(new CreateCel_Action(targetLayerGuid,
                 Guid.NewGuid(), Math.Max(1, frame),
                 frameToCopyFrom ?? -1, toCloneFrom ?? Guid.Empty));
         }

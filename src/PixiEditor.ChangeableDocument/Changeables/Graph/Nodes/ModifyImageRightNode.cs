@@ -122,11 +122,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         var startNode = FindStartNode();
         if (drawingPaint != null && startNode != null && startNode.Image.Value != null)
         {
-            int saved = renderOn.Canvas.SaveLayer(drawingPaint);
-            
             renderOn.Canvas.DrawRect(0, 0, startNode.Image.Value.Size.X, startNode.Image.Value.Size.Y, drawingPaint);
-            
-            renderOn.Canvas.RestoreToCount(saved);
             
             return true;
         }

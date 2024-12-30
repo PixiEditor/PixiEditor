@@ -157,6 +157,18 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         await ClipboardController.CopyToClipboard(doc);
     }
 
+    [Command.Basic("PixiEditor.Clipboard.CopyVisible", "COPY_VISIBLE", "COPY_VISIBLE_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanCopy",
+        Key = Key.C, Modifiers = KeyModifiers.Shift,
+        MenuItemPath = "EDIT/COPY_VISIBLE", MenuItemOrder = 3, Icon = PixiPerfectIcons.Copy, AnalyticsTrack = true)]
+    public async Task CopyVisible()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        await ClipboardController.CopyVisibleToClipboard(doc);
+    }
+
     [Command.Basic("PixiEditor.Clipboard.CopyPrimaryColorAsHex", CopyColor.PrimaryHEX, "COPY_COLOR_HEX",
         "COPY_COLOR_HEX_DESCRIPTIVE", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon", AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.Clipboard.CopyPrimaryColorAsRgb", CopyColor.PrimaryRGB, "COPY_COLOR_RGB",
@@ -168,7 +180,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         "COPY_COLOR_SECONDARY_RGB_DESCRIPTIVE", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon",
         AnalyticsTrack = true)]
     [Command.Filter("PixiEditor.Clipboard.CopyColorToClipboard", "COPY_COLOR_TO_CLIPBOARD", "COPY_COLOR", Key = Key.C,
-        Modifiers = KeyModifiers.Shift, AnalyticsTrack = true)]
+        Modifiers = KeyModifiers.Shift | KeyModifiers.Alt, AnalyticsTrack = true)]
     public async Task CopyColorAsHex(CopyColor color)
     {
         var targetColor = color switch

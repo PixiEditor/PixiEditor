@@ -1,4 +1,7 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿using Avalonia;
+using ChunkyImageLib.DataHolders;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using Drawie.Backend.Core.Surfaces;
@@ -16,26 +19,44 @@ public class PreviewPainter
     public event Action RequestRepaint;
     public KeyFrameTime FrameTime { get; set; }
     public VecI DocumentSize { get; set; }
+    public DocumentRenderer Renderer { get; set; }
     
-    public PreviewPainter(IPreviewRenderable previewRenderable, KeyFrameTime frameTime, VecI documentSize, ColorSpace processingColorSpace, string elementToRenderName = "")
+    private Texture renderTexture;
+    
+    public PreviewPainter(DocumentRenderer renderer, IPreviewRenderable previewRenderable, KeyFrameTime frameTime, VecI documentSize, ColorSpace processingColorSpace, string elementToRenderName = "")
     {
         PreviewRenderable = previewRenderable;
         ElementToRenderName = elementToRenderName;
         ProcessingColorSpace = processingColorSpace;
         FrameTime = frameTime;
         DocumentSize = documentSize;
+        Renderer = renderer;
     }
 
-    public void Paint(DrawingSurface renderOn) 
+    public void Paint(DrawingSurface renderOn, VecI boundsSize, Matrix3X3 matrix) 
     {
         if (PreviewRenderable == null)
         {
             return;
         }
 
-        RenderContext context = new(renderOn, FrameTime, ChunkResolution.Full, DocumentSize, ProcessingColorSpace);
+        if (renderTexture == null || renderTexture.Size != boundsSize)
+        {
+            renderTexture?.Dispose();
+            renderTexture = Texture.ForProcessing(boundsSize, ProcessingColorSpace);
+        }
+        
+        renderTexture.DrawingSurface.Canvas.Clear();
+        renderTexture.DrawingSurface.Canvas.Save();
 
-        PreviewRenderable.RenderPreview(renderOn, context, ElementToRenderName);
+        renderTexture.DrawingSurface.Canvas.SetMatrix(matrix);
+        
+        RenderContext context = new(renderTexture.DrawingSurface, FrameTime, ChunkResolution.Full, DocumentSize, ProcessingColorSpace);
+
+        Renderer.RenderNodePreview(PreviewRenderable, renderTexture.DrawingSurface, context, ElementToRenderName);
+        renderTexture.DrawingSurface.Canvas.Restore();
+        
+        renderOn.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
     }
 
     public void Repaint()

@@ -95,7 +95,7 @@ internal class SceneRenderer
         for (int i = 1; i <= animationData.OnionFrames; i++)
         {
             int frame = DocumentViewModel.AnimationHandler.ActiveFrameTime.Frame + i;
-            if (frame > DocumentViewModel.AnimationHandler.LastFrame)
+            if (frame >= DocumentViewModel.AnimationHandler.LastFrame)
             {
                 break;
             }

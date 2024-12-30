@@ -351,8 +351,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         if (doc is null || member is null)
             return;
 
-        IStructureMemberHandler? nextMergeableMember = doc.StructureHelper.GetAboveMember(member.Id, false);
-        IStructureMemberHandler? previousMergeableMember = doc.StructureHelper.GetBelowMember(member.Id, false);
+        IStructureMemberHandler? nextMergeableMember = doc.StructureHelper.GetAboveMember(member.Id, true);
+        IStructureMemberHandler? previousMergeableMember = doc.StructureHelper.GetBelowMember(member.Id, true);
 
         if (!above && previousMergeableMember is null)
             return;

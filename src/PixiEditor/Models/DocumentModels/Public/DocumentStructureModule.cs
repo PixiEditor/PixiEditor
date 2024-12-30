@@ -140,6 +140,20 @@ internal class DocumentStructureModule
 
         return layers;
     }
+    
+    public List<IStructureMemberHandler> GetAllMembers()
+    {
+        List<IStructureMemberHandler> members = new List<IStructureMemberHandler>();
+
+        doc.NodeGraphHandler.TryTraverse(node =>
+        {
+            if (node is IStructureMemberHandler member)
+                members.Add(member);
+            return true;
+        });
+
+        return members;
+    }
 
     private void FillPath(INodeHandler node, List<INodeHandler> toFill)
     {

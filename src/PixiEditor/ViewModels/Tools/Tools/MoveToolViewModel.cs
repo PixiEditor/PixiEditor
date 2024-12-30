@@ -13,7 +13,7 @@ using PixiEditor.Views.Overlays.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.Tools.Tools;
 
-[Command.Tool(Key = Key.V)]
+[Command.Tool(Key = Key.V, Transient = Key.Space)]
 internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
 {
     private string defaultActionDisplay = "MOVE_TOOL_ACTION_DISPLAY";

@@ -3,6 +3,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
@@ -18,6 +19,8 @@ public class ModifyImageLeftNode : Node, IPairNode, IPreviewRenderable
     public FuncOutputProperty<Float2> Coordinate { get; }
 
     public FuncOutputProperty<Half4> Color { get; }
+    
+    public InputProperty<ColorSampleMode> SampleMode { get; }
 
     public Guid OtherNode { get; set; }
     
@@ -26,6 +29,7 @@ public class ModifyImageLeftNode : Node, IPairNode, IPreviewRenderable
         Image = CreateInput<Texture?>("Surface", "IMAGE", null);
         Coordinate = CreateFuncOutput("Coordinate", "UV", ctx => ctx.OriginalPosition);
         Color = CreateFuncOutput("Color", "COLOR", GetColor);
+        SampleMode = CreateInput("SampleMode", "COLOR_SAMPLE_MODE", ColorSampleMode.ColorManaged);
     }
     
     private Half4 GetColor(FuncContext context)
@@ -37,7 +41,7 @@ public class ModifyImageLeftNode : Node, IPairNode, IPreviewRenderable
             return new Half4("") { ConstantValue = Colors.Transparent };
         }
 
-        return context.SampleSurface(Image.Value.DrawingSurface, context.SamplePosition);
+        return context.SampleSurface(Image.Value.DrawingSurface, context.SamplePosition, SampleMode.Value);
     }
 
     protected override void OnExecute(RenderContext context)
