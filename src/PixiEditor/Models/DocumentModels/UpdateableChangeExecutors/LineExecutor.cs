@@ -268,6 +268,16 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         document!.LineToolOverlayHandler.Hide();
     }
 
+    protected override void StartMode(ShapeToolMode mode)
+    {
+        base.StartMode(mode);
+        if (mode == ShapeToolMode.Transform)
+        {
+            document!.LineToolOverlayHandler.Hide();
+            document!.LineToolOverlayHandler.Show(lastStartPos, curPos, ShowApplyButton, AddToUndo);
+        }
+    }
+
     private void AddToUndo((VecD, VecD) newPos)
     {
         if (UseGlobalUndo)

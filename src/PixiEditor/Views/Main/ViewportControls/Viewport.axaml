@@ -5,23 +5,17 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
     xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
     xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
-    xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
-    xmlns:brushShapeOverlay="clr-namespace:PixiEditor.Views.Overlays.BrushShapeOverlay"
     xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
-    xmlns:symmetryOverlay="clr-namespace:PixiEditor.Views.Overlays.SymmetryOverlay"
-    xmlns:lineToolOverlay="clr-namespace:PixiEditor.Views.Overlays.LineToolOverlay"
-    xmlns:transformOverlay="clr-namespace:PixiEditor.Views.Overlays.TransformOverlay"
     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
-    xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
-    xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
     xmlns:viewportControls="clr-namespace:PixiEditor.Views.Main.ViewportControls"
     xmlns:overlays="clr-namespace:PixiEditor.Views.Overlays"
-    xmlns:selectionOverlay="clr-namespace:PixiEditor.Views.Overlays.SelectionOverlay"
     xmlns:rendering="clr-namespace:PixiEditor.Views.Rendering"
     xmlns:tools="clr-namespace:PixiEditor.Views.Main.Tools"
+    xmlns:subViewModels="clr-namespace:PixiEditor.ViewModels.SubViewModels"
+    xmlns:palettes="clr-namespace:PixiEditor.Views.Palettes"
+    xmlns:palettes1="clr-namespace:PixiEditor.Extensions.CommonApi.Palettes;assembly=PixiEditor.Extensions.CommonApi"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -143,7 +137,7 @@
         </overlays:TogglableFlyout>
         <Grid ZIndex="100" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10">
             <Grid.RowDefinitions>
-                <RowDefinition MinHeight="40" MaxHeight="120"/>
+                <RowDefinition MinHeight="40" MaxHeight="120" />
                 <RowDefinition Height="35" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
@@ -163,8 +157,8 @@
                     VerticalAlignment="Center" />
             </Border>
             <tools:ToolsPicker Grid.Row="2" IsHitTestVisible="True"
-                HorizontalAlignment="Left"
-                ToolSet="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet, Mode=TwoWay}"
+                               HorizontalAlignment="Left"
+                               ToolSet="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet, Mode=TwoWay}"
                                ToolSets="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.AllToolSets, Mode=OneWay}"
                                SwitchToolSetCommand="{xaml:Command Name=PixiEditor.Tools.SwitchToolSet, UseProvided=True}" />
         </Grid>
@@ -186,7 +180,99 @@
             FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
             DefaultCursor="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolCursor, Mode=OneWay}"
             CheckerImagePath="/Images/CheckerTile.png"
-            ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}" />
+            PointerPressed="Scene_OnContextMenuOpening"
+            ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}">
+            <rendering:Scene.ContextFlyout>
+                <Flyout x:CompileBindings="True" x:DataType="subViewModels:ViewportWindowViewModel"
+                        Placement="Pointer"
+                        ShowMode="Transient">
+                    <Border Cursor="Arrow" CornerRadius="{DynamicResource ControlCornerRadius}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition
+                                    Width="Auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="1" BorderThickness="0 0 1 0">
+                                <ContextMenu Name="ContextMenu" BorderBrush="Transparent" BorderThickness="0"
+                                             Margin="0"
+                                             Padding="0">
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="SELECT_ALL"
+                                              xaml:Menu.Command="PixiEditor.Selection.SelectAll" />
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="DESELECT"
+                                              xaml:Menu.Command="PixiEditor.Selection.Clear" />
+                                    <Separator />
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="CUT"
+                                              xaml:Menu.Command="PixiEditor.Clipboard.Cut" />
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="COPY"
+                                              xaml:Menu.Command="PixiEditor.Clipboard.Copy" />
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="COPY_VISIBLE"
+                                              xaml:Menu.Command="PixiEditor.Clipboard.CopyVisible" />
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="PASTE"
+                                              xaml:Menu.Command="PixiEditor.Clipboard.Paste" />
+                                    <Separator />
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="FLIP_LAYERS_HORIZONTALLY"
+                                              xaml:Menu.Command="PixiEditor.Document.FlipLayersHorizontal" />
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="FLIP_LAYERS_VERTICALLY"
+                                              xaml:Menu.Command="PixiEditor.Document.FlipLayersVertical" />
+                                    <Separator />
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="ROT_LAYERS_90_D"
+                                              xaml:Menu.Command="PixiEditor.Document.Rotate90DegLayers" />
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="ROT_LAYERS_180_D"
+                                              xaml:Menu.Command="PixiEditor.Document.Rotate180DegLayers" />
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="ROT_LAYERS_-90_D"
+                                              xaml:Menu.Command="PixiEditor.Document.Rotate270DegLayers" />
+                                </ContextMenu>
+                            </Border>
+                            <ScrollViewer Margin="0" Grid.Column="0" HorizontalScrollBarVisibility="Disabled"
+                                          VerticalScrollBarVisibility="Auto"
+                                          IsVisible="{Binding !!Document.Palette.Count}"
+                                          Width="{Binding Document.Palette, Converter={converters:PaletteItemsToWidthConverter}}"
+                                          MaxHeight="{Binding #ContextMenu.Items,
+                                                  Converter={converters:PaletteItemsHeightConverter}}">
+                                <ItemsControl ItemsSource="{Binding Document.Palette}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel
+                                                MaxWidth="{Binding Document.Palette, Converter={converters:PaletteItemsToWidthConverter}}"
+                                                Orientation="Horizontal"
+                                                HorizontalAlignment="Center" VerticalAlignment="Top" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="palettes1:PaletteColor">
+                                            <palettes:PaletteColorControl Cursor="Hand" CornerRadius="0"
+                                                                          ui:Translator.TooltipKey="CLICK_SELECT_PRIMARY"
+                                                                          PointerReleased="InputElement_OnPointerReleased"
+                                                                          Width="22" Height="22" Color="{Binding}">
+                                                <Interaction.Behaviors>
+                                                    <EventTriggerBehavior EventName="PointerPressed">
+                                                        <InvokeCommandAction
+                                                            Command="{xaml:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
+                                                            CommandParameter="{Binding}" />
+                                                    </EventTriggerBehavior>
+                                                </Interaction.Behaviors>
+                                            </palettes:PaletteColorControl>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+                </Flyout>
+            </rendering:Scene.ContextFlyout>
+        </rendering:Scene>
         <Button
             ZIndex="99999"
             DockPanel.Dock="Bottom"
