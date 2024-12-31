@@ -171,8 +171,6 @@ internal class LayoutManager
             }
         }
 
-        ;
-
         return result;
     }
 
