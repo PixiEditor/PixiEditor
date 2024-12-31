@@ -1,0 +1,23 @@
+﻿<properties:NodePropertyView xmlns="https://github.com/avaloniaui"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                             xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
+                             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                             xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+                             xmlns:system="clr-namespace:System;assembly=System.Runtime"
+                             xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
+                             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:DataType="properties1:StringPropertyViewModel"
+                             x:Class="PixiEditor.Views.Nodes.Properties.StringPropertyView">
+    <DockPanel LastChildFill="True"
+        HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
+        <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
+        <TextBox Text="{CompiledBinding StringValue, Mode=TwoWay}" IsVisible="{Binding ShowInputField}">
+            <Interaction.Behaviors>
+                <behaviours:GlobalShortcutFocusBehavior />
+            </Interaction.Behaviors>
+        </TextBox>
+    </DockPanel>
+</properties:NodePropertyView>
