@@ -37,10 +37,22 @@ internal sealed class RotateImage_Change : Change
         {
             membersToRotate = target.ExtractLayers(membersToRotate);
 
+            RectD? bounds = null;
             foreach (var layer in membersToRotate)
             {
                 if (!target.HasMember(layer)) return false;
+
+                if (frame != null)
+                {
+                    var layerBounds = target.FindMember(layer).GetTightBounds(frame.Value);
+                    if (layerBounds.HasValue)
+                    {
+                        bounds = bounds?.Union(layerBounds.Value) ?? layerBounds.Value;
+                    }
+                }
             }
+            
+            if(frame != null && (bounds == null || bounds.Value.IsZeroArea)) return false;
         }
 
         originalSize = target.Size;
@@ -69,6 +81,11 @@ internal sealed class RotateImage_Change : Change
             {
                 bounds = preciseBounds.Value;
             }
+        }
+        
+        if (bounds.IsZeroArea)
+        {
+            return;
         }
 
         int originalWidth = bounds.Width;

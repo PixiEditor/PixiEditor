@@ -18,7 +18,10 @@ using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Position;
 using Drawie.Numerics;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.SubViewModels;
+using PixiEditor.ViewModels.Tools.Tools;
 using PixiEditor.Views.Overlays;
 using PixiEditor.Views.Rendering;
 using PixiEditor.Zoombox;
@@ -93,12 +96,13 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     public static readonly StyledProperty<bool> IsOverCanvasProperty = AvaloniaProperty.Register<Viewport, bool>(
         nameof(IsOverCanvas));
 
-    public static readonly StyledProperty<SnappingViewModel> SnappingViewModelProperty = 
+    public static readonly StyledProperty<SnappingViewModel> SnappingViewModelProperty =
         AvaloniaProperty.Register<Viewport, SnappingViewModel>(
-        nameof(SnappingViewModel));
+            nameof(SnappingViewModel));
 
-    public static readonly StyledProperty<bool> HighResPreviewProperty = 
+    public static readonly StyledProperty<bool> HighResPreviewProperty =
         AvaloniaProperty.Register<Viewport, bool>(nameof(HighResPreview), true);
+
     public SnappingViewModel SnappingViewModel
     {
         get => GetValue(SnappingViewModelProperty);
@@ -290,7 +294,9 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private MouseUpdateController? mouseUpdateController;
     private ViewportOverlays builtInOverlays = new();
-    public static readonly StyledProperty<bool> SnappingEnabledProperty = AvaloniaProperty.Register<Viewport, bool>("SnappingEnabled");
+
+    public static readonly StyledProperty<bool> SnappingEnabledProperty =
+        AvaloniaProperty.Register<Viewport, bool>("SnappingEnabled");
 
     static Viewport()
     {
@@ -314,7 +320,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         //TODO: It's weird that I had to do it this way, right click didn't raise Image_MouseUp otherwise.
         viewportGrid.AddHandler(PointerReleasedEvent, Image_MouseUp, RoutingStrategies.Tunnel);
         viewportGrid.AddHandler(PointerPressedEvent, Image_MouseDown, RoutingStrategies.Bubble);
-        
+
         Scene.PointerExited += (sender, args) => IsOverCanvas = false;
         Scene.PointerEntered += (sender, args) => IsOverCanvas = true;
         Scene.ScaleChanged += OnScaleChanged;
@@ -496,10 +502,50 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         if (isMiddle && MiddleMouseClickedCommand.CanExecute(null))
             MiddleMouseClickedCommand.Execute(null);
     }
-    
+
     private static void OnHighResPreviewChanged(AvaloniaPropertyChangedEventArgs<bool> e)
     {
         Viewport? viewport = (Viewport)e.Sender;
         viewport.ForceRefreshFinalImage();
+    }
+
+    private void MenuItem_OnClick(object? sender, PointerReleasedEventArgs e)
+    {
+        Scene?.ContextFlyout?.Hide();
+    }
+
+    private void InputElement_OnPointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        Scene?.ContextFlyout?.Hide();
+    }
+
+    private void Scene_OnContextMenuOpening(object? sender, PointerPressedEventArgs e)
+    {
+        if(e.GetMouseButton(this) != MouseButton.Right) return;
+        
+        ViewportWindowViewModel vm = ((ViewportWindowViewModel)DataContext);
+        var tools = vm.Owner.Owner.ToolsSubViewModel;
+
+        var superSpecialBrightnessTool = tools.RightClickMode == RightClickMode.SecondaryColor &&
+                                         tools.ActiveTool is BrightnessToolViewModel;
+        var superSpecialColorPicker =
+            tools.RightClickMode == RightClickMode.Erase && tools.ActiveTool is ColorPickerToolViewModel;
+
+        if (superSpecialBrightnessTool || superSpecialColorPicker)
+        {
+            return;
+        }
+
+        var useContextMenu = vm.Owner.Owner.ToolsSubViewModel.RightClickMode == RightClickMode.ContextMenu;
+        var usesErase = tools.RightClickMode == RightClickMode.Erase && tools.ActiveTool.IsErasable;
+        var usesSecondaryColor = tools.RightClickMode == RightClickMode.SecondaryColor && tools.ActiveTool.UsesColor;
+
+        if (!useContextMenu && (usesErase || usesSecondaryColor))
+        {
+            return;
+        }
+
+        Scene?.ContextFlyout?.ShowAt(Scene);
+        e.Handled = true;
     }
 }

@@ -63,7 +63,10 @@ namespace PixiEditor.ViewModels.Tools.Tools
             {
                 var toolbar = (PenToolbar)Toolbar;
                 var setting = toolbar.Settings.FirstOrDefault(x => x.Name == nameof(toolbar.ToolSize));
-                setting.Value = 1;
+                if (setting is SizeSettingViewModel sizeSetting)
+                {
+                    sizeSetting.Value = 1;
+                }
             }
             
             if (!PixiEditorSettings.Tools.EnableSharedToolbar.Value)
@@ -100,25 +103,31 @@ namespace PixiEditor.ViewModels.Tools.Tools
             }
 
             var toolbar = (PenToolbar)Toolbar;
-            var setting = (SizeSettingViewModel)toolbar.Settings[0];
-            setting.Value = actualToolSize;
+            var setting = toolbar.Settings.FirstOrDefault(x => x.Name == nameof(toolbar.ToolSize));
+            if(setting is SizeSettingViewModel sizeSetting)
+            {
+                sizeSetting.Value = actualToolSize;
+            }
         }
 
         private void PixelPerfectChanged()
         {
             var toolbar = (PenToolbar)Toolbar;
-            var setting = (SizeSettingViewModel)toolbar.Settings[0];
+            var setting = toolbar.Settings.FirstOrDefault(x => x.Name == nameof(toolbar.ToolSize));
 
-            setting.IsEnabled = !PixelPerfectEnabled;
+            if (setting is SizeSettingViewModel sizeSettingViewModel)
+            {
+                sizeSettingViewModel.IsEnabled = !PixelPerfectEnabled;
 
-            if (PixelPerfectEnabled)
-            {
-                actualToolSize = ToolSize;
-                setting.Value = 1;
-            }
-            else
-            {
-                setting.Value = actualToolSize;
+                if (PixelPerfectEnabled)
+                {
+                    actualToolSize = ToolSize;
+                    sizeSettingViewModel.Value = 1;
+                }
+                else
+                {
+                    sizeSettingViewModel.Value = actualToolSize;
+                }
             }
         }
         
