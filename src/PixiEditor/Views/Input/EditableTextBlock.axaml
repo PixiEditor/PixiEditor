@@ -19,6 +19,7 @@
                  Padding="0" Margin="-1"
                  KeyDown="TextBox_KeyDown"
                  IsVisible="{Binding !TextBlockVisibility, ElementName=etb}"
+                 RenderTransform="scale(0.95)"
                  Name="textBox">
             <Interaction.Behaviors>
                 <behaviours:GlobalShortcutFocusBehavior/>
