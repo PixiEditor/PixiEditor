@@ -131,6 +131,18 @@
                                           Content="{DynamicResource icon-snapping}"
                                           IsChecked="{Binding SnappingEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
                         </StackPanel>
+                        <Separator/>
+                        <ComboBox ItemsSource="{Binding AvailableRenderOutputs, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
+                                  SelectedValue="{Binding ViewportRenderOutput, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
+                                  SelectionChanged="RenderOutput_SelectionChanged"
+                                  ui:Translator.TooltipKey="RENDER_OUTPUT"
+                                  Margin="0 10 0 0">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock ui:Translator.Key="{Binding}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                     </StackPanel>
                 </Border>
             </overlays:TogglableFlyout.Child>
@@ -179,6 +191,7 @@
             AllOverlays="{Binding ElementName=vpUc, Path=ActiveOverlays}"
             FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
             DefaultCursor="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolCursor, Mode=OneWay}"
+            RenderOutput="{Binding ViewportRenderOutput, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             CheckerImagePath="/Images/CheckerTile.png"
             PointerPressed="Scene_OnContextMenuOpening"
             ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}">

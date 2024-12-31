@@ -37,6 +37,8 @@
         Channels="{Binding Channels, Mode=TwoWay}"
         SnappingViewModel="{Binding ActiveDocument.SnappingViewModel, Source={viewModels1:MainVM DocumentManagerSVM}}"
         SnappingEnabled="{Binding ViewportSubViewModel.SnappingEnabled, Source={viewModels1:MainVM}, Mode=TwoWay}"
+        AvailableRenderOutputs="{Binding ActiveDocument.NodeGraph.AvailableRenderOutputs, Source={viewModels1:MainVM DocumentManagerSVM}}"
+        ViewportRenderOutput="{Binding RenderOutputName, Mode=TwoWay}"
         Document="{Binding Document}">
     </viewportControls:Viewport>
 </UserControl>

@@ -10,6 +10,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("CustomOutput")]
 public class CustomOutputNode : Node, IRenderInput, IPreviewRenderable
 {
+    public const string OutputNamePropertyName = "OutputName";
     public RenderInputProperty Input { get; } 
     public InputProperty<string> OutputName { get; }
     
@@ -19,7 +20,7 @@ public class CustomOutputNode : Node, IRenderInput, IPreviewRenderable
         Input = new RenderInputProperty(this, OutputNode.InputPropertyName, "BACKGROUND", null);
         AddInputProperty(Input);
         
-        OutputName = CreateInput("OutputName", "OUTPUT_NAME", "");
+        OutputName = CreateInput(OutputNamePropertyName, "OUTPUT_NAME", "");
     }
 
     public override Node CreateCopy()
@@ -29,13 +30,16 @@ public class CustomOutputNode : Node, IRenderInput, IPreviewRenderable
 
     protected override void OnExecute(RenderContext context)
     {
-        lastDocumentSize = context.DocumentSize;
-        
-        int saved = context.RenderSurface.Canvas.Save();
-        context.RenderSurface.Canvas.ClipRect(new RectD(0, 0, context.DocumentSize.X, context.DocumentSize.Y));
-        Input.Value?.Paint(context, context.RenderSurface);
-        
-        context.RenderSurface.Canvas.RestoreToCount(saved);
+        if (context.TargetOutput == OutputName.Value)
+        {
+            lastDocumentSize = context.DocumentSize;
+
+            int saved = context.RenderSurface.Canvas.Save();
+            context.RenderSurface.Canvas.ClipRect(new RectD(0, 0, context.DocumentSize.X, context.DocumentSize.Y));
+            Input.Value?.Paint(context, context.RenderSurface);
+
+            context.RenderSurface.Canvas.RestoreToCount(saved);
+        }
     }
 
     RenderInputProperty IRenderInput.Background => Input;

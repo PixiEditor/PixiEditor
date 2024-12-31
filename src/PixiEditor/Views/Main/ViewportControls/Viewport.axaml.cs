@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.VisualTree;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Helpers;
@@ -288,6 +289,18 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         }
     }
 
+    public static readonly StyledProperty<ObservableCollection<string>> AvailableRenderOutputsProperty =
+        AvaloniaProperty.Register<Viewport, ObservableCollection<string>>(nameof(AvailableRenderOutputs));
+
+    public static readonly StyledProperty<string> ViewportRenderOutputProperty = AvaloniaProperty.Register<Viewport, string>(
+        nameof(ViewportRenderOutput), "DEFAULT");
+
+    public string ViewportRenderOutput
+    {
+        get => GetValue(ViewportRenderOutputProperty);
+        set => SetValue(ViewportRenderOutputProperty, value);
+    }
+
     public ObservableCollection<Overlay> ActiveOverlays { get; } = new();
 
     public Guid GuidValue { get; } = Guid.NewGuid();
@@ -348,6 +361,12 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         get { return (bool)GetValue(SnappingEnabledProperty); }
         set { SetValue(SnappingEnabledProperty, value); }
+    }
+
+    public ObservableCollection<string> AvailableRenderOutputs
+    {
+        get { return (ObservableCollection<string>)GetValue(AvailableRenderOutputsProperty); }
+        set { SetValue(AvailableRenderOutputsProperty, value); }
     }
 
     private void ForceRefreshFinalImage()
@@ -521,8 +540,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private void Scene_OnContextMenuOpening(object? sender, PointerPressedEventArgs e)
     {
-        if(e.GetMouseButton(this) != MouseButton.Right) return;
-        
+        if (e.GetMouseButton(this) != MouseButton.Right) return;
+
         ViewportWindowViewModel vm = ((ViewportWindowViewModel)DataContext);
         var tools = vm.Owner.Owner.ToolsSubViewModel;
 
@@ -547,5 +566,18 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
         Scene?.ContextFlyout?.ShowAt(Scene);
         e.Handled = true;
+    }
+
+    private void RenderOutput_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (e.Source is ComboBox comboBox)
+        {
+            if(!comboBox.IsAttachedToVisualTree()) return;
+
+            if (e.AddedItems.Count > 0)
+            {
+                ViewportRenderOutput = (string)e.AddedItems[0];
+            }
+        }
     }
 }

@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Handlers;
@@ -22,14 +23,14 @@ internal class SceneRenderer
         DocumentViewModel = documentViewModel;
     }
 
-    public void RenderScene(DrawingSurface target, ChunkResolution resolution)
+    public void RenderScene(DrawingSurface target, ChunkResolution resolution, string? targetOutput = null)
     {
         if(Document.Renderer.IsBusy || DocumentViewModel.Busy) return;
         RenderOnionSkin(target, resolution);
-        RenderGraph(target, resolution);
+        RenderGraph(target, resolution, targetOutput);
     }
 
-    private void RenderGraph(DrawingSurface target, ChunkResolution resolution)
+    private void RenderGraph(DrawingSurface target, ChunkResolution resolution, string? targetOutput)
     {
         DrawingSurface renderTarget = target;
         Texture? texture = null;
@@ -42,13 +43,51 @@ internal class SceneRenderer
 
         RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
             resolution, Document.Size, Document.ProcessingColorSpace);
-        Document.NodeGraph.Execute(context);
+        context.TargetOutput = targetOutput;
+        SolveFinalNodeGraph(context.TargetOutput).Execute(context);
         
         if(texture != null)
         {
             target.Canvas.DrawSurface(texture.DrawingSurface, 0, 0);
             texture.Dispose();
         }
+    }
+
+    private IReadOnlyNodeGraph SolveFinalNodeGraph(string? targetOutput)
+    {
+        if (targetOutput == null)
+        {
+            return Document.NodeGraph;
+        }
+
+        CustomOutputNode[] outputNodes = Document.NodeGraph.AllNodes.OfType<CustomOutputNode>().ToArray();
+        
+        foreach (CustomOutputNode outputNode in outputNodes)
+        {
+            if (outputNode.OutputName.Value == targetOutput)
+            {
+                return GraphFromOutputNode(outputNode);
+            }
+        }
+
+        return Document.NodeGraph;
+    }
+
+    private IReadOnlyNodeGraph GraphFromOutputNode(CustomOutputNode outputNode)
+    {
+        NodeGraph graph = new();
+        outputNode.TraverseBackwards(n =>
+        {
+            if (n is Node node)
+            {
+                graph.AddNode(node);
+            }
+            
+            return true;
+        });
+        
+        graph.CustomOutputNode = outputNode;
+        return graph;
     }
 
     private bool HighDpiRenderNodePresent(IReadOnlyNodeGraph documentNodeGraph)

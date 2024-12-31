@@ -22,6 +22,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
     public ObservableCollection<INodeHandler> AllNodes { get; } = new();
     public ObservableCollection<NodeConnectionViewModel> Connections { get; } = new();
     public ObservableCollection<NodeFrameViewModelBase> Frames { get; } = new();
+    public ObservableCollection<string> AvailableRenderOutputs { get; } = new();
     public StructureTree StructureTree { get; } = new();
     public INodeHandler? OutputNode { get; private set; }
 
@@ -43,6 +44,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
 
         AllNodes.Add(node);
         StructureTree.Update(this);
+        UpdateAvailableRenderOutputs();
     }
 
     public void RemoveNode(Guid nodeId)
@@ -55,6 +57,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
         }
 
         StructureTree.Update(this);
+        UpdateAvailableRenderOutputs();
     }
 
     public void AddFrame(Guid frameId, IEnumerable<Guid> nodes)
@@ -321,5 +324,54 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
             : new DisconnectProperty_Action(inputNode.Id, inputProperty);
 
         Internals.ActionAccumulator.AddFinishedActions(action);
+    }
+    
+    public void UpdateAvailableRenderOutputs()
+    {
+        List<string> outputs = new();
+        foreach (var node in AllNodes)
+        {
+            if (node.InternalName == typeof(CustomOutputNode).GetCustomAttribute<NodeInfoAttribute>().UniqueName)
+            {
+                var nameInput =
+                    node.Inputs.FirstOrDefault(x => x.PropertyName == CustomOutputNode.OutputNamePropertyName);
+
+                if (nameInput is { Value: string name } && !string.IsNullOrEmpty(name))
+                {
+                    if(outputs.Contains(name)) continue;
+                    
+                    outputs.Add(name);
+                }
+            }
+            else if (node.InternalName == typeof(OutputNode).GetCustomAttribute<NodeInfoAttribute>().UniqueName)
+            {
+                outputs.Insert(0, "DEFAULT");
+            }
+        }
+        
+        RemoveExcessiveRenderOutputs(outputs);
+        AddMissingRenderOutputs(outputs);
+    }
+
+    private void RemoveExcessiveRenderOutputs(List<string> outputs)
+    {
+        for (int i = AvailableRenderOutputs.Count - 1; i >= 0; i--)
+        {
+            if (!outputs.Contains(AvailableRenderOutputs[i]))
+            {
+                AvailableRenderOutputs.RemoveAt(i);
+            }
+        }
+    }
+    
+    private void AddMissingRenderOutputs(List<string> outputs)
+    {
+        foreach (var output in outputs)
+        {
+            if (!AvailableRenderOutputs.Contains(output))
+            {
+                AvailableRenderOutputs.Add(output);
+            }
+        }
     }
 }

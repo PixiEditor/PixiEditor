@@ -28,6 +28,8 @@ public class OutputNode : Node, IRenderInput, IPreviewRenderable
 
     protected override void OnExecute(RenderContext context)
     {
+        if(!string.IsNullOrEmpty(context.TargetOutput)) return;
+        
         lastDocumentSize = context.DocumentSize;
         
         int saved = context.RenderSurface.Canvas.Save();

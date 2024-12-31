@@ -32,6 +32,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     private string _index = "";
 
     private bool _flipX;
+    private string renderOutputName = "DEFAULT";
     private string id = Guid.NewGuid().ToString();
 
     public bool FlipX
@@ -53,6 +54,16 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         {
             _flipY = value;
             OnPropertyChanged(nameof(FlipY));
+        }
+    }
+    
+    public string RenderOutputName
+    {
+        get => renderOutputName;
+        set
+        {
+            renderOutputName = value;
+            OnPropertyChanged(nameof(RenderOutputName));
         }
     }
 

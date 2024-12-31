@@ -11,7 +11,8 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
 {
     private readonly List<Node> _nodes = new();
     public IReadOnlyCollection<Node> Nodes => _nodes;
-    public OutputNode? OutputNode => Nodes.OfType<OutputNode>().FirstOrDefault();
+    public Node? OutputNode => CustomOutputNode ?? Nodes.OfType<OutputNode>().FirstOrDefault();
+    public Node? CustomOutputNode { get; set; }
 
     IReadOnlyCollection<IReadOnlyNode> IReadOnlyNodeGraph.AllNodes => Nodes;
     IReadOnlyNode IReadOnlyNodeGraph.OutputNode => OutputNode;
