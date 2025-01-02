@@ -52,7 +52,7 @@ internal interface IToolHandler : IHandler
     /// <summary>
     ///     Layer type that should be created if no layer is selected incompatible one.
     /// </summary>
-    public Type LayerTypeToCreateOnEmptyUse { get; }
+    public Type? LayerTypeToCreateOnEmptyUse { get; }
 
     public virtual string? DefaultNewLayerName => null;
 

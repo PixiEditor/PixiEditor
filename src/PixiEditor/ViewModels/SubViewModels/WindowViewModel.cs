@@ -31,6 +31,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     public event Action<ViewportWindowViewModel> ViewportClosed;
 
     private object? activeWindow;
+
     public object? ActiveWindow
     {
         get => activeWindow;
@@ -62,16 +63,29 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
             return;
         CreateNewViewport(doc);
     }
-    
-    [Commands_Command.Basic("PixiEditor.Window.CenterActiveViewport", "CENTER_ACTIVE_VIEWPORT", "CENTER_ACTIVE_VIEWPORT", CanExecute = "PixiEditor.HasDocument",
+
+    [Commands_Command.Basic("PixiEditor.Window.CenterActiveViewport", "CENTER_ACTIVE_VIEWPORT",
+        "CENTER_ACTIVE_VIEWPORT", CanExecute = "PixiEditor.HasDocument",
         Icon = PixiPerfectIcons.Center, AnalyticsTrack = true)]
     public void CenterCurrentViewport()
     {
         if (ActiveWindow is ViewportWindowViewModel viewport)
             viewport.CenterViewportTrigger.Execute(this, viewport.Document.SizeBindable);
     }
-    
-    [Commands_Command.Basic("PixiEditor.Window.FlipHorizontally", "FLIP_VIEWPORT_HORIZONTALLY", "FLIP_VIEWPORT_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument",
+
+
+    [Command.Basic("PixiEditor.Viewport.ToggleHud", "TOGGLE_HUD", "TOGGLE_HUD_DESCRIPTION",
+        AnalyticsTrack = true, Key = Key.H, Modifiers = KeyModifiers.Shift, MenuItemPath = "VIEW/TOGGLE_HUD")]
+    public void ToggleHudOfCurrentViewport()
+    {
+        if (ActiveWindow is ViewportWindowViewModel viewport)
+        {
+            viewport.HudVisible = !viewport.HudVisible;
+        }
+    }
+
+    [Commands_Command.Basic("PixiEditor.Window.FlipHorizontally", "FLIP_VIEWPORT_HORIZONTALLY",
+        "FLIP_VIEWPORT_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument",
         Icon = PixiPerfectIcons.YFlip, AnalyticsTrack = true)]
     public void FlipViewportHorizontally()
     {
@@ -80,8 +94,9 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
             viewport.FlipX = !viewport.FlipX;
         }
     }
-    
-    [Commands_Command.Basic("PixiEditor.Window.FlipVertically", "FLIP_VIEWPORT_VERTICALLY", "FLIP_VIEWPORT_VERTICALLY", CanExecute = "PixiEditor.HasDocument",
+
+    [Commands_Command.Basic("PixiEditor.Window.FlipVertically", "FLIP_VIEWPORT_VERTICALLY", "FLIP_VIEWPORT_VERTICALLY",
+        CanExecute = "PixiEditor.HasDocument",
         Icon = PixiPerfectIcons.XFlip, AnalyticsTrack = true)]
     public void FlipViewportVertically()
     {
@@ -154,7 +169,8 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Commands_Command.Basic("PixiEditor.Window.OpenSettingsWindow", "OPEN_SETTINGS", "OPEN_SETTINGS_DESCRIPTIVE", Key = Key.OemComma, Modifiers = KeyModifiers.Control,
+    [Commands_Command.Basic("PixiEditor.Window.OpenSettingsWindow", "OPEN_SETTINGS", "OPEN_SETTINGS_DESCRIPTIVE",
+        Key = Key.OemComma, Modifiers = KeyModifiers.Control,
         MenuItemPath = "EDIT/SETTINGS", MenuItemOrder = 16, Icon = PixiPerfectIcons.Settings, AnalyticsTrack = true)]
     public static void OpenSettingsWindow(int page)
     {
@@ -168,21 +184,24 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     }
 
     [Commands_Command.Basic("PixiEditor.Window.OpenStartupWindow", "OPEN_STARTUP_WINDOW", "OPEN_STARTUP_WINDOW",
-        Icon = PixiPerfectIcons.Home, MenuItemPath = "VIEW/OPEN_STARTUP_WINDOW", MenuItemOrder = 1, AnalyticsTrack = true)]
+        Icon = PixiPerfectIcons.Home, MenuItemPath = "VIEW/OPEN_STARTUP_WINDOW", MenuItemOrder = 1,
+        AnalyticsTrack = true)]
     public void OpenHelloThereWindow()
     {
         new HelloTherePopup(Owner.FileSubViewModel).Show(MainWindow.Current);
     }
 
-    [Commands_Command.Basic("PixiEditor.Window.OpenShortcutWindow", "OPEN_SHORTCUT_WINDOW", "OPEN_SHORTCUT_WINDOW", Key = Key.F1,
-        Icon = PixiPerfectIcons.Book, MenuItemPath = "VIEW/OPEN_SHORTCUT_WINDOW", MenuItemOrder = 2, AnalyticsTrack = true)]
+    [Commands_Command.Basic("PixiEditor.Window.OpenShortcutWindow", "OPEN_SHORTCUT_WINDOW", "OPEN_SHORTCUT_WINDOW",
+        Key = Key.F1,
+        Icon = PixiPerfectIcons.Book, MenuItemPath = "VIEW/OPEN_SHORTCUT_WINDOW", MenuItemOrder = 2,
+        AnalyticsTrack = true)]
     public void ShowShortcutWindow()
     {
         var popup = new ShortcutsPopup(commandController);
         popup.Show();
         popup.Activate();
     }
-        
+
     [Commands_Command.Basic("PixiEditor.Window.OpenAboutWindow", "OPEN_ABOUT_WINDOW", "OPEN_ABOUT_WINDOW",
         Icon = PixiPerfectIcons.Info, MenuItemPath = "HELP/ABOUT", MenuItemOrder = 5, AnalyticsTrack = true)]
     public void OpenAboutWindow()
@@ -191,7 +210,8 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     }
 
     [Commands_Command.Internal("PixiEditor.Window.ShowDockWindow")]
-    [Commands_Command.Basic("PixiEditor.Window.OpenNavigationWindow", "Navigator", "OPEN_NAVIGATION_WINDOW", "OPEN_NAVIGATION_WINDOW")]
+    [Commands_Command.Basic("PixiEditor.Window.OpenNavigationWindow", "Navigator", "OPEN_NAVIGATION_WINDOW",
+        "OPEN_NAVIGATION_WINDOW")]
     public void ShowDockWindow(string id)
     {
         Owner.LayoutSubViewModel.LayoutManager.ShowDockable(id);

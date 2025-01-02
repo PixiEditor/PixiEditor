@@ -23,6 +23,8 @@ public class BuildContext : FrostingContext
 {
     public string PathToProject { get; set; } = "../PixiEditor/PixiEditor.csproj";
 
+    public string[] ExtensionProjectsToInclude { get; set; } = [];
+
     public string CrashReportWebhookUrl { get; set; }
 
     public string AnalyticsUrl { get; set; }
@@ -34,7 +36,7 @@ public class BuildContext : FrostingContext
     public string OutputDirectory { get; set; } = "Builds";
 
     public bool SelfContained { get; set; } = false;
-    
+
     public string Runtime { get; set; }
 
     public BuildContext(ICakeContext context)
@@ -49,6 +51,12 @@ public class BuildContext : FrostingContext
             PathToProject = context.Arguments.GetArgument("project-path");
         }
 
+        bool hasCustomExtensionProjects = context.Arguments.HasArgument("extension-projects");
+        if (hasCustomExtensionProjects)
+        {
+            ExtensionProjectsToInclude = context.Arguments.GetArgument("extension-projects").Split(';');
+        }
+
         bool hasCustomConfiguration = context.Arguments.HasArgument("build-configuration");
         if (hasCustomConfiguration)
         {
@@ -60,7 +68,7 @@ public class BuildContext : FrostingContext
         {
             OutputDirectory = context.Arguments.GetArgument("o");
         }
-        
+
         bool hasSelfContained = context.Arguments.HasArgument("self-contained");
         if (hasSelfContained)
         {
@@ -80,7 +88,7 @@ public class BuildContext : FrostingContext
 }
 
 [TaskName("Default")]
-[IsDependentOn(typeof(BuildProjectTask))]
+[IsDependentOn(typeof(CopyExtensionsTask))]
 public sealed class DefaultTask : FrostingTask<BuildContext>
 {
     public override void Run(BuildContext context)
@@ -142,5 +150,56 @@ public sealed class BuildProjectTask : FrostingTask<BuildContext>
         string constantsPath = Path.Combine(context.PathToProject, "..", "PixiEditor", "BuildConstants.cs");
 
         File.WriteAllText(constantsPath, context.BackedUpConstants);
+    }
+}
+
+[TaskName("BuildExtensions")]
+[IsDependentOn(typeof(BuildProjectTask))]
+public sealed class BuildExtensionsTask : FrostingTask<BuildContext>
+{
+    public override void Run(BuildContext context)
+    {
+        context.Log.Information("Building extensions...");
+        foreach (var project in context.ExtensionProjectsToInclude)
+        {
+            var settings = new DotNetPublishSettings() { Configuration = context.BuildConfiguration, };
+
+            context.DotNetPublish(project, settings);
+        }
+    }
+}
+
+[TaskName("CopyExtensions")]
+[IsDependentOn(typeof(BuildExtensionsTask))]
+public sealed class CopyExtensionsTask : FrostingTask<BuildContext>
+{
+    public override void Run(BuildContext context)
+    {
+        context.Log.Information("Copying extensions...");
+        foreach (var project in context.ExtensionProjectsToInclude)
+        {
+            string outputDir = Path.Combine(context.OutputDirectory, "Extensions");
+            string sourceDir = Path.Combine(project, "bin",
+                context.BuildConfiguration, "wasi-wasm", "Extensions");
+
+            CopyDirectoryContents(sourceDir, outputDir, context);
+        }
+    }
+
+    private void CopyDirectoryContents(string sourceDir, string targetDir, BuildContext context)
+    {
+        if (!Directory.Exists(targetDir))
+        {
+            Directory.CreateDirectory(targetDir);
+        }
+
+        context.Log.Information($"Copying contents of {sourceDir} to {targetDir}");
+
+        foreach (var file in Directory.GetFiles(sourceDir))
+        {
+            string targetFile = Path.Combine(targetDir, Path.GetFileName(file));
+            context.Log.Information($"Copying {file} to {targetFile}");
+            File.Copy(file, targetFile, true);
+        }
     }
 }
