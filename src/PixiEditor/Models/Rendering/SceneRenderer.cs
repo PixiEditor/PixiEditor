@@ -26,7 +26,7 @@ internal class SceneRenderer
     public void RenderScene(DrawingSurface target, ChunkResolution resolution, string? targetOutput = null)
     {
         if(Document.Renderer.IsBusy || DocumentViewModel.Busy) return;
-        RenderOnionSkin(target, resolution);
+        RenderOnionSkin(target, resolution, targetOutput);
         RenderGraph(target, resolution, targetOutput);
     }
 
@@ -104,7 +104,7 @@ internal class SceneRenderer
         return highDpiRenderNodePresent;
     }
 
-    private void RenderOnionSkin(DrawingSurface target, ChunkResolution resolution)
+    private void RenderOnionSkin(DrawingSurface target, ChunkResolution resolution, string? targetOutput)
     {
         var animationData = Document.AnimationData;
         if (!DocumentViewModel.AnimationHandler.OnionSkinningEnabledBindable)
@@ -115,6 +115,8 @@ internal class SceneRenderer
         double onionOpacity = animationData.OnionOpacity / 100.0;
         double alphaFalloffMultiplier = 1.0 / animationData.OnionFrames;
 
+        var finalGraph = SolveFinalNodeGraph(targetOutput);
+        
         // Render previous frames'
         for (int i = 1; i <= animationData.OnionFrames; i++)
         {
@@ -127,7 +129,8 @@ internal class SceneRenderer
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
 
             RenderContext onionContext = new(target, frame, resolution, Document.Size, Document.ProcessingColorSpace, finalOpacity);
-            Document.NodeGraph.Execute(onionContext);
+            onionContext.TargetOutput = targetOutput;
+            finalGraph.Execute(onionContext);
         }
 
         // Render next frames
@@ -141,7 +144,8 @@ internal class SceneRenderer
 
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
             RenderContext onionContext = new(target, frame, resolution, Document.Size, Document.ProcessingColorSpace, finalOpacity);
-            Document.NodeGraph.Execute(onionContext);
+            onionContext.TargetOutput = targetOutput;
+            finalGraph.Execute(onionContext);
         }
     }
 }
