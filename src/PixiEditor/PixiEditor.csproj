@@ -132,9 +132,6 @@
     <None Include="../../Third Party Licenses/**" LinkBase="Third Party Licenses/">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Extensions\PixiEditor.Beta.pixiext">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
