@@ -8,9 +8,12 @@
     <Nullable>disable</Nullable>
     <PublishTrimmed>true</PublishTrimmed>
     <WasmSingleFileBundle>true</WasmSingleFileBundle>
+    <EventSourceSupport>false</EventSourceSupport>
+    <UseSystemResourceKeys>true</UseSystemResourceKeys>
+    <EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
+    <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
+    <DebuggerSupport>false</DebuggerSupport>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <!--TODO: Temp solution, make it properly build by build system and copy to target dir on publish-->
-    <PixiExtOutputPath>$(MSBuildProjectDirectory)\..\PixiEditor\Extensions</PixiExtOutputPath>
     <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
     <RootNamespace>PixiEditor.Beta</RootNamespace>
   </PropertyGroup>

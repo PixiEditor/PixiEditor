@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.Handlers;
+﻿using System.ComponentModel;
+using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.ViewModels.Nodes.Properties;
 
@@ -7,6 +8,15 @@ internal class GenericEnumPropertyViewModel : NodePropertyViewModel
     public GenericEnumPropertyViewModel(INodeHandler node, Type propertyType, Type enumType) : base(node, propertyType)
     {
         Values = Enum.GetValues(enumType);
+        PropertyChanged += OnPropertyChanged;
+    }
+
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(Value))
+        {
+            OnPropertyChanged(nameof(SelectedIndex));
+        }
     }
 
     public Array Values { get; }
