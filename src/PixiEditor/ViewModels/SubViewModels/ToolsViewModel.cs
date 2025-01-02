@@ -131,9 +131,12 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     public void SetActiveToolSet(IToolSetHandler toolSetHandler)
     {
+        ActiveTool?.OnToolDeselected(false);
         ActiveToolSet = toolSetHandler;
         ActiveToolSet.ApplyToolSetSettings();
         UpdateEnabledState();
+        
+        ActiveTool?.OnToolSelected(false);
     }
 
     public void SetupToolsTooltipShortcuts()
