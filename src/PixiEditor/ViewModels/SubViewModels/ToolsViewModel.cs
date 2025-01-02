@@ -385,6 +385,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
         if (ActiveTool is not { CanBeUsedOnActiveLayer: true })
         {
+            if(ActiveTool.LayerTypeToCreateOnEmptyUse == null) return;
+            
             Guid? createdLayer = Owner.LayersSubViewModel.NewLayer(
                 ActiveTool.LayerTypeToCreateOnEmptyUse,
                 ActionSource.Automated,
