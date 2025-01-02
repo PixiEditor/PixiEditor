@@ -32,6 +32,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     private string _index = "";
 
     private bool _flipX;
+    private string renderOutputName = "DEFAULT";
     private string id = Guid.NewGuid().ToString();
 
     public bool FlipX
@@ -55,6 +56,16 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
             OnPropertyChanged(nameof(FlipY));
         }
     }
+    
+    public string RenderOutputName
+    {
+        get => renderOutputName;
+        set
+        {
+            renderOutputName = value;
+            OnPropertyChanged(nameof(RenderOutputName));
+        }
+    }
 
     private ViewportColorChannels _channels = ViewportColorChannels.Default;
     
@@ -62,6 +73,18 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     {
         get => _channels;
         set => SetProperty(ref _channels, value);
+    }
+
+    private bool hudVisible = true;
+
+    public bool HudVisible
+    {
+        get => hudVisible;
+        set
+        {
+            hudVisible = value;
+            OnPropertyChanged(nameof(HudVisible));
+        }
     }
 
     private PreviewPainterControl previewPainterControl;

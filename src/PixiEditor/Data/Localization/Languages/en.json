@@ -797,4 +797,8 @@
   "CREATE_CEL_DESCRIPTIVE": "Create a new cel",
   "DUPLICATE_CEL": "Duplicate cel",
   "DUPLICATE_CEL_DESCRIPTIVE": "Duplicate cel in the current frame",
+  "RENDER_PREVIEW": "Render preview",
+  "OUTPUT_NAME": "Preview name",
+  "CUSTOM_OUTPUT_NODE": "Preview Node",
+  "TOGGLE_HUD": "Toggle HUD"
 }

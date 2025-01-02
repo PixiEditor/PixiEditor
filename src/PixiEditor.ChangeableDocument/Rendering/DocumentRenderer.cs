@@ -202,7 +202,12 @@ public class DocumentRenderer : IPreviewRenderable
         NodeGraph membersOnlyGraph,
         Dictionary<Guid, Guid> nodeMapping)
     {
-        if(input == null) return membersOnlyGraph.OutputNode.Input;
+        if (input == null)
+        {
+            if(membersOnlyGraph.OutputNode is IRenderInput inputNode) return inputNode.Background;
+
+            return null;
+        }
         
         if (nodeMapping.ContainsKey(input.Node?.Id ?? Guid.Empty))
         {
@@ -228,6 +233,6 @@ public class DocumentRenderer : IPreviewRenderable
             return true;
         });
         
-        return found ?? membersOnlyGraph.OutputNode.Input;
+        return found ?? (membersOnlyGraph.OutputNode as IRenderInput)?.Background;
     }
 }

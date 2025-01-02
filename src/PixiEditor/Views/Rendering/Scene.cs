@@ -106,6 +106,12 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         set => SetValue(ChannelsProperty, value);
     }
 
+    public string RenderOutput
+    {
+        get { return (string)GetValue(RenderOutputProperty); }
+        set { SetValue(RenderOutputProperty, value); }
+    }
+
 
     private Bitmap? checkerBitmap;
 
@@ -134,6 +140,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private PixelSize lastSize = PixelSize.Empty;
     private Cursor lastCursor;
+    public static readonly StyledProperty<string> RenderOutputProperty = AvaloniaProperty.Register<Scene, string>("RenderOutput");
 
     static Scene()
     {
@@ -254,7 +261,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         DrawCheckerboard(renderTexture.DrawingSurface, bounds);
         DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Background);
-        SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution());
+        SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), RenderOutput == "DEFAULT" ? null : RenderOutput);
         DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Foreground);
     }
 
