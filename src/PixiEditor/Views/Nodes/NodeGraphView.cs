@@ -254,6 +254,18 @@ internal class NodeGraphView : Zoombox.Zoombox
                 nodeView.PropertyChanged += NodeView_PropertyChanged;
             }
         }
+        
+        if(e.Property == Canvas.LeftProperty || e.Property == Canvas.TopProperty)
+        {
+            if (e.Sender is ContentPresenter presenter && presenter.Child is NodeView nodeView)
+            {
+                Dispatcher.UIThread.Post(
+                    () =>
+                {
+                    UpdateConnections(nodeView);
+                }, DispatcherPriority.Render);
+            }
+        }
     }
 
     private void CreateNodeType(NodeTypeInfo nodeType)
