@@ -225,6 +225,15 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         set => SetValue(FlipYProperty, value);
     }
 
+    public static readonly StyledProperty<bool> HudVisibleProperty = AvaloniaProperty.Register<Viewport, bool>(
+        nameof(HudVisible), true);
+
+    public bool HudVisible
+    {
+        get => GetValue(HudVisibleProperty);
+        set => SetValue(HudVisibleProperty, value);
+    }
+
     public ViewportColorChannels Channels
     {
         get => GetValue(ChannelsProperty);

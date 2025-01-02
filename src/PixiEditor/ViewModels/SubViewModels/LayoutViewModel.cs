@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
+using Avalonia.Input;
 using PixiDocks.Core.Docking;
+using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.ViewModels.Dock;
 
 namespace PixiEditor.ViewModels.SubViewModels;

@@ -42,7 +42,8 @@
                                         PassEventArgsToCommand="True"/>
             </EventTriggerBehavior>-->
         </Interaction.Behaviors>
-        <overlays:TogglableFlyout Margin="5" Icon="{DynamicResource icon-tool}"
+        <overlays:TogglableFlyout IsVisible="{Binding HudVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}" 
+                                  Margin="5" Icon="{DynamicResource icon-tool}"
                                   ZIndex="2" HorizontalAlignment="Right" VerticalAlignment="Top">
             <overlays:TogglableFlyout.Child>
                 <Border Padding="5"
@@ -51,8 +52,8 @@
                         BorderThickness="{DynamicResource ThemeBorderThickness}"
                         Background="{DynamicResource ThemeBackgroundBrush1}" ZIndex="2">
                     <StackPanel Orientation="Vertical">
-                        <StackPanel Orientation="Horizontal">
-                            <Border Width="35" Height="35" Margin="5 0"
+                        <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+                            <Border Width="35" Height="35"
                                     BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                                     BorderThickness="{DynamicResource ThemeBorderThickness}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -74,14 +75,14 @@
                                     Cursor="Hand" />
                         </StackPanel>
                         <Separator />
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
                             <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="HIGH_RES_PREVIEW"
                                           Classes="OverlayButton pixi-icon"
                                           BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                                           Content="{DynamicResource icon-circle}"
                                           IsChecked="{Binding HighResPreview, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
                                           Cursor="Hand" />
-                            <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
+                            <ToggleButton Width="32" Height="32"
                                           ui:Translator.TooltipKey="LOW_RES_PREVIEW"
                                           Classes="OverlayButton pixi-icon"
                                           BorderBrush="{DynamicResource ThemeBorderMidBrush}"
@@ -90,13 +91,13 @@
                                           Cursor="Hand" />
                         </StackPanel>
                         <Separator />
-                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="10">
                             <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="TOGGLE_VERTICAL_SYMMETRY"
                                           Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding Document.VerticalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
                                           Content="{DynamicResource icon-y-symmetry}"
                                           Cursor="Hand" />
-                            <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
+                            <ToggleButton Width="32" Height="32"
                                           ui:Translator.TooltipKey="TOGGLE_HORIZONTAL_SYMMETRY"
                                           Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding Document.HorizontalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
@@ -104,13 +105,13 @@
                                           Cursor="Hand" />
                         </StackPanel>
                         <Separator />
-                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="10">
                             <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="FLIP_VIEWPORT_HORIZONTALLY"
                                           Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
                                           Content="{DynamicResource icon-y-flip}"
                                           Cursor="Hand" />
-                            <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
+                            <ToggleButton  Width="32" Height="32"
                                           ui:Translator.TooltipKey="FLIP_VIEWPORT_VERTICALLY"
                                           Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
@@ -118,28 +119,30 @@
                                           Cursor="Hand" />
                         </StackPanel>
                         <Separator />
-                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                            <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
+                        <StackPanel Spacing="10" HorizontalAlignment="Center" Orientation="Horizontal">
+                            <ToggleButton Width="32" Height="32"
                                           ui:Translator.TooltipKey="TOGGLE_GRIDLINES"
                                           Classes="OverlayToggleButton pixi-icon"
                                           Content="{DynamicResource icon-gridlines}"
                                           IsChecked="{Binding GridLinesVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
 
-                            <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
+                            <ToggleButton Width="32" Height="32"
                                           ui:Translator.TooltipKey="TOGGLE_SNAPPING"
                                           Classes="OverlayToggleButton pixi-icon"
                                           Content="{DynamicResource icon-snapping}"
                                           IsChecked="{Binding SnappingEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
                         </StackPanel>
-                        <Separator/>
-                        <ComboBox ItemsSource="{Binding AvailableRenderOutputs, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
-                                  SelectedValue="{Binding ViewportRenderOutput, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
-                                  SelectionChanged="RenderOutput_SelectionChanged"
-                                  ui:Translator.TooltipKey="RENDER_OUTPUT"
-                                  Margin="0 10 0 0">
+                        <Separator />
+                        <TextBlock ui:Translator.Key="RENDER_PREVIEW" />
+                        <ComboBox
+                            ItemsSource="{Binding AvailableRenderOutputs, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
+                            SelectedValue="{Binding ViewportRenderOutput, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
+                            SelectionChanged="RenderOutput_SelectionChanged"
+                            ui:Translator.TooltipKey="RENDER_OUTPUT"
+                            Margin="0 10 0 0">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock ui:Translator.Key="{Binding}" />
+                                    <TextBlock Cursor="Arrow" ui:Translator.Key="{Binding}" />
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
@@ -147,7 +150,8 @@
                 </Border>
             </overlays:TogglableFlyout.Child>
         </overlays:TogglableFlyout>
-        <Grid ZIndex="100" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10">
+        <Grid IsVisible="{Binding HudVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
+            ZIndex="100" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition MinHeight="40" MaxHeight="120" />
                 <RowDefinition Height="35" />

@@ -75,6 +75,18 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         set => SetProperty(ref _channels, value);
     }
 
+    private bool hudVisible = true;
+
+    public bool HudVisible
+    {
+        get => hudVisible;
+        set
+        {
+            hudVisible = value;
+            OnPropertyChanged(nameof(HudVisible));
+        }
+    }
+
     private PreviewPainterControl previewPainterControl;
 
     public void IndexChanged()
