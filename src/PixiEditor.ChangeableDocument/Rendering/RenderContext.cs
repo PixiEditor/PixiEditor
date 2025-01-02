@@ -18,7 +18,8 @@ public class RenderContext
     public DrawingSurface RenderSurface { get; set; }
     public bool FullRerender { get; set; } = false;
     
-    public ColorSpace ProcessingColorSpace { get; set; } 
+    public ColorSpace ProcessingColorSpace { get; set; }
+    public string? TargetOutput { get; set; }   
 
 
     public RenderContext(DrawingSurface renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution,

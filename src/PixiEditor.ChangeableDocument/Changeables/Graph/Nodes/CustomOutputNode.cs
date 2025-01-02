@@ -7,36 +7,39 @@ using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-[NodeInfo("Output")]
-public class OutputNode : Node, IRenderInput, IPreviewRenderable
+[NodeInfo("CustomOutput")]
+public class CustomOutputNode : Node, IRenderInput, IPreviewRenderable
 {
-    public const string InputPropertyName = "Background";
-
+    public const string OutputNamePropertyName = "OutputName";
     public RenderInputProperty Input { get; } 
+    public InputProperty<string> OutputName { get; }
     
     private VecI? lastDocumentSize;
-    public OutputNode()
+    public CustomOutputNode()
     {
-        Input = new RenderInputProperty(this, InputPropertyName, "BACKGROUND", null);
+        Input = new RenderInputProperty(this, OutputNode.InputPropertyName, "BACKGROUND", null);
         AddInputProperty(Input);
+        
+        OutputName = CreateInput(OutputNamePropertyName, "OUTPUT_NAME", "");
     }
 
     public override Node CreateCopy()
     {
-        return new OutputNode();
+        return new CustomOutputNode();
     }
 
     protected override void OnExecute(RenderContext context)
     {
-        if(!string.IsNullOrEmpty(context.TargetOutput)) return;
-        
-        lastDocumentSize = context.DocumentSize;
-        
-        int saved = context.RenderSurface.Canvas.Save();
-        context.RenderSurface.Canvas.ClipRect(new RectD(0, 0, context.DocumentSize.X, context.DocumentSize.Y));
-        Input.Value?.Paint(context, context.RenderSurface);
-        
-        context.RenderSurface.Canvas.RestoreToCount(saved);
+        if (context.TargetOutput == OutputName.Value)
+        {
+            lastDocumentSize = context.DocumentSize;
+
+            int saved = context.RenderSurface.Canvas.Save();
+            context.RenderSurface.Canvas.ClipRect(new RectD(0, 0, context.DocumentSize.X, context.DocumentSize.Y));
+            Input.Value?.Paint(context, context.RenderSurface);
+
+            context.RenderSurface.Canvas.RestoreToCount(saved);
+        }
     }
 
     RenderInputProperty IRenderInput.Background => Input;

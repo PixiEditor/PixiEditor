@@ -128,6 +128,8 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
         {
             newDoc.SizeChanged += viewport.DocSizeChanged;
         }
+        
+        viewport.ForceRefreshFinalImage();
     }
 
     private void DocSizeChanged(object? sender, DocumentSizeChangedEventArgs e)

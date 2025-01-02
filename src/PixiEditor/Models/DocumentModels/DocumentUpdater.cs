@@ -666,6 +666,11 @@ internal class DocumentUpdater
         ProcessStructureMemberProperty(info, property);
         
         property.InternalSetValue(info.Value);
+        
+        if (info.Property == CustomOutputNode.OutputNamePropertyName)
+        {
+            doc.NodeGraphHandler.UpdateAvailableRenderOutputs();
+        }
     }
     
     private void ProcessStructureMemberProperty(PropertyValueUpdated_ChangeInfo info, INodePropertyHandler property)
