@@ -66,15 +66,7 @@ internal class LayoutManager
                     First = new DockableArea()
                     {
                         Id = "DocumentArea", FallbackContent = new CreateDocumentFallbackView(),
-                        Dockables = [ DockContext.CreateDockable(nodeGraphDockViewModel) ]
                     },
-                    SecondSize = 200,
-                    SplitDirection = DockingDirection.Bottom,
-                    Second = new DockableArea
-                    {
-                        Id = "TimelineArea", 
-                        Dockables = [ DockContext.CreateDockable(timelineDockViewModel) ]
-                    }
                 },
                 SecondSize = 360,
                 SplitDirection = DockingDirection.Right,

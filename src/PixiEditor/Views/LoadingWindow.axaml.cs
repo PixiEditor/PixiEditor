@@ -15,10 +15,10 @@ public partial class LoadingWindow : Window
 
     public static void ShowInNewThread()
     {
-        /*var thread = new Thread(ThreadStart) { IsBackground = true };
+        var thread = new Thread(ThreadStart) { IsBackground = true };
 
         thread.SetApartmentState(ApartmentState.STA);
-        thread.Start();*/
+        thread.Start();
     }
 
     public void SafeClose()
