@@ -111,7 +111,7 @@ steps:
   displayName: Publish PixiEditor
   inputs:
     filePath: 'src/PixiEditor.Builder/build.ps1'
-    arguments: '--project-path "$(System.DefaultWorkingDirectory)\src\PixiEditor.Desktop" --build-configuration "$(buildConfiguration)" --runtime "$(buildPlatform)" -o "$(System.DefaultWorkingDirectory)\Builds\PixiEditor-$(architecture)-light\PixiEditor" --crash-report-webhook-url "$(crash-webhook-url)"'
+    arguments: '--project-path "$(System.DefaultWorkingDirectory)\src\PixiEditor.Desktop" --build-configuration "$(buildConfiguration)" --runtime "$(buildPlatform)" -o "$(System.DefaultWorkingDirectory)\Builds\PixiEditor-$(architecture)-light\PixiEditor" --analytics-url "https://api.pixieditor.net/analytics/" --project-path C:\Git\PixiEditor\src\PixiEditor.Desktop --extension-projects C:\Git\PixiEditor\src\PixiEditor.Beta --crash-report-webhook-url "$(crash-webhook-url)"'
     workingDirectory: 'src/PixiEditor.Builder'
 
 - task: ArchiveFiles@2

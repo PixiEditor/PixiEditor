@@ -800,5 +800,8 @@
   "RENDER_PREVIEW": "Render preview",
   "OUTPUT_NAME": "Preview name",
   "CUSTOM_OUTPUT_NODE": "Preview Node",
-  "TOGGLE_HUD": "Toggle HUD"
+  "TOGGLE_HUD": "Toggle HUD",
+  "OPEN_TIMELINE": "Open timeline",
+  "OPEN_NODE_GRAPH": "Open node graph",
+  "TOGGLE_PLAY": "Play/Pause animation"
 }
