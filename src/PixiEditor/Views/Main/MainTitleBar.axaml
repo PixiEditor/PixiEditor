@@ -38,7 +38,7 @@
                 VerticalAlignment="Center"
                 ItemsSource="{Binding MenuEntries}"
                 Background="Transparent" />
-            <Border DockPanel.Dock="Left" Height="25" Width="200"
+            <Border DockPanel.Dock="Left" Height="25" Width="150"
                     Background="{DynamicResource ThemeBackgroundBrush}"
                     CornerRadius="5" BorderThickness="1"
                     Margin="10,0,0,0"

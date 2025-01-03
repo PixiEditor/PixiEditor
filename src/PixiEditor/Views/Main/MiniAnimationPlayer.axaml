@@ -6,69 +6,72 @@
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Main.MiniAnimationPlayer" Width="150">
-    <Border Background="{DynamicResource ThemeBackgroundBrush}"
-            BorderBrush="{DynamicResource ThemeBorderMidBrush}"
-            BorderThickness="1"
-            CornerRadius="{DynamicResource ControlCornerRadius}">
-        <Grid
-            DataContext="{Binding RelativeSource={RelativeSource AncestorType=main:MiniAnimationPlayer, Mode=FindAncestor}}">
-            <Slider Minimum="1"
-                    IsSnapToTickEnabled="True"
-                    TickFrequency="1"
-                    Maximum="{Binding FramesCount}"
-                    Value="{Binding ActiveFrame, Mode=TwoWay}">
-                <Slider.Template>
-                    <ControlTemplate>
-                        <Grid Name="grid">
-                            <Border CornerRadius="0" Background="{DynamicResource ThemeControlLowBrush}"
-                                    Height="6"
-                                    Padding="0" Margin="0"
-                                    VerticalAlignment="Center">
-                            </Border>
-                            <Canvas Margin="-6,-1">
-                                <Rectangle IsVisible="false" x:Name="PART_SelectionRange" Height="4.0"
-                                           StrokeThickness="1.0" />
-                            </Canvas>
-                            <Track Name="PART_Track"
-                                   Grid.Row="1"
-                                   IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
-                                   Orientation="Horizontal">
-                                <Track.DecreaseButton>
-                                    <RepeatButton Name="PART_DecreaseButton"
-                                                  Theme="{StaticResource SliderRepeatTrackTheme}" />
-                                </Track.DecreaseButton>
-                                <Track.IncreaseButton>
-                                    <RepeatButton Name="PART_IncreaseButton"
-                                                  Theme="{StaticResource SliderRepeatTrackTheme}" />
-                                </Track.IncreaseButton>
-                                <Thumb Name="thumb"
-                                       Margin="0"
-                                       Height="22">
-                                    <Thumb.Template>
-                                        <ControlTemplate>
-                                            <Border Background="{DynamicResource ThemeAccentBrush}"
-                                                    Opacity="0.5"
-                                                    Width="2" Height="{TemplateBinding Height}"
-                                                    CornerRadius="0" />
-                                        </ControlTemplate>
-                                    </Thumb.Template>
-                                </Thumb>
-                            </Track>
-                        </Grid>
-                    </ControlTemplate>
-                </Slider.Template>
-            </Slider>
-            <StackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Center">
-                <Button Classes="pixi-icon" FontSize="20" Content="{DynamicResource icon-timeline}"
-                        Command="{xaml:Command UseProvided=True, Name=PixiEditor.Window.ShowDockWindow}"
-                        CommandParameter="Timeline" 
-                />
-                <ToggleButton Width="24" Foreground="{DynamicResource SelectedHandleBrush}" VerticalAlignment="Center"
+    <StackPanel Orientation="Horizontal" Spacing="5">
+        <Border Background="{DynamicResource ThemeBackgroundBrush}"
+                BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                BorderThickness="1"
+                CornerRadius="{DynamicResource ControlCornerRadius}">
+            <Grid
+                Width="75"
+                DataContext="{Binding RelativeSource={RelativeSource AncestorType=main:MiniAnimationPlayer, Mode=FindAncestor}}">
+                <Slider Minimum="1"
+                        IsSnapToTickEnabled="True"
+                        TickFrequency="1"
+                        Maximum="{Binding FramesCount}"
+                        Value="{Binding ActiveFrame, Mode=TwoWay}">
+                    <Slider.Template>
+                        <ControlTemplate>
+                            <Grid Name="grid">
+                                <Border CornerRadius="0" Background="Transparent"
+                                        Height="6"
+                                        Padding="0" Margin="0"
+                                        VerticalAlignment="Center">
+                                </Border>
+                                <Canvas Margin="-6,-1">
+                                    <Rectangle IsVisible="false" x:Name="PART_SelectionRange" Height="4.0"
+                                               StrokeThickness="1.0" />
+                                </Canvas>
+                                <Track Name="PART_Track"
+                                       Grid.Row="1"
+                                       IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
+                                       Orientation="Horizontal">
+                                    <Track.DecreaseButton>
+                                        <RepeatButton Name="PART_DecreaseButton"
+                                                      Theme="{StaticResource SliderRepeatTrackTheme}" />
+                                    </Track.DecreaseButton>
+                                    <Track.IncreaseButton>
+                                        <RepeatButton Name="PART_IncreaseButton"
+                                                      Theme="{StaticResource SliderRepeatTrackTheme}" />
+                                    </Track.IncreaseButton>
+                                    <Thumb Name="thumb"
+                                           Margin="0"
+                                           Height="22">
+                                        <Thumb.Template>
+                                            <ControlTemplate>
+                                                <Border Background="{DynamicResource ThemeAccentBrush}"
+                                                        Opacity="0.5"
+                                                        Width="2" Height="{TemplateBinding Height}"
+                                                        CornerRadius="0" />
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track>
+                            </Grid>
+                        </ControlTemplate>
+                    </Slider.Template>
+                </Slider>
+                <ToggleButton Width="24" Foreground="{DynamicResource SelectedHandleBrush}"
+                              VerticalAlignment="Center"
+                              HorizontalAlignment="Center"
                               Classes="PlayButton" IsChecked="{Binding IsPlaying, Mode=TwoWay}" />
-                <Button Classes="pixi-icon" FontSize="20" Content="{DynamicResource icon-nodes}"
-                        Command="{xaml:Command UseProvided=True, Name=PixiEditor.Window.ShowDockWindow}"
-                        CommandParameter="NodeGraph" />
-            </StackPanel>
-        </Grid>
-    </Border>
+
+            </Grid>
+        </Border>
+        <Button Classes="pixi-icon" FontSize="20" Content="{DynamicResource icon-timeline}"
+                Command="{xaml:Command UseProvided=True, Name=PixiEditor.Window.ShowDockWindow}"
+                CommandParameter="Timeline" />
+        <Button Classes="pixi-icon" FontSize="20" Content="{DynamicResource icon-nodes}"
+                Command="{xaml:Command UseProvided=True, Name=PixiEditor.Window.ShowDockWindow}"
+                CommandParameter="NodeGraph" />
+    </StackPanel>
 </UserControl>
