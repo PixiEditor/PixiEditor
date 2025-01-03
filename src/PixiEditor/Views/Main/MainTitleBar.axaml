@@ -9,6 +9,7 @@
              xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
              xmlns:input="clr-namespace:PixiEditor.Views.Input;assembly=PixiEditor.UI.Common"
              xmlns:menu="clr-namespace:PixiEditor.ViewModels.Menu"
+             xmlns:main="clr-namespace:PixiEditor.Views.Main"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="menu:MenuBarViewModel"
              x:Class="PixiEditor.Views.Main.MainTitleBar">
@@ -22,44 +23,52 @@
                 <Border BorderThickness="1" BorderBrush="{DynamicResource AccentColor}"
                         Padding="5 0" CornerRadius="5" Height="25"
                         IsVisible="{Binding Path=AdditionalContentSubViewModel.IsSupporterPackAvailable, FallbackValue=False}">
-                    <TextBlock VerticalAlignment="Center" ui:Translator.Key="PixiEditor.SupporterPack:AWESOME_SUPPORTER" />
+                    <TextBlock VerticalAlignment="Center"
+                               ui:Translator.Key="PixiEditor.SupporterPack:AWESOME_SUPPORTER" />
                 </Border>
             </dialogs:DialogTitleBar.AdditionalElement>
         </dialogs:DialogTitleBar>
         <Svg DockPanel.Dock="Left" Margin="10, 0, 0, 0" HorizontalAlignment="Left" Path="/Images/PixiEditorLogo.svg"
              Width="20" Height="20" />
-        <xaml:Menu
-            Margin="40, 0, 0, 0"
-            DockPanel.Dock="Left"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Center"
-            ItemsSource="{Binding MenuEntries}"
-            Background="Transparent" />
-        <Border Width="300" Height="25"
-                Background="{DynamicResource ThemeBackgroundBrush}"
-                CornerRadius="5" BorderThickness="1"
-                Margin="10,0,0,0"
-                Cursor="IBeam">
-            <Border.Styles>
-                <Style Selector="Border">
-                    <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
-                </Style>
-                <Style Selector="Border:pointerover">
-                    <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
-                </Style>
-            </Border.Styles>
-            <Interaction.Behaviors>
-                <EventTriggerBehavior
-                    EventName="PointerPressed">
-                    <InvokeCommandAction
-                        Command="{xaml:Command PixiEditor.Search.Toggle}" />
-                </EventTriggerBehavior>
-            </Interaction.Behaviors>
-            <Grid Margin="5,0" VerticalAlignment="Center">
-                <TextBlock ui:Translator.Key="SEARCH" />
-                <TextBlock Text="{xaml:ShortcutBinding PixiEditor.Search.Toggle}"
-                           HorizontalAlignment="Right" />
-            </Grid>
-        </Border>
+        <StackPanel Orientation="Horizontal">
+            <xaml:Menu
+                Margin="40, 0, 0, 0"
+                DockPanel.Dock="Left"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                ItemsSource="{Binding MenuEntries}"
+                Background="Transparent" />
+            <Border DockPanel.Dock="Left" Height="25" Width="200"
+                    Background="{DynamicResource ThemeBackgroundBrush}"
+                    CornerRadius="5" BorderThickness="1"
+                    Margin="10,0,0,0"
+                    Cursor="IBeam">
+                <Border.Styles>
+                    <Style Selector="Border">
+                        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
+                    </Style>
+                    <Style Selector="Border:pointerover">
+                        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
+                    </Style>
+                </Border.Styles>
+                <Interaction.Behaviors>
+                    <EventTriggerBehavior
+                        EventName="PointerPressed">
+                        <InvokeCommandAction
+                            Command="{xaml:Command PixiEditor.Search.Toggle}" />
+                    </EventTriggerBehavior>
+                </Interaction.Behaviors>
+                <Grid Margin="5,0" VerticalAlignment="Center">
+                    <TextBlock ui:Translator.Key="SEARCH" />
+                    <TextBlock Text="{xaml:ShortcutBinding PixiEditor.Search.Toggle}"
+                               HorizontalAlignment="Right" />
+                </Grid>
+            </Border>
+        </StackPanel>
+        <main:MiniAnimationPlayer
+            ActiveFrame="{Binding ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, Source={viewModels:MainVM DocumentManagerSVM}, Mode=TwoWay}"
+            FramesCount="{Binding ActiveDocument.AnimationDataViewModel.FramesCount, Source={viewModels:MainVM DocumentManagerSVM}}"
+            IsPlaying="{Binding ActiveDocument.AnimationDataViewModel.IsPlayingBindable, Source={viewModels:MainVM DocumentManagerSVM}, Mode=TwoWay}"
+            Margin="0 4" />
     </Grid>
 </UserControl>

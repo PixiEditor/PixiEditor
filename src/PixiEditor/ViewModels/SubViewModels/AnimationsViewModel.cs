@@ -1,4 +1,6 @@
-﻿using Avalonia.Input;
+﻿using System.ComponentModel;
+using Avalonia.Input;
+using Avalonia.Threading;
 using ChunkyImageLib;
 using PixiEditor.AnimationRenderer.Core;
 using PixiEditor.Models.AnalyticsAPI;
@@ -13,8 +15,76 @@ namespace PixiEditor.ViewModels.SubViewModels;
 [Command.Group("PixiEditor.Animations", "ANIMATIONS")]
 internal class AnimationsViewModel : SubViewModel<ViewModelMain>
 {
+    private DispatcherTimer _playTimer;
+
     public AnimationsViewModel(ViewModelMain owner) : base(owner)
     {
+        owner.DocumentManagerSubViewModel.ActiveDocumentChanged += (sender, args) =>
+        {
+            if (args.NewDocument != null)
+            {
+                InitTimer();
+                args.NewDocument.AnimationDataViewModel.PropertyChanged += AnimationDataViewModelOnPropertyChanged;
+            }
+
+            TogglePlayTimer(args.NewDocument?.AnimationDataViewModel.IsPlayingBindable ?? false);
+        };
+    }
+
+    private void AnimationDataViewModelOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(AnimationDataViewModel.IsPlayingBindable))
+        {
+            TogglePlayTimer(Owner.DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.IsPlayingBindable);
+        }
+        else if (e.PropertyName == nameof(AnimationDataViewModel.FrameRateBindable))
+        {
+            InitTimer();
+        }
+    }
+
+    private void InitTimer()
+    {
+        if (_playTimer != null)
+        {
+            _playTimer.Stop();
+            _playTimer.Tick -= PlayTimerOnTick;
+        }
+        
+        var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        _playTimer =
+            new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromMilliseconds(1000f / activeDocument.AnimationDataViewModel.FrameRateBindable) };
+        _playTimer.Tick += PlayTimerOnTick;
+    }
+
+    private void TogglePlayTimer(bool isPlaying)
+    {
+        if (isPlaying)
+        {
+            if (_playTimer is null)
+            {
+                return;
+            }
+
+            _playTimer.Start();
+        }
+        else
+        {
+            _playTimer?.Stop();
+        }
+    }
+
+    private void PlayTimerOnTick(object? sender, EventArgs e)
+    {
+        var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (activeDocument.AnimationDataViewModel.ActiveFrameBindable + 1 >= activeDocument.AnimationDataViewModel.LastFrame)
+        {
+            activeDocument.AnimationDataViewModel.ActiveFrameBindable = 1;
+        }
+        else
+        {
+            activeDocument.AnimationDataViewModel.ActiveFrameBindable++;
+        }
     }
 
     [Command.Basic("PixiEditor.Animation.NudgeActiveFrameNext", "CHANGE_ACTIVE_FRAME_NEXT",
@@ -154,7 +224,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
 
             return activeDocument.AnimationDataViewModel.FramesCount + 1;
         }
-        
+
         return active;
     }
 
