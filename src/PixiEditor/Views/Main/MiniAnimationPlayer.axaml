@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:main="clr-namespace:PixiEditor.Views.Main"
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Main.MiniAnimationPlayer" Width="150">
     <StackPanel Orientation="Horizontal" Spacing="5">
@@ -63,15 +64,20 @@
                 <ToggleButton Width="24" Foreground="{DynamicResource SelectedHandleBrush}"
                               VerticalAlignment="Center"
                               HorizontalAlignment="Center"
+                              ui:Translator.TooltipKey="TOGGLE_PLAY"
                               Classes="PlayButton" IsChecked="{Binding IsPlaying, Mode=TwoWay}" />
 
             </Grid>
         </Border>
         <Button Classes="pixi-icon" FontSize="20" Content="{DynamicResource icon-timeline}"
                 Command="{xaml:Command UseProvided=True, Name=PixiEditor.Window.ShowDockWindow}"
-                CommandParameter="Timeline" />
+                CommandParameter="Timeline" 
+                ui:Translator.TooltipKey="OPEN_TIMELINE"
+                />
         <Button Classes="pixi-icon" FontSize="20" Content="{DynamicResource icon-nodes}"
                 Command="{xaml:Command UseProvided=True, Name=PixiEditor.Window.ShowDockWindow}"
-                CommandParameter="NodeGraph" />
+                CommandParameter="NodeGraph" 
+                ui:Translator.TooltipKey="OPEN_NODE_GRAPH"
+                />
     </StackPanel>
 </UserControl>
