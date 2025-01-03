@@ -67,6 +67,14 @@ internal class LayoutManager
                     {
                         Id = "DocumentArea", FallbackContent = new CreateDocumentFallbackView(),
                     },
+                    SplitDirection = DockingDirection.Bottom,
+                    SecondSize = 300,
+                    AutoExpand = true,
+                    Second = new DockableArea()
+                    {
+                        Id = "TimelineArea",
+                        CloseRegionOnEmpty = false
+                    }
                 },
                 SecondSize = 360,
                 SplitDirection = DockingDirection.Right,
@@ -201,7 +209,21 @@ internal class LayoutManager
         IDockable? created = TryCreateDockable(id);
         if (created != null)
         {
-            DockContext.Float(created, 0, 0);
+            bool attached = false;
+            ActiveLayout.Root.Traverse(((element, tree) =>
+            {
+                if (element is IDockableHost host && element.Id == $"{id}Area" && !attached)
+                {
+                    host.AddDockable(created);
+                    host.ActiveDockable = created;
+                    attached = true;
+                }
+            }));
+            
+            if (!attached)
+            {
+                DockContext.Float(created, 0, 0);
+            }
         }
     }
 }
