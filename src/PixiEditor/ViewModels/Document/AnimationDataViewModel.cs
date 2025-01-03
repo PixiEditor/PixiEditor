@@ -185,6 +185,8 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         frameRateBindable = newFrameRate;
         OnPropertyChanged(nameof(FrameRateBindable));
         OnPropertyChanged(nameof(DefaultEndFrame));
+        OnPropertyChanged(nameof(LastFrame));
+        OnPropertyChanged(nameof(FramesCount));
     }
 
     public void SetActiveFrame(int newFrame)
@@ -222,6 +224,9 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             keyFrame.SetStartFrame(newStartFrame);
             keyFrame.SetDuration(newDuration);
             keyFrames.NotifyCollectionChanged();
+            OnPropertyChanged(nameof(FirstFrame));
+            OnPropertyChanged(nameof(LastFrame));
+            OnPropertyChanged(nameof(FramesCount));
         }
     }
 
@@ -258,6 +263,9 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         }
         
         SortByLayers();
+        OnPropertyChanged(nameof(FirstFrame));
+        OnPropertyChanged(nameof(LastFrame));
+        OnPropertyChanged(nameof(FramesCount));
     }
 
     public void RemoveKeyFrame(Guid keyFrameId)
@@ -281,6 +289,10 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         });
 
         allCels.RemoveAll(x => x.Id == keyFrameId);
+        
+        OnPropertyChanged(nameof(FirstFrame));
+        OnPropertyChanged(nameof(LastFrame));
+        OnPropertyChanged(nameof(FramesCount));
     }
 
     public void AddSelectedKeyFrame(Guid keyFrameId)
