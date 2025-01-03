@@ -39,7 +39,7 @@ internal class LayoutManager
         PaletteViewerDockViewModel paletteViewerDockViewModel =
             new(mainViewModel.ColorsSubViewModel, mainViewModel.DocumentManagerSubViewModel);
         TimelineDockViewModel timelineDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
-        
+
         NodeGraphDockViewModel nodeGraphDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
         /*
         ChannelsDockViewModel channelsDockDockViewModel = new(mainViewModel.WindowSubViewModel);
@@ -56,7 +56,7 @@ internal class LayoutManager
         /*
         RegisterDockable(channelsDockDockViewModel);
         */
-        
+
         DefaultLayout = new LayoutTree
         {
             Root = new DockableTree
@@ -67,6 +67,10 @@ internal class LayoutManager
                     {
                         Id = "DocumentArea", FallbackContent = new CreateDocumentFallbackView(),
                     },
+                    SplitDirection = DockingDirection.Bottom,
+                    SecondSize = 300,
+                    AutoExpand = true,
+                    Second = new DockableArea() { Id = "TimelineArea", CloseRegionOnEmpty = false }
                 },
                 SecondSize = 360,
                 SplitDirection = DockingDirection.Right,
@@ -90,8 +94,7 @@ internal class LayoutManager
                         SplitDirection = DockingDirection.Bottom,
                         Second = new DockableArea
                         {
-                            Id = "LayersArea",
-                            Dockables = [ DockContext.CreateDockable(layersDockViewModel) ]
+                            Id = "LayersArea", Dockables = [DockContext.CreateDockable(layersDockViewModel)]
                         },
                     },
                     FirstSize = 0.66,
@@ -201,7 +204,30 @@ internal class LayoutManager
         IDockable? created = TryCreateDockable(id);
         if (created != null)
         {
-            DockContext.Float(created, 0, 0);
+            bool attached = false;
+            ActiveLayout.Root.Traverse(((element, tree) =>
+            {
+                if (element is IDockableHost host)
+                {
+                    if (element.Id == $"{id}Area" && !attached)
+                    {
+                        host.AddDockable(created);
+                        host.ActiveDockable = created;
+                        attached = true;
+                    }
+                    else if (id == NodeGraphDockViewModel.TabId && element.Id == "DocumentArea")
+                    {
+                        host.AddDockable(created);
+                        host.ActiveDockable = created;
+                        attached = true;
+                    }
+                }
+            }));
+
+            if (!attached)
+            {
+                DockContext.Float(created, 0, 0);
+            }
         }
     }
 }
