@@ -194,7 +194,7 @@ internal static class ClipboardController
 
         bool hasPos = data.Any(x => x.Contains(ClipboardDataFormats.PositionFormat));
 
-        if (layerIds is { Length: > 0 } && (!hasPos || AllMatchesPos(layerIds, data, document)))
+        if (pasteAsNew && layerIds is { Length: > 0 } && (!hasPos || AllMatchesPos(layerIds, data, document)))
         {
             foreach (var layerId in layerIds)
             {
