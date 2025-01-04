@@ -33,7 +33,8 @@
             <ContentControl Margin="{TemplateBinding Padding}"
                             HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
                             VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                            Content="{TemplateBinding SelectionBoxItem}"
+                            Content="{Binding SelectionBoxItem,
+                                              RelativeSource={RelativeSource TemplatedParent}}"
                             ContentTemplate="{TemplateBinding ItemTemplate}" />
             <ToggleButton Name="toggle"
                           Grid.Column="1"
