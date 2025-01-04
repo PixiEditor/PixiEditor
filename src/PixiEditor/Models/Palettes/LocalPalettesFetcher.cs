@@ -242,7 +242,7 @@ internal class LocalPalettesFetcher : PaletteListDataSource
             }
             catch (Exception e)
             {
-                await CrashHelper.SendExceptionInfoToWebhookAsync(e);
+                await CrashHelper.SendExceptionInfoAsync(e);
             }
 
             return;

@@ -1,7 +1,11 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics;
+using System.Globalization;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Net.Mime;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using PixiEditor.Helpers;
@@ -11,7 +15,7 @@ using PixiEditor.OperatingSystem;
 
 namespace PixiEditor.Models.AnalyticsAPI;
 
-public class AnalyticsClient
+public class AnalyticsClient : IDisposable
 {
     private readonly HttpClient _client = new();
 
@@ -85,9 +89,35 @@ public class AnalyticsClient
         await _client.DeleteAsync($"sessions/{sessionId}", cancellationToken);
     }
 
+    public async Task SendReportAsync(string jsonText)
+    {
+        var textContent = new StringContent(jsonText, Encoding.UTF8, MediaTypeNames.Application.Json);
+        
+        await _client.PostAsync("reports/new", textContent);
+    }
+
+    public static string? GetAnalyticsUrl()
+    {
+        string url = BuildConstants.AnalyticsUrl;
+
+        if (url == "${analytics-url}")
+        {
+            url = null;
+            SetDebugUrl(ref url);
+        }
+
+        return url;
+
+        [Conditional("DEBUG")]
+        static void SetDebugUrl(ref string? url)
+        {
+            url = Environment.GetEnvironmentVariable("PixiEditorAnalytics");
+        }
+    }
+    
     private static async Task ReportInvalidStatusCodeAsync(HttpStatusCode statusCode, string message)
     {
-        await CrashHelper.SendExceptionInfoToWebhookAsync(new InvalidOperationException($"Invalid status code from analytics API '{statusCode}', message: {message}"));
+        await CrashHelper.SendExceptionInfoAsync(new InvalidOperationException($"Invalid status code from analytics API '{statusCode}', message: {message}"));
     }
 
     class KeyCombinationConverter : JsonConverter<KeyCombination>
@@ -128,5 +158,10 @@ public class AnalyticsClient
         {
             writer.WriteStringValue(value.ToString());
         }
+    }
+
+    public void Dispose()
+    {
+        _client.Dispose();
     }
 }

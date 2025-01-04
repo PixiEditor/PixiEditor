@@ -51,7 +51,7 @@ internal class ClassicDesktopEntry
             {
                 try
                 {
-                    CrashHelper.SendExceptionInfoToWebhook(exception, true);
+                    CrashHelper.SendExceptionInfo(exception, true);
                 }
                 finally
                 {
