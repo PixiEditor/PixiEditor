@@ -277,7 +277,7 @@ internal partial class HelloTherePopup : PixiEditorPopup
         {
             IsFetchingNews = false;
             FailedFetchingNews = true;
-            await CrashHelper.SendExceptionInfoToWebhookAsync(ex);
+            await CrashHelper.SendExceptionInfoAsync(ex);
         }
     }
 }

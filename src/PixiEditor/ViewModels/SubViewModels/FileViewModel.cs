@@ -303,7 +303,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
         else
         {
-            CrashHelper.SendExceptionInfoToWebhook(new InvalidFileTypeException(default,
+            CrashHelper.SendExceptionInfo(new InvalidFileTypeException(default,
                 $"Invalid file type '{fileType}'"));
         }
     }

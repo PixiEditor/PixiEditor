@@ -192,7 +192,7 @@ public class AnalyticsPeriodicReporter
     {
         if (_sendExceptions > 6)
         {
-            await CrashHelper.SendExceptionInfoToWebhookAsync(e);
+            await CrashHelper.SendExceptionInfoAsync(e);
             _sendExceptions++;
         }
     }

@@ -98,7 +98,7 @@ internal partial class MainWindow : Window
             }
             catch (Exception e)
             {
-                CrashHelper.SendExceptionInfoToWebhook(e);
+                CrashHelper.SendExceptionInfo(e);
             }
         }
 
@@ -116,7 +116,7 @@ internal partial class MainWindow : Window
             }
             catch (Exception e)
             {
-                CrashHelper.SendExceptionInfoToWebhook(e, true);
+                CrashHelper.SendExceptionInfo(e, true);
                 throw;
             }
         }

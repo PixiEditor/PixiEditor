@@ -132,13 +132,7 @@ internal static class ServiceCollectionHelpers
 
     private static IServiceCollection AddAnalyticsAsNeeded(this IServiceCollection collection)
     {
-        string url = BuildConstants.AnalyticsUrl;
-
-        if (url == "${analytics-url}")
-        {
-            url = null;
-            SetDebugUrl(ref url);
-        }
+        var url = AnalyticsClient.GetAnalyticsUrl();
 
         if (!string.IsNullOrWhiteSpace(url))
         {
@@ -148,12 +142,6 @@ internal static class ServiceCollectionHelpers
         }
 
         return collection;
-
-        [Conditional("DEBUG")]
-        static void SetDebugUrl(ref string? url)
-        {
-            url = Environment.GetEnvironmentVariable("PixiEditorAnalytics");
-        }
     }
     
     private static IServiceCollection AddAssemblyTypes<T>(this IServiceCollection collection)

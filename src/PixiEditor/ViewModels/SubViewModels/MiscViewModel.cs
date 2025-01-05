@@ -33,7 +33,7 @@ internal class MiscViewModel : SubViewModel<ViewModelMain>
         }
         catch (Exception e)
         {
-            CrashHelper.SendExceptionInfoToWebhook(e);
+            CrashHelper.SendExceptionInfo(e);
             NoticeDialog.Show(title: "Error", message: $"Couldn't open the address {uri} in your default browser");
         }
     }

@@ -13,6 +13,7 @@ using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates.Providers.Parsers;
 using PixiEditor.Models.Dialogs;
@@ -297,6 +298,20 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     [Command.Debug("PixiEditor.Debug.Crash", "CRASH", "CRASH_APP",
         MenuItemPath = "DEBUG/CRASH", MenuItemOrder = 10, AnalyticsTrack = true)]
     public static void Crash() => throw new InvalidOperationException("User requested to crash :c");
+
+    [Command.Debug("PixiEditor.Debug.SendCatchedCrash", "Send catched crash", "Send catched crash")]
+    [Conditional("DEBUG")]
+    public static void SendCatchedCrash()
+    {
+        try
+        {
+            throw new InvalidOperationException("User requested to send catched exception");
+        }
+        catch (InvalidOperationException exception)
+        {
+            CrashHelper.SendExceptionInfo(exception);
+        }
+    }
 
     [Command.Debug("PixiEditor.Debug.DeleteUserPreferences", @"%appdata%\PixiEditor\user_preferences.json", "DELETE_USR_PREFS", "DELETE_USR_PREFS",
         MenuItemPath = "DEBUG/DELETE/USER_PREFS", MenuItemOrder = 11, AnalyticsTrack = true)]

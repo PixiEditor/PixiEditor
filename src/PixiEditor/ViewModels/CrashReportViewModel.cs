@@ -39,6 +39,7 @@ internal partial class CrashReportViewModel : Window
 
         if (!IsDebugBuild)
             _ = CrashHelper.SendReportTextToWebhookAsync(report);
+        _ = CrashHelper.SendReportToAnalyticsApiAsync(report);
     }
 
     [RelayCommand(CanExecute = nameof(CanRecoverDocuments))]
