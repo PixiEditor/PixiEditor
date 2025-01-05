@@ -126,7 +126,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
     public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         var startNode = FindStartNode();
-        if (drawingPaint != null && startNode != null && startNode.Image.Value != null)
+        if (drawingPaint != null && startNode is { Image.Value: not null })
         {
             renderOn.Canvas.DrawRect(0, 0, startNode.Image.Value.Size.X, startNode.Image.Value.Size.Y, drawingPaint);
 
