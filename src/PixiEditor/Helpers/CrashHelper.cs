@@ -134,7 +134,7 @@ internal partial class CrashHelper
         }
     }
 
-    private static string TrimFilePaths(string text) => FilePathRegex().Replace(text, "{{ FILE PATH }}");
+    public static string TrimFilePaths(string text) => FilePathRegex().Replace(text, "{{ FILE PATH }}");
     
     public static void SendExceptionInfo(Exception e, bool wait = false,
         [CallerFilePath] string filePath = "<unknown>", [CallerMemberName] string memberName = "<unknown>")

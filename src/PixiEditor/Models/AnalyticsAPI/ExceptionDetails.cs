@@ -1,3 +1,5 @@
+using PixiEditor.Helpers;
+
 namespace PixiEditor.Models.AnalyticsAPI;
 
 public class ExceptionDetails
@@ -32,7 +34,7 @@ public class ExceptionDetails
         ArgumentNullException.ThrowIfNull(ex);
 
         ExceptionType = ex.GetType().FullName;
-        Message = ex.Message;
+        Message = CrashHelper.TrimFilePaths(ex.Message);
         StackTrace = ex.StackTrace;
         InnerExceptions = [];
 
