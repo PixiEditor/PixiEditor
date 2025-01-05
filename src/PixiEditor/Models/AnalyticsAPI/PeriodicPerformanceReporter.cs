@@ -8,11 +8,21 @@ public class PeriodicPerformanceReporter(AnalyticsPeriodicReporter analyticsRepo
     private long _lastTotalAllocatedBytes;
     private TimeSpan _lastTotalGcPauseTime;
 
+    private int targetCount;
+    private int sendCount;
+    
+    private Timer timer;
+    
     public void StartPeriodicReporting()
     {
-        var timer = new Timer
+        var recordInterval = TimeSpan.FromSeconds(45);
+        var targetRecordingSpan = TimeSpan.FromHours(1);
+
+        targetCount = (int)(targetRecordingSpan / recordInterval);
+
+        timer = new Timer
         {
-            Interval = TimeSpan.FromSeconds(45).TotalMilliseconds,
+            Interval = recordInterval.TotalMilliseconds,
             AutoReset = true
         };
 
@@ -30,9 +40,10 @@ public class PeriodicPerformanceReporter(AnalyticsPeriodicReporter analyticsRepo
         var collectionStartTime = DateTime.Now;
         
         var processorTime = await SampleProcessorTimeAsync(process);
+
         data["UserTime"] = processorTime.userTime;
         data["PrivilegedTime"] = processorTime.privilegedTime;
-        
+
         data["PrivateMemorySize"] = process.PrivateMemorySize64;
         data["WorkingSet"] = process.WorkingSet64;
 
@@ -56,6 +67,14 @@ public class PeriodicPerformanceReporter(AnalyticsPeriodicReporter analyticsRepo
         };
         
         analyticsReporter.AddEvent(e);
+        
+        sendCount++;
+
+        if (sendCount >= targetCount)
+        {
+            timer.Stop();
+            timer.Dispose();
+        }
     }
 
     private async Task<(TimeSpan userTime, TimeSpan privilegedTime)> SampleProcessorTimeAsync(Process process)
