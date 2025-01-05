@@ -11,6 +11,7 @@ public class InputProperty : IInputProperty
 {
     private object _internalValue;
     private int _lastExecuteHash = -1;
+    protected int lastConnectionHash = -1;
     private PropertyValidator? validator;
     private IOutputProperty? connection;
 
@@ -86,10 +87,21 @@ public class InputProperty : IInputProperty
     public Node Node { get; }
     public Type ValueType { get; }
 
-    internal bool CacheChanged
+    internal virtual bool CacheChanged
     {
         get
         {
+            if(Connection == null && lastConnectionHash != -1)
+            {
+                return true;
+            }
+            
+            if(Connection != null && lastConnectionHash != Connection.GetHashCode())
+            {
+                lastConnectionHash = Connection.GetHashCode();
+                return true;
+            }
+            
             if (Value is ICacheable cacheable)
             {
                 return cacheable.GetCacheHash() != _lastExecuteHash;
@@ -109,7 +121,7 @@ public class InputProperty : IInputProperty
         }
     }
 
-    internal void UpdateCache()
+    internal virtual void UpdateCache()
     {
         if (Value is null)
         {
@@ -123,6 +135,8 @@ public class InputProperty : IInputProperty
         {
             _lastExecuteHash = Value.GetHashCode();
         }
+        
+        lastConnectionHash = Connection?.GetHashCode() ?? -1;
     }
 
     IReadOnlyNode INodeProperty.Node => Node;

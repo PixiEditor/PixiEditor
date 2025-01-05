@@ -25,7 +25,9 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
     private string _lastSksl;
     private VecI? size;
 
-    protected override bool ExecuteOnlyOnCacheChange => true;
+    // TODO: Add caching
+    // Caching requires a way to check if any connected node changed, checking inputs for this node works
+    // Also gather uniforms without doing full string builder generation of the shader
 
     public ModifyImageRightNode()
     {
@@ -33,9 +35,8 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         Color = CreateFuncInput(nameof(Color), "COLOR", new Half4(""));
     }
 
-    protected override void OnExecute(RenderContext renderContext)
+    protected override void OnPaint(RenderContext renderContext, DrawingSurface targetSurface)
     {
-        base.OnExecute(renderContext);
         if (OtherNode == null || OtherNode == default)
         {
             OtherNode = FindStartNode()?.Id ?? default;
@@ -57,7 +58,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         {
             return;
         }
-        
+
         size = imgSize;
 
         ShaderBuilder builder = new(size.Value);
@@ -107,17 +108,8 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
             drawingPaint.Shader = drawingPaint.Shader.WithUpdatedUniforms(builder.Uniforms);
         }
 
-        builder.Dispose();
-    }
-
-    protected override void OnPaint(RenderContext renderContext, DrawingSurface targetSurface)
-    {
-        if (size == null)
-        {
-            return;
-        }
-        
         targetSurface.Canvas.DrawRect(0, 0, size.Value.X, size.Value.Y, drawingPaint);
+        builder.Dispose();
     }
 
     public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
