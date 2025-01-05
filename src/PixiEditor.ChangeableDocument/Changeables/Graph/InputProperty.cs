@@ -12,7 +12,10 @@ public class InputProperty : IInputProperty
     private object _internalValue;
     private int _lastExecuteHash = -1;
     private PropertyValidator? validator;
-    
+    private IOutputProperty? connection;
+
+    public event Action ConnectionChanged;
+
     public string InternalPropertyName { get; }
     public string DisplayName { get; }
 
@@ -26,7 +29,7 @@ public class InputProperty : IInputProperty
             }
 
             var connectionValue = Connection.Value;
-            
+
             if (!ValueType.IsAssignableTo(typeof(Delegate)) && connectionValue is Delegate connectionField)
             {
                 return connectionField.DynamicInvoke(FuncContext.NoContext);
@@ -40,7 +43,7 @@ public class InputProperty : IInputProperty
             return connectionValue;
         }
     }
-    
+
     public object NonOverridenValue
     {
         get => _internalValue;
@@ -49,7 +52,7 @@ public class InputProperty : IInputProperty
             _internalValue = value;
         }
     }
-    
+
     public PropertyValidator Validator
     {
         get
@@ -73,13 +76,16 @@ public class InputProperty : IInputProperty
     {
         Func<FuncContext, object> func = f =>
         {
-            return ConversionTable.TryConvert(delegateToCast.DynamicInvoke(f), ValueType, out object result) ? result : null;
+            return ConversionTable.TryConvert(delegateToCast.DynamicInvoke(f), ValueType, out object result)
+                ? result
+                : null;
         };
         return func;
     }
 
     public Node Node { get; }
-    public Type ValueType { get; } 
+    public Type ValueType { get; }
+
     internal bool CacheChanged
     {
         get
@@ -89,12 +95,12 @@ public class InputProperty : IInputProperty
                 return cacheable.GetCacheHash() != _lastExecuteHash;
             }
 
-            if(Value is null)
+            if (Value is null)
             {
                 return _lastExecuteHash != 0;
             }
-            
-            if(Value.GetType().IsValueType || Value.GetType() == typeof(string))
+
+            if (Value.GetType().IsValueType || Value.GetType() == typeof(string))
             {
                 return Value.GetHashCode() != _lastExecuteHash;
             }
@@ -118,11 +124,22 @@ public class InputProperty : IInputProperty
             _lastExecuteHash = Value.GetHashCode();
         }
     }
-    
+
     IReadOnlyNode INodeProperty.Node => Node;
-    
-    public IOutputProperty? Connection { get; set; }
-    
+
+    public IOutputProperty? Connection
+    {
+        get => connection;
+        set
+        {
+            if (connection != value)
+            {
+                connection = value;
+                ConnectionChanged?.Invoke();
+            }
+        }
+    }
+
     internal InputProperty(Node node, string internalName, string displayName, object defaultValue, Type valueType)
     {
         InternalPropertyName = internalName;
@@ -132,7 +149,6 @@ public class InputProperty : IInputProperty
         ValueType = valueType;
     }
 }
-
 
 public class InputProperty<T> : InputProperty, IInputProperty<T>
 {
@@ -150,9 +166,9 @@ public class InputProperty<T> : InputProperty, IInputProperty<T>
             {
                 return (T)FuncFactoryDelegate(func);
             }
-            
+
             object target = value;
-            if(value is ShaderExpressionVariable shaderExpression)
+            if (value is ShaderExpressionVariable shaderExpression)
             {
                 target = shaderExpression.GetConstant();
             }

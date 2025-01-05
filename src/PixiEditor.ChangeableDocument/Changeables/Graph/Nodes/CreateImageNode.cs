@@ -21,6 +21,8 @@ public class CreateImageNode : Node
 
     public RenderOutputProperty RenderOutput { get; }
 
+    private TextureCache textureCache = new();
+    
     public CreateImageNode()
     {
         Output = CreateOutput<Texture>(nameof(Output), "IMAGE", null);
@@ -37,7 +39,7 @@ public class CreateImageNode : Node
             return;
         }
 
-        var surface = RequestTexture(0, Size.Value, context.ProcessingColorSpace, false);
+        var surface = textureCache.RequestTexture(0, Size.Value, context.ProcessingColorSpace, false);
 
         surface.DrawingSurface.Canvas.Clear(Fill.Value);
 
@@ -61,4 +63,10 @@ public class CreateImageNode : Node
     }
 
     public override Node CreateCopy() => new CreateImageNode();
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        textureCache.Dispose();
+    }
 }

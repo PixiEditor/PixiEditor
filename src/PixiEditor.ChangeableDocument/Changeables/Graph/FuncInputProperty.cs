@@ -17,7 +17,7 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
         constantNonOverrideValue = defaultValue;
         NonOverridenValue = _ => constantNonOverrideValue;
     }
-
+    
     protected internal override object FuncFactory(object toReturn)
     {
         Func<FuncContext, T> func = _ =>

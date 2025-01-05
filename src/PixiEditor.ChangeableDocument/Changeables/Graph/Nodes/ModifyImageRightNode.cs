@@ -23,7 +23,9 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
 
 
     private string _lastSksl;
+    private VecI? size;
 
+    protected override bool ExecuteOnlyOnCacheChange => true;
 
     public ModifyImageRightNode()
     {
@@ -31,8 +33,9 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         Color = CreateFuncInput(nameof(Color), "COLOR", new Half4(""));
     }
 
-    protected override void OnPaint(RenderContext renderContext, DrawingSurface targetSurface)
+    protected override void OnExecute(RenderContext renderContext)
     {
+        base.OnExecute(renderContext);
         if (OtherNode == null || OtherNode == default)
         {
             OtherNode = FindStartNode()?.Id ?? default;
@@ -47,15 +50,17 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         {
             return;
         }
-        
+
         OtherNode = startNode.Id;
 
-        if (startNode.Image.Value is not { Size: var size })
+        if (startNode.Image.Value is not { Size: var imgSize })
         {
             return;
         }
+        
+        size = imgSize;
 
-        ShaderBuilder builder = new(size);
+        ShaderBuilder builder = new(size.Value);
         FuncContext context = new(renderContext, builder);
 
         if (Coordinate.Connection != null)
@@ -102,8 +107,17 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
             drawingPaint.Shader = drawingPaint.Shader.WithUpdatedUniforms(builder.Uniforms);
         }
 
-        targetSurface.Canvas.DrawRect(0, 0, size.X, size.Y, drawingPaint);
         builder.Dispose();
+    }
+
+    protected override void OnPaint(RenderContext renderContext, DrawingSurface targetSurface)
+    {
+        if (size == null)
+        {
+            return;
+        }
+        
+        targetSurface.Canvas.DrawRect(0, 0, size.Value.X, size.Value.Y, drawingPaint);
     }
 
     public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
@@ -113,7 +127,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         {
             return startNode.GetPreviewBounds(frame, elementToRenderName);
         }
-        
+
         return null;
     }
 
@@ -123,7 +137,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         if (drawingPaint != null && startNode != null && startNode.Image.Value != null)
         {
             renderOn.Canvas.DrawRect(0, 0, startNode.Image.Value.Size.X, startNode.Image.Value.Size.Y, drawingPaint);
-            
+
             return true;
         }
 

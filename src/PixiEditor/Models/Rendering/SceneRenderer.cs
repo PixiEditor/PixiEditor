@@ -11,11 +11,13 @@ using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.Rendering;
 
-internal class SceneRenderer
+internal class SceneRenderer : IDisposable
 {
     public IReadOnlyDocument Document { get; }
     public IDocument DocumentViewModel { get; }
     public bool HighResRendering { get; set; } = true;
+
+    private Texture renderTexture;
 
     public SceneRenderer(IReadOnlyDocument trackerDocument, IDocument documentViewModel)
     {
@@ -25,7 +27,7 @@ internal class SceneRenderer
 
     public void RenderScene(DrawingSurface target, ChunkResolution resolution, string? targetOutput = null)
     {
-        if(Document.Renderer.IsBusy || DocumentViewModel.Busy) return;
+        if (Document.Renderer.IsBusy || DocumentViewModel.Busy) return;
         RenderOnionSkin(target, resolution, targetOutput);
         RenderGraph(target, resolution, targetOutput);
     }
@@ -33,23 +35,26 @@ internal class SceneRenderer
     private void RenderGraph(DrawingSurface target, ChunkResolution resolution, string? targetOutput)
     {
         DrawingSurface renderTarget = target;
-        Texture? texture = null;
-        
+
         if (!HighResRendering || !HighDpiRenderNodePresent(Document.NodeGraph))
         {
-            texture = Texture.ForProcessing(Document.Size, Document.ProcessingColorSpace);
-            renderTarget = texture.DrawingSurface;
+            if (renderTexture == null || renderTexture.Size != Document.Size)
+            {
+                renderTexture = Texture.ForProcessing(Document.Size, Document.ProcessingColorSpace);
+            }
+
+            renderTexture.DrawingSurface.Canvas.Clear();
+            renderTarget = renderTexture.DrawingSurface;
         }
 
         RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
             resolution, Document.Size, Document.ProcessingColorSpace);
         context.TargetOutput = targetOutput;
         SolveFinalNodeGraph(context.TargetOutput).Execute(context);
-        
-        if(texture != null)
+
+        if (renderTexture != null)
         {
-            target.Canvas.DrawSurface(texture.DrawingSurface, 0, 0);
-            texture.Dispose();
+            target.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
         }
     }
 
@@ -61,7 +66,7 @@ internal class SceneRenderer
         }
 
         CustomOutputNode[] outputNodes = Document.NodeGraph.AllNodes.OfType<CustomOutputNode>().ToArray();
-        
+
         foreach (CustomOutputNode outputNode in outputNodes)
         {
             if (outputNode.OutputName.Value == targetOutput)
@@ -82,10 +87,10 @@ internal class SceneRenderer
             {
                 graph.AddNode(node);
             }
-            
+
             return true;
         });
-        
+
         graph.CustomOutputNode = outputNode;
         return graph;
     }
@@ -98,9 +103,9 @@ internal class SceneRenderer
             if (n is IHighDpiRenderNode { AllowHighDpiRendering: true })
             {
                 highDpiRenderNodePresent = true;
-            } 
+            }
         });
-        
+
         return highDpiRenderNodePresent;
     }
 
@@ -116,7 +121,7 @@ internal class SceneRenderer
         double alphaFalloffMultiplier = 1.0 / animationData.OnionFrames;
 
         var finalGraph = SolveFinalNodeGraph(targetOutput);
-        
+
         // Render previous frames'
         for (int i = 1; i <= animationData.OnionFrames; i++)
         {
@@ -128,7 +133,8 @@ internal class SceneRenderer
 
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
 
-            RenderContext onionContext = new(target, frame, resolution, Document.Size, Document.ProcessingColorSpace, finalOpacity);
+            RenderContext onionContext = new(target, frame, resolution, Document.Size, Document.ProcessingColorSpace,
+                finalOpacity);
             onionContext.TargetOutput = targetOutput;
             finalGraph.Execute(onionContext);
         }
@@ -143,9 +149,15 @@ internal class SceneRenderer
             }
 
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
-            RenderContext onionContext = new(target, frame, resolution, Document.Size, Document.ProcessingColorSpace, finalOpacity);
+            RenderContext onionContext = new(target, frame, resolution, Document.Size, Document.ProcessingColorSpace,
+                finalOpacity);
             onionContext.TargetOutput = targetOutput;
             finalGraph.Execute(onionContext);
         }
+    }
+
+    public void Dispose()
+    {
+        renderTexture?.Dispose();
     }
 }
