@@ -42,10 +42,10 @@ internal static class VersionHelpers
         return "BetaDebug";
 #elif DEVRELEASE
         return "BetaDevRelease";
-#elif RELEASE
-        return "BetaRelease";
 #elif STEAM
         return "BetaSteam";
+#elif RELEASE
+        return "BetaRelease";
 #elif MSIX
         return "BetaMSIX";
 #else

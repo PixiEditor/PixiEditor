@@ -23,7 +23,11 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
 
 
     private string _lastSksl;
+    private VecI? size;
 
+    // TODO: Add caching
+    // Caching requires a way to check if any connected node changed, checking inputs for this node works
+    // Also gather uniforms without doing full string builder generation of the shader
 
     public ModifyImageRightNode()
     {
@@ -47,15 +51,17 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         {
             return;
         }
-        
+
         OtherNode = startNode.Id;
 
-        if (startNode.Image.Value is not { Size: var size })
+        if (startNode.Image.Value is not { Size: var imgSize })
         {
             return;
         }
 
-        ShaderBuilder builder = new(size);
+        size = imgSize;
+
+        ShaderBuilder builder = new(size.Value);
         FuncContext context = new(renderContext, builder);
 
         if (Coordinate.Connection != null)
@@ -102,7 +108,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
             drawingPaint.Shader = drawingPaint.Shader.WithUpdatedUniforms(builder.Uniforms);
         }
 
-        targetSurface.Canvas.DrawRect(0, 0, size.X, size.Y, drawingPaint);
+        targetSurface.Canvas.DrawRect(0, 0, size.Value.X, size.Value.Y, drawingPaint);
         builder.Dispose();
     }
 
@@ -113,17 +119,17 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
         {
             return startNode.GetPreviewBounds(frame, elementToRenderName);
         }
-        
+
         return null;
     }
 
     public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         var startNode = FindStartNode();
-        if (drawingPaint != null && startNode != null && startNode.Image.Value != null)
+        if (drawingPaint != null && startNode is { Image.Value: not null })
         {
             renderOn.Canvas.DrawRect(0, 0, startNode.Image.Value.Size.X, startNode.Image.Value.Size.Y, drawingPaint);
-            
+
             return true;
         }
 

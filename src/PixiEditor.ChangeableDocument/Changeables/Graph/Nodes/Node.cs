@@ -27,7 +27,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public IReadOnlyList<InputProperty> InputProperties => inputs;
     public IReadOnlyList<OutputProperty> OutputProperties => outputs;
     public IReadOnlyList<KeyFrameData> KeyFrames => keyFrames;
-
+    public event Action ConnectionsChanged;
 
     IReadOnlyList<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyList<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
@@ -44,9 +44,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     protected internal bool IsDisposed => _isDisposed;
     private bool _isDisposed;
-
-    private Dictionary<int, Texture> _managedTextures = new();
-
+    
     public void Execute(RenderContext context)
     {
         ExecuteInternal(context);
@@ -82,43 +80,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
         {
             input.UpdateCache();
         }
-    }
-
-    protected Texture RequestTexture(int id, VecI size, ColorSpace processingCs, bool clear = true)
-    {
-        if (_managedTextures.TryGetValue(id, out var texture))
-        {
-            if (texture.Size != size || texture.IsDisposed || texture.ColorSpace != processingCs)
-            {
-                texture.Dispose();
-                texture = new Texture(CreateImageInfo(size, processingCs));
-                _managedTextures[id] = texture;
-                return texture;
-            }
-
-            if (clear)
-            {
-                texture.DrawingSurface.Canvas.Clear(Colors.Transparent);
-            }
-
-            return texture;
-        }
-
-        _managedTextures[id] = new Texture(CreateImageInfo(size, processingCs));
-        return _managedTextures[id];
-    }
-
-    private ImageInfo CreateImageInfo(VecI size, ColorSpace processingCs)
-    {
-        if (processingCs == null)
-        {
-            return new ImageInfo(size.X, size.Y, ColorType.RgbaF16, AlphaType.Premul, ColorSpace.CreateSrgbLinear())
-            {
-                GpuBacked = true
-            };
-        }
-
-        return new ImageInfo(size.X, size.Y, ColorType.RgbaF16, AlphaType.Premul, processingCs) { GpuBacked = true };
     }
 
     public void TraverseBackwards(Func<IReadOnlyNode, IInputProperty, bool> action)
@@ -309,6 +270,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
             throw new InvalidOperationException($"Input with name {propName} already exists.");
         }
 
+        property.ConnectionChanged += InvokeConnectionsChanged;
         inputs.Add(property);
         return property;
     }
@@ -321,6 +283,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
             throw new InvalidOperationException($"Input with name {propName} already exists.");
         }
 
+        property.ConnectionChanged += InvokeConnectionsChanged;
         inputs.Add(property);
         return property;
     }
@@ -352,6 +315,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
             throw new InvalidOperationException($"Input with name {property.InternalPropertyName} already exists.");
         }
 
+        property.ConnectionChanged += InvokeConnectionsChanged;
         inputs.Add(property);
     }
 
@@ -383,11 +347,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
             {
                 keyFrame.Dispose();
             }
-        }
-
-        foreach (var texture in _managedTextures)
-        {
-            texture.Value.Dispose();
         }
     }
 
@@ -501,6 +460,11 @@ public abstract class Node : IReadOnlyNode, IDisposable
         IReadOnlyDictionary<string, object> data)
     {
         return new None();
+    }
+    
+    private void InvokeConnectionsChanged()
+    {
+        ConnectionsChanged?.Invoke();
     }
 
     private static object CloneValue(object? value, InputProperty? input)

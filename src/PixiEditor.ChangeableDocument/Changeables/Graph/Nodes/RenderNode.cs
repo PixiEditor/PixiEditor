@@ -1,7 +1,9 @@
 ﻿using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -11,6 +13,8 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
     public RenderOutputProperty Output { get; }
 
     public bool AllowHighDpiRendering { get; set; } = false;
+
+    private TextureCache textureCache = new();
 
     public RenderNode()
     {
@@ -30,22 +34,22 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
             }
         }
     }
-    
+
     private void Paint(RenderContext context, DrawingSurface surface)
     {
         DrawingSurface target = surface;
-        bool useIntermediate = !AllowHighDpiRendering 
-                               && context.DocumentSize is { X: > 0, Y: > 0 } 
+        bool useIntermediate = !AllowHighDpiRendering
+                               && context.DocumentSize is { X: > 0, Y: > 0 }
                                && surface.DeviceClipBounds.Size != context.DocumentSize;
         if (useIntermediate)
         {
-            Texture intermediate = RequestTexture(0, context.DocumentSize, context.ProcessingColorSpace);
+            Texture intermediate = textureCache.RequestTexture(0, context.DocumentSize, context.ProcessingColorSpace);
             target = intermediate.DrawingSurface;
         }
 
         OnPaint(context, target);
-        
-        if(useIntermediate)
+
+        if (useIntermediate)
         {
             surface.Canvas.DrawSurface(target, 0, 0);
         }
@@ -57,4 +61,17 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
 
     public abstract bool RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName);
+
+    protected Texture RequestTexture(int id, VecI size, ColorSpace processingCs, bool clear = true)
+    {
+        return textureCache.RequestTexture(id, size, processingCs, clear);
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        textureCache.Dispose(); 
+    }
+
+   
 }

@@ -11,8 +11,10 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncInputProperty
 {
     private T? constantNonOverrideValue;
-    
-    internal FuncInputProperty(Node node, string internalName, string displayName, T defaultValue) : base(node, internalName, displayName, null)
+    private int lastConstantHashCode;
+
+    internal FuncInputProperty(Node node, string internalName, string displayName, T defaultValue) : base(node,
+        internalName, displayName, null)
     {
         constantNonOverrideValue = defaultValue;
         NonOverridenValue = _ => constantNonOverrideValue;
@@ -28,7 +30,7 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
                 shaderExpressionVariable.SetConstantValue(toReturn, ConversionTable.Convert);
                 return (T)(object)shaderExpressionVariable;
             }
-            
+
             return (T)toReturn;
         };
         return func;
@@ -40,12 +42,12 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
         {
             Type targetType = typeof(T);
             bool isShaderExpression = false;
-            if(typeof(T).IsAssignableTo(typeof(ShaderExpressionVariable)))
+            if (typeof(T).IsAssignableTo(typeof(ShaderExpressionVariable)))
             {
                 targetType = targetType.BaseType.GenericTypeArguments[0];
                 isShaderExpression = true;
             }
-            
+
             var sourceObj = delegateToCast.DynamicInvoke(f);
             ConversionTable.TryConvert(sourceObj, targetType, out var result);
             if (isShaderExpression)
@@ -67,12 +69,12 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
 
                 return (T)toReturn;
             }
-            
-            return result == null ? default : (T)result; 
+
+            return result == null ? default : (T)result;
         };
         return func;
     }
-    
+
     private Expression Adjust(Expression expression, object toReturn, out bool adjustNestedVariables)
     {
         adjustNestedVariables = false;
@@ -89,7 +91,7 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
 
         return expression;
     }
-    
+
     private void AdjustNested(IMultiValueVariable toReturn, Expression expression)
     {
         if (toReturn is not ShaderExpressionVariable shaderExpressionVariable)
@@ -133,13 +135,51 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
             shaderExpressionVariable.SetConstantValue(value, ConversionTable.Convert);
             return;
         }
-        
-        if(ConversionTable.TryConvert(value, typeof(T), out var result))
+
+        if (ConversionTable.TryConvert(value, typeof(T), out var result))
         {
             constantNonOverrideValue = (T)result;
             return;
         }
 
         constantNonOverrideValue = default;
+    }
+
+    internal override bool CacheChanged
+    {
+        get
+        {
+            if (constantNonOverrideValue == null)
+            {
+                return base.CacheChanged;
+            }
+
+            if (Connection == null && lastConnectionHash != -1)
+            {
+                return true;
+            }
+
+            if (Connection != null && lastConnectionHash != Connection.GetHashCode())
+            {
+                lastConnectionHash = Connection.GetHashCode();
+                return true;
+            }
+
+            if (constantNonOverrideValue is ShaderExpressionVariable expressionVariable)
+            {
+                return expressionVariable.ConstantValueString.GetHashCode() != lastConstantHashCode;
+            }
+
+            return base.CacheChanged;
+        }
+    }
+
+    internal override void UpdateCache()
+    {
+        base.UpdateCache();
+        if (constantNonOverrideValue is ShaderExpressionVariable expressionVariable)
+        {
+            lastConstantHashCode = expressionVariable.ConstantValueString.GetHashCode();
+        }
     }
 }

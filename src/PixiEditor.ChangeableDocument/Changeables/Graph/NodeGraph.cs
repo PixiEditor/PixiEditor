@@ -1,14 +1,14 @@
-﻿using System.Collections;
-using System.Diagnostics;
+﻿using System.Collections.Immutable;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
 public class NodeGraph : IReadOnlyNodeGraph, IDisposable
 {
+    private ImmutableList<IReadOnlyNode>? cachedExecutionList;
+    
     private readonly List<Node> _nodes = new();
     public IReadOnlyCollection<Node> Nodes => _nodes;
     public Node? OutputNode => CustomOutputNode ?? Nodes.OfType<OutputNode>().FirstOrDefault();
@@ -23,8 +23,10 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         {
             return;
         }
-
+        
+        node.ConnectionsChanged += ResetCache;
         _nodes.Add(node);
+        ResetCache();
     }
 
     public void RemoveNode(Node node)
@@ -34,12 +36,19 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
             return;
         }
 
+        node.ConnectionsChanged -= ResetCache;
         _nodes.Remove(node);
+        ResetCache();
     }
 
     public Queue<IReadOnlyNode> CalculateExecutionQueue(IReadOnlyNode outputNode)
     {
-        return GraphUtils.CalculateExecutionQueue(outputNode);
+        return new Queue<IReadOnlyNode>(CalculateExecutionQueueInternal(outputNode));
+    }
+    
+    private ImmutableList<IReadOnlyNode> CalculateExecutionQueueInternal(IReadOnlyNode outputNode)
+    {
+        return cachedExecutionList ??= GraphUtils.CalculateExecutionQueue(outputNode).ToImmutableList();
     }
 
     void IReadOnlyNodeGraph.AddNode(IReadOnlyNode node) => AddNode((Node)node);
@@ -58,11 +67,10 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
     {
         if(OutputNode == null) return false;
         
-        var queue = CalculateExecutionQueue(OutputNode);
+        var queue = CalculateExecutionQueueInternal(OutputNode);
         
-        while (queue.Count > 0)
+        foreach (var node in queue)
         {
-            var node = queue.Dequeue();
             action(node);
         }
         
@@ -74,12 +82,10 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         if (OutputNode == null) return;
         if(!CanExecute()) return;
 
-        var queue = CalculateExecutionQueue(OutputNode);
+        var queue = CalculateExecutionQueueInternal(OutputNode);
         
-        while (queue.Count > 0)
+        foreach (var node in queue)
         {
-            var node = queue.Dequeue();
-            
             if (node is Node typedNode)
             {
                 if(typedNode.IsDisposed) continue;
@@ -104,5 +110,10 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         }
 
         return true;
+    }
+    
+    private void ResetCache()
+    {
+        cachedExecutionList = null;
     }
 }
