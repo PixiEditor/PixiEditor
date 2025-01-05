@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Reactive.Linq;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
@@ -8,10 +9,16 @@ namespace PixiEditor.ViewModels.Document;
 
 internal class CelGroupViewModel : CelViewModel, ICelGroupHandler
 {
+    private int? cachedStartFrame;
+    private int? cachedDuration;
     public ObservableCollection<ICelHandler> Children { get; } = new ObservableCollection<ICelHandler>();
 
-    public override int StartFrameBindable => Children.Count > 0 ? Children.Min(x => x.StartFrameBindable) : 0;
-    public override int DurationBindable => Children.Count > 0 ? Children.Max(x => x.StartFrameBindable + x.DurationBindable) - StartFrameBindable : 0;
+    public override int StartFrameBindable =>
+        cachedStartFrame ??= (Children.Count > 0 ? Children.Min(x => x.StartFrameBindable) : 0);
+
+    public override int DurationBindable => cachedDuration ??= (Children.Count > 0
+        ? Children.Max(x => x.StartFrameBindable + x.DurationBindable) - StartFrameBindable
+        : 0);
 
     public string LayerName => Document.StructureHelper.Find(LayerGuid).NodeNameBindable;
 
@@ -37,16 +44,17 @@ internal class CelGroupViewModel : CelViewModel, ICelGroupHandler
     {
         foreach (var child in Children)
         {
-            if(child is CelViewModel keyFrame)
+            if (child is CelViewModel keyFrame)
             {
                 keyFrame.SetVisibility(isVisible);
             }
         }
-        
+
         base.SetVisibility(isVisible);
     }
 
-    public CelGroupViewModel(int startFrame, int duration, Guid layerGuid, Guid id, DocumentViewModel doc, DocumentInternalParts internalParts) 
+    public CelGroupViewModel(int startFrame, int duration, Guid layerGuid, Guid id, DocumentViewModel doc,
+        DocumentInternalParts internalParts)
         : base(startFrame, duration, layerGuid, id, doc, internalParts)
     {
         Children.CollectionChanged += ChildrenOnCollectionChanged;
@@ -61,19 +69,44 @@ internal class CelGroupViewModel : CelViewModel, ICelGroupHandler
 
     private void ChildrenOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        OnPropertyChanged(nameof(StartFrameBindable));
-        OnPropertyChanged(nameof(DurationBindable));
-        
+        cachedStartFrame = null;
+        cachedDuration = null;
+
         if (e.Action == NotifyCollectionChangedAction.Add)
         {
             foreach (var item in e.NewItems)
             {
-                if (item is CelViewModel keyFrame)
+                if (item is CelViewModel cel)
                 {
-                    keyFrame.IsCollapsed = IsCollapsed;
-                    keyFrame.SetVisibility(IsVisible);
+                    cel.IsCollapsed = IsCollapsed;
+                    cel.SetVisibility(IsVisible);
+                    cel.PropertyChanged += CelOnPropertyChanged;
                 }
             }
+        }
+        else if (e.Action == NotifyCollectionChangedAction.Remove)
+        {
+            foreach (var item in e.OldItems)
+            {
+                if (item is CelViewModel cel)
+                {
+                    cel.PropertyChanged -= CelOnPropertyChanged;
+                }
+            }
+        }
+
+        OnPropertyChanged(nameof(StartFrameBindable));
+        OnPropertyChanged(nameof(DurationBindable));
+    }
+    
+    private void CelOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(ICelHandler.StartFrameBindable) or nameof(ICelHandler.DurationBindable))
+        {
+            cachedStartFrame = null;
+            cachedDuration = null;
+            OnPropertyChanged(nameof(StartFrameBindable));
+            OnPropertyChanged(nameof(DurationBindable));
         }
     }
 }

@@ -1001,5 +1001,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         Internals.Tracker.Dispose();
         Internals.Tracker.Document.Dispose();
+        SceneRenderer.Dispose();
     }
 }
