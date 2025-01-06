@@ -120,7 +120,7 @@
             <system:String x:Key="icon-paste-as-new-layer">&#xe978;</system:String>
             <system:String x:Key="icon-star">&#xe97c;</system:String>
             <system:String x:Key="icon-star-filled">&#xe979;</system:String>
-            <system:String x:Key="icon-reset">R</system:String>
+            <system:String x:Key="icon-reset">&#xE98A;</system:String>
             <system:String x:Key="icon-message">&#xE96F;</system:String>
             <system:String x:Key="icon-download">&#xE969;</system:String>
             <system:String x:Key="icon-youtube">&#xE975;</system:String>
