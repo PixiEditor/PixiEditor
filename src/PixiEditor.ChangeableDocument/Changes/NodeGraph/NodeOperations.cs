@@ -94,7 +94,7 @@ public static class NodeOperations
 
         changes.Add(new ConnectProperty_ChangeInfo(memberId, parentInput.Node.Id,
             toAddOutput.InternalPropertyName, parentInput.InternalPropertyName));
-
+        
         return changes;
     }
 

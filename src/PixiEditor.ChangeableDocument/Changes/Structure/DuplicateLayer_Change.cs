@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
@@ -47,7 +48,7 @@ internal class DuplicateLayer_Change : Change
         target.NodeGraph.AddNode(clone);
 
         operations.Add(CreateLayer_ChangeInfo.FromLayer(clone));
-
+        
         operations.AddRange(NodeOperations.AppendMember(targetInput, clone.Output, clone.Background, clone.Id));
 
         ignoreInUndo = false;
