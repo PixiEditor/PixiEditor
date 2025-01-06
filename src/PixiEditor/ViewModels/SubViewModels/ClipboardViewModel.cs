@@ -19,6 +19,7 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using Drawie.Numerics;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.ViewModels.Dock;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 #nullable enable
@@ -48,6 +49,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
     [Command.Basic("PixiEditor.Clipboard.PasteAsNewLayer", true, "PASTE_AS_NEW_LAYER", "PASTE_AS_NEW_LAYER_DESCRIPTIVE",
         CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = KeyModifiers.Control,
+        ShortcutContexts = [typeof(ViewportWindowViewModel), typeof(LayersDockViewModel)],
         Icon = PixiPerfectIcons.PasteAsNewLayer, AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.Clipboard.Paste", false, "PASTE", "PASTE_DESCRIPTIVE",
         CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = KeyModifiers.Shift,
@@ -144,9 +146,22 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
             Owner.ColorsSubViewModel.SecondaryColor = result.Value;
         }
     }
+    
+    [Command.Basic("PixiEditor.Clipboard.PasteNodes", "PASTE_NODES", "PASTE_NODES_DESCRIPTIVE",
+        ShortcutContexts = [typeof(NodeGraphDockViewModel)], Key = Key.V, Modifiers = KeyModifiers.Control,
+        CanExecute = "PixiEditor.Clipboard.CanPasteNodes", Icon = PixiPerfectIcons.Paste, AnalyticsTrack = true)]
+    public async Task PasteNodes()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        await ClipboardController.PasteNodes(doc);
+    }
 
     [Command.Basic("PixiEditor.Clipboard.Copy", "COPY", "COPY_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanCopy",
         Key = Key.C, Modifiers = KeyModifiers.Control,
+        ShortcutContexts = [typeof(ViewportWindowViewModel), typeof(LayersDockViewModel)],
         MenuItemPath = "EDIT/COPY", MenuItemOrder = 3, Icon = PixiPerfectIcons.Copy, AnalyticsTrack = true)]
     public async Task Copy()
     {
@@ -157,7 +172,8 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         await ClipboardController.CopyToClipboard(doc);
     }
 
-    [Command.Basic("PixiEditor.Clipboard.CopyVisible", "COPY_VISIBLE", "COPY_VISIBLE_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanCopy",
+    [Command.Basic("PixiEditor.Clipboard.CopyVisible", "COPY_VISIBLE", "COPY_VISIBLE_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Clipboard.CanCopy",
         Key = Key.C, Modifiers = KeyModifiers.Shift,
         MenuItemPath = "EDIT/COPY_VISIBLE", MenuItemOrder = 3, Icon = PixiPerfectIcons.Copy, AnalyticsTrack = true)]
     public async Task CopyVisible()
@@ -169,6 +185,24 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         await ClipboardController.CopyVisibleToClipboard(doc);
     }
 
+    [Command.Basic("PixiEditor.Clipboard.CopyNodes", "COPY_NODES", "COPY_NODES_DESCRIPTIVE",
+        Key = Key.C, Modifiers = KeyModifiers.Control,
+        ShortcutContexts = [typeof(NodeGraphDockViewModel)],
+        Icon = PixiPerfectIcons.Copy, AnalyticsTrack = true)]
+    public async Task CopySelectedNodes()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        var selectedNodes = doc.NodeGraph.AllNodes.Where(x => x.IsNodeSelected).Select(x => x.Id).ToArray();
+        if (selectedNodes.Length == 0)
+            return;
+        
+        await ClipboardController.CopyNodes(selectedNodes);
+    }
+    
+    
     [Command.Basic("PixiEditor.Clipboard.CopyPrimaryColorAsHex", CopyColor.PrimaryHEX, "COPY_COLOR_HEX",
         "COPY_COLOR_HEX_DESCRIPTIVE", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon", AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.Clipboard.CopyPrimaryColorAsRgb", CopyColor.PrimaryRGB, "COPY_COLOR_RGB",
@@ -208,6 +242,12 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         return Owner.DocumentIsNotNull(null) && parameter is IDataObject data
             ? ClipboardController.IsImage(data)
             : ClipboardController.IsImageInClipboard().Result;
+    }
+    
+    [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteNodes")]
+    public bool CanPasteNodes()
+    {
+        return Owner.DocumentIsNotNull(null) && ClipboardController.AreNodesInClipboard().Result;
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteColor")]

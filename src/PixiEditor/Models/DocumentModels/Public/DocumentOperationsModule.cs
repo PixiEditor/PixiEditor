@@ -837,4 +837,14 @@ internal class DocumentOperationsModule : IDocumentOperations
         Internals.ActionAccumulator.AddFinishedActions(
             new ChangeProcessingColorSpace_Action(ColorSpace.CreateSrgb()));
     }
+
+    public void DuplicateNode(Guid nodeId)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new DuplicateNode_Action(nodeId));
+    }
 }

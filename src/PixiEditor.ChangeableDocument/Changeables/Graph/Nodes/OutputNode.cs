@@ -10,11 +10,13 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("Output")]
 public class OutputNode : Node, IRenderInput, IPreviewRenderable
 {
+    public const string UniqueName = "PixiEditor.Output";
     public const string InputPropertyName = "Background";
 
-    public RenderInputProperty Input { get; } 
-    
+    public RenderInputProperty Input { get; }
+
     private VecI? lastDocumentSize;
+
     public OutputNode()
     {
         Input = new RenderInputProperty(this, InputPropertyName, "BACKGROUND", null);
@@ -28,26 +30,27 @@ public class OutputNode : Node, IRenderInput, IPreviewRenderable
 
     protected override void OnExecute(RenderContext context)
     {
-        if(!string.IsNullOrEmpty(context.TargetOutput)) return;
-        
+        if (!string.IsNullOrEmpty(context.TargetOutput)) return;
+
         lastDocumentSize = context.DocumentSize;
-        
+
         int saved = context.RenderSurface.Canvas.Save();
         context.RenderSurface.Canvas.ClipRect(new RectD(0, 0, context.DocumentSize.X, context.DocumentSize.Y));
         Input.Value?.Paint(context, context.RenderSurface);
-        
+
         context.RenderSurface.Canvas.RestoreToCount(saved);
     }
 
     RenderInputProperty IRenderInput.Background => Input;
+
     public RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
     {
         if (lastDocumentSize == null)
         {
             return null;
         }
-        
-        return new RectD(0, 0, lastDocumentSize.Value.X, lastDocumentSize.Value.Y); 
+
+        return new RectD(0, 0, lastDocumentSize.Value.X, lastDocumentSize.Value.Y);
     }
 
     public bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
@@ -56,12 +59,12 @@ public class OutputNode : Node, IRenderInput, IPreviewRenderable
         {
             return false;
         }
-        
+
         int saved = renderOn.Canvas.Save();
         Input.Value.Paint(context, renderOn);
-        
+
         renderOn.Canvas.RestoreToCount(saved);
-        
+
         return true;
     }
 }

@@ -151,7 +151,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
 
     [Command.Basic("PixiEditor.Animation.ToggleOnionSkinning", "TOGGLE_ONION_SKINNING",
         "TOGGLE_ONION_SKINNING_DESCRIPTIVE",
-        ShortcutContext = typeof(TimelineDockViewModel), Key = Key.O, AnalyticsTrack = true)]
+        ShortcutContexts = [typeof(TimelineDockViewModel)], Key = Key.O, AnalyticsTrack = true)]
     public void ToggleOnionSkinning(bool value)
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is null)
@@ -161,7 +161,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Animation.DeleteCels", "DELETE_CELS", "DELETE_CELS_DESCRIPTIVE",
-        ShortcutContext = typeof(TimelineDockViewModel), Key = Key.Delete, AnalyticsTrack = true)]
+        ShortcutContexts = [typeof(TimelineDockViewModel)], Key = Key.Delete, AnalyticsTrack = true)]
     public void DeleteCels()
     {
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
