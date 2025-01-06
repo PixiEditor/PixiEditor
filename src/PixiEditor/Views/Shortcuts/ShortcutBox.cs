@@ -55,7 +55,7 @@ internal class ShortcutBox : ContentControl
 
         if (e != KeyCombination.None)
         {
-            if (controller.Commands[e].Where(x => x.ShortcutContext == null || x.ShortcutContext == Command.ShortcutContext)
+            if (controller.Commands[e].Where(x => x.ShortcutContexts == null || x.ShortcutContexts == Command.ShortcutContexts)
                     .SkipWhile(x => x == Command).FirstOrDefault() is { } oldCommand)
             {
                 var oldShortcut = Command.Shortcut;

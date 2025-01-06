@@ -19,6 +19,8 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using Drawie.Numerics;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.ViewModels.Dock;
+using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 #nullable enable
@@ -48,6 +50,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
     [Command.Basic("PixiEditor.Clipboard.PasteAsNewLayer", true, "PASTE_AS_NEW_LAYER", "PASTE_AS_NEW_LAYER_DESCRIPTIVE",
         CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = KeyModifiers.Control,
+        ShortcutContexts = [typeof(ViewportWindowViewModel), typeof(LayersDockViewModel)],
         Icon = PixiPerfectIcons.PasteAsNewLayer, AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.Clipboard.Paste", false, "PASTE", "PASTE_DESCRIPTIVE",
         CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = KeyModifiers.Shift,
@@ -145,8 +148,57 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         }
     }
 
+    [Command.Basic("PixiEditor.Clipboard.PasteNodes", "PASTE_NODES", "PASTE_NODES_DESCRIPTIVE",
+        ShortcutContexts = [typeof(NodeGraphDockViewModel)], Key = Key.V, Modifiers = KeyModifiers.Control,
+        CanExecute = "PixiEditor.Clipboard.CanPasteNodes", Icon = PixiPerfectIcons.Paste, AnalyticsTrack = true)]
+    public async Task PasteNodes()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        List<Guid> toDuplicate = await ClipboardController.GetNodeIds();
+
+        List<Guid> newIds = new();
+
+        Dictionary<Guid, Guid> nodeMapping = new();
+
+        foreach (var nodeId in toDuplicate)
+        {
+            Guid? newId = doc.Operations.DuplicateNode(nodeId);
+            if (newId != null)
+            {
+                newIds.Add(newId.Value);
+                nodeMapping.Add(nodeId, newId.Value);
+            }
+        }
+
+        if (newIds.Count == 0)
+            return;
+        
+        doc.Operations.InvokeCustomAction(() =>
+        {
+            ConnectRelatedNodes(doc, nodeMapping);
+            foreach (var node in doc.NodeGraph.AllNodes)
+            {
+                node.IsNodeSelected = false;
+            }
+
+            foreach (var node in newIds)
+            {
+                var nodeInstance = doc.NodeGraph.AllNodes.FirstOrDefault(x => x.Id == node);
+                if (nodeInstance != null)
+                {
+                    nodeInstance.IsNodeSelected = true;
+                }
+            }
+        });
+    }
+
+
     [Command.Basic("PixiEditor.Clipboard.Copy", "COPY", "COPY_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanCopy",
         Key = Key.C, Modifiers = KeyModifiers.Control,
+        ShortcutContexts = [typeof(ViewportWindowViewModel), typeof(LayersDockViewModel)],
         MenuItemPath = "EDIT/COPY", MenuItemOrder = 3, Icon = PixiPerfectIcons.Copy, AnalyticsTrack = true)]
     public async Task Copy()
     {
@@ -157,7 +209,8 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         await ClipboardController.CopyToClipboard(doc);
     }
 
-    [Command.Basic("PixiEditor.Clipboard.CopyVisible", "COPY_VISIBLE", "COPY_VISIBLE_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanCopy",
+    [Command.Basic("PixiEditor.Clipboard.CopyVisible", "COPY_VISIBLE", "COPY_VISIBLE_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Clipboard.CanCopy",
         Key = Key.C, Modifiers = KeyModifiers.Shift,
         MenuItemPath = "EDIT/COPY_VISIBLE", MenuItemOrder = 3, Icon = PixiPerfectIcons.Copy, AnalyticsTrack = true)]
     public async Task CopyVisible()
@@ -168,6 +221,24 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
         await ClipboardController.CopyVisibleToClipboard(doc);
     }
+
+    [Command.Basic("PixiEditor.Clipboard.CopyNodes", "COPY_NODES", "COPY_NODES_DESCRIPTIVE",
+        Key = Key.C, Modifiers = KeyModifiers.Control,
+        ShortcutContexts = [typeof(NodeGraphDockViewModel)],
+        Icon = PixiPerfectIcons.Copy, AnalyticsTrack = true)]
+    public async Task CopySelectedNodes()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        var selectedNodes = doc.NodeGraph.AllNodes.Where(x => x.IsNodeSelected).Select(x => x.Id).ToArray();
+        if (selectedNodes.Length == 0)
+            return;
+
+        await ClipboardController.CopyNodes(selectedNodes);
+    }
+
 
     [Command.Basic("PixiEditor.Clipboard.CopyPrimaryColorAsHex", CopyColor.PrimaryHEX, "COPY_COLOR_HEX",
         "COPY_COLOR_HEX_DESCRIPTIVE", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon", AnalyticsTrack = true)]
@@ -208,6 +279,12 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         return Owner.DocumentIsNotNull(null) && parameter is IDataObject data
             ? ClipboardController.IsImage(data)
             : ClipboardController.IsImageInClipboard().Result;
+    }
+
+    [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteNodes")]
+    public bool CanPasteNodes()
+    {
+        return Owner.DocumentIsNotNull(null) && ClipboardController.AreNodesInClipboard().Result;
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteColor")]
@@ -262,6 +339,34 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         };
 
         return ColorSearchResult.GetIcon(targetColor.ToOpaqueMediaColor().ToOpaqueColor());
+    }
+
+    private void ConnectRelatedNodes(DocumentViewModel doc, Dictionary<Guid, Guid> nodeMapping)
+    {
+        foreach (var connection in doc.NodeGraph.Connections)
+        {
+            if (nodeMapping.TryGetValue(connection.InputNode.Id, out var inputNode) &&
+                nodeMapping.TryGetValue(connection.OutputNode.Id, out var outputNode))
+            {
+                var inputNodeInstance = doc.NodeGraph.AllNodes.FirstOrDefault(x => x.Id == inputNode);
+                var outputNodeInstance = doc.NodeGraph.AllNodes.FirstOrDefault(x => x.Id == outputNode);
+
+                if (inputNodeInstance == null || outputNodeInstance == null)
+                    continue;
+
+                var inputProperty =
+                    inputNodeInstance.Inputs.FirstOrDefault(
+                        x => x.PropertyName == connection.InputProperty.PropertyName);
+                var outputProperty =
+                    outputNodeInstance.Outputs.FirstOrDefault(x =>
+                        x.PropertyName == connection.OutputProperty.PropertyName);
+
+                if (inputProperty == null || outputProperty == null)
+                    continue;
+
+                doc.NodeGraph.ConnectProperties(inputProperty, outputProperty);
+            }
+        }
     }
 
     public enum CopyColor

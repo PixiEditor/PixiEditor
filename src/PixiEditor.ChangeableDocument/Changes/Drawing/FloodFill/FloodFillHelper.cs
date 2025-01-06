@@ -63,7 +63,18 @@ public static class FloodFillHelper
             static (EmptyChunk _) => Colors.Transparent
         );
 
-        if ((drawingColor.A == 0) || colorToReplace == drawingColor)
+        ulong uLongColor = drawingColor.ToULong();
+        Color colorSpaceCorrectedColor = drawingColor;
+        if (!document.ProcessingColorSpace.IsSrgb)
+        {
+            var srgbTransform = ColorSpace.CreateSrgb().GetTransformFunction();
+
+            var fixedColor = drawingColor.TransformColor(srgbTransform);
+            uLongColor = fixedColor.ToULong();
+            colorSpaceCorrectedColor = fixedColor;
+        }
+
+        if ((colorSpaceCorrectedColor.A == 0) || colorToReplace == colorSpaceCorrectedColor)
             return new();
 
         RectI globalSelectionBounds = (RectI?)selection?.TightBounds ?? new RectI(VecI.Zero, document.Size);
@@ -71,17 +82,6 @@ public static class FloodFillHelper
         // Pre-multiplies the color and convert it to floats. Since floats are imprecise, a range is used.
         // Used for faster pixel checking
         ColorBounds colorRange = new(colorToReplace, tolerance);
-        ulong uLongColor = drawingColor.ToULong();
-        if (chunkAtPos.IsT0 && !chunkAtPos.AsT0.Surface.ImageInfo.ColorSpace.IsSrgb)
-        {
-            if (chunkAtPos.AsT0.Surface?.ImageInfo.ColorSpace != null)
-            {
-                var srgbTransform = ColorSpace.CreateSrgb().GetTransformFunction();
-
-                var fixedColor = drawingColor.TransformColor(srgbTransform);
-                uLongColor = fixedColor.ToULong();
-            }
-        }
 
         Dictionary<VecI, Chunk> drawingChunks = new();
         HashSet<VecI> processedEmptyChunks = new();
@@ -139,7 +139,7 @@ public static class FloodFillHelper
                 chunkPos,
                 chunkSize,
                 uLongColor,
-                drawingColor,
+                colorSpaceCorrectedColor,
                 posOnChunk,
                 colorRange,
                 iter != 0);
@@ -175,6 +175,7 @@ public static class FloodFillHelper
         ColorBounds bounds,
         bool checkFirstPixel)
     {
+        // color should be a fixed color
         if (referenceChunk.Surface.GetRawPixel(pos) == color || drawingChunk.Surface.GetRawPixel(pos) == color)
             return null;
         if (checkFirstPixel && !bounds.IsWithinBounds(referenceChunk.Surface.GetRawPixel(pos)))

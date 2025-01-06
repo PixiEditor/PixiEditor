@@ -17,7 +17,7 @@ internal partial class Command
 
         public string CanExecute { get; set; }
         
-        public Type? ShortcutContext { get; set; }
+        public Type[]? ShortcutContexts { get; set; }
 
         /// <summary>
         /// Gets or sets the default shortcut key for this command

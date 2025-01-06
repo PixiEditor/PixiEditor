@@ -260,7 +260,7 @@ internal class CommandController
                                 Parameter = basic.Parameter,
                                 MenuItemPath = basic.MenuItemPath,
                                 MenuItemOrder = basic.MenuItemOrder,
-                                ShortcutContext = basic.ShortcutContext
+                                ShortcutContexts = basic.ShortcutContexts
                             });
                     }
                     else if (attribute is Attributes.Commands.Command.FilterAttribute menu)

@@ -27,6 +27,7 @@ using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using Drawie.Numerics;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels.Document;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
@@ -126,7 +127,7 @@ internal static class ClipboardController
 
         await Clipboard.SetDataObjectAsync(data);
     }
-    
+
     public static async Task CopyVisibleToClipboard(DocumentViewModel document)
     {
         await Clipboard.ClearAsync();
@@ -134,7 +135,7 @@ internal static class ClipboardController
         DataObject data = new DataObject();
 
         RectD copyArea = new RectD(VecD.Zero, document.SizeBindable);
-        
+
         if (!document.SelectionPathBindable.IsEmpty)
         {
             copyArea = document.SelectionPathBindable.TightBounds;
@@ -145,15 +146,16 @@ internal static class ClipboardController
         }
 
         using Surface documentSurface = new Surface(document.SizeBindable);
-        
-        document.Renderer.RenderDocument(documentSurface.DrawingSurface, document.AnimationDataViewModel.ActiveFrameTime);
-        
+
+        document.Renderer.RenderDocument(documentSurface.DrawingSurface,
+            document.AnimationDataViewModel.ActiveFrameTime);
+
         Surface surfaceToCopy = new Surface((VecI)copyArea.Size.Ceiling());
         using Paint paint = new Paint();
-        
+
         surfaceToCopy.DrawingSurface.Canvas.DrawImage(
-        documentSurface.DrawingSurface.Snapshot(),
-        copyArea, new RectD(0, 0, copyArea.Size.X, copyArea.Size.Y), paint);
+            documentSurface.DrawingSurface.Snapshot(),
+            copyArea, new RectD(0, 0, copyArea.Size.X, copyArea.Size.Y), paint);
 
         await AddImageToClipboard(surfaceToCopy, data);
 
@@ -184,9 +186,9 @@ internal static class ClipboardController
     /// </summary>
     public static bool TryPaste(DocumentViewModel document, IEnumerable<IDataObject> data, bool pasteAsNew = false)
     {
-        Guid sourceDocument = GetSourceDocument(data); 
+        Guid sourceDocument = GetSourceDocument(data);
         Guid[] layerIds = GetLayerIds(data);
-        
+
         if (sourceDocument != document.Id)
         {
             layerIds = [];
@@ -242,11 +244,11 @@ internal static class ClipboardController
         document.Operations.PasteImagesAsLayers(images, document.AnimationDataViewModel.ActiveFrameBindable);
         return true;
     }
-    
+
     private static bool AllMatchesPos(Guid[] layerIds, IEnumerable<IDataObject> data, DocumentViewModel doc)
     {
         var dataObjects = data as IDataObject[] ?? data.ToArray();
-        
+
         var dataObjectWithPos = dataObjects.FirstOrDefault(x => x.Contains(ClipboardDataFormats.PositionFormat));
         VecD pos = VecD.Zero;
 
@@ -254,7 +256,7 @@ internal static class ClipboardController
         {
             pos = dataObjectWithPos.GetVecD(ClipboardDataFormats.PositionFormat);
         }
-        
+
         for (var i = 0; i < layerIds.Length; i++)
         {
             var layerId = layerIds[i];
@@ -263,7 +265,7 @@ internal static class ClipboardController
             if (layer is not { TightBounds: not null } || !layer.TightBounds.Value.Pos.AlmostEquals(pos))
                 return false;
         }
-        
+
         return true;
     }
 
@@ -281,7 +283,7 @@ internal static class ClipboardController
 
         return [];
     }
-    
+
     private static Guid GetSourceDocument(IEnumerable<IDataObject> data)
     {
         foreach (var dataObject in data)
@@ -568,5 +570,56 @@ internal static class ClipboardController
 
         result = null;
         return false;
+    }
+
+    public static async Task CopyNodes(Guid[] nodeIds)
+    {
+        await Clipboard.ClearAsync();
+
+        DataObject data = new DataObject();
+
+        byte[] nodeIdsBytes = Encoding.UTF8.GetBytes(string.Join(";", nodeIds.Select(x => x.ToString())));
+
+        data.Set(ClipboardDataFormats.NodeIdList, nodeIdsBytes);
+
+        await Clipboard.SetDataObjectAsync(data);
+    }
+
+    public static async Task<List<Guid>> GetNodeIds()
+    {
+        var data = await TryGetDataObject();
+        var nodeIds = GetNodeIds(data);
+        
+        return nodeIds.ToList();
+    }
+
+    public static async Task<Guid[]> GetNodesFromClipboard()
+    {
+        var data = await TryGetDataObject();
+        return GetNodeIds(data);
+    }
+
+    private static Guid[] GetNodeIds(IEnumerable<IDataObject?> data)
+    {
+        foreach (var dataObject in data)
+        {
+            if (dataObject.Contains(ClipboardDataFormats.NodeIdList))
+            {
+                byte[] nodeIds = (byte[])dataObject.Get(ClipboardDataFormats.NodeIdList);
+                string nodeIdsString = System.Text.Encoding.UTF8.GetString(nodeIds);
+                return nodeIdsString.Split(';').Select(Guid.Parse).ToArray();
+            }
+        }
+
+        return [];
+    }
+
+    public static async Task<bool> AreNodesInClipboard()
+    {
+        var formats = await Clipboard.GetFormatsAsync();
+        if (formats == null || formats.Length == 0)
+            return false;
+        
+        return formats.Contains(ClipboardDataFormats.NodeIdList);
     }
 }

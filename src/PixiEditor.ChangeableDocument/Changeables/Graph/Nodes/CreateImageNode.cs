@@ -66,6 +66,8 @@ public class CreateImageNode : Node, IPreviewRenderable
 
     private void OnPaint(RenderContext context, DrawingSurface surface)
     {
+        if(Output.Value == null || Output.Value.IsDisposed) return;
+        
         surface.Canvas.DrawSurface(Output.Value.DrawingSurface, 0, 0);
     }
 
@@ -100,6 +102,11 @@ public class CreateImageNode : Node, IPreviewRenderable
         }
 
         var surface = Render(context);
+        
+        if (surface == null || surface.IsDisposed)
+        {
+            return false;
+        }
         
         renderOn.Canvas.DrawSurface(surface.DrawingSurface, 0, 0);
         

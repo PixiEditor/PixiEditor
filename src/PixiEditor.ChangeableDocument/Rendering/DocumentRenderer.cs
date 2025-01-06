@@ -94,6 +94,8 @@ public class DocumentRenderer : IPreviewRenderable
         
         IsBusy = true;
         
+        if(previewRenderable is Node { IsDisposed: true }) return;
+        
         previewRenderable.RenderPreview(renderOn, context, elementToRenderName);
         
         IsBusy = false;
