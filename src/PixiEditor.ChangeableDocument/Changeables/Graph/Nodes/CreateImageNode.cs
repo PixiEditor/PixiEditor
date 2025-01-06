@@ -101,6 +101,11 @@ public class CreateImageNode : Node, IPreviewRenderable
 
         var surface = Render(context);
         
+        if (surface == null || surface.IsDisposed)
+        {
+            return false;
+        }
+        
         renderOn.Canvas.DrawSurface(surface.DrawingSurface, 0, 0);
         
         return true;
