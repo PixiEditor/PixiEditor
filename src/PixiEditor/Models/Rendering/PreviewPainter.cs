@@ -33,7 +33,7 @@ public class PreviewPainter
         Renderer = renderer;
     }
 
-    public void Paint(DrawingSurface renderOn, VecI boundsSize, Matrix3X3 matrix) 
+    public void Paint(DrawingSurface renderOn, VecI boundsSize, Matrix3X3 matrix)
     {
         if (PreviewRenderable == null)
         {
