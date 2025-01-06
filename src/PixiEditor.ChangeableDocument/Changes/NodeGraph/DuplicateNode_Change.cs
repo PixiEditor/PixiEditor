@@ -10,9 +10,10 @@ internal class DuplicateNode_Change : Change
     private Guid createdNodeGuid;
 
     [GenerateMakeChangeAction]
-    public DuplicateNode_Change(Guid nodeGuid)
+    public DuplicateNode_Change(Guid nodeGuid, Guid newGuid)
     {
         this.nodeGuid = nodeGuid;
+        createdNodeGuid = newGuid;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -25,8 +26,7 @@ internal class DuplicateNode_Change : Change
     {
         Node existingNode = target.FindNode(nodeGuid);
         Node clone = existingNode.Clone();
-        
-        createdNodeGuid = clone.Id;
+        clone.Id = createdNodeGuid;
 
         target.NodeGraph.AddNode(clone);
 

@@ -66,6 +66,8 @@ public class CreateImageNode : Node, IPreviewRenderable
 
     private void OnPaint(RenderContext context, DrawingSurface surface)
     {
+        if(Output.Value == null || Output.Value.IsDisposed) return;
+        
         surface.Canvas.DrawSurface(Output.Value.DrawingSurface, 0, 0);
     }
 

@@ -838,13 +838,20 @@ internal class DocumentOperationsModule : IDocumentOperations
             new ChangeProcessingColorSpace_Action(ColorSpace.CreateSrgb()));
     }
 
-    public void DuplicateNode(Guid nodeId)
+    public Guid? DuplicateNode(Guid nodeId)
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
-            return;
+            return null;
 
         Internals.ChangeController.TryStopActiveExecutor();
+        
+        if(!Document.StructureHelper.TryFindNode(nodeId, out INodeHandler node) || node.InternalName == OutputNode.UniqueName)
+            return null;
 
-        Internals.ActionAccumulator.AddFinishedActions(new DuplicateNode_Action(nodeId));
+        Guid newGuid = Guid.NewGuid();
+        
+        Internals.ActionAccumulator.AddFinishedActions(new DuplicateNode_Action(nodeId, newGuid));
+        
+        return newGuid;
     }
 }

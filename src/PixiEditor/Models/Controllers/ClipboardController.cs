@@ -585,15 +585,12 @@ internal static class ClipboardController
         await Clipboard.SetDataObjectAsync(data);
     }
 
-    public static async Task PasteNodes(DocumentViewModel document)
+    public static async Task<List<Guid>> GetNodeIds()
     {
         var data = await TryGetDataObject();
         var nodeIds = GetNodeIds(data);
-
-        foreach (var nodeId in nodeIds)
-        {
-            document.Operations.DuplicateNode(nodeId);
-        }
+        
+        return nodeIds.ToList();
     }
 
     public static async Task<Guid[]> GetNodesFromClipboard()
