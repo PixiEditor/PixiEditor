@@ -11,13 +11,12 @@ using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.Rendering;
 
-internal class SceneRenderer : IDisposable
+internal class SceneRenderer 
 {
     public IReadOnlyDocument Document { get; }
     public IDocument DocumentViewModel { get; }
     public bool HighResRendering { get; set; } = true;
 
-    private Texture renderTexture;
 
     public SceneRenderer(IReadOnlyDocument trackerDocument, IDocument documentViewModel)
     {
@@ -35,15 +34,12 @@ internal class SceneRenderer : IDisposable
     private void RenderGraph(DrawingSurface target, ChunkResolution resolution, string? targetOutput)
     {
         DrawingSurface renderTarget = target;
+        Texture? renderTexture = null;
 
         if (!HighResRendering || !HighDpiRenderNodePresent(Document.NodeGraph))
         {
-            if (renderTexture == null || renderTexture.Size != Document.Size)
-            {
-                renderTexture = Texture.ForProcessing(Document.Size, Document.ProcessingColorSpace);
-            }
+            renderTexture = Texture.ForProcessing(Document.Size, Document.ProcessingColorSpace);
 
-            renderTexture.DrawingSurface.Canvas.Clear();
             renderTarget = renderTexture.DrawingSurface;
         }
 
@@ -55,6 +51,7 @@ internal class SceneRenderer : IDisposable
         if (renderTexture != null)
         {
             target.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
+            renderTexture.Dispose();
         }
     }
 
@@ -154,10 +151,5 @@ internal class SceneRenderer : IDisposable
             onionContext.TargetOutput = targetOutput;
             finalGraph.Execute(onionContext);
         }
-    }
-
-    public void Dispose()
-    {
-        renderTexture?.Dispose();
     }
 }
