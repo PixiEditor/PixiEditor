@@ -33,10 +33,15 @@ internal class MemberPreviewUpdater
         AnimationKeyFramePreviewRenderer = new AnimationKeyFramePreviewRenderer(internals);
     }
 
-    public void UpdatePreviews(bool undoBoundaryPassed, IEnumerable<Guid> membersToUpdate,
+    public void UpdatePreviews(bool rerenderPreviews, IEnumerable<Guid> membersToUpdate,
         IEnumerable<Guid> masksToUpdate, IEnumerable<Guid> nodesToUpdate, IEnumerable<Guid> keyFramesToUpdate)
     {
-        UpdatePreviewPainters(membersToUpdate, masksToUpdate, nodesToUpdate, keyFramesToUpdate, undoBoundaryPassed);
+        if (!rerenderPreviews)
+        {
+            return;
+        }
+
+        UpdatePreviewPainters(membersToUpdate, masksToUpdate, nodesToUpdate, keyFramesToUpdate);
     }
 
     /// <summary>
@@ -45,23 +50,17 @@ internal class MemberPreviewUpdater
     /// <param name="members">Members that should be rendered</param>
     /// <param name="masksToUpdate">Masks that should be rendered</param>
     private void UpdatePreviewPainters(IEnumerable<Guid> members, IEnumerable<Guid> masksToUpdate,
-        IEnumerable<Guid> nodesToUpdate, IEnumerable<Guid> keyFramesToUpdate, bool undoBoundaryPassed)
+        IEnumerable<Guid> nodesToUpdate, IEnumerable<Guid> keyFramesToUpdate)
     {
         Guid[] memberGuids = members as Guid[] ?? members.ToArray();
         Guid[] maskGuids = masksToUpdate as Guid[] ?? masksToUpdate.ToArray();
         Guid[] nodesGuids = nodesToUpdate as Guid[] ?? nodesToUpdate.ToArray();
         Guid[] keyFramesGuids = keyFramesToUpdate as Guid[] ?? keyFramesToUpdate.ToArray();
 
-        //TODO: It probably is a good idea to add this check for insignificant previews, like document tab icon
-        // But navigation uses the same preview painter so it must be separated before this check is added
-        //if (undoBoundaryPassed)
-        {
-            RenderWholeCanvasPreview();
-        }
-        
+        RenderWholeCanvasPreview();
         RenderLayersPreview(memberGuids);
         RenderMaskPreviews(maskGuids);
-        
+
         RenderAnimationPreviews(memberGuids, keyFramesGuids);
 
         RenderNodePreviews(nodesGuids);
@@ -247,10 +246,10 @@ internal class MemberPreviewUpdater
         var executionQueue =
             internals.Tracker.Document.NodeGraph
                 .AllNodes; //internals.Tracker.Document.NodeGraph.CalculateExecutionQueue(outputNode);
-        
-        if(nodesGuids.Length == 0)
+
+        if (nodesGuids.Length == 0)
             return;
-        
+
         foreach (var node in executionQueue)
         {
             if (node is null)

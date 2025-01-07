@@ -115,6 +115,8 @@ internal class ActionAccumulator
                 toExecute.Any(static action => action.action is ChangeBoundary_Action or Redo_Action or Undo_Action);
             bool viewportRefreshRequest =
                 toExecute.Any(static action => action.action is RefreshViewport_PassthroughAction);
+            bool changeFrameRequest =
+                toExecute.Any(static action => action.action is SetActiveFrame_PassthroughAction);
             foreach (IChangeInfo info in optimizedChanges)
             {
                 internals.Updater.ApplyChangeFromChangeInfo(info);
@@ -137,7 +139,7 @@ internal class ActionAccumulator
                     undoBoundaryPassed || viewportRefreshRequest);
             }
 
-            previewUpdater.UpdatePreviews(undoBoundaryPassed, affectedAreas.ImagePreviewAreas.Keys,
+            previewUpdater.UpdatePreviews(undoBoundaryPassed || changeFrameRequest || viewportRefreshRequest, affectedAreas.ImagePreviewAreas.Keys,
                 affectedAreas.MaskPreviewAreas.Keys,
                 affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames);
 
