@@ -18,9 +18,6 @@ internal partial class DocumentPreview : UserControl
     public static readonly StyledProperty<DocumentViewModel> DocumentProperty =
         AvaloniaProperty.Register<DocumentPreview, DocumentViewModel>(nameof(Document));
 
-    public static readonly StyledProperty<Thickness> ColorCursorPositionProperty =
-        AvaloniaProperty.Register<DocumentPreview, Thickness>(nameof(ColorCursorPosition));
-
     public static readonly StyledProperty<Color> ColorCursorColorProperty =
         AvaloniaProperty.Register<DocumentPreview, Color>(nameof(ColorCursorColor));
 
@@ -33,12 +30,6 @@ internal partial class DocumentPreview : UserControl
         set => SetValue(DocumentProperty, value);
     }
 
-    public Thickness ColorCursorPosition
-    {
-        get => GetValue(ColorCursorPositionProperty);
-        private set => SetValue(ColorCursorPositionProperty, value);
-    }
-
     public Color ColorCursorColor
     {
         get => GetValue(ColorCursorColorProperty);
@@ -49,6 +40,15 @@ internal partial class DocumentPreview : UserControl
     {
         get => GetValue(PrimaryColorProperty);
         set => SetValue(PrimaryColorProperty, value);
+    }
+
+    public static readonly StyledProperty<VecI> ColorCursorPositionProperty = AvaloniaProperty.Register<DocumentPreview, VecI>(
+        nameof(ColorCursorPosition));
+
+    public VecI ColorCursorPosition
+    {
+        get => GetValue(ColorCursorPositionProperty);
+        set => SetValue(ColorCursorPositionProperty, value);
     }
     
     private MouseUpdateController mouseUpdateController;
@@ -151,15 +151,13 @@ internal partial class DocumentPreview : UserControl
         if (x < 0 || x > Document.Width || y < 0 || y > Document.Height)
             return;
         
-        Thickness newPos = new Thickness(x, y, 0, 0);
-
-        if (ColorCursorPosition == newPos)
+        if (x == ColorCursorPosition.X && y == ColorCursorPosition.Y)
         {
             return;
         }
 
-        ColorCursorPosition = newPos;
-
+        ColorCursorPosition = new VecI(x, y);
+        
         var color = Document.PickColor(new(x, y), DocumentScope.AllLayers, false, true, Document.AnimationDataViewModel.ActiveFrameBindable);
         ColorCursorColor = Color.FromArgb(color.A, color.R, color.G, color.B);
     }
