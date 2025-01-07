@@ -163,6 +163,8 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
         Dictionary<Guid, Guid> nodeMapping = new();
 
+        using var block = doc.Operations.StartChangeBlock();
+
         foreach (var nodeId in toDuplicate)
         {
             Guid? newId = doc.Operations.DuplicateNode(nodeId);
@@ -175,10 +177,13 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
         if (newIds.Count == 0)
             return;
+
+        await block.ExecuteQueuedActions();
         
+        ConnectRelatedNodes(doc, nodeMapping);
+
         doc.Operations.InvokeCustomAction(() =>
         {
-            ConnectRelatedNodes(doc, nodeMapping);
             foreach (var node in doc.NodeGraph.AllNodes)
             {
                 node.IsNodeSelected = false;

@@ -44,9 +44,4 @@ internal class DuplicateNode_Change : Change
 
         return new DeleteNode_ChangeInfo(node.Id);
     }
-
-    public override bool IsMergeableWith(Change other)
-    {
-        return other is DuplicateNode_Change;
-    }
 }
