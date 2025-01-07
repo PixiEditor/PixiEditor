@@ -45,7 +45,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
         members = document.SoftSelectedStructureMembers
             .Append(document.SelectedStructureMember)
-            .Where(static m => m is ILayerHandler).ToList();
+            .Where(static m => m is ILayerHandler)
+            .Distinct().ToList();
 
         if (!members.Any())
             return ExecutionState.Error;

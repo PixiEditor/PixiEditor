@@ -100,7 +100,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
     {
         if (IsActive)
         {
-            OnSelected(false);
+           OnToolSelected(false);
         }
     }
 
@@ -108,7 +108,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
     {
         if (IsActive)
         {
-            OnSelected(false);
+            OnToolSelected(false);
         }
     }
 
@@ -124,7 +124,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
 
     private void UpdateSelection()
     {
-        OnDeselecting(false);
+        OnToolDeselected(false);
         OnToolSelected(false);
     }
 

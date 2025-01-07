@@ -807,18 +807,21 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         softSelectedStructureMembers.Add(member);
         Internals.ChangeController.MembersSelectedInlet(GetSelectedMembers());
+        OnPropertyChanged(nameof(SoftSelectedStructureMembers));
     }
 
     public void RemoveSoftSelectedMember(IStructureMemberHandler member)
     {
         softSelectedStructureMembers.Remove(member);
         Internals.ChangeController.MembersSelectedInlet(GetSelectedMembers());
+        OnPropertyChanged(nameof(SoftSelectedStructureMembers));
     }
 
     public void ClearSoftSelectedMembers()
     {
         softSelectedStructureMembers.Clear();
         Internals.ChangeController.MembersSelectedInlet(GetSelectedMembers());
+        OnPropertyChanged(nameof(SoftSelectedStructureMembers));
     }
 
     #endregion
