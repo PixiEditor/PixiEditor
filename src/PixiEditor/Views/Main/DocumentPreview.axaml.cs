@@ -1,11 +1,9 @@
-﻿using System.Threading.Tasks;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using PixiEditor.Helpers;
-using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
@@ -15,19 +13,19 @@ using Point = Avalonia.Point;
 
 namespace PixiEditor.Views.Main;
 
-internal partial class Navigation : UserControl
+internal partial class DocumentPreview : UserControl
 {
     public static readonly StyledProperty<DocumentViewModel> DocumentProperty =
-        AvaloniaProperty.Register<Navigation, DocumentViewModel>(nameof(Document));
+        AvaloniaProperty.Register<DocumentPreview, DocumentViewModel>(nameof(Document));
 
     public static readonly StyledProperty<Thickness> ColorCursorPositionProperty =
-        AvaloniaProperty.Register<Navigation, Thickness>(nameof(ColorCursorPosition));
+        AvaloniaProperty.Register<DocumentPreview, Thickness>(nameof(ColorCursorPosition));
 
     public static readonly StyledProperty<Color> ColorCursorColorProperty =
-        AvaloniaProperty.Register<Navigation, Color>(nameof(ColorCursorColor));
+        AvaloniaProperty.Register<DocumentPreview, Color>(nameof(ColorCursorColor));
 
     public static readonly StyledProperty<Color> PrimaryColorProperty =
-        AvaloniaProperty.Register<Navigation, Color>(nameof(PrimaryColor));
+        AvaloniaProperty.Register<DocumentPreview, Color>(nameof(PrimaryColor));
 
     public DocumentViewModel Document
     {
@@ -55,7 +53,7 @@ internal partial class Navigation : UserControl
     
     private MouseUpdateController mouseUpdateController;
 
-    public Navigation()
+    public DocumentPreview()
     {
         InitializeComponent();
         
@@ -81,7 +79,7 @@ internal partial class Navigation : UserControl
     {
         if (ViewModelMain.Current != null)
         {
-            ViewModelMain.Current.ActionDisplays[nameof(Navigation)] = null;
+            ViewModelMain.Current.ActionDisplays[nameof(DocumentPreview)] = null;
         }
     }
 
@@ -89,7 +87,7 @@ internal partial class Navigation : UserControl
     {
         if (ViewModelMain.Current != null)
         {
-            ViewModelMain.Current.ActionDisplays[nameof(Navigation)] = "NAVIGATOR_PICK_ACTION_DISPLAY";
+            ViewModelMain.Current.ActionDisplays[nameof(DocumentPreview)] = "NAVIGATOR_PICK_ACTION_DISPLAY";
         }
     }
 

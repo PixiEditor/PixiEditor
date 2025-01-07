@@ -6,11 +6,11 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:dock="clr-namespace:PixiEditor.ViewModels.Dock"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="dock:NavigationDockViewModel"
-             x:Class="PixiEditor.Views.Dock.NavigationDockView">
+             x:DataType="dock:DocumentPreviewDockViewModel"
+             x:Class="PixiEditor.Views.Dock.DocumentPreviewDockView">
     <Design.DataContext>
-        <dock:NavigationDockViewModel/>
+        <dock:DocumentPreviewDockViewModel/>
     </Design.DataContext>
-    <main:Navigation Document="{Binding DocumentManagerSubViewModel.ActiveDocument}"
+    <main:DocumentPreview Document="{Binding DocumentManagerSubViewModel.ActiveDocument}"
                      PrimaryColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"/>
 </UserControl>

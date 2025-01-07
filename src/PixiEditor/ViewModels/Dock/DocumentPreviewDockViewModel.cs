@@ -7,12 +7,12 @@ using PixiEditor.ViewModels.SubViewModels;
 
 namespace PixiEditor.ViewModels.Dock;
 
-internal class NavigationDockViewModel : DockableViewModel
+internal class DocumentPreviewDockViewModel : DockableViewModel
 {
-    public const string TabId = "Navigator";
+    public const string TabId = "DocumentPreview";
 
     public override string Id => TabId;
-    public override string Title => new LocalizedString("NAVIGATION_TITLE");
+    public override string Title => new LocalizedString("PREVIEW_TITLE");
     public override bool CanFloat => true;
     public override bool CanClose => true;
 
@@ -32,7 +32,7 @@ internal class NavigationDockViewModel : DockableViewModel
         set => SetProperty(ref documentManagerSubViewModel, value);
     }
 
-    public NavigationDockViewModel(ColorsViewModel colorsSubViewModel, DocumentManagerViewModel documentManagerViewModel)
+    public DocumentPreviewDockViewModel(ColorsViewModel colorsSubViewModel, DocumentManagerViewModel documentManagerViewModel)
     {
         ColorsSubViewModel = colorsSubViewModel;
         DocumentManagerSubViewModel = documentManagerViewModel;

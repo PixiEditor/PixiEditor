@@ -2,9 +2,9 @@
 
 namespace PixiEditor.Views.Dock;
 
-public partial class NavigationDockView : UserControl
+public partial class DocumentPreviewDockView : UserControl
 {
-    public NavigationDockView()
+    public DocumentPreviewDockView()
     {
         InitializeComponent();
     }

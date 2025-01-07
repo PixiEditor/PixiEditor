@@ -52,7 +52,9 @@ internal class MemberPreviewUpdater
         Guid[] nodesGuids = nodesToUpdate as Guid[] ?? nodesToUpdate.ToArray();
         Guid[] keyFramesGuids = keyFramesToUpdate as Guid[] ?? keyFramesToUpdate.ToArray();
 
-        if (undoBoundaryPassed)
+        //TODO: It probably is a good idea to add this check for insignificant previews, like document tab icon
+        // But navigation uses the same preview painter so it must be separated before this check is added
+        //if (undoBoundaryPassed)
         {
             RenderWholeCanvasPreview();
         }
@@ -70,7 +72,7 @@ internal class MemberPreviewUpdater
     private void RenderWholeCanvasPreview()
     {
         var previewSize = StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size);
-        float scaling = (float)previewSize.X / doc.SizeBindable.X;
+        //float scaling = (float)previewSize.X / doc.SizeBindable.X;
 
         if (doc.PreviewPainter == null)
         {
@@ -78,6 +80,9 @@ internal class MemberPreviewUpdater
                 doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
         }
 
+        doc.PreviewPainter.DocumentSize = doc.SizeBindable;
+        doc.PreviewPainter.ProcessingColorSpace = internals.Tracker.Document.ProcessingColorSpace;
+        doc.PreviewPainter.FrameTime = doc.AnimationHandler.ActiveFrameTime;
         doc.PreviewPainter.Repaint();
     }
 
