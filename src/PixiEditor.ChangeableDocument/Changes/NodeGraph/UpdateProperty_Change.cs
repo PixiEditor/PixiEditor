@@ -32,7 +32,7 @@ internal class UpdatePropertyValue_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
         out bool ignoreInUndo)
     {
-        var node = target.NodeGraph.Nodes.First(x => x.Id == _nodeId);
+        var node = target.RenderNodeGraph.Nodes.First(x => x.Id == _nodeId);
         var property = node.GetInputProperty(_propertyName);
 
         previousValue = GetValue(property);
@@ -57,7 +57,7 @@ internal class UpdatePropertyValue_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var node = target.NodeGraph.Nodes.First(x => x.Id == _nodeId);
+        var node = target.RenderNodeGraph.Nodes.First(x => x.Id == _nodeId);
         var property = node.GetInputProperty(_propertyName);
         SetValue(property, previousValue);
 

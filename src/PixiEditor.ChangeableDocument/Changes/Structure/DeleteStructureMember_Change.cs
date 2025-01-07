@@ -47,7 +47,7 @@ internal class DeleteStructureMember_Change : Change
         var bgConnection = node.Background.Connection;
         var outputConnections = node.Output.Connections.ToArray();
 
-        document.NodeGraph.RemoveNode(node);
+        document.RenderNodeGraph.RemoveNode(node);
 
         List<IChangeInfo> changes = new();
 
@@ -81,7 +81,7 @@ internal class DeleteStructureMember_Change : Change
         var copy = (StructureNode)savedCopy!.Clone();
         copy.Id = memberGuid;
 
-        doc.NodeGraph.AddNode(copy);
+        doc.RenderNodeGraph.AddNode(copy);
 
         List<IChangeInfo> changes = new();
 
@@ -94,7 +94,7 @@ internal class DeleteStructureMember_Change : Change
 
         changes.Add(createChange);
 
-        changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, copy, doc.NodeGraph));
+        changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, copy, doc.RenderNodeGraph));
         
         DeleteNode_Change.RevertKeyFrames(doc, savedKeyFrameGroup, changes);
 

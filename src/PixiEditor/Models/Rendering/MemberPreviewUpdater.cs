@@ -52,17 +52,16 @@ internal class MemberPreviewUpdater
         Guid[] nodesGuids = nodesToUpdate as Guid[] ?? nodesToUpdate.ToArray();
         Guid[] keyFramesGuids = keyFramesToUpdate as Guid[] ?? keyFramesToUpdate.ToArray();
 
-        //TODO: It probably is a good idea to add this check for insignificant previews, like document tab icon
-        // But navigation uses the same preview painter so it must be separated before this check is added
-        //if (undoBoundaryPassed)
+        if (!undoBoundaryPassed)
         {
-            RenderWholeCanvasPreview();
+            return;
         }
-        
+
+        //RenderWholeCanvasPreview();
         RenderLayersPreview(memberGuids);
-        RenderMaskPreviews(maskGuids);
-        
-        RenderAnimationPreviews(memberGuids, keyFramesGuids);
+        //RenderMaskPreviews(maskGuids);
+
+        //RenderAnimationPreviews(memberGuids, keyFramesGuids);
 
         RenderNodePreviews(nodesGuids);
     }
@@ -75,7 +74,7 @@ internal class MemberPreviewUpdater
         var previewSize = StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size);
         //float scaling = (float)previewSize.X / doc.SizeBindable.X;
 
-        if (doc.PreviewPainter == null)
+        /*if (doc.PreviewPainter == null)
         {
             doc.PreviewPainter = new PreviewPainter(doc.Renderer, doc.Renderer, doc.AnimationHandler.ActiveFrameTime,
                 doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
@@ -84,7 +83,7 @@ internal class MemberPreviewUpdater
         doc.PreviewPainter.DocumentSize = doc.SizeBindable;
         doc.PreviewPainter.ProcessingColorSpace = internals.Tracker.Document.ProcessingColorSpace;
         doc.PreviewPainter.FrameTime = doc.AnimationHandler.ActiveFrameTime;
-        doc.PreviewPainter.Repaint();
+        doc.PreviewPainter.Repaint();*/
     }
 
     private void RenderLayersPreview(Guid[] memberGuids)
@@ -156,7 +155,7 @@ internal class MemberPreviewUpdater
     {
         if (internals.Tracker.Document.AnimationData.TryFindKeyFrame(cel.Id, out KeyFrame _))
         {
-            KeyFrameTime frameTime = doc.AnimationHandler.ActiveFrameTime;
+            /*KeyFrameTime frameTime = doc.AnimationHandler.ActiveFrameTime;
             if (cel.PreviewPainter == null)
             {
                 cel.PreviewPainter = new PreviewPainter(doc.Renderer, AnimationKeyFramePreviewRenderer, frameTime,
@@ -170,14 +169,14 @@ internal class MemberPreviewUpdater
                 cel.PreviewPainter.ProcessingColorSpace = internals.Tracker.Document.ProcessingColorSpace;
             }
 
-            cel.PreviewPainter.Repaint();
+            cel.PreviewPainter.Repaint();*/
         }
     }
 
     private void RenderGroupPreview(ICelGroupHandler groupHandler)
     {
         var group = internals.Tracker.Document.AnimationData.KeyFrames.FirstOrDefault(x => x.Id == groupHandler.Id);
-        if (group != null)
+        /*if (group != null)
         {
             KeyFrameTime frameTime = doc.AnimationHandler.ActiveFrameTime;
             ColorSpace processingColorSpace = internals.Tracker.Document.ProcessingColorSpace;
@@ -198,7 +197,7 @@ internal class MemberPreviewUpdater
             }
 
             groupHandler.PreviewPainter.Repaint();
-        }
+        }*/
     }
 
     private void RenderMaskPreviews(Guid[] members)
@@ -247,10 +246,10 @@ internal class MemberPreviewUpdater
         var executionQueue =
             internals.Tracker.Document.NodeGraph
                 .AllNodes; //internals.Tracker.Document.NodeGraph.CalculateExecutionQueue(outputNode);
-        
-        if(nodesGuids.Length == 0)
+
+        if (nodesGuids.Length == 0)
             return;
-        
+
         foreach (var node in executionQueue)
         {
             if (node is null)

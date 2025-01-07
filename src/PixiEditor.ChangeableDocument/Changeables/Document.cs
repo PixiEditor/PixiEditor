@@ -16,7 +16,7 @@ namespace PixiEditor.ChangeableDocument.Changeables;
 internal class Document : IChangeable, IReadOnlyDocument
 {
     public Guid DocumentId { get; } = Guid.NewGuid();
-    IReadOnlyNodeGraph IReadOnlyDocument.NodeGraph => NodeGraph;
+    IReadOnlyNodeGraph IReadOnlyDocument.NodeGraph => RenderNodeGraph;
     IReadOnlySelection IReadOnlyDocument.Selection => Selection;
     IReadOnlyAnimationData IReadOnlyDocument.AnimationData => AnimationData;
     IReadOnlyStructureNode? IReadOnlyDocument.FindMember(Guid guid) => FindMember(guid);
@@ -39,7 +39,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     /// </summary>
     public static VecI DefaultSize { get; } = new VecI(64, 64);
 
-    internal NodeGraph NodeGraph { get; } = new();
+    internal RenderNodeGraph RenderNodeGraph { get; } = new();
     internal Selection Selection { get; } = new();
     internal ReferenceLayer? ReferenceLayer { get; set; }
     internal AnimationData AnimationData { get; }
@@ -57,7 +57,7 @@ internal class Document : IChangeable, IReadOnlyDocument
 
     public void Dispose()
     {
-        NodeGraph.Dispose();
+        RenderNodeGraph.Dispose();
         Selection.Dispose();
     }
 
@@ -132,12 +132,12 @@ internal class Document : IChangeable, IReadOnlyDocument
     }
 
     public void ForEveryReadonlyMember(Action<IReadOnlyStructureNode> action) =>
-        ForEveryReadonlyMember(NodeGraph, action);
+        ForEveryReadonlyMember(RenderNodeGraph, action);
 
     /// <summary>
     /// Performs the specified action on each member of the document
     /// </summary>
-    public void ForEveryMember(Action<StructureNode> action) => ForEveryMember(NodeGraph, action);
+    public void ForEveryMember(Action<StructureNode> action) => ForEveryMember(RenderNodeGraph, action);
 
     public void InitProcessingColorSpace(ColorSpace processingColorSpace)
     {
@@ -157,7 +157,7 @@ internal class Document : IChangeable, IReadOnlyDocument
         });
     }
 
-    private void ForEveryMember(NodeGraph graph, Action<StructureNode> action)
+    private void ForEveryMember(RenderNodeGraph graph, Action<StructureNode> action)
     {
         graph.TryTraverse((node) =>
         {
@@ -177,7 +177,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     /// <returns>True if the node exists, otherwise false.</returns>
     public bool HasNode(Guid id)
     {
-        return NodeGraph.Nodes.Any(x => x.Id == id);
+        return RenderNodeGraph.Nodes.Any(x => x.Id == id);
     }
 
     /// <summary>
@@ -188,7 +188,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     /// <returns>True if the node exists and is of type <typeparamref name="T"/>, otherwise false.</returns>
     public bool HasNode<T>(Guid id) where T : Node
     {
-        return NodeGraph.Nodes.Any(x => x.Id == id && x is T);
+        return RenderNodeGraph.Nodes.Any(x => x.Id == id && x is T);
     }
 
     /// <summary>
@@ -251,14 +251,14 @@ internal class Document : IChangeable, IReadOnlyDocument
     /// <returns>The node with the given <paramref name="guid"/> or null if it doesn't exist.</returns>
     public Node? FindNode(Guid guid)
     {
-        return NodeGraph.Nodes.FirstOrDefault(x => x.Id == guid);
+        return RenderNodeGraph.Nodes.FirstOrDefault(x => x.Id == guid);
     }
 
     IReadOnlyNode IReadOnlyDocument.FindNode(Guid guid) => FindNodeOrThrow<Node>(guid);
 
     public T? FindNode<T>(Guid guid) where T : Node
     {
-        return NodeGraph.Nodes.FirstOrDefault(x => x.Id == guid && x is T) as T;
+        return RenderNodeGraph.Nodes.FirstOrDefault(x => x.Id == guid && x is T) as T;
     }
 
     /// <summary>
@@ -270,7 +270,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     /// <returns>True if the node could be found, otherwise false.</returns>
     public bool TryFindNode<T>(Guid id, out T node) where T : Node
     {
-        node = (T?)NodeGraph.Nodes.FirstOrDefault(x => x.Id == id && x is T) ?? default;
+        node = (T?)RenderNodeGraph.Nodes.FirstOrDefault(x => x.Id == id && x is T) ?? default;
         return node != null;
     }
 
@@ -344,7 +344,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     /// <returns>The path to the node.</returns>
     public List<Node> FindNodePath(Guid guid)
     {
-        if (NodeGraph.OutputNode == null) return [];
+        if (RenderNodeGraph.OutputNode == null) return [];
 
         var list = new List<Node>();
 
@@ -364,7 +364,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     /// <param name="guid">The <see cref="StructureNode.Id"/> of the member</param>
     public List<StructureNode> FindMemberPath(Guid guid)
     {
-        if (NodeGraph.OutputNode == null) return [];
+        if (RenderNodeGraph.OutputNode == null) return [];
 
         var list = new List<StructureNode>();
         var targetNode = FindNode(guid);

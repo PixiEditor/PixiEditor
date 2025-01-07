@@ -10,7 +10,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("CreateImage")]
-public class CreateImageNode : Node, IPreviewRenderable
+public class CreateImageNode : Node/*, IPreviewRenderable*/
 {
     public OutputProperty<Texture> Output { get; }
 

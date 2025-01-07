@@ -201,7 +201,7 @@ public static class NodeOperations
         return changes;
     }
 
-    public static List<IChangeInfo> DetachNode(Changeables.Graph.NodeGraph target, Node? node)
+    public static List<IChangeInfo> DetachNode(Changeables.Graph.RenderNodeGraph target, Node? node)
     {
         List<IChangeInfo> changes = new();
         if (node == null)

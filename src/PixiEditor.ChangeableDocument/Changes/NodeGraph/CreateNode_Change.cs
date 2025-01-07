@@ -26,7 +26,7 @@ internal class CreateNode_Change : Change
     public override bool InitializeAndValidate(Document target)
     {
         bool canCreate = nodeType.IsSubclassOf(typeof(Node)) && nodeType is { IsAbstract: false, IsInterface: false };
-        return canCreate && (!nodeType.IsAssignableTo(typeof(OutputNode)) || target.NodeGraph.OutputNode is null);
+        return canCreate && (!nodeType.IsAssignableTo(typeof(OutputNode)) || target.RenderNodeGraph.OutputNode is null);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
@@ -40,7 +40,7 @@ internal class CreateNode_Change : Change
         node.Position = new VecD(0, 0);
         node.Id = id;
 
-        target.NodeGraph.AddNode(node);
+        target.RenderNodeGraph.AddNode(node);
         ignoreInUndo = false;
 
         return CreateNode_ChangeInfo.CreateFromNode(node);
@@ -49,7 +49,7 @@ internal class CreateNode_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         Node node = target.FindNodeOrThrow<Node>(id);
-        target.NodeGraph.RemoveNode(node);
+        target.RenderNodeGraph.RemoveNode(node);
 
         return new DeleteNode_ChangeInfo(id);
     }

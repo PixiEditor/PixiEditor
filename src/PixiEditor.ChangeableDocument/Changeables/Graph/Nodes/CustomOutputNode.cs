@@ -8,7 +8,7 @@ using Drawie.Numerics;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("CustomOutput")]
-public class CustomOutputNode : Node, IRenderInput, IPreviewRenderable
+public class CustomOutputNode : Node, IRenderInput/*, IPreviewRenderable*/
 {
     public const string OutputNamePropertyName = "OutputName";
     public RenderInputProperty Input { get; } 

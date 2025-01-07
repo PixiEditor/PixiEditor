@@ -53,8 +53,8 @@ internal class CreateNodePair_Change : Change
 
         end.Position = new VecD(100, 0);
 
-        target.NodeGraph.AddNode(start);
-        target.NodeGraph.AddNode(end);
+        target.RenderNodeGraph.AddNode(start);
+        target.RenderNodeGraph.AddNode(end);
 
         ignoreInUndo = false;
 
@@ -76,7 +76,7 @@ internal class CreateNodePair_Change : Change
     private static DeleteNode_ChangeInfo RemoveNode(Document target, Guid id)
     {
         Node node = target.FindNodeOrThrow<Node>(id);
-        target.NodeGraph.RemoveNode(node);
+        target.RenderNodeGraph.RemoveNode(node);
 
         return new DeleteNode_ChangeInfo(id);
     }

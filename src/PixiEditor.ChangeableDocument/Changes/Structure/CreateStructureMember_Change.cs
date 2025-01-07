@@ -48,12 +48,12 @@ internal class CreateStructureMember_Change : Change
         
         if (member is FolderNode folder)
         {
-            document.NodeGraph.AddNode(member);
+            document.RenderNodeGraph.AddNode(member);
             AppendFolder(targetInput, folder, changes);
         }
         else
         {
-            document.NodeGraph.AddNode(member);
+            document.RenderNodeGraph.AddNode(member);
             List<ConnectProperty_ChangeInfo> connectPropertyChangeInfo =
                 NodeOperations.AppendMember(targetInput, member.Output, member.Background, member.Id);
             changes.AddRange(connectPropertyChangeInfo);
@@ -86,7 +86,7 @@ internal class CreateStructureMember_Change : Change
         var childBackgroundConnection = child.Background.Connection;
         child.Dispose();
 
-        document.NodeGraph.RemoveNode(child);
+        document.RenderNodeGraph.RemoveNode(child);
 
         List<IChangeInfo> changes = new() { new DeleteStructureMember_ChangeInfo(newMemberGuid), };
 

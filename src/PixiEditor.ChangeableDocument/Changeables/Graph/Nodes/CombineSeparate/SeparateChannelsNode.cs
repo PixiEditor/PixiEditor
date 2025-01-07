@@ -10,7 +10,7 @@ using Drawie.Numerics;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
 [NodeInfo("SeparateChannels")]
-public class SeparateChannelsNode : Node, IRenderInput, IPreviewRenderable
+public class SeparateChannelsNode : Node, IRenderInput/*, IPreviewRenderable*/
 {
     private readonly Paint _paint = new();
     

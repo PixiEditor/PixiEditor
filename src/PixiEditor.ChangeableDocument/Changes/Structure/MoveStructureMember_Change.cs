@@ -86,7 +86,7 @@ internal class MoveStructureMember_Change : Change
         MoveStructureMember_ChangeInfo changeInfo = new(memberGuid, targetNodeGuid, originalFolderGuid);
         
         changes.AddRange(NodeOperations.DetachStructureNode(member));
-        changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, member, target.NodeGraph));
+        changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, member, target.RenderNodeGraph));
         
         changes.Add(changeInfo);
         

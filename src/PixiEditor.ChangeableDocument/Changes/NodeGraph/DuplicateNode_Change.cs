@@ -28,7 +28,7 @@ internal class DuplicateNode_Change : Change
         Node clone = existingNode.Clone();
         clone.Id = createdNodeGuid;
 
-        target.NodeGraph.AddNode(clone);
+        target.RenderNodeGraph.AddNode(clone);
 
         ignoreInUndo = false;
 
@@ -38,7 +38,7 @@ internal class DuplicateNode_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var node = target.FindNode(createdNodeGuid);
-        target.NodeGraph.RemoveNode(node);
+        target.RenderNodeGraph.RemoveNode(node);
         
         node.Dispose();
 

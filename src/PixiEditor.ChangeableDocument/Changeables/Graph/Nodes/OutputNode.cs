@@ -3,18 +3,19 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("Output")]
-public class OutputNode : Node, IRenderInput, IPreviewRenderable
+public class OutputNode : Node, IRenderInput/*, IPreviewRenderable*/
 {
     public const string UniqueName = "PixiEditor.Output";
     public const string InputPropertyName = "Background";
 
     public RenderInputProperty Input { get; }
-
+   
     private VecI? lastDocumentSize;
 
     public OutputNode()
@@ -42,6 +43,7 @@ public class OutputNode : Node, IRenderInput, IPreviewRenderable
     }
 
     RenderInputProperty IRenderInput.Background => Input;
+
 
     public RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
     {

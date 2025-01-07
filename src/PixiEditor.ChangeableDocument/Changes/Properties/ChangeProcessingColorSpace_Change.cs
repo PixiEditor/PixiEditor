@@ -44,7 +44,7 @@ internal class ChangeProcessingColorSpace_Change : Change
 
     private void ConvertImageNodes(Document target, ColorSpace newColorSpace)
     {
-        foreach (var node in target.NodeGraph.Nodes)
+        foreach (var node in target.RenderNodeGraph.Nodes)
         {
             if (node is ImageLayerNode imageLayerNode)
             {

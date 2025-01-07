@@ -47,7 +47,7 @@ internal class RasterizeMember_Change : Change
         ImageLayerNode imageLayer = new ImageLayerNode(target.Size, target.ProcessingColorSpace);
         imageLayer.MemberName = node.DisplayName;
 
-        target.NodeGraph.AddNode(imageLayer);
+        target.RenderNodeGraph.AddNode(imageLayer);
         
         using Surface surface = new Surface(target.Size);
         rasterizable.Rasterize(surface.DrawingSurface, null);
@@ -85,10 +85,10 @@ internal class RasterizeMember_Change : Change
             changeInfos.Add(new ConnectProperty_ChangeInfo(conn.connection.Node.Id, imageLayer.Id, conn.connection.InternalPropertyName, conn.inputPropName));
         }
         
-        changeInfos.AddRange(NodeOperations.DetachNode(target.NodeGraph, node));
+        changeInfos.AddRange(NodeOperations.DetachNode(target.RenderNodeGraph, node));
         
         node.Dispose();
-        target.NodeGraph.RemoveNode(node);
+        target.RenderNodeGraph.RemoveNode(node);
         
         changeInfos.Add(new DeleteNode_ChangeInfo(node.Id));
         
@@ -103,21 +103,21 @@ internal class RasterizeMember_Change : Change
         Node node = target.FindMember(createdNodeId);
         
         List<IChangeInfo> changeInfos = new();
-        changeInfos.AddRange(NodeOperations.DetachNode(target.NodeGraph, node));
+        changeInfos.AddRange(NodeOperations.DetachNode(target.RenderNodeGraph, node));
         
         node.Dispose();
-        target.NodeGraph.RemoveNode(node);
+        target.RenderNodeGraph.RemoveNode(node);
         
         changeInfos.Add(new DeleteNode_ChangeInfo(node.Id));
         
         var restoredNode = originalNode.Clone();
         restoredNode.Id = memberId;
         
-        target.NodeGraph.AddNode(restoredNode);
+        target.RenderNodeGraph.AddNode(restoredNode);
         
         changeInfos.Add(CreateNode_ChangeInfo.CreateFromNode(restoredNode));
         
-        changeInfos.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, restoredNode, target.NodeGraph));
+        changeInfos.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, restoredNode, target.RenderNodeGraph));
         
         return changeInfos;   
     }

@@ -275,7 +275,7 @@ internal class CombineStructureMembersOnto_Change : Change
     private HashSet<Guid> OrderLayers(HashSet<Guid> layersToCombine, Document document)
     {
         HashSet<Guid> ordered = new();
-        document.NodeGraph.TryTraverse(node =>
+        document.RenderNodeGraph.TryTraverse(node =>
         {
             if (node is LayerNode layer && layersToCombine.Contains(layer.Id))
             {

@@ -19,7 +19,8 @@ public class RenderContext
     public bool FullRerender { get; set; } = false;
     
     public ColorSpace ProcessingColorSpace { get; set; }
-    public string? TargetOutput { get; set; }   
+    public string? TargetOutput { get; set; }
+    public Dictionary<Guid, List<PreviewRequest>>? PendingPreviewRequests { get; set; }
 
 
     public RenderContext(DrawingSurface renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution,

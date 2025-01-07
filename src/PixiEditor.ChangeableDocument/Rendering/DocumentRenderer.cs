@@ -12,14 +12,12 @@ using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
 
-public class DocumentRenderer : IPreviewRenderable
+public class DocumentRenderer/* : IPreviewRenderable*/
 {
-    private Paint ClearPaint { get; } = new Paint()
-    {
-        BlendMode = BlendMode.Src, Color = Drawie.Backend.Core.ColorsImpl.Colors.Transparent
-    };
-
+    Dictionary<Guid, List<PreviewRequest>> queuedPreviewSizes = new();
     private Texture renderTexture;
+    
+    public Dictionary<Guid, List<PreviewRequest>> QueuedPreviewSizes => queuedPreviewSizes;
     
     public DocumentRenderer(IReadOnlyDocument document)
     {
@@ -84,6 +82,21 @@ public class DocumentRenderer : IPreviewRenderable
         node.RenderForOutput(context, renderOn, null);
         IsBusy = false;
     }
+
+    public int QueueRenderPreview(VecI sizeToRequest, Guid nodeId, string elementName, KeyFrameTime frame,
+        Action onRendered)
+    {
+        if (!queuedPreviewSizes.ContainsKey(nodeId))
+        {
+            queuedPreviewSizes[nodeId] = new List<PreviewRequest>();
+        }
+        
+        PreviewRequest request = new(queuedPreviewSizes.Count, sizeToRequest, frame, nodeId, elementName, onRendered);
+        
+        TryMergeRequests(request);
+        
+        return request.Id;
+    }
     
     public void RenderNodePreview(IPreviewRenderable previewRenderable, DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
@@ -94,9 +107,11 @@ public class DocumentRenderer : IPreviewRenderable
         
         IsBusy = true;
         
-        if(previewRenderable is Node { IsDisposed: true }) return;
+        /*if(previewRenderable is Node { IsDisposed: true }) return;
         
-        previewRenderable.RenderPreview(renderOn, context, elementToRenderName);
+        previewRenderable.RenderPreview(renderOn, context, elementToRenderName);*/
+        
+        
         
         IsBusy = false;
     }
@@ -110,7 +125,7 @@ public class DocumentRenderer : IPreviewRenderable
         HashSet<Guid>? membersToCombine,
         IReadOnlyNodeGraph fullGraph)
     {
-        NodeGraph membersOnlyGraph = new();
+        RenderNodeGraph membersOnlyGraph = new();
 
         OutputNode outputNode = new();
 
@@ -157,28 +172,6 @@ public class DocumentRenderer : IPreviewRenderable
     public RectD? GetPreviewBounds(int frame, string elementNameToRender = "") =>
         new(0, 0, Document.Size.X, Document.Size.Y);
 
-    public bool RenderPreview(DrawingSurface renderOn, RenderContext context,
-        string elementToRenderName)
-    {
-        IsBusy = true;
-
-        if (renderTexture == null || renderTexture.Size != Document.Size)
-        {
-            renderTexture?.Dispose();
-            renderTexture = Texture.ForProcessing(Document.Size, Document.ProcessingColorSpace);
-        }
-
-        renderTexture.DrawingSurface.Canvas.Clear();
-        context.RenderSurface = renderTexture.DrawingSurface;
-        Document.NodeGraph.Execute(context);
-
-        renderOn.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
-
-        IsBusy = false;
-
-        return true;
-    }
-
     public void RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime)
     {
         IsBusy = true;
@@ -201,7 +194,7 @@ public class DocumentRenderer : IPreviewRenderable
     
     private static IInputProperty GetTargetInput(IInputProperty? input, 
         IReadOnlyNodeGraph sourceGraph,
-        NodeGraph membersOnlyGraph,
+        RenderNodeGraph membersOnlyGraph,
         Dictionary<Guid, Guid> nodeMapping)
     {
         if (input == null)
@@ -236,5 +229,42 @@ public class DocumentRenderer : IPreviewRenderable
         });
         
         return found ?? (membersOnlyGraph.OutputNode as IRenderInput)?.Background;
+    }
+    
+    private void TryMergeRequests(PreviewRequest request)
+    {
+        if (queuedPreviewSizes[request.NodeId].Count == 0)
+        {
+            queuedPreviewSizes[request.NodeId].Add(request);
+            return;
+        }
+
+        for (var i = 0; i < queuedPreviewSizes[request.NodeId].Count; i++)
+        {
+            var queuedRequest = queuedPreviewSizes[request.NodeId][i];
+            bool targetMatches = queuedRequest.ElementName == request.ElementName &&
+                                 queuedRequest.Frame.Frame == request.Frame.Frame;
+
+            VecI targetSize = new(Math.Max(queuedRequest.Size.X, request.Size.X),
+                Math.Max(queuedRequest.Size.Y, request.Size.Y));
+            if (targetMatches)
+            {
+                queuedPreviewSizes[request.NodeId][i] = new PreviewRequest(request.Id, targetSize, request.Frame, request.NodeId,
+                    request.ElementName, () =>
+                    {
+                        queuedRequest.OnRendered?.Invoke();
+                        request.OnRendered?.Invoke();
+                    });
+                return;
+            }
+        }
+    }
+
+    public void NotifyPreviewRendered()
+    {
+        foreach (var request in queuedPreviewSizes.Values.SelectMany(x => x))
+        {
+            request.OnRendered?.Invoke();
+        }
     }
 }

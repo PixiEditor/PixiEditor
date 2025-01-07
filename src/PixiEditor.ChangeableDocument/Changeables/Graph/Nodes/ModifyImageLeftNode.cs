@@ -12,7 +12,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("ModifyImageLeft")]
 [PairNode(typeof(ModifyImageRightNode), "ModifyImageZone", true)]
-public class ModifyImageLeftNode : Node, IPairNode, IPreviewRenderable
+public class ModifyImageLeftNode : Node, IPairNode/*, IPreviewRenderable*/
 {
     public InputProperty<Texture?> Image { get; }
 

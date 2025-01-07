@@ -5,7 +5,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
-public class NodeGraph : IReadOnlyNodeGraph, IDisposable
+public class RenderNodeGraph : IReadOnlyNodeGraph, IDisposable
 {
     private ImmutableList<IReadOnlyNode>? cachedExecutionList;
     

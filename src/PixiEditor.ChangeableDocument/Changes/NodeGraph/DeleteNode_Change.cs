@@ -27,7 +27,7 @@ internal class DeleteNode_Change : Change
     {
         Node node = target.FindNode<Node>(NodeId);
 
-        if (node is null || target.NodeGraph.OutputNode == node)
+        if (node is null || target.RenderNodeGraph.OutputNode == node)
             return false;
 
         originalConnections = NodeOperations.CreateConnectionsData(node);
@@ -57,9 +57,9 @@ internal class DeleteNode_Change : Change
         ignoreInUndo = false;
         var node = target.FindNode<Node>(NodeId);
 
-        List<IChangeInfo> changes = NodeOperations.DetachNode(target.NodeGraph, node);
+        List<IChangeInfo> changes = NodeOperations.DetachNode(target.RenderNodeGraph, node);
 
-        target.NodeGraph.RemoveNode(node);
+        target.RenderNodeGraph.RemoveNode(node);
 
         changes.Add(new DeleteNode_ChangeInfo(NodeId));
 
@@ -84,7 +84,7 @@ internal class DeleteNode_Change : Change
             pairNode.OtherNode = (savedCopy as IPairNode).OtherNode;
         }
 
-        doc.NodeGraph.AddNode(copy);
+        doc.RenderNodeGraph.AddNode(copy);
 
         List<IChangeInfo> changes = new();
 
@@ -93,7 +93,7 @@ internal class DeleteNode_Change : Change
         changes.Add(createChange);
 
         changes.AddRange(NodeOperations.CreateUpdateInputs(copy));
-        changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, copy, doc.NodeGraph));
+        changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, copy, doc.RenderNodeGraph));
         changes.Add(new NodePosition_ChangeInfo(copy.Id, copy.Position));
 
         RevertKeyFrames(doc, savedKeyFrameGroup, changes);

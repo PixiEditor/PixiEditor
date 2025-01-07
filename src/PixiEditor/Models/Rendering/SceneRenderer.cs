@@ -50,12 +50,21 @@ internal class SceneRenderer : IDisposable
         RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
             resolution, Document.Size, Document.ProcessingColorSpace);
         context.TargetOutput = targetOutput;
+
+        if (targetOutput == null)
+        {
+            context.PendingPreviewRequests = DocumentViewModel.Renderer.QueuedPreviewSizes;
+        }
+        
         SolveFinalNodeGraph(context.TargetOutput).Execute(context);
 
         if (renderTexture != null)
         {
             target.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
         }
+        
+        DocumentViewModel.Renderer.NotifyPreviewRendered();
+        DocumentViewModel.Renderer.QueuedPreviewSizes.Clear();
     }
 
     private IReadOnlyNodeGraph SolveFinalNodeGraph(string? targetOutput)
@@ -80,7 +89,7 @@ internal class SceneRenderer : IDisposable
 
     private IReadOnlyNodeGraph GraphFromOutputNode(CustomOutputNode outputNode)
     {
-        NodeGraph graph = new();
+        RenderNodeGraph graph = new();
         outputNode.TraverseBackwards(n =>
         {
             if (n is Node node)

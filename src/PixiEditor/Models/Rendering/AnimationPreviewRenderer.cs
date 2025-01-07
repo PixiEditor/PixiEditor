@@ -8,7 +8,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.Models.Rendering;
 
-internal class AnimationKeyFramePreviewRenderer(DocumentInternalParts internals) : IPreviewRenderable
+internal class AnimationKeyFramePreviewRenderer(DocumentInternalParts internals)/* : IPreviewRenderable*/
 {
     public RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
     {

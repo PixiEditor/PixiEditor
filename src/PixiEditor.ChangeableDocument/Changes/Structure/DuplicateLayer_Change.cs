@@ -45,7 +45,7 @@ internal class DuplicateLayer_Change : Change
 
         List<IChangeInfo> operations = new();
 
-        target.NodeGraph.AddNode(clone);
+        target.RenderNodeGraph.AddNode(clone);
 
         operations.Add(CreateLayer_ChangeInfo.FromLayer(clone));
         
@@ -60,7 +60,7 @@ internal class DuplicateLayer_Change : Change
     {
         var (member, parent) = target.FindChildAndParentOrThrow(duplicateGuid);
 
-        target.NodeGraph.RemoveNode(member);
+        target.RenderNodeGraph.RemoveNode(member);
         member.Dispose();
 
         List<IChangeInfo> changes = new();
@@ -71,7 +71,7 @@ internal class DuplicateLayer_Change : Change
         if (connectionsData is not null)
         {
             Node originalNode = target.FindNodeOrThrow<Node>(layerGuid);
-            changes.AddRange(NodeOperations.ConnectStructureNodeProperties(connectionsData, originalNode, target.NodeGraph));
+            changes.AddRange(NodeOperations.ConnectStructureNodeProperties(connectionsData, originalNode, target.RenderNodeGraph));
         }
         
         return changes;
