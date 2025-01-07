@@ -210,8 +210,8 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     }
 
     [Commands_Command.Internal("PixiEditor.Window.ShowDockWindow")]
-    [Commands_Command.Basic("PixiEditor.Window.OpenNavigationWindow", "Navigator", "OPEN_NAVIGATION_WINDOW",
-        "OPEN_NAVIGATION_WINDOW")]
+    [Commands_Command.Basic("PixiEditor.Window.OpenPreviewWindow", "DocumentPreview", "OPEN_PREVIEW_WINDOW",
+        "OPEN_PREVIEW_WINDOW")]
     public void ShowDockWindow(string id)
     {
         Owner.LayoutSubViewModel.LayoutManager.ShowDockable(id);

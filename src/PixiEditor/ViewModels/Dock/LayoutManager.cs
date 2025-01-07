@@ -33,7 +33,7 @@ internal class LayoutManager
         LayersDockViewModel layersDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
         ColorPickerDockViewModel colorPickerDockViewModel = new(mainViewModel.ColorsSubViewModel);
         ColorSlidersDockViewModel colorSldersDockViewModel = new(mainViewModel.ColorsSubViewModel);
-        NavigationDockViewModel navigationDockViewModel =
+        DocumentPreviewDockViewModel documentPreviewDockViewModel =
             new(mainViewModel.ColorsSubViewModel, mainViewModel.DocumentManagerSubViewModel);
         SwatchesDockViewModel swatchesDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
         PaletteViewerDockViewModel paletteViewerDockViewModel =
@@ -48,7 +48,7 @@ internal class LayoutManager
         RegisterDockable(layersDockViewModel);
         RegisterDockable(colorPickerDockViewModel);
         RegisterDockable(colorSldersDockViewModel);
-        RegisterDockable(navigationDockViewModel);
+        RegisterDockable(documentPreviewDockViewModel);
         RegisterDockable(swatchesDockViewModel);
         RegisterDockable(paletteViewerDockViewModel);
         RegisterDockable(timelineDockViewModel);
@@ -101,7 +101,7 @@ internal class LayoutManager
                     SplitDirection = DockingDirection.Bottom,
                     Second = new DockableArea
                     {
-                        Id = "NavigatorArea", ActiveDockable = DockContext.CreateDockable(navigationDockViewModel)
+                        Id = "DocumentPreviewArea", ActiveDockable = DockContext.CreateDockable(documentPreviewDockViewModel)
                     }
                 }
             }

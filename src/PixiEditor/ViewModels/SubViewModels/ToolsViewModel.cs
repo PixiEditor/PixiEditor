@@ -504,7 +504,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     private void DocumentOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(DocumentViewModel.SelectedStructureMember))
+        if (e.PropertyName is nameof(DocumentViewModel.SelectedStructureMember) or nameof(DocumentViewModel.SoftSelectedStructureMembers))
         {
             UpdateEnabledState();
         }
@@ -530,7 +530,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                     doc.SelectedStructureMember
                 };
 
-                selectedLayers.AddRange(doc.SoftSelectedStructureMembers);
+                selectedLayers.AddRange(doc.SoftSelectedStructureMembers.Except(selectedLayers));
                 tool.SelectedLayersChanged(selectedLayers.ToArray());
             }
         }

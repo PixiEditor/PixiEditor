@@ -1,11 +1,9 @@
-﻿using System.Threading.Tasks;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using PixiEditor.Helpers;
-using Drawie.Backend.Core.Numerics;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
@@ -15,30 +13,21 @@ using Point = Avalonia.Point;
 
 namespace PixiEditor.Views.Main;
 
-internal partial class Navigation : UserControl
+internal partial class DocumentPreview : UserControl
 {
     public static readonly StyledProperty<DocumentViewModel> DocumentProperty =
-        AvaloniaProperty.Register<Navigation, DocumentViewModel>(nameof(Document));
-
-    public static readonly StyledProperty<Thickness> ColorCursorPositionProperty =
-        AvaloniaProperty.Register<Navigation, Thickness>(nameof(ColorCursorPosition));
+        AvaloniaProperty.Register<DocumentPreview, DocumentViewModel>(nameof(Document));
 
     public static readonly StyledProperty<Color> ColorCursorColorProperty =
-        AvaloniaProperty.Register<Navigation, Color>(nameof(ColorCursorColor));
+        AvaloniaProperty.Register<DocumentPreview, Color>(nameof(ColorCursorColor));
 
     public static readonly StyledProperty<Color> PrimaryColorProperty =
-        AvaloniaProperty.Register<Navigation, Color>(nameof(PrimaryColor));
+        AvaloniaProperty.Register<DocumentPreview, Color>(nameof(PrimaryColor));
 
     public DocumentViewModel Document
     {
         get => GetValue(DocumentProperty);
         set => SetValue(DocumentProperty, value);
-    }
-
-    public Thickness ColorCursorPosition
-    {
-        get => GetValue(ColorCursorPositionProperty);
-        private set => SetValue(ColorCursorPositionProperty, value);
     }
 
     public Color ColorCursorColor
@@ -52,10 +41,19 @@ internal partial class Navigation : UserControl
         get => GetValue(PrimaryColorProperty);
         set => SetValue(PrimaryColorProperty, value);
     }
+
+    public static readonly StyledProperty<VecI> ColorCursorPositionProperty = AvaloniaProperty.Register<DocumentPreview, VecI>(
+        nameof(ColorCursorPosition));
+
+    public VecI ColorCursorPosition
+    {
+        get => GetValue(ColorCursorPositionProperty);
+        set => SetValue(ColorCursorPositionProperty, value);
+    }
     
     private MouseUpdateController mouseUpdateController;
 
-    public Navigation()
+    public DocumentPreview()
     {
         InitializeComponent();
         
@@ -81,7 +79,7 @@ internal partial class Navigation : UserControl
     {
         if (ViewModelMain.Current != null)
         {
-            ViewModelMain.Current.ActionDisplays[nameof(Navigation)] = null;
+            ViewModelMain.Current.ActionDisplays[nameof(DocumentPreview)] = null;
         }
     }
 
@@ -89,7 +87,7 @@ internal partial class Navigation : UserControl
     {
         if (ViewModelMain.Current != null)
         {
-            ViewModelMain.Current.ActionDisplays[nameof(Navigation)] = "NAVIGATOR_PICK_ACTION_DISPLAY";
+            ViewModelMain.Current.ActionDisplays[nameof(DocumentPreview)] = "NAVIGATOR_PICK_ACTION_DISPLAY";
         }
     }
 
@@ -153,15 +151,13 @@ internal partial class Navigation : UserControl
         if (x < 0 || x > Document.Width || y < 0 || y > Document.Height)
             return;
         
-        Thickness newPos = new Thickness(x, y, 0, 0);
-
-        if (ColorCursorPosition == newPos)
+        if (x == ColorCursorPosition.X && y == ColorCursorPosition.Y)
         {
             return;
         }
 
-        ColorCursorPosition = newPos;
-
+        ColorCursorPosition = new VecI(x, y);
+        
         var color = Document.PickColor(new(x, y), DocumentScope.AllLayers, false, true, Document.AnimationDataViewModel.ActiveFrameBindable);
         ColorCursorColor = Color.FromArgb(color.A, color.R, color.G, color.B);
     }

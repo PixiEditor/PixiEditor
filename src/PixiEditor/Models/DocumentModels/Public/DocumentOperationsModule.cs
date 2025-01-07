@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Reactive.Disposables;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Actions;
@@ -32,6 +33,11 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         Document = document;
         Internals = internals;
+    }
+    
+    public ChangeBlock StartChangeBlock()
+    {
+        return new ChangeBlock(Internals.ActionAccumulator);
     }
 
     /// <summary>

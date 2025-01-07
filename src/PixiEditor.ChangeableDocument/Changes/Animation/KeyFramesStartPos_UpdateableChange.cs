@@ -3,7 +3,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 
 namespace PixiEditor.ChangeableDocument.Changes.Animation;
 
-internal class KeyFramesStartPos_UpdateableChange : UpdateableChange
+internal class KeyFramesStartPos_UpdateableChange : InterruptableUpdateableChange
 {
     public Guid[] KeyFramesGuid { get;  }
     public int Delta { get; set; }
