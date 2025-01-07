@@ -191,6 +191,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     private bool shouldClearNextSelection = true;
     private CelViewModel clickedCel;
     private bool dragged;
+    private Guid[] draggedKeyFrames;
     private int dragStartFrame;
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -229,6 +230,8 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         
         Guid[] ids = SelectedKeyFrames.Select(x => x.Id).ToArray();
         
+        draggedKeyFrames = ids;
+        
         ChangeKeyFramesLengthCommand.Execute((ids, delta, false));
         return true;
     }
@@ -237,7 +240,10 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     {
         if (dragged)
         {
-            ChangeKeyFramesLengthCommand.Execute((SelectedKeyFrames.Select(x => x.Id).ToArray(), 0, true));
+            if (draggedKeyFrames.Length > 0)
+            {
+                ChangeKeyFramesLengthCommand.Execute((draggedKeyFrames.ToArray(), 0, true));
+            }
         }
         clickedCel = null;
     }

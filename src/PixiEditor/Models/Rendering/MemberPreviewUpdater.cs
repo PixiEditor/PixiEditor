@@ -58,9 +58,10 @@ internal class MemberPreviewUpdater
         {
             RenderWholeCanvasPreview();
         }
-
+        
         RenderLayersPreview(memberGuids);
         RenderMaskPreviews(maskGuids);
+        
         RenderAnimationPreviews(memberGuids, keyFramesGuids);
 
         RenderNodePreviews(nodesGuids);
