@@ -148,7 +148,7 @@ internal static class ClipboardController
         using Surface documentSurface = new Surface(document.SizeBindable);
 
         document.Renderer.RenderDocument(documentSurface.DrawingSurface,
-            document.AnimationDataViewModel.ActiveFrameTime);
+            document.AnimationDataViewModel.ActiveFrameTime, document.SizeBindable);
 
         Surface surfaceToCopy = new Surface((VecI)copyArea.Size.Ceiling());
         using Paint paint = new Paint();

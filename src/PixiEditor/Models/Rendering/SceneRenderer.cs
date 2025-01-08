@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Surfaces;
@@ -35,12 +36,24 @@ internal class SceneRenderer
     {
         DrawingSurface renderTarget = target;
         Texture? renderTexture = null;
+        bool restoreCanvas = false;
 
         if (!HighResRendering || !HighDpiRenderNodePresent(Document.NodeGraph))
         {
             renderTexture = Texture.ForProcessing(Document.Size, Document.ProcessingColorSpace);
-
             renderTarget = renderTexture.DrawingSurface;
+        }
+        else
+        {
+            renderTexture = Texture.ForProcessing(renderTarget.DeviceClipBounds.Size, Document.ProcessingColorSpace);
+            renderTarget = renderTexture.DrawingSurface;
+            
+            target.Canvas.Save();
+            renderTarget.Canvas.Save();
+            
+            renderTarget.Canvas.SetMatrix(target.Canvas.TotalMatrix);
+            target.Canvas.SetMatrix(Matrix3X3.Identity);
+            restoreCanvas = true;
         }
 
         RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
@@ -52,6 +65,11 @@ internal class SceneRenderer
         {
             target.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
             renderTexture.Dispose();
+
+            if (restoreCanvas)
+            {
+                target.Canvas.Restore();
+            }
         }
     }
 
