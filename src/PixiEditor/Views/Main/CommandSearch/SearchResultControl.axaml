@@ -9,15 +9,18 @@
              Name="resultControl"
              x:Class="PixiEditor.Views.Main.CommandSearch.SearchResultControl">
     <Button DataContext="{Binding ElementName=resultControl}" Padding="5" Height="40" BorderThickness="0"
-            Background="{DynamicResource ThemeBackgroundBrush}"
             Command="{Binding ButtonClickedCommand}" CornerRadius="0"
             CommandParameter="{Binding}"
             HorizontalContentAlignment="Stretch"
-            IsEnabled="{Binding CanExecute}"
-            Classes.keyboard="{Binding Result.IsSelected}">
+            Classes.keyboard="{Binding Result.IsSelected}"
+            IsEnabled="{Binding CanExecute}">
         <Button.Styles>
+            <Style Selector="Button">
+                <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}"/>
+            </Style>
             <Style Selector="Button.keyboard">
-                <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+                <Setter Property="Background"
+                        Value="{DynamicResource ThemeControlHighBrush}" />
             </Style>
         </Button.Styles>
         <Grid VerticalAlignment="Center" x:Name="dp" Margin="5,0,10,0">

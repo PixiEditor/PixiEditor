@@ -50,8 +50,9 @@
                     <ItemsControl ItemsSource="{Binding Results, ElementName=uc}" x:Name="itemscontrol">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="search:SearchResult">
-                                <commandSearch:SearchResultControl 
+                                <commandSearch:SearchResultControl
                                     Result="{Binding}"
+                                    ButtonClickedCommand="{Binding ButtonClickedCommand, ElementName=uc}"
                                     PointerMoved="SearchResult_MouseMove"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -61,7 +62,8 @@
         </Border>
         <Border Grid.Row="2" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                 CornerRadius="0,0,5,5" Background="{DynamicResource ThemeBackgroundBrush1}" Padding="3">
-            <ContentPresenter Content="{Binding SelectedResult.Description, Mode=OneWay, ElementName=uc, FallbackValue={x:Null}}" />
+            <ContentPresenter
+                Content="{Binding SelectedResult.Description, Mode=OneWay, ElementName=uc, FallbackValue={x:Null}}" />
         </Border>
     </Grid>
 </UserControl>
