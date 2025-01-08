@@ -7,6 +7,7 @@
              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
              xmlns:search="clr-namespace:PixiEditor.Models.Commands.Search"
              xmlns:shortcuts="clr-namespace:PixiEditor.Views.Shortcuts"
+             xmlns:commandSearch="clr-namespace:PixiEditor.Views.Main.CommandSearch"
              mc:Ignorable="d"
              Foreground="White"
              d:DesignHeight="450" d:DesignWidth="600"
@@ -49,34 +50,10 @@
                     <ItemsControl ItemsSource="{Binding Results, ElementName=uc}" x:Name="itemscontrol">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="search:SearchResult">
-                                <Button Padding="5" Height="40" BorderThickness="0" Background="{DynamicResource ThemeBackgroundBrush}"
-                                        Command="{Binding ButtonClickedCommand, ElementName=uc}" CornerRadius="0"
-                                        CommandParameter="{Binding}"
-                                        HorizontalContentAlignment="Stretch"
-                                        IsEnabled="{Binding CanExecute}"
-                                        Classes.keyboard="{Binding IsSelected}"
-                                        PointerMoved="Button_MouseMove">
-                                    <Button.Styles>
-                                        <Style Selector="Button.keyboard">
-                                            <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}"/>
-                                        </Style>
-                                    </Button.Styles>
-                                    <Grid VerticalAlignment="Center" x:Name="dp" Margin="5,0,10,0">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Border Width="25" Margin="0,0,5,0" Padding="1">
-                                                <Image HorizontalAlignment="Center" Source="{Binding Icon}" />
-                                            </Border>
-                                            <TextBlock VerticalAlignment="Center"
-                                                       behaviours:TextBlockExtensions.BindableInlines="{Binding TextBlockContent}" />
-                                        </StackPanel>
-
-                                        <shortcuts:ShortcutHint Grid.Column="1" VerticalAlignment="Center" Shortcut="{Binding Shortcut}" />
-                                    </Grid>
-                                </Button>
+                                <commandSearch:SearchResultControl
+                                    Result="{Binding}"
+                                    ButtonClickedCommand="{Binding ButtonClickedCommand, ElementName=uc}"
+                                    PointerMoved="SearchResult_MouseMove"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -85,7 +62,8 @@
         </Border>
         <Border Grid.Row="2" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                 CornerRadius="0,0,5,5" Background="{DynamicResource ThemeBackgroundBrush1}" Padding="3">
-            <ContentPresenter Content="{Binding SelectedResult.Description, Mode=OneWay, ElementName=uc}" />
+            <ContentPresenter
+                Content="{Binding SelectedResult.Description, Mode=OneWay, ElementName=uc, FallbackValue={x:Null}}" />
         </Border>
     </Grid>
 </UserControl>

@@ -179,7 +179,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
             return;
 
         await block.ExecuteQueuedActions();
-        
+
         ConnectRelatedNodes(doc, nodeMapping);
 
         doc.Operations.InvokeCustomAction(() =>
@@ -230,6 +230,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Clipboard.CopyNodes", "COPY_NODES", "COPY_NODES_DESCRIPTIVE",
         Key = Key.C, Modifiers = KeyModifiers.Control,
         ShortcutContexts = [typeof(NodeGraphDockViewModel)],
+        CanExecute = "PixiEditor.Clipboard.CanCopyNodes",
         Icon = PixiPerfectIcons.Copy, AnalyticsTrack = true)]
     public async Task CopySelectedNodes()
     {
@@ -242,6 +243,23 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
             return;
 
         await ClipboardController.CopyNodes(selectedNodes);
+    }
+
+    [Command.Basic("PixiEditor.Clipboard.CopyCels", "COPY_CELS",
+        "COPY_CELS_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanCopyCels",
+        ShortcutContexts = [typeof(TimelineDockViewModel)],
+        Key = Key.C, Modifiers = KeyModifiers.Control, Icon = PixiPerfectIcons.Copy, AnalyticsTrack = true)]
+    public async Task CopySelectedCels()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        var selectedCels = doc.AnimationDataViewModel.AllCels.Where(x => x.IsSelected).Select(x => x.Id).ToArray();
+        if (selectedCels.Length == 0)
+            return;
+
+        await ClipboardController.CopyCels(selectedCels);
     }
 
 
@@ -286,6 +304,20 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
             : ClipboardController.IsImageInClipboard().Result;
     }
 
+    [Evaluator.CanExecute("PixiEditor.Clipboard.CanCopyCels")]
+    public bool CanCopyCels()
+    {
+        return Owner.DocumentIsNotNull(null) &&
+               Owner.DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.AllCels.Any(x => x.IsSelected);
+    }
+
+    [Evaluator.CanExecute("PixiEditor.Clipboard.CanCopyNodes")]
+    public bool CanCopyNodes()
+    {
+        return Owner.DocumentIsNotNull(null) &&
+               Owner.DocumentManagerSubViewModel.ActiveDocument.NodeGraph.AllNodes.Any(x => x.IsNodeSelected);
+    }
+
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteNodes")]
     public bool CanPasteNodes()
     {
@@ -293,8 +325,11 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteColor")]
-    public static async Task<bool> CanPasteColor() =>
-        ColorHelper.ParseAnyFormat((await ClipboardController.Clipboard.GetTextAsync())?.Trim() ?? string.Empty, out _);
+    public static async Task<bool> CanPasteColor()
+    {
+        return ColorHelper.ParseAnyFormat(
+            (await ClipboardController.Clipboard.GetTextAsync())?.Trim() ?? string.Empty, out _);
+    }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanCopy")]
     public bool CanCopy()

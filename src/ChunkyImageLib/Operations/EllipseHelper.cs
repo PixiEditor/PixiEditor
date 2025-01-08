@@ -106,7 +106,7 @@ public class EllipseHelper
         float radiusY = (rect.Height - 1) / 2.0f;
         if (rotationRad == 0)
             return GenerateMidpointEllipse(radiusX, radiusY, rect.Center.X, rect.Center.Y);
-        
+
         return GenerateMidpointEllipse(radiusX, radiusY, rect.Center.X, rect.Center.Y, rotationRad);
     }
 
@@ -185,6 +185,130 @@ public class EllipseHelper
         return listToFill;
     }
 
+    /// <summary>
+    ///     Constructs pixel-perfect ellipse outline represented as a vector path.
+    ///  This function is quite heavy, for less precise but faster results use <see cref="GenerateEllipseVectorFromRect"/>.
+    /// </summary>
+    /// <param name="rectangle">The rectangle that the ellipse should fit into.</param>
+    /// <returns>A vector path that represents an ellipse outline.</returns>
+    public static VectorPath ConstructEllipseOutline(RectI rectangle)
+    {
+        if (EllipseCache.Ellipses.TryGetValue(rectangle.Size, out var cachedPath))
+        {
+            VectorPath finalPath = new(cachedPath);
+            finalPath.Transform(Matrix3X3.CreateTranslation(rectangle.TopLeft.X, rectangle.TopLeft.Y));
+            
+            return finalPath;
+        }
+        
+        if (rectangle.Width < 3 || rectangle.Height < 3)
+        {
+            VectorPath rectPath = new();
+            rectPath.AddRect((RectD)rectangle);
+
+            return rectPath;
+        }
+
+        if (rectangle is { Width: 3, Height: 3 })
+        {
+            return CreateThreePixelCircle((VecI)rectangle.Center);
+        }
+
+        var center = rectangle.Size / 2d;
+        RectI rect = new RectI(0, 0, rectangle.Width, rectangle.Height);
+        var points = GenerateEllipseFromRect(rect, 0).ToList();
+        points.Sort((vec, vec2) => Math.Sign((vec - center).Angle - (vec2 - center).Angle));
+        List<VecI> finalPoints = new();
+        for (int i = 0; i < points.Count; i++)
+        {
+            VecI prev = points[Mod(i - 1, points.Count)];
+            VecI point = points[i];
+            VecI next = points[Mod(i + 1, points.Count)];
+
+            bool atBottom = point.Y >= center.Y;
+            bool onRight = point.X >= center.X;
+            if (atBottom)
+            {
+                if (onRight)
+                {
+                    if (prev.Y != point.Y)
+                        finalPoints.Add(new(point.X + 1, point.Y));
+                    finalPoints.Add(new(point.X + 1, point.Y + 1));
+                    if (next.X != point.X)
+                        finalPoints.Add(new(point.X, point.Y + 1));
+                }
+                else
+                {
+                    if (prev.X != point.X)
+                        finalPoints.Add(new(point.X + 1, point.Y + 1));
+                    finalPoints.Add(new(point.X, point.Y + 1));
+                    if (next.Y != point.Y)
+                        finalPoints.Add(point);
+                }
+            }
+            else
+            {
+                if (onRight)
+                {
+                    if (prev.X != point.X)
+                        finalPoints.Add(point);
+                    finalPoints.Add(new(point.X + 1, point.Y));
+                    if (next.Y != point.Y)
+                        finalPoints.Add(new(point.X + 1, point.Y + 1));
+                }
+                else
+                {
+                    if (prev.Y != point.Y)
+                        finalPoints.Add(new(point.X, point.Y + 1));
+                    finalPoints.Add(point);
+                    if (next.X != point.X)
+                        finalPoints.Add(new(point.X + 1, point.Y));
+                }
+            }
+        }
+
+        VectorPath path = new();
+
+        path.MoveTo(new VecF(finalPoints[0].X, finalPoints[0].Y));
+        for (var index = 1; index < finalPoints.Count; index++)
+        {
+            var point = finalPoints[index];
+            path.LineTo(new VecF(point.X, point.Y));
+        }
+
+        path.Close();
+        
+        EllipseCache.Ellipses[rectangle.Size] = new VectorPath(path);
+        
+        path.Transform(Matrix3X3.CreateTranslation(rectangle.TopLeft.X, rectangle.TopLeft.Y));
+        return path;
+    }
+
+    public static VectorPath CreateThreePixelCircle(VecI rectanglePos)
+    {
+        var path = new VectorPath();
+        path.MoveTo(new VecF(0, 0));
+        path.LineTo(new VecF(0, -1));
+        path.LineTo(new VecF(1, -1));
+        path.LineTo(new VecF(1, 0));
+        path.LineTo(new VecF(2, 0));
+        path.LineTo(new VecF(2, 1));
+        path.LineTo(new VecF(2, 1));
+        path.LineTo(new VecF(1, 1));
+        path.LineTo(new VecF(1, 2));
+        path.LineTo(new VecF(0, 2));
+        path.LineTo(new VecF(0, 1));
+        path.LineTo(new VecF(-1, 1));
+        path.LineTo(new VecF(-1, 0));
+        path.Close();
+        
+        path.Transform(Matrix3X3.CreateTranslation(rectanglePos.X, rectanglePos.Y));
+        
+        return path;
+    }
+
+    private static int Mod(int x, int m) => (x % m + m) % m;
+
     // This function works, but honestly Skia produces better results, and it doesn't require so much
     // computation on the CPU. I'm leaving this, because once I (or someone else) figure out how to
     // make it better, and it will be useful.
@@ -203,7 +327,7 @@ public class EllipseHelper
 
         // less than, because y grows downwards
         //VecD actualTopmost = possiblyTopmostPoint.Y < possiblyMinPoint.Y ? possiblyTopmostPoint : possiblyMinPoint;
-        
+
         //rotationRad = double.Round(rotationRad, 1);
 
         double currentTetha = 0;
@@ -221,13 +345,13 @@ public class EllipseHelper
 
             currentTetha += tethaStep;
         } while (currentTetha < Math.PI * 2);
-        
+
         return listToFill;
     }
 
     private static void AddPoint(HashSet<VecI> listToFill, VecI floored, VecI[] lastPoints)
     {
-        if(!listToFill.Add(floored)) return;
+        if (!listToFill.Add(floored)) return;
 
         if (lastPoints[0] == default)
         {
@@ -247,7 +371,7 @@ public class EllipseHelper
 
             lastPoints[0] = floored;
             lastPoints[1] = default;
-            
+
             return;
         }
 
@@ -345,13 +469,18 @@ public class EllipseHelper
         }
     }
 
+    /// <summary>
+    ///     This function generates a vector path that represents an oval. For pixel-perfect circle use <see cref="ConstructEllipseOutline"/>.
+    /// </summary>
+    /// <param name="location">The rectangle that the ellipse should fit into.</param>
+    /// <returns>A vector path that represents an oval.</returns>
     public static VectorPath GenerateEllipseVectorFromRect(RectD location)
     {
         VectorPath path = new();
         path.AddOval(location);
-       
+
         path.Close();
-        
+
         return path;
     }
 }

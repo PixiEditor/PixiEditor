@@ -507,7 +507,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 VecD scaling = new VecD(renderSize.X / (double)SizeBindable.X, renderSize.Y / (double)SizeBindable.Y);
 
                 finalSurface.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
-                Renderer.RenderDocument(finalSurface.DrawingSurface, frameTime);
+                Renderer.RenderDocument(finalSurface.DrawingSurface, frameTime, renderSize);
 
                 finalSurface.DrawingSurface.Canvas.Restore();
             });

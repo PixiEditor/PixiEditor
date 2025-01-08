@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -179,23 +180,33 @@ public class DocumentRenderer : IPreviewRenderable
         return true;
     }
 
-    public void RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime)
+    public void RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime, VecI renderSize)
     {
         IsBusy = true;
 
-        if (renderTexture == null || renderTexture.Size != Document.Size)
+        if (renderTexture == null || renderTexture.Size != renderSize)
         {
             renderTexture?.Dispose();
-            renderTexture = Texture.ForProcessing(Document.Size, Document.ProcessingColorSpace);
+            renderTexture = Texture.ForProcessing(renderSize, Document.ProcessingColorSpace);
         }
 
+        renderTexture.DrawingSurface.Canvas.Save();
         renderTexture.DrawingSurface.Canvas.Clear();
+
+        renderTexture.DrawingSurface.Canvas.SetMatrix(toRenderOn.Canvas.TotalMatrix);
+        toRenderOn.Canvas.Save();
+        toRenderOn.Canvas.SetMatrix(Matrix3X3.Identity);
+        
         RenderContext context =
             new(renderTexture.DrawingSurface, frameTime, ChunkResolution.Full, Document.Size,
                 Document.ProcessingColorSpace) { FullRerender = true };
         Document.NodeGraph.Execute(context);
 
         toRenderOn.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
+        
+        renderTexture.DrawingSurface.Canvas.Restore();
+        toRenderOn.Canvas.Restore();
+        
         IsBusy = false;
     }
     

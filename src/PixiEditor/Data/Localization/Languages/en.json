@@ -803,5 +803,12 @@
   "TOGGLE_HUD": "Toggle HUD",
   "OPEN_TIMELINE": "Open timeline",
   "OPEN_NODE_GRAPH": "Open node graph",
-  "TOGGLE_PLAY": "Play/Pause animation"
+  "TOGGLE_PLAY": "Play/Pause animation",
+  "COPY_NODES": "Copy nodes",
+  "COPY_NODES_DESCRIPTIVE": "Copy selected nodes",
+  "PASTE_NODES": "Paste nodes",
+  "PASTE_NODES_DESCRIPTIVE": "Paste copied nodes",
+  "COPY_CELS": "Copy cels",
+  "COPY_CELS_DESCRIPTIVE": "Copy selected cels",
+  "TOGGLE_ONION_SKINNING_DESCRIPTIVE": "Toggle onion skinning"
 }
