@@ -179,7 +179,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
             return;
 
         await block.ExecuteQueuedActions();
-        
+
         ConnectRelatedNodes(doc, nodeMapping);
 
         doc.Operations.InvokeCustomAction(() =>
@@ -244,7 +244,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
         await ClipboardController.CopyNodes(selectedNodes);
     }
-    
+
     [Command.Basic("PixiEditor.Clipboard.CopyCels", "COPY_CELS",
         "COPY_CELS_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanCopyCels",
         ShortcutContexts = [typeof(TimelineDockViewModel)],
@@ -258,7 +258,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         var selectedCels = doc.AnimationDataViewModel.AllCels.Where(x => x.IsSelected).Select(x => x.Id).ToArray();
         if (selectedCels.Length == 0)
             return;
-        
+
         await ClipboardController.CopyCels(selectedCels);
     }
 
@@ -303,17 +303,19 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
             ? ClipboardController.IsImage(data)
             : ClipboardController.IsImageInClipboard().Result;
     }
-    
+
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanCopyCels")]
     public bool CanCopyCels()
     {
-        return Owner.DocumentIsNotNull(null) && Owner.DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.AllCels.Any(x => x.IsSelected);
+        return Owner.DocumentIsNotNull(null) &&
+               Owner.DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.AllCels.Any(x => x.IsSelected);
     }
-    
+
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanCopyNodes")]
     public bool CanCopyNodes()
     {
-        return Owner.DocumentIsNotNull(null) && Owner.DocumentManagerSubViewModel.ActiveDocument.NodeGraph.AllNodes.Any(x => x.IsNodeSelected);
+        return Owner.DocumentIsNotNull(null) &&
+               Owner.DocumentManagerSubViewModel.ActiveDocument.NodeGraph.AllNodes.Any(x => x.IsNodeSelected);
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteNodes")]
@@ -323,8 +325,11 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteColor")]
-    public static async Task<bool> CanPasteColor() =>
-        ColorHelper.ParseAnyFormat((await ClipboardController.Clipboard.GetTextAsync())?.Trim() ?? string.Empty, out _);
+    public static async Task<bool> CanPasteColor()
+    {
+        return ColorHelper.ParseAnyFormat(
+            (await ClipboardController.Clipboard.GetTextAsync())?.Trim() ?? string.Empty, out _);
+    }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanCopy")]
     public bool CanCopy()

@@ -284,9 +284,9 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
         itemscontrol.ContainerFromIndex(newIndex)?.BringIntoView();
     }
 
-    private void Button_MouseMove(object sender, PointerEventArgs e)
+    private void SearchResult_MouseMove(object sender, PointerEventArgs e)
     {
-        var searchResult = ((Button)sender).DataContext as SearchResult;
+        var searchResult = ((SearchResultControl)sender).DataContext as SearchResult;
         MouseSelectedResult = searchResult;
     }
 
