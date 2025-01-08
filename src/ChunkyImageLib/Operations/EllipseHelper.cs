@@ -193,6 +193,14 @@ public class EllipseHelper
     /// <returns>A vector path that represents an ellipse outline.</returns>
     public static VectorPath ConstructEllipseOutline(RectI rectangle)
     {
+        if (EllipseCache.Ellipses.TryGetValue(rectangle.Size, out var cachedPath))
+        {
+            VectorPath finalPath = new(cachedPath);
+            finalPath.Transform(Matrix3X3.CreateTranslation(rectangle.TopLeft.X, rectangle.TopLeft.Y));
+            
+            return finalPath;
+        }
+        
         if (rectangle.Width < 3 || rectangle.Height < 3)
         {
             VectorPath rectPath = new();
@@ -206,8 +214,9 @@ public class EllipseHelper
             return CreateThreePixelCircle((VecI)rectangle.Center);
         }
 
-        var center = rectangle.Center;
-        var points = GenerateEllipseFromRect(rectangle, 0).ToList();
+        var center = rectangle.Size / 2d;
+        RectI rect = new RectI(0, 0, rectangle.Width, rectangle.Height);
+        var points = GenerateEllipseFromRect(rect, 0).ToList();
         points.Sort((vec, vec2) => Math.Sign((vec - center).Angle - (vec2 - center).Angle));
         List<VecI> finalPoints = new();
         for (int i = 0; i < points.Count; i++)
@@ -268,7 +277,10 @@ public class EllipseHelper
         }
 
         path.Close();
-
+        
+        EllipseCache.Ellipses[rectangle.Size] = new VectorPath(path);
+        
+        path.Transform(Matrix3X3.CreateTranslation(rectangle.TopLeft.X, rectangle.TopLeft.Y));
         return path;
     }
 

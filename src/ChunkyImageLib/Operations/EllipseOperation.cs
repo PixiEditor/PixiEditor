@@ -218,5 +218,6 @@ internal class EllipseOperation : IMirroredDrawOperation
         paint.Dispose();
         outerPath?.Dispose();
         innerPath?.Dispose();
+        ellipseOutline?.Dispose();
     }
 }
