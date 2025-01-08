@@ -8,4 +8,5 @@ public static class ClipboardDataFormats
     public const string ImageSlashPng = "image/png";
     public const string DocumentFormat = "PixiEditor.Document";
     public const string NodeIdList = "PixiEditor.NodeIdList";
+    public const string CelIdList = "PixiEditor.CelIdList";
 }

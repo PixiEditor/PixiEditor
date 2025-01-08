@@ -574,15 +574,7 @@ internal static class ClipboardController
 
     public static async Task CopyNodes(Guid[] nodeIds)
     {
-        await Clipboard.ClearAsync();
-
-        DataObject data = new DataObject();
-
-        byte[] nodeIdsBytes = Encoding.UTF8.GetBytes(string.Join(";", nodeIds.Select(x => x.ToString())));
-
-        data.Set(ClipboardDataFormats.NodeIdList, nodeIdsBytes);
-
-        await Clipboard.SetDataObjectAsync(data);
+        await CopyIds(nodeIds, ClipboardDataFormats.NodeIdList);
     }
 
     public static async Task<List<Guid>> GetNodeIds()
@@ -621,5 +613,23 @@ internal static class ClipboardController
             return false;
         
         return formats.Contains(ClipboardDataFormats.NodeIdList);
+    }
+
+    public static async Task CopyCels(Guid[] celIds)
+    {
+        await CopyIds(celIds, ClipboardDataFormats.CelIdList);
+    }
+    
+    public static async Task CopyIds(Guid[] ids, string format)
+    {
+        await Clipboard.ClearAsync();
+
+        DataObject data = new DataObject();
+
+        byte[] idsBytes = Encoding.UTF8.GetBytes(string.Join(";", ids.Select(x => x.ToString())));
+
+        data.Set(format, idsBytes);
+
+        await Clipboard.SetDataObjectAsync(data);
     }
 }

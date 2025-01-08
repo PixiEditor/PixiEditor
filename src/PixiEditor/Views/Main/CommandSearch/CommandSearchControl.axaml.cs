@@ -29,8 +29,9 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
         set => SetValue(SearchTermProperty, value);
     }
 
-    public static readonly StyledProperty<bool> SelectAllProperty = AvaloniaProperty.Register<CommandSearchControl, bool>(
-        nameof(SelectAll));
+    public static readonly StyledProperty<bool> SelectAllProperty =
+        AvaloniaProperty.Register<CommandSearchControl, bool>(
+            nameof(SelectAll));
 
     public bool SelectAll
     {
@@ -39,6 +40,7 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
     }
 
     private string warnings = "";
+
     public string Warnings
     {
         get => warnings;
@@ -56,6 +58,7 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private SearchResult? selectedResult;
+
     public SearchResult? SelectedResult
     {
         get => selectedResult;
@@ -71,6 +74,7 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
     }
 
     private SearchResult? mouseSelectedResult;
+
     public SearchResult? MouseSelectedResult
     {
         get => mouseSelectedResult;
@@ -94,6 +98,8 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
 
     public CommandSearchControl()
     {
+        InitializeComponent();
+
         ButtonClickedCommand = new RelayCommand(() =>
         {
             Hide();
@@ -101,13 +107,11 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
             MouseSelectedResult = null;
         });
 
-        InitializeComponent();
-
         PointerPressed += OnPointerDown;
         KeyDown += OnPreviewKeyDown;
         Loaded += (_, _) => UpdateSearchResults();
     }
-    
+
 
     private static void OnIsVisibleChanged(AvaloniaPropertyChangedEventArgs<bool> e)
     {
@@ -142,7 +146,8 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
     private void UpdateSearchResults()
     {
         Results.Clear();
-        (List<SearchResult> newResults, List<string> warnings) = CommandSearchControlHelper.ConstructSearchResults(SearchTerm);
+        (List<SearchResult> newResults, List<string> warnings) =
+            CommandSearchControlHelper.ConstructSearchResults(SearchTerm);
         foreach (var result in newResults)
             Results.Add(result);
         Warnings = warnings.Aggregate(new StringBuilder(), static (builder, item) =>
@@ -196,13 +201,15 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
             textBox.SelectionStart = 4;
             textBox.SelectionEnd = 4;
         }
-        else if (e.Key == Key.Space && SearchTerm.StartsWith("rgb") && textBox.CaretIndex > 0 && char.IsDigit(SearchTerm[textBox.CaretIndex - 1]))
+        else if (e.Key == Key.Space && SearchTerm.StartsWith("rgb") && textBox.CaretIndex > 0 &&
+                 char.IsDigit(SearchTerm[textBox.CaretIndex - 1]))
         {
             var prev = textBox.CaretIndex;
             if (SearchTerm.Length == textBox.CaretIndex || SearchTerm[textBox.CaretIndex] != ',')
             {
                 SearchTerm = SearchTerm.Insert(textBox.CaretIndex, ",");
             }
+
             textBox.CaretIndex = prev + 1;
         }
         else if (e is { Key: Key.S, KeyModifiers: KeyModifiers.Control } &&
@@ -269,7 +276,9 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
         int newIndex = Results.IndexOf(SelectedResult) + delta;
         newIndex = (newIndex % Results.Count + Results.Count) % Results.Count;
 
-        SelectedResult = delta > 0 ? Results.IndexOrNext(x => x.CanExecute, newIndex) : Results.IndexOrPrevious(x => x.CanExecute, newIndex);
+        SelectedResult = delta > 0
+            ? Results.IndexOrNext(x => x.CanExecute, newIndex)
+            : Results.IndexOrPrevious(x => x.CanExecute, newIndex);
 
         newIndex = Results.IndexOf(SelectedResult);
         itemscontrol.ContainerFromIndex(newIndex)?.BringIntoView();
@@ -285,6 +294,5 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
     {
         CommandSearchControl control = ((CommandSearchControl)e.Sender);
         control.UpdateSearchResults();
-        control.PropertyChanged?.Invoke(control, new PropertyChangedEventArgs(nameof(control.SearchTerm)));
     }
 }
