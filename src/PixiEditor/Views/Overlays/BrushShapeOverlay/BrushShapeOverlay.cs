@@ -57,7 +57,7 @@ internal class BrushShapeOverlay : Overlay
     public BrushShapeOverlay()
     {
         IsHitTestVisible = false;
-        threePixelCircle = CreateThreePixelCircle();
+        threePixelCircle = EllipseHelper.CreateThreePixelCircle(VecI.Zero);
     }
 
     protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
@@ -124,7 +124,7 @@ internal class BrushShapeOverlay : Overlay
         {
             if (BrushSize != lastSize)
             {
-                var geometry = ConstructEllipseOutline(new RectI(0, 0, rectI.Width, rectI.Height));
+                var geometry = EllipseHelper.ConstructEllipseOutline(new RectI(0, 0, rectI.Width, rectI.Height));
                 lastNonTranslatedCircle = new VectorPath(geometry);
                 lastSize = BrushSize;
             }
@@ -149,95 +149,5 @@ internal class BrushShapeOverlay : Overlay
     protected override void ZoomChanged(double newZoom)
     {
         paint.StrokeWidth = (float)(1.0f / newZoom);
-    }
-
-    private static int Mod(int x, int m) => (x % m + m) % m;
-
-    private static VectorPath CreateThreePixelCircle()
-    {
-        var path = new VectorPath();
-        path.MoveTo(new VecF(0, 0));
-        path.LineTo(new VecF(0, -1));
-        path.LineTo(new VecF(1, -1));
-        path.LineTo(new VecF(1, 0));
-        path.LineTo(new VecF(2, 0));
-        path.LineTo(new VecF(2, 1));
-        path.LineTo(new VecF(2, 1));
-        path.LineTo(new VecF(1, 1));
-        path.LineTo(new VecF(1, 2));
-        path.LineTo(new VecF(0, 2));
-        path.LineTo(new VecF(0, 1));
-        path.LineTo(new VecF(-1, 1));
-        path.LineTo(new VecF(-1, 0));
-        path.Close();
-        return path;
-    }
-
-    private static VectorPath ConstructEllipseOutline(RectI rectangle)
-    {
-        var center = rectangle.Center;
-        var points = EllipseHelper.GenerateEllipseFromRect(rectangle, 0).ToList();
-        points.Sort((vec, vec2) => Math.Sign((vec - center).Angle - (vec2 - center).Angle));
-        List<VecI> finalPoints = new();
-        for (int i = 0; i < points.Count; i++)
-        {
-            VecI prev = points[Mod(i - 1, points.Count)];
-            VecI point = points[i];
-            VecI next = points[Mod(i + 1, points.Count)];
-
-            bool atBottom = point.Y >= center.Y;
-            bool onRight = point.X >= center.X;
-            if (atBottom)
-            {
-                if (onRight)
-                {
-                    if (prev.Y != point.Y)
-                        finalPoints.Add(new(point.X + 1, point.Y));
-                    finalPoints.Add(new(point.X + 1, point.Y + 1));
-                    if (next.X != point.X)
-                        finalPoints.Add(new(point.X, point.Y + 1));
-                }
-                else
-                {
-                    if (prev.X != point.X)
-                        finalPoints.Add(new(point.X + 1, point.Y + 1));
-                    finalPoints.Add(new(point.X, point.Y + 1));
-                    if (next.Y != point.Y)
-                        finalPoints.Add(point);
-                }
-            }
-            else
-            {
-                if (onRight)
-                {
-                    if (prev.X != point.X)
-                        finalPoints.Add(point);
-                    finalPoints.Add(new(point.X + 1, point.Y));
-                    if (next.Y != point.Y)
-                        finalPoints.Add(new(point.X + 1, point.Y + 1));
-                }
-                else
-                {
-                    if (prev.Y != point.Y)
-                        finalPoints.Add(new(point.X, point.Y + 1));
-                    finalPoints.Add(point);
-                    if (next.X != point.X)
-                        finalPoints.Add(new(point.X + 1, point.Y));
-                }
-            }
-        }
-
-        VectorPath path = new();
-
-        path.MoveTo(new VecF(finalPoints[0].X, finalPoints[0].Y));
-        for (var index = 1; index < finalPoints.Count; index++)
-        {
-            var point = finalPoints[index];
-            path.LineTo(new VecF(point.X, point.Y));
-        }
-
-        path.Close();
-
-        return path;
     }
 }

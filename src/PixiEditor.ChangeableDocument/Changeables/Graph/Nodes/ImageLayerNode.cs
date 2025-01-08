@@ -193,6 +193,11 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     private KeyFrameData GetFrameWithImage(KeyFrameTime frame)
     {
+        if (keyFrames.Count == 1)
+        {
+            return keyFrames[0];
+        }
+        
         var imageFrame = keyFrames.OrderBy(x => x.StartFrame).LastOrDefault(x => x.IsInFrame(frame.Frame));
         if (imageFrame?.Data is not ChunkyImage)
         {
