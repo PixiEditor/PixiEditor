@@ -14,7 +14,7 @@ internal interface IAnimationHandler
     public Guid? CreateCel(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null, int? frameToCopyFrom = null);
     public void SetFrameRate(int newFrameRate);
     public void SetActiveFrame(int newFrame);
-    public void SetFrameLength(Guid keyFrameId, int newStartFrame, int newDuration);
+    public void SetCelLength(Guid keyFrameId, int newStartFrame, int newDuration);
     public void SetKeyFrameVisibility(Guid infoKeyFrameId, bool infoIsVisible);
     public bool FindKeyFrame<T>(Guid guid, out T keyFrameHandler) where T : ICelHandler;
     internal void AddKeyFrame(ICelHandler iCel);

@@ -224,7 +224,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         OnPropertyChanged(nameof(OnionOpacityBindable));
     }
 
-    public void SetFrameLength(Guid keyFrameId, int newStartFrame, int newDuration)
+    public void SetCelLength(Guid keyFrameId, int newStartFrame, int newDuration)
     {
         if (TryFindCels(keyFrameId, out CelViewModel keyFrame))
         {

@@ -873,4 +873,14 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         return newGuid;
     }
+
+    public void ChangeCelLength(Guid celId, int startFrame, int duration)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new KeyFrameLength_Action(celId, startFrame, duration), new EndKeyFrameLength_Action());
+    }
 }
