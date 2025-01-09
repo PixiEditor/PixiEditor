@@ -253,7 +253,8 @@ internal partial class DocumentViewModel
         DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
         {
             using Surface surface = new Surface(SizeBindable);
-            Renderer.RenderLayer(surface.DrawingSurface, imageNode.Id, ChunkResolution.Full, atTime.Frame);
+            Renderer.RenderLayer(surface.DrawingSurface, imageNode.Id, ChunkResolution.Full, atTime.Frame,
+                SizeBindable);
 
             toSave = surface.DrawingSurface.Snapshot((RectI)tightBounds.Value);
         });

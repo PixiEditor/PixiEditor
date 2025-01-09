@@ -21,7 +21,7 @@ public class DocumentRenderer : IPreviewRenderable
     };
 
     private Texture renderTexture;
-    
+
     public DocumentRenderer(IReadOnlyDocument document)
     {
         Document = document;
@@ -47,28 +47,47 @@ public class DocumentRenderer : IPreviewRenderable
         }
     }
 
-    public void RenderLayers(DrawingSurface toDrawOn, HashSet<Guid> layersToCombine, int frame,
-        ChunkResolution resolution)
+    public void RenderLayers(DrawingSurface toRenderOn, HashSet<Guid> layersToCombine, int frame,
+        ChunkResolution resolution, VecI renderSize)
     {
         IsBusy = true;
-        RenderContext context = new(toDrawOn, frame, resolution, Document.Size, Document.ProcessingColorSpace);
+
+        if (renderTexture == null || renderTexture.Size != renderSize)
+        {
+            renderTexture?.Dispose();
+            renderTexture = Texture.ForProcessing(renderSize, Document.ProcessingColorSpace);
+        }
+
+        renderTexture.DrawingSurface.Canvas.Save();
+        renderTexture.DrawingSurface.Canvas.Clear();
+
+        renderTexture.DrawingSurface.Canvas.SetMatrix(toRenderOn.Canvas.TotalMatrix);
+        toRenderOn.Canvas.Save();
+        toRenderOn.Canvas.SetMatrix(Matrix3X3.Identity);
+
+        RenderContext context = new(renderTexture.DrawingSurface, frame, resolution, Document.Size,
+            Document.ProcessingColorSpace);
         context.FullRerender = true;
         IReadOnlyNodeGraph membersOnlyGraph = ConstructMembersOnlyGraph(layersToCombine, Document.NodeGraph);
         try
         {
             membersOnlyGraph.Execute(context);
+            toRenderOn.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
         }
         catch (ObjectDisposedException)
         {
         }
         finally
         {
+            renderTexture.DrawingSurface.Canvas.Restore();
+            toRenderOn.Canvas.Restore();
             IsBusy = false;
         }
     }
 
 
-    public void RenderLayer(DrawingSurface renderOn, Guid layerId, ChunkResolution resolution, KeyFrameTime frameTime)
+    public void RenderLayer(DrawingSurface toRenderOn, Guid layerId, ChunkResolution resolution, KeyFrameTime frameTime,
+        VecI renderSize)
     {
         var node = Document.FindMember(layerId);
 
@@ -79,26 +98,44 @@ public class DocumentRenderer : IPreviewRenderable
 
         IsBusy = true;
 
-        RenderContext context = new(renderOn, frameTime, resolution, Document.Size, Document.ProcessingColorSpace);
+        if (renderTexture == null || renderTexture.Size != renderSize)
+        {
+            renderTexture?.Dispose();
+            renderTexture = Texture.ForProcessing(renderSize, Document.ProcessingColorSpace);
+        }
+
+        renderTexture.DrawingSurface.Canvas.Save();
+        renderTexture.DrawingSurface.Canvas.Clear();
+
+        renderTexture.DrawingSurface.Canvas.SetMatrix(toRenderOn.Canvas.TotalMatrix);
+        toRenderOn.Canvas.Save();
+        toRenderOn.Canvas.SetMatrix(Matrix3X3.Identity);
+
+        RenderContext context = new(renderTexture.DrawingSurface, frameTime, resolution, Document.Size, Document.ProcessingColorSpace);
         context.FullRerender = true;
 
-        node.RenderForOutput(context, renderOn, null);
+        node.RenderForOutput(context, toRenderOn, null);
+        
+        renderTexture.DrawingSurface.Canvas.Restore();
+        toRenderOn.Canvas.Restore();
+        
         IsBusy = false;
     }
-    
-    public void RenderNodePreview(IPreviewRenderable previewRenderable, DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+
+    public void RenderNodePreview(IPreviewRenderable previewRenderable, DrawingSurface renderOn, RenderContext context,
+        string elementToRenderName)
     {
         if (IsBusy)
         {
             return;
         }
-        
+
         IsBusy = true;
-        
-        if(previewRenderable is Node { IsDisposed: true }) return;
-        
+
+        if (previewRenderable is Node { IsDisposed: true }) return;
+
         previewRenderable.RenderPreview(renderOn, context, elementToRenderName);
-        
+
         IsBusy = false;
     }
 
@@ -132,9 +169,9 @@ public class DocumentRenderer : IPreviewRenderable
                 LayerNode clone = (LayerNode)layer.Clone();
                 membersOnlyGraph.AddNode(clone);
 
-                
+
                 IInputProperty targetInput = GetTargetInput(input, fullGraph, membersOnlyGraph, nodeMapping);
-                
+
                 clone.Output.ConnectTo(targetInput);
                 nodeMapping[layer.Id] = clone.Id;
             }
@@ -144,7 +181,7 @@ public class DocumentRenderer : IPreviewRenderable
                 membersOnlyGraph.AddNode(clone);
 
                 var targetInput = GetTargetInput(input, fullGraph, membersOnlyGraph, nodeMapping);
-                
+
                 clone.Output.ConnectTo(targetInput);
                 nodeMapping[folder.Id] = clone.Id;
             }
@@ -196,38 +233,38 @@ public class DocumentRenderer : IPreviewRenderable
         renderTexture.DrawingSurface.Canvas.SetMatrix(toRenderOn.Canvas.TotalMatrix);
         toRenderOn.Canvas.Save();
         toRenderOn.Canvas.SetMatrix(Matrix3X3.Identity);
-        
+
         RenderContext context =
             new(renderTexture.DrawingSurface, frameTime, ChunkResolution.Full, Document.Size,
                 Document.ProcessingColorSpace) { FullRerender = true };
         Document.NodeGraph.Execute(context);
 
         toRenderOn.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
-        
+
         renderTexture.DrawingSurface.Canvas.Restore();
         toRenderOn.Canvas.Restore();
-        
+
         IsBusy = false;
     }
-    
-    private static IInputProperty GetTargetInput(IInputProperty? input, 
+
+    private static IInputProperty GetTargetInput(IInputProperty? input,
         IReadOnlyNodeGraph sourceGraph,
         NodeGraph membersOnlyGraph,
         Dictionary<Guid, Guid> nodeMapping)
     {
         if (input == null)
         {
-            if(membersOnlyGraph.OutputNode is IRenderInput inputNode) return inputNode.Background;
+            if (membersOnlyGraph.OutputNode is IRenderInput inputNode) return inputNode.Background;
 
             return null;
         }
-        
+
         if (nodeMapping.ContainsKey(input.Node?.Id ?? Guid.Empty))
         {
             return membersOnlyGraph.Nodes.First(x => x.Id == nodeMapping[input.Node.Id])
                 .GetInputProperty(input.InternalPropertyName);
         }
-        
+
         var sourceNode = sourceGraph.AllNodes.First(x => x.Id == input.Node.Id);
 
         IInputProperty? found = null;
@@ -235,17 +272,17 @@ public class DocumentRenderer : IPreviewRenderable
         {
             if (n is StructureNode structureNode)
             {
-                if(nodeMapping.TryGetValue(structureNode.Id, out var value))
+                if (nodeMapping.TryGetValue(structureNode.Id, out var value))
                 {
                     Node mappedNode = membersOnlyGraph.Nodes.First(x => x.Id == value);
                     found = mappedNode.GetInputProperty(input.InternalPropertyName);
                     return false;
                 }
             }
-            
+
             return true;
         });
-        
+
         return found ?? (membersOnlyGraph.OutputNode as IRenderInput)?.Background;
     }
 }

@@ -230,7 +230,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         var image = new ImageLayerNode(startSize, colorSpace)
         {
             MemberName = this.MemberName, LockTransparency = this.LockTransparency,
-            ClipToPreviousMember = this.ClipToPreviousMember
+            ClipToPreviousMember = this.ClipToPreviousMember, EmbeddedMask = this.EmbeddedMask?.CloneFromCommitted()
         };
 
         image.keyFrames.Clear();

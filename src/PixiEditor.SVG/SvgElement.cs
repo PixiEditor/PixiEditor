@@ -25,7 +25,18 @@ public class SvgElement(string tagName)
                 SvgProperty prop = (SvgProperty)property.GetValue(this);
                 if (prop?.Unit != null)
                 {
-                    element.Add(new XAttribute(prop.SvgName, prop.Unit.ToXml()));
+                    if (!string.IsNullOrEmpty(prop.NamespaceName) && !string.IsNullOrEmpty(prop.NamespaceUri))
+                    {
+                        XAttribute nsAttribute = new XAttribute(XNamespace.Xmlns + prop.NamespaceName, prop.NamespaceUri);
+                        element.Add(nsAttribute);
+                        
+                        XName name = XNamespace.Get(prop.NamespaceUri) + prop.SvgName;
+                        element.Add(new XAttribute(name, prop.Unit.ToXml()));
+                    }
+                    else
+                    {
+                        element.Add(new XAttribute(prop.SvgName, prop.Unit.ToXml()));
+                    }
                 }
             }
         }

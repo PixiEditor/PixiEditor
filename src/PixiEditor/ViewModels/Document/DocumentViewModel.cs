@@ -160,7 +160,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public bool IsChangeFeatureActive<T>() where T : IExecutorFeature =>
         Internals.ChangeController.IsChangeOfTypeActive<T>();
-    
+
     public T? TryGetExecutorFeature<T>() where T : IExecutorFeature =>
         Internals.ChangeController.TryGetExecutorFeature<T>();
 
@@ -537,7 +537,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public OneOf<Error, None, (Surface, RectI)> TryExtractAreaFromSelected(
         RectI bounds)
     {
-        var selectedLayers = ExtractSelectedLayers();
+        var selectedLayers = ExtractSelectedLayers(true);
         if (selectedLayers.Count == 0)
             return new Error();
         if (bounds.IsZeroOrNegativeArea)
@@ -547,23 +547,15 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         for (int i = 0; i < selectedLayers.Count; i++)
         {
-            var layerVm = StructureHelper.Find(selectedLayers[i]);
-            IReadOnlyStructureNode? layer = Internals.Tracker.Document.FindMember(layerVm.Id);
+            var memberVm = StructureHelper.Find(selectedLayers[i]);
+            IReadOnlyStructureNode? layer = Internals.Tracker.Document.FindMember(memberVm.Id);
             if (layer is null)
                 return new Error();
 
             RectI? memberImageBounds;
             try
             {
-                if (layer is IReadOnlyImageNode imgNode)
-                {
-                    memberImageBounds = imgNode.GetLayerImageAtFrame(AnimationDataViewModel.ActiveFrameBindable)
-                        .FindChunkAlignedMostUpToDateBounds();
-                }
-                else
-                {
-                    memberImageBounds = (RectI?)layer.GetTightBounds(AnimationDataViewModel.ActiveFrameTime);
-                }
+                memberImageBounds = (RectI?)layer.GetTightBounds(AnimationDataViewModel.ActiveFrameTime);
             }
             catch (ObjectDisposedException)
             {
@@ -604,28 +596,18 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         using Paint paint = new Paint() { BlendMode = BlendMode.SrcOver };
 
-        foreach (var layer in selectedLayers)
+        DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
         {
             try
             {
-                var layerVm = Internals.Tracker.Document.FindMember(layer);
-
-                DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
-                {
-                    using Surface toPaintOn = new Surface(SizeBindable);
-
-                    Renderer.RenderLayer(toPaintOn.DrawingSurface, layerVm.Id, ChunkResolution.Full,
-                        AnimationDataViewModel.ActiveFrameTime);
-                    using Image snapshot = toPaintOn.DrawingSurface.Snapshot(finalBounds);
-                    output.DrawingSurface.Canvas.DrawImage(snapshot, 0, 0, paint);
-                });
+                Renderer.RenderLayers(output.DrawingSurface, selectedLayers.ToHashSet(),
+                    AnimationDataViewModel.ActiveFrameBindable, ChunkResolution.Full, finalBounds.Size);
             }
             catch (ObjectDisposedException)
             {
-                output.Dispose();
-                return new Error();
+                output?.Dispose();
             }
-        }
+        });
 
         output.DrawingSurface.Canvas.Restore();
         return (output, finalBounds);
@@ -695,14 +677,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             // via a passthrough action to avoid all the try catches
             if (scope == DocumentScope.AllLayers)
             {
-                VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize);
-                using Texture tmpTexture = Texture.ForProcessing(SizeBindable);
+                using Surface tmpSurface = new Surface(SizeBindable);
                 HashSet<Guid> layers = StructureHelper.GetAllMembers().Select(x => x.Id).ToHashSet();
-                Renderer.RenderLayers(tmpTexture.DrawingSurface, layers, frameTime.Frame, ChunkResolution.Full);
-                
-                using Surface tmpSurface = new Surface(tmpTexture.Size);
-                tmpSurface.DrawingSurface.Canvas.DrawImage(tmpTexture.DrawingSurface.Snapshot(), 0, 0);
-                
+                Renderer.RenderLayers(tmpSurface.DrawingSurface, layers, frameTime.Frame, ChunkResolution.Full,
+                    SizeBindable);
+
                 return tmpSurface.GetSrgbPixel(pos);
             }
 
@@ -723,7 +702,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 return layer.GetLayerImageAtFrame(frameTime.Frame).GetMostUpToDatePixel(pos);
             }
-            
+
             return Colors.Transparent;
         }
         catch (ObjectDisposedException)
@@ -848,12 +827,19 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         var result = new List<Guid>();
         List<Guid> selectedMembers = GetSelectedMembers();
-        var allLayers = StructureHelper.GetAllLayers();
+        var allLayers = StructureHelper.GetAllMembers();
         foreach (var member in allLayers)
         {
-            if (selectedMembers.Contains(member.Id))
+            if (member is ILayerHandler && selectedMembers.Contains(member.Id))
             {
                 result.Add(member.Id);
+            }
+            else if (member is IFolderHandler folder)
+            {
+                if (includeFoldersWithMask && folder.HasMaskBindable && selectedMembers.Contains(folder.Id))
+                    result.Add(folder.Id);
+
+                ExtractSelectedLayers(folder, result, includeFoldersWithMask);
             }
         }
 
@@ -894,7 +880,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         int firstFrame = AnimationDataViewModel.FirstFrame;
         int lastFrame = AnimationDataViewModel.LastFrame;
-        
+
         int framesCount = lastFrame - firstFrame;
 
         Image[] images = new Image[framesCount];

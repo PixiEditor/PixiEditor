@@ -252,14 +252,14 @@ internal class CombineStructureMembersOnto_Change : Change
         var toDrawOnImage = ((ImageLayerNode)targetLayer).GetLayerImageAtFrame(frame);
         toDrawOnImage.EnqueueClear();
 
-        Texture tempTexture = new Texture(target.Size);
+        Texture tempTexture = Texture.ForProcessing(target.Size, target.ProcessingColorSpace);
 
         DocumentRenderer renderer = new(target);
 
         AffectedArea affArea = new();
         DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
         {
-            renderer.RenderLayers(tempTexture.DrawingSurface, layersToCombine, frame, ChunkResolution.Full);
+            renderer.RenderLayers(tempTexture.DrawingSurface, layersToCombine, frame, ChunkResolution.Full, target.Size);
 
             toDrawOnImage.EnqueueDrawTexture(VecI.Zero, tempTexture);
 
