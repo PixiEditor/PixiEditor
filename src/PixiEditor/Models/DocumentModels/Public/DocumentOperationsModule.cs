@@ -883,4 +883,26 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ActionAccumulator.AddFinishedActions(new KeyFrameLength_Action(celId, startFrame, duration), new EndKeyFrameLength_Action());
     }
+
+    public void DeleteNodes(Guid[] nodes)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+        
+        List<IAction> actions = new();
+
+        for (var i = 0; i < nodes.Length; i++)
+        {
+            var node = nodes[i];
+            if (Document.StructureHelper.TryFindNode(node, out INodeHandler nodeHandler) &&
+                nodeHandler.InternalName == OutputNode.UniqueName)
+                return;
+            
+            actions.Add(new DeleteNode_Action(node));
+        }
+
+        Internals.ActionAccumulator.AddFinishedActions(actions.ToArray());
+    }
 }
