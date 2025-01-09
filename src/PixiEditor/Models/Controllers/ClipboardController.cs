@@ -200,7 +200,7 @@ internal static class ClipboardController
         {
             foreach (var layerId in layerIds)
             {
-                document.Operations.DuplicateLayer(layerId);
+                document.Operations.DuplicateMember(layerId);
             }
 
             return true;

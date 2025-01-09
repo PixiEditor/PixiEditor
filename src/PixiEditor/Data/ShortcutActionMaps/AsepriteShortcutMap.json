@@ -224,7 +224,7 @@
       "Parameters": []
     },
     "DuplicateLayer": {
-      "Command": "PixiEditor.Layer.DuplicateSelectedLayer",
+      "Command": "PixiEditor.Layer.DuplicateSelectedMember",
       "DefaultShortcut": {
         "key": "None",
         "modifiers": null

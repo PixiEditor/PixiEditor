@@ -587,8 +587,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         Surface output = new(finalBounds.Size);
 
         VectorPath clipPath = new VectorPath(SelectionPathBindable) { FillType = PathFillType.EvenOdd };
-        clipPath.Transform(Matrix3X3.CreateTranslation(-bounds.X, -bounds.Y));
+        //clipPath.Transform(Matrix3X3.CreateTranslation(-bounds.X, -bounds.Y));
         output.DrawingSurface.Canvas.Save();
+        output.DrawingSurface.Canvas.Translate(-finalBounds.X, -finalBounds.Y);
         if (!clipPath.IsEmpty)
         {
             output.DrawingSurface.Canvas.ClipPath(clipPath);
@@ -601,7 +602,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             try
             {
                 Renderer.RenderLayers(output.DrawingSurface, selectedLayers.ToHashSet(),
-                    AnimationDataViewModel.ActiveFrameBindable, ChunkResolution.Full, finalBounds.Size);
+                    AnimationDataViewModel.ActiveFrameBindable, ChunkResolution.Full, SizeBindable);
             }
             catch (ObjectDisposedException)
             {
@@ -830,13 +831,16 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         var allLayers = StructureHelper.GetAllMembers();
         foreach (var member in allLayers)
         {
-            if (member is ILayerHandler && selectedMembers.Contains(member.Id))
+            if(!selectedMembers.Contains(member.Id))
+                continue;
+            
+            if (member is ILayerHandler)
             {
                 result.Add(member.Id);
             }
             else if (member is IFolderHandler folder)
             {
-                if (includeFoldersWithMask && folder.HasMaskBindable && selectedMembers.Contains(folder.Id))
+                if (includeFoldersWithMask && folder.HasMaskBindable)
                     result.Add(folder.Id);
 
                 ExtractSelectedLayers(folder, result, includeFoldersWithMask);
@@ -856,11 +860,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         foreach (var member in folder.Children)
         {
-            if (member is ImageLayerNodeViewModel layer && !list.Contains(layer.Id))
+            if (member is ILayerHandler layer && !list.Contains(layer.Id))
             {
                 list.Add(layer.Id);
             }
-            else if (member is FolderNodeViewModel childFolder)
+            else if (member is IFolderHandler childFolder)
             {
                 if (includeFoldersWithMask && childFolder.HasMaskBindable && !list.Contains(childFolder.Id))
                     list.Add(childFolder.Id);
