@@ -487,7 +487,7 @@ internal class DocumentUpdater
 
     private void ProcessKeyFrameLength(KeyFrameLength_ChangeInfo info)
     {
-        doc.AnimationHandler.SetFrameLength(info.KeyFrameGuid, info.StartFrame, info.Duration);
+        doc.AnimationHandler.SetCelLength(info.KeyFrameGuid, info.StartFrame, info.Duration);
     }
 
     private void ProcessKeyFrameVisibility(KeyFrameVisibility_ChangeInfo info)

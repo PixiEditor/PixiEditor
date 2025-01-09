@@ -157,7 +157,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         if (doc is null)
             return;
 
-        List<Guid> toDuplicate = await ClipboardController.GetNodeIds();
+        Guid[] toDuplicate = await ClipboardController.GetNodeIds();
 
         List<Guid> newIds = new();
 
@@ -195,6 +195,71 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
                 if (nodeInstance != null)
                 {
                     nodeInstance.IsNodeSelected = true;
+                }
+            }
+        });
+    }
+
+    [Command.Basic("PixiEditor.Clipboard.PasteCels", "PASTE_CELS", "PASTE_CELS_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Clipboard.CanPasteCels", Key = Key.V, Modifiers = KeyModifiers.Control,
+        ShortcutContexts = [typeof(TimelineDockViewModel)], Icon = PixiPerfectIcons.Paste, AnalyticsTrack = true)]
+    public async Task PasteCels()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        var cels = await ClipboardController.GetCelIds();
+
+        if (cels.Length == 0)
+            return;
+
+        using var block = doc.Operations.StartChangeBlock();
+
+        List<Guid> newCels = new();
+        List<ICelHandler> celsToSelect = new();
+
+        int minStartFrame = int.MaxValue;
+        
+        foreach (var cel in cels)
+        {
+            var foundCel = doc.AnimationDataViewModel.AllCels.FirstOrDefault(x => x.Id == cel);
+            if (foundCel == null)
+                continue;
+            
+            celsToSelect.Add(foundCel);
+            minStartFrame = Math.Min(minStartFrame, foundCel.StartFrameBindable);
+        }
+        
+        int delta = doc.AnimationDataViewModel.ActiveFrameBindable - minStartFrame;
+
+        foreach (var cel in celsToSelect)
+        {
+            int celFrame = cel.StartFrameBindable + delta;
+            Guid? newCel = doc.AnimationDataViewModel.CreateCel(cel.LayerGuid,
+                celFrame, cel.LayerGuid,
+                cel.StartFrameBindable);
+            if (newCel != null)
+            {
+                int duration = cel.DurationBindable;
+                doc.Operations.ChangeCelLength(newCel.Value, celFrame, duration);
+                newCels.Add(newCel.Value);
+            }
+        }
+
+        doc.Operations.InvokeCustomAction(() =>
+        {
+            foreach (var cel in doc.AnimationDataViewModel.AllCels)
+            {
+                cel.IsSelected = false;
+            }
+
+            foreach (var cel in newCels)
+            {
+                var celInstance = doc.AnimationDataViewModel.AllCels.FirstOrDefault(x => x.Id == cel);
+                if (celInstance != null)
+                {
+                    celInstance.IsSelected = true;
                 }
             }
         });
@@ -322,6 +387,12 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     public bool CanPasteNodes()
     {
         return Owner.DocumentIsNotNull(null) && ClipboardController.AreNodesInClipboard().Result;
+    }
+
+    [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteCels")]
+    public bool CanPasteCels()
+    {
+        return Owner.DocumentIsNotNull(null) && ClipboardController.AreCelsInClipboard().Result;
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteColor")]

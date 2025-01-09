@@ -132,7 +132,7 @@ internal class DocumentStructureModule
     ///     Returns all layers in the document.
     /// </summary>
     /// <returns>List of ILayerHandlers. Empty if no layers found.</returns>
-    public List<ILayerHandler> GetAllLayers()
+    public List<ILayerHandler> GetAllLayers(bool includeFoldersWithMask = false)
     {
         List<ILayerHandler> layers = new List<ILayerHandler>();
 

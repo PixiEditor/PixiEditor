@@ -25,7 +25,15 @@ public class SvgElement(string tagName)
                 SvgProperty prop = (SvgProperty)property.GetValue(this);
                 if (prop?.Unit != null)
                 {
-                    element.Add(new XAttribute(prop.SvgName, prop.Unit.ToXml()));
+                    if (!string.IsNullOrEmpty(prop.NamespaceName))
+                    {
+                        XName name = XNamespace.Get(RequiredNamespaces[prop.NamespaceName]) + prop.SvgName;
+                        element.Add(new XAttribute(name, prop.Unit.ToXml()));
+                    }
+                    else
+                    {
+                        element.Add(new XAttribute(prop.SvgName, prop.Unit.ToXml()));
+                    }
                 }
             }
         }
@@ -37,7 +45,7 @@ public class SvgElement(string tagName)
                 element.Add(child.ToXml(nameSpace));
             }
         }
-        
+
         return element;
     }
 
@@ -72,7 +80,7 @@ public class SvgElement(string tagName)
             property.Unit.ValuesFromXml(reader.Value);
         }
     }
-    
+
     private void ParseListProperty(SvgList list, XmlReader reader)
     {
         list.Unit ??= CreateDefaultUnit(list);
