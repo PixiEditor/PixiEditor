@@ -172,7 +172,7 @@
         <Border.ContextMenu>
             <ContextMenu>
                 <MenuItem ui:Translator.Key="DUPLICATE"
-                          Command="{xaml:Command PixiEditor.Layer.DuplicateSelectedLayer}" />
+                          Command="{xaml:Command PixiEditor.Layer.DuplicateSelectedMember}" />
                 <MenuItem ui:Translator.Key="DELETE" Command="{xaml:Command PixiEditor.Layer.DeleteAllSelected}" />
                 <MenuItem ui:Translator.Key="RENAME" Click="RenameMenuItem_Click" />
                 <controls:ToggleableMenuItem

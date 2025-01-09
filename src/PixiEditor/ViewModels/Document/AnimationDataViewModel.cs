@@ -129,15 +129,19 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public KeyFrameTime ActiveFrameTime => new KeyFrameTime(ActiveFrameBindable, ActiveNormalizedTime);
 
-    public void CreateCel(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null,
+    public Guid? CreateCel(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null,
         int? frameToCopyFrom = null)
     {
         if (!Document.BlockingUpdateableChangeActive)
         {
+            Guid newCelGuid = Guid.NewGuid();
             Internals.ActionAccumulator.AddFinishedActions(new CreateCel_Action(targetLayerGuid,
-                Guid.NewGuid(), Math.Max(1, frame),
+                newCelGuid, Math.Max(1, frame),
                 frameToCopyFrom ?? -1, toCloneFrom ?? Guid.Empty));
+            return newCelGuid;
         }
+        
+        return null;
     }
 
     public void DeleteCels(List<Guid> keyFrameIds)
@@ -220,7 +224,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         OnPropertyChanged(nameof(OnionOpacityBindable));
     }
 
-    public void SetFrameLength(Guid keyFrameId, int newStartFrame, int newDuration)
+    public void SetCelLength(Guid keyFrameId, int newStartFrame, int newDuration)
     {
         if (TryFindCels(keyFrameId, out CelViewModel keyFrame))
         {

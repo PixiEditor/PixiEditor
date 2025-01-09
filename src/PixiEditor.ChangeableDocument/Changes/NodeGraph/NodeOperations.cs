@@ -133,7 +133,7 @@ public static class NodeOperations
         return changes;
     }
 
-    public static ConnectionsData CreateConnectionsData(Node node)
+    public static ConnectionsData CreateConnectionsData(IReadOnlyNode node)
     {
         var originalOutputConnections = new Dictionary<PropertyConnection, List<PropertyConnection>>();
 
