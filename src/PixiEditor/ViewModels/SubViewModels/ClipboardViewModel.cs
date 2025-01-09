@@ -217,21 +217,33 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         using var block = doc.Operations.StartChangeBlock();
 
         List<Guid> newCels = new();
+        List<ICelHandler> celsToSelect = new();
 
-        int i = 0;
-        foreach (var celId in cels)
+        int minStartFrame = int.MaxValue;
+        
+        foreach (var cel in cels)
         {
-            ICelHandler cel = doc.AnimationDataViewModel.AllCels.First(x => x.Id == celId);
-            int celFrame = doc.AnimationDataViewModel.ActiveFrameBindable + i;
+            var foundCel = doc.AnimationDataViewModel.AllCels.FirstOrDefault(x => x.Id == cel);
+            if (foundCel == null)
+                continue;
+            
+            celsToSelect.Add(foundCel);
+            minStartFrame = Math.Min(minStartFrame, foundCel.StartFrameBindable);
+        }
+        
+        int delta = doc.AnimationDataViewModel.ActiveFrameBindable - minStartFrame;
+
+        foreach (var cel in celsToSelect)
+        {
+            int celFrame = cel.StartFrameBindable + delta;
             Guid? newCel = doc.AnimationDataViewModel.CreateCel(cel.LayerGuid,
-                doc.AnimationDataViewModel.ActiveFrameBindable + i, cel.LayerGuid,
+                celFrame, cel.LayerGuid,
                 cel.StartFrameBindable);
             if (newCel != null)
             {
                 int duration = cel.DurationBindable;
                 doc.Operations.ChangeCelLength(newCel.Value, celFrame, duration);
                 newCels.Add(newCel.Value);
-                i += duration;
             }
         }
 
