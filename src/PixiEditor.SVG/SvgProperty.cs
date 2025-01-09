@@ -10,14 +10,12 @@ public abstract class SvgProperty
         SvgName = svgName;
     }
     
-    protected SvgProperty(string svgName, string? namespaceName, string? namespaceUri) : this(svgName)
+    protected SvgProperty(string svgName, string? namespaceName) : this(svgName)
     {
         NamespaceName = namespaceName;
-        NamespaceUri = namespaceUri;
     }
 
     public string? NamespaceName { get; set; }
-    public string? NamespaceUri { get; set; }
     public string SvgName { get; set; }
     public ISvgUnit? Unit { get; set; }
 }
@@ -34,7 +32,7 @@ public class SvgProperty<T> : SvgProperty where T : struct, ISvgUnit
     {
     }
     
-    public SvgProperty(string svgName, string? namespaceName, string? namespaceUri) : base(svgName, namespaceName, namespaceUri)
+    public SvgProperty(string svgName, string? namespaceName) : base(svgName, namespaceName)
     {
     }
 }

@@ -61,12 +61,12 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
 
         Dictionary<string, string> usedNamespaces = new();
 
-        /*GatherRequiredNamespaces(usedNamespaces, Children);
+        GatherRequiredNamespaces(usedNamespaces, Children);
 
         foreach (var usedNamespace in usedNamespaces)
         {
-            document.Root.Add(XNamespace.Xmlns + usedNamespace.Key, usedNamespace.Value);
-        }*/
+            document.Root.Add(new XAttribute(XNamespace.Xmlns + usedNamespace.Key, usedNamespace.Value));
+        }
 
         AppendProperties(document.Root);
 
