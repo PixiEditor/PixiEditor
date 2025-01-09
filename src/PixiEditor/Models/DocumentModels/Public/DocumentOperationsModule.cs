@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections;
+using System.Collections.Immutable;
 using System.Reactive.Disposables;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument;

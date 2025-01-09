@@ -577,27 +577,29 @@ internal static class ClipboardController
         await CopyIds(nodeIds, ClipboardDataFormats.NodeIdList);
     }
 
-    public static async Task<List<Guid>> GetNodeIds()
+    public static async Task<Guid[]> GetNodeIds()
     {
-        var data = await TryGetDataObject();
-        var nodeIds = GetNodeIds(data);
-        
-        return nodeIds.ToList();
+        return await GetIds(ClipboardDataFormats.NodeIdList);
     }
 
-    public static async Task<Guid[]> GetNodesFromClipboard()
+    public static async Task<Guid[]> GetCelIds()
+    {
+        return await GetIds(ClipboardDataFormats.CelIdList);
+    }
+    
+    public static async Task<Guid[]> GetIds(string format)
     {
         var data = await TryGetDataObject();
-        return GetNodeIds(data);
+        return GetIds(data, format);
     }
 
-    private static Guid[] GetNodeIds(IEnumerable<IDataObject?> data)
+    private static Guid[] GetIds(IEnumerable<IDataObject?> data, string format)
     {
         foreach (var dataObject in data)
         {
-            if (dataObject.Contains(ClipboardDataFormats.NodeIdList))
+            if (dataObject.Contains(format))
             {
-                byte[] nodeIds = (byte[])dataObject.Get(ClipboardDataFormats.NodeIdList);
+                byte[] nodeIds = (byte[])dataObject.Get(format);
                 string nodeIdsString = System.Text.Encoding.UTF8.GetString(nodeIds);
                 return nodeIdsString.Split(';').Select(Guid.Parse).ToArray();
             }
@@ -608,18 +610,28 @@ internal static class ClipboardController
 
     public static async Task<bool> AreNodesInClipboard()
     {
+        return await AreIdsInClipboard(ClipboardDataFormats.NodeIdList);
+    }
+
+    public static async Task<bool> AreCelsInClipboard()
+    {
+        return await AreIdsInClipboard(ClipboardDataFormats.CelIdList);
+    }
+
+    public static async Task<bool> AreIdsInClipboard(string format)
+    {
         var formats = await Clipboard.GetFormatsAsync();
         if (formats == null || formats.Length == 0)
             return false;
-        
-        return formats.Contains(ClipboardDataFormats.NodeIdList);
+
+        return formats.Contains(format);
     }
 
     public static async Task CopyCels(Guid[] celIds)
     {
         await CopyIds(celIds, ClipboardDataFormats.CelIdList);
     }
-    
+
     public static async Task CopyIds(Guid[] ids, string format)
     {
         await Clipboard.ClearAsync();
