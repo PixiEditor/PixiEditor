@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
@@ -199,7 +200,7 @@ internal class NodeGraphView : Zoombox.Zoombox
     private ItemsControl nodeItemsControl;
     private ItemsControl connectionItemsControl;
     private Rectangle selectionRectangle;
-    
+
     private List<INodeHandler> selectedNodesOnStartDrag = new();
 
     private List<Control> nodeViewsCache = new();
@@ -248,14 +249,15 @@ internal class NodeGraphView : Zoombox.Zoombox
                 }
 
                 nodeViewsCache.Add(presenter);
+                presenter.PropertyChanged += OnPresenterPropertyChanged;
                 if (presenter.Child == null)
                 {
-                    presenter.PropertyChanged += OnPresenterPropertyChanged;
                     continue;
                 }
 
                 NodeView nodeView = (NodeView)presenter.Child;
                 nodeView.PropertyChanged += NodeView_PropertyChanged;
+                nodeView.Node.PropertyChanged += Node_PropertyChanged;
             }
         }
         else if (e.Action == NotifyCollectionChangedAction.Remove)
@@ -269,15 +271,16 @@ internal class NodeGraphView : Zoombox.Zoombox
 
                 nodeViewsCache.Remove(presenter);
 
+                presenter.PropertyChanged -= OnPresenterPropertyChanged;
                 if (presenter.Child == null)
                 {
-                    presenter.PropertyChanged -= OnPresenterPropertyChanged;
                     continue;
                 }
 
 
                 NodeView nodeView = (NodeView)presenter.Child;
                 nodeView.PropertyChanged -= NodeView_PropertyChanged;
+                nodeView.Node.PropertyChanged -= Node_PropertyChanged;
             }
         }
         else if (e.Action == NotifyCollectionChangedAction.Reset)
@@ -285,7 +288,7 @@ internal class NodeGraphView : Zoombox.Zoombox
             nodeViewsCache.Clear();
         }
     }
-    
+
     private void OnPresenterPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
     {
         if (e.Property == ContentPresenter.ChildProperty)
@@ -293,17 +296,21 @@ internal class NodeGraphView : Zoombox.Zoombox
             if (e.NewValue is NodeView nodeView)
             {
                 nodeView.PropertyChanged += NodeView_PropertyChanged;
+                nodeView.Node.PropertyChanged += Node_PropertyChanged;
             }
         }
-
-        if (e.Property == Canvas.LeftProperty || e.Property == Canvas.TopProperty)
+    }
+    
+    private void Node_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(NodeViewModel.PositionBindable))
         {
-            if (e.Sender is ContentPresenter presenter && presenter.Child is NodeView nodeView)
+            if (sender is NodeViewModel node)
             {
                 Dispatcher.UIThread.Post(
                     () =>
                     {
-                        UpdateConnections(nodeView);
+                        UpdateConnections(FindNodeView(node));
                     }, DispatcherPriority.Render);
             }
         }

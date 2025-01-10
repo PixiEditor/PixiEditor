@@ -110,7 +110,24 @@ public static class FloodFillHelper
             {
                 if (colorToReplace.A == 0 && !processedEmptyChunks.Contains(chunkPos))
                 {
-                    drawingChunk.Surface.DrawingSurface.Canvas.Clear(drawingColor);
+                    int saved = drawingChunk.Surface.DrawingSurface.Canvas.Save();
+                    if (selection is not null && !selection.IsEmpty)
+                    {
+                        using VectorPath localSelection = new VectorPath(selection);
+                        localSelection.Transform(Matrix3X3.CreateTranslation(-chunkPos.X * chunkSize, -chunkPos.Y * chunkSize));
+                        
+                        drawingChunk.Surface.DrawingSurface.Canvas.ClipPath(localSelection);
+                        if (SelectionIntersectsChunk(selection, chunkPos, chunkSize))
+                        {
+                            drawingChunk.Surface.DrawingSurface.Canvas.Clear(drawingColor);
+                        }
+                    }
+                    else
+                    {
+                        drawingChunk.Surface.DrawingSurface.Canvas.Clear(drawingColor);
+                    }
+
+                    drawingChunk.Surface.DrawingSurface.Canvas.RestoreToCount(saved);
                     for (int i = 0; i < chunkSize; i++)
                     {
                         if (chunkPos.Y > 0)
@@ -179,6 +196,9 @@ public static class FloodFillHelper
         if (referenceChunk.Surface.GetRawPixel(pos) == color || drawingChunk.Surface.GetRawPixel(pos) == color)
             return null;
         if (checkFirstPixel && !bounds.IsWithinBounds(referenceChunk.Surface.GetRawPixel(pos)))
+            return null;
+        
+        if(!SelectionIntersectsChunk(selection, chunkPos, chunkSize))
             return null;
 
         byte[] pixelStates = new byte[chunkSize * chunkSize];
@@ -249,7 +269,7 @@ public static class FloodFillHelper
         RectI localBounds = globalBounds.Offset(-chunkPos * chunkSize).Intersect(new(0, 0, chunkSize, chunkSize));
         if (localBounds.IsZeroOrNegativeArea)
             return;
-        VectorPath shiftedSelection = new VectorPath(selection);
+        using VectorPath shiftedSelection = new VectorPath(selection);
         shiftedSelection.Transform(Matrix3X3.CreateTranslation(-chunkPos.X * chunkSize, -chunkPos.Y * chunkSize));
 
         fixed (byte* arr = array)
@@ -261,5 +281,14 @@ public static class FloodFillHelper
             drawingSurface.Canvas.Clear(new Color(InSelection, InSelection, InSelection));
             drawingSurface.Canvas.Flush();
         }
+    }
+    
+    private static bool SelectionIntersectsChunk(VectorPath selection, VecI chunkPos, int chunkSize)
+    {
+        if (selection is null || selection.IsEmpty)
+            return true;
+        
+        RectD chunkBounds = new(chunkPos * chunkSize, new VecI(chunkSize));
+        return selection.Bounds.IntersectsWithInclusive(chunkBounds);
     }
 }

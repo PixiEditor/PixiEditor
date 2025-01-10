@@ -23,7 +23,7 @@ internal class BresenhamLineOperation : IMirroredDrawOperation
         this.color = color;
         this.blendMode = blendMode;
         paint = new Paint() { BlendMode = blendMode };
-        points = BresenhamLineHelper.GetBresenhamLine(from, to);
+        points = BresenhamLineHelper.GetBresenhamLine(from, to).Select(v => new VecF(v)).ToArray();
     }
 
     public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)

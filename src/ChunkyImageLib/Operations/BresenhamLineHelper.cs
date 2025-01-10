@@ -2,19 +2,20 @@
 using Drawie.Numerics;
 
 namespace ChunkyImageLib.Operations;
+
 public static class BresenhamLineHelper
 {
-    public static VecF[] GetBresenhamLine(VecI start, VecI end)
+    public static VecI[] GetBresenhamLine(VecI start, VecI end)
     {
         int count = Math.Abs((start - end).LongestAxis) + 1;
         if (count > 100000)
-            return Array.Empty<VecF>();
-        VecF[] output = new VecF[count];
+            return [];
+        VecI[] output = new VecI[count];
         CalculateBresenhamLine(start, end, output);
         return output;
     }
 
-    private static void CalculateBresenhamLine(VecI start, VecI end, VecF[] output)
+    private static void CalculateBresenhamLine(VecI start, VecI end, VecI[] output)
     {
         int index = 0;
 
