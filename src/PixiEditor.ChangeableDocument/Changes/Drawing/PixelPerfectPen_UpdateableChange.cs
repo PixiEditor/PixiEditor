@@ -73,8 +73,8 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
         (pixelsToConfirm2, pixelsToConfirm) = (pixelsToConfirm, pixelsToConfirm2);
         pixelsToConfirm.Clear();
 
-        VecF[] line = BresenhamLineHelper.GetBresenhamLine(incomingPoints[pointsCount - 2], incomingPoints[pointsCount - 1]);
-        foreach (VecF pixel in line)
+        VecI[] line = BresenhamLineHelper.GetBresenhamLine(incomingPoints[pointsCount - 2], incomingPoints[pointsCount - 1]);
+        foreach (VecI pixel in line)
         {
             pixelsToConfirm.Add(pixel);
         }
