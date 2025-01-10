@@ -37,12 +37,41 @@ public enum MathNodeMode
     [Description("ROOT")]
     Root,
     [Description("INVERSE_ROOT")]
-    InverseRoot
+    InverseRoot,
+    [Description("FRACTION")]
+    Fraction,
+    [Description("ABSOLUTE")]
+    Absolute,
+    [Description("NEGATE")]
+    Negate,
+    [Description("FLOOR")]
+    Floor,
+    [Description("CEIL")]
+    Ceil,
+    [Description("ROUND")]
+    Round,
+    [Description("MODULO")]
+    Modulo,
+    [Description("MIN")]
+    Min,
+    [Description("MAX")]
+    Max,
 }
 
 public static class MathNodeModeExtensions
 {
-    public static bool UsesYValue(this MathNodeMode mode) => !(mode is >= MathNodeMode.Sin and <= MathNodeMode.Tan);
+    public static bool UsesYValue(this MathNodeMode mode) =>
+        mode != MathNodeMode.Sin &&
+        mode != MathNodeMode.Cos &&
+        mode != MathNodeMode.Tan &&
+        mode != MathNodeMode.Fraction &&
+        mode != MathNodeMode.Absolute &&
+        mode != MathNodeMode.Negate &&
+        mode != MathNodeMode.Floor &&
+        mode != MathNodeMode.Ceil &&
+        mode != MathNodeMode.Round &&
+        mode != MathNodeMode.NaturalLogarithm;
+    
 
     public static bool UsesZValue(this MathNodeMode mode) => mode is MathNodeMode.Compare;
 

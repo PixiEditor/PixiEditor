@@ -59,6 +59,15 @@ public class MathNode : Node
                 MathNodeMode.NaturalLogarithm => ShaderMath.LogE(x),
                 MathNodeMode.Root => ShaderMath.Root(x, y),
                 MathNodeMode.InverseRoot => ShaderMath.InverseRoot(x, y),
+                MathNodeMode.Fraction => ShaderMath.Fraction(x),
+                MathNodeMode.Absolute => ShaderMath.Abs(x),
+                MathNodeMode.Negate => ShaderMath.Negate(x),
+                MathNodeMode.Floor => ShaderMath.Floor(x),
+                MathNodeMode.Ceil => ShaderMath.Ceil(x),
+                MathNodeMode.Round => ShaderMath.Round(x),
+                MathNodeMode.Modulo => ShaderMath.Modulo(x, y),
+                MathNodeMode.Min => ShaderMath.Min(x, y),
+                MathNodeMode.Max => ShaderMath.Max(x, y),
             };
 
             if (Clamp.Value)
@@ -91,8 +100,22 @@ public class MathNode : Node
             MathNodeMode.Logarithm => Math.Log(xConst, yConst),
             MathNodeMode.NaturalLogarithm => Math.Log(xConst),
             MathNodeMode.Root => Math.Pow(xConst, 1.0 / yConst),
-            MathNodeMode.InverseRoot => 1.0 / Math.Pow(xConst, 1.0 / yConst)
+            MathNodeMode.InverseRoot => 1.0 / Math.Pow(xConst, 1.0 / yConst),
+            MathNodeMode.Fraction => 1.0 / xConst,
+            MathNodeMode.Absolute => Math.Abs(xConst),
+            MathNodeMode.Negate => -xConst,
+            MathNodeMode.Floor => Math.Floor(xConst),
+            MathNodeMode.Ceil => Math.Ceiling(xConst),
+            MathNodeMode.Round => Math.Round(xConst),
+            MathNodeMode.Modulo => xConst % yConst,
+            MathNodeMode.Min => Math.Min(xConst, yConst),
+            MathNodeMode.Max => Math.Max(xConst, yConst),
         };
+        
+        if (Clamp.Value)
+        {
+            constValue = Math.Clamp(constValue, 0, 1);
+        }
             
         return new Float1(string.Empty) { ConstantValue = constValue };
     }
