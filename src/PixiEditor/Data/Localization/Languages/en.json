@@ -758,6 +758,8 @@
   "CEIL": "Ceil",
   "ROUND": "Round",
   "MODULO": "Modulo",
+  "STEP": "Step",
+  "SMOOTH_STEP": "Smoothstep",
   "PIXEL_ART_TOOLSET": "Pixel Art",
   "VECTOR_TOOLSET": "Vector",
   "VECTOR_LAYER": "Vector Layer",

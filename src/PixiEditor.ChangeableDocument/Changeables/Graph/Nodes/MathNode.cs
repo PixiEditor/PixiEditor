@@ -6,6 +6,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
+using PixiEditor.Common;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -68,6 +69,8 @@ public class MathNode : Node
                 MathNodeMode.Modulo => ShaderMath.Modulo(x, y),
                 MathNodeMode.Min => ShaderMath.Min(x, y),
                 MathNodeMode.Max => ShaderMath.Max(x, y),
+                MathNodeMode.Step => ShaderMath.Step(x, y),
+                MathNodeMode.SmoothStep => ShaderMath.SmoothStep(x, y, z),
             };
 
             if (Clamp.Value)
@@ -110,6 +113,8 @@ public class MathNode : Node
             MathNodeMode.Modulo => xConst % yConst,
             MathNodeMode.Min => Math.Min(xConst, yConst),
             MathNodeMode.Max => Math.Max(xConst, yConst),
+            MathNodeMode.Step => xConst > yConst ? 1 : 0,
+            MathNodeMode.SmoothStep => MathEx.SmoothStep(xConst, yConst, zConst),
         };
         
         if (Clamp.Value)

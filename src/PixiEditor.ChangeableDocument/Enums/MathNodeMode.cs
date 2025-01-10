@@ -56,6 +56,10 @@ public enum MathNodeMode
     Min,
     [Description("MAX")]
     Max,
+    [Description("STEP")]
+    Step,
+    [Description("SMOOTH_STEP")]
+    SmoothStep,
 }
 
 public static class MathNodeModeExtensions
@@ -71,9 +75,10 @@ public static class MathNodeModeExtensions
         mode != MathNodeMode.Ceil &&
         mode != MathNodeMode.Round &&
         mode != MathNodeMode.NaturalLogarithm;
-    
 
-    public static bool UsesZValue(this MathNodeMode mode) => mode is MathNodeMode.Compare;
+
+    public static bool UsesZValue(this MathNodeMode mode) =>
+        mode is MathNodeMode.Compare or MathNodeMode.SmoothStep;
 
     public static (string x, string y, string z) GetNaming(this MathNodeMode mode) => mode switch
     {
