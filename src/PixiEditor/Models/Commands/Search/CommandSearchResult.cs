@@ -17,7 +17,10 @@ internal class CommandSearchResult : SearchResult
 
     public override KeyCombination Shortcut => Command.Shortcut;
 
-    public CommandSearchResult(Command command) => Command = command;
+    public CommandSearchResult(Command command)
+    {
+        Command = command;
+    }
 
     public override void Execute()
     {

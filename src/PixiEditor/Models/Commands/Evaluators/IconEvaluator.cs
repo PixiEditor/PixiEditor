@@ -16,8 +16,10 @@ internal class IconEvaluator : Evaluator<IImage>
 {
     public static IconEvaluator Default { get; } = new FontIconEvaluator();
 
-    public override IImage? CallEvaluate(Command command, object parameter) =>
-        base.CallEvaluate(command, parameter is CommandSearchResult or Command ? parameter : command);
+    public override IImage? CallEvaluate(Command command, object parameter)
+    {
+        return base.CallEvaluate(command, parameter is CommandSearchResult or Command ? parameter : command);
+    }
 
     [DebuggerDisplay("IconEvaluator.Default")]
     private class FontIconEvaluator : IconEvaluator

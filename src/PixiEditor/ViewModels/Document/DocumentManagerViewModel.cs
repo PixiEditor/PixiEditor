@@ -162,7 +162,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
 
     [Command.Basic("PixiEditor.Document.DeletePixels", "DELETE_PIXELS", "DELETE_PIXELS_DESCRIPTIVE", 
         CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.Delete,
-        ShortcutContext = typeof(ViewportWindowViewModel),
+        ShortcutContexts = [typeof(ViewportWindowViewModel)],
         Icon = PixiPerfectIcons.Eraser,
         MenuItemPath = "EDIT/DELETE_SELECTED_PIXELS", MenuItemOrder = 6, AnalyticsTrack = true)]
     public void DeletePixels()

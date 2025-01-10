@@ -57,7 +57,7 @@ internal class ShortcutController
             return;
         }
 
-        var commands = CommandController.Current.Commands[shortcut].Where(x => x.ShortcutContext is null || x.ShortcutContext == ActiveContext).ToList();
+        var commands = CommandController.Current.Commands[shortcut].Where(x => x.ShortcutContexts is null || x.ShortcutContexts.Contains(ActiveContext)).ToList();
 
         if (!commands.Any())
         {

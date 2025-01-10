@@ -13,6 +13,7 @@ using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Helpers;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Views.Animations;
@@ -27,7 +28,7 @@ namespace PixiEditor.Views.Animations;
 internal class Timeline : TemplatedControl, INotifyPropertyChanged
 {
     private const float MarginMultiplier = 1.5f;
-    
+
     public static readonly StyledProperty<KeyFrameCollection> KeyFramesProperty =
         AvaloniaProperty.Register<Timeline, KeyFrameCollection>(
             nameof(KeyFrames));
@@ -88,14 +89,16 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     public static readonly StyledProperty<double> MinLeftOffsetProperty = AvaloniaProperty.Register<Timeline, double>(
         nameof(MinLeftOffset), 30);
 
-    public static readonly StyledProperty<ICommand> ChangeKeyFramesLengthCommandProperty = AvaloniaProperty.Register<Timeline, ICommand>(
-        nameof(ChangeKeyFramesLengthCommand));
+    public static readonly StyledProperty<ICommand> ChangeKeyFramesLengthCommandProperty =
+        AvaloniaProperty.Register<Timeline, ICommand>(
+            nameof(ChangeKeyFramesLengthCommand));
 
     public static readonly StyledProperty<int> DefaultEndFrameProperty = AvaloniaProperty.Register<Timeline, int>(
         nameof(DefaultEndFrame));
 
-    public static readonly StyledProperty<bool> OnionSkinningEnabledProperty = AvaloniaProperty.Register<Timeline, bool>(
-        nameof(OnionSkinningEnabled));
+    public static readonly StyledProperty<bool> OnionSkinningEnabledProperty =
+        AvaloniaProperty.Register<Timeline, bool>(
+            nameof(OnionSkinningEnabled));
 
     public static readonly StyledProperty<double> OnionOpacityProperty = AvaloniaProperty.Register<Timeline, double>(
         nameof(OnionOpacity), 50);
@@ -185,12 +188,14 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     private Control? extendingElement;
     private Rectangle _selectionRectangle;
     private ItemsControl? _keyFramesHost;
-    
+
     private Vector clickPos;
-    
+
     private bool shouldClearNextSelection = true;
+    private bool shouldShiftSelect = false;
     private CelViewModel clickedCel;
     private bool dragged;
+    private Guid[] draggedKeyFrames;
     private int dragStartFrame;
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -208,15 +213,16 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         DraggedKeyFrameCommand = new RelayCommand<PointerEventArgs>(KeyFramesDragged);
         ReleasedKeyFrameCommand = new RelayCommand<CelViewModel>(KeyFramesReleased);
     }
-    
-    public void SelectKeyFrame(CelViewModel? keyFrame, bool clearSelection = true)
+
+    public void SelectKeyFrame(ICelHandler? keyFrame, bool clearSelection = true)
     {
         if (clearSelection)
         {
             ClearSelectedKeyFrames();
         }
 
-        keyFrame?.Document.AnimationDataViewModel.AddSelectedKeyFrame(keyFrame.Id);
+
+        keyFrame?.Document.AnimationHandler.AddSelectedKeyFrame(keyFrame.Id);
     }
 
     public bool DragAllSelectedKeyFrames(int delta)
@@ -226,19 +232,25 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         {
             return false;
         }
-        
+
         Guid[] ids = SelectedKeyFrames.Select(x => x.Id).ToArray();
-        
+
+        draggedKeyFrames = ids;
+
         ChangeKeyFramesLengthCommand.Execute((ids, delta, false));
         return true;
     }
-    
+
     public void EndDragging()
     {
         if (dragged)
         {
-            ChangeKeyFramesLengthCommand.Execute((SelectedKeyFrames.Select(x => x.Id).ToArray(), 0, true));
+            if (draggedKeyFrames.Length > 0)
+            {
+                ChangeKeyFramesLengthCommand.Execute((draggedKeyFrames.ToArray(), 0, true));
+            }
         }
+
         clickedCel = null;
     }
 
@@ -259,25 +271,70 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
         _timelineKeyFramesScroll = e.NameScope.Find<ScrollViewer>("PART_TimelineKeyFramesScroll");
         _timelineHeaderScroll = e.NameScope.Find<ScrollViewer>("PART_TimelineHeaderScroll");
-        
+
         _selectionRectangle = e.NameScope.Find<Rectangle>("PART_SelectionRectangle");
 
         _timelineKeyFramesScroll.ScrollChanged += TimelineKeyFramesScrollOnScrollChanged;
         _contentGrid.PointerPressed += ContentOnPointerPressed;
         _contentGrid.PointerMoved += ContentOnPointerMoved;
         _contentGrid.PointerCaptureLost += ContentOnPointerLost;
-        
+
         extendingElement = new Control();
         extendingElement.SetValue(MarginProperty, new Thickness(0, 0, 0, 0));
         _contentGrid.Children.Add(extendingElement);
-        
+
         _keyFramesHost = e.NameScope.Find<ItemsControl>("PART_KeyFramesHost");
     }
-    
+
     private void KeyFramesReleased(CelViewModel? e)
     {
         if (!dragged)
         {
+            if (shouldShiftSelect)
+            {
+                var lastSelected = SelectedKeyFrames.LastOrDefault();
+                if (lastSelected != null)
+                {
+                    int startFrame = lastSelected.StartFrameBindable;
+                    int endFrame = e.StartFrameBindable;
+                    if (startFrame > endFrame)
+                    {
+                        (startFrame, endFrame) = (endFrame, startFrame);
+                    }
+
+                    int groupStartIndex = -1;
+                    int groupEndIndex = -1;
+                    
+                    for (int i = 0; i < KeyFrames.Count; i++)
+                    {
+                        if (KeyFrames[i].LayerGuid == lastSelected.LayerGuid)
+                        {
+                            groupStartIndex = i;
+                        }
+                        if (KeyFrames[i].LayerGuid == e.LayerGuid)
+                        {
+                            groupEndIndex = i;
+                        }
+                    }
+
+                    if (groupStartIndex != -1 && groupEndIndex != -1 && groupStartIndex > groupEndIndex)
+                    {
+                        (groupStartIndex, groupEndIndex) = (groupEndIndex, groupStartIndex);
+                    }
+
+                    for (int i = groupStartIndex; i <= groupEndIndex; i++)
+                    {
+                        foreach (var keyFrame in KeyFrames[i].Children)
+                        {
+                            if (keyFrame.StartFrameBindable >= startFrame && keyFrame.StartFrameBindable <= endFrame)
+                            {
+                                SelectKeyFrame(keyFrame, false);
+                            }
+                        }
+                    }
+                }
+            }
+
             SelectKeyFrame(e, shouldClearNextSelection);
             shouldClearNextSelection = true;
         }
@@ -319,7 +376,8 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
     private void KeyFramePressed(PointerPressedEventArgs? e)
     {
-        shouldClearNextSelection = !e.KeyModifiers.HasFlag(KeyModifiers.Control);
+        shouldShiftSelect = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
+        shouldClearNextSelection = !shouldShiftSelect && !e.KeyModifiers.HasFlag(KeyModifiers.Control);
         KeyFrame target = null;
         if (e.Source is Control obj)
         {
@@ -354,7 +412,6 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         _timelineHeaderScroll!.Offset = new Vector(0, scrollViewer.Offset.Y);
     }
 
-   
 
     private void PlayToggleOnClick(object? sender, RoutedEventArgs e)
     {
@@ -389,12 +446,12 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         {
             newScale -= ticks;
         }
-        
+
         newScale = Math.Clamp(newScale, 1, 900);
         Scale = newScale;
-        
+
         double mouseXInViewport = e.GetPosition(_timelineKeyFramesScroll).X;
-            
+
         double currentFrameUnderMouse = towardsFrame;
         double newOffsetX = currentFrameUnderMouse * newScale - mouseXInViewport + MinLeftOffset;
 
@@ -410,22 +467,22 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
         Dispatcher.UIThread.Post(
             () =>
-        {
-            newOffsetX = Math.Clamp(newOffsetX, 0, _timelineKeyFramesScroll.ScrollBarMaximum.X);
-            
-            ScrollOffset = new Vector(newOffsetX, 0);
-        }, DispatcherPriority.Render);
+            {
+                newOffsetX = Math.Clamp(newOffsetX, 0, _timelineKeyFramesScroll.ScrollBarMaximum.X);
+
+                ScrollOffset = new Vector(newOffsetX, 0);
+            }, DispatcherPriority.Render);
 
         e.Handled = true;
     }
-    
+
     private void ContentOnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         if (e.Source is not Grid content)
         {
             return;
         }
-        
+
         var mouseButton = e.GetMouseButton(content);
 
         if (mouseButton == MouseButton.Left)
@@ -433,7 +490,6 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
             _selectionRectangle.IsVisible = true;
             _selectionRectangle.Width = 0;
             _selectionRectangle.Height = 0;
-            
         }
         else if (mouseButton == MouseButton.Middle)
         {
@@ -444,13 +500,12 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
             {
                 extendingElement.Margin = new Thickness(_timelineKeyFramesScroll.Viewport.Width, 0, 0, 0);
             }
-            
         }
-        
+
         clickPos = e.GetPosition(content);
         e.Handled = true;
     }
-    
+
     private void ContentOnPointerMoved(object? sender, PointerEventArgs e)
     {
         if (e.Source is not Grid content)
@@ -477,7 +532,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         newOffsetX = Math.Clamp(newOffsetX, 0, _timelineKeyFramesScroll.ScrollBarMaximum.X);
         newOffsetY = Math.Clamp(newOffsetY, 0, _timelineKeyFramesScroll.ScrollBarMaximum.Y);
         ScrollOffset = new Vector(newOffsetX, newOffsetY);
-            
+
         extendingElement.Margin += new Thickness(deltaX, 0, 0, 0);
     }
 
@@ -502,7 +557,8 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         foreach (var frame in frames)
         {
             var translated = frame.TranslatePoint(new Point(0, 0), _contentGrid);
-            Rect frameBounds = new Rect(translated.Value.X, translated.Value.Y, frame.Bounds.Width, frame.Bounds.Height);
+            Rect frameBounds = new Rect(translated.Value.X, translated.Value.Y, frame.Bounds.Width,
+                frame.Bounds.Height);
             if (bounds.Contains(frameBounds))
             {
                 SelectKeyFrame(frame.Item, false);
@@ -579,11 +635,11 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
             cel.Document.AnimationDataViewModel.RemoveSelectedKeyFrame(cel.Id);
             cel.PropertyChanged -= KeyFrameOnPropertyChanged;
         }
-        
+
         PropertyChanged(this, new PropertyChangedEventArgs(nameof(SelectedKeyFrames)));
         PropertyChanged(this, new PropertyChangedEventArgs(nameof(EndFrame)));
     }
-    
+
     private static void OnDefaultEndFrameChanged(AvaloniaPropertyChangedEventArgs e)
     {
         if (e.Sender is not Timeline timeline)
@@ -596,7 +652,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
             timeline.PropertyChanged(timeline, new PropertyChangedEventArgs(nameof(EndFrame)));
         }
     }
-    
+
     private void KeyFrameOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (sender is CelViewModel keyFrame)
@@ -605,7 +661,8 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(nameof(SelectedKeyFrames)));
             }
-            else if (e.PropertyName == nameof(CelViewModel.StartFrameBindable) || e.PropertyName == nameof(CelViewModel.DurationBindable))
+            else if (e.PropertyName == nameof(CelViewModel.StartFrameBindable) ||
+                     e.PropertyName == nameof(CelViewModel.DurationBindable))
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(nameof(EndFrame)));
             }

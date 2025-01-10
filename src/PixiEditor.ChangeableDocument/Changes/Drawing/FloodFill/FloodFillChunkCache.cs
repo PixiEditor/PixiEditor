@@ -62,7 +62,7 @@ internal class FloodFillChunkCache : IDisposable
             
             chunk.Surface.DrawingSurface.Canvas.Translate(-chunkPos.X, -chunkPos.Y);
             
-            document.Renderer.RenderLayers(chunk.Surface.DrawingSurface, membersToRender, frame, ChunkResolution.Full);
+            document.Renderer.RenderLayers(chunk.Surface.DrawingSurface, membersToRender, frame, ChunkResolution.Full, chunk.Surface.Size);
             
             chunk.Surface.DrawingSurface.Canvas.Restore();
             

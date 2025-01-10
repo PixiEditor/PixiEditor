@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Surfaces;
@@ -11,11 +12,12 @@ using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.Rendering;
 
-internal class SceneRenderer
+internal class SceneRenderer 
 {
     public IReadOnlyDocument Document { get; }
     public IDocument DocumentViewModel { get; }
     public bool HighResRendering { get; set; } = true;
+
 
     public SceneRenderer(IReadOnlyDocument trackerDocument, IDocument documentViewModel)
     {
@@ -25,7 +27,7 @@ internal class SceneRenderer
 
     public void RenderScene(DrawingSurface target, ChunkResolution resolution, string? targetOutput = null)
     {
-        if(Document.Renderer.IsBusy || DocumentViewModel.Busy) return;
+        if (Document.Renderer.IsBusy || DocumentViewModel.Busy) return;
         RenderOnionSkin(target, resolution, targetOutput);
         RenderGraph(target, resolution, targetOutput);
     }
@@ -33,23 +35,41 @@ internal class SceneRenderer
     private void RenderGraph(DrawingSurface target, ChunkResolution resolution, string? targetOutput)
     {
         DrawingSurface renderTarget = target;
-        Texture? texture = null;
-        
+        Texture? renderTexture = null;
+        bool restoreCanvas = false;
+
         if (!HighResRendering || !HighDpiRenderNodePresent(Document.NodeGraph))
         {
-            texture = Texture.ForProcessing(Document.Size, Document.ProcessingColorSpace);
-            renderTarget = texture.DrawingSurface;
+            renderTexture = Texture.ForProcessing(Document.Size, Document.ProcessingColorSpace);
+            renderTarget = renderTexture.DrawingSurface;
+        }
+        else
+        {
+            renderTexture = Texture.ForProcessing(renderTarget.DeviceClipBounds.Size, Document.ProcessingColorSpace);
+            renderTarget = renderTexture.DrawingSurface;
+            
+            target.Canvas.Save();
+            renderTarget.Canvas.Save();
+            
+            renderTarget.Canvas.SetMatrix(target.Canvas.TotalMatrix);
+            target.Canvas.SetMatrix(Matrix3X3.Identity);
+            restoreCanvas = true;
         }
 
         RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
             resolution, Document.Size, Document.ProcessingColorSpace);
         context.TargetOutput = targetOutput;
         SolveFinalNodeGraph(context.TargetOutput).Execute(context);
-        
-        if(texture != null)
+
+        if (renderTexture != null)
         {
-            target.Canvas.DrawSurface(texture.DrawingSurface, 0, 0);
-            texture.Dispose();
+            target.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
+            renderTexture.Dispose();
+
+            if (restoreCanvas)
+            {
+                target.Canvas.Restore();
+            }
         }
     }
 
@@ -61,7 +81,7 @@ internal class SceneRenderer
         }
 
         CustomOutputNode[] outputNodes = Document.NodeGraph.AllNodes.OfType<CustomOutputNode>().ToArray();
-        
+
         foreach (CustomOutputNode outputNode in outputNodes)
         {
             if (outputNode.OutputName.Value == targetOutput)
@@ -82,10 +102,10 @@ internal class SceneRenderer
             {
                 graph.AddNode(node);
             }
-            
+
             return true;
         });
-        
+
         graph.CustomOutputNode = outputNode;
         return graph;
     }
@@ -98,9 +118,9 @@ internal class SceneRenderer
             if (n is IHighDpiRenderNode { AllowHighDpiRendering: true })
             {
                 highDpiRenderNodePresent = true;
-            } 
+            }
         });
-        
+
         return highDpiRenderNodePresent;
     }
 
@@ -116,7 +136,7 @@ internal class SceneRenderer
         double alphaFalloffMultiplier = 1.0 / animationData.OnionFrames;
 
         var finalGraph = SolveFinalNodeGraph(targetOutput);
-        
+
         // Render previous frames'
         for (int i = 1; i <= animationData.OnionFrames; i++)
         {
@@ -128,7 +148,8 @@ internal class SceneRenderer
 
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
 
-            RenderContext onionContext = new(target, frame, resolution, Document.Size, Document.ProcessingColorSpace, finalOpacity);
+            RenderContext onionContext = new(target, frame, resolution, Document.Size, Document.ProcessingColorSpace,
+                finalOpacity);
             onionContext.TargetOutput = targetOutput;
             finalGraph.Execute(onionContext);
         }
@@ -143,7 +164,8 @@ internal class SceneRenderer
             }
 
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
-            RenderContext onionContext = new(target, frame, resolution, Document.Size, Document.ProcessingColorSpace, finalOpacity);
+            RenderContext onionContext = new(target, frame, resolution, Document.Size, Document.ProcessingColorSpace,
+                finalOpacity);
             onionContext.TargetOutput = targetOutput;
             finalGraph.Execute(onionContext);
         }

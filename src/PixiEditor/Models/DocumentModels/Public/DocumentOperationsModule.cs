@@ -1,4 +1,6 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections;
+using System.Collections.Immutable;
+using System.Reactive.Disposables;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Actions;
@@ -32,6 +34,11 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         Document = document;
         Internals = internals;
+    }
+
+    public ChangeBlock StartChangeBlock()
+    {
+        return new ChangeBlock(Internals.ActionAccumulator);
     }
 
     /// <summary>
@@ -190,17 +197,28 @@ internal class DocumentOperationsModule : IDocumentOperations
     }
 
     /// <summary>
-    /// Duplicates the layer with the <paramref name="guidValue"/>
+    /// Duplicates the member with the <paramref name="guidValue"/>
     /// </summary>
-    /// <param name="guidValue">The Guid of the layer</param>
-    public void DuplicateLayer(Guid guidValue)
+    /// <param name="guidValue">The Guid of the member</param>
+    public void DuplicateMember(Guid guidValue)
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
         Internals.ChangeController.TryStopActiveExecutor();
 
-        Internals.ActionAccumulator.AddFinishedActions(new DuplicateLayer_Action(guidValue));
+        bool isFolder = Document.StructureHelper.Find(guidValue) is IFolderHandler;
+        if (!isFolder)
+        {
+            Internals.ActionAccumulator.AddFinishedActions(new DuplicateLayer_Action(guidValue));
+        }
+        else
+        {
+            Guid newGuid = Guid.NewGuid();
+            Internals.ActionAccumulator.AddFinishedActions(
+                new DuplicateFolder_Action(guidValue, newGuid),
+                new SetSelectedMember_PassthroughAction(newGuid));
+        }
     }
 
     /// <summary>
@@ -446,7 +464,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         IMidChangeUndoableExecutor executor =
             Internals.ChangeController.TryGetExecutorFeature<IMidChangeUndoableExecutor>();
-        if (executor is { CanRedo: true }) 
+        if (executor is { CanRedo: true })
         {
             executor.OnMidChangeRedo();
             return;
@@ -836,5 +854,55 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         Internals.ActionAccumulator.AddFinishedActions(
             new ChangeProcessingColorSpace_Action(ColorSpace.CreateSrgb()));
+    }
+
+    public Guid? DuplicateNode(Guid nodeId)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return null;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        if (!Document.StructureHelper.TryFindNode(nodeId, out INodeHandler node) ||
+            node.InternalName == OutputNode.UniqueName)
+            return null;
+
+        Guid newGuid = Guid.NewGuid();
+
+        Internals.ActionAccumulator.AddFinishedActions(new DuplicateNode_Action(nodeId, newGuid));
+
+        return newGuid;
+    }
+
+    public void ChangeCelLength(Guid celId, int startFrame, int duration)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new KeyFrameLength_Action(celId, startFrame, duration), new EndKeyFrameLength_Action());
+    }
+
+    public void DeleteNodes(Guid[] nodes)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+        
+        List<IAction> actions = new();
+
+        for (var i = 0; i < nodes.Length; i++)
+        {
+            var node = nodes[i];
+            if (Document.StructureHelper.TryFindNode(node, out INodeHandler nodeHandler) &&
+                nodeHandler.InternalName == OutputNode.UniqueName)
+                return;
+            
+            actions.Add(new DeleteNode_Action(node));
+        }
+
+        Internals.ActionAccumulator.AddFinishedActions(actions.ToArray());
     }
 }

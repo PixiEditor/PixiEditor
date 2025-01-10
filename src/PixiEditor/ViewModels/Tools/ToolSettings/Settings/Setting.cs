@@ -27,7 +27,15 @@ internal abstract class Setting<T> : Setting
 
     public new virtual T Value
     {
-        get => (T)base.Value;
+        get
+        {
+            if(base.Value != null && base.Value is not T value)
+            {
+                return default;
+            }
+            
+            return (T)base.Value;
+        }
         set
         {
             T oldValue = default;

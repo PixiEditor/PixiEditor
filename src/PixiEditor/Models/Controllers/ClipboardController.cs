@@ -27,6 +27,7 @@ using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using Drawie.Numerics;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels.Document;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
@@ -126,7 +127,7 @@ internal static class ClipboardController
 
         await Clipboard.SetDataObjectAsync(data);
     }
-    
+
     public static async Task CopyVisibleToClipboard(DocumentViewModel document)
     {
         await Clipboard.ClearAsync();
@@ -134,7 +135,7 @@ internal static class ClipboardController
         DataObject data = new DataObject();
 
         RectD copyArea = new RectD(VecD.Zero, document.SizeBindable);
-        
+
         if (!document.SelectionPathBindable.IsEmpty)
         {
             copyArea = document.SelectionPathBindable.TightBounds;
@@ -145,15 +146,16 @@ internal static class ClipboardController
         }
 
         using Surface documentSurface = new Surface(document.SizeBindable);
-        
-        document.Renderer.RenderDocument(documentSurface.DrawingSurface, document.AnimationDataViewModel.ActiveFrameTime);
-        
+
+        document.Renderer.RenderDocument(documentSurface.DrawingSurface,
+            document.AnimationDataViewModel.ActiveFrameTime, document.SizeBindable);
+
         Surface surfaceToCopy = new Surface((VecI)copyArea.Size.Ceiling());
         using Paint paint = new Paint();
-        
+
         surfaceToCopy.DrawingSurface.Canvas.DrawImage(
-        documentSurface.DrawingSurface.Snapshot(),
-        copyArea, new RectD(0, 0, copyArea.Size.X, copyArea.Size.Y), paint);
+            documentSurface.DrawingSurface.Snapshot(),
+            copyArea, new RectD(0, 0, copyArea.Size.X, copyArea.Size.Y), paint);
 
         await AddImageToClipboard(surfaceToCopy, data);
 
@@ -184,9 +186,9 @@ internal static class ClipboardController
     /// </summary>
     public static bool TryPaste(DocumentViewModel document, IEnumerable<IDataObject> data, bool pasteAsNew = false)
     {
-        Guid sourceDocument = GetSourceDocument(data); 
+        Guid sourceDocument = GetSourceDocument(data);
         Guid[] layerIds = GetLayerIds(data);
-        
+
         if (sourceDocument != document.Id)
         {
             layerIds = [];
@@ -194,11 +196,11 @@ internal static class ClipboardController
 
         bool hasPos = data.Any(x => x.Contains(ClipboardDataFormats.PositionFormat));
 
-        if (layerIds is { Length: > 0 } && (!hasPos || AllMatchesPos(layerIds, data, document)))
+        if (pasteAsNew && layerIds is { Length: > 0 } && (!hasPos || AllMatchesPos(layerIds, data, document)))
         {
             foreach (var layerId in layerIds)
             {
-                document.Operations.DuplicateLayer(layerId);
+                document.Operations.DuplicateMember(layerId);
             }
 
             return true;
@@ -242,11 +244,11 @@ internal static class ClipboardController
         document.Operations.PasteImagesAsLayers(images, document.AnimationDataViewModel.ActiveFrameBindable);
         return true;
     }
-    
+
     private static bool AllMatchesPos(Guid[] layerIds, IEnumerable<IDataObject> data, DocumentViewModel doc)
     {
         var dataObjects = data as IDataObject[] ?? data.ToArray();
-        
+
         var dataObjectWithPos = dataObjects.FirstOrDefault(x => x.Contains(ClipboardDataFormats.PositionFormat));
         VecD pos = VecD.Zero;
 
@@ -254,7 +256,7 @@ internal static class ClipboardController
         {
             pos = dataObjectWithPos.GetVecD(ClipboardDataFormats.PositionFormat);
         }
-        
+
         for (var i = 0; i < layerIds.Length; i++)
         {
             var layerId = layerIds[i];
@@ -263,7 +265,7 @@ internal static class ClipboardController
             if (layer is not { TightBounds: not null } || !layer.TightBounds.Value.Pos.AlmostEquals(pos))
                 return false;
         }
-        
+
         return true;
     }
 
@@ -281,7 +283,7 @@ internal static class ClipboardController
 
         return [];
     }
-    
+
     private static Guid GetSourceDocument(IEnumerable<IDataObject> data)
     {
         foreach (var dataObject in data)
@@ -568,5 +570,78 @@ internal static class ClipboardController
 
         result = null;
         return false;
+    }
+
+    public static async Task CopyNodes(Guid[] nodeIds)
+    {
+        await CopyIds(nodeIds, ClipboardDataFormats.NodeIdList);
+    }
+
+    public static async Task<Guid[]> GetNodeIds()
+    {
+        return await GetIds(ClipboardDataFormats.NodeIdList);
+    }
+
+    public static async Task<Guid[]> GetCelIds()
+    {
+        return await GetIds(ClipboardDataFormats.CelIdList);
+    }
+    
+    public static async Task<Guid[]> GetIds(string format)
+    {
+        var data = await TryGetDataObject();
+        return GetIds(data, format);
+    }
+
+    private static Guid[] GetIds(IEnumerable<IDataObject?> data, string format)
+    {
+        foreach (var dataObject in data)
+        {
+            if (dataObject.Contains(format))
+            {
+                byte[] nodeIds = (byte[])dataObject.Get(format);
+                string nodeIdsString = System.Text.Encoding.UTF8.GetString(nodeIds);
+                return nodeIdsString.Split(';').Select(Guid.Parse).ToArray();
+            }
+        }
+
+        return [];
+    }
+
+    public static async Task<bool> AreNodesInClipboard()
+    {
+        return await AreIdsInClipboard(ClipboardDataFormats.NodeIdList);
+    }
+
+    public static async Task<bool> AreCelsInClipboard()
+    {
+        return await AreIdsInClipboard(ClipboardDataFormats.CelIdList);
+    }
+
+    public static async Task<bool> AreIdsInClipboard(string format)
+    {
+        var formats = await Clipboard.GetFormatsAsync();
+        if (formats == null || formats.Length == 0)
+            return false;
+
+        return formats.Contains(format);
+    }
+
+    public static async Task CopyCels(Guid[] celIds)
+    {
+        await CopyIds(celIds, ClipboardDataFormats.CelIdList);
+    }
+
+    public static async Task CopyIds(Guid[] ids, string format)
+    {
+        await Clipboard.ClearAsync();
+
+        DataObject data = new DataObject();
+
+        byte[] idsBytes = Encoding.UTF8.GetBytes(string.Join(";", ids.Select(x => x.ToString())));
+
+        data.Set(format, idsBytes);
+
+        await Clipboard.SetDataObjectAsync(data);
     }
 }

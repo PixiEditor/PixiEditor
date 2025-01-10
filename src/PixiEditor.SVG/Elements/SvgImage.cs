@@ -12,7 +12,7 @@ public class SvgImage : SvgElement
     public SvgProperty<SvgNumericUnit> Width { get; } = new("width");
     public SvgProperty<SvgNumericUnit> Height { get; } = new("height");
         
-    public SvgProperty<SvgStringUnit> Href { get; } = new("xlink:href");
+    public SvgProperty<SvgStringUnit> Href { get; } = new("href", "xlink");
     public SvgProperty<SvgLinkUnit> Mask { get; } = new("mask");
     public SvgProperty<SvgEnumUnit<SvgImageRenderingType>> ImageRendering { get; } = new("image-rendering");
 

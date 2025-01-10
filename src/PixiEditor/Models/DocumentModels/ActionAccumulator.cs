@@ -23,6 +23,8 @@ internal class ActionAccumulator
     private CanvasUpdater canvasUpdater;
     private MemberPreviewUpdater previewUpdater;
 
+    private bool isChangeBlockActive = false;
+
     public ActionAccumulator(IDocument doc, DocumentInternalParts internals)
     {
         this.document = doc;
@@ -32,6 +34,21 @@ internal class ActionAccumulator
         previewUpdater = new(doc, internals);
     }
 
+    public void StartChangeBlock()
+    {
+        if (isChangeBlockActive)
+            throw new InvalidOperationException("Change block is already active");
+
+        isChangeBlockActive = true;
+    }
+
+    public void EndChangeBlock()
+    {
+        isChangeBlockActive = false;
+        queuedActions.Add((ActionSource.Automated, new ChangeBoundary_Action()));
+        TryExecuteAccumulatedActions();
+    }
+
     public void AddFinishedActions(params IAction[] actions)
     {
         foreach (var action in actions)
@@ -39,8 +56,11 @@ internal class ActionAccumulator
             queuedActions.Add((ActionSource.User, action));
         }
 
-        queuedActions.Add((ActionSource.Automated, new ChangeBoundary_Action()));
-        TryExecuteAccumulatedActions();
+        if (!isChangeBlockActive)
+        {
+            queuedActions.Add((ActionSource.Automated, new ChangeBoundary_Action()));
+            TryExecuteAccumulatedActions();
+        }
     }
 
     public void AddActions(params IAction[] actions)
@@ -50,7 +70,10 @@ internal class ActionAccumulator
             queuedActions.Add((ActionSource.User, action));
         }
 
-        TryExecuteAccumulatedActions();
+        if (!isChangeBlockActive)
+        {
+            TryExecuteAccumulatedActions();
+        }
     }
 
     public void AddActions(ActionSource source, IAction action)
@@ -59,7 +82,7 @@ internal class ActionAccumulator
         TryExecuteAccumulatedActions();
     }
 
-    private async void TryExecuteAccumulatedActions()
+    internal async Task TryExecuteAccumulatedActions()
     {
         if (executing || queuedActions.Count == 0)
             return;
@@ -92,6 +115,8 @@ internal class ActionAccumulator
                 toExecute.Any(static action => action.action is ChangeBoundary_Action or Redo_Action or Undo_Action);
             bool viewportRefreshRequest =
                 toExecute.Any(static action => action.action is RefreshViewport_PassthroughAction);
+            bool changeFrameRequest =
+                toExecute.Any(static action => action.action is SetActiveFrame_PassthroughAction);
             foreach (IChangeInfo info in optimizedChanges)
             {
                 internals.Updater.ApplyChangeFromChangeInfo(info);
@@ -114,7 +139,8 @@ internal class ActionAccumulator
                     undoBoundaryPassed || viewportRefreshRequest);
             }
 
-            previewUpdater.UpdatePreviews(undoBoundaryPassed, affectedAreas.ImagePreviewAreas.Keys, affectedAreas.MaskPreviewAreas.Keys,
+            previewUpdater.UpdatePreviews(undoBoundaryPassed || changeFrameRequest || viewportRefreshRequest, affectedAreas.ImagePreviewAreas.Keys,
+                affectedAreas.MaskPreviewAreas.Keys,
                 affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames);
 
             // force refresh viewports for better responsiveness

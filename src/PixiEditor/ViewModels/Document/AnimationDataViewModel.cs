@@ -17,7 +17,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     private int frameRateBindable = 60;
     private int onionFrames = 1;
     private double onionOpacity = 50;
-    
+
     public DocumentViewModel Document { get; }
     protected DocumentInternalParts Internals { get; }
     public IReadOnlyCollection<ICelHandler> KeyFrames => keyFrames;
@@ -25,11 +25,14 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     public IReadOnlyCollection<ICelHandler> AllCels => allCels;
 
     public event Action<int, int> ActiveFrameChanged;
-    
+
     private KeyFrameCollection keyFrames = new KeyFrameCollection();
     private List<ICelHandler> allCels = new List<ICelHandler>();
     private bool onionSkinningEnabled;
     private bool isPlayingBindable;
+
+    private int? cachedFirstFrame;
+    private int? cachedLastFrame;
 
     public int ActiveFrameBindable
     {
@@ -68,7 +71,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             Internals.ActionAccumulator.AddFinishedActions(new ToggleOnionSkinning_PassthroughAction(value));
         }
     }
-    
+
     public int OnionFramesBindable
     {
         get => onionFrames;
@@ -80,7 +83,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             Internals.ActionAccumulator.AddFinishedActions(new SetOnionSettings_Action(value, OnionOpacityBindable));
         }
     }
-    
+
     public double OnionOpacityBindable
     {
         get => onionOpacity;
@@ -89,10 +92,10 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             if (Document.BlockingUpdateableChangeActive)
                 return;
 
-            Internals.ActionAccumulator.AddFinishedActions(new SetOnionSettings_Action(OnionFramesBindable, value)); 
+            Internals.ActionAccumulator.AddFinishedActions(new SetOnionSettings_Action(OnionFramesBindable, value));
         }
     }
-    
+
     public bool IsPlayingBindable
     {
         get => isPlayingBindable;
@@ -105,9 +108,9 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         }
     }
 
-    public int FirstFrame => keyFrames.Count > 0 ? keyFrames.Min(x => x.StartFrameBindable) : 0;
+    public int FirstFrame => cachedFirstFrame ??= keyFrames.Count > 0 ? keyFrames.Min(x => x.StartFrameBindable) : 0;
 
-    public int LastFrame => keyFrames.Count > 0
+    public int LastFrame => cachedLastFrame ??= keyFrames.Count > 0
         ? keyFrames.Max(x => x.StartFrameBindable + x.DurationBindable)
         : DefaultEndFrame;
 
@@ -126,15 +129,19 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public KeyFrameTime ActiveFrameTime => new KeyFrameTime(ActiveFrameBindable, ActiveNormalizedTime);
 
-    public void CreateCel(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null,
+    public Guid? CreateCel(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null,
         int? frameToCopyFrom = null)
     {
         if (!Document.BlockingUpdateableChangeActive)
         {
+            Guid newCelGuid = Guid.NewGuid();
             Internals.ActionAccumulator.AddFinishedActions(new CreateCel_Action(targetLayerGuid,
-                Guid.NewGuid(), Math.Max(1, frame),
+                newCelGuid, Math.Max(1, frame),
                 frameToCopyFrom ?? -1, toCloneFrom ?? Guid.Empty));
+            return newCelGuid;
         }
+        
+        return null;
     }
 
     public void DeleteCels(List<Guid> keyFrameIds)
@@ -196,19 +203,19 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         ActiveFrameChanged?.Invoke(previousFrame, newFrame);
         OnPropertyChanged(nameof(ActiveFrameBindable));
     }
-    
+
     public void SetPlayingState(bool value)
     {
         isPlayingBindable = value;
         OnPropertyChanged(nameof(IsPlayingBindable));
     }
-    
+
     public void SetOnionSkinning(bool value)
     {
         onionSkinningEnabled = value;
         OnPropertyChanged(nameof(OnionSkinningEnabledBindable));
     }
-    
+
     public void SetOnionFrames(int frames, double opacity)
     {
         onionFrames = frames;
@@ -217,13 +224,17 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         OnPropertyChanged(nameof(OnionOpacityBindable));
     }
 
-    public void SetFrameLength(Guid keyFrameId, int newStartFrame, int newDuration)
+    public void SetCelLength(Guid keyFrameId, int newStartFrame, int newDuration)
     {
         if (TryFindCels(keyFrameId, out CelViewModel keyFrame))
         {
+            cachedFirstFrame = null;
+            cachedLastFrame = null;
+            
             keyFrame.SetStartFrame(newStartFrame);
             keyFrame.SetDuration(newDuration);
             keyFrames.NotifyCollectionChanged();
+
             OnPropertyChanged(nameof(FirstFrame));
             OnPropertyChanged(nameof(LastFrame));
             OnPropertyChanged(nameof(FramesCount));
@@ -261,8 +272,12 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         {
             allCels.Add(iCel);
         }
-        
+
         SortByLayers();
+        
+        cachedFirstFrame = null;
+        cachedLastFrame = null;
+        
         OnPropertyChanged(nameof(FirstFrame));
         OnPropertyChanged(nameof(LastFrame));
         OnPropertyChanged(nameof(FramesCount));
@@ -290,6 +305,9 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
         allCels.RemoveAll(x => x.Id == keyFrameId);
         
+        cachedFirstFrame = null;
+        cachedLastFrame = null;
+
         OnPropertyChanged(nameof(FirstFrame));
         OnPropertyChanged(nameof(LastFrame));
         OnPropertyChanged(nameof(FramesCount));
@@ -376,7 +394,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         result = default;
         return false;
     }
-    
+
     public void SortByLayers()
     {
         var allLayers = Document.StructureHelper.GetAllLayers();
@@ -384,8 +402,9 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         var layerKeyFrames = new List<CelGroupViewModel>();
         foreach (var layer in allLayers)
         {
-            var group = unsortedKeyFrames.FirstOrDefault(x => x is CelGroupViewModel group && group.LayerGuid == layer.Id) as CelGroupViewModel; 
-            if(group != null)
+            var group = unsortedKeyFrames.FirstOrDefault(x =>
+                x is CelGroupViewModel group && group.LayerGuid == layer.Id) as CelGroupViewModel;
+            if (group != null)
             {
                 layerKeyFrames.Insert(0, group);
             }
@@ -398,9 +417,8 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
                 layerKeyFrames.Add(group);
             }
         }
-        
+
         this.keyFrames = new KeyFrameCollection(layerKeyFrames);
         OnPropertyChanged(nameof(KeyFrames));
     }
-
 }

@@ -408,7 +408,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         PrimaryColor = color.ToColor();
     }
 
-    [Commands_Command.Basic("PixIEditor.Colors.AddPrimaryToPalettes", "ADD_PRIMARY_COLOR_TO_PALETTE",
+    [Commands_Command.Basic("PixiEditor.Colors.AddPrimaryToPalettes", "ADD_PRIMARY_COLOR_TO_PALETTE",
         "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE", CanExecute = "PixiEditor.HasDocument",
         Icon = PixiPerfectIcons.CopyAdd, AnalyticsTrack = true)]
     public void AddPrimaryColorToPalette()

@@ -26,6 +26,11 @@ internal class DocumentStructureModule
         return doc.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.Id == guid && x is T) as T;
     }
 
+    public bool TryFindNode<T>(Guid guid, out T found) where T : class, INodeHandler
+    {
+        found = FindNode<T>(guid);
+        return found != null;
+    }
 
     public Guid FindClosestMember(IReadOnlyList<Guid> guids)
     {
@@ -127,7 +132,7 @@ internal class DocumentStructureModule
     ///     Returns all layers in the document.
     /// </summary>
     /// <returns>List of ILayerHandlers. Empty if no layers found.</returns>
-    public List<ILayerHandler> GetAllLayers()
+    public List<ILayerHandler> GetAllLayers(bool includeFoldersWithMask = false)
     {
         List<ILayerHandler> layers = new List<ILayerHandler>();
 
@@ -140,7 +145,7 @@ internal class DocumentStructureModule
 
         return layers;
     }
-    
+
     public List<IStructureMemberHandler> GetAllMembers()
     {
         List<IStructureMemberHandler> members = new List<IStructureMemberHandler>();

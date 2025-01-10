@@ -65,7 +65,7 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
 
         foreach (var usedNamespace in usedNamespaces)
         {
-            document.Root.Add(new XAttribute($"xmlns:{usedNamespace.Key}", usedNamespace.Value));
+            document.Root.Add(new XAttribute(XNamespace.Xmlns + usedNamespace.Key, usedNamespace.Value));
         }
 
         AppendProperties(document.Root);

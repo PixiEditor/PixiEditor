@@ -15,7 +15,7 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.NodeGraph.DeleteSelectedNodes", "DELETE_NODES", "DELETE_NODES_DESCRIPTIVE", 
-        Key = Key.Delete, ShortcutContext = typeof(NodeGraphDockViewModel), AnalyticsTrack = true)]
+        Key = Key.Delete, ShortcutContexts = [typeof(NodeGraphDockViewModel)], AnalyticsTrack = true)]
     public void DeleteSelectedNodes()
     {
         var nodes = Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.AllNodes

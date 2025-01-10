@@ -46,14 +46,22 @@ internal class EllipseOperation : IMirroredDrawOperation
         {
             if (Math.Abs(rotation) < 0.001)
             {
-                var ellipseList = EllipseHelper.GenerateEllipseFromRect((RectI)location);
-
-                ellipse = ellipseList.Select(a => new VecF(a)).ToArray();
-
-                if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
+                if (strokeWidth == 0)
                 {
-                    (var fill, ellipseFillRect) = EllipseHelper.SplitEllipseFillIntoRegions(ellipseList.ToList(), (RectI)location);
-                    ellipseFill = fill.Select(a => new VecF(a)).ToArray();
+                    ellipseOutline = EllipseHelper.ConstructEllipseOutline((RectI)location);
+                }
+                else
+                {
+                    var ellipseList = EllipseHelper.GenerateEllipseFromRect((RectI)location);
+
+                    ellipse = ellipseList.Select(a => new VecF(a)).ToArray();
+
+                    if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
+                    {
+                        (var fill, ellipseFillRect) =
+                            EllipseHelper.SplitEllipseFillIntoRegions(ellipseList.ToList(), (RectI)location);
+                        ellipseFill = fill.Select(a => new VecF(a)).ToArray();
+                    }
                 }
             }
             else
@@ -98,7 +106,7 @@ internal class EllipseOperation : IMirroredDrawOperation
         paint.IsAntiAliased = false;
         if (strokeWidth - 1 < 0.01)
         {
-            if (Math.Abs(rotation) < 0.001)
+            if (Math.Abs(rotation) < 0.001 && strokeWidth > 0)
             {
                 if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
                 {
@@ -122,12 +130,15 @@ internal class EllipseOperation : IMirroredDrawOperation
                     paint.Style = PaintStyle.Fill;
                     surf.Canvas.DrawPath(ellipseOutline!, paint);
                 }
-                
-                paint.Color = strokeColor;
-                paint.Style = PaintStyle.Stroke;
-                paint.StrokeWidth = 1f;
-                
-                surf.Canvas.DrawPath(ellipseOutline!, paint);
+
+                if (strokeWidth > 0)
+                {
+                    paint.Color = strokeColor;
+                    paint.Style = PaintStyle.Stroke;
+                    paint.StrokeWidth = 1;
+
+                    surf.Canvas.DrawPath(ellipseOutline!, paint);
+                }
 
                 surf.Canvas.Restore();
             }
@@ -207,5 +218,6 @@ internal class EllipseOperation : IMirroredDrawOperation
         paint.Dispose();
         outerPath?.Dispose();
         innerPath?.Dispose();
+        ellipseOutline?.Dispose();
     }
 }
