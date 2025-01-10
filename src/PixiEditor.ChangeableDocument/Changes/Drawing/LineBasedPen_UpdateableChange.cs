@@ -24,6 +24,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private readonly List<VecI> points = new();
     private int frame;
     private VecF lastPos;
+    private int lastAppliedPointIndex = -1;
 
     [GenerateUpdateableChangeActions]
     public LineBasedPen_UpdateableChange(Guid memberGuid, Color color, VecI pos, float strokeWidth, bool erasing,
@@ -59,7 +60,12 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     [UpdateChangeMethod]
     public void Update(VecI pos, float strokeWidth)
     {
-        points.Add(pos);
+        if (points.Count > 0)
+        {
+            var bresenham = BresenhamLineHelper.GetBresenhamLine(points[^1], pos);
+            points.AddRange(bresenham);
+        }
+        
         this.strokeWidth = strokeWidth;
     }
 
@@ -81,16 +87,13 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     {
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
 
-        var (from, to) = points.Count > 1 ? (points[^2], points[^1]) : (points[0], points[0]);
-
         int opCount = image.QueueLength;
 
-        var bresenham = BresenhamLineHelper.GetBresenhamLine(from, to);
-
         float spacingPixels = strokeWidth * spacing;
-
-        foreach (var point in bresenham)
+        
+        for(int i = Math.Max(lastAppliedPointIndex, 0); i < points.Count; i++)
         {
+            var point = points[i];
             if (points.Count > 1 && VecF.Distance(lastPos, point) < spacingPixels)
                 continue;
 
@@ -103,6 +106,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
             image.EnqueueDrawEllipse((RectD)rect, color, color, 0, 0, antiAliasing, srcPaint);
         }
+        
+        lastAppliedPointIndex = points.Count - 1;
 
         var affChunks = image.FindAffectedArea(opCount);
 
@@ -126,7 +131,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         VecF lastPos = points[0];
 
         float spacingInPixels = strokeWidth * this.spacing;
-
+        
         for (int i = 0; i < points.Count; i++)
         {
             if (i > 0 && VecF.Distance(lastPos, points[i]) < spacingInPixels)

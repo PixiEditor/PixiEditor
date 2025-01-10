@@ -214,7 +214,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
                 return active;
             }
 
-            for (int i = active + 1; i < activeDocument.AnimationDataViewModel.FramesCount; i++)
+            for (int i = active + 1; i < groupViewModel.StartFrameBindable + groupViewModel.DurationBindable; i++)
             {
                 if (groupViewModel.Children.All(x => !x.IsWithinRange(i)))
                 {
@@ -222,7 +222,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
                 }
             }
 
-            return activeDocument.AnimationDataViewModel.FramesCount + 1;
+            return groupViewModel.StartFrameBindable + groupViewModel.DurationBindable;
         }
 
         return active;
