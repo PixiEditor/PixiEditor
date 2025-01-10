@@ -6,7 +6,6 @@ namespace PixiEditor.Models.IO;
 
 public class ExportConfig
 {
-   public static ExportConfig Empty { get; } = new ExportConfig();
    public VecI ExportSize { get; set; }
    public bool ExportAsSpriteSheet { get; set; } = false;
    public int SpriteSheetColumns { get; set; }

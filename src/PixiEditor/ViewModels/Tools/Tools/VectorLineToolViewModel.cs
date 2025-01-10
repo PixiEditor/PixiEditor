@@ -19,10 +19,11 @@ namespace PixiEditor.ViewModels.Tools.Tools;
 [Command.Tool(Key = Key.L)]
 internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
 {
+    public const string NewLayerKey = "NEW_LINE_LAYER_NAME";
     private string defaultActionDisplay = "LINE_TOOL_ACTION_DISPLAY_DEFAULT";
 
     public override bool IsErasable => false;
-    
+
     public VectorLineToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
@@ -34,10 +35,9 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
 
     public override string DefaultIcon => PixiPerfectIcons.Line;
     public override Type[]? SupportedLayerTypes { get; } = [];
-    public string? DefaultNewLayerName { get; } = new LocalizedString("NEW_LINE_LAYER_NAME");
+    public string? DefaultNewLayerName { get; } = new LocalizedString(NewLayerKey);
 
-    [Settings.Inherited] 
-    public double ToolSize => GetValue<double>();
+    [Settings.Inherited] public double ToolSize => GetValue<double>();
 
     public bool Snap { get; private set; }
 
@@ -45,6 +45,8 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
+        DrawFromCenter = ctrlIsDown;
+
         if (shiftIsDown)
         {
             ActionDisplay = "LINE_TOOL_ACTION_DISPLAY_SHIFT";
@@ -62,27 +64,33 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorLineTool();
     }
 
-    public override void OnSelected(bool restoring)
+    protected override void OnSelected(bool restoring)
     {
         if (restoring) return;
-        
-        var document = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
-        var layer = document.SelectedStructureMember;
-        if (layer is IVectorLayerHandler vectorLayer)
-        {
-            if (vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) is IReadOnlyLineData lineVectorData)
-            {
-                document.LineToolOverlayViewModel.Show(lineVectorData.TransformedStart, lineVectorData.TransformedEnd,
-                    false);
-            }
-        }
 
+        var document = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
         document.Tools.UseVectorLineTool();
+    }
+
+    public override void OnPostUndo()
+    {
+        if (IsActive)
+        {
+            OnToolSelected(false);
+        }
+    }
+
+    public override void OnPostRedo()
+    {
+        if (IsActive)
+        {
+            OnToolSelected(false);
+        }
     }
 
     protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
     {
         OnDeselecting(false);
-        OnSelected(false);
+        OnToolSelected(false);
     }
 }

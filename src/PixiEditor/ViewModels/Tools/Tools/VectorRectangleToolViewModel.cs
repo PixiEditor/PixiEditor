@@ -15,6 +15,8 @@ namespace PixiEditor.ViewModels.Tools.Tools;
 [Command.Tool(Key = Key.R)]
 internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHandler
 {
+    public const string NewLayerKey = "NEW_RECTANGLE_LAYER_NAME";
+
     private string defaultActionDisplay = "RECTANGLE_TOOL_ACTION_DISPLAY_DEFAULT";
     public override string ToolNameLocalizationKey => "RECTANGLE_TOOL";
     public override bool IsErasable => false;
@@ -30,10 +32,12 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
     public override string DefaultIcon => PixiPerfectIcons.Square;
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
-    public string? DefaultNewLayerName { get; } = new LocalizedString("NEW_RECTANGLE_LAYER_NAME");
+    public string? DefaultNewLayerName { get; } = new LocalizedString(NewLayerKey);
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
+        DrawFromCenter = ctrlIsDown;
+
         if (shiftIsDown)
         {
             DrawEven = true;
@@ -51,26 +55,32 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorRectangleTool();
     }
 
-    public override void OnSelected(bool restoring)
+    protected override void OnSelected(bool restoring)
     {
         if (restoring) return;
 
-        var document = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
-        var layer = document.SelectedStructureMember;
-        if (layer is IVectorLayerHandler vectorLayer &&
-            vectorLayer.GetShapeData(document.AnimationDataViewModel.ActiveFrameTime) is IReadOnlyRectangleData)
-        {
-            ShapeCorners corners = vectorLayer.TransformationCorners;
-            ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument.TransformViewModel.ShowTransform(
-                DocumentTransformMode.Scale_Rotate_Shear_NoPerspective, false, corners, false);
-        }
-
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorRectangleTool();
+    }
+
+    public override void OnPostUndo()
+    {
+        if (IsActive)
+        {
+            OnToolSelected(false);
+        }
+    }
+
+    public override void OnPostRedo()
+    {
+        if (IsActive)
+        {
+            OnToolSelected(false);
+        }
     }
 
     protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
     {
         OnDeselecting(false);
-        OnSelected(false);
+        OnToolSelected(false);
     }
 }

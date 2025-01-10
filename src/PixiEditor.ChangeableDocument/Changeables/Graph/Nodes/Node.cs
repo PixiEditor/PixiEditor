@@ -10,6 +10,7 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Shaders.Generation;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -26,7 +27,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public IReadOnlyList<InputProperty> InputProperties => inputs;
     public IReadOnlyList<OutputProperty> OutputProperties => outputs;
     public IReadOnlyList<KeyFrameData> KeyFrames => keyFrames;
-
+    public event Action ConnectionsChanged;
 
     IReadOnlyList<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyList<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
@@ -41,11 +42,9 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     protected virtual bool ExecuteOnlyOnCacheChange => false;
 
-    protected bool IsDisposed => _isDisposed;
+    protected internal bool IsDisposed => _isDisposed;
     private bool _isDisposed;
-
-    private Dictionary<int, Texture> _managedTextures = new();
-
+    
     public void Execute(RenderContext context)
     {
         ExecuteInternal(context);
@@ -83,28 +82,34 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
     }
 
-    protected Texture RequestTexture(int id, VecI size, bool clear = true)
+    public void TraverseBackwards(Func<IReadOnlyNode, IInputProperty, bool> action)
     {
-        if (_managedTextures.TryGetValue(id, out var texture))
+        var visited = new HashSet<IReadOnlyNode>();
+        var queueNodes = new Queue<(IReadOnlyNode, IInputProperty)>();
+        queueNodes.Enqueue((this, null));
+
+        while (queueNodes.Count > 0)
         {
-            if (texture.Size != size || texture.IsDisposed)
+            var node = queueNodes.Dequeue();
+
+            if (!visited.Add((node.Item1)))
             {
-                texture.Dispose();
-                texture = new Texture(size);
-                _managedTextures[id] = texture;
-                return texture;
+                continue;
             }
 
-            if (clear)
+            if (!action(node.Item1, node.Item2))
             {
-                texture.DrawingSurface.Canvas.Clear(Colors.Transparent);
+                return;
             }
 
-            return texture;
+            foreach (var inputProperty in node.Item1.InputProperties)
+            {
+                if (inputProperty.Connection != null)
+                {
+                    queueNodes.Enqueue((inputProperty.Connection.Node, inputProperty));
+                }
+            }
         }
-
-        _managedTextures[id] = new Texture(size);
-        return _managedTextures[id];
     }
 
     public void TraverseBackwards(Func<IReadOnlyNode, bool> action)
@@ -164,6 +169,39 @@ public abstract class Node : IReadOnlyNode, IDisposable
                     if (connection.Connection != null)
                     {
                         queueNodes.Enqueue(connection.Node);
+                    }
+                }
+            }
+        }
+    }
+
+    public void TraverseForwards(Func<IReadOnlyNode, IInputProperty, bool> action)
+    {
+        var visited = new HashSet<IReadOnlyNode>();
+        var queueNodes = new Queue<(IReadOnlyNode, IInputProperty)>();
+        queueNodes.Enqueue((this, null));
+
+        while (queueNodes.Count > 0)
+        {
+            var node = queueNodes.Dequeue();
+
+            if (!visited.Add((node.Item1)))
+            {
+                continue;
+            }
+
+            if (!action(node.Item1, node.Item2))
+            {
+                return;
+            }
+
+            foreach (var outputProperty in node.Item1.OutputProperties)
+            {
+                foreach (var connection in outputProperty.Connections)
+                {
+                    if (connection.Connection != null)
+                    {
+                        queueNodes.Enqueue((connection.Node, connection));
                     }
                 }
             }
@@ -232,6 +270,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
             throw new InvalidOperationException($"Input with name {propName} already exists.");
         }
 
+        property.ConnectionChanged += InvokeConnectionsChanged;
         inputs.Add(property);
         return property;
     }
@@ -244,6 +283,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
             throw new InvalidOperationException($"Input with name {propName} already exists.");
         }
 
+        property.ConnectionChanged += InvokeConnectionsChanged;
         inputs.Add(property);
         return property;
     }
@@ -275,6 +315,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
             throw new InvalidOperationException($"Input with name {property.InternalPropertyName} already exists.");
         }
 
+        property.ConnectionChanged += InvokeConnectionsChanged;
         inputs.Add(property);
     }
 
@@ -306,11 +347,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
             {
                 keyFrame.Dispose();
             }
-        }
-
-        foreach (var texture in _managedTextures)
-        {
-            texture.Value.Dispose();
         }
     }
 
@@ -359,10 +395,10 @@ public abstract class Node : IReadOnlyNode, IDisposable
             object value = CloneValue(toClone.NonOverridenValue, clone.inputs[i]);
             clone.inputs[i].NonOverridenValue = value;
         }
-        
+
         // This makes shader outputs copy old delegate, also I don't think it's required because output is calculated based on inputs,
         // leaving commented in case I'm wrong
-        
+
         /*for (var i = 0; i < clone.outputs.Count; i++)
         {
             var cloneOutput = outputs[i];
@@ -426,6 +462,11 @@ public abstract class Node : IReadOnlyNode, IDisposable
         return new None();
     }
     
+    private void InvokeConnectionsChanged()
+    {
+        ConnectionsChanged?.Invoke();
+    }
+
     private static object CloneValue(object? value, InputProperty? input)
     {
         if (value is null)
@@ -441,7 +482,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
                 return input.FuncFactory(expr.GetConstant());
             }
         }
-        
+
         if (value is ICloneable cloneable)
         {
             return cloneable.Clone();
@@ -452,7 +493,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
         {
             return value;
         }
-        
+
         return default;
     }
 }

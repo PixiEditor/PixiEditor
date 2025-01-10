@@ -1,27 +1,19 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Avalonia;
 using Avalonia.Input;
-using Avalonia.Media;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.Helpers;
-using PixiEditor.Helpers.Extensions;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
-using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers.InputDevice;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Views.Overlays.Drawables;
 using PixiEditor.Views.Overlays.Handles;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
-using Point = Avalonia.Point;
 
 namespace PixiEditor.Views.Overlays.TransformOverlay;
 #nullable enable
@@ -160,6 +152,34 @@ internal class TransformOverlay : Overlay
         set => SetValue(IsSizeBoxEnabledProperty, value);
     }
 
+    public static readonly StyledProperty<bool> ScaleFromCenterProperty =
+        AvaloniaProperty.Register<TransformOverlay, bool>(
+            nameof(ScaleFromCenter));
+
+    public bool ScaleFromCenter
+    {
+        get => GetValue(ScaleFromCenterProperty);
+        set => SetValue(ScaleFromCenterProperty, value);
+    }
+
+    public static readonly StyledProperty<bool> CanAlignToPixelsProperty = AvaloniaProperty.Register<TransformOverlay, bool>(
+        nameof(CanAlignToPixels), defaultValue: true);
+
+    public bool CanAlignToPixels
+    {
+        get => GetValue(CanAlignToPixelsProperty);
+        set => SetValue(CanAlignToPixelsProperty, value);
+    }
+
+    public static readonly StyledProperty<bool> LockShearProperty = AvaloniaProperty.Register<TransformOverlay, bool>(
+        nameof(LockShear));
+
+    public bool LockShear
+    {
+        get => GetValue(LockShearProperty);
+        set => SetValue(LockShearProperty, value);
+    }
+    
     static TransformOverlay()
     {
         AffectsRender<TransformOverlay>(CornersProperty, ZoomScaleProperty, SideFreedomProperty, CornerFreedomProperty,
@@ -167,8 +187,6 @@ internal class TransformOverlay : Overlay
             CoverWholeScreenProperty);
         RequestCornersExecutorProperty.Changed.Subscribe(OnCornersExecutorChanged);
     }
-
-    private const int anchorSizeMultiplierForRotation = 15;
 
     private bool isMoving = false;
     private VecD mousePosOnStartMove = new();
@@ -181,6 +199,7 @@ internal class TransformOverlay : Overlay
     private double propAngle1OnStartRotate = 0;
     private double propAngle2OnStartRotate = 0;
 
+    private TransformSideFreedom beforeShearSideFreedom;
     private Anchor? capturedAnchor;
     private ShapeCorners cornersOnStartAnchorDrag;
     private VecD mousePosOnStartAnchorDrag;
@@ -254,13 +273,17 @@ internal class TransformOverlay : Overlay
     private List<Handle> snapPoints = new();
     private Handle? snapHandleOfOrigin;
 
-    private VectorPath rotateCursorGeometry = Handle.GetHandleGeometry("RotateHandle");
+    private VectorPath rotateCursorGeometry = Handle.GetHandleGeometry("RotateHandle").Path;
+    private PathVectorData shearCursorGeometry = Handle.GetHandleGeometry("ShearHandle");
     private bool rotationCursorActive = false;
+    private bool shearCursorActive = false;
+    private Anchor? hoveredAnchor;
 
     private VecD lastPointerPos;
     private InfoBox infoBox;
     private VecD lastSize;
     private bool actuallyMoved = false;
+    private bool isShearing = false;
 
     public TransformOverlay()
     {
@@ -306,13 +329,16 @@ internal class TransformOverlay : Overlay
         ForAllHandles<AnchorHandle>(x =>
         {
             x.OnPress += OnAnchorHandlePressed;
+            x.OnDrag += OnAnchorHandleDrag;
             x.OnRelease += OnAnchorHandleReleased;
         });
 
         originHandle.OnPress += OnAnchorHandlePressed;
+        originHandle.OnDrag += OnAnchorHandleDrag;
         originHandle.OnRelease += OnAnchorHandleReleased;
 
         moveHandle.OnPress += OnMoveHandlePressed;
+        moveHandle.OnDrag += OnMoveHandleDrag;
         moveHandle.OnRelease += OnMoveHandleReleased;
 
         infoBox = new InfoBox();
@@ -325,7 +351,9 @@ internal class TransformOverlay : Overlay
         DrawOverlay(drawingContext, canvasBounds.Size, Corners, InternalState.Origin, (float)ZoomScale);
 
         if (capturedAnchor is null)
-            UpdateRotationCursor(lastPointerPos);
+        {
+            UpdateSpecialCursors(lastPointerPos);
+        }
     }
 
     private void DrawOverlay
@@ -411,31 +439,60 @@ internal class TransformOverlay : Overlay
             double angle = (lastPointerPos - InternalState.Origin).Angle * 180 / Math.PI - 90;
             matrix = matrix.PostConcat(Matrix3X3.CreateRotationDegrees((float)angle, (float)lastPointerPos.X,
                 (float)lastPointerPos.Y));
-            matrix = matrix.PostConcat(Matrix3X3.CreateScale(8f / (float)ZoomScale, 8 / (float)ZoomScale,
+            matrix = matrix.PostConcat(Matrix3X3.CreateScale(7f / (float)ZoomScale, 7f / (float)ZoomScale,
                 (float)lastPointerPos.X, (float)lastPointerPos.Y));
             context.SetMatrix(context.TotalMatrix.Concat(matrix));
 
             context.DrawPath(rotateCursorGeometry, whiteFillPen);
             context.DrawPath(rotateCursorGeometry, cursorBorderPaint);
         }
+        
+        context.RestoreToCount(saved);
+        
+        saved = context.Save();
+
+        if (ShowHandles && shearCursorActive)
+        {
+            var matrix = Matrix3X3.CreateTranslation((float)lastPointerPos.X, (float)lastPointerPos.Y);
+            
+            matrix = matrix.PostConcat(Matrix3X3.CreateTranslation(
+                (float)-shearCursorGeometry.VisualAABB.Center.X,
+                (float)-shearCursorGeometry.VisualAABB.Center.Y));
+            
+            matrix = matrix.PostConcat(Matrix3X3.CreateScale(
+                20 / zoomboxScale / (float)shearCursorGeometry.VisualAABB.Size.X, 20 / zoomboxScale / (float)shearCursorGeometry.VisualAABB.Size.Y,
+                (float)lastPointerPos.X, (float)lastPointerPos.Y));
+
+            if(hoveredAnchor is Anchor.Right or Anchor.Left)
+                matrix = matrix.PostConcat(Matrix3X3.CreateRotationDegrees(90, (float)lastPointerPos.X, (float)lastPointerPos.Y));
+
+            context.SetMatrix(context.TotalMatrix.Concat(matrix));
+
+            shearCursorGeometry.RasterizeTransformed(context);
+        }
 
         context.RestoreToCount(saved);
 
-        infoBox.ZoomScale = ZoomScale;
-
         if (IsSizeBoxEnabled)
         {
+            int toRestore = context.Save();
+            var matrix = context.TotalMatrix;
+            VecD pos = matrix.MapPoint(lastPointerPos);
+            context.SetMatrix(Matrix3X3.Identity);
+
             if (isRotating)
             {
                 infoBox.DrawInfo(context, $"{(RadiansToDegreesNormalized(corners.RectRotation)):0.#}\u00b0",
-                    lastPointerPos);
+                    pos);
             }
             else
             {
                 VecD rectSize = Corners.RectSize;
                 string sizeText = $"W: {rectSize.X:0.#} H: {rectSize.Y:0.#} px";
-                infoBox.DrawInfo(context, sizeText, lastPointerPos);
+                infoBox.DrawInfo(context, sizeText, pos);
             }
+
+            context.RestoreToCount(toRestore);
         }
     }
 
@@ -448,17 +505,23 @@ internal class TransformOverlay : Overlay
 
     private void OnAnchorHandlePressed(Handle source, OverlayPointerArgs args)
     {
-        capturedAnchor = anchorMap[source];
-        cornersOnStartAnchorDrag = Corners;
-        originOnStartAnchorDrag = InternalState.Origin;
-        mousePosOnStartAnchorDrag = lastPointerPos;
-        IsSizeBoxEnabled = true;
+        CaptureAnchor(anchorMap[source]);
 
         if (source == originHandle)
         {
             IsSizeBoxEnabled = false;
             snapHandleOfOrigin = null;
         }
+
+        IsSizeBoxEnabled = true;
+    }
+
+    private void CaptureAnchor(Anchor anchor)
+    {
+        capturedAnchor = anchor;
+        cornersOnStartAnchorDrag = Corners;
+        originOnStartAnchorDrag = InternalState.Origin;
+        mousePosOnStartAnchorDrag = lastPointerPos;
     }
 
     private void OnMoveHandlePressed(Handle source, OverlayPointerArgs args)
@@ -469,6 +532,7 @@ internal class TransformOverlay : Overlay
     protected override void OnOverlayPointerExited(OverlayPointerArgs args)
     {
         rotationCursorActive = false;
+        shearCursorActive = false;
         Refresh();
     }
 
@@ -479,7 +543,11 @@ internal class TransformOverlay : Overlay
 
         if (Handles.Any(x => x.IsWithinHandle(x.Position, args.Point, ZoomScale))) return;
 
-        if (!CanRotate(args.Point))
+        if (CanShear(args.Point, out var side))
+        {
+            StartShearing(args, side);
+        }
+        else if (!CanRotate(args.Point))
         {
             StartMoving(args.Point);
         }
@@ -501,6 +569,20 @@ internal class TransformOverlay : Overlay
         args.Handled = true;
     }
 
+    private void OnAnchorHandleDrag(Handle source, OverlayPointerArgs args)
+    {
+        HandleCapturedAnchorMovement(args.Point);
+        lastPointerPos = args.Point;
+    }
+
+    private void OnMoveHandleDrag(Handle source, OverlayPointerArgs args)
+    {
+        HandleTransform(lastPointerPos);
+        Cursor = new Cursor(StandardCursorType.DragMove);
+        actuallyMoved = true;
+        lastPointerPos = args.Point;
+    }
+
     protected override void OnOverlayPointerMoved(OverlayPointerArgs e)
     {
         Cursor finalCursor = new Cursor(StandardCursorType.Arrow);
@@ -517,11 +599,12 @@ internal class TransformOverlay : Overlay
 
         if (capturedAnchor is not null)
         {
-            HandleCapturedAnchorMovement(e);
+            HandleCapturedAnchorMovement(e.Point);
+            lastPointerPos = e.Point;
             return;
         }
 
-        if (UpdateRotationCursor(e.Point))
+        if (UpdateSpecialCursors(e.Point))
         {
             finalCursor = new Cursor(StandardCursorType.None);
         }
@@ -570,18 +653,29 @@ internal class TransformOverlay : Overlay
             e.Pointer.Capture(null);
             Cursor = new Cursor(StandardCursorType.Arrow);
             var pos = e.Point;
-            UpdateRotationCursor(pos);
+            UpdateSpecialCursors(pos);
+        }
+
+        if (isShearing)
+        {
+            isShearing = false;
+            SideFreedom = beforeShearSideFreedom;
+            e.Pointer.Capture(null);
+            Cursor = new Cursor(StandardCursorType.Arrow);
+            var pos = e.Point;
+            UpdateSpecialCursors(pos);
         }
 
         StopMoving();
         IsSizeBoxEnabled = false;
+        capturedAnchor = null;
     }
 
     public override bool TestHit(VecD point)
     {
         const double offsetInPixels = 30;
         double offsetToScale = offsetInPixels / ZoomScale;
-        ShapeCorners scaled = Corners;
+        ShapeCorners scaled = Corners.AsRotated(-Corners.RectRotation, Corners.RectCenter);
         ShapeCorners scaledCorners = new ShapeCorners()
         {
             BottomLeft = scaled.BottomLeft - new VecD(offsetToScale, -offsetToScale),
@@ -589,13 +683,39 @@ internal class TransformOverlay : Overlay
             TopLeft = scaled.TopLeft - new VecD(offsetToScale, offsetToScale),
             TopRight = scaled.TopRight - new VecD(-offsetToScale, offsetToScale),
         };
-        
+
+        scaledCorners = scaledCorners.AsRotated(Corners.RectRotation, Corners.RectCenter);
+
         return base.TestHit(point) || scaledCorners.IsPointInside(point);
     }
 
     private void OnMoveHandleReleased(Handle obj, OverlayPointerArgs args)
     {
         StopMoving();
+    }
+
+    private bool CanShear(VecD mousePos, out Anchor side)
+    {
+        if(LockShear)
+        {
+            side = default;
+            return false;
+        }
+        
+        double distance = 20 / ZoomScale;
+        var sides = new[] { Anchor.Top, Anchor.Bottom, Anchor.Left, Anchor.Right };
+
+        bool isOverHandle = Handles.Any(x => x.IsWithinHandle(x.Position, mousePos, ZoomScale));
+        if (isOverHandle)
+        {
+            side = default;
+            return false;
+        }
+
+        side = sides.FirstOrDefault(side => VecD.Distance(TransformHelper.GetAnchorPosition(Corners, side), mousePos)
+                                            < distance);
+
+        return side != default && !Corners.IsPointInside(mousePos);
     }
 
     private void StopMoving()
@@ -619,11 +739,20 @@ internal class TransformOverlay : Overlay
         actuallyMoved = false;
     }
 
+    private void StartShearing(OverlayPointerArgs args, Anchor side)
+    {
+        isShearing = true;
+        beforeShearSideFreedom = SideFreedom;
+        SideFreedom = TransformSideFreedom.Shear;
+        CaptureAnchor(side);
+        lastPointerPos = args.Point;
+    }
+
     private void HandleTransform(VecD pos)
     {
         VecD delta = pos - mousePosOnStartMove;
 
-        if (Corners.IsAlignedToPixels)
+        if (Corners.IsAlignedToPixels && CanAlignToPixels)
             delta = delta.Round();
 
         ShapeCorners rawCorners = new ShapeCorners()
@@ -700,19 +829,23 @@ internal class TransformOverlay : Overlay
                Handles.All(x => !x.IsWithinHandle(x.Position, mousePos, ZoomScale)) && TestHit(mousePos);
     }
 
-    private bool UpdateRotationCursor(VecD mousePos)
+    private bool UpdateSpecialCursors(VecD mousePos)
     {
-        if ((!CanRotate(mousePos) && !isRotating) || LockRotation)
+        bool canShear = CanShear(mousePos, out Anchor anchor);
+        if ((!canShear && !CanRotate(mousePos) && !isRotating) || LockRotation)
         {
             rotationCursorActive = false;
+            shearCursorActive = false;
             return false;
         }
 
-        rotationCursorActive = true;
+        rotationCursorActive = !canShear;
+        shearCursorActive = canShear;
+        hoveredAnchor = anchor;
         return true;
     }
 
-    private void HandleCapturedAnchorMovement(OverlayPointerArgs e)
+    private void HandleCapturedAnchorMovement(VecD point)
     {
         if (capturedAnchor is null)
             throw new InvalidOperationException("No anchor is captured");
@@ -721,7 +854,7 @@ internal class TransformOverlay : Overlay
             (TransformHelper.IsSide((Anchor)capturedAnchor) && SideFreedom == TransformSideFreedom.Locked))
             return;
 
-        pos = e.Point;
+        pos = point;
 
         if (TransformHelper.IsCorner((Anchor)capturedAnchor))
         {
@@ -730,8 +863,11 @@ internal class TransformOverlay : Overlay
 
             ShapeCorners? newCorners = TransformUpdateHelper.UpdateShapeFromCorner
             ((Anchor)capturedAnchor, CornerFreedom, InternalState.ProportionalAngle1,
-                InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos, SnappingController, out string snapX, out string snapY);
-            
+                InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos,
+                ScaleFromCenter,
+                SnappingController,
+                out string snapX, out string snapY);
+
             HighlightSnappedAxis(snapX, snapY);
 
             if (newCorners is not null)
@@ -739,7 +875,7 @@ internal class TransformOverlay : Overlay
                 bool shouldAlign =
                     (CornerFreedom is TransformCornerFreedom.ScaleProportionally or TransformCornerFreedom.Scale) &&
                     Corners.IsAlignedToPixels;
-                
+
                 newCorners = shouldAlign
                     ? TransformHelper.AlignToPixels((ShapeCorners)newCorners)
                     : (ShapeCorners)newCorners;
@@ -785,7 +921,7 @@ internal class TransformOverlay : Overlay
                     snapped = TrySnapAnchor(adjacentPos + rawDelta);
                 }
             }
-            else if(SideFreedom is not TransformSideFreedom.ScaleProportionally)
+            else if (SideFreedom is not TransformSideFreedom.ScaleProportionally)
             {
                 // If rotation is almost cardinal, projecting snapping points result in extreme values when perpendicular to the axis
                 if (!TransformHelper.RotationIsAlmostCardinal(cornersOnStartAnchorDrag.RectRotation))
@@ -811,11 +947,12 @@ internal class TransformOverlay : Overlay
             ShapeCorners? newCorners = TransformUpdateHelper.UpdateShapeFromSide
             ((Anchor)capturedAnchor, SideFreedom, InternalState.ProportionalAngle1,
                 InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos + snapped.Delta,
+                ScaleFromCenter,
                 SnappingController, out string snapX, out string snapY);
 
             string finalSnapX = snapped.SnapAxisXName ?? snapX;
             string finalSnapY = snapped.SnapAxisYName ?? snapY;
-            
+
             HighlightSnappedAxis(finalSnapX, finalSnapY);
 
             if (newCorners is not null)
@@ -883,10 +1020,7 @@ internal class TransformOverlay : Overlay
 
         return new ShapeCorners()
         {
-            TopLeft = topLeftPos,
-            TopRight = topRightPos,
-            BottomLeft = bottomLeftPos,
-            BottomRight = bottomRightPos,
+            TopLeft = topLeftPos, TopRight = topRightPos, BottomLeft = bottomLeftPos, BottomRight = bottomRightPos,
         };
     }
 
@@ -1068,6 +1202,11 @@ internal class TransformOverlay : Overlay
 
         if (ActionCompleted is not null && ActionCompleted.CanExecute(null))
             ActionCompleted.Execute(null);
+
+        IsSizeBoxEnabled = false;
+
+        SnappingController.HighlightedXAxis = string.Empty;
+        SnappingController.HighlightedYAxis = string.Empty;
     }
 
     private Handle? GetSnapHandleOfOrigin()
@@ -1090,6 +1229,12 @@ internal class TransformOverlay : Overlay
     {
         isMoving = false;
         isRotating = false;
+        if (isShearing)
+        {
+            SideFreedom = beforeShearSideFreedom;
+        }
+
+        isShearing = false;
         Corners = corners;
         InternalState = new()
         {

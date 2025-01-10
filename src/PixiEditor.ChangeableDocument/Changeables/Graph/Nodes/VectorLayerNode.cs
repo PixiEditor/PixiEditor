@@ -85,7 +85,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return null;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,
+    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
         if (ShapeData == null)
@@ -160,13 +160,13 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     public void Rasterize(DrawingSurface surface, Paint paint)
     {
         int layer = surface.Canvas.SaveLayer(paint);
-        ShapeData?.RasterizeTransformed(surface);
+        ShapeData?.RasterizeTransformed(surface.Canvas);
         
         surface.Canvas.RestoreToCount(layer);
     }
 
     public override Node CreateCopy()
     {
-        return new VectorLayerNode() { ShapeData = (ShapeVectorData?)ShapeData?.Clone(), };
+        return new VectorLayerNode() { ShapeData = (ShapeVectorData?)ShapeData?.Clone(), ClipToPreviousMember = this.ClipToPreviousMember };
     }
 }

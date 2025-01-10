@@ -50,7 +50,9 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     public event PointerEvent? PointerMovedOverlay;
     public event PointerEvent? PointerPressedOverlay;
     public event PointerEvent? PointerReleasedOverlay;
-    
+    public event KeyEvent? KeyPressedOverlay;
+    public event KeyEvent? KeyReleasedOverlay;
+
     public Handle? CapturedHandle { get; set; } = null!;
 
     private readonly Dictionary<AvaloniaProperty, OverlayTransition> activeTransitions = new();
@@ -87,42 +89,71 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     {
         CapturedHandle = handle;
     }
-    
+
     public void EnterPointer(OverlayPointerArgs args)
     {
         OnOverlayPointerEntered(args);
+        if (args.Handled) return;
         InvokeHandleEvent(HandleEventType.PointerEnteredOverlay, args);
+        if (args.Handled) return;
         PointerEnteredOverlay?.Invoke(args);
     }
 
     public void ExitPointer(OverlayPointerArgs args)
     {
         OnOverlayPointerExited(args);
+        if (args.Handled) return;
         InvokeHandleEvent(HandleEventType.PointerExitedOverlay, args);
+        if (args.Handled) return;
         PointerExitedOverlay?.Invoke(args);
     }
 
     public void MovePointer(OverlayPointerArgs args)
     {
-        OnOverlayPointerMoved(args);
         InvokeHandleEvent(HandleEventType.PointerMovedOverlay, args);
+        if (args.Handled) return;
+        OnOverlayPointerMoved(args);
+        if (args.Handled) return;
         PointerMovedOverlay?.Invoke(args);
     }
 
     public void PressPointer(OverlayPointerArgs args)
     {
-        OnOverlayPointerPressed(args);
         InvokeHandleEvent(HandleEventType.PointerPressedOverlay, args);
+        if (args.Handled) return;
+        OnOverlayPointerPressed(args);
+        if (args.Handled) return;
         PointerPressedOverlay?.Invoke(args);
     }
 
     public void ReleasePointer(OverlayPointerArgs args)
     {
-        OnOverlayPointerReleased(args);
         InvokeHandleEvent(HandleEventType.PointerReleasedOverlay, args);
+        if (args.Handled)
+        {
+            CaptureHandle(null);
+            return;
+        }
+        OnOverlayPointerReleased(args);
+        if (args.Handled)
+        {
+            CaptureHandle(null);
+            return;
+        }
+
         PointerReleasedOverlay?.Invoke(args);
-        
-        CaptureHandle(null);
+    }
+    
+    public void KeyPressed(KeyEventArgs args)
+    {
+        OnKeyPressed(args.Key, args.KeyModifiers);
+        KeyPressedOverlay?.Invoke(args.Key, args.KeyModifiers);
+    }
+
+    public void KeyReleased(KeyEventArgs keyEventArgs)
+    {
+        OnKeyReleased(keyEventArgs.Key, keyEventArgs.KeyModifiers);
+        KeyReleasedOverlay?.Invoke(keyEventArgs.Key, keyEventArgs.KeyModifiers);
     }
 
     public virtual bool TestHit(VecD point)
@@ -156,7 +187,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
             }
         }
     }
-    
+
     private void InvokeHandleEvent(HandleEventType eventName, OverlayPointerArgs args)
     {
         if (CapturedHandle != null)
@@ -172,11 +203,11 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
             }
         }
     }
-    
+
     private void InvokeHandleEvent(Handle handle, OverlayPointerArgs args, HandleEventType pointerEvent)
     {
-        if(pointerEvent == null) return;
-        
+        if (pointerEvent == null) return;
+
         if (pointerEvent == HandleEventType.PointerMovedOverlay)
         {
             handle.InvokeMove(args);
@@ -242,6 +273,14 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     protected virtual void ZoomChanged(double newZoom) { }
 
     protected virtual void OnOverlayPointerReleased(OverlayPointerArgs args)
+    {
+    }
+    
+    protected virtual void OnKeyPressed(Key key, KeyModifiers keyModifiers)
+    {
+    }
+    
+    protected virtual void OnKeyReleased(Key key, KeyModifiers keyModifiers)
     {
     }
 

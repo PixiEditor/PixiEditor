@@ -13,8 +13,11 @@ internal class PointsDataSerializationFactory : VectorShapeSerializationFactory<
         builder.AddVecDList(original.Points);
     }
 
-    protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor, Color fillColor,
-        float strokeWidth, out PointsVectorData original)
+    protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor,
+        bool fill,
+        Color fillColor,
+        float strokeWidth, (string serializerName, string serializerVersion) serializerData,
+        out PointsVectorData original)
     {
         List<VecD> points = extractor.GetVecDList();
         original = new PointsVectorData(points)
@@ -22,7 +25,8 @@ internal class PointsDataSerializationFactory : VectorShapeSerializationFactory<
             StrokeColor = strokeColor,
             FillColor = fillColor,
             StrokeWidth = strokeWidth,
-            TransformationMatrix = matrix
+            TransformationMatrix = matrix,
+            Fill = fill
         };
 
         return true;

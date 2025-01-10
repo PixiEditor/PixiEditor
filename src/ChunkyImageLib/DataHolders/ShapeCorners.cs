@@ -196,6 +196,28 @@ public struct ShapeCorners
         };
     }
 
+    public ShapeCorners AsScaled(float scaleX, float scaleY)
+    {
+        VecD center = RectCenter;
+        VecD topLeftDelta = TopLeft - center;
+        VecD topRightDelta = TopRight - center;
+        VecD bottomLeftDelta = BottomLeft - center;
+        VecD bottomRightDelta = BottomRight - center;
+
+        topLeftDelta = new VecD(topLeftDelta.X * scaleX, topLeftDelta.Y * scaleY);
+        topRightDelta = new VecD(topRightDelta.X * scaleX, topRightDelta.Y * scaleY);
+        bottomLeftDelta = new VecD(bottomLeftDelta.X * scaleX, bottomLeftDelta.Y * scaleY);
+        bottomRightDelta = new VecD(bottomRightDelta.X * scaleX, bottomRightDelta.Y * scaleY);
+
+        return new ShapeCorners()
+        {
+            TopLeft = center + topLeftDelta,
+            TopRight = center + topRightDelta,
+            BottomLeft = center + bottomLeftDelta,
+            BottomRight = center + bottomRightDelta
+        };
+    }
+
     public static bool operator !=(ShapeCorners left, ShapeCorners right) => !(left == right);
 
     public static bool operator ==(ShapeCorners left, ShapeCorners right)

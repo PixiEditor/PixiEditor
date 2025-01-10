@@ -22,13 +22,18 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
         AllowHighDpiRendering = true;
     }
 
-    public override Node CreateCopy() => new FolderNode { MemberName = MemberName };
+    public override Node CreateCopy() => new FolderNode
+    {
+        MemberName = MemberName, 
+        ClipToPreviousMember = this.ClipToPreviousMember,
+        EmbeddedMask = this.EmbeddedMask?.CloneFromCommitted()
+    };
 
     public override VecD GetScenePosition(KeyFrameTime time) =>
-        documentSize / 2f; //GetTightBounds(time).GetValueOrDefault().Center;
+        documentSize / 2f; 
 
     public override VecD GetSceneSize(KeyFrameTime time) =>
-        documentSize; //GetTightBounds(time).GetValueOrDefault().Size;
+        documentSize; 
 
     protected override void OnExecute(RenderContext context)
     {
@@ -83,7 +88,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
     private void RenderFolderContent(SceneObjectRenderContext sceneContext, RectD bounds, bool useFilters)
     {
         VecI size = (VecI)bounds.Size;
-        var outputWorkingSurface = RequestTexture(0, size, true);
+        var outputWorkingSurface = RequestTexture(0, size, sceneContext.ProcessingColorSpace, true);
 
         blendPaint.ImageFilter = null;
         blendPaint.ColorFilter = null;
@@ -94,7 +99,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
 
         if (Background.Value != null && sceneContext.TargetPropertyOutput != RawOutput)
         {
-            Texture tempSurface = RequestTexture(1, outputWorkingSurface.Size);
+            Texture tempSurface = RequestTexture(1, outputWorkingSurface.Size, sceneContext.ProcessingColorSpace);
             if (Background.Connection.Node is IClipSource clipSource && ClipToPreviousMember)
             {
                 DrawClipSource(tempSurface.DrawingSurface, clipSource, sceneContext);
@@ -126,24 +131,31 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
-        RectI bounds = new RectI();
+        RectI? bounds = null;
         if (Content.Connection != null)
         {
             Content.Connection.Node.TraverseBackwards((n) =>
             {
-                if (n is ImageLayerNode imageLayerNode)
+                if (n is StructureNode structureNode)
                 {
-                    RectI? imageBounds = (RectI?)imageLayerNode.GetTightBounds(frameTime);
+                    RectI? imageBounds = (RectI?)structureNode.GetTightBounds(frameTime);
                     if (imageBounds != null)
                     {
-                        bounds = bounds.Union(imageBounds.Value);
+                        if (bounds == null)
+                        {
+                            bounds = imageBounds;
+                        }
+                        else
+                        {
+                            bounds = bounds.Value.Union(imageBounds.Value);
+                        }
                     }
                 }
 
                 return true;
             });
 
-            return (RectD)bounds;
+            return (RectD?)bounds ?? RectD.Empty;
         }
 
         return null;
@@ -165,32 +177,6 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
         return guids;
     }
 
-    /// <summary>
-    /// Creates a clone of the folder, its mask and all of its children
-    /// </summary>
-    /*internal override Folder Clone()
-    {
-        var builder = ImmutableList<StructureMember>.Empty.ToBuilder();
-        for (var i = 0; i < Children.Count; i++)
-        {
-            var child = Children[i];
-            builder.Add(child.Clone());
-        }
-
-        return new Folder
-        {
-            GuidValue = GuidValue,
-            IsVisible = IsVisible,
-            Name = Name,
-            Opacity = Opacity,
-            Children = builder.ToImmutable(),
-            Mask = Mask?.CloneFromCommitted(),
-            BlendMode = BlendMode,
-            ClipToMemberBelow = ClipToMemberBelow,
-            MaskIsVisible = MaskIsVisible
-        };
-    }*/
-
     public override RectD? GetPreviewBounds(int frame, string elementFor = "")
     {
         if (elementFor == nameof(EmbeddedMask))
@@ -201,15 +187,13 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
         return GetTightBounds(frame);
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame,
+    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
         if (elementToRenderName == nameof(EmbeddedMask))
         {
-            return base.RenderPreview(renderOn, resolution, frame, elementToRenderName);
+            return base.RenderPreview(renderOn, context, elementToRenderName);
         }
-
-        // TODO: Make preview better, with filters, clips and stuff
 
         if (Content.Connection != null)
         {
@@ -219,7 +203,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
                 IReadOnlyNode node = executionQueue.Dequeue();
                 if (node is IPreviewRenderable previewRenderable)
                 {
-                    previewRenderable.RenderPreview(renderOn, resolution, frame, elementToRenderName);
+                    previewRenderable.RenderPreview(renderOn, context, elementToRenderName);
                 }
             }
         }

@@ -49,6 +49,9 @@ internal partial class FolderControl : UserControl
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
         
+        AddHandler(DragDrop.DragEnterEvent, FolderControl_DragEnter);
+        AddHandler(DragDrop.DragLeaveEvent, FolderControl_DragLeave);
+        
         TopDropGrid.AddHandler(DragDrop.DragEnterEvent, Grid_DragEnter);
         TopDropGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_DragLeave);
         TopDropGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Top);
@@ -60,6 +63,10 @@ internal partial class FolderControl : UserControl
         middleDropGrid.AddHandler(DragDrop.DragEnterEvent, Grid_CenterEnter);
         middleDropGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_CenterLeave);
         middleDropGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Center);
+        
+        TopDropGrid.IsVisible = false;
+        middleDropGrid.IsVisible = false;
+        BottomDropGrid.IsVisible = false;
     }
 
     private void OnUnloaded(object? sender, RoutedEventArgs e)
@@ -122,12 +129,16 @@ internal partial class FolderControl : UserControl
 
     private void FolderControl_DragEnter(object sender, DragEventArgs e)
     {
+        TopDropGrid.IsVisible = true;
         middleDropGrid.IsVisible = true;
+        BottomDropGrid.IsVisible = true;
     }
 
     private void FolderControl_DragLeave(object sender, DragEventArgs e)
     {
+        TopDropGrid.IsVisible = false;
         middleDropGrid.IsVisible = false;
+        BottomDropGrid.IsVisible = false;
     }
 
     private void RenameMenuItem_Click(object sender, RoutedEventArgs e)

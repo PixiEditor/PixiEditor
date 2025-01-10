@@ -11,10 +11,10 @@ internal interface IAnimationHandler
     public int OnionFramesBindable { get; set; }
     public double OnionOpacityBindable { get; set; }
     public bool IsPlayingBindable { get; set; }
-    public void CreateRasterKeyFrame(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null, int? frameToCopyFrom = null);
+    public Guid? CreateCel(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null, int? frameToCopyFrom = null);
     public void SetFrameRate(int newFrameRate);
     public void SetActiveFrame(int newFrame);
-    public void SetFrameLength(Guid keyFrameId, int newStartFrame, int newDuration);
+    public void SetCelLength(Guid keyFrameId, int newStartFrame, int newDuration);
     public void SetKeyFrameVisibility(Guid infoKeyFrameId, bool infoIsVisible);
     public bool FindKeyFrame<T>(Guid guid, out T keyFrameHandler) where T : ICelHandler;
     internal void AddKeyFrame(ICelHandler iCel);

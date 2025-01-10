@@ -3,12 +3,14 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("CreateImage")]
-public class CreateImageNode : Node
+public class CreateImageNode : Node, IPreviewRenderable
 {
     public OutputProperty<Texture> Output { get; }
 
@@ -19,6 +21,8 @@ public class CreateImageNode : Node
     public RenderInputProperty Content { get; }
 
     public RenderOutputProperty RenderOutput { get; }
+
+    private TextureCache textureCache = new();
 
     public CreateImageNode()
     {
@@ -36,27 +40,76 @@ public class CreateImageNode : Node
             return;
         }
 
-        var surface = RequestTexture(0, Size.Value, false);
+        var surface = Render(context);
+
+        Output.Value = surface;
+
+        RenderOutput.ChainToPainterValue();
+    }
+
+    private Texture Render(RenderContext context)
+    {
+        var surface = textureCache.RequestTexture(0, Size.Value, context.ProcessingColorSpace, false);
 
         surface.DrawingSurface.Canvas.Clear(Fill.Value);
 
         int saved = surface.DrawingSurface.Canvas.Save();
 
         RenderContext ctx = new RenderContext(surface.DrawingSurface, context.FrameTime, context.ChunkResolution,
-            context.DocumentSize);
+            context.DocumentSize, context.ProcessingColorSpace);
 
         Content.Value?.Paint(ctx, surface.DrawingSurface);
 
         surface.DrawingSurface.Canvas.RestoreToCount(saved);
-        Output.Value = surface;
-
-        RenderOutput.ChainToPainterValue();
+        return surface;
     }
 
     private void OnPaint(RenderContext context, DrawingSurface surface)
     {
+        if(Output.Value == null || Output.Value.IsDisposed) return;
+        
         surface.Canvas.DrawSurface(Output.Value.DrawingSurface, 0, 0);
     }
 
     public override Node CreateCopy() => new CreateImageNode();
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        textureCache.Dispose();
+    }
+
+    public RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    {
+        if (Size.Value.X <= 0 || Size.Value.Y <= 0)
+        {
+            return null;
+        }
+
+        return new RectD(0, 0, Size.Value.X, Size.Value.Y);
+    }
+
+    public bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
+    {
+        if (Size.Value.X <= 0 || Size.Value.Y <= 0)
+        {
+            return false;
+        }
+
+        if (Output.Value == null)
+        {
+            return false;
+        }
+
+        var surface = Render(context);
+        
+        if (surface == null || surface.IsDisposed)
+        {
+            return false;
+        }
+        
+        renderOn.Canvas.DrawSurface(surface.DrawingSurface, 0, 0);
+        
+        return true;
+    }
 }

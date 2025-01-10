@@ -25,7 +25,7 @@ internal class MoveViewportToolViewModel : ToolViewModel
         Cursor = new Cursor(StandardCursorType.SizeAll);
     }
 
-    public override void OnSelected(bool restoring)
+    protected override void OnSelected(bool restoring)
     {
         ActionDisplay = new LocalizedString("MOVE_VIEWPORT_ACTION_DISPLAY");
     }

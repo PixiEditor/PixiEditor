@@ -28,4 +28,28 @@ public struct SvgTransformUnit : ISvgUnit
         
         return $"matrix({scaleX}, {skewY}, {skewX}, {scaleY}, {translateX}, {translateY})";
     }
+
+    public void ValuesFromXml(string readerValue)
+    {
+        if (readerValue.StartsWith("matrix(") && readerValue.EndsWith(")"))
+        {
+            string[] values = readerValue[7..^1].Split(", ");
+            if (values.Length == 6)
+            {
+                if (float.TryParse(values[0], NumberStyles.Any, CultureInfo.InvariantCulture, out float scaleX) &&
+                    float.TryParse(values[1], NumberStyles.Any, CultureInfo.InvariantCulture, out float skewY) &&
+                    float.TryParse(values[2], NumberStyles.Any, CultureInfo.InvariantCulture, out float skewX) &&
+                    float.TryParse(values[3], NumberStyles.Any, CultureInfo.InvariantCulture, out float scaleY) &&
+                    float.TryParse(values[4], NumberStyles.Any, CultureInfo.InvariantCulture, out float translateX) &&
+                    float.TryParse(values[5], NumberStyles.Any, CultureInfo.InvariantCulture, out float translateY))
+                {
+                    MatrixValue = new Matrix3X3(scaleX, skewX, translateX, skewY, scaleY, translateY, 0, 0, 1);
+                }
+            }
+        }
+        else
+        {
+            // todo: parse other types of transformation syntax (rotate, translate, scale etc)
+        }
+    }
 }

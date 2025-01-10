@@ -30,6 +30,8 @@ internal class RasterEllipseToolViewModel : ShapeTool, IRasterEllipseToolHandler
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
+        DrawFromCenter = ctrlIsDown;
+        
         if (shiftIsDown)
         {
             ActionDisplay = "ELLIPSE_TOOL_ACTION_DISPLAY_SHIFT";
@@ -47,7 +49,7 @@ internal class RasterEllipseToolViewModel : ShapeTool, IRasterEllipseToolHandler
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseRasterEllipseTool();
     }
     
-    public override void OnSelected(bool restoring)
+    protected override void OnSelected(bool restoring)
     {
         if(restoring) return;
         

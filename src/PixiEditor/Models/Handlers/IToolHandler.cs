@@ -52,15 +52,18 @@ internal interface IToolHandler : IHandler
     /// <summary>
     ///     Layer type that should be created if no layer is selected incompatible one.
     /// </summary>
-    public Type LayerTypeToCreateOnEmptyUse { get; }
+    public Type? LayerTypeToCreateOnEmptyUse { get; }
 
     public virtual string? DefaultNewLayerName => null;
 
     public void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown);
     public void UseTool(VecD pos);
-    public void OnSelected(bool restoring);
+    public void OnToolSelected(bool restoring);
 
     public void SetToolSetSettings(IToolSetHandler toolset, Dictionary<string, object>? settings);
     public void ApplyToolSetSettings(IToolSetHandler toolset);
-    public void OnDeselecting(bool transient);
+    public void OnToolDeselected(bool transient);
+    public void OnPostUndo();
+    public void OnPostRedo();
+    public void OnActiveFrameChanged(int newFrame);
 }

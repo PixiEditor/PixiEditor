@@ -26,7 +26,7 @@ public class RasterizeShapeNode : RenderNode
         if (shape == null || !shape.IsValid())
             return;
         
-        shape.RasterizeTransformed(surface);
+        shape.RasterizeTransformed(surface.Canvas);
     }
 
     public override Node CreateCopy() => new RasterizeShapeNode();
@@ -35,14 +35,14 @@ public class RasterizeShapeNode : RenderNode
         return Data?.Value?.TransformedAABB;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
+    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         var shape = Data.Value;
 
         if (shape == null || !shape.IsValid())
             return false;
 
-        shape.RasterizeTransformed(renderOn);
+        shape.RasterizeTransformed(renderOn.Canvas);
 
         return true;
     }

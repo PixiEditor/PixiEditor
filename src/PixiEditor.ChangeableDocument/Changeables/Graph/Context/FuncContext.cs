@@ -55,9 +55,9 @@ public class FuncContext
         SamplePosition = Builder.ConstructFloat2(OriginalPosition.X, OriginalPosition.Y);
     }
 
-    public Half4 SampleSurface(DrawingSurface surface, Expression pos)
+    public Half4 SampleSurface(DrawingSurface surface, Expression pos, ColorSampleMode sampleMode)
     {
-        SurfaceSampler texName = Builder.AddOrGetSurface(surface);
+        SurfaceSampler texName = Builder.AddOrGetSurface(surface, sampleMode);
         return Builder.Sample(texName, pos);
     }
 

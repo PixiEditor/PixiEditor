@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Rendering;
+﻿using Avalonia.Media;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
 using Drawie.Numerics;
@@ -15,6 +16,7 @@ internal class SvgFileType : IoFileType
     public override string[] Extensions { get; } = new[] { ".svg" };
     public override string DisplayName { get; } = "Scalable Vector Graphics";
     public override FileTypeDialogDataSet.SetKind SetKind { get; } = FileTypeDialogDataSet.SetKind.Vector;
+    public override SolidColorBrush EditorColor { get; } = new SolidColorBrush(Color.FromRgb(0, 128, 0));
 
     public override async Task<SaveResult> TrySave(string pathWithExtension, DocumentViewModel document, ExportConfig config, ExportJob? job)
     {

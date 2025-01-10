@@ -1,4 +1,6 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections;
+using System.Collections.Immutable;
+using System.Reactive.Disposables;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Actions;
@@ -8,6 +10,7 @@ using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Models.Clipboard;
@@ -31,6 +34,11 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         Document = document;
         Internals = internals;
+    }
+
+    public ChangeBlock StartChangeBlock()
+    {
+        return new ChangeBlock(Internals.ActionAccumulator);
     }
 
     /// <summary>
@@ -189,17 +197,28 @@ internal class DocumentOperationsModule : IDocumentOperations
     }
 
     /// <summary>
-    /// Duplicates the layer with the <paramref name="guidValue"/>
+    /// Duplicates the member with the <paramref name="guidValue"/>
     /// </summary>
-    /// <param name="guidValue">The Guid of the layer</param>
-    public void DuplicateLayer(Guid guidValue)
+    /// <param name="guidValue">The Guid of the member</param>
+    public void DuplicateMember(Guid guidValue)
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
         Internals.ChangeController.TryStopActiveExecutor();
 
-        Internals.ActionAccumulator.AddFinishedActions(new DuplicateLayer_Action(guidValue));
+        bool isFolder = Document.StructureHelper.Find(guidValue) is IFolderHandler;
+        if (!isFolder)
+        {
+            Internals.ActionAccumulator.AddFinishedActions(new DuplicateLayer_Action(guidValue));
+        }
+        else
+        {
+            Guid newGuid = Guid.NewGuid();
+            Internals.ActionAccumulator.AddFinishedActions(
+                new DuplicateFolder_Action(guidValue, newGuid),
+                new SetSelectedMember_PassthroughAction(newGuid));
+        }
     }
 
     /// <summary>
@@ -423,16 +442,17 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void Undo()
     {
-        IMidChangeUndoableExecutor executor = Internals.ChangeController.TryGetExecutorFeature<IMidChangeUndoableExecutor>();
+        IMidChangeUndoableExecutor executor =
+            Internals.ChangeController.TryGetExecutorFeature<IMidChangeUndoableExecutor>();
         if (executor is { CanUndo: true })
         {
             executor.OnMidChangeUndo();
             return;
         }
-        
-        if(Internals.ChangeController.IsBlockingChangeActive)
+
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return;
-        
+
         Internals.ChangeController.TryStopActiveExecutor();
         Internals.ActionAccumulator.AddActions(new Undo_Action());
     }
@@ -442,17 +462,22 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void Redo()
     {
-        IMidChangeUndoableExecutor executor = Internals.ChangeController.TryGetExecutorFeature<IMidChangeUndoableExecutor>();
+        IMidChangeUndoableExecutor executor =
+            Internals.ChangeController.TryGetExecutorFeature<IMidChangeUndoableExecutor>();
         if (executor is { CanRedo: true })
         {
             executor.OnMidChangeRedo();
             return;
         }
-        
-        if(Internals.ChangeController.IsBlockingChangeActive)
+
+        if (Internals.ChangeController.IsBlockingChangeActive)
             return;
 
-        Internals.ChangeController.TryStopActiveExecutor();
+        if (!Internals.ChangeController.IsChangeOfTypeActive<IMidChangeUndoableExecutor>())
+        {
+            Internals.ChangeController.TryStopActiveExecutor();
+        }
+
         Internals.ActionAccumulator.AddActions(new Redo_Action());
     }
 
@@ -515,8 +540,10 @@ internal class DocumentOperationsModule : IDocumentOperations
         Guid newGuid = Guid.NewGuid();
 
         //make a new layer, put combined image onto it, delete layers that were merged
+        bool allVectorNodes = members.All(x => Document.StructureHelper.Find(x) is IVectorLayerHandler);
+        Type layerToCreate = allVectorNodes ? typeof(VectorLayerNode) : typeof(ImageLayerNode);
         Internals.ActionAccumulator.AddActions(
-            new CreateStructureMember_Action(parent.Id, newGuid, typeof(ImageLayerNode)),
+            new CreateStructureMember_Action(parent.Id, newGuid, layerToCreate),
             new StructureMemberName_Action(newGuid, node.NodeNameBindable),
             new CombineStructureMembersOnto_Action(members.ToHashSet(), newGuid));
         foreach (var member in members)
@@ -546,7 +573,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
-        
+
         Internals.ChangeController.TryStopActiveExecutor();
 
         Internals.ChangeController.TryStartExecutor(new PasteImageExecutor(image, startPos, memberGuid, drawOnMask));
@@ -594,9 +621,9 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
-        
+
         Internals.ChangeController.TryStopActiveExecutor();
-        
+
         Internals.ActionAccumulator.AddActions(
             new PasteImage_Action(image, corners, memberGuid, ignoreClipSymmetriesEtc, drawOnMask, atFrame, default),
             new EndPasteImage_Action());
@@ -611,9 +638,9 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
-        
+
         Internals.ChangeController.TryStopActiveExecutor();
-        
+
         Internals.ActionAccumulator.AddFinishedActions(
             new ClipCanvas_Action(Document.AnimationHandler.ActiveFrameBindable));
     }
@@ -630,7 +657,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
-        
+
         Internals.ChangeController.TryStopActiveExecutor();
 
         Internals.ActionAccumulator.AddFinishedActions(new FlipImage_Action(flipType, frame, membersToFlip));
@@ -652,7 +679,7 @@ internal class DocumentOperationsModule : IDocumentOperations
             return;
 
         Internals.ChangeController.TryStopActiveExecutor();
-        
+
         Internals.ActionAccumulator.AddFinishedActions(new RotateImage_Action(rotation, membersToRotate, frame));
     }
 
@@ -663,7 +690,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
-        
+
         Internals.ChangeController.TryStopActiveExecutor();
 
         Internals.ActionAccumulator.AddFinishedActions(new CenterContent_Action(structureMembers.ToList(), frame));
@@ -677,7 +704,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
-        
+
         Internals.ChangeController.TryStopActiveExecutor();
 
         RectD referenceImageRect =
@@ -692,7 +719,8 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void DeleteReferenceLayer()
     {
-        if (Internals.ChangeController.IsBlockingChangeActive || Document.ReferenceLayerHandler.ReferenceTexture is null)
+        if (Internals.ChangeController.IsBlockingChangeActive ||
+            Document.ReferenceLayerHandler.ReferenceTexture is null)
             return;
 
         Internals.ChangeController.TryStopActiveExecutor();
@@ -705,11 +733,12 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void TransformReferenceLayer()
     {
-        if (Document.ReferenceLayerHandler.ReferenceTexture is null || Internals.ChangeController.IsBlockingChangeActive)
+        if (Document.ReferenceLayerHandler.ReferenceTexture is null ||
+            Internals.ChangeController.IsBlockingChangeActive)
             return;
-        
+
         Internals.ChangeController.TryStopActiveExecutor();
-        
+
         Internals.ChangeController.TryStartExecutor(new TransformReferenceLayerExecutor());
     }
 
@@ -718,9 +747,10 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void ResetReferenceLayerPosition()
     {
-        if (Document.ReferenceLayerHandler.ReferenceTexture is null || Internals.ChangeController.IsBlockingChangeActive)
+        if (Document.ReferenceLayerHandler.ReferenceTexture is null ||
+            Internals.ChangeController.IsBlockingChangeActive)
             return;
-        
+
         Internals.ChangeController.TryStopActiveExecutor();
 
         VecD size = new(Document.ReferenceLayerHandler.ReferenceTexture.Size.X,
@@ -739,7 +769,7 @@ internal class DocumentOperationsModule : IDocumentOperations
             return;
 
         Internals.ChangeController.TryStopActiveExecutor();
-        
+
         if (Document.SelectedStructureMember is not { } member || Document.SelectionPathBindable.IsEmpty)
             return;
 
@@ -755,9 +785,9 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
-        
+
         Internals.ChangeController.TryStopActiveExecutor();
-        
+
         var bounds = Document.SelectionPathBindable.TightBounds;
         if (Document.SelectionPathBindable.IsEmpty || bounds.Width <= 0 || bounds.Height <= 0)
             return;
@@ -778,12 +808,12 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
-        
+
         Internals.ChangeController.TryStopActiveExecutor();
-        
+
         var selection = Document.SelectionPathBindable;
         var inverse = new VectorPath();
-        inverse.AddRect(new RectI(new(0, 0), Document.SizeBindable));
+        inverse.AddRect(new RectD(new(0, 0), Document.SizeBindable));
 
         Internals.ActionAccumulator.AddFinishedActions(
             new SetSelection_Action(inverse.Op(selection, VectorPathOp.Difference)));
@@ -793,21 +823,86 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
-        
+
         Internals.ChangeController.TryStopActiveExecutor();
 
         Internals.ActionAccumulator.AddFinishedActions(new RasterizeMember_Action(memberId));
     }
 
-    public void InvokeCustomAction(Action action)
+    public void InvokeCustomAction(Action action, bool stopActiveExecutor = true)
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
-        
-        Internals.ChangeController.TryStopActiveExecutor();
+
+        if (stopActiveExecutor)
+        {
+            Internals.ChangeController.TryStopActiveExecutor();
+        }
 
         IAction targetAction = new InvokeAction_PassthroughAction(action);
 
         Internals.ActionAccumulator.AddActions(targetAction);
+    }
+
+    public void UseLinearSrgbProcessing()
+    {
+        Internals.ActionAccumulator.AddFinishedActions(
+            new ChangeProcessingColorSpace_Action(ColorSpace.CreateSrgbLinear()));
+    }
+
+    public void UseSrgbProcessing()
+    {
+        Internals.ActionAccumulator.AddFinishedActions(
+            new ChangeProcessingColorSpace_Action(ColorSpace.CreateSrgb()));
+    }
+
+    public Guid? DuplicateNode(Guid nodeId)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return null;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        if (!Document.StructureHelper.TryFindNode(nodeId, out INodeHandler node) ||
+            node.InternalName == OutputNode.UniqueName)
+            return null;
+
+        Guid newGuid = Guid.NewGuid();
+
+        Internals.ActionAccumulator.AddFinishedActions(new DuplicateNode_Action(nodeId, newGuid));
+
+        return newGuid;
+    }
+
+    public void ChangeCelLength(Guid celId, int startFrame, int duration)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new KeyFrameLength_Action(celId, startFrame, duration), new EndKeyFrameLength_Action());
+    }
+
+    public void DeleteNodes(Guid[] nodes)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+        
+        List<IAction> actions = new();
+
+        for (var i = 0; i < nodes.Length; i++)
+        {
+            var node = nodes[i];
+            if (Document.StructureHelper.TryFindNode(node, out INodeHandler nodeHandler) &&
+                nodeHandler.InternalName == OutputNode.UniqueName)
+                return;
+            
+            actions.Add(new DeleteNode_Action(node));
+        }
+
+        Internals.ActionAccumulator.AddFinishedActions(actions.ToArray());
     }
 }

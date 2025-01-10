@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
@@ -40,14 +41,14 @@ internal class DuplicateLayer_Change : Change
 
         InputProperty<Painter?> targetInput = parent.InputProperties.FirstOrDefault(x =>
             x.ValueType == typeof(Painter) &&
-            x.Connection.Node is StructureNode) as InputProperty<Painter?>;
+            x.Connection is { Node: StructureNode }) as InputProperty<Painter?>;
 
         List<IChangeInfo> operations = new();
 
         target.NodeGraph.AddNode(clone);
 
         operations.Add(CreateLayer_ChangeInfo.FromLayer(clone));
-
+        
         operations.AddRange(NodeOperations.AppendMember(targetInput, clone.Output, clone.Background, clone.Id));
 
         ignoreInUndo = false;

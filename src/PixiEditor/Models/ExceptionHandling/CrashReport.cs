@@ -14,6 +14,7 @@ using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands;
+using PixiEditor.OperatingSystem;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Document;
@@ -24,14 +25,54 @@ namespace PixiEditor.Models.ExceptionHandling;
 #nullable enable
 internal class CrashReport : IDisposable
 {
-    public static CrashReport Generate(Exception exception)
+    public static CrashReport Generate(Exception exception, NonCrashInfo? nonCrashInfo)
     {
+        var apiReport = new ApiCrashReport();
         StringBuilder builder = new();
         DateTimeOffset currentTime = DateTimeOffset.Now;
+        var processStartTime = Process.GetCurrentProcess().StartTime;
+
+        apiReport.Version = VersionHelpers.GetCurrentAssemblyVersion();
+        apiReport.BuildId = VersionHelpers.GetBuildId();
+        
+        apiReport.ReportTime = currentTime.UtcDateTime;
+        apiReport.ProcessStart = processStartTime.ToUniversalTime();
+        apiReport.IsCrash = nonCrashInfo == null;
+
+        if (nonCrashInfo != null)
+        {
+            apiReport.CatchLocation = nonCrashInfo.CatchLocation;
+            apiReport.CatchMethod = nonCrashInfo.CatchMember;
+        }
+
+        try
+        {
+            var os = IOperatingSystem.Current;
+
+            apiReport.SystemInformation["PlatformId"] = os.AnalyticsId;
+            apiReport.SystemInformation["PlatformName"] = os.AnalyticsName;
+        }
+        catch (Exception e)
+        {
+            exception = new AggregateException(exception, new CrashInfoCollectionException("OS Information", e));
+        }
+
+        try
+        {
+            var sessionId = AnalyticsPeriodicReporter.Instance?.SessionId;
+
+            if (sessionId == Guid.Empty) sessionId = null;
+            
+            apiReport.SessionId = sessionId;
+        }
+        catch (Exception e)
+        {
+            exception = new AggregateException(exception, new CrashInfoCollectionException("Session Id", e));
+        }
 
         builder
             .AppendLine($"PixiEditor {VersionHelpers.GetCurrentAssemblyVersionString(moreSpecific: true)} x{IntPtr.Size * 8} crashed on {currentTime:yyyy.MM.dd} at {currentTime:HH:mm:ss} {currentTime:zzz}")
-            .AppendLine($"Application started {GetFormatted(() => Process.GetCurrentProcess().StartTime, "yyyy.MM.dd HH:hh:ss")}, {GetFormatted(() => DateTime.Now - Process.GetCurrentProcess().StartTime, @"d\ hh\:mm\.ss")} ago")
+            .AppendLine($"Application started {GetFormatted(() => processStartTime, "yyyy.MM.dd HH:hh:ss")}, {GetFormatted(() => currentTime - processStartTime, @"d\ hh\:mm\.ss")} ago")
             .AppendLine($"Report: {Guid.NewGuid()}\n")
             .AppendLine("-----System Information----")
             .AppendLine("General:")
@@ -40,7 +81,7 @@ internal class CrashReport : IDisposable
 
         CrashHelper helper = new();
 
-        AppendHardwareInfo(helper, builder);
+        AppendHardwareInfo(helper, builder, apiReport);
 
         builder.AppendLine("\n--------Command Log--------\n");
 
@@ -57,13 +98,15 @@ internal class CrashReport : IDisposable
 
         try
         {
-            AppendStateInfo(builder);
+            AppendStateInfo(builder, apiReport);
         }
         catch (Exception stateException)
         {
+            exception = new AggregateException(exception, new CrashInfoCollectionException("state information", stateException));
             builder.AppendLine($"Error ({stateException.GetType().FullName}: {stateException.Message}) while gathering state (Must be bug in GetPreferenceFormatted, GetFormatted or StringBuilder.AppendLine as these should not throw), skipping...");
         }
 
+        apiReport.Exception = new ExceptionDetails(exception);
         CrashHelper.AddExceptionMessage(builder, exception);
 
         string filename = $"crash-{currentTime:yyyy-MM-dd_HH-mm-ss_fff}.zip";
@@ -75,16 +118,27 @@ internal class CrashReport : IDisposable
 
         CrashReport report = new();
         report.FilePath = Path.Combine(path, filename);
+        try
+        {
+            report.ApiReportJson = System.Text.Json.JsonSerializer.Serialize(apiReport);
+        }
+        catch (Exception apiReportSerializationException)
+        {
+            // TODO: Handle this using the API once webhook reports are no longer a thing
+            builder.AppendLine($"-- API Report Json Exception --");
+            CrashHelper.AddExceptionMessage(builder, apiReportSerializationException);
+        }
+
         report.ReportText = builder.ToString();
 
         return report;
     }
 
-    private static void AppendHardwareInfo(CrashHelper helper, StringBuilder builder)
+    private static void AppendHardwareInfo(CrashHelper helper, StringBuilder builder, ApiCrashReport apiReport)
     {
         try
         {
-            helper.GetCPUInformation(builder);
+            helper.GetCPUInformation(builder, apiReport);
         }
         catch (Exception cpuE)
         {
@@ -93,7 +147,7 @@ internal class CrashReport : IDisposable
 
         try
         {
-            helper.GetGPUInformation(builder);
+            helper.GetGPUInformation(builder, apiReport);
         }
         catch (Exception gpuE)
         {
@@ -103,7 +157,7 @@ internal class CrashReport : IDisposable
         
         try
         {
-            helper.GetMemoryInformation(builder);
+            helper.GetMemoryInformation(builder, apiReport);
         }
         catch (Exception memE)
         {
@@ -111,7 +165,7 @@ internal class CrashReport : IDisposable
         }
 }
 
-    private static void AppendStateInfo(StringBuilder builder)
+    private static void AppendStateInfo(StringBuilder builder, ApiCrashReport apiReport)
     {
         builder
             .AppendLine("Environment:")
@@ -138,6 +192,43 @@ internal class CrashReport : IDisposable
             .AppendLine($"  Secondary Color: {GetFormattedFromViewModelMain(x => x.ColorsSubViewModel?.SecondaryColor)}")
             .Append("\nActive Document: ");
 
+        apiReport.StateInformation["Environment"] = new
+        {
+            ThreadCount = GetOrExceptionMessage(() => Process.GetCurrentProcess().Threads.Count)
+        };
+        
+        apiReport.StateInformation["Culture"] = new
+        {
+            SelectedLanguage = GetPreferenceFormatted("LanguageCode", true, "system"),
+            CurrentCulture = GetFormatted(() => CultureInfo.CurrentCulture),
+            CurrentUICulture = GetFormatted(() => CultureInfo.CurrentUICulture)
+        };
+
+        apiReport.StateInformation["Preferences"] = new
+        {
+            HasSharedToolbarEnabled = GetPreferenceFormatted("EnableSharedToolbar", true, false),
+            RightClickMode = GetPreferenceFormatted<RightClickMode>("RightClickMode", true),
+            HasRichPresenceEnabled = GetPreferenceOrExceptionMessage("EnableRichPresence", true, true),
+            DebugModeEnabled = GetPreferenceOrExceptionMessage("IsDebugModeEnabled", true, false)
+        };
+
+        apiReport.StateInformation["UI"] = new
+        {
+            MainWindowNotNull = GetOrExceptionMessage(() => MainWindow.Current != null),
+            MainWindowSize = GetOrExceptionMessage(() => GetSimplifiedRect(MainWindow.Current?.Bounds)),
+            MainWindowState = GetFormatted(() => MainWindow.Current?.WindowState)
+        };
+
+        apiReport.StateInformation["ViewModels"] = new
+        {
+            HasActiveUpdateableChange = GetOrExceptionMessage(() => ViewModelMain.Current?.DocumentManagerSubViewModel?.ActiveDocument?.BlockingUpdateableChangeActive),
+            CurrentTool = GetOrExceptionMessage(() => ViewModelMain.Current?.ToolsSubViewModel?.ActiveTool?.ToolName),
+            PrimaryColor = GetOrExceptionMessage(() => ViewModelMain.Current?.ColorsSubViewModel?.PrimaryColor.ToString()),
+            SecondaryColor = GetOrExceptionMessage(() => ViewModelMain.Current?.ColorsSubViewModel?.SecondaryColor.ToString())
+        };
+
+        apiReport.StateInformation["ActiveDocument"] = new { };
+
         try
         {
             AppendActiveDocumentInfo(builder);
@@ -145,6 +236,14 @@ internal class CrashReport : IDisposable
         catch (Exception e)
         {
             builder.AppendLine($"Could not get active document info:\n{e}");
+        }
+
+        object GetSimplifiedRect(Avalonia.Rect? rect)
+        {
+            if (rect == null) return null;
+            var nonNull = rect.Value;
+
+            return new { Left = nonNull.Left, Top = nonNull.Top, Width = nonNull.Width, Height = nonNull.Height };
         }
     }
 
@@ -185,6 +284,27 @@ internal class CrashReport : IDisposable
             .AppendLine($"  Vertical Symmetry Value: {FormatObject(document.VerticalSymmetryAxisXBindable)}")
             .AppendLine($"  Updateable Change Active: {FormatObject(document.BlockingUpdateableChangeActive)}")
             .AppendLine($"  Transform: {FormatObject(document.TransformViewModel)}");
+    }
+    
+    private static object GetPreferenceOrExceptionMessage<T>(string name, bool roaming, T defaultValue)
+    {        
+        try
+        {
+            var preferences = IPreferences.Current;
+
+            if (preferences == null)
+                return "{ Preferences are null }";
+
+            var value = roaming
+                ? preferences.GetPreference(name, defaultValue)
+                : preferences.GetLocalPreference(name, defaultValue);
+
+            return value;
+        }
+        catch (Exception e)
+        {
+            return $$"""{ Failed getting preference: {{e.Message}} }""";
+        }
     }
 
     private static string GetPreferenceFormatted<T>(string name, bool roaming, T defaultValue = default, string? format = null)
@@ -232,6 +352,18 @@ internal class CrashReport : IDisposable
         }
     }
 
+    private static object GetOrExceptionMessage<T>(Func<T?> getter)
+    {
+        try
+        {
+            return getter();
+        }
+        catch (Exception e)
+        {
+            return e.GetType().FullName;
+        }
+    }
+
     private static string FormatObject<T>(T? value, string? format = null)
     {
         return value switch
@@ -258,6 +390,7 @@ internal class CrashReport : IDisposable
 
         report.ZipFile = System.IO.Compression.ZipFile.Open(path, ZipArchiveMode.Read);
         report.ExtractReport();
+        report.ExtractJsonReport();
 
         return report;
     }
@@ -265,6 +398,8 @@ internal class CrashReport : IDisposable
     public string FilePath { get; set; }
 
     public string ReportText { get; set; }
+    
+    public string ApiReportJson { get; set; }
 
     private ZipArchive ZipFile { get; set; }
 
@@ -280,7 +415,7 @@ internal class CrashReport : IDisposable
         {
             list = null;
             sessionInfo = null;
-            CrashHelper.SendExceptionInfoToWebhook(e);
+            CrashHelper.SendExceptionInfo(e);
             return false;
         }
 
@@ -379,6 +514,11 @@ internal class CrashReport : IDisposable
             reportStream.Write(Encoding.UTF8.GetBytes(ReportText));
         }
 
+        using (var reportStream = archive.CreateEntry("report.json").Open())
+        {
+            reportStream.Write(Encoding.UTF8.GetBytes(ApiReportJson));
+        }
+
         // Write the documents into zip
         int counter = 0;
         var originalPaths = new List<CrashedFileInfo>();
@@ -419,9 +559,20 @@ internal class CrashReport : IDisposable
         using Stream stream = entry.Open();
 
         byte[] encodedReport = new byte[entry.Length];
-        stream.Read(encodedReport);
+        stream.ReadExactly(encodedReport);
 
         ReportText = Encoding.UTF8.GetString(encodedReport);
+    }
+
+    private void ExtractJsonReport()
+    {
+        ZipArchiveEntry entry = ZipFile.GetEntry("report.json");
+        using Stream stream = entry.Open();
+
+        byte[] encodedReport = new byte[entry.Length];
+        stream.ReadExactly(encodedReport);
+
+        ApiReportJson = Encoding.UTF8.GetString(encodedReport);
     }
 
     public class RecoveredPixi

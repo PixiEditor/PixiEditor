@@ -27,6 +27,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     private List<Guid> selectedMembers = new();
 
     private ShapeCorners lastCorners = new();
+    private bool movedOnce;
 
     public TransformSelectedExecutor(bool toolLinked)
     {
@@ -44,7 +45,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
         members = document.SoftSelectedStructureMembers
             .Append(document.SelectedStructureMember)
-            .Where(static m => m is ILayerHandler).ToList();
+            .Where(static m => m is ILayerHandler)
+            .Distinct().ToList();
 
         if (!members.Any())
             return ExecutionState.Error;
@@ -56,6 +58,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     private ExecutionState SelectMembers(List<IStructureMemberHandler> members)
     {
         bool allRaster = true;
+        bool anyRaster = false;
         memberCorners = new();
         foreach (IStructureMemberHandler member in members)
         {
@@ -70,12 +73,32 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
                 allRaster = false;
             }
 
+            if (member is IRasterLayerHandler)
+            {
+                anyRaster = true;
+            }
+
             memberCorners.Add(member.Id, targetCorners);
         }
 
-        ShapeCorners masterCorners = memberCorners.Count == 1
-            ? memberCorners.FirstOrDefault().Value
-            : new ShapeCorners(memberCorners.Values.Select(static c => c.AABBBounds).Aggregate((a, b) => a.Union(b)));
+        ShapeCorners masterCorners;
+        if (memberCorners.Count == 1)
+        {
+            masterCorners = memberCorners.FirstOrDefault().Value;
+        }
+        else
+        {
+            var aabbBounds = memberCorners.Values.Select(static c => c.AABBBounds);
+            var bounds = aabbBounds as RectD[] ?? aabbBounds.ToArray();
+            if (bounds.Length != 0)
+            {
+                masterCorners = new ShapeCorners(bounds.Aggregate((a, b) => a.Union(b)));
+            }
+            else
+            {
+                return ExecutionState.Error;
+            }
+        }
 
         if (masterCorners.AABBBounds.Width == 0 || masterCorners.AABBBounds.Height == 0)
         {
@@ -97,10 +120,9 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         document.TransformHandler.ShowTransform(mode, true, masterCorners,
             Type == ExecutorType.Regular || tool.KeepOriginalImage);
 
-        internals!.ActionAccumulator.AddActions(
-            new TransformSelected_Action(masterCorners, tool.KeepOriginalImage, memberCorners, false,
-                document.AnimationHandler.ActiveFrameBindable));
+        document.TransformHandler.CanAlignToPixels = anyRaster;
 
+        movedOnce = false;
         isInProgress = true;
         return ExecutionState.Success;
     }
@@ -116,7 +138,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         var nonSelected = topMostWithinClick.Where(x => x != document.SelectedStructureMember
                                                         && !document.SoftSelectedStructureMembers.Contains(x))
             .ToArray();
-        
+
         bool isHoldingShift = args.KeyModifiers.HasFlag(KeyModifiers.Shift);
 
         if (nonSelected.Any())
@@ -154,10 +176,10 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
                 Guid? nextMain = document.SoftSelectedStructureMembers.FirstOrDefault().Id;
                 List<Guid> softSelected = document.SoftSelectedStructureMembers
                     .Select(x => x.Id).Where(x => x != nextMain.Value).ToList();
-                    
+
                 document.Operations.ClearSoftSelectedMembers();
                 document.Operations.SetSelectedMember(nextMain.Value);
-                    
+
                 foreach (var guid in softSelected)
                 {
                     document.Operations.AddSoftSelectedMember(guid);
@@ -167,9 +189,9 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             {
                 List<Guid> softSelected = document.SoftSelectedStructureMembers
                     .Select(x => x.Id).Where(x => x != topMost.Id).ToList();
-                    
+
                 document.Operations.ClearSoftSelectedMembers();
-                    
+
                 foreach (var guid in softSelected)
                 {
                     document.Operations.AddSoftSelectedMember(guid);
@@ -219,6 +241,14 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     {
         if (!isInProgress)
             return;
+
+        if (!movedOnce)
+        {
+            internals!.ActionAccumulator.AddActions(
+                new TransformSelected_Action(lastCorners, tool.KeepOriginalImage, memberCorners, false,
+                    document.AnimationHandler.ActiveFrameBindable));
+            movedOnce = true;
+        }
 
         internals!.ActionAccumulator.AddActions(
             new TransformSelected_Action(corners, tool!.KeepOriginalImage, memberCorners, false,

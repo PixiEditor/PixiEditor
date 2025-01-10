@@ -204,6 +204,9 @@ internal class DocumentUpdater
             case SetPlayingState_PassthroughAction info:
                 ProcessPlayAnimation(info);
                 break;
+            case ProcessingColorSpace_ChangeInfo info:
+                ProcessProcessingColorSpace(info);
+                break;
         }
     }
 
@@ -484,7 +487,7 @@ internal class DocumentUpdater
 
     private void ProcessKeyFrameLength(KeyFrameLength_ChangeInfo info)
     {
-        doc.AnimationHandler.SetFrameLength(info.KeyFrameGuid, info.StartFrame, info.Duration);
+        doc.AnimationHandler.SetCelLength(info.KeyFrameGuid, info.StartFrame, info.Duration);
     }
 
     private void ProcessKeyFrameVisibility(KeyFrameVisibility_ChangeInfo info)
@@ -663,6 +666,11 @@ internal class DocumentUpdater
         ProcessStructureMemberProperty(info, property);
         
         property.InternalSetValue(info.Value);
+        
+        if (info.Property == CustomOutputNode.OutputNamePropertyName)
+        {
+            doc.NodeGraphHandler.UpdateAvailableRenderOutputs();
+        }
     }
     
     private void ProcessStructureMemberProperty(PropertyValueUpdated_ChangeInfo info, INodePropertyHandler property)
@@ -707,5 +715,10 @@ internal class DocumentUpdater
     private void ProcessSetOnionFrames(OnionFrames_ChangeInfo info)
     {
         doc.AnimationHandler.SetOnionFrames(info.OnionFrames, info.Opacity);
+    }
+    
+    private void ProcessProcessingColorSpace(ProcessingColorSpace_ChangeInfo info)
+    {
+        doc.SetProcessingColorSpace(info.NewColorSpace);
     }
 }

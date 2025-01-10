@@ -8,8 +8,9 @@
 [![Downloads](https://img.shields.io/github/downloads/PixiEditor/PixiEditor/total)](https://github.com/flabbet/PixiEditor/releases)
 [![Discord Server](https://badgen.net/badge/discord/join%20chat/7289DA?icon=discord)](https://discord.gg/qSRMYmq)
 [![Subreddit subscribers](https://img.shields.io/reddit/subreddit-subscribers/PixiEditor?label=%20r%2FPixiEditor&logoColor=%23e3002d)](https://reddit.com/r/PixiEditor)
+[![Forum](https://img.shields.io/badge/PixiEditor-Forum-red?link=https%3A%2F%2Fforum.pixieditor.net%2F)](https://forum.pixieditor.net/)
 
-### Check out our website [pixieditor.net](https://pixieditor.net)
+### Check out our website [pixieditor.net](https://pixieditor.net) and [PixiEditor Forum](https://forum.pixieditor.net/)
 
 # Contributions temporarily freezed!
 

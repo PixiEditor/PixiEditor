@@ -19,10 +19,11 @@ namespace PixiEditor.ViewModels.Document.TransformOverlays;
 internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
 {
     private DocumentViewModel document;
-    
+
     private TransformOverlayUndoStack<(ShapeCorners, TransformState)>? undoStack = null;
 
     private TransformState internalState;
+
     public TransformState InternalState
     {
         get => internalState;
@@ -30,6 +31,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
     }
 
     private TransformCornerFreedom cornerFreedom;
+
     public TransformCornerFreedom CornerFreedom
     {
         get => cornerFreedom;
@@ -37,20 +39,38 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
     }
 
     private TransformSideFreedom sideFreedom;
+
     public TransformSideFreedom SideFreedom
     {
         get => sideFreedom;
         set => SetProperty(ref sideFreedom, value);
     }
 
+    private bool scaleFromCenter;
+
+    public bool ScaleFromCenter
+    {
+        get => scaleFromCenter;
+        set => SetProperty(ref scaleFromCenter, value);
+    }
+
     private bool lockRotation;
+
     public bool LockRotation
     {
         get => lockRotation;
         set => SetProperty(ref lockRotation, value);
     }
+    
+    private bool lockShear;
+    public bool LockShear
+    {
+        get => lockShear;
+        set => SetProperty(ref lockShear, value);
+    }
 
     private bool snapToAngles;
+
     public bool SnapToAngles
     {
         get => snapToAngles;
@@ -58,6 +78,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
     }
 
     private bool transformActive;
+
     public bool TransformActive
     {
         get => transformActive;
@@ -70,7 +91,8 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
 
             if (value)
             {
-                document.ActionDisplays[nameof(DocumentTransformViewModel)] = new LocalizedString($"TRANSFORM_ACTION_DISPLAY_{activeTransformMode.GetDescription()}");
+                document.ActionDisplays[nameof(DocumentTransformViewModel)] =
+                    new LocalizedString($"TRANSFORM_ACTION_DISPLAY_{activeTransformMode.GetDescription()}");
             }
             else
             {
@@ -80,15 +102,25 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
     }
 
     private bool showTransformControls;
+
     public bool ShowTransformControls
     {
         get => showTransformControls;
         set => SetProperty(ref showTransformControls, value);
     }
 
+    private bool canAlignToPixels = true;
+
+    public bool CanAlignToPixels
+    {
+        get => canAlignToPixels;
+        set => SetProperty(ref canAlignToPixels, value);
+    }
+
     public event Action<MouseOnCanvasEventArgs>? PassthroughPointerPressed;
 
     private bool coverWholeScreen;
+
     public bool CoverWholeScreen
     {
         get => coverWholeScreen;
@@ -96,6 +128,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
     }
 
     private ShapeCorners corners;
+
     public ShapeCorners Corners
     {
         get => corners;
@@ -112,25 +145,19 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
     {
         get => showHandles;
         set => SetProperty(ref showHandles, value);
-    } 
-    
+    }
+
     private bool isSizeBoxEnabled;
 
     public bool IsSizeBoxEnabled
     {
         get => isSizeBoxEnabled;
         set => SetProperty(ref isSizeBoxEnabled, value);
-    } 
-
-    private bool enableSnapping = true;
-    public bool EnableSnapping
-    {
-        get => enableSnapping;
-        set => SetProperty(ref enableSnapping, value);
     }
-    
-    
+
+
     private ExecutionTrigger<ShapeCorners> requestedCornersExecutor;
+
     public ExecutionTrigger<ShapeCorners> RequestCornersExecutor
     {
         get => requestedCornersExecutor;
@@ -138,18 +165,29 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
     }
 
     private ICommand? actionCompletedCommand = null;
+
     public ICommand? ActionCompletedCommand
     {
         get => actionCompletedCommand;
         set => SetProperty(ref actionCompletedCommand, value);
     }
 
-    private RelayCommand<MouseOnCanvasEventArgs>? passThroughPointerPressedCommand; 
+    private ICommand? addToUndoCommand = null;
+
+    public ICommand? AddToUndoCommand
+    {
+        get => addToUndoCommand;
+        set => SetProperty(ref addToUndoCommand, value);
+    }
+
+    private RelayCommand<MouseOnCanvasEventArgs>? passThroughPointerPressedCommand;
+
     public RelayCommand<MouseOnCanvasEventArgs> PassThroughPointerPressedCommand
     {
         get
         {
-            return passThroughPointerPressedCommand ??= new RelayCommand<MouseOnCanvasEventArgs>(x => PassthroughPointerPressed?.Invoke(x));
+            return passThroughPointerPressedCommand ??=
+                new RelayCommand<MouseOnCanvasEventArgs>(x => PassthroughPointerPressed?.Invoke(x));
         }
     }
 
@@ -162,11 +200,14 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         this.document = document;
         ActionCompletedCommand = new RelayCommand(() =>
         {
+            AddToUndoCommand?.Execute(Corners);
+
             if (undoStack is null)
                 return;
 
             var lastState = undoStack.PeekCurrent();
-            if (lastState is not null && lastState.Value.Item1.AlmostEquals(Corners) && lastState.Value.Item2.AlmostEquals(InternalState))
+            if (lastState is not null && lastState.Value.Item1.AlmostEquals(Corners) &&
+                lastState.Value.Item2.AlmostEquals(InternalState))
                 return;
 
             undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Move);
@@ -199,47 +240,57 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
 
     public bool Nudge(VecD distance)
     {
-        if (undoStack is null)
-            return false;
-
         InternalState = InternalState with { Origin = InternalState.Origin + distance };
         Corners = Corners.AsTranslated(distance);
-        undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Nudge);
+        
+        AddToUndoCommand?.Execute(Corners);
+
+        undoStack?.AddState((Corners, InternalState), TransformOverlayStateType.Nudge);
+
         return true;
     }
 
-    public bool HasUndo => undoStack is not null && undoStack.UndoCount > 0; 
+    public bool HasUndo => undoStack is not null && undoStack.UndoCount > 0;
     public bool HasRedo => undoStack is not null && undoStack.RedoCount > 0;
 
     public void HideTransform()
     {
-        if (undoStack is null)
-            return;
         undoStack = null;
-
         TransformActive = false;
         ShowTransformControls = false;
     }
 
-    public void ShowTransform(DocumentTransformMode mode, bool coverWholeScreen, ShapeCorners initPos, bool showApplyButton)
+    public void ShowTransform(DocumentTransformMode mode, bool coverWholeScreen, ShapeCorners initPos,
+        bool showApplyButton, Action<ShapeCorners>? customAddToUndo = null)
     {
-        if (undoStack is not null || initPos.IsPartiallyDegenerate)
+        if (initPos.IsPartiallyDegenerate)
             return;
-        undoStack = new();
 
         activeTransformMode = mode;
         CornerFreedom = TransformCornerFreedom.Scale;
         SideFreedom = TransformSideFreedom.Stretch;
         LockRotation = mode == DocumentTransformMode.Scale_NoRotate_NoShear_NoPerspective;
+        LockShear = mode is DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective or DocumentTransformMode.Scale_NoRotate_NoShear_NoPerspective;
         CoverWholeScreen = coverWholeScreen;
         TransformActive = true;
         ShowTransformControls = showApplyButton;
+        CanAlignToPixels = true;
 
         IsSizeBoxEnabled = false;
         ShowHandles = true;
-
+        
         RequestCornersExecutor?.Execute(this, initPos);
-        undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Initial);
+
+        if (customAddToUndo is not null)
+        {
+            AddToUndoCommand = new RelayCommand<ShapeCorners>(customAddToUndo);
+            undoStack = null;
+        }
+        else
+        {
+            undoStack = new TransformOverlayUndoStack<(ShapeCorners, TransformState)>();
+            undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Initial);
+        }
     }
 
     public void KeyModifiersInlet(bool isShiftDown, bool isCtrlDown, bool isAltDown)
@@ -253,14 +304,10 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
             requestedCornerFreedom = TransformCornerFreedom.ScaleProportionally;
             requestedSideFreedom = TransformSideFreedom.ScaleProportionally;
         }
-        else if (isCtrlDown)
+        else if (isAltDown)
         {
             requestedCornerFreedom = TransformCornerFreedom.Free;
             requestedSideFreedom = TransformSideFreedom.Free;
-        }
-        else if (isAltDown)
-        {
-            requestedSideFreedom = TransformSideFreedom.Shear;
         }
         else
         {
@@ -268,6 +315,13 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
             requestedSideFreedom = TransformSideFreedom.Stretch;
         }
 
+        ScaleFromCenter = isCtrlDown;
+
+        UpdateFreedom(requestedCornerFreedom, requestedSideFreedom);
+    }
+
+    private void UpdateFreedom(TransformCornerFreedom requestedCornerFreedom, TransformSideFreedom requestedSideFreedom)
+    {
         switch (activeTransformMode)
         {
             case DocumentTransformMode.Scale_Rotate_Shear_Perspective:
@@ -290,6 +344,8 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
                 break;
         }
     }
-    
-    public override string ToString() => !TransformActive ? "Not active" : $"Transform Mode: {activeTransformMode}; Corner Freedom: {CornerFreedom}; Side Freedom: {SideFreedom}";
+
+    public override string ToString() => !TransformActive
+        ? "Not active"
+        : $"Transform Mode: {activeTransformMode}; Corner Freedom: {CornerFreedom}; Side Freedom: {SideFreedom}";
 }

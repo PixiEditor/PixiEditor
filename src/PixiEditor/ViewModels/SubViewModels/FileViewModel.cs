@@ -1,21 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
-using ChunkyImageLib;
-using Newtonsoft.Json.Linq;
-using PixiEditor.ChangeableDocument.Changeables.Graph;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using PixiEditor.Exceptions;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
@@ -29,9 +19,10 @@ using PixiEditor.Models.Files;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserData;
 using Drawie.Numerics;
+using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Models.IO.CustomDocumentFormats;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Parser;
-using PixiEditor.Parser.Graph;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.Views;
@@ -56,6 +47,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     }
 
     public RecentlyOpenedCollection RecentlyOpened { get; init; }
+    public IReadOnlyList<IDocumentBuilder> DocumentBuilders => documentBuilders;
+    
+    private List<IDocumentBuilder> documentBuilders;
 
     public FileViewModel(ViewModelMain owner)
         : base(owner)
@@ -69,6 +63,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
 
         PixiEditorSettings.File.MaxOpenedRecently.ValueChanged += (_, value) => UpdateMaxRecentlyOpened(value);
+        documentBuilders = owner.Services.GetServices<IDocumentBuilder>().ToList();
     }
 
     public void AddRecentlyOpened(string path)
@@ -208,6 +203,10 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             {
                 OpenDotPixi(path, associatePath);
             }
+            else if (IsCustomFormat(path))
+            {
+                OpenCustomFormat(path);
+            }
             else
             {
                 OpenRegularImage(path, associatePath);
@@ -221,6 +220,27 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             NoticeDialog.Show("OLD_FILE_FORMAT_DESCRIPTION", "OLD_FILE_FORMAT");
         }
+    }
+    
+    private bool IsCustomFormat(string path)
+    {
+        string extension = Path.GetExtension(path);
+        return documentBuilders.Any(x => x.Extensions.Contains(extension, StringComparer.OrdinalIgnoreCase));
+    }
+    
+    private void OpenCustomFormat(string path)
+    {
+        IDocumentBuilder builder = documentBuilders.First(x => x.Extensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase));
+
+        if(!File.Exists(path))
+        {
+            NoticeDialog.Show("FILE_NOT_FOUND", "FAILED_TO_OPEN_FILE");
+            return;
+        }
+        
+        DocumentViewModel document = DocumentViewModel.Build(docBuilder => builder.Build(docBuilder, path));
+        AddDocumentViewModelToTheSystem(document);
+        AddRecentlyOpened(document.FullFilePath);
     }
 
     /// <summary>
@@ -261,7 +281,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             .WithGraph(x => x
                 .WithImageLayerNode(
                     new LocalizedString("IMAGE"),
-                    image, out int id)
+                    image, 
+                    ColorSpace.CreateSrgbLinear(),
+                    out int id)
                 .WithOutputNode(id, "Output")
             ));
 
@@ -281,7 +303,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
         else
         {
-            CrashHelper.SendExceptionInfoToWebhook(new InvalidFileTypeException(default,
+            CrashHelper.SendExceptionInfo(new InvalidFileTypeException(default,
                 $"Invalid file type '{fileType}'"));
         }
     }
@@ -297,7 +319,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             .WithGraph(x => x
                 .WithImageLayerNode(
                     new LocalizedString("IMAGE"),
-                    surface, out int id)
+                    surface,
+                    ColorSpace.CreateSrgbLinear(),
+                    out int id)
                 .WithOutputNode(id, "Output")
             ));
 
@@ -325,7 +349,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 .WithGraph(x => x
                     .WithImageLayerNode(
                         new LocalizedString("BASE_LAYER_NAME"),
-                        new VecI(newFile.Width, newFile.Height), out int id)
+                        new VecI(newFile.Width, newFile.Height), 
+                        ColorSpace.CreateSrgbLinear(),
+                        out int id)
                     .WithOutputNode(id, "Output")
                 ));
 
@@ -366,7 +392,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         string finalPath = null;
         if (asNew || string.IsNullOrEmpty(document.FullFilePath))
         {
-            var result = await Exporter.TrySaveWithDialog(document, ExportConfig.Empty, null);
+            ExportConfig config = new ExportConfig() { ExportSize = document.SizeBindable };
+            var result = await Exporter.TrySaveWithDialog(document, config, null);
             if (result.Result == DialogSaveResult.Cancelled)
                 return false;
             if (result.Result != DialogSaveResult.Success)

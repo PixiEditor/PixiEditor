@@ -264,10 +264,10 @@ public class SnappingController
     ///     Gets the intersection of closest snap axis along projected axis.
     /// </summary>
     /// <param name="pos">Position to snap</param>
-    /// <param name="direction">Direction to project from <paramref name="pos">/></param>
+    /// <param name="direction">Direction to project from position</param>
     /// <param name="xAxis">Intersected horizontal axis</param>
     /// <param name="yAxis">Intersected vertical axis</param>
-    /// <returns>Snapped position to the closest snap point along projected axis from <paramref name="pos">/></returns> 
+    /// <returns>Snapped position to the closest snap point along projected axis from position.</returns>
     public VecD GetSnapPoint(VecD pos, VecD direction, out string xAxis, out string yAxis)
     {
         if (!SnappingEnabled)
@@ -277,7 +277,7 @@ public class SnappingController
             return pos;
         }
 
-        if (direction.X == 0 || direction.Y == 0)
+        if (direction is { X: 0, Y: 0 })
         {
             return GetSnapPoint(pos, out xAxis, out yAxis);
         }
@@ -286,14 +286,17 @@ public class SnappingController
 
         double? closestX = closestXAxis != string.Empty ? snapDelta.X : null;
         double? closestY = closestYAxis != string.Empty ? snapDelta.Y : null;
-
-
+        
         VecD? xIntersect = null;
         if (closestX != null)
         {
             double x = closestX.Value;
             double y = pos.Y + direction.Y * (x - pos.X) / direction.X;
             xIntersect = new VecD(x, y);
+            if (xIntersect.Value.IsNaNOrInfinity())
+            {
+                xIntersect = null;
+            }
         }
 
         VecD? yIntersect = null;
@@ -302,6 +305,10 @@ public class SnappingController
             double y = closestY.Value;
             double x = pos.X + direction.X * (y - pos.Y) / direction.Y;
             yIntersect = new VecD(x, y);
+            if (yIntersect.Value.IsNaNOrInfinity())
+            {
+                yIntersect = null;
+            }
         }
 
         if (xIntersect.HasValue && yIntersect.HasValue)
@@ -309,27 +316,41 @@ public class SnappingController
             if (Math.Abs(xIntersect.Value.X - yIntersect.Value.X) < float.Epsilon
                 && Math.Abs(xIntersect.Value.Y - yIntersect.Value.Y) < float.Epsilon)
             {
-                xAxis = closestXAxis;
-                yAxis = closestYAxis;
-                return xIntersect.Value;
+                if(IsWithinSnapDistance(xIntersect.Value, pos))
+                {
+                    xAxis = closestXAxis;
+                    yAxis = closestYAxis;
+                    return xIntersect.Value;
+                }
+                
+                xAxis = string.Empty;
+                yAxis = string.Empty;
+                return pos;
             }
 
             double xDist = (xIntersect.Value - pos).LengthSquared;
             double yDist = (yIntersect.Value - pos).LengthSquared;
 
-            if (xDist < yDist)
+            if (xDist < yDist && IsWithinSnapDistance(xIntersect.Value, pos))
             {
                 xAxis = closestXAxis;
                 yAxis = null;
                 return xIntersect.Value;
             }
 
-            xAxis = null;
-            yAxis = closestYAxis;
-            return yIntersect.Value;
+            if (IsWithinSnapDistance(yIntersect.Value, pos))
+            {
+                xAxis = null;
+                yAxis = closestYAxis;
+                return yIntersect.Value;
+            }
+            
+            xAxis = string.Empty;
+            yAxis = string.Empty;
+            return pos;
         }
 
-        if (xIntersect != null)
+        if (xIntersect != null && IsWithinSnapDistance(xIntersect.Value, pos))
         {
             xAxis = closestXAxis;
             yAxis = null;
@@ -337,7 +358,7 @@ public class SnappingController
             return xIntersect.Value;
         }
 
-        if (yIntersect != null)
+        if (yIntersect != null && IsWithinSnapDistance(yIntersect.Value, pos))
         {
             xAxis = null;
             yAxis = closestYAxis;
@@ -354,5 +375,10 @@ public class SnappingController
     {
         HorizontalSnapPoints[identifier] = () => pointFunc().X;
         VerticalSnapPoints[identifier] = () => pointFunc().Y;
+    }
+    
+    private bool IsWithinSnapDistance(VecD snapPoint, VecD pos)
+    {
+        return (snapPoint - pos).LengthSquared < SnapDistance * SnapDistance;
     }
 }

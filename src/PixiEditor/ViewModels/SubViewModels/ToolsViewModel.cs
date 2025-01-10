@@ -131,9 +131,12 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     public void SetActiveToolSet(IToolSetHandler toolSetHandler)
     {
+        ActiveTool?.OnToolDeselected(false);
         ActiveToolSet = toolSetHandler;
         ActiveToolSet.ApplyToolSetSettings();
         UpdateEnabledState();
+        
+        ActiveTool?.OnToolSelected(false);
     }
 
     public void SetupToolsTooltipShortcuts()
@@ -223,12 +226,13 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         if (ActiveTool == tool)
         {
             ActiveTool.IsTransient = transient;
+            LastActionTool = ActiveTool;
             return;
         }
 
         if (ActiveTool != null)
         {
-            ActiveTool.OnDeselecting(transient);
+            ActiveTool.OnToolDeselected(transient);
             ActiveTool.Toolbar.SettingChanged -= ToolbarSettingChanged;
         }
 
@@ -261,7 +265,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         LastActionTool?.ModifierKeyChanged(false, false, false);
         //update new tool
         ActiveTool.ModifierKeyChanged(ctrlIsDown, shiftIsDown, altIsDown);
-        ActiveTool.OnSelected(wasTransient);
+        ActiveTool.OnToolSelected(wasTransient);
 
         tool.IsActive = true;
         ActiveTool.IsTransient = transient;
@@ -367,7 +371,6 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         if (ActiveTool == null) return;
         if (ActiveTool.IsTransient && LastActionTool is { } tool)
             SetActiveTool(tool, false);
-        ShortcutController.UnblockShortcutExecution("ShortcutDown");
     }
 
     public void UseToolEventInlet(VecD canvasPos, MouseButton button)
@@ -382,6 +385,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
         if (ActiveTool is not { CanBeUsedOnActiveLayer: true })
         {
+            if(ActiveTool.LayerTypeToCreateOnEmptyUse == null) return;
+            
             Guid? createdLayer = Owner.LayersSubViewModel.NewLayer(
                 ActiveTool.LayerTypeToCreateOnEmptyUse,
                 ActionSource.Automated,
@@ -416,6 +421,16 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     public void ConvertedKeyUpInlet(FilteredKeyEventArgs args)
     {
         ActiveTool?.ModifierKeyChanged(args.IsCtrlDown, args.IsShiftDown, args.IsAltDown);
+    }
+    
+    public void OnPostUndoInlet()
+    {
+        ActiveTool?.OnPostUndo();
+    }
+    
+    public void OnPostRedoInlet()
+    {
+        ActiveTool?.OnPostRedo();
     }
 
     private void ToolbarSettingChanged(string settingName, object value)
@@ -465,14 +480,21 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         {
             e.OldDocument.PropertyChanged -= DocumentOnPropertyChanged;
             e.OldDocument.LayersChanged -= DocumentOnLayersChanged;
+            e.OldDocument.AnimationDataViewModel.ActiveFrameChanged -= ActiveFrameChanged;
         }
 
         if (e.NewDocument is not null)
         {
             e.NewDocument.PropertyChanged += DocumentOnPropertyChanged;
             e.NewDocument.LayersChanged += DocumentOnLayersChanged;
+            e.NewDocument.AnimationDataViewModel.ActiveFrameChanged += ActiveFrameChanged;
             UpdateEnabledState();
         }
+    }
+    
+    private void ActiveFrameChanged(int oldFrame, int newFrame)
+    {
+        UpdateActiveFrame(newFrame);
     }
 
     private void DocumentOnLayersChanged(object? sender, LayersChangedEventArgs e)
@@ -482,12 +504,17 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     private void DocumentOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(DocumentViewModel.SelectedStructureMember))
+        if (e.PropertyName is nameof(DocumentViewModel.SelectedStructureMember) or nameof(DocumentViewModel.SoftSelectedStructureMembers))
         {
             UpdateEnabledState();
         }
     }
-
+    
+    private void UpdateActiveFrame(int newFrame)
+    {
+        ActiveTool?.OnActiveFrameChanged(newFrame);
+    }
+    
     private void UpdateEnabledState()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -503,7 +530,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                     doc.SelectedStructureMember
                 };
 
-                selectedLayers.AddRange(doc.SoftSelectedStructureMembers);
+                selectedLayers.AddRange(doc.SoftSelectedStructureMembers.Except(selectedLayers));
                 tool.SelectedLayersChanged(selectedLayers.ToArray());
             }
         }

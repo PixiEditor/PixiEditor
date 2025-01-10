@@ -29,8 +29,7 @@ internal class RasterLineToolViewModel : ShapeTool, ILineToolHandler
     public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
     public override string DefaultIcon => PixiPerfectIcons.LowResLine;
 
-    [Settings.Inherited] 
-    public double ToolSize => GetValue<double>();
+    [Settings.Inherited] public double ToolSize => GetValue<double>();
 
     public bool Snap { get; private set; }
 
@@ -38,6 +37,8 @@ internal class RasterLineToolViewModel : ShapeTool, ILineToolHandler
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
+        DrawFromCenter = ctrlIsDown;
+
         if (shiftIsDown)
         {
             ActionDisplay = "LINE_TOOL_ACTION_DISPLAY_SHIFT";
@@ -55,11 +56,11 @@ internal class RasterLineToolViewModel : ShapeTool, ILineToolHandler
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseRasterLineTool();
     }
 
-    public override void OnSelected(bool restoring)
+    protected override void OnSelected(bool restoring)
     {
         if (restoring) return;
-        
+
         var document = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
         document.Tools.UseRasterLineTool();
-    } 
+    }
 }

@@ -22,13 +22,6 @@ internal class CanvasUpdater
     private int lastOnionKeyFrames = -1;
     private double lastOnionOpacity = -1;
 
-    private static readonly Paint ReplacingPaint = new() { BlendMode = BlendMode.Src };
-
-    private static readonly Paint ClearPaint = new()
-    {
-        BlendMode = BlendMode.Src, Color = Colors.Transparent
-    };
-
     /// <summary>
     /// Affected chunks that have not been rerendered yet.
     /// </summary>
@@ -65,7 +58,7 @@ internal class CanvasUpdater
     /// </summary>
     public async Task UpdateGatheredChunks
         (AffectedAreasGatherer chunkGatherer, bool rerenderDelayed)
-    { 
+    {
         await Task.Run(() => Render(chunkGatherer, rerenderDelayed)).ConfigureAwait(true);
     }
 
@@ -157,7 +150,7 @@ internal class CanvasUpdater
     {
         Dictionary<ChunkResolution, HashSet<VecI>> chunksToRerender =
             FindGlobalChunksToRerender(chunkGatherer, rerenderDelayed);
-        
+
         ChunkResolution onionSkinResolution = chunksToRerender.Min(x => x.Key);
 
         bool updatingStoredChunks = false;
@@ -199,7 +192,7 @@ internal class CanvasUpdater
             if (globalClippingRectangle is not null)
                 globalScaledClippingRectangle =
                     (RectI?)((RectI)globalClippingRectangle).Scale(resolution.Multiplier()).RoundOutwards();
-            
+
             foreach (var chunkPos in chunks)
             {
                 RenderChunk(chunkPos, resolution);

@@ -56,11 +56,6 @@ public class MergeNode : RenderNode
             int saved = target.Canvas.SaveLayer();
             Bottom.Value.Paint(context, target);
 
-            if (paint == null)
-            {
-                paint = new Paint();
-            }
-            
             paint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
             target.Canvas.SaveLayer(paint);
             
@@ -103,14 +98,13 @@ public class MergeNode : RenderNode
         return totalBounds;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
+    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         if (Top.Value == null && Bottom.Value == null)
         {
             return false;
         }
 
-        RenderContext context = new RenderContext(renderOn, frame, ChunkResolution.Full, VecI.Zero);
         Merge(renderOn, context);
 
         return true;

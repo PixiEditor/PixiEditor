@@ -4,14 +4,15 @@ using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
-public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnlyLineData
+public class LineVectorData : ShapeVectorData, IReadOnlyLineData
 {
-    public VecD Start { get; set; } = startPos; // Relative to the document top left
-    public VecD End { get; set; } = pos; // Relative to the document top left
+    public VecD Start { get; set; }
+    public VecD End { get; set; }
 
     public VecD TransformedStart
     {
@@ -52,23 +53,32 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
     public override ShapeCorners TransformationCorners => new ShapeCorners(GeometryAABB)
         .WithMatrix(TransformationMatrix);
 
-    public override void RasterizeGeometry(DrawingSurface drawingSurface)
+
+    public LineVectorData(VecD startPos, VecD pos)
     {
-        Rasterize(drawingSurface, false);
+        Start = startPos;
+        End = pos;
+        
+        Fill = false;
     }
 
-    public override void RasterizeTransformed(DrawingSurface drawingSurface)
+    public override void RasterizeGeometry(Canvas canvas)
     {
-        Rasterize(drawingSurface, true);
+        Rasterize(canvas, false);
     }
 
-    private void Rasterize(DrawingSurface drawingSurface, bool applyTransform)
+    public override void RasterizeTransformed(Canvas canvas)
+    {
+        Rasterize(canvas, true);
+    }
+
+    private void Rasterize(Canvas canvas, bool applyTransform)
     {
         int num = 0;
         if (applyTransform)
         {
-            num = drawingSurface.Canvas.Save();
-            ApplyTransformTo(drawingSurface);
+            num = canvas.Save();
+            ApplyTransformTo(canvas);
         }
 
         using Paint paint = new Paint() { IsAntiAliased = true };
@@ -77,11 +87,11 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
         paint.Style = PaintStyle.Stroke;
         paint.StrokeWidth = StrokeWidth;
 
-        drawingSurface.Canvas.DrawLine(Start, End, paint);
+        canvas.DrawLine(Start, End, paint);
 
         if (applyTransform)
         {
-            drawingSurface.Canvas.RestoreToCount(num);
+            canvas.RestoreToCount(num);
         }
     }
 
@@ -100,11 +110,13 @@ public class LineVectorData(VecD startPos, VecD pos) : ShapeVectorData, IReadOnl
         return GetCacheHash();
     }
 
-    public override object Clone()
+    public override VectorPath ToPath()
     {
-        return new LineVectorData(Start, End)
-        {
-            StrokeColor = StrokeColor, StrokeWidth = StrokeWidth, TransformationMatrix = TransformationMatrix
-        };
+        // TODO: Apply transformation matrix
+
+        VectorPath path = new VectorPath();
+        path.MoveTo((VecF)Start);
+        path.LineTo((VecF)End);
+        return path;
     }
 }

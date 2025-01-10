@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -22,9 +23,10 @@ public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
         bool lockTransparency,
         ImmutableArray<NodePropertyInfo> inputs,
         ImmutableArray<NodePropertyInfo> outputs,
+        VecD position,
         NodeMetadata metadata) :
         base(internalName, opacity, isVisible, clipToMemberBelow, name, blendMode, guidValue, hasMask,
-            maskIsVisible, inputs, outputs, metadata)
+            maskIsVisible, inputs, outputs, position, metadata)
     {
         LockTransparency = lockTransparency;
     }
@@ -46,6 +48,7 @@ public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
             layer is ITransparencyLockable { LockTransparency: true },
             CreatePropertyInfos(layer.InputProperties, true, layer.Id),
             CreatePropertyInfos(layer.OutputProperties, false, layer.Id),
+            layer.Position,
             new NodeMetadata(layer.GetType())
         );
     }

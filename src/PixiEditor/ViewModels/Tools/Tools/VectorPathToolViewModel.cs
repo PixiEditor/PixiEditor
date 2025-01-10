@@ -1,4 +1,7 @@
-﻿using Avalonia.Input;
+﻿using System.ComponentModel;
+using Avalonia.Input;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Extensions.Common.Localization;
@@ -13,12 +16,13 @@ namespace PixiEditor.ViewModels.Tools.Tools;
 [Command.Tool(Key = Key.P)]
 internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
 {
+    public const string NewLayerKey = "DEFAULT_PATH_LAYER_NAME";
     public override string ToolNameLocalizationKey => "PATH_TOOL";
     public override Type[]? SupportedLayerTypes { get; } = [typeof(IVectorLayerHandler)];
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
     public override LocalizedString Tooltip => new LocalizedString("PATH_TOOL_TOOLTIP", Shortcut);
 
-    public string? DefaultNewLayerName => new LocalizedString("DEFAULT_PATH_LAYER_NAME");
+    public string? DefaultNewLayerName => new LocalizedString(NewLayerKey);
 
     public override string DefaultIcon => PixiPerfectIcons.VectorPen;
     public override bool StopsLinkedToolOnUse => false;
@@ -29,9 +33,30 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
     private LocalizedString actionDisplayDefault;
     private LocalizedString actionDisplayCtrl;
     private LocalizedString actionDisplayAlt;
+    private LocalizedString actionDisplayShift;
+    private LocalizedString actionDisplayCtrlShift;
+
+    [Settings.Enum("FILL_MODE", VectorPathFillType.Winding)]
+    public VectorPathFillType FillMode
+    {
+        get => GetValue<VectorPathFillType>();
+    }
+
+    [Settings.Enum("STROKE_CAP", StrokeCap.Round)]
+    public StrokeCap StrokeLineCap
+    {
+        get => GetValue<StrokeCap>();
+    }
+
+    [Settings.Enum("STROKE_JOIN", StrokeJoin.Round)]
+    public StrokeJoin StrokeLineJoin
+    {
+        get => GetValue<StrokeJoin>();
+    }
 
     public VectorPathToolViewModel()
     {
+        Toolbar = ToolbarFactory.Create<VectorPathToolViewModel, FillableShapeToolbar>(this);
         var fillSetting = Toolbar.GetSetting(nameof(FillableShapeToolbar.Fill));
         if (fillSetting != null)
         {
@@ -41,6 +66,8 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
         actionDisplayDefault = new LocalizedString("PATH_TOOL_ACTION_DISPLAY");
         actionDisplayCtrl = new LocalizedString("PATH_TOOL_ACTION_DISPLAY_CTRL");
         actionDisplayAlt = new LocalizedString("PATH_TOOL_ACTION_DISPLAY_ALT");
+        actionDisplayShift = new LocalizedString("PATH_TOOL_ACTION_DISPLAY_SHIFT");
+        actionDisplayCtrlShift = new LocalizedString("PATH_TOOL_ACTION_DISPLAY_CTRL_SHIFT");
     }
 
     public override void UseTool(VecD pos)
@@ -61,27 +88,38 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
     {
         if (ctrlIsDown)
         {
-            ActionDisplay = actionDisplayCtrl;
+            if (shiftIsDown)
+            {
+                ActionDisplay = actionDisplayCtrlShift;
+            }
+            else
+            {
+                ActionDisplay = actionDisplayCtrl;
+            }
         }
         else if (altIsDown)
         {
             ActionDisplay = actionDisplayAlt;
+        }
+        else if (shiftIsDown)
+        {
+            ActionDisplay = actionDisplayShift;
         }
         else
         {
             ActionDisplay = actionDisplayDefault;
         }
     }
-
-    public override void OnSelected(bool restoring)
+    
+    protected override void OnSelected(bool restoring)
     {
         if (restoring) return;
 
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorPathTool();
         isActivated = true;
     }
-
-    public override void OnDeselecting(bool transient)
+    
+    protected override void OnDeselecting(bool transient)
     {
         if (!transient)
         {
@@ -90,9 +128,40 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
         }
     }
 
+    public override void OnPostUndo()
+    {
+        if (isActivated)
+        {
+            OnToolSelected(false);
+        }
+    }
+
+    public override void OnPostRedo()
+    {
+        if (isActivated)
+        {
+            OnToolSelected(false);
+        }
+    }
+
     protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
     {
         OnDeselecting(false);
-        OnSelected(false);
+        OnToolSelected(false);
     }
+}
+
+enum VectorPathFillType
+{
+    [Description("FILL_TYPE_WINDING")]
+    
+    Winding,
+    [Description("FILL_TYPE_EVEN_ODD")]
+    EvenOdd,
+    
+    [Description("FILL_TYPE_INVERSE_WINDING")]
+    InverseWinding,
+    
+    [Description("FILL_TYPE_INVERSE_EVEN_ODD")]
+    InverseEvenOdd
 }

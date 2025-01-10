@@ -119,15 +119,13 @@ public class CombineChannelsNode : RenderNode
         return finalBounds;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
+    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
         if (Red.Value == null && Green.Value == null && Blue.Value == null && Alpha.Value == null)
         {
             return false;
         }
 
-        RenderContext context = new(renderOn, frame, resolution, VecI.One);
-        
         OnPaint(context, renderOn); 
         
         return true;

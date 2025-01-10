@@ -237,6 +237,11 @@ internal class ViewportOverlays
             Source = Viewport, Path = "Document.LineToolOverlayViewModel.IsSizeBoxEnabled", Mode = BindingMode.TwoWay
         };
         
+        Binding addToUndoCommandBinding = new()
+        {
+            Source = Viewport, Path = "Document.LineToolOverlayViewModel.AddToUndoCommand", Mode = BindingMode.OneWay
+        };
+        
         lineToolOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         lineToolOverlay.Bind(LineToolOverlay.SnappingControllerProperty, snappingBinding);
         lineToolOverlay.Bind(LineToolOverlay.ActionCompletedProperty, actionCompletedBinding);
@@ -247,6 +252,7 @@ internal class ViewportOverlays
         lineToolOverlay.Bind(LineToolOverlay.ShowHandlesProperty, showHandlesBinding);
         lineToolOverlay.Bind(LineToolOverlay.IsSizeBoxEnabledProperty, isSizeBoxEnabledBinding);
         lineToolOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
+        lineToolOverlay.Bind(LineToolOverlay.AddToUndoCommandProperty, addToUndoCommandBinding);
     }
 
     private void BindTransformOverlay()
@@ -326,6 +332,21 @@ internal class ViewportOverlays
         };
 
         Binding zoomboxAngleBinding = new() { Source = Viewport, Path = "Zoombox.Angle", Mode = BindingMode.OneWay };
+        
+        Binding scaleFromCenterBinding = new()
+        {
+            Source = Viewport, Path = "Document.TransformViewModel.ScaleFromCenter", Mode = BindingMode.OneWay
+        };
+        
+        Binding canAlignToPixelsBinding = new()
+        {
+            Source = Viewport, Path = "Document.TransformViewModel.CanAlignToPixels", Mode = BindingMode.OneWay
+        };
+        
+        Binding lockShearBinding = new()
+        {
+            Source = Viewport, Path = "Document.TransformViewModel.LockShear", Mode = BindingMode.OneWay
+        };
 
         transformOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         transformOverlay.Bind(TransformOverlay.ActionCompletedProperty, actionCompletedBinding);
@@ -342,6 +363,9 @@ internal class ViewportOverlays
         transformOverlay.Bind(TransformOverlay.ZoomboxAngleProperty, zoomboxAngleBinding);
         transformOverlay.Bind(TransformOverlay.ShowHandlesProperty, showHandlesBinding);
         transformOverlay.Bind(TransformOverlay.IsSizeBoxEnabledProperty, isSizeBoxEnabledBinding);
+        transformOverlay.Bind(TransformOverlay.ScaleFromCenterProperty, scaleFromCenterBinding);
+        transformOverlay.Bind(TransformOverlay.CanAlignToPixelsProperty, canAlignToPixelsBinding);
+        transformOverlay.Bind(TransformOverlay.LockShearProperty, lockShearBinding);
     }
     
     private void BindVectorPathOverlay()

@@ -1,5 +1,7 @@
-﻿using Avalonia.Media;
+﻿using Avalonia.Input;
+using Avalonia.Media;
 using ChunkyImageLib.DataHolders;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument;
@@ -12,15 +14,19 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers.InputDevice;
+using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Tools;
+using PixiEditor.ViewModels.Tools.Tools;
+using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
+using PixiEditor.Views.Overlays.PathOverlay;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
-internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorFeature, IMidChangeUndoableExecutor
+internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorFeature
 {
     private IStructureMemberHandler member;
     private VectorPath startingPath;
@@ -31,8 +37,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
 
     public override ExecutorType Type => ExecutorType.ToolLinked;
 
-    public bool CanUndo => document.PathOverlayHandler.HasUndo;
-    public bool CanRedo => document.PathOverlayHandler.HasRedo;
+    public bool StopExecutionOnNormalUndo => false;
 
     public override bool BlocksOtherActions => false;
 
@@ -60,6 +65,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
             if (shapeData is PathVectorData pathData)
             {
                 startingPath = new VectorPath(pathData.Path);
+                ApplySettings(pathData);
                 startingPath.Transform(pathData.TransformationMatrix);
             }
             else if (shapeData is null)
@@ -73,7 +79,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
                 return ExecutionState.Success;
             }
 
-            document.PathOverlayHandler.Show(startingPath, false);
+            document.PathOverlayHandler.Show(startingPath, false, AddToUndo);
             if (controller.LeftMousePressed)
             {
                 var snapped =
@@ -95,9 +101,9 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
                 }
 
                 //below forces undo before starting new path
-                internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
+               // internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
 
-                internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
+               // internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData(startingPath)));
             }
         }
         else
@@ -133,7 +139,8 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
 
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
-        if (!isValidPathLayer || startingPath.IsClosed) 
+        bool allClosed = WholePathClosed();
+        if (!isValidPathLayer || allClosed)
         {
             if (NeedsNewLayer(document.SelectedStructureMember, document.AnimationHandler.ActiveFrameTime))
             {
@@ -144,27 +151,14 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
 
                 document.Operations.SetSelectedMember(created.Value);
             }
-
-            return;
         }
-
-        VecD mouseSnap =
-            document.SnappingHandler.SnappingController.GetSnapPoint(args.PositionOnCanvas, out _,
-                out _);
-
-        if (startingPath.Points.Count > 0 && startingPath.Points[0] == (VecF)mouseSnap)
-        {
-            startingPath.Close();
-        }
-        else
-        {
-            startingPath.LineTo((VecF)mouseSnap);
-        }
-
-        PathVectorData vectorData = ConstructShapeData();
-
-        internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, vectorData));
-        mouseDown = true;
+    }
+    
+    private bool WholePathClosed()
+    {
+        EditableVectorPath editablePath = new EditableVectorPath(startingPath);
+        
+        return editablePath.SubShapes.Count > 0 && editablePath.SubShapes.All(x => x.IsClosed);
     }
 
     public override void OnLeftMouseButtonUp(VecD pos)
@@ -183,7 +177,10 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
 
     public override void OnSettingsChanged(string name, object value)
     {
-        internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
+        if (document.PathOverlayHandler.IsActive)
+        {
+            internals.ActionAccumulator.AddFinishedActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData(startingPath)), new EndSetShapeGeometry_Action());
+        }
     }
 
     public override void ForceStop()
@@ -194,23 +191,35 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
     }
 
-    private PathVectorData ConstructShapeData()
+    private void AddToUndo(VectorPath path)
     {
-        if(startingPath == null)
+        internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action(),
+            new SetShapeGeometry_Action(member.Id, ConstructShapeData(path)), new EndSetShapeGeometry_Action());
+    }
+
+    private PathVectorData ConstructShapeData(VectorPath? path)
+    {
+        if(path is null)
         {
-            return new PathVectorData(new VectorPath())
+            return new PathVectorData(new VectorPath() { FillType = (PathFillType)vectorPathToolHandler.FillMode })
             {
                 StrokeWidth = (float)toolbar.ToolSize,
                 StrokeColor = toolbar.StrokeColor.ToColor(),
                 FillColor = toolbar.Fill ? toolbar.FillColor.ToColor() : Colors.Transparent,
+                Fill = toolbar.Fill,
+                StrokeLineCap = vectorPathToolHandler.StrokeLineCap,
+                StrokeLineJoin = vectorPathToolHandler.StrokeLineJoin
             };
         }
         
-        return new PathVectorData(new VectorPath(startingPath))
+        return new PathVectorData(new VectorPath(path) { FillType = (PathFillType)vectorPathToolHandler.FillMode })
         {
             StrokeWidth = (float)toolbar.ToolSize,
             StrokeColor = toolbar.StrokeColor.ToColor(),
             FillColor = toolbar.Fill ? toolbar.FillColor.ToColor() : Colors.Transparent,
+            Fill = toolbar.Fill,
+            StrokeLineCap = vectorPathToolHandler.StrokeLineCap,
+            StrokeLineJoin = vectorPathToolHandler.StrokeLineJoin
         };
     }
 
@@ -219,7 +228,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         if (document.PathOverlayHandler.IsActive)
         {
             startingPath = path;
-            internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData()));
+            internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData(startingPath)));
         }
     }
 
@@ -232,16 +241,6 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
             ITransformableExecutor _ => true,
             _ => false
         };
-    }
-
-    public void OnMidChangeUndo()
-    {
-        document.PathOverlayHandler.Undo();
-    }
-
-    public void OnMidChangeRedo()
-    {
-        document.PathOverlayHandler.Redo();
     }
 
     protected void HighlightSnapping(string? snapX, string? snapY)
@@ -260,5 +259,17 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         }
 
         return shapeData is not IReadOnlyPathData pathData || pathData.Path.IsClosed;
+    }
+    
+    private void ApplySettings(PathVectorData pathData)
+    {
+        toolbar.ToolSize = pathData.StrokeWidth;
+        toolbar.StrokeColor = pathData.StrokeColor.ToColor();
+        toolbar.ToolSize = pathData.StrokeWidth;
+        toolbar.Fill = pathData.Fill;
+        toolbar.FillColor = pathData.FillColor.ToColor();
+        toolbar.GetSetting<EnumSettingViewModel<VectorPathFillType>>(nameof(VectorPathToolViewModel.FillMode)).Value = (VectorPathFillType)pathData.Path.FillType;
+        toolbar.GetSetting<EnumSettingViewModel<StrokeCap>>(nameof(VectorPathToolViewModel.StrokeLineCap)).Value = pathData.StrokeLineCap;
+        toolbar.GetSetting<EnumSettingViewModel<StrokeJoin>>(nameof(VectorPathToolViewModel.StrokeLineJoin)).Value = pathData.StrokeLineJoin;
     }
 }

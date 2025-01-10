@@ -16,8 +16,11 @@ internal class RectangleSerializationFactory : VectorShapeSerializationFactory<R
         builder.AddVecD(original.Size);
     }
 
-    protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor, Color fillColor,
-        float strokeWidth, out RectangleVectorData original)
+    protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor,
+        bool fill,
+        Color fillColor,
+        float strokeWidth, (string serializerName, string serializerVersion) serializerData,
+        out RectangleVectorData original)
     {
         VecD center = extractor.GetVecD();
         VecD size = extractor.GetVecD();
@@ -27,7 +30,8 @@ internal class RectangleSerializationFactory : VectorShapeSerializationFactory<R
             StrokeColor = strokeColor,
             FillColor = fillColor,
             StrokeWidth = strokeWidth,
-            TransformationMatrix = matrix
+            TransformationMatrix = matrix,
+            Fill = fill
         };
 
         return true;

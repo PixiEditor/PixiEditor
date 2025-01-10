@@ -16,7 +16,7 @@ internal abstract class CelViewModel : ObservableObject, ICelHandler
     private bool isVisibleBindable = true;
     private bool isSelected;
     private bool isCollapsed;
-    
+
     public bool IsCollapsed
     {
         get => isCollapsed;
@@ -24,6 +24,7 @@ internal abstract class CelViewModel : ObservableObject, ICelHandler
     }
 
     public DocumentViewModel Document { get; }
+
     protected DocumentInternalParts Internals { get; }
 
     IDocument ICelHandler.Document => Document;
@@ -133,5 +134,10 @@ internal abstract class CelViewModel : ObservableObject, ICelHandler
     {
         isVisibleBindable = isVisible;
         OnPropertyChanged(nameof(IsVisible));
+    }
+
+    public bool IsWithinRange(int frame)
+    {
+        return frame >= StartFrameBindable && frame < StartFrameBindable + DurationBindable;
     }
 }

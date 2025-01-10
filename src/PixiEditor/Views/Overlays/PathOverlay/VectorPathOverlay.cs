@@ -1,7 +1,10 @@
 ﻿using System.Windows.Input;
 using Avalonia;
 using Avalonia.Input;
+using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
@@ -47,12 +50,16 @@ public class VectorPathOverlay : Overlay
 
     private DashedStroke dashedStroke = new DashedStroke();
     private TransformHandle transformHandle;
+    private AnchorHandle insertPreviewHandle;
 
     private List<AnchorHandle> anchorHandles = new();
     private List<ControlPointHandle> controlPointHandles = new();
 
     private VecD posOnStartDrag;
     private VectorPath pathOnStartDrag;
+
+    private EditableVectorPath editableVectorPath;
+    private bool canInsert = false;
 
     static VectorPathOverlay()
     {
@@ -67,8 +74,13 @@ public class VectorPathOverlay : Overlay
         transformHandle.OnDrag += MoveHandleDrag;
 
         AddHandle(transformHandle);
+
+        insertPreviewHandle = new AnchorHandle(this);
+        insertPreviewHandle.HitTestVisible = false;
+
+        AddHandle(insertPreviewHandle);
     }
-    
+
     protected override void ZoomChanged(double newZoom)
     {
         dashedStroke.UpdateZoom((float)newZoom);
@@ -86,7 +98,12 @@ public class VectorPathOverlay : Overlay
 
         RenderHandles(context);
 
-        if (IsOverAnyHandle())
+        if (canInsert)
+        {
+            insertPreviewHandle.Draw(context);
+        }
+
+        if (IsOverAnyHandle() || canInsert)
         {
             TryHighlightSnap(null, null);
         }
@@ -94,80 +111,94 @@ public class VectorPathOverlay : Overlay
 
     public override bool CanRender()
     {
-        return Path != null;
+        return Path is { IsEmpty: false };
     }
 
     private void RenderHandles(Canvas context)
     {
         bool anySelected = false;
-        int anchor = 0;
-        int controlPoint = 0;
-        int anchorCount = GetAnchorCount();
-        foreach (var verb in Path)
+
+        EditableVectorPath editablePath = new EditableVectorPath(Path);
+
+        UpdatePointsPositions();
+
+        int anchorIndex = 0;
+        int controlPointIndex = 0;
+        for (int i = 0; i < editablePath.SubShapes.Count; i++)
         {
-            if (anchor == anchorCount - 1 && !anySelected)
-            {
-                GetHandleAt(anchor).IsSelected = true;
-            }
+            var subPath = editablePath.SubShapes[i];
 
-            anySelected = anySelected || GetHandleAt(anchor).IsSelected;
-
-            VecF verbPointPos = GetVerbPointPos(verb);
-
-            if (verb.verb == PathVerb.Cubic)
-            {
-                VecD controlPoint1 = (VecD)verb.points[1];
-                VecD controlPoint2 = (VecD)verb.points[2];
-
-                var controlPointHandle1 = controlPointHandles[controlPoint];
-                var controlPointHandle2 = controlPointHandles[controlPoint + 1];
-
-                controlPointHandle1.HitTestVisible = controlPoint1 != controlPointHandle1.ConnectedTo.Position;
-                controlPointHandle2.HitTestVisible = controlPoint2 != controlPointHandle2.ConnectedTo.Position;
-
-                controlPointHandle1.Position = controlPoint1;
-
-                if (controlPointHandle1.HitTestVisible)
-                {
-                    controlPointHandle1.Draw(context);
-                }
-
-                controlPointHandle2.Position = controlPoint2;
-
-                if (controlPointHandle2.HitTestVisible)
-                {
-                    controlPointHandle2.Draw(context);
-                }
-
-                controlPoint += 2;
-            }
-            else if (verb.verb == PathVerb.Close)
+            if (subPath.Points.Count == 0)
             {
                 continue;
             }
 
-            if (anchor == anchorCount)
+            foreach (var point in subPath.Points)
             {
-                continue;
+                if (anchorIndex >= anchorHandles.Count)
+                {
+                    break;
+                }
+
+                var handle = anchorHandles[anchorIndex];
+
+                if (point.Verb.ControlPoint1 != null || point.Verb.ControlPoint2 != null)
+                {
+                    DrawControlPoints(context, point, ref controlPointIndex);
+                }
+
+                handle.Draw(context);
+                anySelected |= handle.IsSelected;
+                anchorIndex++;
             }
-
-            anchorHandles[anchor].Position = new VecD(verbPointPos.X, verbPointPos.Y);
-            anchorHandles[anchor].Draw(context);
-
-            anchor++;
         }
 
         transformHandle.Position = Path.TightBounds.BottomRight + new VecD(1, 1);
         transformHandle.Draw(context);
     }
 
-    private int GetAnchorCount()
+    private void DrawControlPoints(Canvas context, ShapePoint point, ref int controlPointIndex)
     {
-        return Path.VerbCount - (Path.IsClosed ? 2 : 0);
+        if (point.Verb.VerbType != PathVerb.Cubic) return;
+
+        if (point.Verb.ControlPoint1 != null)
+        {
+            var controlPoint1 = controlPointHandles[controlPointIndex];
+            controlPoint1.HitTestVisible = CapturedHandle == controlPoint1 ||
+                                           controlPoint1.Position != controlPoint1.ConnectedTo.Position;
+            controlPoint1.Position = (VecD)point.Verb.ControlPoint1;
+            if (controlPoint1.HitTestVisible)
+            {
+                controlPoint1.Draw(context);
+            }
+
+            controlPointIndex++;
+        }
+
+        if (point.Verb.ControlPoint2 != null)
+        {
+            var controlPoint2 = controlPointHandles[controlPointIndex];
+            controlPoint2.Position = (VecD)point.Verb.ControlPoint2;
+            controlPoint2.HitTestVisible = CapturedHandle == controlPoint2 ||
+                                           controlPoint2.Position != controlPoint2.ConnectedTo.Position;
+
+            if (controlPoint2.HitTestVisible)
+            {
+                controlPoint2.Draw(context);
+            }
+
+            controlPointIndex++;
+        }
     }
 
-    private void AdjustHandles(int pointsCount)
+    public override bool TestHit(VecD point)
     {
+        return Path != null;
+    }
+
+    private void AdjustHandles(EditableVectorPath path)
+    {
+        int pointsCount = path.TotalPoints + path.ControlPointsCount;
         int anchorCount = anchorHandles.Count;
         int totalHandles = anchorCount + controlPointHandles.Count;
         if (totalHandles != pointsCount)
@@ -177,8 +208,8 @@ public class VectorPathOverlay : Overlay
                 RemoveAllHandles();
             }
 
-            int missingControlPoints = CalculateMissingControlPoints(controlPointHandles.Count);
-            int missingAnchors = GetAnchorCount() - anchorHandles.Count;
+            int missingControlPoints = path.ControlPointsCount - controlPointHandles.Count;
+            int missingAnchors = path.TotalPoints - anchorHandles.Count;
             for (int i = 0; i < missingAnchors; i++)
             {
                 CreateHandle(anchorHandles.Count);
@@ -189,64 +220,76 @@ public class VectorPathOverlay : Overlay
                 CreateHandle(controlPointHandles.Count, true);
             }
 
-
             SelectAnchor(GetHandleAt(pointsCount - 1));
 
             ConnectControlPointsToAnchors();
         }
+
+        UpdatePointsPositions();
         Refresh();
+    }
+
+    private void UpdatePointsPositions()
+    {
+        int controlPointIndex = 0;
+        int anchorIndex = 0;
+        foreach (var subShape in editableVectorPath.SubShapes)
+        {
+            foreach (var point in subShape.Points)
+            {
+                if (point.Verb.VerbType == PathVerb.Cubic)
+                {
+                    var controlPoint1 = controlPointHandles[controlPointIndex];
+                    var controlPoint2 = controlPointHandles[controlPointIndex + 1];
+
+                    controlPoint1.Position = (VecD)point.Verb.ControlPoint1;
+                    controlPoint2.Position = (VecD)point.Verb.ControlPoint2;
+
+                    controlPointIndex += 2;
+                }
+
+                if (anchorIndex >= anchorHandles.Count) continue;
+
+                var anchor = anchorHandles[anchorIndex];
+                anchor.Position = (VecD)point.Position;
+                anchorIndex++;
+            }
+        }
     }
 
     private void ConnectControlPointsToAnchors()
     {
+        if (controlPointHandles.Count == 0)
+        {
+            return;
+        }
+
         int controlPointIndex = 0;
-        int anchorIndex = 0;
-        foreach (var data in Path)
+        foreach (var subShape in editableVectorPath.SubShapes)
         {
-            if (data.verb == PathVerb.Cubic)
+            foreach (var point in subShape.Points)
             {
-                int targetAnchorIndex1 = anchorIndex - 1;
-                if (targetAnchorIndex1 < 0)
+                if (point.Verb.VerbType == PathVerb.Cubic)
                 {
-                    targetAnchorIndex1 = anchorHandles.Count - 1;
+                    var controlPoint1 = controlPointHandles[controlPointIndex];
+                    var controlPoint2 = controlPointHandles[controlPointIndex + 1];
+
+                    var nextPoint = subShape.GetNextPoint(point.Index);
+
+                    int globalIndex = editableVectorPath.GetGlobalIndex(subShape, point.Index);
+
+                    controlPoint1.ConnectedTo = GetHandleAt(globalIndex);
+
+                    if (nextPoint != null)
+                    {
+                        int globalNextIndex = editableVectorPath.GetGlobalIndex(subShape, nextPoint.Index);
+                        controlPoint2.ConnectedTo = GetHandleAt(globalNextIndex);
+                    }
+
+                    controlPointIndex += 2;
                 }
-
-                AnchorHandle previousAnchor = anchorHandles.ElementAtOrDefault(targetAnchorIndex1);
-
-                int targetAnchorIndex2 = anchorIndex;
-                if (targetAnchorIndex2 >= anchorHandles.Count)
-                {
-                    targetAnchorIndex2 = 0;
-                }
-
-                AnchorHandle nextAnchor = anchorHandles.ElementAtOrDefault(targetAnchorIndex2);
-
-                if (previousAnchor != null)
-                {
-                    controlPointHandles[controlPointIndex].ConnectedTo = previousAnchor;
-                }
-
-                controlPointHandles[controlPointIndex + 1].ConnectedTo = nextAnchor;
-                controlPointIndex += 2;
-            }
-
-            anchorIndex++;
-        }
-    }
-
-    private int CalculateMissingControlPoints(int handleCount)
-    {
-        int totalControlPoints = 0;
-
-        foreach (var point in Path)
-        {
-            if (point.verb == PathVerb.Cubic)
-            {
-                totalControlPoints += 2;
             }
         }
-
-        return totalControlPoints - handleCount;
     }
 
     private void RemoveAllHandles()
@@ -271,6 +314,7 @@ public class VectorPathOverlay : Overlay
         for (int i = controlPointHandles.Count - 1; i >= 0; i--)
         {
             var handle = controlPointHandles[i];
+            handle.OnPress -= OnControlPointPress;
             handle.OnDrag -= OnControlPointDrag;
             handle.OnRelease -= OnHandleRelease;
 
@@ -313,6 +357,46 @@ public class VectorPathOverlay : Overlay
         args.Handled = true;
     }
 
+    protected override void OnKeyPressed(Key key, KeyModifiers keyModifiers)
+    {
+        if (key == Key.Delete)
+        {
+            DeleteSelectedPoints();
+        }
+    }
+
+    private void DeleteSelectedPoints()
+    {
+        var selectedHandles = anchorHandles.Where(h => h.IsSelected).ToList();
+        if (selectedHandles == null || selectedHandles.Count == 0)
+        {
+            return;
+        }
+        
+        int handleAdjustment = 0;
+
+        foreach (var handle in selectedHandles)
+        {
+            int index = anchorHandles.IndexOf(handle) - handleAdjustment;
+            SubShape subShapeContainingIndex = editableVectorPath.GetSubShapeContainingIndex(index);
+            int localIndex = editableVectorPath.GetSubShapePointIndex(index, subShapeContainingIndex);
+
+            if (subShapeContainingIndex.Points.Count == 1)
+            {
+                editableVectorPath.RemoveSubShape(subShapeContainingIndex);
+            }
+            else
+            {
+                subShapeContainingIndex.RemovePoint(localIndex);
+            }
+            
+            handleAdjustment++;
+        }
+        
+        Path = editableVectorPath.ToVectorPath();
+        AddToUndoCommand.Execute(Path);
+    }
+
     private void CreateHandle(int atIndex, bool isControlPoint = false)
     {
         if (!isControlPoint)
@@ -325,11 +409,17 @@ public class VectorPathOverlay : Overlay
             anchor.OnRelease += OnHandleRelease;
             anchor.OnTap += OnHandleTap;
             AddHandle(anchor);
-            SnappingController.AddXYAxis($"editingPath[{atIndex}]", () => anchor.Position);
+            SnappingController.AddXYAxis($"editingPath[{atIndex}]", () =>
+            {
+                var subs = editableVectorPath.GetSubShapeContainingIndex(atIndex);
+                int localIndex = editableVectorPath.GetSubShapePointIndex(atIndex, subs);
+                return (VecD)subs.Points[localIndex].Position;
+            });
         }
         else
         {
             var controlPoint = new ControlPointHandle(this);
+            controlPoint.OnPress += OnControlPointPress;
             controlPoint.OnDrag += OnControlPointDrag;
             controlPoint.OnRelease += OnHandleRelease;
             controlPointHandles.Add(controlPoint);
@@ -344,43 +434,134 @@ public class VectorPathOverlay : Overlay
             return;
         }
 
-        if (Path.IsClosed)
-        {
-            return;
-        }
-
-        VectorPath newPath = new VectorPath(Path);
         if (args.Modifiers.HasFlag(KeyModifiers.Control))
         {
-            SelectAnchor(anchorHandle);
+            bool append = args.Modifiers.HasFlag(KeyModifiers.Shift);
+            SelectAnchor(anchorHandle, append);
             return;
         }
 
-        if (IsFirstHandle(anchorHandle))
+        var selectedHandle = anchorHandles.FirstOrDefault(h => h.IsSelected);
+        if (selectedHandle == null)
         {
-            newPath.LineTo((VecF)anchorHandle.Position);
-            newPath.Close();
+            return;
+        }
+
+        SubShape ssOfSelected = editableVectorPath.GetSubShapeContainingIndex(anchorHandles.IndexOf(selectedHandle));
+        SubShape ssOfTapped = editableVectorPath.GetSubShapeContainingIndex(anchorHandles.IndexOf(anchorHandle));
+
+        if (ssOfTapped == null || ssOfSelected == null)
+        {
+            return;
+        }
+
+        int globalIndexOfTapped = anchorHandles.IndexOf(anchorHandle);
+        int localIndexOfTapped = editableVectorPath.GetSubShapePointIndex(globalIndexOfTapped, ssOfTapped);
+
+        if (ssOfSelected == ssOfTapped && ssOfTapped.IsClosed)
+        {
+            return;
+        }
+
+        if (ssOfSelected == ssOfTapped && !ssOfTapped.IsClosed &&
+            (localIndexOfTapped == 0 || localIndexOfTapped == ssOfTapped.Points.Count - 1))
+        {
+            ssOfTapped.Close();
         }
         else
         {
-            VecD pos = anchorHandle.Position;
-            newPath.LineTo(new VecF((float)pos.X, (float)pos.Y));
+            ssOfTapped.AppendPoint((VecF)anchorHandle.Position);
         }
 
-        Path = newPath;
+        SelectAnchor(anchorHandle);
+        Path = editableVectorPath.ToVectorPath();
     }
 
-    private bool IsFirstHandle(AnchorHandle handle)
+    private void SelectAnchor(AnchorHandle handle, bool append = false)
     {
-        return anchorHandles.IndexOf(handle) == 0;
-    }
+        if (append)
+        {
+            handle.IsSelected = !handle.IsSelected;
+            return;
+        }
 
-    private void SelectAnchor(AnchorHandle handle)
-    {
         foreach (var anchorHandle in anchorHandles)
         {
             anchorHandle.IsSelected = anchorHandle == handle;
         }
+    }
+
+    protected override void OnOverlayPointerPressed(OverlayPointerArgs args)
+    {
+        if (args.PointerButton != MouseButton.Left)
+        {
+            return;
+        }
+
+        if (args.Modifiers == KeyModifiers.Shift && IsOverPath(args.Point, out VecD closestPoint))
+        {
+            AddPointAt(closestPoint);
+            AddToUndoCommand.Execute(Path);
+            args.Handled = true;
+        }
+        else if (args.Modifiers == KeyModifiers.None)
+        {
+            args.Handled = AddNewPointFromClick(args.Point);
+            AddToUndoCommand.Execute(Path);
+        }
+    }
+
+    protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
+    {
+        if (args.Modifiers == KeyModifiers.Shift && IsOverPath(args.Point, out VecD closestPoint))
+        {
+            insertPreviewHandle.Position = closestPoint;
+            canInsert = true;
+        }
+        else
+        {
+            canInsert = false;
+        }
+    }
+
+    private bool AddNewPointFromClick(VecD point)
+    {
+        var selectedHandle = anchorHandles.FirstOrDefault(h => h.IsSelected);
+        SubShape subShape = editableVectorPath.GetSubShapeContainingIndex(anchorHandles.IndexOf(selectedHandle));
+
+        if (subShape.IsClosed)
+        {
+            return false;
+        }
+
+        if (Path.IsEmpty)
+        {
+            Path = new VectorPath();
+            Path.MoveTo((VecF)point);
+            SelectAnchor(anchorHandles[0]);
+        }
+        else
+        {
+            subShape.AppendPoint((VecF)point);
+            Path = editableVectorPath.ToVectorPath();
+            SelectAnchor(anchorHandles.Last());
+        }
+        
+        return true;
+    }
+
+    private void AddPointAt(VecD point)
+    {
+        editableVectorPath.AddPointAt(point);
+        Path = editableVectorPath.ToVectorPath();
+    }
+
+    private bool IsOverPath(VecD point, out VecD closestPoint)
+    {
+        VecD? closest = editableVectorPath.GetClosestPointOnPath(point, 20 / (float)ZoomScale);
+        closestPoint = closest ?? point;
+
+        return closest != null;
     }
 
     private void OnHandlePress(Handle source, OverlayPointerArgs args)
@@ -389,67 +570,32 @@ public class VectorPathOverlay : Overlay
         {
             SnappingController.RemoveAll($"editingPath[{anchorHandles.IndexOf(anchorHandle)}]");
             CaptureHandle(source);
-
-            if (!args.Modifiers.HasFlag(KeyModifiers.Control)) return;
-
-            var newPath = ConvertTouchingLineVerbsToCubic(anchorHandle);
-
-            Path = newPath;
+            args.Handled = true;
         }
     }
 
     // To have continous spline, verb before and after a point must be a cubic with proper control points
-    private VectorPath ConvertTouchingLineVerbsToCubic(AnchorHandle anchorHandle)
+    private EditableVectorPath ConvertTouchingVerbsToCubic(AnchorHandle anchorHandle)
     {
-        bool convertNextToCubic = false;
-        int i = -1;
-        VectorPath newPath = new VectorPath();
         int index = anchorHandles.IndexOf(anchorHandle);
 
-        foreach (var data in Path)
-        {
-            if (data.verb == PathVerb.Line)
-            {
-                if (i == index)
-                {
-                    newPath.CubicTo(data.points[0], data.points[1], data.points[1]);
-                    convertNextToCubic = true;
-                }
-                else if (i + 1 == index)
-                {
-                    newPath.CubicTo(data.points[0], data.points[1], data.points[1]);
-                }
-                else if (i == 0 && index == 0 || (Path.IsClosed && i == Path.PointCount - 2 && index == 0))
-                {
-                    newPath.CubicTo(data.points[0], data.points[1], data.points[1]);
-                }
-                else
-                {
-                    if (convertNextToCubic)
-                    {
-                        newPath.CubicTo(data.points[0], data.points[1], data.points[1]);
-                        convertNextToCubic = false;
-                    }
-                    else
-                    {
-                        newPath.LineTo(data.points[1]);
-                    }
-                }
-            }
-            else if (data.verb == PathVerb.Cubic && i == index)
-            {
-                newPath.CubicTo(data.points[1], data.points[2], data.points[3]);
-                convertNextToCubic = true;
-            }
-            else
-            {
-                DefaultPathVerb(data, newPath);
-            }
+        return ConvertTouchingVerbsToCubic(index);
+    }
 
-            i++;
-        }
+    private EditableVectorPath ConvertTouchingVerbsToCubic(int index)
+    {
+        SubShape subShapeContainingIndex = editableVectorPath.GetSubShapeContainingIndex(index);
 
-        return newPath;
+        int localIndex = editableVectorPath.GetSubShapePointIndex(index, subShapeContainingIndex);
+
+        var previousPoint = subShapeContainingIndex.GetPreviousPoint(localIndex);
+        var point = subShapeContainingIndex.Points[localIndex];
+
+        previousPoint?.ConvertVerbToCubic();
+
+        point.ConvertVerbToCubic();
+
+        return editableVectorPath;
     }
 
     private void OnHandleDrag(Handle source, OverlayPointerArgs args)
@@ -460,168 +606,122 @@ public class VectorPathOverlay : Overlay
         }
 
         var index = anchorHandles.IndexOf(handle);
-        VectorPath newPath = new VectorPath();
 
-        bool pointHandled = false;
-        int i = 0;
+        var targetPos = ApplySnapping(args.Point);
 
-        VecF previousDelta = new VecF();
+        SubShape subShapeContainingIndex = editableVectorPath.GetSubShapeContainingIndex(index);
 
-        int controlPointIndex = 0;
-        var connectedControlPoints = controlPointHandles.Where(x => x.ConnectedTo == handle).ToList();
-        int targetControlPointIndex = controlPointHandles.IndexOf(connectedControlPoints.FirstOrDefault());
-        int symmetricControlPointIndex = controlPointHandles.IndexOf(connectedControlPoints.LastOrDefault());
+        int localIndex = editableVectorPath.GetSubShapePointIndex(index, subShapeContainingIndex);
 
-        VecD targetPos = ApplySymmetry(args.Point);
-        VecD targetSymmetryPos = GetMirroredControlPoint((VecF)targetPos, (VecF)handle.Position);
+        bool isDraggingControlPoints = args.Modifiers.HasFlag(KeyModifiers.Control);
 
-        bool ctrlPressed = args.Modifiers.HasFlag(KeyModifiers.Control);
-        foreach (var data in Path)
+        if (isDraggingControlPoints)
         {
-            VecF point;
-            switch (data.verb)
-            {
-                case PathVerb.Move:
-                    if (ctrlPressed)
-                    {
-                        DefaultPathVerb(data, newPath);
-                        break;
-                    }
+            var newPath = ConvertTouchingVerbsToCubic(handle);
 
-                    point = data.points[0];
-                    point = TryApplyNewPos(args, i, index, point, Path.IsClosed, data.points[0]);
+            subShapeContainingIndex = newPath.GetSubShapeContainingIndex(index);
+            localIndex = newPath.GetSubShapePointIndex(index, subShapeContainingIndex);
 
-                    newPath.MoveTo(point);
-                    previousDelta = point - data.points[0];
-                    break;
-                case PathVerb.Line:
-                    if (ctrlPressed)
-                    {
-                        DefaultPathVerb(data, newPath);
-                        break;
-                    }
-
-                    point = data.points[1];
-                    point = TryApplyNewPos(args, i, index, point, Path.IsClosed, newPath.Points[0]);
-
-                    newPath.LineTo(point);
-                    break;
-                case PathVerb.Cubic:
-                    if (ctrlPressed)
-                    {
-                        HandleCubicControlContinousDrag(controlPointIndex, targetControlPointIndex,
-                            symmetricControlPointIndex,
-                            targetPos, targetSymmetryPos, data, newPath);
-                        controlPointIndex += 2;
-                    }
-                    else
-                    {
-                        point = data.points[3];
-                        point = TryApplyNewPos(args, i, index, point, Path.IsClosed, newPath.Points[0]);
-
-                        VecF mid1Delta = previousDelta;
-
-                        VecF mid2Delta = point - data.points[3];
-
-                        newPath.CubicTo(data.points[1] + mid1Delta, data.points[2] + mid2Delta, point);
-
-                        previousDelta = mid2Delta;
-                    }
-
-                    break;
-                default:
-                    DefaultPathVerb(data, newPath);
-                    break;
-            }
-
-            i++;
+            HandleContinousCubicDrag(targetPos, handle, subShapeContainingIndex, localIndex, true);
+        }
+        else
+        {
+            subShapeContainingIndex.SetPointPosition(localIndex, (VecF)targetPos, true);
         }
 
-        Path = newPath;
+        Path = editableVectorPath.ToVectorPath();
+    }
+
+    private void HandleContinousCubicDrag(VecD targetPos, AnchorHandle handle, SubShape subShapeContainingIndex,
+        int localIndex, bool constrainRatio, bool swapOrder = false)
+    {
+        var previousPoint = subShapeContainingIndex.GetPreviousPoint(localIndex);
+
+        VecD symmetricPos = targetPos;
+        bool canMirror = true;
+
+        var thisPoint = subShapeContainingIndex.Points[localIndex];
+
+        if (constrainRatio)
+        {
+            symmetricPos = GetMirroredControlPoint((VecF)targetPos, thisPoint.Position);
+        }
+        else
+        {
+            VecD direction = targetPos - (VecD)thisPoint.Position;
+            direction = direction.Normalize();
+            var controlPos = ((VecD?)previousPoint?.Verb.ControlPoint2 ?? targetPos);
+            if (swapOrder)
+            {
+                controlPos = ((VecD?)subShapeContainingIndex.Points[localIndex]?.Verb.ControlPoint1 ?? targetPos);
+            }
+
+            double length = VecD.Distance((VecD)thisPoint.Position, controlPos);
+            if (!direction.IsNaNOrInfinity())
+            {
+                symmetricPos = (VecD)thisPoint.Position - direction * length;
+            }
+            else
+            {
+                canMirror = false;
+            }
+        }
+
+        if (swapOrder)
+        {
+            (targetPos, symmetricPos) = (symmetricPos, targetPos);
+        }
+
+        subShapeContainingIndex.Points[localIndex].Verb.ControlPoint1 = (VecF)targetPos;
+
+        if (previousPoint != null && canMirror)
+        {
+            previousPoint.Verb.ControlPoint2 = (VecF)symmetricPos;
+        }
     }
 
     private void OnControlPointDrag(Handle source, OverlayPointerArgs args)
     {
-        if (source is not ControlPointHandle controlPointHandle)
+        if (source is not ControlPointHandle controlPointHandle ||
+            controlPointHandle.ConnectedTo is not AnchorHandle to)
         {
             return;
         }
 
-        var targetIndex = controlPointHandles.IndexOf(controlPointHandle);
-        int symmetricIndex = controlPointHandles.IndexOf(controlPointHandles.FirstOrDefault(x =>
-            x.ConnectedTo == controlPointHandle.ConnectedTo && x != controlPointHandle));
-        VecD targetPos = ApplySymmetry(args.Point);
-        VecD targetSymmetryPos =
-            GetMirroredControlPoint((VecF)targetPos, (VecF)controlPointHandle.ConnectedTo.Position);
-        VectorPath newPath = new VectorPath();
+        var targetPos = ApplySnapping(args.Point);
 
-        if (args.Modifiers.HasFlag(KeyModifiers.Alt))
+        var globalIndex = anchorHandles.IndexOf(to);
+        var subShapeContainingIndex = editableVectorPath.GetSubShapeContainingIndex(globalIndex);
+
+        int localIndex = editableVectorPath.GetSubShapePointIndex(globalIndex, subShapeContainingIndex);
+
+        bool dragOnlyOne = args.Modifiers.HasFlag(KeyModifiers.Alt);
+
+        if (!dragOnlyOne)
         {
-            symmetricIndex = -1;
+            bool isDraggingFirst = controlPointHandles.IndexOf(controlPointHandle) % 2 == 0;
+            bool constrainRatio = args.Modifiers.HasFlag(KeyModifiers.Control);
+            HandleContinousCubicDrag(targetPos, to, subShapeContainingIndex, localIndex, constrainRatio,
+                !isDraggingFirst);
         }
-
-        int i = 0;
-
-        foreach (var data in Path)
+        else
         {
-            VecF point;
-            switch (data.verb)
+            bool isFirstControlPoint = controlPointHandles.IndexOf(controlPointHandle) % 2 == 0;
+            if (isFirstControlPoint)
             {
-                case PathVerb.Move:
-                    newPath.MoveTo(data.points[0]);
-                    break;
-                case PathVerb.Line:
-                    point = data.points[1];
-                    newPath.LineTo(point);
-                    break;
-                case PathVerb.Cubic:
-                    HandleCubicControlContinousDrag(i, targetIndex, symmetricIndex,
-                        targetPos, targetSymmetryPos, data, newPath);
-                    i += 2;
-                    break;
-                default:
-                    i++;
-                    DefaultPathVerb(data, newPath);
-                    break;
+                subShapeContainingIndex.Points[localIndex].Verb.ControlPoint1 = (VecF)targetPos;
+            }
+            else
+            {
+                var previousPoint = subShapeContainingIndex.GetPreviousPoint(localIndex);
+                if (previousPoint != null)
+                {
+                    previousPoint.Verb.ControlPoint2 = (VecF)targetPos;
+                }
             }
         }
 
-        Path = newPath;
-    }
-
-    private void HandleCubicControlContinousDrag(int i, int targetIndex, int symmetricIndex,
-        VecD targetPos, VecD targetSymmetryPos,
-        (PathVerb verb, VecF[] points) data,
-        VectorPath newPath)
-    {
-        bool isFirstControlPoint = i == targetIndex;
-        bool isSecondControlPoint = i + 1 == targetIndex;
-
-        bool isFirstSymmetricControlPoint = i == symmetricIndex;
-        bool isSecondSymmetricControlPoint = i + 1 == symmetricIndex;
-
-        VecF controlPoint1 = data.points[1];
-        VecF controlPoint2 = data.points[2];
-        VecF endPoint = data.points[3];
-
-        if (isFirstControlPoint)
-        {
-            controlPoint1 = (VecF)targetPos;
-        }
-        else if (isSecondControlPoint)
-        {
-            controlPoint2 = (VecF)targetPos;
-        }
-        else if (isFirstSymmetricControlPoint)
-        {
-            controlPoint1 = (VecF)targetSymmetryPos;
-        }
-        else if (isSecondSymmetricControlPoint)
-        {
-            controlPoint2 = (VecF)targetSymmetryPos;
-        }
-
-        newPath.CubicTo(controlPoint1, controlPoint2, endPoint);
+        Path = editableVectorPath.ToVectorPath();
     }
 
     private VecD GetMirroredControlPoint(VecF controlPoint, VecF anchor)
@@ -629,50 +729,17 @@ public class VectorPathOverlay : Overlay
         return new VecD(2 * anchor.X - controlPoint.X, 2 * anchor.Y - controlPoint.Y);
     }
 
-    private VecF GetVerbPointPos((PathVerb verb, VecF[] points) data)
-    {
-        switch (data.verb)
-        {
-            case PathVerb.Move:
-                return data.points[0];
-            case PathVerb.Line:
-                return data.points[1];
-            case PathVerb.Quad:
-                return data.points[2];
-            case PathVerb.Cubic:
-                return data.points[3];
-            case PathVerb.Conic:
-                return data.points[2];
-            case PathVerb.Close:
-                return data.points[0];
-            case PathVerb.Done:
-                return new VecF();
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-    }
-
-    private VecF TryApplyNewPos(OverlayPointerArgs args, int i, int index, VecF point, bool firstIsLast,
-        VecF firstPoint)
-    {
-        if (i == index)
-        {
-            point = (VecF)ApplySymmetry(args.Point);
-        }
-        else if (firstIsLast && i == GetAnchorCount())
-        {
-            point = firstPoint;
-        }
-
-        return point;
-    }
-
-    private VecD ApplySymmetry(VecD point)
+    private VecD ApplySnapping(VecD point)
     {
         var snappedPoint = SnappingController.GetSnapPoint(point, out string axisX, out string axisY);
         var snapped = new VecD((float)snappedPoint.X, (float)snappedPoint.Y);
         TryHighlightSnap(axisX, axisY);
         return snapped;
+    }
+
+    private void OnControlPointPress(Handle source, OverlayPointerArgs args)
+    {
+        CaptureHandle(source);
     }
 
     private void OnHandleRelease(Handle source, OverlayPointerArgs args)
@@ -770,36 +837,16 @@ public class VectorPathOverlay : Overlay
 
     private void PathChanged(VectorPath newPath)
     {
-        AdjustHandles(newPath.PointCount - (newPath.IsClosed ? 1 : 0));
-    }
-
-    private static void DefaultPathVerb((PathVerb verb, VecF[] points) data, VectorPath newPath)
-    {
-        switch (data.verb)
+        if (editableVectorPath == null)
         {
-            case PathVerb.Move:
-                newPath.MoveTo(data.points[0]);
-                break;
-            case PathVerb.Line:
-                newPath.LineTo(data.points[1]);
-                break;
-            case PathVerb.Quad:
-                newPath.QuadTo(data.points[1], data.points[2]);
-                break;
-            case PathVerb.Conic:
-                newPath.ConicTo(data.points[1], data.points[2], data.points[3].X);
-                break;
-            case PathVerb.Cubic:
-                newPath.CubicTo(data.points[1], data.points[2], data.points[3]);
-                break;
-            case PathVerb.Close:
-                newPath.Close();
-                break;
-            case PathVerb.Done:
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
+            editableVectorPath = new EditableVectorPath(newPath);
         }
+        else
+        {
+            editableVectorPath.Path = newPath;
+        }
+
+        AdjustHandles(editableVectorPath);
     }
 
     private static void OnPathChanged(AvaloniaPropertyChangedEventArgs<VectorPath> args)
@@ -810,11 +857,14 @@ public class VectorPathOverlay : Overlay
             overlay.SnappingController.RemoveAll("editingPath");
             overlay.ClearAnchorHandles();
             overlay.IsVisible = false;
+            overlay.editableVectorPath = null;
         }
         else
         {
             var path = args.NewValue.Value;
-            overlay.AdjustHandles(path.PointCount - (path.IsClosed ? 1 : 0));
+            EditableVectorPath editablePath = new EditableVectorPath(path);
+            overlay.editableVectorPath = editablePath;
+            overlay.AdjustHandles(editablePath);
             overlay.IsVisible = true;
         }
 
@@ -825,6 +875,7 @@ public class VectorPathOverlay : Overlay
 
         if (args.NewValue.Value != null)
         {
+            overlay.editableVectorPath = new EditableVectorPath(args.NewValue.Value);
             args.NewValue.Value.Changed += overlay.PathChanged;
         }
     }

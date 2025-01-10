@@ -3,6 +3,7 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
@@ -33,31 +34,41 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         Center = center;
         Size = size;
     }
-
-    public override void RasterizeGeometry(DrawingSurface drawingSurface)
+    
+    public RectangleVectorData(double x, double y, double width, double height)
     {
-        Rasterize(drawingSurface, false);
+        Center = new VecD(x + width / 2, y + height / 2);
+        Size = new VecD(width, height);
     }
 
-    public override void RasterizeTransformed(DrawingSurface drawingSurface)
+    public override void RasterizeGeometry(Canvas canvas)
     {
-        Rasterize(drawingSurface, true);
+        Rasterize(canvas, false);
     }
 
-    private void Rasterize(DrawingSurface drawingSurface, bool applyTransform)
+    public override void RasterizeTransformed(Canvas canvas)
+    {
+        Rasterize(canvas, true);
+    }
+
+    private void Rasterize(Canvas canvas, bool applyTransform)
     {
         int saved = 0;
         if (applyTransform)
         {
-            saved = drawingSurface.Canvas.Save();
-            ApplyTransformTo(drawingSurface);
+            saved = canvas.Save();
+            ApplyTransformTo(canvas);
         }
 
-        using Paint paint = new Paint() { IsAntiAliased = true };
+        using Paint paint = new Paint();
+        paint.IsAntiAliased = true;
 
-        paint.Color = FillColor;
-        paint.Style = PaintStyle.Fill;
-        drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
+        if (Fill && FillColor.A > 0)
+        {
+            paint.Color = FillColor;
+            paint.Style = PaintStyle.Fill;
+            canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
+        }
 
         if (StrokeWidth > 0)
         {
@@ -65,12 +76,12 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
             paint.Style = PaintStyle.Stroke;
 
             paint.StrokeWidth = StrokeWidth;
-            drawingSurface.Canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
+            canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
         }
 
         if (applyTransform)
         {
-            drawingSurface.Canvas.RestoreToCount(saved);
+            canvas.RestoreToCount(saved);
         }
     }
 
@@ -89,14 +100,10 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         return CalculateHash();
     }
 
-    public override object Clone()
+    public override VectorPath ToPath()
     {
-        return new RectangleVectorData(Center, Size)
-        {
-            StrokeColor = StrokeColor,
-            FillColor = FillColor,
-            StrokeWidth = StrokeWidth,
-            TransformationMatrix = TransformationMatrix
-        };
+        VectorPath path = new VectorPath();
+        path.AddRect(RectD.FromCenterAndSize(Center, Size));
+        return path;
     }
 }

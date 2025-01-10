@@ -2,6 +2,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core.Vector;
+using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 
@@ -11,8 +13,6 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
 {
     private DocumentViewModel documentViewModel;
     private DocumentInternalParts internals;
-
-    private PathOverlayUndoStack<VectorPath>? undoStack = null;
 
     private VectorPath path;
 
@@ -41,10 +41,14 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
 
     public event Action<VectorPath>? PathChanged;
     public bool IsActive { get; set; }
-    public bool HasUndo => undoStack.UndoCount > 0;
-    public bool HasRedo => undoStack.RedoCount > 0;
 
-    public RelayCommand<VectorPath> AddToUndoCommand { get; }
+    private RelayCommand<VectorPath> addToUndoCommand;
+
+    public RelayCommand<VectorPath> AddToUndoCommand
+    {
+        get => addToUndoCommand;
+        set => SetProperty(ref addToUndoCommand, value);
+    }
     
     private bool showApplyButton;
 
@@ -60,24 +64,19 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
     {
         this.documentViewModel = documentViewModel;
         this.internals = internals;
-
-        AddToUndoCommand = new RelayCommand<VectorPath>(AddToUndo);
-        undoStack = new PathOverlayUndoStack<VectorPath>();
     }
 
-    public void Show(VectorPath newPath, bool showApplyButton)
+    public void Show(VectorPath newPath, bool showApplyButton, Action<VectorPath>? customAddToUndo)
     {
         if (IsActive)
         {
             return;
         }
 
-        undoStack?.Dispose();
-        undoStack = new PathOverlayUndoStack<VectorPath>();
-        undoStack.AddState(new VectorPath(newPath));
         Path = newPath;
         IsActive = true;
         ShowApplyButton = showApplyButton;
+        AddToUndoCommand = new RelayCommand<VectorPath>(customAddToUndo);
     }
 
     public void Hide()
@@ -87,32 +86,8 @@ internal class PathOverlayViewModel : ObservableObject, IPathOverlayHandler
         ShowApplyButton = false;
     }
 
-    public void Undo()
-    {
-        suppressUndo = true;
-        Path = new VectorPath(undoStack?.Undo());
-        suppressUndo = false;
-    }
-
-    public void Redo()
-    {
-        suppressUndo = true;
-        Path = new VectorPath(undoStack?.Redo());
-        suppressUndo = false;
-    }
-
-    private void AddToUndo(VectorPath toAdd)
-    {
-        if (suppressUndo)
-        {
-            return;
-        }
-
-        undoStack?.AddState(new VectorPath(path));
-    }
-
     private void PathDataChanged(VectorPath path)
     {
-        AddToUndo(path);
+        AddToUndoCommand.Execute(path);
     }
 }

@@ -77,9 +77,9 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
             OnPropertyChanged(nameof(ActionDisplay));
         }
     }
-    
+
     public string IconOverwrite { get; set; }
-    
+
     public string IconToUse => IconOverwrite ?? DefaultIcon;
 
     private bool isActive;
@@ -110,6 +110,11 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
         if (layers.Length is > 1 or 0)
         {
             CanBeUsedOnActiveLayer = SupportedLayerTypes == null;
+            if (IsActive)
+            {
+                OnSelectedLayersChanged(layers);
+            }
+
             return;
         }
 
@@ -151,13 +156,38 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     public virtual void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown) { }
 
     public virtual void UseTool(VecD pos) { }
-    public virtual void OnSelected(bool restoring) { }
+
+    protected virtual void OnSelected(bool restoring) { }
+
+    public void OnToolSelected(bool restoring)
+    {
+        if (!restoring)
+        {
+            IsActive = true;
+        }
+
+        OnSelected(restoring);
+    }
 
     protected virtual void OnSelectedLayersChanged(IStructureMemberHandler[] layers) { }
 
-    public virtual void OnDeselecting(bool transient)
+    public void OnToolDeselected(bool transient)
+    {
+        if (!transient)
+        {
+            IsActive = false;
+        }
+
+        OnDeselecting(transient);
+    }
+
+    protected virtual void OnDeselecting(bool transient)
     {
     }
+
+    public virtual void OnPostUndo() { }
+    public virtual void OnPostRedo() { }
+    public virtual void OnActiveFrameChanged(int newFrame) { }
 
     public void SetToolSetSettings(IToolSetHandler toolset, Dictionary<string, object>? settings)
     {
@@ -184,8 +214,8 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
         {
             toolbarSetting.ResetOverwrite();
         }
-        
-        if(toolset.IconOverwrites.TryGetValue(this, out var icon))
+
+        if (toolset.IconOverwrites.TryGetValue(this, out var icon))
         {
             IconOverwrite = icon;
         }

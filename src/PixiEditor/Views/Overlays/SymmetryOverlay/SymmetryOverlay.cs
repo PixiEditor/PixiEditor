@@ -86,7 +86,7 @@ internal class SymmetryOverlay : Overlay
     public static readonly StyledProperty<VecI> SizeProperty = AvaloniaProperty.Register<SymmetryOverlay, VecI>(nameof(Size));
 
     private const double HandleSize = 12;
-    private VectorPath handleGeometry = Handle.GetHandleGeometry("MarkerHandle");
+    private VectorPath handleGeometry = Handle.GetHandleGeometry("MarkerHandle").Path;
 
     private const float DashWidth = 10.0f;
     const int RulerOffset = -35;
@@ -359,6 +359,8 @@ internal class SymmetryOverlay : Overlay
 
             CallSymmetryDragCommand((SymmetryAxisDirection)capturedDirection, verticalAxisX);
         }
+        
+        Refresh();
     }
 
     protected override void OnOverlayPointerExited(OverlayPointerArgs args)

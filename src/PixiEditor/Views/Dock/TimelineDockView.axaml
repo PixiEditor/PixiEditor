@@ -15,14 +15,14 @@
     <animations:Timeline 
         KeyFrames="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.KeyFrames}" 
         ActiveFrame="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, Mode=TwoWay}"
-        NewKeyFrameCommand="{xaml:Command PixiEditor.Animation.CreateRasterKeyFrame}"
+        NewKeyFrameCommand="{xaml:Command PixiEditor.Animation.CreateCel}"
         Fps="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.FrameRateBindable, Mode=TwoWay}"
         DefaultEndFrame="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.DefaultEndFrame}"
         OnionSkinningEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.OnionSkinningEnabledBindable, Mode=TwoWay}"
         OnionFrames="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.OnionFramesBindable, Mode=TwoWay}"
         OnionOpacity="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.OnionOpacityBindable, Mode=TwoWay}"
         IsPlaying="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.IsPlayingBindable, Mode=TwoWay}"
-        DuplicateKeyFrameCommand="{xaml:Command PixiEditor.Animation.DuplicateRasterKeyFrame}"
+        DuplicateKeyFrameCommand="{xaml:Command PixiEditor.Animation.DuplicateCel}"
         DeleteKeyFrameCommand="{xaml:Command PixiEditor.Animation.DeleteCels, UseProvided=True}"
         ChangeKeyFramesLengthCommand="{xaml:Command PixiEditor.Animation.ChangeKeyFramesStartPos, UseProvided=True}"/>
 </UserControl>

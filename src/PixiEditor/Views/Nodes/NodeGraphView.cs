@@ -3,13 +3,16 @@ using System.Collections.Specialized;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.Helpers;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -22,6 +25,7 @@ using Point = Avalonia.Point;
 
 namespace PixiEditor.Views.Nodes;
 
+[TemplatePart("PART_SelectionRectangle", typeof(Rectangle))]
 internal class NodeGraphView : Zoombox.Zoombox
 {
     public static readonly StyledProperty<INodeGraphHandler> NodeGraphProperty =
@@ -190,9 +194,17 @@ internal class NodeGraphView : Zoombox.Zoombox
     private NodeConnectionViewModel? _hiddenConnection;
     private Color _startingPropColor;
     private VecD _lastMouseClickPos;
+    private Point _lastMousePos;
 
     private ItemsControl nodeItemsControl;
     private ItemsControl connectionItemsControl;
+    private Rectangle selectionRectangle;
+    
+    private List<INodeHandler> selectedNodesOnStartDrag = new();
+
+    private List<Control> nodeViewsCache = new();
+
+    private bool isSelecting;
 
     public static readonly StyledProperty<int> ActiveFrameProperty =
         AvaloniaProperty.Register<NodeGraphView, int>("ActiveFrame");
@@ -215,14 +227,16 @@ internal class NodeGraphView : Zoombox.Zoombox
         base.OnApplyTemplate(e);
         nodeItemsControl = e.NameScope.Find<ItemsControl>("PART_Nodes");
         connectionItemsControl = e.NameScope.Find<ItemsControl>("PART_Connections");
+        selectionRectangle = e.NameScope.Find<Rectangle>("PART_SelectionRectangle");
 
         Dispatcher.UIThread.Post(() =>
         {
-            nodeItemsControl.ItemsPanelRoot.Children.CollectionChanged += Items_CollectionChanged;
+            nodeItemsControl.ItemsPanelRoot.Children.CollectionChanged += NodeItems_CollectionChanged;
+            nodeViewsCache = nodeItemsControl.ItemsPanelRoot.Children.ToList();
         });
     }
 
-    private void Items_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    private void NodeItems_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
         if (e.Action == NotifyCollectionChangedAction.Add)
         {
@@ -233,6 +247,7 @@ internal class NodeGraphView : Zoombox.Zoombox
                     continue;
                 }
 
+                nodeViewsCache.Add(presenter);
                 if (presenter.Child == null)
                 {
                     presenter.PropertyChanged += OnPresenterPropertyChanged;
@@ -243,8 +258,34 @@ internal class NodeGraphView : Zoombox.Zoombox
                 nodeView.PropertyChanged += NodeView_PropertyChanged;
             }
         }
-    }
+        else if (e.Action == NotifyCollectionChangedAction.Remove)
+        {
+            foreach (Control control in e.OldItems)
+            {
+                if (control is not ContentPresenter presenter)
+                {
+                    continue;
+                }
 
+                nodeViewsCache.Remove(presenter);
+
+                if (presenter.Child == null)
+                {
+                    presenter.PropertyChanged -= OnPresenterPropertyChanged;
+                    continue;
+                }
+
+
+                NodeView nodeView = (NodeView)presenter.Child;
+                nodeView.PropertyChanged -= NodeView_PropertyChanged;
+            }
+        }
+        else if (e.Action == NotifyCollectionChangedAction.Reset)
+        {
+            nodeViewsCache.Clear();
+        }
+    }
+    
     private void OnPresenterPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
     {
         if (e.Property == ContentPresenter.ChildProperty)
@@ -252,6 +293,18 @@ internal class NodeGraphView : Zoombox.Zoombox
             if (e.NewValue is NodeView nodeView)
             {
                 nodeView.PropertyChanged += NodeView_PropertyChanged;
+            }
+        }
+
+        if (e.Property == Canvas.LeftProperty || e.Property == Canvas.TopProperty)
+        {
+            if (e.Sender is ContentPresenter presenter && presenter.Child is NodeView nodeView)
+            {
+                Dispatcher.UIThread.Post(
+                    () =>
+                    {
+                        UpdateConnections(nodeView);
+                    }, DispatcherPriority.Render);
             }
         }
     }
@@ -273,9 +326,18 @@ internal class NodeGraphView : Zoombox.Zoombox
         if (e.GetMouseButton(this) == MouseButton.Left)
         {
             ClearSelection();
+            isSelecting = true;
+            selectionRectangle.IsVisible = true;
+            e.Handled = true;
+        }
+        else
+        {
+            isSelecting = false;
+            selectionRectangle.IsVisible = false;
         }
 
         Point pos = e.GetPosition(this);
+        _lastMousePos = pos;
         _lastMouseClickPos = ToZoomboxSpace(new VecD(pos.X, pos.Y));
     }
 
@@ -284,6 +346,35 @@ internal class NodeGraphView : Zoombox.Zoombox
         if (isDraggingConnection)
         {
             UpdateConnectionEnd(e);
+        }
+        else if (isSelecting)
+        {
+            var pos = e.GetPosition(this);
+            Point currentPoint = new Point(pos.X, pos.Y);
+
+            float x = (float)Math.Min(_lastMousePos.X, currentPoint.X);
+            float y = (float)Math.Min(_lastMousePos.Y, currentPoint.Y);
+            float width = (float)Math.Abs(_lastMousePos.X - currentPoint.X);
+            float height = (float)Math.Abs(_lastMousePos.Y - currentPoint.Y);
+
+            selectionRectangle.Width = width;
+            selectionRectangle.Height = height;
+            Thickness margin = new Thickness(x, y, 0, 0);
+
+            selectionRectangle.Margin = margin;
+
+
+            VecD zoomboxSpacePos = ToZoomboxSpace(new VecD(x, y));
+            VecD zoomboxSpaceSize = ToZoomboxSpace(new VecD(x + width, y + height));
+
+            x = (float)zoomboxSpacePos.X;
+            y = (float)zoomboxSpacePos.Y;
+            width = (float)(zoomboxSpaceSize.X - zoomboxSpacePos.X);
+            height = (float)(zoomboxSpaceSize.Y - zoomboxSpacePos.Y);
+
+            Rect zoomboxSpaceRect = new Rect(x, y, width, height);
+            ClearSelection();
+            SelectWithinBounds(zoomboxSpaceRect);
         }
     }
 
@@ -335,6 +426,20 @@ internal class NodeGraphView : Zoombox.Zoombox
         }
     }
 
+    private void SelectWithinBounds(Rect rect)
+    {
+        foreach (var control in nodeViewsCache)
+        {
+            if (control.Bounds.Intersects(rect))
+            {
+                if (control is ContentPresenter { Child: NodeView nodeView })
+                {
+                    nodeView.Node.IsNodeSelected = true;
+                }
+            }
+        }
+    }
+
     private static Color? GetSocketColor(NodeSocket? nodeSocket)
     {
         if (nodeSocket == null)
@@ -372,6 +477,14 @@ internal class NodeGraphView : Zoombox.Zoombox
 
             isDraggingConnection = false;
             _hiddenConnection = null;
+        }
+
+        if (isSelecting)
+        {
+            isSelecting = false;
+            selectionRectangle.IsVisible = false;
+            selectionRectangle.Width = 0;
+            selectionRectangle.Height = 0;
         }
 
         if (e.Source is NodeView nodeView)
@@ -415,7 +528,8 @@ internal class NodeGraphView : Zoombox.Zoombox
                 isDraggingNodes = true;
                 Point pt = e.GetPosition(this);
                 clickPointOffset = ToZoomboxSpace(new VecD(pt.X, pt.Y));
-                initialNodePositions = SelectedNodes.Select(x => x.PositionBindable).ToList();
+                selectedNodesOnStartDrag = SelectedNodes.ToList();
+                initialNodePositions = selectedNodesOnStartDrag.Select(x => x.PositionBindable).ToList();
             }
         }
     }
@@ -493,7 +607,7 @@ internal class NodeGraphView : Zoombox.Zoombox
             VecD currentPoint = ToZoomboxSpace(new VecD(pos.X, pos.Y));
 
             VecD delta = currentPoint - clickPointOffset;
-            ChangeNodePosCommand?.Execute((SelectedNodes, initialNodePositions[0] + delta));
+            ChangeNodePosCommand?.Execute((selectedNodesOnStartDrag, initialNodePositions[0] + delta));
         }
     }
 

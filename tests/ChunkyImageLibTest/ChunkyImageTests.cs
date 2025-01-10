@@ -3,6 +3,7 @@ using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using Drawie.Skia;
 using Xunit;
@@ -22,9 +23,9 @@ public class ChunkyImageTests
     [Fact]
     public void Dispose_ComplexImage_ReturnsAllChunks()
     {
-        ChunkyImage image = new ChunkyImage(new VecI(ChunkyImage.FullChunkSize, ChunkyImage.FullChunkSize));
+        ChunkyImage image = new ChunkyImage(new VecI(ChunkyImage.FullChunkSize, ChunkyImage.FullChunkSize), ColorSpace.CreateSrgb());
         image.EnqueueDrawRectangle(new(new(5, 5), new(80, 80), 0, 2, Colors.AliceBlue, Colors.Snow));
-        using (Chunk target = Chunk.Create())
+        using (Chunk target = Chunk.Create(ColorSpace.CreateSrgb()))
         {
             image.DrawMostUpToDateChunkOn(new(0, 0), ChunkResolution.Full, target.Surface.DrawingSurface, VecI.Zero);
             image.CancelChanges();
@@ -50,7 +51,7 @@ public class ChunkyImageTests
     public void GetCommittedPixel_RedImage_ReturnsRedPixel()
     {
         const int chunkSize = ChunkyImage.FullChunkSize;
-        ChunkyImage image = new ChunkyImage(new VecI(chunkSize * 2));
+        ChunkyImage image = new ChunkyImage(new VecI(chunkSize * 2), ColorSpace.CreateSrgb());
         image.EnqueueDrawRectangle
             (new ShapeData(new VecD(chunkSize), new VecD(chunkSize * 2), 0, 0, Colors.Transparent, Colors.Red));
         image.CommitChanges();
@@ -63,7 +64,7 @@ public class ChunkyImageTests
     public void GetMostUpToDatePixel_BlendModeSrc_ReturnsCorrectPixel()
     {
         const int chunkSize = ChunkyImage.FullChunkSize;
-        ChunkyImage image = new ChunkyImage(new VecI(chunkSize * 2));
+        ChunkyImage image = new ChunkyImage(new VecI(chunkSize * 2), ColorSpace.CreateSrgb());
         image.EnqueueDrawRectangle
             (new ShapeData(new VecD(chunkSize), new VecD(chunkSize * 2), 0, 0, Colors.Transparent, Colors.Red));
         Assert.Equal(Colors.Red, image.GetMostUpToDatePixel(new VecI(chunkSize + chunkSize / 2)));
@@ -75,7 +76,7 @@ public class ChunkyImageTests
     public void GetMostUpToDatePixel_BlendModeSrcOver_ReturnsCorrectPixel()
     {
         const int chunkSize = ChunkyImage.FullChunkSize;
-        ChunkyImage image = new ChunkyImage(new VecI(chunkSize * 2));
+        ChunkyImage image = new ChunkyImage(new VecI(chunkSize * 2), ColorSpace.CreateSrgb());
         image.EnqueueDrawRectangle
             (new ShapeData(new VecD(chunkSize), new VecD(chunkSize * 2), 0, 0, Colors.Transparent, Colors.Red));
         image.CommitChanges();
@@ -96,7 +97,7 @@ public class ChunkyImageTests
     public void EnqueueDrawRectangle_OutsideOfImage_PartsAreNotDrawn()
     {
         const int chunkSize = ChunkyImage.FullChunkSize;
-        using ChunkyImage image = new(new VecI(chunkSize));
+        using ChunkyImage image = new(new VecI(chunkSize), ColorSpace.CreateSrgb());
         image.EnqueueDrawRectangle(new ShapeData(
                 VecD.Zero,
                 new VecD(chunkSize * 10),

@@ -60,7 +60,8 @@ internal class Exporter
         {
             var file = await desktop.MainWindow.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
-                FileTypeChoices = SupportedFilesHelper.BuildSaveFilter(), DefaultExtension = "pixi"
+                FileTypeChoices = SupportedFilesHelper.BuildSaveFilter(
+                    FileTypeDialogDataSet.SetKind.Any & ~FileTypeDialogDataSet.SetKind.Video), DefaultExtension = "pixi"
             });
 
             if (file is null)
@@ -124,6 +125,7 @@ internal class Exporter
         {
             job?.Finish();
             Console.WriteLine(e);
+            CrashHelper.SendExceptionInfo(e);
             return SaveResult.UnknownError;
         }
     }

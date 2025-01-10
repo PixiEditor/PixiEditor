@@ -7,8 +7,10 @@ using PixiEditor.ViewModels.Document;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Graph;
 using PixiEditor.Parser.Skia;
@@ -31,6 +33,8 @@ internal class DocumentViewModelBuilder
 
     public NodeGraphBuilder Graph { get; set; }
     public string ImageEncoderUsed { get; set; } = "QOI";
+    public bool UsesLegacyColorBlending { get; set; } = false;
+    public Version? PixiParserVersionUsed { get; set; }
 
     public DocumentViewModelBuilder WithSize(int width, int height)
     {
@@ -122,6 +126,12 @@ internal class DocumentViewModelBuilder
         return this;
     }
 
+    public DocumentViewModelBuilder WithLegacyColorBlending(bool usesLegacyColorBlending)
+    {
+        UsesLegacyColorBlending = usesLegacyColorBlending;
+        return this;
+    }
+
     private static void BuildKeyFrames(List<KeyFrameGroup> root, List<KeyFrameBuilder> data)
     {
         foreach (KeyFrameGroup group in root)
@@ -197,6 +207,12 @@ internal class DocumentViewModelBuilder
     {
         SerializerName = documentSerializerName;
         SerializerVersion = documentSerializerVersion;
+        return this;
+    }
+
+    public DocumentViewModelBuilder WithPixiParserVersion(Version version)
+    {
+        PixiParserVersionUsed = version;
         return this;
     }
 }
@@ -303,7 +319,7 @@ internal class NodeGraphBuilder
         return this;
     }
 
-    public NodeGraphBuilder WithImageLayerNode(string name, Surface image, out int id)
+    public NodeGraphBuilder WithImageLayerNode(string name, Surface image, ColorSpace colorSpace, out int id)
     {
         this.WithNodeOfType(typeof(ImageLayerNode))
             .WithName(name)
@@ -313,7 +329,7 @@ internal class NodeGraphBuilder
                 new KeyFrameData
                 {
                     AffectedElement = ImageLayerNode.ImageLayerKey,
-                    Data = new ChunkyImage(image),
+                    Data = new ChunkyImage(image, colorSpace),
                     Duration = 0,
                     StartFrame = 0,
                     IsVisible = true
@@ -324,7 +340,7 @@ internal class NodeGraphBuilder
         return this;
     }
 
-    public NodeGraphBuilder WithImageLayerNode(string name, VecI size, out int id)
+    public NodeGraphBuilder WithImageLayerNode(string name, VecI size, ColorSpace colorSpace, out int id)
     {
         this.WithNodeOfType(typeof(ImageLayerNode))
             .WithName(name)
@@ -334,7 +350,7 @@ internal class NodeGraphBuilder
                 new KeyFrameData
                 {
                     AffectedElement = ImageLayerNode.ImageLayerKey,
-                    Data = new ChunkyImage(size),
+                    Data = new ChunkyImage(size, colorSpace),
                     Duration = 0,
                     StartFrame = 0,
                     IsVisible = true
@@ -353,6 +369,15 @@ internal class NodeGraphBuilder
         AllNodes.Add(node);
 
         return node;
+    }
+
+    public NodeBuilder WithNodeOfType<T>(out int id) where T : IReadOnlyNode
+    {
+        NodeBuilder builder = this.WithNodeOfType(typeof(T))
+            .WithId(AllNodes.Count);
+
+        id = AllNodes.Count;
+        return builder;
     }
 
     internal class NodeBuilder

@@ -42,6 +42,10 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         this.spacing = spacing;
         points.Add(pos);
         this.frame = frame;
+        
+        srcPaint.Shader?.Dispose();
+        srcPaint.Shader = null;
+        
         if (this.antiAliasing && !erasing)
         {
             srcPaint.BlendMode = BlendMode.SrcOver;
@@ -82,7 +86,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         int opCount = image.QueueLength;
 
         var bresenham = BresenhamLineHelper.GetBresenhamLine(from, to);
-        
+
         float spacingPixels = strokeWidth * spacing;
 
         foreach (var point in bresenham)
@@ -96,7 +100,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             {
                 ApplySoftnessGradient((VecD)point);
             }
-            
+
             image.EnqueueDrawEllipse((RectD)rect, color, color, 0, 0, antiAliasing, srcPaint);
         }
 
@@ -110,12 +114,17 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         if (points.Count == 1)
         {
             var rect = new RectI(points[0] - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
-            targetImage.EnqueueDrawEllipse((RectD)rect, color, color, 1, 0, antiAliasing, srcPaint);
+            if (antiAliasing)
+            {
+                ApplySoftnessGradient(points[0]);
+            }
+
+            targetImage.EnqueueDrawEllipse((RectD)rect, color, color, 0, 0, antiAliasing, srcPaint);
             return;
         }
 
         VecF lastPos = points[0];
-        
+
         float spacingInPixels = strokeWidth * this.spacing;
 
         for (int i = 0; i < points.Count; i++)
@@ -142,7 +151,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         radius = MathF.Max(1, radius);
         srcPaint.Shader = Shader.CreateRadialGradient(
             pos, radius, [color, color.WithAlpha(0)],
-            [hardness - 0.04f, 1f], ShaderTileMode.Clamp);
+            [Math.Max(hardness - 0.05f, 0), 0.95f], ShaderTileMode.Clamp);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,

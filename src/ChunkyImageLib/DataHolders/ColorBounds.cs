@@ -25,8 +25,8 @@ public struct ColorBounds
     {
         static (float lower, float upper) FindInclusiveBoundaryPremul(byte channel, float alpha)
         {
-            float subHalf = channel > 0 ? channel - .5f : channel;
-            float addHalf = channel < 255 ? channel + .5f : channel;
+            float subHalf = channel > 0 ? channel - 1f : channel;
+            float addHalf = channel < 255 ? channel + 1f : channel;
             
             var lower = subHalf * alpha / 255f;
             var upper = addHalf * alpha / 255f;

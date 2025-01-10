@@ -8,6 +8,7 @@ internal interface IToolbar : IHandler
 {
     public void AddSetting(Setting setting);
     public Setting GetSetting(string name);
+    public T GetSetting<T>(string name) where T : Setting;
     public IReadOnlyList<Setting> Settings { get; }
     public void SaveToolbarSettings();
     public void LoadSharedSettings();

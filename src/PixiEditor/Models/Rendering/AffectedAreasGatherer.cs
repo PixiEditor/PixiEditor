@@ -150,6 +150,7 @@ internal class AffectedAreasGatherer
                 case SetActiveFrame_PassthroughAction:
                     AddWholeCanvasToMainImage();
                     AddWholeCanvasToEveryImagePreview();
+                    AddAllNodesToImagePreviews();
                     break;
                 case KeyFrameLength_ChangeInfo:
                     AddWholeCanvasToMainImage();
@@ -189,6 +190,10 @@ internal class AffectedAreasGatherer
                     AddToImagePreviews(info.LayerId, info.Affected);
                     AddToNodePreviews(info.LayerId);
                     break;
+                case ProcessingColorSpace_ChangeInfo:
+                    AddWholeCanvasToMainImage();
+                    AddWholeCanvasToEveryImagePreview();
+                    break;
             }
         }
     }
@@ -205,6 +210,14 @@ internal class AffectedAreasGatherer
         ChangedNodes ??= new List<Guid>();
         if (!ChangedNodes.Contains(nodeId))
             ChangedNodes.Add(nodeId);
+    }
+    
+    private void AddAllNodesToImagePreviews()
+    {
+        foreach (var node in tracker.Document.NodeGraph.AllNodes)
+        {
+            AddToNodePreviews(node.Id);
+        }
     }
 
     private void AddAllToImagePreviews(Guid memberGuid, KeyFrameTime frame, bool ignoreSelf = false)

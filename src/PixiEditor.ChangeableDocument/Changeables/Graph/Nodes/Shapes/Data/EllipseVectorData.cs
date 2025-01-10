@@ -3,6 +3,7 @@ using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
@@ -29,42 +30,46 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
         Radius = radius;
     }
 
-    public override void RasterizeGeometry(DrawingSurface drawingSurface)
+    public override void RasterizeGeometry(Canvas drawingSurface)
     {
         Rasterize(drawingSurface, false);
     }
 
-    public override void RasterizeTransformed(DrawingSurface drawingSurface)
+    public override void RasterizeTransformed(Canvas drawingSurface)
     {
         Rasterize(drawingSurface, true);
     }
 
-    private void Rasterize(DrawingSurface drawingSurface, bool applyTransform)
+    private void Rasterize(Canvas canvas, bool applyTransform)
     {
         int saved = 0;
         if (applyTransform)
         {
-            saved = drawingSurface.Canvas.Save();
-            ApplyTransformTo(drawingSurface);
+            saved = canvas.Save();
+            ApplyTransformTo(canvas);
         }
 
-        using Paint shapePaint = new Paint() { IsAntiAliased = true };
+        using Paint shapePaint = new Paint();
+        shapePaint.IsAntiAliased = true;
 
-        shapePaint.Color = FillColor;
-        shapePaint.Style = PaintStyle.Fill;
-        drawingSurface.Canvas.DrawOval(Center, Radius, shapePaint);
+        if (Fill)
+        {
+            shapePaint.Color = FillColor;
+            shapePaint.Style = PaintStyle.Fill;
+            canvas.DrawOval(Center, Radius, shapePaint);
+        }
 
         if (StrokeWidth > 0)
         {
             shapePaint.Color = StrokeColor;
             shapePaint.Style = PaintStyle.Stroke;
             shapePaint.StrokeWidth = StrokeWidth;
-            drawingSurface.Canvas.DrawOval(Center, Radius, shapePaint);
+            canvas.DrawOval(Center, Radius, shapePaint);
         }
 
         if (applyTransform)
         {
-            drawingSurface.Canvas.RestoreToCount(saved);
+            canvas.RestoreToCount(saved);
         }
     }
 
@@ -83,14 +88,16 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
         return CalculateHash();
     }
 
-    public override object Clone()
+    protected override void AdjustCopy(ShapeVectorData copy)
     {
-        return new EllipseVectorData(Center, Radius)
-        {
-            StrokeColor = StrokeColor,
-            FillColor = FillColor,
-            StrokeWidth = StrokeWidth,
-            TransformationMatrix = TransformationMatrix
-        };
+       
+    }
+
+    public override VectorPath ToPath()
+    {
+        // TODO: Apply transformation matrix
+        VectorPath path = new VectorPath();
+        path.AddOval(RectD.FromCenterAndSize(Center, Radius * 2));
+        return path;
     }
 }

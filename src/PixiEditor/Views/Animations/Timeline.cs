@@ -166,7 +166,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         set { SetValue(FpsProperty, value); }
     }
 
-    public int EndFrame => KeyFrames?.FrameCount > 0 ? KeyFrames.FrameCount : DefaultEndFrame;
+    public int EndFrame => KeyFrames?.FrameCount > 0 ? KeyFrames.FrameCount - 1 : DefaultEndFrame;
 
     public ICommand DraggedKeyFrameCommand { get; }
     public ICommand ReleasedKeyFrameCommand { get; }
@@ -178,7 +178,6 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         : [];
 
     private ToggleButton? _playToggle;
-    private DispatcherTimer _playTimer;
     private Grid? _contentGrid;
     private TimelineSlider? _timelineSlider;
     private ScrollViewer? _timelineKeyFramesScroll;
@@ -192,23 +191,19 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     private bool shouldClearNextSelection = true;
     private CelViewModel clickedCel;
     private bool dragged;
+    private Guid[] draggedKeyFrames;
     private int dragStartFrame;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
     static Timeline()
     {
-        IsPlayingProperty.Changed.Subscribe(IsPlayingChanged);
-        FpsProperty.Changed.Subscribe(FpsChanged);
         KeyFramesProperty.Changed.Subscribe(OnKeyFramesChanged);
         DefaultEndFrameProperty.Changed.Subscribe(OnDefaultEndFrameChanged);
     }
 
     public Timeline()
     {
-        _playTimer =
-            new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromMilliseconds(1000f / Fps) };
-        _playTimer.Tick += PlayTimerOnTick;
         PressedKeyFrameCommand = new RelayCommand<PointerPressedEventArgs>(KeyFramePressed);
         ClearSelectedKeyFramesCommand = new RelayCommand<CelViewModel>(ClearSelectedKeyFrames);
         DraggedKeyFrameCommand = new RelayCommand<PointerEventArgs>(KeyFramesDragged);
@@ -235,6 +230,8 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         
         Guid[] ids = SelectedKeyFrames.Select(x => x.Id).ToArray();
         
+        draggedKeyFrames = ids;
+        
         ChangeKeyFramesLengthCommand.Execute((ids, delta, false));
         return true;
     }
@@ -243,7 +240,10 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     {
         if (dragged)
         {
-            ChangeKeyFramesLengthCommand.Execute((SelectedKeyFrames.Select(x => x.Id).ToArray(), 0, true));
+            if (draggedKeyFrames.Length > 0)
+            {
+                ChangeKeyFramesLengthCommand.Execute((draggedKeyFrames.ToArray(), 0, true));
+            }
         }
         clickedCel = null;
     }
@@ -360,17 +360,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         _timelineHeaderScroll!.Offset = new Vector(0, scrollViewer.Offset.Y);
     }
 
-    private void PlayTimerOnTick(object? sender, EventArgs e)
-    {
-        if (ActiveFrame >= EndFrame) 
-        {
-            ActiveFrame = 1;
-        }
-        else
-        {
-            ActiveFrame++;
-        }
-    }
+   
 
     private void PlayToggleOnClick(object? sender, RoutedEventArgs e)
     {
@@ -553,33 +543,6 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
         frame = Math.Max(1, frame);
         return frame;
-    }
-
-    private static void IsPlayingChanged(AvaloniaPropertyChangedEventArgs e)
-    {
-        if (e.Sender is not Timeline timeline)
-        {
-            return;
-        }
-
-        if (timeline.IsPlaying)
-        {
-            timeline._playTimer.Start();
-        }
-        else
-        {
-            timeline._playTimer.Stop();
-        }
-    }
-
-    private static void FpsChanged(AvaloniaPropertyChangedEventArgs e)
-    {
-        if (e.Sender is not Timeline timeline)
-        {
-            return;
-        }
-
-        timeline._playTimer.Interval = TimeSpan.FromMilliseconds(1000f / timeline.Fps);
     }
 
     private static void OnKeyFramesChanged(AvaloniaPropertyChangedEventArgs e)

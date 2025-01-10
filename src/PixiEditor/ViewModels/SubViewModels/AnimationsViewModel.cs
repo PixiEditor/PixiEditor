@@ -1,4 +1,6 @@
-﻿using Avalonia.Input;
+﻿using System.ComponentModel;
+using Avalonia.Input;
+using Avalonia.Threading;
 using ChunkyImageLib;
 using PixiEditor.AnimationRenderer.Core;
 using PixiEditor.Models.AnalyticsAPI;
@@ -13,8 +15,76 @@ namespace PixiEditor.ViewModels.SubViewModels;
 [Command.Group("PixiEditor.Animations", "ANIMATIONS")]
 internal class AnimationsViewModel : SubViewModel<ViewModelMain>
 {
+    private DispatcherTimer _playTimer;
+
     public AnimationsViewModel(ViewModelMain owner) : base(owner)
     {
+        owner.DocumentManagerSubViewModel.ActiveDocumentChanged += (sender, args) =>
+        {
+            if (args.NewDocument != null)
+            {
+                InitTimer();
+                args.NewDocument.AnimationDataViewModel.PropertyChanged += AnimationDataViewModelOnPropertyChanged;
+            }
+
+            TogglePlayTimer(args.NewDocument?.AnimationDataViewModel.IsPlayingBindable ?? false);
+        };
+    }
+
+    private void AnimationDataViewModelOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(AnimationDataViewModel.IsPlayingBindable))
+        {
+            TogglePlayTimer(Owner.DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.IsPlayingBindable);
+        }
+        else if (e.PropertyName == nameof(AnimationDataViewModel.FrameRateBindable))
+        {
+            InitTimer();
+        }
+    }
+
+    private void InitTimer()
+    {
+        if (_playTimer != null)
+        {
+            _playTimer.Stop();
+            _playTimer.Tick -= PlayTimerOnTick;
+        }
+        
+        var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        _playTimer =
+            new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromMilliseconds(1000f / activeDocument.AnimationDataViewModel.FrameRateBindable) };
+        _playTimer.Tick += PlayTimerOnTick;
+    }
+
+    private void TogglePlayTimer(bool isPlaying)
+    {
+        if (isPlaying)
+        {
+            if (_playTimer is null)
+            {
+                return;
+            }
+
+            _playTimer.Start();
+        }
+        else
+        {
+            _playTimer?.Stop();
+        }
+    }
+
+    private void PlayTimerOnTick(object? sender, EventArgs e)
+    {
+        var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (activeDocument.AnimationDataViewModel.ActiveFrameBindable + 1 >= activeDocument.AnimationDataViewModel.LastFrame)
+        {
+            activeDocument.AnimationDataViewModel.ActiveFrameBindable = 1;
+        }
+        else
+        {
+            activeDocument.AnimationDataViewModel.ActiveFrameBindable++;
+        }
     }
 
     [Command.Basic("PixiEditor.Animation.NudgeActiveFrameNext", "CHANGE_ACTIVE_FRAME_NEXT",
@@ -26,7 +96,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
     public void ChangeActiveFrame(int nudgeBy)
     {
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        if (activeDocument is null || activeDocument.TransformViewModel.TransformActive)
+        if (activeDocument is null || IsTransforming())
             return;
 
         int newFrame = activeDocument.AnimationDataViewModel.ActiveFrameBindable + nudgeBy;
@@ -42,14 +112,15 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
         if (activeDocument is null)
             return;
 
-        activeDocument.AnimationDataViewModel.IsPlayingBindable = !activeDocument.AnimationDataViewModel.IsPlayingBindable;
+        activeDocument.AnimationDataViewModel.IsPlayingBindable =
+            !activeDocument.AnimationDataViewModel.IsPlayingBindable;
     }
 
-    [Command.Basic("PixiEditor.Animation.CreateRasterKeyFrame", "Create Raster Key Frame", "Create a raster key frame",
+    [Command.Basic("PixiEditor.Animation.CreateCel", "CREATE_CEL", "CREATE_CEL_DESCRIPTIVE",
         Parameter = false, AnalyticsTrack = true)]
-    [Command.Basic("PixiEditor.Animation.DuplicateRasterKeyFrame", "Duplicate Raster Key Frame",
-        "Duplicate a raster key frame", Parameter = true, AnalyticsTrack = true)]
-    public void CreateRasterKeyFrame(bool duplicate)
+    [Command.Basic("PixiEditor.Animation.DuplicateCel", "DUPLICATE_CEL",
+        "DUPLICATE_CEL_DESCRIPTIVE", Parameter = true, AnalyticsTrack = true)]
+    public void CreateCel(bool duplicate)
     {
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (activeDocument?.SelectedStructureMember is null)
@@ -57,12 +128,12 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        int newFrame = GetActiveFrame(activeDocument, activeDocument.SelectedStructureMember.Id);
+        int newFrame = GetFirstEmptyFrame(activeDocument, activeDocument.SelectedStructureMember.Id);
 
         Guid toCloneFrom = duplicate ? activeDocument.SelectedStructureMember.Id : Guid.Empty;
         int frameToCopyFrom = duplicate ? activeDocument.AnimationDataViewModel.ActiveFrameBindable : -1;
 
-        activeDocument.AnimationDataViewModel.CreateRasterKeyFrame(
+        activeDocument.AnimationDataViewModel.CreateCel(
             activeDocument.SelectedStructureMember.Id,
             newFrame,
             toCloneFrom,
@@ -80,7 +151,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
 
     [Command.Basic("PixiEditor.Animation.ToggleOnionSkinning", "TOGGLE_ONION_SKINNING",
         "TOGGLE_ONION_SKINNING_DESCRIPTIVE",
-        ShortcutContext = typeof(TimelineDockViewModel), Key = Key.O, AnalyticsTrack = true)]
+        ShortcutContexts = [typeof(TimelineDockViewModel)], Key = Key.O, AnalyticsTrack = true)]
     public void ToggleOnionSkinning(bool value)
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is null)
@@ -90,7 +161,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Animation.DeleteCels", "DELETE_CELS", "DELETE_CELS_DESCRIPTIVE",
-        ShortcutContext = typeof(TimelineDockViewModel), Key = Key.Delete, AnalyticsTrack = true)]
+        ShortcutContexts = [typeof(TimelineDockViewModel)], Key = Key.Delete, AnalyticsTrack = true)]
     public void DeleteCels()
     {
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -132,16 +203,26 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
     }
 
 
-    private static int GetActiveFrame(DocumentViewModel activeDocument, Guid targetLayer)
+    private static int GetFirstEmptyFrame(DocumentViewModel activeDocument, Guid targetLayer)
     {
         int active = activeDocument.AnimationDataViewModel.ActiveFrameBindable;
-        if (activeDocument.AnimationDataViewModel.TryFindCels<CelGroupViewModel>(targetLayer,
+        if (activeDocument.AnimationDataViewModel.TryFindCels(targetLayer,
                 out CelGroupViewModel groupViewModel))
         {
-            if (active == groupViewModel.StartFrameBindable + groupViewModel.DurationBindable - 1)
+            if (groupViewModel.Children.All(x => !x.IsWithinRange(active)))
             {
-                return groupViewModel.StartFrameBindable + groupViewModel.DurationBindable;
+                return active;
             }
+
+            for (int i = active + 1; i < activeDocument.AnimationDataViewModel.FramesCount; i++)
+            {
+                if (groupViewModel.Children.All(x => !x.IsWithinRange(i)))
+                {
+                    return i;
+                }
+            }
+
+            return activeDocument.AnimationDataViewModel.FramesCount + 1;
         }
 
         return active;
@@ -185,5 +266,15 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             return;
 
         document.Operations.SetActiveFrame((int)value);
+    }
+
+    private bool IsTransforming()
+    {
+        var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (activeDocument is null)
+            return false;
+
+        return activeDocument.TransformViewModel.TransformActive || activeDocument.LineToolOverlayViewModel.IsEnabled
+                                                                 || activeDocument.PathOverlayViewModel.IsActive;
     }
 }

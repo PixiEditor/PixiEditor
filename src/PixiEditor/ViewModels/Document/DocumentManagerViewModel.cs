@@ -162,7 +162,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
 
     [Command.Basic("PixiEditor.Document.DeletePixels", "DELETE_PIXELS", "DELETE_PIXELS_DESCRIPTIVE", 
         CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.Delete,
-        ShortcutContext = typeof(ViewportWindowViewModel),
+        ShortcutContexts = [typeof(ViewportWindowViewModel)],
         Icon = PixiPerfectIcons.Eraser,
         MenuItemPath = "EDIT/DELETE_SELECTED_PIXELS", MenuItemOrder = 6, AnalyticsTrack = true)]
     public void DeletePixels()
@@ -208,4 +208,17 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         
         ActiveDocument.Operations.CenterContent(ActiveDocument.GetSelectedMembers(), activeDocument.AnimationDataViewModel.ActiveFrameBindable);
     }
+    
+    [Command.Basic("PixiEditor.Document.UseLinearSrgbProcessing", "USE_LINEAR_SRGB_PROCESSING", "USE_LINEAR_SRGB_PROCESSING_DESC", CanExecute = "PixiEditor.DocumentUsesLegacyBlending", 
+        AnalyticsTrack = true)]
+    public void UseLinearSrgbProcessing()
+    {
+        if (ActiveDocument is null)
+            return;
+        
+        ActiveDocument.Operations.UseLinearSrgbProcessing();
+    }
+    
+    [Evaluator.CanExecute("PixiEditor.DocumentUsesLegacyBlending", nameof(ActiveDocument))]
+    public bool DocumentUsesLegacyBlending() => ActiveDocument?.UsesLegacyBlending ?? false;
 }

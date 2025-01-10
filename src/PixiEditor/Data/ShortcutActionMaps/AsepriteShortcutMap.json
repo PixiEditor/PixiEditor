@@ -224,7 +224,7 @@
       "Parameters": []
     },
     "DuplicateLayer": {
-      "Command": "PixiEditor.Layer.DuplicateSelectedLayer",
+      "Command": "PixiEditor.Layer.DuplicateSelectedMember",
       "DefaultShortcut": {
         "key": "None",
         "modifiers": null
@@ -436,7 +436,7 @@
       "Parameters": []
     },
     "TogglePreview": {
-      "Command": "PixiEditor.Window.OpenNavigationWindow",
+      "Command": "PixiEditor.Window.OpenPreviewWindow",
       "DefaultShortcut": {
         "key": "F7",
         "modifiers": null

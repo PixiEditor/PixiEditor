@@ -27,7 +27,7 @@ internal class CreateStructureMember_Change : Change
 
     public override bool InitializeAndValidate(Document target)
     {
-        if(structureMemberOfType.IsAbstract || structureMemberOfType.IsInterface || !structureMemberOfType.IsAssignableTo(typeof(StructureNode)))
+        if(structureMemberOfType == null || structureMemberOfType.IsAbstract || structureMemberOfType.IsInterface || !structureMemberOfType.IsAssignableTo(typeof(StructureNode)))
             return false;
         
         return target.TryFindNode<Node>(parentGuid, out _);

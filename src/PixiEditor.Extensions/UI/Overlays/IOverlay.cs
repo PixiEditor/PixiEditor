@@ -4,6 +4,7 @@ using Drawie.Numerics;
 namespace PixiEditor.Extensions.UI.Overlays;
 
 public delegate void PointerEvent(OverlayPointerArgs args);
+public delegate void KeyEvent(Key key, KeyModifiers modifiers);
 public interface IOverlay
 {
     public void EnterPointer(OverlayPointerArgs args);

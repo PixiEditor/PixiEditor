@@ -385,6 +385,9 @@ internal partial class ExportFilePopup : PixiEditorPopup
 
             int newWidth = (int)(imageSize.X * scale);
             int newHeight = (int)(imageSize.Y * scale);
+            
+            newWidth = Math.Max(newWidth, 1);
+            newHeight = Math.Max(newHeight, 1);
 
             return new VecI(newWidth, newHeight);
         }

@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
@@ -17,11 +18,14 @@ public class SampleImageNode : Node
 
     public FuncOutputProperty<Half4> Color { get; }
 
+    public InputProperty<ColorSampleMode> SampleMode { get; }
+
     public SampleImageNode()
     {
         Image = CreateInput<Texture>(nameof(Texture), "IMAGE", null);
         Coordinate = CreateFuncInput<Float2>(nameof(Coordinate), "UV", VecD.Zero);
         Color = CreateFuncOutput(nameof(Color), "COLOR", GetColor);
+        SampleMode = CreateInput(nameof(SampleMode), "COLOR_SAMPLE_MODE", ColorSampleMode.ColorManaged);
     }
 
     private Half4 GetColor(FuncContext context)
@@ -35,12 +39,12 @@ public class SampleImageNode : Node
 
         Expression uv = context.GetValue(Coordinate);
 
-        return context.SampleSurface(Image.Value.DrawingSurface, uv);
+        return context.SampleSurface(Image.Value.DrawingSurface, uv, SampleMode.Value);
     }
 
     protected override void OnExecute(RenderContext context)
     {
-        
+
     }
 
     public override Node CreateCopy() => new SampleImageNode();

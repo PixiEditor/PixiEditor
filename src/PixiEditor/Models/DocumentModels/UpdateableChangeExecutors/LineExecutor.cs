@@ -9,8 +9,10 @@ using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers.InputDevice;
+using PixiEditor.ViewModels.Document.TransformOverlays;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -20,7 +22,9 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
 
     protected Color StrokeColor => toolbar!.StrokeColor.ToColor();
     protected double StrokeWidth => toolViewModel!.ToolSize;
-    
+    protected abstract bool UseGlobalUndo { get; }
+    protected abstract bool ShowApplyButton { get; }
+
     protected bool drawOnMask;
 
     protected VecD curPos;
@@ -29,9 +33,12 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
     private IColorsHandler? colorsVM;
     protected IShapeToolbar? toolbar;
     private bool ignoreNextColorChange = false;
+    private VecD lastStartPos;
 
-    public override bool CanUndo => document.LineToolOverlayHandler.HasUndo;
-    public override bool CanRedo => document.LineToolOverlayHandler.HasRedo;
+    private UndoStack<LineVectorData>? localUndoStack;
+
+    public override bool CanUndo => !UseGlobalUndo && localUndoStack is { UndoCount: > 0 };
+    public override bool CanRedo => !UseGlobalUndo && localUndoStack is { RedoCount: > 0 };
 
     public override ExecutionState Start()
     {
@@ -50,6 +57,8 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
             return ExecutionState.Error;
         if (!drawOnMask && member is not ILayerHandler)
             return ExecutionState.Error;
+        
+        localUndoStack = new UndoStack<LineVectorData>();
 
         if (ActiveMode == ShapeToolMode.Drawing)
         {
@@ -60,10 +69,10 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
             }
 
             document.LineToolOverlayHandler.Hide();
-            document.LineToolOverlayHandler.Show(startDrawingPos, startDrawingPos, false);
+            document.LineToolOverlayHandler.Show(startDrawingPos, startDrawingPos, false, AddToUndo);
             document.LineToolOverlayHandler.ShowHandles = false;
             document.LineToolOverlayHandler.IsSizeBoxEnabled = true;
-            
+
             return ExecutionState.Success;
         }
 
@@ -84,6 +93,8 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
             }
 
             ActiveMode = ShapeToolMode.Transform;
+
+            document.LineToolOverlayHandler.Show(data.Start, data.End, false, AddToUndo);
         }
         else
         {
@@ -96,7 +107,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
     protected abstract bool InitShapeData(IReadOnlyLineData? data);
     protected abstract IAction DrawLine(VecD pos);
     protected abstract IAction TransformOverlayMoved(VecD start, VecD end);
-    protected abstract IAction SettingsChange();
+    protected abstract IAction[] SettingsChange();
     protected abstract IAction EndDraw();
 
     protected override void PrecisePositionChangeDrawingMode(VecD pos)
@@ -107,10 +118,20 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         VecD snapped = endPos;
         string snapX = "";
         string snapY = "";
-        
+
+        VecD startPos = startDrawingPos;
+
         if (toolViewModel!.Snap)
         {
-            endPos = GeometryHelper.Get45IncrementedPosition(startDrawingPos, pos);
+            if (AlignToPixels)
+            {
+                endPos = GeometryHelper.Get45IncrementedPositionAligned(startDrawingPos, pos);
+            }
+            else
+            {
+                endPos = GeometryHelper.Get45IncrementedPosition(startDrawingPos, pos);
+            }
+
             VecD directionConstraint = endPos - startDrawingPos;
             snapped =
                 document!.SnappingHandler.SnappingController.GetSnapPoint(endPos, directionConstraint, out snapX,
@@ -120,7 +141,12 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         {
             snapped = document!.SnappingHandler.SnappingController.GetSnapPoint(endPos, out snapX, out snapY);
         }
-        
+
+        if (toolViewModel.DrawFromCenter)
+        {
+            VecD center = startDrawingPos;
+            startDrawingPos = center + (center - snapped);
+        }
 
         HighlightSnapping(snapX, snapY);
         document!.LineToolOverlayHandler.LineEnd = snapped;
@@ -129,19 +155,27 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
 
         var drawLineAction = DrawLine(curPos);
         internals!.ActionAccumulator.AddActions(drawLineAction);
+
+        lastStartPos = startDrawingPos;
+        startDrawingPos = startPos;
     }
 
     public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
     {
         if (!startedDrawing)
         {
+            internals.ActionAccumulator.AddFinishedActions(EndDraw());
+            AddMemberToSnapping();
+            
             base.OnLeftMouseButtonUp(argsPositionOnCanvas);
+            ActiveMode = ShapeToolMode.Preview;
             onEnded!(this);
             return;
         }
 
+        AddToUndo((lastStartPos, curPos));
         document!.LineToolOverlayHandler.Hide();
-        document!.LineToolOverlayHandler.Show(startDrawingPos, curPos, true);
+        document!.LineToolOverlayHandler.Show(lastStartPos, curPos, ShowApplyButton, AddToUndo);
         base.OnLeftMouseButtonUp(argsPositionOnCanvas);
     }
 
@@ -165,6 +199,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
             {
                 ignoreNextColorChange = false;
             }
+
             return;
         }
 
@@ -180,28 +215,40 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
             return;
 
         document!.LineToolOverlayHandler.Nudge(distance);
+        AddToUndo((document.LineToolOverlayHandler.LineStart, document.LineToolOverlayHandler.LineEnd));
     }
 
     public override void OnSettingsChanged(string name, object value)
     {
-        var colorChangedAction = SettingsChange();
-        internals!.ActionAccumulator.AddActions(colorChangedAction);
+        var colorChangedActions = SettingsChange();
+        if (ActiveMode == ShapeToolMode.Transform)
+        {
+            internals!.ActionAccumulator.AddFinishedActions(colorChangedActions);
+        }
     }
 
     public override void OnMidChangeUndo()
     {
-        if (ActiveMode != ShapeToolMode.Transform)
+        if (ActiveMode != ShapeToolMode.Transform || localUndoStack == null)
             return;
 
-        document!.LineToolOverlayHandler.Undo();
+        var undone = localUndoStack?.Undo();
+        if (undone is not null)
+        {
+            ApplyState(undone);
+        }
     }
 
     public override void OnMidChangeRedo()
     {
-        if (ActiveMode != ShapeToolMode.Transform)
+        if (ActiveMode != ShapeToolMode.Transform || localUndoStack == null)
             return;
 
-        document!.LineToolOverlayHandler.Redo();
+        var redone = localUndoStack?.Redo();
+        if (redone is not null)
+        {
+            ApplyState(redone);
+        }
     }
 
     public override void OnTransformApplied()
@@ -223,5 +270,40 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
     protected override void StopTransformMode()
     {
         document!.LineToolOverlayHandler.Hide();
+    }
+
+    protected override void StartMode(ShapeToolMode mode)
+    {
+        base.StartMode(mode);
+        if (mode == ShapeToolMode.Transform)
+        {
+            document!.LineToolOverlayHandler.Hide();
+            document!.LineToolOverlayHandler.Show(lastStartPos, curPos, ShowApplyButton, AddToUndo);
+        }
+    }
+
+    private void AddToUndo((VecD, VecD) newPos)
+    {
+        if (UseGlobalUndo)
+        {
+            internals!.ActionAccumulator.AddFinishedActions(EndDraw(), TransformOverlayMoved(newPos.Item1, newPos.Item2), EndDraw());
+        }
+        else
+        {
+            localUndoStack!.AddState(ConstructLineData(newPos.Item1, newPos.Item2));
+        }
+    }
+
+    protected LineVectorData ConstructLineData(VecD start, VecD end)
+    {
+        return new LineVectorData(start, end) { StrokeWidth = (float)StrokeWidth, StrokeColor = StrokeColor };
+    }
+    
+    private void ApplyState(LineVectorData data)
+    {
+        toolbar!.StrokeColor = data.StrokeColor.ToColor();
+        toolbar!.ToolSize = data.StrokeWidth;
+        
+        document!.LineToolOverlayHandler.Show(data.Start, data.End, ShowApplyButton, AddToUndo);
     }
 }

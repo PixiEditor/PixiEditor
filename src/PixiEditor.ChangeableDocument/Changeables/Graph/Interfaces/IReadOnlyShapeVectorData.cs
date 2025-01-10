@@ -8,6 +8,7 @@ public interface IReadOnlyShapeVectorData
 {
     public Matrix3X3 TransformationMatrix { get; }
     public Color StrokeColor { get; }
+    public bool Fill { get; }
     public Color FillColor { get; }
     public float StrokeWidth { get; }
     public RectD GeometryAABB { get; }

@@ -5,23 +5,17 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
     xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
     xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
-    xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
-    xmlns:brushShapeOverlay="clr-namespace:PixiEditor.Views.Overlays.BrushShapeOverlay"
     xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
-    xmlns:symmetryOverlay="clr-namespace:PixiEditor.Views.Overlays.SymmetryOverlay"
-    xmlns:lineToolOverlay="clr-namespace:PixiEditor.Views.Overlays.LineToolOverlay"
-    xmlns:transformOverlay="clr-namespace:PixiEditor.Views.Overlays.TransformOverlay"
     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
-    xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
-    xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
     xmlns:viewportControls="clr-namespace:PixiEditor.Views.Main.ViewportControls"
     xmlns:overlays="clr-namespace:PixiEditor.Views.Overlays"
-    xmlns:selectionOverlay="clr-namespace:PixiEditor.Views.Overlays.SelectionOverlay"
     xmlns:rendering="clr-namespace:PixiEditor.Views.Rendering"
     xmlns:tools="clr-namespace:PixiEditor.Views.Main.Tools"
+    xmlns:subViewModels="clr-namespace:PixiEditor.ViewModels.SubViewModels"
+    xmlns:palettes="clr-namespace:PixiEditor.Views.Palettes"
+    xmlns:palettes1="clr-namespace:PixiEditor.Extensions.CommonApi.Palettes;assembly=PixiEditor.Extensions.CommonApi"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -48,7 +42,8 @@
                                         PassEventArgsToCommand="True"/>
             </EventTriggerBehavior>-->
         </Interaction.Behaviors>
-        <overlays:TogglableFlyout Margin="5" Icon="{DynamicResource icon-tool}"
+        <overlays:TogglableFlyout IsVisible="{Binding HudVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}" 
+                                  Margin="5" Icon="{DynamicResource icon-tool}"
                                   ZIndex="2" HorizontalAlignment="Right" VerticalAlignment="Top">
             <overlays:TogglableFlyout.Child>
                 <Border Padding="5"
@@ -57,8 +52,8 @@
                         BorderThickness="{DynamicResource ThemeBorderThickness}"
                         Background="{DynamicResource ThemeBackgroundBrush1}" ZIndex="2">
                     <StackPanel Orientation="Vertical">
-                        <StackPanel Orientation="Horizontal">
-                            <Border Width="35" Height="35" Margin="5 0"
+                        <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+                            <Border Width="35" Height="35"
                                     BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                                     BorderThickness="{DynamicResource ThemeBorderThickness}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -80,14 +75,14 @@
                                     Cursor="Hand" />
                         </StackPanel>
                         <Separator />
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
                             <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="HIGH_RES_PREVIEW"
                                           Classes="OverlayButton pixi-icon"
                                           BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                                           Content="{DynamicResource icon-circle}"
                                           IsChecked="{Binding HighResPreview, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
                                           Cursor="Hand" />
-                            <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
+                            <ToggleButton Width="32" Height="32"
                                           ui:Translator.TooltipKey="LOW_RES_PREVIEW"
                                           Classes="OverlayButton pixi-icon"
                                           BorderBrush="{DynamicResource ThemeBorderMidBrush}"
@@ -96,13 +91,13 @@
                                           Cursor="Hand" />
                         </StackPanel>
                         <Separator />
-                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="10">
                             <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="TOGGLE_VERTICAL_SYMMETRY"
                                           Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding Document.VerticalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
                                           Content="{DynamicResource icon-y-symmetry}"
                                           Cursor="Hand" />
-                            <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
+                            <ToggleButton Width="32" Height="32"
                                           ui:Translator.TooltipKey="TOGGLE_HORIZONTAL_SYMMETRY"
                                           Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding Document.HorizontalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
@@ -110,13 +105,13 @@
                                           Cursor="Hand" />
                         </StackPanel>
                         <Separator />
-                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="10">
                             <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="FLIP_VIEWPORT_HORIZONTALLY"
                                           Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
                                           Content="{DynamicResource icon-y-flip}"
                                           Cursor="Hand" />
-                            <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
+                            <ToggleButton  Width="32" Height="32"
                                           ui:Translator.TooltipKey="FLIP_VIEWPORT_VERTICALLY"
                                           Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
@@ -124,33 +119,67 @@
                                           Cursor="Hand" />
                         </StackPanel>
                         <Separator />
-                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                            <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
+                        <StackPanel Spacing="10" HorizontalAlignment="Center" Orientation="Horizontal">
+                            <ToggleButton Width="32" Height="32"
                                           ui:Translator.TooltipKey="TOGGLE_GRIDLINES"
                                           Classes="OverlayToggleButton pixi-icon"
                                           Content="{DynamicResource icon-gridlines}"
                                           IsChecked="{Binding GridLinesVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
-                            
-                            <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
+
+                            <ToggleButton Width="32" Height="32"
                                           ui:Translator.TooltipKey="TOGGLE_SNAPPING"
                                           Classes="OverlayToggleButton pixi-icon"
                                           Content="{DynamicResource icon-snapping}"
                                           IsChecked="{Binding SnappingEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
                         </StackPanel>
+                        <Separator />
+                        <TextBlock ui:Translator.Key="RENDER_PREVIEW" />
+                        <ComboBox
+                            ItemsSource="{Binding AvailableRenderOutputs, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
+                            SelectedValue="{Binding ViewportRenderOutput, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
+                            SelectionChanged="RenderOutput_SelectionChanged"
+                            ui:Translator.TooltipKey="RENDER_OUTPUT"
+                            Margin="0 10 0 0">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Cursor="Arrow" ui:Translator.Key="{Binding}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                     </StackPanel>
                 </Border>
             </overlays:TogglableFlyout.Child>
         </overlays:TogglableFlyout>
-        <tools:Toolbar ZIndex="100" VerticalAlignment="Top" DataContext="{Binding Source={viewModels:MainVM}, Path=.}" />
-
-        <tools:ToolsPicker ZIndex="100"
-                           Margin="10 55 0 0"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Top"
-                           ToolSet="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet}"
-                           SwitchToolSetCommand="{xaml:Command Name=PixiEditor.Tools.SwitchToolSet, UseProvided=True}" />
+        <Grid IsVisible="{Binding HudVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
+            ZIndex="100" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition MinHeight="40" MaxHeight="120" />
+                <RowDefinition Height="35" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <tools:Toolbar
+                DataContext="{Binding Source={viewModels:MainVM}, Path=.}" />
+            <Border Grid.Row="1" ClipToBounds="False"
+                    HorizontalAlignment="Left"
+                    Padding="5 0"
+                    Margin="0 2.5 0 5"
+                    Height="25"
+                    BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                    BorderThickness="1"
+                    Background="{DynamicResource ThemeBackgroundBrush2}"
+                    CornerRadius="{DynamicResource ControlCornerRadius}">
+                <TextBlock
+                    ui:Translator.Key="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Name}"
+                    VerticalAlignment="Center" />
+            </Border>
+            <tools:ToolsPicker Grid.Row="2" IsHitTestVisible="True"
+                               HorizontalAlignment="Left"
+                               ToolSet="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet, Mode=TwoWay}"
+                               ToolSets="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.AllToolSets, Mode=OneWay}"
+                               SwitchToolSetCommand="{xaml:Command Name=PixiEditor.Tools.SwitchToolSet, UseProvided=True}" />
+        </Grid>
         <rendering:Scene
-            Focusable="False" Name="scene"
+            Focusable="True" Name="scene"
             ZIndex="1"
             SceneRenderer="{Binding Source={viewModels:MainVM DocumentManagerSVM}, Path=ActiveDocument.SceneRenderer}"
             Document="{Binding Document, ElementName=vpUc, Mode=OneWay}"
@@ -166,8 +195,101 @@
             AllOverlays="{Binding ElementName=vpUc, Path=ActiveOverlays}"
             FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
             DefaultCursor="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolCursor, Mode=OneWay}"
+            RenderOutput="{Binding ViewportRenderOutput, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             CheckerImagePath="/Images/CheckerTile.png"
-            ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}" />
+            PointerPressed="Scene_OnContextMenuOpening"
+            ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}">
+            <rendering:Scene.ContextFlyout>
+                <Flyout x:CompileBindings="True" x:DataType="subViewModels:ViewportWindowViewModel"
+                        Placement="Pointer"
+                        ShowMode="Transient">
+                    <Border Cursor="Arrow" CornerRadius="{DynamicResource ControlCornerRadius}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition
+                                    Width="Auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="1" BorderThickness="0 0 1 0">
+                                <ContextMenu Name="ContextMenu" BorderBrush="Transparent" BorderThickness="0"
+                                             Margin="0"
+                                             Padding="0">
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="SELECT_ALL"
+                                              xaml:Menu.Command="PixiEditor.Selection.SelectAll" />
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="DESELECT"
+                                              xaml:Menu.Command="PixiEditor.Selection.Clear" />
+                                    <Separator />
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="CUT"
+                                              xaml:Menu.Command="PixiEditor.Clipboard.Cut" />
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="COPY"
+                                              xaml:Menu.Command="PixiEditor.Clipboard.Copy" />
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="COPY_VISIBLE"
+                                              xaml:Menu.Command="PixiEditor.Clipboard.CopyVisible" />
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="PASTE"
+                                              xaml:Menu.Command="PixiEditor.Clipboard.Paste" />
+                                    <Separator />
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="FLIP_LAYERS_HORIZONTALLY"
+                                              xaml:Menu.Command="PixiEditor.Document.FlipLayersHorizontal" />
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="FLIP_LAYERS_VERTICALLY"
+                                              xaml:Menu.Command="PixiEditor.Document.FlipLayersVertical" />
+                                    <Separator />
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="ROT_LAYERS_90_D"
+                                              xaml:Menu.Command="PixiEditor.Document.Rotate90DegLayers" />
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="ROT_LAYERS_180_D"
+                                              xaml:Menu.Command="PixiEditor.Document.Rotate180DegLayers" />
+                                    <MenuItem PointerReleased="MenuItem_OnClick"
+                                              ui:Translator.Key="ROT_LAYERS_-90_D"
+                                              xaml:Menu.Command="PixiEditor.Document.Rotate270DegLayers" />
+                                </ContextMenu>
+                            </Border>
+                            <ScrollViewer Margin="0" Grid.Column="0" HorizontalScrollBarVisibility="Disabled"
+                                          VerticalScrollBarVisibility="Auto"
+                                          IsVisible="{Binding !!Document.Palette.Count}"
+                                          Width="{Binding Document.Palette, Converter={converters:PaletteItemsToWidthConverter}}"
+                                          MaxHeight="{Binding #ContextMenu.Items,
+                                                  Converter={converters:PaletteItemsHeightConverter}}">
+                                <ItemsControl ItemsSource="{Binding Document.Palette}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel
+                                                MaxWidth="{Binding Document.Palette, Converter={converters:PaletteItemsToWidthConverter}}"
+                                                Orientation="Horizontal"
+                                                HorizontalAlignment="Center" VerticalAlignment="Top" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="palettes1:PaletteColor">
+                                            <palettes:PaletteColorControl Cursor="Hand" CornerRadius="0"
+                                                                          ui:Translator.TooltipKey="CLICK_SELECT_PRIMARY"
+                                                                          PointerReleased="InputElement_OnPointerReleased"
+                                                                          Width="22" Height="22" Color="{Binding}">
+                                                <Interaction.Behaviors>
+                                                    <EventTriggerBehavior EventName="PointerPressed">
+                                                        <InvokeCommandAction
+                                                            Command="{xaml:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
+                                                            CommandParameter="{Binding}" />
+                                                    </EventTriggerBehavior>
+                                                </Interaction.Behaviors>
+                                            </palettes:PaletteColorControl>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+                </Flyout>
+            </rendering:Scene.ContextFlyout>
+        </rendering:Scene>
         <Button
             ZIndex="99999"
             DockPanel.Dock="Bottom"

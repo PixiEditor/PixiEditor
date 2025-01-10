@@ -13,7 +13,7 @@ using PixiEditor.Views.Overlays.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.Tools.Tools;
 
-[Command.Tool(Key = Key.V)]
+[Command.Tool(Key = Key.V, Transient = Key.Space)]
 internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
 {
     private string defaultActionDisplay = "MOVE_TOOL_ACTION_DISPLAY";
@@ -54,7 +54,6 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
 
     public override void UseTool(VecD pos)
     {
-        //ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseShiftLayerTool();
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(true);
     }
 
@@ -77,7 +76,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         }
     }
 
-    public override void OnSelected(bool restoring)
+    protected override void OnSelected(bool restoring)
     {
         if (TransformingSelectedArea)
         {
@@ -87,7 +86,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(true);
     }
 
-    public override void OnDeselecting(bool transient)
+    protected override void OnDeselecting(bool transient)
     {
         var vm = ViewModelMain.Current;
         if (!transient)
@@ -97,17 +96,38 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         }
     }
 
+    public override void OnPostUndo()
+    {
+        if (IsActive)
+        {
+           OnToolSelected(false);
+        }
+    }
+
+    public override void OnPostRedo()
+    {
+        if (IsActive)
+        {
+            OnToolSelected(false);
+        }
+    }
+
     protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
     {
-        if (ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.TransformViewModel.TransformActive)
-        {
-            return;
-        }
-
-        OnDeselecting(false);
-        OnSelected(false);
+        UpdateSelection();
     }
     
+    public override void OnActiveFrameChanged(int newFrame)
+    {
+        UpdateSelection();
+    }
+
+    private void UpdateSelection()
+    {
+        OnToolDeselected(false);
+        OnToolSelected(false);
+    }
+
     public void KeepOriginalChanged()
     {
         var activeDocument = ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument;

@@ -44,7 +44,7 @@ internal abstract class Toolbar : ObservableObject, IToolbar
     {
         Setting setting = Settings.FirstOrDefault(currentSetting => string.Equals(currentSetting.Name, name, StringComparison.CurrentCultureIgnoreCase));
 
-        if (setting is null || setting is not T convertedSetting)
+        if (setting is not T convertedSetting)
         {
             return null;
         }

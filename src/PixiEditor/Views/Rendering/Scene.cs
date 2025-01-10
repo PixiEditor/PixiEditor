@@ -106,6 +106,12 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         set => SetValue(ChannelsProperty, value);
     }
 
+    public string RenderOutput
+    {
+        get { return (string)GetValue(RenderOutputProperty); }
+        set { SetValue(RenderOutputProperty, value); }
+    }
+
 
     private Bitmap? checkerBitmap;
 
@@ -128,15 +134,19 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     private string info = string.Empty;
     private bool initialized = false;
     private RenderApiResources resources;
-    private DrawingSurface renderSurface;
+
+    private DrawingSurface framebuffer;
+    private Texture renderTexture;
+
     private PixelSize lastSize = PixelSize.Empty;
     private Cursor lastCursor;
+    public static readonly StyledProperty<string> RenderOutputProperty = AvaloniaProperty.Register<Scene, string>("RenderOutput");
 
     static Scene()
     {
         AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty, ScaleProperty, AngleRadiansProperty,
             FlipXProperty,
-            FlipYProperty, DocumentProperty, AllOverlaysProperty);
+            FlipYProperty, DocumentProperty, AllOverlaysProperty, ContentDimensionsProperty);
 
         FadeOutProperty.Changed.AddClassHandler<Scene>(FadeOutChanged);
         CheckerImagePathProperty.Changed.AddClassHandler<Scene>(CheckerImagePathChanged);
@@ -150,7 +160,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private static void Refresh(Scene scene, AvaloniaPropertyChangedEventArgs args)
     {
-        scene.InvalidateVisual();
+        scene.QueueNextFrame();
     }
 
     public Scene()
@@ -249,13 +259,13 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private void RenderScene(RectD bounds)
     {
-        DrawCheckerboard(bounds);
-        DrawOverlays(renderSurface, bounds, OverlayRenderSorting.Background);
-        SceneRenderer.RenderScene(renderSurface, CalculateResolution());
-        DrawOverlays(renderSurface, bounds, OverlayRenderSorting.Foreground);
+        DrawCheckerboard(renderTexture.DrawingSurface, bounds);
+        DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Background);
+        SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), RenderOutput == "DEFAULT" ? null : RenderOutput);
+        DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Foreground);
     }
 
-    private void DrawCheckerboard(RectD dirtyBounds)
+    private void DrawCheckerboard(DrawingSurface surface, RectD dirtyBounds)
     {
         if (checkerBitmap == null) return;
 
@@ -271,7 +281,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             FilterQuality = FilterQuality.None
         };
 
-        renderSurface.Canvas.DrawRect(operationSurfaceRectToRender, checkerPaint);
+        surface.Canvas.DrawRect(operationSurfaceRectToRender, checkerPaint);
     }
 
     private void DrawOverlays(DrawingSurface renderSurface, RectD dirtyBounds, OverlayRenderSorting sorting)
@@ -442,6 +452,32 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         }
     }
 
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        base.OnKeyDown(e);
+        if (AllOverlays != null)
+        {
+            foreach (Overlay overlay in AllOverlays)
+            {
+                if (!overlay.IsVisible) continue;
+                overlay.KeyPressed(e);
+            }
+        }
+    }
+    
+    protected override void OnKeyUp(KeyEventArgs e)
+    {
+        base.OnKeyUp(e);
+        if (AllOverlays != null)
+        {
+            foreach (Overlay overlay in AllOverlays)
+            {
+                if (!overlay.IsVisible) continue;
+                overlay.KeyReleased(e);
+            }
+        }
+    }
+
     private OverlayPointerArgs ConstructPointerArgs(PointerEventArgs e)
     {
         return new OverlayPointerArgs
@@ -584,8 +620,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     protected void FreeGraphicsResources()
     {
         resources?.DisposeAsync();
-        renderSurface?.Dispose();
-        renderSurface = null;
+        framebuffer?.Dispose();
+        framebuffer = null;
+
+        renderTexture?.Dispose();
+        renderTexture = null;
         resources = null;
     }
 
@@ -598,26 +637,31 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 return;
             }
 
-            if (renderSurface == null || lastSize != size)
+            if (framebuffer == null || lastSize != size)
             {
                 resources.CreateTemporalObjects(size);
 
                 VecI sizeVec = new VecI(size.Width, size.Height);
 
-                renderSurface?.Dispose();
+                framebuffer?.Dispose();
+                renderTexture?.Dispose();
 
-                renderSurface =
+                framebuffer =
                     DrawingBackendApi.Current.CreateRenderSurface(sizeVec,
                         resources.Texture, SurfaceOrigin.BottomLeft);
+
+                renderTexture = Texture.ForDisplay(sizeVec);
 
                 lastSize = size;
             }
 
             resources.Render(size, () =>
             {
-                renderSurface.Canvas.Clear();
-                Draw(renderSurface);
-                renderSurface.Flush();
+                framebuffer.Canvas.Clear();
+                renderTexture.DrawingSurface.Canvas.Clear();
+                Draw(renderTexture.DrawingSurface);
+                framebuffer.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
+                framebuffer.Flush();
             });
         }
     }
@@ -697,69 +741,5 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     bool ICustomHitTest.HitTest(Point point)
     {
         return Bounds.Contains(point);
-    }
-}
-
-internal class DrawSceneOperation : SkiaDrawOperation
-{
-    public DocumentViewModel Document { get; set; }
-    public VecD ContentPosition { get; set; }
-    public double Scale { get; set; }
-    public double ResolutionScale { get; set; }
-    public double Angle { get; set; }
-    public bool FlipX { get; set; }
-    public bool FlipY { get; set; }
-    public Rect ViewportBounds { get; }
-
-
-    public Action<DrawingSurface> RenderScene;
-
-    private Texture renderTexture;
-
-    private double opacity;
-
-    public DrawSceneOperation(Action<DrawingSurface> renderAction, DocumentViewModel document, VecD contentPosition,
-        double scale,
-        double resolutionScale,
-        double opacity,
-        double angle, bool flipX, bool flipY, Rect dirtyBounds, Rect viewportBounds,
-        Texture renderTexture) : base(dirtyBounds)
-    {
-        RenderScene = renderAction;
-        Document = document;
-        ContentPosition = contentPosition;
-        Scale = scale;
-        Angle = angle;
-        FlipX = flipX;
-        FlipY = flipY;
-        ViewportBounds = viewportBounds;
-        ResolutionScale = resolutionScale;
-        this.opacity = opacity;
-        this.renderTexture = renderTexture;
-    }
-
-    public override void Render(ISkiaSharpApiLease lease)
-    {
-        if (Document == null) return;
-
-        SKCanvas canvas = lease.SkCanvas;
-
-        int count = canvas.Save();
-
-        //using var ctx = DrawingBackendApi.Current.RenderOnDifferentGrContext(lease.GrContext);
-
-        DrawingSurface surface = DrawingSurface.FromNative(lease.SkSurface);
-
-        surface.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
-
-        RenderScene?.Invoke(surface);
-
-        canvas.RestoreToCount(count);
-        DrawingSurface.Unmanage(surface);
-    }
-
-    public override bool Equals(ICustomDrawOperation? other)
-    {
-        return false;
     }
 }

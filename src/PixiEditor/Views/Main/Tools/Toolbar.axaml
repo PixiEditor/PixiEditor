@@ -12,63 +12,77 @@
             BorderBrush="{DynamicResource ThemeBorderMidBrush}"
             BorderThickness="{DynamicResource ThemeBorderThickness}"
             Cursor="Arrow"
-            Padding="5"
-            Margin="10"
-            Height="40"
+            IsHitTestVisible="True"
+            Padding="2.5"
             HorizontalAlignment="Left"
             Background="{DynamicResource ThemeBackgroundBrush1}">
-        <StackPanel Orientation="Horizontal">
-            <Button
-                Width="36" Height="36"
-                Classes="pixi-icon"
-                Command="{cmds:Command PixiEditor.Undo.Undo}"
-                ui:Translator.TooltipKey="UNDO">
-                <TextBlock Text="{DynamicResource icon-undo}" FontSize="20" />
-            </Button>
-            <Button
-                Command="{cmds:Command PixiEditor.Undo.Redo}"
-                Width="36" Height="36"
-                Classes="pixi-icon"
-                Margin="0, 0, 5, 0"
-                ui:Translator.TooltipKey="REDO">
-                <TextBlock Text="{DynamicResource icon-redo}" FontSize="20" />
-            </Button>
-            <ToggleButton
-                Width="30"
-                BorderThickness="0"
-                ui:Translator.TooltipKey="PEN_MODE"
-                Focusable="False"
-                Classes="pixi-icon"
-                Content="{DynamicResource icon-edit}"
-                FontSize="20"
-                IsChecked="{Binding StylusSubViewModel.IsPenModeEnabled}">
-            </ToggleButton>
-            <Grid Margin="5,5,10,5" Background="{DynamicResource ThemeBackgroundBrush2}" Width="5"
-                  IsVisible="{Binding ElementName=CollapseButton, Path=!IsChecked}" />
-            <Label CornerRadius="5" Background="{DynamicResource ThemeBackgroundBrush2}" Padding="5" FontSize="12"
-                   VerticalAlignment="Center" IsVisible="{Binding ElementName=CollapseButton, Path=!IsChecked}"
-                   ui:Translator.Key="{Binding ToolsSubViewModel.ActiveTool.DisplayName.Key}"
-                   ui:Translator.TooltipLocalizedString="{Binding ToolsSubViewModel.ActiveTool.ActionDisplay}" />
-            <ItemsControl IsVisible="{Binding ElementName=CollapseButton, Path=!IsChecked}"
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal">
+                <Button
+                    Width="36" Height="36"
+                    Classes="pixi-icon"
+                    Command="{cmds:Command PixiEditor.Undo.Undo}"
+                    ui:Translator.TooltipKey="UNDO">
+                    <TextBlock Text="{DynamicResource icon-undo}" FontSize="20" />
+                </Button>
+                <Button
+                    Command="{cmds:Command PixiEditor.Undo.Redo}"
+                    Width="36" Height="36"
+                    Classes="pixi-icon"
+                    Margin="0, 0, 5, 0"
+                    ui:Translator.TooltipKey="REDO">
+                    <TextBlock Text="{DynamicResource icon-redo}" FontSize="20" />
+                </Button>
+                <ToggleButton
+                    Width="30"
+                    BorderThickness="0"
+                    ui:Translator.TooltipKey="PEN_MODE"
+                    Focusable="False"
+                    Classes="pixi-icon"
+                    Content="{DynamicResource icon-edit}"
+                    FontSize="20"
+                    IsChecked="{Binding StylusSubViewModel.IsPenModeEnabled}">
+                </ToggleButton>
+                <Grid Margin="5,5,10,5" Background="{DynamicResource ThemeBackgroundBrush2}" Width="5"
+                      IsVisible="{Binding ElementName=CollapseButton, Path=!IsChecked}" />
+                <Label CornerRadius="5" Background="{DynamicResource ThemeBackgroundBrush2}" Padding="5" FontSize="12"
+                       VerticalAlignment="Center" IsVisible="{Binding ElementName=CollapseButton, Path=!IsChecked}"
+                       ui:Translator.Key="{Binding ToolsSubViewModel.ActiveTool.DisplayName.Key}"
+                       ui:Translator.TooltipLocalizedString="{Binding ToolsSubViewModel.ActiveTool.ActionDisplay}" />
+            </StackPanel>
+            <ItemsControl VerticalAlignment="Center" Grid.Column="1" IsVisible="{Binding ElementName=CollapseButton, Path=!IsChecked}"
                           ItemsSource="{Binding ToolsSubViewModel.ActiveTool.Toolbar.Settings}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 0" />
+                        <WrapPanel Orientation="Horizontal" Margin="0, 0, 0, 0" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="settings:Setting">
-                        <StackPanel IsVisible="{Binding IsExposed}" Orientation="Horizontal" VerticalAlignment="Center" Margin="5,0,5,0">
+                        <StackPanel IsVisible="{Binding IsExposed}" Orientation="Horizontal"
+                                    VerticalAlignment="Center" Margin="5,0,5,0">
                             <Label
                                 IsVisible="{Binding HasLabel}" VerticalAlignment="Center"
-                                Foreground="{DynamicResource ThemeForegroundBrush}" ui:Translator.Key="{Binding Label.Key}" />
+                                Foreground="{DynamicResource ThemeForegroundBrush}"
+                                ui:Translator.Key="{Binding Label.Key}" />
                             <ContentControl VerticalAlignment="Center" Content="{Binding }" />
                         </StackPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            <Border Margin="5 -5 5 -5" Width="1" Background="{DynamicResource ThemeBackgroundBrush2}"/>
-            <ToggleButton Name="CollapseButton" Classes="ExpandCollapseToggleStyle Right" VerticalAlignment="Center" />
-        </StackPanel>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <Border Margin="5 -5 5 -5" Width="1"
+                        Background="{DynamicResource ThemeBackgroundBrush2}" />
+                <ToggleButton Name="CollapseButton" Classes="ExpandCollapseToggleStyle Right"
+                              Background="Transparent"
+                              VerticalAlignment="Center" />
+            </StackPanel>
+        </Grid>
     </Border>
 </UserControl>

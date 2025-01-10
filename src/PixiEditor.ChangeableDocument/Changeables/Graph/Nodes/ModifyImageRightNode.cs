@@ -23,7 +23,11 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
 
 
     private string _lastSksl;
+    private VecI? size;
 
+    // TODO: Add caching
+    // Caching requires a way to check if any connected node changed, checking inputs for this node works
+    // Also gather uniforms without doing full string builder generation of the shader
 
     public ModifyImageRightNode()
     {
@@ -33,10 +37,10 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
 
     protected override void OnPaint(RenderContext renderContext, DrawingSurface targetSurface)
     {
-        if (OtherNode == null)
+        if (OtherNode == null || OtherNode == default)
         {
-            FindStartNode();
-            if (OtherNode == null)
+            OtherNode = FindStartNode()?.Id ?? default;
+            if (OtherNode == null || OtherNode == default)
             {
                 return;
             }
@@ -48,12 +52,16 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
             return;
         }
 
-        if (startNode.Image.Value is not { Size: var size })
+        OtherNode = startNode.Id;
+
+        if (startNode.Image.Value is not { Size: var imgSize })
         {
             return;
         }
 
-        ShaderBuilder builder = new(size);
+        size = imgSize;
+
+        ShaderBuilder builder = new(size.Value);
         FuncContext context = new(renderContext, builder);
 
         if (Coordinate.Connection != null)
@@ -100,19 +108,31 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
             drawingPaint.Shader = drawingPaint.Shader.WithUpdatedUniforms(builder.Uniforms);
         }
 
-        targetSurface.Canvas.DrawRect(0, 0, size.X, size.Y, drawingPaint);
+        targetSurface.Canvas.DrawRect(0, 0, size.Value.X, size.Value.Y, drawingPaint);
         builder.Dispose();
     }
 
     public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
     {
-        //TODO: Implement
+        var startNode = FindStartNode();
+        if (startNode != null)
+        {
+            return startNode.GetPreviewBounds(frame, elementToRenderName);
+        }
+
         return null;
     }
 
-    public override bool RenderPreview(DrawingSurface renderOn, ChunkResolution resolution, int frame, string elementToRenderName)
+    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
-        //TODO: Implement
+        var startNode = FindStartNode();
+        if (drawingPaint != null && startNode is { Image.Value: not null })
+        {
+            renderOn.Canvas.DrawRect(0, 0, startNode.Image.Value.Size.X, startNode.Image.Value.Size.Y, drawingPaint);
+
+            return true;
+        }
+
         return false;
     }
 
@@ -130,7 +150,6 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
             if (node is ModifyImageLeftNode leftNode)
             {
                 startNode = leftNode;
-                OtherNode = leftNode.Id;
                 return false;
             }
 

@@ -1,6 +1,7 @@
 ﻿using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
@@ -22,17 +23,17 @@ public class PointsVectorData : ShapeVectorData
     public override ShapeCorners TransformationCorners => new ShapeCorners(
         GeometryAABB).WithMatrix(TransformationMatrix);
 
-    public override void RasterizeGeometry(DrawingSurface drawingSurface)
+    public override void RasterizeGeometry(Canvas drawingSurface)
     {
         Rasterize(drawingSurface, false);
     }
 
-    public override void RasterizeTransformed(DrawingSurface drawingSurface)
+    public override void RasterizeTransformed(Canvas drawingSurface)
     {
         Rasterize(drawingSurface, true);
     }
 
-    private void Rasterize(DrawingSurface drawingSurface, bool applyTransform)
+    private void Rasterize(Canvas canvas, bool applyTransform)
     {
         using Paint paint = new Paint();
         paint.Color = FillColor;
@@ -41,17 +42,17 @@ public class PointsVectorData : ShapeVectorData
         int num = 0;
         if (applyTransform)
         {
-            num = drawingSurface.Canvas.Save();
+            num = canvas.Save();
             Matrix3X3 final = TransformationMatrix;
-            drawingSurface.Canvas.SetMatrix(final);
+            canvas.SetMatrix(final);
         }
 
-        drawingSurface.Canvas.DrawPoints(PointMode.Points, Points.Select(p => new VecF((int)p.X, (int)p.Y)).ToArray(),
+        canvas.DrawPoints(PointMode.Points, Points.Select(p => new VecF((int)p.X, (int)p.Y)).ToArray(),
             paint);
 
         if (applyTransform)
         {
-            drawingSurface.Canvas.RestoreToCount(num);
+            canvas.RestoreToCount(num);
         }
     }
 
@@ -70,11 +71,23 @@ public class PointsVectorData : ShapeVectorData
         return Points.GetHashCode();
     }
 
-    public override object Clone()
+    protected override void AdjustCopy(ShapeVectorData copy)
     {
-        return new PointsVectorData(Points)
+        if (copy is PointsVectorData pointsVectorData)
         {
-            StrokeColor = StrokeColor, FillColor = FillColor, StrokeWidth = StrokeWidth
-        };
+            pointsVectorData.Points = new List<VecD>(Points);
+        }
+    }
+
+    public override VectorPath ToPath()
+    {
+        VectorPath path = new VectorPath();
+        
+        foreach (VecD point in Points)
+        {
+            path.LineTo((VecF)point);
+        }
+        
+        return path;
     }
 }

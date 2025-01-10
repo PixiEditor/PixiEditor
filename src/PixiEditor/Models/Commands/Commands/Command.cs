@@ -42,7 +42,7 @@ internal abstract partial class Command : PixiObservableObject
         }
     }
     
-    public Type? ShortcutContext { get; init; }
+    public Type[]? ShortcutContexts { get; init; }
 
     public string? MenuItemPath { get; init; }
 

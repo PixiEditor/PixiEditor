@@ -51,7 +51,7 @@ internal class ClassicDesktopEntry
             {
                 try
                 {
-                    CrashHelper.SendExceptionInfoToWebhook(exception, true);
+                    CrashHelper.SendExceptionInfo(exception, true);
                 }
                 finally
                 {
@@ -104,7 +104,7 @@ internal class ClassicDesktopEntry
 
     private IPlatform GetActivePlatform()
     {
-#if STEAM
+#if STEAM || DEV_STEAM
         return new PixiEditor.Platform.Steam.SteamPlatform();
 #elif MSIX || MSIX_DEBUG
         return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform();

@@ -14,6 +14,7 @@ namespace PixiEditor.ViewModels.Tools.Tools;
 internal class RasterRectangleToolViewModel : ShapeTool, IRasterRectangleToolHandler
 {
     private string defaultActionDisplay = "RECTANGLE_TOOL_ACTION_DISPLAY_DEFAULT";
+
     public RasterRectangleToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
@@ -31,6 +32,8 @@ internal class RasterRectangleToolViewModel : ShapeTool, IRasterRectangleToolHan
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
+        DrawFromCenter = ctrlIsDown;
+
         if (shiftIsDown)
         {
             DrawEven = true;
@@ -48,10 +51,10 @@ internal class RasterRectangleToolViewModel : ShapeTool, IRasterRectangleToolHan
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseRasterRectangleTool();
     }
 
-    public override void OnSelected(bool restoring)
+    protected override void OnSelected(bool restoring)
     {
-        if(restoring) return;
-        
+        if (restoring) return;
+
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseRasterRectangleTool();
     }
 }

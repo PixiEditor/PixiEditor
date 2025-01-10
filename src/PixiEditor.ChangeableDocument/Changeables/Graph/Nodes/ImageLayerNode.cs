@@ -6,6 +6,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 
@@ -23,19 +24,21 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     public bool LockTransparency { get; set; }
 
     private VecI startSize;
+    private ColorSpace colorSpace;
     private ChunkyImage layerImage => keyFrames[0]?.Data as ChunkyImage;
 
     private Texture fullResrenderedSurface;
     private int renderedSurfaceFrame = -1;
 
-    public ImageLayerNode(VecI size)
+    public ImageLayerNode(VecI size, ColorSpace colorSpace)
     {
         if (keyFrames.Count == 0)
         {
-            keyFrames.Add(new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = new ChunkyImage(size) });
+            keyFrames.Add(new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = new ChunkyImage(size, colorSpace) });
         }
 
         this.startSize = size;
+        this.colorSpace = colorSpace;
     }
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
@@ -136,7 +139,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
     }
 
-    public override bool RenderPreview(DrawingSurface renderOnto, ChunkResolution resolution, int frame,
+    public override bool RenderPreview(DrawingSurface renderOnto, RenderContext context,
         string elementToRenderName)
     {
         if (IsDisposed)
@@ -146,11 +149,12 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         if (elementToRenderName == nameof(EmbeddedMask))
         {
-            return base.RenderPreview(renderOnto, resolution, frame, elementToRenderName);
+            return base.RenderPreview(renderOnto, context, elementToRenderName);
         }
 
-        var img = GetLayerImageAtFrame(frame);
+        var img = GetLayerImageAtFrame(context.FrameTime.Frame);
 
+        int cacheFrame = context.FrameTime.Frame;
         if (Guid.TryParse(elementToRenderName, out Guid guid))
         {
             var keyFrame = keyFrames.FirstOrDefault(x => x.KeyFrameGuid == guid);
@@ -158,6 +162,12 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             if (keyFrame != null)
             {
                 img = GetLayerImageByKeyFrameGuid(keyFrame.KeyFrameGuid);
+                cacheFrame = keyFrame.StartFrame;
+            }
+            else if (guid == Id)
+            {
+                img = GetLayerImageAtFrame(0);
+                cacheFrame = 0;
             }
         }
 
@@ -166,7 +176,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             return false;
         }
 
-        if (renderedSurfaceFrame == frame)
+        if (renderedSurfaceFrame == cacheFrame)
         {
             renderOnto.Canvas.DrawSurface(fullResrenderedSurface.DrawingSurface, VecI.Zero, blendPaint);
         }
@@ -174,7 +184,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         {
             img.DrawMostUpToDateRegionOn(
                 new RectI(0, 0, img.LatestSize.X, img.LatestSize.Y),
-                resolution,
+                context.ChunkResolution,
                 renderOnto, VecI.Zero, blendPaint);
         }
 
@@ -183,6 +193,11 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     private KeyFrameData GetFrameWithImage(KeyFrameTime frame)
     {
+        if (keyFrames.Count == 1)
+        {
+            return keyFrames[0];
+        }
+        
         var imageFrame = keyFrames.OrderBy(x => x.StartFrame).LastOrDefault(x => x.IsInFrame(frame.Frame));
         if (imageFrame?.Data is not ChunkyImage)
         {
@@ -212,7 +227,11 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public override Node CreateCopy()
     {
-        var image = new ImageLayerNode(startSize) { MemberName = this.MemberName, };
+        var image = new ImageLayerNode(startSize, colorSpace)
+        {
+            MemberName = this.MemberName, LockTransparency = this.LockTransparency,
+            ClipToPreviousMember = this.ClipToPreviousMember, EmbeddedMask = this.EmbeddedMask?.CloneFromCommitted()
+        };
 
         image.keyFrames.Clear();
 
@@ -239,13 +258,13 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     void IReadOnlyImageNode.ForEveryFrame(Action<IReadOnlyChunkyImage> action) => ForEveryFrame(action);
 
-    public override void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime)
+    public override void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime, ColorSpace processColorSpace)
     {
-        base.RenderChunk(chunkPos, resolution, frameTime);
+        base.RenderChunk(chunkPos, resolution, frameTime, processColorSpace);
 
         var img = GetLayerImageAtFrame(frameTime.Frame);
 
-        RenderChunkyImageChunk(chunkPos, resolution, img, 85, ref fullResrenderedSurface);
+        RenderChunkyImageChunk(chunkPos, resolution, img, 85, processColorSpace, ref fullResrenderedSurface);
         renderedSurfaceFrame = frameTime.Frame;
     }
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.Enums;
@@ -19,9 +20,10 @@ public record class CreateFolder_ChangeInfo : CreateStructureMember_ChangeInfo
         bool maskIsVisible,
         ImmutableArray<NodePropertyInfo> Inputs,
         ImmutableArray<NodePropertyInfo> Outputs,
+        VecD position,
         NodeMetadata metadata
     ) : base(internalName, opacity, isVisible, clipToMemberBelow, name, blendMode, guidValue, hasMask,
-        maskIsVisible, Inputs, Outputs, metadata)
+        maskIsVisible, Inputs, Outputs, position, metadata)
     {
     }
 
@@ -38,6 +40,7 @@ public record class CreateFolder_ChangeInfo : CreateStructureMember_ChangeInfo
             folder.EmbeddedMask is not null,
             folder.MaskIsVisible.Value, CreatePropertyInfos(folder.InputProperties, true, folder.Id),
             CreatePropertyInfos(folder.OutputProperties, false, folder.Id),
+            folder.Position,
             new NodeMetadata(folder));
     }
 }
