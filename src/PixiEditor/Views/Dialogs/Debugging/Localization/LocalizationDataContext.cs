@@ -41,6 +41,7 @@ internal class LocalizationDataContext : PixiObservableObject
             if (SetProperty(ref apiKey, value))
             {
                 PixiEditorSettings.Debug.PoEditorApiKey.Value = value;
+                LoadApiKeyCommand.NotifyCanExecuteChanged();
             }
         }
     }
@@ -60,7 +61,13 @@ internal class LocalizationDataContext : PixiObservableObject
     public PoeLanguage SelectedLanguage
     {
         get => selectedLanguage;
-        set => SetProperty(ref selectedLanguage, value);
+        set
+        {
+            if (SetProperty(ref selectedLanguage, value))
+            {
+                ApplyLanguageCommand.NotifyCanExecuteChanged();
+            }
+        }
     }
 
     public ObservableCollection<PoeLanguage> LanguageCodes { get; } = new();
