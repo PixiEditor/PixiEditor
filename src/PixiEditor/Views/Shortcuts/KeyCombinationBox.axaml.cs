@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Input.Raw;
 using Avalonia.Interactivity;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Input;
@@ -60,7 +61,6 @@ internal partial class KeyCombinationBox : UserControl
     {
         e.Handled = true;
 
-        //TODO: e.Key == Key.System ? e.SystemKey : e.Key was here, but SystemKey is not available in Avalonia
         if (GetModifier(e.Key) is { } modifier)
         {
             currentCombination = new(currentCombination.Key, currentCombination.Modifiers | modifier);
@@ -78,15 +78,14 @@ internal partial class KeyCombinationBox : UserControl
     {
         e.Handled = true;
 
-        //TODO: There was (e.Key == Key.System ? e.SystemKey : e.Key), but SystemKey is not available in Avalonia
         if (GetModifier(e.Key) is { } modifier)
         {
-            currentCombination = new(currentCombination.Key, currentCombination.Modifiers ^ modifier);
+            currentCombination = currentCombination with { Modifiers = currentCombination.Modifiers ^ modifier };
             UpdateText();
         }
         else
         {
-            KeyCombination = new(e.Key, currentCombination.Modifiers);
+            KeyCombination = currentCombination with { Key = e.Key };
             focusGrid.Focus();
         }
 
@@ -173,6 +172,7 @@ internal partial class KeyCombinationBox : UserControl
         Key.LeftCtrl or Key.RightCtrl => KeyModifiers.Control,
         Key.LeftAlt or Key.RightAlt => KeyModifiers.Alt,
         Key.LeftShift or Key.RightShift => KeyModifiers.Shift,
+        Key.LWin or Key.RWin => KeyModifiers.Meta,
         _ => null
     };
 }

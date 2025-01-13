@@ -19,7 +19,7 @@ public class WindowsInputKeys : IInputKeys
     private static nint? invariantLayout;
 
     /// <summary>
-    /// Returns the charcter of the <paramref name="key"/> mapped to the users keyboard layout
+    /// Returns the character of the <paramref name="key"/> mapped to the users keyboard layout
     /// </summary>
     public string GetKeyboardKey(Key key, bool forceInvariant = false) => key switch
     {
@@ -31,6 +31,11 @@ public class WindowsInputKeys : IInputKeys
         Key.Escape => "Esc",
         _ => GetMappedKey(key, forceInvariant),
     };
+
+    public bool ModifierUsesSymbol(KeyModifiers modifier)
+    {
+        return false;
+    }
 
     private static string GetMappedKey(Key key, bool forceInvariant)
     {

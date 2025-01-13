@@ -1,0 +1,5 @@
+- [x] Input keys
+- [ ] Default shortcuts
+- [ ] Autoupdates
+- [ ] Process handling
+- [ ] Check extensions

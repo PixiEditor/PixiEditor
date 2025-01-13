@@ -14,6 +14,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
+using PixiEditor.OperatingSystem;
 using PixiEditor.Platform;
 using PixiEditor.UpdateModule;
 
@@ -72,6 +73,11 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     public async Task<bool> CheckForUpdate()
     {
+        if(IOperatingSystem.Current.Name != "Windows")
+        {
+            return false;
+        }
+        
         bool updateAvailable = await UpdateChecker.CheckUpdateAvailable();
         if(!UpdateChecker.LatestReleaseInfo.WasDataFetchSuccessful || string.IsNullOrEmpty(UpdateChecker.LatestReleaseInfo.TagName))
         {
@@ -82,6 +88,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         bool autoUpdateFailed = CheckAutoupdateFailed();
         bool updateFileDoesNotExists = !File.Exists(
             Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip"));
+        
         bool updateExeDoesNotExists = !File.Exists(
             Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.exe"));
         if (updateAvailable && (updateFileDoesNotExists && updateExeDoesNotExists) || autoUpdateFailed)

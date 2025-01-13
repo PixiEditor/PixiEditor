@@ -10,7 +10,7 @@ public sealed class MacOperatingSystem : IOperatingSystem
 
     public string AnalyticsId => "macOS";
     
-    public IInputKeys InputKeys { get; }
+    public IInputKeys InputKeys { get; } = new MacOsInputKeys();
     public IProcessUtility ProcessUtility { get; }
     public void OpenUri(string uri)
     {
