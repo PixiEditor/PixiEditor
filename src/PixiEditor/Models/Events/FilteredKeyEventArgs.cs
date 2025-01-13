@@ -5,7 +5,7 @@ namespace PixiEditor.Models.Events;
 internal class FilteredKeyEventArgs : EventArgs
 {
     public FilteredKeyEventArgs(
-        Key unfilteredKey, Key key, KeyStates state, bool isRepeat, bool isShiftDown, bool isCtrlDown, bool isAltDown)
+        Key unfilteredKey, Key key, KeyStates state, bool isRepeat, bool isShiftDown, bool isCtrlDown, bool isAltDown, bool isMetaDown)
     {
         UnfilteredKey = unfilteredKey;
         Key = key;
@@ -19,6 +19,8 @@ internal class FilteredKeyEventArgs : EventArgs
             modifiers |= KeyModifiers.Control;
         if (isAltDown)
             modifiers |= KeyModifiers.Alt;
+        if (isMetaDown)
+            modifiers |= KeyModifiers.Meta;
         Modifiers = modifiers;
     }
 

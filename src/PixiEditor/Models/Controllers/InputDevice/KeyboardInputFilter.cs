@@ -55,19 +55,20 @@ internal class KeyboardInputFilter
             Key convKey = ConvertRightKeys(key);
             bool raiseConverted = UpdateKeyState(convKey, KeyStates.None, converterdKeyboardState);
 
-            var (shift, ctrl, alt) = GetModifierStates();
-            OnAnyKeyUp?.Invoke(this, new FilteredKeyEventArgs(key, key, KeyStates.None, false, shift, ctrl, alt));
+            var (shift, ctrl, alt, meta) = GetModifierStates();
+            OnAnyKeyUp?.Invoke(this, new FilteredKeyEventArgs(key, key, KeyStates.None, false, shift, ctrl, alt, meta));
             if (raiseConverted)
-                OnConvertedKeyUp?.Invoke(this, new FilteredKeyEventArgs(key, key, KeyStates.None, false, shift, ctrl, alt));
+                OnConvertedKeyUp?.Invoke(this, new FilteredKeyEventArgs(key, key, KeyStates.None, false, shift, ctrl, alt, meta));
         }
     }
 
-    private (bool shift, bool ctrl, bool alt) GetModifierStates()
+    private (bool shift, bool ctrl, bool alt, bool meta) GetModifierStates()
     {
-        bool shift = converterdKeyboardState.TryGetValue(Key.LeftShift, out KeyStates shiftKey) ? shiftKey == KeyStates.Down : false;
-        bool ctrl = converterdKeyboardState.TryGetValue(Key.LeftCtrl, out KeyStates ctrlKey) ? ctrlKey == KeyStates.Down : false;
-        bool alt = converterdKeyboardState.TryGetValue(Key.LeftAlt, out KeyStates altKey) ? altKey == KeyStates.Down : false;
-        return (shift, ctrl, alt);
+        bool shift = converterdKeyboardState.TryGetValue(Key.LeftShift, out KeyStates shiftKey) && shiftKey == KeyStates.Down;
+        bool ctrl = converterdKeyboardState.TryGetValue(Key.LeftCtrl, out KeyStates ctrlKey) && ctrlKey == KeyStates.Down;
+        bool alt = converterdKeyboardState.TryGetValue(Key.LeftAlt, out KeyStates altKey) && altKey == KeyStates.Down;
+        bool meta = converterdKeyboardState.TryGetValue(Key.LWin, out KeyStates metaKey) && metaKey == KeyStates.Down;
+        return (shift, ctrl, alt, meta);
     }
 
     public void KeyDownInlet(KeyEventArgs args)
@@ -107,7 +108,7 @@ internal class KeyboardInputFilter
         bool isRepeat = isRepeatFromArgs && !keyWasUpdated;
         if (!isRepeat && !keyWasUpdated)
             return;
-        var (shift, ctrl, alt) = GetModifierStates();
-        eventToRaise?.Invoke(this, new FilteredKeyEventArgs(key, key, newKeyState, isRepeat, shift, ctrl, alt));
+        var (shift, ctrl, alt, meta) = GetModifierStates();
+        eventToRaise?.Invoke(this, new FilteredKeyEventArgs(key, key, newKeyState, isRepeat, shift, ctrl, alt, meta));
     }
 }

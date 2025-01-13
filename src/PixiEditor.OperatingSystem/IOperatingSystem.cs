@@ -13,6 +13,10 @@ public interface IOperatingSystem
 
     public IInputKeys InputKeys { get; }
     public IProcessUtility ProcessUtility { get; }
+    public bool IsMacOs => Name == "MacOS";
+    public bool IsWindows => Name == "Windows";
+    public bool IsLinux => Name == "Linux";
+    public bool IsMiscellaneous => !IsMacOs && !IsWindows && !IsLinux;
 
     public static void RegisterOS(IOperatingSystem operatingSystem)
     {

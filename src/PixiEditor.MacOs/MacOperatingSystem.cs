@@ -11,15 +11,15 @@ public sealed class MacOperatingSystem : IOperatingSystem
     public string AnalyticsId => "macOS";
     
     public IInputKeys InputKeys { get; } = new MacOsInputKeys();
-    public IProcessUtility ProcessUtility { get; }
+    public IProcessUtility ProcessUtility { get; } = new MacOsProcessUtility();
     public void OpenUri(string uri)
     {
-        throw new NotImplementedException();
+        ProcessUtility.ShellExecute(uri);
     }
 
     public void OpenFolder(string path)
     {
-        throw new NotImplementedException();
+        ProcessUtility.ShellExecute(Path.GetDirectoryName(path));
     }
 
     public bool HandleNewInstance(Dispatcher? dispatcher, Action<string> openInExistingAction, IApplicationLifetime lifetime)

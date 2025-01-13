@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Avalonia.Input;
 using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -18,6 +19,7 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Input;
 using PixiEditor.Models.Structures;
+using PixiEditor.OperatingSystem;
 using CommandAttribute = PixiEditor.Models.Commands.Attributes.Commands.Command;
 
 namespace PixiEditor.Models.Commands;
@@ -255,8 +257,8 @@ internal class CommandController
                                 Description = attribute.Description,
                                 Icon = attribute.Icon,
                                 IconEvaluator = xIcon,
-                                DefaultShortcut = attribute.GetShortcut(),
-                                Shortcut = GetShortcut(name, attribute.GetShortcut(), template),
+                                DefaultShortcut = AdjustForOS(attribute.GetShortcut()),
+                                Shortcut = GetShortcut(name, AdjustForOS(attribute.GetShortcut()), template),
                                 Parameter = basic.Parameter,
                                 MenuItemPath = basic.MenuItemPath,
                                 MenuItemOrder = basic.MenuItemOrder,
@@ -300,8 +302,8 @@ internal class CommandController
                                 DisplayName = menu.DisplayName,
                                 Description = menu.DisplayName,
                                 IconEvaluator = IconEvaluator.Default,
-                                DefaultShortcut = menu.GetShortcut(),
-                                Shortcut = GetShortcut(name, attribute.GetShortcut(), template)
+                                DefaultShortcut = AdjustForOS(menu.GetShortcut()),
+                                Shortcut = GetShortcut(name, AdjustForOS(attribute.GetShortcut()), template)
                             };
                         
                         Commands.Add(command);
@@ -364,8 +366,28 @@ internal class CommandController
             return command;
 
             void CommandAction(object x) => CommandMethodInvoker(method, name, instance, x, parameters, attribute.AnalyticsTrack);
+        }
 
+        KeyCombination AdjustForOS(KeyCombination combination)
+        {
+            if (IOperatingSystem.Current.IsMacOs)
+            {
+                KeyCombination newCombination = combination;
+                if (combination.Modifiers.HasFlag(KeyModifiers.Control))
+                {
+                    newCombination.Modifiers &= ~KeyModifiers.Control;
+                    newCombination.Modifiers |= KeyModifiers.Meta;
+                }
+
+                if (combination.Key == Key.Delete)
+                {
+                    newCombination.Key = Key.Back;
+                }
+                
+                return newCombination;
+            }
             
+            return combination;
         }
     }
 

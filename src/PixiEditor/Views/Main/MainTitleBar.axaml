@@ -10,6 +10,7 @@
              xmlns:input="clr-namespace:PixiEditor.Views.Input;assembly=PixiEditor.UI.Common"
              xmlns:menu="clr-namespace:PixiEditor.ViewModels.Menu"
              xmlns:main="clr-namespace:PixiEditor.Views.Main"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="menu:MenuBarViewModel"
              x:Class="PixiEditor.Views.Main.MainTitleBar">
@@ -60,7 +61,7 @@
                 </Interaction.Behaviors>
                 <Grid Margin="5,0" VerticalAlignment="Center">
                     <TextBlock ui:Translator.Key="SEARCH" />
-                    <TextBlock Text="{xaml:ShortcutBinding PixiEditor.Search.Toggle}"
+                    <TextBlock Text="{xaml:ShortcutBinding PixiEditor.Search.Toggle, Converter={converters:KeyToStringConverter}}"
                                HorizontalAlignment="Right" />
                 </Grid>
             </Border>

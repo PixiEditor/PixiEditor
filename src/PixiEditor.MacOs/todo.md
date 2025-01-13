@@ -1,5 +1,9 @@
 - [x] Input keys
 - [ ] Default shortcuts
+- [ ] Single instance
+- [ ] File associations
 - [ ] Autoupdates
 - [ ] Process handling
-- [ ] Check extensions
+- [ ] Check if extensions work
+- [ ] Native menu
+- [ ] Performance fixes
