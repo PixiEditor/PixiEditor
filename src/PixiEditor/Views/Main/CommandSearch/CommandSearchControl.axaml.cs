@@ -11,6 +11,7 @@ using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Helpers.Extensions;
 using Drawie.Backend.Core.ColorsImpl;
+using PixiEditor.Helpers.Behaviours;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Search;
 using PixiEditor.Models.Input;
@@ -164,6 +165,7 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
         /*FocusManager.SetFocusedElement(FocusManager.GetFocusScope(textBox), null);
         Keyboard.ClearFocus();*/
         IsVisible = false;
+        TextBoxFocusBehavior.FallbackFocusElement.Focus();
         //ReleaseMouseCapture();
     }
 
