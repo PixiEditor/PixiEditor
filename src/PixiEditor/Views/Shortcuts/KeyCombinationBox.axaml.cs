@@ -29,8 +29,9 @@ internal partial class KeyCombinationBox : UserControl
 
     public event EventHandler<KeyCombination> KeyCombinationChanged;
 
-    public static readonly StyledProperty<KeyCombination> DefaultCombinationProperty = AvaloniaProperty.Register<KeyCombinationBox, KeyCombination>(
-        nameof(DefaultCombination));
+    public static readonly StyledProperty<KeyCombination> DefaultCombinationProperty =
+        AvaloniaProperty.Register<KeyCombinationBox, KeyCombination>(
+            nameof(DefaultCombination));
 
     public KeyCombination DefaultCombination
     {
@@ -81,7 +82,6 @@ internal partial class KeyCombinationBox : UserControl
         if (GetModifier(e.Key) is { } modifier)
         {
             currentCombination = currentCombination with { Modifiers = currentCombination.Modifiers ^ modifier };
-            UpdateText();
         }
         else
         {
@@ -90,6 +90,7 @@ internal partial class KeyCombinationBox : UserControl
         }
 
         UpdateButton();
+        UpdateText();
     }
 
     private void TextBox_GotKeyboardFocus(object sender, GotFocusEventArgs e)
@@ -127,7 +128,9 @@ internal partial class KeyCombinationBox : UserControl
         }
     }
 
-    private void UpdateText() => textBox.Text = currentCombination != default ? currentCombination.ToString() : new LocalizedString("NONE_SHORTCUT");
+    private void UpdateText() => textBox.Text = currentCombination != default
+        ? currentCombination.ToString()
+        : new LocalizedString("NONE_SHORTCUT");
 
     private void UpdateButton()
     {
@@ -135,7 +138,7 @@ internal partial class KeyCombinationBox : UserControl
         if (textBox.IsFocused)
         {
             button.IsEnabled = true;
-            button.Content = "\ud83d\uddd9";
+            button.Content = "\u2715";
         }
         else if (KeyCombination != DefaultCombination)
         {

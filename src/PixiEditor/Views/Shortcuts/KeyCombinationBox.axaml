@@ -16,6 +16,7 @@
                  KeyUp="TextBox_PreviewKeyUp"
                  x:Name="textBox"
                  CaretBrush="Transparent"
+                 IsReadOnly="True"
                  GotFocus="TextBox_GotKeyboardFocus"
                  LostFocus="TextBox_LostKeyboardFocus">
             <TextBox.Styles>
