@@ -1,6 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using Cake.Common.Build;
 using Cake.Common.Tools.DotNet;
+using Cake.Common.Tools.DotNet.MSBuild;
 using Cake.Common.Tools.DotNet.Publish;
 using Cake.Core;
 using Cake.Core.Diagnostics;
@@ -37,7 +41,15 @@ public class BuildContext : FrostingContext
 
     public bool SelfContained { get; set; } = false;
 
+    public bool UseAppHost { get; set; } = false;
+
     public string Runtime { get; set; }
+
+    public bool BuildPackage { get; set; } = false;
+
+    public string PackageType { get; set; }
+
+    public string PackageProjectPath { get; set; }
 
     public BuildContext(ICakeContext context)
         : base(context)
@@ -69,13 +81,27 @@ public class BuildContext : FrostingContext
             OutputDirectory = context.Arguments.GetArgument("o");
         }
 
-        bool hasSelfContained = context.Arguments.HasArgument("self-contained");
-        if (hasSelfContained)
-        {
-            SelfContained = true;
-        }
+        SelfContained = context.Arguments.HasArgument("self-contained");
 
         Runtime = context.Arguments.GetArgument("runtime");
+
+        BuildPackage = context.Arguments.HasArgument("build-package");
+
+        PackageProjectPath = context.Arguments.GetArgument("package-proj-path");
+
+        if (BuildPackage)
+        {
+            PackageType = context.Arguments.GetArgument("build-package");
+            if (string.Equals(PackageType, "DotApp", StringComparison.CurrentCultureIgnoreCase))
+            {
+                UseAppHost = true;
+            }
+
+            if (string.IsNullOrEmpty(PackageProjectPath))
+            {
+                PackageProjectPath = PathToProject;
+            }
+        }
     }
 
     private static string GetArgumentOrDefault(ICakeContext context, string argumentName, string defaultValue)
@@ -88,7 +114,7 @@ public class BuildContext : FrostingContext
 }
 
 [TaskName("Default")]
-[IsDependentOn(typeof(CopyExtensionsTask))]
+[IsDependentOn(typeof(CreateAppPackageTask))]
 public sealed class DefaultTask : FrostingTask<BuildContext>
 {
     public override void Run(BuildContext context)
@@ -138,6 +164,10 @@ public sealed class BuildProjectTask : FrostingTask<BuildContext>
             Configuration = context.BuildConfiguration,
             SelfContained = context.SelfContained,
             Runtime = context.Runtime,
+            MSBuildSettings = new DotNetMSBuildSettings()
+            {
+                Properties = { ["UseAppHost"] = [context.UseAppHost.ToString()] },
+            },
             OutputDirectory = context.OutputDirectory,
         };
 

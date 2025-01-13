@@ -1,9 +1,11 @@
 - [x] Input keys
-- [ ] Default shortcuts
+- [x] Default shortcuts
+- [ ] Package - builder
+- [ ] FFmpeg
 - [ ] Single instance
-- [ ] File associations
+- [ ] File associations (pixi, other formats, lospec protocol)
 - [ ] Autoupdates
-- [ ] Process handling
+- [x] Process handling
 - [ ] Check if extensions work
 - [ ] Native menu
 - [ ] Performance fixes

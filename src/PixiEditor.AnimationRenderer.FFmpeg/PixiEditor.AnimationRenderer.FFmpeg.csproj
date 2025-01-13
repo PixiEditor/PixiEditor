@@ -17,7 +17,7 @@
       <PackageReference Include="FFMpegCore" Version="5.1.0" />
     </ItemGroup>
   
-    <ItemGroup>
+    <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('win-'))">
       <Content Include="ThirdParty\Windows\ffmpeg\**">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
