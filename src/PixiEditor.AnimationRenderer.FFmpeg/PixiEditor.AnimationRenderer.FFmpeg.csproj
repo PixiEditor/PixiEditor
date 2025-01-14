@@ -9,6 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Drawie\src\Drawie.Backend.Core\Drawie.Backend.Core.csproj" />
       <ProjectReference Include="..\PixiEditor.AnimationRenderer.Core\PixiEditor.AnimationRenderer.Core.csproj" />
       <ProjectReference Include="..\PixiEditor.OperatingSystem\PixiEditor.OperatingSystem.csproj" />
     </ItemGroup>
