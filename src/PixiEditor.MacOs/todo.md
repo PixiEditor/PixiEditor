@@ -9,4 +9,5 @@
 - [ ] Check if extensions work
 - [ ] Native menu
 - [ ] Crash dialog
+- [ ] Deploy pipelines
 - [ ] Performance fixes
