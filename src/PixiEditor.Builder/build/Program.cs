@@ -51,6 +51,14 @@ public class BuildContext : FrostingContext
 
     public string PackageProjectPath { get; set; }
 
+    public bool PublishReadyToRun { get; set; } = false;
+
+    public bool SingleFile { get; set; } = false;
+
+    public string VersionFile { get; set; }
+
+    public string[] FinalOutputDirectories { get; set; }
+
     public BuildContext(ICakeContext context)
         : base(context)
     {
@@ -89,12 +97,19 @@ public class BuildContext : FrostingContext
 
         PackageProjectPath = context.Arguments.GetArgument("package-proj-path");
 
+        PublishReadyToRun = context.Arguments.HasArgument("ready-to-run");
+
+        SingleFile = context.Arguments.HasArgument("single-file");
+
+        VersionFile = context.Arguments.GetArgument("version-file");
+
         if (BuildPackage)
         {
             PackageType = context.Arguments.GetArgument("build-package");
             if (string.Equals(PackageType, "DotApp", StringComparison.CurrentCultureIgnoreCase))
             {
                 UseAppHost = true;
+                SelfContained = true;
             }
 
             if (string.IsNullOrEmpty(PackageProjectPath))
@@ -159,19 +174,58 @@ public sealed class BuildProjectTask : FrostingTask<BuildContext>
         context.Log.Information("Building project...");
         string projectPath = context.PathToProject;
 
-        var settings = new DotNetPublishSettings()
-        {
-            Configuration = context.BuildConfiguration,
-            SelfContained = context.SelfContained,
-            Runtime = context.Runtime,
-            MSBuildSettings = new DotNetMSBuildSettings()
-            {
-                Properties = { ["UseAppHost"] = [context.UseAppHost.ToString()] },
-            },
-            OutputDirectory = context.OutputDirectory,
-        };
+        bool multipleRuntimes = context.Runtime.Contains(';');
 
-        context.DotNetPublish(projectPath, settings);
+        string[] runtimes = multipleRuntimes ? context.Runtime.Split(';') : new[] { context.Runtime };
+
+        context.FinalOutputDirectories = new string[runtimes.Length];
+
+        for (var i = 0; i < runtimes.Length; i++)
+        {
+            var runtime = runtimes[i];
+            string finalDir = multipleRuntimes
+                ? Path.Combine(context.OutputDirectory, runtime)
+                : context.OutputDirectory;
+
+            context.FinalOutputDirectories[i] = finalDir;
+
+            var settings = new DotNetPublishSettings()
+            {
+                Configuration = context.BuildConfiguration,
+                SelfContained = context.SelfContained,
+                Runtime = runtime,
+                PublishReadyToRun = context.PublishReadyToRun,
+                PublishSingleFile = context.SingleFile,
+                IncludeAllContentForSelfExtract = context.SingleFile,
+                IncludeNativeLibrariesForSelfExtract = context.SingleFile,
+                MSBuildSettings = new DotNetMSBuildSettings()
+                {
+                    Properties =
+                    {
+                        { "UseAppHost", [context.UseAppHost.ToString()] }, { "RuntimeIdentifier", [runtime] },
+                    },
+                },
+                OutputDirectory = finalDir,
+            };
+
+            context.DotNetPublish(projectPath, settings);
+            RenameExecutable(finalDir, !runtime.StartsWith("win"));
+        }
+    }
+
+    private void RenameExecutable(string finalDir, bool isUnix)
+    {
+        string executablePath = Path.Combine(finalDir, "PixiEditor.Desktop");
+        if (!isUnix)
+        {
+            executablePath += ".exe";
+        }
+
+        if (File.Exists(executablePath))
+        {
+            string finalName = isUnix ? "PixiEditor" : "PixiEditor.Desktop";
+            File.Move(executablePath, Path.Combine(finalDir, finalName), true);
+        }
     }
 
     public override void Finally(BuildContext context)
@@ -190,6 +244,7 @@ public sealed class BuildExtensionsTask : FrostingTask<BuildContext>
     public override void Run(BuildContext context)
     {
         context.Log.Information("Building extensions...");
+
         foreach (var project in context.ExtensionProjectsToInclude)
         {
             var settings = new DotNetPublishSettings() { Configuration = context.BuildConfiguration, };
@@ -206,13 +261,16 @@ public sealed class CopyExtensionsTask : FrostingTask<BuildContext>
     public override void Run(BuildContext context)
     {
         context.Log.Information("Copying extensions...");
-        foreach (var project in context.ExtensionProjectsToInclude)
+        foreach (var buildDir in context.FinalOutputDirectories)
         {
-            string outputDir = Path.Combine(context.OutputDirectory, "Extensions");
-            string sourceDir = Path.Combine(project, "bin",
-                context.BuildConfiguration, "wasi-wasm", "Extensions");
+            foreach (var project in context.ExtensionProjectsToInclude)
+            {
+                string outputDir = Path.Combine(buildDir, "Extensions");
+                string sourceDir = Path.Combine(project, "bin",
+                    context.BuildConfiguration, "wasi-wasm", "Extensions");
 
-            CopyDirectoryContents(sourceDir, outputDir, context);
+                CopyDirectoryContents(sourceDir, outputDir, context);
+            }
         }
     }
 

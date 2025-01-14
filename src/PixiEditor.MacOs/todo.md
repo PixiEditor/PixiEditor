@@ -8,4 +8,5 @@
 - [x] Process handling
 - [ ] Check if extensions work
 - [ ] Native menu
+- [ ] Crash dialog
 - [ ] Performance fixes

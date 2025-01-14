@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls.ApplicationLifetimes;
+﻿using System.Text;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using PixiEditor.OperatingSystem;
 
@@ -12,6 +13,9 @@ public sealed class MacOperatingSystem : IOperatingSystem
     
     public IInputKeys InputKeys { get; } = new MacOsInputKeys();
     public IProcessUtility ProcessUtility { get; } = new MacOsProcessUtility();
+
+    private List<Uri> activationUris;
+    
     public void OpenUri(string uri)
     {
         ProcessUtility.ShellExecute(uri);
@@ -22,8 +26,45 @@ public sealed class MacOperatingSystem : IOperatingSystem
         ProcessUtility.ShellExecute(Path.GetDirectoryName(path));
     }
 
-    public bool HandleNewInstance(Dispatcher? dispatcher, Action<string> openInExistingAction, IApplicationLifetime lifetime)
+    public bool HandleNewInstance(Dispatcher? dispatcher, Action<string, bool> openInExistingAction, IApplicationLifetime lifetime)
     {
+        StringBuilder args = new StringBuilder();
+        
+        if(activationUris != null)
+        {
+            foreach (var uri in activationUris)
+            {
+                args.Append('"');
+                args.Append(uri.AbsolutePath);
+                args.Append('"');
+                args.Append(' ');
+            }
+        }
+        
+        dispatcher.Invoke(() => openInExistingAction(args.ToString(), true));
         return true;
+    }
+
+    public void HandleActivatedWithFile(FileActivatedEventArgs fileActivatedEventArgs)
+    {
+        if(activationUris == null)
+        {
+            activationUris = [];
+        }
+        
+        foreach (var file in fileActivatedEventArgs.Files)
+        {
+           activationUris.Add(file.Path);
+        }
+    }
+
+    public void HandleActivatedWithUri(ProtocolActivatedEventArgs openUriEventArgs)
+    {
+        if(activationUris == null)
+        {
+            activationUris = [];
+        }
+        
+        activationUris.Add(openUriEventArgs.Uri);
     }
 }

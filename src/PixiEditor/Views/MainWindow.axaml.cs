@@ -14,6 +14,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Initialization;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.ExceptionHandling;
+using PixiEditor.Models.IO;
 using PixiEditor.Platform;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.Views.Rendering;
@@ -61,7 +62,7 @@ internal partial class MainWindow : Window
             .AddExtensionServices(extensionLoader)
             .BuildServiceProvider();
 
-        AsyncImageLoader.ImageLoader.AsyncImageLoader = new DiskCachedWebImageLoader();
+        AsyncImageLoader.ImageLoader.AsyncImageLoader = new DiskCachedWebImageLoader(Path.Combine(Paths.TempFilesPath, "ImageCache"));
 
         preferences = services.GetRequiredService<IPreferences>();
         platform = services.GetRequiredService<IPlatform>();

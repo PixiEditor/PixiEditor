@@ -23,9 +23,19 @@ public sealed class LinuxOperatingSystem : IOperatingSystem
         throw new NotImplementedException();
     }
 
-    public bool HandleNewInstance(Dispatcher? dispatcher, Action<string> openInExistingAction, IApplicationLifetime lifetime)
+    public bool HandleNewInstance(Dispatcher? dispatcher, Action<string, bool> openInExistingAction, IApplicationLifetime lifetime)
     {
         return true;
+    }
+
+    public void HandleActivatedWithFile(FileActivatedEventArgs fileActivatedEventArgs)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void HandleActivatedWithUri(ProtocolActivatedEventArgs openUriEventArgs)
+    {
+        throw new NotImplementedException();
     }
 
     class LinuxOSInformation

@@ -31,6 +31,12 @@ public abstract class PackageBuilder
         foreach (string file in Directory.GetFiles(sourcePath))
         {
             string fileName = Path.GetFileName(file);
+
+            if (fileName == ignore)
+            {
+                continue;
+            }
+
             string destFile = Path.Combine(destinationPath, fileName);
             File.Copy(file, destFile, true);
         }

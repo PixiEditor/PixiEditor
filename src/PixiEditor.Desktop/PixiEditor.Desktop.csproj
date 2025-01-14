@@ -29,10 +29,6 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0"/>
   </ItemGroup>
 
-  <ItemGroup Condition="$([MSBuild]::IsOsPlatform('OSX'))">
-    <PackageReference Include="Dotnet.Bundle" Version="0.9.13"/>
-  </ItemGroup>
-
   <ItemGroup>
     <None Include="..\PixiEditor\Images\favicon.ico">
       <Link>favicon.ico</Link>
@@ -43,13 +39,4 @@
     <ProjectReference Include="..\PixiEditor\PixiEditor.csproj"/>
   </ItemGroup>
 
-  <Target Name="Rename" AfterTargets="AfterBuild" Condition="$([MSBuild]::IsOsPlatform('Windows'))">
-    <Move SourceFiles="$(OutDir)PixiEditor.Desktop.exe" DestinationFiles="$(OutDir)PixiEditor.exe"/>
-    <Message Text="Renamed build executable file." Importance="high"/>
-  </Target>
-
-  <Target Name="Rename" AfterTargets="Publish" Condition="$([MSBuild]::IsOsPlatform('Windows'))">
-    <Move SourceFiles="$(PublishDir)PixiEditor.Desktop.exe" DestinationFiles="$(PublishDir)PixiEditor.exe"/>
-    <Message Text="Renamed published executable file." Importance="high"/>
-  </Target>
 </Project>

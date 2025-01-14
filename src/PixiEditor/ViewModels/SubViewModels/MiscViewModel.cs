@@ -21,14 +21,19 @@ internal class MiscViewModel : SubViewModel<ViewModelMain>
         MenuItemPath = "HELP/WEBSITE", MenuItemOrder = 1, AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.Links.OpenRepository", "https://github.com/PixiEditor/PixiEditor", "REPOSITORY", "OPEN_REPOSITORY", Icon = PixiPerfectIcons.Globe,
         MenuItemPath = "HELP/REPOSITORY", MenuItemOrder = 2, AnalyticsTrack = true)]
-    [Command.Basic("PixiEditor.Links.OpenLicense", "LICENSE", "LICENSE", "OPEN_LICENSE", Icon = PixiPerfectIcons.Globe,
+    [Command.Basic("PixiEditor.Links.OpenLicense", "{BaseDir}LICENSE", "LICENSE", "OPEN_LICENSE", Icon = PixiPerfectIcons.Folder,
         MenuItemPath = "HELP/LICENSE", MenuItemOrder = 3, AnalyticsTrack = true)]
-    [Command.Basic("PixiEditor.Links.OpenOtherLicenses", "Third Party Licenses", "THIRD_PARTY_LICENSES", "OPEN_THIRD_PARTY_LICENSES", Icon = PixiPerfectIcons.Globe,
+    [Command.Basic("PixiEditor.Links.OpenOtherLicenses", "{BaseDir}/Third Party Licenses", "THIRD_PARTY_LICENSES", "OPEN_THIRD_PARTY_LICENSES", Icon = PixiPerfectIcons.Folder,
         MenuItemPath = "HELP/THIRD_PARTY_LICENSES", MenuItemOrder = 4, AnalyticsTrack = true)]
     public static void OpenUri(string uri)
     {
         try
         {
+            if (uri.StartsWith("{BaseDir}"))
+            {
+                uri = uri.Replace("{BaseDir}", AppDomain.CurrentDomain.BaseDirectory);
+            }
+            
             IOperatingSystem.Current.OpenUri(uri);
         }
         catch (Exception e)
