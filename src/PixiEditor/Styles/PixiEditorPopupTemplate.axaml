@@ -19,7 +19,7 @@
                         <platform:ExtendClientAreaChromeHints>NoChrome</platform:ExtendClientAreaChromeHints>
                     </OnPlatform.Default>
                     <OnPlatform.macOS>
-                        <platform:ExtendClientAreaChromeHints>SystemChrome</platform:ExtendClientAreaChromeHints>
+                        <platform:ExtendClientAreaChromeHints>Default,NoChrome,OSXThickTitleBar</platform:ExtendClientAreaChromeHints>
                     </OnPlatform.macOS>
                 </OnPlatform>
             </Setter.Value>

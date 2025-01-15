@@ -5,6 +5,10 @@
             <TextBlock Classes="h1"/>
         </Border>
     </Design.PreviewWith>
+    
+    <Style Selector="TextBlock">
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
 
     <Style Selector="TextBlock.h1">
         <Setter Property="FontSize" Value="{DynamicResource Header1}"/>

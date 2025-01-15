@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 using Avalonia.OpenGL;
+using Avalonia.Platform;
 using Avalonia.Rendering.Composition;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
@@ -72,7 +73,7 @@ internal partial class MainWindow : Window
 
         var analytics = services.GetService<AnalyticsPeriodicReporter>();
         analytics?.Start(analyticsSessionId);
-        
+
         InitializeComponent();
     }
 
