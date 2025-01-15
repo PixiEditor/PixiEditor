@@ -10,25 +10,30 @@ using PixiEditor.Models.Commands.XAML;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.UI;
 using PixiEditor.Models.Commands;
+using PixiEditor.OperatingSystem;
 using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
 using Command = PixiEditor.Models.Commands.Commands.Command;
 using Commands_Command = PixiEditor.Models.Commands.Commands.Command;
+using NativeMenu = Avalonia.Controls.NativeMenu;
 
 namespace PixiEditor.ViewModels.Menu;
 
 internal class MenuBarViewModel : PixiObservableObject
 {
     private AdditionalContentViewModel additionalContentViewModel;
-   
+
     public AdditionalContentViewModel AdditionalContentSubViewModel
     {
         get => additionalContentViewModel;
         set => SetProperty(ref additionalContentViewModel, value);
     }
-    
-    public ObservableCollection<MenuItem> MenuEntries { get; set; } = new();
+
+    public ObservableCollection<MenuItem>? MenuEntries { get; set; }
+    public NativeMenu? NativeMenu { get; private set; }
 
     private Dictionary<string, MenuTreeItem> menuItems = new();
+    private List<NativeMenuItem> nativeMenuItems;
+
 
     private readonly Dictionary<string, int> menuOrderMultiplier = new Dictionary<string, int>()
     {
@@ -50,13 +55,15 @@ internal class MenuBarViewModel : PixiObservableObject
     {
         MenuItemBuilder[] builders = serviceProvider.GetServices<MenuItemBuilder>().ToArray();
 
-        var commandsWithMenuItems = controller.Commands.Where(x => !string.IsNullOrEmpty(x.MenuItemPath) && IsValid(x.MenuItemPath)).ToArray();
+        var commandsWithMenuItems = controller.Commands
+            .Where(x => !string.IsNullOrEmpty(x.MenuItemPath) && IsValid(x.MenuItemPath)).ToArray();
 
-        foreach (var command in commandsWithMenuItems.OrderBy(GetCategoryMultiplier).ThenBy(x => x.MenuItemOrder).ThenBy(x => x.InternalName))
+        foreach (var command in commandsWithMenuItems.OrderBy(GetCategoryMultiplier).ThenBy(x => x.MenuItemOrder)
+                     .ThenBy(x => x.InternalName))
         {
-           if(string.IsNullOrEmpty(command.MenuItemPath)) continue;
+            if (string.IsNullOrEmpty(command.MenuItemPath)) continue;
 
-           BuildMenuEntry(command);
+            BuildMenuEntry(command);
         }
 
         BuildMenu(controller, builders);
@@ -75,37 +82,50 @@ internal class MenuBarViewModel : PixiObservableObject
 
     private void BuildMenu(CommandController controller, MenuItemBuilder[] builders)
     {
-        BuildSimpleItems(controller, menuItems);
-        foreach (var builder in builders)
+        if (IOperatingSystem.Current.IsMacOs)
         {
-            builder.ModifyMenuTree(MenuEntries);
+            BuildBasicNativeMenuItems(controller, menuItems);
+            foreach (var builder in builders)
+            {
+                builder.ModifyMenuTree(nativeMenuItems);
+            }
+            
+            NativeMenu = [];
+            foreach (var item in nativeMenuItems)
+            {
+                NativeMenu.Items.Add(item);
+            }
+        }
+        else
+        {
+            BuildSimpleItems(controller, menuItems);
+            foreach (var builder in builders)
+            {
+                builder.ModifyMenuTree(MenuEntries);
+            }
         }
     }
 
-    private void BuildSimpleItems(CommandController controller, Dictionary<string, MenuTreeItem> root, MenuItem? parent = null)
+    private void BuildSimpleItems(CommandController controller, Dictionary<string, MenuTreeItem> root,
+        MenuItem? parent = null)
     {
         string? lastSubCommand = null;
 
         foreach (var item in root)
         {
             MenuItem menuItem = new();
-            
-            var headerBinding = new Binding(".")
-            {
-                Source = item.Key, 
-                Mode = BindingMode.OneWay,
-            };
-            
+
+            var headerBinding = new Binding(".") { Source = item.Key, Mode = BindingMode.OneWay, };
+
             menuItem.Bind(Translator.KeyProperty, headerBinding);
 
-            CommandGroup? group = controller.CommandGroups.FirstOrDefault(x => x.IsVisibleProperty != null && x.Commands.Contains(item.Value.Command));
+            CommandGroup? group = controller.CommandGroups.FirstOrDefault(x =>
+                x.IsVisibleProperty != null && x.Commands.Contains(item.Value.Command));
 
             if (group != null)
             {
-                menuItem.Bind(Visual.IsVisibleProperty, new Binding(group.IsVisibleProperty)
-                {
-                    Source = ViewModelMain.Current,
-                });
+                menuItem.Bind(Visual.IsVisibleProperty,
+                    new Binding(group.IsVisibleProperty) { Source = ViewModelMain.Current, });
             }
 
             if (item.Value.Items.Count == 0)
@@ -141,7 +161,72 @@ internal class MenuBarViewModel : PixiObservableObject
                 {
                     MenuEntries.Add(menuItem);
                 }
+
                 BuildSimpleItems(controller, item.Value.Items, menuItem);
+            }
+        }
+    }
+
+    private void BuildBasicNativeMenuItems(CommandController controller, Dictionary<string, MenuTreeItem> root,
+        NativeMenu? parent = null)
+    {
+        string? lastSubCommand = null;
+
+        foreach (var item in root)
+        {
+            NativeMenuItem menuItem = new();
+
+            nativeMenuItems ??= new List<NativeMenuItem>();
+            var headerBinding = new Binding(".") { Source = item.Key, Mode = BindingMode.OneWay, };
+
+            menuItem.Bind(Translator.KeyProperty, headerBinding);
+            menuItem.Bind(PixiEditor.Models.Commands.XAML.NativeMenu.LocalizationKeyHeaderProperty, headerBinding);
+
+            CommandGroup? group = controller.CommandGroups.FirstOrDefault(x =>
+                x.IsVisibleProperty != null && x.Commands.Contains(item.Value.Command));
+
+            if (group != null)
+            {
+                menuItem.Bind(
+                    Visual.IsVisibleProperty,
+                    new Binding(group.IsVisibleProperty) { Source = ViewModelMain.Current, });
+            }
+
+            if (item.Value.Items.Count == 0)
+            {
+                Models.Commands.XAML.NativeMenu.SetCommand(menuItem, item.Value.Command.InternalName);
+
+                string internalName = item.Value.Command.InternalName;
+                internalName = internalName[..internalName.LastIndexOf('.')];
+
+                if (lastSubCommand != null && lastSubCommand != internalName)
+                {
+                    parent?.Items.Add(new NativeMenuItemSeparator());
+                }
+
+                if (parent != null)
+                {
+                    parent.Items.Add(menuItem);
+                }
+                else
+                {
+                    nativeMenuItems.Add(menuItem);
+                }
+
+                lastSubCommand = internalName;
+            }
+            else
+            {
+                if (parent != null)
+                {
+                    parent.Items.Add(menuItem);
+                }
+                else
+                {
+                    nativeMenuItems.Add(menuItem);
+                }
+
+                BuildBasicNativeMenuItems(controller, item.Value.Items, menuItem.Menu ??= []);
             }
         }
     }
@@ -159,6 +244,7 @@ internal class MenuBarViewModel : PixiObservableObject
                 {
                     menuItems.Add(path[i], new MenuTreeItem(path[i], command));
                 }
+
                 current = menuItems[path[i]];
             }
             else
@@ -167,6 +253,7 @@ internal class MenuBarViewModel : PixiObservableObject
                 {
                     current.Items.Add(path[i], new MenuTreeItem(path[i], command));
                 }
+
                 current = current.Items[path[i]];
             }
         }

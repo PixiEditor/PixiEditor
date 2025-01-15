@@ -29,16 +29,34 @@
                 </Border>
             </dialogs:DialogTitleBar.AdditionalElement>
         </dialogs:DialogTitleBar>
-        <Svg DockPanel.Dock="Left" Margin="10, 0, 0, 0" HorizontalAlignment="Left" Path="/Images/PixiEditorLogo.svg"
-             Width="20" Height="20" />
+        <Svg DockPanel.Dock="Left" HorizontalAlignment="Left" Path="/Images/PixiEditorLogo.svg"
+             Width="20" Height="20">
+            <Svg.Margin>
+                <OnPlatform>
+                    <OnPlatform.macOS>
+                        <Thickness>75, 0, 0, 0</Thickness>
+                    </OnPlatform.macOS>
+                    <OnPlatform.Default>
+                        <Thickness>10, 0, 0, 0</Thickness>
+                    </OnPlatform.Default>
+                </OnPlatform>
+            </Svg.Margin>
+        </Svg>
         <StackPanel Orientation="Horizontal">
-            <xaml:Menu
-                Margin="40, 0, 0, 0"
-                DockPanel.Dock="Left"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Center"
-                ItemsSource="{Binding MenuEntries}"
-                Background="Transparent" />
+            <StackPanel.Margin>
+                <OnPlatform>
+                    <OnPlatform.macOS>
+                        <Thickness>95, 0, 0, 0</Thickness>
+                    </OnPlatform.macOS>
+                </OnPlatform>
+            </StackPanel.Margin>
+            <xaml:Menu IsVisible="{OnPlatform macOS=false}"
+                       Margin="40, 0, 0, 0"
+                       DockPanel.Dock="Left"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"
+                       ItemsSource="{Binding MenuEntries}"
+                       Background="Transparent" />
             <Border DockPanel.Dock="Left" Height="25" Width="150"
                     Background="{DynamicResource ThemeBackgroundBrush}"
                     CornerRadius="5" BorderThickness="1"
@@ -61,8 +79,9 @@
                 </Interaction.Behaviors>
                 <Grid Margin="5,0" VerticalAlignment="Center">
                     <TextBlock ui:Translator.Key="SEARCH" />
-                    <TextBlock Text="{xaml:ShortcutBinding PixiEditor.Search.Toggle, Converter={converters:KeyToStringConverter}}"
-                               HorizontalAlignment="Right" />
+                    <TextBlock
+                        Text="{xaml:ShortcutBinding PixiEditor.Search.Toggle, Converter={converters:KeyToStringConverter}}"
+                        HorizontalAlignment="Right" />
                 </Grid>
             </Border>
         </StackPanel>

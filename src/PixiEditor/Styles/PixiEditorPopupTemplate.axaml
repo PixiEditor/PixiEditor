@@ -3,7 +3,8 @@
         xmlns:controls="using:PixiEditor.Views.Dialogs"
         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
         xmlns:markupExtensions="clr-namespace:PixiEditor.Helpers.MarkupExtensions"
-        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions">
+        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+        xmlns:platform="clr-namespace:Avalonia.Platform;assembly=Avalonia.Controls">
     <Design.PreviewWith>
         <controls:PixiEditorPopup Width="400" Height="400" SizeToContent="Manual" />
     </Design.PreviewWith>
@@ -11,7 +12,18 @@
     <Style Selector="controls|PixiEditorPopup">
         <Setter Property="WindowStartupLocation" Value="CenterOwner" />
         <Setter Property="TransparencyLevelHint" Value="Transparent" />
-        <Setter Property="ExtendClientAreaChromeHints" Value="NoChrome" />
+        <Setter Property="ExtendClientAreaChromeHints">
+            <Setter.Value>
+                <OnPlatform>
+                    <OnPlatform.Default>
+                        <platform:ExtendClientAreaChromeHints>NoChrome</platform:ExtendClientAreaChromeHints>
+                    </OnPlatform.Default>
+                    <OnPlatform.macOS>
+                        <platform:ExtendClientAreaChromeHints>SystemChrome</platform:ExtendClientAreaChromeHints>
+                    </OnPlatform.macOS>
+                </OnPlatform>
+            </Setter.Value>
+        </Setter>
         <Setter Property="ExtendClientAreaToDecorationsHint" Value="True" />
         <Setter Property="ExtendClientAreaTitleBarHeightHint" Value="36" />
         <Setter Property="FontFamily" Value="{DynamicResource ContentControlThemeFontFamily}" />
@@ -26,7 +38,7 @@
                     <Panel>
                         <DockPanel>
                             <controls:DialogTitleBar
-                                DockPanel.Dock="Top"
+                                DockPanel.Dock="Top" 
                                 CloseCommand="{TemplateBinding CloseCommand}"
                                 CanMinimize="{TemplateBinding CanMinimize}"
                                 CanFullscreen="{TemplateBinding CanResize}"

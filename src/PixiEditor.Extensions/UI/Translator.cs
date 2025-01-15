@@ -215,6 +215,10 @@ public class Translator : Control
         {
             contentControl.Bind(ContentControl.ContentProperty, valueObservable);
         }
+        else if (d is NativeMenuItem nativeMenuItem)
+        {
+            nativeMenuItem.Bind(NativeMenuItem.HeaderProperty, valueObservable);
+        }
 #if DEBUG
         else
         {

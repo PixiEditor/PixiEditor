@@ -21,17 +21,17 @@
     </Interaction.Behaviors>
     <Grid DragDrop.AllowDrop="True" Name="DropGrid">
         <DockPanel>
-            <main1:MainTitleBar DockPanel.Dock="Top" DataContext="{Binding MenuBarViewModel}"/>
+            <main1:MainTitleBar DockPanel.Dock="Top" DataContext="{Binding MenuBarViewModel}" />
             <Grid Focusable="True" Name="FocusableGrid">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="30" />
                 </Grid.RowDefinitions>
 
                 <controls:DockableAreaRegion Grid.Row="0"
                                              Root="{Binding LayoutSubViewModel.LayoutManager.ActiveLayout.Root}"
-                                             Context="{Binding LayoutSubViewModel.LayoutManager.DockContext}"/>
-                <main1:ActionDisplayBar Grid.Row="1" DataContext="{Binding .}"/>
+                                             Context="{Binding LayoutSubViewModel.LayoutManager.DockContext}" />
+                <main1:ActionDisplayBar Grid.Row="1" DataContext="{Binding .}" />
             </Grid>
         </DockPanel>
         <commandSearch:CommandSearchControl
