@@ -50,7 +50,7 @@
                     </OnPlatform.macOS>
                 </OnPlatform>
             </StackPanel.Margin>
-            <xaml:Menu IsVisible="{OnPlatform macOS=false}"
+            <xaml:Menu IsVisible="{OnPlatform macOS=false, Default=true}"
                        Margin="40, 0, 0, 0"
                        DockPanel.Dock="Left"
                        HorizontalAlignment="Left"

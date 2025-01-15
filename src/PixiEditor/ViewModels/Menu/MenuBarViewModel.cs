@@ -110,6 +110,7 @@ internal class MenuBarViewModel : PixiObservableObject
         MenuItem? parent = null)
     {
         string? lastSubCommand = null;
+        MenuEntries ??= new ObservableCollection<MenuItem>();
 
         foreach (var item in root)
         {
