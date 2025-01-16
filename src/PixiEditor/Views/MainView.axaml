@@ -8,6 +8,7 @@
              xmlns:commandSearch="clr-namespace:PixiEditor.Views.Main.CommandSearch"
              xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
              xmlns:controls="clr-namespace:PixiDocks.Avalonia.Controls;assembly=PixiDocks.Avalonia"
+             xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.MainView"
              x:DataType="viewModels1:ViewModelMain">
@@ -20,6 +21,8 @@
         </EventTriggerBehavior>
     </Interaction.Behaviors>
     <Grid DragDrop.AllowDrop="True" Name="DropGrid">
+        <!--A hacky way to fix first element not rendering in OpenGL render api--> 
+        <visuals:TextureControl Name="OpenGlInitDummy" IsVisible="False"/>
         <DockPanel>
             <main1:MainTitleBar DockPanel.Dock="Top" DataContext="{Binding MenuBarViewModel}" />
             <Grid Focusable="True" Name="FocusableGrid">
