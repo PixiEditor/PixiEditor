@@ -2,12 +2,12 @@
 - [x] Default shortcuts
 - [ ] Package - builder
 - [ ] FFmpeg
-- [ ] Single instance
+- [x] Single instance
 - [ ] File associations (pixi, other formats, lospec protocol)
 - [ ] Autoupdates
 - [x] Process handling
 - [ ] Check if extensions work
-- [ ] Native menu
+- [x] Native menu
 - [ ] Crash dialog
 - [ ] Deploy pipelines
-- [ ] Performance fixes
+- [x] OpenGL fixes
