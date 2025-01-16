@@ -27,6 +27,8 @@ public sealed class WindowsOperatingSystem : IOperatingSystem
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "PixiEditor", ".passedArgs");
 
+    public string ExecutableExtension { get; } = ".exe";
+
     public void OpenUri(string uri)
     {
         WindowsProcessUtility.ShellExecute(uri);

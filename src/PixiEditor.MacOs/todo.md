@@ -1,13 +1,13 @@
 - [x] Input keys
 - [x] Default shortcuts
-- [ ] Package - builder
+- [x] Package - builder
 - [ ] FFmpeg
 - [x] Single instance
 - [ ] File associations (pixi, other formats, lospec protocol)
 - [ ] Autoupdates
 - [x] Process handling
-- [ ] Check if extensions work
+- [x] Check if extensions work
 - [x] Native menu
-- [ ] Crash dialog
+- [x] Crash dialog
 - [ ] Deploy pipelines
 - [x] OpenGL fixes

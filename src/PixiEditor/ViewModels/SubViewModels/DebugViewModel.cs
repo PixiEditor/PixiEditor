@@ -17,6 +17,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates.Providers.Parsers;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.Views;
@@ -313,22 +314,29 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Command.Debug("PixiEditor.Debug.DeleteUserPreferences", @"%appdata%\PixiEditor\user_preferences.json", "DELETE_USR_PREFS", "DELETE_USR_PREFS",
+    [Command.Debug("PixiEditor.Debug.DeleteUserPreferences", @"%appdata%/PixiEditor/user_preferences.json", "DELETE_USR_PREFS", "DELETE_USR_PREFS",
         MenuItemPath = "DEBUG/DELETE/USER_PREFS", MenuItemOrder = 11, AnalyticsTrack = true)]
-    [Command.Debug("PixiEditor.Debug.DeleteShortcutFile", @"%appdata%\PixiEditor\shortcuts.json", "DELETE_SHORTCUT_FILE", "DELETE_SHORTCUT_FILE",
+    [Command.Debug("PixiEditor.Debug.DeleteShortcutFile", @"%appdata%/PixiEditor/shortcuts.json", "DELETE_SHORTCUT_FILE", "DELETE_SHORTCUT_FILE",
         MenuItemPath = "DEBUG/DELETE/SHORTCUT_FILE", MenuItemOrder = 12, AnalyticsTrack = true)]
-    [Command.Debug("PixiEditor.Debug.DeleteEditorData", @"%localappdata%\PixiEditor\editor_data.json", "DELETE_EDITOR_DATA", "DELETE_EDITOR_DATA",
+    [Command.Debug("PixiEditor.Debug.DeleteEditorData", @"%localappdata%/PixiEditor/editor_data.json", "DELETE_EDITOR_DATA", "DELETE_EDITOR_DATA",
         MenuItemPath = "DEBUG/DELETE/EDITOR_DATA", MenuItemOrder = 13, AnalyticsTrack = true)]
     public static async Task DeleteFile(string path)
     {
         if (MainWindow.Current is null)
             return;
+        string[] parts = path.Split('/');
+        path = Path.Combine(parts); // os specific path
         
         string file = Environment.ExpandEnvironmentVariables(path);
         if (!File.Exists(file))
         {
-            NoticeDialog.Show(new LocalizedString("File {0} does not exist\n(Full Path: {1})", path, file), "FILE_NOT_FOUND");
-            return;
+            file = Paths.ParseSpecialPathOrDefault(file);
+            if (!File.Exists(file))
+            {
+                NoticeDialog.Show(string.Format("File {0} does not exist\n(Full Path: {1})", path, file),
+                    "FILE_NOT_FOUND");
+                return;
+            }
         }
 
         OptionsDialog<string> dialog = new("ARE_YOU_SURE", new LocalizedString("ARE_YOU_SURE_PATH_FULL_PATH", path, file), MainWindow.Current)

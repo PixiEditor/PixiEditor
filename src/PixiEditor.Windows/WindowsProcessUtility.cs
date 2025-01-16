@@ -50,6 +50,11 @@ public class WindowsProcessUtility : IProcessUtility
     {
         ShellExecute(url);
     }
+    
+    void IProcessUtility.ShellExecute(string url, string args)
+    {
+        ShellExecute(url, args);
+    }
 
     public static void ShellExecute(string url, string args)
     {

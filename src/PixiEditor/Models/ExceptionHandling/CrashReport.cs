@@ -472,23 +472,14 @@ internal class CrashReport : IDisposable
 
     public void RestartToCrashReport()
     {
-        // TODO: IOperatingSystem interface
-        Process process = new();
-
-        //TODO: Handle different name for the executable, .Desktop.exe
-        string fileName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location) + ".exe";
+        string fileName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location) +
+                          IOperatingSystem.Current.ExecutableExtension;
 #if DEBUG
         if(!File.Exists(fileName))
-            fileName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location) + ".Desktop.exe";
+            fileName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location) + $".Desktop{IOperatingSystem.Current.ExecutableExtension}";
 #endif
 
-        process.StartInfo = new()
-        {
-            FileName = fileName,
-            Arguments = $"--crash \"{Path.GetFullPath(FilePath)}\""
-        };
-
-        process.Start();
+        IOperatingSystem.Current.ProcessUtility.ShellExecute(fileName, $"--crash \"{Path.GetFullPath(FilePath)}\"");
     }
 
     public bool TrySave(IEnumerable<DocumentViewModel> documents)

@@ -37,6 +37,7 @@ internal class ClassicDesktopEntry
         {
             activable.Activated += ActivableOnActivated;
         }
+
         desktop.Startup += Start;
         desktop.ShutdownRequested += ShutdownRequested;
     }
@@ -47,7 +48,7 @@ internal class ClassicDesktopEntry
         {
             IOperatingSystem.Current.HandleActivatedWithFile(fileActivatedEventArgs);
         }
-        else if(e.Kind == ActivationKind.OpenUri && e is ProtocolActivatedEventArgs openUriEventArgs)
+        else if (e.Kind == ActivationKind.OpenUri && e is ProtocolActivatedEventArgs openUriEventArgs)
         {
             IOperatingSystem.Current.HandleActivatedWithUri(openUriEventArgs);
         }
@@ -57,6 +58,9 @@ internal class ClassicDesktopEntry
     {
         StartupArgs.Args = e.Args.ToList();
         string arguments = string.Join(' ', e.Args);
+
+        Dispatcher dispatcher = Dispatcher.UIThread;
+        InitOperatingSystem();
 
         if (ParseArgument("--crash (\"?)([A-z0-9:\\/\\ -_.]+)\\1", arguments, out Group[] groups))
         {
@@ -81,9 +85,6 @@ internal class ClassicDesktopEntry
 
             return;
         }
-
-        Dispatcher dispatcher = Dispatcher.UIThread;
-        InitOperatingSystem();
 
 #if !STEAM
         if (!HandleNewInstance(dispatcher))

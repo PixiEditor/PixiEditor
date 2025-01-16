@@ -12,7 +12,9 @@ public sealed class LinuxOperatingSystem : IOperatingSystem
     public string AnalyticsName => LinuxOSInformation.FromReleaseFile().ToString();
     public IInputKeys InputKeys { get; }
     public IProcessUtility ProcessUtility { get; }
-    
+
+    public string ExecutableExtension { get; } = string.Empty;
+
     public void OpenUri(string uri)
     {
         throw new NotImplementedException();

@@ -15,7 +15,9 @@ public sealed class MacOperatingSystem : IOperatingSystem
     public IProcessUtility ProcessUtility { get; } = new MacOsProcessUtility();
 
     private List<Uri> activationUris;
-    
+
+    public string ExecutableExtension { get; } = string.Empty;
+
     public void OpenUri(string uri)
     {
         ProcessUtility.ShellExecute(uri);
