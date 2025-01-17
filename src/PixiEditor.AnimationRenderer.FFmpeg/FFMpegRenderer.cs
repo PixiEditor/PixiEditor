@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 using System.Reflection;
 using FFMpegCore;
 using FFMpegCore.Arguments;
@@ -22,10 +23,16 @@ public class FFMpegRenderer : IAnimationRenderer
     {
         string path = $"ThirdParty/{IOperatingSystem.Current.Name}/ffmpeg";
 
-        GlobalFFOptions.Configure(new FFOptions()
+        string binaryPath = Path.Combine(Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory), path);
+
+        GlobalFFOptions.Configure(new FFOptions() { BinaryFolder = binaryPath });
+
+        if (IOperatingSystem.Current.IsUnix)
         {
-            BinaryFolder = Path.Combine(Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory), path),
-        });
+            MakeExecutableIfNeeded(binaryPath);
+        }
+
+        string paletteTempPath = Path.Combine(Path.GetDirectoryName(outputPath), "RenderTemp", "palette.png");
 
         try
         {
@@ -38,7 +45,6 @@ public class FFMpegRenderer : IAnimationRenderer
 
             RawVideoPipeSource streamPipeSource = new(frames) { FrameRate = FrameRate, };
 
-            string paletteTempPath = Path.Combine(Path.GetDirectoryName(outputPath), "RenderTemp", "palette.png");
 
             if (!Directory.Exists(Path.GetDirectoryName(paletteTempPath)))
             {
@@ -63,20 +69,50 @@ public class FFMpegRenderer : IAnimationRenderer
             var result = await outputArgs.CancellableThrough(cancellationToken)
                 .NotifyOnProgress(progressCallback, totalTimeSpan).ProcessAsynchronously();
 
-            if (RequiresPaletteGeneration())
-            {
-                File.Delete(paletteTempPath);
-                Directory.Delete(Path.GetDirectoryName(paletteTempPath));
-            }
-
             DisposeStream(frames);
 
             return result;
         }
+        finally
+        {
+            if (RequiresPaletteGeneration() && File.Exists(paletteTempPath))
+            {
+                File.Delete(paletteTempPath);
+                Directory.Delete(Path.GetDirectoryName(paletteTempPath));
+            }
+        }
+    }
+
+    private static void MakeExecutableIfNeeded(string binaryPath)
+    {
+        string filePath = Path.Combine(binaryPath, "ffmpeg");
+
+        if (!File.Exists(filePath))
+        {
+            throw new FileNotFoundException("FFmpeg binary not found");
+        }
+
+        try
+        {
+            var process = IOperatingSystem.Current.ProcessUtility.Execute($"{filePath}", "-version");
+
+            bool exited = process.WaitForExit(500);
+
+            if (!exited)
+            {
+                throw new InvalidOperationException("Failed to perform FFmpeg check");
+            }
+
+            if (process.ExitCode == 0)
+            {
+                return;
+            }
+
+            IOperatingSystem.Current.ProcessUtility.Execute("chmod", $"+x {filePath}");
+        }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            return false;
+            IOperatingSystem.Current.ProcessUtility.Execute("chmod", $"+x {filePath}");
         }
     }
 

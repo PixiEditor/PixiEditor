@@ -35,24 +35,41 @@ internal class MacOsProcessUtility : IProcessUtility
         return Environment.IsPrivilegedProcess;
     }
 
-    public static void ShellExecute(string url)
+    public static Process ShellExecute(string url)
     {
-        Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true, });
+        return Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true, });
     }
 
-    void IProcessUtility.ShellExecute(string url)
+    Process IProcessUtility.ShellExecute(string url)
     {
-        ShellExecute(url);
-    }
-    
-    void IProcessUtility.ShellExecute(string url, string args)
-    {
-        ShellExecute(url, args);
+        return ShellExecute(url);
     }
 
-    public static void ShellExecute(string url, string args)
+    Process IProcessUtility.ShellExecute(string url, string args)
     {
-        Process.Start(new ProcessStartInfo { FileName = url, Arguments = args, UseShellExecute = true, });
+        return ShellExecute(url, args);
+    }
+
+    Process IProcessUtility.Execute(string path, string args)
+    {
+        return Execute(path, args);
+    }
+
+    public static Process Execute(string path, string args)
+    {
+        return Process.Start(new ProcessStartInfo
+        {
+            FileName = path,
+            Arguments = args,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+        });
+    }
+
+    public static Process ShellExecute(string url, string args)
+    {
+        return Process.Start(new ProcessStartInfo { FileName = url, Arguments = args, UseShellExecute = true });
     }
 
     public static void ShellExecuteEV(string path) => ShellExecute(Environment.ExpandEnvironmentVariables(path));

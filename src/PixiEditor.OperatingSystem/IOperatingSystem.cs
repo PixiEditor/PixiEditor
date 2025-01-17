@@ -18,6 +18,7 @@ public interface IOperatingSystem
     public bool IsLinux => Name == "Linux";
     public bool IsMiscellaneous => !IsMacOs && !IsWindows && !IsLinux;
     public string ExecutableExtension { get; }
+    public bool IsUnix => IsMacOs || IsLinux;
 
     public static void RegisterOS(IOperatingSystem operatingSystem)
     {
