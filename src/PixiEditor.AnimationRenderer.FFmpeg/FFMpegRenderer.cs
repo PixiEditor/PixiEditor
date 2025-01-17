@@ -24,7 +24,7 @@ public class FFMpegRenderer : IAnimationRenderer
 
         GlobalFFOptions.Configure(new FFOptions()
         {
-            BinaryFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), path),
+            BinaryFolder = Path.Combine(Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory), path),
         });
 
         try
@@ -117,7 +117,6 @@ public class FFMpegRenderer : IAnimationRenderer
             .OutputToFile(outputPath, true, options =>
             {
                 options.WithFramerate(FrameRate)
-                    .WithConstantRateFactor(18)
                     .WithVideoBitrate(1800)
                     .WithVideoCodec("mpeg4")
                     .ForcePixelFormat("yuv420p");
