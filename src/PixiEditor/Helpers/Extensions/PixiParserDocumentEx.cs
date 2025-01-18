@@ -38,7 +38,7 @@ internal static class PixiParserDocumentEx
             .WithSwatches(document.Swatches, x => new(x.R, x.G, x.B))
             .WithReferenceLayer(document.ReferenceLayer, BuildReferenceLayer, encoder)
             .WithGraph(document.Graph, BuildGraph)
-            .WithAnimationData(document.AnimationData));
+            .WithAnimationData(document.AnimationData, document.Graph));
     }
 
     private static void BuildGraph(NodeGraph graph, NodeGraphBuilder graphBuilder)
