@@ -29,29 +29,38 @@ public class PreviewPainterControl : DrawieControl
         set { SetValue(FrameToRenderProperty, value); }
     }
 
-    public PreviewPainterControl()
+    static PreviewPainterControl()
     {
         PreviewPainterProperty.Changed.Subscribe(PainterChanged);
+        BoundsProperty.Changed.Subscribe(UpdatePainterBounds);
+    }
+
+    public PreviewPainterControl()
+    {
+        
     }
 
     public PreviewPainterControl(PreviewPainter previewPainter, int frameToRender)
     {
         PreviewPainter = previewPainter;
         FrameToRender = frameToRender;
-        PreviewPainterProperty.Changed.Subscribe(PainterChanged);
     }
 
-
-    private void PainterChanged(AvaloniaPropertyChangedEventArgs<PreviewPainter> args)
+    private static void PainterChanged(AvaloniaPropertyChangedEventArgs<PreviewPainter> args)
     {
+        var sender = args.Sender as PreviewPainterControl;
         if (args.OldValue.Value != null)
         {
-            args.OldValue.Value.RequestRepaint -= OnPainterRenderRequest;
+            args.OldValue.Value.RequestMatrix -= sender.OnPainterRequestMatrix;
+            args.OldValue.Value.RequestRepaint -= sender.OnPainterRenderRequest;
         }
 
         if (args.NewValue.Value != null)
         {
-            args.NewValue.Value.RequestRepaint += OnPainterRenderRequest;
+            args.NewValue.Value.RequestMatrix += sender.OnPainterRequestMatrix;
+            args.NewValue.Value.RequestRepaint += sender.OnPainterRenderRequest;
+            
+            args.NewValue.Value.Repaint();
         }
     }
 
@@ -67,26 +76,10 @@ public class PreviewPainterControl : DrawieControl
             return;
         }
 
-        RectD? previewBounds =
-            PreviewPainter.PreviewRenderable.GetPreviewBounds(FrameToRender, PreviewPainter.ElementToRenderName);
-        
-        float x = (float)(previewBounds?.Width ?? 0);
-        float y = (float)(previewBounds?.Height ?? 0);
-
-        surface.Canvas.Save();
-
-        Matrix3X3 matrix = Matrix3X3.Identity;
-        if (previewBounds != null)
-        {
-            matrix = UniformScale(x, y, previewBounds.Value);
-        }
-
-        PreviewPainter.Paint(surface, new VecI((int)Bounds.Size.Width, (int)Bounds.Size.Height), matrix);
-
-        surface.Canvas.Restore();
+        PreviewPainter.Paint(surface);
     }
 
-    private Matrix3X3 UniformScale(float x, float y,  RectD previewBounds)
+    private Matrix3X3 UniformScale(float x, float y, RectD previewBounds)
     {
         float scaleX = (float)Bounds.Width / x;
         float scaleY = (float)Bounds.Height / y;
@@ -97,5 +90,35 @@ public class PreviewPainterControl : DrawieControl
         dY -= (float)previewBounds.Y;
         Matrix3X3 matrix = Matrix3X3.CreateScale(scale, scale);
         return matrix.Concat(Matrix3X3.CreateTranslation(dX, dY));
+    }
+
+    private static void UpdatePainterBounds(AvaloniaPropertyChangedEventArgs<Rect> args)
+    {
+        var sender = args.Sender as PreviewPainterControl;
+        if(sender == null) return;
+        
+        if (sender.PreviewPainter == null)
+        {
+            return;
+        }
+
+        sender.PreviewPainter.Bounds = new VecI((int)sender.Bounds.Width, (int)sender.Bounds.Height);
+        sender.PreviewPainter.Repaint();
+    }
+
+    private Matrix3X3? OnPainterRequestMatrix()
+    {
+        RectD? previewBounds =
+            PreviewPainter?.PreviewRenderable?.GetPreviewBounds(FrameToRender, PreviewPainter.ElementToRenderName);
+
+        if (previewBounds == null || previewBounds.Value.IsZeroOrNegativeArea)
+        {
+            return null;
+        }
+
+        float x = (float)(previewBounds?.Width ?? 0);
+        float y = (float)(previewBounds?.Height ?? 0);
+
+        return UniformScale(x, y, previewBounds.Value);
     }
 }
