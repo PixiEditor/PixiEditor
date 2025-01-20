@@ -22,7 +22,8 @@ public class PreviewPainter
     public VecI DocumentSize { get; set; }
     public DocumentRenderer Renderer { get; set; }
     public VecI Bounds { get; set; }
-    public Matrix3X3 Matrix { get; set; }
+
+    public event Func<Matrix3X3?>? RequestMatrix;
 
     private Texture renderTexture;
     private bool requestedRepaint;
@@ -51,23 +52,24 @@ public class PreviewPainter
     public void Repaint()
     {
         if (Bounds.ShortestAxis == 0 || requestedRepaint) return;
-
-        requestedRepaint = true;
         
         if (renderTexture == null || renderTexture.Size != Bounds)
         {
             renderTexture?.Dispose();
             renderTexture = Texture.ForProcessing(Bounds, ProcessingColorSpace);
         }
-
+        
         renderTexture.DrawingSurface.Canvas.Clear();
         renderTexture.DrawingSurface.Canvas.Save();
 
-        renderTexture.DrawingSurface.Canvas.SetMatrix(Matrix);
+        Matrix3X3? matrix = RequestMatrix?.Invoke();
+        
+        renderTexture.DrawingSurface.Canvas.SetMatrix(matrix ?? Matrix3X3.Identity);
 
         RenderContext context = new(renderTexture.DrawingSurface, FrameTime, ChunkResolution.Full, DocumentSize,
             ProcessingColorSpace);
 
+        requestedRepaint = true;
         Renderer.RenderNodePreview(PreviewRenderable, renderTexture.DrawingSurface, context, ElementToRenderName)
             .ContinueWith(_ =>
             {

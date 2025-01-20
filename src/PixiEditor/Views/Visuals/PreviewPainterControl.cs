@@ -29,10 +29,15 @@ public class PreviewPainterControl : DrawieControl
         set { SetValue(FrameToRenderProperty, value); }
     }
 
-    public PreviewPainterControl()
+    static PreviewPainterControl()
     {
         PreviewPainterProperty.Changed.Subscribe(PainterChanged);
         BoundsProperty.Changed.Subscribe(UpdatePainterBounds);
+    }
+
+    public PreviewPainterControl()
+    {
+        
     }
 
     public PreviewPainterControl(PreviewPainter previewPainter, int frameToRender)
@@ -41,17 +46,21 @@ public class PreviewPainterControl : DrawieControl
         FrameToRender = frameToRender;
     }
 
-
-    private void PainterChanged(AvaloniaPropertyChangedEventArgs<PreviewPainter> args)
+    private static void PainterChanged(AvaloniaPropertyChangedEventArgs<PreviewPainter> args)
     {
+        var sender = args.Sender as PreviewPainterControl;
         if (args.OldValue.Value != null)
         {
-            args.OldValue.Value.RequestRepaint -= OnPainterRenderRequest;
+            args.OldValue.Value.RequestMatrix -= sender.OnPainterRequestMatrix;
+            args.OldValue.Value.RequestRepaint -= sender.OnPainterRenderRequest;
         }
 
         if (args.NewValue.Value != null)
         {
-            args.NewValue.Value.RequestRepaint += OnPainterRenderRequest;
+            args.NewValue.Value.RequestMatrix += sender.OnPainterRequestMatrix;
+            args.NewValue.Value.RequestRepaint += sender.OnPainterRenderRequest;
+            
+            args.NewValue.Value.Repaint();
         }
     }
 
@@ -83,26 +92,33 @@ public class PreviewPainterControl : DrawieControl
         return matrix.Concat(Matrix3X3.CreateTranslation(dX, dY));
     }
 
-    private void UpdatePainterBounds(AvaloniaPropertyChangedEventArgs<Rect> args)
+    private static void UpdatePainterBounds(AvaloniaPropertyChangedEventArgs<Rect> args)
     {
-        if (PreviewPainter == null)
+        var sender = args.Sender as PreviewPainterControl;
+        if(sender == null) return;
+        
+        if (sender.PreviewPainter == null)
         {
             return;
         }
 
-        PreviewPainter.Bounds = new VecI((int)Bounds.Width, (int)Bounds.Height);
+        sender.PreviewPainter.Bounds = new VecI((int)sender.Bounds.Width, (int)sender.Bounds.Height);
+        sender.PreviewPainter.Repaint();
+    }
 
+    private Matrix3X3? OnPainterRequestMatrix()
+    {
         RectD? previewBounds =
-            PreviewPainter.PreviewRenderable.GetPreviewBounds(FrameToRender, PreviewPainter.ElementToRenderName);
-        
-        if (previewBounds == null)
+            PreviewPainter?.PreviewRenderable?.GetPreviewBounds(FrameToRender, PreviewPainter.ElementToRenderName);
+
+        if (previewBounds == null || previewBounds.Value.IsZeroOrNegativeArea)
         {
-            return;
+            return null;
         }
 
         float x = (float)(previewBounds?.Width ?? 0);
         float y = (float)(previewBounds?.Height ?? 0);
 
-        PreviewPainter.Matrix = UniformScale(x, y, previewBounds.Value);
+        return UniformScale(x, y, previewBounds.Value);
     }
 }
