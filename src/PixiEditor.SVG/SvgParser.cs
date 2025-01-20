@@ -35,7 +35,7 @@ public class SvgParser
         using var reader = document.CreateReader();
 
         XmlNodeType node = reader.MoveToContent();
-        if (node != XmlNodeType.Element || reader.Name != "svg")
+        if (node != XmlNodeType.Element || reader.LocalName != "svg")
         {
             return null;
         }
@@ -92,7 +92,7 @@ public class SvgParser
 
     private SvgElement? ParseElement(XmlReader reader)
     {
-        if (wellKnownElements.TryGetValue(reader.Name, out Type elementType))
+        if (wellKnownElements.TryGetValue(reader.LocalName, out Type elementType))
         {
             SvgElement element = (SvgElement)Activator.CreateInstance(elementType);
             if (reader.MoveToFirstAttribute())

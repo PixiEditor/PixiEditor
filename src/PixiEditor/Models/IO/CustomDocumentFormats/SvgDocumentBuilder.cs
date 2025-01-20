@@ -23,6 +23,11 @@ internal class SvgDocumentBuilder : IDocumentBuilder
     {
         string xml = File.ReadAllText(path);
         SvgDocument document = SvgDocument.Parse(xml);
+        
+        if(document == null)
+        {
+            return;
+        }
 
         StyleContext styleContext = new(document);
 
@@ -126,7 +131,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
                 },
                 new PropertyConnection()
                 {
-                    InputPropertyName = "Content", OutputPropertyName = "Output", OutputNodeId = childId.Value
+                    InputPropertyName = "Content", OutputPropertyName = "Output", OutputNodeId = childId ?? id
                 }
             ]);
         }

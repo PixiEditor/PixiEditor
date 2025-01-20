@@ -83,7 +83,7 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
         SvgParser parser = new(xml);
         return parser.Parse();
     }
-
+    
     private void GatherRequiredNamespaces(Dictionary<string, string> usedNamespaces, List<SvgElement> elements)
     {
         foreach (SvgElement child in elements)
