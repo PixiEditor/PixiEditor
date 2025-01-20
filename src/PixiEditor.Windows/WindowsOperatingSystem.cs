@@ -27,6 +27,8 @@ public sealed class WindowsOperatingSystem : IOperatingSystem
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "PixiEditor", ".passedArgs");
 
+    public string ExecutableExtension { get; } = ".exe";
+
     public void OpenUri(string uri)
     {
         WindowsProcessUtility.ShellExecute(uri);
@@ -51,7 +53,7 @@ public sealed class WindowsOperatingSystem : IOperatingSystem
         WindowsProcessUtility.ShellExecuteEV(dirName);
     }
 
-    public bool HandleNewInstance(Dispatcher? dispatcher, Action<string> openInExistingAction, IApplicationLifetime lifetime)
+    public bool HandleNewInstance(Dispatcher? dispatcher, Action<string, bool> openInExistingAction, IApplicationLifetime lifetime)
     {
         bool isOwned;
         _mutex = new Mutex(true, UniqueMutexName, out isOwned);
@@ -69,7 +71,7 @@ public sealed class WindowsOperatingSystem : IOperatingSystem
                 {
                     while (_eventWaitHandle.WaitOne())
                     {
-                        dispatcher.Invoke(() => openInExistingAction(passedArgsFile));
+                        dispatcher.Invoke(() => openInExistingAction(passedArgsFile, false));
                     }
                 })
             {
@@ -89,7 +91,11 @@ public sealed class WindowsOperatingSystem : IOperatingSystem
         (lifetime as IClassicDesktopStyleApplicationLifetime)!.Shutdown();
         return false;
     }
-    
+
+    public void HandleActivatedWithFile(FileActivatedEventArgs fileActivatedEventArgs) { }
+
+    public void HandleActivatedWithUri(ProtocolActivatedEventArgs openUriEventArgs) { }
+
     private string?[] WrapSpaces(string[] args)
     {
         string?[] wrappedArgs = new string?[args.Length];

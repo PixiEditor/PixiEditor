@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
@@ -30,14 +31,36 @@ internal class ClassicDesktopEntry
     public ClassicDesktopEntry(IClassicDesktopStyleApplicationLifetime desktop)
     {
         this.desktop = desktop;
+        IActivatableLifetime? activable =
+            (IActivatableLifetime?)App.Current.TryGetFeature(typeof(IActivatableLifetime));
+        if (activable != null)
+        {
+            activable.Activated += ActivableOnActivated;
+        }
+
         desktop.Startup += Start;
         desktop.ShutdownRequested += ShutdownRequested;
+    }
+
+    private void ActivableOnActivated(object? sender, ActivatedEventArgs e)
+    {
+        if (e.Kind == ActivationKind.File && e is FileActivatedEventArgs fileActivatedEventArgs)
+        {
+            IOperatingSystem.Current.HandleActivatedWithFile(fileActivatedEventArgs);
+        }
+        else if (e.Kind == ActivationKind.OpenUri && e is ProtocolActivatedEventArgs openUriEventArgs)
+        {
+            IOperatingSystem.Current.HandleActivatedWithUri(openUriEventArgs);
+        }
     }
 
     private void Start(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
     {
         StartupArgs.Args = e.Args.ToList();
         string arguments = string.Join(' ', e.Args);
+
+        Dispatcher dispatcher = Dispatcher.UIThread;
+        InitOperatingSystem();
 
         if (ParseArgument("--crash (\"?)([A-z0-9:\\/\\ -_.]+)\\1", arguments, out Group[] groups))
         {
@@ -62,9 +85,6 @@ internal class ClassicDesktopEntry
 
             return;
         }
-
-        Dispatcher dispatcher = Dispatcher.UIThread;
-        InitOperatingSystem();
 
 #if !STEAM
         if (!HandleNewInstance(dispatcher))
@@ -136,17 +156,22 @@ internal class ClassicDesktopEntry
         return IOperatingSystem.Current.HandleNewInstance(dispatcher, OpenInExisting, desktop);
     }
 
-    private void OpenInExisting(string passedArgsFile)
+    private void OpenInExisting(string passedArgs, bool isInline)
     {
         if (desktop.MainWindow is MainWindow mainWindow)
         {
             mainWindow.BringIntoView();
             List<string> args = new List<string>();
-            if (File.Exists(passedArgsFile))
+            if (isInline)
             {
-                args = CommandLineHelpers.SplitCommandLine(File.ReadAllText(passedArgsFile))
+                args = CommandLineHelpers.SplitCommandLine(passedArgs)
                     .ToList();
-                File.Delete(passedArgsFile);
+            }
+            else if (File.Exists(passedArgs))
+            {
+                args = CommandLineHelpers.SplitCommandLine(File.ReadAllText(passedArgs))
+                    .ToList();
+                File.Delete(passedArgs);
             }
 
             StartupArgs.Args = args;

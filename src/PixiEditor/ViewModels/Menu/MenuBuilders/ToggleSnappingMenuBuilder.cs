@@ -1,7 +1,9 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
+using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Extensions.UI;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.UI.Common.Controls;
 using PixiEditor.UI.Common.Fonts;
 
@@ -27,6 +29,21 @@ internal class ToggleSnappingMenuBuilder : MenuItemBuilder
         }
     }
 
+    public override void ModifyMenuTree(ICollection<NativeMenuItem> tree)
+    {
+        if (TryFindMenuItem(tree, "VIEW", out NativeMenuItem? viewItem))
+        {
+            viewItem.Menu.Items.Add(new NativeMenuItemSeparator());
+            NativeMenuItem gridLinesItem = new NativeMenuItem();
+            gridLinesItem.ToggleType = NativeMenuItemToggleType.CheckBox;
+            Translator.SetKey(gridLinesItem, "TOGGLE_SNAPPING");
+
+            gridLinesItem.Icon = PixiPerfectIcons.ToIcon(PixiPerfectIcons.Snapping).ToBitmap(IconDimensions);
+            BindItem(gridLinesItem);
+            viewItem.Menu.Items.Add(gridLinesItem);
+        }
+    }
+
     private void BindItem(ToggleableMenuItem gridLinesItem)
     {
         gridLinesItem.Bind(ToggleableMenuItem.IsCheckedProperty, new Binding("ViewportSubViewModel.SnappingEnabled")
@@ -38,6 +55,24 @@ internal class ToggleSnappingMenuBuilder : MenuItemBuilder
         gridLinesItem.Bind(InputElement.IsEnabledProperty, new Binding("!!DocumentManagerSubViewModel.ActiveDocument")
         {
             Source = ViewModelMain.Current
+        });
+    }
+    
+    private void BindItem(NativeMenuItem gridLinesItem)
+    {
+        gridLinesItem.Bind(NativeMenuItem.IsCheckedProperty, new Binding("ViewportSubViewModel.SnappingEnabled")
+        {
+            Source = ViewModelMain.Current,
+        });
+
+        gridLinesItem.Bind(NativeMenuItem.IsEnabledProperty, new Binding("!!DocumentManagerSubViewModel.ActiveDocument")
+        {
+            Source = ViewModelMain.Current
+        });
+        
+        gridLinesItem.Command = new RelayCommand(() =>
+        {
+            ViewModelMain.Current.ViewportSubViewModel.SnappingEnabled = !ViewModelMain.Current.ViewportSubViewModel.SnappingEnabled;
         });
     }
 }

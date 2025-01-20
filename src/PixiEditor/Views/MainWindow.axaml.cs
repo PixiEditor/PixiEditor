@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 using Avalonia.OpenGL;
+using Avalonia.Platform;
 using Avalonia.Rendering.Composition;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +15,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Initialization;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.ExceptionHandling;
+using PixiEditor.Models.IO;
 using PixiEditor.Platform;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.Views.Rendering;
@@ -61,7 +63,7 @@ internal partial class MainWindow : Window
             .AddExtensionServices(extensionLoader)
             .BuildServiceProvider();
 
-        AsyncImageLoader.ImageLoader.AsyncImageLoader = new DiskCachedWebImageLoader();
+        AsyncImageLoader.ImageLoader.AsyncImageLoader = new DiskCachedWebImageLoader(Path.Combine(Paths.TempFilesPath, "ImageCache"));
 
         preferences = services.GetRequiredService<IPreferences>();
         platform = services.GetRequiredService<IPlatform>();
@@ -71,7 +73,7 @@ internal partial class MainWindow : Window
 
         var analytics = services.GetService<AnalyticsPeriodicReporter>();
         analytics?.Start(analyticsSessionId);
-        
+
         InitializeComponent();
     }
 

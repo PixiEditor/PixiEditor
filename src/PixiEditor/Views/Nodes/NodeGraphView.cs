@@ -582,6 +582,11 @@ internal class NodeGraphView : Zoombox.Zoombox
 
     private void UpdateConnections(NodeView nodeView)
     {
+        if(nodeView == null)
+        {
+            return;
+        }
+        
         foreach (NodePropertyView propertyView in nodeView.GetVisualDescendants().OfType<NodePropertyView>())
         {
             NodePropertyViewModel property = (NodePropertyViewModel)propertyView.DataContext;
