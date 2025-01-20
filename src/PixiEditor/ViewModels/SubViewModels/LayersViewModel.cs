@@ -9,6 +9,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
+using Drawie.Backend.Core;
 using PixiEditor.ChangeableDocument;
 using PixiEditor.Helpers.Converters;
 using PixiEditor.Helpers.Extensions;
@@ -23,6 +24,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using Drawie.Numerics;
+using PixiEditor.Helpers;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
@@ -394,23 +396,30 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         if (path is null)
             return;
 
-        WriteableBitmap bitmap;
+        Surface bitmap;
         try
         {
-            bitmap = Importer.ImportWriteableBitmap(path);
+            bitmap = Surface.Load(path);
         }
         catch (RecoverableException e)
         {
             NoticeDialog.Show(title: "ERROR", message: e.DisplayMessage);
             return;
         }
+        catch(ArgumentException e)
+        {
+            NoticeDialog.Show(title: "ERROR", message: e.Message);
+            return;
+        }
 
-        byte[] pixels = bitmap.ExtractPixels();
+        byte[] bytes = bitmap.ToByteArray();
+        
+        bitmap.Dispose();
 
-        VecI size = new VecI(bitmap.PixelSize.Width, bitmap.PixelSize.Height);
+        VecI size = new VecI(bitmap.Size.X, bitmap.Size.Y);
 
         doc.Operations.ImportReferenceLayer(
-            pixels.ToImmutableArray(),
+            [..bytes],
             size);
     }
 

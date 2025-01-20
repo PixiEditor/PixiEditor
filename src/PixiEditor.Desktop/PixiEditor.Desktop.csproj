@@ -10,7 +10,6 @@
     <RootNamespace>PixiEditor.Desktop</RootNamespace>
     <ApplicationIcon>..\PixiEditor\Images\favicon.ico</ApplicationIcon>
   </PropertyGroup>
-  
 
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -27,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -37,16 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PixiEditor\PixiEditor.csproj" />
+    <ProjectReference Include="..\PixiEditor\PixiEditor.csproj"/>
   </ItemGroup>
 
-  <Target Name="Rename" AfterTargets="AfterBuild">
-    <Move SourceFiles="$(OutDir)PixiEditor.Desktop.exe" DestinationFiles="$(OutDir)PixiEditor.exe" />
-    <Message Text="Renamed build executable file." Importance="high" />
-  </Target>
-
-  <Target Name="Rename" AfterTargets="Publish">
-    <Move SourceFiles="$(PublishDir)PixiEditor.Desktop.exe" DestinationFiles="$(PublishDir)PixiEditor.exe" />
-    <Message Text="Renamed published executable file." Importance="high" />
-  </Target>
 </Project>

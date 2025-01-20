@@ -1,5 +1,12 @@
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Threading;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
+using Drawie.Interop.Avalonia.Core;
+using Drawie.Interop.Avalonia.OpenGl;
+using Drawie.Numerics;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Behaviours;
@@ -12,6 +19,7 @@ namespace PixiEditor.Views;
 public partial class MainView : UserControl
 {
     private ViewModelMain Context => (ViewModelMain)DataContext;
+
     public MainView()
     {
         InitializeComponent();
@@ -20,7 +28,27 @@ public partial class MainView : UserControl
         DropGrid.AddHandler(DragDrop.DragLeaveEvent, MainView_DragLeave);
         DropGrid.AddHandler(DragDrop.DropEvent, MainView_Drop);
     }
-    
+
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+
+        // hacky way to fix first element not rendering
+        // feel free to make a proper fix inside Drawie
+        if (IDrawieInteropContext.Current is OpenGlInteropContext)
+        {
+            OpenGlInitDummy.IsVisible = true;
+            OpenGlInitDummy.Texture = new Texture(new Texture(new VecI(1, 1)));
+            OpenGlInitDummy.QueueNextFrame();
+            Dispatcher.UIThread.Post(() =>
+            {
+                OpenGlInitDummy.Texture.Dispose();
+                OpenGlInitDummy.Texture = null;
+                OpenGlInitDummy.IsVisible = false;
+            });
+        }
+    }
+
     private void MainView_Drop(object sender, DragEventArgs e)
     {
         Context.ActionDisplays[nameof(MainView_Drop)] = null;
@@ -37,7 +65,7 @@ public partial class MainView : UserControl
             Context.ColorsSubViewModel.PrimaryColor = color.Value;
             return;
         }
-        
+
         if (fileDropList is { Length: > 0 } && Importer.IsSupportedFile(fileDropList[0].Path.LocalPath))
         {
             Context.FileSubViewModel.OpenFromPath(fileDropList[0].Path.LocalPath);
@@ -54,7 +82,7 @@ public partial class MainView : UserControl
                 e.DragEffects = DragDropEffects.Copy;
                 return;
             }
-            
+
             e.DragEffects = DragDropEffects.None;
             e.Handled = true;
             return;

@@ -339,3 +339,4 @@ Installer/Assets
 GitIgnore
 
 Cache/
+.DS_Store

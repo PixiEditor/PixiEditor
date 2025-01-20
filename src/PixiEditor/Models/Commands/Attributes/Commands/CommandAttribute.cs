@@ -28,7 +28,7 @@ internal partial class Command
         /// Gets or sets the default shortcut modfiers keys for this command
         /// </summary>
         public KeyModifiers Modifiers { get; set; }
-
+        
         /// <summary>
         /// Gets or sets the name of the icon evaluator for this command
         /// </summary>

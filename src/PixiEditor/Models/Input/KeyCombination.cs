@@ -18,6 +18,7 @@ public record struct KeyCombination(Key Key, KeyModifiers Modifiers)
     public KeyGesture ToKeyGesture() => new(Key, Modifiers);
 
     public KeyGesture Gesture => ToKeyGesture();
+    
 
     private string ToString(bool forceInvariant, bool showNone)
     {
@@ -27,23 +28,31 @@ public record struct KeyCombination(Key Key, KeyModifiers Modifiers)
         {
             if (modifier == KeyModifiers.None) continue;
 
-            string key = modifier switch
+            string key;
+            if (InputKeyHelpers.ModifierUsesSymbol(modifier))
             {
-                KeyModifiers.Control => new LocalizedString("CTRL_KEY"),
-                KeyModifiers.Shift => new LocalizedString("SHIFT_KEY"),
-                KeyModifiers.Alt => new LocalizedString("ALT_KEY"),
-                _ => modifier.ToString()
-            };
+                key = InputKeyHelpers.GetKeyboardKey(InputKeyHelpers.ModifierToKey(modifier), forceInvariant);
+            }
+            else
+            {
+                key = modifier switch
+                {
+                    KeyModifiers.Control => new LocalizedString("CTRL_KEY"),
+                    KeyModifiers.Shift => new LocalizedString("SHIFT_KEY"),
+                    KeyModifiers.Alt => new LocalizedString("ALT_KEY"),
+                    _ => modifier.ToString()
+                };
+            }
 
             builder.Append($"{key}+");
         }
-
+        
         if (Key != Key.None || showNone)
         {
             builder.Append(InputKeyHelpers.GetKeyboardKey(Key, forceInvariant));
         }
 
-        builder.Append('‎'); // left-to-right marker ensures WPF does not reverse the string when using punctuations as key
+        builder.Append('‎'); // left-to-right marker ensures Avalonia does not reverse the string when using punctuations as key
         return builder.ToString();
     }
 

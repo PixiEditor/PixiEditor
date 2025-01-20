@@ -129,6 +129,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
+        args.Handled = true;
         var allLayers = document.StructureHelper.GetAllLayers();
         var topMostWithinClick = allLayers.Where(x =>
                 x is { IsVisibleBindable: true, TightBounds: not null } &&

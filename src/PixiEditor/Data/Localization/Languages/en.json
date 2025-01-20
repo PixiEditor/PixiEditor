@@ -834,5 +834,6 @@
   "PRESERVE_ALPHA": "Preserve alpha",
   "BLUR_FILTER_NODE": "Gaussian Blur Filter",
   "LENGTH": "Length",
-  "GREATER_THAN_OR_EQUAL": "Greater than or equal"
+  "GREATER_THAN_OR_EQUAL": "Greater than or equal",
+  "COLOR_NODE": "Color"
 }

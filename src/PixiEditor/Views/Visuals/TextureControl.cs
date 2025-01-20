@@ -46,10 +46,12 @@ public class TextureControl : DrawieTextureControl
         {
             args.NewValue.Value.Changed += TextureOnChanged;
         }
+        
+        QueueNextFrame();
     }
 
     private void TextureOnChanged(RectD? changedRect)
     {
-        Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
+        QueueNextFrame();
     }
 }

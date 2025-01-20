@@ -1,7 +1,10 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
+using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Extensions.UI;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.UI.Common.Controls;
 using PixiEditor.UI.Common.Fonts;
 
@@ -28,6 +31,21 @@ internal class ToggleGridLinesMenuBuilder : MenuItemBuilder
         }
     }
 
+    public override void ModifyMenuTree(ICollection<NativeMenuItem> tree)
+    {
+        if (TryFindMenuItem(tree, "VIEW", out NativeMenuItem? viewItem))
+        {
+            viewItem.Menu.Items.Add(new NativeMenuItemSeparator());
+            NativeMenuItem gridLinesItem = new NativeMenuItem();
+            gridLinesItem.ToggleType = NativeMenuItemToggleType.CheckBox;
+            Translator.SetKey(gridLinesItem, "TOGGLE_GRIDLINES");
+
+            gridLinesItem.Icon = PixiPerfectIcons.ToIcon(PixiPerfectIcons.GridLines).ToBitmap(IconDimensions);
+            BindItem(gridLinesItem);
+            viewItem.Menu.Items.Add(gridLinesItem);
+        }
+    }
+
     private void BindItem(ToggleableMenuItem gridLinesItem)
     {
         gridLinesItem.Bind(ToggleableMenuItem.IsCheckedProperty, new Binding("ViewportSubViewModel.GridLinesEnabled")
@@ -39,6 +57,28 @@ internal class ToggleGridLinesMenuBuilder : MenuItemBuilder
         gridLinesItem.Bind(InputElement.IsEnabledProperty, new Binding("!!DocumentManagerSubViewModel.ActiveDocument")
         {
             Source = ViewModelMain.Current
+        });
+    }
+    
+    private void BindItem(NativeMenuItem gridLinesItem)
+    {
+        gridLinesItem.Bind(NativeMenuItem.IsCheckedProperty, new Binding("ViewportSubViewModel.GridLinesEnabled")
+        {
+            Source = ViewModelMain.Current,
+        });
+
+        gridLinesItem.Bind(NativeMenuItem.IsEnabledProperty, new Binding("!!DocumentManagerSubViewModel.ActiveDocument")
+        {
+            Source = ViewModelMain.Current
+        });
+        
+        gridLinesItem.Command = new RelayCommand(() =>
+        {
+            var viewportOpotions = ViewModelMain.Current.ViewportSubViewModel;
+            if (viewportOpotions != null)
+            {
+                viewportOpotions.GridLinesEnabled = !viewportOpotions.GridLinesEnabled;
+            }
         });
     }
 }

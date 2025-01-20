@@ -22,7 +22,8 @@ internal partial class DialogTitleBar : UserControl, ICustomTranslatorElement
     public static readonly StyledProperty<ICommand?> CloseCommandProperty =
         AvaloniaProperty.Register<DialogTitleBar, ICommand?>(nameof(CloseCommand));
 
-    public static readonly StyledProperty<Control> AdditionalElementProperty = AvaloniaProperty.Register<DialogTitleBar, Control>("AdditionalElement");
+    public static readonly StyledProperty<Control> AdditionalElementProperty =
+        AvaloniaProperty.Register<DialogTitleBar, Control>("AdditionalElement");
 
     public ICommand? CloseCommand
     {
@@ -68,7 +69,8 @@ internal partial class DialogTitleBar : UserControl, ICustomTranslatorElement
         captionButtons.Attach(VisualRoot as Window);
     }
 
-    void ICustomTranslatorElement.SetTranslationBinding(AvaloniaProperty dependencyProperty, IObservable<string> binding)
+    void ICustomTranslatorElement.SetTranslationBinding(AvaloniaProperty dependencyProperty,
+        IObservable<string> binding)
     {
         Bind(dependencyProperty, binding);
     }
@@ -86,23 +88,24 @@ internal partial class DialogTitleBar : UserControl, ICustomTranslatorElement
                 command.Execute(null);
             return;
         }
+
         ((Window?)VisualRoot)?.Close();
     }
-    
+
     private void MaximizeWindow(object? sender, RoutedEventArgs e)
     {
         if (VisualRoot is not Window window || !CanFullscreen)
             return;
         window.WindowState = WindowState.Maximized;
     }
-    
+
     private void RestoreWindow(object? sender, RoutedEventArgs e)
     {
         if (VisualRoot is not Window window || !CanFullscreen)
             return;
         window.WindowState = WindowState.Normal;
     }
-    
+
     private void MinimizeWindow(object? sender, RoutedEventArgs e)
     {
         if (VisualRoot is not Window window || !CanMinimize)

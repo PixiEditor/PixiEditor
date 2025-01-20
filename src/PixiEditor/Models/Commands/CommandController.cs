@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Avalonia.Input;
 using Avalonia.Media;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -10,14 +11,16 @@ using PixiEditor.Exceptions;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.AnalyticsAPI;
+using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Commands.CommandContext;
-using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Input;
 using PixiEditor.Models.Structures;
+using PixiEditor.OperatingSystem;
+using Command = PixiEditor.Models.Commands.Commands.Command;
 using CommandAttribute = PixiEditor.Models.Commands.Attributes.Commands.Command;
 
 namespace PixiEditor.Models.Commands;
@@ -33,11 +36,11 @@ internal class CommandController
     public CommandCollection Commands { get; }
 
     public List<CommandGroup> CommandGroups { get; }
-    
+
     public CommandLog.CommandLog Log { get; }
 
     public OneToManyDictionary<string, Command> FilterCommands { get; }
-    
+
     public Dictionary<string, string> FilterSearchTerm { get; }
 
     public Dictionary<string, CanExecuteEvaluator> CanExecuteEvaluators { get; }
@@ -45,7 +48,7 @@ internal class CommandController
     public Dictionary<string, IconEvaluator> IconEvaluators { get; }
 
     private static readonly List<Command> objectsToInvokeOn = new();
-    
+
     public CommandController()
     {
         Current ??= this;
@@ -85,7 +88,8 @@ internal class CommandController
         }
     }
 
-    private static List<Attributes.Commands.Command.GroupAttribute> FindCommandGroups(IEnumerable<Type> typesToSearchForAttributes)
+    private static List<Attributes.Commands.Command.GroupAttribute> FindCommandGroups(
+        IEnumerable<Type> typesToSearchForAttributes)
     {
         List<Attributes.Commands.Command.GroupAttribute> result = new();
 
@@ -123,19 +127,22 @@ internal class CommandController
         }
         catch (JsonException)
         {
-            File.Move(shortcutFile.Path, $"{shortcutFile.Path}.corrupted", true);  // TODO: platform dependent
+            File.Move(shortcutFile.Path, $"{shortcutFile.Path}.corrupted", true); // TODO: platform dependent
             shortcutFile = new ShortcutFile(ShortcutsPath, this);
             template = shortcutFile.LoadTemplate();
             NoticeDialog.Show("SHORTCUTS_CORRUPTED", "SHORTCUTS_CORRUPTED_TITLE");
         }
+
         var compiledCommandList = new CommandNameList();
-        List<Attributes.Commands.Command.GroupAttribute> commandGroupsData = FindCommandGroups(compiledCommandList.Groups);
-        OneToManyDictionary<string, Command> commands = new(); // internal name of the corr. group -> command in that group
+        List<Attributes.Commands.Command.GroupAttribute> commandGroupsData =
+            FindCommandGroups(compiledCommandList.Groups);
+        OneToManyDictionary<string, Command>
+            commands = new(); // internal name of the corr. group -> command in that group
 
         LoadEvaluators(serviceProvider, compiledCommandList);
         LoadCommands(serviceProvider, compiledCommandList, commandGroupsData, commands, template);
         LoadTools(serviceProvider, commandGroupsData, commands, template);
-        
+
         var miscList = new List<Command>();
 
         foreach (var (groupInternalName, storedCommands) in commands)
@@ -151,9 +158,9 @@ internal class CommandController
             CommandGroups.Add(new CommandGroup(groupDisplayName, storedCommands)
             {
                 IsVisibleProperty = groupData.IsVisibleMenuProperty
-            } );
+            });
         }
-        
+
         CommandGroups.Add(new CommandGroup("MISC", miscList));
     }
 
@@ -179,7 +186,9 @@ internal class CommandController
         }
     }
 
-    private void LoadTools(IServiceProvider serviceProvider, List<Attributes.Commands.Command.GroupAttribute> commandGroupsData, OneToManyDictionary<string, Command> commands,
+    private void LoadTools(IServiceProvider serviceProvider,
+        List<Attributes.Commands.Command.GroupAttribute> commandGroupsData,
+        OneToManyDictionary<string, Command> commands,
         ShortcutsTemplate template)
     {
         IToolsHandler toolsHandler = serviceProvider.GetService<IToolsHandler>();
@@ -216,12 +225,15 @@ internal class CommandController
         }
     }
 
-    private KeyCombination GetShortcut(string internalName, KeyCombination defaultShortcut, ShortcutsTemplate template) =>
+    private KeyCombination GetShortcut(string internalName, KeyCombination defaultShortcut,
+        ShortcutsTemplate template) =>
         template.Shortcuts
             .FirstOrDefault(x => x.Commands.Contains(internalName), new Shortcut(defaultShortcut, (List<string>)null))
             .KeyCombination;
 
-    private void AddCommandToCommandsCollection(Command command, List<Attributes.Commands.Command.GroupAttribute> commandGroupsData, OneToManyDictionary<string, Command> commands)
+    private void AddCommandToCommandsCollection(Command command,
+        List<Attributes.Commands.Command.GroupAttribute> commandGroupsData,
+        OneToManyDictionary<string, Command> commands)
     {
         var group = commandGroupsData.FirstOrDefault(x => command.InternalName.StartsWith(x.InternalName));
         if (group == default)
@@ -230,7 +242,9 @@ internal class CommandController
             commands.Add(group.InternalName, command);
     }
 
-    private void LoadCommands(IServiceProvider serviceProvider, CommandNameList compiledCommandList, List<Attributes.Commands.Command.GroupAttribute> commandGroupsData, OneToManyDictionary<string, Command> commands, ShortcutsTemplate template)
+    private void LoadCommands(IServiceProvider serviceProvider, CommandNameList compiledCommandList,
+        List<Attributes.Commands.Command.GroupAttribute> commandGroupsData,
+        OneToManyDictionary<string, Command> commands, ShortcutsTemplate template)
     {
         foreach (var type in compiledCommandList.Commands)
         {
@@ -241,11 +255,18 @@ internal class CommandController
                 var methodInfo = type.Key.GetMethod(name, methodNames.Item2.ToArray());
 
                 var commandAttrs = methodInfo.GetCustomAttributes<Attributes.Commands.Command.CommandAttribute>();
+                var customOsShortcuts = methodInfo.GetCustomAttributes<CustomOsShortcutAttribute>();
+
+                CustomOsShortcutAttribute? customOsShortcut =
+                    customOsShortcuts.FirstOrDefault(x => string.Equals(x.ValidOs, IOperatingSystem.Current.Name, StringComparison.InvariantCultureIgnoreCase));
 
                 foreach (var attribute in commandAttrs)
                 {
                     if (attribute is Attributes.Commands.Command.BasicAttribute basic)
                     {
+                        var validCustomShortcut = customOsShortcut?.TargetCommand == basic.InternalName
+                            ? customOsShortcut
+                            : null;
                         AddCommand(methodInfo, serviceProvider.GetService(type.Key), attribute,
                             (isDebug, name, x, xCan, xIcon) => new Command.BasicCommand(x, xCan)
                             {
@@ -255,8 +276,10 @@ internal class CommandController
                                 Description = attribute.Description,
                                 Icon = attribute.Icon,
                                 IconEvaluator = xIcon,
-                                DefaultShortcut = attribute.GetShortcut(),
-                                Shortcut = GetShortcut(name, attribute.GetShortcut(), template),
+                                DefaultShortcut = AdjustForOS(attribute.GetShortcut(), validCustomShortcut),
+                                Shortcut =
+                                    GetShortcut(name, AdjustForOS(attribute.GetShortcut(), validCustomShortcut),
+                                        template),
                                 Parameter = basic.Parameter,
                                 MenuItemPath = basic.MenuItemPath,
                                 MenuItemOrder = basic.MenuItemOrder,
@@ -266,7 +289,7 @@ internal class CommandController
                     else if (attribute is Attributes.Commands.Command.FilterAttribute menu)
                     {
                         string searchTerm = menu.SearchTerm;
-                        
+
                         if (searchTerm == null)
                         {
                             searchTerm = FilterSearchTerm[menu.InternalName];
@@ -277,8 +300,9 @@ internal class CommandController
                         }
 
                         bool hasFilter = FilterCommands.ContainsKey(searchTerm);
-                        
-                        foreach (var menuCommand in commandAttrs.Where(x => x is not Attributes.Commands.Command.FilterAttribute))
+
+                        foreach (var menuCommand in commandAttrs.Where(x =>
+                                     x is not Attributes.Commands.Command.FilterAttribute))
                         {
                             FilterCommands.Add(searchTerm, Commands[menuCommand.InternalName]);
                         }
@@ -286,6 +310,10 @@ internal class CommandController
                         if (hasFilter)
                             continue;
 
+                        var validCustomShortcut = customOsShortcut?.TargetCommand == menu.InternalName
+                            ? customOsShortcut
+                            : null;
+                        
                         ISearchHandler searchHandler = serviceProvider.GetRequiredService<ISearchHandler>();
 
                         if (searchHandler is null)
@@ -300,10 +328,10 @@ internal class CommandController
                                 DisplayName = menu.DisplayName,
                                 Description = menu.DisplayName,
                                 IconEvaluator = IconEvaluator.Default,
-                                DefaultShortcut = menu.GetShortcut(),
-                                Shortcut = GetShortcut(name, attribute.GetShortcut(), template)
+                                DefaultShortcut = AdjustForOS(menu.GetShortcut(), validCustomShortcut),
+                                Shortcut = GetShortcut(name, AdjustForOS(attribute.GetShortcut(), validCustomShortcut), template)
                             };
-                        
+
                         Commands.Add(command);
 
                         AddCommandToCommandsCollection(command, commandGroupsData, commands);
@@ -314,14 +342,14 @@ internal class CommandController
                             {
                                 Analytics.SendCommand(menu.InternalName, c.SourceInfo);
                             }
-                            
+
                             searchHandler.OpenSearchWindow($":{searchTerm}:");
                         }
                     }
                 }
             }
         }
-        
+
         TCommand AddCommand<TAttr, TCommand>(MethodInfo method, object instance, TAttr attribute,
             Func<bool, string, Action<object>, CanExecuteEvaluator, IconEvaluator, TCommand> commandFactory)
             where TAttr : Attributes.Commands.Command.CommandAttribute
@@ -355,7 +383,9 @@ internal class CommandController
                 isDebug,
                 name,
                 CommandAction,
-                attribute.CanExecute != null ? CanExecuteEvaluators[attribute.CanExecute] : CanExecuteEvaluator.AlwaysTrue,
+                attribute.CanExecute != null
+                    ? CanExecuteEvaluators[attribute.CanExecute]
+                    : CanExecuteEvaluator.AlwaysTrue,
                 attribute.IconEvaluator != null ? IconEvaluators[attribute.IconEvaluator] : IconEvaluator.Default);
 
             Commands.Add(command);
@@ -363,20 +393,48 @@ internal class CommandController
 
             return command;
 
-            void CommandAction(object x) => CommandMethodInvoker(method, name, instance, x, parameters, attribute.AnalyticsTrack);
+            void CommandAction(object x) =>
+                CommandMethodInvoker(method, name, instance, x, parameters, attribute.AnalyticsTrack);
+        }
 
-            
+        KeyCombination AdjustForOS(KeyCombination combination, CustomOsShortcutAttribute? customOsShortcut)
+        {
+            if (customOsShortcut != null)
+            {
+                return new KeyCombination(customOsShortcut.Key, customOsShortcut.Modifiers);
+            }
+
+            if (IOperatingSystem.Current.IsMacOs)
+            {
+                KeyCombination newCombination = combination;
+                if (combination.Modifiers.HasFlag(KeyModifiers.Control))
+                {
+                    newCombination.Modifiers &= ~KeyModifiers.Control;
+                    newCombination.Modifiers |= KeyModifiers.Meta;
+                }
+
+                if (combination.Key == Key.Delete)
+                {
+                    newCombination.Key = Key.Back;
+                }
+
+                return newCombination;
+            }
+
+            return combination;
         }
     }
 
-    private static void CommandMethodInvoker(MethodInfo method, string name, object? instance, object parameter, ParameterInfo[] parameterInfos, bool isTracking)
+    private static void CommandMethodInvoker(MethodInfo method, string name, object? instance, object parameter,
+        ParameterInfo[] parameterInfos, bool isTracking)
     {
         var parameters = GetParameters(parameter, parameterInfos);
         AnalyticEvent? analytics = null;
-                
+
         if (isTracking)
         {
-            analytics = Analytics.SendCommand(name, (parameter as CommandExecutionContext)?.SourceInfo, expectingEndTime: true);
+            analytics = Analytics.SendCommand(name, (parameter as CommandExecutionContext)?.SourceInfo,
+                expectingEndTime: true);
         }
 
         try
@@ -424,16 +482,16 @@ internal class CommandController
             {
                 if (parameterInfos[0].ParameterType == typeof(CommandExecutionContext))
                 {
-                    parameters = [ context ];
+                    parameters = [context];
                 }
                 else
                 {
-                    parameters = [ context.Parameter ];
+                    parameters = [context.Parameter];
                 }
             }
             else
             {
-                parameters = [ parameter ];
+                parameters = [parameter];
             }
 
             return parameters;
@@ -450,7 +508,7 @@ internal class CommandController
 
             if (target == typeof(object) || target == input?.GetType())
                 return input;
-            
+
             return Convert.ChangeType(input, target);
         }
 
@@ -508,7 +566,7 @@ internal class CommandController
                     func = async x => await method.InvokeAsync<TParameter>(serviceInstance, null);
                 }
 
-                T evaluator = factory(x => Task.Run(async () => await func(x)).Result);//TODO: This is not truly async
+                T evaluator = factory(x => Task.Run(async () => await func(x)).Result); //TODO: This is not truly async
                 evaluators.Add(evaluator.Name, evaluator);
             }
         }
@@ -544,8 +602,7 @@ internal class CommandController
                                     CanExecuteEvaluators,
                                     evaluateFunction => new CanExecuteEvaluator()
                                     {
-                                        Name = attribute.Name,
-                                        Evaluate = evaluateFunction.Invoke,
+                                        Name = attribute.Name, Evaluate = evaluateFunction.Invoke,
                                         /*DependentOn = canExecuteAttribute.DependentOn*/
                                     });
                                 break;
@@ -561,7 +618,8 @@ internal class CommandController
         }
     }
 
-    private static bool IsAssignaleAsync<TAttr, T, TParameter>(MethodInfo method) where T : Evaluator<TParameter>, new() where TAttr : Evaluator.EvaluatorAttribute
+    private static bool IsAssignaleAsync<TAttr, T, TParameter>(MethodInfo method) where T : Evaluator<TParameter>, new()
+        where TAttr : Evaluator.EvaluatorAttribute
     {
         if (method.ReturnType.IsAssignableTo(typeof(Task)))
         {

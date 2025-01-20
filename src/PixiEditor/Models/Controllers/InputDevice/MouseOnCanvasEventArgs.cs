@@ -15,4 +15,5 @@ internal class MouseOnCanvasEventArgs : EventArgs
     public MouseButton Button { get; }
     public VecD PositionOnCanvas { get; }
     public KeyModifiers KeyModifiers { get; }
+    public bool Handled { get; set; }
 }

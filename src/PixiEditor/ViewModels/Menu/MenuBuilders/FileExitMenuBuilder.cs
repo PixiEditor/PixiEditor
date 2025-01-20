@@ -31,4 +31,9 @@ internal class FileExitMenuBuilder : MenuItemBuilder
             fileMenuItem!.Items.Add(exitMenuItem);
         }
     }
+
+    public override void ModifyMenuTree(ICollection<NativeMenuItem> tree)
+    {
+        return; // macOS has default exit button
+    }
 }
