@@ -36,9 +36,9 @@ internal class KeyToStringConverter
 
         return modifier switch
         {
-            KeyModifiers.Control => "CTRL_KEY",
-            KeyModifiers.Shift => "SHIFT_KEY",
-            KeyModifiers.Alt => "ALT_KEY",
+            KeyModifiers.Control => new LocalizedString("CTRL_KEY"),
+            KeyModifiers.Shift => new LocalizedString("SHIFT_KEY"),
+            KeyModifiers.Alt => new LocalizedString("ALT_KEY"),
             _ => modifier.ToString()
         };
     }
