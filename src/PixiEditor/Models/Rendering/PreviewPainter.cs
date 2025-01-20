@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Threading;
 using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
@@ -20,10 +21,14 @@ public class PreviewPainter
     public KeyFrameTime FrameTime { get; set; }
     public VecI DocumentSize { get; set; }
     public DocumentRenderer Renderer { get; set; }
-    
+    public VecI Bounds { get; set; }
+    public Matrix3X3 Matrix { get; set; }
+
     private Texture renderTexture;
-    
-    public PreviewPainter(DocumentRenderer renderer, IPreviewRenderable previewRenderable, KeyFrameTime frameTime, VecI documentSize, ColorSpace processingColorSpace, string elementToRenderName = "")
+    private bool requestedRepaint;
+
+    public PreviewPainter(DocumentRenderer renderer, IPreviewRenderable previewRenderable, KeyFrameTime frameTime,
+        VecI documentSize, ColorSpace processingColorSpace, string elementToRenderName = "")
     {
         PreviewRenderable = previewRenderable;
         ElementToRenderName = elementToRenderName;
@@ -33,34 +38,42 @@ public class PreviewPainter
         Renderer = renderer;
     }
 
-    public void Paint(DrawingSurface renderOn, VecI boundsSize, Matrix3X3 matrix)
+    public void Paint(DrawingSurface renderOn)
     {
-        if (PreviewRenderable == null)
+        if (renderTexture == null || renderTexture.IsDisposed)
         {
             return;
         }
 
-        if (renderTexture == null || renderTexture.Size != boundsSize)
-        {
-            renderTexture?.Dispose();
-            renderTexture = Texture.ForProcessing(boundsSize, ProcessingColorSpace);
-        }
-        
-        renderTexture.DrawingSurface.Canvas.Clear();
-        renderTexture.DrawingSurface.Canvas.Save();
-
-        renderTexture.DrawingSurface.Canvas.SetMatrix(matrix);
-        
-        RenderContext context = new(renderTexture.DrawingSurface, FrameTime, ChunkResolution.Full, DocumentSize, ProcessingColorSpace);
-
-        Renderer.RenderNodePreview(PreviewRenderable, renderTexture.DrawingSurface, context, ElementToRenderName);
-        renderTexture.DrawingSurface.Canvas.Restore();
-        
         renderOn.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
     }
 
     public void Repaint()
     {
-        RequestRepaint?.Invoke();
+        if (Bounds.ShortestAxis == 0 || requestedRepaint) return;
+
+        requestedRepaint = true;
+        
+        if (renderTexture == null || renderTexture.Size != Bounds)
+        {
+            renderTexture?.Dispose();
+            renderTexture = Texture.ForProcessing(Bounds, ProcessingColorSpace);
+        }
+
+        renderTexture.DrawingSurface.Canvas.Clear();
+        renderTexture.DrawingSurface.Canvas.Save();
+
+        renderTexture.DrawingSurface.Canvas.SetMatrix(Matrix);
+
+        RenderContext context = new(renderTexture.DrawingSurface, FrameTime, ChunkResolution.Full, DocumentSize,
+            ProcessingColorSpace);
+
+        Renderer.RenderNodePreview(PreviewRenderable, renderTexture.DrawingSurface, context, ElementToRenderName)
+            .ContinueWith(_ =>
+            {
+                renderTexture.DrawingSurface.Canvas.Restore();
+                Dispatcher.UIThread.Invoke(() => RequestRepaint?.Invoke());
+                requestedRepaint = false;
+            });
     }
 }

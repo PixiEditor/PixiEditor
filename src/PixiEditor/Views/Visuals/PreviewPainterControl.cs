@@ -32,13 +32,13 @@ public class PreviewPainterControl : DrawieControl
     public PreviewPainterControl()
     {
         PreviewPainterProperty.Changed.Subscribe(PainterChanged);
+        BoundsProperty.Changed.Subscribe(UpdatePainterBounds);
     }
 
     public PreviewPainterControl(PreviewPainter previewPainter, int frameToRender)
     {
         PreviewPainter = previewPainter;
         FrameToRender = frameToRender;
-        PreviewPainterProperty.Changed.Subscribe(PainterChanged);
     }
 
 
@@ -67,26 +67,10 @@ public class PreviewPainterControl : DrawieControl
             return;
         }
 
-        RectD? previewBounds =
-            PreviewPainter.PreviewRenderable.GetPreviewBounds(FrameToRender, PreviewPainter.ElementToRenderName);
-        
-        float x = (float)(previewBounds?.Width ?? 0);
-        float y = (float)(previewBounds?.Height ?? 0);
-
-        surface.Canvas.Save();
-
-        Matrix3X3 matrix = Matrix3X3.Identity;
-        if (previewBounds != null)
-        {
-            matrix = UniformScale(x, y, previewBounds.Value);
-        }
-
-        PreviewPainter.Paint(surface, new VecI((int)Bounds.Size.Width, (int)Bounds.Size.Height), matrix);
-
-        surface.Canvas.Restore();
+        PreviewPainter.Paint(surface);
     }
 
-    private Matrix3X3 UniformScale(float x, float y,  RectD previewBounds)
+    private Matrix3X3 UniformScale(float x, float y, RectD previewBounds)
     {
         float scaleX = (float)Bounds.Width / x;
         float scaleY = (float)Bounds.Height / y;
@@ -97,5 +81,28 @@ public class PreviewPainterControl : DrawieControl
         dY -= (float)previewBounds.Y;
         Matrix3X3 matrix = Matrix3X3.CreateScale(scale, scale);
         return matrix.Concat(Matrix3X3.CreateTranslation(dX, dY));
+    }
+
+    private void UpdatePainterBounds(AvaloniaPropertyChangedEventArgs<Rect> args)
+    {
+        if (PreviewPainter == null)
+        {
+            return;
+        }
+
+        PreviewPainter.Bounds = new VecI((int)Bounds.Width, (int)Bounds.Height);
+
+        RectD? previewBounds =
+            PreviewPainter.PreviewRenderable.GetPreviewBounds(FrameToRender, PreviewPainter.ElementToRenderName);
+        
+        if (previewBounds == null)
+        {
+            return;
+        }
+
+        float x = (float)(previewBounds?.Width ?? 0);
+        float y = (float)(previewBounds?.Height ?? 0);
+
+        PreviewPainter.Matrix = UniformScale(x, y, previewBounds.Value);
     }
 }

@@ -15,11 +15,7 @@ namespace PixiEditor.ChangeableDocument.Rendering;
 
 public class DocumentRenderer : IPreviewRenderable
 {
-    private Paint ClearPaint { get; } = new Paint()
-    {
-        BlendMode = BlendMode.Src, Color = Drawie.Backend.Core.ColorsImpl.Colors.Transparent
-    };
-
+    private Queue<RenderRequest> renderRequests = new();
     private Texture renderTexture;
 
     public DocumentRenderer(IReadOnlyDocument document)
@@ -29,7 +25,9 @@ public class DocumentRenderer : IPreviewRenderable
 
     private IReadOnlyDocument Document { get; }
     public bool IsBusy { get; private set; }
-
+    
+    private bool isExecuting = false;
+    
     public void UpdateChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime)
     {
         try
@@ -47,7 +45,7 @@ public class DocumentRenderer : IPreviewRenderable
         }
     }
 
-    public void RenderLayers(DrawingSurface toRenderOn, HashSet<Guid> layersToCombine, int frame,
+    public async Task RenderLayers(DrawingSurface toRenderOn, HashSet<Guid> layersToCombine, int frame,
         ChunkResolution resolution, VecI renderSize)
     {
         IsBusy = true;
@@ -86,7 +84,7 @@ public class DocumentRenderer : IPreviewRenderable
     }
 
 
-    public void RenderLayer(DrawingSurface toRenderOn, Guid layerId, ChunkResolution resolution, KeyFrameTime frameTime,
+    public async Task RenderLayer(DrawingSurface toRenderOn, Guid layerId, ChunkResolution resolution, KeyFrameTime frameTime,
         VecI renderSize)
     {
         var node = Document.FindMember(layerId);
@@ -122,21 +120,17 @@ public class DocumentRenderer : IPreviewRenderable
         IsBusy = false;
     }
 
-    public void RenderNodePreview(IPreviewRenderable previewRenderable, DrawingSurface renderOn, RenderContext context,
+    public async Task RenderNodePreview(IPreviewRenderable previewRenderable, DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
-        if (IsBusy)
-        {
-            return;
-        }
-
-        IsBusy = true;
-
-        if (previewRenderable is Node { IsDisposed: true }) return;
-
-        previewRenderable.RenderPreview(renderOn, context, elementToRenderName);
-
-        IsBusy = false;
+        //if (previewRenderable is Node { IsDisposed: true }) return;
+        TaskCompletionSource<bool> tcs = new();
+        RenderRequest request = new(tcs, context, renderOn, previewRenderable, elementToRenderName);
+        
+        renderRequests.Enqueue(request);
+        ExecuteRenderRequests();
+        
+        await tcs.Task;
     }
 
     public static IReadOnlyNodeGraph ConstructMembersOnlyGraph(IReadOnlyNodeGraph fullGraph)
@@ -192,10 +186,10 @@ public class DocumentRenderer : IPreviewRenderable
         return membersOnlyGraph;
     }
 
-    public RectD? GetPreviewBounds(int frame, string elementNameToRender = "") =>
+    RectD? IPreviewRenderable.GetPreviewBounds(int frame, string elementNameToRender = "") =>
         new(0, 0, Document.Size.X, Document.Size.Y);
 
-    public bool RenderPreview(DrawingSurface renderOn, RenderContext context,
+    bool IPreviewRenderable.RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
         IsBusy = true;
@@ -217,7 +211,7 @@ public class DocumentRenderer : IPreviewRenderable
         return true;
     }
 
-    public void RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime, VecI renderSize)
+    public async Task RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime, VecI renderSize)
     {
         IsBusy = true;
 
@@ -245,6 +239,38 @@ public class DocumentRenderer : IPreviewRenderable
         toRenderOn.Canvas.Restore();
 
         IsBusy = false;
+    }
+
+    private void ExecuteRenderRequests()
+    {
+        if(isExecuting) return;
+        
+        isExecuting = true;
+        while (renderRequests.Count > 0)
+        {
+            RenderRequest request = renderRequests.Dequeue();
+
+            try
+            {
+                if (request.PreviewRenderable != null)
+                {
+                    request.PreviewRenderable.RenderPreview(request.RenderOn, request.Context,
+                        request.ElementToRenderName);
+                }
+                else if (request.NodeGraph != null)
+                {
+                    request.NodeGraph.Execute(request.Context);
+                }
+
+                request.TaskCompletionSource.SetResult(true);
+            }
+            catch (Exception e)
+            {
+                request.TaskCompletionSource.SetException(e);
+            }
+        }
+        
+        isExecuting = false;
     }
 
     private static IInputProperty GetTargetInput(IInputProperty? input,
@@ -284,5 +310,32 @@ public class DocumentRenderer : IPreviewRenderable
         });
 
         return found ?? (membersOnlyGraph.OutputNode as IRenderInput)?.Background;
+    }
+}
+
+public struct RenderRequest
+{
+    public RenderContext Context { get; set; }
+    public DrawingSurface RenderOn { get; set; }
+    public IReadOnlyNodeGraph? NodeGraph { get; set; }
+    public IPreviewRenderable? PreviewRenderable { get; set; }
+    public string ElementToRenderName { get; set; }
+    public TaskCompletionSource<bool> TaskCompletionSource { get; set; }
+    
+    public RenderRequest(TaskCompletionSource<bool> completionSource, RenderContext context, DrawingSurface renderOn, IReadOnlyNodeGraph nodeGraph)
+    {
+        TaskCompletionSource = completionSource;
+        Context = context;
+        RenderOn = renderOn;
+        NodeGraph = nodeGraph;
+    }
+    
+    public RenderRequest(TaskCompletionSource<bool> completionSource, RenderContext context, DrawingSurface renderOn, IPreviewRenderable previewRenderable, string elementToRenderName)
+    {
+        TaskCompletionSource = completionSource;
+        Context = context;
+        RenderOn = renderOn;
+        PreviewRenderable = previewRenderable;
+        ElementToRenderName = elementToRenderName;
     }
 }
