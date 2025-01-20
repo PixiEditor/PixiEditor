@@ -45,7 +45,7 @@ public class DocumentRenderer : IPreviewRenderable
         }
     }
 
-    public async Task RenderLayers(DrawingSurface toRenderOn, HashSet<Guid> layersToCombine, int frame,
+    public void RenderLayers(DrawingSurface toRenderOn, HashSet<Guid> layersToCombine, int frame,
         ChunkResolution resolution, VecI renderSize)
     {
         IsBusy = true;
@@ -84,7 +84,7 @@ public class DocumentRenderer : IPreviewRenderable
     }
 
 
-    public async Task RenderLayer(DrawingSurface toRenderOn, Guid layerId, ChunkResolution resolution, KeyFrameTime frameTime,
+    public void RenderLayer(DrawingSurface toRenderOn, Guid layerId, ChunkResolution resolution, KeyFrameTime frameTime,
         VecI renderSize)
     {
         var node = Document.FindMember(layerId);
@@ -123,7 +123,7 @@ public class DocumentRenderer : IPreviewRenderable
     public async Task RenderNodePreview(IPreviewRenderable previewRenderable, DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
-        //if (previewRenderable is Node { IsDisposed: true }) return;
+        if (previewRenderable is Node { IsDisposed: true }) return;
         TaskCompletionSource<bool> tcs = new();
         RenderRequest request = new(tcs, context, renderOn, previewRenderable, elementToRenderName);
         
@@ -211,7 +211,7 @@ public class DocumentRenderer : IPreviewRenderable
         return true;
     }
 
-    public async Task RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime, VecI renderSize)
+    public void RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime, VecI renderSize)
     {
         IsBusy = true;
 
@@ -317,7 +317,7 @@ public struct RenderRequest
 {
     public RenderContext Context { get; set; }
     public DrawingSurface RenderOn { get; set; }
-    public IReadOnlyNodeGraph? NodeGraph { get; set; }
+    public IReadOnlyNodeGraph? NodeGraph { get; set; } // TODO: Implement async rendering for stuff other than previews
     public IPreviewRenderable? PreviewRenderable { get; set; }
     public string ElementToRenderName { get; set; }
     public TaskCompletionSource<bool> TaskCompletionSource { get; set; }
