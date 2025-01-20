@@ -290,6 +290,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         {
             undoStack = new TransformOverlayUndoStack<(ShapeCorners, TransformState)>();
             undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Initial);
+            AddToUndoCommand = null;
         }
     }
 
