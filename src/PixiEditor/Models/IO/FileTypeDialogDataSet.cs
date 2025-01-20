@@ -25,7 +25,7 @@ internal class FileTypeDialogDataSet
     public FileTypeDialogDataSet(SetKind kind, IEnumerable<IoFileType> fileTypes = null)
     {
         if (fileTypes == null)
-            fileTypes = SupportedFilesHelper.GetAllSupportedFileTypes(SetKind.Any);
+            fileTypes = SupportedFilesHelper.GetAllSupportedFileTypes(kind);
         var allSupportedExtensions = fileTypes;
         if (kind == SetKind.Any)
         {

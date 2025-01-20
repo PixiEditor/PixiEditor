@@ -87,7 +87,7 @@ internal class DocumentViewModelBuilder
         return this;
     }
 
-    public DocumentViewModelBuilder WithAnimationData(AnimationData? animationData)
+    public DocumentViewModelBuilder WithAnimationData(AnimationData? animationData, NodeGraph documentGraph)
     {
         AnimationData = new AnimationDataBuilder();
 
@@ -96,7 +96,7 @@ internal class DocumentViewModelBuilder
             AnimationData.WithFrameRate(animationData.FrameRate);
             AnimationData.WithOnionFrames(animationData.OnionFrames);
             AnimationData.WithOnionOpacity(animationData.OnionOpacity);
-            BuildKeyFrames(animationData.KeyFrameGroups.ToList(), AnimationData.KeyFrameGroups);
+            BuildKeyFrames(animationData.KeyFrameGroups.ToList(), AnimationData.KeyFrameGroups, documentGraph);
         }
 
         return this;
@@ -132,7 +132,7 @@ internal class DocumentViewModelBuilder
         return this;
     }
 
-    private static void BuildKeyFrames(List<KeyFrameGroup> root, List<KeyFrameBuilder> data)
+    private static void BuildKeyFrames(List<KeyFrameGroup> root, List<KeyFrameBuilder> data, NodeGraph documentGraph)
     {
         foreach (KeyFrameGroup group in root)
         {
@@ -147,6 +147,34 @@ internal class DocumentViewModelBuilder
             }
 
             data?.Add(builder);
+        }
+        
+        TryAddMissingKeyFrames(root, data, documentGraph);
+    }
+
+    private static void TryAddMissingKeyFrames(List<KeyFrameGroup> groups, List<KeyFrameBuilder>? data, NodeGraph documentGraph)
+    {
+        if (data == null)
+        {
+            return;
+        }
+
+        foreach (var node in documentGraph.AllNodes)
+        {
+            if (node.KeyFrames.Length > 1 && data.All(x => x.NodeId != node.Id))
+            {
+                GroupKeyFrameBuilder builder = new GroupKeyFrameBuilder()
+                .WithNodeId(node.Id);
+                
+                foreach (var keyFrame in node.KeyFrames)
+                {
+                    builder.WithChild<KeyFrameBuilder>(x => x
+                        .WithKeyFrameId(keyFrame.Id)
+                        .WithNodeId(node.Id));
+                }   
+                
+                data.Add(builder);
+            }
         }
     }
 

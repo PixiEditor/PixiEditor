@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using System.Windows.Input;
+using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Styling;
@@ -41,6 +42,31 @@ internal class RecentFilesMenuBuilder : MenuItemBuilder
             recentFilesMenuItem.ItemTemplate = BuildItemTemplate();
 
             fileMenuItem!.Items.Add(recentFilesMenuItem);
+        }
+    }
+
+    public override void ModifyMenuTree(ICollection<NativeMenuItem> tree)
+    {
+        if(TryFindMenuItem(tree, "FILE", out NativeMenuItem? fileMenuItem))
+        {
+            var recentFilesMenuItem = new NativeMenuItem();
+            recentFilesMenuItem.Menu = new NativeMenu();
+
+            Translator.SetKey(recentFilesMenuItem, "RECENT");
+            Models.Commands.XAML.NativeMenu.SetLocalizationKeyHeader(recentFilesMenuItem, "RECENT");
+
+            foreach (var recent in fileViewModel.RecentlyOpened)
+            {
+                recentFilesMenuItem.Menu.Add(new NativeMenuItem()
+                {
+                    Header = recent.FilePath,
+                    Command = (ICommand)new Models.Commands.XAML.Command("PixiEditor.File.OpenRecent") { UseProvided = true }.ProvideValue(null),
+                    CommandParameter = recent.FilePath
+                });
+            }
+
+            recentFilesMenuItem.IsEnabled = fileViewModel.HasRecent;
+            fileMenuItem!.Menu.Items.Add(recentFilesMenuItem);
         }
     }
 

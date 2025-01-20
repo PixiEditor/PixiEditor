@@ -14,7 +14,7 @@
                 <DataTemplate DataType="{x:Type KeyModifiers}">
                     <Border Classes="KeyBorder">
                         <TextBlock
-                            ui:Translator.LocalizedString="{Binding Converter={converters:KeyToStringConverter}}"
+                            ui:Translator.Key="{Binding Converter={converters:KeyToStringConverter}}"
                             Classes="KeyBorderText" TextAlignment="Center" MinWidth="33" />
                     </Border>
                 </DataTemplate>

@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Input.Raw;
 using Avalonia.Interactivity;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Input;
@@ -28,8 +29,9 @@ internal partial class KeyCombinationBox : UserControl
 
     public event EventHandler<KeyCombination> KeyCombinationChanged;
 
-    public static readonly StyledProperty<KeyCombination> DefaultCombinationProperty = AvaloniaProperty.Register<KeyCombinationBox, KeyCombination>(
-        nameof(DefaultCombination));
+    public static readonly StyledProperty<KeyCombination> DefaultCombinationProperty =
+        AvaloniaProperty.Register<KeyCombinationBox, KeyCombination>(
+            nameof(DefaultCombination));
 
     public KeyCombination DefaultCombination
     {
@@ -60,7 +62,6 @@ internal partial class KeyCombinationBox : UserControl
     {
         e.Handled = true;
 
-        //TODO: e.Key == Key.System ? e.SystemKey : e.Key was here, but SystemKey is not available in Avalonia
         if (GetModifier(e.Key) is { } modifier)
         {
             currentCombination = new(currentCombination.Key, currentCombination.Modifiers | modifier);
@@ -78,19 +79,18 @@ internal partial class KeyCombinationBox : UserControl
     {
         e.Handled = true;
 
-        //TODO: There was (e.Key == Key.System ? e.SystemKey : e.Key), but SystemKey is not available in Avalonia
         if (GetModifier(e.Key) is { } modifier)
         {
-            currentCombination = new(currentCombination.Key, currentCombination.Modifiers ^ modifier);
-            UpdateText();
+            currentCombination = currentCombination with { Modifiers = currentCombination.Modifiers ^ modifier };
         }
         else
         {
-            KeyCombination = new(e.Key, currentCombination.Modifiers);
+            KeyCombination = currentCombination with { Key = e.Key };
             focusGrid.Focus();
         }
 
         UpdateButton();
+        UpdateText();
     }
 
     private void TextBox_GotKeyboardFocus(object sender, GotFocusEventArgs e)
@@ -128,7 +128,9 @@ internal partial class KeyCombinationBox : UserControl
         }
     }
 
-    private void UpdateText() => textBox.Text = currentCombination != default ? currentCombination.ToString() : new LocalizedString("NONE_SHORTCUT");
+    private void UpdateText() => textBox.Text = currentCombination != default
+        ? currentCombination.ToString()
+        : new LocalizedString("NONE_SHORTCUT");
 
     private void UpdateButton()
     {
@@ -136,7 +138,7 @@ internal partial class KeyCombinationBox : UserControl
         if (textBox.IsFocused)
         {
             button.IsEnabled = true;
-            button.Content = "\ud83d\uddd9";
+            button.Content = "\u2715";
         }
         else if (KeyCombination != DefaultCombination)
         {
@@ -173,6 +175,7 @@ internal partial class KeyCombinationBox : UserControl
         Key.LeftCtrl or Key.RightCtrl => KeyModifiers.Control,
         Key.LeftAlt or Key.RightAlt => KeyModifiers.Alt,
         Key.LeftShift or Key.RightShift => KeyModifiers.Shift,
+        Key.LWin or Key.RWin => KeyModifiers.Meta,
         _ => null
     };
 }
