@@ -300,7 +300,7 @@ internal class NodeGraphView : Zoombox.Zoombox
             }
         }
     }
-    
+
     private void Node_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(NodeViewModel.PositionBindable))
@@ -582,11 +582,11 @@ internal class NodeGraphView : Zoombox.Zoombox
 
     private void UpdateConnections(NodeView nodeView)
     {
-        if(nodeView == null)
+        if (nodeView == null)
         {
             return;
         }
-        
+
         foreach (NodePropertyView propertyView in nodeView.GetVisualDescendants().OfType<NodePropertyView>())
         {
             NodePropertyViewModel property = (NodePropertyViewModel)propertyView.DataContext;
@@ -639,7 +639,7 @@ internal class NodeGraphView : Zoombox.Zoombox
             return;
         }
 
-        (INodePropertyHandler, INodePropertyHandler) connection = (startConnectionProperty, null);
+        (INodePropertyHandler, INodePropertyHandler, INodePropertyHandler?) connection = (startConnectionProperty, null, null);
         if (socket != null)
         {
             endConnectionNode = socket.Node;
@@ -651,18 +651,31 @@ internal class NodeGraphView : Zoombox.Zoombox
                 return;
             }
 
-            connection = (startConnectionProperty, endConnectionProperty);
+            connection = (startConnectionProperty, endConnectionProperty, null);
+
+            if (startConnectionProperty.IsInput && endConnectionProperty.IsInput &&
+                startConnectionProperty.ConnectedOutput != null)
+            {
+                connection = (startConnectionProperty.ConnectedOutput, endConnectionProperty, startConnectionProperty);
+            }
 
             if (startConnectionNode == endConnectionNode)
             {
-                if (_hiddenConnection != null)
+                if (startConnectionProperty != endConnectionProperty)
                 {
-                    NodeGraph.Connections.Add(_hiddenConnection);
-                    _hiddenConnection = null;
+                    connection = (endConnectionProperty, startConnectionProperty, null);
                 }
-
-                return;
+                else
+                {
+                    return;
+                }
             }
+        }
+
+        if (_hiddenConnection != null)
+        {
+            NodeGraph.Connections.Add(_hiddenConnection);
+            _hiddenConnection = null;
         }
 
         if (ConnectPropertiesCommand != null && ConnectPropertiesCommand.CanExecute(connection))

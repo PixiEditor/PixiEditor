@@ -61,8 +61,14 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
     }
     
     [Command.Internal("PixiEditor.NodeGraph.ConnectProperties")]
-    public void ConnectProperties((INodePropertyHandler input, INodePropertyHandler output) args)
+    public void ConnectProperties((INodePropertyHandler input, INodePropertyHandler output, INodePropertyHandler? inputToDisconnect) args)
     {
+        using var changeBlock = Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.StartChangeBlock();
+        if (args.inputToDisconnect != null)
+        {
+            Owner.DocumentManagerSubViewModel.ActiveDocument.NodeGraph.ConnectProperties(args.inputToDisconnect, null);
+        }
+        
         Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.ConnectProperties(args.input, args.output);
     }
 
