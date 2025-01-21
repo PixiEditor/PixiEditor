@@ -149,7 +149,6 @@ public class NodeView : TemplatedControl
     static NodeView()
     {
         IsSelectedProperty.Changed.Subscribe(NodeSelectionChanged);
-        ResultPreviewProperty.Changed.Subscribe(PreviewPainterChanged);
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -255,26 +254,5 @@ public class NodeView : TemplatedControl
         {
             nodeView.PseudoClasses.Set(":selected", e.NewValue.Value);
         }
-    }
-
-    private static void PreviewPainterChanged(AvaloniaPropertyChangedEventArgs<PreviewPainter> e)
-    {
-        if (e.Sender is NodeView nodeView)
-        {
-            if (e.OldValue.Value != null)
-            {
-                e.OldValue.Value.RequestRepaint -= nodeView.OnPainterRenderRequest;
-            }
-
-            if (e.NewValue.Value != null)
-            {
-                e.NewValue.Value.RequestRepaint += nodeView.OnPainterRenderRequest;
-            }
-        }
-    }
-    
-    private void OnPainterRenderRequest()
-    {
-        InvalidateVisual();
     }
 }

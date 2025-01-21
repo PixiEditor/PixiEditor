@@ -140,7 +140,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private PixelSize lastSize = PixelSize.Empty;
     private Cursor lastCursor;
-    public static readonly StyledProperty<string> RenderOutputProperty = AvaloniaProperty.Register<Scene, string>("RenderOutput");
+
+    public static readonly StyledProperty<string> RenderOutputProperty =
+        AvaloniaProperty.Register<Scene, string>("RenderOutput");
 
     static Scene()
     {
@@ -194,11 +196,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         InitializeComposition();
     }
 
-    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    protected override async void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         if (initialized)
         {
-            FreeGraphicsResources();
+            await FreeGraphicsResources();
         }
 
         initialized = false;
@@ -261,7 +263,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         DrawCheckerboard(renderTexture.DrawingSurface, bounds);
         DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Background);
-        SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), RenderOutput == "DEFAULT" ? null : RenderOutput);
+        SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(),
+            RenderOutput == "DEFAULT" ? null : RenderOutput);
         DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Foreground);
     }
 
@@ -464,7 +467,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             }
         }
     }
-    
+
     protected override void OnKeyUp(KeyEventArgs e)
     {
         base.OnKeyUp(e);
@@ -562,7 +565,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         updateQueued = false;
         var root = this.GetVisualRoot();
-        if (root == null)
+        if (root == null || !initialized)
         {
             return;
         }
@@ -617,14 +620,19 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         return (true, string.Empty);
     }
 
-    protected void FreeGraphicsResources()
+    protected async Task FreeGraphicsResources()
     {
-        resources?.DisposeAsync();
+        renderTexture?.Dispose();
+        renderTexture = null;
+        
         framebuffer?.Dispose();
         framebuffer = null;
 
-        renderTexture?.Dispose();
-        renderTexture = null;
+        if (resources != null)
+        {
+            await resources.DisposeAsync();
+        }
+
         resources = null;
     }
 
