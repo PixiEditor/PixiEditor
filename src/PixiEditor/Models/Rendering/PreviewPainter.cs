@@ -17,16 +17,20 @@ public class PreviewPainter
     public string ElementToRenderName { get; set; }
     public IPreviewRenderable PreviewRenderable { get; set; }
     public ColorSpace ProcessingColorSpace { get; set; }
-    public event Action RequestRepaint;
     public KeyFrameTime FrameTime { get; set; }
     public VecI DocumentSize { get; set; }
     public DocumentRenderer Renderer { get; set; }
-    public VecI Bounds { get; set; }
 
-    public event Func<Matrix3X3?>? RequestMatrix;
+    private Dictionary<int, Texture> renderTextures = new();
+    private Dictionary<int, PainterInstance> painterInstances = new();
 
-    private Texture renderTexture;
-    private bool requestedRepaint;
+    private HashSet<int> dirtyTextures = new HashSet<int>();
+    private HashSet<int> repaintingTextures = new HashSet<int>();
+
+    private Dictionary<int, VecI> pendingResizes = new();
+    private HashSet<int> pendingRemovals = new();
+
+    private int lastRequestId = 0;
 
     public PreviewPainter(DocumentRenderer renderer, IPreviewRenderable previewRenderable, KeyFrameTime frameTime,
         VecI documentSize, ColorSpace processingColorSpace, string elementToRenderName = "")
@@ -39,8 +43,13 @@ public class PreviewPainter
         Renderer = renderer;
     }
 
-    public void Paint(DrawingSurface renderOn)
+    public void Paint(DrawingSurface renderOn, int painterId)
     {
+        if (!renderTextures.TryGetValue(painterId, out Texture? renderTexture))
+        {
+            return;
+        }
+
         if (renderTexture == null || renderTexture.IsDisposed)
         {
             return;
@@ -49,33 +58,131 @@ public class PreviewPainter
         renderOn.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
     }
 
+    public PainterInstance AttachPainterInstance()
+    {
+        int requestId = lastRequestId++;
+
+        PainterInstance painterInstance = new() { RequestId = requestId };
+
+        painterInstances[requestId] = painterInstance;
+
+        return painterInstance;
+    }
+
+    public void ChangeRenderTextureSize(int requestId, VecI size)
+    {
+        if (repaintingTextures.Contains(requestId))
+        {
+            pendingResizes[requestId] = size;
+            return;
+        }
+
+        if (renderTextures.ContainsKey(requestId))
+        {
+            renderTextures[requestId].Dispose();
+        }
+
+        renderTextures[requestId] = Texture.ForProcessing(size, ProcessingColorSpace);
+    }
+
+    public void RemovePainterInstance(int requestId)
+    {
+        painterInstances.Remove(requestId);
+        dirtyTextures.Remove(requestId);
+        
+        if (repaintingTextures.Contains(requestId))
+        {
+            pendingRemovals.Add(requestId);
+            return;
+        }
+
+        renderTextures[requestId]?.Dispose();
+        renderTextures.Remove(requestId);
+    }
+
     public void Repaint()
     {
-        if (Bounds.ShortestAxis == 0 || requestedRepaint) return;
-        
-        if (renderTexture == null || renderTexture.Size != Bounds)
+        foreach (var texture in renderTextures)
         {
-            renderTexture?.Dispose();
-            renderTexture = Texture.ForProcessing(Bounds, ProcessingColorSpace);
+            dirtyTextures.Add(texture.Key);
         }
-        
-        renderTexture.DrawingSurface.Canvas.Clear();
-        renderTexture.DrawingSurface.Canvas.Save();
 
-        Matrix3X3? matrix = RequestMatrix?.Invoke();
-        
-        renderTexture.DrawingSurface.Canvas.SetMatrix(matrix ?? Matrix3X3.Identity);
-
-        RenderContext context = new(renderTexture.DrawingSurface, FrameTime, ChunkResolution.Full, DocumentSize,
-            ProcessingColorSpace);
-
-        requestedRepaint = true;
-        Renderer.RenderNodePreview(PreviewRenderable, renderTexture.DrawingSurface, context, ElementToRenderName)
-            .ContinueWith(_ =>
-            {
-                renderTexture.DrawingSurface.Canvas.Restore();
-                Dispatcher.UIThread.Invoke(() => RequestRepaint?.Invoke());
-                requestedRepaint = false;
-            });
+        RepaintDirty();
     }
+
+    public void RepaintFor(int requestId)
+    {
+        dirtyTextures.Add(requestId);
+        RepaintDirty();
+    }
+
+    private void RepaintDirty()
+    {
+        var dirtyArray = dirtyTextures.ToArray();
+        foreach (var texture in dirtyArray)
+        {
+            if (!renderTextures.TryGetValue(texture, out var renderTexture))
+            {
+                continue;
+            }
+
+            repaintingTextures.Add(texture);
+
+            renderTexture.DrawingSurface.Canvas.Clear();
+            renderTexture.DrawingSurface.Canvas.Save();
+
+            PainterInstance painterInstance = painterInstances[texture];
+
+            Matrix3X3? matrix = painterInstance.RequestMatrix?.Invoke();
+
+            renderTexture.DrawingSurface.Canvas.SetMatrix(matrix ?? Matrix3X3.Identity);
+
+            RenderContext context = new(renderTexture.DrawingSurface, FrameTime, ChunkResolution.Full, DocumentSize,
+                ProcessingColorSpace);
+
+            dirtyTextures.Remove(texture);
+            Renderer.RenderNodePreview(PreviewRenderable, renderTexture.DrawingSurface, context, ElementToRenderName)
+                .ContinueWith(_ =>
+                {
+                    Dispatcher.UIThread.Invoke(() =>
+                    {
+                        if(pendingRemovals.Contains(texture))
+                        {
+                            renderTexture.Dispose();
+                            renderTextures.Remove(texture);
+                            pendingRemovals.Remove(texture);
+                            pendingResizes.Remove(texture);
+                            dirtyTextures.Remove(texture);
+                            return;
+                        }
+                        
+                        if (renderTexture != null && !renderTexture.IsDisposed)
+                        {
+                            renderTexture.DrawingSurface.Canvas.Restore();
+                        }
+
+                        painterInstance.RequestRepaint?.Invoke();
+                        repaintingTextures.Remove(texture);
+
+                        if (pendingResizes.Remove(texture, out VecI size))
+                        {
+                            ChangeRenderTextureSize(texture, size);
+                            dirtyTextures.Add(texture);
+                        }
+
+                        if (repaintingTextures.Count == 0 && dirtyTextures.Count > 0)
+                        {
+                            RepaintDirty();
+                        }
+                    });
+                });
+        }
+    }
+}
+
+public class PainterInstance
+{
+    public int RequestId { get; set; }
+    public Func<Matrix3X3?>? RequestMatrix;
+    public Action RequestRepaint;
 }

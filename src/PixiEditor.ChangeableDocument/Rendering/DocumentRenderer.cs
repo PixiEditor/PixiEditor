@@ -194,17 +194,9 @@ public class DocumentRenderer : IPreviewRenderable
     {
         IsBusy = true;
 
-        if (renderTexture == null || renderTexture.Size != Document.Size)
-        {
-            renderTexture?.Dispose();
-            renderTexture = Texture.ForProcessing(Document.Size, Document.ProcessingColorSpace);
-        }
-
-        renderTexture.DrawingSurface.Canvas.Clear();
-        context.RenderSurface = renderTexture.DrawingSurface;
+        renderOn.Canvas.Clear();
+        context.RenderSurface = renderOn;
         Document.NodeGraph.Execute(context);
-
-        renderOn.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
 
         IsBusy = false;
 

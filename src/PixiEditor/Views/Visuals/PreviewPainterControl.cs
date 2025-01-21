@@ -29,6 +29,8 @@ public class PreviewPainterControl : DrawieControl
         set { SetValue(FrameToRenderProperty, value); }
     }
 
+    private PainterInstance? painterInstance;
+
     static PreviewPainterControl()
     {
         PreviewPainterProperty.Changed.Subscribe(PainterChanged);
@@ -37,7 +39,6 @@ public class PreviewPainterControl : DrawieControl
 
     public PreviewPainterControl()
     {
-        
     }
 
     public PreviewPainterControl(PreviewPainter previewPainter, int frameToRender)
@@ -51,16 +52,32 @@ public class PreviewPainterControl : DrawieControl
         var sender = args.Sender as PreviewPainterControl;
         if (args.OldValue.Value != null)
         {
-            args.OldValue.Value.RequestMatrix -= sender.OnPainterRequestMatrix;
-            args.OldValue.Value.RequestRepaint -= sender.OnPainterRenderRequest;
+            if (sender.painterInstance != null)
+            {
+                args.OldValue.Value.RemovePainterInstance(sender.painterInstance.RequestId);
+            }
+
+
+            sender.painterInstance = null;
         }
 
         if (args.NewValue.Value != null)
         {
-            args.NewValue.Value.RequestMatrix += sender.OnPainterRequestMatrix;
-            args.NewValue.Value.RequestRepaint += sender.OnPainterRenderRequest;
-            
-            args.NewValue.Value.Repaint();
+            sender.painterInstance = args.NewValue.Value.AttachPainterInstance();
+            if (sender.Bounds is { Width: > 0, Height: > 0 })
+            {
+                sender.PreviewPainter.ChangeRenderTextureSize(sender.painterInstance.RequestId,
+                    new VecI((int)sender.Bounds.Width, (int)sender.Bounds.Height));
+            }
+
+            sender.painterInstance.RequestMatrix = sender.OnPainterRequestMatrix;
+            sender.painterInstance.RequestRepaint = sender.OnPainterRenderRequest;
+
+            args.NewValue.Value.RepaintFor(sender.painterInstance.RequestId);
+        }
+        else
+        {
+            sender.painterInstance = null;
         }
     }
 
@@ -71,12 +88,12 @@ public class PreviewPainterControl : DrawieControl
 
     public override void Draw(DrawingSurface surface)
     {
-        if (PreviewPainter == null)
+        if (PreviewPainter == null || painterInstance == null)
         {
             return;
         }
 
-        PreviewPainter.Paint(surface);
+        PreviewPainter.Paint(surface, painterInstance.RequestId);
     }
 
     private Matrix3X3 UniformScale(float x, float y, RectD previewBounds)
@@ -95,15 +112,21 @@ public class PreviewPainterControl : DrawieControl
     private static void UpdatePainterBounds(AvaloniaPropertyChangedEventArgs<Rect> args)
     {
         var sender = args.Sender as PreviewPainterControl;
-        if(sender == null) return;
-        
-        if (sender.PreviewPainter == null)
+
+        if (sender?.PreviewPainter == null)
         {
             return;
         }
 
-        sender.PreviewPainter.Bounds = new VecI((int)sender.Bounds.Width, (int)sender.Bounds.Height);
-        sender.PreviewPainter.Repaint();
+        if (sender.painterInstance != null)
+        {
+            if (args.NewValue.Value is { Width: > 0, Height: > 0 })
+            {
+                sender.PreviewPainter.ChangeRenderTextureSize(sender.painterInstance.RequestId,
+                    new VecI((int)args.NewValue.Value.Width, (int)args.NewValue.Value.Height));
+                sender.PreviewPainter.RepaintFor(sender.painterInstance.RequestId);
+            }
+        }
     }
 
     private Matrix3X3? OnPainterRequestMatrix()
