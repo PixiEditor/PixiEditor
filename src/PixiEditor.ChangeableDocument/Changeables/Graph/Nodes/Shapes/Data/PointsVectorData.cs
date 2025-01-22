@@ -47,7 +47,7 @@ public class PointsVectorData : ShapeVectorData
             canvas.SetMatrix(final);
         }
 
-        canvas.DrawPoints(PointMode.Points, Points.Select(p => new VecF((int)p.X, (int)p.Y)).ToArray(),
+        canvas.DrawPoints(PointMode.Points, Points.Select(p => new VecF((float)p.X, (float)p.Y)).ToArray(),
             paint);
 
         if (applyTransform)
