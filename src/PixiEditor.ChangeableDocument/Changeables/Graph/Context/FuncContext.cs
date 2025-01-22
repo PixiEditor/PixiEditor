@@ -129,7 +129,7 @@ public class FuncContext
             return constantHalf4;
         }
 
-        return Builder.AssignNewHalf4(Builder.Functions.GetHslToRgb(h, s, v, a));
+        return Builder.AssignNewHalf4(Builder.Functions.GetHsvToRgb(h, s, v, a));
     }
 
     public Half4 HslaToRgba(Expression h, Expression s, Expression l, Expression a)

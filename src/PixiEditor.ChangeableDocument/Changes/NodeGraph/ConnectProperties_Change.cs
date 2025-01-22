@@ -14,7 +14,8 @@ internal class ConnectProperties_Change : Change
     public string InputProperty { get; }
     public string OutputProperty { get; }
 
-    private IOutputProperty? originalConnection;
+    private PropertyConnection originalConnection;
+    private List<PropertyConnection> originalConnectionsAtOutput;
 
     [GenerateMakeChangeAction]
     public ConnectProperties_Change(Guid inputNodeId, Guid outputNodeId, string inputProperty, string outputProperty)
@@ -38,12 +39,21 @@ internal class ConnectProperties_Change : Change
         InputProperty? inputProp = inputNode.GetInputProperty(InputProperty);
         OutputProperty? outputProp = outputNode.GetOutputProperty(OutputProperty);
 
+        if (inputNode == outputNode && outputProp == null)
+        {
+            var input = inputNode.GetInputProperty(OutputProperty);
+            if (input is { Connection: not null })
+            {
+                outputProp = input.Connection as OutputProperty;
+            }
+        }
+
         if (inputProp == null || outputProp == null)
         {
             return false;
         }
-        
-        if(IsLoop(inputProp, outputProp))
+
+        if (IsLoop(inputProp, outputProp))
         {
             return false;
         }
@@ -55,22 +65,122 @@ internal class ConnectProperties_Change : Change
             return false;
         }
 
-        originalConnection = inputProp.Connection;
+        originalConnection =
+            new PropertyConnection(inputProp.Connection?.Node.Id, inputProp.Connection?.InternalPropertyName);
+        originalConnectionsAtOutput = new List<PropertyConnection>();
+
+        foreach (var connection in outputProp.Connections)
+        {
+            originalConnectionsAtOutput.Add(new PropertyConnection(connection.Node.Id,
+                connection.InternalPropertyName));
+        }
 
         return true;
     }
-    
+
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
+        out bool ignoreInUndo)
+    {
+        Node inputNode = target.FindNode(InputNodeId);
+        Node outputNode = target.FindNode(OutputNodeId);
+
+        InputProperty inputProp = inputNode.GetInputProperty(InputProperty);
+        OutputProperty outputProp = outputNode.GetOutputProperty(OutputProperty);
+
+        List<IChangeInfo> changes = new();
+
+        if (inputNode == outputNode && outputProp == null)
+        {
+            var input = inputNode.GetInputProperty(OutputProperty);
+            if (input is { Connection: not null })
+            {
+                outputProp = input.Connection as OutputProperty;
+
+                if (outputProp != null)
+                {
+                    changes.Add(new ConnectProperty_ChangeInfo(null, inputNode.Id, null, OutputProperty));
+                }
+
+                outputProp.DisconnectFrom(input);
+            }
+        }
+
+        outputProp.ConnectTo(inputProp);
+
+        ignoreInUndo = false;
+
+        changes.Add(new ConnectProperty_ChangeInfo(outputProp.Node.Id, InputNodeId, outputProp.InternalPropertyName,
+            InputProperty));
+        
+        return changes;
+    }
+
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
+    {
+        Node inputNode = target.FindNode(InputNodeId);
+        Node outputNode = target.FindNode(OutputNodeId);
+
+        InputProperty inputProp = inputNode.GetInputProperty(InputProperty);
+        OutputProperty outputProp = outputNode.GetOutputProperty(OutputProperty);
+
+        List<IChangeInfo> changes = new();
+
+        if (inputNode == outputNode && outputProp == null)
+        {
+            var input = inputNode.GetInputProperty(OutputProperty);
+
+            if (inputProp.Connection != null)
+            {
+                inputProp.Connection.ConnectTo(input);
+                changes.Add(new ConnectProperty_ChangeInfo(inputProp.Connection.Node.Id, input.Node.Id,
+                    inputProp.Connection.InternalPropertyName, input.InternalPropertyName));
+                
+                outputProp = input.Connection as OutputProperty;
+            }
+        }
+
+        outputProp.DisconnectFrom(inputProp);
+
+        changes.Add(new ConnectProperty_ChangeInfo(null, InputNodeId, null, InputProperty));
+
+        if (originalConnection.NodeId != null)
+        {
+            Node originalNode = target.FindNode(originalConnection.NodeId.Value);
+            IOutputProperty? originalOutput = originalNode.GetOutputProperty(originalConnection.PropertyName);
+            originalOutput.ConnectTo(inputProp);
+
+            changes.Add(new ConnectProperty_ChangeInfo(originalOutput.Node.Id, inputProp.Node.Id,
+                originalOutput.InternalPropertyName, InputProperty));
+        }
+
+        foreach (var connection in originalConnectionsAtOutput)
+        {
+            if (connection.NodeId.HasValue)
+            {
+                Node originalNode = target.FindNode(connection.NodeId.Value);
+                IInputProperty? originalInput = originalNode.GetInputProperty(connection.PropertyName);
+                outputProp.ConnectTo(originalInput);
+
+                changes.Add(new ConnectProperty_ChangeInfo(outputProp.Node.Id, originalInput.Node.Id,
+                    outputProp.InternalPropertyName, originalInput.InternalPropertyName));
+            }
+        }
+
+        return changes;
+    }
+
     private bool IsLoop(InputProperty input, OutputProperty output)
     {
         if (input.Node == output.Node)
         {
             return true;
         }
-        if(input.Node.OutputProperties.Any(x => x.Connections.Any(y => y.Node == output.Node)))
+
+        if (input.Node.OutputProperties.Any(x => x.Connections.Any(y => y.Node == output.Node)))
         {
             return true;
         }
-        
+
         bool isLoop = false;
         input.Node.TraverseForwards(x =>
         {
@@ -86,49 +196,6 @@ internal class ConnectProperties_Change : Change
         return isLoop;
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
-        out bool ignoreInUndo)
-    {
-        Node inputNode = target.FindNode(InputNodeId);
-        Node outputNode = target.FindNode(OutputNodeId);
-
-        InputProperty inputProp = inputNode.GetInputProperty(InputProperty);
-        OutputProperty outputProp = outputNode.GetOutputProperty(OutputProperty);
-
-        outputProp.ConnectTo(inputProp);
-
-        ignoreInUndo = false;
-
-        return new ConnectProperty_ChangeInfo(outputNode.Id, inputNode.Id, OutputProperty, InputProperty);
-    }
-
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
-    {
-        Node inputNode = target.FindNode(InputNodeId);
-        Node outputNode = target.FindNode(OutputNodeId);
-
-        InputProperty inputProp = inputNode.GetInputProperty(InputProperty);
-        OutputProperty outputProp = outputNode.GetOutputProperty(OutputProperty);
-
-        outputProp.DisconnectFrom(inputProp);
-
-        ConnectProperty_ChangeInfo change = new(null, InputNodeId, null, InputProperty);
-
-        inputProp.Connection = originalConnection;
-
-        List<IChangeInfo> changes = new() { change, };
-
-        if (originalConnection != null)
-        {
-            ConnectProperty_ChangeInfo oldConnection = new(originalConnection.Node.Id, InputNodeId,
-                originalConnection.InternalPropertyName, InputProperty);
-            changes.Add(oldConnection);
-        }
-
-
-        return changes;
-    }
-
     private static bool CheckTypeCompatibility(InputProperty input, OutputProperty output)
     {
         if (input.ValueType != output.ValueType)
@@ -139,17 +206,17 @@ internal class ConnectProperties_Change : Change
             }
 
             object? outputValue = output.Value;
-            
-            if(IsExpressionToConstant(output, input, out var result))
+
+            if (IsExpressionToConstant(output, input, out var result))
             {
                 outputValue = result;
             }
-            
-            if(IsConstantToExpression(input, outputValue, out result))
+
+            if (IsConstantToExpression(input, outputValue, out result))
             {
                 return ConversionTable.TryConvert(result, output.ValueType, out _);
             }
-            
+
             if (output.ValueType.IsAssignableTo(input.ValueType))
             {
                 return true;
@@ -165,7 +232,7 @@ internal class ConnectProperties_Change : Change
 
         return true;
     }
-    
+
     private static bool IsConstantToExpression(InputProperty input, object objValue, out object result)
     {
         if (input.Value is Delegate func && func.Method.ReturnType.IsAssignableTo(typeof(ShaderExpressionVariable)))
@@ -173,7 +240,7 @@ internal class ConnectProperties_Change : Change
             try
             {
                 var actualArg = func.DynamicInvoke(FuncContext.NoContext);
-                if(actualArg is ShaderExpressionVariable variable)
+                if (actualArg is ShaderExpressionVariable variable)
                 {
                     result = variable.GetConstant();
                     return true;
@@ -197,11 +264,11 @@ internal class ConnectProperties_Change : Change
             try
             {
                 o = func.DynamicInvoke(FuncContext.NoContext);
-                if(o is ShaderExpressionVariable variable)
+                if (o is ShaderExpressionVariable variable)
                 {
                     o = variable.GetConstant();
                 }
-                
+
                 return true;
             }
             catch
@@ -221,7 +288,7 @@ internal class ConnectProperties_Change : Change
         {
             return secondType.IsAssignableTo(typeof(Delegate));
         }
-        
+
         return false;
     }
 }
