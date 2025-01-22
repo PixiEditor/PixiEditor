@@ -493,7 +493,6 @@
   "RESET_VIEWPORT": "Reset viewport",
   "VIEWPORT_SETTINGS": "Viewport settings",
   "MOVE_TOOL_ACTION_DISPLAY_TRANSFORMING": "Click and hold mouse to move pixels in selected layers.",
-  "MOVE_TOOL_ACTION_DISPLAY_CTRL": "Hold mouse to move all layers.",
   "CTRL_KEY": "Ctrl",
   "SHIFT_KEY": "Shift",
   "ALT_KEY": "Alt",

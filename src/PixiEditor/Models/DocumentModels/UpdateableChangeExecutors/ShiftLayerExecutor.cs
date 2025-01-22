@@ -20,27 +20,22 @@ internal class ShiftLayerExecutor : UpdateableChangeExecutor
     public override ExecutionState Start()
     {
         IStructureMemberHandler? member = document!.SelectedStructureMember;
-        
+
         tool = GetHandler<IMoveToolHandler>();
         if (tool is null)
             return ExecutionState.Error;
 
-        if (tool.MoveAllLayers)
-        {
-            _affectedMemberGuids.AddRange(document.StructureHelper.GetAllLayers().Select(x => x.Id));
-        }
-        else
-        {
-            if (member != null)
-                _affectedMemberGuids.Add(member.Id);
-            _affectedMemberGuids.AddRange(document!.SoftSelectedStructureMembers.Select(x => x.Id));
-        }
+
+        if (member != null)
+            _affectedMemberGuids.Add(member.Id);
+        _affectedMemberGuids.AddRange(document!.SoftSelectedStructureMembers.Select(x => x.Id));
 
         RemoveDrawOnMaskLayers(_affectedMemberGuids);
-        
+
         startPos = controller!.LastPixelPosition;
 
-        ShiftLayer_Action action = new(_affectedMemberGuids, VecI.Zero, tool.KeepOriginalImage, document!.AnimationHandler.ActiveFrameBindable);
+        ShiftLayer_Action action = new(_affectedMemberGuids, VecI.Zero, tool.KeepOriginalImage,
+            document!.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);
 
         return ExecutionState.Success;
@@ -61,7 +56,8 @@ internal class ShiftLayerExecutor : UpdateableChangeExecutor
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        ShiftLayer_Action action = new(_affectedMemberGuids, pos - startPos, tool!.KeepOriginalImage, document!.AnimationHandler.ActiveFrameBindable);
+        ShiftLayer_Action action = new(_affectedMemberGuids, pos - startPos, tool!.KeepOriginalImage,
+            document!.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);
     }
 
