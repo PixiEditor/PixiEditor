@@ -4,18 +4,22 @@ using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.Models.Controllers.InputDevice;
+using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
-internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransformableExecutor, IMidChangeUndoableExecutor
+internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransformableExecutor, IMidChangeUndoableExecutor,
+    ITransformStoppedEvent
 {
     private Dictionary<Guid, ShapeCorners> memberCorners = new();
     private IMoveToolHandler? tool;
@@ -26,8 +30,10 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
     private List<Guid> selectedMembers = new();
 
+    private ShapeCorners cornersOnStartDuplicate;
     private ShapeCorners lastCorners = new();
     private bool movedOnce;
+    private bool duplicateOnStop = false;
 
     public TransformSelectedExecutor(bool toolLinked)
     {
@@ -42,7 +48,6 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
         tool.TransformingSelectedArea = true;
         List<IStructureMemberHandler> members = new();
-
         var guids = document.ExtractSelectedLayers(false);
         members = guids.Select(g => document.StructureHelper.Find(g)).ToList();
 
@@ -50,6 +55,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             return ExecutionState.Error;
 
         document.TransformHandler.PassthroughPointerPressed += OnLeftMouseButtonDown;
+
         return SelectMembers(members);
     }
 
@@ -122,6 +128,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
         movedOnce = false;
         isInProgress = true;
+
         return ExecutionState.Success;
     }
 
@@ -162,6 +169,11 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
                 Deselect(topMostList);
             }
         }
+    }
+
+    public void OnTransformStopped()
+    {
+        DuplicateIfRequired();
     }
 
     private void Deselect(List<ILayerHandler> topMostWithinClick)
@@ -234,17 +246,101 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         if (!isInProgress)
             return;
 
+        if (tool.DuplicateOnMove)
+        {
+            if (!duplicateOnStop)
+            {
+                cornersOnStartDuplicate = corners;
+                duplicateOnStop = true;
+            }
+
+            return;
+        }
+
         if (!movedOnce)
         {
             internals!.ActionAccumulator.AddActions(
                 new TransformSelected_Action(lastCorners, tool.KeepOriginalImage, memberCorners, false,
                     document.AnimationHandler.ActiveFrameBindable));
+
             movedOnce = true;
         }
 
         internals!.ActionAccumulator.AddActions(
             new TransformSelected_Action(corners, tool!.KeepOriginalImage, memberCorners, false,
                 document!.AnimationHandler.ActiveFrameBindable));
+    }
+
+    private void DuplicateSelected()
+    {
+        List<IAction> actions = new();
+
+        List<Guid> newGuids = new();
+
+        internals.ActionAccumulator.StartChangeBlock();
+
+        VectorPath? original = document.SelectionPathBindable != null
+            ? new VectorPath(document.SelectionPathBindable)
+            : null;
+        if (original != null)
+        {
+            var selection = document.SelectionPathBindable;
+            var inverse = new VectorPath();
+            inverse.AddRect(new RectD(new(0, 0), document.SizeBindable));
+
+            actions.Add(new SetSelection_Action(inverse.Op(selection, VectorPathOp.Difference)));
+        }
+
+        for (var i = 0; i < selectedMembers.Count; i++)
+        {
+            var member = selectedMembers[i];
+            Guid newGuid = Guid.NewGuid();
+            newGuids.Add(newGuid);
+            actions.Add(new DuplicateLayer_Action(member, newGuid));
+            if (document.SelectionPathBindable is { IsEmpty: false })
+            {
+                actions.Add(new ClearSelectedArea_Action(newGuid, false,
+                    document.AnimationHandler.ActiveFrameBindable));
+            }
+        }
+
+        if (original != null)
+        {
+            actions.Add(new SetSelection_Action(original));
+        }
+
+        internals!.ActionAccumulator.AddFinishedActions(actions.ToArray());
+
+        actions.Clear();
+
+        actions.Add(new ClearSoftSelectedMembers_PassthroughAction());
+        foreach (var newGuid in newGuids)
+        {
+            actions.Add(new AddSoftSelectedMember_PassthroughAction(newGuid));
+        }
+
+        internals!.ActionAccumulator.AddFinishedActions(actions.ToArray());
+
+        actions.Clear();
+
+        Dictionary<Guid, ShapeCorners> newMemberCorners = new();
+        for (var i = 0; i < selectedMembers.Count; i++)
+        {
+            var member = selectedMembers[i];
+            newMemberCorners.Add(newGuids[i], memberCorners[member]);
+        }
+
+        actions.Add(new TransformSelected_Action(cornersOnStartDuplicate, false, newMemberCorners,
+            false, document!.AnimationHandler.ActiveFrameBindable));
+        actions.Add(new TransformSelected_Action(lastCorners, false, memberCorners, false,
+            document!.AnimationHandler.ActiveFrameBindable));
+        actions.Add(new EndTransformSelected_Action());
+
+        internals!.ActionAccumulator.AddFinishedActions(actions.ToArray());
+
+        internals.ActionAccumulator.EndChangeBlock();
+
+        tool!.DuplicateOnMove = false;
     }
 
     public void OnLineOverlayMoved(VecD start, VecD end) { }
@@ -293,6 +389,16 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
         isInProgress = false;
         document.TransformHandler.PassthroughPointerPressed -= OnLeftMouseButtonDown;
+        DuplicateIfRequired();
+    }
+
+    private void DuplicateIfRequired()
+    {
+        if (duplicateOnStop)
+        {
+            DuplicateSelected();
+            duplicateOnStop = false;
+        }
     }
 
     private void AddSnappingForMembers(List<Guid> memberGuids)
@@ -314,6 +420,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
     public bool IsFeatureEnabled(IExecutorFeature feature)
     {
-        return feature is ITransformableExecutor && IsTransforming;
+        return feature is ITransformableExecutor && IsTransforming || feature is IMidChangeUndoableExecutor ||
+               feature is ITransformStoppedEvent;
     }
 }

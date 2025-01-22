@@ -210,7 +210,7 @@ internal class DocumentOperationsModule : IDocumentOperations
         bool isFolder = Document.StructureHelper.Find(guidValue) is IFolderHandler;
         if (!isFolder)
         {
-            Internals.ActionAccumulator.AddFinishedActions(new DuplicateLayer_Action(guidValue));
+            Internals.ActionAccumulator.AddFinishedActions(new DuplicateLayer_Action(guidValue, Guid.NewGuid()));
         }
         else
         {
@@ -881,7 +881,8 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ChangeController.TryStopActiveExecutor();
 
-        Internals.ActionAccumulator.AddFinishedActions(new KeyFrameLength_Action(celId, startFrame, duration), new EndKeyFrameLength_Action());
+        Internals.ActionAccumulator.AddFinishedActions(new KeyFrameLength_Action(celId, startFrame, duration),
+            new EndKeyFrameLength_Action());
     }
 
     public void DeleteNodes(Guid[] nodes)
@@ -890,7 +891,7 @@ internal class DocumentOperationsModule : IDocumentOperations
             return;
 
         Internals.ChangeController.TryStopActiveExecutor();
-        
+
         List<IAction> actions = new();
 
         for (var i = 0; i < nodes.Length; i++)
@@ -899,7 +900,7 @@ internal class DocumentOperationsModule : IDocumentOperations
             if (Document.StructureHelper.TryFindNode(node, out INodeHandler nodeHandler) &&
                 nodeHandler.InternalName == OutputNode.UniqueName)
                 return;
-            
+
             actions.Add(new DeleteNode_Action(node));
         }
 

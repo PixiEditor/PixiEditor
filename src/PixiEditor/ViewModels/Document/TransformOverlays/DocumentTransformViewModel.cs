@@ -135,7 +135,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         set
         {
             SetProperty(ref corners, value);
-            TransformMoved?.Invoke(this, value);
+            TransformMoved?.Invoke(value);
         }
     }
 
@@ -191,7 +191,8 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         }
     }
 
-    public event EventHandler<ShapeCorners>? TransformMoved;
+    public event Action<ShapeCorners>? TransformMoved;
+    public event Action TransformStopped; 
 
     private DocumentTransformMode activeTransformMode = DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective;
 
@@ -200,6 +201,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         this.document = document;
         ActionCompletedCommand = new RelayCommand(() =>
         {
+            TransformStopped?.Invoke();
             AddToUndoCommand?.Execute(Corners);
 
             if (undoStack is null)

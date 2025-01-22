@@ -299,6 +299,23 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
         }
     }
 
+    protected void SetValue<T>(T value, [CallerMemberName] string name = null)
+    {
+        var setting = Toolbar.GetSetting(name);
+        if(setting is null)
+        {
+            throw new InvalidOperationException($"Setting {name} not found in toolbar {Toolbar.GetType().Name}");
+        }
+
+        if (setting.GetSettingType() != typeof(T))
+        {
+            throw new InvalidCastException($"Setting {name} is not of type {typeof(T).Name}");
+        }
+        
+        setting.Value = value;
+    }
+    
+
     private bool IsExposeSetting(KeyValuePair<string, object> settingConfig, out bool expose)
     {
         bool isExpose = settingConfig.Key.StartsWith("Expose", StringComparison.InvariantCultureIgnoreCase);

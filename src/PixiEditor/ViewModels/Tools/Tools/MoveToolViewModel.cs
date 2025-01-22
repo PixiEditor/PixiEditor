@@ -42,6 +42,13 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         }
     }
 
+    [Settings.Bool("_duplicate_on_move", ExposedByDefault = false)]
+    public bool DuplicateOnMove
+    {
+        get => GetValue<bool>();
+        set => SetValue(value);
+    }
+
     public override BrushShape BrushShape => BrushShape.Hidden;
     public override Type[]? SupportedLayerTypes { get; } = null;
     public override Type LayerTypeToCreateOnEmptyUse { get; } = null;
@@ -57,6 +64,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         }
     }
 
+
     public override void UseTool(VecD pos)
     {
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(true);
@@ -64,7 +72,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
-        
+        DuplicateOnMove = ctrlIsDown;
     }
 
     protected override void OnSelected(bool restoring)
@@ -73,7 +81,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         {
             return;
         }
-        
+
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(true);
     }
 
@@ -91,7 +99,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
     {
         if (IsActive)
         {
-           OnToolSelected(false);
+            OnToolSelected(false);
         }
     }
 
@@ -107,7 +115,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
     {
         UpdateSelection();
     }
-    
+
     public override void OnActiveFrameChanged(int newFrame)
     {
         UpdateSelection();
@@ -126,7 +134,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         {
             return;
         }
-        
+
         activeDocument.TransformViewModel.ShowTransformControls = KeepOriginalImage;
     }
 }

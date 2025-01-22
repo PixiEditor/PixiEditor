@@ -236,7 +236,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         NodeGraph = new NodeGraphViewModel(this, Internals);
 
         TransformViewModel = new(this);
-        TransformViewModel.TransformMoved += (_, args) => Internals.ChangeController.TransformMovedInlet(args);
+        TransformViewModel.TransformMoved += (args) => Internals.ChangeController.TransformMovedInlet(args);
+        TransformViewModel.TransformStopped += () => Internals.ChangeController.TransformStoppedInlet();
 
         PathOverlayViewModel = new(this, Internals);
         PathOverlayViewModel.PathChanged += path =>
@@ -679,7 +680,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             if (scope == DocumentScope.AllLayers)
             {
                 using Surface tmpSurface = new Surface(SizeBindable);
-                HashSet<Guid> layers = StructureHelper.GetAllMembers().Select(x => x.Id).ToHashSet();
+                HashSet<Guid> layers = StructureHelper.TraverseAllMembers().Select(x => x.Id).ToHashSet();
                 Renderer.RenderLayers(tmpSurface.DrawingSurface, layers, frameTime.Frame, ChunkResolution.Full,
                     SizeBindable);
 

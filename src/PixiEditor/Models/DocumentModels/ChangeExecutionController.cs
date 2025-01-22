@@ -230,6 +230,14 @@ internal class ChangeExecutionController
         }
     }
 
+    public void TransformStoppedInlet()
+    {
+        if(currentSession is ITransformStoppedEvent transformStoppedEvent)
+        {
+            transformStoppedEvent.OnTransformStopped();
+        }
+    }
+
     public void MembersSelectedInlet(List<Guid> memberGuids)
     {
         currentSession?.OnMembersSelected(memberGuids);
