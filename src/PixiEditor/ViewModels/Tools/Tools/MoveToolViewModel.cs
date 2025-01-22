@@ -21,7 +21,6 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
 
     private string transformingActionDisplay = "MOVE_TOOL_ACTION_DISPLAY_TRANSFORMING";
     private bool transformingSelectedArea = false;
-    public bool MoveAllLayers { get; set; }
 
     public override string DefaultIcon => PixiPerfectIcons.MousePointer;
 
@@ -35,7 +34,13 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
     public override LocalizedString Tooltip => new LocalizedString("MOVE_TOOL_TOOLTIP", Shortcut);
 
     [Settings.Bool("KEEP_ORIGINAL_IMAGE_SETTING", Notify = nameof(KeepOriginalChanged))]
-    public bool KeepOriginalImage => GetValue<bool>();
+    public bool KeepOriginalImage
+    {
+        get
+        {
+            return GetValue<bool>();
+        }
+    }
 
     public override BrushShape BrushShape => BrushShape.Hidden;
     public override Type[]? SupportedLayerTypes { get; } = null;
@@ -59,21 +64,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
-        if (TransformingSelectedArea)
-        {
-            return;
-        }
-
-        if (ctrlIsDown)
-        {
-            ActionDisplay = new LocalizedString("MOVE_TOOL_ACTION_DISPLAY_CTRL");
-            MoveAllLayers = true;
-        }
-        else
-        {
-            ActionDisplay = defaultActionDisplay;
-            MoveAllLayers = false;
-        }
+        
     }
 
     protected override void OnSelected(bool restoring)
@@ -131,6 +122,11 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
     public void KeepOriginalChanged()
     {
         var activeDocument = ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument;
+        if (activeDocument is null)
+        {
+            return;
+        }
+        
         activeDocument.TransformViewModel.ShowTransformControls = KeepOriginalImage;
     }
 }

@@ -43,10 +43,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         tool.TransformingSelectedArea = true;
         List<IStructureMemberHandler> members = new();
 
-        members = document.SoftSelectedStructureMembers
-            .Append(document.SelectedStructureMember)
-            .Where(static m => m is ILayerHandler)
-            .Distinct().ToList();
+        var guids = document.ExtractSelectedLayers(false);
+        members = guids.Select(g => document.StructureHelper.Find(g)).ToList();
 
         if (!members.Any())
             return ExecutionState.Error;
@@ -221,13 +219,6 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             memberCorners.Clear();
             isInProgress = false;
         }
-
-        internals.ActionAccumulator.AddActions(new InvokeAction_PassthroughAction(() =>
-        {
-            List<IStructureMemberHandler> members = memberGuids.Select(g => document!.StructureHelper.Find(g))
-                .Where(x => x is ILayerHandler).Distinct().ToList();
-            SelectMembers(members);
-        }));
     }
 
     public bool IsTransforming => isInProgress;
