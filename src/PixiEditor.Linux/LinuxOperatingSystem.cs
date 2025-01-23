@@ -10,7 +10,7 @@ public sealed class LinuxOperatingSystem : IOperatingSystem
     public string Name { get; } = "Linux";
     public string AnalyticsId => "Linux";
     public string AnalyticsName => LinuxOSInformation.FromReleaseFile().ToString();
-    public IInputKeys InputKeys { get; }
+    public IInputKeys InputKeys { get; } = new LinuxInputKeys();
     public IProcessUtility ProcessUtility { get; }
 
     public string ExecutableExtension { get; } = string.Empty;
