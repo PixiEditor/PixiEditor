@@ -259,7 +259,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             {
                 cornersOnStartDuplicate = lastCorners;
                 duplicateOnStop = true;
-                internals.ActionAccumulator.AddActions(new EndTransformSelected_Action());
+                internals.ActionAccumulator.AddFinishedActions(new EndTransformSelected_Action());
 
                 internals.ActionAccumulator.AddActions(new PreviewTransformSelected_Action(lastCorners, memberCorners,
                     document!.AnimationHandler.ActiveFrameBindable));

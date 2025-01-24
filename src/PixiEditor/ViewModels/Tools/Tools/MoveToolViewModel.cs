@@ -114,12 +114,12 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         }
     }
 
-    public void OnPreUndoInlet()
+    public override void OnPreUndoInlet()
     {
         DuplicateOnMove = false;
     }
     
-    public void OnPreRedoInlet()
+    public override void OnPreRedoInlet()
     {
         DuplicateOnMove = false;
     }
