@@ -20,7 +20,6 @@ internal class PreviewTransformSelected_UpdateableChange : InterruptableUpdateab
     private List<MemberTransformationData> memberData;
 
     private VectorPath? originalPath;
-    private RectD originalSelectionBounds;
     private VecD selectionAwareSize;
     private VecD tightBoundsSize;
     private RectD cornersToSelectionOffset;
@@ -38,7 +37,6 @@ internal class PreviewTransformSelected_UpdateableChange : InterruptableUpdateab
     public PreviewTransformSelected_UpdateableChange(
         ShapeCorners masterCorners,
         Dictionary<Guid, ShapeCorners> memberCorners,
-        bool transformMask,
         int frame)
     {
         memberData = new();
@@ -48,7 +46,6 @@ internal class PreviewTransformSelected_UpdateableChange : InterruptableUpdateab
         }
 
         this.masterCorners = masterCorners;
-        this.drawOnMask = transformMask;
         this.frame = frame;
     }
 
@@ -65,7 +62,6 @@ internal class PreviewTransformSelected_UpdateableChange : InterruptableUpdateab
         {
             originalPath = new VectorPath(target.Selection.SelectionPath) { FillType = PathFillType.EvenOdd };
             tightBoundsWithSelection = originalPath.TightBounds;
-            originalSelectionBounds = tightBoundsWithSelection;
             selectionAwareSize = tightBoundsWithSelection.Size;
             isTransformingSelection = true;
 
@@ -115,14 +111,14 @@ internal class PreviewTransformSelected_UpdateableChange : InterruptableUpdateab
             }
             else if (layer is ITransformableObject transformable)
             {
-                SetTransformableMember(layer, member, transformable, tightBounds);
+                SetTransformableMember(member, transformable, tightBounds);
             }
         }
 
         return true;
     }
 
-    private void SetTransformableMember(StructureNode layer, MemberTransformationData member,
+    private void SetTransformableMember(MemberTransformationData member,
         ITransformableObject transformable, RectD tightBounds)
     {
         member.OriginalBounds = tightBounds;
@@ -244,9 +240,19 @@ internal class PreviewTransformSelected_UpdateableChange : InterruptableUpdateab
             }
         }
         
+        List<IChangeInfo> infos = new();
+        
+        if (isTransformingSelection)
+        {
+            VectorPath? newPath = originalPath == null ? null : new VectorPath(originalPath); 
+            target.Selection.SelectionPath = newPath;
+            infos.Add(new Selection_ChangeInfo(newPath));
+        }
+        
         hasEnqueudImages = false;
         ignoreInUndo = true;
-        return new None();
+        
+        return infos;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
@@ -264,7 +270,7 @@ internal class PreviewTransformSelected_UpdateableChange : InterruptableUpdateab
                         DrawImage(member, targetImage), drawOnMask)
                     .AsT1);
             }
-            else if (member.IsTransformable)
+            /*else if (member.IsTransformable)
             {
                 member.TransformableObject.TransformationMatrix = member.LocalMatrix;
 
@@ -277,14 +283,14 @@ internal class PreviewTransformSelected_UpdateableChange : InterruptableUpdateab
 
                 lastAffectedArea = tmp;
                 infos.Add(new TransformObject_ChangeInfo(member.MemberId, translationAffectedArea));
-            }
+            }*/
         }
 
-        if (isTransformingSelection)
+        /*if (isTransformingSelection)
         {
             infos.Add(SelectionChangeHelper.DoSelectionTransform(target, originalPath!, originalSelectionBounds,
                 masterCorners, cornersToSelectionOffset, originalCornersSize));
-        }
+        }*/
 
         return infos;
     }
@@ -305,29 +311,7 @@ internal class PreviewTransformSelected_UpdateableChange : InterruptableUpdateab
             member.Dispose();
         }
     }
-
-    private AffectedArea GetTranslationAffectedArea()
-    {
-        RectI oldBounds = (RectI)masterCorners.AABBBounds.RoundOutwards();
-
-        HashSet<VecI> chunks = new();
-        VecI topLeftChunk = new VecI((int)oldBounds.Left / ChunkyImage.FullChunkSize,
-            (int)oldBounds.Top / ChunkyImage.FullChunkSize);
-        VecI bottomRightChunk = new VecI((int)oldBounds.Right / ChunkyImage.FullChunkSize,
-            (int)oldBounds.Bottom / ChunkyImage.FullChunkSize);
-
-        for (int x = topLeftChunk.X; x <= bottomRightChunk.X; x++)
-        {
-            for (int y = topLeftChunk.Y; y <= bottomRightChunk.Y; y++)
-            {
-                chunks.Add(new VecI(x, y));
-            }
-        }
-
-        var final = new AffectedArea(chunks);
-        return final;
-    }
-
+    
     private AffectedArea DrawImage(MemberTransformationData data, ChunkyImage memberImage)
     {
         var prevAffArea = memberImage.FindAffectedArea();

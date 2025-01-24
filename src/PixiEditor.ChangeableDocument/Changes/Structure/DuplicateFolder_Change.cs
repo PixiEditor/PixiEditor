@@ -124,7 +124,7 @@ internal class DuplicateFolder_Change : Change
 
             Node? node = targetNode.Clone();
             
-            if(childGuidsToUse is not null && counter < childGuidsToUse.Length)
+            if(node is not FolderNode && childGuidsToUse is not null && counter < childGuidsToUse.Length)
             {
                 node.Id = childGuidsToUse[counter];
                 counter++;

@@ -255,13 +255,15 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         {
             if (!duplicateOnStop)
             {
-                cornersOnStartDuplicate = corners;
+                cornersOnStartDuplicate = lastCorners;
                 duplicateOnStop = true;
                 internals.ActionAccumulator.AddActions(new EndTransformSelected_Action());
+
+                internals.ActionAccumulator.AddActions(new PreviewTransformSelected_Action(lastCorners, memberCorners,
+                    document!.AnimationHandler.ActiveFrameBindable));
             }
 
             internals.ActionAccumulator.AddActions(new PreviewTransformSelected_Action(corners, memberCorners,
-                false,
                 document!.AnimationHandler.ActiveFrameBindable));
             return;
         }
@@ -288,6 +290,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         List<Guid> newGuidsOfOriginal = new();
 
         internals.ActionAccumulator.StartChangeBlock();
+
+        actions.Add(new EndPreviewTransformSelected_Action());
 
         VectorPath? original = document.SelectionPathBindable != null
             ? new VectorPath(document.SelectionPathBindable)
@@ -326,6 +330,15 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
                 actions.Add(new DuplicateFolder_Action(member, newGuid, newGuidsArray.ToImmutableList()));
 
+                for (int j = 0; j < childCount; j++)
+                {
+                    if (document.SelectionPathBindable is { IsEmpty: false })
+                    {
+                        actions.Add(new ClearSelectedArea_Action(newGuidsArray[i], false,
+                            document.AnimationHandler.ActiveFrameBindable));
+                    }
+                }
+
                 newLayerGuids.AddRange(newGuidsArray);
             }
 
@@ -341,18 +354,6 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
         actions.Clear();
 
-        actions.Add(new ClearSoftSelectedMembers_PassthroughAction());
-        foreach (var newGuid in newGuidsOfOriginal)
-        {
-            actions.Add(new AddSoftSelectedMember_PassthroughAction(newGuid));
-        }
-        
-        actions.Add(new SetSelectedMember_PassthroughAction(newGuidsOfOriginal.Last()));
-
-        internals!.ActionAccumulator.AddFinishedActions(actions.ToArray());
-
-        actions.Clear();
-
         Dictionary<Guid, ShapeCorners> newMemberCorners = new();
         for (var i = 0; i < memberCorners.Count; i++)
         {
@@ -362,11 +363,24 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
         actions.Add(new TransformSelected_Action(cornersOnStartDuplicate, false, newMemberCorners,
             false, document!.AnimationHandler.ActiveFrameBindable));
-        actions.Add(new TransformSelected_Action(lastCorners, false, memberCorners, false,
+        actions.Add(new TransformSelected_Action(lastCorners, false, newMemberCorners, false,
             document!.AnimationHandler.ActiveFrameBindable));
         actions.Add(new EndTransformSelected_Action());
 
         internals!.ActionAccumulator.AddFinishedActions(actions.ToArray());
+
+        actions.Clear();
+
+        actions.Add(new ClearSoftSelectedMembers_PassthroughAction());
+        foreach (var newGuid in newGuidsOfOriginal)
+        {
+            actions.Add(new AddSoftSelectedMember_PassthroughAction(newGuid));
+        }
+
+        actions.Add(new SetSelectedMember_PassthroughAction(newGuidsOfOriginal.Last()));
+
+        internals!.ActionAccumulator.AddFinishedActions(actions.ToArray());
+
 
         internals.ActionAccumulator.EndChangeBlock();
 
