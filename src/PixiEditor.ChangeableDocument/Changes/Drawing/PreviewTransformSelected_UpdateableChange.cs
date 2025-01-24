@@ -304,10 +304,10 @@ internal class PreviewTransformSelected_UpdateableChange : InterruptableUpdateab
                 {
                     StrokeCap cap = vectorNode.ShapeData is PathVectorData pathData
                         ? pathData.StrokeLineCap
-                        : StrokeCap.Round;
+                        : StrokeCap.Butt;
                     StrokeJoin join = vectorNode.ShapeData is PathVectorData pathData1
                         ? pathData1.StrokeLineJoin
-                        : StrokeJoin.Round;
+                        : StrokeJoin.Miter;
                     vectorNode.ShapeData = new PathVectorData(newPath)
                     {
                         Fill = vectorNode.ShapeData.Fill,
