@@ -1,5 +1,6 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
@@ -14,4 +15,5 @@ public interface IReadOnlyShapeVectorData
     public RectD GeometryAABB { get; }
     public RectD TransformedAABB { get; }
     public ShapeCorners TransformationCorners { get; }
+    public VectorPath ToPath();
 }

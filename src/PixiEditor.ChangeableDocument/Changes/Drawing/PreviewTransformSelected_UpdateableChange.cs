@@ -9,6 +9,8 @@ using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
+using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
@@ -109,23 +111,26 @@ internal class PreviewTransformSelected_UpdateableChange : InterruptableUpdateab
                 var targetBounds = tightBoundsWithSelection != default ? tightBoundsWithSelection : tightBounds;
                 SetImageMember(target, member, targetBounds, layer);
             }
-            else if (layer is ITransformableObject transformable)
+            else if (layer is IReadOnlyVectorNode vectorNode)
             {
-                SetTransformableMember(member, transformable, tightBounds);
+                SetVectorMember(member, vectorNode, tightBounds);
             }
         }
 
         return true;
     }
 
-    private void SetTransformableMember(MemberTransformationData member,
-        ITransformableObject transformable, RectD tightBounds)
+    private void SetVectorMember(MemberTransformationData member,
+        IReadOnlyVectorNode vectorNode, RectD tightBounds)
     {
         member.OriginalBounds = tightBounds;
         VecD posRelativeToMaster = member.OriginalBounds.Value.TopLeft - masterCorners.TopLeft;
 
+        member.OriginalMatrix = vectorNode.ShapeData.TransformationMatrix;
         member.OriginalPos = (VecI)posRelativeToMaster;
-        member.AddTransformableObject(transformable, transformable.TransformationMatrix);
+        member.OriginalShapeData = vectorNode.ShapeData as ShapeVectorData;
+        member.OriginalPath = vectorNode.ShapeData?.ToPath();
+        member.OriginalPath.Transform(vectorNode.ShapeData.TransformationMatrix);
     }
 
     private void SetImageMember(Document target, MemberTransformationData member, RectD originalTightBounds,
@@ -230,6 +235,8 @@ internal class PreviewTransformSelected_UpdateableChange : InterruptableUpdateab
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
         out bool ignoreInUndo)
     {
+        List<IChangeInfo> infos = new();
+        
         foreach (var data in memberData)
         {
             if (data.IsImage)
@@ -238,20 +245,29 @@ internal class PreviewTransformSelected_UpdateableChange : InterruptableUpdateab
                     DrawingChangeHelper.GetTargetImageOrThrow(target, data.MemberId, drawOnMask, frame);
                 targetImage.CancelChanges();
             }
+            else if (data.OriginalPath != null)
+            {
+                var memberNode = target.FindMemberOrThrow(data.MemberId);
+                if (memberNode is VectorLayerNode vectorNode)
+                {
+                    (vectorNode.ShapeData as PathVectorData)?.Path.Dispose();
+                    vectorNode.ShapeData = data.OriginalShapeData;
+                    infos.Add(new VectorShape_ChangeInfo(data.MemberId, GetTranslationAffectedArea()));
+                }
+            }
         }
-        
-        List<IChangeInfo> infos = new();
-        
+
+
         if (isTransformingSelection)
         {
-            VectorPath? newPath = originalPath == null ? null : new VectorPath(originalPath); 
+            VectorPath? newPath = originalPath == null ? null : new VectorPath(originalPath);
             target.Selection.SelectionPath = newPath;
             infos.Add(new Selection_ChangeInfo(newPath));
         }
-        
+
         hasEnqueudImages = false;
         ignoreInUndo = true;
-        
+
         return infos;
     }
 
@@ -270,9 +286,43 @@ internal class PreviewTransformSelected_UpdateableChange : InterruptableUpdateab
                         DrawImage(member, targetImage), drawOnMask)
                     .AsT1);
             }
-            /*else if (member.IsTransformable)
+            else if (member.OriginalPath != null)
             {
-                member.TransformableObject.TransformationMatrix = member.LocalMatrix;
+                VectorPath newPath = new VectorPath(member.OriginalPath);
+
+                VecD translation = VecD.Zero;
+                    //member.OriginalBounds.Value.TopLeft;
+                
+                var finalMatrix = member.LocalMatrix
+                    .Concat(member.OriginalShapeData.TransformationMatrix.Invert())
+                    .PostConcat(Matrix3X3.CreateTranslation(-(float)translation.X, -(float)translation.Y));
+                    
+                newPath.AddPath(member.OriginalPath, finalMatrix, AddPathMode.Append);
+
+                var memberNode = target.FindMemberOrThrow(member.MemberId);
+                if (memberNode is VectorLayerNode vectorNode)
+                {
+                    StrokeCap cap = vectorNode.ShapeData is PathVectorData pathData
+                        ? pathData.StrokeLineCap
+                        : StrokeCap.Round;
+                    StrokeJoin join = vectorNode.ShapeData is PathVectorData pathData1
+                        ? pathData1.StrokeLineJoin
+                        : StrokeJoin.Round;
+                    vectorNode.ShapeData = new PathVectorData(newPath)
+                    {
+                        Fill = vectorNode.ShapeData.Fill,
+                        FillColor = vectorNode.ShapeData.FillColor,
+                        StrokeWidth = vectorNode.ShapeData.StrokeWidth,
+                        StrokeColor = vectorNode.ShapeData.StrokeColor,
+                        Path = newPath,
+                        StrokeLineCap = cap,
+                        StrokeLineJoin = join
+                    };
+                }
+                else
+                {
+                    continue;
+                }
 
                 AffectedArea translationAffectedArea = GetTranslationAffectedArea();
                 var tmp = new AffectedArea(translationAffectedArea);
@@ -282,15 +332,9 @@ internal class PreviewTransformSelected_UpdateableChange : InterruptableUpdateab
                 }
 
                 lastAffectedArea = tmp;
-                infos.Add(new TransformObject_ChangeInfo(member.MemberId, translationAffectedArea));
-            }*/
+                infos.Add(new VectorShape_ChangeInfo(member.MemberId, translationAffectedArea));
+            }
         }
-
-        /*if (isTransformingSelection)
-        {
-            infos.Add(SelectionChangeHelper.DoSelectionTransform(target, originalPath!, originalSelectionBounds,
-                masterCorners, cornersToSelectionOffset, originalCornersSize));
-        }*/
 
         return infos;
     }
@@ -311,7 +355,29 @@ internal class PreviewTransformSelected_UpdateableChange : InterruptableUpdateab
             member.Dispose();
         }
     }
-    
+
+    private AffectedArea GetTranslationAffectedArea()
+    {
+        RectI oldBounds = (RectI)masterCorners.AABBBounds.RoundOutwards();
+
+        HashSet<VecI> chunks = new();
+        VecI topLeftChunk = new VecI((int)oldBounds.Left / ChunkyImage.FullChunkSize,
+            (int)oldBounds.Top / ChunkyImage.FullChunkSize);
+        VecI bottomRightChunk = new VecI((int)oldBounds.Right / ChunkyImage.FullChunkSize,
+            (int)oldBounds.Bottom / ChunkyImage.FullChunkSize);
+
+        for (int x = topLeftChunk.X; x <= bottomRightChunk.X; x++)
+        {
+            for (int y = topLeftChunk.Y; y <= bottomRightChunk.Y; y++)
+            {
+                chunks.Add(new VecI(x, y));
+            }
+        }
+
+        var final = new AffectedArea(chunks);
+        return final;
+    }
+
     private AffectedArea DrawImage(MemberTransformationData data, ChunkyImage memberImage)
     {
         var prevAffArea = memberImage.FindAffectedArea();

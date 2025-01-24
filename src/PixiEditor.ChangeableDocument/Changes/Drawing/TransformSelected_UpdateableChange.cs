@@ -9,6 +9,7 @@ using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
@@ -410,7 +411,7 @@ class MemberTransformationData : IDisposable
     public ShapeCorners MemberCorners { get; init; }
 
     public ITransformableObject? TransformableObject { get; private set; }
-    public Matrix3X3? OriginalMatrix { get; private set; }
+    public Matrix3X3? OriginalMatrix { get; set; }
 
     public CommittedChunkStorage? SavedChunks { get; set; }
     public VectorPath? OriginalPath { get; set; }
@@ -421,6 +422,7 @@ class MemberTransformationData : IDisposable
     public bool IsTransformable => TransformableObject != null;
     public RectI? RoundedOriginalBounds => (RectI)OriginalBounds?.RoundOutwards();
     public Matrix3X3 LocalMatrix { get; set; }
+    public ShapeVectorData? OriginalShapeData { get; set; }
 
     public MemberTransformationData(Guid memberId)
     {
@@ -446,5 +448,6 @@ class MemberTransformationData : IDisposable
         OriginalPath?.Dispose();
         OriginalPath = null;
         SavedChunks?.Dispose();
+        OriginalShapeData = null;
     }
 }
