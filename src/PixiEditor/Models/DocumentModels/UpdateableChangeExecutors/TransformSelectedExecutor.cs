@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
@@ -12,6 +13,7 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.ViewModels.Document.Nodes;
@@ -29,6 +31,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     public override bool BlocksOtherActions => false;
 
     private List<Guid> selectedMembers = new();
+    private List<Guid> originalSelectedMembers = new();
 
     private ShapeCorners cornersOnStartDuplicate;
     private ShapeCorners lastCorners = new();
@@ -48,6 +51,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
         tool.TransformingSelectedArea = true;
         List<IStructureMemberHandler> members = new();
+        originalSelectedMembers = document.SelectedMembers.ToList();
         var guids = document.ExtractSelectedLayers(false);
         members = guids.Select(g => document.StructureHelper.Find(g)).ToList();
 
@@ -224,6 +228,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         if (isInProgress)
         {
             internals.ActionAccumulator.AddActions(new EndTransformSelected_Action());
+            internals!.ActionAccumulator.AddActions(new EndPreviewTransformSelected_Action());
             document!.TransformHandler.HideTransform();
             AddSnappingForMembers(selectedMembers);
 
@@ -252,8 +257,12 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             {
                 cornersOnStartDuplicate = corners;
                 duplicateOnStop = true;
+                internals.ActionAccumulator.AddActions(new EndTransformSelected_Action());
             }
 
+            internals.ActionAccumulator.AddActions(new PreviewTransformSelected_Action(corners, memberCorners,
+                false,
+                document!.AnimationHandler.ActiveFrameBindable));
             return;
         }
 
@@ -275,7 +284,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     {
         List<IAction> actions = new();
 
-        List<Guid> newGuids = new();
+        List<Guid> newLayerGuids = new();
+        List<Guid> newGuidsOfOriginal = new();
 
         internals.ActionAccumulator.StartChangeBlock();
 
@@ -291,17 +301,35 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             actions.Add(new SetSelection_Action(inverse.Op(selection, VectorPathOp.Difference)));
         }
 
-        for (var i = 0; i < selectedMembers.Count; i++)
+        for (var i = 0; i < originalSelectedMembers.Count; i++)
         {
-            var member = selectedMembers[i];
+            var member = originalSelectedMembers[i];
             Guid newGuid = Guid.NewGuid();
-            newGuids.Add(newGuid);
-            actions.Add(new DuplicateLayer_Action(member, newGuid));
-            if (document.SelectionPathBindable is { IsEmpty: false })
+            if (document.StructureHelper.Find(member) is not FolderNodeViewModel folder)
             {
-                actions.Add(new ClearSelectedArea_Action(newGuid, false,
-                    document.AnimationHandler.ActiveFrameBindable));
+                newLayerGuids.Add(newGuid);
+                actions.Add(new DuplicateLayer_Action(member, newGuid));
+                if (document.SelectionPathBindable is { IsEmpty: false })
+                {
+                    actions.Add(new ClearSelectedArea_Action(newGuid, false,
+                        document.AnimationHandler.ActiveFrameBindable));
+                }
             }
+            else
+            {
+                int childCount = folder.CountChildrenRecursive();
+                Guid[] newGuidsArray = new Guid[childCount];
+                for (var j = 0; j < childCount; j++)
+                {
+                    newGuidsArray[j] = Guid.NewGuid();
+                }
+
+                actions.Add(new DuplicateFolder_Action(member, newGuid, newGuidsArray.ToImmutableList()));
+
+                newLayerGuids.AddRange(newGuidsArray);
+            }
+
+            newGuidsOfOriginal.Add(newGuid);
         }
 
         if (original != null)
@@ -314,20 +342,22 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         actions.Clear();
 
         actions.Add(new ClearSoftSelectedMembers_PassthroughAction());
-        foreach (var newGuid in newGuids)
+        foreach (var newGuid in newGuidsOfOriginal)
         {
             actions.Add(new AddSoftSelectedMember_PassthroughAction(newGuid));
         }
+        
+        actions.Add(new SetSelectedMember_PassthroughAction(newGuidsOfOriginal.Last()));
 
         internals!.ActionAccumulator.AddFinishedActions(actions.ToArray());
 
         actions.Clear();
 
         Dictionary<Guid, ShapeCorners> newMemberCorners = new();
-        for (var i = 0; i < selectedMembers.Count; i++)
+        for (var i = 0; i < memberCorners.Count; i++)
         {
-            var member = selectedMembers[i];
-            newMemberCorners.Add(newGuids[i], memberCorners[member]);
+            var member = memberCorners.ElementAt(i);
+            newMemberCorners.Add(newLayerGuids[i], member.Value);
         }
 
         actions.Add(new TransformSelected_Action(cornersOnStartDuplicate, false, newMemberCorners,
@@ -361,6 +391,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         }
 
         internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
+        internals!.ActionAccumulator.AddActions(new EndPreviewTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();
         AddSnappingForMembers(memberCorners.Keys.ToList());
@@ -383,6 +414,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         }
 
         internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
+        internals!.ActionAccumulator.AddActions(new EndPreviewTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();
         AddSnappingForMembers(memberCorners.Keys.ToList());

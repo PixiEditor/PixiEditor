@@ -216,7 +216,7 @@ internal class DocumentOperationsModule : IDocumentOperations
         {
             Guid newGuid = Guid.NewGuid();
             Internals.ActionAccumulator.AddFinishedActions(
-                new DuplicateFolder_Action(guidValue, newGuid),
+                new DuplicateFolder_Action(guidValue, newGuid, null),
                 new SetSelectedMember_PassthroughAction(newGuid));
         }
     }
