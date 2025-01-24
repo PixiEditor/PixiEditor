@@ -92,6 +92,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         {
             vm.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
             TransformingSelectedArea = false;
+            DuplicateOnMove = false;
         }
     }
 
@@ -107,6 +108,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
     {
         if (IsActive)
         {
+            TransformingSelectedArea = false;
             OnToolSelected(false);
         }
     }

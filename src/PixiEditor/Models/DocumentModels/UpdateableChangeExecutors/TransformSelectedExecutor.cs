@@ -125,8 +125,11 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         selectedMembers = members.Select(m => m.Id).ToList();
 
         lastCorners = masterCorners;
+
+        bool useGlobalUndo = !anyRaster;
+        
         document.TransformHandler.ShowTransform(mode, true, masterCorners,
-            Type == ExecutorType.Regular || tool.KeepOriginalImage);
+            Type == ExecutorType.Regular || tool.KeepOriginalImage, useGlobalUndo ? AddToUndo : null);
 
         document.TransformHandler.CanAlignToPixels = anyRaster;
 
@@ -465,5 +468,12 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     {
         return feature is ITransformableExecutor && IsTransforming || feature is IMidChangeUndoableExecutor ||
                feature is ITransformStoppedEvent;
+    }
+    
+    private void AddToUndo(ShapeCorners corners)
+    {
+        internals!.ActionAccumulator.AddFinishedActions(
+            new TransformSelected_Action(corners, tool!.KeepOriginalImage,
+            memberCorners, false, document!.AnimationHandler.ActiveFrameBindable), new EndTransformSelected_Action());
     }
 }
