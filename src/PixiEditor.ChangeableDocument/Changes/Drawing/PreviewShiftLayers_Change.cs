@@ -14,7 +14,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
-internal class PreviewTransformSelected_UpdateableChange : InterruptableUpdateableChange
+internal class PreviewShiftLayers_Change : InterruptableUpdateableChange
 {
     private readonly bool drawOnMask;
     private ShapeCorners masterCorners;
@@ -36,7 +36,7 @@ internal class PreviewTransformSelected_UpdateableChange : InterruptableUpdateab
     private static Paint RegularPaint { get; } = new() { BlendMode = BlendMode.SrcOver };
 
     [GenerateUpdateableChangeActions]
-    public PreviewTransformSelected_UpdateableChange(
+    public PreviewShiftLayers_Change(
         ShapeCorners masterCorners,
         Dictionary<Guid, ShapeCorners> memberCorners,
         int frame)

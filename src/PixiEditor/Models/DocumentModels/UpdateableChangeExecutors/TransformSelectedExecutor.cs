@@ -126,7 +126,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
         lastCorners = masterCorners;
 
-        
+
         document.TransformHandler.ShowTransform(mode, true, masterCorners,
             Type == ExecutorType.Regular || tool.KeepOriginalImage);
 
@@ -261,11 +261,11 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
                 duplicateOnStop = true;
                 internals.ActionAccumulator.AddFinishedActions(new EndTransformSelected_Action());
 
-                internals.ActionAccumulator.AddActions(new PreviewTransformSelected_Action(lastCorners, memberCorners,
+                internals.ActionAccumulator.AddActions(new PreviewTransformSelected_Action(new ShapeCorners(lastCorners.AABBBounds), memberCorners,
                     document!.AnimationHandler.ActiveFrameBindable));
             }
 
-            internals.ActionAccumulator.AddActions(new PreviewTransformSelected_Action(corners, memberCorners,
+            internals.ActionAccumulator.AddActions(new PreviewTransformSelected_Action(new ShapeCorners(corners.AABBBounds), memberCorners,
                 document!.AnimationHandler.ActiveFrameBindable));
             return;
         }
@@ -283,7 +283,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             new TransformSelected_Action(corners, tool!.KeepOriginalImage, memberCorners, false,
                 document!.AnimationHandler.ActiveFrameBindable));
     }
-    
+
     private void DuplicateSelected()
     {
         List<IAction> actions = new();
@@ -352,19 +352,12 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         internals!.ActionAccumulator.AddFinishedActions(actions.ToArray());
 
         actions.Clear();
+        
+        VecD delta = new VecD(
+            lastCorners.AABBBounds.TopLeft.X - cornersOnStartDuplicate.AABBBounds.TopLeft.X,
+            lastCorners.AABBBounds.TopLeft.Y - cornersOnStartDuplicate.AABBBounds.TopLeft.Y);
 
-        Dictionary<Guid, ShapeCorners> newMemberCorners = new();
-        for (var i = 0; i < memberCorners.Count; i++)
-        {
-            var member = memberCorners.ElementAt(i);
-            newMemberCorners.Add(newLayerGuids[i], member.Value);
-        }
-
-        actions.Add(new TransformSelected_Action(cornersOnStartDuplicate, false, newMemberCorners,
-            false, document!.AnimationHandler.ActiveFrameBindable));
-        actions.Add(new TransformSelected_Action(lastCorners, false, newMemberCorners, false,
-            document!.AnimationHandler.ActiveFrameBindable));
-        actions.Add(new EndTransformSelected_Action());
+        actions.Add(new ShiftLayer_Action(newLayerGuids, delta, document!.AnimationHandler.ActiveFrameBindable));
 
         internals!.ActionAccumulator.AddFinishedActions(actions.ToArray());
 
