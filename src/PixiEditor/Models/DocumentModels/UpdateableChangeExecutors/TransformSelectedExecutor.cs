@@ -126,10 +126,9 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
         lastCorners = masterCorners;
 
-        bool useGlobalUndo = !anyRaster;
         
         document.TransformHandler.ShowTransform(mode, true, masterCorners,
-            Type == ExecutorType.Regular || tool.KeepOriginalImage, useGlobalUndo ? AddToUndo : null);
+            Type == ExecutorType.Regular || tool.KeepOriginalImage);
 
         document.TransformHandler.CanAlignToPixels = anyRaster;
 
@@ -284,7 +283,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             new TransformSelected_Action(corners, tool!.KeepOriginalImage, memberCorners, false,
                 document!.AnimationHandler.ActiveFrameBindable));
     }
-
+    
     private void DuplicateSelected()
     {
         List<IAction> actions = new();
@@ -404,8 +403,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             tool.TransformingSelectedArea = false;
         }
 
-        internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddActions(new EndPreviewTransformSelected_Action());
+        internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();
         AddSnappingForMembers(memberCorners.Keys.ToList());
@@ -427,8 +426,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             tool.TransformingSelectedArea = false;
         }
 
-        internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddActions(new EndPreviewTransformSelected_Action());
+        internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();
         AddSnappingForMembers(memberCorners.Keys.ToList());
@@ -468,12 +467,5 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     {
         return feature is ITransformableExecutor && IsTransforming || feature is IMidChangeUndoableExecutor ||
                feature is ITransformStoppedEvent;
-    }
-    
-    private void AddToUndo(ShapeCorners corners)
-    {
-        internals!.ActionAccumulator.AddFinishedActions(
-            new TransformSelected_Action(corners, tool!.KeepOriginalImage,
-            memberCorners, false, document!.AnimationHandler.ActiveFrameBindable), new EndTransformSelected_Action());
     }
 }

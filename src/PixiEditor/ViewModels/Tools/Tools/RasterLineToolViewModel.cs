@@ -35,7 +35,7 @@ internal class RasterLineToolViewModel : ShapeTool, ILineToolHandler
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
 
-    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
     {
         DrawFromCenter = ctrlIsDown;
 

@@ -70,11 +70,11 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(true);
     }
 
-    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
     {
-        DuplicateOnMove = ctrlIsDown;
+        DuplicateOnMove = ctrlIsDown && argsKey is Key.None or Key.LeftCtrl or Key.RightCtrl && !shiftIsDown && !altIsDown;
     }
-
+    
     protected override void OnSelected(bool restoring)
     {
         if (TransformingSelectedArea)
@@ -82,6 +82,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
             return;
         }
 
+        DuplicateOnMove = false;
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(true);
     }
 
@@ -111,6 +112,16 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
             TransformingSelectedArea = false;
             OnToolSelected(false);
         }
+    }
+
+    public void OnPreUndoInlet()
+    {
+        DuplicateOnMove = false;
+    }
+    
+    public void OnPreRedoInlet()
+    {
+        DuplicateOnMove = false;
     }
 
     protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)

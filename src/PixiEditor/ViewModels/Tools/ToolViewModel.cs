@@ -153,7 +153,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
         ActionDisplay = new LocalizedString(ActionDisplay.Key);
     }
 
-    public virtual void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown) { }
+    public virtual void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey) { }
 
     public virtual void UseTool(VecD pos) { }
 
@@ -188,7 +188,9 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     public virtual void OnPostUndo() { }
     public virtual void OnPostRedo() { }
     public virtual void OnActiveFrameChanged(int newFrame) { }
+    public virtual void OnPreUndoInlet() { }
 
+    public virtual void OnPreRedoInlet() { }
     public void SetToolSetSettings(IToolSetHandler toolset, Dictionary<string, object>? settings)
     {
         if (settings == null || settings.Count == 0 || toolset == null)

@@ -47,7 +47,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
 
         public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
 
-        public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+        public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
         {
             ActionDisplay = new LocalizedString("PEN_TOOL_ACTION_DISPLAY", Shortcut);
         }
