@@ -296,13 +296,15 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         VectorPath? original = document.SelectionPathBindable != null
             ? new VectorPath(document.SelectionPathBindable)
             : null;
+
+        VectorPath? clearArea = null;
         if (original != null)
         {
             var selection = document.SelectionPathBindable;
             var inverse = new VectorPath();
             inverse.AddRect(new RectD(new(0, 0), document.SizeBindable));
 
-            actions.Add(new SetSelection_Action(inverse.Op(selection, VectorPathOp.Difference)));
+            clearArea = inverse.Op(selection, VectorPathOp.Difference);
         }
 
         for (var i = 0; i < originalSelectedMembers.Count; i++)
@@ -315,7 +317,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
                 actions.Add(new DuplicateLayer_Action(member, newGuid));
                 if (document.SelectionPathBindable is { IsEmpty: false })
                 {
-                    actions.Add(new ClearSelectedArea_Action(newGuid, false,
+                    actions.Add(new ClearSelectedArea_Action(newGuid, clearArea, false,
                         document.AnimationHandler.ActiveFrameBindable));
                 }
             }
@@ -334,7 +336,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
                 {
                     if (document.SelectionPathBindable is { IsEmpty: false })
                     {
-                        actions.Add(new ClearSelectedArea_Action(newGuidsArray[i], false,
+                        actions.Add(new ClearSelectedArea_Action(newGuidsArray[j], clearArea, false,
                             document.AnimationHandler.ActiveFrameBindable));
                     }
                 }
@@ -343,11 +345,6 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             }
 
             newGuidsOfOriginal.Add(newGuid);
-        }
-
-        if (original != null)
-        {
-            actions.Add(new SetSelection_Action(original));
         }
 
         internals!.ActionAccumulator.AddFinishedActions(actions.ToArray());

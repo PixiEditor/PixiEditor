@@ -89,7 +89,7 @@ internal class DocumentOperationsModule : IDocumentOperations
         bool drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
         if (drawOnMask && !member.HasMaskBindable)
             return;
-        Internals.ActionAccumulator.AddActions(new ClearSelectedArea_Action(member.Id, drawOnMask, frame));
+        Internals.ActionAccumulator.AddActions(new ClearSelectedArea_Action(member.Id, Internals.Tracker.Document.Selection.SelectionPath, drawOnMask, frame));
         if (clearSelection)
             Internals.ActionAccumulator.AddActions(new ClearSelection_Action());
         Internals.ActionAccumulator.AddFinishedActions();
