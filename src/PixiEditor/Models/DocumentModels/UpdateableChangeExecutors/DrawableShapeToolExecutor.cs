@@ -140,7 +140,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
         return pos1;
     }
 
-    public override void OnTransformMoved(ShapeCorners corners)
+    public override void OnTransformChanged(ShapeCorners corners)
     {
         if (ActiveMode != ShapeToolMode.Transform)
             return;

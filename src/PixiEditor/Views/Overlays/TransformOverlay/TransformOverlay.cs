@@ -179,6 +179,15 @@ internal class TransformOverlay : Overlay
         get => GetValue(LockShearProperty);
         set => SetValue(LockShearProperty, value);
     }
+
+    public static readonly StyledProperty<ICommand> TransformDraggedCommandProperty = AvaloniaProperty.Register<TransformOverlay, ICommand>(
+        nameof(TransformDraggedCommand));
+
+    public ICommand TransformDraggedCommand
+    {
+        get => GetValue(TransformDraggedCommandProperty);
+        set => SetValue(TransformDraggedCommandProperty, value);
+    }
     
     static TransformOverlay()
     {
@@ -770,9 +779,14 @@ internal class TransformOverlay : Overlay
         SnappingController.HighlightedXAxis = snapDeltaResult.SnapAxisXName;
         SnappingController.HighlightedYAxis = snapDeltaResult.SnapAxisYName;
 
+        VecD from = originOnStartMove;
+        
         Corners = ApplyCornersWithDelta(cornersOnStartMove, delta, snapDelta);
 
         InternalState = InternalState with { Origin = originOnStartMove + delta + snapDelta };
+        
+        VecD to = InternalState.Origin;
+        TransformDraggedCommand?.Execute((from, to));
     }
 
     private ShapeCorners ApplyCornersWithDelta(ShapeCorners corners, VecD delta, VecD snapDelta)

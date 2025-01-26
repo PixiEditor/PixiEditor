@@ -14,16 +14,16 @@ internal class DuplicateLayer_Change : Change
     private ConnectionsData? connectionsData;
 
     [GenerateMakeChangeAction]
-    public DuplicateLayer_Change(Guid layerGuid)
+    public DuplicateLayer_Change(Guid layerGuid, Guid newGuid)
     {
         this.layerGuid = layerGuid;
+        this.duplicateGuid = newGuid;
     }
 
     public override bool InitializeAndValidate(Document target)
     {
         if (!target.TryFindMember<LayerNode>(layerGuid, out LayerNode? layer))
             return false;
-        duplicateGuid = Guid.NewGuid();
         
         connectionsData = NodeOperations.CreateConnectionsData(layer);
         
