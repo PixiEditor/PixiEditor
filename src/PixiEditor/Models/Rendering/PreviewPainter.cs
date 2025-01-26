@@ -156,7 +156,7 @@ public class PreviewPainter
                             return;
                         }
                         
-                        if (renderTexture != null && !renderTexture.IsDisposed)
+                        if (renderTexture is { IsDisposed: false })
                         {
                             renderTexture.DrawingSurface.Canvas.Restore();
                         }

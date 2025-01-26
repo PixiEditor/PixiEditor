@@ -62,7 +62,7 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
 
     public bool IsTransforming => true; 
 
-    public void OnTransformMoved(ShapeCorners corners)
+    public void OnTransformChanged(ShapeCorners corners)
     {
         internals!.ActionAccumulator.AddActions(new PasteImage_Action(image, corners, memberGuid.Value, false, drawOnMask, document!.AnimationHandler.ActiveFrameBindable, default));
     }

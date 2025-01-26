@@ -236,7 +236,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         NodeGraph = new NodeGraphViewModel(this, Internals);
 
         TransformViewModel = new(this);
-        TransformViewModel.TransformMoved += (_, args) => Internals.ChangeController.TransformMovedInlet(args);
+        TransformViewModel.TransformChanged += (args) => Internals.ChangeController.TransformChangedInlet(args);
+        TransformViewModel.TransformDragged += (from, to) => Internals.ChangeController.TransformDraggedInlet(from, to);
+        TransformViewModel.TransformStopped += () => Internals.ChangeController.TransformStoppedInlet();
 
         PathOverlayViewModel = new(this, Internals);
         PathOverlayViewModel.PathChanged += path =>
@@ -547,7 +549,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         for (int i = 0; i < selectedLayers.Count; i++)
         {
-            var memberVm = StructureHelper.Find(selectedLayers[i]);
+            var memberVm = StructureHelper.Find(selectedLayers.ElementAt(i));
             IReadOnlyStructureNode? layer = Internals.Tracker.Document.FindMember(memberVm.Id);
             if (layer is null)
                 return new Error();
@@ -679,7 +681,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             if (scope == DocumentScope.AllLayers)
             {
                 using Surface tmpSurface = new Surface(SizeBindable);
-                HashSet<Guid> layers = StructureHelper.GetAllMembers().Select(x => x.Id).ToHashSet();
+                HashSet<Guid> layers = StructureHelper.TraverseAllMembers().Select(x => x.Id).ToHashSet();
                 Renderer.RenderLayers(tmpSurface.DrawingSurface, layers, frameTime.Frame, ChunkResolution.Full,
                     SizeBindable);
 
@@ -814,8 +816,15 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         List<Guid> layerGuids = new List<Guid>();
         if (SelectedStructureMember is not null)
             layerGuids.Add(SelectedStructureMember.Id);
+        
+        foreach (var member in softSelectedStructureMembers)
+        {
+            if (member.Id != SelectedStructureMember?.Id)
+            {
+                layerGuids.Add(member.Id);
+            }
+        }
 
-        layerGuids.AddRange(softSelectedStructureMembers.Select(x => x.Id));
         return layerGuids;
     }
 
@@ -824,9 +833,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     /// </summary>
     /// <param name="includeFoldersWithMask">Should folders with mask be included</param>
     /// <returns>A list of GUIDs of selected layers</returns>
-    public List<Guid> ExtractSelectedLayers(bool includeFoldersWithMask = false)
+    public HashSet<Guid> ExtractSelectedLayers(bool includeFoldersWithMask = false)
     {
-        var result = new List<Guid>();
+        var result = new HashSet<Guid>();
         List<Guid> selectedMembers = GetSelectedMembers();
         var allLayers = StructureHelper.GetAllMembers();
         foreach (var member in allLayers)
@@ -855,7 +864,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         OnPropertyChanged(nameof(AllChangesSaved));
     }
 
-    private void ExtractSelectedLayers(IFolderHandler folder, List<Guid> list,
+    private void ExtractSelectedLayers(IFolderHandler folder, HashSet<Guid> list,
         bool includeFoldersWithMask)
     {
         foreach (var member in folder.Children)

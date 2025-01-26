@@ -58,7 +58,7 @@ internal interface IDocument : IHandler
     public void SetProcessingColorSpace(ColorSpace infoColorSpace);
     public void SetSize(VecI infoSize);
     public Color PickColor(VecD controllerLastPrecisePosition, DocumentScope scope, bool includeReference, bool includeCanvas, int frame, bool isTopMost);
-    public List<Guid> ExtractSelectedLayers(bool includeFoldersWithMask = false);
+    public HashSet<Guid> ExtractSelectedLayers(bool includeFoldersWithMask = false);
     public void UpdateSavedState();
 
     internal void InternalRaiseLayersChanged(LayersChangedEventArgs e);

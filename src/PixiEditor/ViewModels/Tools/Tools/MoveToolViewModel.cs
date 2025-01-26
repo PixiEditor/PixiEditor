@@ -42,6 +42,13 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         }
     }
 
+    [Settings.Bool("_duplicate_on_move", ExposedByDefault = false)]
+    public bool DuplicateOnMove
+    {
+        get => GetValue<bool>();
+        set => SetValue(value);
+    }
+
     public override BrushShape BrushShape => BrushShape.Hidden;
     public override Type[]? SupportedLayerTypes { get; } = null;
     public override Type LayerTypeToCreateOnEmptyUse { get; } = null;
@@ -57,23 +64,25 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         }
     }
 
+
     public override void UseTool(VecD pos)
     {
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(true);
     }
 
-    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
     {
-        
+        DuplicateOnMove = ctrlIsDown && argsKey is Key.None or Key.LeftCtrl or Key.RightCtrl && !shiftIsDown && !altIsDown;
     }
-
+    
     protected override void OnSelected(bool restoring)
     {
         if (TransformingSelectedArea)
         {
             return;
         }
-        
+
+        DuplicateOnMove = false;
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(true);
     }
 
@@ -84,6 +93,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         {
             vm.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
             TransformingSelectedArea = false;
+            DuplicateOnMove = false;
         }
     }
 
@@ -91,7 +101,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
     {
         if (IsActive)
         {
-           OnToolSelected(false);
+            OnToolSelected(false);
         }
     }
 
@@ -99,15 +109,26 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
     {
         if (IsActive)
         {
+            TransformingSelectedArea = false;
             OnToolSelected(false);
         }
+    }
+
+    public override void OnPreUndoInlet()
+    {
+        DuplicateOnMove = false;
+    }
+    
+    public override void OnPreRedoInlet()
+    {
+        DuplicateOnMove = false;
     }
 
     protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
     {
         UpdateSelection();
     }
-    
+
     public override void OnActiveFrameChanged(int newFrame)
     {
         UpdateSelection();
@@ -126,7 +147,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         {
             return;
         }
-        
+
         activeDocument.TransformViewModel.ShowTransformControls = KeepOriginalImage;
     }
 }

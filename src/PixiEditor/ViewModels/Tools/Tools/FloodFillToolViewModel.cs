@@ -42,7 +42,7 @@ internal class FloodFillToolViewModel : ToolViewModel, IFloodFillToolHandler
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
 
-    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
     {
         if (ctrlIsDown)
         {

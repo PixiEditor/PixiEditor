@@ -43,7 +43,7 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
 
-    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
     {
         DrawFromCenter = ctrlIsDown;
 

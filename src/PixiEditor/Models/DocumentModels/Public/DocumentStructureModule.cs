@@ -146,7 +146,7 @@ internal class DocumentStructureModule
         return layers;
     }
 
-    public List<IStructureMemberHandler> GetAllMembers()
+    public List<IStructureMemberHandler> TraverseAllMembers()
     {
         List<IStructureMemberHandler> members = new List<IStructureMemberHandler>();
 
@@ -156,6 +156,19 @@ internal class DocumentStructureModule
                 members.Add(member);
             return true;
         });
+
+        return members;
+    }
+
+    public List<IStructureMemberHandler> GetAllMembers()
+    {
+        List<IStructureMemberHandler> members = new List<IStructureMemberHandler>();
+
+        foreach (INodeHandler node in doc.NodeGraphHandler.AllNodes)
+        {
+            if (node is IStructureMemberHandler member)
+                members.Add(member);
+        }
 
         return members;
     }

@@ -33,4 +33,6 @@ internal interface IToolsHandler : IHandler
     public void AddPropertyChangedCallback(string propertyName, Action callback);
     public void OnPostUndoInlet();
     public void OnPostRedoInlet();
+    public void OnPreRedoInlet();
+    public void OnPreUndoInlet();
 }

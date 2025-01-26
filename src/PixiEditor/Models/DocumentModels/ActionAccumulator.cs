@@ -95,60 +95,77 @@ internal class ActionAccumulator
         };
         busyTimer.Start();
 
-        while (queuedActions.Count > 0)
+        try
         {
-            var toExecute = queuedActions;
-            queuedActions = new();
-
-            List<IChangeInfo?> changes;
-            if (AreAllPassthrough(toExecute))
+            while (queuedActions.Count > 0)
             {
-                changes = toExecute.Select(a => (IChangeInfo?)a.action).ToList();
-            }
-            else
-            {
-                changes = await internals.Tracker.ProcessActions(toExecute);
-            }
+                var toExecute = queuedActions;
+                queuedActions = new();
 
-            List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);
-            bool undoBoundaryPassed =
-                toExecute.Any(static action => action.action is ChangeBoundary_Action or Redo_Action or Undo_Action);
-            bool viewportRefreshRequest =
-                toExecute.Any(static action => action.action is RefreshViewport_PassthroughAction);
-            bool changeFrameRequest =
-                toExecute.Any(static action => action.action is SetActiveFrame_PassthroughAction);
-            foreach (IChangeInfo info in optimizedChanges)
-            {
-                internals.Updater.ApplyChangeFromChangeInfo(info);
-            }
+                List<IChangeInfo?> changes;
+                if (AreAllPassthrough(toExecute))
+                {
+                    changes = toExecute.Select(a => (IChangeInfo?)a.action).ToList();
+                }
+                else
+                {
+                    changes = await internals.Tracker.ProcessActions(toExecute);
+                }
 
-            if (undoBoundaryPassed)
-                internals.Updater.AfterUndoBoundaryPassed();
+                List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);
+                bool undoBoundaryPassed =
+                    toExecute.Any(static action =>
+                        action.action is ChangeBoundary_Action or Redo_Action or Undo_Action);
+                bool viewportRefreshRequest =
+                    toExecute.Any(static action => action.action is RefreshViewport_PassthroughAction);
+                bool changeFrameRequest =
+                    toExecute.Any(static action => action.action is SetActiveFrame_PassthroughAction);
+                foreach (IChangeInfo info in optimizedChanges)
+                {
+                    internals.Updater.ApplyChangeFromChangeInfo(info);
+                }
 
-            // update the contents of the bitmaps
-            var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime, internals.Tracker,
-                optimizedChanges);
-            if (DrawingBackendApi.Current.IsHardwareAccelerated)
-            {
-                canvasUpdater.UpdateGatheredChunksSync(affectedAreas,
-                    undoBoundaryPassed || viewportRefreshRequest);
-            }
-            else
-            {
-                await canvasUpdater.UpdateGatheredChunks(affectedAreas,
-                    undoBoundaryPassed || viewportRefreshRequest);
-            }
+                if (undoBoundaryPassed)
+                    internals.Updater.AfterUndoBoundaryPassed();
 
-            previewUpdater.UpdatePreviews(undoBoundaryPassed || changeFrameRequest || viewportRefreshRequest, affectedAreas.ImagePreviewAreas.Keys,
-                affectedAreas.MaskPreviewAreas.Keys,
-                affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames);
+                // update the contents of the bitmaps
+                var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime,
+                    internals.Tracker,
+                    optimizedChanges);
+                if (DrawingBackendApi.Current.IsHardwareAccelerated)
+                {
+                    canvasUpdater.UpdateGatheredChunksSync(affectedAreas,
+                        undoBoundaryPassed || viewportRefreshRequest);
+                }
+                else
+                {
+                    await canvasUpdater.UpdateGatheredChunks(affectedAreas,
+                        undoBoundaryPassed || viewportRefreshRequest);
+                }
 
-            // force refresh viewports for better responsiveness
-            foreach (var (_, value) in internals.State.Viewports)
-            {
-                if (!value.Delayed)
-                    value.InvalidateVisual();
+                previewUpdater.UpdatePreviews(undoBoundaryPassed || changeFrameRequest || viewportRefreshRequest,
+                    affectedAreas.ImagePreviewAreas.Keys,
+                    affectedAreas.MaskPreviewAreas.Keys,
+                    affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames);
+
+                // force refresh viewports for better responsiveness
+                foreach (var (_, value) in internals.State.Viewports)
+                {
+                    if (!value.Delayed)
+                        value.InvalidateVisual();
+                }
             }
+        }
+        catch (Exception e)
+        {
+            busyTimer.Stop();
+            document.Busy = false;
+            executing = false;
+#if DEBUG
+            Console.WriteLine(e);
+#endif
+            await CrashHelper.SendExceptionInfoAsync(e);
+            throw;
         }
 
         busyTimer.Stop();
