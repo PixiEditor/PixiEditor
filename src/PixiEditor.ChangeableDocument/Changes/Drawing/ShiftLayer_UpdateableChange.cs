@@ -3,6 +3,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.ChangeInfos.Vectors;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
@@ -63,8 +64,10 @@ internal class ShiftLayer_UpdateableChange : Change
             else if (layer is ITransformableObject transformableObject)
             {
                 originalTransformations[layerGuid] = transformableObject.TransformationMatrix;
+                AffectedArea affected = AffectedAreaFromBounds(target, layerGuid, frame);
                 transformableObject.TransformationMatrix = transformableObject.TransformationMatrix.PostConcat(
                 Matrix3X3.CreateTranslation((float)delta.X, (float)delta.Y));
+                changes.Add(new VectorShape_ChangeInfo(layerGuid, affected));
             }
         }
 
@@ -101,5 +104,41 @@ internal class ShiftLayer_UpdateableChange : Change
         {
             value?.Dispose();
         }
+    }
+    
+    internal static AffectedArea AffectedAreaFromBounds(Document target, Guid layerGuid, int frame)
+    {
+        HashSet<VecI> chunks = new HashSet<VecI>();
+        
+        var layer = target.FindMemberOrThrow<LayerNode>(layerGuid);
+        if (layer is not VectorLayerNode vectorLayer)
+        {
+            return new AffectedArea();
+        }
+
+        RectD? bounds = vectorLayer.GetTightBounds(frame);
+        if (bounds is null)
+        {
+            return new AffectedArea();
+        }
+        
+        RectD boundsValue = bounds.Value;
+
+        int chunkSize = ChunkyImage.FullChunkSize;
+        
+        VecI start = new VecI((int)boundsValue.X / chunkSize, (int)boundsValue.Y / chunkSize);
+        VecI end = new VecI((int)(boundsValue.X + boundsValue.Width) / chunkSize, (int)(boundsValue.Y + boundsValue.Height) / chunkSize);
+        
+        HashSet<VecI> affectedChunks = new HashSet<VecI>();
+        
+        for (int x = start.X; x <= end.X; x++)
+        {
+            for (int y = start.Y; y <= end.Y; y++)
+            {
+                affectedChunks.Add(new VecI(x, y));
+            }
+        }
+        
+        return new AffectedArea(affectedChunks);
     }
 }

@@ -230,7 +230,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         if (isInProgress)
         {
             internals.ActionAccumulator.AddActions(new EndTransformSelected_Action());
-            internals!.ActionAccumulator.AddActions(new EndPreviewTransformSelected_Action());
+            internals!.ActionAccumulator.AddActions(new EndPreviewShiftLayers_Action());
             document!.TransformHandler.HideTransform();
             AddSnappingForMembers(selectedMembers);
 
@@ -260,12 +260,13 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
                 cornersOnStartDuplicate = lastCorners;
                 duplicateOnStop = true;
                 internals.ActionAccumulator.AddFinishedActions(new EndTransformSelected_Action());
-
-                internals.ActionAccumulator.AddActions(new PreviewTransformSelected_Action(new ShapeCorners(lastCorners.AABBBounds), memberCorners,
-                    document!.AnimationHandler.ActiveFrameBindable));
             }
 
-            internals.ActionAccumulator.AddActions(new PreviewTransformSelected_Action(new ShapeCorners(corners.AABBBounds), memberCorners,
+            VecD delta = new VecD(
+                corners.AABBBounds.TopLeft.X - cornersOnStartDuplicate.AABBBounds.TopLeft.X,
+                corners.AABBBounds.TopLeft.Y - cornersOnStartDuplicate.AABBBounds.TopLeft.Y);
+
+            internals.ActionAccumulator.AddActions(new PreviewShiftLayers_Action(selectedMembers, delta,
                 document!.AnimationHandler.ActiveFrameBindable));
             return;
         }
@@ -293,7 +294,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
         internals.ActionAccumulator.StartChangeBlock();
 
-        actions.Add(new EndPreviewTransformSelected_Action());
+        actions.Add(new EndPreviewShiftLayers_Action());
 
         VectorPath? original = document.SelectionPathBindable != null
             ? new VectorPath(document.SelectionPathBindable)
@@ -352,7 +353,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         internals!.ActionAccumulator.AddFinishedActions(actions.ToArray());
 
         actions.Clear();
-        
+
         VecD delta = new VecD(
             lastCorners.AABBBounds.TopLeft.X - cornersOnStartDuplicate.AABBBounds.TopLeft.X,
             lastCorners.AABBBounds.TopLeft.Y - cornersOnStartDuplicate.AABBBounds.TopLeft.Y);
@@ -396,7 +397,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             tool.TransformingSelectedArea = false;
         }
 
-        internals!.ActionAccumulator.AddActions(new EndPreviewTransformSelected_Action());
+        internals!.ActionAccumulator.AddActions(new EndPreviewShiftLayers_Action());
         internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();
@@ -419,7 +420,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             tool.TransformingSelectedArea = false;
         }
 
-        internals!.ActionAccumulator.AddActions(new EndPreviewTransformSelected_Action());
+        internals!.ActionAccumulator.AddActions(new EndPreviewShiftLayers_Action());
         internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();
