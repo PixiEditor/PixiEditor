@@ -20,7 +20,8 @@ using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
-internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransformableExecutor, IMidChangeUndoableExecutor,
+internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransformableExecutor, ITransformDraggedEvent,
+    IMidChangeUndoableExecutor,
     ITransformStoppedEvent
 {
     private Dictionary<Guid, ShapeCorners> memberCorners = new();
@@ -242,13 +243,13 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
     public bool IsTransforming => isInProgress;
 
-    public void OnTransformMoved(ShapeCorners corners)
+    public void OnTransformChanged(ShapeCorners corners)
     {
         DoTransform(corners);
         lastCorners = corners;
     }
 
-    private void DoTransform(ShapeCorners corners)
+    public void OnTransformDragged(VecD from, VecD to)
     {
         if (!isInProgress)
             return;
@@ -263,13 +264,20 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             }
 
             VecD delta = new VecD(
-                corners.AABBBounds.TopLeft.X - cornersOnStartDuplicate.AABBBounds.TopLeft.X,
-                corners.AABBBounds.TopLeft.Y - cornersOnStartDuplicate.AABBBounds.TopLeft.Y);
+                to.X - from.X,
+                to.Y - from.Y);
 
             internals.ActionAccumulator.AddActions(new PreviewShiftLayers_Action(selectedMembers, delta,
                 document!.AnimationHandler.ActiveFrameBindable));
-            return;
         }
+    }
+
+    private void DoTransform(ShapeCorners corners)
+    {
+        if (!isInProgress)
+            return;
+
+        if (duplicateOnStop) return;
 
         if (!movedOnce)
         {
@@ -460,6 +468,6 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     public bool IsFeatureEnabled(IExecutorFeature feature)
     {
         return feature is ITransformableExecutor && IsTransforming || feature is IMidChangeUndoableExecutor ||
-               feature is ITransformStoppedEvent;
+               feature is ITransformStoppedEvent || feature is ITransformDraggedEvent;
     }
 }

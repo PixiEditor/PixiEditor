@@ -221,12 +221,20 @@ internal class ChangeExecutionController
         currentSession?.OnLeftMouseButtonUp(argsPositionOnCanvas);
     }
 
-    public void TransformMovedInlet(ShapeCorners corners)
+    public void TransformChangedInlet(ShapeCorners corners)
     {
         if (currentSession is ITransformableExecutor transformableExecutor)
         {
             LastTransformState = corners;
-            transformableExecutor.OnTransformMoved(corners);
+            transformableExecutor.OnTransformChanged(corners);
+        }
+    }
+    
+    public void TransformDraggedInlet(VecD from, VecD to)
+    {
+        if (currentSession is ITransformDraggedEvent transformableExecutor)
+        {
+            transformableExecutor.OnTransformDragged(from, to);
         }
     }
 

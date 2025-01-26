@@ -135,7 +135,7 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
         set
         {
             SetProperty(ref corners, value);
-            TransformMoved?.Invoke(value);
+            TransformChanged?.Invoke(value);
         }
     }
 
@@ -190,8 +190,15 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
                 new RelayCommand<MouseOnCanvasEventArgs>(x => PassthroughPointerPressed?.Invoke(x));
         }
     }
+    
+    private RelayCommand<(VecD, VecD)>? transformDraggedCommand;
+    public RelayCommand<(VecD, VecD)> TransformDraggedCommand
+    {
+        get => transformDraggedCommand ??= new RelayCommand<(VecD from, VecD to)>(x => TransformDragged?.Invoke(x.from, x.to));
+    }
 
-    public event Action<ShapeCorners>? TransformMoved;
+    public event Action<ShapeCorners>? TransformChanged;
+    public event Action<VecD, VecD> TransformDragged;
     public event Action TransformStopped; 
 
     private DocumentTransformMode activeTransformMode = DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective;

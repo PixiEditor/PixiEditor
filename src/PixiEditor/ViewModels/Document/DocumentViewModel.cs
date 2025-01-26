@@ -236,7 +236,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         NodeGraph = new NodeGraphViewModel(this, Internals);
 
         TransformViewModel = new(this);
-        TransformViewModel.TransformMoved += (args) => Internals.ChangeController.TransformMovedInlet(args);
+        TransformViewModel.TransformChanged += (args) => Internals.ChangeController.TransformChangedInlet(args);
+        TransformViewModel.TransformDragged += (from, to) => Internals.ChangeController.TransformDraggedInlet(from, to);
         TransformViewModel.TransformStopped += () => Internals.ChangeController.TransformStoppedInlet();
 
         PathOverlayViewModel = new(this, Internals);
