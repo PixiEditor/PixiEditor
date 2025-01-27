@@ -97,7 +97,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
 
             ActiveMode = ShapeToolMode.Transform;
 
-            document.LineToolOverlayHandler.Show(data.Start, data.End, false, AddToUndo);
+            document.LineToolOverlayHandler.Show(data.TransformedStart, data.TransformedEnd, false, AddToUndo);
         }
         else
         {

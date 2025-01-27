@@ -18,7 +18,7 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
         get => lineStart;
         set
         {
-            if (SetProperty(ref lineStart, value))
+            if (SetProperty(ref lineStart, value) && isInitialized)
                 LineMoved?.Invoke(this, (lineStart, lineEnd));
         }
     }
@@ -30,7 +30,7 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
         get => lineEnd;
         set
         {
-            if (SetProperty(ref lineEnd, value))
+            if (SetProperty(ref lineEnd, value) && isInitialized)
                 LineMoved?.Invoke(this, (lineStart, lineEnd));
         }
     }
@@ -80,12 +80,15 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
         set => SetProperty(ref showApplyButton, value);
     }
 
+    private bool isInitialized;
+    
     public LineToolOverlayViewModel()
     {
     }
 
     public void Show(VecD lineStart, VecD endPos, bool showApplyButton, Action<(VecD, VecD)> addToUndo)
     {
+        isInitialized = false;
         LineStart = lineStart;
         LineEnd = endPos; 
         IsEnabled = true;
@@ -93,6 +96,8 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
         ShowHandles = true;
         IsSizeBoxEnabled = false;
         AddToUndoCommand = new RelayCommand(() => addToUndo((LineStart, LineEnd)));
+        
+        isInitialized = true;
     }
 
     public void Hide()
@@ -100,6 +105,7 @@ internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler
         IsEnabled = false;
         ShowApplyButton = false;
         IsSizeBoxEnabled = false;
+        isInitialized = false;
     }
 
     public bool Nudge(VecD distance)

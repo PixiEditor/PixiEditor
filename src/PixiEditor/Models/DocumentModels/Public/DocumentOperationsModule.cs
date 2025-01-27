@@ -906,4 +906,14 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ActionAccumulator.AddFinishedActions(actions.ToArray());
     }
+
+    public void ConvertToCurve(Guid memberId)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new ConvertToCurve_Action(memberId));
+    }
 }
