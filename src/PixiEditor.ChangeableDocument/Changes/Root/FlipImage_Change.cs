@@ -6,6 +6,7 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
@@ -111,7 +112,16 @@ internal sealed class FlipImage_Change : Change
                         new LayerImageArea_ChangeInfo(member.Id, image.FindAffectedArea()));
                     image.CommitChanges();
                 }
-                // TODO: Add support for non-raster layers
+                else if (member is ITransformableObject transformableObject)
+                {
+                    RectD? tightBounds = member.GetTightBounds(frame);
+                    if(tightBounds == null) return;
+                    transformableObject.TransformationMatrix = transformableObject.TransformationMatrix.PostConcat(
+                        Matrix3X3.CreateScale(
+                            flipType == FlipType.Horizontal ? -1 : 1,
+                            flipType == FlipType.Vertical ? -1 : 1, 
+                            (float)tightBounds.Value.Center.X, (float)tightBounds.Value.Center.Y));
+                }
 
                 if (member.EmbeddedMask is not null)
                 {

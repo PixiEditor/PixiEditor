@@ -834,5 +834,7 @@
   "BLUR_FILTER_NODE": "Gaussian Blur Filter",
   "LENGTH": "Length",
   "GREATER_THAN_OR_EQUAL": "Greater than or equal",
-  "COLOR_NODE": "Color"
+  "COLOR_NODE": "Color",
+  "CONVERT_TO_CURVE": "Convert to curve",
+  "CONVERT_TO_CURVE_DESCRIPTIVE": "Convert selected vector layer to a curve/path"
 }
