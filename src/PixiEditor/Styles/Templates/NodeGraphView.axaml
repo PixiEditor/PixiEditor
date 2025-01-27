@@ -7,7 +7,6 @@
         <Setter Property="Template">
             <ControlTemplate>
                 <Grid Background="Transparent">
-
                     <Rectangle Name="PART_SelectionRectangle" HorizontalAlignment="Left"
                                VerticalAlignment="Top"
                                IsVisible="False" ZIndex="100"
@@ -20,6 +19,7 @@
                                 SelectNodeCommand="{Binding CreateNodeFromContextCommand, RelativeSource={RelativeSource TemplatedParent}}" />
                         </Flyout>
                     </Grid.ContextFlyout>
+                    <Button Content="Autosort" Width="100" Height="" HorizontalAlignment="Left" VerticalAlignment="Top" Name="PART_SortButton"/>
                     <ItemsControl ZIndex="1" ClipToBounds="False"
                                   Name="PART_Nodes"
                                   ItemsSource="{Binding NodeGraph.AllNodes, RelativeSource={RelativeSource TemplatedParent}}">

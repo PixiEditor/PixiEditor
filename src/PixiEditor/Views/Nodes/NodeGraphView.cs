@@ -9,6 +9,7 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -27,6 +28,7 @@ using Point = Avalonia.Point;
 namespace PixiEditor.Views.Nodes;
 
 [TemplatePart("PART_SelectionRectangle", typeof(Rectangle))]
+[TemplatePart("PART_SortButton", typeof(Button))]
 internal class NodeGraphView : Zoombox.Zoombox
 {
     public static readonly StyledProperty<INodeGraphHandler> NodeGraphProperty =
@@ -229,6 +231,9 @@ internal class NodeGraphView : Zoombox.Zoombox
         nodeItemsControl = e.NameScope.Find<ItemsControl>("PART_Nodes");
         connectionItemsControl = e.NameScope.Find<ItemsControl>("PART_Connections");
         selectionRectangle = e.NameScope.Find<Rectangle>("PART_SelectionRectangle");
+        
+        Button sortButton = e.NameScope.Find<Button>("PART_SortButton");
+        sortButton.Click += SortButton_Click;
 
         Dispatcher.UIThread.Post(() =>
         {
@@ -311,7 +316,7 @@ internal class NodeGraphView : Zoombox.Zoombox
                     () =>
                     {
                         UpdateConnections(FindNodeView(node));
-                    }, DispatcherPriority.Render);
+                    });
             }
         }
     }
@@ -712,5 +717,34 @@ internal class NodeGraphView : Zoombox.Zoombox
         {
             node.IsNodeSelected = false;
         }
+    }
+    
+    private void SortButton_Click(object sender, RoutedEventArgs e)
+    {
+        Dictionary<INodeHandler, RectD> boundsMap = new();
+        foreach (var nodeView in nodeViewsCache)
+        {
+            if (nodeView is ContentPresenter { Child: NodeView node })
+            {
+                var bounds = node.Bounds;
+                boundsMap[node.Node] = new RectD(bounds.X, bounds.Y, bounds.Width, bounds.Height);
+            }
+        }
+        
+        const double padding = 50;
+
+        NodeGraph.OutputNode.TraverseBackwards((node, previousNode) =>
+        {
+            if(previousNode == null) return true;
+            
+            RectD previousBounds = boundsMap[previousNode];
+            RectD bounds = boundsMap[node];
+            
+            bounds = new RectD(previousBounds.X - previousBounds.Width - padding, previousBounds.Y, bounds.Width, bounds.Height);
+            
+            node.PositionBindable = bounds.TopLeft;
+            boundsMap[node] = bounds;
+            return true;
+        });
     }
 }
