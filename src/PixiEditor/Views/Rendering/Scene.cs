@@ -638,7 +638,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     protected void RenderFrame(PixelSize size)
     {
-        if (resources != null)
+        if (resources != null && !resources.IsDisposed)
         {
             if (size.Width == 0 || size.Height == 0)
             {
