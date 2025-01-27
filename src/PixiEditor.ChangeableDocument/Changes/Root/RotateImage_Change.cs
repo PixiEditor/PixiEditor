@@ -6,6 +6,7 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
@@ -172,8 +173,14 @@ internal sealed class RotateImage_Change : Change
                         });
                     }
                 }
-
-                // TODO: Add support for different Layer types
+                else if (member is ITransformableObject transformableObject)
+                {
+                    RectD? tightBounds = member.GetTightBounds(frame.Value);
+                    transformableObject.TransformationMatrix = transformableObject.TransformationMatrix.PostConcat(
+                        Matrix3X3.CreateRotation(
+                            RotationAngleToRadians(rotation),
+                            (float?)tightBounds?.Center.X ?? 0, (float?)tightBounds?.Center.Y ?? 0));
+                }
 
                 if (member.EmbeddedMask is null)
                     return;
