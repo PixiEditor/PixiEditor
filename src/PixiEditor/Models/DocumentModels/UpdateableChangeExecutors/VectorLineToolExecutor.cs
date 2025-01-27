@@ -24,8 +24,8 @@ internal class VectorLineToolExecutor : LineExecutor<IVectorLineToolHandler>
         if (data is null)
             return false;
 
-        startPoint = data.Start;
-        endPoint = data.End;
+        startPoint = data.TransformedStart;
+        endPoint = data.TransformedEnd;
 
         return true;
     }
