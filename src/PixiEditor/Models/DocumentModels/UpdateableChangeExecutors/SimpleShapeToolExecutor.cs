@@ -145,7 +145,7 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
 
     public bool IsTransforming => ActiveMode == ShapeToolMode.Transform; 
 
-    public virtual void OnTransformMoved(ShapeCorners corners)
+    public virtual void OnTransformChanged(ShapeCorners corners)
     {
         
     }

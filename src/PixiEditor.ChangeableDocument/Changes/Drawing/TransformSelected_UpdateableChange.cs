@@ -9,6 +9,7 @@ using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
@@ -118,21 +119,22 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
             }
             else if (layer is ITransformableObject transformable)
             {
-                SetTransformableMember(layer, member, transformable, tightBounds);
+                SetTransformableMember(layer.Id, member, transformable, tightBounds);
             }
         }
 
         return true;
     }
 
-    private void SetTransformableMember(StructureNode layer, MemberTransformationData member,
+    private void SetTransformableMember(Guid transformableId,
+        MemberTransformationData member,
         ITransformableObject transformable, RectD tightBounds)
     {
         member.OriginalBounds = tightBounds; 
         VecD posRelativeToMaster = member.OriginalBounds.Value.TopLeft - masterCorners.TopLeft;
 
         member.OriginalPos = (VecI)posRelativeToMaster;
-        member.AddTransformableObject(transformable, transformable.TransformationMatrix);
+        member.AddTransformableObject(transformableId, transformable.TransformationMatrix);
     }
 
     private void SetImageMember(Document target, MemberTransformationData member, RectD originalTightBounds,
@@ -255,7 +257,8 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
             }
             else if (member.IsTransformable)
             {
-                member.TransformableObject.TransformationMatrix = member.LocalMatrix;
+                var transformable = target.FindMemberOrThrow(member.MemberId) as ITransformableObject;
+                transformable.TransformationMatrix = member.LocalMatrix;
 
                 AffectedArea area = GetTranslationAffectedArea();
                 infos.Add(new TransformObject_ChangeInfo(member.MemberId, area));
@@ -290,7 +293,8 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
             }
             else if (member.IsTransformable)
             {
-                member.TransformableObject.TransformationMatrix = member.LocalMatrix;
+                var transformable = target.FindMemberOrThrow(member.MemberId) as ITransformableObject;
+                transformable.TransformationMatrix = member.LocalMatrix;
 
                 AffectedArea translationAffectedArea = GetTranslationAffectedArea();
                 var tmp = new AffectedArea(translationAffectedArea);
@@ -331,7 +335,8 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
             }
             else if (member.IsTransformable)
             {
-                member.TransformableObject.TransformationMatrix = member.OriginalMatrix!.Value;
+                var transformable = target.FindMemberOrThrow(member.MemberId) as ITransformableObject;
+                transformable.TransformationMatrix = member.OriginalMatrix!.Value;
 
                 //TODO this is probably wrong
                 AffectedArea area = GetTranslationAffectedArea();
@@ -409,8 +414,8 @@ class MemberTransformationData : IDisposable
     public Guid MemberId { get; }
     public ShapeCorners MemberCorners { get; init; }
 
-    public ITransformableObject? TransformableObject { get; private set; }
-    public Matrix3X3? OriginalMatrix { get; private set; }
+    public Guid TransformableObjectId { get; private set; }
+    public Matrix3X3? OriginalMatrix { get; set; }
 
     public CommittedChunkStorage? SavedChunks { get; set; }
     public VectorPath? OriginalPath { get; set; }
@@ -418,18 +423,19 @@ class MemberTransformationData : IDisposable
     public RectD? OriginalBounds { get; set; }
     public VecD? OriginalPos { get; set; }
     public bool IsImage => Image != null;
-    public bool IsTransformable => TransformableObject != null;
+    public bool IsTransformable => TransformableObjectId != default;
     public RectI? RoundedOriginalBounds => (RectI)OriginalBounds?.RoundOutwards();
     public Matrix3X3 LocalMatrix { get; set; }
+    public ShapeVectorData? OriginalShapeData { get; set; }
 
     public MemberTransformationData(Guid memberId)
     {
         MemberId = memberId;
     }
 
-    public void AddTransformableObject(ITransformableObject transformableObject, Matrix3X3 originalMatrix)
+    public void AddTransformableObject(Guid transformableObject, Matrix3X3 originalMatrix)
     {
-        TransformableObject = transformableObject;
+        TransformableObjectId = transformableObject;
         OriginalMatrix = new Matrix3X3?(originalMatrix);
     }
 
@@ -446,5 +452,6 @@ class MemberTransformationData : IDisposable
         OriginalPath?.Dispose();
         OriginalPath = null;
         SavedChunks?.Dispose();
+        OriginalShapeData = null;
     }
 }

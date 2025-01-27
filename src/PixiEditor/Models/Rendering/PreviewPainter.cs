@@ -167,8 +167,8 @@ public class PreviewPainter
                             dirtyTextures.Remove(texture);
                             return;
                         }
-
-                        if (renderTexture != null && !renderTexture.IsDisposed)
+                        
+                        if (renderTexture is { IsDisposed: false })
                         {
                             try
                             {

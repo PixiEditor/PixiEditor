@@ -10,4 +10,22 @@ namespace PixiEditor.ViewModels.Document.Nodes;
 internal class FolderNodeViewModel : StructureMemberViewModel<FolderNode>, IFolderHandler
 {
     public ObservableCollection<IStructureMemberHandler> Children { get; } = new();
+
+    public int CountChildrenRecursive()
+    {
+        int count = 0;
+        foreach (var child in Children)
+        {
+            if (child is FolderNodeViewModel folder)
+            {
+                count += folder.CountChildrenRecursive();
+            }
+            else
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
 }

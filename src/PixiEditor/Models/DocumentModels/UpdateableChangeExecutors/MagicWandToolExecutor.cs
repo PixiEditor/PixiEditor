@@ -20,7 +20,7 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
     public override ExecutionState Start()
     {
         var magicWand = GetHandler<IMagicWandToolHandler>();
-        var members = document!.ExtractSelectedLayers(true);
+        var members = document!.ExtractSelectedLayers(true).ToList();
 
         if (magicWand is null || members.Count == 0)
             return ExecutionState.Error;
