@@ -206,6 +206,13 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
         return member is ILayerHandler && member is not IRasterLayerHandler;
     }
+    
+    [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsVectorLayer")]
+    public bool SelectedMemberIsVectorLayer(object property)
+    {
+        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
+        return member is IVectorLayerHandler;
+    }
 
     private bool HasSelectedMember(bool above)
     {
@@ -499,6 +506,18 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             return;
 
         doc!.Operations.Rasterize(member.Id);
+    }
+    
+    [Command.Basic("PixiEditor.Layer.ConvertToCurve", "CONVERT_TO_CURVE", "CONVERT_TO_CURVE_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.SelectedMemberIsVectorLayer")]
+    public void ConvertActiveLayerToCurve()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        var member = doc?.SelectedStructureMember;
+        if (member is null)
+            return;
+
+        doc!.Operations.ConvertToCurve(member.Id);
     }
 
     [Evaluator.Icon("PixiEditor.Layer.ToggleReferenceLayerTopMostIcon")]
