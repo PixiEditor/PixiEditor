@@ -37,6 +37,6 @@ public class IconGlyph : HandleGlyph
     protected override RectD GetBounds()
     {
         double measure = targetFont.MeasureText(Icon);
-        return new RectD(0, 0, measure, targetFont.FontSize);
+        return new RectD(0, 0, measure, targetFont.Size);
     }
 }
