@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -231,7 +232,7 @@ internal class NodeGraphView : Zoombox.Zoombox
         nodeItemsControl = e.NameScope.Find<ItemsControl>("PART_Nodes");
         connectionItemsControl = e.NameScope.Find<ItemsControl>("PART_Connections");
         selectionRectangle = e.NameScope.Find<Rectangle>("PART_SelectionRectangle");
-        
+
         Button sortButton = e.NameScope.Find<Button>("PART_SortButton");
         sortButton.Click += SortButton_Click;
 
@@ -239,31 +240,30 @@ internal class NodeGraphView : Zoombox.Zoombox
         {
             nodeItemsControl.ItemsPanelRoot.Children.CollectionChanged += NodeItems_CollectionChanged;
             nodeViewsCache = nodeItemsControl.ItemsPanelRoot.Children.ToList();
+            HandleNodesAdded(nodeViewsCache);
         });
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        nodeItemsControl.ItemsPanelRoot.Children.CollectionChanged -= NodeItems_CollectionChanged;
+    }
+
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        if (nodeItemsControl is { ItemsPanelRoot: not null })
+        {
+            nodeItemsControl.ItemsPanelRoot.Children.CollectionChanged += NodeItems_CollectionChanged;
+            nodeViewsCache = nodeItemsControl.ItemsPanelRoot.Children.ToList();
+            HandleNodesAdded(nodeViewsCache);
+        }
     }
 
     private void NodeItems_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
         if (e.Action == NotifyCollectionChangedAction.Add)
         {
-            foreach (Control control in e.NewItems)
-            {
-                if (control is not ContentPresenter presenter)
-                {
-                    continue;
-                }
-
-                nodeViewsCache.Add(presenter);
-                presenter.PropertyChanged += OnPresenterPropertyChanged;
-                if (presenter.Child == null)
-                {
-                    continue;
-                }
-
-                NodeView nodeView = (NodeView)presenter.Child;
-                nodeView.PropertyChanged += NodeView_PropertyChanged;
-                nodeView.Node.PropertyChanged += Node_PropertyChanged;
-            }
+            HandleNodesAdded(e.NewItems);
         }
         else if (e.Action == NotifyCollectionChangedAction.Remove)
         {
@@ -291,6 +291,32 @@ internal class NodeGraphView : Zoombox.Zoombox
         else if (e.Action == NotifyCollectionChangedAction.Reset)
         {
             nodeViewsCache.Clear();
+        }
+    }
+
+    private void HandleNodesAdded(IList? items)
+    {
+        foreach (Control control in items)
+        {
+            if (control is not ContentPresenter presenter)
+            {
+                continue;
+            }
+
+            if (!nodeViewsCache.Contains(presenter))
+            {
+                nodeViewsCache.Add(presenter);
+            }
+
+            presenter.PropertyChanged += OnPresenterPropertyChanged;
+            if (presenter.Child == null)
+            {
+                continue;
+            }
+
+            NodeView nodeView = (NodeView)presenter.Child;
+            nodeView.PropertyChanged += NodeView_PropertyChanged;
+            nodeView.Node.PropertyChanged += Node_PropertyChanged;
         }
     }
 
@@ -605,6 +631,8 @@ internal class NodeGraphView : Zoombox.Zoombox
         {
             if (connection is ContentPresenter contentPresenter)
             {
+                if (!contentPresenter.IsLoaded) continue;
+
                 ConnectionView connectionView = (ConnectionView)contentPresenter.FindDescendantOfType<ConnectionView>();
 
                 if (connectionView.InputProperty == propertyView || connectionView.OutputProperty == propertyView)
@@ -644,7 +672,8 @@ internal class NodeGraphView : Zoombox.Zoombox
             return;
         }
 
-        (INodePropertyHandler, INodePropertyHandler, INodePropertyHandler?) connection = (startConnectionProperty, null, null);
+        (INodePropertyHandler, INodePropertyHandler, INodePropertyHandler?) connection = (startConnectionProperty, null,
+            null);
         if (socket != null)
         {
             endConnectionNode = socket.Node;
@@ -718,10 +747,11 @@ internal class NodeGraphView : Zoombox.Zoombox
             node.IsNodeSelected = false;
         }
     }
-    
+
     private void SortButton_Click(object sender, RoutedEventArgs e)
     {
         Dictionary<INodeHandler, RectD> boundsMap = new();
+
         foreach (var nodeView in nodeViewsCache)
         {
             if (nodeView is ContentPresenter { Child: NodeView node })
@@ -730,21 +760,59 @@ internal class NodeGraphView : Zoombox.Zoombox
                 boundsMap[node.Node] = new RectD(bounds.X, bounds.Y, bounds.Width, bounds.Height);
             }
         }
-        
-        const double padding = 50;
 
-        NodeGraph.OutputNode.TraverseBackwards((node, previousNode) =>
+        LayoutAligner aligner = new(NodeGraph, boundsMap);
+        aligner.SplitToGroups();
+        aligner.Align();
+
+        /*const double padding = 100;
+
+        NodeGraph.OutputNode.TraverseBackwards((node, previousNode, previousConnection) =>
         {
-            if(previousNode == null) return true;
-            
+            if (previousNode == null)
+            {
+                boundsMap[node] = new RectD(VecD.Zero, boundsMap[node].Size);
+                node.PositionBindable = new VecD(0, 0);
+                return true;
+            }
+
             RectD previousBounds = boundsMap[previousNode];
             RectD bounds = boundsMap[node];
-            
-            bounds = new RectD(previousBounds.X - previousBounds.Width - padding, previousBounds.Y, bounds.Width, bounds.Height);
-            
+
+            int verticalCount = previousNode.Inputs.Count(x => x.ConnectedOutput != null);
+            double totalHeightRequired = 0;
+            double startY = 0;
+
+            int indexOfVertical = 0;
+            bool found = false;
+            foreach (var input in previousNode.Inputs)
+            {
+                if (input.ConnectedOutput == null) continue;
+
+                if (input != previousConnection && !found)
+                {
+                    indexOfVertical++;
+                }
+                else if (!found)
+                {
+                    startY = totalHeightRequired;
+                    found = true;
+                }
+
+                totalHeightRequired += boundsMap[input.ConnectedOutput.Node].Height;
+            }
+
+            double shift = -totalHeightRequired / 2f + bounds.Height / 2f;
+            double moveYby = shift + startY + padding * indexOfVertical;
+
+            double x = previousBounds.X - previousBounds.Width - padding;
+            double y = verticalCount == 1 ? 0 : previousBounds.Y + moveYby;
+
+            bounds = new RectD(x, y, bounds.Width, bounds.Height);
+
             node.PositionBindable = bounds.TopLeft;
             boundsMap[node] = bounds;
             return true;
-        });
+        });*/
     }
 }

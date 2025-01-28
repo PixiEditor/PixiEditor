@@ -64,9 +64,11 @@ internal class NodePosition_UpdateableChange : UpdateableChange
         ignoreInUndo = false;
       
         VecD delta = NewPosition - startPosition;
+        bool setPosDirectly = false;
         if (NewPosition == startPosition)
         {
             delta = NewPosition;
+            setPosDirectly = true;
         }
             
         List<IChangeInfo> changes = new();
@@ -74,7 +76,15 @@ internal class NodePosition_UpdateableChange : UpdateableChange
         foreach (var nodeId in NodeIds)
         {
             var node = target.FindNode<Node>(nodeId);
-            node.Position = originalPositions[nodeId] + delta;
+            if (setPosDirectly)
+            {
+                node.Position = NewPosition;   
+            }
+            else
+            {
+                node.Position = originalPositions[nodeId] + delta;
+            }
+
             changes.Add(new NodePosition_ChangeInfo(nodeId, node.Position));
         }
         
