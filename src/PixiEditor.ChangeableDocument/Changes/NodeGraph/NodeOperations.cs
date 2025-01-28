@@ -141,51 +141,58 @@ public static class NodeOperations
         List<IChangeInfo> changes = new();
         Dictionary<Guid, VecD> originalPositionDict = new();
 
-        if (previouslyConnected != null)
+        member.Position = new VecD(appendedTo.Position.X - 250, appendedTo.Position.Y);
+
+        changes.Add(new NodePosition_ChangeInfo(member.Id, member.Position));
+
+        previouslyConnected?.TraverseBackwards((aNode, previousNode, _) =>
         {
-            member.Position = new VecD(appendedTo.Position.X - 250, appendedTo.Position.Y);
-
-            changes.Add(new NodePosition_ChangeInfo(member.Id, member.Position));
-
-            previouslyConnected.TraverseBackwards((aNode, previousNode, _) =>
+            if (aNode is Node toMove)
             {
-                if (aNode is Node toMove)
+                originalPositionDict.Add(toMove.Id, toMove.Position);
+                var y = toMove.Position.Y;
+                toMove.Position = (previousNode?.Position ?? member.Position) - new VecD(250, 0);
+                toMove.Position = new VecD(toMove.Position.X, y);
+                changes.Add(new NodePosition_ChangeInfo(toMove.Id, toMove.Position));
+            }
+
+            return true;
+        });
+
+        originalPositions = originalPositionDict;
+        return changes;
+    }
+
+    public static List<IChangeInfo> AdjustPositionsBeforeAppend(Node member, Node appendedTo,
+        out Dictionary<Guid, VecD> originalPositions)
+    {
+        List<IChangeInfo> changes = new();
+        Dictionary<Guid, VecD> originalPositionDict = new();
+
+        member.TraverseBackwards((aNode, previousNode, _) =>
+        {
+            if (aNode is Node toMove)
+            {
+                originalPositionDict.Add(toMove.Id, toMove.Position);
+                var y = toMove.Position.Y;
+                VecD pos = member.Position + new VecD(250, 0);
+                if (previousNode != null)
                 {
-                    originalPositionDict.Add(toMove.Id, toMove.Position);
-                    var y = toMove.Position.Y;
-                    toMove.Position = (previousNode?.Position ?? member.Position) - new VecD(250, 0);
-                    toMove.Position = new VecD(toMove.Position.X, y);
-                    changes.Add(new NodePosition_ChangeInfo(toMove.Id, toMove.Position));
+                    pos = previousNode.Position - new VecD(250, 0);
                 }
 
-                return true;
-            });
-        }
-        else
-        {
-            member.TraverseBackwards((aNode, previousNode, _) =>
-            {
-                if (aNode is Node toMove)
-                {
-                    originalPositionDict.Add(toMove.Id, toMove.Position);
-                    var y = toMove.Position.Y;
-                    VecD pos = member.Position + new VecD(250, 0);
-                    if(previousNode != null)
-                    {
-                        pos = previousNode.Position - new VecD(250, 0);
-                    }
-                    toMove.Position = pos;
-                    toMove.Position = new VecD(toMove.Position.X, y);
-                    changes.Add(new NodePosition_ChangeInfo(toMove.Id, toMove.Position));
-                }
+                toMove.Position = pos;
+                toMove.Position = new VecD(toMove.Position.X, y);
+                changes.Add(new NodePosition_ChangeInfo(toMove.Id, toMove.Position));
+                
+                if(aNode == appendedTo) return false;
+            }
 
-                return true;
-            });
-            
-            member.Position = new VecD(appendedTo.Position.X - 250, appendedTo.Position.Y);
-            changes.Add(new NodePosition_ChangeInfo(member.Id, member.Position));
-        }
+            return true;
+        });
 
+        member.Position = new VecD(appendedTo.Position.X - 250, appendedTo.Position.Y);
+        changes.Add(new NodePosition_ChangeInfo(member.Id, member.Position));
 
         originalPositions = originalPositionDict;
         return changes;

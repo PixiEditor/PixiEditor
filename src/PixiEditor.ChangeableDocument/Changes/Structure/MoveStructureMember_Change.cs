@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
@@ -65,10 +66,22 @@ internal class MoveStructureMember_Change : Change
 
         var previouslyConnected = inputProperty.Connection;
 
-        if (previouslyConnected == null)
+        bool isMovingBelow = false;
+        
+        inputProperty.Node.TraverseForwards(x =>
         {
-            changes.AddRange(NodeOperations.AdjustPositionsAfterAppend(sourceNode, inputProperty.Node,
-                null, out originalPositions));
+            if (x.Id == sourceNodeGuid)
+            {
+                isMovingBelow = true;
+                return false;
+            }
+            
+            return true;
+        });
+
+        if (isMovingBelow)
+        {
+            changes.AddRange(NodeOperations.AdjustPositionsBeforeAppend(sourceNode, inputProperty.Node, out originalPositions));
         }
 
         changes.AddRange(NodeOperations.DetachStructureNode(sourceNode));
@@ -76,10 +89,15 @@ internal class MoveStructureMember_Change : Change
             sourceNode.Background,
             sourceNode.Id));
 
-        if (previouslyConnected != null)
+        if (!isMovingBelow)
         {
             changes.AddRange(NodeOperations.AdjustPositionsAfterAppend(sourceNode, inputProperty.Node,
                 previouslyConnected?.Node as Node, out originalPositions));
+        }
+
+        if (targetNode is FolderNode)
+        {
+            changes.AddRange(AdjustPutIntoFolderPositions(targetNode, originalPositions));
         }
 
         changes.Add(changeInfo);
@@ -108,6 +126,55 @@ internal class MoveStructureMember_Change : Change
         changes.AddRange(NodeOperations.RevertPositions(originalPositions, target));
 
         changes.Add(changeInfo);
+
+        return changes;
+    }
+    
+    private static List<IChangeInfo> AdjustPutIntoFolderPositions(Node targetNode, Dictionary<Guid, VecD> originalPositions)
+    {
+        List<IChangeInfo> changes = new();
+
+        if (targetNode is FolderNode folder)
+        {
+            folder.Content.Connection.Node.TraverseBackwards(contentNode =>
+            {
+                if (contentNode is Node node)
+                {
+                    if (!originalPositions.ContainsKey(node.Id))
+                    {
+                        originalPositions[node.Id] = node.Position;
+                    }
+                    
+                    node.Position = new VecD(node.Position.X, folder.Position.Y + 250);
+                    changes.Add(new NodePosition_ChangeInfo(node.Id, node.Position));
+                }
+                
+                return true;
+            });
+            
+            folder.Background.Connection?.Node.TraverseBackwards(bgNode =>
+            {
+                if (bgNode is Node node)
+                {
+                    if (!originalPositions.ContainsKey(node.Id))
+                    {
+                        originalPositions[node.Id] = node.Position;
+                    }
+
+                    double pos = folder.Position.Y;
+
+                    if (folder.Content.Connection != null)
+                    {
+                        pos -= 250;
+                    }
+                    
+                    node.Position = new VecD(node.Position.X, pos);
+                    changes.Add(new NodePosition_ChangeInfo(node.Id, node.Position));
+                }
+                
+                return true;
+            });
+        }
 
         return changes;
     }

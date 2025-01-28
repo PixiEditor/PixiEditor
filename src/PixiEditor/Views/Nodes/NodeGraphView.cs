@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -234,36 +235,30 @@ internal class NodeGraphView : Zoombox.Zoombox
         {
             nodeItemsControl.ItemsPanelRoot.Children.CollectionChanged += NodeItems_CollectionChanged;
             nodeViewsCache = nodeItemsControl.ItemsPanelRoot.Children.ToList();
+            HandleNodesAdded(nodeViewsCache);
         });
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        nodeItemsControl.ItemsPanelRoot.Children.CollectionChanged -= NodeItems_CollectionChanged;
+    }
+
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        if (nodeItemsControl is { ItemsPanelRoot: not null })
+        {
+            nodeItemsControl.ItemsPanelRoot.Children.CollectionChanged += NodeItems_CollectionChanged;
+            nodeViewsCache = nodeItemsControl.ItemsPanelRoot.Children.ToList();
+            HandleNodesAdded(nodeViewsCache);
+        }
     }
 
     private void NodeItems_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
         if (e.Action == NotifyCollectionChangedAction.Add)
         {
-            foreach (Control control in e.NewItems)
-            {
-                if (control is not ContentPresenter presenter)
-                {
-                    continue;
-                }
-
-                nodeViewsCache.Add(presenter);
-                presenter.PropertyChanged += OnPresenterPropertyChanged;
-
-                if (presenter.Content is NodeViewModel nvm)
-                {
-                    nvm.PropertyChanged += Node_PropertyChanged;
-                }
-                
-                if (presenter.Child == null)
-                {
-                    continue;
-                }
-
-                NodeView nodeView = (NodeView)presenter.Child;
-                nodeView.PropertyChanged += NodeView_PropertyChanged;
-            }
+            HandleNodesAdded(e.NewItems);
         }
         else if (e.Action == NotifyCollectionChangedAction.Remove)
         {
@@ -281,7 +276,7 @@ internal class NodeGraphView : Zoombox.Zoombox
                 {
                     nvm.PropertyChanged -= Node_PropertyChanged;
                 }
-                
+
                 if (presenter.Child == null)
                 {
                     continue;
@@ -294,6 +289,37 @@ internal class NodeGraphView : Zoombox.Zoombox
         else if (e.Action == NotifyCollectionChangedAction.Reset)
         {
             nodeViewsCache.Clear();
+        }
+    }
+
+    private void HandleNodesAdded(IList? items)
+    {
+        foreach (Control control in items)
+        {
+            if (control is not ContentPresenter presenter)
+            {
+                continue;
+            }
+
+            if (!nodeViewsCache.Contains(presenter))
+            {
+                nodeViewsCache.Add(presenter);
+            }
+
+            presenter.PropertyChanged += OnPresenterPropertyChanged;
+
+            if (presenter.Content is NodeViewModel nvm)
+            {
+                nvm.PropertyChanged += Node_PropertyChanged;
+            }
+
+            if (presenter.Child == null)
+            {
+                continue;
+            }
+
+            NodeView nodeView = (NodeView)presenter.Child;
+            nodeView.PropertyChanged += NodeView_PropertyChanged;
         }
     }
 
@@ -614,7 +640,7 @@ internal class NodeGraphView : Zoombox.Zoombox
                 {
                     continue;
                 }
-                
+
                 if (connectionView.InputProperty == propertyView || connectionView.OutputProperty == propertyView)
                 {
                     connectionView.UpdateSocketPoints();
@@ -652,7 +678,8 @@ internal class NodeGraphView : Zoombox.Zoombox
             return;
         }
 
-        (INodePropertyHandler, INodePropertyHandler, INodePropertyHandler?) connection = (startConnectionProperty, null, null);
+        (INodePropertyHandler, INodePropertyHandler, INodePropertyHandler?) connection = (startConnectionProperty, null,
+            null);
         if (socket != null)
         {
             endConnectionNode = socket.Node;
