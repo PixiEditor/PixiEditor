@@ -29,38 +29,25 @@ internal class LayoutAligner
 
     public void Align()
     {
-        var executionQueue = CalculateExecutionQueue(RootGroup);
-        while (executionQueue.Count > 0)
-        {
-            var group = executionQueue.Dequeue();
-            if (group.Children == null)
-            {
-                AlignNodes(group.Nodes, group.SourceNode);
-            }
-            else
-            {
-                //AlignGroup(group);
-            }
-        }
+        AlignNodes(RootGroup.SourceNode);
     }
 
-    private void AlignNodes(List<INodeHandler> nodes, INodeHandler? sourceNode)
+    private void AlignNodes(INodeHandler sourceNode)
     {
-        if (nodes.Count == 0) return;
+        if (sourceNode == null) return;
         foreach (var node in NodeGraph.AllNodes)
         {
-            boundsMap[node] = new RectD(sourceNode?.PositionBindable ?? VecD.Zero, NodeSizes[node]);
+            boundsMap[node] = new RectD(sourceNode.PositionBindable, NodeSizes[node]);
         }
 
-        nodes[0].TraverseBackwards((node, previousNode, previousConnection) =>
+        sourceNode.TraverseBackwards((node, previousNode, previousConnection) =>
         {
             if (previousNode == null)
             {
                 if (sourceNode == null) return true;
 
                 boundsMap[node] =
-                    new RectD(boundsMap[node].TopLeft - new VecD(boundsMap[node].Size.X + HorizontalSpacing, 0),
-                        boundsMap[node].Size);
+                    new RectD(VecD.Zero, boundsMap[node].Size);
                 node.PositionBindable = boundsMap[node].TopLeft;
                 return true;
             }
@@ -95,7 +82,7 @@ internal class LayoutAligner
             double moveYby = shift + startY + VerticalSpacing * indexOfVertical;
 
             double x = previousBounds.X - previousBounds.Width - HorizontalSpacing;
-            double y = verticalCount == 1 ? 0 : previousBounds.Y + moveYby;
+            double y = verticalCount == 1 ? previousBounds.Y : previousBounds.Y + moveYby;
 
             bounds = new RectD(x, y, bounds.Width, bounds.Height);
 
@@ -103,52 +90,6 @@ internal class LayoutAligner
             boundsMap[node] = bounds;
             return true;
         });
-    }
-
-    private void AlignGroup(LayoutGroup group)
-    {
-        if (group.Children == null)
-        {
-            AlignNodes(group.Nodes, group.SourceNode);
-            return;
-        }
-
-        int childGroupsCount = group.Children.Count;
-        double totalHeightRequired = 0;
-
-        for (int i = 0; i < childGroupsCount; i++)
-        {
-            RectD bounds = GetBounds(group.Nodes);
-            totalHeightRequired += bounds.Height;
-        }
-        
-        double startY = 0;
-
-        for (int i = 0; i < group.Children.Count; i++)
-        {
-            var childGroup = group.Children[i];
-
-            RectD alignTo = new RectD(VecD.Zero, new VecD(0, 0));
-            if (childGroup.SourceNode != null)
-            {
-                alignTo = new RectD(boundsMap[childGroup.SourceNode].Pos, NodeSizes[childGroup.SourceNode]);
-            }
-
-            RectD bounds = GetBounds(childGroup.Nodes);
-
-            double shift = -totalHeightRequired / 2f + bounds.Height / 2f;
-            double moveYby = shift + startY + VerticalSpacing * i;
-
-            double x = alignTo.X - alignTo.Width - HorizontalSpacing;
-            double y = alignTo.Y + moveYby;
-
-            foreach (var node in childGroup.Nodes)
-            {
-                node.PositionBindable = new VecD(boundsMap[node].X, boundsMap[node].Y);
-            }
-            
-            startY += bounds.Height;
-        }
     }
 
     private LayoutGroup SplitToGroups(INodeHandler startNode, INodeHandler sourceNode, LayoutGroup parent = null)

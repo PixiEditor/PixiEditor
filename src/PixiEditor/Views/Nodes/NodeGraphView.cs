@@ -764,55 +764,5 @@ internal class NodeGraphView : Zoombox.Zoombox
         LayoutAligner aligner = new(NodeGraph, boundsMap);
         aligner.SplitToGroups();
         aligner.Align();
-
-        /*const double padding = 100;
-
-        NodeGraph.OutputNode.TraverseBackwards((node, previousNode, previousConnection) =>
-        {
-            if (previousNode == null)
-            {
-                boundsMap[node] = new RectD(VecD.Zero, boundsMap[node].Size);
-                node.PositionBindable = new VecD(0, 0);
-                return true;
-            }
-
-            RectD previousBounds = boundsMap[previousNode];
-            RectD bounds = boundsMap[node];
-
-            int verticalCount = previousNode.Inputs.Count(x => x.ConnectedOutput != null);
-            double totalHeightRequired = 0;
-            double startY = 0;
-
-            int indexOfVertical = 0;
-            bool found = false;
-            foreach (var input in previousNode.Inputs)
-            {
-                if (input.ConnectedOutput == null) continue;
-
-                if (input != previousConnection && !found)
-                {
-                    indexOfVertical++;
-                }
-                else if (!found)
-                {
-                    startY = totalHeightRequired;
-                    found = true;
-                }
-
-                totalHeightRequired += boundsMap[input.ConnectedOutput.Node].Height;
-            }
-
-            double shift = -totalHeightRequired / 2f + bounds.Height / 2f;
-            double moveYby = shift + startY + padding * indexOfVertical;
-
-            double x = previousBounds.X - previousBounds.Width - padding;
-            double y = verticalCount == 1 ? 0 : previousBounds.Y + moveYby;
-
-            bounds = new RectD(x, y, bounds.Width, bounds.Height);
-
-            node.PositionBindable = bounds.TopLeft;
-            boundsMap[node] = bounds;
-            return true;
-        });*/
     }
 }
