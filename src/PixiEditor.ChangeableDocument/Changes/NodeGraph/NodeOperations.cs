@@ -135,17 +135,18 @@ public static class NodeOperations
         return changes;
     }
 
-    public static List<IChangeInfo> AdjustPositionsAfterAppend(Node member, Node appendedTo, Node? previouslyConnected, out Dictionary<Guid, VecD> originalPositions)
+    public static List<IChangeInfo> AdjustPositionsAfterAppend(Node member, Node appendedTo, Node? previouslyConnected,
+        out Dictionary<Guid, VecD> originalPositions)
     {
         List<IChangeInfo> changes = new();
         Dictionary<Guid, VecD> originalPositionDict = new();
 
-        member.Position = new VecD(appendedTo.Position.X - 250, appendedTo.Position.Y);
-
-        changes.Add(new NodePosition_ChangeInfo(member.Id, member.Position));
-
         if (previouslyConnected != null)
         {
+            member.Position = new VecD(appendedTo.Position.X - 250, appendedTo.Position.Y);
+
+            changes.Add(new NodePosition_ChangeInfo(member.Id, member.Position));
+
             previouslyConnected.TraverseBackwards((aNode, previousNode, _) =>
             {
                 if (aNode is Node toMove)
@@ -160,19 +161,44 @@ public static class NodeOperations
                 return true;
             });
         }
-        
+        else
+        {
+            member.TraverseBackwards((aNode, previousNode, _) =>
+            {
+                if (aNode is Node toMove)
+                {
+                    originalPositionDict.Add(toMove.Id, toMove.Position);
+                    var y = toMove.Position.Y;
+                    VecD pos = member.Position + new VecD(250, 0);
+                    if(previousNode != null)
+                    {
+                        pos = previousNode.Position - new VecD(250, 0);
+                    }
+                    toMove.Position = pos;
+                    toMove.Position = new VecD(toMove.Position.X, y);
+                    changes.Add(new NodePosition_ChangeInfo(toMove.Id, toMove.Position));
+                }
+
+                return true;
+            });
+            
+            member.Position = new VecD(appendedTo.Position.X - 250, appendedTo.Position.Y);
+            changes.Add(new NodePosition_ChangeInfo(member.Id, member.Position));
+        }
+
+
         originalPositions = originalPositionDict;
         return changes;
     }
-    
+
     public static List<IChangeInfo> RevertPositions(Dictionary<Guid, VecD> positions, IReadOnlyDocument target)
     {
         List<IChangeInfo> changes = new();
         foreach (var (guid, position) in positions)
         {
             var node = target.FindNode(guid) as Node;
-            if(node == null) continue;
-            
+            if (node == null) continue;
+
             node.Position = position;
             changes.Add(new NodePosition_ChangeInfo(guid, position));
         }

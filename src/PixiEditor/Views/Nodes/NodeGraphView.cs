@@ -250,6 +250,12 @@ internal class NodeGraphView : Zoombox.Zoombox
 
                 nodeViewsCache.Add(presenter);
                 presenter.PropertyChanged += OnPresenterPropertyChanged;
+
+                if (presenter.Content is NodeViewModel nvm)
+                {
+                    nvm.PropertyChanged += Node_PropertyChanged;
+                }
+                
                 if (presenter.Child == null)
                 {
                     continue;
@@ -257,7 +263,6 @@ internal class NodeGraphView : Zoombox.Zoombox
 
                 NodeView nodeView = (NodeView)presenter.Child;
                 nodeView.PropertyChanged += NodeView_PropertyChanged;
-                nodeView.Node.PropertyChanged += Node_PropertyChanged;
             }
         }
         else if (e.Action == NotifyCollectionChangedAction.Remove)
@@ -272,15 +277,18 @@ internal class NodeGraphView : Zoombox.Zoombox
                 nodeViewsCache.Remove(presenter);
 
                 presenter.PropertyChanged -= OnPresenterPropertyChanged;
+                if (presenter.Content is NodeViewModel nvm)
+                {
+                    nvm.PropertyChanged -= Node_PropertyChanged;
+                }
+                
                 if (presenter.Child == null)
                 {
                     continue;
                 }
 
-
                 NodeView nodeView = (NodeView)presenter.Child;
                 nodeView.PropertyChanged -= NodeView_PropertyChanged;
-                nodeView.Node.PropertyChanged -= Node_PropertyChanged;
             }
         }
         else if (e.Action == NotifyCollectionChangedAction.Reset)

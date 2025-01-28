@@ -15,9 +15,9 @@ internal class MoveStructureMember_Change : Change
 
     private Guid originalFolderGuid;
 
-    private ConnectionsData originalConnections; 
+    private ConnectionsData originalConnections;
     private Dictionary<Guid, VecD> originalPositions;
-    
+
     private bool putInsideFolder;
 
 
@@ -36,12 +36,13 @@ internal class MoveStructureMember_Change : Change
         if (member is null || targetFolder is null)
             return false;
 
-        originalConnections = NodeOperations.CreateConnectionsData(member); 
-          
+        originalConnections = NodeOperations.CreateConnectionsData(member);
+
         return true;
     }
 
-    private static List<IChangeInfo> Move(Document document, Guid sourceNodeGuid, Guid targetNodeGuid, bool putInsideFolder, out Dictionary<Guid, VecD> originalPositions)
+    private static List<IChangeInfo> Move(Document document, Guid sourceNodeGuid, Guid targetNodeGuid,
+        bool putInsideFolder, out Dictionary<Guid, VecD> originalPositions)
     {
         var sourceNode = document.FindMember(sourceNodeGuid);
         var targetNode = document.FindNode(targetNodeGuid);
@@ -50,7 +51,7 @@ internal class MoveStructureMember_Change : Change
             return [];
 
         List<IChangeInfo> changes = new();
-        
+
         Guid oldBackgroundId = sourceNode.Background.Node.Id;
 
         InputProperty<Painter?> inputProperty = backgroundInput.Background;
@@ -61,16 +62,26 @@ internal class MoveStructureMember_Change : Change
         }
 
         MoveStructureMember_ChangeInfo changeInfo = new(sourceNodeGuid, oldBackgroundId, targetNodeGuid);
-        
+
         var previouslyConnected = inputProperty.Connection;
-        
+
+        if (previouslyConnected == null)
+        {
+            changes.AddRange(NodeOperations.AdjustPositionsAfterAppend(sourceNode, inputProperty.Node,
+                null, out originalPositions));
+        }
+
         changes.AddRange(NodeOperations.DetachStructureNode(sourceNode));
         changes.AddRange(NodeOperations.AppendMember(inputProperty, sourceNode.Output,
             sourceNode.Background,
             sourceNode.Id));
-        
-        changes.AddRange(NodeOperations.AdjustPositionsAfterAppend(sourceNode, inputProperty.Node, previouslyConnected?.Node as Node, out originalPositions));
-        
+
+        if (previouslyConnected != null)
+        {
+            changes.AddRange(NodeOperations.AdjustPositionsAfterAppend(sourceNode, inputProperty.Node,
+                previouslyConnected?.Node as Node, out originalPositions));
+        }
+
         changes.Add(changeInfo);
 
         return changes;
@@ -89,15 +100,15 @@ internal class MoveStructureMember_Change : Change
         StructureNode member = target.FindMember(memberGuid);
 
         List<IChangeInfo> changes = new List<IChangeInfo>();
-        
+
         MoveStructureMember_ChangeInfo changeInfo = new(memberGuid, targetNodeGuid, originalFolderGuid);
-        
+
         changes.AddRange(NodeOperations.DetachStructureNode(member));
         changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, member, target.NodeGraph));
         changes.AddRange(NodeOperations.RevertPositions(originalPositions, target));
-        
+
         changes.Add(changeInfo);
-        
+
         return changes;
     }
 }
