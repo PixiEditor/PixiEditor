@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
+﻿using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
@@ -12,6 +13,7 @@ internal class DuplicateLayer_Change : Change
     private Guid duplicateGuid;
     
     private ConnectionsData? connectionsData;
+    private Dictionary<Guid, VecD> originalPositions;
 
     [GenerateMakeChangeAction]
     public DuplicateLayer_Change(Guid layerGuid, Guid newGuid)
@@ -42,6 +44,8 @@ internal class DuplicateLayer_Change : Change
         InputProperty<Painter?> targetInput = parent.InputProperties.FirstOrDefault(x =>
             x.ValueType == typeof(Painter) &&
             x.Connection is { Node: StructureNode }) as InputProperty<Painter?>;
+        
+        var previousConnection = targetInput.Connection;
 
         List<IChangeInfo> operations = new();
 
@@ -50,6 +54,9 @@ internal class DuplicateLayer_Change : Change
         operations.Add(CreateLayer_ChangeInfo.FromLayer(clone));
         
         operations.AddRange(NodeOperations.AppendMember(targetInput, clone.Output, clone.Background, clone.Id));
+
+        operations.AddRange(NodeOperations.AdjustPositionsAfterAppend(clone, targetInput.Node,
+            previousConnection?.Node as Node, out originalPositions));
 
         ignoreInUndo = false;
 
@@ -73,6 +80,8 @@ internal class DuplicateLayer_Change : Change
             Node originalNode = target.FindNodeOrThrow<Node>(layerGuid);
             changes.AddRange(NodeOperations.ConnectStructureNodeProperties(connectionsData, originalNode, target.NodeGraph));
         }
+        
+        changes.AddRange(NodeOperations.RevertPositions(originalPositions, target));
         
         return changes;
     }

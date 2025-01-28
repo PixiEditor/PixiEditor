@@ -46,6 +46,7 @@ internal class RasterizeMember_Change : Change
         
         ImageLayerNode imageLayer = new ImageLayerNode(target.Size, target.ProcessingColorSpace);
         imageLayer.MemberName = node.DisplayName;
+        imageLayer.Position = node.Position;
 
         target.NodeGraph.AddNode(imageLayer);
         

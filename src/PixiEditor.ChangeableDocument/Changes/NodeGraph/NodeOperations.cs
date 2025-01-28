@@ -9,6 +9,7 @@ using PixiEditor.ChangeableDocument.Changes.Structure;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
@@ -29,7 +30,7 @@ public static class NodeOperations
             INodeFactory factory = (INodeFactory)Activator.CreateInstance(factoryType);
             allFactories.Add(factory.NodeType, factory);
         }
-        
+
         nodeMap = new Dictionary<string, Type>();
         var nodeTypes = typeof(Node).Assembly.GetTypes().Where(x =>
                 x.IsSubclassOf(typeof(Node)) && x is { IsAbstract: false, IsInterface: false })
@@ -55,7 +56,7 @@ public static class NodeOperations
     {
         return nodeMap.TryGetValue(nodeUniqueName, out nodeType);
     }
-    
+
     public static Node CreateNode(Type nodeType, IReadOnlyDocument target, params object[] optionalParameters)
     {
         Node node = null;
@@ -71,12 +72,12 @@ public static class NodeOperations
         return node;
     }
 
-    public static List<ConnectProperty_ChangeInfo> AppendMember(
+    public static List<IChangeInfo> AppendMember(
         InputProperty<Painter?> parentInput,
         OutputProperty<Painter> toAddOutput,
         InputProperty<Painter> toAddInput, Guid memberId)
     {
-        List<ConnectProperty_ChangeInfo> changes = new();
+        List<IChangeInfo> changes = new();
         IOutputProperty? previouslyConnected = null;
         if (parentInput.Connection != null)
         {
@@ -94,7 +95,7 @@ public static class NodeOperations
 
         changes.Add(new ConnectProperty_ChangeInfo(memberId, parentInput.Node.Id,
             toAddOutput.InternalPropertyName, parentInput.InternalPropertyName));
-        
+
         return changes;
     }
 
@@ -113,6 +114,7 @@ public static class NodeOperations
             foreach (var input in connections)
             {
                 output.ConnectTo(input);
+
                 changes.Add(new ConnectProperty_ChangeInfo(output.Node.Id, input.Node.Id,
                     output.InternalPropertyName, input.InternalPropertyName));
             }
@@ -128,6 +130,51 @@ public static class NodeOperations
             structureNode.Output.DisconnectFrom(outputConnection);
             changes.Add(new ConnectProperty_ChangeInfo(null, outputConnection.Node.Id, null,
                 outputConnection.InternalPropertyName));
+        }
+
+        return changes;
+    }
+
+    public static List<IChangeInfo> AdjustPositionsAfterAppend(Node member, Node appendedTo, Node? previouslyConnected, out Dictionary<Guid, VecD> originalPositions)
+    {
+        List<IChangeInfo> changes = new();
+        Dictionary<Guid, VecD> originalPositionDict = new();
+
+        member.Position = new VecD(appendedTo.Position.X - 250, appendedTo.Position.Y);
+
+        changes.Add(new NodePosition_ChangeInfo(member.Id, member.Position));
+
+        if (previouslyConnected != null)
+        {
+            previouslyConnected.TraverseBackwards((aNode, previousNode, _) =>
+            {
+                if (aNode is Node toMove)
+                {
+                    originalPositionDict.Add(toMove.Id, toMove.Position);
+                    var y = toMove.Position.Y;
+                    toMove.Position = (previousNode?.Position ?? member.Position) - new VecD(250, 0);
+                    toMove.Position = new VecD(toMove.Position.X, y);
+                    changes.Add(new NodePosition_ChangeInfo(toMove.Id, toMove.Position));
+                }
+
+                return true;
+            });
+        }
+        
+        originalPositions = originalPositionDict;
+        return changes;
+    }
+    
+    public static List<IChangeInfo> RevertPositions(Dictionary<Guid, VecD> positions, IReadOnlyDocument target)
+    {
+        List<IChangeInfo> changes = new();
+        foreach (var (guid, position) in positions)
+        {
+            var node = target.FindNode(guid) as Node;
+            if(node == null) continue;
+            
+            node.Position = position;
+            changes.Add(new NodePosition_ChangeInfo(guid, position));
         }
 
         return changes;
@@ -152,7 +199,7 @@ public static class NodeOperations
                 (new PropertyConnection(x.Node.Id, x.InternalPropertyName),
                     new PropertyConnection(x.Connection?.Node.Id, x.Connection?.InternalPropertyName)))
             .ToList();
-        
+
         return new ConnectionsData(originalOutputConnections, originalInputConnections);
     }
 
@@ -246,7 +293,7 @@ public static class NodeOperations
                     value = expressionVariable.GetConstant();
                 }
             }
-            
+
             changes.Add(new PropertyValueUpdated_ChangeInfo(copy.Id, input.InternalPropertyName, value));
         }
 

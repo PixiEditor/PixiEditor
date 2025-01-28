@@ -602,6 +602,11 @@ internal class NodeGraphView : Zoombox.Zoombox
             {
                 ConnectionView connectionView = (ConnectionView)contentPresenter.FindDescendantOfType<ConnectionView>();
 
+                if (connectionView == null)
+                {
+                    continue;
+                }
+                
                 if (connectionView.InputProperty == propertyView || connectionView.OutputProperty == propertyView)
                 {
                     connectionView.UpdateSocketPoints();
