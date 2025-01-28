@@ -148,11 +148,12 @@ internal class DocumentViewModelBuilder
 
             data?.Add(builder);
         }
-        
+
         TryAddMissingKeyFrames(root, data, documentGraph);
     }
 
-    private static void TryAddMissingKeyFrames(List<KeyFrameGroup> groups, List<KeyFrameBuilder>? data, NodeGraph documentGraph)
+    private static void TryAddMissingKeyFrames(List<KeyFrameGroup> groups, List<KeyFrameBuilder>? data,
+        NodeGraph documentGraph)
     {
         if (data == null)
         {
@@ -164,15 +165,15 @@ internal class DocumentViewModelBuilder
             if (node.KeyFrames.Length > 1 && data.All(x => x.NodeId != node.Id))
             {
                 GroupKeyFrameBuilder builder = new GroupKeyFrameBuilder()
-                .WithNodeId(node.Id);
-                
+                    .WithNodeId(node.Id);
+
                 foreach (var keyFrame in node.KeyFrames)
                 {
                     builder.WithChild<KeyFrameBuilder>(x => x
                         .WithKeyFrameId(keyFrame.Id)
                         .WithNodeId(node.Id));
-                }   
-                
+                }
+
                 data.Add(builder);
             }
         }
@@ -351,6 +352,7 @@ internal class NodeGraphBuilder
     {
         this.WithNodeOfType(typeof(ImageLayerNode))
             .WithName(name)
+            .WithPosition(new Vector2 { X = -250, Y = 0 })
             .WithId(AllNodes.Count)
             .WithKeyFrames(
             [
@@ -372,6 +374,7 @@ internal class NodeGraphBuilder
     {
         this.WithNodeOfType(typeof(ImageLayerNode))
             .WithName(name)
+            .WithPosition(new Vector2 { X = -250, Y = 0 })
             .WithId(AllNodes.Count)
             .WithKeyFrames(
             [
