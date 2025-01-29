@@ -1,7 +1,9 @@
 ﻿using Avalonia;
 using Avalonia.Input;
+using Avalonia.Threading;
 using Drawie.Numerics;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Input;
 using PixiEditor.OperatingSystem;
 using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 
@@ -9,6 +11,16 @@ namespace PixiEditor.Views.Overlays.TextOverlay;
 
 public class TextOverlay : Overlay
 {
+    private Dictionary<KeyCombination, Action> shortcuts;
+
+    public TextOverlay()
+    {
+        shortcuts = new Dictionary<KeyCombination, Action>
+        {
+            { new KeyCombination(Key.V, KeyModifiers.Control), PasteText },
+        };
+    }
+
     public static readonly StyledProperty<string> TextProperty = AvaloniaProperty.Register<TextOverlay, string>(
         nameof(Text));
 
@@ -47,6 +59,12 @@ public class TextOverlay : Overlay
 
     protected override void OnKeyPressed(Key key, KeyModifiers keyModifiers)
     {
+        if (IsShortcut(key, keyModifiers))
+        {
+            ExecuteShortcut(key, keyModifiers);
+            return;
+        }
+
         if (key == Key.Back)
         {
             if (Text.Length > 0)
@@ -65,16 +83,38 @@ public class TextOverlay : Overlay
         else
         {
             string converted = IOperatingSystem.Current.InputKeys.GetKeyboardKey(key);
-            if(converted == null || converted.Length > 1) return;
-            
+            if (converted == null || converted.Length > 1) return;
+
             string toAdd = keyModifiers.HasFlag(KeyModifiers.Shift) ? converted.ToUpper() : converted.ToLower();
             char? keyChar = toAdd.FirstOrDefault();
             if (keyChar != null)
             {
-                if(char.IsControl(keyChar.Value)) return;
+                if (char.IsControl(keyChar.Value)) return;
                 Text += keyChar;
             }
         }
+    }
+
+    private bool IsShortcut(Key key, KeyModifiers keyModifiers)
+    {
+        return shortcuts.ContainsKey(new KeyCombination(key, keyModifiers));
+    }
+
+    private void ExecuteShortcut(Key key, KeyModifiers keyModifiers)
+    {
+        KeyCombination shortcut = new(key, keyModifiers);
+        if (shortcuts.ContainsKey(shortcut))
+        {
+            shortcuts[shortcut].Invoke();
+        }
+    }
+
+    private void PasteText()
+    {
+        ClipboardController.GetTextFromClipboard().ContinueWith(t =>
+        {
+            Dispatcher.UIThread.Invoke(() => Text += t.Result);
+        }, TaskContinuationOptions.OnlyOnRanToCompletion);
     }
 
     private static void IsVisibleChanged(AvaloniaPropertyChangedEventArgs<bool> args)

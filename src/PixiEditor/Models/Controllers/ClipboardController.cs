@@ -161,6 +161,11 @@ internal static class ClipboardController
 
         await Clipboard.SetDataObjectAsync(data);
     }
+    
+    public static async Task<string> GetTextFromClipboard()
+    {
+        return await Clipboard.GetTextAsync();
+    }
 
     private static async Task AddImageToClipboard(Surface actuallySurface, DataObject data)
     {

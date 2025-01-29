@@ -20,6 +20,12 @@ internal class TextToolViewModel : ToolViewModel, ITextToolHandler
     public override bool IsErasable => false;
     public override bool StopsLinkedToolOnUse => false;
 
+    [Settings.Inherited]
+    public double FontSize
+    {
+        get => GetValue<double>();
+    }
+    
     public TextToolViewModel()
     {
         Toolbar = ToolbarFactory.Create<TextToolViewModel, TextToolbar>(this);

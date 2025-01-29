@@ -1,6 +1,7 @@
 ﻿using Avalonia.Input;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
@@ -16,7 +17,7 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEvents
 {
     private ITextToolHandler textHandler;
-    private IFillableShapeToolbar toolbar;
+    private ITextToolbar toolbar;
     private IStructureMemberHandler selectedMember;
 
     private string lastText = "";
@@ -31,7 +32,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             return ExecutionState.Error;
         }
 
-        toolbar = textHandler.Toolbar as IFillableShapeToolbar;
+        toolbar = textHandler.Toolbar as ITextToolbar;
         if (toolbar == null)
         {
             return ExecutionState.Error;
@@ -54,7 +55,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         }
         else if (shape is null)
         {
-            document.TextOverlayHandler.Show("", controller.LastPrecisePosition, 12);
+            document.TextOverlayHandler.Show("", controller.LastPrecisePosition, toolbar.FontSize);
             lastText = "";
             position = controller.LastPrecisePosition;
         }
@@ -88,7 +89,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     {
         if (!primary || !toolbar.SyncWithPrimaryColor)
         {
-             return;
+            return;
         }
 
         toolbar.StrokeColor = color.ToColor();
@@ -97,6 +98,18 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     private TextVectorData ConstructTextData(string text)
     {
+        Font font = null;
+        if (toolbar.FontFamily != null)
+        {
+            font = Font.FromFontFamily(toolbar.FontFamily);
+        }
+
+        if (font is null)
+        {
+            font = Font.CreateDefault();
+        }
+
+        font.Size = (float)toolbar.FontSize;
         return new TextVectorData()
         {
             Text = text,
@@ -105,7 +118,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             FillColor = toolbar.FillColor.ToColor(),
             StrokeWidth = (float)toolbar.ToolSize,
             StrokeColor = toolbar.StrokeColor.ToColor(),
-            TransformationMatrix = lastMatrix
+            TransformationMatrix = lastMatrix,
+            Font = font
         };
     }
 

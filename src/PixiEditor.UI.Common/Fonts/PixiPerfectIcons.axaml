@@ -110,6 +110,7 @@
             <system:String x:Key="icon-zoom-out">&#xE962;</system:String>
             <system:String x:Key="icon-pen">&#xE971;</system:String>
             <system:String x:Key="icon-link">&#xE96B;</system:String>
+            <system:String x:Key="icon-upload">&#xE96D;</system:String>
             <system:String x:Key="icon-search">&#xE976;</system:String>
             <system:String x:Key="icon-hard-drive">&#xE96C;</system:String>
             <system:String x:Key="icon-copy-add">&#xe921;</system:String>
