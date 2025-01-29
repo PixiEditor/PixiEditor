@@ -56,10 +56,13 @@
             <Color x:Key="IntSocketColor">#4C64B1</Color>
             <Color x:Key="EllipseDataSocketColor">#a473a5</Color>
             <Color x:Key="PointsDataSocketColor">#e1d0e1</Color>
+            <Color x:Key="TextDataSocketColor">#f2f2f2</Color>
             <GradientStops x:Key="ShapeDataSocketGradient">
                 <GradientStop Offset="0" Color="{StaticResource EllipseDataSocketColor}"/>
-                <GradientStop Offset="0.5" Color="{StaticResource EllipseDataSocketColor}"/>
-                <GradientStop Offset="0.5" Color="{StaticResource PointsDataSocketColor}"/>
+                <GradientStop Offset="0.33" Color="{StaticResource EllipseDataSocketColor}"/>
+                <GradientStop Offset="0.33" Color="{StaticResource TextDataSocketColor}"/>
+                <GradientStop Offset="0.66" Color="{StaticResource TextDataSocketColor}"/>
+                <GradientStop Offset="0.66" Color="{StaticResource PointsDataSocketColor}"/>
                 <GradientStop Offset="1" Color="{StaticResource PointsDataSocketColor}"/>
             </GradientStops>
             
@@ -145,6 +148,7 @@
             <ConicGradientBrush x:Key="ShapeVectorDataSocketBrush" GradientStops="{StaticResource ShapeDataSocketGradient}"/>
             <SolidColorBrush x:Key="EllipseVectorDataSocketBrush" Color="{StaticResource EllipseDataSocketColor}"/>
             <SolidColorBrush x:Key="PointsVectorDataSocketBrush" Color="{StaticResource PointsDataSocketColor}"/>
+            <SolidColorBrush x:Key="TextVectorDataSocketBrush" Color="{StaticResource TextDataSocketColor}"/>
             
             <!-- Zones & Frames -->
             <SolidColorBrush x:Key="PixiEditorModifyImageLeftBorderBrush" Color="{StaticResource PixiEditorModifyImageBorderColor}"/>

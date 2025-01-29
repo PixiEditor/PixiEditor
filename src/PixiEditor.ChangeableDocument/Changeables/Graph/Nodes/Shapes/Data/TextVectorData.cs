@@ -10,9 +10,27 @@ public class TextVectorData : ShapeVectorData
 {
     public string Text { get; set; }
     public VecD Position { get; set; }
-    public Font Font { get; set; }
+    public Font Font { get; set; } = Font.CreateDefault();
 
-    public override RectD GeometryAABB => new RectD(Position.X, Position.Y, Font.MeasureText(Text), Font.Size);
+    public override RectD GeometryAABB
+    {
+        get
+        {
+            PaintStyle style = PaintStyle.StrokeAndFill;
+            if(!Fill && StrokeWidth > 0)
+            {
+                style = PaintStyle.Stroke;
+            }
+            else if(Fill && FillColor.A > 0 && StrokeWidth <= 0)
+            {
+                style = PaintStyle.Fill;
+            }
+            
+            using Paint paint = new Paint() { StrokeWidth = StrokeWidth, Style = style };
+            Font.MeasureText(Text, out RectD bounds, paint);
+            return bounds.Offset(Position);
+        }
+    }
 
     public override ShapeCorners TransformationCorners =>
         new ShapeCorners(GeometryAABB).WithMatrix(TransformationMatrix);
@@ -22,7 +40,10 @@ public class TextVectorData : ShapeVectorData
 
     public override VectorPath ToPath()
     {
-        return Font.GetTextPath(Text);
+        var path = Font.GetTextPath(Text);
+        path.Offset(Position);
+        
+        return path;
     }
 
     public override void RasterizeGeometry(Canvas canvas)

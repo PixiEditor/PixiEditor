@@ -146,7 +146,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         {
             if (tool is ToolViewModel toolVm)
             {
-                toolVm.Shortcut = Owner.ShortcutController.GetToolShortcut(tool.GetType());
+                var combination = Owner.ShortcutController.GetToolShortcut(tool.GetType());
+                if (combination is not null)
+                {
+                    toolVm.Shortcut = combination.Value;
+                }
             }
         }
     }
