@@ -305,4 +305,12 @@ internal class ChangeExecutionController
             vectorPathToolExecutor.OnPathChanged(path);
         }
     }
+
+    public void TextOverlayTextChangedInlet(string text)
+    {
+        if (currentSession is ITextOverlayEvents textOverlayHandler)
+        {
+            textOverlayHandler.OnTextChanged(text);
+        }
+    }
 }

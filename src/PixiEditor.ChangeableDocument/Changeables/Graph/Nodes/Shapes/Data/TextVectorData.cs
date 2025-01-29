@@ -1,4 +1,5 @@
-﻿using Drawie.Backend.Core.Surfaces;
+﻿using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
@@ -6,9 +7,20 @@ using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
-public class TextVectorData : ShapeVectorData
+public class TextVectorData : ShapeVectorData, IDisposable
 {
-    public string Text { get; set; }
+    private string text;
+
+    public string Text
+    {
+        get => text;
+        set
+        {
+            text = value;
+            richText = new RichText(value);
+        }
+    }
+
     public VecD Position { get; set; }
     public Font Font { get; set; } = Font.CreateDefault();
 
@@ -16,18 +28,7 @@ public class TextVectorData : ShapeVectorData
     {
         get
         {
-            PaintStyle style = PaintStyle.StrokeAndFill;
-            if(!Fill && StrokeWidth > 0)
-            {
-                style = PaintStyle.Stroke;
-            }
-            else if(Fill && FillColor.A > 0 && StrokeWidth <= 0)
-            {
-                style = PaintStyle.Fill;
-            }
-            
-            using Paint paint = new Paint() { StrokeWidth = StrokeWidth, Style = style };
-            Font.MeasureText(Text, out RectD bounds, paint);
+            RectD bounds = richText.MeasureBounds(Font);
             return bounds.Offset(Position);
         }
     }
@@ -37,12 +38,14 @@ public class TextVectorData : ShapeVectorData
 
     public override RectD VisualAABB => GeometryAABB;
     public VectorPath? Path { get; set; }
+    
+    private RichText richText;
 
     public override VectorPath ToPath()
     {
         var path = Font.GetTextPath(Text);
         path.Offset(Position);
-        
+
         return path;
     }
 
@@ -65,43 +68,24 @@ public class TextVectorData : ShapeVectorData
             ApplyTransformTo(canvas);
         }
 
-        using Paint paint = new Paint() { IsAntiAliased = true, };
+        using Paint paint = new Paint() { IsAntiAliased = true };
+        
+        richText.Fill = Fill;
+        richText.FillColor = FillColor;
+        richText.StrokeColor = StrokeColor;
+        richText.StrokeWidth = StrokeWidth;
 
-        if (Fill && FillColor.A > 0)
-        {
-            paint.Color = FillColor;
-            paint.Style = PaintStyle.Fill;
-
-            if (Path == null)
-            {
-                canvas.DrawText(Text, Position, Font, paint);
-            }
-            else
-            {
-                canvas.DrawTextOnPath(Path, Text, Position, Font, paint);
-            }
-        }
-
-        if (StrokeWidth > 0)
-        {
-            paint.Color = StrokeColor;
-            paint.Style = PaintStyle.Stroke;
-            paint.StrokeWidth = StrokeWidth;
-
-            if (Path == null)
-            {
-                canvas.DrawText(Text, Position, Font, paint);
-            }
-            else
-            {
-                canvas.DrawTextOnPath(Path, Text, Position, Font, paint);
-            }
-        }
+        PaintText(canvas, paint);
 
         if (applyTransform)
         {
             canvas.RestoreToCount(num);
         }
+    }
+
+    private void PaintText(Canvas canvas, Paint paint)
+    {
+        richText.Paint(canvas, Position, Font, paint, Path);   
     }
 
     public override bool IsValid()
@@ -117,5 +101,11 @@ public class TextVectorData : ShapeVectorData
     public override int CalculateHash()
     {
         return GetCacheHash();
+    }
+
+    public void Dispose()
+    {
+        Font.Dispose();
+        Path?.Dispose();
     }
 }

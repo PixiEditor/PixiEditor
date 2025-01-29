@@ -70,6 +70,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     private bool busy = false;
 
+
     public bool Busy
     {
         get => busy;
@@ -208,12 +209,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public ReferenceLayerViewModel ReferenceLayerViewModel { get; }
     public LineToolOverlayViewModel LineToolOverlayViewModel { get; }
     public AnimationDataViewModel AnimationDataViewModel { get; }
+    public TextOverlayViewModel TextOverlayViewModel { get; }
 
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers => softSelectedStructureMembers;
     private DocumentInternalParts Internals { get; }
     INodeGraphHandler IDocument.NodeGraphHandler => NodeGraph;
     IDocumentOperations IDocument.Operations => Operations;
     ITransformHandler IDocument.TransformHandler => TransformViewModel;
+    ITextOverlayHandler IDocument.TextOverlayHandler => TextOverlayViewModel;
     IPathOverlayHandler IDocument.PathOverlayHandler => PathOverlayViewModel;
     ILineOverlayHandler IDocument.LineToolOverlayHandler => LineToolOverlayViewModel;
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
@@ -249,6 +252,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         LineToolOverlayViewModel = new();
         LineToolOverlayViewModel.LineMoved += (_, args) =>
             Internals.ChangeController.LineOverlayMovedInlet(args.Item1, args.Item2);
+
+        TextOverlayViewModel = new TextOverlayViewModel();
+        TextOverlayViewModel.TextChanged += text =>
+        {
+            Internals.ChangeController.TextOverlayTextChangedInlet(text);
+        };
 
         SnappingViewModel = new();
         SnappingViewModel.AddFromDocumentSize(SizeBindable);

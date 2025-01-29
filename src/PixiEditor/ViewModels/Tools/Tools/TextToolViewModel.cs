@@ -3,6 +3,7 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 
@@ -31,9 +32,23 @@ internal class TextToolViewModel : ToolViewModel, ITextToolHandler
 
     protected override void OnSelected(bool restoring)
     {
+        if (!restoring)
+        {
+            ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorTextTool();
+        }
     }
 
     protected override void OnDeselecting(bool transient)
     {
+        if (!transient)
+        {
+            ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
+        }
+    }
+
+    protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
+    {
+        OnDeselecting(false);
+        OnSelected(false);
     }
 }

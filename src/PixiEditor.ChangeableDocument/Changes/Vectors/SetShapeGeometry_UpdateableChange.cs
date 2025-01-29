@@ -42,6 +42,11 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
         var node = target.FindNode<VectorLayerNode>(TargetId);
+        if(node.ShapeData is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
+        
         node.ShapeData = Data;
 
         RectD aabb = node.ShapeData.TransformedAABB.RoundOutwards();

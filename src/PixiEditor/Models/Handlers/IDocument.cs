@@ -36,6 +36,7 @@ internal interface IDocument : IHandler
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers { get; }
     public ITransformHandler TransformHandler { get; }
     public IPathOverlayHandler PathOverlayHandler { get; }
+    public ITextOverlayHandler TextOverlayHandler { get; }
     public bool Busy { get; set; }
     public ILineOverlayHandler LineToolOverlayHandler { get; }
     public bool HorizontalSymmetryAxisEnabledBindable { get; }
@@ -57,7 +58,10 @@ internal interface IDocument : IHandler
     public void UpdateSelectionPath(VectorPath infoNewPath);
     public void SetProcessingColorSpace(ColorSpace infoColorSpace);
     public void SetSize(VecI infoSize);
-    public Color PickColor(VecD controllerLastPrecisePosition, DocumentScope scope, bool includeReference, bool includeCanvas, int frame, bool isTopMost);
+
+    public Color PickColor(VecD controllerLastPrecisePosition, DocumentScope scope, bool includeReference,
+        bool includeCanvas, int frame, bool isTopMost);
+
     public HashSet<Guid> ExtractSelectedLayers(bool includeFoldersWithMask = false);
     public void UpdateSavedState();
 

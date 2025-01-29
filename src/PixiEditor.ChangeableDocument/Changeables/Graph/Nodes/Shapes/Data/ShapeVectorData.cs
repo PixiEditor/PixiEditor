@@ -15,7 +15,7 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
     
     public Color StrokeColor { get; set; } = Colors.White;
     public Color FillColor { get; set; } = Colors.White;
-    public float StrokeWidth { get; set; } = 1;
+    public float StrokeWidth { get; set; } = 0;
     public bool Fill { get; set; } = true;
     public abstract RectD GeometryAABB { get; } 
     public abstract RectD VisualAABB { get; }

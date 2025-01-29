@@ -1,6 +1,11 @@
-﻿using Drawie.Numerics;
+﻿using Avalonia.Input;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
+using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
@@ -8,10 +13,15 @@ using PixiEditor.Models.Tools;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
-internal class VectorTextToolExecutor : UpdateableChangeExecutor
+internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEvents
 {
     private ITextToolHandler textHandler;
     private IFillableShapeToolbar toolbar;
+    private IStructureMemberHandler selectedMember;
+
+    private string lastText = "";
+    private VecD position;
+    private Matrix3X3 lastMatrix = Matrix3X3.Identity;
 
     public override ExecutionState Start()
     {
@@ -27,7 +37,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor
             return ExecutionState.Error;
         }
 
-        var selectedMember = document.SelectedStructureMember;
+        selectedMember = document.SelectedStructureMember;
 
         if (selectedMember is not IVectorLayerHandler layerHandler)
         {
@@ -35,21 +45,72 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor
         }
 
         var shape = layerHandler.GetShapeData(document.AnimationHandler.ActiveFrameBindable);
-        if (shape != null && shape is not TextVectorData textData)
+        if (shape is TextVectorData textData)
+        {
+            document.TextOverlayHandler.Show(textData.Text, textData.Position, textData.Font.Size);
+            lastText = textData.Text;
+            position = textData.Position;
+            lastMatrix = textData.TransformationMatrix;
+        }
+        else if (shape is null)
+        {
+            document.TextOverlayHandler.Show("", controller.LastPrecisePosition, 12);
+            lastText = "";
+            position = controller.LastPrecisePosition;
+        }
+        else
         {
             return ExecutionState.Error;
         }
-
-        internals.ActionAccumulator.AddFinishedActions(
-            new SetShapeGeometry_Action(selectedMember.Id,
-                new TextVectorData() { Text = "Test", Position = document.SizeBindable / 2f }),
-            new EndSetShapeGeometry_Action());
-        //document.TextHandler.ShowOverlay(textData.Text
 
         return ExecutionState.Success;
     }
 
     public override void ForceStop()
     {
+        internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
+        document.TextOverlayHandler.Hide();
+    }
+
+    public void OnTextChanged(string text)
+    {
+        internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(selectedMember.Id, ConstructTextData(text)));
+        lastText = text;
+    }
+
+    public override void OnSettingsChanged(string name, object value)
+    {
+        internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(selectedMember.Id,
+            ConstructTextData(lastText)));
+    }
+
+    public override void OnColorChanged(Color color, bool primary)
+    {
+        if (!primary || !toolbar.SyncWithPrimaryColor)
+        {
+             return;
+        }
+
+        toolbar.StrokeColor = color.ToColor();
+        toolbar.FillColor = color.ToColor();
+    }
+
+    private TextVectorData ConstructTextData(string text)
+    {
+        return new TextVectorData()
+        {
+            Text = text,
+            Position = position,
+            Fill = toolbar.Fill,
+            FillColor = toolbar.FillColor.ToColor(),
+            StrokeWidth = (float)toolbar.ToolSize,
+            StrokeColor = toolbar.StrokeColor.ToColor(),
+            TransformationMatrix = lastMatrix
+        };
+    }
+
+    bool IExecutorFeature.IsFeatureEnabled(IExecutorFeature feature)
+    {
+        return feature is ITextOverlayEvents;
     }
 }
