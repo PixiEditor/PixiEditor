@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
@@ -19,6 +20,7 @@ internal class DuplicateFolder_Change : Change
 
     private ConnectionsData? connectionsData;
     private Dictionary<Guid, ConnectionsData> contentConnectionsData = new();
+    private Dictionary<Guid, VecD> originalPositions;
 
     [GenerateMakeChangeAction]
     public DuplicateFolder_Change(Guid folderGuid, Guid newGuid, ImmutableList<Guid>? childGuids)
@@ -62,9 +64,12 @@ internal class DuplicateFolder_Change : Change
         List<IChangeInfo> operations = new();
 
         target.NodeGraph.AddNode(clone);
+        
+        var previousConnection = targetInput.Connection;
 
         operations.Add(CreateNode_ChangeInfo.CreateFromNode(clone));
         operations.AddRange(NodeOperations.AppendMember(targetInput, clone.Output, clone.Background, clone.Id));
+        operations.AddRange(NodeOperations.AdjustPositionsAfterAppend(clone, targetInput.Node, previousConnection?.Node as Node, out originalPositions));
 
         DuplicateContent(target, clone, existingLayer, operations);
 
@@ -104,6 +109,8 @@ internal class DuplicateFolder_Change : Change
             changes.AddRange(
                 NodeOperations.ConnectStructureNodeProperties(connectionsData, originalNode, target.NodeGraph));
         }
+
+        changes.AddRange(NodeOperations.RevertPositions(originalPositions, target));
 
         return changes;
     }
