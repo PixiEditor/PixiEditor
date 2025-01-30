@@ -48,14 +48,14 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         var shape = layerHandler.GetShapeData(document.AnimationHandler.ActiveFrameBindable);
         if (shape is TextVectorData textData)
         {
-            document.TextOverlayHandler.Show(textData.Text, textData.Position, textData.Font.Size);
+            document.TextOverlayHandler.Show(textData.Text, textData.Position, textData.Font);
             lastText = textData.Text;
             position = textData.Position;
             lastMatrix = textData.TransformationMatrix;
         }
         else if (shape is null)
         {
-            document.TextOverlayHandler.Show("", controller.LastPrecisePosition, toolbar.FontSize);
+            document.TextOverlayHandler.Show("", controller.LastPrecisePosition, toolbar.ConstructFont());
             lastText = "";
             position = controller.LastPrecisePosition;
         }
@@ -81,6 +81,11 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     public override void OnSettingsChanged(string name, object value)
     {
+        if (name is nameof(ITextToolbar.FontSize) or nameof(ITextToolbar.FontFamily))
+        {
+            document.TextOverlayHandler.Font = toolbar.ConstructFont();
+        }
+        
         internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(selectedMember.Id,
             ConstructTextData(lastText)));
     }
@@ -98,18 +103,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     private TextVectorData ConstructTextData(string text)
     {
-        Font font = null;
-        if (toolbar.FontFamily != null)
-        {
-            font = Font.FromFontFamily(toolbar.FontFamily);
-        }
-
-        if (font is null)
-        {
-            font = Font.CreateDefault();
-        }
-
-        font.Size = (float)toolbar.FontSize;
+        Font font = toolbar.ConstructFont(); 
         return new TextVectorData()
         {
             Text = text,

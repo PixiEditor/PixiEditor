@@ -17,7 +17,7 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
             GetSetting<FontFamilySettingViewModel>(nameof(FontFamily)).Value = value;
         }
     }
-    
+
     public double FontSize
     {
         get
@@ -29,11 +29,29 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
             GetSetting<SizeSettingViewModel>(nameof(FontSize)).Value = value;
         }
     }
-    
+
     public TextToolbar()
     {
         AddSetting(new FontFamilySettingViewModel(nameof(FontFamily), "FONT_LABEL"));
         var sizeSetting = new SizeSettingViewModel(nameof(FontSize), "FONT_SIZE_LABEL") { Value = 12 };
         AddSetting(sizeSetting);
+    }
+
+    public Font ConstructFont()
+    {
+        Font font = null;
+        if (FontFamily != null)
+        {
+            font = Font.FromFontFamily(FontFamily);
+        }
+
+        if (font is null)
+        {
+            font = Font.CreateDefault();
+        }
+
+        font.Size = (float)FontSize;
+        
+        return font;
     }
 }

@@ -468,15 +468,21 @@ internal class ViewportOverlays
             Source = Viewport, Path = "Document.TextOverlayViewModel.Position", Mode = BindingMode.OneWay
         };
 
-        Binding fontSizeBinding = new()
+        Binding fontBinding = new()
         {
-            Source = Viewport, Path = "Document.TextOverlayViewModel.FontSize", Mode = BindingMode.OneWay
+            Source = Viewport, Path = "Document.TextOverlayViewModel.Font", Mode = BindingMode.OneWay
+        };
+        
+        Binding requestEditTextBinding = new()
+        {
+            Source = Viewport, Path = "Document.TextOverlayViewModel.RequestEditTextTrigger", Mode = BindingMode.OneWay
         };
 
         textOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         textOverlay.Bind(TextOverlay.TextProperty, textBinding);
         textOverlay.Bind(TextOverlay.PositionProperty, positionBinding);
-        textOverlay.Bind(TextOverlay.FontSizeProperty, fontSizeBinding);
+        textOverlay.Bind(TextOverlay.FontProperty, fontBinding);
+        textOverlay.Bind(TextOverlay.RequestEditTextProperty, requestEditTextBinding);
     }
 }
 

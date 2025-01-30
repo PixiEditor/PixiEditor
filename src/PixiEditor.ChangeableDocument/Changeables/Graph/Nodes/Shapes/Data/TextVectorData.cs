@@ -22,6 +22,7 @@ public class TextVectorData : ShapeVectorData, IDisposable
     }
 
     public VecD Position { get; set; }
+    public double MaxWidth { get; set; } = double.MaxValue;
     public Font Font { get; set; } = Font.CreateDefault();
 
     public override RectD GeometryAABB
@@ -38,7 +39,7 @@ public class TextVectorData : ShapeVectorData, IDisposable
 
     public override RectD VisualAABB => GeometryAABB;
     public VectorPath? Path { get; set; }
-    
+
     private RichText richText;
 
     public override VectorPath ToPath()
@@ -69,7 +70,7 @@ public class TextVectorData : ShapeVectorData, IDisposable
         }
 
         using Paint paint = new Paint() { IsAntiAliased = true };
-        
+
         richText.Fill = Fill;
         richText.FillColor = FillColor;
         richText.StrokeColor = StrokeColor;
@@ -85,7 +86,7 @@ public class TextVectorData : ShapeVectorData, IDisposable
 
     private void PaintText(Canvas canvas, Paint paint)
     {
-        richText.Paint(canvas, Position, Font, paint, Path);   
+        richText.Paint(canvas, Position, Font, paint, Path);
     }
 
     public override bool IsValid()

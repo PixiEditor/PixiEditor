@@ -6,4 +6,6 @@ internal interface ITextToolbar : IFillableShapeToolbar
 {
     public double FontSize { get; set; }
     public FontFamilyName? FontFamily { get; set; }
+    
+    public Font ConstructFont();
 }

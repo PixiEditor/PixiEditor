@@ -1,16 +1,19 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
+using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.ViewModels.Document.TransformOverlays;
 
-public class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
+internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
 {
     private bool isActive;
     private string text;
     private VecD position;
-    private double fontSize;
-    
+    private Font font;
+    private ExecutionTrigger<string> requestEditTextTrigger;
+
     public event Action<string>? TextChanged;
 
     public bool IsActive
@@ -38,20 +41,33 @@ public class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
         set => SetProperty(ref position, value);
     }
 
-    public double FontSize
+    public Font Font
     {
-        get => fontSize;
-        set => SetProperty(ref fontSize, value);
+        get => font;
+        set => SetProperty(ref font, value);
     }
 
-    public void Show(string text, VecD position, double fontSize)
+    public ExecutionTrigger<string> RequestEditTextTrigger
+    {
+        get => requestEditTextTrigger;
+        set => SetProperty(ref requestEditTextTrigger, value);
+    }
+
+    public TextOverlayViewModel()
+    {
+        RequestEditTextTrigger = new ExecutionTrigger<string>();
+    }
+
+
+    public void Show(string text, VecD position, Font font)
     {
         IsActive = true;
-        Text = text;
+        Font = font;
         Position = position;
-        FontSize = fontSize;
+        Text = text;
+        RequestEditTextTrigger.Execute(this, text);
     }
-    
+
     public void Hide()
     {
         IsActive = false;
