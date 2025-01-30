@@ -22,8 +22,11 @@ public class TextVectorData : ShapeVectorData, IDisposable
     }
 
     public VecD Position { get; set; }
+    
     public double MaxWidth { get; set; } = double.MaxValue;
     public Font Font { get; set; } = Font.CreateDefault();
+    
+    public double? Spacing { get; set; }
 
     public override RectD GeometryAABB
     {
@@ -75,6 +78,7 @@ public class TextVectorData : ShapeVectorData, IDisposable
         richText.FillColor = FillColor;
         richText.StrokeColor = StrokeColor;
         richText.StrokeWidth = StrokeWidth;
+        richText.Spacing = Spacing;
 
         PaintText(canvas, paint);
 

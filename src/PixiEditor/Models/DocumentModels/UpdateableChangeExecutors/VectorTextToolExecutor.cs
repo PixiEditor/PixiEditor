@@ -48,14 +48,14 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         var shape = layerHandler.GetShapeData(document.AnimationHandler.ActiveFrameBindable);
         if (shape is TextVectorData textData)
         {
-            document.TextOverlayHandler.Show(textData.Text, textData.Position, textData.Font, textData.TransformationMatrix);
+            document.TextOverlayHandler.Show(textData.Text, textData.Position, textData.Font, textData.TransformationMatrix, textData.Spacing);
             lastText = textData.Text;
             position = textData.Position;
             lastMatrix = textData.TransformationMatrix;
         }
         else if (shape is null)
         {
-            document.TextOverlayHandler.Show("", controller.LastPrecisePosition, toolbar.ConstructFont(), Matrix3X3.Identity);
+            document.TextOverlayHandler.Show("", controller.LastPrecisePosition, toolbar.ConstructFont(), Matrix3X3.Identity, toolbar.Spacing);
             lastText = "";
             position = controller.LastPrecisePosition;
         }
@@ -92,6 +92,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(selectedMember.Id, constructedText));
         
         document.TextOverlayHandler.Font = constructedText.Font;
+        document.TextOverlayHandler.Spacing = toolbar.Spacing;
     }
 
     public override void OnColorChanged(Color color, bool primary)
@@ -117,7 +118,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             StrokeWidth = (float)toolbar.ToolSize,
             StrokeColor = toolbar.StrokeColor.ToColor(),
             TransformationMatrix = lastMatrix,
-            Font = font
+            Font = font,
+            Spacing = toolbar.Spacing
         };
     }
 

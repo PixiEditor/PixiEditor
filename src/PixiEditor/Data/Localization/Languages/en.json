@@ -838,5 +838,8 @@
   "CONVERT_TO_CURVE": "Convert to curve",
   "CONVERT_TO_CURVE_DESCRIPTIVE": "Convert selected vector layer to a curve/path",
   "FONT_FILES": "Font Files",
-  "UNIT_PT": "pt"
+  "UNIT_PT": "pt",
+  "FONT_LABEL": "Family",
+  "FONT_SIZE_LABEL": "Size",
+  "SPACING_LABEL": "Spacing"
 }

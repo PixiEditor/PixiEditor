@@ -482,6 +482,11 @@ internal class ViewportOverlays
         {
             Source = Viewport, Path = "Document.TextOverlayViewModel.Matrix", Mode = BindingMode.OneWay
         };
+        
+        Binding spacingBinding = new()
+        {
+            Source = Viewport, Path = "Document.TextOverlayViewModel.Spacing", Mode = BindingMode.OneWay
+        };
 
         textOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         textOverlay.Bind(TextOverlay.TextProperty, textBinding);
@@ -489,6 +494,7 @@ internal class ViewportOverlays
         textOverlay.Bind(TextOverlay.FontProperty, fontBinding);
         textOverlay.Bind(TextOverlay.RequestEditTextProperty, requestEditTextBinding);
         textOverlay.Bind(TextOverlay.MatrixProperty, matrixBinding);
+        textOverlay.Bind(TextOverlay.SpacingProperty, spacingBinding);
     }
 }
 

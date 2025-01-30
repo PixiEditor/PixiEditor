@@ -87,6 +87,15 @@ internal class TextOverlay : Overlay
         set => SetValue(IsEditingProperty, value);
     }
 
+    public static readonly StyledProperty<double?> SpacingProperty = AvaloniaProperty.Register<TextOverlay, double?>(
+        nameof(Spacing));
+
+    public double? Spacing
+    {
+        get => GetValue(SpacingProperty);
+        set => SetValue(SpacingProperty, value);
+    }
+
     private Dictionary<KeyCombination, Action> shortcuts;
 
     private Blinker blinker = new Blinker();
@@ -100,8 +109,10 @@ internal class TextOverlay : Overlay
         IsEditingProperty.Changed.Subscribe(IsEditingChanged);
         TextProperty.Changed.Subscribe(TextChanged);
         FontProperty.Changed.Subscribe(FontChanged);
+        SpacingProperty.Changed.Subscribe(SpaceChanged);
 
-        AffectsOverlayRender(FontProperty, TextProperty, CursorPositionProperty, SelectionLengthProperty);
+        AffectsOverlayRender(FontProperty, TextProperty, CursorPositionProperty, SelectionLengthProperty, IsEditingProperty,
+            MatrixProperty, SpacingProperty);
     }
 
     public TextOverlay()
@@ -223,6 +234,7 @@ internal class TextOverlay : Overlay
         if (Font == null) return;
 
         RichText richText = new(Text);
+        richText.Spacing = Spacing;
         glyphPositions = richText.GetGlyphPositions(Font);
         glyphWidths = richText.GetGlyphWidths(Font);
     }
@@ -275,7 +287,13 @@ internal class TextOverlay : Overlay
         TextOverlay sender = args.Sender as TextOverlay;
         sender.UpdateGlyphs();
     }
-
+    
+    private static void SpaceChanged(AvaloniaPropertyChangedEventArgs<double?> args)
+    {
+        TextOverlay sender = args.Sender as TextOverlay;
+        sender.UpdateGlyphs();
+    }
+    
     private static int ClampValue(AvaloniaObject sender, int newPos)
     {
         TextOverlay textOverlay = sender as TextOverlay;

@@ -15,6 +15,7 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     private Font font;
     private ExecutionTrigger<string> requestEditTextTrigger;
     private Matrix3X3 matrix = Matrix3X3.Identity;
+    private double? spacing;
 
     public event Action<string>? TextChanged;
 
@@ -60,6 +61,12 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
         get => matrix;
         set => SetProperty(ref matrix, value);
     }
+    
+    public double? Spacing
+    {
+        get => spacing;
+        set => SetProperty(ref spacing, value);
+    }
 
     public TextOverlayViewModel()
     {
@@ -67,12 +74,13 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     }
 
 
-    public void Show(string text, VecD position, Font font, Matrix3X3 matrix)
+    public void Show(string text, VecD position, Font font, Matrix3X3 matrix, double? spacing = null)
     {
         Font = font;
         Position = position;
         Text = text;
         Matrix = matrix;
+        Spacing = spacing;
         IsActive = true;
         RequestEditTextTrigger.Execute(this, text);
     }
@@ -83,5 +91,7 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
         Font = null!;
         Position = default;
         Text = string.Empty;
+        Matrix = Matrix3X3.Identity;
+        Spacing = null;
     }
 }

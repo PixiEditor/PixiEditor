@@ -15,7 +15,7 @@ internal class Blinker : IDisposable
     public float[] GlyphWidths { get; set; }
     public float BlinkerWidth { get; set; } = 1;
 
-    private Paint paint = new Paint() { Color = Colors.White, Style = PaintStyle.StrokeAndFill, StrokeWidth = 1 };
+    private Paint paint = new Paint() { Color = Colors.White, Style = PaintStyle.StrokeAndFill, StrokeWidth = 3 };
 
     public void Render(Canvas canvas)
     {
@@ -35,7 +35,7 @@ internal class Blinker : IDisposable
         
         paint.StrokeWidth = BlinkerWidth;
 
-        VecD from = new VecD(x, y);
+        VecD from = new VecD(x, y + glyphHeight / 4f);
         VecD to = new VecD(x, y - glyphHeight);
         canvas.DrawLine(from, to, paint);
     }
