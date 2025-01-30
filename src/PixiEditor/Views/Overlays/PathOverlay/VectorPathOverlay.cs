@@ -357,7 +357,7 @@ public class VectorPathOverlay : Overlay
         args.Handled = true;
     }
 
-    protected override void OnKeyPressed(Key key, KeyModifiers keyModifiers)
+    protected override void OnKeyPressed(Key key, KeyModifiers keyModifiers, string? symbol)
     {
         if (key == Key.Delete)
         {

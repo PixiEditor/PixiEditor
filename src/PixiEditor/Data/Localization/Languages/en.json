@@ -837,5 +837,6 @@
   "COLOR_NODE": "Color",
   "CONVERT_TO_CURVE": "Convert to curve",
   "CONVERT_TO_CURVE_DESCRIPTIVE": "Convert selected vector layer to a curve/path",
-  "FONT_FILES": "Font Files"
+  "FONT_FILES": "Font Files",
+  "UNIT_PT": "pt"
 }

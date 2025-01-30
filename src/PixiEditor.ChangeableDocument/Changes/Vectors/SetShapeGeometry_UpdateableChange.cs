@@ -12,7 +12,7 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
     public ShapeVectorData Data { get; set; }
 
     private ShapeVectorData? originalData;
-    
+
     private AffectedArea lastAffectedArea;
 
     [GenerateUpdateableChangeActions]
@@ -42,13 +42,15 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
         var node = target.FindNode<VectorLayerNode>(TargetId);
-        if(node.ShapeData is IDisposable disposable)
+        IDisposable? toDispose = null;
+        if (node.ShapeData is IDisposable disposable)
         {
-            disposable.Dispose();
+            toDispose = disposable;
         }
-        
-        node.ShapeData = Data;
 
+        node.ShapeData = Data;
+        toDispose?.Dispose();
+        
         RectD aabb = node.ShapeData.TransformedAABB.RoundOutwards();
         aabb = aabb with { Size = new VecD(Math.Max(1, aabb.Size.X), Math.Max(1, aabb.Size.Y)) };
 
@@ -56,14 +58,14 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
             (RectI)aabb, ChunkyImage.FullChunkSize));
 
         var tmp = new AffectedArea(affected);
-        
+
         if (lastAffectedArea.Chunks != null)
         {
             affected.UnionWith(lastAffectedArea);
         }
-        
+
         lastAffectedArea = tmp;
-        
+
         return new VectorShape_ChangeInfo(node.Id, affected);
     }
 
@@ -73,7 +75,7 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
         ignoreInUndo = false;
         var node = target.FindNode<VectorLayerNode>(TargetId);
         node.ShapeData = Data;
-        
+
         RectD aabb = node.ShapeData.TransformedAABB.RoundOutwards();
         aabb = aabb with { Size = new VecD(Math.Max(1, aabb.Size.X), Math.Max(1, aabb.Size.Y)) };
 
@@ -89,12 +91,12 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
         node.ShapeData = originalData;
 
         AffectedArea affected = new AffectedArea();
-        
+
         if (node.ShapeData != null)
-        { 
+        {
             RectD aabb = node.ShapeData.TransformedAABB.RoundOutwards();
             aabb = aabb with { Size = new VecD(Math.Max(1, aabb.Size.X), Math.Max(1, aabb.Size.Y)) };
-         
+
             affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
                 (RectI)aabb, ChunkyImage.FullChunkSize));
         }

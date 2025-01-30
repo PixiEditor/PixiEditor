@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
 using PixiEditor.Helpers.UI;
@@ -13,6 +14,7 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     private VecD position;
     private Font font;
     private ExecutionTrigger<string> requestEditTextTrigger;
+    private Matrix3X3 matrix = Matrix3X3.Identity;
 
     public event Action<string>? TextChanged;
 
@@ -52,6 +54,12 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
         get => requestEditTextTrigger;
         set => SetProperty(ref requestEditTextTrigger, value);
     }
+    
+    public Matrix3X3 Matrix
+    {
+        get => matrix;
+        set => SetProperty(ref matrix, value);
+    }
 
     public TextOverlayViewModel()
     {
@@ -59,17 +67,21 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     }
 
 
-    public void Show(string text, VecD position, Font font)
+    public void Show(string text, VecD position, Font font, Matrix3X3 matrix)
     {
-        IsActive = true;
         Font = font;
         Position = position;
         Text = text;
+        Matrix = matrix;
+        IsActive = true;
         RequestEditTextTrigger.Execute(this, text);
     }
 
     public void Hide()
     {
         IsActive = false;
+        Font = null!;
+        Position = default;
+        Text = string.Empty;
     }
 }

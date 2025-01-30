@@ -477,12 +477,18 @@ internal class ViewportOverlays
         {
             Source = Viewport, Path = "Document.TextOverlayViewModel.RequestEditTextTrigger", Mode = BindingMode.OneWay
         };
+        
+        Binding matrixBinding = new()
+        {
+            Source = Viewport, Path = "Document.TextOverlayViewModel.Matrix", Mode = BindingMode.OneWay
+        };
 
         textOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         textOverlay.Bind(TextOverlay.TextProperty, textBinding);
         textOverlay.Bind(TextOverlay.PositionProperty, positionBinding);
         textOverlay.Bind(TextOverlay.FontProperty, fontBinding);
         textOverlay.Bind(TextOverlay.RequestEditTextProperty, requestEditTextBinding);
+        textOverlay.Bind(TextOverlay.MatrixProperty, matrixBinding);
     }
 }
 

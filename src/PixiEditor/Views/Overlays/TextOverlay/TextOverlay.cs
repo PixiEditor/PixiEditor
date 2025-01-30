@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Input;
 using Avalonia.Threading;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
 using PixiEditor.Helpers.UI;
@@ -41,7 +42,7 @@ internal class TextOverlay : Overlay
     }
 
     public static readonly StyledProperty<int> CursorPositionProperty = AvaloniaProperty.Register<TextOverlay, int>(
-        nameof(CursorPosition));
+        nameof(CursorPosition), coerce: ClampValue);
 
     public int CursorPosition
     {
@@ -56,6 +57,15 @@ internal class TextOverlay : Overlay
     {
         get => GetValue(SelectionLengthProperty);
         set => SetValue(SelectionLengthProperty, value);
+    }
+
+    public static readonly StyledProperty<Matrix3X3> MatrixProperty = AvaloniaProperty.Register<TextOverlay, Matrix3X3>(
+        nameof(Matrix), Matrix3X3.Identity);
+
+    public Matrix3X3 Matrix
+    {
+        get => GetValue(MatrixProperty);
+        set => SetValue(MatrixProperty, value);
     }
 
     public static readonly StyledProperty<ExecutionTrigger<string>> RequestEditTextProperty =
@@ -90,6 +100,8 @@ internal class TextOverlay : Overlay
         IsEditingProperty.Changed.Subscribe(IsEditingChanged);
         TextProperty.Changed.Subscribe(TextChanged);
         FontProperty.Changed.Subscribe(FontChanged);
+
+        AffectsOverlayRender(FontProperty, TextProperty, CursorPositionProperty, SelectionLengthProperty);
     }
 
     public TextOverlay()
@@ -108,17 +120,24 @@ internal class TextOverlay : Overlay
     public override void RenderOverlay(Canvas context, RectD canvasBounds)
     {
         if (!IsEditing) return;
-        
+
         blinker.BlinkerPosition = CursorPosition;
         blinker.FontSize = Font.Size;
         blinker.GlyphPositions = glyphPositions;
         blinker.GlyphWidths = glyphWidths;
         blinker.Offset = Position;
+        
+        int saved = context.Save();
+        
+        context.SetMatrix(context.TotalMatrix.Concat(Matrix));
 
+        blinker.BlinkerWidth = 3f / (float)ZoomScale;
         blinker.Render(context);
+        
+        context.RestoreToCount(saved);
     }
 
-    protected override void OnKeyPressed(Key key, KeyModifiers keyModifiers)
+    protected override void OnKeyPressed(Key key, KeyModifiers keyModifiers, string? keySymbol)
     {
         if (!IsEditing) return;
         if (IsShortcut(key, keyModifiers))
@@ -127,34 +146,34 @@ internal class TextOverlay : Overlay
             return;
         }
 
-        InsertChar(key, keyModifiers);
+        InsertChar(key, keySymbol);
     }
 
-    private void InsertChar(Key key, KeyModifiers keyModifiers)
+    private void InsertChar(Key key, string symbol)
     {
         if (key == Key.Enter)
         {
-            Text += Environment.NewLine;
+            InsertTextAtCursor("\n");
         }
         else if (key == Key.Space)
         {
-            Text += " ";
-            CursorPosition++;
+            InsertTextAtCursor(" ");
         }
         else
         {
-            string converted = IOperatingSystem.Current.InputKeys.GetKeyboardKey(key);
-            if (converted == null || converted.Length > 1) return;
-
-            string toAdd = keyModifiers.HasFlag(KeyModifiers.Shift) ? converted.ToUpper() : converted.ToLower();
-            char? keyChar = toAdd.FirstOrDefault();
-            if (keyChar != null)
+            if (symbol is { Length: 1 })
             {
-                if (char.IsControl(keyChar.Value)) return;
-                Text += keyChar;
-                CursorPosition++;
+                char symbolChar = symbol[0];
+                if (char.IsControl(symbolChar)) return;
+                InsertTextAtCursor(symbol);
             }
         }
+    }
+    
+    private void InsertTextAtCursor(string toAdd)
+    {
+        Text = Text.Insert(CursorPosition, toAdd);
+        CursorPosition += toAdd.Length;
     }
 
     private bool IsShortcut(Key key, KeyModifiers keyModifiers)
@@ -173,29 +192,39 @@ internal class TextOverlay : Overlay
 
     private void PasteText()
     {
-        ClipboardController.GetTextFromClipboard().ContinueWith(t =>
-        {
-            Dispatcher.UIThread.Invoke(() => Text += t.Result);
-        }, TaskContinuationOptions.OnlyOnRanToCompletion);
+        ClipboardController.GetTextFromClipboard().ContinueWith(
+            t =>
+            {
+                Dispatcher.UIThread.Invoke(() => Text += t.Result);
+            }, TaskContinuationOptions.OnlyOnRanToCompletion);
     }
 
     private void DeleteChar(int direction)
     {
-        if (Text.Length > 0)
+        if (Text.Length > 0 && CursorPosition + direction >= 0 && CursorPosition + direction < Text.Length)
         {
             Text = Text.Remove(CursorPosition + direction, 1);
-            CursorPosition = Math.Clamp(CursorPosition + direction, 0, Text.Length);
+            CursorPosition = CursorPosition + direction;
         }
     }
 
     private void MoveCursorBy(int direction)
     {
-        CursorPosition = Math.Clamp(CursorPosition + direction, 0, Text.Length);
+        CursorPosition += direction;
     }
 
     private void RequestEditTextTriggered(object? sender, string e)
     {
         IsEditing = true;
+    }
+
+    private void UpdateGlyphs()
+    {
+        if (Font == null) return;
+
+        RichText richText = new(Text);
+        glyphPositions = richText.GetGlyphPositions(Font);
+        glyphWidths = richText.GetGlyphWidths(Font);
     }
 
     private static void IsVisibleChanged(AvaloniaPropertyChangedEventArgs<bool> args)
@@ -247,11 +276,11 @@ internal class TextOverlay : Overlay
         sender.UpdateGlyphs();
     }
 
-    private void UpdateGlyphs()
+    private static int ClampValue(AvaloniaObject sender, int newPos)
     {
-        if (Font == null) return;
+        TextOverlay textOverlay = sender as TextOverlay;
+        if (textOverlay == null) return newPos;
 
-        glyphPositions = Font.GetGlyphPositions(Text);
-        glyphWidths = Font.GetGlyphWidths(Text);
+        return Math.Clamp(newPos, 0, textOverlay.Text.Length);
     }
 }

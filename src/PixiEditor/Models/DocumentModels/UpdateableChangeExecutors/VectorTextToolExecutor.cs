@@ -48,14 +48,14 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         var shape = layerHandler.GetShapeData(document.AnimationHandler.ActiveFrameBindable);
         if (shape is TextVectorData textData)
         {
-            document.TextOverlayHandler.Show(textData.Text, textData.Position, textData.Font);
+            document.TextOverlayHandler.Show(textData.Text, textData.Position, textData.Font, textData.TransformationMatrix);
             lastText = textData.Text;
             position = textData.Position;
             lastMatrix = textData.TransformationMatrix;
         }
         else if (shape is null)
         {
-            document.TextOverlayHandler.Show("", controller.LastPrecisePosition, toolbar.ConstructFont());
+            document.TextOverlayHandler.Show("", controller.LastPrecisePosition, toolbar.ConstructFont(), Matrix3X3.Identity);
             lastText = "";
             position = controller.LastPrecisePosition;
         }
@@ -75,8 +75,10 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     public void OnTextChanged(string text)
     {
-        internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(selectedMember.Id, ConstructTextData(text)));
+        var constructedText = ConstructTextData(text);
+        internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(selectedMember.Id, constructedText));
         lastText = text;
+        document.TextOverlayHandler.Font = constructedText.Font;
     }
 
     public override void OnSettingsChanged(string name, object value)
@@ -86,8 +88,10 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             document.TextOverlayHandler.Font = toolbar.ConstructFont();
         }
         
-        internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(selectedMember.Id,
-            ConstructTextData(lastText)));
+        var constructedText = ConstructTextData(lastText);
+        internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(selectedMember.Id, constructedText));
+        
+        document.TextOverlayHandler.Font = constructedText.Font;
     }
 
     public override void OnColorChanged(Color color, bool primary)

@@ -1,4 +1,5 @@
 ﻿using Drawie.Backend.Core.Text;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
@@ -33,7 +34,8 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
     public TextToolbar()
     {
         AddSetting(new FontFamilySettingViewModel(nameof(FontFamily), "FONT_LABEL"));
-        var sizeSetting = new SizeSettingViewModel(nameof(FontSize), "FONT_SIZE_LABEL") { Value = 12 };
+        var sizeSetting = new SizeSettingViewModel(nameof(FontSize), "FONT_SIZE_LABEL", unit: new LocalizedString("UNIT_PT")) 
+            { Value = 12 };
         AddSetting(sizeSetting);
     }
 
