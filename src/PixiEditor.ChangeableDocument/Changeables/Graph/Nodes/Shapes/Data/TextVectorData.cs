@@ -21,7 +21,8 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
         set
         {
             text = value;
-            richText = new RichText(value);
+            richText = new RichText(value) { Spacing = Spacing, MaxWidth = MaxWidth, StrokeWidth = StrokeWidth };
+
             lastBounds = richText.MeasureBounds(Font);
         }
     }
@@ -53,13 +54,9 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
     
     public bool AntiAlias { get; set; } = true;
 
-    protected override void OnMatrixChanged()
-    {
-        lastBounds = richText.MeasureBounds(Font);
-    }
-
     protected override void OnStrokeWidthChanged()
     {
+        richText.StrokeWidth = StrokeWidth;
         lastBounds = richText.MeasureBounds(Font);
     }
 

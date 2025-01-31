@@ -12,17 +12,8 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVectorData
 {
     private float strokeWidth = 1;
-    private Matrix3X3 transformationMatrix = Matrix3X3.Identity;
 
-    public Matrix3X3 TransformationMatrix
-    {
-        get => transformationMatrix;
-        set
-        {
-            transformationMatrix = value;
-            OnMatrixChanged(); 
-        }
-    }
+    public Matrix3X3 TransformationMatrix { get; set; } = Matrix3X3.Identity;
 
     public Color StrokeColor { get; set; } = Colors.White;
     public Color FillColor { get; set; } = Colors.White;
@@ -68,7 +59,6 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
 
     protected virtual void AdjustCopy(ShapeVectorData copy) { }
     
-    protected virtual void OnMatrixChanged() { }
     protected virtual void OnStrokeWidthChanged() { }
 
     public override int GetHashCode()
