@@ -54,12 +54,12 @@ public class MergeNode : RenderNode
         if (Bottom.Value != null && Top.Value != null)
         {
             int saved = target.Canvas.SaveLayer();
-            Bottom.Value.Paint(context, target);
+            Bottom.Value?.Paint(context, target);
 
             paint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
             target.Canvas.SaveLayer(paint);
             
-            Top.Value.Paint(context, target);
+            Top.Value?.Paint(context, target);
             target.Canvas.RestoreToCount(saved);
             return;
         }

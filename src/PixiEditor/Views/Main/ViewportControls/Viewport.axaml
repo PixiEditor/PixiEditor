@@ -181,7 +181,7 @@
         <rendering:Scene
             Focusable="True" Name="scene"
             ZIndex="1"
-            SceneRenderer="{Binding Source={viewModels:MainVM DocumentManagerSVM}, Path=ActiveDocument.SceneRenderer}"
+            SceneRenderer="{Binding Document.SceneRenderer, ElementName=vpUc, Mode=OneWay}"
             Document="{Binding Document, ElementName=vpUc, Mode=OneWay}"
             UseTouchGestures="{Binding UseTouchGestures, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             Center="{Binding Center, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"

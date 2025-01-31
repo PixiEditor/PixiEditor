@@ -101,6 +101,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     private bool shiftIsDown;
     private bool ctrlIsDown;
     private bool altIsDown;
+    private Key lastKey;
 
     private ToolViewModel _preTransientTool;
 
@@ -262,9 +263,9 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         }
 
         //update old tool
-        LastActionTool?.ModifierKeyChanged(false, false, false);
+        LastActionTool?.KeyChanged(false, false, false, Key.None);
         //update new tool
-        ActiveTool.ModifierKeyChanged(ctrlIsDown, shiftIsDown, altIsDown);
+        ActiveTool.KeyChanged(ctrlIsDown, shiftIsDown, altIsDown, lastKey);
         ActiveTool.OnToolSelected(wasTransient);
 
         tool.IsActive = true;
@@ -415,12 +416,12 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     public void ConvertedKeyDownInlet(FilteredKeyEventArgs args)
     {
-        ActiveTool?.ModifierKeyChanged(args.IsCtrlDown, args.IsShiftDown, args.IsAltDown);
+        ActiveTool?.KeyChanged(args.IsCtrlDown, args.IsShiftDown, args.IsAltDown, args.Key);
     }
 
     public void ConvertedKeyUpInlet(FilteredKeyEventArgs args)
     {
-        ActiveTool?.ModifierKeyChanged(args.IsCtrlDown, args.IsShiftDown, args.IsAltDown);
+        ActiveTool?.KeyChanged(args.IsCtrlDown, args.IsShiftDown, args.IsAltDown, args.Key);
     }
     
     public void OnPostUndoInlet()
@@ -431,6 +432,16 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     public void OnPostRedoInlet()
     {
         ActiveTool?.OnPostRedo();
+    }
+    
+    public void OnPreUndoInlet()
+    {
+        ActiveTool?.OnPreUndoInlet();
+    }
+    
+    public void OnPreRedoInlet()
+    {
+        ActiveTool?.OnPreRedoInlet();
     }
 
     private void ToolbarSettingChanged(string settingName, object value)

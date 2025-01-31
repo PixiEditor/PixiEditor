@@ -1,4 +1,7 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
+﻿using System.Collections.Immutable;
+using System.Collections.ObjectModel;
+using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
@@ -13,14 +16,18 @@ internal class DuplicateFolder_Change : Change
     private Guid[] contentGuids;
     private Guid[] contentDuplicateGuids;
 
+    private Guid[]? childGuidsToUse;
+
     private ConnectionsData? connectionsData;
     private Dictionary<Guid, ConnectionsData> contentConnectionsData = new();
+    private Dictionary<Guid, VecD> originalPositions;
 
     [GenerateMakeChangeAction]
-    public DuplicateFolder_Change(Guid folderGuid, Guid newGuid)
+    public DuplicateFolder_Change(Guid folderGuid, Guid newGuid, ImmutableList<Guid>? childGuids)
     {
         this.folderGuid = folderGuid;
         duplicateGuid = newGuid;
+        childGuidsToUse = childGuids?.ToArray();
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -58,11 +65,14 @@ internal class DuplicateFolder_Change : Change
 
         target.NodeGraph.AddNode(clone);
         
+        var previousConnection = targetInput.Connection;
+
         operations.Add(CreateNode_ChangeInfo.CreateFromNode(clone));
         operations.AddRange(NodeOperations.AppendMember(targetInput, clone.Output, clone.Background, clone.Id));
+        operations.AddRange(NodeOperations.AdjustPositionsAfterAppend(clone, targetInput.Node, previousConnection?.Node as Node, out originalPositions));
 
         DuplicateContent(target, clone, existingLayer, operations);
-        
+
         ignoreInUndo = false;
 
         return operations;
@@ -87,7 +97,7 @@ internal class DuplicateFolder_Change : Change
                 Node contentNode = target.FindNodeOrThrow<Node>(contentGuid);
                 changes.AddRange(NodeOperations.DetachNode(target.NodeGraph, contentNode));
                 changes.Add(new DeleteNode_ChangeInfo(contentNode.Id));
-                
+
                 target.NodeGraph.RemoveNode(contentNode);
                 contentNode.Dispose();
             }
@@ -100,6 +110,8 @@ internal class DuplicateFolder_Change : Change
                 NodeOperations.ConnectStructureNodeProperties(connectionsData, originalNode, target.NodeGraph));
         }
 
+        changes.AddRange(NodeOperations.RevertPositions(originalPositions, target));
+
         return changes;
     }
 
@@ -109,6 +121,7 @@ internal class DuplicateFolder_Change : Change
         Dictionary<Guid, Guid> nodeMap = new Dictionary<Guid, Guid>();
 
         nodeMap[existingLayer.Id] = clone.Id;
+        int counter = 0;
         List<Guid> contentGuidList = new();
 
         existingLayer.Content.Connection?.Node.TraverseBackwards(x =>
@@ -117,6 +130,13 @@ internal class DuplicateFolder_Change : Change
                 return false;
 
             Node? node = targetNode.Clone();
+            
+            if(node is not FolderNode && childGuidsToUse is not null && counter < childGuidsToUse.Length)
+            {
+                node.Id = childGuidsToUse[counter];
+                counter++;
+            }
+            
             nodeMap[x.Id] = node.Id;
             contentGuidList.Add(node.Id);
 
@@ -133,7 +153,7 @@ internal class DuplicateFolder_Change : Change
             operations.AddRange(NodeOperations.ConnectStructureNodeProperties(updatedData,
                 target.FindNodeOrThrow<Node>(targetNodeId), target.NodeGraph));
         }
-        
+
         contentDuplicateGuids = contentGuidList.ToArray();
     }
 }

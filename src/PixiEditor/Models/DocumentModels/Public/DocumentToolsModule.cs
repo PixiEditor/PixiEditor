@@ -21,7 +21,6 @@ internal class DocumentToolsModule
 
     public void UseOpacitySlider() => Internals.ChangeController.TryStartExecutor<StructureMemberOpacityExecutor>();
 
-    public void UseShiftLayerTool() => Internals.ChangeController.TryStartExecutor<ShiftLayerExecutor>();
 
     public void UsePenTool() => Internals.ChangeController.TryStartExecutor<PenToolExecutor>();
 

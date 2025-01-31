@@ -79,6 +79,9 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         if (member is IVectorLayerHandler)
         {
             var node = (VectorLayerNode)internals.Tracker.Document.FindMember(member.Id);
+            
+            if(node is null)
+                return ExecutionState.Error;
 
             if (node.ShapeData is not IReadOnlyLineData data)
             {
@@ -94,7 +97,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
 
             ActiveMode = ShapeToolMode.Transform;
 
-            document.LineToolOverlayHandler.Show(data.Start, data.End, false, AddToUndo);
+            document.LineToolOverlayHandler.Show(data.TransformedStart, data.TransformedEnd, false, AddToUndo);
         }
         else
         {

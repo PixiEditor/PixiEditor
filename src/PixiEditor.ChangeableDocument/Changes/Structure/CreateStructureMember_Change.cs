@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
+﻿using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
@@ -13,8 +14,9 @@ internal class CreateStructureMember_Change : Change
 
     private Guid parentGuid;
     private Type structureMemberOfType;
-    
+
     private ConnectionsData? connectionsData;
+    private Dictionary<Guid, VecD> originalPositions;
 
     [GenerateMakeChangeAction]
     public CreateStructureMember_Change(Guid parent, Guid newGuid,
@@ -27,25 +29,28 @@ internal class CreateStructureMember_Change : Change
 
     public override bool InitializeAndValidate(Document target)
     {
-        if(structureMemberOfType == null || structureMemberOfType.IsAbstract || structureMemberOfType.IsInterface || !structureMemberOfType.IsAssignableTo(typeof(StructureNode)))
+        if (structureMemberOfType == null || structureMemberOfType.IsAbstract || structureMemberOfType.IsInterface ||
+            !structureMemberOfType.IsAssignableTo(typeof(StructureNode)))
             return false;
-        
+
         return target.TryFindNode<Node>(parentGuid, out _);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document document, bool firstApply,
         out bool ignoreInUndo)
     {
-        StructureNode member = (StructureNode)NodeOperations.CreateNode(structureMemberOfType, document); 
+        StructureNode member = (StructureNode)NodeOperations.CreateNode(structureMemberOfType, document);
         member.Id = newMemberGuid;
 
         document.TryFindNode<Node>(parentGuid, out var parentNode);
 
         List<IChangeInfo> changes = new() { CreateChangeInfo(member) };
-        
-        InputProperty<Painter> targetInput = parentNode.InputProperties.FirstOrDefault(x => 
+
+        InputProperty<Painter> targetInput = parentNode.InputProperties.FirstOrDefault(x =>
             x.ValueType == typeof(Painter)) as InputProperty<Painter>;
-        
+
+        var previouslyConnected = targetInput.Connection;
+
         if (member is FolderNode folder)
         {
             document.NodeGraph.AddNode(member);
@@ -54,11 +59,12 @@ internal class CreateStructureMember_Change : Change
         else
         {
             document.NodeGraph.AddNode(member);
-            List<ConnectProperty_ChangeInfo> connectPropertyChangeInfo =
+            var connectPropertyChangeInfo =
                 NodeOperations.AppendMember(targetInput, member.Output, member.Background, member.Id);
             changes.AddRange(connectPropertyChangeInfo);
         }
-
+        
+        changes.AddRange(NodeOperations.AdjustPositionsAfterAppend(member, targetInput.Node, previouslyConnected?.Node as Node, out originalPositions));
 
         ignoreInUndo = false;
 
@@ -79,7 +85,7 @@ internal class CreateStructureMember_Change : Change
     {
         var container = document.FindNodeOrThrow<Node>(parentGuid);
 
-       InputProperty<Painter> backgroundInput = container.InputProperties.FirstOrDefault(x => 
+        InputProperty<Painter> backgroundInput = container.InputProperties.FirstOrDefault(x =>
             x.ValueType == typeof(Painter)) as InputProperty<Painter>;
 
         StructureNode child = document.FindMemberOrThrow(newMemberGuid);
@@ -98,15 +104,16 @@ internal class CreateStructureMember_Change : Change
                 backgroundInput.InternalPropertyName);
             changes.Add(change);
         }
+        
+        changes.AddRange(NodeOperations.RevertPositions(originalPositions, document));
 
         return changes;
     }
 
-    private static void AppendFolder(InputProperty<Painter> backgroundInput, FolderNode folder, List<IChangeInfo> changes)
+    private static void AppendFolder(InputProperty<Painter> backgroundInput, FolderNode folder,
+        List<IChangeInfo> changes)
     {
         var appened = NodeOperations.AppendMember(backgroundInput, folder.Output, folder.Background, folder.Id);
         changes.AddRange(appened);
     }
-
-    
 }

@@ -27,7 +27,7 @@ internal class LassoToolViewModel : ToolViewModel, ILassoToolHandler
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = null;
 
-    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
     {
         if (shiftIsDown)
         {
