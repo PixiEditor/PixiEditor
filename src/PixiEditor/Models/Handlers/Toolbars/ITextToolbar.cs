@@ -7,6 +7,7 @@ internal interface ITextToolbar : IFillableShapeToolbar
     public double FontSize { get; set; }
     public FontFamilyName FontFamily { get; set; }
     public double Spacing { get; set; }
+    public bool ForceLowDpiRendering { get; set; }
 
     public Font ConstructFont();
 }

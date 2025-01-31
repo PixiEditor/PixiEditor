@@ -843,5 +843,6 @@
   "FONT_SIZE_LABEL": "Size",
   "SPACING_LABEL": "Spacing",
   "TEXT_TOOL": "Text",
-  "MISSING_FONT": "Missing font"
+  "MISSING_FONT": "Missing font",
+  "TEXT_LAYER_NAME": "Text"
 }

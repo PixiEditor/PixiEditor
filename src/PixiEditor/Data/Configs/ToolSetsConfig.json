@@ -25,6 +25,13 @@
           "Spacing": 0
         }
       },
+      {
+        "ToolName": "Text",
+        "Settings": {
+          "AntiAliasing": false,
+          "ForceLowDpiRendering": true
+        }
+      },
       "ColorPicker",
       "Brightness",
       "Zoom"
@@ -42,7 +49,7 @@
           "AntiAliasing": true,
           "ExposeHardness": true,
           "ExposeSpacing": true,
-          "BrushShapeSetting": "CircleSmooth" 
+          "BrushShapeSetting": "CircleSmooth"
         }
       },
       "Select",
@@ -78,7 +85,14 @@
         "Settings": {
           "AntiAliasing": true
         },
-        "Icon": "\uE953" 
+        "Icon": "\uE953"
+      },
+      {
+        "ToolName": "Text",
+        "Settings": {
+          "AntiAliasing": true,
+          "ForceLowDpiRendering": true
+        }
       },
       {
         "ToolName": "Eraser",
@@ -103,7 +117,14 @@
       "VectorLine",
       "VectorEllipse",
       "VectorRectangle",
-      "Text"
+      {
+        "ToolName": "Text",
+        "Settings": 
+        {
+          "AntiAliasing": true,
+          "ForceLowDpiRendering": false
+        }
+      }
     ]
   }
 ]

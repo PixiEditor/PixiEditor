@@ -80,7 +80,7 @@ internal class DocumentToolsModule
 
     public void UseMagicWandTool() => Internals.ChangeController.TryStartExecutor<MagicWandToolExecutor>();
 
-    public void UseVectorTextTool()
+    public void UseTextTool()
     {
         bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
         Internals.ChangeController.TryStartExecutor<VectorTextToolExecutor>(force);

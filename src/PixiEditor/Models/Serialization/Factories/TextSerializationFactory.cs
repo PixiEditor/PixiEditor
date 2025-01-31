@@ -17,6 +17,7 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
     {
         builder.AddString(original.Text);
         builder.AddVecD(original.Position);
+        builder.AddBool(original.AntiAlias);
         builder.AddString(original.Font.Family.Name);
         builder.AddBool(original.Font.Family.FontUri?.IsFile ?? false);
         if (original.Font.Family.FontUri?.IsFile ?? false)
@@ -41,6 +42,7 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
     {
         string text = extractor.GetString();
         VecD position = extractor.GetVecD();
+        bool antiAlias = extractor.GetBool();
         string fontFamily = extractor.GetString();
         bool isFontFromFile = extractor.GetBool();
         string fontPath = null;
@@ -90,7 +92,8 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
             Spacing = spacing,
             Path = path,
             MissingFontFamily = missingFamily,
-            MissingFontText = new LocalizedString("MISSING_FONT")
+            MissingFontText = new LocalizedString("MISSING_FONT"),
+            AntiAlias = antiAlias
         };
 
         return true;

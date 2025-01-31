@@ -20,6 +20,8 @@ internal class TextToolViewModel : ToolViewModel, ITextToolHandler
     public override bool IsErasable => false;
     public override bool StopsLinkedToolOnUse => false;
 
+    public string? DefaultNewLayerName { get; } = new LocalizedString("TEXT_LAYER_NAME");
+
     [Settings.Inherited]
     public double FontSize
     {
@@ -33,14 +35,14 @@ internal class TextToolViewModel : ToolViewModel, ITextToolHandler
 
     public override void UseTool(VecD pos)
     {
-        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorTextTool();
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseTextTool();
     }
 
     protected override void OnSelected(bool restoring)
     {
         if (!restoring)
         {
-            ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorTextTool();
+            ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseTextTool();
         }
     }
 

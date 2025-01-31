@@ -25,8 +25,8 @@ public class TextVectorData : ShapeVectorData, IDisposable
 
     public double MaxWidth { get; set; } = double.MaxValue;
     public Font Font { get; set; } = Font.CreateDefault();
-
     public double? Spacing { get; set; }
+    public bool AntiAlias { get; set; } = true;
 
     public override RectD GeometryAABB
     {
@@ -74,7 +74,7 @@ public class TextVectorData : ShapeVectorData, IDisposable
             ApplyTransformTo(canvas);
         }
 
-        using Paint paint = new Paint() { IsAntiAliased = true };
+        using Paint paint = new Paint() { IsAntiAliased = AntiAlias };
 
         richText.Fill = Fill;
         richText.FillColor = FillColor;

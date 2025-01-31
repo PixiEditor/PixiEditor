@@ -1,5 +1,6 @@
 ﻿using Drawie.Backend.Core.Text;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
@@ -42,10 +43,24 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
             GetSetting<SizeSettingViewModel>(nameof(Spacing)).Value = value;
         }
     }
+    
+    public bool ForceLowDpiRendering
+    {
+        get
+        {
+            return GetSetting<BoolSettingViewModel>(nameof(ForceLowDpiRendering)).Value;
+        }
+        set
+        {
+            GetSetting<BoolSettingViewModel>(nameof(ForceLowDpiRendering)).Value = value;
+        }
+    }
 
     public TextToolbar()
     {
         AddSetting(new FontFamilySettingViewModel(nameof(FontFamily), "FONT_LABEL"));
+        FontFamily = FontDomain.DefaultFontFamily;
+        
         var sizeSetting =
             new SizeSettingViewModel(nameof(FontSize), "FONT_SIZE_LABEL", unit: new LocalizedString("UNIT_PT"))
             {
@@ -63,6 +78,11 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
         };
 
         AddSetting(spacingSetting);
+        
+        AddSetting(new BoolSettingViewModel(nameof(ForceLowDpiRendering), "__force_low_dpi_rendering")
+        {
+            IsExposed = false, Value = false
+        });
     }
 
     public Font ConstructFont()
@@ -79,6 +99,7 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
         }
 
         font.Size = (float)FontSize;
+        font.Edging = AntiAliasing ? FontEdging.AntiAlias : FontEdging.Alias;
 
         return font;
     }
