@@ -11,6 +11,9 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IDisposable
 {
     private string text;
+    private Font font = Font.CreateDefault();
+    private double? spacing = null;
+    private double strokeWidth = 1;
 
     public string Text
     {
@@ -19,22 +22,52 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IDisposable
         {
             text = value;
             richText = new RichText(value);
+            lastBounds = richText.MeasureBounds(Font);
         }
     }
 
     public VecD Position { get; set; }
 
     public double MaxWidth { get; set; } = double.MaxValue;
-    public Font Font { get; set; } = Font.CreateDefault();
-    public double? Spacing { get; set; }
+
+    public Font Font
+    {
+        get => font;
+        set
+        {
+            font = value;
+            lastBounds = richText.MeasureBounds(value);
+        }
+    }
+
+    public double? Spacing
+    {
+        get => spacing;
+        set
+        {
+            spacing = value;
+            richText.Spacing = value;
+            lastBounds = richText.MeasureBounds(Font);
+        }
+    }
+    
     public bool AntiAlias { get; set; } = true;
+
+    protected override void OnMatrixChanged()
+    {
+        lastBounds = richText.MeasureBounds(Font);
+    }
+
+    protected override void OnStrokeWidthChanged()
+    {
+        lastBounds = richText.MeasureBounds(Font);
+    }
 
     public override RectD GeometryAABB
     {
         get
         {
-            RectD bounds = richText.MeasureBounds(Font);
-            return bounds.Offset(Position);
+            return lastBounds.Offset(Position);
         }
     }
 
@@ -47,6 +80,7 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IDisposable
     public string MissingFontText { get; set; }
 
     private RichText richText;
+    private RectD lastBounds;
 
     public override VectorPath ToPath()
     {
@@ -112,6 +146,17 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IDisposable
     public override int GetCacheHash()
     {
         return HashCode.Combine(Text, Position, Font, StrokeColor, FillColor, StrokeWidth, TransformationMatrix);
+    }
+
+    protected override void AdjustCopy(ShapeVectorData copy)
+    {
+        if (copy is TextVectorData textData)
+        {
+            textData.Font = Font.FromFontFamily(Font.Family);
+            textData.Font.Size = Font.Size;
+            textData.Font.Edging = Font.Edging;
+            textData.Font.SubPixel = Font.SubPixel;
+        }
     }
 
     public override int CalculateHash()
