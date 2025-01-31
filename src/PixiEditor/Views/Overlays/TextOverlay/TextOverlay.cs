@@ -101,6 +101,9 @@ internal class TextOverlay : Overlay
     private Blinker blinker = new Blinker();
     private VecF[] glyphPositions;
     private float[] glyphWidths;
+    private RichText richText;
+
+    private int lastXMovementCursorIndex;
 
     static TextOverlay()
     {
@@ -111,7 +114,8 @@ internal class TextOverlay : Overlay
         FontProperty.Changed.Subscribe(FontChanged);
         SpacingProperty.Changed.Subscribe(SpaceChanged);
 
-        AffectsOverlayRender(FontProperty, TextProperty, CursorPositionProperty, SelectionLengthProperty, IsEditingProperty,
+        AffectsOverlayRender(FontProperty, TextProperty, CursorPositionProperty, SelectionLengthProperty,
+            IsEditingProperty,
             MatrixProperty, SpacingProperty);
     }
 
@@ -122,8 +126,10 @@ internal class TextOverlay : Overlay
             { new KeyCombination(Key.V, KeyModifiers.Control), PasteText },
             { new KeyCombination(Key.Delete, KeyModifiers.None), () => DeleteChar(0) },
             { new KeyCombination(Key.Back, KeyModifiers.None), () => DeleteChar(-1) },
-            { new KeyCombination(Key.Left, KeyModifiers.None), () => MoveCursorBy(-1) },
-            { new KeyCombination(Key.Right, KeyModifiers.None), () => MoveCursorBy(1) }
+            { new KeyCombination(Key.Left, KeyModifiers.None), () => MoveCursorBy(new VecI(-1, 0)) },
+            { new KeyCombination(Key.Right, KeyModifiers.None), () => MoveCursorBy(new VecI(1, 0)) },
+            { new KeyCombination(Key.Up, KeyModifiers.None), () => MoveCursorBy(new VecI(0, -1)) },
+            { new KeyCombination(Key.Down, KeyModifiers.None), () => MoveCursorBy(new VecI(0, 1)) }
         };
     }
 
@@ -137,16 +143,16 @@ internal class TextOverlay : Overlay
         blinker.GlyphPositions = glyphPositions;
         blinker.GlyphWidths = glyphWidths;
         blinker.Offset = Position;
-        
+
         int saved = context.Save();
-        
+
         context.SetMatrix(context.TotalMatrix.Concat(Matrix));
-        
+
         blinker.BlinkerWidth = 3f / (float)ZoomScale;
         blinker.Render(context);
-        
+
         context.RestoreToCount(saved);
-        
+
         Refresh();
     }
 
@@ -182,11 +188,12 @@ internal class TextOverlay : Overlay
             }
         }
     }
-    
+
     private void InsertTextAtCursor(string toAdd)
     {
         Text = Text.Insert(CursorPosition, toAdd);
         CursorPosition += toAdd.Length;
+        lastXMovementCursorIndex = CursorPosition;
     }
 
     private bool IsShortcut(Key key, KeyModifiers keyModifiers)
@@ -217,13 +224,32 @@ internal class TextOverlay : Overlay
         if (Text.Length > 0 && CursorPosition + direction >= 0 && CursorPosition + direction < Text.Length)
         {
             Text = Text.Remove(CursorPosition + direction, 1);
-            CursorPosition = CursorPosition + direction;
+            CursorPosition += direction;
+            lastXMovementCursorIndex = CursorPosition;
         }
     }
 
-    private void MoveCursorBy(int direction)
+    private void MoveCursorBy(VecI direction)
     {
-        CursorPosition += direction;
+        int moveBy = direction.X;
+        if (direction.X != 0)
+        {
+            lastXMovementCursorIndex = Math.Clamp(CursorPosition + direction.X, 0, Text.Length);
+        }
+
+        if (direction.Y != 0)
+        {
+            int indexOnLine = richText.IndexOnLine(CursorPosition, out int lineIndex);
+            int clampedDesiredLineIndex = Math.Clamp(lineIndex + direction.Y, 0, richText.Lines.Length - 1);
+            VecF position = glyphPositions[lastXMovementCursorIndex];
+            (int lineStart, int lineEnd) = richText.GetLineStartEnd(clampedDesiredLineIndex);
+            VecF[] lineGlyphPositions = glyphPositions[lineStart..lineEnd];
+            int closestIndex = lineGlyphPositions.Select((pos, i) => (i, pos))
+                .OrderBy(pos => Math.Abs(pos.pos.X - position.X)).First().i;
+            moveBy = richText.GetIndexOnLine(clampedDesiredLineIndex, closestIndex) - CursorPosition;
+        }
+
+        CursorPosition += moveBy;
     }
 
     private void RequestEditTextTriggered(object? sender, string e)
@@ -235,7 +261,7 @@ internal class TextOverlay : Overlay
     {
         if (Font == null) return;
 
-        RichText richText = new(Text);
+        richText = new(Text);
         richText.Spacing = Spacing;
         glyphPositions = richText.GetGlyphPositions(Font);
         glyphWidths = richText.GetGlyphWidths(Font);
@@ -289,13 +315,13 @@ internal class TextOverlay : Overlay
         TextOverlay sender = args.Sender as TextOverlay;
         sender.UpdateGlyphs();
     }
-    
+
     private static void SpaceChanged(AvaloniaPropertyChangedEventArgs<double?> args)
     {
         TextOverlay sender = args.Sender as TextOverlay;
         sender.UpdateGlyphs();
     }
-    
+
     private static int ClampValue(AvaloniaObject sender, int newPos)
     {
         TextOverlay textOverlay = sender as TextOverlay;
