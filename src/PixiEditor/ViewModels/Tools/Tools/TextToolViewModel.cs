@@ -15,7 +15,7 @@ internal class TextToolViewModel : ToolViewModel, ITextToolHandler
     public override string ToolNameLocalizationKey => "TEXT_TOOL";
     public override Type[]? SupportedLayerTypes => [];
     public override Type LayerTypeToCreateOnEmptyUse => typeof(VectorLayerNode);
-    public override LocalizedString Tooltip => new LocalizedString("TEXT_TOOL_TOOLTIP");
+    public override LocalizedString Tooltip => new LocalizedString("TEXT_TOOL_TOOLTIP", Shortcut);
 
     public override bool IsErasable => false;
     public override bool StopsLinkedToolOnUse => false;

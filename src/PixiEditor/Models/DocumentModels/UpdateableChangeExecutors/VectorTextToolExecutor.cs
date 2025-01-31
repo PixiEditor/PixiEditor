@@ -1,4 +1,5 @@
 ﻿using Avalonia.Input;
+using Avalonia.Threading;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Text;
@@ -23,6 +24,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     private string lastText = "";
     private VecD position;
     private Matrix3X3 lastMatrix = Matrix3X3.Identity;
+    private Font? cachedFont;
 
     public override ExecutorType Type => ExecutorType.ToolLinked;
 
@@ -92,9 +94,26 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     public override void OnSettingsChanged(string name, object value)
     {
-        if (name is nameof(ITextToolbar.FontSize) or nameof(ITextToolbar.FontFamily))
+        if (name == nameof(ITextToolbar.FontFamily))
         {
-            document.TextOverlayHandler.Font = toolbar.ConstructFont();
+            Font toDispose = cachedFont;
+            Dispatcher.UIThread.Post(() =>
+            {
+                toDispose?.Dispose();
+            });
+
+            cachedFont = toolbar.ConstructFont();
+            document.TextOverlayHandler.Font = cachedFont;
+        }
+        else if (name is nameof(ITextToolbar.FontSize))
+        {
+            if(cachedFont == null)
+            {
+                cachedFont = toolbar.ConstructFont();
+            }
+            
+            document.TextOverlayHandler.Font.Size = toolbar.FontSize;
+            cachedFont.Size = toolbar.FontSize;
         }
 
         var constructedText = ConstructTextData(lastText);
@@ -119,7 +138,20 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     private TextVectorData ConstructTextData(string text)
     {
-        Font font = toolbar.ConstructFont();
+        if (cachedFont == null || cachedFont.Family.Name != toolbar.FontFamily.Name)
+        {
+            Font toDispose = cachedFont;
+            Dispatcher.UIThread.Post(() =>
+            {
+                toDispose?.Dispose();
+            });
+            cachedFont = toolbar.ConstructFont();
+        }
+        else
+        {
+            cachedFont.Size = toolbar.FontSize;
+        }
+
         return new TextVectorData()
         {
             Text = text,
@@ -129,7 +161,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             StrokeWidth = (float)toolbar.ToolSize,
             StrokeColor = toolbar.StrokeColor.ToColor(),
             TransformationMatrix = lastMatrix,
-            Font = font,
+            Font = cachedFont,
             Spacing = toolbar.Spacing,
             AntiAlias = toolbar.AntiAliasing,
             // TODO: MaxWidth = toolbar.MaxWidth

@@ -8,7 +8,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
-public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IDisposable
+public class TextVectorData : ShapeVectorData, IReadOnlyTextData
 {
     private string text;
     private Font font = Font.CreateDefault();
@@ -162,11 +162,5 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IDisposable
     public override int CalculateHash()
     {
         return GetCacheHash();
-    }
-
-    public void Dispose()
-    {
-        Font.Dispose();
-        Path?.Dispose();
     }
 }
