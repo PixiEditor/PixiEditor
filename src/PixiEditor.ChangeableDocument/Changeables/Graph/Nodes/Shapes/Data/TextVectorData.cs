@@ -4,10 +4,11 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
-public class TextVectorData : ShapeVectorData, IDisposable
+public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IDisposable
 {
     private string text;
 

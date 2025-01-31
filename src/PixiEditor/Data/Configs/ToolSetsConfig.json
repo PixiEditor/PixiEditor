@@ -20,16 +20,16 @@
       "RasterEllipse",
       "RasterRectangle",
       {
-        "ToolName": "Eraser",
-        "Settings": {
-          "Spacing": 0
-        }
-      },
-      {
         "ToolName": "Text",
         "Settings": {
           "AntiAliasing": false,
           "ForceLowDpiRendering": true
+        }
+      },
+      {
+        "ToolName": "Eraser",
+        "Settings": {
+          "Spacing": 0
         }
       },
       "ColorPicker",
@@ -119,8 +119,7 @@
       "VectorRectangle",
       {
         "ToolName": "Text",
-        "Settings": 
-        {
+        "Settings": {
           "AntiAliasing": true,
           "ForceLowDpiRendering": false
         }

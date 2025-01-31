@@ -443,7 +443,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
         var pos = e.GetPosition(Scene);
         VecD scenePos = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
-        MouseOnCanvasEventArgs? parameter = new MouseOnCanvasEventArgs(mouseButton, scenePos, e.KeyModifiers);
+        MouseOnCanvasEventArgs? parameter = new MouseOnCanvasEventArgs(mouseButton, scenePos, e.KeyModifiers, e.ClickCount);
 
         if (MouseDownCommand.CanExecute(parameter))
             MouseDownCommand.Execute(parameter);
@@ -458,7 +458,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
         MouseButton mouseButton = e.GetMouseButton(this);
 
-        MouseOnCanvasEventArgs parameter = new(mouseButton, conv, e.KeyModifiers);
+        MouseOnCanvasEventArgs parameter = new(mouseButton, conv, e.KeyModifiers, 0);
 
         if (MouseMoveCommand.CanExecute(parameter))
             MouseMoveCommand.Execute(parameter);
@@ -471,7 +471,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
         Point pos = e.GetPosition(Scene);
         VecD conv = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
-        MouseOnCanvasEventArgs parameter = new(e.InitialPressMouseButton, conv, e.KeyModifiers);
+        MouseOnCanvasEventArgs parameter = new(e.InitialPressMouseButton, conv, e.KeyModifiers, 0);
         if (MouseUpCommand.CanExecute(parameter))
             MouseUpCommand.Execute(parameter);
     }

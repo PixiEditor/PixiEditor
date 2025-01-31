@@ -16,6 +16,7 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     private ExecutionTrigger<string> requestEditTextTrigger;
     private Matrix3X3 matrix = Matrix3X3.Identity;
     private double? spacing;
+    private int cursorPosition;
 
     public event Action<string>? TextChanged;
 
@@ -66,6 +67,24 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     {
         get => spacing;
         set => SetProperty(ref spacing, value);
+    }
+    
+    public int CursorPosition
+    {
+        get => cursorPosition;
+        set => SetProperty(ref cursorPosition, value);
+    }
+
+    public void SetCursorPosition(VecD closestToPosition)
+    {
+        VecD mapped = Matrix.Invert().MapPoint(closestToPosition);
+        RichText richText = new(Text);
+        var positions = richText.GetGlyphPositions(Font);
+        int indexOfClosest = positions.Select((pos, index) => (pos, index))
+            .OrderBy(pos => ((pos.pos + Position - new VecD(0, Font.Size / 2f)) - mapped).LengthSquared)
+            .First().index;
+        
+        CursorPosition = indexOfClosest;
     }
 
     public TextOverlayViewModel()

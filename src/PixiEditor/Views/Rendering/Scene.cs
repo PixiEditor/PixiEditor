@@ -492,6 +492,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             InitialPressMouseButton = e is PointerReleasedEventArgs released
                 ? released.InitialPressMouseButton
                 : MouseButton.None,
+            ClickCount = e is PointerPressedEventArgs pressed ? pressed.ClickCount : 0
+            
         };
     }
 

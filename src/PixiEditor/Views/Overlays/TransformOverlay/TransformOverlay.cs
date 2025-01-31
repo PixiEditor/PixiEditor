@@ -293,6 +293,7 @@ internal class TransformOverlay : Overlay
     private VecD lastSize;
     private bool actuallyMoved = false;
     private bool isShearing = false;
+    private int lastClickCount = 0;
 
     public TransformOverlay()
     {
@@ -549,6 +550,8 @@ internal class TransformOverlay : Overlay
     {
         if (args.PointerButton != MouseButton.Left)
             return;
+        
+        lastClickCount = args.ClickCount;
 
         if (Handles.Any(x => x.IsWithinHandle(x.Position, args.Point, ZoomScale))) return;
 
@@ -652,8 +655,9 @@ internal class TransformOverlay : Overlay
 
         if (!isRotating && !actuallyMoved)
         {
-            MouseOnCanvasEventArgs args = new(MouseButton.Left, e.Point, e.Modifiers);
+            MouseOnCanvasEventArgs args = new(MouseButton.Left, e.Point, e.Modifiers, lastClickCount);
             PassthroughPointerPressedCommand?.Execute(args);
+            lastClickCount = 0;
         }
 
         if (isRotating)

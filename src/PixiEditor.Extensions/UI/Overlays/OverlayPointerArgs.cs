@@ -11,4 +11,5 @@ public class OverlayPointerArgs
     public MouseButton InitialPressMouseButton { get; set; }
     public IOverlayPointer Pointer { get; set; }
     public bool Handled { get; set; }
+    public int ClickCount { get; set; }
 }

@@ -4,6 +4,7 @@ using Avalonia.Threading;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
+using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Input;
@@ -129,7 +130,8 @@ internal class TextOverlay : Overlay
             { new KeyCombination(Key.Left, KeyModifiers.None), () => MoveCursorBy(new VecI(-1, 0)) },
             { new KeyCombination(Key.Right, KeyModifiers.None), () => MoveCursorBy(new VecI(1, 0)) },
             { new KeyCombination(Key.Up, KeyModifiers.None), () => MoveCursorBy(new VecI(0, -1)) },
-            { new KeyCombination(Key.Down, KeyModifiers.None), () => MoveCursorBy(new VecI(0, 1)) }
+            { new KeyCombination(Key.Down, KeyModifiers.None), () => MoveCursorBy(new VecI(0, 1)) },
+            { new KeyCombination(Key.Escape, KeyModifiers.None), () => IsEditing = false }
         };
     }
 
@@ -154,6 +156,46 @@ internal class TextOverlay : Overlay
         context.RestoreToCount(saved);
 
         Refresh();
+    }
+
+    public override bool TestHit(VecD point)
+    {
+        VecD mapped = Matrix.Invert().MapPoint(point);
+        return richText != null && richText.MeasureBounds(Font).Offset(Position).ContainsInclusive(mapped);
+    }
+
+    protected override void OnOverlayPointerPressed(OverlayPointerArgs args)
+    {
+        if (args.PointerButton == MouseButton.Left)
+        {
+            if (!IsEditing)
+            {
+                IsEditing = true;
+            }
+            
+            SetCursorPosToPosition(args.Point);
+        }
+    }
+
+    protected override void OnOverlayPointerEntered(OverlayPointerArgs args)
+    {
+        Cursor = new Cursor(StandardCursorType.Ibeam);
+    }
+
+    protected override void OnOverlayPointerExited(OverlayPointerArgs args)
+    {
+        Cursor = new Cursor(StandardCursorType.Arrow);
+    }
+
+    private void SetCursorPosToPosition(VecD point)
+    {
+        VecD mapped = Matrix.Invert().MapPoint(point);
+        var positions = richText.GetGlyphPositions(Font);
+        int indexOfClosest = positions.Select((pos, index) => (pos, index))
+            .OrderBy(pos => ((pos.pos + Position - new VecD(0, Font.Size / 2f)) - mapped).LengthSquared)
+            .First().index;
+        
+        CursorPosition = indexOfClosest;
     }
 
     protected override void OnKeyPressed(Key key, KeyModifiers keyModifiers, string? keySymbol)
@@ -326,6 +368,7 @@ internal class TextOverlay : Overlay
     {
         TextOverlay textOverlay = sender as TextOverlay;
         if (textOverlay == null) return newPos;
+        if (textOverlay.Text == null) return 0;
 
         return Math.Clamp(newPos, 0, textOverlay.Text.Length);
     }

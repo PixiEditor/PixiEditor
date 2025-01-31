@@ -55,6 +55,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             lastText = textData.Text;
             position = textData.Position;
             lastMatrix = textData.TransformationMatrix;
+
+            document.TextOverlayHandler.SetCursorPosition(internals.ChangeController.LastPrecisePosition);
         }
         else if (shape is null)
         {
