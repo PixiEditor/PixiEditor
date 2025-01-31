@@ -68,7 +68,7 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
     public Font ConstructFont()
     {
         Font font = null;
-        if (FontFamily != null)
+        if (!string.IsNullOrEmpty(FontFamily.Name))
         {
             font = Font.FromFontFamily(FontFamily);
         }

@@ -22,10 +22,10 @@ public class TextVectorData : ShapeVectorData, IDisposable
     }
 
     public VecD Position { get; set; }
-    
+
     public double MaxWidth { get; set; } = double.MaxValue;
     public Font Font { get; set; } = Font.CreateDefault();
-    
+
     public double? Spacing { get; set; }
 
     public override RectD GeometryAABB
@@ -42,6 +42,8 @@ public class TextVectorData : ShapeVectorData, IDisposable
 
     public override RectD VisualAABB => GeometryAABB;
     public VectorPath? Path { get; set; }
+    public FontFamilyName? MissingFontFamily { get; set; }
+    public string MissingFontText { get; set; }
 
     private RichText richText;
 
@@ -80,7 +82,15 @@ public class TextVectorData : ShapeVectorData, IDisposable
         richText.StrokeWidth = StrokeWidth;
         richText.Spacing = Spacing;
 
-        PaintText(canvas, paint);
+        if (MissingFontFamily != null)
+        {
+            paint.Color = Fill ? FillColor : StrokeColor;
+            canvas.DrawText($"{MissingFontText}: " + MissingFontFamily.Value.Name, Position, Font, paint);
+        }
+        else
+        {
+            PaintText(canvas, paint);
+        }
 
         if (applyTransform)
         {

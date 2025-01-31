@@ -841,5 +841,7 @@
   "UNIT_PT": "pt",
   "FONT_LABEL": "Family",
   "FONT_SIZE_LABEL": "Size",
-  "SPACING_LABEL": "Spacing"
+  "SPACING_LABEL": "Spacing",
+  "TEXT_TOOL": "Text",
+  "MISSING_FONT": "Missing font"
 }

@@ -8,6 +8,7 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core.Text;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.IO;
 using PixiEditor.ViewModels.UserPreferences;
 
@@ -51,7 +52,8 @@ internal class FontFamilySettingViewModel : Setting<FontFamilyName>
     public FontFamilySettingViewModel(string name, string displayName) : base(name)
     {
         Label = displayName;
-        Fonts = new ObservableCollection<FontFamilyName>(FontManager.Current.SystemFonts.Select(x => new FontFamilyName(x.Name)));
+        Fonts = new ObservableCollection<FontFamilyName>(FontDomain.AllFonts);
+        FontDomain.FontAdded += (font) => Fonts.Add(font); 
         UploadFontCommand = new AsyncRelayCommand(UploadFont);
     }
 
@@ -73,7 +75,10 @@ internal class FontFamilySettingViewModel : Setting<FontFamilyName>
                 return;
 
             var fontPath = dialog[0];
-            Fonts.Add(new FontFamilyName(fontPath.Path, Path.GetFileNameWithoutExtension(fontPath.Name)));
+            FontFamilyName familyName = new FontFamilyName(fontPath.Path, Path.GetFileNameWithoutExtension(fontPath.Name));
+            FontDomain.TryAddCustomFont(familyName);
+            
+            FontIndex = Fonts.IndexOf(familyName);
         }
     }
 }
