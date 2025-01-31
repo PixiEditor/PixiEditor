@@ -141,11 +141,13 @@ internal class TextOverlay : Overlay
         int saved = context.Save();
         
         context.SetMatrix(context.TotalMatrix.Concat(Matrix));
-
+        
         blinker.BlinkerWidth = 3f / (float)ZoomScale;
         blinker.Render(context);
         
         context.RestoreToCount(saved);
+        
+        Refresh();
     }
 
     protected override void OnKeyPressed(Key key, KeyModifiers keyModifiers, string? keySymbol)
