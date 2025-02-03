@@ -52,8 +52,8 @@ internal class FontFamilySettingViewModel : Setting<FontFamilyName>
     public FontFamilySettingViewModel(string name, string displayName) : base(name)
     {
         Label = displayName;
-        Fonts = new ObservableCollection<FontFamilyName>(FontDomain.AllFonts);
-        FontDomain.FontAdded += (font) => Fonts.Add(font); 
+        Fonts = new ObservableCollection<FontFamilyName>(FontLibrary.AllFonts);
+        FontLibrary.FontAdded += (font) => Fonts.Add(font); 
         UploadFontCommand = new AsyncRelayCommand(UploadFont);
     }
 
@@ -76,7 +76,7 @@ internal class FontFamilySettingViewModel : Setting<FontFamilyName>
 
             var fontPath = dialog[0];
             FontFamilyName familyName = new FontFamilyName(fontPath.Path, Path.GetFileNameWithoutExtension(fontPath.Name));
-            FontDomain.TryAddCustomFont(familyName);
+            FontLibrary.TryAddCustomFont(familyName);
             
             FontIndex = Fonts.IndexOf(familyName);
         }

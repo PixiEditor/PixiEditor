@@ -4,7 +4,7 @@ using Drawie.Backend.Core.Text;
 
 namespace PixiEditor.Models.Controllers;
 
-public static class FontDomain
+public static class FontLibrary
 {
     private static List<FontFamilyName> _customFonts = new List<FontFamilyName>();
     private static List<FontFamilyName> _allFonts = new List<FontFamilyName>();

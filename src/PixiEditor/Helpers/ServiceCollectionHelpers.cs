@@ -110,10 +110,13 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IoFileType, GifFileType>()
             .AddSingleton<IoFileType, Mp4FileType>()
             .AddSingleton<IoFileType, SvgFileType>()
+            .AddSingleton<IoFileType, TtfFileType>()
+            .AddSingleton<IoFileType, OtfFileType>()
             // Serialization Factories
             .AddAssemblyTypes<SerializationFactory>()
             // Custom document builders
             .AddSingleton<IDocumentBuilder, SvgDocumentBuilder>()
+            .AddSingleton<IDocumentBuilder, FontDocumentBuilder>()
             // Palette Parsers
             .AddSingleton<IPalettesProvider, PaletteProvider>()
             .AddSingleton<PaletteFileParser, JascFileParser>()

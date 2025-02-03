@@ -16,7 +16,13 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
         }
         set
         {
-            GetSetting<FontFamilySettingViewModel>(nameof(FontFamily)).Value = value;
+            int index = Array.IndexOf(FontLibrary.AllFonts, value);
+            if (index == -1)
+            {
+                index = 0;
+            }
+
+            GetSetting<FontFamilySettingViewModel>(nameof(FontFamily)).FontIndex = index;
         }
     }
 
@@ -59,7 +65,7 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
     public TextToolbar()
     {
         AddSetting(new FontFamilySettingViewModel(nameof(FontFamily), "FONT_LABEL"));
-        FontFamily = FontDomain.DefaultFontFamily;
+        FontFamily = FontLibrary.DefaultFontFamily;
         
         var sizeSetting =
             new SizeSettingViewModel(nameof(FontSize), "FONT_SIZE_LABEL", unit: new LocalizedString("UNIT_PT"))

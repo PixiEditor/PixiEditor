@@ -39,6 +39,8 @@ internal abstract class IoFileType
     {
         get { return Extensions.Select(GetExtensionFormattedForDialog).ToList(); }
     }
+
+    public virtual bool CanSave => true;
     
     string GetExtensionFormattedForDialog(string extension)
     {

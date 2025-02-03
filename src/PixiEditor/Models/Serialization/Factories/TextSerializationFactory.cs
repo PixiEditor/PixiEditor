@@ -73,7 +73,7 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
         }
         else if (isFontFromFile)
         {
-            FontDomain.TryAddCustomFont(family);
+            FontLibrary.TryAddCustomFont(family);
         }
 
         font.Size = fontSize;

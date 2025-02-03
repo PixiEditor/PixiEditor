@@ -135,7 +135,8 @@ internal class TextOverlay : Overlay
     {
         shortcuts = new Dictionary<KeyCombination, Action>
         {
-            { new KeyCombination(Key.C, KeyModifiers.Control), CopyText },
+            { new KeyCombination(Key.C, KeyModifiers.Control), () => CopyText() },
+            { new KeyCombination(Key.C, KeyModifiers.Control | KeyModifiers.Shift), () => CopyText(true) },
             { new KeyCombination(Key.X, KeyModifiers.Control), CutText },
             { new KeyCombination(Key.V, KeyModifiers.Control), PasteText },
             { new KeyCombination(Key.Delete, KeyModifiers.None), () => DeleteChar(0) },
@@ -394,12 +395,18 @@ internal class TextOverlay : Overlay
         SelectionEnd = end + 1;
     }
 
-    private void CopyText()
+    private void CopyText(bool asUnicode = false)
     {
         if (CursorPosition == SelectionEnd) return;
         string selectedText = Text.Substring(
             Math.Min(CursorPosition, SelectionEnd),
             Math.Abs(CursorPosition - SelectionEnd));
+
+        if (asUnicode)
+        {
+            selectedText = string.Join(" ", selectedText.Select(c => $"U+{((int)c):X4}"));
+        }
+
         ClipboardController.Clipboard.SetTextAsync(selectedText);
     }
 
@@ -702,6 +709,8 @@ internal class TextOverlay : Overlay
         TextOverlay textOverlay = sender as TextOverlay;
         if (textOverlay == null) return newPos;
         if (textOverlay.Text == null) return 0;
+
+        if (textOverlay.glyphPositions == null) return 0;
 
         return Math.Clamp(newPos, 0, textOverlay.glyphPositions.Length - 1);
     }

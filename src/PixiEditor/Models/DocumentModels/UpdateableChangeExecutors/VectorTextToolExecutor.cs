@@ -56,6 +56,15 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         {
             document.TextOverlayHandler.Show(textData.Text, textData.Position, textData.Font,
                 textData.TransformationMatrix, textData.Spacing);
+
+            toolbar.Fill = textData.Fill;
+            toolbar.FillColor = textData.FillColor.ToColor();
+            toolbar.StrokeColor = textData.StrokeColor.ToColor();
+            toolbar.ToolSize = textData.StrokeWidth;
+            toolbar.FontFamily = textData.Font.Family;
+            toolbar.FontSize = textData.Font.Size;
+            toolbar.Spacing = textData.Spacing ?? textData.Font.Size;
+
             lastText = textData.Text;
             position = textData.Position;
             lastMatrix = textData.TransformationMatrix;
