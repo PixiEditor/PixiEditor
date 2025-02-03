@@ -6,16 +6,16 @@ using Drawie.Numerics;
 
 namespace PixiEditor.Views.Overlays.TextOverlay;
 
-internal class Blinker : IDisposable
+internal class Caret : IDisposable
 {
-    public int BlinkerPosition
+    public int CaretPosition
     {
-        get => blinkerPosition;
+        get => _caretPosition;
         set
         {
-            if (blinkerPosition != value)
+            if (_caretPosition != value)
             {
-                blinkerPosition = value;
+                _caretPosition = value;
                 visible = true;
                 lastUpdate = DateTime.Now;
             }
@@ -26,13 +26,13 @@ internal class Blinker : IDisposable
     public VecF[] GlyphPositions { get; set; }
     public VecD Offset { get; set; }
     public float[] GlyphWidths { get; set; }
-    public float BlinkerWidth { get; set; } = 1;
+    public float CaretWidth { get; set; } = 1;
 
     private Paint paint = new Paint() { Color = Colors.White, Style = PaintStyle.StrokeAndFill, StrokeWidth = 3 };
 
     private bool visible;
     private DateTime lastUpdate = DateTime.Now;
-    private int blinkerPosition;
+    private int _caretPosition;
 
     public void Render(Canvas canvas)
     {
@@ -41,7 +41,7 @@ internal class Blinker : IDisposable
             return;
         }
 
-        int clampedBlinkerPosition = Math.Clamp(BlinkerPosition, 0, GlyphPositions.Length - 1);
+        int clampedBlinkerPosition = Math.Clamp(CaretPosition, 0, GlyphPositions.Length - 1);
 
         var glyphPosition = GlyphPositions[clampedBlinkerPosition];
 
@@ -50,7 +50,7 @@ internal class Blinker : IDisposable
         var x = glyphPosition.X + Offset.X;
         var y = glyphPosition.Y + Offset.Y;
 
-        paint.StrokeWidth = BlinkerWidth;
+        paint.StrokeWidth = CaretWidth;
 
         VecD from = new VecD(x, y + glyphHeight / 4f);
         VecD to = new VecD(x, y - glyphHeight);

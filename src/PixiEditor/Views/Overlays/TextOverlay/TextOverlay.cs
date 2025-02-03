@@ -1,10 +1,14 @@
 ﻿using Avalonia;
 using Avalonia.Input;
 using Avalonia.Threading;
+using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
+using PixiEditor.Helpers;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Input;
@@ -52,9 +56,9 @@ internal class TextOverlay : Overlay
     }
 
     public static readonly StyledProperty<int> SelectionLengthProperty = AvaloniaProperty.Register<TextOverlay, int>(
-        nameof(SelectionLength));
+        nameof(SelectionEnd));
 
-    public int SelectionLength
+    public int SelectionEnd
     {
         get => GetValue(SelectionLengthProperty);
         set => SetValue(SelectionLengthProperty, value);
@@ -99,10 +103,16 @@ internal class TextOverlay : Overlay
 
     private Dictionary<KeyCombination, Action> shortcuts;
 
-    private Blinker blinker = new Blinker();
+    private Caret caret = new Caret();
     private VecF[] glyphPositions;
     private float[] glyphWidths;
     private RichText richText;
+    private VecD movedDistance;
+    private VecD initialPos;
+    private bool isLmbPressed;
+
+    private Paint selectionPaint;
+    private Paint opacityPaint;
 
     private int lastXMovementCursorIndex;
 
@@ -133,6 +143,12 @@ internal class TextOverlay : Overlay
             { new KeyCombination(Key.Down, KeyModifiers.None), () => MoveCursorBy(new VecI(0, 1)) },
             { new KeyCombination(Key.Escape, KeyModifiers.None), () => IsEditing = false }
         };
+
+        selectionPaint = new Paint()
+        {
+            Color = ThemeResources.SelectionFillColor.WithAlpha(255), Style = PaintStyle.Fill
+        };
+        opacityPaint = new Paint() { Color = Colors.White.WithAlpha(ThemeResources.SelectionFillColor.A) };
     }
 
 
@@ -140,41 +156,119 @@ internal class TextOverlay : Overlay
     {
         if (!IsEditing) return;
 
-        blinker.BlinkerPosition = CursorPosition;
-        blinker.FontSize = Font.Size;
-        blinker.GlyphPositions = glyphPositions;
-        blinker.GlyphWidths = glyphWidths;
-        blinker.Offset = Position;
-
         int saved = context.Save();
 
         context.SetMatrix(context.TotalMatrix.Concat(Matrix));
 
-        blinker.BlinkerWidth = 3f / (float)ZoomScale;
-        blinker.Render(context);
+        RenderCaret(context);
+        RenderSelection(context);
 
         context.RestoreToCount(saved);
-
         Refresh();
+    }
+
+    private void RenderCaret(Canvas context)
+    {
+        caret.CaretPosition = CursorPosition;
+        caret.FontSize = Font.Size;
+        caret.GlyphPositions = glyphPositions;
+        caret.GlyphWidths = glyphWidths;
+        caret.Offset = Position;
+
+        caret.CaretWidth = 3f / (float)ZoomScale;
+        caret.Render(context);
+    }
+
+    private void RenderSelection(Canvas context)
+    {
+        if (CursorPosition == SelectionEnd) return;
+
+        int begin = Math.Min(CursorPosition, SelectionEnd);
+        int end = Math.Max(CursorPosition, SelectionEnd);
+
+        richText.IndexOnLine(CursorPosition, out int lineStart);
+
+        RectD? currentLineBounds = null;
+        int lastLine = lineStart;
+        int saved = context.SaveLayer(opacityPaint);
+
+        for (int i = begin; i <= end; i++)
+        {
+            richText.IndexOnLine(i, out int line);
+
+            if (line != lastLine || i == end)
+            {
+                if (currentLineBounds != null)
+                {
+                    context.DrawRect(currentLineBounds.Value, selectionPaint);
+                }
+
+                currentLineBounds = null;
+            }
+
+            lastLine = line;
+
+            double x = glyphPositions[i].X;
+            double width = glyphWidths[i];
+            VecD lineOffset = richText.GetLineOffset(line, Font);
+            RectD selectionBounds =
+                new RectD(new VecD(x, -Font.Size + lineOffset.Y), new VecD(width, Font.Size * 1.25f)).Offset(Position);
+            if (currentLineBounds == null)
+            {
+                currentLineBounds = selectionBounds;
+            }
+            else
+            {
+                currentLineBounds = currentLineBounds.Value.Union(selectionBounds);
+            }
+        }
+
+        context.RestoreToCount(saved);
     }
 
     public override bool TestHit(VecD point)
     {
         VecD mapped = Matrix.Invert().MapPoint(point);
-        return richText != null && richText.MeasureBounds(Font).Offset(Position).ContainsInclusive(mapped);
+        return richText != null && richText.MeasureBounds(Font).Offset(Position).Inflate(2).ContainsInclusive(mapped);
     }
 
     protected override void OnOverlayPointerPressed(OverlayPointerArgs args)
     {
-        if (args.PointerButton == MouseButton.Left)
+        movedDistance = VecD.Zero;
+        initialPos = args.Point;
+        isLmbPressed = args.PointerButton == MouseButton.Left;
+        args.Pointer.Capture(this);
+    }
+
+    protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
+    {
+        movedDistance = args.Point - initialPos;
+        if (isLmbPressed)
         {
-            if (!IsEditing)
+            if (movedDistance.Length > 2)
             {
-                IsEditing = true;
+                SetCursorPosToPosition(args.Point);
+                SetSelectionEndToPosition(initialPos);
             }
-            
-            SetCursorPosToPosition(args.Point);
         }
+    }
+
+    protected override void OnOverlayPointerReleased(OverlayPointerArgs args)
+    {
+        if (movedDistance.Length < 2)
+        {
+            if (args.InitialPressMouseButton == MouseButton.Left)
+            {
+                if (!IsEditing)
+                {
+                    IsEditing = true;
+                }
+
+                SetCursorPosToPosition(args.Point);
+            }
+        }
+
+        isLmbPressed = false;
     }
 
     protected override void OnOverlayPointerEntered(OverlayPointerArgs args)
@@ -189,13 +283,26 @@ internal class TextOverlay : Overlay
 
     private void SetCursorPosToPosition(VecD point)
     {
+        var indexOfClosest = GetClosestCharacterIndex(point);
+
+        CursorPosition = indexOfClosest;
+        SelectionEnd = indexOfClosest;
+    }
+
+    private void SetSelectionEndToPosition(VecD point)
+    {
+        var indexOfClosest = GetClosestCharacterIndex(point);
+        SelectionEnd = indexOfClosest;
+    }
+
+    private int GetClosestCharacterIndex(VecD point)
+    {
         VecD mapped = Matrix.Invert().MapPoint(point);
         var positions = richText.GetGlyphPositions(Font);
         int indexOfClosest = positions.Select((pos, index) => (pos, index))
             .OrderBy(pos => ((pos.pos + Position - new VecD(0, Font.Size / 2f)) - mapped).LengthSquared)
             .First().index;
-        
-        CursorPosition = indexOfClosest;
+        return indexOfClosest;
     }
 
     protected override void OnKeyPressed(Key key, KeyModifiers keyModifiers, string? keySymbol)
@@ -233,8 +340,21 @@ internal class TextOverlay : Overlay
 
     private void InsertTextAtCursor(string toAdd)
     {
-        Text = Text.Insert(CursorPosition, toAdd);
-        CursorPosition += toAdd.Length;
+        if (CursorPosition == SelectionEnd)
+        {
+            Text = Text.Insert(CursorPosition, toAdd);
+            CursorPosition += toAdd.Length;
+            SelectionEnd += toAdd.Length;
+        }
+        else
+        {
+            string newText = Text.Remove(Math.Min(CursorPosition, SelectionEnd),
+                Math.Abs(CursorPosition - SelectionEnd));
+            Text = newText.Insert(Math.Min(CursorPosition, SelectionEnd), toAdd);
+            CursorPosition = Math.Min(CursorPosition, SelectionEnd) + toAdd.Length;
+            SelectionEnd = CursorPosition;
+        }
+
         lastXMovementCursorIndex = CursorPosition;
     }
 
@@ -265,8 +385,20 @@ internal class TextOverlay : Overlay
     {
         if (Text.Length > 0 && CursorPosition + direction >= 0 && CursorPosition + direction < Text.Length)
         {
-            Text = Text.Remove(CursorPosition + direction, 1);
-            CursorPosition += direction;
+            if (SelectionEnd == CursorPosition)
+            {
+                Text = Text.Remove(CursorPosition + direction, 1);
+                CursorPosition += direction;
+                SelectionEnd = CursorPosition;
+            }
+            else
+            {
+                Text = Text.Remove(Math.Min(CursorPosition, SelectionEnd),
+                    Math.Abs(CursorPosition - SelectionEnd));
+                CursorPosition = Math.Min(CursorPosition, SelectionEnd);
+                SelectionEnd = CursorPosition;
+            }
+
             lastXMovementCursorIndex = CursorPosition;
         }
     }
@@ -292,6 +424,7 @@ internal class TextOverlay : Overlay
         }
 
         CursorPosition += moveBy;
+        SelectionEnd = CursorPosition;
     }
 
     private void RequestEditTextTriggered(object? sender, string e)
