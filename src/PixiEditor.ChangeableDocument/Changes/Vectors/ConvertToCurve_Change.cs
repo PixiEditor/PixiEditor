@@ -12,6 +12,7 @@ internal class ConvertToCurve_Change : Change
     public readonly Guid memberId;
 
     private ShapeVectorData originalData;
+    private bool originalHighDpiRendering;
 
     [GenerateMakeChangeAction]
     public ConvertToCurve_Change(Guid memberId)
@@ -44,6 +45,9 @@ internal class ConvertToCurve_Change : Change
             TransformationMatrix = originalData.TransformationMatrix
         };
 
+        originalHighDpiRendering = node.AllowHighDpiRendering;
+        node.AllowHighDpiRendering = true;
+
         ignoreInUndo = false;
 
         var aabb = node.ShapeData.TransformedVisualAABB;
@@ -57,6 +61,8 @@ internal class ConvertToCurve_Change : Change
     {
         VectorLayerNode node = target.FindNodeOrThrow<VectorLayerNode>(memberId);
         node.ShapeData = originalData;
+
+        node.AllowHighDpiRendering = originalHighDpiRendering;
 
         var aabb = node.ShapeData.TransformedVisualAABB;
         var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(

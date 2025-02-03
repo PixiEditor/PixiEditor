@@ -81,7 +81,7 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
 
     public override VectorPath ToPath()
     {
-        var path = Font.GetTextPath(Text);
+        var path = richText.ToPath(Font);
         path.Offset(Position);
 
         return path;
