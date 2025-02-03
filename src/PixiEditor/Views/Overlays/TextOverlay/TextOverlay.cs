@@ -110,6 +110,7 @@ internal class TextOverlay : Overlay
     private VecD movedDistance;
     private VecD initialPos;
     private bool isLmbPressed;
+    private bool clickHandled;
 
     private Paint selectionPaint;
     private Paint opacityPaint;
@@ -180,7 +181,11 @@ internal class TextOverlay : Overlay
                 () => MoveCursorBy(new VecI(0, 1), false, mode: MoveMode.Words)
             },
             { new KeyCombination(Key.Escape, KeyModifiers.None), () => IsEditing = false },
-            { new KeyCombination(Key.A, KeyModifiers.Control), SelectAll }
+            { new KeyCombination(Key.A, KeyModifiers.Control), SelectAll },
+            { new KeyCombination(Key.Home, KeyModifiers.None), () => GoToStartOfLine(true) },
+            { new KeyCombination(Key.Home, KeyModifiers.Shift), () => GoToStartOfLine(false) },
+            { new KeyCombination(Key.End, KeyModifiers.None), () => GoToEndOfLine(true) },
+            { new KeyCombination(Key.End, KeyModifiers.Shift), () => GoToEndOfLine(false) },
         };
 
         selectionPaint = new Paint()
@@ -273,18 +278,23 @@ internal class TextOverlay : Overlay
 
     protected override void OnOverlayPointerPressed(OverlayPointerArgs args)
     {
+        args.Handled = true;
+        clickHandled = args.ClickCount == 2;
+        if (args.ClickCount == 2)
+        {
+            SelectWordAtPosition(args.Point);
+        }
+
         movedDistance = VecD.Zero;
         initialPos = args.Point;
         isLmbPressed = args.PointerButton == MouseButton.Left;
         args.Pointer.Capture(this);
-
-        args.Handled = true;
     }
 
     protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
         movedDistance = args.Point - initialPos;
-        if (isLmbPressed)
+        if (isLmbPressed && !clickHandled)
         {
             if (movedDistance.Length > 2)
             {
@@ -296,7 +306,7 @@ internal class TextOverlay : Overlay
 
     protected override void OnOverlayPointerReleased(OverlayPointerArgs args)
     {
-        if (movedDistance.Length < 2)
+        if (movedDistance.Length < 2 && !clickHandled)
         {
             if (args.InitialPressMouseButton == MouseButton.Left)
             {
@@ -342,6 +352,48 @@ internal class TextOverlay : Overlay
         SelectionEnd = Text.Length;
     }
 
+    private void GoToStartOfLine(bool updateSelection)
+    {
+        richText.IndexOnLine(CursorPosition, out int lineIndex);
+        int lineStart = richText.GetLineStartEnd(lineIndex).lineStart;
+        CursorPosition = lineStart;
+        if (updateSelection)
+        {
+            SelectionEnd = CursorPosition;
+        }
+    }
+
+    private void GoToEndOfLine(bool updateSelection)
+    {
+        richText.IndexOnLine(CursorPosition, out int lineIndex);
+        int lineEnd = richText.GetLineStartEnd(lineIndex).lineEnd - 1;
+        CursorPosition = lineEnd;
+        if (updateSelection)
+        {
+            SelectionEnd = CursorPosition;
+        }
+    }
+
+    private void SelectWordAtPosition(VecD point)
+    {
+        var indexOfClosest = GetClosestCharacterIndex(point);
+        int start = indexOfClosest;
+        int end = indexOfClosest;
+
+        while (start > 0 && !char.IsWhiteSpace(Text[start - 1]))
+        {
+            start--;
+        }
+
+        while (end < Text.Length - 1 && !char.IsWhiteSpace(Text[end + 1]))
+        {
+            end++;
+        }
+
+        CursorPosition = start;
+        SelectionEnd = end + 1;
+    }
+
     private void CopyText()
     {
         if (CursorPosition == SelectionEnd) return;
@@ -373,7 +425,7 @@ internal class TextOverlay : Overlay
 
         ShortcutController.BlockShortcutExecution(nameof(TextOverlay));
 
-        if(IsUndoRedoShortcut(key, keyModifiers))
+        if (IsUndoRedoShortcut(key, keyModifiers))
         {
             ShortcutController.UnblockShortcutExecution(nameof(TextOverlay));
             return;
@@ -390,7 +442,8 @@ internal class TextOverlay : Overlay
 
     private bool IsUndoRedoShortcut(Key key, KeyModifiers keyModifiers)
     {
-        return key == Key.Z && keyModifiers == KeyModifiers.Control || key == Key.Y && keyModifiers == KeyModifiers.Control;
+        return key == Key.Z && keyModifiers == KeyModifiers.Control ||
+               key == Key.Y && keyModifiers == KeyModifiers.Control;
     }
 
     private void InsertChar(Key key, string symbol)
@@ -606,7 +659,7 @@ internal class TextOverlay : Overlay
             TextOverlay sender = args.Sender as TextOverlay;
             sender.UpdateGlyphs();
 
-            if(sender.CursorPosition > sender.glyphPositions.Length)
+            if (sender.CursorPosition > sender.glyphPositions.Length)
             {
                 sender.CursorPosition = sender.glyphPositions.Length;
             }
