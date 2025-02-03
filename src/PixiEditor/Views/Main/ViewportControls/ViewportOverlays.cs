@@ -492,7 +492,12 @@ internal class ViewportOverlays
         {
             Source = Viewport, Path = "Document.TextOverlayViewModel.CursorPosition", Mode = BindingMode.TwoWay
         };
-        
+
+        Binding selectionEndBinding = new()
+        {
+            Source = Viewport, Path = "Document.TextOverlayViewModel.SelectionEnd", Mode = BindingMode.TwoWay
+        };
+
         textOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         textOverlay.Bind(TextOverlay.TextProperty, textBinding);
         textOverlay.Bind(TextOverlay.PositionProperty, positionBinding);
@@ -501,6 +506,7 @@ internal class ViewportOverlays
         textOverlay.Bind(TextOverlay.MatrixProperty, matrixBinding);
         textOverlay.Bind(TextOverlay.SpacingProperty, spacingBinding);
         textOverlay.Bind(TextOverlay.CursorPositionProperty, cursorPositionBinding);
+        textOverlay.Bind(TextOverlay.SelectionEndProperty, selectionEndBinding);
     }
 }
 

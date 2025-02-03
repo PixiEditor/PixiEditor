@@ -15,7 +15,7 @@ using PixiEditor.Models.Tools;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
-internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEvents
+internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEvents, IQuickToolSwitchable
 {
     private ITextToolHandler textHandler;
     private ITextToolbar toolbar;
@@ -25,6 +25,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     private VecD position;
     private Matrix3X3 lastMatrix = Matrix3X3.Identity;
     private Font? cachedFont;
+
+    public override bool BlocksOtherActions => false;
 
     public override ExecutorType Type => ExecutorType.ToolLinked;
 
@@ -57,8 +59,6 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             lastText = textData.Text;
             position = textData.Position;
             lastMatrix = textData.TransformationMatrix;
-
-            document.TextOverlayHandler.SetCursorPosition(internals.ChangeController.LastPrecisePosition);
         }
         else if (shape is null)
         {
@@ -75,6 +75,12 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         return ExecutionState.Success;
     }
 
+
+    public void OnQuickToolSwitch()
+    {
+        document.TextOverlayHandler.SetCursorPosition(internals.ChangeController.LastPrecisePosition);
+    }
+
     public override void ForceStop()
     {
         internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
@@ -84,9 +90,9 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     public void OnTextChanged(string text)
     {
         var constructedText = ConstructTextData(text);
-        internals.ActionAccumulator.AddFinishedActions();
-        internals.ActionAccumulator.AddActions(
+        internals.ActionAccumulator.AddFinishedActions(
             new SetShapeGeometry_Action(selectedMember.Id, constructedText),
+            new EndSetShapeGeometry_Action(),
             new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering));
         lastText = text;
         document.TextOverlayHandler.Font = constructedText.Font;
@@ -107,11 +113,11 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         }
         else if (name is nameof(ITextToolbar.FontSize))
         {
-            if(cachedFont == null)
+            if (cachedFont == null)
             {
                 cachedFont = toolbar.ConstructFont();
             }
-            
+
             document.TextOverlayHandler.Font.Size = toolbar.FontSize;
             cachedFont.Size = toolbar.FontSize;
         }
@@ -171,6 +177,6 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     bool IExecutorFeature.IsFeatureEnabled(IExecutorFeature feature)
     {
-        return feature is ITextOverlayEvents;
+        return feature is ITextOverlayEvents || feature is IQuickToolSwitchable;
     }
 }

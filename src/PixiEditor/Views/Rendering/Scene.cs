@@ -497,6 +497,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         };
     }
 
+    private void FocusOverlay()
+    {
+        Focus();
+    }
+
     private VecD ToCanvasSpace(Point scenePosition)
     {
         Matrix transform = CalculateTransformMatrix();
@@ -548,6 +553,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             {
                 overlay.RefreshRequested -= QueueRender;
                 overlay.RefreshCursorRequested -= RefreshCursor;
+                overlay.FocusRequested -= FocusOverlay;
             }
         }
 
@@ -557,6 +563,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             {
                 overlay.RefreshRequested += QueueRender;
                 overlay.RefreshCursorRequested += RefreshCursor;
+                overlay.FocusRequested += FocusOverlay;
             }
         }
     }

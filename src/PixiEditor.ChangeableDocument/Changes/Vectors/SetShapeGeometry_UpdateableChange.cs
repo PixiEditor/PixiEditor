@@ -102,7 +102,7 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
     {
         if (other is SetShapeGeometry_UpdateableChange change)
         {
-            return change.TargetId == TargetId;
+            return change.TargetId == TargetId && change.Data is not TextVectorData; // text should not be merged into one change
         }
 
         return false;

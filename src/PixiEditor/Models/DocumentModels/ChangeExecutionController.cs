@@ -313,4 +313,12 @@ internal class ChangeExecutionController
             textOverlayHandler.OnTextChanged(text);
         }
     }
+
+    public void QuickToolSwitchInlet()
+    {
+        if (currentSession is IQuickToolSwitchable quickToolSwitchable)
+        {
+            quickToolSwitchable.OnQuickToolSwitch();
+        }
+    }
 }

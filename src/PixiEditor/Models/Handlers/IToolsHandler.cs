@@ -35,4 +35,5 @@ internal interface IToolsHandler : IHandler
     public void OnPostRedoInlet();
     public void OnPreRedoInlet();
     public void OnPreUndoInlet();
+    public void QuickToolSwitchInlet();
 }

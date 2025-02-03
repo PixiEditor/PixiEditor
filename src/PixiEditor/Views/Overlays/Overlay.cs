@@ -44,6 +44,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     }
 
     public event Action? RefreshRequested;
+    public event Action? FocusRequested;
     public event Action? RefreshCursorRequested;
     public event PointerEvent? PointerEnteredOverlay;
     public event PointerEvent? PointerExitedOverlay;
@@ -78,6 +79,11 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     {
         RefreshRequested?.Invoke(); // For scene hosted overlays
         InvalidateVisual(); // For elements in visual tree
+    }
+
+    public void FocusOverlay()
+    {
+        FocusRequested?.Invoke();
     }
 
     public void ForceRefreshCursor()

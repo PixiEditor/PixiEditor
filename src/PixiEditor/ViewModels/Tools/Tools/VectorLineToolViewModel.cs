@@ -72,7 +72,7 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
         document.Tools.UseVectorLineTool();
     }
 
-    public override void OnPostUndo()
+    public override void OnPostUndoInlet()
     {
         if (IsActive)
         {
@@ -80,7 +80,7 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
         }
     }
 
-    public override void OnPostRedo()
+    public override void OnPostRedoInlet()
     {
         if (IsActive)
         {

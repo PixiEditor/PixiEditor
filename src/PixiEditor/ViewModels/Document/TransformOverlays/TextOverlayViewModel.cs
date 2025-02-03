@@ -17,6 +17,7 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     private Matrix3X3 matrix = Matrix3X3.Identity;
     private double? spacing;
     private int cursorPosition;
+    private int selectionEnd;
 
     public event Action<string>? TextChanged;
 
@@ -75,6 +76,12 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
         set => SetProperty(ref cursorPosition, value);
     }
 
+    public int SelectionEnd
+    {
+        get => selectionEnd;
+        set => SetProperty(ref selectionEnd, value);
+    }
+
     public void SetCursorPosition(VecD closestToPosition)
     {
         VecD mapped = Matrix.Invert().MapPoint(closestToPosition);
@@ -85,6 +92,7 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
             .First().index;
         
         CursorPosition = indexOfClosest;
+        SelectionEnd = indexOfClosest;
     }
 
     public TextOverlayViewModel()

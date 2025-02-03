@@ -97,7 +97,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         }
     }
 
-    public override void OnPostUndo()
+    public override void OnPostUndoInlet()
     {
         if (IsActive)
         {
@@ -105,7 +105,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
         }
     }
 
-    public override void OnPostRedo()
+    public override void OnPostRedoInlet()
     {
         if (IsActive)
         {

@@ -55,13 +55,13 @@ internal class TextOverlay : Overlay
         set => SetValue(CursorPositionProperty, value);
     }
 
-    public static readonly StyledProperty<int> SelectionLengthProperty = AvaloniaProperty.Register<TextOverlay, int>(
-        nameof(SelectionEnd));
+    public static readonly StyledProperty<int> SelectionEndProperty = AvaloniaProperty.Register<TextOverlay, int>(
+        nameof(SelectionEnd), coerce: ClampValue);
 
     public int SelectionEnd
     {
-        get => GetValue(SelectionLengthProperty);
-        set => SetValue(SelectionLengthProperty, value);
+        get => GetValue(SelectionEndProperty);
+        set => SetValue(SelectionEndProperty, value);
     }
 
     public static readonly StyledProperty<Matrix3X3> MatrixProperty = AvaloniaProperty.Register<TextOverlay, Matrix3X3>(
@@ -125,7 +125,7 @@ internal class TextOverlay : Overlay
         FontProperty.Changed.Subscribe(FontChanged);
         SpacingProperty.Changed.Subscribe(SpaceChanged);
 
-        AffectsOverlayRender(FontProperty, TextProperty, CursorPositionProperty, SelectionLengthProperty,
+        AffectsOverlayRender(FontProperty, TextProperty, CursorPositionProperty, SelectionEndProperty,
             IsEditingProperty,
             MatrixProperty, SpacingProperty);
     }
@@ -277,6 +277,8 @@ internal class TextOverlay : Overlay
         initialPos = args.Point;
         isLmbPressed = args.PointerButton == MouseButton.Left;
         args.Pointer.Capture(this);
+
+        args.Handled = true;
     }
 
     protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
@@ -368,6 +370,15 @@ internal class TextOverlay : Overlay
     protected override void OnKeyPressed(Key key, KeyModifiers keyModifiers, string? keySymbol)
     {
         if (!IsEditing) return;
+
+        ShortcutController.BlockShortcutExecution(nameof(TextOverlay));
+
+        if(IsUndoRedoShortcut(key, keyModifiers))
+        {
+            ShortcutController.UnblockShortcutExecution(nameof(TextOverlay));
+            return;
+        }
+
         if (IsShortcut(key, keyModifiers))
         {
             ExecuteShortcut(key, keyModifiers);
@@ -375,6 +386,11 @@ internal class TextOverlay : Overlay
         }
 
         InsertChar(key, keySymbol);
+    }
+
+    private bool IsUndoRedoShortcut(Key key, KeyModifiers keyModifiers)
+    {
+        return key == Key.Z && keyModifiers == KeyModifiers.Control || key == Key.Y && keyModifiers == KeyModifiers.Control;
     }
 
     private void InsertChar(Key key, string symbol)
@@ -543,6 +559,8 @@ internal class TextOverlay : Overlay
     private void RequestEditTextTriggered(object? sender, string e)
     {
         IsEditing = true;
+        CursorPosition = glyphPositions.Length;
+        SelectionEnd = CursorPosition;
     }
 
     private void UpdateGlyphs()
@@ -585,6 +603,22 @@ internal class TextOverlay : Overlay
         if (args.NewValue.Value)
         {
             ShortcutController.BlockShortcutExecution(nameof(TextOverlay));
+            TextOverlay sender = args.Sender as TextOverlay;
+            sender.UpdateGlyphs();
+
+            if(sender.CursorPosition > sender.glyphPositions.Length)
+            {
+                sender.CursorPosition = sender.glyphPositions.Length;
+            }
+
+            if (sender.SelectionEnd > sender.glyphPositions.Length)
+            {
+                sender.SelectionEnd = sender.glyphPositions.Length;
+            }
+
+            sender.lastXMovementCursorIndex = sender.CursorPosition;
+
+            sender.FocusOverlay();
         }
         else
         {
@@ -616,7 +650,7 @@ internal class TextOverlay : Overlay
         if (textOverlay == null) return newPos;
         if (textOverlay.Text == null) return 0;
 
-        return Math.Clamp(newPos, 0, textOverlay.Text.Length);
+        return Math.Clamp(newPos, 0, textOverlay.glyphPositions.Length - 1);
     }
 }
 

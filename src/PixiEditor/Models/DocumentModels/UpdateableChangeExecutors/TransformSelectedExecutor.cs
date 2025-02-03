@@ -193,6 +193,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         if (document.SelectedStructureMember is ILayerHandler layerHandler && layerHandler.QuickEditTool != null)
         {
             ViewModelMain.Current.ToolsSubViewModel.SetActiveTool(layerHandler.QuickEditTool, false);
+            ViewModelMain.Current.ToolsSubViewModel.QuickToolSwitchInlet();
             return true;
         }
 

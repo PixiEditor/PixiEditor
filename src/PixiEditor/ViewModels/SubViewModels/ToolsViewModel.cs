@@ -136,7 +136,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         ActiveToolSet = toolSetHandler;
         ActiveToolSet.ApplyToolSetSettings();
         UpdateEnabledState();
-        
+
         ActiveTool?.OnToolSelected(false);
     }
 
@@ -390,8 +390,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
         if (ActiveTool is not { CanBeUsedOnActiveLayer: true })
         {
-            if(ActiveTool.LayerTypeToCreateOnEmptyUse == null) return;
-            
+            if (ActiveTool.LayerTypeToCreateOnEmptyUse == null) return;
+
             Guid? createdLayer = Owner.LayersSubViewModel.NewLayer(
                 ActiveTool.LayerTypeToCreateOnEmptyUse,
                 ActionSource.Automated,
@@ -427,22 +427,31 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     {
         ActiveTool?.KeyChanged(args.IsCtrlDown, args.IsShiftDown, args.IsAltDown, args.Key);
     }
-    
+
     public void OnPostUndoInlet()
     {
-        ActiveTool?.OnPostUndo();
+        ActiveTool?.OnPostUndoInlet();
     }
-    
+
     public void OnPostRedoInlet()
     {
-        ActiveTool?.OnPostRedo();
+        ActiveTool?.OnPostRedoInlet();
     }
-    
+
     public void OnPreUndoInlet()
     {
         ActiveTool?.OnPreUndoInlet();
     }
-    
+
+    public void QuickToolSwitchInlet()
+    {
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (document is null)
+            return;
+
+        document.EventInlet.QuickToolSwitchInlet();
+    }
+
     public void OnPreRedoInlet()
     {
         ActiveTool?.OnPreRedoInlet();
@@ -462,7 +471,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         foreach (ToolSetConfig toolSet in toolSetConfig)
         {
             var toolSetViewModel = new ToolSetViewModel(toolSet.Name);
-            
+
             foreach (var toolFromToolset in toolSet.Tools)
             {
                 IToolHandler? tool = allTools.FirstOrDefault(tool => tool.ToolName == toolFromToolset.ToolName);
@@ -472,7 +481,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                 {
                     toolSetViewModel.IconOverwrites[tool] = toolFromToolset.Icon;
                 }
-                
+
                 if (tool is null)
                 {
 #if DEBUG
@@ -506,7 +515,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             UpdateEnabledState();
         }
     }
-    
+
     private void ActiveFrameChanged(int oldFrame, int newFrame)
     {
         UpdateActiveFrame(newFrame);
@@ -519,17 +528,18 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     private void DocumentOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(DocumentViewModel.SelectedStructureMember) or nameof(DocumentViewModel.SoftSelectedStructureMembers))
+        if (e.PropertyName is nameof(DocumentViewModel.SelectedStructureMember)
+            or nameof(DocumentViewModel.SoftSelectedStructureMembers))
         {
             UpdateEnabledState();
         }
     }
-    
+
     private void UpdateActiveFrame(int newFrame)
     {
         ActiveTool?.OnActiveFrameChanged(newFrame);
     }
-    
+
     private void UpdateEnabledState()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;

@@ -27,7 +27,7 @@ internal class TextToolViewModel : ToolViewModel, ITextToolHandler
     {
         get => GetValue<double>();
     }
-    
+
     public TextToolViewModel()
     {
         Toolbar = ToolbarFactory.Create<TextToolViewModel, TextToolbar>(this);
@@ -55,6 +55,18 @@ internal class TextToolViewModel : ToolViewModel, ITextToolHandler
     }
 
     protected override void OnSelectedLayersChanged(IStructureMemberHandler[] layers)
+    {
+        OnDeselecting(false);
+        OnSelected(false);
+    }
+
+    public override void OnPostUndoInlet()
+    {
+        OnDeselecting(false);
+        OnSelected(false);
+    }
+
+    public override void OnPostRedoInlet()
     {
         OnDeselecting(false);
         OnSelected(false);
