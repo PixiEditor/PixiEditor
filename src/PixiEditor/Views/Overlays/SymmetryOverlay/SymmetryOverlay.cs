@@ -222,12 +222,12 @@ internal class SymmetryOverlay : Overlay
 
         using Font font = Font.CreateDefault(14f / (float)ZoomScale);
         
-        if (Size.Y < font.FontSize * 2.5 || horizontalAxisY == (int)Size.Y && upper || horizontalAxisY == 0 && !upper)
+        if (Size.Y < font.Size * 2.5 || horizontalAxisY == (int)Size.Y && upper || horizontalAxisY == 0 && !upper)
         {
             return;
         }
 
-        double textY = horizontalAxisY / 2.0 - font.FontSize / 2;
+        double textY = horizontalAxisY / 2.0 - font.Size / 2;
 
         if (upper)
         {
@@ -263,7 +263,7 @@ internal class SymmetryOverlay : Overlay
             textX += Size.X / 2;
         }
 
-        double textY = RulerOffset * PenThickness - ((drawBottom ? 5 : 2 + font.FontSize) * PenThickness) + yOffset;
+        double textY = RulerOffset * PenThickness - ((drawBottom ? 5 : 2 + font.Size) * PenThickness) + yOffset;
         drawingContext.DrawText(text, new VecD(textX, textY), TextAlign.Center, font, textPaint);
     }
 

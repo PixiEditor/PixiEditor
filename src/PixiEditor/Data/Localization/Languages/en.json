@@ -836,5 +836,6 @@
   "GREATER_THAN_OR_EQUAL": "Greater than or equal",
   "COLOR_NODE": "Color",
   "CONVERT_TO_CURVE": "Convert to curve",
-  "CONVERT_TO_CURVE_DESCRIPTIVE": "Convert selected vector layer to a curve/path"
+  "CONVERT_TO_CURVE_DESCRIPTIVE": "Convert selected vector layer to a curve/path",
+  "DUMP_GPU_DIAGNOSTICS": "Dump GPU diagnostics"
 }
