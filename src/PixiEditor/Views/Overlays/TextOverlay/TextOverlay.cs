@@ -134,6 +134,8 @@ internal class TextOverlay : Overlay
     {
         shortcuts = new Dictionary<KeyCombination, Action>
         {
+            { new KeyCombination(Key.C, KeyModifiers.Control), CopyText },
+            { new KeyCombination(Key.X, KeyModifiers.Control), CutText },
             { new KeyCombination(Key.V, KeyModifiers.Control), PasteText },
             { new KeyCombination(Key.Delete, KeyModifiers.None), () => DeleteChar(0) },
             { new KeyCombination(Key.Back, KeyModifiers.None), () => DeleteChar(-1) },
@@ -141,7 +143,44 @@ internal class TextOverlay : Overlay
             { new KeyCombination(Key.Right, KeyModifiers.None), () => MoveCursorBy(new VecI(1, 0)) },
             { new KeyCombination(Key.Up, KeyModifiers.None), () => MoveCursorBy(new VecI(0, -1)) },
             { new KeyCombination(Key.Down, KeyModifiers.None), () => MoveCursorBy(new VecI(0, 1)) },
-            { new KeyCombination(Key.Escape, KeyModifiers.None), () => IsEditing = false }
+            { new KeyCombination(Key.Left, KeyModifiers.Shift), () => MoveCursorBy(new VecI(-1, 0), false) },
+            { new KeyCombination(Key.Right, KeyModifiers.Shift), () => MoveCursorBy(new VecI(1, 0), false) },
+            { new KeyCombination(Key.Up, KeyModifiers.Shift), () => MoveCursorBy(new VecI(0, -1), false) },
+            { new KeyCombination(Key.Down, KeyModifiers.Shift), () => MoveCursorBy(new VecI(0, 1), false) },
+            {
+                new KeyCombination(Key.Left, KeyModifiers.Control),
+                () => MoveCursorBy(new VecI(-1, 0), mode: MoveMode.Words)
+            },
+            {
+                new KeyCombination(Key.Right, KeyModifiers.Control),
+                () => MoveCursorBy(new VecI(1, 0), mode: MoveMode.Words)
+            },
+            {
+                new KeyCombination(Key.Up, KeyModifiers.Control),
+                () => MoveCursorBy(new VecI(0, -1), mode: MoveMode.Words)
+            },
+            {
+                new KeyCombination(Key.Down, KeyModifiers.Control),
+                () => MoveCursorBy(new VecI(0, 1), mode: MoveMode.Words)
+            },
+            {
+                new KeyCombination(Key.Left, KeyModifiers.Control | KeyModifiers.Shift),
+                () => MoveCursorBy(new VecI(-1, 0), false, mode: MoveMode.Words)
+            },
+            {
+                new KeyCombination(Key.Right, KeyModifiers.Control | KeyModifiers.Shift),
+                () => MoveCursorBy(new VecI(1, 0), false, mode: MoveMode.Words)
+            },
+            {
+                new KeyCombination(Key.Up, KeyModifiers.Control | KeyModifiers.Shift),
+                () => MoveCursorBy(new VecI(0, -1), false, mode: MoveMode.Words)
+            },
+            {
+                new KeyCombination(Key.Down, KeyModifiers.Control | KeyModifiers.Shift),
+                () => MoveCursorBy(new VecI(0, 1), false, mode: MoveMode.Words)
+            },
+            { new KeyCombination(Key.Escape, KeyModifiers.None), () => IsEditing = false },
+            { new KeyCombination(Key.A, KeyModifiers.Control), SelectAll }
         };
 
         selectionPaint = new Paint()
@@ -295,6 +334,27 @@ internal class TextOverlay : Overlay
         SelectionEnd = indexOfClosest;
     }
 
+    private void SelectAll()
+    {
+        CursorPosition = 0;
+        SelectionEnd = Text.Length;
+    }
+
+    private void CopyText()
+    {
+        if (CursorPosition == SelectionEnd) return;
+        string selectedText = Text.Substring(
+            Math.Min(CursorPosition, SelectionEnd),
+            Math.Abs(CursorPosition - SelectionEnd));
+        ClipboardController.Clipboard.SetTextAsync(selectedText);
+    }
+
+    private void CutText()
+    {
+        CopyText();
+        DeleteChar(0);
+    }
+
     private int GetClosestCharacterIndex(VecD point)
     {
         VecD mapped = Matrix.Invert().MapPoint(point);
@@ -377,7 +437,7 @@ internal class TextOverlay : Overlay
         ClipboardController.GetTextFromClipboard().ContinueWith(
             t =>
             {
-                Dispatcher.UIThread.Invoke(() => Text += t.Result);
+                Dispatcher.UIThread.Invoke(() => InsertTextAtCursor(t.Result));
             }, TaskContinuationOptions.OnlyOnRanToCompletion);
     }
 
@@ -403,18 +463,68 @@ internal class TextOverlay : Overlay
         }
     }
 
-    private void MoveCursorBy(VecI direction)
+    private void MoveCursorBy(VecI direction, bool updateSelection = true, MoveMode mode = MoveMode.Characters)
     {
         int moveBy = direction.X;
         if (direction.X != 0)
         {
             lastXMovementCursorIndex = Math.Clamp(CursorPosition + direction.X, 0, Text.Length);
+
+            if (mode == MoveMode.Words)
+            {
+                string[] words = richText.FormattedText.Split(' ');
+                int i = 0;
+                int cursorPosInWord = 0;
+                int wordIndex = 0;
+
+                for (var index = 0; index < words.Length; index++)
+                {
+                    var word = words[index];
+                    if (CursorPosition >= i && CursorPosition <= i + word.Length)
+                    {
+                        cursorPosInWord = CursorPosition - i;
+                        wordIndex = index;
+                        break;
+                    }
+
+                    i += word.Length + 1;
+                }
+
+                if (cursorPosInWord > 0 && cursorPosInWord < words[wordIndex].Length)
+                {
+                    if (moveBy < 0)
+                    {
+                        moveBy = -cursorPosInWord;
+                    }
+                    else
+                    {
+                        moveBy = words[wordIndex].Length - cursorPosInWord;
+                    }
+                }
+                else
+                {
+                    int wordLength = words[wordIndex].Length;
+                    if (wordLength > 0)
+                    {
+                        if (moveBy > 0 && cursorPosInWord == 0)
+                        {
+                            moveBy += wordLength - 1;
+                        }
+                        else if (moveBy < 0 && cursorPosInWord == wordLength)
+                        {
+                            moveBy -= words[wordIndex].Length - 1;
+                        }
+                    }
+                }
+            }
         }
 
         if (direction.Y != 0)
         {
-            int indexOnLine = richText.IndexOnLine(CursorPosition, out int lineIndex);
+            richText.IndexOnLine(CursorPosition, out int lineIndex);
+
             int clampedDesiredLineIndex = Math.Clamp(lineIndex + direction.Y, 0, richText.Lines.Length - 1);
+
             VecF position = glyphPositions[lastXMovementCursorIndex];
             (int lineStart, int lineEnd) = richText.GetLineStartEnd(clampedDesiredLineIndex);
             VecF[] lineGlyphPositions = glyphPositions[lineStart..lineEnd];
@@ -424,7 +534,10 @@ internal class TextOverlay : Overlay
         }
 
         CursorPosition += moveBy;
-        SelectionEnd = CursorPosition;
+        if (updateSelection)
+        {
+            SelectionEnd = CursorPosition;
+        }
     }
 
     private void RequestEditTextTriggered(object? sender, string e)
@@ -505,4 +618,10 @@ internal class TextOverlay : Overlay
 
         return Math.Clamp(newPos, 0, textOverlay.Text.Length);
     }
+}
+
+public enum MoveMode
+{
+    Characters,
+    Words,
 }
