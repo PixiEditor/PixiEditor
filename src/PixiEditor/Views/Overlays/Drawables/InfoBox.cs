@@ -39,15 +39,15 @@ public class InfoBox
     public void DrawInfo(Canvas context, string text, VecD pointerPos)
     {
         const float padding = 10;
-        font.FontSize = 14 / ZoomScale;
+        font.Size = 14 / ZoomScale;
 
         double widthTextSize = font.MeasureText(text);
 
         VecD aboveCursor = pointerPos + new VecD(0, -20 / ZoomScale);
         float rectWidth = (float)widthTextSize + (padding * 2 / (float)ZoomScale);
-        float rectHeight = (float)font.FontSize + padding / (float)ZoomScale;
+        float rectHeight = (float)font.Size + padding / (float)ZoomScale;
         float x = (float)aboveCursor.X - rectWidth / 2;
-        float y = (float)aboveCursor.Y - ((float)font.FontSize) - (padding / 4) / (float)ZoomScale;
+        float y = (float)aboveCursor.Y - ((float)font.Size) - (padding / 4) / (float)ZoomScale;
         
         context.DrawRoundRect(x, y, rectWidth, rectHeight, 5 / (float)ZoomScale,
             5 / (float)ZoomScale, backgroundPen);
