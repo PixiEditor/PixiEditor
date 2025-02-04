@@ -1,4 +1,6 @@
 ﻿using MessagePack;
+using PixiEditor.Parser;
+using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Models.Serialization.Factories;
 
@@ -7,6 +9,8 @@ public abstract class SerializationFactory
     public abstract Type OriginalType { get; }
     public abstract string DeserializationId { get; } 
     public SerializationConfig Config { get; set; }
+    public ResourceStorage Storage { get; set; }
+    public ResourceStorageLocator? ResourceLocator { get; set; }
 
     public abstract object Serialize(object original);
     public abstract object Deserialize(object rawData, (string serializerName, string serializerVersion) serializerData);

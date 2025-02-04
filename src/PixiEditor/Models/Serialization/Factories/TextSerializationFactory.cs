@@ -6,6 +6,7 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.IO;
 
 namespace PixiEditor.Models.Serialization.Factories;
 
@@ -22,7 +23,7 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
         builder.AddBool(original.Font.Family.FontUri?.IsFile ?? false);
         if (original.Font.Family.FontUri?.IsFile ?? false)
         {
-            builder.AddString(original.Font.Family.FontUri.AbsolutePath);
+            builder.AddInt(Storage.AddFromFilePath(original.Font.Family.FontUri.LocalPath));
         }
 
         builder.AddDouble(original.Font.Size);
@@ -49,9 +50,9 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
         string fontFamily = extractor.GetString();
         bool isFontFromFile = extractor.GetBool();
         string fontPath = null;
-        if (isFontFromFile)
+        if (isFontFromFile && ResourceLocator != null)
         {
-            fontPath = extractor.GetString();
+            fontPath = Path.Combine(ResourceLocator.GetFilePath(extractor.GetInt()));
         }
 
         double fontSize = extractor.GetDouble();
