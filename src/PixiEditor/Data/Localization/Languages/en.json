@@ -845,5 +845,7 @@
   "TEXT_TOOL": "Text",
   "MISSING_FONT": "Missing font",
   "TEXT_LAYER_NAME": "Text",
-  "TEXT_TOOL_TOOLTIP": "Create text ({0})."
+  "TEXT_TOOL_TOOLTIP": "Create text ({0}).",
+  "BOLD_TOOLTIP": "Bold",
+  "ITALIC_TOOLTIP": "Italic"
 }

@@ -94,7 +94,12 @@ internal abstract class Setting : ObservableObject
 
     public LocalizedString Label { get; set; }
 
+    public string Icon { get; set; }
+
+    public string Tooltip { get; set; }
+
     public bool HasLabel => !string.IsNullOrEmpty(Label);
+    public bool HasIcon => !string.IsNullOrEmpty(Icon);
 
     public object UserValue
     {

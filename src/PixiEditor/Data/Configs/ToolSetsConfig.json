@@ -24,7 +24,8 @@
         "Settings": {
           "AntiAliasing": false,
           "ForceLowDpiRendering": true
-        }
+        },
+        "Icon": "\ue994"
       },
       {
         "ToolName": "Eraser",
@@ -92,7 +93,8 @@
         "Settings": {
           "AntiAliasing": true,
           "ForceLowDpiRendering": true
-        }
+        },
+        "Icon": "\ue98E"
       },
       {
         "ToolName": "Eraser",

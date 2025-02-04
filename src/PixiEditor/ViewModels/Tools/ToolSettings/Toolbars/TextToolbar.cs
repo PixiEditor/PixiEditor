@@ -2,6 +2,7 @@
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Handlers.Toolbars;
+using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
@@ -62,9 +63,33 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
         }
     }
 
+    public bool Bold
+    {
+        get
+        {
+            return GetSetting<BoolSettingViewModel>(nameof(Bold)).Value;
+        }
+        set
+        {
+            GetSetting<BoolSettingViewModel>(nameof(Bold)).Value = value;
+        }
+    }
+
+    public bool Italic
+    {
+        get
+        {
+            return GetSetting<BoolSettingViewModel>(nameof(Italic)).Value;
+        }
+        set
+        {
+            GetSetting<BoolSettingViewModel>(nameof(Italic)).Value = value;
+        }
+    }
+
     public TextToolbar()
     {
-        AddSetting(new FontFamilySettingViewModel(nameof(FontFamily), "FONT_LABEL"));
+        AddSetting(new FontFamilySettingViewModel(nameof(FontFamily), ""));
         FontFamily = FontLibrary.DefaultFontFamily;
         
         var sizeSetting =
@@ -74,7 +99,11 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
             };
         AddSetting(sizeSetting);
         var spacingSetting =
-            new SizeSettingViewModel(nameof(Spacing), "SPACING_LABEL", unit: new LocalizedString("UNIT_PT"));
+            new SizeSettingViewModel(nameof(Spacing), unit: new LocalizedString("UNIT_PT"))
+            {
+                Tooltip = "SPACING_LABEL",
+                Icon = PixiPerfectIcons.LineHeight
+            };
         spacingSetting.Value = 12;
 
         sizeSetting.ValueChanged += (sender, args) =>
@@ -84,7 +113,17 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
         };
 
         AddSetting(spacingSetting);
-        
+
+        AddSetting(new BoolSettingViewModel(nameof(Bold))
+        {
+            Icon = PixiPerfectIcons.Bold, Tooltip = "BOLD_TOOLTIP"
+        });
+
+        AddSetting(new BoolSettingViewModel(nameof(Italic))
+        {
+            Icon = PixiPerfectIcons.Italic, Tooltip = "ITALIC_TOOLTIP"
+        });
+
         AddSetting(new BoolSettingViewModel(nameof(ForceLowDpiRendering), "__force_low_dpi_rendering")
         {
             IsExposed = false, Value = false
@@ -106,6 +145,8 @@ internal class TextToolbar : FillableShapeToolbar, ITextToolbar
 
         font.Size = (float)FontSize;
         font.Edging = AntiAliasing ? FontEdging.AntiAlias : FontEdging.Alias;
+        font.Bold = Bold;
+        font.Italic = Italic;
 
         return font;
     }

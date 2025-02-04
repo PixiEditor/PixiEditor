@@ -519,24 +519,21 @@ internal class TextOverlay : Overlay
 
     private void DeleteChar(int direction)
     {
-        if (Text.Length > 0 && CursorPosition + direction >= 0 && CursorPosition + direction < Text.Length)
+        if (SelectionEnd != CursorPosition)
         {
-            if (SelectionEnd == CursorPosition)
-            {
-                Text = Text.Remove(CursorPosition + direction, 1);
-                CursorPosition += direction;
-                SelectionEnd = CursorPosition;
-            }
-            else
-            {
-                Text = Text.Remove(Math.Min(CursorPosition, SelectionEnd),
-                    Math.Abs(CursorPosition - SelectionEnd));
-                CursorPosition = Math.Min(CursorPosition, SelectionEnd);
-                SelectionEnd = CursorPosition;
-            }
-
-            lastXMovementCursorIndex = CursorPosition;
+            Text = Text.Remove(Math.Min(CursorPosition, SelectionEnd),
+                Math.Abs(CursorPosition - SelectionEnd));
+            CursorPosition = Math.Min(CursorPosition, SelectionEnd);
+            SelectionEnd = CursorPosition;
         }
+        else if (Text.Length > 0 && CursorPosition + direction >= 0 && CursorPosition + direction < Text.Length)
+        {
+            Text = Text.Remove(CursorPosition + direction, 1);
+            CursorPosition += direction;
+            SelectionEnd = CursorPosition;
+        }
+
+        lastXMovementCursorIndex = CursorPosition;
     }
 
     private void MoveCursorBy(VecI direction, bool updateSelection = true, MoveMode mode = MoveMode.Characters)

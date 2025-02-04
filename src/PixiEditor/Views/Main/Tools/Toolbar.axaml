@@ -55,7 +55,8 @@
                        ui:Translator.Key="{Binding ToolsSubViewModel.ActiveTool.DisplayName.Key}"
                        ui:Translator.TooltipLocalizedString="{Binding ToolsSubViewModel.ActiveTool.ActionDisplay}" />
             </StackPanel>
-            <ItemsControl VerticalAlignment="Center" Grid.Column="1" IsVisible="{Binding ElementName=CollapseButton, Path=!IsChecked}"
+            <ItemsControl VerticalAlignment="Center" Grid.Column="1"
+                          IsVisible="{Binding ElementName=CollapseButton, Path=!IsChecked}"
                           ItemsSource="{Binding ToolsSubViewModel.ActiveTool.Toolbar.Settings}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -69,7 +70,16 @@
                             <Label
                                 IsVisible="{Binding HasLabel}" VerticalAlignment="Center"
                                 Foreground="{DynamicResource ThemeForegroundBrush}"
+                                ui:Translator.TooltipKey="{Binding Tooltip}"
                                 ui:Translator.Key="{Binding Label.Key}" />
+                            <TextBlock
+                                IsVisible="{Binding HasIcon}" VerticalAlignment="Center"
+                                Foreground="{DynamicResource ThemeForegroundBrush}"
+                                ui:Translator.TooltipKey="{Binding Tooltip}"
+                                Classes="pixi-icon"
+                                FontSize="18"
+                                Padding="5 0"
+                                Text="{Binding Icon}" />
                             <ContentControl VerticalAlignment="Center" Content="{Binding }" />
                         </StackPanel>
                     </DataTemplate>

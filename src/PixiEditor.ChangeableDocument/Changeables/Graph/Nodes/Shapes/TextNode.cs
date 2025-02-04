@@ -77,6 +77,5 @@ public class TextNode : ShapeNode<TextVectorData>
     public override void Dispose()
     {
         base.Dispose();
-        cachedData?.Font.Dispose();
     }
 }

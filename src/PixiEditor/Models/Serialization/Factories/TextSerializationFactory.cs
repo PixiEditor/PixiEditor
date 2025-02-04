@@ -26,6 +26,9 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
         }
 
         builder.AddDouble(original.Font.Size);
+        builder.AddBool(original.Font.Bold);
+        builder.AddBool(original.Font.Italic);
+
         builder.AddDouble(original.MaxWidth);
         builder.AddDouble(original.Spacing ?? original.Font.Size);
         builder.AddBool(original.Path != null);
@@ -52,6 +55,9 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
         }
 
         double fontSize = extractor.GetDouble();
+        bool bold = extractor.GetBool();
+        bool italic = extractor.GetBool();
+
         double maxWidth = extractor.GetDouble();
         double spacing = extractor.GetDouble();
         bool hasPath = extractor.GetBool();
@@ -65,7 +71,7 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
             new FontFamilyName(fontFamily) { FontUri = isFontFromFile ? new Uri(fontPath, UriKind.Absolute) : null };
         Font font = Font.FromFontFamily(family);
         FontFamilyName? missingFamily = null;
-        
+
         if (font == null)
         {
             font = Font.CreateDefault();
@@ -76,16 +82,20 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
             FontLibrary.TryAddCustomFont(family);
         }
 
+
+        font.Bold = bold;
+        font.Italic = italic;
+        font.Edging = antiAlias ? FontEdging.AntiAlias : FontEdging.Alias;
+        font.SubPixel = antiAlias;
         font.Size = fontSize;
 
-        original = new TextVectorData()
+        original = new TextVectorData(text)
         {
             TransformationMatrix = matrix,
             StrokeColor = strokeColor,
             Fill = fill,
             FillColor = fillColor,
             StrokeWidth = strokeWidth,
-            Text = text,
             Position = position,
             Font = font,
             MaxWidth = maxWidth,

@@ -64,6 +64,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             toolbar.FontFamily = textData.Font.Family;
             toolbar.FontSize = textData.Font.Size;
             toolbar.Spacing = textData.Spacing ?? textData.Font.Size;
+            toolbar.Bold = textData.Font.Bold;
+            toolbar.Italic = textData.Font.Italic;
 
             lastText = textData.Text;
             position = textData.Position;
@@ -120,7 +122,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             cachedFont = toolbar.ConstructFont();
             document.TextOverlayHandler.Font = cachedFont;
         }
-        else if (name is nameof(ITextToolbar.FontSize))
+        else
         {
             if (cachedFont == null)
             {
@@ -129,6 +131,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
             document.TextOverlayHandler.Font.Size = toolbar.FontSize;
             cachedFont.Size = toolbar.FontSize;
+            cachedFont.Bold = toolbar.Bold;
+            cachedFont.Italic = toolbar.Italic;
         }
 
         var constructedText = ConstructTextData(lastText);

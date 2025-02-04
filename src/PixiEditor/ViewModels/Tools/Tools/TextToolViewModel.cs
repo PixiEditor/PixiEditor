@@ -5,6 +5,7 @@ using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
+using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.ViewModels.Tools.Tools;
@@ -16,6 +17,8 @@ internal class TextToolViewModel : ToolViewModel, ITextToolHandler
     public override Type[]? SupportedLayerTypes => [];
     public override Type LayerTypeToCreateOnEmptyUse => typeof(VectorLayerNode);
     public override LocalizedString Tooltip => new LocalizedString("TEXT_TOOL_TOOLTIP", Shortcut);
+
+    public override string DefaultIcon => PixiPerfectIcons.TextRound;
 
     public override bool IsErasable => false;
     public override bool StopsLinkedToolOnUse => false;

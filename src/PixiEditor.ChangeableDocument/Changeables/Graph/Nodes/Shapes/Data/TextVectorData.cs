@@ -36,9 +36,29 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
         get => font;
         set
         {
+            if (value != null)
+            {
+                value.Changed -= FontChanged;
+            }
+
             font = value;
+            if (value != null)
+            {
+                value.Changed += FontChanged;
+            }
+
             lastBounds = richText.MeasureBounds(value);
         }
+    }
+
+    private void FontChanged()
+    {
+        if (richText == null)
+        {
+            return;
+        }
+
+        lastBounds = richText.MeasureBounds(Font);
     }
 
     public double? Spacing
@@ -56,6 +76,11 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
 
     protected override void OnStrokeWidthChanged()
     {
+        if(richText == null)
+        {
+            return;
+        }
+
         richText.StrokeWidth = StrokeWidth;
         lastBounds = richText.MeasureBounds(Font);
     }
@@ -78,6 +103,17 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
 
     private RichText richText;
     private RectD lastBounds;
+
+    public TextVectorData()
+    {
+
+    }
+
+    public TextVectorData(string text)
+    {
+        Text = text;
+    }
+
 
     public override VectorPath ToPath()
     {
@@ -153,6 +189,10 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
             textData.Font.Size = Font.Size;
             textData.Font.Edging = Font.Edging;
             textData.Font.SubPixel = Font.SubPixel;
+            textData.Font.Bold = Font.Bold;
+            textData.Font.Italic = Font.Italic;
+
+            textData.lastBounds = lastBounds;
         }
     }
 
