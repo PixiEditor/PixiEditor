@@ -103,6 +103,11 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         args.Handled = firstLayer != null;
         if (firstLayer is not IVectorLayerHandler layerHandler)
         {
+            if (document.TextOverlayHandler.IsActive)
+            {
+                args.Handled = true;
+                document.TextOverlayHandler.Hide();
+            }
             return;
         }
 
