@@ -7,11 +7,13 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -25,6 +27,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     private VecD position;
     private Matrix3X3 lastMatrix = Matrix3X3.Identity;
     private Font? cachedFont;
+    private bool isListeningForValidLayer;
 
     public override bool BlocksOtherActions => false;
 
@@ -48,9 +51,11 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
         if (selectedMember is not IVectorLayerHandler layerHandler)
         {
-            return ExecutionState.Error;
+            isListeningForValidLayer = true;
+            return ExecutionState.Success;
         }
 
+        isListeningForValidLayer = false;
         var shape = layerHandler.GetShapeData(document.AnimationHandler.ActiveFrameBindable);
         if (shape is TextVectorData textData)
         {
@@ -86,6 +91,28 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         return ExecutionState.Success;
     }
 
+    public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
+    {
+        var allLayers = document.StructureHelper.GetAllLayers();
+        var topMostWithinClick = allLayers.Where(x =>
+                x is IVectorLayerHandler { IsVisibleBindable: true, TightBounds: not null } &&
+                x.TightBounds.Value.ContainsInclusive(args.PositionOnCanvas))
+            .OrderByDescending(x => allLayers.IndexOf(x));
+
+        var firstLayer = topMostWithinClick.FirstOrDefault();
+        args.Handled = firstLayer != null;
+        if (firstLayer is not IVectorLayerHandler layerHandler)
+        {
+            return;
+        }
+
+        document.Operations.SetSelectedMember(layerHandler.Id);
+        document.Operations.InvokeCustomAction(
+            () =>
+        {
+            document.TextOverlayHandler.SetCursorPosition(args.PositionOnCanvas);
+        }, false);
+    }
 
     public void OnQuickToolSwitch()
     {
@@ -111,6 +138,11 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     public override void OnSettingsChanged(string name, object value)
     {
+        if (isListeningForValidLayer)
+        {
+            return;
+        }
+
         if (name == nameof(ITextToolbar.FontFamily))
         {
             Font toDispose = cachedFont;
