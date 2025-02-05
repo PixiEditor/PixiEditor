@@ -189,10 +189,13 @@ internal class TextOverlay : Overlay
             { new KeyCombination(Key.End, KeyModifiers.Shift), () => GoToEndOfLine(false) },
         };
 
+        AdjustShortcutsForOS();
+
         selectionPaint = new Paint()
         {
             Color = ThemeResources.SelectionFillColor.WithAlpha(255), Style = PaintStyle.Fill
         };
+
         opacityPaint = new Paint() { Color = Colors.White.WithAlpha(ThemeResources.SelectionFillColor.A) };
     }
 
@@ -628,6 +631,29 @@ internal class TextOverlay : Overlay
         richText.Spacing = Spacing;
         glyphPositions = richText.GetGlyphPositions(Font);
         glyphWidths = richText.GetGlyphWidths(Font);
+    }
+
+    private void AdjustShortcutsForOS()
+    {
+        if (IOperatingSystem.Current.IsMacOs)
+        {
+            Dictionary<KeyCombination, Action> newShortcuts = new();
+            foreach (var shortcut in shortcuts)
+            {
+                if (shortcut.Key.Modifiers.HasFlag(KeyModifiers.Control))
+                {
+                    KeyModifiers newModifiers = shortcut.Key.Modifiers & ~KeyModifiers.Control;
+                    newModifiers |= KeyModifiers.Meta;
+                    newShortcuts.Add(new KeyCombination(shortcut.Key.Key, newModifiers), shortcut.Value);
+                }
+                else
+                {
+                    newShortcuts.Add(shortcut.Key, shortcut.Value);
+                }
+            }
+
+            shortcuts = newShortcuts;
+        }
     }
 
     private static void IsVisibleChanged(AvaloniaPropertyChangedEventArgs<bool> args)
