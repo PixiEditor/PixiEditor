@@ -48,7 +48,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     public RecentlyOpenedCollection RecentlyOpened { get; init; }
     public IReadOnlyList<IDocumentBuilder> DocumentBuilders => documentBuilders;
-    
+
     private List<IDocumentBuilder> documentBuilders;
 
     public FileViewModel(ViewModelMain owner)
@@ -205,7 +205,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             }
             else if (IsCustomFormat(path))
             {
-                OpenCustomFormat(path);
+                OpenCustomFormat(path, associatePath);
             }
             else
             {
@@ -221,25 +221,32 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             NoticeDialog.Show("OLD_FILE_FORMAT_DESCRIPTION", "OLD_FILE_FORMAT");
         }
     }
-    
+
     private bool IsCustomFormat(string path)
     {
         string extension = Path.GetExtension(path);
         return documentBuilders.Any(x => x.Extensions.Contains(extension, StringComparer.OrdinalIgnoreCase));
     }
-    
-    private void OpenCustomFormat(string path)
-    {
-        IDocumentBuilder builder = documentBuilders.First(x => x.Extensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase));
 
-        if(!File.Exists(path))
+    private void OpenCustomFormat(string path, bool associatePath)
+    {
+        IDocumentBuilder builder = documentBuilders.First(x =>
+            x.Extensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase));
+
+        if (!File.Exists(path))
         {
             NoticeDialog.Show("FILE_NOT_FOUND", "FAILED_TO_OPEN_FILE");
             return;
         }
-        
+
         DocumentViewModel document = DocumentViewModel.Build(docBuilder => builder.Build(docBuilder, path));
         AddDocumentViewModelToTheSystem(document);
+
+        if (associatePath)
+        {
+            document.FullFilePath = path;
+        }
+
         AddRecentlyOpened(document.FullFilePath);
     }
 
@@ -281,7 +288,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             .WithGraph(x => x
                 .WithImageLayerNode(
                     new LocalizedString("IMAGE"),
-                    image, 
+                    image,
                     ColorSpace.CreateSrgbLinear(),
                     out int id)
                 .WithOutputNode(id, "Output")
@@ -349,7 +356,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 .WithGraph(x => x
                     .WithImageLayerNode(
                         new LocalizedString("BASE_LAYER_NAME"),
-                        new VecI(newFile.Width, newFile.Height), 
+                        new VecI(newFile.Width, newFile.Height),
                         ColorSpace.CreateSrgbLinear(),
                         out int id)
                     .WithOutputNode(id, "Output")
