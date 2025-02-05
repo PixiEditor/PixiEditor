@@ -101,6 +101,8 @@ internal abstract class Setting : ObservableObject
     public bool HasLabel => !string.IsNullOrEmpty(Label);
     public bool HasIcon => !string.IsNullOrEmpty(Icon);
 
+    public bool AllowIconLabel { get; protected set; } = true;
+
     public object UserValue
     {
         get => _value;

@@ -11,6 +11,7 @@ internal sealed class BoolSettingViewModel : Setting<bool>
     public BoolSettingViewModel(string name, string label = "")
         : this(name, false, label)
     {
+        AllowIconLabel = false;
     }
 
     public BoolSettingViewModel(string name, bool isChecked, string label = "")

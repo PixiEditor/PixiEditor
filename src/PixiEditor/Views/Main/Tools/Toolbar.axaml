@@ -6,6 +6,7 @@
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              xmlns:decorators="clr-namespace:PixiEditor.Views.Decorators"
              xmlns:settings="clr-namespace:PixiEditor.ViewModels.Tools.ToolSettings.Settings"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Main.Tools.Toolbar">
     <Border CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -73,13 +74,20 @@
                                 ui:Translator.TooltipKey="{Binding Tooltip}"
                                 ui:Translator.Key="{Binding Label.Key}" />
                             <TextBlock
-                                IsVisible="{Binding HasIcon}" VerticalAlignment="Center"
+                                VerticalAlignment="Center"
                                 Foreground="{DynamicResource ThemeForegroundBrush}"
                                 ui:Translator.TooltipKey="{Binding Tooltip}"
                                 Classes="pixi-icon"
                                 FontSize="18"
                                 Padding="5 0"
-                                Text="{Binding Icon}" />
+                                Text="{Binding Icon}">
+                                <TextBlock.IsVisible>
+                                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                                        <Binding Path="HasIcon" />
+                                        <Binding Path="AllowIconLabel" />
+                                    </MultiBinding>
+                                </TextBlock.IsVisible>
+                            </TextBlock>
                             <ContentControl VerticalAlignment="Center" Content="{Binding }" />
                         </StackPanel>
                     </DataTemplate>

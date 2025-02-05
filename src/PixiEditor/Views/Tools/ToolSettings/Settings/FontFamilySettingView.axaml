@@ -13,8 +13,10 @@
         <settings:FontFamilySettingViewModel />
     </Design.DataContext>
 
-    <StackPanel Orientation="Horizontal">
-        <Button Classes="pixi-icon" FontSize="16" Command="{Binding UploadFontCommand}" Content="{DynamicResource icon-upload}"/>
+    <StackPanel Orientation="Horizontal" Spacing="5">
+        <Button Classes="pixi-icon" FontSize="16"
+                ui:Translator.TooltipKey="CUSTOM_FONT"
+                Command="{Binding UploadFontCommand}" Content="{DynamicResource icon-upload}"/>
         <ComboBox VerticalAlignment="Center"
                   MinWidth="85"
                   ItemsSource="{Binding Fonts}"
