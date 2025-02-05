@@ -262,16 +262,26 @@ internal static class ClipboardController
             pos = dataObjectWithPos.GetVecD(ClipboardDataFormats.PositionFormat);
         }
 
+        RectD? tightBounds = null;
         for (var i = 0; i < layerIds.Length; i++)
         {
             var layerId = layerIds[i];
 
             var layer = doc.StructureHelper.Find(layerId);
-            if (layer is not { TightBounds: not null } || !layer.TightBounds.Value.Pos.AlmostEquals(pos))
-                return false;
+
+            if(layer == null) return false;
+
+            if(tightBounds == null)
+            {
+                tightBounds = layer.TightBounds;
+            }
+            else if(layer.TightBounds.HasValue)
+            {
+                tightBounds = tightBounds.Value.Union(layer.TightBounds.Value);
+            }
         }
 
-        return true;
+        return tightBounds.HasValue && tightBounds.Value.Pos.AlmostEquals(pos);
     }
 
     private static Guid[] GetLayerIds(IEnumerable<IDataObject> data)
