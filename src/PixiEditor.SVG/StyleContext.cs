@@ -10,10 +10,9 @@ public struct StyleContext
     public SvgProperty<SvgColorUnit> Stroke { get; }
     public SvgProperty<SvgColorUnit> Fill { get; }
     public SvgProperty<SvgTransformUnit> Transform { get; }
-    
     public SvgProperty<SvgEnumUnit<SvgStrokeLineCap>> StrokeLineCap { get; }
-    
     public SvgProperty<SvgEnumUnit<SvgStrokeLineJoin>> StrokeLineJoin { get; }
+    public SvgProperty<SvgNumericUnit> Opacity { get; }
 
     public StyleContext()
     {
@@ -24,6 +23,7 @@ public struct StyleContext
         Transform = new("transform");
         StrokeLineCap = new("stroke-linecap");
         StrokeLineJoin = new("stroke-linejoin");
+        Opacity = new("opacity");
     }
     
     public StyleContext(SvgDocument document)
@@ -34,6 +34,7 @@ public struct StyleContext
         Transform = document.Transform;
         StrokeLineCap = document.StrokeLineCap;
         StrokeLineJoin = document.StrokeLineJoin;
+        Opacity = document.Opacity;
     }
 
     public StyleContext WithElement(SvgElement element)
@@ -73,6 +74,11 @@ public struct StyleContext
             }
         }
 
+        if(element is IOpacity opacityElement)
+        {
+            styleContext.Opacity.Unit = opacityElement.Opacity.Unit;
+        }
+
         return styleContext;
     }
 
@@ -97,6 +103,21 @@ public struct StyleContext
         if (Transform.Unit != null)
         {
             styleContext.Transform.Unit = Transform.Unit;
+        }
+
+        if (StrokeLineCap.Unit != null)
+        {
+            styleContext.StrokeLineCap.Unit = StrokeLineCap.Unit;
+        }
+
+        if (StrokeLineJoin.Unit != null)
+        {
+            styleContext.StrokeLineJoin.Unit = StrokeLineJoin.Unit;
+        }
+
+        if (Opacity.Unit != null)
+        {
+            styleContext.Opacity.Unit = Opacity.Unit;
         }
 
         return styleContext;

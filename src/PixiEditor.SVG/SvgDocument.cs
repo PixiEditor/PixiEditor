@@ -7,7 +7,7 @@ using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG;
 
-public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFillable, IStrokable
+public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFillable, IStrokable, IOpacity
 {
     public string RootNamespace { get; set; } = "http://www.w3.org/2000/svg";
     public string Version { get; set; } = "1.1";
@@ -21,6 +21,7 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
     
     public SvgProperty<SvgEnumUnit<SvgStrokeLineJoin>> StrokeLineJoin { get; } = new("stroke-linejoin");
     public SvgProperty<SvgTransformUnit> Transform { get; } = new("transform");
+    public SvgProperty<SvgNumericUnit> Opacity { get; } = new("opacity");
     public List<SvgElement> Children { get; } = new();
 
     public SvgDocument() : base("svg")
@@ -43,7 +44,8 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
             Transform,
             ViewBox,
             StrokeLineCap,
-            StrokeLineJoin
+            StrokeLineJoin,
+            Opacity
         };
         
         ParseAttributes(properties, reader);

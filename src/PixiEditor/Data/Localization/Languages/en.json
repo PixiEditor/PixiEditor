@@ -799,7 +799,7 @@
   "PREVIOUS_TOOL_SET": "Previous tool set",
   "FILL_MODE": "Fill mode",
   "USE_LINEAR_SRGB_PROCESSING": "Use linear sRGB for processing colors",
-  "USE_LINEAR_SRGB_PROCESSING_DESC": "Convert document using legacy blending mode to linear sRGB for processing colors. This will affect the colors of the document, but will make blending more accurate.",
+  "USE_LINEAR_SRGB_PROCESSING_DESC": "Convert document using sRGB blending mode to linear sRGB for processing colors. This will affect the colors of the document, but will make blending more accurate.",
   "FILL_TYPE_WINDING": "Winding",
   "FILL_TYPE_EVEN_ODD": "Even Odd",
   "FILL_TYPE_INVERSE_WINDING": "Inverse Winding",
@@ -849,5 +849,7 @@
   "BOLD_TOOLTIP": "Bold",
   "ITALIC_TOOLTIP": "Italic",
   "CUSTOM_FONT": "Custom font",
-  "DUMP_GPU_DIAGNOSTICS": "Dump GPU diagnostics"
+  "DUMP_GPU_DIAGNOSTICS": "Dump GPU diagnostics",
+  "USE_SRGB_PROCESSING": "Use sRGB for processing colors",
+  "USE_SRGB_PROCESSING_DESC": "Convert document using linear sRGB to sRGB for processing colors. This will affect the colors of the document."
 }

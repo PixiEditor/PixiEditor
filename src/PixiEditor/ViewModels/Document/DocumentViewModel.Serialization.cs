@@ -75,7 +75,7 @@ internal partial class DocumentViewModel
         {
             SerializerName = "PixiEditor",
             SerializerVersion = VersionHelpers.GetCurrentAssemblyVersion().ToString(),
-            LegacyColorBlending = doc.ProcessingColorSpace.IsSrgb,
+            SrgbColorBlending = doc.ProcessingColorSpace.IsSrgb,
             Width = Width,
             Height = Height,
             Swatches = ToCollection(Swatches),

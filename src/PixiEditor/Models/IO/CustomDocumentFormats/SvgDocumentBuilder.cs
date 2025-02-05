@@ -34,6 +34,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         }
 
         builder.WithSize(size)
+            .WithSrgbColorBlending(true) // apparently svgs blend colors in SRGB space
             .WithGraph(graph =>
             {
                 int? lastId = null;
@@ -91,6 +92,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
 
         NodeGraphBuilder.NodeBuilder nBuilder = graph.WithNodeOfType<VectorLayerNode>(out int id)
             .WithName(name)
+            .WithInputValues(new Dictionary<string, object>() { { StructureNode.OpacityPropertyName, (float)(styleContext.Opacity.Unit?.Value ?? 1f) } })
             .WithAdditionalData(new Dictionary<string, object>() { { "ShapeData", shapeData } });
 
         if (lastId != null)
