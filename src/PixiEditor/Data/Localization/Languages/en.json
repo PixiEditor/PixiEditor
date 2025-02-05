@@ -837,5 +837,17 @@
   "COLOR_NODE": "Color",
   "CONVERT_TO_CURVE": "Convert to curve",
   "CONVERT_TO_CURVE_DESCRIPTIVE": "Convert selected vector layer to a curve/path",
+  "FONT_FILES": "Font Files",
+  "UNIT_PT": "pt",
+  "FONT_LABEL": "Family",
+  "FONT_SIZE_LABEL": "Size",
+  "SPACING_LABEL": "Spacing",
+  "TEXT_TOOL": "Text",
+  "MISSING_FONT": "Missing font",
+  "TEXT_LAYER_NAME": "Text",
+  "TEXT_TOOL_TOOLTIP": "Create text ({0}).",
+  "BOLD_TOOLTIP": "Bold",
+  "ITALIC_TOOLTIP": "Italic",
+  "CUSTOM_FONT": "Custom font",
   "DUMP_GPU_DIAGNOSTICS": "Dump GPU diagnostics"
 }

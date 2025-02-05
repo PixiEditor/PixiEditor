@@ -492,7 +492,14 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             InitialPressMouseButton = e is PointerReleasedEventArgs released
                 ? released.InitialPressMouseButton
                 : MouseButton.None,
+            ClickCount = e is PointerPressedEventArgs pressed ? pressed.ClickCount : 0,
+            
         };
+    }
+
+    private void FocusOverlay()
+    {
+        Focus();
     }
 
     private VecD ToCanvasSpace(Point scenePosition)
@@ -546,6 +553,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             {
                 overlay.RefreshRequested -= QueueRender;
                 overlay.RefreshCursorRequested -= RefreshCursor;
+                overlay.FocusRequested -= FocusOverlay;
             }
         }
 
@@ -555,6 +563,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             {
                 overlay.RefreshRequested += QueueRender;
                 overlay.RefreshCursorRequested += RefreshCursor;
+                overlay.FocusRequested += FocusOverlay;
             }
         }
     }

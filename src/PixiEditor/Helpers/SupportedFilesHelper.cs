@@ -70,7 +70,7 @@ internal class SupportedFilesHelper
 
     public static List<FilePickerFileType> BuildSaveFilter(FileTypeDialogDataSet.SetKind setKind = FileTypeDialogDataSet.SetKind.Any)
     {
-        var allSupportedExtensions = GetAllSupportedFileTypes(setKind);
+        var allSupportedExtensions = GetAllSupportedFileTypes(setKind).Where(x => x.CanSave).ToList();
         var filter = allSupportedExtensions.Select(i => i.SaveFilter).ToList();
 
         return filter;
@@ -84,7 +84,7 @@ internal class SupportedFilesHelper
             return null;
 
         string extension = Path.GetExtension(file.Path.LocalPath);
-        return allSupportedExtensions.Single(i => i.Extensions.Contains(extension));
+        return allSupportedExtensions.Single(i => i.CanSave && i.Extensions.Contains(extension));
     }
 
     public static List<FilePickerFileType> BuildOpenFilter()

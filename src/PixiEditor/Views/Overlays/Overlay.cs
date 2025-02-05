@@ -44,6 +44,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     }
 
     public event Action? RefreshRequested;
+    public event Action? FocusRequested;
     public event Action? RefreshCursorRequested;
     public event PointerEvent? PointerEnteredOverlay;
     public event PointerEvent? PointerExitedOverlay;
@@ -78,6 +79,11 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     {
         RefreshRequested?.Invoke(); // For scene hosted overlays
         InvalidateVisual(); // For elements in visual tree
+    }
+
+    public void FocusOverlay()
+    {
+        FocusRequested?.Invoke();
     }
 
     public void ForceRefreshCursor()
@@ -146,7 +152,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     
     public void KeyPressed(KeyEventArgs args)
     {
-        OnKeyPressed(args.Key, args.KeyModifiers);
+        OnKeyPressed(args.Key, args.KeyModifiers, args.KeySymbol);
         KeyPressedOverlay?.Invoke(args.Key, args.KeyModifiers);
     }
 
@@ -276,7 +282,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     {
     }
     
-    protected virtual void OnKeyPressed(Key key, KeyModifiers keyModifiers)
+    protected virtual void OnKeyPressed(Key key, KeyModifiers keyModifiers, string? keySymbol)
     {
     }
     

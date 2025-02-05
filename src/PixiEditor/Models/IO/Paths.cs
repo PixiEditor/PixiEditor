@@ -24,6 +24,7 @@ public static class Paths
     public static string TempRenderingPath { get; } = Path.Combine(Path.GetTempPath(), "PixiEditor", "Rendering");
     
     public static string TempFilesPath { get; } = Path.Combine(Path.GetTempPath(), "PixiEditor");
+    public static string TempResourcesPath { get; } = Path.Combine(Path.GetTempPath(), "PixiEditor", "Resources");
 
     public static string ParseSpecialPathOrDefault(string path)
     {

@@ -7,6 +7,7 @@ using PixiEditor.Views.Visuals;
 using PixiEditor.Helpers.Converters;
 using PixiEditor.Models.Commands.XAML;
 using PixiEditor.ViewModels;
+using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.Views.Overlays;
 using PixiEditor.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.Views.Overlays.LineToolOverlay;
@@ -14,6 +15,7 @@ using PixiEditor.Views.Overlays.PathOverlay;
 using PixiEditor.Views.Overlays.Pointers;
 using PixiEditor.Views.Overlays.SelectionOverlay;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
+using PixiEditor.Views.Overlays.TextOverlay;
 using PixiEditor.Views.Overlays.TransformOverlay;
 
 namespace PixiEditor.Views.Main.ViewportControls;
@@ -31,6 +33,7 @@ internal class ViewportOverlays
     private SnappingOverlay snappingOverlay;
     private BrushShapeOverlay brushShapeOverlay;
     private VectorPathOverlay vectorPathOverlay;
+    private TextOverlay textOverlay;
 
     public void Init(Viewport viewport)
     {
@@ -62,6 +65,9 @@ internal class ViewportOverlays
         vectorPathOverlay = new VectorPathOverlay();
         vectorPathOverlay.IsVisible = false;
         BindVectorPathOverlay();
+        
+        textOverlay = new TextOverlay();
+        BindTextOverlay();
 
         Viewport.ActiveOverlays.Add(gridLinesOverlay);
         Viewport.ActiveOverlays.Add(referenceLayerOverlay);
@@ -72,6 +78,7 @@ internal class ViewportOverlays
         Viewport.ActiveOverlays.Add(vectorPathOverlay);
         Viewport.ActiveOverlays.Add(snappingOverlay);
         Viewport.ActiveOverlays.Add(brushShapeOverlay);
+        Viewport.ActiveOverlays.Add(textOverlay);
     }
 
     private void BindReferenceLayerOverlay()
@@ -442,6 +449,64 @@ internal class ViewportOverlays
         brushShapeOverlay.Bind(Visual.IsVisibleProperty, isVisibleMultiBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.BrushSizeProperty, brushSizeBinding);
         brushShapeOverlay.Bind(BrushShapeOverlay.BrushShapeProperty, brushShapeBinding); 
+    }
+
+    private void BindTextOverlay()
+    {
+        Binding isVisibleBinding = new()
+        {
+            Source = Viewport, Path = "Document.TextOverlayViewModel.IsActive", Mode = BindingMode.OneWay
+        };
+
+        Binding textBinding = new()
+        {
+            Source = Viewport, Path = "Document.TextOverlayViewModel.Text", Mode = BindingMode.TwoWay
+        };
+
+        Binding positionBinding = new()
+        {
+            Source = Viewport, Path = "Document.TextOverlayViewModel.Position", Mode = BindingMode.OneWay
+        };
+
+        Binding fontBinding = new()
+        {
+            Source = Viewport, Path = "Document.TextOverlayViewModel.Font", Mode = BindingMode.OneWay
+        };
+        
+        Binding requestEditTextBinding = new()
+        {
+            Source = Viewport, Path = "Document.TextOverlayViewModel.RequestEditTextTrigger", Mode = BindingMode.OneWay
+        };
+        
+        Binding matrixBinding = new()
+        {
+            Source = Viewport, Path = "Document.TextOverlayViewModel.Matrix", Mode = BindingMode.OneWay
+        };
+        
+        Binding spacingBinding = new()
+        {
+            Source = Viewport, Path = "Document.TextOverlayViewModel.Spacing", Mode = BindingMode.OneWay
+        };
+
+        Binding cursorPositionBinding = new()
+        {
+            Source = Viewport, Path = "Document.TextOverlayViewModel.CursorPosition", Mode = BindingMode.TwoWay
+        };
+
+        Binding selectionEndBinding = new()
+        {
+            Source = Viewport, Path = "Document.TextOverlayViewModel.SelectionEnd", Mode = BindingMode.TwoWay
+        };
+
+        textOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
+        textOverlay.Bind(TextOverlay.TextProperty, textBinding);
+        textOverlay.Bind(TextOverlay.PositionProperty, positionBinding);
+        textOverlay.Bind(TextOverlay.FontProperty, fontBinding);
+        textOverlay.Bind(TextOverlay.RequestEditTextProperty, requestEditTextBinding);
+        textOverlay.Bind(TextOverlay.MatrixProperty, matrixBinding);
+        textOverlay.Bind(TextOverlay.SpacingProperty, spacingBinding);
+        textOverlay.Bind(TextOverlay.CursorPositionProperty, cursorPositionBinding);
+        textOverlay.Bind(TextOverlay.SelectionEndProperty, selectionEndBinding);
     }
 }
 

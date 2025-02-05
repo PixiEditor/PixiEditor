@@ -128,7 +128,7 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
         }
     }
 
-    public override void OnPostUndo()
+    public override void OnPostUndoInlet()
     {
         if (isActivated)
         {
@@ -136,7 +136,7 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
         }
     }
 
-    public override void OnPostRedo()
+    public override void OnPostRedoInlet()
     {
         if (isActivated)
         {

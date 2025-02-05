@@ -59,8 +59,15 @@ internal partial class DocumentViewModel
         Dictionary<Guid, int> nodeIdMap = new();
         Dictionary<Guid, int> keyFrameIdMap = new();
 
+        ResourceStorage storage = new ResourceStorage();
+
         List<SerializationFactory> factories =
             ViewModelMain.Current.Services.GetServices<SerializationFactory>().ToList();
+
+        foreach (var factory in factories)
+        {
+            factory.Storage = storage;
+        }
 
         AddNodes(doc.NodeGraph, graph, nodeIdMap, keyFrameIdMap, serializationConfig, factories);
 
@@ -78,8 +85,13 @@ internal partial class DocumentViewModel
                 (TryRenderWholeImage(0).Value as Surface)?.DrawingSurface.Snapshot().Encode().AsSpan().ToArray(),
             ReferenceLayer = GetReferenceLayer(doc, serializationConfig),
             AnimationData = ToAnimationData(doc.AnimationData, doc.NodeGraph, nodeIdMap, keyFrameIdMap),
-            ImageEncoderUsed = encoder.EncodedFormatName
+            ImageEncoderUsed = encoder.EncodedFormatName,
+            Resources = storage
         };
+        foreach (var factory in factories)
+        {
+            factory.Storage = null;
+        }
 
         return document;
     }
@@ -160,10 +172,10 @@ internal partial class DocumentViewModel
 
             primitive.Fill.Unit = SvgColorUnit.FromRgba(data.FillColor.R, data.FillColor.G,
                 data.FillColor.B, data.Fill ? data.FillColor.A : 0);
-                
+
             primitive.Stroke.Unit = SvgColorUnit.FromRgba(data.StrokeColor.R, data.StrokeColor.G,
                 data.StrokeColor.B, data.StrokeColor.A);
-                
+
             primitive.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(data.StrokeWidth);
         }
 
@@ -231,7 +243,7 @@ internal partial class DocumentViewModel
                 PathFillType.InverseWinding => SvgFillRule.NonZero,
                 PathFillType.InverseEvenOdd => SvgFillRule.EvenOdd,
             };
-            
+
             path.FillRule.Unit = new SvgEnumUnit<SvgFillRule>(fillRule);
             path.StrokeLineJoin.Unit = new SvgEnumUnit<SvgStrokeLineJoin>(ToSvgLineJoin(data.StrokeLineJoin));
             path.StrokeLineCap.Unit = new SvgEnumUnit<SvgStrokeLineCap>((SvgStrokeLineCap)data.StrokeLineCap);
@@ -516,7 +528,7 @@ internal partial class DocumentViewModel
             NodeId = idMap[rasterKeyFrame.NodeId], KeyFrameId = keyFrameIds[rasterKeyFrame.Id],
         });
     }
-    
+
     private static SvgStrokeLineJoin ToSvgLineJoin(StrokeJoin strokeLineJoin)
     {
         return strokeLineJoin switch
