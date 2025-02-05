@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
@@ -26,7 +27,13 @@ internal class SvgDocumentBuilder : IDocumentBuilder
 
         StyleContext styleContext = new(document);
 
-        builder.WithSize((int)document.ViewBox.Unit.Value.Value.Width, (int)document.ViewBox.Unit.Value.Value.Height)
+        VecI size = new((int)document.ViewBox.Unit.Value.Value.Width, (int)document.ViewBox.Unit.Value.Value.Height);
+        if (size.ShortestAxis < 1)
+        {
+            size = new VecI(1024, 1024);
+        }
+
+        builder.WithSize(size)
             .WithGraph(graph =>
             {
                 int? lastId = null;
@@ -74,6 +81,11 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             shapeData = AddRect(rect);
             name = VectorRectangleToolViewModel.NewLayerKey;
         }
+        else if (element is SvgText text)
+        {
+            shapeData = AddText(text);
+            name = TextToolViewModel.NewLayerKey;
+        }
 
         AddCommonShapeData(shapeData, styleContext);
 
@@ -95,15 +107,15 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         return lastId;
     }
 
-    private int? AddGroup(SvgGroup group, NodeGraphBuilder graph, StyleContext style, int? lastId, string connectionName = "Background")
+    private int? AddGroup(SvgGroup group, NodeGraphBuilder graph, StyleContext style, int? lastId,
+        string connectionName = "Background")
     {
         int? childId = null;
         var connectTo = "Background";
-        
         foreach (var child in group.Children)
         {
             StyleContext childStyle = style.WithElement(child);
-            
+
             if (child is SvgPrimitive primitive)
             {
                 childId = AddPrimitive(child, childStyle, graph, childId, connectTo);
@@ -117,18 +129,30 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         NodeGraphBuilder.NodeBuilder nBuilder = graph.WithNodeOfType<FolderNode>(out int id)
             .WithName(group.Id.Unit != null ? group.Id.Unit.Value.Value : new LocalizedString("NEW_FOLDER"));
 
+        int connectionsCount = 0;
+        if (lastId != null) connectionsCount++;
+        if (childId != null) connectionsCount++;
+
+        PropertyConnection[] connections = new PropertyConnection[connectionsCount];
         if (lastId != null)
         {
-            nBuilder.WithConnections([
-                new PropertyConnection()
-                {
-                    InputPropertyName = connectionName, OutputPropertyName = "Output", OutputNodeId = lastId.Value
-                },
-                new PropertyConnection()
-                {
-                    InputPropertyName = "Content", OutputPropertyName = "Output", OutputNodeId = childId.Value
-                }
-            ]);
+            connections[0] = new PropertyConnection()
+            {
+                InputPropertyName = connectionName, OutputPropertyName = "Output", OutputNodeId = lastId.Value
+            };
+        }
+
+        if (childId != null)
+        {
+            connections[^1] = new PropertyConnection()
+            {
+                InputPropertyName = "Content", OutputPropertyName = "Output", OutputNodeId = childId.Value
+            };
+        }
+
+        if (connections.Length > 0)
+        {
+            nBuilder.WithConnections(connections);
         }
 
         lastId = id;
@@ -175,23 +199,33 @@ internal class SvgDocumentBuilder : IDocumentBuilder
                 _ => PathFillType.Winding
             };
         }
-        
+
         StrokeCap strokeLineCap = StrokeCap.Round;
         StrokeJoin strokeLineJoin = StrokeJoin.Round;
-        
-        if(element.StrokeLineCap.Unit != null)
+
+        if (element.StrokeLineCap.Unit != null)
         {
-            strokeLineCap = (StrokeCap)element.StrokeLineCap.Unit.Value.Value;
-            strokeLineJoin = (StrokeJoin)element.StrokeLineJoin.Unit.Value.Value;
+            strokeLineCap = (StrokeCap)(element.StrokeLineCap.Unit?.Value ?? SvgStrokeLineCap.Butt);
+            strokeLineJoin = (StrokeJoin)(element.StrokeLineJoin.Unit?.Value ?? SvgStrokeLineJoin.Miter);
         }
 
-        return new PathVectorData(path) { StrokeLineCap = strokeLineCap, StrokeLineJoin = strokeLineJoin };
+        return new PathVectorData(path) { StrokeLineCap = strokeLineCap, StrokeLineJoin = strokeLineJoin, };
     }
 
     private RectangleVectorData AddRect(SvgRectangle element)
     {
         return new RectangleVectorData(element.X.Unit.Value.Value, element.Y.Unit.Value.Value,
             element.Width.Unit.Value.Value, element.Height.Unit.Value.Value);
+    }
+
+    private TextVectorData AddText(SvgText element)
+    {
+        return new TextVectorData(element.Text.Unit.Value.Value)
+        {
+            Position = new VecD(
+                element.X.Unit?.Value ?? 0,
+                element.Y.Unit?.Value ?? 0)
+        };
     }
 
     private void AddCommonShapeData(ShapeVectorData? shapeData, StyleContext styleContext)
@@ -202,7 +236,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         }
 
         bool hasFill = styleContext.Fill.Unit is { Color.A: > 0 };
-        bool hasStroke = styleContext.Stroke.Unit is { Color.A: > 0 };
+        bool hasStroke = styleContext.Stroke.Unit is { Color.A: > 0 } || styleContext.StrokeWidth.Unit is { Value: > 0 };
         bool hasTransform = styleContext.Transform.Unit is { MatrixValue.IsIdentity: false };
 
         shapeData.Fill = hasFill;
@@ -216,12 +250,9 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         {
             var targetColor = styleContext.Stroke.Unit;
             var targetWidth = styleContext.StrokeWidth.Unit;
-            
-            shapeData.StrokeColor = targetColor.Value.Color;
-            if (targetWidth != null)
-            {
-                shapeData.StrokeWidth = (float)targetWidth.Value.Value;
-            }
+
+            shapeData.StrokeColor = targetColor?.Color ?? Colors.Black;
+            shapeData.StrokeWidth = (float)(targetWidth?.Value ?? 1);
         }
 
         if (hasTransform)

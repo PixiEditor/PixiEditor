@@ -11,7 +11,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
 public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVectorData
 {
-    private float strokeWidth = 1;
+    private float strokeWidth = 0;
 
     public Matrix3X3 TransformationMatrix { get; set; } = Matrix3X3.Identity;
 

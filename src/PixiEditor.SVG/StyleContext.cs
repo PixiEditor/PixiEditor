@@ -20,6 +20,7 @@ public struct StyleContext
         StrokeWidth = new("stroke-width");
         Stroke = new("stroke");
         Fill = new("fill");
+        Fill.Unit = new SvgColorUnit?(new SvgColorUnit("black"));
         Transform = new("transform");
         StrokeLineCap = new("stroke-linecap");
         StrokeLineJoin = new("stroke-linejoin");

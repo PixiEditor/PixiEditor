@@ -77,7 +77,7 @@ public struct SvgNumericUnit(double value, string postFix) : ISvgUnit
         
         for (int i = readerValue.Length - 1; i >= 0; i--)
         {
-            if (!char.IsDigit(readerValue[i]))
+            if (!char.IsDigit(readerValue[i]) && readerValue[i] != '.')
             {
                 postFixStartIndex = i + 1;
                 break;

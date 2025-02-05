@@ -19,7 +19,8 @@ public class SvgParser
         { "g", typeof(SvgGroup) },
         { "mask", typeof(SvgMask) },
         { "image", typeof(SvgImage) },
-        { "svg", typeof(SvgDocument) }
+        { "svg", typeof(SvgDocument) },
+        { "text", typeof(SvgText) }
     };
 
     public string Source { get; set; }
