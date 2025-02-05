@@ -848,5 +848,6 @@
   "TEXT_TOOL_TOOLTIP": "Create text ({0}).",
   "BOLD_TOOLTIP": "Bold",
   "ITALIC_TOOLTIP": "Italic",
-  "CUSTOM_FONT": "Custom font"
+  "CUSTOM_FONT": "Custom font",
+  "DUMP_GPU_DIAGNOSTICS": "Dump GPU diagnostics"
 }

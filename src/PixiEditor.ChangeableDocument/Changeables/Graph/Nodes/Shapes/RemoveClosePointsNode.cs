@@ -26,6 +26,7 @@ public class RemoveClosePointsNode : ShapeNode<PointsVectorData>
         var data = Input.Value;
 
         var distance = MinDistance.Value;
+        var minDistanceSquared = distance * distance;
 
         if (distance == 0 || data == null || data.Points == null)
         {
@@ -34,9 +35,6 @@ public class RemoveClosePointsNode : ShapeNode<PointsVectorData>
 
         var availablePoints = data.Points.Distinct().ToList();
         List<VecD> newPoints = new List<VecD>();
-        
-        var minDistance = MinDistance.Value;
-        var documentSize = context.DocumentSize;
 
         var random = new Random(Seed.Value);
         while (availablePoints.Count > 1)
@@ -55,7 +53,7 @@ public class RemoveClosePointsNode : ShapeNode<PointsVectorData>
             continue;
 
             bool InRange(VecD other) =>
-                (other - point).Length <= minDistance;
+                (other - point).LengthSquared <= minDistanceSquared;
         }
 
         if (availablePoints.Count == 1)
