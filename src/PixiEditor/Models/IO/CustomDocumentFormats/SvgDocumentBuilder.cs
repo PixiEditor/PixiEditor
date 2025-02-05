@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
@@ -167,15 +168,15 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         if (element is SvgCircle circle)
         {
             return new EllipseVectorData(
-                new VecD(circle.Cx.Unit.Value.Value, circle.Cy.Unit.Value.Value),
-                new VecD(circle.R.Unit.Value.Value, circle.R.Unit.Value.Value));
+                new VecD(circle.Cx.Unit?.Value ?? 0, circle.Cy.Unit?.Value ?? 0),
+                new VecD(circle.R.Unit?.Value ?? 0, circle.R.Unit?.Value ?? 0));
         }
 
         if (element is SvgEllipse ellipse)
         {
             return new EllipseVectorData(
-                new VecD(ellipse.Cx.Unit.Value.Value, ellipse.Cy.Unit.Value.Value),
-                new VecD(ellipse.Rx.Unit.Value.Value, ellipse.Ry.Unit.Value.Value));
+                new VecD(ellipse.Cx.Unit?.Value ?? 0, ellipse.Cy.Unit?.Value ?? 0),
+                new VecD(ellipse.Rx.Unit?.Value ?? 0, ellipse.Ry.Unit?.Value ?? 0));
         }
 
         return null;
@@ -184,13 +185,17 @@ internal class SvgDocumentBuilder : IDocumentBuilder
     private LineVectorData AddLine(SvgLine element)
     {
         return new LineVectorData(
-            new VecD(element.X1.Unit.Value.Value, element.Y1.Unit.Value.Value),
-            new VecD(element.X2.Unit.Value.Value, element.Y2.Unit.Value.Value));
+            new VecD(element.X1.Unit?.Value ?? 0, element.Y1.Unit?.Value ?? 0),
+            new VecD(element.X2.Unit?.Value ?? 0, element.Y2.Unit?.Value ?? 0));
     }
 
     private PathVectorData AddPath(SvgPath element)
     {
-        VectorPath path = VectorPath.FromSvgPath(element.PathData.Unit.Value.Value);
+        VectorPath? path = null;
+        if (element.PathData.Unit != null)
+        {
+            path = VectorPath.FromSvgPath(element.PathData.Unit.Value.Value);
+        }
 
         if (element.FillRule.Unit != null)
         {
@@ -216,8 +221,9 @@ internal class SvgDocumentBuilder : IDocumentBuilder
 
     private RectangleVectorData AddRect(SvgRectangle element)
     {
-        return new RectangleVectorData(element.X.Unit.Value.Value, element.Y.Unit.Value.Value,
-            element.Width.Unit.Value.Value, element.Height.Unit.Value.Value);
+        return new RectangleVectorData(
+            element.X.Unit?.Value ?? 0, element.Y.Unit?.Value ?? 0,
+            element.Width.Unit?.Value ?? 0, element.Height.Unit?.Value ?? 0);
     }
 
     private TextVectorData AddText(SvgText element)
@@ -261,6 +267,12 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         {
             var target = styleContext.Transform.Unit;
             shapeData.TransformationMatrix = target.Value.MatrixValue;
+        }
+
+        if (styleContext.ViewboxOrigin != VecD.Zero)
+        {
+            shapeData.TransformationMatrix = shapeData.TransformationMatrix.PostConcat(
+                Matrix3X3.CreateTranslation((float)styleContext.ViewboxOrigin.X, (float)styleContext.ViewboxOrigin.Y));
         }
     }
 }

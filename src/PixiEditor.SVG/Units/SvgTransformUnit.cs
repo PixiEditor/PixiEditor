@@ -60,9 +60,27 @@ public struct SvgTransformUnit : ISvgUnit
             return Matrix3X3.Identity;
         }
 
-        string[] parts = readerValue.Split('(');
-        string transformType = parts[0];
-        string[] values = parts[1].Split(' ', ')').Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+        string[] parts = readerValue.Split(')').Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+
+        Matrix3X3 result = Matrix3X3.Identity;
+        for (int i = 0; i < parts.Length; i++)
+        {
+            string[] part = parts[i].Split('(');
+            if (part.Length != 2)
+            {
+                continue;
+            }
+
+            result = result.Concat(ParsePart(part));
+        }
+
+        return result;
+    }
+
+    private static Matrix3X3 ParsePart(string[] part)
+    {
+        string transformType = part[0].Trim();
+        string[] values = part[1].Split(' ', ')', ',').Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
 
         if (values.Length == 0)
         {
@@ -101,7 +119,7 @@ public struct SvgTransformUnit : ISvgUnit
             {
                 float radians = angle * (float)Math.PI / 180;
 
-                if(values.Length > 2)
+                if (values.Length > 2)
                 {
                     float.TryParse(values[1], NumberStyles.Any, CultureInfo.InvariantCulture, out float centerX);
                     float.TryParse(values[2], NumberStyles.Any, CultureInfo.InvariantCulture, out float centerY);

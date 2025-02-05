@@ -1,4 +1,6 @@
-﻿using PixiEditor.SVG.Enums;
+﻿using Drawie.Backend.Core.Numerics;
+using Drawie.Numerics;
+using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
 
@@ -13,6 +15,7 @@ public struct StyleContext
     public SvgProperty<SvgEnumUnit<SvgStrokeLineCap>> StrokeLineCap { get; }
     public SvgProperty<SvgEnumUnit<SvgStrokeLineJoin>> StrokeLineJoin { get; }
     public SvgProperty<SvgNumericUnit> Opacity { get; }
+    public VecD ViewboxOrigin { get; set; }
 
     public StyleContext()
     {
@@ -35,15 +38,27 @@ public struct StyleContext
         StrokeLineCap = document.StrokeLineCap;
         StrokeLineJoin = document.StrokeLineJoin;
         Opacity = document.Opacity;
+        ViewboxOrigin = new VecD(
+            document.ViewBox.Unit.HasValue ? -document.ViewBox.Unit.Value.Value.X : 0,
+            document.ViewBox.Unit.HasValue ? -document.ViewBox.Unit.Value.Value.Y : 0);
     }
 
     public StyleContext WithElement(SvgElement element)
     {
         StyleContext styleContext = Copy();
 
-        if (element is ITransformable { Transform.Unit: not null } transformableElement)
+        if (element is ITransformable transformableElement)
         {
-            styleContext.Transform.Unit = transformableElement.Transform.Unit;
+            if (styleContext.Transform.Unit == null)
+            {
+                styleContext.Transform.Unit = transformableElement.Transform.Unit;
+            }
+            else
+            {
+                styleContext.Transform.Unit = new SvgTransformUnit(
+                    styleContext.Transform.Unit.Value.MatrixValue.Concat(
+                        transformableElement.Transform.Unit?.MatrixValue ?? Matrix3X3.Identity));
+            }
         }
 
         if (element is IFillable { Fill.Unit: not null } fillableElement)
@@ -119,6 +134,8 @@ public struct StyleContext
         {
             styleContext.Opacity.Unit = Opacity.Unit;
         }
+
+        styleContext.ViewboxOrigin = ViewboxOrigin;
 
         return styleContext;
     }
