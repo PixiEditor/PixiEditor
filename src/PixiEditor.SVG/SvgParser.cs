@@ -1,4 +1,5 @@
-﻿using System.Xml;
+﻿using System.Globalization;
+using System.Xml;
 using System.Xml.Linq;
 using Drawie.Numerics;
 using PixiEditor.SVG.Elements;
@@ -130,16 +131,16 @@ public class SvgParser
             string[] parts = viewBox.Split(' ').Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
             if (parts.Length == 4)
             {
-                finalX = double.Parse(parts[0]);
-                finalY = double.Parse(parts[1]);
-                finalWidth = double.Parse(parts[2]);
-                finalHeight = double.Parse(parts[3]);
+                finalX = double.Parse(parts[0], CultureInfo.InvariantCulture);
+                finalY = double.Parse(parts[1], CultureInfo.InvariantCulture);
+                finalWidth = double.Parse(parts[2], CultureInfo.InvariantCulture);
+                finalHeight = double.Parse(parts[3], CultureInfo.InvariantCulture);
             }
         }
 
         if (x != null)
         {
-            if (double.TryParse(x, out double xValue))
+            if (double.TryParse(x, CultureInfo.InvariantCulture, out double xValue))
             {
                 finalX = xValue;
             }
@@ -147,7 +148,7 @@ public class SvgParser
 
         if (y != null)
         {
-            if (double.TryParse(y, out double yValue))
+            if (double.TryParse(y, CultureInfo.InvariantCulture, out double yValue))
             {
                 finalY = yValue;
             }
@@ -155,7 +156,7 @@ public class SvgParser
 
         if (width != null)
         {
-            if (double.TryParse(width, out double widthValue))
+            if (double.TryParse(width, CultureInfo.InvariantCulture, out double widthValue))
             {
                 finalWidth = widthValue;
             }
@@ -163,7 +164,7 @@ public class SvgParser
 
         if (height != null)
         {
-            if (double.TryParse(height, out double heightValue))
+            if (double.TryParse(height, CultureInfo.InvariantCulture, out double heightValue))
             {
                 finalHeight = heightValue;
             }

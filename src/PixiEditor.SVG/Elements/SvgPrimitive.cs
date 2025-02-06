@@ -9,6 +9,7 @@ public abstract class SvgPrimitive(string tagName) : SvgElement(tagName), ITrans
 {
     public SvgProperty<SvgTransformUnit> Transform { get; } = new("transform");
     public SvgProperty<SvgColorUnit> Fill { get; } = new("fill");
+    public SvgProperty<SvgNumericUnit> FillOpacity { get; } = new("fill-opacity");
     public SvgProperty<SvgColorUnit> Stroke { get; } = new("stroke");
     public SvgProperty<SvgNumericUnit> StrokeWidth { get; } = new("stroke-width");
     
@@ -24,6 +25,7 @@ public abstract class SvgPrimitive(string tagName) : SvgElement(tagName), ITrans
         
         properties.Add(Transform);
         properties.Add(Fill);
+        properties.Add(FillOpacity);
         properties.Add(Stroke);
         properties.Add(StrokeWidth);
         properties.Add(StrokeLineCap);

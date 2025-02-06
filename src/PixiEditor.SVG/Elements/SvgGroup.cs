@@ -10,6 +10,7 @@ public class SvgGroup() : SvgElement("g"), ITransformable, IFillable, IStrokable
     public List<SvgElement> Children { get; } = new();
     public SvgProperty<SvgTransformUnit> Transform { get; } = new("transform");
     public SvgProperty<SvgColorUnit> Fill { get; } = new("fill");
+    public SvgProperty<SvgNumericUnit> FillOpacity { get; } = new("fill-opacity");
     public SvgProperty<SvgColorUnit> Stroke { get; } = new("stroke");
     public SvgProperty<SvgNumericUnit> StrokeWidth { get; } = new("stroke-width");
     public SvgProperty<SvgEnumUnit<SvgStrokeLineCap>> StrokeLineCap { get; } = new("stroke-linecap");

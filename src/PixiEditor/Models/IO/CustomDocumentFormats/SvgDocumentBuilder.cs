@@ -278,7 +278,8 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         if (hasFill)
         {
             var target = styleContext.Fill.Unit;
-            shapeData.FillColor = target.Value.Color;
+            float opacity = (float)(styleContext.FillOpacity.Unit?.Value ?? 1);
+            shapeData.FillColor = target.Value.Color.WithAlpha((byte)(Math.Clamp(opacity, 0, 1) * 255));
         }
 
         if (hasStroke)

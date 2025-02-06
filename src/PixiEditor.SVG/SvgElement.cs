@@ -13,6 +13,7 @@ public class SvgElement(string tagName)
     public Dictionary<string, string> RequiredNamespaces { get; } = new();
     public string TagName { get; } = tagName;
 
+    public SvgProperty<SvgStyleUnit> Style { get; } = new("style");
 
     public XElement ToXml(XNamespace nameSpace)
     {
@@ -64,6 +65,11 @@ public class SvgElement(string tagName)
 
     protected void ParseAttributes(List<SvgProperty> properties, XmlReader reader)
     {
+        if (!properties.Contains(Style))
+        {
+            properties.Insert(0, Style);
+        }
+
         do
         {
             SvgProperty matchingProperty = properties.FirstOrDefault(x =>
@@ -83,31 +89,14 @@ public class SvgElement(string tagName)
         }
         else
         {
-            property.Unit ??= CreateDefaultUnit(property);
+            property.Unit ??= property.CreateDefaultUnit();
             property.Unit.ValuesFromXml(reader.Value);
         }
     }
 
     private void ParseListProperty(SvgList list, XmlReader reader)
     {
-        list.Unit ??= CreateDefaultUnit(list);
+        list.Unit ??= list.CreateDefaultUnit();
         list.Unit.ValuesFromXml(reader.Value);
-    }
-
-    private ISvgUnit CreateDefaultUnit(SvgProperty property)
-    {
-        var genericType = property.GetType().GetGenericArguments();
-        if (genericType.Length == 0)
-        {
-            throw new InvalidOperationException("Property does not have a generic type");
-        }
-
-        ISvgUnit unit = Activator.CreateInstance(genericType[0]) as ISvgUnit;
-        if (unit == null)
-        {
-            throw new InvalidOperationException("Could not create unit");
-        }
-
-        return unit;
     }
 }

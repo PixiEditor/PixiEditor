@@ -35,7 +35,7 @@ public class SvgText() : SvgPrimitive("text")
         string content = string.Empty;
         while (reader.Read())
         {
-            if (reader.NodeType == XmlNodeType.Text)
+            if (reader.NodeType == XmlNodeType.Text || reader.NodeType == XmlNodeType.CDATA)
             {
                 content = reader.Value;
             }
