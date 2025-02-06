@@ -29,6 +29,7 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
 
     public VecD Position { get; set; }
 
+
     public double MaxWidth { get; set; } = double.MaxValue;
 
     public Font Font
@@ -60,6 +61,20 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
 
         lastBounds = richText.MeasureBounds(Font);
     }
+
+    public Font ConstructFont()
+    {
+        Font newFont = Font.FromFontFamily(Font.Family);
+        newFont.Size = Font.Size;
+        newFont.Edging = Font.Edging;
+        newFont.SubPixel = Font.SubPixel;
+        newFont.Bold = Font.Bold;
+        newFont.Italic = Font.Italic;
+
+        return newFont;
+    }
+
+    double IReadOnlyTextData.Spacing => Spacing ?? Font.Size;
 
     public double? Spacing
     {
@@ -103,6 +118,7 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
 
     private RichText richText;
     private RectD lastBounds;
+    private double _spacing;
 
     public TextVectorData()
     {

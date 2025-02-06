@@ -2,6 +2,7 @@
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
@@ -9,10 +10,12 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.Parser.Graph;
 using PixiEditor.SVG;
 using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Enums;
+using PixiEditor.SVG.Exceptions;
 using PixiEditor.ViewModels.Tools.Tools;
 
 namespace PixiEditor.Models.IO.CustomDocumentFormats;
@@ -25,6 +28,11 @@ internal class SvgDocumentBuilder : IDocumentBuilder
     {
         string xml = File.ReadAllText(path);
         SvgDocument document = SvgDocument.Parse(xml);
+
+        if(document == null)
+        {
+            throw new SvgParsingException("Failed to parse SVG document");
+        }
 
         StyleContext styleContext = new(document);
 
@@ -75,7 +83,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         }
         else if (element is SvgPath pathElement)
         {
-            shapeData = AddPath(pathElement);
+            shapeData = AddPath(pathElement, styleContext);
             name = VectorPathToolViewModel.NewLayerKey;
         }
         else if (element is SvgRectangle rect)
@@ -189,7 +197,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             new VecD(element.X2.Unit?.Value ?? 0, element.Y2.Unit?.Value ?? 0));
     }
 
-    private PathVectorData AddPath(SvgPath element)
+    private PathVectorData AddPath(SvgPath element, StyleContext styleContext)
     {
         VectorPath? path = null;
         if (element.PathData.Unit != null)
@@ -207,13 +215,17 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             };
         }
 
-        StrokeCap strokeLineCap = StrokeCap.Round;
-        StrokeJoin strokeLineJoin = StrokeJoin.Round;
+        StrokeCap strokeLineCap = StrokeCap.Butt;
+        StrokeJoin strokeLineJoin = StrokeJoin.Miter;
 
-        if (element.StrokeLineCap.Unit != null)
+        if (styleContext.StrokeLineCap.Unit != null)
         {
-            strokeLineCap = (StrokeCap)(element.StrokeLineCap.Unit?.Value ?? SvgStrokeLineCap.Butt);
-            strokeLineJoin = (StrokeJoin)(element.StrokeLineJoin.Unit?.Value ?? SvgStrokeLineJoin.Miter);
+            strokeLineCap = (StrokeCap)(styleContext.StrokeLineCap.Unit?.Value ?? SvgStrokeLineCap.Butt);
+        }
+
+        if (styleContext.StrokeLineJoin.Unit != null)
+        {
+            strokeLineJoin = (StrokeJoin)(styleContext.StrokeLineJoin.Unit?.Value ?? SvgStrokeLineJoin.Miter);
         }
 
         return new PathVectorData(path) { StrokeLineCap = strokeLineCap, StrokeLineJoin = strokeLineJoin, };
@@ -228,11 +240,26 @@ internal class SvgDocumentBuilder : IDocumentBuilder
 
     private TextVectorData AddText(SvgText element)
     {
+        Font font = element.FontFamily.Unit.HasValue ? Font.FromFamilyName(element.FontFamily.Unit.Value.Value) : Font.CreateDefault();
+        FontFamilyName? missingFont = null;
+        if(font == null)
+        {
+            font = Font.CreateDefault();
+            missingFont = new FontFamilyName(element.FontFamily.Unit.Value.Value);
+        }
+
+        font.Size = element.FontSize.Unit?.Value ?? 12;
+        font.Bold = element.FontWeight.Unit?.Value == SvgFontWeight.Bold;
+        font.Italic = element.FontStyle.Unit?.Value == SvgFontStyle.Italic;
+
         return new TextVectorData(element.Text.Unit.Value.Value)
         {
             Position = new VecD(
                 element.X.Unit?.Value ?? 0,
-                element.Y.Unit?.Value ?? 0)
+                element.Y.Unit?.Value ?? 0),
+            Font = font,
+            MissingFontFamily = missingFont,
+            MissingFontText = "MISSING_FONT"
         };
     }
 

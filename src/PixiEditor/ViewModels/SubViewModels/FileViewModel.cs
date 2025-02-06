@@ -239,15 +239,24 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        DocumentViewModel document = DocumentViewModel.Build(docBuilder => builder.Build(docBuilder, path));
-        AddDocumentViewModelToTheSystem(document);
-
-        if (associatePath)
+        try
         {
-            document.FullFilePath = path;
-        }
+            DocumentViewModel document = DocumentViewModel.Build(docBuilder => builder.Build(docBuilder, path));
+            AddDocumentViewModelToTheSystem(document);
 
-        AddRecentlyOpened(document.FullFilePath);
+            if (associatePath)
+            {
+                document.FullFilePath = path;
+            }
+
+            AddRecentlyOpened(document.FullFilePath);
+        }
+        catch (Exception ex)
+        {
+            NoticeDialog.Show("FAILED_TO_OPEN_FILE", "ERROR");
+            Console.WriteLine(ex);
+            CrashHelper.SendExceptionInfo(ex);
+        }
     }
 
     /// <summary>
