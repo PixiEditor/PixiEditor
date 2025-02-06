@@ -176,15 +176,15 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         if (element is SvgCircle circle)
         {
             return new EllipseVectorData(
-                new VecD(circle.Cx.Unit?.Value ?? 0, circle.Cy.Unit?.Value ?? 0),
-                new VecD(circle.R.Unit?.Value ?? 0, circle.R.Unit?.Value ?? 0));
+                new VecD(circle.Cx.Unit?.PixelsValue ?? 0, circle.Cy.Unit?.PixelsValue ?? 0),
+                new VecD(circle.R.Unit?.PixelsValue ?? 0, circle.R.Unit?.PixelsValue ?? 0));
         }
 
         if (element is SvgEllipse ellipse)
         {
             return new EllipseVectorData(
-                new VecD(ellipse.Cx.Unit?.Value ?? 0, ellipse.Cy.Unit?.Value ?? 0),
-                new VecD(ellipse.Rx.Unit?.Value ?? 0, ellipse.Ry.Unit?.Value ?? 0));
+                new VecD(ellipse.Cx.Unit?.PixelsValue ?? 0, ellipse.Cy.Unit?.PixelsValue ?? 0),
+                new VecD(ellipse.Rx.Unit?.PixelsValue ?? 0, ellipse.Ry.Unit?.PixelsValue ?? 0));
         }
 
         return null;
@@ -193,8 +193,8 @@ internal class SvgDocumentBuilder : IDocumentBuilder
     private LineVectorData AddLine(SvgLine element)
     {
         return new LineVectorData(
-            new VecD(element.X1.Unit?.Value ?? 0, element.Y1.Unit?.Value ?? 0),
-            new VecD(element.X2.Unit?.Value ?? 0, element.Y2.Unit?.Value ?? 0));
+            new VecD(element.X1.Unit?.PixelsValue ?? 0, element.Y1.Unit?.PixelsValue ?? 0),
+            new VecD(element.X2.Unit?.PixelsValue ?? 0, element.Y2.Unit?.PixelsValue ?? 0));
     }
 
     private PathVectorData AddPath(SvgPath element, StyleContext styleContext)
@@ -234,8 +234,8 @@ internal class SvgDocumentBuilder : IDocumentBuilder
     private RectangleVectorData AddRect(SvgRectangle element)
     {
         return new RectangleVectorData(
-            element.X.Unit?.Value ?? 0, element.Y.Unit?.Value ?? 0,
-            element.Width.Unit?.Value ?? 0, element.Height.Unit?.Value ?? 0);
+            element.X.Unit?.PixelsValue ?? 0, element.Y.Unit?.PixelsValue ?? 0,
+            element.Width.Unit?.PixelsValue ?? 0, element.Height.Unit?.PixelsValue ?? 0);
     }
 
     private TextVectorData AddText(SvgText element)
@@ -248,15 +248,15 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             missingFont = new FontFamilyName(element.FontFamily.Unit.Value.Value);
         }
 
-        font.Size = element.FontSize.Unit?.Value ?? 12;
+        font.Size = element.FontSize.Unit?.PixelsValue ?? 12;
         font.Bold = element.FontWeight.Unit?.Value == SvgFontWeight.Bold;
         font.Italic = element.FontStyle.Unit?.Value == SvgFontStyle.Italic;
 
         return new TextVectorData(element.Text.Unit.Value.Value)
         {
             Position = new VecD(
-                element.X.Unit?.Value ?? 0,
-                element.Y.Unit?.Value ?? 0),
+                element.X.Unit?.PixelsValue ?? 0,
+                element.Y.Unit?.PixelsValue ?? 0),
             Font = font,
             MissingFontFamily = missingFont,
             MissingFontText = "MISSING_FONT"
@@ -271,7 +271,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         }
 
         bool hasFill = styleContext.Fill.Unit is { Color.A: > 0 };
-        bool hasStroke = styleContext.Stroke.Unit is { Color.A: > 0 } || styleContext.StrokeWidth.Unit is { Value: > 0 };
+        bool hasStroke = styleContext.Stroke.Unit is { Color.A: > 0 } || styleContext.StrokeWidth.Unit is { PixelsValue: > 0 };
         bool hasTransform = styleContext.Transform.Unit is { MatrixValue.IsIdentity: false };
 
         shapeData.Fill = hasFill;
@@ -287,7 +287,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             var targetWidth = styleContext.StrokeWidth.Unit;
 
             shapeData.StrokeColor = targetColor?.Color ?? Colors.Black;
-            shapeData.StrokeWidth = (float)(targetWidth?.Value ?? 1);
+            shapeData.StrokeWidth = (float)(targetWidth?.PixelsValue ?? 1);
         }
 
         if (hasTransform)

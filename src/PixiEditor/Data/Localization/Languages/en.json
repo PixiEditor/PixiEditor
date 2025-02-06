@@ -282,7 +282,7 @@
   "EDITOR_DATA": "Editor data (Local)",
   "MOVE_VIEWPORT_TOOLTIP": "Moves viewport. ({0})",
   "MOVE_VIEWPORT_ACTION_DISPLAY": "Click and move to pan the viewport",
-  "MOVE_TOOL_TOOLTIP": "Moves selected pixels ({0}). Hold Ctrl to move all layers.",
+  "MOVE_TOOL_TOOLTIP": "Select and transform layers ({0}).",
   "MOVE_TOOL_ACTION_DISPLAY": "Hold mouse to move selected pixels. Hold Ctrl to move all layers.",
   "PEN_TOOL_TOOLTIP": "Pen. ({0})",
   "PEN_TOOL_ACTION_DISPLAY": "Click and move to draw.",

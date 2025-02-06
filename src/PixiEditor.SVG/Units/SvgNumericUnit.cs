@@ -6,32 +6,51 @@ public struct SvgNumericUnit(double value, string postFix) : ISvgUnit
 {
     public string PostFix { get; set; } = postFix;
     public double Value { get; set; } = value;
+    public double? PixelsValue => ConvertTo(SvgNumericUnits.Px);
+
+    public double? ConvertTo(SvgNumericUnits other)
+    {
+        SvgNumericUnits? numericUnit = SvgNumericUnitsExtensions.TryParseUnit(PostFix);
+
+        if (numericUnit == null || !numericUnit.Value.IsSizeUnit() || !numericUnit.Value.IsAbsoluteUnit())
+        {
+            return null;
+        }
+
+        double? pixelsValue = SvgNumericConverter.ToPixels(Value, numericUnit.Value);
+        if (pixelsValue == null)
+        {
+            return null;
+        }
+
+        return SvgNumericConverter.FromPixels(pixelsValue.Value, other);
+    }
 
     public static SvgNumericUnit FromUserUnits(double value)
     {
         return new SvgNumericUnit(value, string.Empty);
     }
-    
+
     public static SvgNumericUnit FromPixels(double value)
     {
         return new SvgNumericUnit(value, "px");
     }
-    
+
     public static SvgNumericUnit FromInches(double value)
     {
         return new SvgNumericUnit(value, "in");
     }
-    
+
     public static SvgNumericUnit FromCentimeters(double value)
     {
         return new SvgNumericUnit(value, "cm");
     }
-    
+
     public static SvgNumericUnit FromMillimeters(double value)
     {
         return new SvgNumericUnit(value, "mm");
     }
-    
+
     public static SvgNumericUnit FromPercent(double value)
     {
         return new SvgNumericUnit(value, "%");
@@ -46,7 +65,7 @@ public struct SvgNumericUnit(double value, string postFix) : ISvgUnit
     public void ValuesFromXml(string readerValue)
     {
         string? extractedPostFix = ExtractPostFix(readerValue);
-        
+
         if (extractedPostFix == null)
         {
             if (double.TryParse(readerValue, NumberStyles.Any, CultureInfo.InvariantCulture, out double result))
@@ -65,7 +84,7 @@ public struct SvgNumericUnit(double value, string postFix) : ISvgUnit
             }
         }
     }
-    
+
     private string? ExtractPostFix(string readerValue)
     {
         if (readerValue.Length == 0)
@@ -74,21 +93,22 @@ public struct SvgNumericUnit(double value, string postFix) : ISvgUnit
         }
 
         int postFixStartIndex = readerValue.Length;
-        
+
+        if (char.IsDigit(readerValue[^1]))
+        {
+            return null;
+        }
+
         for (int i = readerValue.Length - 1; i >= 0; i--)
         {
-            if (!char.IsDigit(readerValue[i]) && readerValue[i] != '.' && readerValue[i] != '-')
+            if (char.IsDigit(readerValue[i]))
             {
                 postFixStartIndex = i + 1;
                 break;
             }
         }
-        
-        if (postFixStartIndex == readerValue.Length)
-        {
-            return null;
-        }
-        
+
+
         return readerValue.Substring(postFixStartIndex);
     }
 }
