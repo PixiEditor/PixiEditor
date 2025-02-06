@@ -65,6 +65,11 @@ public class SvgElement(string tagName)
 
     protected void ParseAttributes(List<SvgProperty> properties, XmlReader reader)
     {
+        if (!properties.Contains(Id))
+        {
+            properties.Insert(0, Id);
+        }
+
         if (!properties.Contains(Style))
         {
             properties.Insert(0, Style);

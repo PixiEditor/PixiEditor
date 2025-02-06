@@ -97,6 +97,8 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             name = TextToolViewModel.NewLayerKey;
         }
 
+        name = element.Id.Unit?.Value ?? name;
+
         AddCommonShapeData(shapeData, styleContext);
 
         NodeGraphBuilder.NodeBuilder nBuilder = graph.WithNodeOfType<VectorLayerNode>(out int id)
