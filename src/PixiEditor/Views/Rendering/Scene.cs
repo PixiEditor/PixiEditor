@@ -502,6 +502,32 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         Focus();
     }
 
+    protected override void OnGotFocus(GotFocusEventArgs e)
+    {
+        base.OnGotFocus(e);
+        if (AllOverlays != null)
+        {
+            foreach (Overlay overlay in AllOverlays)
+            {
+                if (!overlay.IsVisible) continue;
+                overlay.FocusChanged(true);
+            }
+        }
+    }
+
+    protected override void OnLostFocus(RoutedEventArgs e)
+    {
+        base.OnLostFocus(e);
+        if (AllOverlays != null)
+        {
+            foreach (Overlay overlay in AllOverlays)
+            {
+                if (!overlay.IsVisible) continue;
+                overlay.FocusChanged(false);
+            }
+        }
+    }
+
     private VecD ToCanvasSpace(Point scenePosition)
     {
         Matrix transform = CalculateTransformMatrix();

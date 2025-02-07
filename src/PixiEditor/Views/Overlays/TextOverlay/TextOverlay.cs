@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
@@ -213,6 +214,19 @@ internal class TextOverlay : Overlay
 
         context.RestoreToCount(saved);
         Refresh();
+    }
+
+    protected override void OnOverlayLostFocus()
+    {
+        ShortcutController.UnblockShortcutExecution(nameof(TextOverlay));
+    }
+
+    protected override void OnOverlayGotFocus()
+    {
+        if (IsEditing)
+        {
+            ShortcutController.BlockShortcutExecution(nameof(TextOverlay));
+        }
     }
 
     private void RenderCaret(Canvas context)

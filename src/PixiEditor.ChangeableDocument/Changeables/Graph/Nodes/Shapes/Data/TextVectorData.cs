@@ -14,6 +14,7 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
     private Font font = Font.CreateDefault();
     private double? spacing = null;
     private double strokeWidth = 1;
+    private VectorPath? path;
 
     public string Text
     {
@@ -112,7 +113,18 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
         new ShapeCorners(GeometryAABB).WithMatrix(TransformationMatrix);
 
     public override RectD VisualAABB => GeometryAABB;
-    public VectorPath? Path { get; set; }
+
+    public VectorPath? Path
+    {
+        get => path;
+        set
+        {
+            path = value;
+            // TODO: properly calculate bounds
+            //lastBounds = richText.MeasureBounds(Font);
+        }
+    }
+
     public FontFamilyName? MissingFontFamily { get; set; }
     public string MissingFontText { get; set; }
 

@@ -854,5 +854,6 @@
   "USE_SRGB_PROCESSING_DESC": "Convert document using linear sRGB to sRGB for processing colors. This will affect the colors of the document.",
   "TEXT_NODE": "Text",
   "TEXT_LABEL": "Text",
-  "ON_PATH_DATA": "On path"
+  "TEXT_ON_PATH_NODE": "Text on Path",
+  "HIGH_DPI_RENDERING": "High DPI Rendering"
 }

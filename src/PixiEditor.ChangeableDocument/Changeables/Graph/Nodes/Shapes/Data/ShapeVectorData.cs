@@ -29,6 +29,7 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
     }
     
     public bool Fill { get; set; } = true;
+
     public abstract RectD GeometryAABB { get; }
     public abstract RectD VisualAABB { get; }
     public RectD TransformedAABB => new ShapeCorners(GeometryAABB).WithMatrix(TransformationMatrix).AABBBounds;

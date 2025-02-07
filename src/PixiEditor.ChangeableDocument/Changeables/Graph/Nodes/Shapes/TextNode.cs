@@ -13,8 +13,7 @@ public class TextNode : ShapeNode<TextVectorData>
     public InputProperty<VecD> TextPosition { get; }
     public InputProperty<FontFamilyName> FontFamily { get; }
     public InputProperty<double> FontSize { get; }
-    public InputProperty<ShapeVectorData> OnPathData { get; }
-    
+
     private string lastText = "";
     private VecD lastPosition = new VecD();
     private FontFamilyName lastFontFamily = new FontFamilyName();
@@ -28,7 +27,6 @@ public class TextNode : ShapeNode<TextVectorData>
         TextPosition = CreateInput("Position", "POSITION", new VecD());
         FontFamily = CreateInput("FontFamily", "FONT_LABEL", new FontFamilyName());
         FontSize = CreateInput("FontSize", "FONT_SIZE_LABEL", 12d);
-        OnPathData = CreateInput<ShapeVectorData>("PathToDrawOn", "ON_PATH_DATA", null);
     }
     
     protected override TextVectorData? GetShapeData(RenderContext context)
@@ -37,9 +35,8 @@ public class TextNode : ShapeNode<TextVectorData>
         VecD position = TextPosition.Value;
         FontFamilyName fontFamily = FontFamily.Value;
         double fontSize = FontSize.Value;
-        VectorPath? path = OnPathData.Value?.ToPath();
-        
-        if (text == lastText && position == lastPosition && fontFamily.Equals(lastFontFamily) && fontSize == lastFontSize && path == lastPath)
+
+        if (text == lastText && position == lastPosition && fontFamily.Equals(lastFontFamily) && fontSize == lastFontSize)
         {
             return cachedData;
         }
@@ -48,7 +45,6 @@ public class TextNode : ShapeNode<TextVectorData>
         lastPosition = position;
         lastFontFamily = fontFamily;
         lastFontSize = fontSize;
-        lastPath = path;
 
         Font font = Font.FromFontFamily(fontFamily);
         if(font == null)
@@ -63,7 +59,6 @@ public class TextNode : ShapeNode<TextVectorData>
             Text = text,
             Position = position,
             Font = font,
-            Path = path,
         };
         
         return cachedData;
