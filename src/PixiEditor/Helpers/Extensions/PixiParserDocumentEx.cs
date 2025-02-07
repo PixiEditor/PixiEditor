@@ -32,7 +32,7 @@ internal static class PixiParserDocumentEx
         return DocumentViewModel.Build(b => b
             .WithPixiParserVersion(document.Version)
             .WithSerializerData(document.SerializerName, document.SerializerVersion)
-            .WithLegacyColorBlending(document.LegacyColorBlending)
+            .WithSrgbColorBlending(document.SrgbColorBlending)
             .WithSize(document.Width, document.Height)
             .WithImageEncoder(document.ImageEncoderUsed)
             .WithPalette(document.Palette, color => new PaletteColor(color.R, color.G, color.B))

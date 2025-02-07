@@ -7,5 +7,5 @@ using PixiEditor.ViewModels.Nodes.Properties;
 
 namespace PixiEditor.ViewModels.Document.Nodes.CombineSeparate;
 
-[NodeViewModel("COMBINE_COLOR_NODE", "COLOR", "\ue908")]
+[NodeViewModel("COMBINE_COLOR_NODE", "COLOR", "\uE808")]
 internal class CombineColorNodeViewModel() : CombineSeparateColorNodeViewModel<CombineColorNode>(true);

@@ -16,23 +16,8 @@ namespace PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
 internal class FontFamilySettingViewModel : Setting<FontFamilyName>
 {
+    private ObservableCollection<FontFamilyName> allFonts;
     private int selectedIndex;
-
-
-    private ObservableCollection<FontFamilyName> _fonts;
-
-    public ObservableCollection<FontFamilyName> Fonts
-    {
-        get
-        {
-            return _fonts;
-        }
-        set
-        {
-            SetProperty(ref _fonts, value);
-        }
-    }
-
 
     public int FontIndex
     {
@@ -43,42 +28,27 @@ internal class FontFamilySettingViewModel : Setting<FontFamilyName>
         set
         {
             SetProperty(ref selectedIndex, value);
-            Value = Fonts[value];
+
+            if (Fonts?.Count > 0)
+            {
+                Value = Fonts[value];
+            }
+            else
+            {
+                Value = FontLibrary.DefaultFontFamily;
+            }
         }
     }
 
-    public AsyncRelayCommand UploadFontCommand { get; }
+    public ObservableCollection<FontFamilyName> Fonts
+    {
+        get => allFonts;
+        set => SetProperty(ref allFonts, value);
+    }
+
 
     public FontFamilySettingViewModel(string name, string displayName) : base(name)
     {
         Label = displayName;
-        Fonts = new ObservableCollection<FontFamilyName>(FontLibrary.AllFonts);
-        FontLibrary.FontAdded += (font) => Fonts.Add(font); 
-        UploadFontCommand = new AsyncRelayCommand(UploadFont);
-    }
-
-    private async Task UploadFont()
-    {
-        FilePickerFileType[] filter =
-        [
-            new FilePickerFileType(new LocalizedString("FONT_FILES")) { Patterns = new List<string> { "*.ttf", "*.otf" } },
-            new FilePickerFileType("TrueType Font") { Patterns = new List<string> { "*.ttf" } },
-            new FilePickerFileType("OpenType Font") { Patterns = new List<string> { "*.otf" } },
-        ];
-        
-        if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        {
-            var dialog = await desktop.MainWindow.StorageProvider.OpenFilePickerAsync(
-                new FilePickerOpenOptions { FileTypeFilter = filter });
-
-            if (dialog.Count == 0)
-                return;
-
-            var fontPath = dialog[0];
-            FontFamilyName familyName = new FontFamilyName(fontPath.Path, Path.GetFileNameWithoutExtension(fontPath.Name));
-            FontLibrary.TryAddCustomFont(familyName);
-            
-            FontIndex = Fonts.IndexOf(familyName);
-        }
     }
 }

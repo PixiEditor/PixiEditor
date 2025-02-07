@@ -3,8 +3,10 @@ using Avalonia.Threading;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Text;
+using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers.InputDevice;
@@ -28,6 +30,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     private Matrix3X3 lastMatrix = Matrix3X3.Identity;
     private Font? cachedFont;
     private bool isListeningForValidLayer;
+    private VectorPath? onPath;
 
     public override bool BlocksOtherActions => false;
 
@@ -72,6 +75,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             toolbar.Bold = textData.Font.Bold;
             toolbar.Italic = textData.Font.Italic;
 
+            onPath = textData.Path;
             lastText = textData.Text;
             position = textData.Position;
             lastMatrix = textData.TransformationMatrix;
@@ -82,6 +86,11 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
                 Matrix3X3.Identity, toolbar.Spacing);
             lastText = "";
             position = controller.LastPrecisePosition;
+            // TODO: Implement proper putting on path editing
+            /*if (controller.LeftMousePressed)
+            {
+                TryPutOnPath(controller.LastPrecisePosition);
+            }*/
         }
         else
         {
@@ -93,11 +102,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
-        var allLayers = document.StructureHelper.GetAllLayers();
-        var topMostWithinClick = allLayers.Where(x =>
-                x is IVectorLayerHandler { IsVisibleBindable: true, TightBounds: not null } &&
-                x.TightBounds.Value.ContainsInclusive(args.PositionOnCanvas))
-            .OrderByDescending(x => allLayers.IndexOf(x));
+        var topMostWithinClick = QueryLayers<IVectorLayerHandler>(args.PositionOnCanvas);
 
         var firstLayer = topMostWithinClick.FirstOrDefault();
         args.Handled = firstLayer != null;
@@ -108,15 +113,16 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
                 args.Handled = true;
                 document.TextOverlayHandler.Hide();
             }
+
             return;
         }
 
         document.Operations.SetSelectedMember(layerHandler.Id);
         document.Operations.InvokeCustomAction(
             () =>
-        {
-            document.TextOverlayHandler.SetCursorPosition(args.PositionOnCanvas);
-        }, false);
+            {
+                document.TextOverlayHandler.SetCursorPosition(args.PositionOnCanvas);
+            }, false);
     }
 
     public void OnQuickToolSwitch()
@@ -192,6 +198,35 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         toolbar.FillColor = color.ToColor();
     }
 
+    private void TryPutOnPath(VecD pos)
+    {
+        var topMostWithinClick = QueryLayers<IVectorLayerHandler>(pos);
+        var firstValidLayer = topMostWithinClick.FirstOrDefault(x =>
+            x.GetShapeData(document.AnimationHandler.ActiveFrameTime) is not null and not TextVectorData);
+
+        if (firstValidLayer is null)
+        {
+            return;
+        }
+
+        var shape = firstValidLayer.GetShapeData(document.AnimationHandler.ActiveFrameTime);
+
+        ShapeVectorData newShape = (ShapeVectorData)(shape as ShapeVectorData).Clone();
+
+        newShape.Fill = false;
+        newShape.StrokeWidth = 0;
+
+        onPath = newShape.ToPath();
+
+        var constructedText = ConstructTextData(lastText);
+        internals.ActionAccumulator.AddFinishedActions(
+            new SetShapeGeometry_Action(selectedMember.Id, constructedText),
+            new EndSetShapeGeometry_Action(),
+            new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering),
+            new SetShapeGeometry_Action(firstValidLayer.Id, newShape),
+            new EndSetShapeGeometry_Action());
+    }
+
     private TextVectorData ConstructTextData(string text)
     {
         if (cachedFont == null || cachedFont.Family.Name != toolbar.FontFamily.Name)
@@ -220,6 +255,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             Font = cachedFont,
             Spacing = toolbar.Spacing,
             AntiAlias = toolbar.AntiAliasing,
+            Path = onPath,
             // TODO: MaxWidth = toolbar.MaxWidth
             // TODO: Path
         };

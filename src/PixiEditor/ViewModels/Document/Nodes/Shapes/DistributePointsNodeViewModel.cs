@@ -3,5 +3,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.Shapes;
 
-[NodeViewModel("DISTRIBUTE_POINTS", "SHAPE", "\ue90a")]
+[NodeViewModel("DISTRIBUTE_POINTS", "SHAPE", "\uE80A")]
 internal class DistributePointsNodeViewModel : NodeViewModel<DistributePointsNode>;

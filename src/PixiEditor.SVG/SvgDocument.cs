@@ -7,27 +7,28 @@ using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG;
 
-public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFillable, IStrokable
+public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFillable, IStrokable, IOpacity
 {
     public string RootNamespace { get; set; } = "http://www.w3.org/2000/svg";
     public string Version { get; set; } = "1.1";
-    
+
     public SvgProperty<SvgRectUnit> ViewBox { get; } = new("viewBox");
     public SvgProperty<SvgColorUnit> Fill { get; } = new("fill");
     public SvgProperty<SvgColorUnit> Stroke { get; } = new("stroke");
     public SvgProperty<SvgNumericUnit> StrokeWidth { get; } = new("stroke-width");
-    
+
     public SvgProperty<SvgEnumUnit<SvgStrokeLineCap>> StrokeLineCap { get; } = new("stroke-linecap");
-    
+
     public SvgProperty<SvgEnumUnit<SvgStrokeLineJoin>> StrokeLineJoin { get; } = new("stroke-linejoin");
     public SvgProperty<SvgTransformUnit> Transform { get; } = new("transform");
+    public SvgProperty<SvgNumericUnit> Opacity { get; } = new("opacity");
+    public SvgProperty<SvgNumericUnit> FillOpacity { get; } = new("fill-opacity");
     public List<SvgElement> Children { get; } = new();
 
     public SvgDocument() : base("svg")
     {
-        
     }
-    
+
     public SvgDocument(RectD viewBox) : base("svg")
     {
         ViewBox.Unit = new SvgRectUnit(viewBox);
@@ -38,14 +39,16 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
         List<SvgProperty> properties = new()
         {
             Fill,
+            FillOpacity,
             Stroke,
             StrokeWidth,
             Transform,
             ViewBox,
             StrokeLineCap,
-            StrokeLineJoin
+            StrokeLineJoin,
+            Opacity
         };
-        
+
         ParseAttributes(properties, reader);
     }
 
@@ -102,11 +105,11 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
 
     private void AppendProperties(XElement? root)
     {
-        if(ViewBox.Unit != null)
+        if (ViewBox.Unit != null)
         {
             root.Add(new XAttribute("viewBox", ViewBox.Unit.Value.ToXml()));
         }
-        
+
         if (Fill.Unit != null)
         {
             root.Add(new XAttribute("fill", Fill.Unit.Value.ToXml()));
@@ -121,17 +124,17 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
         {
             root.Add(new XAttribute("stroke-width", StrokeWidth.Unit.Value.ToXml()));
         }
-        
+
         if (Transform.Unit != null)
         {
             root.Add(new XAttribute("transform", Transform.Unit.Value.ToXml()));
         }
-        
+
         if (StrokeLineCap.Unit != null)
         {
             root.Add(new XAttribute("stroke-linecap", StrokeLineCap.Unit.Value.ToXml()));
         }
-        
+
         if (StrokeLineJoin.Unit != null)
         {
             root.Add(new XAttribute("stroke-linejoin", StrokeLineJoin.Unit.Value.ToXml()));

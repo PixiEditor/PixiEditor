@@ -62,6 +62,12 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
         {
             fillSetting.Value = false;
         }
+
+        var strokeSetting = Toolbar.GetSetting(nameof(ShapeToolbar.ToolSize));
+        if (strokeSetting != null)
+        {
+            strokeSetting.Value = 1d;
+        }
         
         actionDisplayDefault = new LocalizedString("PATH_TOOL_ACTION_DISPLAY");
         actionDisplayCtrl = new LocalizedString("PATH_TOOL_ACTION_DISPLAY_CTRL");

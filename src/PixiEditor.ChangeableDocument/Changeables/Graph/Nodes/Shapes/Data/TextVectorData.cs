@@ -14,6 +14,7 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
     private Font font = Font.CreateDefault();
     private double? spacing = null;
     private double strokeWidth = 1;
+    private VectorPath? path;
 
     public string Text
     {
@@ -28,6 +29,7 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
     }
 
     public VecD Position { get; set; }
+
 
     public double MaxWidth { get; set; } = double.MaxValue;
 
@@ -60,6 +62,20 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
 
         lastBounds = richText.MeasureBounds(Font);
     }
+
+    public Font ConstructFont()
+    {
+        Font newFont = Font.FromFontFamily(Font.Family);
+        newFont.Size = Font.Size;
+        newFont.Edging = Font.Edging;
+        newFont.SubPixel = Font.SubPixel;
+        newFont.Bold = Font.Bold;
+        newFont.Italic = Font.Italic;
+
+        return newFont;
+    }
+
+    double IReadOnlyTextData.Spacing => Spacing ?? Font.Size;
 
     public double? Spacing
     {
@@ -97,12 +113,24 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
         new ShapeCorners(GeometryAABB).WithMatrix(TransformationMatrix);
 
     public override RectD VisualAABB => GeometryAABB;
-    public VectorPath? Path { get; set; }
+
+    public VectorPath? Path
+    {
+        get => path;
+        set
+        {
+            path = value;
+            // TODO: properly calculate bounds
+            //lastBounds = richText.MeasureBounds(Font);
+        }
+    }
+
     public FontFamilyName? MissingFontFamily { get; set; }
     public string MissingFontText { get; set; }
 
     private RichText richText;
     private RectD lastBounds;
+    private double _spacing;
 
     public TextVectorData()
     {

@@ -123,6 +123,18 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         PointerMovedOverlay?.Invoke(args);
     }
 
+    public void FocusChanged(bool focused)
+    {
+        if (focused)
+        {
+            OnOverlayGotFocus();
+        }
+        else
+        {
+            OnOverlayLostFocus();
+        }
+    }
+
     public void PressPointer(OverlayPointerArgs args)
     {
         InvokeHandleEvent(HandleEventType.PointerPressedOverlay, args);
@@ -303,6 +315,14 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     }
 
     protected virtual void OnOverlayPointerEntered(OverlayPointerArgs args)
+    {
+    }
+
+    protected virtual void OnOverlayLostFocus()
+    {
+    }
+
+    protected virtual void OnOverlayGotFocus()
     {
     }
 

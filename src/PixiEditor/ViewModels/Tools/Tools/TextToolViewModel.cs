@@ -13,6 +13,7 @@ namespace PixiEditor.ViewModels.Tools.Tools;
 [Command.Tool(Key = Key.T)]
 internal class TextToolViewModel : ToolViewModel, ITextToolHandler
 {
+    public const string NewLayerKey = "TEXT_LAYER_NAME";
     public override string ToolNameLocalizationKey => "TEXT_TOOL";
     public override Type[]? SupportedLayerTypes => [];
     public override Type LayerTypeToCreateOnEmptyUse => typeof(VectorLayerNode);
@@ -23,7 +24,7 @@ internal class TextToolViewModel : ToolViewModel, ITextToolHandler
     public override bool IsErasable => false;
     public override bool StopsLinkedToolOnUse => false;
 
-    public string? DefaultNewLayerName { get; } = new LocalizedString("TEXT_LAYER_NAME");
+    public string? DefaultNewLayerName { get; } = new LocalizedString(NewLayerKey);
 
     [Settings.Inherited]
     public double FontSize

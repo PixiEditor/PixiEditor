@@ -4,5 +4,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("LERP_NODE", "NUMBERS", "\ue90b")]
+[NodeViewModel("LERP_NODE", "NUMBERS", "\uE80B")]
 internal class LerpColorNodeViewModel : NodeViewModel<LerpColorNode>;

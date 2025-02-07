@@ -9,7 +9,7 @@ using PixiEditor.ViewModels.Nodes.Properties;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("MATH_NODE", "NUMBERS", "\ue90e")]
+[NodeViewModel("MATH_NODE", "NUMBERS", "\uE80E")]
 internal class MathNodeViewModel : NodeViewModel<MathNode>
 {
     private GenericEnumPropertyViewModel Mode { get; set; }

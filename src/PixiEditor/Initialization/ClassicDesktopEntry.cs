@@ -86,7 +86,7 @@ internal class ClassicDesktopEntry
             return;
         }
 
-#if !STEAM
+#if !STEAM && !DEBUG
         if (!HandleNewInstance(dispatcher))
         {
             return;

@@ -11,7 +11,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 public class PathVectorData : ShapeVectorData, IReadOnlyPathData
 {
     public VectorPath Path { get; set; }
-    public override RectD GeometryAABB => Path.TightBounds;
+    public override RectD GeometryAABB => Path?.TightBounds ?? RectD.Empty;
     public override RectD VisualAABB => GeometryAABB.Inflate(StrokeWidth / 2);
 
     public override ShapeCorners TransformationCorners =>
@@ -24,6 +24,10 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
     public PathVectorData(VectorPath path)
     {
         Path = path;
+        if (path == null)
+        {
+            Path = new VectorPath();
+        }
     }
 
     public override void RasterizeGeometry(Canvas canvas)
@@ -38,6 +42,11 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
 
     private void Rasterize(Canvas canvas, bool applyTransform)
     {
+        if(Path == null)
+        {
+            return;
+        }
+
         int num = 0;
         if (applyTransform)
         {

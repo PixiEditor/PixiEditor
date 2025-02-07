@@ -33,7 +33,7 @@ internal class DocumentViewModelBuilder
 
     public NodeGraphBuilder Graph { get; set; }
     public string ImageEncoderUsed { get; set; } = "QOI";
-    public bool UsesLegacyColorBlending { get; set; } = false;
+    public bool UsesSrgbColorBlending { get; set; } = false;
     public Version? PixiParserVersionUsed { get; set; }
     public ResourceStorage DocumentResources { get; set; }
 
@@ -127,9 +127,9 @@ internal class DocumentViewModelBuilder
         return this;
     }
 
-    public DocumentViewModelBuilder WithLegacyColorBlending(bool usesLegacyColorBlending)
+    public DocumentViewModelBuilder? WithSrgbColorBlending(bool usesLegacyColorBlending)
     {
-        UsesLegacyColorBlending = usesLegacyColorBlending;
+        UsesSrgbColorBlending = usesLegacyColorBlending;
         return this;
     }
 

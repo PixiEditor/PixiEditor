@@ -3,7 +3,7 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.Shapes;
 
-[NodeViewModel("TEXT_NODE", "SHAPE", "\uE999")]
-internal class TextNodeViewModel : NodeViewModel<TextNode>
+[NodeViewModel("TEXT_ON_PATH_NODE", "SHAPE", "\uE998")]
+internal class TextOnPathNodeViewModel : NodeViewModel<TextOnPathNode>
 {
 }

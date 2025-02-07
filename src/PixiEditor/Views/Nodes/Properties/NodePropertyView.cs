@@ -57,6 +57,19 @@ public abstract class NodePropertyView : UserControl
         
         return point ?? default;
     }
+
+    protected void HideSocket(bool hideInputSocket, bool hideOutputSocket)
+    {
+        if (hideInputSocket)
+        {
+            InputSocket.IsVisible = false;
+        }
+
+        if (hideOutputSocket)
+        {
+            OutputSocket.IsVisible = false;
+        }
+    }
 }
 
 public abstract class NodePropertyView<T> : NodePropertyView

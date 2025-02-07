@@ -224,7 +224,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     ILineOverlayHandler IDocument.LineToolOverlayHandler => LineToolOverlayViewModel;
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
     IAnimationHandler IDocument.AnimationHandler => AnimationDataViewModel;
-    public bool UsesLegacyBlending { get; private set; }
+    public bool UsesSrgbBlending { get; private set; }
 
     private DocumentViewModel()
     {
@@ -318,12 +318,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         var acc = viewModel.Internals.ActionAccumulator;
 
         ColorSpace targetProcessingColorSpace = ColorSpace.CreateSrgbLinear();
-        if (builderInstance.UsesLegacyColorBlending ||
-            IsFileWithOldColorBlending(serializerData, builderInstance.PixiParserVersionUsed))
+        if (builderInstance.UsesSrgbColorBlending ||
+            IsFileWithSrgbColorBlending(serializerData, builderInstance.PixiParserVersionUsed))
         {
             targetProcessingColorSpace = ColorSpace.CreateSrgb();
             viewModel.Internals.Tracker.Document.InitProcessingColorSpace(ColorSpace.CreateSrgb());
-            viewModel.UsesLegacyBlending = true;
+            viewModel.UsesSrgbBlending = true;
         }
 
         viewModel.Internals.ChangeController.SymmetryDraggedInlet(
@@ -486,7 +486,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             }
         }
 
-        bool IsFileWithOldColorBlending((string serializerName, string serializerVersion) serializerData,
+        bool IsFileWithSrgbColorBlending((string serializerName, string serializerVersion) serializerData,
             Version? pixiParserVersionUsed)
         {
             if (pixiParserVersionUsed != null && pixiParserVersionUsed.Major < 5)
@@ -813,7 +813,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public void SetProcessingColorSpace(ColorSpace infoColorSpace)
     {
-        UsesLegacyBlending = infoColorSpace.IsSrgb;
+        UsesSrgbBlending = infoColorSpace.IsSrgb;
     }
 
     public void SetSize(VecI size)
