@@ -9,7 +9,7 @@ using PixiEditor.ViewModels.Tools.Tools;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("VECTOR_LAYER", "STRUCTURE", "\ue916")]
+[NodeViewModel("VECTOR_LAYER", "STRUCTURE", "\uE816")]
 internal class VectorLayerNodeViewModel : StructureMemberViewModel<VectorLayerNode>, IVectorLayerHandler
 {
     private Dictionary<Type, Type> quickToolsMap = new Dictionary<Type, Type>()
