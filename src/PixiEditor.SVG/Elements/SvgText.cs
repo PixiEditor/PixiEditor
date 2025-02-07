@@ -33,6 +33,7 @@ public class SvgText() : SvgPrimitive("text")
     private string ParseContent(XmlReader reader)
     {
         string content = string.Empty;
+        if (reader.NodeType == XmlNodeType.None) return content;
         while (reader.Read())
         {
             if (reader.NodeType == XmlNodeType.Text || reader.NodeType == XmlNodeType.CDATA)
