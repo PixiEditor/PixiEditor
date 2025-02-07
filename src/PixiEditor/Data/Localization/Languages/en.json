@@ -851,5 +851,8 @@
   "CUSTOM_FONT": "Custom font",
   "DUMP_GPU_DIAGNOSTICS": "Dump GPU diagnostics",
   "USE_SRGB_PROCESSING": "Use sRGB for processing colors",
-  "USE_SRGB_PROCESSING_DESC": "Convert document using linear sRGB to sRGB for processing colors. This will affect the colors of the document."
+  "USE_SRGB_PROCESSING_DESC": "Convert document using linear sRGB to sRGB for processing colors. This will affect the colors of the document.",
+  "TEXT_NODE": "Text",
+  "TEXT_LABEL": "Text",
+  "ON_PATH_DATA": "On path"
 }

@@ -11,23 +11,23 @@ public class TextNode : ShapeNode<TextVectorData>
 {
     public InputProperty<string> Text { get; }
     public InputProperty<VecD> TextPosition { get; }
-    public InputProperty<string> FontFamily { get; }
+    public InputProperty<FontFamilyName> FontFamily { get; }
     public InputProperty<double> FontSize { get; }
     public InputProperty<ShapeVectorData> OnPathData { get; }
     
     private string lastText = "";
     private VecD lastPosition = new VecD();
-    private string lastFontFamily = "";
+    private FontFamilyName lastFontFamily = new FontFamilyName();
     private double lastFontSize = 12d;
     private VectorPath? lastPath;
 
     private TextVectorData? cachedData;
     public TextNode()
     {
-        Text = CreateInput("Text", "TEXT", "");
+        Text = CreateInput("Text", "TEXT_LABEL", "");
         TextPosition = CreateInput("Position", "POSITION", new VecD());
-        FontFamily = CreateInput("FontFamily", "FONT_FAMILY", "");
-        FontSize = CreateInput("FontSize", "FONT_SIZE", 12d);
+        FontFamily = CreateInput("FontFamily", "FONT_LABEL", new FontFamilyName());
+        FontSize = CreateInput("FontSize", "FONT_SIZE_LABEL", 12d);
         OnPathData = CreateInput<ShapeVectorData>("PathToDrawOn", "ON_PATH_DATA", null);
     }
     
@@ -35,11 +35,11 @@ public class TextNode : ShapeNode<TextVectorData>
     {
         string text = Text.Value;
         VecD position = TextPosition.Value;
-        string fontFamily = FontFamily.Value;
+        FontFamilyName fontFamily = FontFamily.Value;
         double fontSize = FontSize.Value;
         VectorPath? path = OnPathData.Value?.ToPath();
         
-        if (text == lastText && position == lastPosition && fontFamily == lastFontFamily && fontSize == lastFontSize && path == lastPath)
+        if (text == lastText && position == lastPosition && fontFamily.Equals(lastFontFamily) && fontSize == lastFontSize && path == lastPath)
         {
             return cachedData;
         }
@@ -50,7 +50,7 @@ public class TextNode : ShapeNode<TextVectorData>
         lastFontSize = fontSize;
         lastPath = path;
 
-        Font font = Font.FromFamilyName(fontFamily);
+        Font font = Font.FromFontFamily(fontFamily);
         if(font == null)
         {
             font = Font.CreateDefault();
@@ -72,10 +72,5 @@ public class TextNode : ShapeNode<TextVectorData>
     public override Node CreateCopy()
     {
         return new TextNode();
-    }
-
-    public override void Dispose()
-    {
-        base.Dispose();
     }
 }

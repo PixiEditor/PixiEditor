@@ -9,15 +9,17 @@
                              xmlns:system="clr-namespace:System;assembly=System.Runtime"
                              xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-                             x:DataType="properties1:StringPropertyViewModel"
-                             x:Class="PixiEditor.Views.Nodes.Properties.StringPropertyView">
+                             x:DataType="properties1:FontFamilyNamePropertyViewModel"
+                             x:Class="PixiEditor.Views.Nodes.Properties.FontFamilyNamePropertyView">
     <DockPanel LastChildFill="True"
         HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
         <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
-        <TextBox AcceptsReturn="True" Text="{CompiledBinding StringValue, Mode=TwoWay}" IsVisible="{Binding ShowInputField}">
+        <properties:FontFamilyPicker Margin="5 0"
+           SelectedFontFamily="{Binding Value, Mode=TwoWay}"
+                          IsVisible="{Binding ShowInputField}">
             <Interaction.Behaviors>
                 <behaviours:GlobalShortcutFocusBehavior />
             </Interaction.Behaviors>
-        </TextBox>
+        </properties:FontFamilyPicker>
     </DockPanel>
 </properties:NodePropertyView>
