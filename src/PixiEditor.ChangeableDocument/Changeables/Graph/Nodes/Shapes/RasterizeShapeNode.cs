@@ -12,11 +12,12 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes;
 public class RasterizeShapeNode : RenderNode
 {
     public InputProperty<ShapeVectorData> Data { get; }
-
+    public InputProperty<bool> HighDpiRendering { get; }
 
     public RasterizeShapeNode()
     {
         Data = CreateInput<ShapeVectorData>("Points", "SHAPE", null);
+        HighDpiRendering = CreateInput<bool>("High DPI Rendering", "HIGH_DPI_RENDERING", true);
     }
 
     protected override void OnPaint(RenderContext context, DrawingSurface surface)
@@ -25,11 +26,14 @@ public class RasterizeShapeNode : RenderNode
 
         if (shape == null || !shape.IsValid())
             return;
-        
+
+        AllowHighDpiRendering = HighDpiRendering.Value;
+
         shape.RasterizeTransformed(surface.Canvas);
     }
 
     public override Node CreateCopy() => new RasterizeShapeNode();
+
     public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
     {
         return Data?.Value?.TransformedAABB;

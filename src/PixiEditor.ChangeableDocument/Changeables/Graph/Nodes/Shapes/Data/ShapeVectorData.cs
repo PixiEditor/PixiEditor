@@ -11,18 +11,31 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
 public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVectorData
 {
-    public Matrix3X3 TransformationMatrix { get; set; } = Matrix3X3.Identity; 
-    
+    private float strokeWidth = 0;
+
+    public Matrix3X3 TransformationMatrix { get; set; } = Matrix3X3.Identity;
+
     public Color StrokeColor { get; set; } = Colors.White;
     public Color FillColor { get; set; } = Colors.White;
-    public float StrokeWidth { get; set; } = 1;
+
+    public float StrokeWidth
+    {
+        get => strokeWidth;
+        set
+        {
+            strokeWidth = value;
+            OnStrokeWidthChanged();
+        }
+    }
+    
     public bool Fill { get; set; } = true;
-    public abstract RectD GeometryAABB { get; } 
+
+    public abstract RectD GeometryAABB { get; }
     public abstract RectD VisualAABB { get; }
     public RectD TransformedAABB => new ShapeCorners(GeometryAABB).WithMatrix(TransformationMatrix).AABBBounds;
     public RectD TransformedVisualAABB => new ShapeCorners(VisualAABB).WithMatrix(TransformationMatrix).AABBBounds;
-    public abstract ShapeCorners TransformationCorners { get; } 
-    
+    public abstract ShapeCorners TransformationCorners { get; }
+
     protected void ApplyTransformTo(Canvas canvas)
     {
         Matrix3X3 canvasMatrix = canvas.TotalMatrix;
@@ -46,6 +59,8 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
     }
 
     protected virtual void AdjustCopy(ShapeVectorData copy) { }
+    
+    protected virtual void OnStrokeWidthChanged() { }
 
     public override int GetHashCode()
     {

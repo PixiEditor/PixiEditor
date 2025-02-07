@@ -6,4 +6,5 @@ namespace PixiEditor.SVG.Features;
 public interface IFillable
 {
     public SvgProperty<SvgColorUnit> Fill { get; }
+    public SvgProperty<SvgNumericUnit> FillOpacity { get; }
 }

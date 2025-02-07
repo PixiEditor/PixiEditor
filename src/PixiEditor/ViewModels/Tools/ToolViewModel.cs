@@ -185,12 +185,17 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     {
     }
 
-    public virtual void OnPostUndo() { }
-    public virtual void OnPostRedo() { }
+    public virtual void OnPostUndoInlet() { }
+    public virtual void OnPostRedoInlet() { }
     public virtual void OnActiveFrameChanged(int newFrame) { }
     public virtual void OnPreUndoInlet() { }
 
     public virtual void OnPreRedoInlet() { }
+    public virtual void QuickToolSwitchInlet()
+    {
+
+    }
+
     public void SetToolSetSettings(IToolSetHandler toolset, Dictionary<string, object>? settings)
     {
         if (settings == null || settings.Count == 0 || toolset == null)

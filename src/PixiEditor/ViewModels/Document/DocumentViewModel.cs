@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
@@ -49,6 +50,8 @@ using PixiEditor.Models.Serialization.Factories;
 using PixiEditor.Models.Structures;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.Models.IO;
+using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
 using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Document.TransformOverlays;
@@ -69,6 +72,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public event Action ToolSessionFinished;
 
     private bool busy = false;
+
 
     public bool Busy
     {
@@ -208,17 +212,19 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public ReferenceLayerViewModel ReferenceLayerViewModel { get; }
     public LineToolOverlayViewModel LineToolOverlayViewModel { get; }
     public AnimationDataViewModel AnimationDataViewModel { get; }
+    public TextOverlayViewModel TextOverlayViewModel { get; }
 
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers => softSelectedStructureMembers;
     private DocumentInternalParts Internals { get; }
     INodeGraphHandler IDocument.NodeGraphHandler => NodeGraph;
     IDocumentOperations IDocument.Operations => Operations;
     ITransformHandler IDocument.TransformHandler => TransformViewModel;
+    ITextOverlayHandler IDocument.TextOverlayHandler => TextOverlayViewModel;
     IPathOverlayHandler IDocument.PathOverlayHandler => PathOverlayViewModel;
     ILineOverlayHandler IDocument.LineToolOverlayHandler => LineToolOverlayViewModel;
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
     IAnimationHandler IDocument.AnimationHandler => AnimationDataViewModel;
-    public bool UsesLegacyBlending { get; private set; }
+    public bool UsesSrgbBlending { get; private set; }
 
     private DocumentViewModel()
     {
@@ -249,6 +255,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         LineToolOverlayViewModel = new();
         LineToolOverlayViewModel.LineMoved += (_, args) =>
             Internals.ChangeController.LineOverlayMovedInlet(args.Item1, args.Item2);
+
+        TextOverlayViewModel = new TextOverlayViewModel();
+        TextOverlayViewModel.TextChanged += text =>
+        {
+            Internals.ChangeController.TextOverlayTextChangedInlet(text);
+        };
 
         SnappingViewModel = new();
         SnappingViewModel.AddFromDocumentSize(SizeBindable);
@@ -294,18 +306,24 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         Dictionary<int, Guid> mappedNodeIds = new();
         Dictionary<int, Guid> mappedKeyFrameIds = new();
 
+        ResourceStorageLocator? resourceLocator = null;
+        if (builderInstance.DocumentResources != null)
+        {
+            resourceLocator = ExtractResources(builderInstance.DocumentResources);
+        }
+
         var viewModel = new DocumentViewModel();
         viewModel.Operations.ResizeCanvas(new VecI(builderInstance.Width, builderInstance.Height), ResizeAnchor.Center);
 
         var acc = viewModel.Internals.ActionAccumulator;
 
         ColorSpace targetProcessingColorSpace = ColorSpace.CreateSrgbLinear();
-        if (builderInstance.UsesLegacyColorBlending ||
-            IsFileWithOldColorBlending(serializerData, builderInstance.PixiParserVersionUsed))
+        if (builderInstance.UsesSrgbColorBlending ||
+            IsFileWithSrgbColorBlending(serializerData, builderInstance.PixiParserVersionUsed))
         {
             targetProcessingColorSpace = ColorSpace.CreateSrgb();
             viewModel.Internals.Tracker.Document.InitProcessingColorSpace(ColorSpace.CreateSrgb());
-            viewModel.UsesLegacyBlending = true;
+            viewModel.UsesSrgbBlending = true;
         }
 
         viewModel.Internals.ChangeController.SymmetryDraggedInlet(
@@ -335,6 +353,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         List<SerializationFactory> allFactories =
             ViewModelMain.Current.Services.GetServices<SerializationFactory>().ToList();
 
+        foreach (var factory in allFactories)
+        {
+            factory.ResourceLocator = resourceLocator;
+        }
+
         AddNodes(builderInstance.Graph);
 
         if (builderInstance.Graph.AllNodes.Count == 0 || !builderInstance.Graph.AllNodes.Any(x => x is OutputNode))
@@ -350,6 +373,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             viewModel.MarkAsSaved();
         }));
+
+        foreach (var factory in allFactories)
+        {
+            factory.ResourceLocator = null;
+        }
 
         return viewModel;
 
@@ -458,7 +486,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             }
         }
 
-        bool IsFileWithOldColorBlending((string serializerName, string serializerVersion) serializerData,
+        bool IsFileWithSrgbColorBlending((string serializerName, string serializerVersion) serializerData,
             Version? pixiParserVersionUsed)
         {
             if (pixiParserVersionUsed != null && pixiParserVersionUsed.Major < 5)
@@ -482,6 +510,28 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 return false;
             }
+        }
+
+        ResourceStorageLocator ExtractResources(ResourceStorage? resources)
+        {
+            if (resources is null)
+                return null;
+
+            string resourcesPath = Paths.TempResourcesPath;
+            if (!Directory.Exists(resourcesPath))
+                Directory.CreateDirectory(resourcesPath);
+
+            Dictionary<int, string> mapping = new();
+
+            foreach (var resource in resources.Resources)
+            {
+                string formattedGuid = resource.CacheId.ToString("N");
+                string filePath = Path.Combine(resourcesPath, $"{formattedGuid}{Path.GetExtension(resource.FileName)}");
+                File.WriteAllBytes(filePath, resource.Data);
+                mapping.Add(resource.Handle, filePath);
+            }
+
+            return new ResourceStorageLocator(mapping, resourcesPath);
         }
     }
 
@@ -763,7 +813,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public void SetProcessingColorSpace(ColorSpace infoColorSpace)
     {
-        UsesLegacyBlending = infoColorSpace.IsSrgb;
+        UsesSrgbBlending = infoColorSpace.IsSrgb;
     }
 
     public void SetSize(VecI size)
@@ -816,7 +866,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         List<Guid> layerGuids = new List<Guid>();
         if (SelectedStructureMember is not null)
             layerGuids.Add(SelectedStructureMember.Id);
-        
+
         foreach (var member in softSelectedStructureMembers)
         {
             if (member.Id != SelectedStructureMember?.Id)
@@ -840,9 +890,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         var allLayers = StructureHelper.GetAllMembers();
         foreach (var member in allLayers)
         {
-            if(!selectedMembers.Contains(member.Id))
+            if (!selectedMembers.Contains(member.Id))
                 continue;
-            
+
             if (member is ILayerHandler)
             {
                 result.Add(member.Id);

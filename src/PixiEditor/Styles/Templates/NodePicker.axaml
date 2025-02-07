@@ -55,7 +55,7 @@
                                                             HorizontalContentAlignment="Left"
                                                             IsVisible="{Binding !Hidden}">
                                                             <TextBlock Margin="10 0 0 0">
-                                                                <Run Classes="node-icon"
+                                                                <Run Classes="pixi-icon"
                                                                      BaselineAlignment="Center"
                                                                      Text="{Binding Icon}" />
                                                                 <Run ui:Translator.Key="{Binding FinalPickerName}" />
