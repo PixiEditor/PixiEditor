@@ -200,6 +200,7 @@
                 <MenuItem ui:Translator.Key="MERGE_WITH_BELOW" Command="{xaml:Command PixiEditor.Layer.MergeWithBelow}" />
                 <Separator />
                 <MenuItem ui:Translator.Key="RASTERIZE" Command="{xaml:Command PixiEditor.Layer.Rasterize}" />
+                <MenuItem ui:Translator.Key="CONVERT_TO_CURVE" Command="{xaml:Command PixiEditor.Layer.ConvertToCurve}" />
             </ContextMenu>
         </Border.ContextMenu>
     </Border>

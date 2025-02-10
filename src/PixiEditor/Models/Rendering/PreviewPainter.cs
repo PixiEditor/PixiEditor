@@ -89,7 +89,7 @@ public class PreviewPainter
     {
         painterInstances.Remove(requestId);
         dirtyTextures.Remove(requestId);
-        
+
         if (repaintingTextures.Contains(requestId))
         {
             pendingRemovals.Add(requestId);
@@ -126,12 +126,17 @@ public class PreviewPainter
                 continue;
             }
 
+            if (!painterInstances.TryGetValue(texture, out var painterInstance))
+            {
+                repaintingTextures.Remove(texture);
+                dirtyTextures.Remove(texture);
+                continue;
+            }
+
             repaintingTextures.Add(texture);
 
             renderTexture.DrawingSurface.Canvas.Clear();
             renderTexture.DrawingSurface.Canvas.Save();
-
-            PainterInstance painterInstance = painterInstances[texture];
 
             Matrix3X3? matrix = painterInstance.RequestMatrix?.Invoke();
 
@@ -146,9 +151,16 @@ public class PreviewPainter
                 {
                     Dispatcher.UIThread.Invoke(() =>
                     {
-                        if(pendingRemovals.Contains(texture))
+                        if (pendingRemovals.Contains(texture))
                         {
-                            renderTexture.Dispose();
+                            if (!renderTexture.IsDisposed)
+                            {
+                                try
+                                {
+                                    renderTexture.Dispose();
+                                } catch (Exception) { }
+                            }
+
                             renderTextures.Remove(texture);
                             pendingRemovals.Remove(texture);
                             pendingResizes.Remove(texture);
@@ -156,9 +168,19 @@ public class PreviewPainter
                             return;
                         }
                         
-                        if (renderTexture != null && !renderTexture.IsDisposed)
+                        if (renderTexture is { IsDisposed: false })
                         {
-                            renderTexture.DrawingSurface.Canvas.Restore();
+                            try
+                            {
+                                renderTexture.DrawingSurface.Canvas.Restore();
+                            }
+                            catch (Exception)
+                            {
+                                repaintingTextures.Remove(texture);
+                                dirtyTextures.Remove(texture);
+                                pendingResizes.Remove(texture);
+                                return;
+                            }
                         }
 
                         painterInstance.RequestRepaint?.Invoke();

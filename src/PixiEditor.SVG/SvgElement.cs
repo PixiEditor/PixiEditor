@@ -13,6 +13,7 @@ public class SvgElement(string tagName)
     public Dictionary<string, string> RequiredNamespaces { get; } = new();
     public string TagName { get; } = tagName;
 
+    public SvgProperty<SvgStyleUnit> Style { get; } = new("style");
 
     public XElement ToXml(XNamespace nameSpace)
     {
@@ -25,14 +26,21 @@ public class SvgElement(string tagName)
                 SvgProperty prop = (SvgProperty)property.GetValue(this);
                 if (prop?.Unit != null)
                 {
-                    if (!string.IsNullOrEmpty(prop.NamespaceName))
+                    if (string.IsNullOrEmpty(prop.SvgName))
                     {
-                        XName name = XNamespace.Get(RequiredNamespaces[prop.NamespaceName]) + prop.SvgName;
-                        element.Add(new XAttribute(name, prop.Unit.ToXml()));
+                        element.Value = prop.Unit.ToXml();
                     }
                     else
                     {
-                        element.Add(new XAttribute(prop.SvgName, prop.Unit.ToXml()));
+                        if (!string.IsNullOrEmpty(prop.NamespaceName))
+                        {
+                            XName name = XNamespace.Get(RequiredNamespaces[prop.NamespaceName]) + prop.SvgName;
+                            element.Add(new XAttribute(name, prop.Unit.ToXml()));
+                        }
+                        else
+                        {
+                            element.Add(new XAttribute(prop.SvgName, prop.Unit.ToXml()));
+                        }
                     }
                 }
             }
@@ -57,6 +65,16 @@ public class SvgElement(string tagName)
 
     protected void ParseAttributes(List<SvgProperty> properties, XmlReader reader)
     {
+        if (!properties.Contains(Id))
+        {
+            properties.Insert(0, Id);
+        }
+
+        if (!properties.Contains(Style))
+        {
+            properties.Insert(0, Style);
+        }
+
         do
         {
             SvgProperty matchingProperty = properties.FirstOrDefault(x =>
@@ -76,31 +94,14 @@ public class SvgElement(string tagName)
         }
         else
         {
-            property.Unit ??= CreateDefaultUnit(property);
+            property.Unit ??= property.CreateDefaultUnit();
             property.Unit.ValuesFromXml(reader.Value);
         }
     }
 
     private void ParseListProperty(SvgList list, XmlReader reader)
     {
-        list.Unit ??= CreateDefaultUnit(list);
+        list.Unit ??= list.CreateDefaultUnit();
         list.Unit.ValuesFromXml(reader.Value);
-    }
-
-    private ISvgUnit CreateDefaultUnit(SvgProperty property)
-    {
-        var genericType = property.GetType().GetGenericArguments();
-        if (genericType.Length == 0)
-        {
-            throw new InvalidOperationException("Property does not have a generic type");
-        }
-
-        ISvgUnit unit = Activator.CreateInstance(genericType[0]) as ISvgUnit;
-        if (unit == null)
-        {
-            throw new InvalidOperationException("Could not create unit");
-        }
-
-        return unit;
     }
 }

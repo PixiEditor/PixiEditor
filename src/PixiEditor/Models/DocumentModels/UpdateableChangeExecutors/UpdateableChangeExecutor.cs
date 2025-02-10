@@ -62,4 +62,14 @@ internal abstract class UpdateableChangeExecutor
     public virtual void OnSettingsChanged(string name, object value) { }
     public virtual void OnColorChanged(Color color, bool primary) { }
     public virtual void OnMembersSelected(List<Guid> memberGuids) { }
+
+    protected T[] QueryLayers<T>(VecD pos) where T : ILayerHandler
+    {
+        var allLayers = document.StructureHelper.GetAllLayers();
+        var topMostWithinClick = allLayers.Where(x =>
+                x is T { IsVisibleBindable: true, TightBounds: not null } &&
+                x.TightBounds.Value.ContainsInclusive(pos))
+            .OrderByDescending(x => allLayers.IndexOf(x));
+        return topMostWithinClick.Cast<T>().ToArray();
+    }
 }

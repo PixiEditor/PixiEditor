@@ -1,5 +1,6 @@
 ﻿using Avalonia.Media;
 using PixiEditor.Models.Handlers.Toolbars;
+using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
@@ -59,7 +60,9 @@ internal class ShapeToolbar : Toolbar, IShapeToolbar
             IsExposed = false, Value = false
         });
         AddSetting(
-            new BoolSettingViewModel(nameof(SyncWithPrimaryColor), "SYNC_WITH_PRIMARY_COLOR_LABEL") { Value = true });
+            new BoolSettingViewModel(nameof(SyncWithPrimaryColor))
+                { Value = true, Icon = PixiPerfectIcons.LinkedPipette,
+                    Tooltip = "SYNC_WITH_PRIMARY_COLOR_LABEL"});
         AddSetting(new ColorSettingViewModel(nameof(StrokeColor), "STROKE_COLOR_LABEL"));
     }
 }

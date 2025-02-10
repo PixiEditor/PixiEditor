@@ -3,5 +3,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.Shapes;
 
-[NodeViewModel("REMOVE_CLOSE_POINTS", "SHAPE", "\ue914")]
+[NodeViewModel("REMOVE_CLOSE_POINTS", "SHAPE", "\uE814")]
 internal class RemoveClosePointsNodeViewModel : NodeViewModel<RemoveClosePointsNode>;

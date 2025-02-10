@@ -89,7 +89,7 @@ internal class DocumentOperationsModule : IDocumentOperations
         bool drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
         if (drawOnMask && !member.HasMaskBindable)
             return;
-        Internals.ActionAccumulator.AddActions(new ClearSelectedArea_Action(member.Id, drawOnMask, frame));
+        Internals.ActionAccumulator.AddActions(new ClearSelectedArea_Action(member.Id, Internals.Tracker.Document.Selection.SelectionPath, drawOnMask, frame));
         if (clearSelection)
             Internals.ActionAccumulator.AddActions(new ClearSelection_Action());
         Internals.ActionAccumulator.AddFinishedActions();
@@ -210,13 +210,13 @@ internal class DocumentOperationsModule : IDocumentOperations
         bool isFolder = Document.StructureHelper.Find(guidValue) is IFolderHandler;
         if (!isFolder)
         {
-            Internals.ActionAccumulator.AddFinishedActions(new DuplicateLayer_Action(guidValue));
+            Internals.ActionAccumulator.AddFinishedActions(new DuplicateLayer_Action(guidValue, Guid.NewGuid()));
         }
         else
         {
             Guid newGuid = Guid.NewGuid();
             Internals.ActionAccumulator.AddFinishedActions(
-                new DuplicateFolder_Action(guidValue, newGuid),
+                new DuplicateFolder_Action(guidValue, newGuid, null),
                 new SetSelectedMember_PassthroughAction(newGuid));
         }
     }
@@ -881,7 +881,8 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ChangeController.TryStopActiveExecutor();
 
-        Internals.ActionAccumulator.AddFinishedActions(new KeyFrameLength_Action(celId, startFrame, duration), new EndKeyFrameLength_Action());
+        Internals.ActionAccumulator.AddFinishedActions(new KeyFrameLength_Action(celId, startFrame, duration),
+            new EndKeyFrameLength_Action());
     }
 
     public void DeleteNodes(Guid[] nodes)
@@ -890,7 +891,7 @@ internal class DocumentOperationsModule : IDocumentOperations
             return;
 
         Internals.ChangeController.TryStopActiveExecutor();
-        
+
         List<IAction> actions = new();
 
         for (var i = 0; i < nodes.Length; i++)
@@ -899,10 +900,20 @@ internal class DocumentOperationsModule : IDocumentOperations
             if (Document.StructureHelper.TryFindNode(node, out INodeHandler nodeHandler) &&
                 nodeHandler.InternalName == OutputNode.UniqueName)
                 return;
-            
+
             actions.Add(new DeleteNode_Action(node));
         }
 
         Internals.ActionAccumulator.AddFinishedActions(actions.ToArray());
+    }
+
+    public void ConvertToCurve(Guid memberId)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new ConvertToCurve_Action(memberId));
     }
 }

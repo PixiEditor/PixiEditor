@@ -43,7 +43,7 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
 
-    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
     {
         DrawFromCenter = ctrlIsDown;
 
@@ -72,7 +72,7 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
         document.Tools.UseVectorLineTool();
     }
 
-    public override void OnPostUndo()
+    public override void OnPostUndoInlet()
     {
         if (IsActive)
         {
@@ -80,7 +80,7 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
         }
     }
 
-    public override void OnPostRedo()
+    public override void OnPostRedoInlet()
     {
         if (IsActive)
         {

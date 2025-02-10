@@ -1,6 +1,7 @@
 ﻿using Drawie.Backend.Core;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using Drawie.Numerics;
+using PixiEditor.Models.IO;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Graph;
 using PixiEditor.Parser.Skia;
@@ -31,14 +32,15 @@ internal static class PixiParserDocumentEx
         return DocumentViewModel.Build(b => b
             .WithPixiParserVersion(document.Version)
             .WithSerializerData(document.SerializerName, document.SerializerVersion)
-            .WithLegacyColorBlending(document.LegacyColorBlending)
+            .WithSrgbColorBlending(document.SrgbColorBlending)
             .WithSize(document.Width, document.Height)
             .WithImageEncoder(document.ImageEncoderUsed)
             .WithPalette(document.Palette, color => new PaletteColor(color.R, color.G, color.B))
             .WithSwatches(document.Swatches, x => new(x.R, x.G, x.B))
             .WithReferenceLayer(document.ReferenceLayer, BuildReferenceLayer, encoder)
             .WithGraph(document.Graph, BuildGraph)
-            .WithAnimationData(document.AnimationData, document.Graph));
+            .WithAnimationData(document.AnimationData, document.Graph)
+            .WithResources(document.Resources));
     }
 
     private static void BuildGraph(NodeGraph graph, NodeGraphBuilder graphBuilder)

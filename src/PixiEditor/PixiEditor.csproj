@@ -139,6 +139,10 @@
       <DependentUpon>PercentSettingView.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\Tools\ToolSettings\Settings\FontFamilySettingView.axaml.cs">
+      <DependentUpon>FontFamilySettingView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

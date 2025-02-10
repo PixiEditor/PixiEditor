@@ -21,7 +21,6 @@ internal class DocumentToolsModule
 
     public void UseOpacitySlider() => Internals.ChangeController.TryStartExecutor<StructureMemberOpacityExecutor>();
 
-    public void UseShiftLayerTool() => Internals.ChangeController.TryStartExecutor<ShiftLayerExecutor>();
 
     public void UsePenTool() => Internals.ChangeController.TryStartExecutor<PenToolExecutor>();
 
@@ -80,4 +79,10 @@ internal class DocumentToolsModule
     public void UseLassoTool() => Internals.ChangeController.TryStartExecutor<LassoToolExecutor>();
 
     public void UseMagicWandTool() => Internals.ChangeController.TryStartExecutor<MagicWandToolExecutor>();
+
+    public void UseTextTool()
+    {
+        bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
+        Internals.ChangeController.TryStartExecutor<VectorTextToolExecutor>(force);
+    }
 }

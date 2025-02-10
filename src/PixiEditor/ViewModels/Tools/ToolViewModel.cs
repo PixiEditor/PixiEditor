@@ -153,7 +153,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
         ActionDisplay = new LocalizedString(ActionDisplay.Key);
     }
 
-    public virtual void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown) { }
+    public virtual void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey) { }
 
     public virtual void UseTool(VecD pos) { }
 
@@ -185,9 +185,16 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     {
     }
 
-    public virtual void OnPostUndo() { }
-    public virtual void OnPostRedo() { }
+    public virtual void OnPostUndoInlet() { }
+    public virtual void OnPostRedoInlet() { }
     public virtual void OnActiveFrameChanged(int newFrame) { }
+    public virtual void OnPreUndoInlet() { }
+
+    public virtual void OnPreRedoInlet() { }
+    public virtual void QuickToolSwitchInlet()
+    {
+
+    }
 
     public void SetToolSetSettings(IToolSetHandler toolset, Dictionary<string, object>? settings)
     {
@@ -298,6 +305,23 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
             throw;
         }
     }
+
+    protected void SetValue<T>(T value, [CallerMemberName] string name = null)
+    {
+        var setting = Toolbar.GetSetting(name);
+        if(setting is null)
+        {
+            throw new InvalidOperationException($"Setting {name} not found in toolbar {Toolbar.GetType().Name}");
+        }
+
+        if (setting.GetSettingType() != typeof(T))
+        {
+            throw new InvalidCastException($"Setting {name} is not of type {typeof(T).Name}");
+        }
+        
+        setting.Value = value;
+    }
+    
 
     private bool IsExposeSetting(KeyValuePair<string, object> settingConfig, out bool expose)
     {

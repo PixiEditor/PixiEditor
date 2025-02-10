@@ -14,7 +14,7 @@
     <DockPanel LastChildFill="True"
         HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
         <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
-        <TextBox Text="{CompiledBinding StringValue, Mode=TwoWay}" IsVisible="{Binding ShowInputField}">
+        <TextBox AcceptsReturn="True" Text="{CompiledBinding StringValue, Mode=TwoWay}" IsVisible="{Binding ShowInputField}">
             <Interaction.Behaviors>
                 <behaviours:GlobalShortcutFocusBehavior />
             </Interaction.Behaviors>

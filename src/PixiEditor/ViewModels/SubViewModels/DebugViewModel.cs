@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
+using Drawie.Backend.Core.Bridge;
+using Drawie.Backend.Core.Debug;
+using Drawie.Interop.Avalonia.Core;
+using DrawiEngine;
 using Newtonsoft.Json;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
@@ -26,7 +30,8 @@ using PixiEditor.Views.Dialogs.Debugging.Localization;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 
-[Command.Group("PixiEditor.Debug", "DEBUG", IsVisibleMenuProperty = $"{nameof(ViewModelMain.DebugSubViewModel)}.{nameof(UseDebug)}")]
+[Command.Group("PixiEditor.Debug", "DEBUG",
+    IsVisibleMenuProperty = $"{nameof(ViewModelMain.DebugSubViewModel)}.{nameof(UseDebug)}")]
 internal class DebugViewModel : SubViewModel<ViewModelMain>
 {
     public static bool IsDebugBuild { get; set; }
@@ -57,7 +62,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     }
 
     private bool forceOtherFlowDirection;
-    
+
     public bool ForceOtherFlowDirection
     {
         get => forceOtherFlowDirection;
@@ -89,19 +94,25 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
 
         IOperatingSystem.Current.OpenFolder(path);
     }
-    
 
-    [Command.Debug("PixiEditor.Debug.IO.OpenLocalAppDataDirectory", @"PixiEditor", "OPEN_LOCAL_APPDATA_DIR", "OPEN_LOCAL_APPDATA_DIR",
-        MenuItemPath = "DEBUG/OPEN_LOCAL_APPDATA_DIR", MenuItemOrder = 5, Icon = PixiPerfectIcons.Folder, AnalyticsTrack = true)]
-    [Command.Debug("PixiEditor.Debug.IO.OpenCrashReportsDirectory", @"PixiEditor\crash_logs", "OPEN_CRASH_REPORTS_DIR", "OPEN_CRASH_REPORTS_DIR",
-        MenuItemPath = "DEBUG/OPEN_CRASH_REPORTS_DIR", MenuItemOrder = 6, Icon = PixiPerfectIcons.Folder, AnalyticsTrack = true)]
+
+    [Command.Debug("PixiEditor.Debug.IO.OpenLocalAppDataDirectory", @"PixiEditor", "OPEN_LOCAL_APPDATA_DIR",
+        "OPEN_LOCAL_APPDATA_DIR",
+        MenuItemPath = "DEBUG/OPEN_LOCAL_APPDATA_DIR", MenuItemOrder = 5, Icon = PixiPerfectIcons.Folder,
+        AnalyticsTrack = true)]
+    [Command.Debug("PixiEditor.Debug.IO.OpenCrashReportsDirectory", @"PixiEditor\crash_logs", "OPEN_CRASH_REPORTS_DIR",
+        "OPEN_CRASH_REPORTS_DIR",
+        MenuItemPath = "DEBUG/OPEN_CRASH_REPORTS_DIR", MenuItemOrder = 6, Icon = PixiPerfectIcons.Folder,
+        AnalyticsTrack = true)]
     public static void OpenLocalAppDataFolder(string subDirectory)
     {
-        var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), subDirectory);
+        var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            subDirectory);
         OpenFolder(path);
     }
 
-    [Command.Debug("PixiEditor.Debug.IO.OpenRoamingAppDataDirectory", @"PixiEditor", "OPEN_ROAMING_APPDATA_DIR", "OPEN_ROAMING_APPDATA_DIR", Icon = PixiPerfectIcons.Folder,
+    [Command.Debug("PixiEditor.Debug.IO.OpenRoamingAppDataDirectory", @"PixiEditor", "OPEN_ROAMING_APPDATA_DIR",
+        "OPEN_ROAMING_APPDATA_DIR", Icon = PixiPerfectIcons.Folder,
         MenuItemPath = "DEBUG/OPEN_ROAMING_APPDATA_DIR", MenuItemOrder = 7)]
     public static void OpenAppDataFolder(string subDirectory)
     {
@@ -109,7 +120,8 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         OpenFolder(path);
     }
 
-    [Command.Debug("PixiEditor.Debug.IO.OpenTempDirectory", @"PixiEditor", "OPEN_TEMP_DIR", "OPEN_TEMP_DIR", Icon = PixiPerfectIcons.Folder,
+    [Command.Debug("PixiEditor.Debug.IO.OpenTempDirectory", @"PixiEditor", "OPEN_TEMP_DIR", "OPEN_TEMP_DIR",
+        Icon = PixiPerfectIcons.Folder,
         MenuItemPath = "DEBUG/OPEN_TEMP_DIR", MenuItemOrder = 8, AnalyticsTrack = true)]
     public static void OpenTempFolder(string subDirectory)
     {
@@ -117,14 +129,40 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         OpenFolder(path);
     }
 
-    [Command.Debug("PixiEditor.Debug.DumpAllCommands", "DUMP_ALL_COMMANDS", "DUMP_ALL_COMMANDS_DESCRIPTIVE", AnalyticsTrack = true)]
+    [Command.Debug("PixiEditor.Debug.DumpGPUDiagnostics", "DUMP_GPU_DIAGNOSTICS", "DUMP_GPU_DIAGNOSTICS",
+        AnalyticsTrack = true)]
+    public async Task DumpGpuDiagnostics()
+    {
+        await Application.Current.ForDesktopMainWindowAsync(async desktop =>
+        {
+            FilePickerSaveOptions options = new FilePickerSaveOptions();
+            options.DefaultExtension = "txt";
+            options.FileTypeChoices =
+                new FilePickerFileType[] { new FilePickerFileType("Text") { Patterns = new[] { "*.txt" } } };
+            var pickedFile = desktop.StorageProvider.SaveFilePickerAsync(options).Result;
+
+            if (pickedFile != null)
+            {
+                GpuDiagnostics diagnostics = IDrawieInteropContext.Current.GetGpuDiagnostics();
+
+                await using StreamWriter writer = new StreamWriter(pickedFile.Path.LocalPath);
+                await writer.WriteAsync(diagnostics.ToString());
+
+                IOperatingSystem.Current.OpenFolder(pickedFile.Path.LocalPath);
+            }
+        });
+    }
+
+    [Command.Debug("PixiEditor.Debug.DumpAllCommands", "DUMP_ALL_COMMANDS", "DUMP_ALL_COMMANDS_DESCRIPTIVE",
+        AnalyticsTrack = true)]
     public async Task DumpAllCommands()
     {
         await Application.Current.ForDesktopMainWindowAsync(async desktop =>
         {
             FilePickerSaveOptions options = new FilePickerSaveOptions();
             options.DefaultExtension = "txt";
-            options.FileTypeChoices = new FilePickerFileType[] { new FilePickerFileType("Text") {Patterns = new [] {"*.txt"}} };
+            options.FileTypeChoices =
+                new FilePickerFileType[] { new FilePickerFileType("Text") { Patterns = new[] { "*.txt" } } };
             var pickedFile = desktop.StorageProvider.SaveFilePickerAsync(options).Result;
 
             if (pickedFile != null)
@@ -142,15 +180,17 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
             }
         });
     }
-    
-    [Command.Debug("PixiEditor.Debug.GenerateKeysTemplate", "GENERATE_KEY_BINDINGS_TEMPLATE", "GENERATE_KEY_BINDINGS_TEMPLATE_DESCRIPTIVE", AnalyticsTrack = true)]
+
+    [Command.Debug("PixiEditor.Debug.GenerateKeysTemplate", "GENERATE_KEY_BINDINGS_TEMPLATE",
+        "GENERATE_KEY_BINDINGS_TEMPLATE_DESCRIPTIVE", AnalyticsTrack = true)]
     public async Task GenerateKeysTemplate()
     {
         await Application.Current.ForDesktopMainWindowAsync(async desktop =>
         {
             FilePickerSaveOptions options = new FilePickerSaveOptions();
             options.DefaultExtension = "json";
-            options.FileTypeChoices = new FilePickerFileType[] { new FilePickerFileType("Json") {Patterns = new [] {"*.json"}} };
+            options.FileTypeChoices =
+                new FilePickerFileType[] { new FilePickerFileType("Json") { Patterns = new[] { "*.json" } } };
             var pickedFile = await desktop.StorageProvider.SaveFilePickerAsync(options);
 
             if (pickedFile != null)
@@ -161,9 +201,11 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
                 Dictionary<string, KeyDefinition> keyDefinitions = new Dictionary<string, KeyDefinition>();
                 foreach (var command in commands)
                 {
-                    if(command.IsDebug)
+                    if (command.IsDebug)
                         continue;
-                    keyDefinitions.Add($"(provider).{command.InternalName}", new KeyDefinition(command.InternalName, new HumanReadableKeyCombination("None"), Array.Empty<string>()));
+                    keyDefinitions.Add($"(provider).{command.InternalName}",
+                        new KeyDefinition(command.InternalName, new HumanReadableKeyCombination("None"),
+                            Array.Empty<string>()));
                 }
 
                 writer.Write(JsonConvert.SerializeObject(keyDefinitions, Formatting.Indented));
@@ -171,7 +213,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
                 string file = await File.ReadAllTextAsync(pickedFile.Path.LocalPath);
                 foreach (var command in commands)
                 {
-                    if(command.IsDebug)
+                    if (command.IsDebug)
                         continue;
                     file = file.Replace($"(provider).{command.InternalName}", "");
                 }
@@ -182,19 +224,21 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         });
     }
 
-    [Command.Debug("PixiEditor.Debug.ValidateShortcutMap", "VALIDATE_SHORTCUT_MAP", "VALIDATE_SHORTCUT_MAP_DESCRIPTIVE", AnalyticsTrack = true)]
+    [Command.Debug("PixiEditor.Debug.ValidateShortcutMap", "VALIDATE_SHORTCUT_MAP", "VALIDATE_SHORTCUT_MAP_DESCRIPTIVE",
+        AnalyticsTrack = true)]
     public async Task ValidateShortcutMap()
     {
         await Application.Current.ForDesktopMainWindowAsync(async desktop =>
         {
             FilePickerOpenOptions options = new FilePickerOpenOptions
-                {
-                    SuggestedStartLocation =
-                        await desktop.StorageProvider.TryGetFolderFromPathAsync(
-                            Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Data",
-                                "ShortcutActionMaps")),
-                    FileTypeFilter = new FilePickerFileType[] { new FilePickerFileType("Json") {Patterns = new [] {"*.json"}} }
-                };
+            {
+                SuggestedStartLocation =
+                    await desktop.StorageProvider.TryGetFolderFromPathAsync(
+                        Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Data",
+                            "ShortcutActionMaps")),
+                FileTypeFilter =
+                    new FilePickerFileType[] { new FilePickerFileType("Json") { Patterns = new[] { "*.json" } } }
+            };
             var pickedFile = desktop.StorageProvider.OpenFilePickerAsync(options).Result.FirstOrDefault();
 
             if (pickedFile != null)
@@ -212,7 +256,8 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
                     }
                 }
 
-                NoticeDialog.Show(new LocalizedString("VALIDATION_KEYS_NOTICE_DIALOG", emptyKeys, unknownCommands), "RESULT");
+                NoticeDialog.Show(new LocalizedString("VALIDATION_KEYS_NOTICE_DIALOG", emptyKeys, unknownCommands),
+                    "RESULT");
             }
         });
     }
@@ -239,20 +284,22 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         new PointerDebugPopup().Show();
     }
 
-    [Command.Debug("PixiEditor.Debug.OpenLocalizationDebugWindow", "OPEN_LOCALIZATION_DEBUG_WINDOW", "OPEN_LOCALIZATION_DEBUG_WINDOW",
+    [Command.Debug("PixiEditor.Debug.OpenLocalizationDebugWindow", "OPEN_LOCALIZATION_DEBUG_WINDOW",
+        "OPEN_LOCALIZATION_DEBUG_WINDOW",
         MenuItemPath = "DEBUG/OPEN_LOCALIZATION_DEBUG_WINDOW", MenuItemOrder = 2, AnalyticsTrack = true)]
     public void OpenLocalizationDebugWindow()
     {
         if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var window = desktop.Windows.OfType<LocalizationDebugWindow>().FirstOrDefault(new LocalizationDebugWindow());
+            var window = desktop.Windows.OfType<LocalizationDebugWindow>()
+                .FirstOrDefault(new LocalizationDebugWindow());
             window.Show();
             window.Activate();
         }
-
     }
 
-    [Command.Debug("PixiEditor.Debug.OpenPerformanceDebugWindow", "Open Performance Debug Window", "Open Performance Debug Window",
+    [Command.Debug("PixiEditor.Debug.OpenPerformanceDebugWindow", "Open Performance Debug Window",
+        "Open Performance Debug Window",
         MenuItemPath = "DEBUG/Open Performance Debug Window", MenuItemOrder = 4, AnalyticsTrack = true)]
     public void OpenPerformanceDebugWindow()
     {
@@ -275,7 +322,10 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
                     await desktop.StorageProvider.TryGetFolderFromPathAsync(
                         Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Data",
                             "Languages")),
-                FileTypeFilter = new FilePickerFileType[] { new FilePickerFileType("key-value json") {Patterns = new [] {"*.json"}} }
+                FileTypeFilter = new FilePickerFileType[]
+                {
+                    new FilePickerFileType("key-value json") { Patterns = new[] { "*.json" } }
+                }
             };
             var pickedFile = desktop.StorageProvider.OpenFilePickerAsync(options).Result.FirstOrDefault();
 
@@ -289,7 +339,8 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         });
     }
 
-    [Command.Debug("PixiEditor.Debug.IO.OpenInstallDirectory", "OPEN_INSTALLATION_DIR", "OPEN_INSTALLATION_DIR", Icon = PixiPerfectIcons.Folder,
+    [Command.Debug("PixiEditor.Debug.IO.OpenInstallDirectory", "OPEN_INSTALLATION_DIR", "OPEN_INSTALLATION_DIR",
+        Icon = PixiPerfectIcons.Folder,
         MenuItemPath = "DEBUG/OPEN_INSTALLATION_DIR", MenuItemOrder = 9, AnalyticsTrack = true)]
     public static void OpenInstallLocation()
     {
@@ -314,11 +365,14 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Command.Debug("PixiEditor.Debug.DeleteUserPreferences", @"%appdata%/PixiEditor/user_preferences.json", "DELETE_USR_PREFS", "DELETE_USR_PREFS",
+    [Command.Debug("PixiEditor.Debug.DeleteUserPreferences", @"%appdata%/PixiEditor/user_preferences.json",
+        "DELETE_USR_PREFS", "DELETE_USR_PREFS",
         MenuItemPath = "DEBUG/DELETE/USER_PREFS", MenuItemOrder = 11, AnalyticsTrack = true)]
-    [Command.Debug("PixiEditor.Debug.DeleteShortcutFile", @"%appdata%/PixiEditor/shortcuts.json", "DELETE_SHORTCUT_FILE", "DELETE_SHORTCUT_FILE",
+    [Command.Debug("PixiEditor.Debug.DeleteShortcutFile", @"%appdata%/PixiEditor/shortcuts.json",
+        "DELETE_SHORTCUT_FILE", "DELETE_SHORTCUT_FILE",
         MenuItemPath = "DEBUG/DELETE/SHORTCUT_FILE", MenuItemOrder = 12, AnalyticsTrack = true)]
-    [Command.Debug("PixiEditor.Debug.DeleteEditorData", @"%localappdata%/PixiEditor/editor_data.json", "DELETE_EDITOR_DATA", "DELETE_EDITOR_DATA",
+    [Command.Debug("PixiEditor.Debug.DeleteEditorData", @"%localappdata%/PixiEditor/editor_data.json",
+        "DELETE_EDITOR_DATA", "DELETE_EDITOR_DATA",
         MenuItemPath = "DEBUG/DELETE/EDITOR_DATA", MenuItemOrder = 13, AnalyticsTrack = true)]
     public static async Task DeleteFile(string path)
     {
@@ -326,7 +380,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
             return;
         string[] parts = path.Split('/');
         path = Path.Combine(parts); // os specific path
-        
+
         string file = Environment.ExpandEnvironmentVariables(path);
         if (!File.Exists(file))
         {
@@ -339,12 +393,12 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
             }
         }
 
-        OptionsDialog<string> dialog = new("ARE_YOU_SURE", new LocalizedString("ARE_YOU_SURE_PATH_FULL_PATH", path, file), MainWindow.Current)
-        {
-            // TODO: seems like this should be localized strings
-            { new LocalizedString("YES"), x => File.Delete(file) },
-            new LocalizedString("CANCEL")
-        };
+        OptionsDialog<string> dialog =
+            new("ARE_YOU_SURE", new LocalizedString("ARE_YOU_SURE_PATH_FULL_PATH", path, file), MainWindow.Current)
+            {
+                // TODO: seems like this should be localized strings
+                { new LocalizedString("YES"), x => File.Delete(file) }, new LocalizedString("CANCEL")
+            };
 
         await dialog.ShowDialog();
     }

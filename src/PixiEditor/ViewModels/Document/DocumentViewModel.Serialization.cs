@@ -18,6 +18,7 @@ using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers;
@@ -59,8 +60,15 @@ internal partial class DocumentViewModel
         Dictionary<Guid, int> nodeIdMap = new();
         Dictionary<Guid, int> keyFrameIdMap = new();
 
+        ResourceStorage storage = new ResourceStorage();
+
         List<SerializationFactory> factories =
             ViewModelMain.Current.Services.GetServices<SerializationFactory>().ToList();
+
+        foreach (var factory in factories)
+        {
+            factory.Storage = storage;
+        }
 
         AddNodes(doc.NodeGraph, graph, nodeIdMap, keyFrameIdMap, serializationConfig, factories);
 
@@ -68,7 +76,7 @@ internal partial class DocumentViewModel
         {
             SerializerName = "PixiEditor",
             SerializerVersion = VersionHelpers.GetCurrentAssemblyVersion().ToString(),
-            LegacyColorBlending = doc.ProcessingColorSpace.IsSrgb,
+            SrgbColorBlending = doc.ProcessingColorSpace.IsSrgb,
             Width = Width,
             Height = Height,
             Swatches = ToCollection(Swatches),
@@ -78,8 +86,13 @@ internal partial class DocumentViewModel
                 (TryRenderWholeImage(0).Value as Surface)?.DrawingSurface.Snapshot().Encode().AsSpan().ToArray(),
             ReferenceLayer = GetReferenceLayer(doc, serializationConfig),
             AnimationData = ToAnimationData(doc.AnimationData, doc.NodeGraph, nodeIdMap, keyFrameIdMap),
-            ImageEncoderUsed = encoder.EncodedFormatName
+            ImageEncoderUsed = encoder.EncodedFormatName,
+            Resources = storage
         };
+        foreach (var factory in factories)
+        {
+            factory.Storage = null;
+        }
 
         return document;
     }
@@ -148,6 +161,10 @@ internal partial class DocumentViewModel
         {
             elementToAdd = AddVectorPath(shapeData);
         }
+        else if (vectorNode.ShapeData is IReadOnlyTextData textData)
+        {
+            elementToAdd = AddText(textData);
+        }
 
         IReadOnlyShapeVectorData data = vectorNode.ShapeData;
 
@@ -160,11 +177,18 @@ internal partial class DocumentViewModel
 
             primitive.Fill.Unit = SvgColorUnit.FromRgba(data.FillColor.R, data.FillColor.G,
                 data.FillColor.B, data.Fill ? data.FillColor.A : 0);
-                
+
             primitive.Stroke.Unit = SvgColorUnit.FromRgba(data.StrokeColor.R, data.StrokeColor.G,
                 data.StrokeColor.B, data.StrokeColor.A);
-                
+
             primitive.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(data.StrokeWidth);
+        }
+        else if (elementToAdd is SvgGroup group)
+        {
+            Matrix3X3 transform = data.TransformationMatrix;
+
+            transform = transform.PostConcat(Matrix3X3.CreateScale((float)resizeFactor.X, (float)resizeFactor.Y));
+            group.Transform.Unit = new SvgTransformUnit?(new SvgTransformUnit(transform));
         }
 
         if (elementToAdd != null)
@@ -231,7 +255,7 @@ internal partial class DocumentViewModel
                 PathFillType.InverseWinding => SvgFillRule.NonZero,
                 PathFillType.InverseEvenOdd => SvgFillRule.EvenOdd,
             };
-            
+
             path.FillRule.Unit = new SvgEnumUnit<SvgFillRule>(fillRule);
             path.StrokeLineJoin.Unit = new SvgEnumUnit<SvgStrokeLineJoin>(ToSvgLineJoin(data.StrokeLineJoin));
             path.StrokeLineCap.Unit = new SvgEnumUnit<SvgStrokeLineCap>((SvgStrokeLineCap)data.StrokeLineCap);
@@ -264,6 +288,46 @@ internal partial class DocumentViewModel
         elementContainer.Children.Add(image);
     }
 
+    private SvgElement AddText(IReadOnlyTextData textData)
+    {
+        RichText rt = new RichText(textData.Text);
+        rt.Spacing = textData.Spacing;
+        rt.MaxWidth = textData.MaxWidth;
+
+        using Font font = textData.ConstructFont();
+
+        if (rt.Lines.Length <= 1)
+        {
+            return BuildTextElement(textData, textData.Text, font);
+        }
+
+        SvgGroup group = new SvgGroup();
+        for (int i = 0; i < rt.Lines.Length; i++)
+        {
+            var offset = rt.GetLineOffset(i, font);
+
+            var text = BuildTextElement(textData, rt.Lines[i], font);
+            text.Y.Unit = SvgNumericUnit.FromUserUnits(textData.Position.Y + offset.Y);
+
+            group.Children.Add(text);
+        }
+
+        return group;
+    }
+
+    private static SvgText BuildTextElement(IReadOnlyTextData textData, string value, Font font)
+    {
+        SvgText text = new SvgText();
+        text.Text.Unit = new SvgStringUnit(value);
+        text.X.Unit = SvgNumericUnit.FromUserUnits(textData.Position.X);
+        text.Y.Unit = SvgNumericUnit.FromUserUnits(textData.Position.Y);
+        text.FontSize.Unit = SvgNumericUnit.FromUserUnits(font.Size);
+        text.FontFamily.Unit = new SvgStringUnit(font.Family.Name);
+        text.FontWeight.Unit = new SvgEnumUnit<SvgFontWeight>(font.Bold ? SvgFontWeight.Bold : SvgFontWeight.Normal);
+        text.FontStyle.Unit = new SvgEnumUnit<SvgFontStyle>(font.Italic ? SvgFontStyle.Italic : SvgFontStyle.Normal);
+
+        return text;
+    }
 
     private static SvgImage CreateImageElement(VecD resizeFactor, RectD tightBounds,
         Image toSerialize, bool useNearestNeighborForImageUpscaling)
@@ -516,7 +580,7 @@ internal partial class DocumentViewModel
             NodeId = idMap[rasterKeyFrame.NodeId], KeyFrameId = keyFrameIds[rasterKeyFrame.Id],
         });
     }
-    
+
     private static SvgStrokeLineJoin ToSvgLineJoin(StrokeJoin strokeLineJoin)
     {
         return strokeLineJoin switch

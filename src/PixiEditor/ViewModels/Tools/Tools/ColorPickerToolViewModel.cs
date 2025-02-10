@@ -168,6 +168,6 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseColorPickerTool();
     }
 
-    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown) =>
+    public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey) =>
         UpdateActionDisplay(ctrlIsDown, shiftIsDown);
 }

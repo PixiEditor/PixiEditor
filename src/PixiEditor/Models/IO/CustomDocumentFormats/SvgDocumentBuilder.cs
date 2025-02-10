@@ -1,5 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
@@ -7,10 +10,12 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.Parser.Graph;
 using PixiEditor.SVG;
 using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Enums;
+using PixiEditor.SVG.Exceptions;
 using PixiEditor.ViewModels.Tools.Tools;
 
 namespace PixiEditor.Models.IO.CustomDocumentFormats;
@@ -24,9 +29,21 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         string xml = File.ReadAllText(path);
         SvgDocument document = SvgDocument.Parse(xml);
 
+        if(document == null)
+        {
+            throw new SvgParsingException("Failed to parse SVG document");
+        }
+
         StyleContext styleContext = new(document);
 
-        builder.WithSize((int)document.ViewBox.Unit.Value.Value.Width, (int)document.ViewBox.Unit.Value.Value.Height)
+        VecI size = new((int)document.ViewBox.Unit.Value.Value.Width, (int)document.ViewBox.Unit.Value.Value.Height);
+        if (size.ShortestAxis < 1)
+        {
+            size = new VecI(1024, 1024);
+        }
+
+        builder.WithSize(size)
+            .WithSrgbColorBlending(true) // apparently svgs blend colors in SRGB space
             .WithGraph(graph =>
             {
                 int? lastId = null;
@@ -66,7 +83,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         }
         else if (element is SvgPath pathElement)
         {
-            shapeData = AddPath(pathElement);
+            shapeData = AddPath(pathElement, styleContext);
             name = VectorPathToolViewModel.NewLayerKey;
         }
         else if (element is SvgRectangle rect)
@@ -74,11 +91,19 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             shapeData = AddRect(rect);
             name = VectorRectangleToolViewModel.NewLayerKey;
         }
+        else if (element is SvgText text)
+        {
+            shapeData = AddText(text);
+            name = TextToolViewModel.NewLayerKey;
+        }
+
+        name = element.Id.Unit?.Value ?? name;
 
         AddCommonShapeData(shapeData, styleContext);
 
         NodeGraphBuilder.NodeBuilder nBuilder = graph.WithNodeOfType<VectorLayerNode>(out int id)
             .WithName(name)
+            .WithInputValues(new Dictionary<string, object>() { { StructureNode.OpacityPropertyName, (float)(styleContext.Opacity.Unit?.Value ?? 1f) } })
             .WithAdditionalData(new Dictionary<string, object>() { { "ShapeData", shapeData } });
 
         if (lastId != null)
@@ -95,15 +120,15 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         return lastId;
     }
 
-    private int? AddGroup(SvgGroup group, NodeGraphBuilder graph, StyleContext style, int? lastId, string connectionName = "Background")
+    private int? AddGroup(SvgGroup group, NodeGraphBuilder graph, StyleContext style, int? lastId,
+        string connectionName = "Background")
     {
         int? childId = null;
         var connectTo = "Background";
-        
         foreach (var child in group.Children)
         {
             StyleContext childStyle = style.WithElement(child);
-            
+
             if (child is SvgPrimitive primitive)
             {
                 childId = AddPrimitive(child, childStyle, graph, childId, connectTo);
@@ -117,18 +142,30 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         NodeGraphBuilder.NodeBuilder nBuilder = graph.WithNodeOfType<FolderNode>(out int id)
             .WithName(group.Id.Unit != null ? group.Id.Unit.Value.Value : new LocalizedString("NEW_FOLDER"));
 
+        int connectionsCount = 0;
+        if (lastId != null) connectionsCount++;
+        if (childId != null) connectionsCount++;
+
+        PropertyConnection[] connections = new PropertyConnection[connectionsCount];
         if (lastId != null)
         {
-            nBuilder.WithConnections([
-                new PropertyConnection()
-                {
-                    InputPropertyName = connectionName, OutputPropertyName = "Output", OutputNodeId = lastId.Value
-                },
-                new PropertyConnection()
-                {
-                    InputPropertyName = "Content", OutputPropertyName = "Output", OutputNodeId = childId.Value
-                }
-            ]);
+            connections[0] = new PropertyConnection()
+            {
+                InputPropertyName = connectionName, OutputPropertyName = "Output", OutputNodeId = lastId.Value
+            };
+        }
+
+        if (childId != null)
+        {
+            connections[^1] = new PropertyConnection()
+            {
+                InputPropertyName = "Content", OutputPropertyName = "Output", OutputNodeId = childId.Value
+            };
+        }
+
+        if (connections.Length > 0)
+        {
+            nBuilder.WithConnections(connections);
         }
 
         lastId = id;
@@ -141,15 +178,15 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         if (element is SvgCircle circle)
         {
             return new EllipseVectorData(
-                new VecD(circle.Cx.Unit.Value.Value, circle.Cy.Unit.Value.Value),
-                new VecD(circle.R.Unit.Value.Value, circle.R.Unit.Value.Value));
+                new VecD(circle.Cx.Unit?.PixelsValue ?? 0, circle.Cy.Unit?.PixelsValue ?? 0),
+                new VecD(circle.R.Unit?.PixelsValue ?? 0, circle.R.Unit?.PixelsValue ?? 0));
         }
 
         if (element is SvgEllipse ellipse)
         {
             return new EllipseVectorData(
-                new VecD(ellipse.Cx.Unit.Value.Value, ellipse.Cy.Unit.Value.Value),
-                new VecD(ellipse.Rx.Unit.Value.Value, ellipse.Ry.Unit.Value.Value));
+                new VecD(ellipse.Cx.Unit?.PixelsValue ?? 0, ellipse.Cy.Unit?.PixelsValue ?? 0),
+                new VecD(ellipse.Rx.Unit?.PixelsValue ?? 0, ellipse.Ry.Unit?.PixelsValue ?? 0));
         }
 
         return null;
@@ -158,13 +195,17 @@ internal class SvgDocumentBuilder : IDocumentBuilder
     private LineVectorData AddLine(SvgLine element)
     {
         return new LineVectorData(
-            new VecD(element.X1.Unit.Value.Value, element.Y1.Unit.Value.Value),
-            new VecD(element.X2.Unit.Value.Value, element.Y2.Unit.Value.Value));
+            new VecD(element.X1.Unit?.PixelsValue ?? 0, element.Y1.Unit?.PixelsValue ?? 0),
+            new VecD(element.X2.Unit?.PixelsValue ?? 0, element.Y2.Unit?.PixelsValue ?? 0));
     }
 
-    private PathVectorData AddPath(SvgPath element)
+    private PathVectorData AddPath(SvgPath element, StyleContext styleContext)
     {
-        VectorPath path = VectorPath.FromSvgPath(element.PathData.Unit.Value.Value);
+        VectorPath? path = null;
+        if (element.PathData.Unit != null)
+        {
+            path = VectorPath.FromSvgPath(element.PathData.Unit.Value.Value);
+        }
 
         if (element.FillRule.Unit != null)
         {
@@ -175,23 +216,53 @@ internal class SvgDocumentBuilder : IDocumentBuilder
                 _ => PathFillType.Winding
             };
         }
-        
-        StrokeCap strokeLineCap = StrokeCap.Round;
-        StrokeJoin strokeLineJoin = StrokeJoin.Round;
-        
-        if(element.StrokeLineCap.Unit != null)
+
+        StrokeCap strokeLineCap = StrokeCap.Butt;
+        StrokeJoin strokeLineJoin = StrokeJoin.Miter;
+
+        if (styleContext.StrokeLineCap.Unit != null)
         {
-            strokeLineCap = (StrokeCap)element.StrokeLineCap.Unit.Value.Value;
-            strokeLineJoin = (StrokeJoin)element.StrokeLineJoin.Unit.Value.Value;
+            strokeLineCap = (StrokeCap)(styleContext.StrokeLineCap.Unit?.Value ?? SvgStrokeLineCap.Butt);
         }
 
-        return new PathVectorData(path) { StrokeLineCap = strokeLineCap, StrokeLineJoin = strokeLineJoin };
+        if (styleContext.StrokeLineJoin.Unit != null)
+        {
+            strokeLineJoin = (StrokeJoin)(styleContext.StrokeLineJoin.Unit?.Value ?? SvgStrokeLineJoin.Miter);
+        }
+
+        return new PathVectorData(path) { StrokeLineCap = strokeLineCap, StrokeLineJoin = strokeLineJoin, };
     }
 
     private RectangleVectorData AddRect(SvgRectangle element)
     {
-        return new RectangleVectorData(element.X.Unit.Value.Value, element.Y.Unit.Value.Value,
-            element.Width.Unit.Value.Value, element.Height.Unit.Value.Value);
+        return new RectangleVectorData(
+            element.X.Unit?.PixelsValue ?? 0, element.Y.Unit?.PixelsValue ?? 0,
+            element.Width.Unit?.PixelsValue ?? 0, element.Height.Unit?.PixelsValue ?? 0);
+    }
+
+    private TextVectorData AddText(SvgText element)
+    {
+        Font font = element.FontFamily.Unit.HasValue ? Font.FromFamilyName(element.FontFamily.Unit.Value.Value) : Font.CreateDefault();
+        FontFamilyName? missingFont = null;
+        if(font == null)
+        {
+            font = Font.CreateDefault();
+            missingFont = new FontFamilyName(element.FontFamily.Unit.Value.Value);
+        }
+
+        font.Size = element.FontSize.Unit?.PixelsValue ?? 12;
+        font.Bold = element.FontWeight.Unit?.Value == SvgFontWeight.Bold;
+        font.Italic = element.FontStyle.Unit?.Value == SvgFontStyle.Italic;
+
+        return new TextVectorData(element.Text.Unit.Value.Value)
+        {
+            Position = new VecD(
+                element.X.Unit?.PixelsValue ?? 0,
+                element.Y.Unit?.PixelsValue ?? 0),
+            Font = font,
+            MissingFontFamily = missingFont,
+            MissingFontText = "MISSING_FONT"
+        };
     }
 
     private void AddCommonShapeData(ShapeVectorData? shapeData, StyleContext styleContext)
@@ -202,32 +273,36 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         }
 
         bool hasFill = styleContext.Fill.Unit is { Color.A: > 0 };
-        bool hasStroke = styleContext.Stroke.Unit is { Color.A: > 0 };
+        bool hasStroke = styleContext.Stroke.Unit is { Color.A: > 0 } || styleContext.StrokeWidth.Unit is { PixelsValue: > 0 };
         bool hasTransform = styleContext.Transform.Unit is { MatrixValue.IsIdentity: false };
 
         shapeData.Fill = hasFill;
         if (hasFill)
         {
             var target = styleContext.Fill.Unit;
-            shapeData.FillColor = target.Value.Color;
+            float opacity = (float)(styleContext.FillOpacity.Unit?.Value ?? 1);
+            shapeData.FillColor = target.Value.Color.WithAlpha((byte)(Math.Clamp(opacity, 0, 1) * 255));
         }
 
         if (hasStroke)
         {
             var targetColor = styleContext.Stroke.Unit;
             var targetWidth = styleContext.StrokeWidth.Unit;
-            
-            shapeData.StrokeColor = targetColor.Value.Color;
-            if (targetWidth != null)
-            {
-                shapeData.StrokeWidth = (float)targetWidth.Value.Value;
-            }
+
+            shapeData.StrokeColor = targetColor?.Color ?? Colors.Black;
+            shapeData.StrokeWidth = (float)(targetWidth?.PixelsValue ?? 1);
         }
 
         if (hasTransform)
         {
             var target = styleContext.Transform.Unit;
             shapeData.TransformationMatrix = target.Value.MatrixValue;
+        }
+
+        if (styleContext.ViewboxOrigin != VecD.Zero)
+        {
+            shapeData.TransformationMatrix = shapeData.TransformationMatrix.PostConcat(
+                Matrix3X3.CreateTranslation((float)styleContext.ViewboxOrigin.X, (float)styleContext.ViewboxOrigin.Y));
         }
     }
 }

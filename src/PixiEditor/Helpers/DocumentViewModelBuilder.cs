@@ -33,8 +33,9 @@ internal class DocumentViewModelBuilder
 
     public NodeGraphBuilder Graph { get; set; }
     public string ImageEncoderUsed { get; set; } = "QOI";
-    public bool UsesLegacyColorBlending { get; set; } = false;
+    public bool UsesSrgbColorBlending { get; set; } = false;
     public Version? PixiParserVersionUsed { get; set; }
+    public ResourceStorage DocumentResources { get; set; }
 
     public DocumentViewModelBuilder WithSize(int width, int height)
     {
@@ -126,9 +127,9 @@ internal class DocumentViewModelBuilder
         return this;
     }
 
-    public DocumentViewModelBuilder WithLegacyColorBlending(bool usesLegacyColorBlending)
+    public DocumentViewModelBuilder? WithSrgbColorBlending(bool usesLegacyColorBlending)
     {
-        UsesLegacyColorBlending = usesLegacyColorBlending;
+        UsesSrgbColorBlending = usesLegacyColorBlending;
         return this;
     }
 
@@ -148,11 +149,12 @@ internal class DocumentViewModelBuilder
 
             data?.Add(builder);
         }
-        
+
         TryAddMissingKeyFrames(root, data, documentGraph);
     }
 
-    private static void TryAddMissingKeyFrames(List<KeyFrameGroup> groups, List<KeyFrameBuilder>? data, NodeGraph documentGraph)
+    private static void TryAddMissingKeyFrames(List<KeyFrameGroup> groups, List<KeyFrameBuilder>? data,
+        NodeGraph documentGraph)
     {
         if (data == null)
         {
@@ -164,15 +166,15 @@ internal class DocumentViewModelBuilder
             if (node.KeyFrames.Length > 1 && data.All(x => x.NodeId != node.Id))
             {
                 GroupKeyFrameBuilder builder = new GroupKeyFrameBuilder()
-                .WithNodeId(node.Id);
-                
+                    .WithNodeId(node.Id);
+
                 foreach (var keyFrame in node.KeyFrames)
                 {
                     builder.WithChild<KeyFrameBuilder>(x => x
                         .WithKeyFrameId(keyFrame.Id)
                         .WithNodeId(node.Id));
-                }   
-                
+                }
+
                 data.Add(builder);
             }
         }
@@ -241,6 +243,12 @@ internal class DocumentViewModelBuilder
     public DocumentViewModelBuilder WithPixiParserVersion(Version version)
     {
         PixiParserVersionUsed = version;
+        return this;
+    }
+
+    public DocumentViewModelBuilder WithResources(ResourceStorage documentResources)
+    {
+        DocumentResources = documentResources;
         return this;
     }
 }
@@ -351,6 +359,7 @@ internal class NodeGraphBuilder
     {
         this.WithNodeOfType(typeof(ImageLayerNode))
             .WithName(name)
+            .WithPosition(new Vector2 { X = -250, Y = 0 })
             .WithId(AllNodes.Count)
             .WithKeyFrames(
             [
@@ -372,6 +381,7 @@ internal class NodeGraphBuilder
     {
         this.WithNodeOfType(typeof(ImageLayerNode))
             .WithName(name)
+            .WithPosition(new Vector2 { X = -250, Y = 0 })
             .WithId(AllNodes.Count)
             .WithKeyFrames(
             [

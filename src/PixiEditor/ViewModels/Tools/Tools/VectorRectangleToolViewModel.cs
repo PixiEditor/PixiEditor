@@ -34,7 +34,7 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
     public string? DefaultNewLayerName { get; } = new LocalizedString(NewLayerKey);
 
-    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
     {
         DrawFromCenter = ctrlIsDown;
 
@@ -62,7 +62,7 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorRectangleTool();
     }
 
-    public override void OnPostUndo()
+    public override void OnPostUndoInlet()
     {
         if (IsActive)
         {
@@ -70,7 +70,7 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
         }
     }
 
-    public override void OnPostRedo()
+    public override void OnPostRedoInlet()
     {
         if (IsActive)
         {

@@ -56,14 +56,17 @@ internal interface IToolHandler : IHandler
 
     public virtual string? DefaultNewLayerName => null;
 
-    public void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown);
+    public void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey);
     public void UseTool(VecD pos);
     public void OnToolSelected(bool restoring);
 
     public void SetToolSetSettings(IToolSetHandler toolset, Dictionary<string, object>? settings);
     public void ApplyToolSetSettings(IToolSetHandler toolset);
     public void OnToolDeselected(bool transient);
-    public void OnPostUndo();
-    public void OnPostRedo();
+    public void OnPostUndoInlet();
+    public void OnPostRedoInlet();
     public void OnActiveFrameChanged(int newFrame);
+    public void OnPreUndoInlet();
+    public void OnPreRedoInlet();
+    public void QuickToolSwitchInlet();
 }

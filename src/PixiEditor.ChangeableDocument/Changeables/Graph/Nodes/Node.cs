@@ -44,7 +44,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     protected internal bool IsDisposed => _isDisposed;
     private bool _isDisposed;
-    
+
     public void Execute(RenderContext context)
     {
         ExecuteInternal(context);
@@ -107,6 +107,36 @@ public abstract class Node : IReadOnlyNode, IDisposable
                 if (inputProperty.Connection != null)
                 {
                     queueNodes.Enqueue((inputProperty.Connection.Node, inputProperty));
+                }
+            }
+        }
+    }
+
+    public void TraverseBackwards(Func<IReadOnlyNode, IReadOnlyNode?, IInputProperty, bool> action)
+    {
+        var visited = new HashSet<IReadOnlyNode>();
+        var queueNodes = new Queue<(IReadOnlyNode, IReadOnlyNode, IInputProperty)>();
+        queueNodes.Enqueue((this, null, null));
+
+        while (queueNodes.Count > 0)
+        {
+            var node = queueNodes.Dequeue();
+
+            if (!visited.Add((node.Item1)))
+            {
+                continue;
+            }
+
+            if (!action(node.Item1, node.Item2, node.Item3))
+            {
+                return;
+            }
+
+            foreach (var inputProperty in node.Item1.InputProperties)
+            {
+                if (inputProperty.Connection != null)
+                {
+                    queueNodes.Enqueue((inputProperty.Connection.Node, node.Item1, inputProperty));
                 }
             }
         }
@@ -461,7 +491,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
         return new None();
     }
-    
+
     private void InvokeConnectionsChanged()
     {
         ConnectionsChanged?.Invoke();

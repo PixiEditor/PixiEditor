@@ -20,6 +20,14 @@
       "RasterEllipse",
       "RasterRectangle",
       {
+        "ToolName": "Text",
+        "Settings": {
+          "AntiAliasing": false,
+          "ForceLowDpiRendering": true
+        },
+        "Icon": "\ue994"
+      },
+      {
         "ToolName": "Eraser",
         "Settings": {
           "Spacing": 0
@@ -42,7 +50,7 @@
           "AntiAliasing": true,
           "ExposeHardness": true,
           "ExposeSpacing": true,
-          "BrushShapeSetting": "CircleSmooth" 
+          "BrushShapeSetting": "CircleSmooth"
         }
       },
       "Select",
@@ -78,7 +86,15 @@
         "Settings": {
           "AntiAliasing": true
         },
-        "Icon": "\uE953" 
+        "Icon": "\uE953"
+      },
+      {
+        "ToolName": "Text",
+        "Settings": {
+          "AntiAliasing": true,
+          "ForceLowDpiRendering": true
+        },
+        "Icon": "\ue98E"
       },
       {
         "ToolName": "Eraser",
@@ -102,7 +118,14 @@
       "VectorPath",
       "VectorLine",
       "VectorEllipse",
-      "VectorRectangle"
+      "VectorRectangle",
+      {
+        "ToolName": "Text",
+        "Settings": {
+          "AntiAliasing": true,
+          "ForceLowDpiRendering": false
+        }
+      }
     ]
   }
 ]

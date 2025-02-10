@@ -17,6 +17,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("VectorLayer")]
 public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorNode, IRasterizable
 {
+    public OutputProperty<ShapeVectorData> Shape { get; }
     public Matrix3X3 TransformationMatrix
     {
         get => ShapeData?.TransformationMatrix ?? Matrix3X3.Identity;
@@ -31,7 +32,11 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         }
     }
 
-    public ShapeVectorData? ShapeData { get; set; }
+    public ShapeVectorData? ShapeData
+    {
+        get => Shape.Value;
+        set => Shape.Value = value;
+    }
     IReadOnlyShapeVectorData IReadOnlyVectorNode.ShapeData => ShapeData;
 
 
@@ -43,6 +48,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     public VectorLayerNode()
     {
         AllowHighDpiRendering = true;
+        Shape = CreateOutput<ShapeVectorData>("Shape", "SHAPE", null);
     }
     
     protected override VecI GetTargetSize(RenderContext ctx)
@@ -167,6 +173,11 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
     public override Node CreateCopy()
     {
-        return new VectorLayerNode() { ShapeData = (ShapeVectorData?)ShapeData?.Clone(), ClipToPreviousMember = this.ClipToPreviousMember };
+        return new VectorLayerNode()
+        {
+            ShapeData = (ShapeVectorData?)ShapeData?.Clone(),
+            ClipToPreviousMember = this.ClipToPreviousMember,
+            AllowHighDpiRendering = this.AllowHighDpiRendering
+        };
     }
 }

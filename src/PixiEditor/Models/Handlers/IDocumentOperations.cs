@@ -12,4 +12,5 @@ internal interface IDocumentOperations
     public void SetSelectedMember(Guid memberId);
     public void ClearSoftSelectedMembers();
     public Guid? CreateStructureMember(Type type, ActionSource source, string? name = null);
+    public void InvokeCustomAction(Action action, bool stopActiveExecutor = true);
 }

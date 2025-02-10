@@ -4,5 +4,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("CUSTOM_OUTPUT_NODE", null, "\ue920")]
+[NodeViewModel("CUSTOM_OUTPUT_NODE", null, "\uE81A")]
 internal class CustomOutputNodeViewModel : NodeViewModel<CustomOutputNode>;
