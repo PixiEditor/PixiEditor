@@ -45,7 +45,7 @@
   <Target Name="GenerateProtoContracts" BeforeTargets="BeforeCompile"
           Inputs="$(MSBuildProjectDirectory)\DataContracts\*.proto"
           Outputs="$(MSBuildProjectDirectory)\ProtoAutogen\*.cs">
-    <Exec Command="dotnet tool run --allow-roll-forward protogen --csharp_out=ProtoAutogen --proto_path=DataContracts +listset=yes *.proto"/>
+    <Exec Command="dotnet tool run protogen --csharp_out=ProtoAutogen --proto_path=DataContracts +listset=yes *.proto"/>
 
     <ItemGroup>
       <Compile Include="ProtoAutogen\*.cs" KeepDuplicates="false"/>
