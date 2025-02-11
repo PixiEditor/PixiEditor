@@ -178,8 +178,7 @@ internal class CommandController
     {
         foreach (var evaluator in objectsToInvokeOn)
         {
-            //TODO: Check if performance is better with or without this
-            /*if (evaluator.Methods.CanExecuteEvaluator.DependentOn != null && evaluator.Methods.CanExecuteEvaluator.DependentOn.Contains(propertyName))*/
+            if (evaluator.Methods.CanExecuteEvaluator.DependentOn != null && evaluator.Methods.CanExecuteEvaluator.DependentOn.Contains(propertyName))
             {
                 evaluator.OnCanExecuteChanged();
             }
@@ -672,5 +671,13 @@ internal class CommandController
         }
 
         shortcutFile.SaveShortcuts();
+    }
+
+    public static void CanExecuteChanged(string commandPattern)
+    {
+        foreach (var command in Current.Commands.Where(x => x.InternalName.StartsWith(commandPattern)))
+        {
+            command.OnCanExecuteChanged();
+        }
     }
 }

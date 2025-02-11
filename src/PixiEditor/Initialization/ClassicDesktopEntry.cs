@@ -177,7 +177,7 @@ internal class ClassicDesktopEntry
             StartupArgs.Args = args;
             StartupArgs.Args.Add("--openedInExisting");
             ViewModels_ViewModelMain viewModel = (ViewModels_ViewModelMain)mainWindow.DataContext;
-            viewModel.StartupCommand.Execute(null);
+            viewModel.OnStartup();
         }
     }
 

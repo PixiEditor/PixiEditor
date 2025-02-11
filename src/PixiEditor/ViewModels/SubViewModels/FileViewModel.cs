@@ -101,10 +101,11 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     private void OpenHelloTherePopup()
     {
-        new HelloTherePopup(this).Show();
+        var popup = new HelloTherePopup(this);
+        popup.Show();
     }
 
-    private void Owner_OnStartupEvent(object sender, System.EventArgs e)
+    private void Owner_OnStartupEvent()
     {
         List<string> args = StartupArgs.Args;
         string file = args.FirstOrDefault(x => Importer.IsSupportedFile(x) && File.Exists(x));
@@ -158,20 +159,23 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.File.OpenFileFromClipboard", "OPEN_FILE_FROM_CLIPBOARD",
         "OPEN_FILE_FROM_CLIPBOARD_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.HasImageInClipboard",
         AnalyticsTrack = true)]
-    public async Task OpenFromClipboard()
+    public void OpenFromClipboard()
     {
-        var images = await ClipboardController.GetImagesFromClipboard();
-
-        foreach (var dataImage in images)
+        Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            if (File.Exists(dataImage.Name))
-            {
-                OpenRegularImage(dataImage.Image, null);
-                continue;
-            }
+            var images = await ClipboardController.GetImagesFromClipboard();
 
-            OpenRegularImage(dataImage.Image, null);
-        }
+            foreach (var dataImage in images)
+            {
+                if (File.Exists(dataImage.Name))
+                {
+                    OpenRegularImage(dataImage.Image, null);
+                    continue;
+                }
+
+                OpenRegularImage(dataImage.Image, null);
+            }
+        });
     }
 
     private bool MakeExistingDocumentActiveIfOpened(string path)

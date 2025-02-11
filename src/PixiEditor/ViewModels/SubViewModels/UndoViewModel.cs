@@ -71,7 +71,10 @@ internal class UndoViewModel : SubViewModel<ViewModelMain>
     /// </summary>
     /// <param name="property">CommandParameter.</param>
     /// <returns>True if can undo.</returns>
-    [Evaluator.CanExecute("PixiEditor.Undo.CanUndo")]
+    [Evaluator.CanExecute("PixiEditor.Undo.CanUndo", 
+        nameof(ViewModelMain.DocumentManagerSubViewModel), 
+        nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument), 
+        nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument.HasSavedUndo))]
     public bool CanUndo()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -88,7 +91,10 @@ internal class UndoViewModel : SubViewModel<ViewModelMain>
     /// </summary>
     /// <param name="property">CommandProperty.</param>
     /// <returns>True if can redo.</returns>
-    [Evaluator.CanExecute("PixiEditor.Undo.CanRedo")]
+    [Evaluator.CanExecute("PixiEditor.Undo.CanRedo", 
+        nameof(ViewModelMain.DocumentManagerSubViewModel), 
+        nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument), 
+        nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument.HasSavedRedo))]
     public bool CanRedo()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;

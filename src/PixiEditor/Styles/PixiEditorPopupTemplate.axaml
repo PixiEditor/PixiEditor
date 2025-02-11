@@ -12,6 +12,7 @@
     <Style Selector="controls|PixiEditorPopup">
         <Setter Property="WindowStartupLocation" Value="CenterOwner" />
         <Setter Property="TransparencyLevelHint" Value="Transparent" />
+        <Setter Property="SystemDecorations" Value="Full" />
         <Setter Property="ExtendClientAreaChromeHints">
             <Setter.Value>
                 <OnPlatform>
