@@ -17,6 +17,7 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.Handlers;
+using PixiEditor.OperatingSystem;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Menu;
 using PixiEditor.ViewModels.SubViewModels;

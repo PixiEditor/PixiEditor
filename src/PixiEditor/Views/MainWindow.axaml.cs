@@ -5,6 +5,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using Avalonia.OpenGL;
 using Avalonia.Platform;
 using Avalonia.Rendering.Composition;
@@ -34,6 +35,8 @@ internal partial class MainWindow : Window
     private readonly IPlatform platform;
     private readonly IServiceProvider services;
     private static ExtensionLoader extLoader;
+
+    private MainTitleBar titleBar;
 
     public StartupPerformance StartupPerformance { get; } = new();
 
@@ -134,9 +137,9 @@ internal partial class MainWindow : Window
     {
         base.OnLoaded(e);
         
+        titleBar = this.FindDescendantOfType<MainTitleBar>(true);
         if (System.OperatingSystem.IsLinux())
         {
-            MainTitleBar titleBar = this.FindDescendantOfType<MainTitleBar>(true);
             titleBar.PointerPressed += OnTitleBarPressed;
             
             PointerMoved += UpdateResizeCursor;
@@ -173,7 +176,9 @@ internal partial class MainWindow : Window
 
     private void OnTitleBarPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        bool withinTitleBar = e.GetPosition(this).Y <= titleBar.Bounds.Height;
+        bool sourceIsMenuItem = e.Source is Control ctrl && ctrl.GetLogicalParent() is MenuItem;
+        if (withinTitleBar && !sourceIsMenuItem && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
         {
             if(e.ClickCount == 2)
             {
