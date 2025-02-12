@@ -12,7 +12,16 @@
     <Style Selector="controls|PixiEditorPopup">
         <Setter Property="WindowStartupLocation" Value="CenterOwner" />
         <Setter Property="TransparencyLevelHint" Value="Transparent" />
-        <Setter Property="SystemDecorations" Value="Full" />
+        <Setter Property="SystemDecorations">
+            <OnPlatform>
+                <OnPlatform.Default>
+                    <SystemDecorations>Full</SystemDecorations>
+                </OnPlatform.Default>
+                <OnPlatform.Linux>
+                    <SystemDecorations>None</SystemDecorations>
+                </OnPlatform.Linux>
+            </OnPlatform>
+        </Setter>
         <Setter Property="ExtendClientAreaChromeHints">
             <Setter.Value>
                 <OnPlatform>
@@ -36,9 +45,10 @@
         <Setter Property="Template">
             <ControlTemplate>
                 <VisualLayerManager>
-                    <Panel>
+                    <Panel Name="PART_ResizePanel">
                         <DockPanel>
                             <controls:DialogTitleBar
+                                Name="PART_TitleBar"
                                 DockPanel.Dock="Top" 
                                 CloseCommand="{TemplateBinding CloseCommand}"
                                 CanMinimize="{TemplateBinding CanMinimize}"
