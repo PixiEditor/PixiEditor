@@ -1,14 +1,10 @@
-{ pkgs ? import <nixpkgs> { } }:
+{ pkgs ? import <nixpkgs> {} }:
 
-with pkgs;
-let
 
-dotnet = dotnet-sdk; 
-
-in mkShell {
-  name = "avalonia-env";
-  packages = (with pkgs; [
-    dotnet
+(pkgs.buildFHSEnv {
+  name = "pixieditor-env";
+  targetPkgs = pkgs: (with pkgs; [
+    dotnet-sdk
     avalonia
     fontconfig
     alsa-lib
@@ -30,5 +26,14 @@ in mkShell {
     libXext
     libXrandr  ]);
 
-    DOTNET_ROOT = "${dotnet}";
-}
+  multiPkgs = pkgs: (with pkgs; [
+   udev
+   alsa-lib
+  ]);
+
+  runScript = "nohup ./PixiEditor &";
+}).env
+
+
+
+
