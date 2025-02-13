@@ -37,6 +37,11 @@ internal partial class SearchResultControl : UserControl, INotifyPropertyChanged
 
     public new event PropertyChangedEventHandler? PropertyChanged;
 
+    static SearchResultControl()
+    {
+        ResultProperty.Changed.Subscribe(ResultChanged);
+    }
+    
     public SearchResultControl()
     {
         InitializeComponent();
@@ -61,5 +66,29 @@ internal partial class SearchResultControl : UserControl, INotifyPropertyChanged
         IImage icon = Result.Icon;
         EvaluatedIcon = icon;
         PropertyChanged?.Invoke(this, new(nameof(EvaluatedIcon)));
+    }
+    
+    private void OnResultPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(SearchResult.CanExecute))
+        {
+            EvaluateCanExecute();
+            EvaluateIcon();
+        }
+    }
+    
+    private static void ResultChanged(AvaloniaPropertyChangedEventArgs<SearchResult> e)
+    {
+        if (e.Sender is SearchResultControl control)
+        {
+            if (e.OldValue.Value != null)
+            {
+                e.OldValue.Value.PropertyChanged -= control.OnResultPropertyChanged;
+            }
+            if (e.NewValue.Value != null)
+            {
+                e.NewValue.Value.PropertyChanged += control.OnResultPropertyChanged;
+            }
+        }
     }
 }

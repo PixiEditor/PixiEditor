@@ -1,5 +1,6 @@
 ﻿using System;
 using Avalonia;
+using Avalonia.Logging;
 using Drawie.Interop.VulkanAvalonia;
 
 namespace PixiEditor.Desktop;
@@ -25,8 +26,9 @@ public class Program
             .With(new X11PlatformOptions()
             {
                 RenderingMode = new X11RenderingMode[] { X11RenderingMode.Vulkan, X11RenderingMode.Glx },
-                OverlayPopups = true
+                OverlayPopups = true,
             })
             .WithDrawie()
+            .LogToTrace(LogEventLevel.Verbose, "Vulkan")
             .LogToTrace();
 }

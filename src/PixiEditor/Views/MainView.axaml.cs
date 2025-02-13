@@ -27,12 +27,11 @@ public partial class MainView : UserControl
         DropGrid.AddHandler(DragDrop.DragEnterEvent, MainView_DragEnter);
         DropGrid.AddHandler(DragDrop.DragLeaveEvent, MainView_DragLeave);
         DropGrid.AddHandler(DragDrop.DropEvent, MainView_Drop);
+        Loaded += OnLoaded;
     }
 
-    protected override void OnLoaded(RoutedEventArgs e)
+    private void OnLoaded(object? sender, RoutedEventArgs e)
     {
-        base.OnLoaded(e);
-
         // hacky way to fix first element not rendering
         // feel free to make a proper fix inside Drawie
         if (IDrawieInteropContext.Current is OpenGlInteropContext)
@@ -46,6 +45,11 @@ public partial class MainView : UserControl
                 OpenGlInitDummy.Texture = null;
                 OpenGlInitDummy.IsVisible = false;
             });
+        }
+
+        if (DataContext is ViewModelMain vm)
+        {
+            vm.OnStartup();
         }
     }
 

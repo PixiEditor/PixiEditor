@@ -94,7 +94,7 @@ internal partial class HelloTherePopup : PixiEditorPopup
 
     public AsyncRelayCommand OpenNewFileCommand { get; set; }
 
-    public AsyncRelayCommand NewFromClipboardCommand { get; set; }
+    public RelayCommand NewFromClipboardCommand { get; set; }
 
     public RelayCommand<string> OpenRecentCommand { get; set; }
 
@@ -116,6 +116,8 @@ internal partial class HelloTherePopup : PixiEditorPopup
 #endif
 
     private bool _newsDisabled = false;
+    
+    private bool hasImageInClipboard = false;
 
     public HelloTherePopup(FileViewModel fileViewModel)
     {
@@ -127,7 +129,7 @@ internal partial class HelloTherePopup : PixiEditorPopup
         OpenRecentCommand = new RelayCommand<string>(OpenRecent);
         SetShowAllBetaExamplesCommand = new RelayCommand<bool>(SetShowAllBetaExamples);
         OpenInExplorerCommand = new RelayCommand<string>(OpenInExplorer, CanOpenInExplorer);
-        NewFromClipboardCommand = new AsyncRelayCommand(NewFromClipboard, CanOpenFromClipboard);
+        NewFromClipboardCommand = new RelayCommand(NewFromClipboard, CanOpenFromClipboard);
 
         RecentlyOpenedEmpty = RecentlyOpened.Count == 0;
         RecentlyOpened.CollectionChanged += RecentlyOpened_CollectionChanged;
@@ -135,6 +137,8 @@ internal partial class HelloTherePopup : PixiEditorPopup
         _newsDisabled = PixiEditorSettings.StartupWindow.DisableNewsPanel.Value;
 
         NewsProvider = new NewsProvider();
+
+        CheckHasClipboardInImage();
 
         Closing += (_, _) => { IsClosing = true; };
 
@@ -217,21 +221,32 @@ internal partial class HelloTherePopup : PixiEditorPopup
 
     private void RefreshClipboardImg(object? sender, EventArgs e)
     {
-        NewFromClipboardCommand.NotifyCanExecuteChanged();
+        CheckHasClipboardInImage();
+    }
+
+    private void CheckHasClipboardInImage()
+    {
+        Task.Run(async () =>
+        {
+            hasImageInClipboard = await ClipboardController.IsImageInClipboard();
+        }).ContinueWith(_ =>
+        {
+            Dispatcher.UIThread.Invoke(NewFromClipboardCommand.NotifyCanExecuteChanged);
+        });
     }
 
 
-    private async Task NewFromClipboard()
+    private void NewFromClipboard()
     {
         Activated -= RefreshClipboardImg;
         Application.Current.ForDesktopMainWindow(mainWindow => mainWindow.Activate());
+        FileViewModel.OpenFromClipboard();
         Close();
-        await FileViewModel.OpenFromClipboard();
     }
 
     private bool CanOpenFromClipboard()
     {
-        return ClipboardController.IsImageInClipboard().Result;
+        return hasImageInClipboard;
     }
 
     private void OpenRecent(string parameter)

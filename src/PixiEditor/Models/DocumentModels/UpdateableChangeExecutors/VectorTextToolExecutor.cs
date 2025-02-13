@@ -31,6 +31,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     private Font? cachedFont;
     private bool isListeningForValidLayer;
     private VectorPath? onPath;
+    
+    private List<Font> fontsToDispose = new();
 
     public override bool BlocksOtherActions => false;
 
@@ -134,6 +136,16 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     {
         internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
         document.TextOverlayHandler.Hide();
+        
+        foreach (var font in fontsToDispose)
+        {
+            if (font != null && !font.IsDisposed)
+            {
+                font.Dispose();
+            }
+        }
+        
+        fontsToDispose.Clear();
     }
 
     public void OnTextChanged(string text)
@@ -156,12 +168,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
         if (name == nameof(ITextToolbar.FontFamily))
         {
-            Font toDispose = cachedFont;
-            Dispatcher.UIThread.Post(() =>
-            {
-                toDispose?.Dispose();
-            });
-
+            fontsToDispose.Add(cachedFont);
             cachedFont = toolbar.ConstructFont();
             document.TextOverlayHandler.Font = cachedFont;
         }
@@ -257,7 +264,6 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             AntiAlias = toolbar.AntiAliasing,
             Path = onPath,
             // TODO: MaxWidth = toolbar.MaxWidth
-            // TODO: Path
         };
     }
 

@@ -161,7 +161,7 @@ internal static class ClipboardController
 
         await Clipboard.SetDataObjectAsync(data);
     }
-    
+
     public static async Task<string> GetTextFromClipboard()
     {
         return await Clipboard.GetTextAsync();
@@ -269,13 +269,13 @@ internal static class ClipboardController
 
             var layer = doc.StructureHelper.Find(layerId);
 
-            if(layer == null) return false;
+            if (layer == null) return false;
 
-            if(tightBounds == null)
+            if (tightBounds == null)
             {
                 tightBounds = layer.TightBounds;
             }
-            else if(layer.TightBounds.HasValue)
+            else if (layer.TightBounds.HasValue)
             {
                 tightBounds = tightBounds.Value.Union(layer.TightBounds.Value);
             }
@@ -434,62 +434,6 @@ internal static class ClipboardController
         return surfaces;
     }
 
-    [Evaluator.CanExecute("PixiEditor.Clipboard.HasImageInClipboard")]
-    public static async Task<bool> IsImageInClipboard()
-    {
-        var formats = await Clipboard.GetFormatsAsync();
-        if (formats == null || formats.Length == 0)
-            return false;
-
-        bool isImage = IsImageFormat(formats);
-
-        if (!isImage)
-        {
-            string path = await TryFindImageInFiles(formats);
-            return Path.Exists(path);
-        }
-
-        return isImage;
-    }
-
-    private static async Task<string> TryFindImageInFiles(string[] formats)
-    {
-        foreach (string format in formats)
-        {
-            if (format == DataFormats.Text)
-            {
-                string text = await Clipboard.GetTextAsync();
-                if (Importer.IsSupportedFile(text))
-                {
-                    return text;
-                }
-            }
-            else if (format == DataFormats.Files)
-            {
-                var files = await Clipboard.GetDataAsync(format);
-                if (files is IEnumerable<IStorageItem> storageFiles)
-                {
-                    foreach (var file in storageFiles)
-                    {
-                        try
-                        {
-                            if (Importer.IsSupportedFile(file.Path.LocalPath))
-                            {
-                                return file.Path.LocalPath;
-                            }
-                        }
-                        catch (UriFormatException)
-                        {
-                            continue;
-                        }
-                    }
-                }
-            }
-        }
-
-        return string.Empty;
-    }
-
     public static bool IsImage(IDataObject? dataObject)
     {
         if (dataObject == null)
@@ -514,7 +458,62 @@ internal static class ClipboardController
         return HasData(dataObject, ClipboardDataFormats.Png, ClipboardDataFormats.ImageSlashPng);
     }
 
-    private static bool IsImageFormat(string[] formats)
+    public static async Task<bool> IsImageInClipboard()
+    {
+        var formats = await Clipboard.GetFormatsAsync();
+        if (formats == null || formats.Length == 0)
+            return false;
+
+        bool isImage = IsImageFormat(formats);
+
+        if (!isImage)
+        {
+            string path = await TryFindImageInFiles(formats);
+            return Path.Exists(path);
+        }
+
+        return isImage;
+    }
+
+    private static async Task<string> TryFindImageInFiles(string[] formats)
+    {
+        foreach (string format in formats)
+        {
+            if (format == DataFormats.Text)
+            {
+                string text = await ClipboardController.GetTextFromClipboard();
+                if (Importer.IsSupportedFile(text))
+                {
+                    return text;
+                }
+            }
+            else if (format == DataFormats.Files)
+            {
+                var files = await ClipboardController.Clipboard.GetDataAsync(format);
+                if (files is IEnumerable<IStorageItem> storageFiles)
+                {
+                    foreach (var file in storageFiles)
+                    {
+                        try
+                        {
+                            if (Importer.IsSupportedFile(file.Path.LocalPath))
+                            {
+                                return file.Path.LocalPath;
+                            }
+                        }
+                        catch (UriFormatException)
+                        {
+                            continue;
+                        }
+                    }
+                }
+            }
+        }
+
+        return string.Empty;
+    }
+
+    public static bool IsImageFormat(string[] formats)
     {
         foreach (var format in formats)
         {
@@ -601,7 +600,7 @@ internal static class ClipboardController
     {
         return await GetIds(ClipboardDataFormats.CelIdList);
     }
-    
+
     public static async Task<Guid[]> GetIds(string format)
     {
         var data = await TryGetDataObject();

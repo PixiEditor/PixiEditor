@@ -51,7 +51,7 @@
   <ItemGroup Condition="'$(Configuration)' == 'DevSteam'">
     <ProjectReference Include="..\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj"/>
   </ItemGroup>
-  
+
   <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj"/>
   </ItemGroup>
@@ -59,15 +59,15 @@
   <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
     <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj"/>
   </ItemGroup>
-  
+
   <ItemGroup Condition=" '$(Configuration)' == 'DevRelease' ">
     <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj"/>
   </ItemGroup>
-  
+
   <ItemGroup Condition=" '$(Configuration)' == 'MSIX' ">
     <ProjectReference Include="..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj"/>
   </ItemGroup>
-  
+
   <ItemGroup Condition=" '$(Configuration)' == 'MSIX Debug' ">
     <ProjectReference Include="..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj"/>
   </ItemGroup>
@@ -83,31 +83,31 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.3.0" />
+    <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.3.0"/>
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)"/>
     <PackageReference Include="Avalonia.Headless" Version="$(AvaloniaVersion)"/>
     <PackageReference Include="Avalonia.Labs.Lottie" Version="11.2.0"/>
     <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)"/>
     <PackageReference Include="Avalonia.Skia" Version="$(AvaloniaVersion)"/>
-    <PackageReference Include="Avalonia.Svg.Skia" Version="11.2.0" />
+    <PackageReference Include="Avalonia.Svg.Skia" Version="11.2.0"/>
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)"/>
-    <PackageReference Include="ByteSize" Version="2.1.2" />
+    <PackageReference Include="ByteSize" Version="2.1.2"/>
     <PackageReference Include="CLSEncoderDecoder" Version="1.0.0"/>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2"/>
     <PackageReference Include="DiscordRichPresence" Version="1.2.1.24"/>
-    <PackageReference Include="Hardware.Info" Version="101.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.11.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
+    <PackageReference Include="Hardware.Info" Version="101.0.0"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.11.0"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0"/>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
     <PackageReference Include="PixiEditor.ColorPicker.AvaloniaUI" Version="1.0.6"/>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Drawie\src\Drawie.Interop.Avalonia\Drawie.Interop.Avalonia.csproj" />
-    <ProjectReference Include="..\Drawie\src\Drawie.Interop.Avalonia.Core\Drawie.Interop.Avalonia.Core.csproj" />
+    <ProjectReference Include="..\Drawie\src\Drawie.Interop.Avalonia\Drawie.Interop.Avalonia.csproj"/>
+    <ProjectReference Include="..\Drawie\src\Drawie.Interop.Avalonia.Core\Drawie.Interop.Avalonia.Core.csproj"/>
     <ProjectReference Include="..\PixiDocks\src\PixiDocks.Avalonia\PixiDocks.Avalonia.csproj"/>
-    <ProjectReference Include="..\PixiEditor.SVG\PixiEditor.SVG.csproj" />
+    <ProjectReference Include="..\PixiEditor.SVG\PixiEditor.SVG.csproj"/>
     <ProjectReference Include="..\PixiParser\src\PixiParser.Skia\PixiParser.Skia.csproj"/>
     <ProjectReference Include="..\PixiParser\src\PixiParser\PixiParser.csproj"/>
     <ProjectReference Include="..\ChunkyImageLib\ChunkyImageLib.csproj"/>
@@ -146,7 +146,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Extensions\" />
+    <Folder Include="Extensions\"/>
   </ItemGroup>
 
 </Project>

@@ -49,7 +49,9 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         return false;
     }
 
-    [Evaluator.CanExecute("PixiEditor.Layer.CanDeleteSelected")]
+    [Evaluator.CanExecute("PixiEditor.Layer.CanDeleteSelected",
+        nameof(DocumentManagerViewModel.ActiveDocument),
+        nameof(DocumentManagerViewModel.ActiveDocument.SelectedStructureMember))]
     public bool CanDeleteSelected()
     {
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
@@ -58,7 +60,10 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         return true;
     }
 
-    [Evaluator.CanExecute("PixiEditor.Layer.HasSelectedMembers")]
+    [Evaluator.CanExecute("PixiEditor.Layer.HasSelectedMembers",
+        nameof(DocumentManagerViewModel.ActiveDocument),
+        nameof(DocumentManagerViewModel.ActiveDocument.SelectedStructureMember),
+        nameof(DocumentManagerViewModel.ActiveDocument.SoftSelectedStructureMembers))]
     public bool HasSelectedMembers()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -67,7 +72,10 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         return doc.SelectedStructureMember is not null || doc.SoftSelectedStructureMembers.Count > 0;
     }
 
-    [Evaluator.CanExecute("PixiEditor.Layer.HasMultipleSelectedMembers")]
+    [Evaluator.CanExecute("PixiEditor.Layer.HasMultipleSelectedMembers",
+        nameof(DocumentManagerViewModel.ActiveDocument),
+        nameof(DocumentManagerViewModel.ActiveDocument.SelectedStructureMember),
+        nameof(DocumentManagerViewModel.ActiveDocument.SoftSelectedStructureMembers))]
     public bool HasMultipleSelectedMembers()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -255,11 +263,17 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Evaluator.CanExecute("PixiEditor.Layer.ActiveLayerHasMask")]
+    [Evaluator.CanExecute("PixiEditor.Layer.ActiveLayerHasMask",
+        nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument),
+        nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember),
+        nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember.HasMaskBindable))]
     public bool ActiveMemberHasMask() =>
         Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember?.HasMaskBindable ?? false;
 
-    [Evaluator.CanExecute("PixiEditor.Layer.ActiveLayerHasNoMask")]
+    [Evaluator.CanExecute("PixiEditor.Layer.ActiveLayerHasNoMask",
+        nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument),
+        nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember),
+        nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument.SelectedStructureMember.HasMaskBindable))]
     public bool ActiveLayerHasNoMask() =>
         !Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember?.HasMaskBindable ?? false;
 
@@ -381,11 +395,18 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         Icon = PixiPerfectIcons.Merge, AnalyticsTrack = true)]
     public void MergeWithBelow() => MergeSelectedWith(false);
 
-    [Evaluator.CanExecute("PixiEditor.Layer.ReferenceLayerExists")]
+    [Evaluator.CanExecute("PixiEditor.Layer.ReferenceLayerExists",
+        nameof(ViewModelMain.DocumentManagerSubViewModel),
+        nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument),
+        nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument.ReferenceLayerViewModel),
+        nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument.ReferenceLayerViewModel.ReferenceTexture))]
     public bool ReferenceLayerExists() =>
         Owner.DocumentManagerSubViewModel.ActiveDocument?.ReferenceLayerViewModel.ReferenceTexture is not null;
 
-    [Evaluator.CanExecute("PixiEditor.Layer.ReferenceLayerDoesntExist")]
+    [Evaluator.CanExecute("PixiEditor.Layer.ReferenceLayerDoesntExist", 
+        nameof(ViewModelMain.DocumentManagerSubViewModel),
+        nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument),
+        nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument.ReferenceLayerViewModel.ReferenceTexture))]
     public bool ReferenceLayerDoesntExist() =>
         Owner.DocumentManagerSubViewModel.ActiveDocument is not null &&
         Owner.DocumentManagerSubViewModel.ActiveDocument.ReferenceLayerViewModel.ReferenceTexture is null;
