@@ -10,9 +10,9 @@ public class ChangeBlock : IDisposable
         Accumulator.StartChangeBlock();
     }
     
-    public async Task ExecuteQueuedActions()
+    public void ExecuteQueuedActions()
     {
-        await Accumulator.TryExecuteAccumulatedActions();
+        Accumulator.TryExecuteAccumulatedActions();
     }
     
     public void Dispose()
