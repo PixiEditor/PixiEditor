@@ -602,7 +602,7 @@ internal class CommandController
                                     evaluateFunction => new CanExecuteEvaluator()
                                     {
                                         Name = attribute.Name, Evaluate = evaluateFunction.Invoke,
-                                        /*DependentOn = canExecuteAttribute.DependentOn*/
+                                        DependentOn = canExecuteAttribute.DependentOn
                                     });
                                 break;
                             }

@@ -59,7 +59,6 @@ internal class ClassicDesktopEntry
         StartupArgs.Args = e.Args.ToList();
         string arguments = string.Join(' ', e.Args);
 
-        Dispatcher dispatcher = Dispatcher.UIThread;
         InitOperatingSystem();
 
         if (ParseArgument("--crash (\"?)([A-z0-9:\\/\\ -_.]+)\\1", arguments, out Group[] groups))
