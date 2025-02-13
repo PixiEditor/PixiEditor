@@ -84,9 +84,9 @@ internal class ClassicDesktopEntry
 
             return;
         }
-
+        
 #if !STEAM && !DEBUG
-        if (!HandleNewInstance(dispatcher))
+        if (!HandleNewInstance(Dispatcher.UIThread))
         {
             return;
         }
