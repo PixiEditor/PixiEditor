@@ -341,10 +341,14 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         member.IsVisibleBindable = !member.IsVisibleBindable;
     }
 
-    [Evaluator.CanExecute("PixiEditor.Layer.HasMemberAbove")]
+    [Evaluator.CanExecute("PixiEditor.Layer.HasMemberAbove", 
+        nameof(DocumentManagerViewModel.ActiveDocument), 
+        nameof(DocumentViewModel.SelectedStructureMember), nameof(DocumentViewModel.AllChangesSaved))]
     public bool HasMemberAbove(object property) => HasSelectedMember(true);
 
-    [Evaluator.CanExecute("PixiEditor.Layer.HasMemberBelow")]
+    [Evaluator.CanExecute("PixiEditor.Layer.HasMemberBelow",
+    nameof(DocumentManagerViewModel.ActiveDocument), 
+    nameof(DocumentViewModel.SelectedStructureMember), nameof(DocumentViewModel.AllChangesSaved))]
     public bool HasMemberBelow(object property) => HasSelectedMember(false);
 
     [Command.Basic("PixiEditor.Layer.MoveSelectedMemberUpwards", "MOVE_MEMBER_UP", "MOVE_MEMBER_UP_DESCRIPTIVE",
