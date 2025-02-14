@@ -143,6 +143,7 @@ internal partial class HelloTherePopup : PixiEditorPopup
         Closing += (_, _) => { IsClosing = true; };
 
         Activated += RefreshClipboardImg;
+        Loaded += HelloTherePopup_OnLoaded;
 
         InitializeComponent();
 

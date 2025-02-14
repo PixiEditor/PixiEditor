@@ -52,7 +52,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         (LocalPalettesFetcher)PaletteProvider.DataSources.FirstOrDefault(x => x is LocalPalettesFetcher)!;
 
     public bool ColorsTempSwapped { get; private set; }
-    
+
     private Color primaryColor = Colors.Black;
     private Color secondaryColor = Colors.White;
     private ColorState primaryColorState;
@@ -170,14 +170,11 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
     }
 
     [Commands_Command.Basic("PixiEditor.Colors.OpenPaletteBrowser", "OPEN_PALETTE_BROWSER", "OPEN_PALETTE_BROWSER",
-        CanExecute = "PixiEditor.HasDocument",
         Icon = PixiPerfectIcons.Database, MenuItemPath = "VIEW/OPEN_PALETTE_BROWSER", MenuItemOrder = 3,
         AnalyticsTrack = true)]
     public void OpenPalettesBrowser()
     {
-        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        if (doc is not null)
-            PalettesBrowser.Open();
+        PalettesBrowser.Open();
     }
 
     private async Task ImportLospecPalette()
@@ -374,9 +371,9 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         }
         else
         {
-            ColorsTempSwapped = false;    
+            ColorsTempSwapped = false;
         }
-        
+
         (PrimaryColor, SecondaryColor) = (SecondaryColor, PrimaryColor);
     }
 

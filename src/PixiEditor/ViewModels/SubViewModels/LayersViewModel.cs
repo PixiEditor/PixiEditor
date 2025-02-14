@@ -201,21 +201,24 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         member.Document.Operations.DuplicateMember(member.Id);
     }
 
-    [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsLayer")]
+    [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsLayer", 
+        nameof(DocumentManagerViewModel.ActiveDocument), nameof(DocumentViewModel.SelectedStructureMember))]
     public bool SelectedMemberIsLayer(object property)
     {
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
         return member is ILayerHandler;
     }
 
-    [Evaluator.CanExecute("PixiEditor.Layer.SelectedLayerIsRasterizable")]
+    [Evaluator.CanExecute("PixiEditor.Layer.SelectedLayerIsRasterizable",
+        nameof(DocumentManagerViewModel.ActiveDocument), nameof(DocumentViewModel.SelectedStructureMember))]
     public bool SelectedLayerIsRasterizable(object property)
     {
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
         return member is ILayerHandler && member is not IRasterLayerHandler;
     }
     
-    [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsVectorLayer")]
+    [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsVectorLayer",
+        nameof(DocumentManagerViewModel.ActiveDocument), nameof(DocumentViewModel.SelectedStructureMember))]
     public bool SelectedMemberIsVectorLayer(object property)
     {
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
