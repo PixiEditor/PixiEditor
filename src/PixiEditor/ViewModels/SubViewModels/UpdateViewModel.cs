@@ -73,7 +73,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     public async Task<bool> CheckForUpdate()
     {
-        if(IOperatingSystem.Current.Name != "Windows")
+        if(!IOperatingSystem.Current.IsWindows)
         {
             return false;
         }
@@ -249,7 +249,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private void Owner_OnStartupEvent(object sender, EventArgs e)
+    private void Owner_OnStartupEvent()
     {
         ConditionalUPDATE();
     }

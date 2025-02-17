@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using PixiEditor.OperatingSystem;
 using PixiEditor.ViewModels.Menu;

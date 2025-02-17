@@ -24,6 +24,7 @@ using PixiEditor.Models.ExternalServices;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Palettes;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.ViewModels.Document;
 using PixiEditor.Views.Dialogs;
 using PixiEditor.Views.Windows;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
@@ -51,7 +52,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         (LocalPalettesFetcher)PaletteProvider.DataSources.FirstOrDefault(x => x is LocalPalettesFetcher)!;
 
     public bool ColorsTempSwapped { get; private set; }
-    
+
     private Color primaryColor = Colors.Black;
     private Color secondaryColor = Colors.White;
     private ColorState primaryColorState;
@@ -103,7 +104,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         Owner.OnStartupEvent += OwnerOnStartupEvent;
     }
 
-    [Evaluator.CanExecute("PixiEditor.Colors.CanReplaceColors")]
+    [Evaluator.CanExecute("PixiEditor.Colors.CanReplaceColors", nameof(DocumentManagerViewModel.ActiveDocument))]
     public bool CanReplaceColors()
     {
         return ViewModelMain.Current?.DocumentManagerSubViewModel?.ActiveDocument is not null;
@@ -163,20 +164,17 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         return new DrawingImage(new DrawingGroup { Children = new DrawingCollection { oldDrawing, newDrawing } });
     }
 
-    private async void OwnerOnStartupEvent(object sender, EventArgs e)
+    private async void OwnerOnStartupEvent()
     {
         await ImportLospecPalette();
     }
 
     [Commands_Command.Basic("PixiEditor.Colors.OpenPaletteBrowser", "OPEN_PALETTE_BROWSER", "OPEN_PALETTE_BROWSER",
-        CanExecute = "PixiEditor.HasDocument",
         Icon = PixiPerfectIcons.Database, MenuItemPath = "VIEW/OPEN_PALETTE_BROWSER", MenuItemOrder = 3,
         AnalyticsTrack = true)]
     public void OpenPalettesBrowser()
     {
-        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        if (doc is not null)
-            PalettesBrowser.Open();
+        PalettesBrowser.Open();
     }
 
     private async Task ImportLospecPalette()
@@ -239,7 +237,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         }
     }
 
-    [Evaluator.CanExecute("PixiEditor.Colors.CanImportPalette")]
+    [Evaluator.CanExecute("PixiEditor.Colors.CanImportPalette", nameof(DocumentManagerViewModel.ActiveDocument))]
     public bool CanImportPalette(List<PaletteColor> paletteColors)
     {
         return paletteColors is not null && Owner.DocumentIsNotNull(paletteColors) && paletteColors.Count > 0;
@@ -261,7 +259,8 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         }
     }
 
-    [Evaluator.CanExecute("PixiEditor.Colors.CanSelectPaletteColor")]
+    [Evaluator.CanExecute("PixiEditor.Colors.CanSelectPaletteColor", nameof(DocumentManagerViewModel.ActiveDocument),
+        nameof(DocumentManagerViewModel.ActiveDocument.Palette))]
     public bool CanSelectPaletteColor(int index)
     {
         var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -372,9 +371,9 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         }
         else
         {
-            ColorsTempSwapped = false;    
+            ColorsTempSwapped = false;
         }
-        
+
         (PrimaryColor, SecondaryColor) = (SecondaryColor, PrimaryColor);
     }
 

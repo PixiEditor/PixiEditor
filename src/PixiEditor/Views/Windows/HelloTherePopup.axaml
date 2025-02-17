@@ -17,7 +17,7 @@
                          xmlns:windows="clr-namespace:PixiEditor.Views.Windows"
                          mc:Ignorable="d"
                          Title="Hello there!" Height="680" Width="982" MinHeight="500" MinWidth="600"
-                         Loaded="HelloTherePopup_OnLoaded">
+                         >
 
     <Window.Styles>
         <Style Selector="TextBlock">

@@ -20,6 +20,7 @@ internal class CommandSearchResult : SearchResult
     public CommandSearchResult(Command command)
     {
         Command = command;
+        Command.CanExecuteChanged += () => OnPropertyChanged(nameof(CanExecute));
     }
 
     public override void Execute()
