@@ -82,7 +82,7 @@ internal class ActionAccumulator
         TryExecuteAccumulatedActions();
     }
 
-    internal async Task TryExecuteAccumulatedActions()
+    internal void TryExecuteAccumulatedActions()
     {
         if (executing || queuedActions.Count == 0)
             return;
@@ -109,7 +109,7 @@ internal class ActionAccumulator
                 }
                 else
                 {
-                    changes = await internals.Tracker.ProcessActions(toExecute);
+                    changes = internals.Tracker.ProcessActionsSync(toExecute);
                 }
 
                 List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);
@@ -137,11 +137,11 @@ internal class ActionAccumulator
                     canvasUpdater.UpdateGatheredChunksSync(affectedAreas,
                         undoBoundaryPassed || viewportRefreshRequest);
                 }
-                else
+                /*else
                 {
                     await canvasUpdater.UpdateGatheredChunks(affectedAreas,
                         undoBoundaryPassed || viewportRefreshRequest);
-                }
+                }*/
 
                 previewUpdater.UpdatePreviews(undoBoundaryPassed || changeFrameRequest || viewportRefreshRequest,
                     affectedAreas.ImagePreviewAreas.Keys,
@@ -164,7 +164,7 @@ internal class ActionAccumulator
 #if DEBUG
             Console.WriteLine(e);
 #endif
-            await CrashHelper.SendExceptionInfoAsync(e);
+            CrashHelper.SendExceptionInfoAsync(e);
             throw;
         }
 

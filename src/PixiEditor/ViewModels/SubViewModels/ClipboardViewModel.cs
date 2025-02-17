@@ -202,7 +202,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
             if (newIds.Count == 0)
                 return;
 
-            await block.ExecuteQueuedActions();
+            block.ExecuteQueuedActions();
 
             ConnectRelatedNodes(doc, nodeMapping);
 
