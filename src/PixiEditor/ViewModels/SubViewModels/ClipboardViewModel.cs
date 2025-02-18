@@ -305,6 +305,8 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
             return;
 
         await ClipboardController.CopyToClipboard(doc);
+
+        hasImageInClipboard = true;
     }
 
     [Command.Basic("PixiEditor.Clipboard.CopyVisible", "COPY_VISIBLE", "COPY_VISIBLE_DESCRIPTIVE",
@@ -318,6 +320,8 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
             return;
 
         await ClipboardController.CopyVisibleToClipboard(doc);
+
+        hasImageInClipboard = true;
     }
 
     [Command.Basic("PixiEditor.Clipboard.CopyNodes", "COPY_NODES", "COPY_NODES_DESCRIPTIVE",
@@ -336,6 +340,8 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
             return;
 
         await ClipboardController.CopyNodes(selectedNodes);
+
+        areNodesInClipboard = true;
     }
 
     [Command.Basic("PixiEditor.Clipboard.CopyCels", "COPY_CELS",
@@ -353,6 +359,8 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
             return;
 
         await ClipboardController.CopyCels(selectedCels);
+
+        areCelsInClipboard = true;
     }
 
 

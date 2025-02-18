@@ -20,6 +20,11 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
         NonOverridenValue = _ => constantNonOverrideValue;
     }
 
+    protected override void NonOverridenValueSet(Func<FuncContext, T> value)
+    {
+        constantNonOverrideValue = value(FuncContext.NoContext);
+    }
+
     protected internal override object FuncFactory(object toReturn)
     {
         Func<FuncContext, T> func = _ =>
@@ -133,6 +138,7 @@ public class FuncInputProperty<T> : InputProperty<Func<FuncContext, T>>, IFuncIn
         if (constantNonOverrideValue is ShaderExpressionVariable shaderExpressionVariable)
         {
             shaderExpressionVariable.SetConstantValue(value, ConversionTable.Convert);
+            NonOverridenValue = _ => constantNonOverrideValue;
             return;
         }
 

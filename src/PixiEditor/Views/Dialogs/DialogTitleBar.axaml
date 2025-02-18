@@ -23,7 +23,7 @@
         <DockPanel IsHitTestVisible="True">
             <CaptionButtons Name="captionButtons" DockPanel.Dock="Right" IsVisible="{OnPlatform macOS=false, Default=true}"/>
             <ContentPresenter DockPanel.Dock="Right" IsVisible="{Binding !!AdditionalElement}" Content="{Binding Path=AdditionalElement}"/>
-            <Panel Background="Transparent" IsHitTestVisible="True" /><!-- dummy control to occupy dockpanel center -->
+            <Panel Background="{OnPlatform Default={x:Null}, Linux=Transparent}" IsHitTestVisible="True" /><!-- dummy control to occupy dockpanel center -->
         </DockPanel>
     </Grid>
 </UserControl>
