@@ -20,17 +20,15 @@ public static class UpdateDownloader
             throw new FileNotFoundException("No matching update for your system found.");
         }
 
-        using (HttpClient client = new HttpClient())
+        using HttpClient client = new HttpClient();
+        client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
+        client.DefaultRequestHeaders.Add("Accept", "application/octet-stream");
+        var response = await client.GetAsync(matchingAsset.Url);
+        if (response.StatusCode == HttpStatusCode.OK)
         {
-            client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
-            client.DefaultRequestHeaders.Add("Accept", "application/octet-stream");
-            var response = await client.GetAsync(matchingAsset.Url);
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync();
-                CreateTempDirectory();
-                File.WriteAllBytes(Path.Join(DownloadLocation, $"update-{release.TagName}.zip"), bytes);
-            }
+            byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+            CreateTempDirectory();
+            await File.WriteAllBytesAsync(Path.Join(DownloadLocation, $"update-{release.TagName}.zip"), bytes);
         }
     }
 
@@ -43,17 +41,15 @@ public static class UpdateDownloader
             throw new FileNotFoundException("No matching update for your system found.");
         }
 
-        using (HttpClient client = new HttpClient())
+        using HttpClient client = new HttpClient();
+        client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
+        client.DefaultRequestHeaders.Add("Accept", "application/octet-stream");
+        var response = await client.GetAsync(matchingAsset.Url);
+        if (response.StatusCode == HttpStatusCode.OK)
         {
-            client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
-            client.DefaultRequestHeaders.Add("Accept", "application/octet-stream");
-            var response = await client.GetAsync(matchingAsset.Url);
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync();
-                CreateTempDirectory();
-                File.WriteAllBytes(Path.Join(DownloadLocation, $"update-{info.TagName}.exe"), bytes);
-            }
+            byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+            CreateTempDirectory();
+            await File.WriteAllBytesAsync(Path.Join(DownloadLocation, $"update-{info.TagName}.exe"), bytes);
         }
     }
 
@@ -67,8 +63,9 @@ public static class UpdateDownloader
 
     private static Asset? GetMatchingAsset(ReleaseInfo release, string assetType = "zip")
     {
-        string arch = IntPtr.Size == 8 ? "x64" : "x86";
+        string arch = "x64";
+        string os = OperatingSystem.IsWindows() ? "win" : OperatingSystem.IsLinux() ? "linux" : "mac";
         return release.Assets.FirstOrDefault(x => x.ContentType.Contains(assetType)
-                                         && x.Name.Contains(arch));
+                                         && x.Name.Contains(arch) && x.Name.Contains(os));
     }
 }
