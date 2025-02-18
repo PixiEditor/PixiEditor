@@ -203,7 +203,9 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         SetActiveToolSet(AllToolSets.ElementAt(nextIndex));
     }
 
-    [Evaluator.CanExecute("PixiEditor.HasNextToolSet")]
+    [Evaluator.CanExecute("PixiEditor.HasNextToolSet",
+        nameof(ActiveToolSet),
+        nameof(AllToolSets))]
     public bool HasNextToolSet(bool next)
     {
         int currentIndex = AllToolSets.IndexOf(ActiveToolSet);
@@ -320,7 +322,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
             toolbar.ToolSize = newSize;
     }
 
-    [Evaluator.CanExecute("PixiEditor.Tools.CanChangeToolSize")]
+    [Evaluator.CanExecute("PixiEditor.Tools.CanChangeToolSize",
+        nameof(ActiveTool))]
     public bool CanChangeToolSize() => Owner.ToolsSubViewModel.ActiveTool?.Toolbar is IToolSizeToolbar
                                        && Owner.ToolsSubViewModel.ActiveTool is not PenToolViewModel
                                        {

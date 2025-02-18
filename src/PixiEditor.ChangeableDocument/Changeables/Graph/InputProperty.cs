@@ -51,6 +51,7 @@ public class InputProperty : IInputProperty
         set
         {
             _internalValue = value;
+            NonOverridenValueSet(value);
         }
     }
 
@@ -119,6 +120,10 @@ public class InputProperty : IInputProperty
 
             return true;
         }
+    }
+
+    protected virtual void NonOverridenValueSet(object value)
+    {
     }
 
     internal virtual void UpdateCache()
@@ -199,7 +204,22 @@ public class InputProperty<T> : InputProperty, IInputProperty<T>
     public T NonOverridenValue
     {
         get => (T)(base.NonOverridenValue ?? default(T));
-        set => base.NonOverridenValue = value;
+        set
+        {
+            base.NonOverridenValue = value;
+        }
+    }
+
+    protected override void NonOverridenValueSet(object value)
+    {
+        if (value is T casted)
+        {
+            NonOverridenValueSet(casted);
+        }
+    }
+
+    protected virtual void NonOverridenValueSet(T value)
+    {
     }
 
     internal InputProperty(Node node, string internalName, string displayName, T defaultValue) : base(node,

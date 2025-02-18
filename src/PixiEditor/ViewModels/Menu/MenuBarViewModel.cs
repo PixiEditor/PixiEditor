@@ -5,6 +5,7 @@ using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
+using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.Commands.XAML;
 using PixiEditor.Extensions.Common.Localization;
@@ -89,7 +90,7 @@ internal class MenuBarViewModel : PixiObservableObject
             {
                 builder.ModifyMenuTree(nativeMenuItems);
             }
-            
+
             NativeMenu = [];
             foreach (var item in nativeMenuItems)
             {

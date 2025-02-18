@@ -135,6 +135,8 @@ internal partial class NumberInput : TextBox
     private double _pressedValue;
     private double _pressedRelativeX;
 
+    private double scrollBuildup;
+
     static NumberInput()
     {
         ValueProperty.Changed.Subscribe(OnValueChanged);
@@ -240,7 +242,7 @@ internal partial class NumberInput : TextBox
 
         behavior.Bind(TextBoxFocusBehavior.ConfirmOnEnterProperty, confirmOnEnterBinding);
     }
-    
+
     private static double CoerceValue(AvaloniaObject o, double value)
     {
         double min = (double)o.GetValue(MinProperty);
@@ -249,14 +251,14 @@ internal partial class NumberInput : TextBox
 
         return Math.Round(Math.Clamp(value, min, max), decimals);
     }
-    
+
     private static int CoerceDecimals(AvaloniaObject o, int value)
     {
         if (value < 0)
         {
             value = 0;
         }
-        
+
         return value;
     }
 
@@ -347,15 +349,31 @@ internal partial class NumberInput : TextBox
             return;
         }
 
-        int step = (int)e.Delta.Y;
+        e.Handled = true;
+        double requiredBuildup = 1f;
+
+        if (Decimals == 0 && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+        {
+            requiredBuildup = 2;
+        }
+
+        scrollBuildup += e.Delta.Y;
+
+        if (Math.Abs(scrollBuildup) < requiredBuildup)
+        {
+            return;
+        }
+
+        double step = Math.Sign(e.Delta.Y);
 
         double newValue = Value;
-        if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+        if (e.KeyModifiers.HasFlag(KeyModifiers.Shift) && Min - double.NegativeInfinity > 0.1f &&
+            Max - double.PositiveInfinity > 0.1f)
         {
             double multiplier = (Max - Min) * 0.1f;
             newValue += step * multiplier;
         }
-        else if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
+        else if (e.KeyModifiers.HasFlag(KeyModifiers.Control) && Decimals > 0)
         {
             newValue += step / 2f;
         }
@@ -366,6 +384,7 @@ internal partial class NumberInput : TextBox
 
         Value = (float)Math.Round(Math.Clamp(newValue, Min, Max), Decimals);
 
+        scrollBuildup = 0;
         OnScrollAction?.Invoke();
     }
 

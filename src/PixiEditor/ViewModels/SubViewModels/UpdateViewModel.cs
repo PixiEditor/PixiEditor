@@ -73,7 +73,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     public async Task<bool> CheckForUpdate()
     {
-        if(IOperatingSystem.Current.Name != "Windows")
+        if(!IOperatingSystem.Current.IsWindows)
         {
             return false;
         }
@@ -249,7 +249,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private void Owner_OnStartupEvent(object sender, EventArgs e)
+    private void Owner_OnStartupEvent()
     {
         ConditionalUPDATE();
     }
@@ -257,7 +257,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     [Conditional("UPDATE")]
     private async void ConditionalUPDATE()
     {
-        if (PixiEditorSettings.Update.CheckUpdatesOnStartup.Value)
+        if (PixiEditorSettings.Update.CheckUpdatesOnStartup.Value && OsSupported())
         {
             try
             {
@@ -279,6 +279,11 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
             Install();
         }
+    }
+    
+    private bool OsSupported()
+    {
+        return IOperatingSystem.Current.IsWindows;
     }
     
     private bool UpdateInfoExists()

@@ -340,3 +340,4 @@ GitIgnore
 
 Cache/
 .DS_Store
+nohup.out

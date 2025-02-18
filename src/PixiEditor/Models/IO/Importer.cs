@@ -77,11 +77,6 @@ internal class Importer : ObservableObject
         }
     }
 
-    public static WriteableBitmap ImportWriteableBitmap(string path)
-    {
-        return ImportBitmap(path).ToWriteableBitmap();
-    }
-
     public static DocumentViewModel ImportDocument(string path, bool associatePath = true)
     {
         try

@@ -261,9 +261,11 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         ActiveDocument.Operations.UseSrgbProcessing();
     }
 
-    [Evaluator.CanExecute("PixiEditor.DocumentUsesSrgbBlending", nameof(ActiveDocument))]
+    [Evaluator.CanExecute("PixiEditor.DocumentUsesSrgbBlending", nameof(ActiveDocument),
+        nameof(ActiveDocument.UsesSrgbBlending))]
     public bool DocumentUsesSrgbBlending() => ActiveDocument?.UsesSrgbBlending ?? false;
 
-    [Evaluator.CanExecute("PixiEditor.DocumentUsesLinearBlending", nameof(ActiveDocument))]
+    [Evaluator.CanExecute("PixiEditor.DocumentUsesLinearBlending", nameof(ActiveDocument),
+        nameof(ActiveDocument.UsesSrgbBlending))]
     public bool DocumentUsesLinearBlending() => !ActiveDocument?.UsesSrgbBlending ?? true;
 }

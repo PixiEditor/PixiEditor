@@ -2,13 +2,18 @@ using AsyncImageLoader.Loaders;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using Avalonia.OpenGL;
 using Avalonia.Platform;
 using Avalonia.Rendering.Composition;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Microsoft.Extensions.DependencyInjection;
 using Drawie.Backend.Core.Bridge;
+using PixiDocks.Avalonia.Helpers;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
@@ -18,6 +23,7 @@ using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO;
 using PixiEditor.Platform;
 using PixiEditor.ViewModels.SubViewModels;
+using PixiEditor.Views.Main;
 using PixiEditor.Views.Rendering;
 using ViewModels_ViewModelMain = PixiEditor.ViewModels.ViewModelMain;
 
@@ -30,8 +36,10 @@ internal partial class MainWindow : Window
     private readonly IServiceProvider services;
     private static ExtensionLoader extLoader;
 
+    private MainTitleBar titleBar;
+
     public StartupPerformance StartupPerformance { get; } = new();
-    
+
     public new ViewModels_ViewModelMain DataContext
     {
         get => (ViewModels_ViewModelMain)base.DataContext;
@@ -53,7 +61,7 @@ internal partial class MainWindow : Window
     public MainWindow(ExtensionLoader extensionLoader, Guid? analyticsSessionId = null)
     {
         StartupPerformance.ReportToMainWindow();
-        
+
         (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime).MainWindow = this;
         extLoader = extensionLoader;
 
@@ -63,7 +71,8 @@ internal partial class MainWindow : Window
             .AddExtensionServices(extensionLoader)
             .BuildServiceProvider();
 
-        AsyncImageLoader.ImageLoader.AsyncImageLoader = new DiskCachedWebImageLoader(Path.Combine(Paths.TempFilesPath, "ImageCache"));
+        AsyncImageLoader.ImageLoader.AsyncImageLoader =
+            new DiskCachedWebImageLoader(Path.Combine(Paths.TempFilesPath, "ImageCache"));
 
         preferences = services.GetRequiredService<IPreferences>();
         platform = services.GetRequiredService<IPlatform>();
@@ -127,10 +136,60 @@ internal partial class MainWindow : Window
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
+        
+        titleBar = this.FindDescendantOfType<MainTitleBar>(true);
+        if (System.OperatingSystem.IsLinux())
+        {
+            titleBar.PointerPressed += OnTitleBarPressed;
+            
+            PointerMoved += UpdateResizeCursor;
+            AddHandler(PointerPressedEvent, Pressed, RoutingStrategies.Tunnel | RoutingStrategies.Bubble);
+        }
+        
+
         LoadingWindow.Instance?.SafeClose();
         Activate();
         StartupPerformance.ReportToInteractivity();
         Analytics.SendStartup(StartupPerformance);
+    }
+
+    private void UpdateResizeCursor(object? sender, PointerEventArgs e)
+    {
+        if(WindowState != WindowState.Normal)
+        {
+            return;
+        }
+        
+        Cursor = new Cursor(WindowUtility.SetResizeCursor(e, this, new Thickness(8)));
+    }
+
+    private void Pressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (WindowState == WindowState.Normal && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            var direction = WindowUtility.GetResizeDirection(e.GetPosition(this), this, new Thickness(8));
+            if(direction == null) return;
+            
+            BeginResizeDrag(direction.Value, e);
+        }
+    }
+
+    private void OnTitleBarPressed(object? sender, PointerPressedEventArgs e)
+    {
+        bool withinTitleBar = e.GetPosition(this).Y <= titleBar.Bounds.Height;
+        bool sourceIsMenuItem = e.Source is Control ctrl && ctrl.GetLogicalParent() is MenuItem;
+        if (withinTitleBar && !sourceIsMenuItem && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            if(e.ClickCount == 2)
+            {
+                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+            }
+            else
+            {
+                BeginMoveDrag(e);
+                e.Handled = true;
+            }
+        }
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)

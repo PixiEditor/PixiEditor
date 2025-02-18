@@ -24,7 +24,7 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
         windowProvider?.RegisterWindow<PalettesBrowser>();
     }
 
-    private void Owner_OnStartupEvent(object sender, EventArgs e)
+    private void Owner_OnStartupEvent()
     {
         ExtensionLoader.InitializeExtensions(new ExtensionServices(Owner.Services));
     }
