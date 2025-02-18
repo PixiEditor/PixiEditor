@@ -202,7 +202,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
             if (newIds.Count == 0)
                 return;
 
-            await block.ExecuteQueuedActions();
+            block.ExecuteQueuedActions();
 
             ConnectRelatedNodes(doc, nodeMapping);
 
@@ -421,7 +421,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanCopyNodes",
         nameof(Owner.DocumentManagerSubViewModel),
-        nameof(Owner.DocumentManagerSubViewModel.ActiveDocument), 
+        nameof(Owner.DocumentManagerSubViewModel.ActiveDocument),
         nameof(Owner.DocumentManagerSubViewModel.ActiveDocument.NodeGraph))]
     public bool CanCopyNodes()
     {
@@ -430,9 +430,10 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     }
 
 
-    [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteNodes", 
+    [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteNodes",
         nameof(Owner.DocumentManagerSubViewModel),
-        nameof(Owner.DocumentManagerSubViewModel.ActiveDocument), nameof(Owner.DocumentManagerSubViewModel.ActiveDocument.NodeGraph))]
+        nameof(Owner.DocumentManagerSubViewModel.ActiveDocument),
+        nameof(Owner.DocumentManagerSubViewModel.ActiveDocument.NodeGraph))]
     public bool CanPasteNodes()
     {
         if (!Owner.DocumentIsNotNull(null)) return false;
@@ -443,7 +444,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteCels",
         nameof(Owner.DocumentManagerSubViewModel),
-        nameof(Owner.DocumentManagerSubViewModel.ActiveDocument), 
+        nameof(Owner.DocumentManagerSubViewModel.ActiveDocument),
         nameof(Owner.DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel))]
     public bool CanPasteCels()
     {
@@ -575,21 +576,22 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     {
         if (clipboardTasks.TryGetValue(key, out var t))
         {
+            if (t.IsFaulted)
+            {
+                clipboardTasks.Remove(key, out _);
+            }
+
             return;
         }
 
-        var newTask = Task.Run(
+        var newTask = Dispatcher.UIThread.InvokeAsync(
             async () =>
             {
                 T result = await task();
                 if (!EqualityComparer<T>.Default.Equals(result, value))
                 {
                     updateAction(result);
-                    
-                    Dispatcher.UIThread.Invoke(() =>
-                    {
-                        CommandController.CanExecuteChanged("PixiEditor.Clipboard");
-                    });
+                    CommandController.CanExecuteChanged("PixiEditor.Clipboard");
                 }
 
                 clipboardTasks.Remove(key, out _);

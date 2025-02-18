@@ -19,7 +19,7 @@ using PixiEditor.ViewModels.Tools.Tools;
 namespace PixiEditor.ViewModels.Document;
 
 #nullable enable
-internal class ReferenceLayerViewModel : ObservableObject, IReferenceLayerHandler
+internal class ReferenceLayerViewModel : PixiObservableObject, IReferenceLayerHandler
 {
     private readonly DocumentViewModel doc;
     private readonly DocumentInternalParts internals;
