@@ -86,4 +86,21 @@ public sealed class LinuxOperatingSystem : IOperatingSystem
 
         public override string ToString() => $"{Name} {Version}";
     }
+
+    public string GetActiveDesktopEnvironment()
+    {
+        var desktopSession = Environment.GetEnvironmentVariable("DESKTOP_SESSION");
+        if (desktopSession != null)
+        {
+            return desktopSession;
+        }
+
+        var desktopSessionFile = Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP");
+        if (desktopSessionFile != null)
+        {
+            return desktopSessionFile;
+        }
+
+        return "Unknown";
+    }
 }
