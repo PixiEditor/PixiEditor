@@ -71,12 +71,15 @@ internal class CrashReport : IDisposable
         }
 
         builder
-            .AppendLine($"PixiEditor {VersionHelpers.GetCurrentAssemblyVersionString(moreSpecific: true)} x{IntPtr.Size * 8} crashed on {currentTime:yyyy.MM.dd} at {currentTime:HH:mm:ss} {currentTime:zzz}")
-            .AppendLine($"Application started {GetFormatted(() => processStartTime, "yyyy.MM.dd HH:hh:ss")}, {GetFormatted(() => currentTime - processStartTime, @"d\ hh\:mm\.ss")} ago")
+            .AppendLine(
+                $"PixiEditor {VersionHelpers.GetCurrentAssemblyVersionString(moreSpecific: true)} x{IntPtr.Size * 8} crashed on {currentTime:yyyy.MM.dd} at {currentTime:HH:mm:ss} {currentTime:zzz}")
+            .AppendLine(
+                $"Application started {GetFormatted(() => processStartTime, "yyyy.MM.dd HH:hh:ss")}, {GetFormatted(() => currentTime - processStartTime, @"d\ hh\:mm\.ss")} ago")
             .AppendLine($"Report: {Guid.NewGuid()}\n")
             .AppendLine("-----System Information----")
             .AppendLine("General:")
-            .AppendLine($"  OS: {Environment.OSVersion.VersionString}")
+            .AppendLine($"  OS: {IOperatingSystem.Current.AnalyticsName}")
+            .AppendLine($"  OS Version: {Environment.OSVersion.VersionString}")
             .AppendLine();
 
         CrashHelper helper = new();
