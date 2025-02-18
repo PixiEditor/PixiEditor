@@ -257,7 +257,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     [Conditional("UPDATE")]
     private async void ConditionalUPDATE()
     {
-        if (PixiEditorSettings.Update.CheckUpdatesOnStartup.Value)
+        if (PixiEditorSettings.Update.CheckUpdatesOnStartup.Value && OsSupported())
         {
             try
             {
@@ -279,6 +279,11 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
             Install();
         }
+    }
+    
+    private bool OsSupported()
+    {
+        return IOperatingSystem.Current.IsWindows;
     }
     
     private bool UpdateInfoExists()
