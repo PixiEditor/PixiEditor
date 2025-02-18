@@ -14,6 +14,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Root.ReferenceLayerChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Shaders.Generation;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentModels.Public;
@@ -579,7 +580,7 @@ internal class DocumentUpdater
             prop.PropertyName = input.PropertyName;
             prop.IsInput = isInput;
             prop.IsFunc = input.ValueType.IsAssignableTo(typeof(Delegate));
-            prop.InternalSetValue(input.InputValue);
+            prop.InternalSetValue(prop.IsFunc ? (input.InputValue as ShaderExpressionVariable)?.GetConstant() : input.InputValue);
             inputs.Add(prop);
         }
 
