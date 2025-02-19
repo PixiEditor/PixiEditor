@@ -41,6 +41,9 @@ public abstract class Node : IReadOnlyNode, IDisposable
     }
 
     protected virtual bool ExecuteOnlyOnCacheChange => false;
+    protected virtual CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs;
+
+    private KeyFrameTime lastFrameTime;
 
     protected internal bool IsDisposed => _isDisposed;
     private bool _isDisposed;
@@ -71,7 +74,19 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     protected virtual bool CacheChanged(RenderContext context)
     {
-        return inputs.Any(x => x.CacheChanged);
+        bool changed = false;
+
+        if (CacheTrigger.HasFlag(CacheTriggerFlags.Inputs))
+        {
+            changed |= inputs.Any(x => x.CacheChanged);
+        }
+
+        if (CacheTrigger.HasFlag(CacheTriggerFlags.Timeline))
+        {
+            changed |= lastFrameTime.Frame != context.FrameTime.Frame || Math.Abs(lastFrameTime.NormalizedTime - context.FrameTime.NormalizedTime) > float.Epsilon;
+        }
+
+        return changed;
     }
 
     protected virtual void UpdateCache(RenderContext context)
@@ -80,6 +95,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
         {
             input.UpdateCache();
         }
+
+        lastFrameTime = context.FrameTime;
     }
 
     public void TraverseBackwards(Func<IReadOnlyNode, IInputProperty, bool> action)

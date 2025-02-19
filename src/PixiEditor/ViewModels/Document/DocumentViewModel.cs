@@ -1010,12 +1010,15 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public bool RenderFrames(List<Image> frames, Func<Surface, Surface> processFrameAction = null)
     {
-        if (AnimationDataViewModel.KeyFrames.Count == 0)
-            return false;
-
         var keyFrames = AnimationDataViewModel.KeyFrames;
-        var firstFrame = keyFrames.Min(x => x.StartFrameBindable);
-        var lastFrame = keyFrames.Max(x => x.StartFrameBindable + x.DurationBindable);
+        int firstFrame = 0;
+        int lastFrame = AnimationDataViewModel.FramesCount;
+
+        if (keyFrames.Count > 0)
+        {
+            firstFrame = keyFrames.Min(x => x.StartFrameBindable);
+            lastFrame = keyFrames.Max(x => x.StartFrameBindable + x.DurationBindable);
+        }
 
         for (int i = firstFrame; i < lastFrame; i++)
         {
