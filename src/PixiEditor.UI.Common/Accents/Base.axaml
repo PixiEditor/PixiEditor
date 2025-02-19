@@ -85,6 +85,7 @@
             <Color x:Key="NumbersCategoryBackgroundColor">#666666</Color>
             <Color x:Key="ColorCategoryBackgroundColor">#3B665D</Color>
             <Color x:Key="AnimationCategoryBackgroundColor">#4D4466</Color>
+            <Color x:Key="EffectsCategoryBackgroundColor">#e36262</Color>
             
             <Color x:Key="HorizontalSnapAxisColor">#B00022</Color>
             <Color x:Key="VerticalSnapAxisColor">#5fad65</Color>
@@ -174,6 +175,7 @@
             <SolidColorBrush x:Key="NumbersCategoryBackgroundBrush" Color="{StaticResource NumbersCategoryBackgroundColor}" />
             <SolidColorBrush x:Key="ColorCategoryBackgroundBrush" Color="{StaticResource ColorCategoryBackgroundColor}" />
             <SolidColorBrush x:Key="AnimationCategoryBackgroundBrush" Color="{StaticResource AnimationCategoryBackgroundColor}" />
+            <SolidColorBrush x:Key="EffectsCategoryBackgroundBrush" Color="{StaticResource EffectsCategoryBackgroundColor}" />
 
             <SolidColorBrush x:Key="HorizontalSnapAxisBrush" Color="{StaticResource HorizontalSnapAxisColor}"/>
             <SolidColorBrush x:Key="VerticalSnapAxisBrush" Color="{StaticResource VerticalSnapAxisColor}"/>

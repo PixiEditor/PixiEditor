@@ -857,5 +857,7 @@
   "TEXT_ON_PATH_NODE": "Text on Path",
   "HIGH_DPI_RENDERING": "High DPI Rendering",
   "THICKNESS": "Thickness",
-  "TYPE": "Type"
+  "TYPE": "Type",
+  "EFFECTS": "Effects",
+  "OUTLINE_NODE": "Outline"
 }

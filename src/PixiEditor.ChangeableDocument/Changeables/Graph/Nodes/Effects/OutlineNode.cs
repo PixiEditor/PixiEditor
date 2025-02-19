@@ -30,13 +30,16 @@ public class OutlineNode : RenderNode, IRenderInput, ICustomShaderNode
     private Paint paint;
     private ImageFilter filter;
 
-    private OutlineType lastType;
+    private OutlineType? lastType = null;
+
+    protected override bool ExecuteOnlyOnCacheChange => true;
 
     public OutlineNode()
     {
         Background = CreateRenderInput("Background", "BACKGROUND");
         Type = CreateInput("Type", "TYPE", OutlineType.Simple);
-        Thickness = CreateInput("Thickness", "THICKNESS", 1.0);
+        Thickness = CreateInput("Thickness", "THICKNESS", 1.0)
+            .WithRules(validator => validator.Min(0.0));
         Color = CreateInput("Color", "COLOR", Colors.Black);
 
         paint = new Paint();
@@ -47,6 +50,11 @@ public class OutlineNode : RenderNode, IRenderInput, ICustomShaderNode
     protected override void OnExecute(RenderContext context)
     {
         base.OnExecute(context);
+        if(lastType == Type.Value)
+        {
+            return;
+        }
+
         Kernel finalKernel = Type.Value switch
         {
             OutlineType.Simple => simpleKernel,
@@ -60,6 +68,8 @@ public class OutlineNode : RenderNode, IRenderInput, ICustomShaderNode
 
         filter?.Dispose();
         filter = ImageFilter.CreateMatrixConvolution(finalKernel, (float)gain, 0, offset, TileMode.Clamp, true);
+
+        lastType = Type.Value;
     }
 
     protected override void OnPaint(RenderContext context, DrawingSurface surface)
@@ -69,22 +79,25 @@ public class OutlineNode : RenderNode, IRenderInput, ICustomShaderNode
             return;
         }
 
-        paint.ImageFilter = filter;
-        paint.ColorFilter = ColorFilter.CreateBlendMode(Color.Value, BlendMode.SrcIn);
-
-        int saved = surface.Canvas.SaveLayer(paint);
-
-        Background.Value.Paint(context, surface);
-
-        surface.Canvas.RestoreToCount(saved);
-
-        for (int i = 1; i < (int)Thickness.Value; i++)
+        if (Thickness.Value > 0)
         {
-            saved = surface.Canvas.SaveLayer(paint);
+            paint.ImageFilter = filter;
+            paint.ColorFilter = ColorFilter.CreateBlendMode(Color.Value, BlendMode.SrcIn);
 
-            surface.Canvas.DrawSurface(surface, 0, 0);
+            int saved = surface.Canvas.SaveLayer(paint);
+
+            Background.Value.Paint(context, surface);
 
             surface.Canvas.RestoreToCount(saved);
+
+            for (int i = 1; i < (int)Thickness.Value; i++)
+            {
+                saved = surface.Canvas.SaveLayer(paint);
+
+                surface.Canvas.DrawSurface(surface, 0, 0);
+
+                surface.Canvas.RestoreToCount(saved);
+            }
         }
 
         Background.Value.Paint(context, surface);

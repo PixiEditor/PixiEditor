@@ -43,7 +43,8 @@ internal class UpdatePropertyValue_Change : Change
             {
                 ignoreInUndo = true;
             }
-            
+
+            _value = SetValue(property, _value);
             ignoreInUndo = false;
         }
         else

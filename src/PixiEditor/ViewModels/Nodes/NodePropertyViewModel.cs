@@ -25,6 +25,8 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     private ObservableCollection<INodePropertyHandler> connectedInputs = new();
     private INodePropertyHandler? connectedOutput;
 
+    public event NodePropertyValueChanged? ValueChanged;
+
     public string DisplayName
     {
         get => displayName;
@@ -175,7 +177,6 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         return (NodePropertyViewModel)Activator.CreateInstance(viewModelType, node, type);
     }
 
-    public event NodePropertyValueChanged? ValueChanged;
 
     public void InternalSetValue(object? value)
     {
