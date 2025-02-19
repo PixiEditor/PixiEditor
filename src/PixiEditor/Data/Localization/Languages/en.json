@@ -855,5 +855,7 @@
   "TEXT_NODE": "Text",
   "TEXT_LABEL": "Text",
   "TEXT_ON_PATH_NODE": "Text on Path",
-  "HIGH_DPI_RENDERING": "High DPI Rendering"
+  "HIGH_DPI_RENDERING": "High DPI Rendering",
+  "THICKNESS": "Thickness",
+  "TYPE": "Type"
 }
