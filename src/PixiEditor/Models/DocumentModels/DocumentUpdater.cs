@@ -664,6 +664,11 @@ internal class DocumentUpdater
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
         var property = node.FindInputProperty(info.Property);
 
+        property.Errors = info.Errors;
+
+        if(info.Errors != null)
+            return;
+
         ProcessStructureMemberProperty(info, property);
         
         property.InternalSetValue(info.Value);

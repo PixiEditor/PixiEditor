@@ -27,7 +27,9 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
     public ShaderNode()
     {
         Background = CreateRenderInput("Background", "BACKGROUND");
-        ShaderCode = CreateInput("ShaderCode", "SHADER_CODE", "");
+        ShaderCode = CreateInput("ShaderCode", "SHADER_CODE", "")
+            .WithRules(validator => validator.Custom(ValidateShaderCode));
+
         paint = new Paint();
         Output.FirstInChain = null;
     }
@@ -60,7 +62,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
                 return;
             }
         }
-        else if(shader != null)
+        else if (shader != null)
         {
             Uniforms uniforms = GenerateUniforms(context);
             shader = shader.WithUpdatedUniforms(uniforms);
@@ -78,7 +80,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         uniforms.Add("iNormalizedTime", new Uniform("iNormalizedTime", (float)context.FrameTime.NormalizedTime));
         uniforms.Add("iFrame", new Uniform("iFrame", context.FrameTime.Frame));
 
-        if(Background.Value == null)
+        if (Background.Value == null)
         {
             lastImageShader?.Dispose();
             lastImageShader = null;
@@ -129,5 +131,17 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
     public override Node CreateCopy()
     {
         return new ShaderNode();
+    }
+
+    private ValidatorResult ValidateShaderCode(object? value)
+    {
+        if (value is string code)
+        {
+            var result = Shader.CreateFromString(code, out string errors);
+            result?.Dispose();
+            return new (string.IsNullOrWhiteSpace(errors), errors);
+        }
+
+        return new (false, "Shader code must be a string");
     }
 }

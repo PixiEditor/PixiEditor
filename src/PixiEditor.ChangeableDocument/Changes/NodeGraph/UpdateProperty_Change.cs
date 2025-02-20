@@ -35,13 +35,19 @@ internal class UpdatePropertyValue_Change : Change
         var node = target.NodeGraph.Nodes.First(x => x.Id == _nodeId);
         var property = node.GetInputProperty(_propertyName);
 
+        List<IChangeInfo> changes = new();
+
         previousValue = GetValue(property);
-        if (!property.Validator.Validate(_value))
+        string errors = string.Empty;
+        if (!property.Validator.Validate(_value, out errors))
         {
-            _value = property.Validator.GetClosestValidValue(_value);
-            if (_value == previousValue)
+            if (string.IsNullOrEmpty(errors))
             {
-                ignoreInUndo = true;
+                _value = property.Validator.GetClosestValidValue(_value);
+                if (_value == previousValue)
+                {
+                    ignoreInUndo = true;
+                }
             }
 
             _value = SetValue(property, _value);
@@ -53,7 +59,7 @@ internal class UpdatePropertyValue_Change : Change
             ignoreInUndo = false;
         }
 
-        return new PropertyValueUpdated_ChangeInfo(_nodeId, _propertyName, _value);
+        return new PropertyValueUpdated_ChangeInfo(_nodeId, _propertyName, _value) { Errors = errors };
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
