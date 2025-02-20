@@ -11,13 +11,60 @@
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                              x:DataType="properties1:StringPropertyViewModel"
                              x:Class="PixiEditor.Views.Nodes.Properties.StringPropertyView">
-    <DockPanel LastChildFill="True"
-        HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
-        <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
-        <TextBox AcceptsReturn="True" Text="{CompiledBinding StringValue, Mode=TwoWay}" IsVisible="{Binding ShowInputField}">
-            <Interaction.Behaviors>
-                <behaviours:GlobalShortcutFocusBehavior />
-            </Interaction.Behaviors>
-        </TextBox>
-    </DockPanel>
+    <Grid>
+        <DockPanel LastChildFill="True"
+                   HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
+            <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
+            <TextBox MaxWidth="110"
+                     MaxLines="1"
+                     Name="smallTextBox"
+                     Text="{CompiledBinding StringValue, Mode=TwoWay}"
+                     IsVisible="{Binding ShowInputField}">
+                <TextBox.InnerRightContent>
+                    <ToggleButton Name="bigModeToggle" DockPanel.Dock="Right" FontSize="20" Classes="pixi-icon"
+                                  Content="{DynamicResource icon-link}" />
+                </TextBox.InnerRightContent>
+                <Interaction.Behaviors>
+                    <behaviours:GlobalShortcutFocusBehavior />
+                </Interaction.Behaviors>
+            </TextBox>
+        </DockPanel>
+        <Popup IsOpen="{Binding ElementName=bigModeToggle, Path=IsChecked, Mode=TwoWay}"
+               Placement="Bottom"
+               IsLightDismissEnabled="True"
+               Opened="Popup_OnOpened"
+               PlacementTarget="{Binding ElementName=bigModeToggle}">
+            <DockPanel LastChildFill="True">
+                <Border CornerRadius="5 5 0 0" DockPanel.Dock="Top"
+                        Background="{DynamicResource ThemeBackgroundBrush1}">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Margin="5" Classes="pixi-icon"
+                                Name="openInDefaultAppButton"
+                                Command="{Binding OpenInDefaultAppCommand}"
+                                ui:Translator.TooltipKey="STRING_EDIT_IN_DEFAULT_APP"
+                                Content="{DynamicResource icon-link}" FontSize="20" />
+                        <Button Margin="5" Classes="pixi-icon"
+                                Name="openInFolderButton"
+                                ui:Translator.TooltipKey="STRING_OPEN_IN_FOLDER"
+                                Command="{Binding OpenInFolderCommand}"
+                                Content="{DynamicResource icon-folder}" FontSize="20" />
+                    </StackPanel>
+                </Border>
+                <TextBox
+                    CornerRadius="0 0 5 5"
+                    Name="bigTextBox"
+                    Width="500"
+                    Height="600"
+                    AcceptsReturn="True"
+                    AcceptsTab="True"
+                    PointerWheelChanged="InputElement_OnPointerWheelChanged"
+                    Text="{Binding StringValue, Mode=TwoWay}"
+                    IsVisible="{Binding ElementName=bigModeToggle, Path=IsChecked}">
+                    <Interaction.Behaviors>
+                        <behaviours:GlobalShortcutFocusBehavior />
+                    </Interaction.Behaviors>
+                </TextBox>
+            </DockPanel>
+        </Popup>
+    </Grid>
 </properties:NodePropertyView>

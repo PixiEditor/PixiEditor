@@ -10,7 +10,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Effects;
 
 [NodeInfo("Outline")]
-public class OutlineNode : RenderNode, IRenderInput, ICustomShaderNode
+public class OutlineNode : RenderNode, IRenderInput
 {
     public RenderInputProperty Background { get; }
     public InputProperty<OutlineType> Type { get; }

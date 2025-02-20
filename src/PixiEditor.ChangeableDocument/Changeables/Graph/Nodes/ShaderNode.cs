@@ -10,7 +10,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("Shader")]
-public class ShaderNode : RenderNode, IRenderInput
+public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
 {
     public RenderInputProperty Background { get; }
     public InputProperty<string> ShaderCode { get; }

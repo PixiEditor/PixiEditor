@@ -859,5 +859,11 @@
   "THICKNESS": "Thickness",
   "TYPE": "Type",
   "EFFECTS": "Effects",
-  "OUTLINE_NODE": "Outline"
+  "OUTLINE_NODE": "Outline",
+  "SHADER_CODE": "Shader Code",
+  "SHADER_NODE": "Shader",
+  "FAILED_TO_OPEN_EDITABLE_STRING_TITLE": "Failed to open file",
+  "FAILED_TO_OPEN_EDITABLE_STRING_MESSAGE": "Failed to edit this string in external editor. Reason: {0}",
+  "STRING_EDIT_IN_DEFAULT_APP": "Edit in default app",
+  "STRING_OPEN_IN_FOLDER": "Open in folder"
 }
