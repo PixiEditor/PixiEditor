@@ -17,9 +17,10 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
 
     private Shader? shader;
     private Shader? lastImageShader;
-    private string lastErrors;
     private string lastShaderCode;
     private Paint paint;
+
+    private VecI lastDocumentSize;
 
     protected override bool ExecuteOnlyOnCacheChange => true;
     protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.All;
@@ -38,6 +39,8 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
     {
         base.OnExecute(context);
 
+        lastDocumentSize = context.DocumentSize;
+
         if (lastShaderCode != ShaderCode.Value)
         {
             Uniforms uniforms = null;
@@ -48,11 +51,11 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
 
             if (uniforms != null)
             {
-                shader = Shader.CreateFromString(ShaderCode.Value, uniforms, out lastErrors);
+                shader = Shader.CreateFromString(ShaderCode.Value, uniforms, out _);
             }
             else
             {
-                shader = Shader.CreateFromString(ShaderCode.Value, out lastErrors);
+                shader = Shader.CreateFromString(ShaderCode.Value, out _);
             }
 
             lastShaderCode = ShaderCode.Value;
@@ -108,24 +111,31 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
             return;
         }
 
-        if (Background.Value != null)
+        /*if (Background.Value != null)
         {
             int saved = surface.Canvas.SaveLayer(paint);
             Background.Value.Paint(context, surface);
             surface.Canvas.RestoreToCount(saved);
-        }
+        }*/
 
         surface.Canvas.DrawRect(0, 0, context.DocumentSize.X, context.DocumentSize.Y, paint);
     }
 
     public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
     {
-        return null;
+        return new RectD(0, 0, lastDocumentSize.X, lastDocumentSize.Y);
     }
 
     public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
-        return false;
+        if (shader == null || paint == null)
+        {
+            renderOn.Canvas.DrawColor(Colors.Magenta, BlendMode.Src);
+            return true;
+        }
+
+        renderOn.Canvas.DrawRect(0, 0, lastDocumentSize.X, lastDocumentSize.Y, paint);
+        return true;
     }
 
     public override Node CreateCopy()

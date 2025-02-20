@@ -32,7 +32,7 @@
         <Popup IsOpen="{Binding ElementName=bigModeToggle, Path=IsChecked, Mode=TwoWay}"
                Placement="AnchorAndGravity"
                PlacementAnchor="Top"
-               VerticalOffset="10"
+               VerticalOffset="20"
                PlacementGravity="Bottom"
                IsLightDismissEnabled="True"
                Opened="Popup_OnOpened"
