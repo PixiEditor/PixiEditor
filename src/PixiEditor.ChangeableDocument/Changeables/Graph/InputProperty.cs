@@ -16,6 +16,7 @@ public class InputProperty : IInputProperty
     private IOutputProperty? connection;
 
     public event Action ConnectionChanged;
+    public event Action<object> NonOverridenValueChanged;
 
     public string InternalPropertyName { get; }
     public string DisplayName { get; }
@@ -51,6 +52,7 @@ public class InputProperty : IInputProperty
         set
         {
             _internalValue = value;
+            NonOverridenValueChanged?.Invoke(value);
             NonOverridenValueSet(value);
         }
     }
@@ -124,6 +126,7 @@ public class InputProperty : IInputProperty
 
     protected virtual void NonOverridenValueSet(object value)
     {
+
     }
 
     internal virtual void UpdateCache()
@@ -230,6 +233,12 @@ public class InputProperty<T> : InputProperty, IInputProperty<T>
     public InputProperty<T> WithRules(Action<PropertyValidator> rules)
     {
         rules(Validator);
+        return this;
+    }
+
+    public InputProperty<T> NonOverridenChanged(Action<T> callback)
+    {
+        NonOverridenValueChanged += value => callback((T)value);
         return this;
     }
 }

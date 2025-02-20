@@ -21,6 +21,9 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
     private Paint paint;
 
     private VecI lastDocumentSize;
+    private List<Shader> lastCustomImageShaders = new();
+
+    private Dictionary<string, InputProperty> uniformInputs = new();
 
     protected override bool ExecuteOnlyOnCacheChange => true;
     protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.All;
@@ -29,7 +32,8 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
     {
         Background = CreateRenderInput("Background", "BACKGROUND");
         ShaderCode = CreateInput("ShaderCode", "SHADER_CODE", "")
-            .WithRules(validator => validator.Custom(ValidateShaderCode));
+            .WithRules(validator => validator.Custom(ValidateShaderCode))
+            .NonOverridenChanged(RegenerateUniformInputs);
 
         paint = new Paint();
         Output.FirstInChain = null;
@@ -43,27 +47,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
 
         if (lastShaderCode != ShaderCode.Value)
         {
-            Uniforms uniforms = null;
-
-            uniforms = GenerateUniforms(context);
-
-            shader?.Dispose();
-
-            if (uniforms != null)
-            {
-                shader = Shader.CreateFromString(ShaderCode.Value, uniforms, out _);
-            }
-            else
-            {
-                shader = Shader.CreateFromString(ShaderCode.Value, out _);
-            }
-
-            lastShaderCode = ShaderCode.Value;
-
-            if (shader == null)
-            {
-                return;
-            }
+            GenerateShader(context);
         }
         else if (shader != null)
         {
@@ -74,6 +58,26 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         paint.Shader = shader;
     }
 
+    private void GenerateShader(RenderContext context)
+    {
+        Uniforms uniforms = null;
+
+        uniforms = GenerateUniforms(context);
+
+        shader?.Dispose();
+
+        if (uniforms != null)
+        {
+            shader = Shader.Create(ShaderCode.Value, uniforms, out _);
+        }
+        else
+        {
+            shader = Shader.Create(ShaderCode.Value, out _);
+        }
+
+        lastShaderCode = ShaderCode.Value;
+    }
+
     private Uniforms GenerateUniforms(RenderContext context)
     {
         Uniforms uniforms;
@@ -82,6 +86,8 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         uniforms.Add("iResolution", new Uniform("iResolution", context.DocumentSize));
         uniforms.Add("iNormalizedTime", new Uniform("iNormalizedTime", (float)context.FrameTime.NormalizedTime));
         uniforms.Add("iFrame", new Uniform("iFrame", context.FrameTime.Frame));
+
+        AddCustomUniforms(uniforms);
 
         if (Background.Value == null)
         {
@@ -111,13 +117,6 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
             return;
         }
 
-        /*if (Background.Value != null)
-        {
-            int saved = surface.Canvas.SaveLayer(paint);
-            Background.Value.Paint(context, surface);
-            surface.Canvas.RestoreToCount(saved);
-        }*/
-
         surface.Canvas.DrawRect(0, 0, context.DocumentSize.X, context.DocumentSize.Y, paint);
     }
 
@@ -143,11 +142,108 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         return new ShaderNode();
     }
 
+    private void RegenerateUniformInputs(string newShaderCode)
+    {
+        UniformDeclaration[]? declarations = Shader.GetUniformDeclarations(newShaderCode);
+        if(declarations == null) return;
+
+        if(declarations.Length == 0)
+        {
+            foreach (var input in uniformInputs)
+            {
+                RemoveInputProperty(input.Value);
+            }
+
+            uniformInputs.Clear();
+            return;
+        }
+
+        var uniforms = declarations;
+
+        var nonExistingUniforms = uniformInputs.Keys.Where(x => uniforms.All(y => y.Name != x)).ToList();
+        foreach (var nonExistingUniform in nonExistingUniforms)
+        {
+            RemoveInputProperty(uniformInputs[nonExistingUniform]);
+            uniformInputs.Remove(nonExistingUniform);
+        }
+
+        foreach (var uniform in uniforms)
+        {
+            if(IsBuiltInUniform(uniform.Name))
+            {
+                continue;
+            }
+
+            if (!uniformInputs.ContainsKey(uniform.Name))
+            {
+                InputProperty input;
+                if (uniform.DataType == UniformValueType.Float)
+                {
+                    input = CreateInput(uniform.Name, uniform.Name, 0f);
+                }
+                else if (uniform.DataType == UniformValueType.Shader)
+                {
+                    input = CreateInput<Texture>(uniform.Name, uniform.Name, null);
+                }
+                //TODO
+                /*else if (uniform.DataType == UniformValueType.FloatArray)
+                {
+                    input = CreateFuncInput<Kernel>(uniform.Name, uniform.Name, null);
+                }*/
+                else
+                {
+                    continue;
+                }
+
+                uniformInputs.Add(uniform.Name, input);
+            }
+        }
+    }
+
+    private void AddCustomUniforms(Uniforms uniforms)
+    {
+        foreach (var imgShader in lastCustomImageShaders)
+        {
+            imgShader.Dispose();
+        }
+
+        lastCustomImageShaders.Clear();
+
+        foreach (var input in uniformInputs)
+        {
+            if (input.Value.Value is float floatValue)
+            {
+                uniforms.Add(input.Key, new Uniform(input.Key, floatValue));
+            }
+            else if (input.Value.Value is double doubleValue)
+            {
+                uniforms.Add(input.Key, new Uniform(input.Key, (float)doubleValue));
+            }
+            else if (input.Value.Value is int intValue)
+            {
+                uniforms.Add(input.Key, new Uniform(input.Key, intValue));
+            }
+            else if (input.Value.Value is Texture texture)
+            {
+                var snapshot = texture.DrawingSurface.Snapshot();
+                Shader snapshotShader = snapshot.ToShader();
+                lastCustomImageShaders.Add(snapshotShader);
+                uniforms.Add(input.Key, new Uniform(input.Key, snapshotShader));
+                snapshot.Dispose();
+            }
+        }
+    }
+
+    private bool IsBuiltInUniform(string name)
+    {
+        return name is "iResolution" or "iNormalizedTime" or "iFrame" or "iImage";
+    }
+
     private ValidatorResult ValidateShaderCode(object? value)
     {
         if (value is string code)
         {
-            var result = Shader.CreateFromString(code, out string errors);
+            var result = Shader.Create(code, out string errors);
             result?.Dispose();
             return new (string.IsNullOrWhiteSpace(errors), errors);
         }

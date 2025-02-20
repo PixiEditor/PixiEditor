@@ -35,7 +35,8 @@ internal class UpdatePropertyValue_Change : Change
         var node = target.NodeGraph.Nodes.First(x => x.Id == _nodeId);
         var property = node.GetInputProperty(_propertyName);
 
-        List<IChangeInfo> changes = new();
+        int inputsHash = CalculateInputsHash(node);
+        int outputsHash = CalculateOutputsHash(node);
 
         previousValue = GetValue(property);
         string errors = string.Empty;
@@ -59,16 +60,53 @@ internal class UpdatePropertyValue_Change : Change
             ignoreInUndo = false;
         }
 
-        return new PropertyValueUpdated_ChangeInfo(_nodeId, _propertyName, _value) { Errors = errors };
+        List<IChangeInfo> changes = new();
+        changes.Add(new PropertyValueUpdated_ChangeInfo(_nodeId, _propertyName, _value) { Errors = errors });
+
+        int newInputsHash = CalculateInputsHash(node);
+        int newOutputsHash = CalculateOutputsHash(node);
+
+        if (inputsHash != newInputsHash)
+        {
+            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(node));
+        }
+
+        if (outputsHash != newOutputsHash)
+        {
+            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(node));
+        }
+
+        return changes;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var node = target.NodeGraph.Nodes.First(x => x.Id == _nodeId);
         var property = node.GetInputProperty(_propertyName);
+
+        int inputsHash = CalculateInputsHash(node);
+        int outputsHash = CalculateOutputsHash(node);
+
         SetValue(property, previousValue);
 
-        return new PropertyValueUpdated_ChangeInfo(_nodeId, _propertyName, previousValue);
+        List<IChangeInfo> changes = new();
+
+        changes.Add(new PropertyValueUpdated_ChangeInfo(_nodeId, _propertyName, previousValue));
+
+        int newInputsHash = CalculateInputsHash(node);
+        int newOutputsHash = CalculateOutputsHash(node);
+
+        if (inputsHash != newInputsHash)
+        {
+            changes.Add(NodeInputsChanged_ChangeInfo.FromNode(node));
+        }
+
+        if (outputsHash != newOutputsHash)
+        {
+            changes.Add(NodeOutputsChanged_ChangeInfo.FromNode(node));
+        }
+
+        return changes;
     }
 
     private static object SetValue(InputProperty property, object? value)
@@ -99,5 +137,27 @@ internal class UpdatePropertyValue_Change : Change
         }
 
         return property.NonOverridenValue;
+    }
+
+    private static int CalculateInputsHash(Node node)
+    {
+        HashCode hash = new();
+        foreach (var input in node.InputProperties)
+        {
+            hash.Add(input.InternalPropertyName);
+        }
+
+        return hash.ToHashCode();
+    }
+
+    private static int CalculateOutputsHash(Node node)
+    {
+        HashCode hash = new();
+        foreach (var output in node.OutputProperties)
+        {
+            hash.Add(output.InternalPropertyName);
+        }
+
+        return hash.ToHashCode();
     }
 }

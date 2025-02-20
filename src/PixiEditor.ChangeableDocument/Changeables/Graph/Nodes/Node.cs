@@ -350,6 +350,14 @@ public abstract class Node : IReadOnlyNode, IDisposable
         return property;
     }
 
+    protected void RemoveInputProperty(InputProperty property)
+    {
+        if(inputs.Remove(property))
+        {
+            property.ConnectionChanged -= InvokeConnectionsChanged;
+        }
+    }
+
     protected void AddOutputProperty(OutputProperty property)
     {
         outputs.Add(property);
