@@ -42,7 +42,7 @@ public class InputProperty : IInputProperty
                 return FuncFactory(connectionValue);
             }
 
-            if (connectionValue.GetType() == ValueType)
+            if (connectionValue.GetType().IsAssignableTo(ValueType))
             {
                 return connectionValue;
             }
@@ -60,7 +60,7 @@ public class InputProperty : IInputProperty
 
             if (!ConversionTable.TryConvert(target, ValueType, out object result))
             {
-                return target;
+                return null;
             }
 
             return Validator.GetClosestValidValue(result);
