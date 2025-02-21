@@ -15,8 +15,8 @@
                 Command="{Binding OpenCommand, RelativeSource={RelativeSource AncestorType=windows1:BetaExampleButton}}"
                 x:Name="fileButton">
             <Grid Width="100" Height="100">
-                <visuals1:SurfaceControl
-                    Surface="{Binding BetaExampleFile.PreviewImage, RelativeSource={RelativeSource AncestorType=windows1:BetaExampleButton}}"
+                <visuals1:TextureControl
+                    Texture="{Binding BetaExampleFile.PreviewImage, RelativeSource={RelativeSource AncestorType=windows1:BetaExampleButton}}"
                     Margin="10"
                     Stretch="Uniform"
                     x:Name="image">
@@ -27,7 +27,7 @@
                             <Binding ElementName="image" Path="Width" />
                         </MultiBinding>
                     </ui:RenderOptionsBindable.BitmapInterpolationMode>
-                </visuals1:SurfaceControl>
+                </visuals1:TextureControl>
             </Grid>
         </Button>
 

@@ -374,6 +374,16 @@
                                                        CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                         </StackPanel>
                     </ScrollViewer>
+
+                    <TextBlock ui:Translator.Key="PHOTO_EXAMPLES" Margin="0,8,0,2" HorizontalAlignment="Center"
+                               TextAlignment="Center" FontSize="18" FontWeight="SemiBold" />
+                    <ScrollViewer HorizontalAlignment="Center" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Orientation="Horizontal">
+                            <windows:BetaExampleButton FileName="Mask.pixi" DisplayName="MASK_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                        </StackPanel>
+                    </ScrollViewer>
+
                 </StackPanel>
             </ScrollViewer>
 

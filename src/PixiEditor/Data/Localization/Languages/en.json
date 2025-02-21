@@ -866,5 +866,7 @@
   "STRING_EDIT_IN_DEFAULT_APP": "Edit in default app",
   "STRING_OPEN_IN_FOLDER": "Open in folder",
   "DISCO_BALL_EXAMPLE": "Disco Ball",
-  "COLOR_SPACE": "Color Space"
+  "COLOR_SPACE": "Color Space",
+  "PHOTO_EXAMPLES": "Photo",
+  "MASK_EXAMPLE": "Mask"
 }
