@@ -60,7 +60,7 @@ public class InputProperty : IInputProperty
 
             if (!ConversionTable.TryConvert(target, ValueType, out object result))
             {
-                return null;
+                return target;
             }
 
             return Validator.GetClosestValidValue(result);
@@ -204,7 +204,7 @@ public class InputProperty<T> : InputProperty, IInputProperty<T>
             if (value is T tValue)
                 return tValue;
 
-            return (T)value;
+            return (T)Validator.GetClosestValidValue(value);
         }
     }
 
