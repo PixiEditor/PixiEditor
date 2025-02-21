@@ -53,6 +53,7 @@
             <Color x:Key="DoubleSocketColor">#efb66d</Color>
             <Color x:Key="ColorSocketColor">#8cf2dd</Color>
             <Color x:Key="VecDSocketColor">#c984ca</Color>
+            <Color x:Key="Vec3DSocketColor">#597513</Color>
             <Color x:Key="VecISocketColor">#c9b4ca</Color>
             <Color x:Key="IntSocketColor">#4C64B1</Color>
             <Color x:Key="StringSocketColor">#C9E4C6</Color>
@@ -144,6 +145,7 @@
             <SolidColorBrush x:Key="ColorSocketBrush" Color="{StaticResource ColorSocketColor}"/>
             <SolidColorBrush x:Key="Half4SocketBrush" Color="{StaticResource ColorSocketColor}"/>
             <SolidColorBrush x:Key="VecDSocketBrush" Color="{StaticResource VecDSocketColor}"/>
+            <SolidColorBrush x:Key="Vec3DSocketBrush" Color="{StaticResource Vec3DSocketColor}"/>
             <SolidColorBrush x:Key="Float2SocketBrush" Color="{StaticResource VecDSocketColor}"/>
             <SolidColorBrush x:Key="VecISocketBrush" Color="{StaticResource VecISocketColor}"/>
             <SolidColorBrush x:Key="Int2SocketBrush" Color="{StaticResource VecISocketColor}"/>

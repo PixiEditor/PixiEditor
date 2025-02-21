@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace PixiEditor.Views.Nodes.Properties;
 
-public partial class VecD3PropertyView : NodePropertyView
+public partial class Vec3DPropertyView : NodePropertyView
 {
-    public VecD3PropertyView()
+    public Vec3DPropertyView()
     {
         InitializeComponent();
     }

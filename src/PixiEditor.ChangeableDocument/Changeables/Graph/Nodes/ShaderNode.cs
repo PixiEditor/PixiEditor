@@ -123,15 +123,17 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
 
         DrawingSurface targetSurface = surface;
 
-        if(ColorSpace.Value != ColorSpaceType.Inherit)
+        if (ColorSpace.Value != ColorSpaceType.Inherit)
         {
             if (ColorSpace.Value == ColorSpaceType.Srgb && !context.ProcessingColorSpace.IsSrgb)
             {
-                targetSurface = RequestTexture(51, context.DocumentSize, Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgb()).DrawingSurface;
+                targetSurface = RequestTexture(51, context.DocumentSize,
+                    Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgb()).DrawingSurface;
             }
             else if (ColorSpace.Value == ColorSpaceType.LinearSrgb && context.ProcessingColorSpace.IsSrgb)
             {
-                targetSurface = RequestTexture(51, context.DocumentSize, Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear()).DrawingSurface;
+                targetSurface = RequestTexture(51, context.DocumentSize,
+                    Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear()).DrawingSurface;
             }
         }
 
@@ -202,7 +204,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
                 InputProperty input;
                 if (uniform.DataType == UniformValueType.Float)
                 {
-                    input = CreateInput(uniform.Name, uniform.Name, 0f);
+                    input = CreateInput(uniform.Name, uniform.Name, 0d);
                 }
                 else if (uniform.DataType == UniformValueType.Shader)
                 {
@@ -215,6 +217,10 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
                 else if (uniform.DataType == UniformValueType.Vector2)
                 {
                     input = CreateInput<VecD>(uniform.Name, uniform.Name, new VecD(0, 0));
+                }
+                else if (uniform.DataType == UniformValueType.Vector3)
+                {
+                    input = CreateInput<Vec3D>(uniform.Name, uniform.Name, new Vec3D(0, 0, 0));
                 }
                 else
                 {
@@ -267,6 +273,20 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
                 else if (value is VecI vecI)
                 {
                     uniforms.Add(input.Key, new Uniform(input.Key, new VecD(vecI.X, vecI.Y)));
+                }
+            }
+            else if (input.Value.valueType == UniformValueType.Vector3)
+            {
+                if (value is Vec3D vector)
+                {
+                    uniforms.Add(input.Key, new Uniform(input.Key, vector));
+                }
+            }
+            else if (input.Value.valueType == UniformValueType.Vector4)
+            {
+                if (value is Vec4D vector)
+                {
+                    uniforms.Add(input.Key, new Uniform(input.Key, vector));
                 }
             }
             else if (input.Value.valueType == UniformValueType.Color)

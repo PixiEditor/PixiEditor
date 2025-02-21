@@ -5,6 +5,7 @@ namespace PixiEditor.Models.Handlers;
 
 public interface INodePropertyHandler
 {
+    public bool IsVisible { get; set; }
     public string PropertyName { get; set; }
     public string DisplayName { get; set; }
     public object Value { get; set; }
