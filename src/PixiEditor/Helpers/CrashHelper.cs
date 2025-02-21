@@ -165,7 +165,7 @@ internal partial class CrashHelper
         string reportText = report.ReportText;
         if (catchLocation is not null)
         {
-            reportText = $"The report was generated from an exception caught in {catchLocation}.\r\n{reportText}";
+            reportText = $"The report was generated from an exception caught in {Path.GetFileName(catchLocation)}.\r\n{reportText}";
         }
 
         byte[] bytes = Encoding.UTF8.GetBytes(reportText);
