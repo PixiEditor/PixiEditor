@@ -537,8 +537,20 @@ internal class DocumentUpdater
     {
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
 
-        List<INodePropertyHandler> removedInputs =
-            node.Inputs.Where(x => !info.Inputs.Any(y => y.PropertyName == x.PropertyName)).ToList();
+        List<INodePropertyHandler> removedInputs = new List<INodePropertyHandler>();
+
+        foreach (var input in node.Inputs)
+        {
+            if (!info.Inputs.Any(x => x.PropertyName == input.PropertyName))
+            {
+                removedInputs.Add(input);
+            }
+
+            if(info.Inputs.FirstOrDefault(x => x.PropertyName == input.PropertyName && x.ValueType != input.PropertyType) is { } changedInput)
+            {
+                removedInputs.Add(input);
+            }
+        }
 
         foreach (var input in removedInputs)
         {
@@ -557,8 +569,20 @@ internal class DocumentUpdater
     {
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
 
-        List<INodePropertyHandler> removedOutputs =
-            node.Outputs.Where(x => !info.Outputs.Any(y => y.PropertyName == x.PropertyName)).ToList();
+        List<INodePropertyHandler> removedOutputs = new List<INodePropertyHandler>();
+
+        foreach (var output in node.Outputs)
+        {
+            if (!info.Outputs.Any(x => x.PropertyName == output.PropertyName))
+            {
+                removedOutputs.Add(output);
+            }
+
+            if(info.Outputs.FirstOrDefault(x => x.PropertyName == output.PropertyName && x.ValueType != output.Value.GetType()) is { } changedOutput)
+            {
+                removedOutputs.Add(output);
+            }
+        }
 
         foreach (var output in removedOutputs)
         {

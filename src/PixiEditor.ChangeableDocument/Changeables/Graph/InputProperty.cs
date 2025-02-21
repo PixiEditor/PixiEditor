@@ -42,7 +42,28 @@ public class InputProperty : IInputProperty
                 return FuncFactory(connectionValue);
             }
 
-            return connectionValue;
+            if (connectionValue.GetType() == ValueType)
+            {
+                return connectionValue;
+            }
+
+            if (connectionValue is Delegate func && ValueType.IsAssignableTo(typeof(Delegate)))
+            {
+                return FuncFactoryDelegate(func);
+            }
+
+            object target = connectionValue;
+            if (target is ShaderExpressionVariable shaderExpression)
+            {
+                target = shaderExpression.GetConstant();
+            }
+
+            if (!ConversionTable.TryConvert(target, ValueType, out object result))
+            {
+                return null;
+            }
+
+            return Validator.GetClosestValidValue(result);
         }
     }
 
@@ -94,17 +115,17 @@ public class InputProperty : IInputProperty
     {
         get
         {
-            if(Connection == null && lastConnectionHash != -1)
+            if (Connection == null && lastConnectionHash != -1)
             {
                 return true;
             }
-            
-            if(Connection != null && lastConnectionHash != Connection.GetHashCode())
+
+            if (Connection != null && lastConnectionHash != Connection.GetHashCode())
             {
                 lastConnectionHash = Connection.GetHashCode();
                 return true;
             }
-            
+
             if (Value is ICacheable cacheable)
             {
                 return cacheable.GetCacheHash() != _lastExecuteHash;
@@ -126,7 +147,6 @@ public class InputProperty : IInputProperty
 
     protected virtual void NonOverridenValueSet(object value)
     {
-
     }
 
     internal virtual void UpdateCache()
@@ -143,7 +163,7 @@ public class InputProperty : IInputProperty
         {
             _lastExecuteHash = Value.GetHashCode();
         }
-        
+
         lastConnectionHash = Connection?.GetHashCode() ?? -1;
     }
 
@@ -184,23 +204,7 @@ public class InputProperty<T> : InputProperty, IInputProperty<T>
             if (value is T tValue)
                 return tValue;
 
-            if (value is Delegate func && typeof(T).IsAssignableTo(typeof(Delegate)))
-            {
-                return (T)FuncFactoryDelegate(func);
-            }
-
-            object target = value;
-            if (value is ShaderExpressionVariable shaderExpression)
-            {
-                target = shaderExpression.GetConstant();
-            }
-
-            if (!ConversionTable.TryConvert(target, typeof(T), out object result))
-            {
-                return default;
-            }
-
-            return (T)Validator.GetClosestValidValue(result);
+            return (T)value;
         }
     }
 

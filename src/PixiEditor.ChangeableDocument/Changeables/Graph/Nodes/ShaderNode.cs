@@ -146,9 +146,9 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
     private void RegenerateUniformInputs(string newShaderCode)
     {
         UniformDeclaration[]? declarations = Shader.GetUniformDeclarations(newShaderCode);
-        if(declarations == null) return;
+        if (declarations == null) return;
 
-        if(declarations.Length == 0)
+        if (declarations.Length == 0)
         {
             foreach (var input in uniformInputs)
             {
@@ -170,7 +170,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
 
         foreach (var uniform in uniforms)
         {
-            if(IsBuiltInUniform(uniform.Name))
+            if (IsBuiltInUniform(uniform.Name))
             {
                 continue;
             }
@@ -227,33 +227,49 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
                 value = expressionVariable.GetConstant();
             }
 
-            if (value is float floatValue)
+            if (input.Value.valueType == UniformValueType.Float)
             {
-                uniforms.Add(input.Key, new Uniform(input.Key, floatValue));
+                if (value is float floatValue)
+                {
+                    uniforms.Add(input.Key, new Uniform(input.Key, floatValue));
+                }
+                else if (value is double doubleValue)
+                {
+                    uniforms.Add(input.Key, new Uniform(input.Key, (float)doubleValue));
+                }
+                else if (value is int intValue)
+                {
+                    uniforms.Add(input.Key, new Uniform(input.Key, (float)intValue));
+                }
             }
-            else if (value is double doubleValue)
+            else if (input.Value.valueType == UniformValueType.Vector2)
             {
-                uniforms.Add(input.Key, new Uniform(input.Key, (float)doubleValue));
+                if (value is VecD vector)
+                {
+                    uniforms.Add(input.Key, new Uniform(input.Key, vector));
+                }
+                else if (value is VecI vecI)
+                {
+                    uniforms.Add(input.Key, new Uniform(input.Key, new VecD(vecI.X, vecI.Y)));
+                }
             }
-            else if (value is int intValue)
+            else if (input.Value.valueType == UniformValueType.Color)
             {
-                uniforms.Add(input.Key, new Uniform(input.Key, intValue));
+                if (value is Color color)
+                {
+                    uniforms.Add(input.Key, new Uniform(input.Key, color));
+                }
             }
-            else if (value is VecD vector)
+            else if (input.Value.valueType == UniformValueType.Shader)
             {
-                uniforms.Add(input.Key, new Uniform(input.Key, vector));
-            }
-            else if (value is Color color)
-            {
-                uniforms.Add(input.Key, new Uniform(input.Key, color));
-            }
-            else if (value is Texture texture)
-            {
-                var snapshot = texture.DrawingSurface.Snapshot();
-                Shader snapshotShader = snapshot.ToShader();
-                lastCustomImageShaders.Add(snapshotShader);
-                uniforms.Add(input.Key, new Uniform(input.Key, snapshotShader));
-                snapshot.Dispose();
+                if (value is Texture texture)
+                {
+                    var snapshot = texture.DrawingSurface.Snapshot();
+                    Shader snapshotShader = snapshot.ToShader();
+                    lastCustomImageShaders.Add(snapshotShader);
+                    uniforms.Add(input.Key, new Uniform(input.Key, snapshotShader));
+                    snapshot.Dispose();
+                }
             }
         }
     }
@@ -269,9 +285,9 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         {
             var result = Shader.Create(code, out string errors);
             result?.Dispose();
-            return new (string.IsNullOrWhiteSpace(errors), errors);
+            return new(string.IsNullOrWhiteSpace(errors), errors);
         }
 
-        return new (false, "Shader code must be a string");
+        return new(false, "Shader code must be a string");
     }
 }

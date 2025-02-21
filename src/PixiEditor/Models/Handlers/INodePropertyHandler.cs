@@ -14,4 +14,5 @@ public interface INodePropertyHandler
 
     public event NodePropertyValueChanged ValueChanged;
     public INodeHandler Node { get; set; }
+    public Type PropertyType { get; }
 }
