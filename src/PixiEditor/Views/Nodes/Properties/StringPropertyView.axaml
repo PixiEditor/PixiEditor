@@ -39,6 +39,8 @@
                PlacementTarget="{Binding ElementName=bigModeToggle}">
             <DockPanel LastChildFill="True">
                 <Border CornerRadius="5 5 0 0" DockPanel.Dock="Top"
+                        BorderThickness="1 1 1 0"
+                        BorderBrush="{DynamicResource ThemeBorderHighBrush}"
                         Background="{DynamicResource ThemeBackgroundBrush1}">
                     <StackPanel Orientation="Horizontal">
                         <Button Margin="5" Classes="pixi-icon"

@@ -5,6 +5,7 @@ using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.ColorSpaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 
@@ -14,6 +15,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
 {
     public RenderInputProperty Background { get; }
+    public InputProperty<ColorSpaceType> ColorSpace { get; }
     public InputProperty<string> ShaderCode { get; }
 
     private Shader? shader;
@@ -32,6 +34,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
     public ShaderNode()
     {
         Background = CreateRenderInput("Background", "BACKGROUND");
+        ColorSpace = CreateInput("ColorSpace", "COLOR_SPACE", ColorSpaceType.Inherit);
         ShaderCode = CreateInput("ShaderCode", "SHADER_CODE", "")
             .WithRules(validator => validator.Custom(ValidateShaderCode))
             .NonOverridenChanged(RegenerateUniformInputs);
@@ -112,13 +115,32 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
 
     protected override void OnPaint(RenderContext context, DrawingSurface surface)
     {
-        if (shader == null)
+        if (shader == null || paint == null)
         {
             surface.Canvas.DrawColor(Colors.Magenta, BlendMode.Src);
             return;
         }
 
-        surface.Canvas.DrawRect(0, 0, context.DocumentSize.X, context.DocumentSize.Y, paint);
+        DrawingSurface targetSurface = surface;
+
+        if(ColorSpace.Value != ColorSpaceType.Inherit)
+        {
+            if (ColorSpace.Value == ColorSpaceType.Srgb && !context.ProcessingColorSpace.IsSrgb)
+            {
+                targetSurface = RequestTexture(51, context.DocumentSize, Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgb()).DrawingSurface;
+            }
+            else if (ColorSpace.Value == ColorSpaceType.LinearSrgb && context.ProcessingColorSpace.IsSrgb)
+            {
+                targetSurface = RequestTexture(51, context.DocumentSize, Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear()).DrawingSurface;
+            }
+        }
+
+        targetSurface.Canvas.DrawRect(0, 0, context.DocumentSize.X, context.DocumentSize.Y, paint);
+
+        if (targetSurface != surface)
+        {
+            surface.Canvas.DrawSurface(targetSurface, 0, 0);
+        }
     }
 
     public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
@@ -128,13 +150,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
 
     public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
-        if (shader == null || paint == null)
-        {
-            renderOn.Canvas.DrawColor(Colors.Magenta, BlendMode.Src);
-            return true;
-        }
-
-        renderOn.Canvas.DrawRect(0, 0, lastDocumentSize.X, lastDocumentSize.Y, paint);
+        OnPaint(context, renderOn);
         return true;
     }
 
