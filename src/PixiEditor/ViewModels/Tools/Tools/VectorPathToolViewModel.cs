@@ -81,7 +81,7 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
         var doc =
             ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
 
-        if (doc is null || isActivated) return;
+        if (doc is null) return;
 
         if (!doc.PathOverlayViewModel.IsActive)
         {

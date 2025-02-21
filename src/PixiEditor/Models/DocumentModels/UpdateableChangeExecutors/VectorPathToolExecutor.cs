@@ -89,10 +89,6 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
                 {
                     startingPath.MoveTo((VecF)snapped);
                 }
-                else
-                {
-                    startingPath.LineTo((VecF)snapped);
-                }
 
                 if (toolbar.SyncWithPrimaryColor)
                 {
