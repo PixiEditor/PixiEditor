@@ -82,6 +82,7 @@ public class ShaderTests
         string sksl = """
                       uniform float floatUniform;
                       uniform vec2 vector2Uniform;
+                      uniform vec3 vec3dUniform;
                       uniform half4 halfArrayUniform;
                       uniform vec4 vec4Uniform;
                       uniform shader shaderUniform;
@@ -97,7 +98,8 @@ public class ShaderTests
 
         UniformValueType? floatType = SkiaShaderImplementation.FindUniformType(sksl, "floatUniform");
         UniformValueType? vector2Type = SkiaShaderImplementation.FindUniformType(sksl, "vector2Uniform");
-        UniformValueType? halfArrayType = SkiaShaderImplementation.FindUniformType(sksl, "halfArrayUniform");
+        UniformValueType? half3Type = SkiaShaderImplementation.FindUniformType(sksl, "halfArrayUniform");
+        UniformValueType? vec3dType = SkiaShaderImplementation.FindUniformType(sksl, "vec3dUniform");
         UniformValueType? vec4Type = SkiaShaderImplementation.FindUniformType(sksl, "vec4Uniform");
         UniformValueType? shaderType = SkiaShaderImplementation.FindUniformType(sksl, "shaderUniform");
         UniformValueType? colorType = SkiaShaderImplementation.FindUniformType(sksl, "colorUniform");
@@ -105,8 +107,9 @@ public class ShaderTests
 
         Assert.Equal(UniformValueType.Float, floatType);
         Assert.Equal(UniformValueType.Vector2, vector2Type);
-        Assert.Equal(UniformValueType.FloatArray, halfArrayType);
-        Assert.Equal(UniformValueType.FloatArray, vec4Type);
+        Assert.Equal(UniformValueType.Vector3, vec3dType);
+        Assert.Equal(UniformValueType.Vector4, half3Type);
+        Assert.Equal(UniformValueType.Vector4, vec4Type);
         Assert.Equal(UniformValueType.Shader, shaderType);
         Assert.Equal(UniformValueType.Color, colorType);
         Assert.Equal(UniformValueType.Color, colorType2);
