@@ -31,6 +31,7 @@ public class OutlineNode : RenderNode, IRenderInput
     private ImageFilter filter;
 
     private OutlineType? lastType = null;
+    private VecI lastDocumentSize;
 
     protected override bool ExecuteOnlyOnCacheChange => true;
 
@@ -50,6 +51,7 @@ public class OutlineNode : RenderNode, IRenderInput
     protected override void OnExecute(RenderContext context)
     {
         base.OnExecute(context);
+        lastDocumentSize = context.DocumentSize;
         if(lastType == Type.Value)
         {
             return;
@@ -105,12 +107,13 @@ public class OutlineNode : RenderNode, IRenderInput
 
     public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
     {
-        return null;
+        return new RectD(0, 0, lastDocumentSize.X, lastDocumentSize.Y);
     }
 
     public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
     {
-        return false;
+        OnPaint(context, renderOn);
+        return true;
     }
 
     public override Node CreateCopy()
