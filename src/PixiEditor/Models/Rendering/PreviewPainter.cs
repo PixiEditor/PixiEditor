@@ -96,8 +96,11 @@ public class PreviewPainter
             return;
         }
 
-        renderTextures[requestId]?.Dispose();
-        renderTextures.Remove(requestId);
+        if (renderTextures.TryGetValue(requestId, out var renderTexture))
+        {
+            renderTexture?.Dispose();
+            renderTextures.Remove(requestId);
+        }
     }
 
     public void Repaint()

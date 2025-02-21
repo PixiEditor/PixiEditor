@@ -301,7 +301,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
 
         if (input == null && output != null)
         {
-            input = output.ConnectedInputs.FirstOrDefault();
+            input = output.ConnectedInputs?.FirstOrDefault();
             output = null;
         }
 

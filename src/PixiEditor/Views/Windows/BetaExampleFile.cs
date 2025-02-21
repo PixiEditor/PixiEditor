@@ -6,11 +6,11 @@ using PixiEditor.Parser;
 
 namespace PixiEditor.Views.Windows;
 
-public class BetaExampleFile
+public class BetaExampleFile : IDisposable
 {
     private readonly string resourcePath;
     
-    public Surface PreviewImage { get; }
+    public Texture PreviewImage { get; }
     
     public LocalizedString DisplayName { get; }
     
@@ -22,8 +22,13 @@ public class BetaExampleFile
         var stream = GetStream();
         var bytes = PixiParser.ReadPreview(stream);
 
-        PreviewImage = Surface.Load(bytes);
+        PreviewImage = Texture.Load(bytes);
     }
     
     public Stream GetStream() => AssetLoader.Open(new Uri(resourcePath));
+
+    public void Dispose()
+    {
+        PreviewImage.Dispose();
+    }
 }

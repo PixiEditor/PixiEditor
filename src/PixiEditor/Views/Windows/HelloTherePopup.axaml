@@ -16,8 +16,7 @@
                          xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
                          xmlns:windows="clr-namespace:PixiEditor.Views.Windows"
                          mc:Ignorable="d"
-                         Title="Hello there!" Height="680" Width="982" MinHeight="500" MinWidth="600"
-                         >
+                         Title="Hello there!" Height="680" Width="982" MinHeight="500" MinWidth="600">
 
     <Window.Styles>
         <Style Selector="TextBlock">
@@ -78,7 +77,7 @@
                                 ui:Translator.Key="NEW_FILE" />
                         <Button Classes="pixi-icon" Content="{DynamicResource icon-paste-as-new-layer}"
                                 Command="{Binding NewFromClipboardCommand}"
-                                ui:Translator.TooltipKey="NEW_FROM_CLIPBOARD"/>
+                                ui:Translator.TooltipKey="NEW_FROM_CLIPBOARD" />
                     </StackPanel>
 
                     <StackPanel Grid.Row="2" HorizontalAlignment="Center" Margin="0,30,0,0">
@@ -86,7 +85,7 @@
                                    ui:Translator.Key="BETA_EXAMPLE_FILES" />
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <windows:BetaExampleButton FileName="Pond.pixi" DisplayName="POND_EXAMPLE"
+                            <windows:BetaExampleButton FileName="Disco Ball.pixi" DisplayName="DISCO_BALL_EXAMPLE"
                                                        CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                             <windows:BetaExampleButton FileName="Tree.pixi" DisplayName="TREE_EXAMPLE"
                                                        CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
@@ -351,12 +350,14 @@
 
                     <ScrollViewer HorizontalAlignment="Center" VerticalScrollBarVisibility="Auto">
                         <panels:AlignableWrapPanel>
+                            <windows:BetaExampleButton FileName="Disco Ball.pixi" DisplayName="DISCO_BALL_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                             <windows:BetaExampleButton FileName="Pond.pixi" DisplayName="POND_EXAMPLE"
                                                        CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                             <windows:BetaExampleButton FileName="Tree.pixi" DisplayName="TREE_EXAMPLE"
                                                        CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                             <windows:BetaExampleButton FileName="Island.pixi" DisplayName="ISLAND_EXAMPLE"
-                                                         CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                             <windows:BetaExampleButton FileName="Stars.pixi" DisplayName="STARS_EXAMPLE"
                                                        CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                             <windows:BetaExampleButton FileName="Outline.pixi" DisplayName="OUTLINE_EXAMPLE"
@@ -373,6 +374,16 @@
                                                        CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
                         </StackPanel>
                     </ScrollViewer>
+
+                    <TextBlock ui:Translator.Key="PHOTO_EXAMPLES" Margin="0,8,0,2" HorizontalAlignment="Center"
+                               TextAlignment="Center" FontSize="18" FontWeight="SemiBold" />
+                    <ScrollViewer HorizontalAlignment="Center" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Orientation="Horizontal">
+                            <windows:BetaExampleButton FileName="Mask.pixi" DisplayName="MASK_EXAMPLE"
+                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
+                        </StackPanel>
+                    </ScrollViewer>
+
                 </StackPanel>
             </ScrollViewer>
 

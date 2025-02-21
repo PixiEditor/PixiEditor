@@ -25,7 +25,7 @@ public class ApplyFilterNode : RenderNode, IRenderInput
 
     protected override void OnPaint(RenderContext context, DrawingSurface surface)
     {
-        if (Background.Value == null)
+        if (Background.Value == null || Filter.Value == null || _paint == null)
             return;
 
         _paint.SetFilters(Filter.Value);

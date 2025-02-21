@@ -7,7 +7,7 @@
                              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
                              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-                             x:Class="PixiEditor.Views.Nodes.Properties.VecD3PropertyView">
+                             x:Class="PixiEditor.Views.Nodes.Properties.Vec3DPropertyView">
     <StackPanel HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
         <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}"/>
         <StackPanel IsVisible="{Binding ShowInputField}">

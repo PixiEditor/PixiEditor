@@ -15,7 +15,6 @@ public class GrayscaleNode : FilterNode
     
     public InputProperty<bool> Normalize { get; }
 
-    // TODO: Hide when Mode != Custom
     public InputProperty<Vec3D> CustomWeight { get; }
     
     private GrayscaleMode lastMode;

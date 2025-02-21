@@ -23,7 +23,7 @@
         </ResourceDictionary>
     </Styles.Resources>
 
+    <StyleInclude Source="avares://PixiEditor/Styles/Templates/NodePropertyViewTemplate.axaml"/>
     <StyleInclude Source="avares://PixiEditor/Styles/PortingWipStyles.axaml"/>
     <StyleInclude Source="avares://PixiEditor/Styles/ToolPickerButton.Styles.axaml"/>
-    <StyleInclude Source="avares://PixiEditor/Styles/Templates/NodePropertyViewTemplate.axaml"/>
 </Styles>

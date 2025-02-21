@@ -246,9 +246,9 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         if (member is null)
             return;
         var path = doc!.StructureHelper.FindPath(member.Id);
-        if (path.Count < 2)
+        if (path.Count < 2 || path[1] is not FolderNodeViewModel folderVm)
             return;
-        var parent = (FolderNodeViewModel)path[1];
+        var parent = folderVm;
         int curIndex = parent.Children.IndexOf(path[0]);
         if (upwards)
         {
