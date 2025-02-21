@@ -21,9 +21,12 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     private bool isInput;
     private bool isFunc;
     private IBrush socketBrush;
+    private string errors = string.Empty;
 
     private ObservableCollection<INodePropertyHandler> connectedInputs = new();
     private INodePropertyHandler? connectedOutput;
+
+    public event NodePropertyValueChanged? ValueChanged;
 
     public string DisplayName
     {
@@ -112,6 +115,12 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
 
     public Type PropertyType { get; }
 
+    public string? Errors
+    {
+        get => errors;
+        set => SetProperty(ref errors, value);
+    }
+
     public NodePropertyViewModel(INodeHandler node, Type propertyType)
     {
         Node = node;
@@ -175,7 +184,6 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         return (NodePropertyViewModel)Activator.CreateInstance(viewModelType, node, type);
     }
 
-    public event NodePropertyValueChanged? ValueChanged;
 
     public void InternalSetValue(object? value)
     {

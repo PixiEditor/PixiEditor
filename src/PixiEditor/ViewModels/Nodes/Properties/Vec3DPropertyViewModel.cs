@@ -3,9 +3,9 @@ using Drawie.Numerics;
 
 namespace PixiEditor.ViewModels.Nodes.Properties;
 
-internal class VecD3PropertyViewModel : NodePropertyViewModel<Vec3D>
+internal class Vec3DPropertyViewModel : NodePropertyViewModel<Vec3D>
 {
-    public VecD3PropertyViewModel(NodeViewModel node, Type valueType) : base(node, valueType)
+    public Vec3DPropertyViewModel(NodeViewModel node, Type valueType) : base(node, valueType)
     {
         PropertyChanged += OnPropertyChanged;
     }

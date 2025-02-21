@@ -2,7 +2,7 @@
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
-public delegate (bool validationResult, object? closestValidValue) ValidateProperty(object? value);
+public delegate ValidatorResult ValidateProperty(object? value);
 
 public class PropertyValidator
 {
@@ -25,12 +25,18 @@ public class PropertyValidator
             if (value is T val)
             {
                 bool isValid = val.CompareTo(min) >= 0;
-                return (isValid, isValid ? val : GetReturnValue(val, min, adjust));
+                return new (isValid, isValid ? val : GetReturnValue(val, min, adjust));
             }
 
-            return (false, GetReturnValue(min, min, adjust));
+            return new (false, GetReturnValue(min, min, adjust));
         });
 
+        return this;
+    }
+
+    public PropertyValidator Custom(ValidateProperty rule)
+    {
+        Rules.Add(rule);
         return this;
     }
 
@@ -44,25 +50,46 @@ public class PropertyValidator
         return min;
     }
 
-    public bool Validate(object? value)
+    public bool Validate(object? value, out string? errors)
     {
         object lastValue = value;
 
         foreach (var rule in Rules)
         {
-            var (isValid, toPass) = rule(lastValue);
-            lastValue = toPass;
-            if (!isValid)
+            var result = rule(lastValue);
+            lastValue = result.ClosestValidValue;
+            if (!result.IsValid)
             {
+                errors = result.ErrorMessage;
                 return false;
             }
         }
 
+        errors = null;
         return true;
     }
 
     public object? GetClosestValidValue(object? o)
     {
-        return Rules.Aggregate(o, (current, rule) => rule(current).closestValidValue);
+        return Rules.Aggregate(o, (current, rule) => rule(current).ClosestValidValue);
+    }
+}
+
+public record ValidatorResult
+{
+    public bool IsValid { get; }
+    public object? ClosestValidValue { get; }
+    public string? ErrorMessage { get; }
+
+    public ValidatorResult(bool isValid, string? errorMessage)
+    {
+        IsValid = isValid;
+        ErrorMessage = errorMessage;
+    }
+
+    public ValidatorResult(bool isValid, object? closestValidValue)
+    {
+        IsValid = isValid;
+        ClosestValidValue = closestValidValue;
     }
 }

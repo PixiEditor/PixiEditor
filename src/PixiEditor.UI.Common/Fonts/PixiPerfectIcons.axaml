@@ -153,6 +153,10 @@
             <system:String x:Key="icon-linked-pipette">&#xE997;</system:String>
             <system:String x:Key="icon-text-underline">&#xE998;</system:String>
             <system:String x:Key="icon-text-round">&#xE999;</system:String>
+            <system:String x:Key="icon-fullscreen">&#xE98c;</system:String>
+            <system:String x:Key="icon-outline">&#xE99a;</system:String>
+            <system:String x:Key="icon-terminal">&#xE99b;</system:String>
+
         </ResourceDictionary>
     </Styles.Resources>
 

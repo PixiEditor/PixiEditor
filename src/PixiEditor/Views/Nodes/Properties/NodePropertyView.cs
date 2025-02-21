@@ -1,22 +1,53 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.Views.Nodes.Properties;
 
+[PseudoClasses(":has-errors")]
 public abstract class NodePropertyView : UserControl
 {
+    public static readonly StyledProperty<string> ErrorsProperty = AvaloniaProperty.Register<NodePropertyView, string>(
+        nameof(Errors));
+
+    public string Errors
+    {
+        get => GetValue(ErrorsProperty);
+        set => SetValue(ErrorsProperty, value);
+    }
+
     public NodeSocket InputSocket { get; private set; }
     public NodeSocket OutputSocket { get; private set; }
     protected override Type StyleKeyOverride => typeof(NodePropertyView);
+
+    static NodePropertyView()
+    {
+        ErrorsProperty.Changed.Subscribe(OnErrorsChanged);
+    }
 
     protected void SetValue(object value)
     {
         if (DataContext is NodePropertyViewModel viewModel)
         {
             viewModel.Value = value;
+        }
+    }
+
+    protected override void OnDataContextChanged(EventArgs e)
+    {
+        base.OnDataContextChanged(e);
+        if (DataContext is NodePropertyViewModel propertyHandler)
+        {
+            propertyHandler.PropertyChanged += (sender, args) =>
+            {
+                if (args.PropertyName == nameof(NodePropertyViewModel.Errors))
+                {
+                    Errors = propertyHandler.Errors;
+                }
+            };
         }
     }
 
@@ -68,6 +99,14 @@ public abstract class NodePropertyView : UserControl
         if (hideOutputSocket)
         {
             OutputSocket.IsVisible = false;
+        }
+    }
+
+    private static void OnErrorsChanged(AvaloniaPropertyChangedEventArgs<string> args)
+    {
+        if (args.Sender is NodePropertyView view)
+        {
+            view.PseudoClasses.Set(":has-errors", args.NewValue.HasValue && !string.IsNullOrEmpty(args.NewValue.Value));
         }
     }
 }

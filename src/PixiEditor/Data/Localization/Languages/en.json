@@ -648,7 +648,6 @@
   "CREATE_IMAGE_NODE": "Create Image",
   "FOLDER_NODE": "Folder",
   "IMAGE_LAYER_NODE": "Image Layer",
-  "IMAGE_SPACE_NODE": "Image Space",
   "KERNEL_FILTER_NODE": "Kernel Filter",
   "MATH_NODE": "Math",
   "COLOR_MATRIX_TRANSFORM_FILTER_NODE": "Matrix Transform Filter",
@@ -855,5 +854,19 @@
   "TEXT_NODE": "Text",
   "TEXT_LABEL": "Text",
   "TEXT_ON_PATH_NODE": "Text on Path",
-  "HIGH_DPI_RENDERING": "High DPI Rendering"
+  "HIGH_DPI_RENDERING": "High DPI Rendering",
+  "THICKNESS": "Thickness",
+  "TYPE": "Type",
+  "EFFECTS": "Effects",
+  "OUTLINE_NODE": "Outline",
+  "SHADER_CODE": "Shader Code",
+  "SHADER_NODE": "Shader",
+  "FAILED_TO_OPEN_EDITABLE_STRING_TITLE": "Failed to open file",
+  "FAILED_TO_OPEN_EDITABLE_STRING_MESSAGE": "Failed to edit this string in external editor. Reason: {0}",
+  "STRING_EDIT_IN_DEFAULT_APP": "Edit in default app",
+  "STRING_OPEN_IN_FOLDER": "Open in folder",
+  "DISCO_BALL_EXAMPLE": "Disco Ball",
+  "COLOR_SPACE": "Color Space",
+  "PHOTO_EXAMPLES": "Photo",
+  "MASK_EXAMPLE": "Mask"
 }

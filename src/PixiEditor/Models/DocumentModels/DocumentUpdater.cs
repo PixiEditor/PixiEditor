@@ -187,6 +187,12 @@ internal class DocumentUpdater
             case ConnectProperty_ChangeInfo info:
                 ProcessConnectProperty(info);
                 break;
+            case NodeInputsChanged_ChangeInfo info:
+                ProcessInputsChanged(info);
+                break;
+            case NodeOutputsChanged_ChangeInfo info:
+                ProcessOutputsChanged(info);
+                break;
             case NodePosition_ChangeInfo info:
                 ProcessNodePosition(info);
                 break;
@@ -370,7 +376,7 @@ internal class DocumentUpdater
             memberVM = doc.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.Id == info.Id) as ILayerHandler;
             if (memberVM is ITransparencyLockableMember transparencyLockableMember)
             {
-                transparencyLockableMember.SetLockTransparency(layerInfo.LockTransparency);        
+                transparencyLockableMember.SetLockTransparency(layerInfo.LockTransparency);
             }
         }
         else if (info is CreateFolder_ChangeInfo)
@@ -425,7 +431,7 @@ internal class DocumentUpdater
                 closestMember.Selection = StructureMemberSelectionType.Hard;
             }
 
-            
+
             doc.SetSelectedMember(closestMember);
         }
 
@@ -437,7 +443,6 @@ internal class DocumentUpdater
     {
         IStructureMemberHandler? memberVM = doc.StructureHelper.FindOrThrow(info.Id);
         memberVM.SetIsVisible(info.IsVisible);
-        
     }
 
     private void ProcessUpdateStructureMemberName(StructureMemberName_ChangeInfo info)
@@ -472,7 +477,7 @@ internal class DocumentUpdater
         var vm = new IRasterCelViewModel(info.TargetLayerGuid, info.Frame, 1,
             info.KeyFrameId,
             (DocumentViewModel)doc, helper);
-        
+
         doc.AnimationHandler.AddKeyFrame(vm);
     }
 
@@ -514,7 +519,7 @@ internal class DocumentUpdater
     private void ProcessCreateNode(CreateNode_ChangeInfo info)
     {
         var nodeType = info.Metadata.NodeType;
-        
+
         var ns = nodeType.Namespace.Replace("ChangeableDocument.Changeables.Graph.", "ViewModels.Document.");
         var name = nodeType.Name.Replace("Node", "NodeViewModel");
         var fullViewModelName = $"{ns}.{name}";
@@ -522,19 +527,83 @@ internal class DocumentUpdater
 
         if (nodeViewModelType == null)
             throw new NullReferenceException($"No ViewModel found for {nodeType}. Looking for '{fullViewModelName}'");
-        
+
         var viewModel = (NodeViewModel)Activator.CreateInstance(nodeViewModelType);
 
         InitializeNodeViewModel(info, viewModel);
     }
 
+    private void ProcessInputsChanged(NodeInputsChanged_ChangeInfo info)
+    {
+        NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
+
+        List<INodePropertyHandler> removedInputs = new List<INodePropertyHandler>();
+
+        foreach (var input in node.Inputs)
+        {
+            if (!info.Inputs.Any(x => x.PropertyName == input.PropertyName))
+            {
+                removedInputs.Add(input);
+            }
+
+            if(info.Inputs.FirstOrDefault(x => x.PropertyName == input.PropertyName && x.ValueType != input.PropertyType) is { } changedInput)
+            {
+                removedInputs.Add(input);
+            }
+        }
+
+        foreach (var input in removedInputs)
+        {
+            node.Inputs.Remove(input);
+            doc.NodeGraphHandler.RemoveConnection(input.Node.Id, input.PropertyName);
+        }
+
+        List<NodePropertyInfo> newInputs =
+            info.Inputs.Where(x => node.Inputs.All(y => y.PropertyName != x.PropertyName)).ToList();
+
+        List<INodePropertyHandler> inputs = CreateProperties([..newInputs], node, true);
+        node.Inputs.AddRange(inputs);
+    }
+
+    private void ProcessOutputsChanged(NodeOutputsChanged_ChangeInfo info)
+    {
+        NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
+
+        List<INodePropertyHandler> removedOutputs = new List<INodePropertyHandler>();
+
+        foreach (var output in node.Outputs)
+        {
+            if (!info.Outputs.Any(x => x.PropertyName == output.PropertyName))
+            {
+                removedOutputs.Add(output);
+            }
+
+            if(info.Outputs.FirstOrDefault(x => x.PropertyName == output.PropertyName && x.ValueType != output.Value.GetType()) is { } changedOutput)
+            {
+                removedOutputs.Add(output);
+            }
+        }
+
+        foreach (var output in removedOutputs)
+        {
+            node.Outputs.Remove(output);
+            doc.NodeGraphHandler.RemoveConnection(output.Node.Id, output.PropertyName);
+        }
+
+        List<NodePropertyInfo> newOutputs =
+            info.Outputs.Where(x => node.Outputs.All(y => y.PropertyName != x.PropertyName)).ToList();
+
+        List<INodePropertyHandler> outputs = CreateProperties([..newOutputs], node, false);
+        node.Outputs.AddRange(outputs);
+    }
+
     private void InitializeNodeViewModel(CreateNode_ChangeInfo info, NodeViewModel viewModel)
     {
         viewModel.Initialize(info.Id, info.InternalName, (DocumentViewModel)doc, helper);
-        
+
         viewModel.SetName(info.NodeName);
         viewModel.SetPosition(info.Position);
-        
+
         var inputs = CreateProperties(info.Inputs, viewModel, true);
         var outputs = CreateProperties(info.Outputs, viewModel, false);
         viewModel.Inputs.AddRange(inputs);
@@ -544,7 +613,7 @@ internal class DocumentUpdater
         viewModel.Metadata = info.Metadata;
 
         AddZoneIfNeeded(info, viewModel);
-        
+
         viewModel.OnInitialized();
     }
 
@@ -553,8 +622,9 @@ internal class DocumentUpdater
         if (node.Metadata?.PairNodeGuid != null)
         {
             if (node.Metadata.PairNodeGuid == Guid.Empty) return;
-            
-            INodeHandler otherNode = doc.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.Id == node.Metadata.PairNodeGuid);
+
+            INodeHandler otherNode =
+                doc.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.Id == node.Metadata.PairNodeGuid);
             if (otherNode != null)
             {
                 bool zoneExists =
@@ -580,7 +650,9 @@ internal class DocumentUpdater
             prop.PropertyName = input.PropertyName;
             prop.IsInput = isInput;
             prop.IsFunc = input.ValueType.IsAssignableTo(typeof(Delegate));
-            prop.InternalSetValue(prop.IsFunc ? (input.InputValue as ShaderExpressionVariable)?.GetConstant() : input.InputValue);
+            prop.InternalSetValue(prop.IsFunc
+                ? (input.InputValue as ShaderExpressionVariable)?.GetConstant()
+                : input.InputValue);
             inputs.Add(prop);
         }
 
@@ -603,7 +675,7 @@ internal class DocumentUpdater
 
         doc.NodeGraphHandler.RemoveConnections(info.Id);
         doc.NodeGraphHandler.RemoveNode(info.Id);
-        
+
         doc.SnappingHandler.SnappingController.RemoveAll(info.Id.ToString());
     }
 
@@ -664,16 +736,18 @@ internal class DocumentUpdater
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
         var property = node.FindInputProperty(info.Property);
 
+        property.Errors = info.Errors;
+
         ProcessStructureMemberProperty(info, property);
-        
+
         property.InternalSetValue(info.Value);
-        
+
         if (info.Property == CustomOutputNode.OutputNamePropertyName)
         {
             doc.NodeGraphHandler.UpdateAvailableRenderOutputs();
         }
     }
-    
+
     private void ProcessStructureMemberProperty(PropertyValueUpdated_ChangeInfo info, INodePropertyHandler property)
     {
         // TODO: This most likely can be handled inside viewmodel itself
@@ -717,7 +791,7 @@ internal class DocumentUpdater
     {
         doc.AnimationHandler.SetOnionFrames(info.OnionFrames, info.Opacity);
     }
-    
+
     private void ProcessProcessingColorSpace(ProcessingColorSpace_ChangeInfo info)
     {
         doc.SetProcessingColorSpace(info.NewColorSpace);
