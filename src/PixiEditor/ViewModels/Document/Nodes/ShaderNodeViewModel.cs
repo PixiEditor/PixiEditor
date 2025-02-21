@@ -6,7 +6,7 @@ using PixiEditor.ViewModels.Nodes.Properties;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("SHADER_NODE", "EFFECTS", "\uE80B")]
+[NodeViewModel("SHADER_NODE", "EFFECTS", "\ue99b")]
 internal class ShaderNodeViewModel : NodeViewModel<ShaderNode>
 {
     public ShaderNodeViewModel()

@@ -22,7 +22,7 @@
                      IsVisible="{Binding ShowInputField}">
                 <TextBox.InnerRightContent>
                     <ToggleButton Name="bigModeToggle" DockPanel.Dock="Right" FontSize="20" Classes="pixi-icon"
-                                  Content="{DynamicResource icon-link}" />
+                                  Content="{DynamicResource icon-fullscreen}" />
                 </TextBox.InnerRightContent>
                 <Interaction.Behaviors>
                     <behaviours:GlobalShortcutFocusBehavior />
