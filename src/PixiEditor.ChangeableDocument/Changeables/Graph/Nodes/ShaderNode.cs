@@ -1,6 +1,7 @@
 ﻿using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Shaders;
+using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
@@ -23,7 +24,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
     private VecI lastDocumentSize;
     private List<Shader> lastCustomImageShaders = new();
 
-    private Dictionary<string, InputProperty> uniformInputs = new();
+    private Dictionary<string, (InputProperty prop, UniformValueType valueType)> uniformInputs = new();
 
     protected override bool ExecuteOnlyOnCacheChange => true;
     protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.All;
@@ -151,7 +152,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         {
             foreach (var input in uniformInputs)
             {
-                RemoveInputProperty(input.Value);
+                RemoveInputProperty(input.Value.prop);
             }
 
             uniformInputs.Clear();
@@ -163,7 +164,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         var nonExistingUniforms = uniformInputs.Keys.Where(x => uniforms.All(y => y.Name != x)).ToList();
         foreach (var nonExistingUniform in nonExistingUniforms)
         {
-            RemoveInputProperty(uniformInputs[nonExistingUniform]);
+            RemoveInputProperty(uniformInputs[nonExistingUniform].prop);
             uniformInputs.Remove(nonExistingUniform);
         }
 
@@ -172,6 +173,12 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
             if(IsBuiltInUniform(uniform.Name))
             {
                 continue;
+            }
+
+            if (uniformInputs.ContainsKey(uniform.Name) && uniformInputs[uniform.Name].valueType != uniform.DataType)
+            {
+                RemoveInputProperty(uniformInputs[uniform.Name].prop);
+                uniformInputs.Remove(uniform.Name);
             }
 
             if (!uniformInputs.ContainsKey(uniform.Name))
@@ -185,17 +192,20 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
                 {
                     input = CreateInput<Texture>(uniform.Name, uniform.Name, null);
                 }
-                //TODO
-                /*else if (uniform.DataType == UniformValueType.FloatArray)
+                else if (uniform.DataType == UniformValueType.Color)
                 {
-                    input = CreateFuncInput<Kernel>(uniform.Name, uniform.Name, null);
-                }*/
+                    input = CreateInput<Color>(uniform.Name, uniform.Name, Colors.Black);
+                }
+                else if (uniform.DataType == UniformValueType.Vector2)
+                {
+                    input = CreateInput<VecD>(uniform.Name, uniform.Name, new VecD(0, 0));
+                }
                 else
                 {
                     continue;
                 }
 
-                uniformInputs.Add(uniform.Name, input);
+                uniformInputs.Add(uniform.Name, (input, uniform.DataType));
             }
         }
     }
@@ -211,19 +221,33 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
 
         foreach (var input in uniformInputs)
         {
-            if (input.Value.Value is float floatValue)
+            object value = input.Value.prop.Value;
+            if (input.Value.prop.Value is ShaderExpressionVariable expressionVariable)
+            {
+                value = expressionVariable.GetConstant();
+            }
+
+            if (value is float floatValue)
             {
                 uniforms.Add(input.Key, new Uniform(input.Key, floatValue));
             }
-            else if (input.Value.Value is double doubleValue)
+            else if (value is double doubleValue)
             {
                 uniforms.Add(input.Key, new Uniform(input.Key, (float)doubleValue));
             }
-            else if (input.Value.Value is int intValue)
+            else if (value is int intValue)
             {
                 uniforms.Add(input.Key, new Uniform(input.Key, intValue));
             }
-            else if (input.Value.Value is Texture texture)
+            else if (value is VecD vector)
+            {
+                uniforms.Add(input.Key, new Uniform(input.Key, vector));
+            }
+            else if (value is Color color)
+            {
+                uniforms.Add(input.Key, new Uniform(input.Key, color));
+            }
+            else if (value is Texture texture)
             {
                 var snapshot = texture.DrawingSurface.Snapshot();
                 Shader snapshotShader = snapshot.ToShader();

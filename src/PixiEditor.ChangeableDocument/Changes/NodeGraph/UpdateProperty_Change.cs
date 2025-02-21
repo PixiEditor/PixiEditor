@@ -145,6 +145,7 @@ internal class UpdatePropertyValue_Change : Change
         foreach (var input in node.InputProperties)
         {
             hash.Add(input.InternalPropertyName);
+            hash.Add(input.ValueType);
         }
 
         return hash.ToHashCode();
@@ -156,6 +157,7 @@ internal class UpdatePropertyValue_Change : Change
         foreach (var output in node.OutputProperties)
         {
             hash.Add(output.InternalPropertyName);
+            hash.Add(output.ValueType);
         }
 
         return hash.ToHashCode();

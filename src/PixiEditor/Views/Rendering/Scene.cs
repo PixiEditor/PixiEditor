@@ -493,7 +493,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 ? released.InitialPressMouseButton
                 : MouseButton.None,
             ClickCount = e is PointerPressedEventArgs pressed ? pressed.ClickCount : 0,
-            
         };
     }
 
@@ -659,7 +658,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         renderTexture?.Dispose();
         renderTexture = null;
-        
+
         framebuffer?.Dispose();
         framebuffer = null;
 
@@ -767,10 +766,21 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private static void DocumentChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
     {
+        if (e.OldValue is DocumentViewModel oldDocumentViewModel)
+        {
+            oldDocumentViewModel.SizeChanged -= scene.DocumentViewModelOnSizeChanged;
+        }
+
         if (e.NewValue is DocumentViewModel documentViewModel)
         {
+            documentViewModel.SizeChanged += scene.DocumentViewModelOnSizeChanged;
             scene.ContentDimensions = documentViewModel.SizeBindable;
         }
+    }
+
+    private void DocumentViewModelOnSizeChanged(object? sender, DocumentSizeChangedEventArgs e)
+    {
+        ContentDimensions = e.NewSize;
     }
 
     private static void DefaultCursorChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
