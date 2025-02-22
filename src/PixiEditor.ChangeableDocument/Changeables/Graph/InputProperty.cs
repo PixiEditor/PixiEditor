@@ -32,6 +32,11 @@ public class InputProperty : IInputProperty
 
             var connectionValue = Connection.Value;
 
+            if(connectionValue is null)
+            {
+                return null;
+            }
+
             if (!ValueType.IsAssignableTo(typeof(Delegate)) && connectionValue is Delegate connectionField)
             {
                 return connectionField.DynamicInvoke(FuncContext.NoContext);
