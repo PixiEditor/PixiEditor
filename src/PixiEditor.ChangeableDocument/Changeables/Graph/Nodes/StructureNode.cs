@@ -39,6 +39,9 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     public RenderOutputProperty FilterlessOutput { get; }
     public RenderOutputProperty RawOutput { get; }
 
+    public OutputProperty<VecD> TightSize { get; }
+    public OutputProperty<VecD> CenterPosition { get; }
+
     public ChunkyImage? EmbeddedMask { get; set; }
 
     protected Texture renderedMask;
@@ -94,7 +97,25 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
 
         RawOutput = CreateRenderOutput(RawOutputPropertyName, "RAW_LAYER_OUTPUT", () => rawPainter);
 
+        CenterPosition = CreateOutput<VecD>("CenterPosition", "CENTER_POSITION", VecD.Zero);
+        TightSize = CreateOutput<VecD>("Size", "SIZE", VecD.Zero);
+
         MemberName = DefaultMemberName;
+    }
+
+    protected override void OnExecute(RenderContext context)
+    {
+        base.OnExecute(context);
+
+        if (TightSize.Connections.Count > 0)
+        {
+            TightSize.Value = GetSceneSize(context.FrameTime);
+        }
+
+        if (CenterPosition.Connections.Count > 0)
+        {
+            CenterPosition.Value = GetScenePosition(context.FrameTime);
+        }
     }
 
     protected override void OnPaint(RenderContext context, DrawingSurface renderTarget)
