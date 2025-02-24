@@ -125,13 +125,13 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
             if (keyFrame != null)
             {
-                return (RectD?)GetLayerImageByKeyFrameGuid(keyFrame.KeyFrameGuid).FindTightCommittedBounds();
+                return (RectD?)GetLayerImageByKeyFrameGuid(keyFrame.KeyFrameGuid).FindChunkAlignedCommittedBounds();
             }
         }
 
         try
         {
-            return (RectD?)GetLayerImageAtFrame(frame).FindTightCommittedBounds();
+            return (RectD?)GetLayerImageAtFrame(frame).FindChunkAlignedCommittedBounds();
         }
         catch (ObjectDisposedException)
         {

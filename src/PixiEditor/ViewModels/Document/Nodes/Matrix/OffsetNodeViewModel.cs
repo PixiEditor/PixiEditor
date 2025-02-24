@@ -4,5 +4,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.Matrix;
 
-[NodeViewModel("ROTATE_NODE", "MATRIX", PixiPerfectIcons.RotateView)]
-internal class RotateNodeViewModel : NodeViewModel<RotateNode>;
+[NodeViewModel("OFFSET_NODE", "MATRIX", PixiPerfectIcons.MoveView)]
+internal class OffsetNodeViewModel : NodeViewModel<OffsetNode>;

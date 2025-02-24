@@ -3,14 +3,14 @@ using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Matrix;
 
-[NodeInfo("Translate")]
-public class TranslateNode : Matrix3X3BaseNode
+[NodeInfo("Offset")]
+public class OffsetNode : Matrix3X3BaseNode
 {
     public InputProperty<VecD> Translation { get; }
 
-    public TranslateNode()
+    public OffsetNode()
     {
-        Translation = CreateInput("Translation", "TRANSLATION", VecD.Zero);
+        Translation = CreateInput("Offset", "OFFSET", VecD.Zero);
     }
 
     protected override Matrix3X3 CalculateMatrix(Matrix3X3 input)
@@ -21,6 +21,6 @@ public class TranslateNode : Matrix3X3BaseNode
 
     public override Node CreateCopy()
     {
-        return new TranslateNode();
+        return new OffsetNode();
     }
 }
