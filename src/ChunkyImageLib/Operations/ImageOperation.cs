@@ -82,20 +82,43 @@ internal class ImageOperation : IMirroredDrawOperation
     {
         //customPaint.FilterQuality = chunk.Resolution != ChunkResolution.Full;
         float scaleMult = (float)targetChunk.Resolution.Multiplier();
-        VecD trans = -chunkPos * ChunkPool.FullChunkSize;
+        VecD trans = chunkPos * ChunkPool.FullChunkSize;
 
-        var scaleTrans = Matrix3X3.CreateScaleTranslation(scaleMult, scaleMult, (float)trans.X * scaleMult, (float)trans.Y * scaleMult);
+        Matrix3X3 scaleTrans;
+        bool posBiggerThanSize = trans.X >= toPaint.Size.X || trans.Y >= toPaint.Size.Y;
+        if (posBiggerThanSize)
+        {
+            scaleTrans = Matrix3X3.CreateScaleTranslation(scaleMult, scaleMult, (float)-trans.X * scaleMult,
+                (float)-trans.Y * scaleMult);
+        }
+        else
+        {
+            scaleTrans = Matrix3X3.CreateScale(scaleMult, scaleMult);
+        }
+
         var finalMatrix = Matrix3X3.Concat(scaleTrans, transformMatrix);
 
         targetChunk.Surface.DrawingSurface.Canvas.Save();
         targetChunk.Surface.DrawingSurface.Canvas.SetMatrix(finalMatrix);
-        targetChunk.Surface.DrawingSurface.Canvas.DrawSurface(toPaint.DrawingSurface, 0, 0, customPaint);
+
+        if (posBiggerThanSize)
+        {
+            targetChunk.Surface.DrawingSurface.Canvas.DrawSurface(toPaint.DrawingSurface, 0, 0, customPaint);
+        }
+        else
+        {
+            RectI snapshotRect = new RectI((VecI)(trans * scaleMult), new VecI(targetChunk.Resolution.PixelSize()));
+            using var snapshot = toPaint.DrawingSurface.Snapshot(snapshotRect);
+            targetChunk.Surface.DrawingSurface.Canvas.DrawImage(snapshot, 0, 0, customPaint);
+        }
+
         targetChunk.Surface.DrawingSurface.Canvas.Restore();
     }
 
     public AffectedArea FindAffectedArea(VecI imageSize)
     {
-        return new AffectedArea(OperationHelper.FindChunksTouchingQuadrilateral(corners, ChunkPool.FullChunkSize), (RectI)corners.AABBBounds.RoundOutwards());
+        return new AffectedArea(OperationHelper.FindChunksTouchingQuadrilateral(corners, ChunkPool.FullChunkSize),
+            (RectI)corners.AABBBounds.RoundOutwards());
     }
 
     public void Dispose()
@@ -110,18 +133,22 @@ internal class ImageOperation : IMirroredDrawOperation
         if (verAxisX is not null && horAxisY is not null)
         {
             return new ImageOperation
-                (corners.AsMirroredAcrossVerAxis((double)verAxisX).AsMirroredAcrossHorAxis((double)horAxisY), toPaint, customPaint, imageWasCopied);
+            (corners.AsMirroredAcrossVerAxis((double)verAxisX).AsMirroredAcrossHorAxis((double)horAxisY), toPaint,
+                customPaint, imageWasCopied);
         }
+
         if (verAxisX is not null)
         {
             return new ImageOperation
                 (corners.AsMirroredAcrossVerAxis((double)verAxisX), toPaint, customPaint, imageWasCopied);
         }
+
         if (horAxisY is not null)
         {
             return new ImageOperation
                 (corners.AsMirroredAcrossHorAxis((double)horAxisY), toPaint, customPaint, imageWasCopied);
         }
+
         return new ImageOperation(corners, toPaint, customPaint, imageWasCopied);
     }
 }
