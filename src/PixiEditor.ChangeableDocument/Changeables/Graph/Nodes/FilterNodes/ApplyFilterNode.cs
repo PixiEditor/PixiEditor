@@ -25,12 +25,12 @@ public class ApplyFilterNode : RenderNode, IRenderInput
 
     protected override void OnPaint(RenderContext context, DrawingSurface surface)
     {
-        if (Background.Value == null || Filter.Value == null || _paint == null)
+        if (_paint == null)
             return;
 
         _paint.SetFilters(Filter.Value);
         int layer = surface.Canvas.SaveLayer(_paint);
-        Background.Value.Paint(context, surface);
+        Background.Value?.Paint(context, surface);
 
         surface.Canvas.RestoreToCount(layer);
     }
@@ -43,11 +43,8 @@ public class ApplyFilterNode : RenderNode, IRenderInput
     public override bool RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
-        if (Background.Value == null)
-            return false;
-
         int layer = renderOn.Canvas.SaveLayer(_paint);
-        Background.Value.Paint(context, renderOn);
+        Background.Value?.Paint(context, renderOn);
         renderOn.Canvas.RestoreToCount(layer);
 
         return true;
