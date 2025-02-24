@@ -40,6 +40,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     public RenderOutputProperty RawOutput { get; }
 
     public OutputProperty<VecD> TightSize { get; }
+    public OutputProperty<VecD> CanvasPosition { get; }
     public OutputProperty<VecD> CenterPosition { get; }
 
     public ChunkyImage? EmbeddedMask { get; set; }
@@ -97,6 +98,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
 
         RawOutput = CreateRenderOutput(RawOutputPropertyName, "RAW_LAYER_OUTPUT", () => rawPainter);
 
+        CanvasPosition = CreateOutput<VecD>("CanvasPosition", "CANVAS_POSITION", VecD.Zero);
         CenterPosition = CreateOutput<VecD>("CenterPosition", "CENTER_POSITION", VecD.Zero);
         TightSize = CreateOutput<VecD>("Size", "SIZE", VecD.Zero);
 
@@ -109,12 +111,17 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
 
         if (TightSize.Connections.Count > 0)
         {
-            TightSize.Value = GetSceneSize(context.FrameTime);
+            TightSize.Value = GetTightBounds(context.FrameTime)?.Size ?? VecD.Zero;
+        }
+
+        if (CanvasPosition.Connections.Count > 0)
+        {
+            CanvasPosition.Value = GetTightBounds(context.FrameTime)?.TopLeft ?? VecD.Zero;
         }
 
         if (CenterPosition.Connections.Count > 0)
         {
-            CenterPosition.Value = GetScenePosition(context.FrameTime);
+            CenterPosition.Value = GetTightBounds(context.FrameTime)?.Center ?? VecD.Zero;
         }
     }
 
