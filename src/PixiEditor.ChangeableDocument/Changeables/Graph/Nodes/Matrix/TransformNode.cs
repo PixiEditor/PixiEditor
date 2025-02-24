@@ -15,7 +15,7 @@ public class TransformNode : RenderNode, IRenderInput
     public TransformNode()
     {
         Background = CreateRenderInput("Background", "IMAGE");
-        Matrix = CreateInput("Matrix", "INPUT", Matrix3X3.Identity);
+        Matrix = CreateInput("Matrix", "INPUT_MATRIX", Matrix3X3.Identity);
 
         Output.FirstInChain = null;
     }

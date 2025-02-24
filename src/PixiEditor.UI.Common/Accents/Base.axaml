@@ -60,6 +60,7 @@
             <Color x:Key="EllipseDataSocketColor">#a473a5</Color>
             <Color x:Key="PointsDataSocketColor">#e1d0e1</Color>
             <Color x:Key="TextDataSocketColor">#f2f2f2</Color>
+            <Color x:Key="Matrix3X3SocketColor">#ffea4f</Color>
             <GradientStops x:Key="ShapeDataSocketGradient">
                 <GradientStop Offset="0" Color="{StaticResource EllipseDataSocketColor}"/>
                 <GradientStop Offset="0.33" Color="{StaticResource EllipseDataSocketColor}"/>
@@ -88,6 +89,7 @@
             <Color x:Key="ColorCategoryBackgroundColor">#3B665D</Color>
             <Color x:Key="AnimationCategoryBackgroundColor">#4D4466</Color>
             <Color x:Key="EffectsCategoryBackgroundColor">#e36262</Color>
+            <Color x:Key="MatrixCategoryBackgroundColor">#9169ff</Color>
             
             <Color x:Key="HorizontalSnapAxisColor">#B00022</Color>
             <Color x:Key="VerticalSnapAxisColor">#5fad65</Color>
@@ -152,6 +154,7 @@
             <SolidColorBrush x:Key="Int32SocketBrush" Color="{StaticResource IntSocketColor}"/>
             <SolidColorBrush x:Key="Int1SocketBrush" Color="{StaticResource IntSocketColor}"/>
             <SolidColorBrush x:Key="StringSocketBrush" Color="{StaticResource StringSocketColor}"/>
+            <SolidColorBrush x:Key="Matrix3X3SocketBrush" Color="{StaticResource Matrix3X3SocketColor}"/>
             <ConicGradientBrush x:Key="ShapeVectorDataSocketBrush" GradientStops="{StaticResource ShapeDataSocketGradient}"/>
             <SolidColorBrush x:Key="EllipseVectorDataSocketBrush" Color="{StaticResource EllipseDataSocketColor}"/>
             <SolidColorBrush x:Key="PointsVectorDataSocketBrush" Color="{StaticResource PointsDataSocketColor}"/>
@@ -180,6 +183,7 @@
             <SolidColorBrush x:Key="ColorCategoryBackgroundBrush" Color="{StaticResource ColorCategoryBackgroundColor}" />
             <SolidColorBrush x:Key="AnimationCategoryBackgroundBrush" Color="{StaticResource AnimationCategoryBackgroundColor}" />
             <SolidColorBrush x:Key="EffectsCategoryBackgroundBrush" Color="{StaticResource EffectsCategoryBackgroundColor}" />
+            <SolidColorBrush x:Key="MatrixCategoryBackgroundBrush" Color="{StaticResource MatrixCategoryBackgroundColor}" />
 
             <SolidColorBrush x:Key="HorizontalSnapAxisBrush" Color="{StaticResource HorizontalSnapAxisColor}"/>
             <SolidColorBrush x:Key="VerticalSnapAxisBrush" Color="{StaticResource VerticalSnapAxisColor}"/>

@@ -12,7 +12,7 @@ public class RotateNode : Matrix3X3BaseNode
 
     public RotateNode()
     {
-        RotationType = CreateInput("RotationType", "ROTATION_TYPE", Nodes.Matrix.RotationType.Degrees);
+        RotationType = CreateInput("RotationType", "UNIT", Nodes.Matrix.RotationType.Degrees);
         Angle = CreateInput("Angle", "ANGLE", 0.0);
         Center = CreateInput("Center", "CENTER", new VecD(0, 0));
     }
