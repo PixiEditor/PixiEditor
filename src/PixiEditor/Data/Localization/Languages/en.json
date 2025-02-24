@@ -868,5 +868,6 @@
   "DISCO_BALL_EXAMPLE": "Disco Ball",
   "COLOR_SPACE": "Color Space",
   "PHOTO_EXAMPLES": "Photo",
-  "MASK_EXAMPLE": "Mask"
+  "MASK_EXAMPLE": "Mask",
+  "SHADOW_NODE": "Shadow Filter"
 }
