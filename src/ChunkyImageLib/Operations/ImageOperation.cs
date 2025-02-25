@@ -82,36 +82,18 @@ internal class ImageOperation : IMirroredDrawOperation
     {
         //customPaint.FilterQuality = chunk.Resolution != ChunkResolution.Full;
         float scaleMult = (float)targetChunk.Resolution.Multiplier();
-        VecD trans = chunkPos * ChunkPool.FullChunkSize;
+        VecD trans = -chunkPos * ChunkPool.FullChunkSize;
 
-        Matrix3X3 scaleTrans;
-        bool posBiggerThanSize = trans.X >= toPaint.Size.X || trans.Y >= toPaint.Size.Y;
-        if (posBiggerThanSize)
-        {
-            scaleTrans = Matrix3X3.CreateScaleTranslation(scaleMult, scaleMult, (float)-trans.X * scaleMult,
-                (float)-trans.Y * scaleMult);
-        }
-        else
-        {
-            scaleTrans = Matrix3X3.CreateScale(scaleMult, scaleMult);
-        }
-
+        var scaleTrans = Matrix3X3.CreateScaleTranslation(scaleMult, scaleMult, (float)trans.X * scaleMult, (float)trans.Y * scaleMult);
         var finalMatrix = Matrix3X3.Concat(scaleTrans, transformMatrix);
+
+        using var snapshot = toPaint.DrawingSurface.Snapshot();
+        ShapeCorners chunkCorners = new ShapeCorners(new RectD(VecD.Zero, targetChunk.PixelSize));
+        RectD rect = chunkCorners.WithMatrix(finalMatrix.Invert()).AABBBounds;
 
         targetChunk.Surface.DrawingSurface.Canvas.Save();
         targetChunk.Surface.DrawingSurface.Canvas.SetMatrix(finalMatrix);
-
-        if (posBiggerThanSize)
-        {
-            targetChunk.Surface.DrawingSurface.Canvas.DrawSurface(toPaint.DrawingSurface, 0, 0, customPaint);
-        }
-        else
-        {
-            RectI snapshotRect = new RectI((VecI)(trans * scaleMult), new VecI(targetChunk.Resolution.PixelSize()));
-            using var snapshot = toPaint.DrawingSurface.Snapshot(snapshotRect);
-            targetChunk.Surface.DrawingSurface.Canvas.DrawImage(snapshot, 0, 0, customPaint);
-        }
-
+        targetChunk.Surface.DrawingSurface.Canvas.DrawImage(snapshot, rect, rect, customPaint);
         targetChunk.Surface.DrawingSurface.Canvas.Restore();
     }
 

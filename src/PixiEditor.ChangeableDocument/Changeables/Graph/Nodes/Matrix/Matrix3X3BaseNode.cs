@@ -48,14 +48,4 @@ public abstract class Matrix3X3BaseNode : RenderNode, IRenderInput
     }
 
     protected abstract Matrix3X3 CalculateMatrix(Matrix3X3 input);
-
-    public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
-    {
-        return null;
-    }
-
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context, string elementToRenderName)
-    {
-        return false;
-    }
 }

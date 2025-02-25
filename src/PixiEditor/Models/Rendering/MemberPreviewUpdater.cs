@@ -1,21 +1,13 @@
 ﻿#nullable enable
 
-using System.Diagnostics.CodeAnalysis;
-using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
-using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
-using PixiEditor.Parser;
 
 namespace PixiEditor.Models.Rendering;
 
@@ -33,13 +25,12 @@ internal class MemberPreviewUpdater
         AnimationKeyFramePreviewRenderer = new AnimationKeyFramePreviewRenderer(internals);
     }
 
-    public void UpdatePreviews(bool rerenderPreviews, IEnumerable<Guid> membersToUpdate,
+    public void UpdatePreviews(IEnumerable<Guid> membersToUpdate,
         IEnumerable<Guid> masksToUpdate, IEnumerable<Guid> nodesToUpdate, IEnumerable<Guid> keyFramesToUpdate)
     {
-        if (!rerenderPreviews)
-        {
+        if (!membersToUpdate.Any() && !masksToUpdate.Any() && !nodesToUpdate.Any() &&
+            !keyFramesToUpdate.Any())
             return;
-        }
 
         UpdatePreviewPainters(membersToUpdate, masksToUpdate, nodesToUpdate, keyFramesToUpdate);
     }
@@ -243,45 +234,73 @@ internal class MemberPreviewUpdater
         if (outputNode is null)
             return;
 
-        var executionQueue =
+        var allNodes =
             internals.Tracker.Document.NodeGraph
                 .AllNodes; //internals.Tracker.Document.NodeGraph.CalculateExecutionQueue(outputNode);
 
         if (nodesGuids.Length == 0)
             return;
 
-        foreach (var node in executionQueue)
+        List<Guid> actualRepaintedNodes = new();
+        foreach (var guid in nodesGuids)
         {
-            if (node is null)
-                continue;
+            QueueRepaintNode(actualRepaintedNodes, guid, allNodes);
+        }
+    }
 
-            if (!nodesGuids.Contains(node.Id))
-                continue;
+    private void QueueRepaintNode(List<Guid> actualRepaintedNodes, Guid guid,
+        IReadOnlyCollection<IReadOnlyNode> allNodes)
+    {
+        if (actualRepaintedNodes.Contains(guid))
+            return;
 
-            var nodeVm = doc.StructureHelper.FindNode<INodeHandler>(node.Id);
+        var nodeVm = doc.StructureHelper.FindNode<INodeHandler>(guid);
+        if (nodeVm == null)
+        {
+            return;
+        }
 
-            if (nodeVm == null)
+        actualRepaintedNodes.Add(guid);
+        IReadOnlyNode node = allNodes.FirstOrDefault(x => x.Id == guid);
+        if (node is null)
+            return;
+
+        RequestRepaintNode(node, nodeVm);
+
+        nodeVm.TraverseForwards(next =>
+        {
+            if (next is not INodeHandler nextVm)
+                return true;
+
+            var nextNode = allNodes.FirstOrDefault(x => x.Id == next.Id);
+
+            if (nextNode is null || actualRepaintedNodes.Contains(next.Id))
+                return true;
+
+            RequestRepaintNode(nextNode, nextVm);
+            actualRepaintedNodes.Add(next.Id);
+            return true;
+        });
+    }
+
+    private void RequestRepaintNode(IReadOnlyNode node, INodeHandler nodeVm)
+    {
+        if (node is IPreviewRenderable renderable)
+        {
+            if (nodeVm.ResultPainter == null)
             {
-                continue;
+                nodeVm.ResultPainter = new PreviewPainter(doc.Renderer, renderable,
+                    doc.AnimationHandler.ActiveFrameTime,
+                    doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
+                nodeVm.ResultPainter.Repaint();
             }
-
-            if (node is IPreviewRenderable renderable)
+            else
             {
-                if (nodeVm.ResultPainter == null)
-                {
-                    nodeVm.ResultPainter = new PreviewPainter(doc.Renderer, renderable,
-                        doc.AnimationHandler.ActiveFrameTime,
-                        doc.SizeBindable, internals.Tracker.Document.ProcessingColorSpace);
-                    nodeVm.ResultPainter.Repaint();
-                }
-                else
-                {
-                    nodeVm.ResultPainter.FrameTime = doc.AnimationHandler.ActiveFrameTime;
-                    nodeVm.ResultPainter.DocumentSize = doc.SizeBindable;
-                    nodeVm.ResultPainter.ProcessingColorSpace = internals.Tracker.Document.ProcessingColorSpace;
+                nodeVm.ResultPainter.FrameTime = doc.AnimationHandler.ActiveFrameTime;
+                nodeVm.ResultPainter.DocumentSize = doc.SizeBindable;
+                nodeVm.ResultPainter.ProcessingColorSpace = internals.Tracker.Document.ProcessingColorSpace;
 
-                    nodeVm.ResultPainter?.Repaint();
-                }
+                nodeVm.ResultPainter?.Repaint();
             }
         }
     }

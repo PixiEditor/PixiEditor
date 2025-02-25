@@ -34,7 +34,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     {
         if (keyFrames.Count == 0)
         {
-            keyFrames.Add(new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = new ChunkyImage(size, colorSpace) });
+            keyFrames.Add(
+                new KeyFrameData(Guid.NewGuid(), 0, 0, ImageLayerKey) { Data = new ChunkyImage(size, colorSpace) });
         }
 
         this.startSize = size;
@@ -125,13 +126,39 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
             if (keyFrame != null)
             {
-                return (RectD?)GetLayerImageByKeyFrameGuid(keyFrame.KeyFrameGuid).FindChunkAlignedCommittedBounds();
+                var kf = GetLayerImageByKeyFrameGuid(keyFrame.KeyFrameGuid);
+                if (kf == null)
+                {
+                    return null;
+                }
+
+                RectI? bounds = kf.FindChunkAlignedCommittedBounds(); // Don't use tight bounds, very expensive
+                if (bounds.HasValue)
+                {
+                    return new RectD(bounds.Value.X, bounds.Value.Y,
+                        Math.Min(bounds.Value.Width, kf.CommittedSize.X),
+                        Math.Min(bounds.Value.Height, kf.CommittedSize.Y));
+                }
             }
         }
 
         try
         {
-            return (RectD?)GetLayerImageAtFrame(frame).FindChunkAlignedCommittedBounds();
+            var kf = GetLayerImageAtFrame(frame);
+            if (kf == null)
+            {
+                return null;
+            }
+
+            var bounds = kf.FindChunkAlignedCommittedBounds(); // Don't use tight bounds, very expensive
+            if (bounds.HasValue)
+            {
+                return new RectD(bounds.Value.X, bounds.Value.Y,
+                    Math.Min(bounds.Value.Width, kf.CommittedSize.X),
+                    Math.Min(bounds.Value.Height, kf.CommittedSize.Y));
+            }
+
+            return null;
         }
         catch (ObjectDisposedException)
         {
@@ -197,7 +224,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         {
             return keyFrames[0];
         }
-        
+
         var imageFrame = keyFrames.OrderBy(x => x.StartFrame).LastOrDefault(x => x.IsInFrame(frame.Frame));
         if (imageFrame?.Data is not ChunkyImage)
         {
@@ -229,8 +256,10 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     {
         var image = new ImageLayerNode(startSize, colorSpace)
         {
-            MemberName = this.MemberName, LockTransparency = this.LockTransparency,
-            ClipToPreviousMember = this.ClipToPreviousMember, EmbeddedMask = this.EmbeddedMask?.CloneFromCommitted()
+            MemberName = this.MemberName,
+            LockTransparency = this.LockTransparency,
+            ClipToPreviousMember = this.ClipToPreviousMember,
+            EmbeddedMask = this.EmbeddedMask?.CloneFromCommitted()
         };
 
         image.keyFrames.Clear();
@@ -258,7 +287,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     void IReadOnlyImageNode.ForEveryFrame(Action<IReadOnlyChunkyImage> action) => ForEveryFrame(action);
 
-    public override void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime, ColorSpace processColorSpace)
+    public override void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime,
+        ColorSpace processColorSpace)
     {
         base.RenderChunk(chunkPos, resolution, frameTime, processColorSpace);
 
