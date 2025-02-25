@@ -20,6 +20,8 @@ public class CreateImageNode : Node, IPreviewRenderable
 
     public RenderInputProperty Content { get; }
 
+    public InputProperty<VecD> ContentOffset { get; }
+
     public RenderOutputProperty RenderOutput { get; }
 
     private TextureCache textureCache = new();
@@ -30,6 +32,7 @@ public class CreateImageNode : Node, IPreviewRenderable
         Size = CreateInput(nameof(Size), "SIZE", new VecI(32, 32)).WithRules(v => v.Min(VecI.One));
         Fill = CreateInput(nameof(Fill), "FILL", Colors.Transparent);
         Content = CreateRenderInput(nameof(Content), "CONTENT");
+        ContentOffset = CreateInput(nameof(ContentOffset), "CONTENT_OFFSET", VecD.Zero);
         RenderOutput = CreateRenderOutput("RenderOutput", "RENDER_OUTPUT", () => new Painter(OnPaint));
     }
 
@@ -57,6 +60,8 @@ public class CreateImageNode : Node, IPreviewRenderable
 
         RenderContext ctx = new RenderContext(surface.DrawingSurface, context.FrameTime, context.ChunkResolution,
             context.DocumentSize, context.ProcessingColorSpace);
+
+        surface.DrawingSurface.Canvas.Translate((float)-ContentOffset.Value.X, (float)-ContentOffset.Value.Y);
 
         Content.Value?.Paint(ctx, surface.DrawingSurface);
 

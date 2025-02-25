@@ -7,7 +7,6 @@
         <Setter Property="Template">
             <ControlTemplate>
                 <Grid Background="Transparent">
-
                     <Rectangle Name="PART_SelectionRectangle" HorizontalAlignment="Left"
                                VerticalAlignment="Top"
                                IsVisible="False" ZIndex="100"

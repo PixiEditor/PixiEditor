@@ -143,7 +143,7 @@ internal class ActionAccumulator
                         undoBoundaryPassed || viewportRefreshRequest);
                 }*/
 
-                previewUpdater.UpdatePreviews(undoBoundaryPassed || changeFrameRequest || viewportRefreshRequest,
+                previewUpdater.UpdatePreviews(
                     affectedAreas.ImagePreviewAreas.Keys,
                     affectedAreas.MaskPreviewAreas.Keys,
                     affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames);

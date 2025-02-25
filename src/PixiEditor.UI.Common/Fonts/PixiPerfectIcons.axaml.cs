@@ -151,6 +151,7 @@ public static class PixiPerfectIcons
     public const string LinkedPipette = "\uE997";
     public const string TextUnderline = "\uE998";
     public const string TextRound = "\uE999";
+    public const string Cone = "\uE99c";
 
     public static Stream GetFontStream()
     {

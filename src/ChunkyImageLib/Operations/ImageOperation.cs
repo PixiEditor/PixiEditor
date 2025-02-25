@@ -87,15 +87,20 @@ internal class ImageOperation : IMirroredDrawOperation
         var scaleTrans = Matrix3X3.CreateScaleTranslation(scaleMult, scaleMult, (float)trans.X * scaleMult, (float)trans.Y * scaleMult);
         var finalMatrix = Matrix3X3.Concat(scaleTrans, transformMatrix);
 
+        using var snapshot = toPaint.DrawingSurface.Snapshot();
+        ShapeCorners chunkCorners = new ShapeCorners(new RectD(VecD.Zero, targetChunk.PixelSize));
+        RectD rect = chunkCorners.WithMatrix(finalMatrix.Invert()).AABBBounds;
+
         targetChunk.Surface.DrawingSurface.Canvas.Save();
         targetChunk.Surface.DrawingSurface.Canvas.SetMatrix(finalMatrix);
-        targetChunk.Surface.DrawingSurface.Canvas.DrawSurface(toPaint.DrawingSurface, 0, 0, customPaint);
+        targetChunk.Surface.DrawingSurface.Canvas.DrawImage(snapshot, rect, rect, customPaint);
         targetChunk.Surface.DrawingSurface.Canvas.Restore();
     }
 
     public AffectedArea FindAffectedArea(VecI imageSize)
     {
-        return new AffectedArea(OperationHelper.FindChunksTouchingQuadrilateral(corners, ChunkPool.FullChunkSize), (RectI)corners.AABBBounds.RoundOutwards());
+        return new AffectedArea(OperationHelper.FindChunksTouchingQuadrilateral(corners, ChunkPool.FullChunkSize),
+            (RectI)corners.AABBBounds.RoundOutwards());
     }
 
     public void Dispose()
@@ -110,18 +115,22 @@ internal class ImageOperation : IMirroredDrawOperation
         if (verAxisX is not null && horAxisY is not null)
         {
             return new ImageOperation
-                (corners.AsMirroredAcrossVerAxis((double)verAxisX).AsMirroredAcrossHorAxis((double)horAxisY), toPaint, customPaint, imageWasCopied);
+            (corners.AsMirroredAcrossVerAxis((double)verAxisX).AsMirroredAcrossHorAxis((double)horAxisY), toPaint,
+                customPaint, imageWasCopied);
         }
+
         if (verAxisX is not null)
         {
             return new ImageOperation
                 (corners.AsMirroredAcrossVerAxis((double)verAxisX), toPaint, customPaint, imageWasCopied);
         }
+
         if (horAxisY is not null)
         {
             return new ImageOperation
                 (corners.AsMirroredAcrossHorAxis((double)horAxisY), toPaint, customPaint, imageWasCopied);
         }
+
         return new ImageOperation(corners, toPaint, customPaint, imageWasCopied);
     }
 }
