@@ -17,6 +17,8 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
 
     private TextureCache textureCache = new();
 
+    private VecI lastDocumentSize = VecI.Zero;
+
     public RenderNode()
     {
         Painter painter = new Painter(Paint);
@@ -34,6 +36,8 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
                 output.ChainToPainterValue();
             }
         }
+
+        lastDocumentSize = context.DocumentSize;
     }
 
     private void Paint(RenderContext context, DrawingSurface surface)
@@ -58,10 +62,17 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
 
     protected abstract void OnPaint(RenderContext context, DrawingSurface surface);
 
-    public abstract RectD? GetPreviewBounds(int frame, string elementToRenderName = "");
+    public virtual RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
+    {
+        return new RectD(0, 0, lastDocumentSize.X, lastDocumentSize.Y);
+    }
 
-    public abstract bool RenderPreview(DrawingSurface renderOn, RenderContext context,
-        string elementToRenderName);
+    public virtual bool RenderPreview(DrawingSurface renderOn, RenderContext context,
+        string elementToRenderName)
+    {
+        OnPaint(context, renderOn);
+        return true;
+    }
 
     protected Texture RequestTexture(int id, VecI size, ColorSpace processingCs, bool clear = true)
     {
