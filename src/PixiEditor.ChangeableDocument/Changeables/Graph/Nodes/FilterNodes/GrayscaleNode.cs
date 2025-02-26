@@ -22,26 +22,24 @@ public class GrayscaleNode : FilterNode
     private double lastFactor;
     private bool lastNormalize;
     private Vec3D lastCustomWeight;
-    private ColorSpace lastColorSpace;
-    
+
     private ColorFilter? filter;
     
     public GrayscaleNode()
     {
         Mode = CreateInput("Mode", "MODE", GrayscaleMode.Weighted);
-        // TODO: Clamp 0 - 1 in UI
-        Factor = CreateInput("Factor", "FACTOR", 1d);
+        Factor = CreateInput("Factor", "FACTOR", 1d)
+            .WithRules(rules => rules.Min(0d).Max(1d));
         Normalize = CreateInput("Normalize", "NORMALIZE", true);
         CustomWeight = CreateInput("CustomWeight", "WEIGHT_FACTOR", new Vec3D(1, 1, 1));
     }
 
-    protected override ColorFilter? GetColorFilter(ColorSpace colorSpace)
+    protected override ColorFilter? GetColorFilter()
     {
         if (Mode.Value == lastMode 
             && Factor.Value == lastFactor 
             && Normalize.Value == lastNormalize &&
-            CustomWeight.Value == lastCustomWeight
-            && colorSpace == lastColorSpace)
+            CustomWeight.Value == lastCustomWeight)
         {
             return filter;
         }
@@ -50,8 +48,7 @@ public class GrayscaleNode : FilterNode
         lastFactor = Factor.Value;
         lastNormalize = Normalize.Value;
         lastCustomWeight = CustomWeight.Value;
-        lastColorSpace = colorSpace;
-        
+
         filter?.Dispose();
         
         var matrix = Mode.Value switch
@@ -62,8 +59,7 @@ public class GrayscaleNode : FilterNode
                                               ColorMatrix.UseAlpha)
         };
 
-        filter = ColorFilter.CreateColorMatrix(AdjustMatrixForColorSpace(matrix));
-        
+        filter = ColorFilter.CreateColorMatrix(matrix);
         return filter;
     }
 

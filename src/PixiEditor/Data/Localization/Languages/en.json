@@ -891,5 +891,6 @@
   "DOCUMENT_INFO_NODE": "Document Info",
   "MASK_NODE": "Mask",
   "SEPIA_FILTER_NODE": "Sepia Filter",
-  "INTENSITY": "Intensity"
+  "INTENSITY": "Intensity",
+  "INVERT_FILTER_NODE": "Invert Filter"
 }

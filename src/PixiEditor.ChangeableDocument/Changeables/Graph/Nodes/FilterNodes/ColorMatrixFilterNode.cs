@@ -17,7 +17,7 @@ public class ColorMatrixFilterNode : FilterNode
         Matrix = CreateInput(nameof(Matrix), "MATRIX", ColorMatrix.Identity);
     }
 
-    protected override ColorFilter? GetColorFilter(ColorSpace colorSpace)
+    protected override ColorFilter? GetColorFilter()
     {
         if (Matrix.Value.Equals(lastMatrix))
         {
@@ -27,7 +27,7 @@ public class ColorMatrixFilterNode : FilterNode
         lastMatrix = Matrix.Value;
         filter?.Dispose();
         
-        filter = ColorFilter.CreateColorMatrix(AdjustMatrixForColorSpace(Matrix.Value));
+        filter = ColorFilter.CreateColorMatrix(Matrix.Value);
         return filter;
     }
 
