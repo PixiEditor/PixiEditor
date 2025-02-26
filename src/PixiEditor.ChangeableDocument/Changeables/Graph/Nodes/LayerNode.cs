@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 
@@ -48,7 +49,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
             return;
         }
 
-        var outputWorkingSurface = TryInitWorkingSurface(size, context.ChunkResolution, 1);
+        var outputWorkingSurface = TryInitWorkingSurface(size, context.ChunkResolution, context.ProcessingColorSpace, 1);
         outputWorkingSurface.DrawingSurface.Canvas.Clear();
 
         DrawLayerOnTexture(context, outputWorkingSurface.DrawingSurface, useFilters);
@@ -57,7 +58,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         if (Background.Value != null)
         {
-            Texture tempSurface = TryInitWorkingSurface(size, context.ChunkResolution, 4);
+            Texture tempSurface = TryInitWorkingSurface(size, context.ChunkResolution, context.ProcessingColorSpace, 4);
             tempSurface.DrawingSurface.Canvas.Clear();
             if (Background.Connection is { Node: IClipSource clipSource } && ClipToPreviousMember)
             {
@@ -123,7 +124,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
     protected abstract void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         Paint paint);
 
-    protected Texture TryInitWorkingSurface(VecI imageSize, ChunkResolution resolution, int id)
+    protected Texture TryInitWorkingSurface(VecI imageSize, ChunkResolution resolution, ColorSpace processingCs, int id)
     {
         ChunkResolution targetResolution = resolution;
         bool hasSurface = workingSurfaces.TryGetValue((targetResolution, id), out Texture workingSurface);
@@ -133,7 +134,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         if (!hasSurface || workingSurface.Size != targetSize || workingSurface.IsDisposed)
         {
-            workingSurfaces[(targetResolution, id)] = new Texture(targetSize);
+            workingSurfaces[(targetResolution, id)] = Texture.ForProcessing(targetSize, processingCs);
             workingSurface = workingSurfaces[(targetResolution, id)];
         }
 

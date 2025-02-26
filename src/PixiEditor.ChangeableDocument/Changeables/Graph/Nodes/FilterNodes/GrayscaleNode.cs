@@ -1,4 +1,5 @@
-﻿using Drawie.Backend.Core.Surfaces.PaintImpl;
+﻿using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
@@ -21,6 +22,7 @@ public class GrayscaleNode : FilterNode
     private double lastFactor;
     private bool lastNormalize;
     private Vec3D lastCustomWeight;
+    private ColorSpace lastColorSpace;
     
     private ColorFilter? filter;
     
@@ -33,12 +35,13 @@ public class GrayscaleNode : FilterNode
         CustomWeight = CreateInput("CustomWeight", "WEIGHT_FACTOR", new Vec3D(1, 1, 1));
     }
 
-    protected override ColorFilter GetColorFilter()
+    protected override ColorFilter? GetColorFilter(ColorSpace colorSpace)
     {
         if (Mode.Value == lastMode 
             && Factor.Value == lastFactor 
             && Normalize.Value == lastNormalize &&
-            CustomWeight.Value == lastCustomWeight)
+            CustomWeight.Value == lastCustomWeight
+            && colorSpace == lastColorSpace)
         {
             return filter;
         }
@@ -47,16 +50,19 @@ public class GrayscaleNode : FilterNode
         lastFactor = Factor.Value;
         lastNormalize = Normalize.Value;
         lastCustomWeight = CustomWeight.Value;
+        lastColorSpace = colorSpace;
         
         filter?.Dispose();
         
-        filter = ColorFilter.CreateColorMatrix(Mode.Value switch
+        var matrix = Mode.Value switch
         {
             GrayscaleMode.Weighted => UseFactor(WeightedMatrix),
             GrayscaleMode.Average => UseFactor(AverageMatrix),
             GrayscaleMode.Custom => UseFactor(ColorMatrix.WeightedGrayscale(GetAdjustedCustomWeight()) +
                                               ColorMatrix.UseAlpha)
-        });
+        };
+
+        filter = ColorFilter.CreateColorMatrix(AdjustMatrixForColorSpace(matrix));
         
         return filter;
     }
