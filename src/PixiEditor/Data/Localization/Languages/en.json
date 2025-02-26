@@ -889,5 +889,7 @@
   "UNIT": "Unit",
   "ANGLE": "Angle",
   "DOCUMENT_INFO_NODE": "Document Info",
-  "MASK_NODE": "Mask"
+  "MASK_NODE": "Mask",
+  "SEPIA_FILTER_NODE": "Sepia Filter",
+  "INTENSITY": "Intensity"
 }

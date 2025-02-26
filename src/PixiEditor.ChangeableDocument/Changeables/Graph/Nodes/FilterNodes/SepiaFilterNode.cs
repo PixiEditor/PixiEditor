@@ -8,13 +8,22 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 [NodeInfo("Sepia")]
 public class SepiaFilterNode : FilterNode
 {
+    public InputProperty<double> Intensity { get; }
+
     private ColorMatrix srgbSepiaMatrix;
     private ColorMatrix linearSepiaMatrix;
     private ColorFilter linearSepiaFilter;
     private ColorFilter sepiaColorFilter;
 
+    protected override bool ExecuteOnlyOnCacheChange => true;
+    protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs;
+
+    private ColorFilter lastFilter;
+
     public SepiaFilterNode()
     {
+        Intensity = CreateInput("Intensity", "INTENSITY", 1d);
+
         srgbSepiaMatrix = new ColorMatrix(
             [
                 0.393f, 0.769f, 0.189f, 0.0f, 0.0f,
@@ -32,12 +41,14 @@ public class SepiaFilterNode : FilterNode
 
     protected override ColorFilter? GetColorFilter(ColorSpace colorSpace)
     {
-        if (colorSpace.IsSrgb)
-        {
-            return sepiaColorFilter;
-        }
+        var targetMatrix = colorSpace.IsSrgb ? srgbSepiaMatrix : linearSepiaMatrix;
 
-        return linearSepiaFilter;
+        lastFilter?.Dispose();
+
+        var lerped = ColorMatrix.Lerp(ColorMatrix.Identity, targetMatrix, (float)Intensity.Value);
+        lastFilter = ColorFilter.CreateColorMatrix(lerped);
+
+        return lastFilter;
     }
 
     public override Node CreateCopy()

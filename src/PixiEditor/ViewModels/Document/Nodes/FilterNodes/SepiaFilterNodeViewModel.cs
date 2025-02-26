@@ -4,5 +4,5 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.FilterNodes;
 
-[NodeViewModel("SEPIA_NODE", "FILTERS", "")]
+[NodeViewModel("SEPIA_FILTER_NODE", "FILTERS", PixiPerfectIcons.Camera)]
 internal class SepiaFilterNodeViewModel : NodeViewModel<SepiaFilterNode>;
