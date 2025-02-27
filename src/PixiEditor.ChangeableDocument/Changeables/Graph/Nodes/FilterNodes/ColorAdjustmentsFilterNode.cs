@@ -1,11 +1,7 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
-using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Graph;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
-namespace PixiEditor.ViewModels.Document.Nodes.FilterNodes;
+namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
 [NodeInfo("ColorAdjustmentsFilter")]
 public class ColorAdjustmentsFilterNode : FilterNode
