@@ -31,8 +31,10 @@
                         <Border Padding="{TemplateBinding Padding}" Grid.ColumnSpan="3" Grid.Row="0"
                                 CornerRadius="4.5, 4.5, 0 ,0"
                                 Background="{TemplateBinding CategoryBackgroundBrush}">
-                            <TextBlock ui:Translator.Key="{TemplateBinding DisplayName}"
-                                       FontWeight="Bold" />
+                            <TextBlock FontWeight="Bold">
+                                <Run Classes="pixi-icon" BaselineAlignment="Center" Text="{TemplateBinding Icon}"/>
+                                <Run BaselineAlignment="Center" ui:Translator.Key="{TemplateBinding DisplayName}"/>
+                            </TextBlock>
                         </Border>
                         <Border Grid.Row="1" Background="{DynamicResource ThemeControlMidBrush}">
                             <StackPanel>
@@ -60,7 +62,7 @@
                                     <ImageBrush Source="/Images/CheckerTile.png"
                                                 TileMode="Tile" DestinationRect="0, 0, 25, 25" />
                                 </Panel.Background>
-                            <visuals:PreviewPainterControl 
+                            <visuals:PreviewPainterControl
                                                            PreviewPainter="{TemplateBinding ResultPreview}"
                                                            FrameToRender="{TemplateBinding ActiveFrame}"
                                                            RenderOptions.BitmapInterpolationMode="None">

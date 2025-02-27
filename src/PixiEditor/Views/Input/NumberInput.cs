@@ -38,6 +38,15 @@ internal partial class NumberInput : TextBox
         AvaloniaProperty.Register<NumberInput, bool>(
             "EnableScrollChange", true);
 
+    public static readonly StyledProperty<bool> EnableGrabberProperty = AvaloniaProperty.Register<NumberInput, bool>(
+        nameof(EnableGrabber), true);
+
+    public bool EnableGrabber
+    {
+        get => GetValue(EnableGrabberProperty);
+        set => SetValue(EnableGrabberProperty, value);
+    }
+
     public string FormattedValue
     {
         get => GetValue(FormattedValueProperty);
@@ -164,14 +173,22 @@ internal partial class NumberInput : TextBox
     {
         base.OnApplyTemplate(e);
 
-        InnerLeftContent = leftGrabber = CreateMouseGrabber();
-        leftGrabber.HorizontalAlignment = HorizontalAlignment.Left;
-        InnerRightContent = rightGrabber = CreateMouseGrabber();
-        rightGrabber.HorizontalAlignment = HorizontalAlignment.Right;
+        if (EnableGrabber)
+        {
+            InnerLeftContent = leftGrabber = CreateMouseGrabber();
+            leftGrabber.HorizontalAlignment = HorizontalAlignment.Left;
+            InnerRightContent = rightGrabber = CreateMouseGrabber();
+            rightGrabber.HorizontalAlignment = HorizontalAlignment.Right;
+        }
     }
 
     protected override void OnSizeChanged(SizeChangedEventArgs e)
     {
+        if (!EnableGrabber)
+        {
+            return;
+        }
+
         if (e.NewSize.Width < 100)
         {
             rightGrabber.IsVisible = false;

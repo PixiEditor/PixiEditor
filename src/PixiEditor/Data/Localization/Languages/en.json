@@ -892,5 +892,18 @@
   "MASK_NODE": "Mask",
   "SEPIA_FILTER_NODE": "Sepia Filter",
   "INTENSITY": "Intensity",
-  "INVERT_FILTER_NODE": "Invert Filter"
+  "INVERT_FILTER_NODE": "Invert Filter",
+  "COLOR_ADJUSTMENTS_FILTER": "Color Adjustments Filter",
+  "ADJUST_BRIGHTNESS": "Adjust Brightness",
+  "ADJUST_CONTRAST": "Adjust Contrast",
+  "ADJUST_SATURATION": "Adjust Saturation",
+  "ADJUST_TEMPERATURE": "Adjust Temperature",
+  "ADJUST_TINT": "Adjust Tint",
+  "ADJUST_HUE": "Adjust Hue",
+  "HUE_VALUE": "Hue",
+  "SATURATION_VALUE": "Saturation",
+  "BRIGHTNESS_VALUE": "Brightness",
+  "CONTRAST_VALUE": "Contrast",
+  "TEMPERATURE_VALUE": "Temperature",
+  "TINT_VALUE": "Tint"
 }

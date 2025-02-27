@@ -30,6 +30,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
     private ObservableRangeCollection<INodePropertyHandler> outputs = new();
     private PreviewPainter resultPainter;
     private bool isSelected;
+    private string? icon;
 
     protected Guid id;
 
@@ -164,6 +165,8 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         nodeNameBindable = new LocalizedString(newName);
         OnPropertyChanged(nameof(NodeNameBindable));
     }
+
+    public string Icon => icon ??= GetType().GetCustomAttribute<NodeViewModelAttribute>().Icon;
 
     public void TraverseBackwards(Func<INodeHandler, bool> func)
     {

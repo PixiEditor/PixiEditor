@@ -157,7 +157,7 @@ public class ColorAdjustmentsFilterNode : FilterNode
     {
         if (AdjustHue.Value)
         {
-            float value = (float)HueValue.Value * (float)Math.PI / 180f;
+            float value = (float)-HueValue.Value * (float)Math.PI / 180f;
             var cosVal = (float)Math.Cos(value);
             var sinVal = (float)Math.Sin(value);
             float lumR = 0.213f;
