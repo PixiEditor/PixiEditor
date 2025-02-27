@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Media;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;

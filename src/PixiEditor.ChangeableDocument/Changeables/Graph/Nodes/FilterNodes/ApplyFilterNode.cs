@@ -23,6 +23,7 @@ public class ApplyFilterNode : RenderNode, IRenderInput
         Background = CreateRenderInput("Input", "IMAGE");
         Filter = CreateInput<Filter>("Filter", "FILTER", null);
         Output.FirstInChain = null;
+        AllowHighDpiRendering = true;
     }
 
     protected override void OnPaint(RenderContext context, DrawingSurface surface)
