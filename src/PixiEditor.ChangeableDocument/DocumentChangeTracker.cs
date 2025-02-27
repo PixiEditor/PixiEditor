@@ -208,7 +208,7 @@ public class DocumentChangeTracker : IDisposable
             Trace.WriteLine($"Attempted to execute make change action {act} while {activeUpdateableChange} is active");
             return new None();
         }
-        
+
         bool ignoreInUndo = false;
         List<IChangeInfo> changeInfos = new();
 
@@ -219,12 +219,12 @@ public class DocumentChangeTracker : IDisposable
                 AddToUndo(interruptable, source);
             else
                 interruptable.Dispose();
-            
+
             applyInfo.Switch(
                 static (None _) => { },
                 (IChangeInfo info) => changeInfos.Add(info),
                 (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
-            
+
             activeUpdateableChange = null;
         }
 
@@ -238,12 +238,12 @@ public class DocumentChangeTracker : IDisposable
         }
 
         var info = change.Apply(document, true, out ignoreInUndo);
-        
+
         info.Switch(
             static (None _) => { },
             (IChangeInfo changeInfo) => changeInfos.Add(changeInfo),
             (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
-        
+
         if (!ignoreInUndo)
             AddToUndo(change, source);
         else
@@ -406,9 +406,15 @@ public class DocumentChangeTracker : IDisposable
         if (running)
             throw new InvalidOperationException("Already currently processing");
         running = true;
-        var result = ProcessActionList(actions);
-        running = false;
-        return result;
+        try
+        {
+            var result = ProcessActionList(actions);
+            return result;
+        }
+        finally
+        {
+            running = false;
+        }
     }
 }
 

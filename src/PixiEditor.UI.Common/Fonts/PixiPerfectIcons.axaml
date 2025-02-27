@@ -157,6 +157,7 @@
             <system:String x:Key="icon-outline">&#xE99a;</system:String>
             <system:String x:Key="icon-terminal">&#xE99b;</system:String>
             <system:String x:Key="icon-cone">&#xE99c;</system:String>
+            <system:String x:Key="icon-camera">&#xE99d;</system:String>
 
         </ResourceDictionary>
     </Styles.Resources>

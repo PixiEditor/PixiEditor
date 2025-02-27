@@ -32,7 +32,7 @@ public class InputProperty : IInputProperty
 
             var connectionValue = Connection.Value;
 
-            if(connectionValue is null)
+            if (connectionValue is null)
             {
                 return null;
             }
@@ -77,9 +77,25 @@ public class InputProperty : IInputProperty
         get => _internalValue;
         set
         {
-            _internalValue = value;
-            NonOverridenValueChanged?.Invoke(value);
-            NonOverridenValueSet(value);
+            object evaluatedValue = value;
+            if (value != null)
+            {
+                if (!value.GetType().IsAssignableTo(ValueType))
+                {
+                    if (!ConversionTable.TryConvert(value, ValueType, out object result))
+                    {
+                        evaluatedValue = null;
+                    }
+                    else
+                    {
+                        evaluatedValue = result;
+                    }
+                }
+            }
+
+            _internalValue = evaluatedValue;
+            NonOverridenValueChanged?.Invoke(evaluatedValue);
+            NonOverridenValueSet(evaluatedValue);
         }
     }
 
@@ -89,7 +105,7 @@ public class InputProperty : IInputProperty
         {
             if (validator is null)
             {
-                validator = new PropertyValidator();
+                validator = new PropertyValidator(this);
             }
 
             return validator;
@@ -209,7 +225,14 @@ public class InputProperty<T> : InputProperty, IInputProperty<T>
             if (value is T tValue)
                 return tValue;
 
-            return (T)Validator.GetClosestValidValue(value);
+            var validated = Validator.GetClosestValidValue(value);
+
+            if (!ConversionTable.TryConvert(validated, ValueType, out object result))
+            {
+                return default(T);
+            }
+
+            return (T)result;
         }
     }
 

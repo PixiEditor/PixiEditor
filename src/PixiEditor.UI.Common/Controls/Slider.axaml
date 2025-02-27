@@ -22,6 +22,7 @@
                 <ControlTemplate>
                     <Grid Name="grid">
                         <Border Margin="6, 0" CornerRadius="4" Background="{DynamicResource ThemeControlLowBrush}"
+                                Name="TrackBackground"
                                 Height="6"
                                 VerticalAlignment="Center">
                         </Border>

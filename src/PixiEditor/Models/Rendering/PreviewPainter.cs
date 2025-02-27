@@ -71,6 +71,11 @@ public class PreviewPainter
 
     public void ChangeRenderTextureSize(int requestId, VecI size)
     {
+        if (size.X <= 0 || size.Y <= 0)
+        {
+            return;
+        }
+
         if (repaintingTextures.Contains(requestId))
         {
             pendingResizes[requestId] = size;
@@ -161,7 +166,8 @@ public class PreviewPainter
                                 try
                                 {
                                     renderTexture.Dispose();
-                                } catch (Exception) { }
+                                }
+                                catch (Exception) { }
                             }
 
                             renderTextures.Remove(texture);
@@ -170,7 +176,7 @@ public class PreviewPainter
                             dirtyTextures.Remove(texture);
                             return;
                         }
-                        
+
                         if (renderTexture is { IsDisposed: false })
                         {
                             try

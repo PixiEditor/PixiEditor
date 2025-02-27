@@ -59,6 +59,15 @@ public class NodeView : TemplatedControl
     public static readonly StyledProperty<ICommand> EndDragCommandProperty =
         AvaloniaProperty.Register<NodeView, ICommand>("EndDragCommand");
 
+    public static readonly StyledProperty<string> IconProperty = AvaloniaProperty.Register<NodeView, string>(
+        nameof(Icon));
+
+    public string Icon
+    {
+        get => GetValue(IconProperty);
+        set => SetValue(IconProperty, value);
+    }
+
     public INodeHandler Node
     {
         get => GetValue(NodeProperty);

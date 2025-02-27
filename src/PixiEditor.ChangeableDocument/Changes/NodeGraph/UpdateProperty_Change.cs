@@ -162,4 +162,9 @@ internal class UpdatePropertyValue_Change : Change
 
         return hash.ToHashCode();
     }
+
+    public override bool IsMergeableWith(Change other)
+    {
+        return other is UpdatePropertyValue_Change change && change._nodeId == _nodeId && change._propertyName == _propertyName;
+    }
 }
