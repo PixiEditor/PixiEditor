@@ -225,6 +225,11 @@ public class InputProperty<T> : InputProperty, IInputProperty<T>
             if (value is T tValue)
                 return tValue;
 
+            if (value is ShaderExpressionVariable shaderExpression)
+            {
+                value = shaderExpression.GetConstant();
+            }
+
             var validated = Validator.GetClosestValidValue(value);
 
             if (!ConversionTable.TryConvert(validated, ValueType, out object result))

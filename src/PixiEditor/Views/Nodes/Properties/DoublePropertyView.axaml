@@ -17,7 +17,18 @@
     </Design.DataContext>
     <StackPanel Orientation="Vertical"
                 HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
-        <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
+
+        <Grid>
+            <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
+            <input:NumberInput EnableScrollChange="False" Name="input"
+                               HorizontalAlignment="Right"
+                               MinWidth="100" Decimals="6"
+                               IsVisible="{Binding NumberPickerMode,
+                                                        Converter={converters:EnumBooleanConverter}, ConverterParameter=NumberInput}"
+                               Min="{Binding Min}" Max="{Binding Max}"
+                               Value="{Binding DoubleValue, Mode=TwoWay}" />
+        </Grid>
+
         <Panel IsVisible="{Binding ShowInputField}">
             <DockPanel
                 LastChildFill="True"
@@ -39,7 +50,7 @@
                             <Setter Property="Background" Value="{Binding SliderSettings.BackgroundBrush}" />
                             <Setter Property="BorderThickness" Value="0" />
                             <Setter Property="Height" Value="8" />
-                            <Setter Property="Margin" Value="0"/>
+                            <Setter Property="Margin" Value="0" />
                         </Style>
                         <Style Selector="Slider.colorSlider Thumb">
                             <Setter Property="Width" Value="10" />
@@ -64,15 +75,7 @@
                         </Style>
                     </Slider.Styles>
                 </Slider>
-
-
             </DockPanel>
-            <input:NumberInput EnableScrollChange="False" Name="input"
-                               MinWidth="100" Decimals="6"
-                               IsVisible="{Binding NumberPickerMode,
-                                            Converter={converters:EnumBooleanConverter}, ConverterParameter=NumberInput}"
-                               Min="{Binding Min}" Max="{Binding Max}"
-                               Value="{Binding DoubleValue, Mode=TwoWay}" />
         </Panel>
     </StackPanel>
 </properties:NodePropertyView>
