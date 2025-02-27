@@ -18,16 +18,17 @@
     <StackPanel Orientation="Vertical"
                 HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
 
-        <Grid>
-            <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
-            <input:NumberInput EnableScrollChange="False" Name="input"
-                               HorizontalAlignment="Right"
-                               MinWidth="100" Decimals="6"
-                               IsVisible="{Binding NumberPickerMode,
-                                                        Converter={converters:EnumBooleanConverter}, ConverterParameter=NumberInput}"
-                               Min="{Binding Min}" Max="{Binding Max}"
-                               Value="{Binding DoubleValue, Mode=TwoWay}" />
-        </Grid>
+        <DockPanel>
+            <TextBlock VerticalAlignment="Center" DockPanel.Dock="Left" ui:Translator.Key="{Binding DisplayName}" />
+            <Panel HorizontalAlignment="Right" IsVisible="{Binding ShowInputField}">
+                <input:NumberInput EnableScrollChange="False" Name="input"
+                                   MinWidth="100" Decimals="6"
+                                   IsVisible="{Binding NumberPickerMode,
+                                Converter={converters:EnumBooleanConverter}, ConverterParameter=NumberInput}"
+                                   Min="{Binding Min}" Max="{Binding Max}"
+                                   Value="{Binding DoubleValue, Mode=TwoWay}" />
+            </Panel>
+        </DockPanel>
 
         <Panel IsVisible="{Binding ShowInputField}">
             <DockPanel
