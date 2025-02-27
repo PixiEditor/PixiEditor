@@ -52,7 +52,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return (GetFrameWithImage(ctx.FrameTime).Data as ChunkyImage).LatestSize;
     }
 
-    protected internal override void DrawLayerInScene(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+    protected internal override void DrawLayerInScene(SceneObjectRenderContext ctx,
+        DrawingSurface workingSurface,
         bool useFilters = true)
     {
         int scaled = workingSurface.Canvas.Save();
@@ -63,7 +64,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         workingSurface.Canvas.RestoreToCount(scaled);
     }
 
-    protected internal override void DrawLayerOnTexture(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+    protected internal override void DrawLayerOnTexture(SceneObjectRenderContext ctx,
+        DrawingSurface workingSurface,
         bool useFilters)
     {
         int scaled = workingSurface.Canvas.Save();

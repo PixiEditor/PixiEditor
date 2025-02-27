@@ -19,7 +19,7 @@ public class TileNode : RenderNode
     public InputProperty<ShaderTileMode> TileModeY { get; }
     public InputProperty<Matrix3X3> Matrix { get; }
 
-    private Image lastImage;
+    private Drawie.Backend.Core.Surfaces.ImageData.Image lastImage;
     private Shader tileShader;
     private Paint paint;
 

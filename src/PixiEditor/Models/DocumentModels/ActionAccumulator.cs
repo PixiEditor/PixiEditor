@@ -87,13 +87,13 @@ internal class ActionAccumulator
         if (executing || queuedActions.Count == 0)
             return;
         executing = true;
-        DispatcherTimer busyTimer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(2000) };
+        /*DispatcherTimer busyTimer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(2000) };
         busyTimer.Tick += (_, _) =>
         {
             busyTimer.Stop();
             document.Busy = true;
         };
-        busyTimer.Start();
+        busyTimer.Start();*/
 
         try
         {
@@ -158,7 +158,7 @@ internal class ActionAccumulator
         }
         catch (Exception e)
         {
-            busyTimer.Stop();
+            //busyTimer.Stop();
             document.Busy = false;
             executing = false;
 #if DEBUG
@@ -168,7 +168,7 @@ internal class ActionAccumulator
             throw;
         }
 
-        busyTimer.Stop();
+        //busyTimer.Stop();
         if (document.Busy)
             document.Busy = false;
         executing = false;

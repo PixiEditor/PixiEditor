@@ -43,6 +43,7 @@
                                 <nodes:NodeView
                                     Node="{Binding}"
                                     DisplayName="{Binding NodeNameBindable}"
+                                    Icon="{Binding Icon}"
                                     CategoryBackgroundBrush="{Binding CategoryBackgroundBrush}"
                                     Inputs="{Binding Inputs}"
                                     ActiveFrame="{Binding ActiveFrame, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"

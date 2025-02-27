@@ -152,6 +152,7 @@ public static class PixiPerfectIcons
     public const string TextUnderline = "\uE998";
     public const string TextRound = "\uE999";
     public const string Cone = "\uE99c";
+    public const string Camera = "\uE99d";
 
     public static Stream GetFontStream()
     {

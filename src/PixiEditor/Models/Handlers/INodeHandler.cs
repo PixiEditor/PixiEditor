@@ -23,6 +23,7 @@ public interface INodeHandler : INotifyPropertyChanged
     public PreviewPainter? ResultPainter { get; set; }
     public VecD PositionBindable { get; set; }
     public bool IsNodeSelected { get; set; }
+    public string Icon { get; }
     public void TraverseBackwards(Func<INodeHandler, bool> func);
     public void TraverseBackwards(Func<INodeHandler, INodeHandler, bool> func);
     public void TraverseBackwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, bool> func);

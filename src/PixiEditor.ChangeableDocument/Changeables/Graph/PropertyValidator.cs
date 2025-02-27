@@ -6,32 +6,68 @@ public delegate ValidatorResult ValidateProperty(object? value);
 
 public class PropertyValidator
 {
+    public InputProperty ForProperty { get; }
     public List<ValidateProperty> Rules { get; } = new();
+
+    public PropertyValidator(InputProperty forProperty)
+    {
+        ForProperty = forProperty;
+    }
 
     public PropertyValidator Min(VecI min)
     {
-       return Min(min, v => new VecI(Math.Max(v.X, min.X), Math.Max(v.Y, min.Y))); 
+        return Min(min, v => new VecI(Math.Max(v.X, min.X), Math.Max(v.Y, min.Y)));
     }
-    
+
     public PropertyValidator Min(VecD min)
     {
-        return Min(min, v => new VecD(Math.Max(v.X, min.X), Math.Max(v.Y, min.Y))); 
+        return Min(min, v => new VecD(Math.Max(v.X, min.X), Math.Max(v.Y, min.Y)));
     }
 
     public PropertyValidator Min<T>(T min, Func<T, T>? adjust = null) where T : IComparable<T>
     {
+        if (!typeof(T).IsAssignableTo(ForProperty.ValueType))
+        {
+            throw new ArgumentException($"Type mismatch. Expected {ForProperty.ValueType}, got {typeof(T)}");
+        }
+
         Rules.Add((value) =>
         {
             if (value is T val)
             {
                 bool isValid = val.CompareTo(min) >= 0;
-                return new (isValid, isValid ? val : GetReturnValue(val, min, adjust));
+                return new(isValid, isValid ? val : GetReturnValue(val, min, adjust));
             }
 
-            return new (false, GetReturnValue(min, min, adjust));
+            return new(false, GetReturnValue(min, min, adjust));
         });
 
         return this;
+    }
+
+
+    public void Max(VecI max)
+    {
+        Max(max, v => new VecI(Math.Min(v.X, max.X), Math.Min(v.Y, max.Y)));
+    }
+
+    public void Max(VecD max)
+    {
+        Max(max, v => new VecD(Math.Min(v.X, max.X), Math.Min(v.Y, max.Y)));
+    }
+
+    public void Max<T>(T max, Func<T, T>? adjust = null) where T : IComparable<T>
+    {
+        Rules.Add((value) =>
+        {
+            if (value is T val)
+            {
+                bool isValid = val.CompareTo(max) <= 0;
+                return new(isValid, isValid ? val : GetReturnValue(val, max, adjust));
+            }
+
+            return new(false, GetReturnValue(max, max, adjust));
+        });
     }
 
     public PropertyValidator Custom(ValidateProperty rule)

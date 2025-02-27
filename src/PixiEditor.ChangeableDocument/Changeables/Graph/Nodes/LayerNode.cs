@@ -3,7 +3,9 @@ using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 
@@ -22,7 +24,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
     {
         if (!IsVisible.Value || Opacity.Value <= 0 || IsEmptyMask())
         {
-            Output.Value = Background.Value; 
+            Output.Value = Background.Value;
             return;
         }
 
@@ -48,7 +50,8 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
             return;
         }
 
-        var outputWorkingSurface = TryInitWorkingSurface(size, context.ChunkResolution, 1);
+        var outputWorkingSurface =
+            TryInitWorkingSurface(size, context.ChunkResolution, context.ProcessingColorSpace, 1);
         outputWorkingSurface.DrawingSurface.Canvas.Clear();
 
         DrawLayerOnTexture(context, outputWorkingSurface.DrawingSurface, useFilters);
@@ -57,7 +60,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         if (Background.Value != null)
         {
-            Texture tempSurface = TryInitWorkingSurface(size, context.ChunkResolution, 4);
+            Texture tempSurface = TryInitWorkingSurface(size, context.ChunkResolution, context.ProcessingColorSpace, 4);
             tempSurface.DrawingSurface.Canvas.Clear();
             if (Background.Connection is { Node: IClipSource clipSource } && ClipToPreviousMember)
             {
@@ -68,10 +71,11 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         }
 
         blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
-        DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, context.ChunkResolution, size);
+        DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, context.ChunkResolution);
     }
 
-    protected internal virtual void DrawLayerOnTexture(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+    protected internal virtual void DrawLayerOnTexture(SceneObjectRenderContext ctx,
+        DrawingSurface workingSurface,
         bool useFilters)
     {
         int scaled = workingSurface.Canvas.Save();
@@ -82,7 +86,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         workingSurface.Canvas.RestoreToCount(scaled);
     }
 
-    private void DrawWithResolution(DrawingSurface source, DrawingSurface target, ChunkResolution resolution, VecI size)
+    private void DrawWithResolution(DrawingSurface source, DrawingSurface target, ChunkResolution resolution)
     {
         int scaled = target.Canvas.Save();
         float multiplier = (float)resolution.InvertedMultiplier();
@@ -95,20 +99,42 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
     protected abstract VecI GetTargetSize(RenderContext ctx);
 
-    protected internal virtual void DrawLayerInScene(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+    protected internal virtual void DrawLayerInScene(SceneObjectRenderContext ctx,
+        DrawingSurface workingSurface,
         bool useFilters = true)
     {
         DrawLayerOnto(ctx, workingSurface, useFilters);
     }
 
-    protected void DrawLayerOnto(SceneObjectRenderContext ctx, DrawingSurface workingSurface, bool useFilters)
+    protected void DrawLayerOnto(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
+        bool useFilters)
     {
         blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * ctx.Opacity * 255));
 
         if (useFilters && Filters.Value != null)
         {
             blendPaint.SetFilters(Filters.Value);
-            DrawWithFilters(ctx, workingSurface, blendPaint);
+
+            var targetSurface = workingSurface;
+            Texture? tex = null;
+            int saved = -1;
+            if (!ctx.ProcessingColorSpace.IsSrgb)
+            {
+                saved = workingSurface.Canvas.Save();
+
+                tex = Texture.ForProcessing(workingSurface, ColorSpace.CreateSrgb()); // filters are meant to be applied in sRGB
+                targetSurface = tex.DrawingSurface;
+                workingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+            }
+
+            DrawWithFilters(ctx, targetSurface, blendPaint);
+
+            if(targetSurface != workingSurface)
+            {
+                workingSurface.Canvas.DrawSurface(targetSurface, 0, 0);
+                tex.Dispose();
+                workingSurface.Canvas.RestoreToCount(saved);
+            }
         }
         else
         {
@@ -123,7 +149,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
     protected abstract void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         Paint paint);
 
-    protected Texture TryInitWorkingSurface(VecI imageSize, ChunkResolution resolution, int id)
+    protected Texture TryInitWorkingSurface(VecI imageSize, ChunkResolution resolution, ColorSpace processingCs, int id)
     {
         ChunkResolution targetResolution = resolution;
         bool hasSurface = workingSurfaces.TryGetValue((targetResolution, id), out Texture workingSurface);
@@ -133,7 +159,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         if (!hasSurface || workingSurface.Size != targetSize || workingSurface.IsDisposed)
         {
-            workingSurfaces[(targetResolution, id)] = new Texture(targetSize);
+            workingSurfaces[(targetResolution, id)] = Texture.ForProcessing(targetSize, processingCs);
             workingSurface = workingSurfaces[(targetResolution, id)];
         }
 
