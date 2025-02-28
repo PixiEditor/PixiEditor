@@ -78,14 +78,9 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
         return Radius is { X: > 0, Y: > 0 };
     }
 
-    public override int CalculateHash()
+    protected override int GetSpecificHash()
     {
-        return HashCode.Combine(Center, Radius, StrokeColor, FillColor, StrokeWidth, TransformationMatrix);
-    }
-
-    public override int GetCacheHash()
-    {
-        return CalculateHash();
+        return HashCode.Combine(Center, Radius);
     }
 
     protected override void AdjustCopy(ShapeVectorData copy)

@@ -87,14 +87,14 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
         return Path is { IsEmpty: false };
     }
 
-    public override int GetCacheHash()
+    protected override int GetSpecificHash()
     {
-        return Path.GetHashCode();
-    }
+        HashCode hash = new();
+        hash.Add(Path);
+        hash.Add(StrokeLineCap);
+        hash.Add(StrokeLineJoin);
 
-    public override int CalculateHash()
-    {
-        return Path.GetHashCode();
+        return hash.ToHashCode();
     }
 
     protected override void AdjustCopy(ShapeVectorData copy)

@@ -61,14 +61,11 @@ public class PointsVectorData : ShapeVectorData
         return Points.Count > 0;
     }
 
-    public override int GetCacheHash()
+    protected override int GetSpecificHash()
     {
-        return CalculateHash();
-    }
-
-    public override int CalculateHash()
-    {
-        return Points.GetHashCode();
+        HashCode hash = new();
+        hash.Add(Points);
+        return hash.ToHashCode();
     }
 
     protected override void AdjustCopy(ShapeVectorData copy)

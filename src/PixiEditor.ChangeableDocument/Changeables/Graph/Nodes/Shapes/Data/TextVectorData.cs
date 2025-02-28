@@ -204,11 +204,6 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
         return !string.IsNullOrEmpty(Text);
     }
 
-    public override int GetCacheHash()
-    {
-        return HashCode.Combine(Text, Position, Font, StrokeColor, FillColor, StrokeWidth, TransformationMatrix);
-    }
-
     protected override void AdjustCopy(ShapeVectorData copy)
     {
         if (copy is TextVectorData textData)
@@ -224,8 +219,17 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
         }
     }
 
-    public override int CalculateHash()
+    protected override int GetSpecificHash()
     {
-        return GetCacheHash();
+        HashCode hash = new();
+        hash.Add(Text);
+        hash.Add(Position);
+        hash.Add(Font);
+        hash.Add(Spacing);
+        hash.Add(AntiAlias);
+        hash.Add(MissingFontFamily);
+        hash.Add(MissingFontText);
+
+        return hash.ToHashCode();
     }
 }

@@ -3,10 +3,11 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Numerics;
+using PixiEditor.Common;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
-public interface IReadOnlyNode
+public interface IReadOnlyNode : ICacheable
 {
     public Guid Id { get; }
     public IReadOnlyList<IInputProperty> InputProperties { get; }
