@@ -1,6 +1,8 @@
 ﻿using Avalonia;
 using Avalonia.Threading;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
+using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Models;
@@ -108,6 +110,7 @@ internal class PixiFilePreviewImage : TextureControl
         try
         {
             loaded = Texture.Load(textureBytes);
+            return loaded;
         }
         catch (RecoverableException)
         {
@@ -135,7 +138,7 @@ internal class PixiFilePreviewImage : TextureControl
 
         var newSize = new VecI((int)(surface.Size.X * factor), (int)(surface.Size.Y * factor));
 
-        var scaledBitmap = surface.Resize(newSize, ResizeMethod.HighQuality);
+        var scaledBitmap = surface.Resize(newSize, FilterQuality.High);
 
         surface.Dispose();
         return scaledBitmap;

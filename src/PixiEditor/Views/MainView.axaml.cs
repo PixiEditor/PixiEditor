@@ -32,21 +32,6 @@ public partial class MainView : UserControl
 
     private void OnLoaded(object? sender, RoutedEventArgs e)
     {
-        // hacky way to fix first element not rendering
-        // feel free to make a proper fix inside Drawie
-        if (IDrawieInteropContext.Current is OpenGlInteropContext)
-        {
-            OpenGlInitDummy.IsVisible = true;
-            OpenGlInitDummy.Texture = new Texture(new Texture(new VecI(1, 1)));
-            OpenGlInitDummy.QueueNextFrame();
-            Dispatcher.UIThread.Post(() =>
-            {
-                OpenGlInitDummy.Texture.Dispose();
-                OpenGlInitDummy.Texture = null;
-                OpenGlInitDummy.IsVisible = false;
-            });
-        }
-
         if (DataContext is ViewModelMain vm)
         {
             vm.OnStartup();
