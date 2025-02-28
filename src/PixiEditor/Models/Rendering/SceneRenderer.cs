@@ -120,6 +120,7 @@ internal class SceneRenderer
 
         if (lastHighResRendering != HighResRendering)
         {
+            lastHighResRendering = HighResRendering;
             return true;
         }
 
