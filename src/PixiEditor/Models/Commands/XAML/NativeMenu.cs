@@ -54,7 +54,9 @@ internal class NativeMenu : global::Avalonia.Controls.Menu
 
         item.Command = Command.GetICommand(command, new MenuSourceInfo(MenuType.Menu), false);
         item.Icon = bitmapIcon;
-        item.Bind(NativeMenuItem.GestureProperty, ShortcutBinding.GetBinding(command, null, true));
+        // While below line makes gestures appear in the menu, but it also intercepts the shortcuts
+        // and as a result, app doesn't receive the shortcuts on Mac. As a result, for example textboxes don't receive shortcuts such as copy and paste
+        //item.Bind(NativeMenuItem.GestureProperty, ShortcutBinding.GetBinding(command, null, true));
     }
 
     private static void HandleDesignMode(NativeMenuItem item, string name)

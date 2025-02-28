@@ -1,7 +1,7 @@
 - [x] Input keys
 - [x] Default shortcuts
 - [x] Package - builder
-- [ ] FFmpeg
+- [] FFmpeg
 - [x] Single instance
 - [ ] File associations (pixi, other formats, lospec protocol)
 - [ ] Autoupdates
