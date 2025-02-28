@@ -1,6 +1,8 @@
-﻿namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.Common;
 
-public interface IReadOnlyKeyFrameData
+namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
+
+public interface IReadOnlyKeyFrameData : ICacheable
 {
     int StartFrame { get; }
     int Duration { get; }

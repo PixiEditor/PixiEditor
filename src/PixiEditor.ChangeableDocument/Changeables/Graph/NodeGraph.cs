@@ -116,4 +116,15 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
     {
         cachedExecutionList = null;
     }
+
+    public int GetCacheHash()
+    {
+        HashCode hash = new();
+        foreach (var node in Nodes)
+        {
+            hash.Add(node.GetCacheHash());
+        }
+
+        return hash.ToHashCode();
+    }
 }

@@ -48,8 +48,21 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
     public abstract void RasterizeGeometry(Canvas canvas);
     public abstract void RasterizeTransformed(Canvas canvas);
     public abstract bool IsValid();
-    public abstract int GetCacheHash();
-    public abstract int CalculateHash();
+
+    public int GetCacheHash()
+    {
+        HashCode hash = new();
+        hash.Add(TransformationMatrix);
+        hash.Add(StrokeColor);
+        hash.Add(FillColor);
+        hash.Add(StrokeWidth);
+        hash.Add(Fill);
+        hash.Add(GetSpecificHash());
+
+        return hash.ToHashCode();
+    }
+
+    protected abstract int GetSpecificHash();
 
     public object Clone()
     {
@@ -64,7 +77,7 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
 
     public override int GetHashCode()
     {
-        return CalculateHash();
+        return GetCacheHash();
     }
 
     public abstract VectorPath ToPath();

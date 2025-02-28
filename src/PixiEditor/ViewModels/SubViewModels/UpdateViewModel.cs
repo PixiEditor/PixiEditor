@@ -114,7 +114,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             }
             catch (IOException ex)
             {
-                NoticeDialog.Show("FAILED_DOWNLOADING_TITLE", "FAILED_DOWNLOADING");
+                NoticeDialog.Show("FAILED_DOWNLOADING", "FAILED_DOWNLOADING_TITLE");
                 return false;
             }
             catch(TaskCanceledException ex)

@@ -90,14 +90,9 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         return Size is { X: > 0, Y: > 0 };
     }
 
-    public override int CalculateHash()
+    protected override int GetSpecificHash()
     {
-        return HashCode.Combine(Center, Size, StrokeColor, FillColor, StrokeWidth, TransformationMatrix);
-    }
-
-    public override int GetCacheHash()
-    {
-        return CalculateHash();
+        return HashCode.Combine(Center, Size);
     }
 
     public override VectorPath ToPath()

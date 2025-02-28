@@ -211,6 +211,24 @@ public class InputProperty : IInputProperty
         Node = node;
         ValueType = valueType;
     }
+
+    public int GetCacheHash()
+    {
+        HashCode hash = new();
+        hash.Add(InternalPropertyName);
+        hash.Add(ValueType);
+        if(Value is ICacheable cacheable)
+        {
+            hash.Add(cacheable.GetCacheHash());
+        }
+        else
+        {
+            hash.Add(Value?.GetHashCode() ?? 0);
+        }
+
+        hash.Add(Connection?.GetCacheHash() ?? 0);
+        return hash.ToHashCode();
+    }
 }
 
 public class InputProperty<T> : InputProperty, IInputProperty<T>
