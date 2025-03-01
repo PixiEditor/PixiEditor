@@ -24,4 +24,15 @@ public static class ThemeResources
     public static Color BorderMidColor =>
         ResourceLoader.GetResource<SolidColorBrush>("ThemeBorderMidBrush", Application.Current.ActualThemeVariant).Color
             .ToColor();
+
+    public static Color ThemeControlHighlightColor =>
+        ResourceLoader.GetResource<Avalonia.Media.Color>("ThemeControlHighlightColor", Application.Current.ActualThemeVariant)
+            .ToColor();
+
+    public static Color SelectionFillColor =>
+        ResourceLoader.GetResource<Avalonia.Media.Color>("SelectionFillColor", Application.Current.ActualThemeVariant)
+            .ToColor();
+
+    public static SolidColorBrush ThemeControlLowBrush =>
+        ResourceLoader.GetResource<SolidColorBrush>("ThemeControlLowBrush", Application.Current.ActualThemeVariant);
 }

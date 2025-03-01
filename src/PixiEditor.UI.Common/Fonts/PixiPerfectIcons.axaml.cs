@@ -128,7 +128,7 @@ public static class PixiPerfectIcons
     public const string Nodes = "\uE984";
     public const string Onion = "\uE965";
         
-    public const string Reset = "R"; // TODO: Create a reset icon
+    public const string Reset = "\uE98A";
     public const string ToggleLayerVisible = "\u25a1;"; // TODO: Create a toggle layer visible icon
     public const string ToggleMask = "\u25a1;"; // TODO: Create a toggle mask icon
     public const string Pen = "\uE971";
@@ -136,6 +136,23 @@ public static class PixiPerfectIcons
     public const string Snapping = "\ue987";
     public const string LowResSquare = "\uE988";
     public const string LowResLine = "\uE989";
+
+    public const string AlignCenter = "\uE98C";
+    public const string Bold = "\uE98D";
+    public const string TextAntialiased = "\uE98E";
+    public const string Italic = "\uE98F";
+    public const string AlignStretch = "\uE990";
+    public const string AlignLeft = "\uE991";
+    public const string LetterSpacing = "\uE992";
+    public const string LineHeight = "\uE993";
+    public const string TextPixel = "\uE994";
+    public const string AlignRight = "\uE995";
+    public const string Strikethrough = "\uE996";
+    public const string LinkedPipette = "\uE997";
+    public const string TextUnderline = "\uE998";
+    public const string TextRound = "\uE999";
+    public const string Cone = "\uE99c";
+    public const string Camera = "\uE99d";
 
     public static Stream GetFontStream()
     {

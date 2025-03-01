@@ -41,9 +41,17 @@ public abstract class Node : IReadOnlyNode, IDisposable
     }
 
     protected virtual bool ExecuteOnlyOnCacheChange => false;
+    protected virtual CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs;
+
+    private KeyFrameTime lastFrameTime;
 
     protected internal bool IsDisposed => _isDisposed;
     private bool _isDisposed;
+
+    protected virtual int GetContentCacheHash()
+    {
+        return 0;
+    }
 
     public void Execute(RenderContext context)
     {
@@ -71,7 +79,19 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     protected virtual bool CacheChanged(RenderContext context)
     {
-        return inputs.Any(x => x.CacheChanged);
+        bool changed = false;
+
+        if (CacheTrigger.HasFlag(CacheTriggerFlags.Inputs))
+        {
+            changed |= inputs.Any(x => x.CacheChanged);
+        }
+
+        if (CacheTrigger.HasFlag(CacheTriggerFlags.Timeline))
+        {
+            changed |= lastFrameTime.Frame != context.FrameTime.Frame || Math.Abs(lastFrameTime.NormalizedTime - context.FrameTime.NormalizedTime) > float.Epsilon;
+        }
+
+        return changed;
     }
 
     protected virtual void UpdateCache(RenderContext context)
@@ -80,6 +100,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
         {
             input.UpdateCache();
         }
+
+        lastFrameTime = context.FrameTime;
     }
 
     public void TraverseBackwards(Func<IReadOnlyNode, IInputProperty, bool> action)
@@ -333,6 +355,14 @@ public abstract class Node : IReadOnlyNode, IDisposable
         return property;
     }
 
+    protected void RemoveInputProperty(InputProperty property)
+    {
+        if(inputs.Remove(property))
+        {
+            property.ConnectionChanged -= InvokeConnectionsChanged;
+        }
+    }
+
     protected void AddOutputProperty(OutputProperty property)
     {
         outputs.Add(property);
@@ -525,5 +555,31 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
 
         return default;
+    }
+
+    public int GetCacheHash()
+    {
+        HashCode hash = new();
+        hash.Add(GetType());
+        hash.Add(DisplayName);
+        hash.Add(Position);
+        foreach (var input in inputs)
+        {
+            hash.Add(input.GetCacheHash());
+        }
+
+        foreach (var output in outputs)
+        {
+            hash.Add(output.GetCacheHash());
+        }
+
+        foreach (var frame in keyFrames)
+        {
+            hash.Add(frame.GetCacheHash());
+        }
+
+        hash.Add(GetContentCacheHash());
+
+        return hash.ToHashCode();
     }
 }

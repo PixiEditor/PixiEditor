@@ -3,7 +3,7 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("COLOR_NODE", "COLOR", "\ue907")]
+[NodeViewModel("COLOR_NODE", "COLOR", "\uE912")]
 internal class ColorNodeViewModel : NodeViewModel<ColorNode>
 {
     

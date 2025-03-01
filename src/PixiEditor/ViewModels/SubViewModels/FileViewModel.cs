@@ -48,7 +48,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     public RecentlyOpenedCollection RecentlyOpened { get; init; }
     public IReadOnlyList<IDocumentBuilder> DocumentBuilders => documentBuilders;
-    
+
     private List<IDocumentBuilder> documentBuilders;
 
     public FileViewModel(ViewModelMain owner)
@@ -101,10 +101,11 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     private void OpenHelloTherePopup()
     {
-        new HelloTherePopup(this).Show();
+        var popup = new HelloTherePopup(this);
+        popup.Show();
     }
 
-    private void Owner_OnStartupEvent(object sender, System.EventArgs e)
+    private void Owner_OnStartupEvent()
     {
         List<string> args = StartupArgs.Args;
         string file = args.FirstOrDefault(x => Importer.IsSupportedFile(x) && File.Exists(x));
@@ -158,20 +159,23 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.File.OpenFileFromClipboard", "OPEN_FILE_FROM_CLIPBOARD",
         "OPEN_FILE_FROM_CLIPBOARD_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.HasImageInClipboard",
         AnalyticsTrack = true)]
-    public async Task OpenFromClipboard()
+    public void OpenFromClipboard()
     {
-        var images = await ClipboardController.GetImagesFromClipboard();
-
-        foreach (var dataImage in images)
+        Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            if (File.Exists(dataImage.Name))
-            {
-                OpenRegularImage(dataImage.Image, null);
-                continue;
-            }
+            var images = await ClipboardController.GetImagesFromClipboard();
 
-            OpenRegularImage(dataImage.Image, null);
-        }
+            foreach (var dataImage in images)
+            {
+                if (File.Exists(dataImage.Name))
+                {
+                    OpenRegularImage(dataImage.Image, null);
+                    continue;
+                }
+
+                OpenRegularImage(dataImage.Image, null);
+            }
+        });
     }
 
     private bool MakeExistingDocumentActiveIfOpened(string path)
@@ -205,7 +209,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             }
             else if (IsCustomFormat(path))
             {
-                OpenCustomFormat(path);
+                OpenCustomFormat(path, associatePath);
             }
             else
             {
@@ -221,26 +225,42 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             NoticeDialog.Show("OLD_FILE_FORMAT_DESCRIPTION", "OLD_FILE_FORMAT");
         }
     }
-    
+
     private bool IsCustomFormat(string path)
     {
         string extension = Path.GetExtension(path);
         return documentBuilders.Any(x => x.Extensions.Contains(extension, StringComparer.OrdinalIgnoreCase));
     }
-    
-    private void OpenCustomFormat(string path)
-    {
-        IDocumentBuilder builder = documentBuilders.First(x => x.Extensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase));
 
-        if(!File.Exists(path))
+    private void OpenCustomFormat(string path, bool associatePath)
+    {
+        IDocumentBuilder builder = documentBuilders.First(x =>
+            x.Extensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase));
+
+        if (!File.Exists(path))
         {
             NoticeDialog.Show("FILE_NOT_FOUND", "FAILED_TO_OPEN_FILE");
             return;
         }
-        
-        DocumentViewModel document = DocumentViewModel.Build(docBuilder => builder.Build(docBuilder, path));
-        AddDocumentViewModelToTheSystem(document);
-        AddRecentlyOpened(document.FullFilePath);
+
+        try
+        {
+            DocumentViewModel document = DocumentViewModel.Build(docBuilder => builder.Build(docBuilder, path));
+            AddDocumentViewModelToTheSystem(document);
+
+            if (associatePath)
+            {
+                document.FullFilePath = path;
+            }
+
+            AddRecentlyOpened(document.FullFilePath);
+        }
+        catch (Exception ex)
+        {
+            NoticeDialog.Show("FAILED_TO_OPEN_FILE", "ERROR");
+            Console.WriteLine(ex);
+            CrashHelper.SendExceptionInfo(ex);
+        }
     }
 
     /// <summary>
@@ -281,7 +301,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             .WithGraph(x => x
                 .WithImageLayerNode(
                     new LocalizedString("IMAGE"),
-                    image, 
+                    image,
                     ColorSpace.CreateSrgbLinear(),
                     out int id)
                 .WithOutputNode(id, "Output")
@@ -349,7 +369,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 .WithGraph(x => x
                     .WithImageLayerNode(
                         new LocalizedString("BASE_LAYER_NAME"),
-                        new VecI(newFile.Width, newFile.Height), 
+                        new VecI(newFile.Width, newFile.Height),
                         ColorSpace.CreateSrgbLinear(),
                         out int id)
                     .WithOutputNode(id, "Output")

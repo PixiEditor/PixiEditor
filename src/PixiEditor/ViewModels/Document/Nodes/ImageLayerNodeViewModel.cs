@@ -2,10 +2,11 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Nodes;
+using PixiEditor.ViewModels.Tools.Tools;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("IMAGE_LAYER_NODE", "STRUCTURE", "\ue905")]
+[NodeViewModel("IMAGE_LAYER_NODE", "STRUCTURE", "\uE805")]
 internal class ImageLayerNodeViewModel : StructureMemberViewModel<ImageLayerNode>, ITransparencyLockableMember, IRasterLayerHandler
 {
     bool lockTransparency;
@@ -14,6 +15,7 @@ internal class ImageLayerNodeViewModel : StructureMemberViewModel<ImageLayerNode
         this.lockTransparency = lockTransparency;
         OnPropertyChanged(nameof(LockTransparencyBindable));
     }
+    
     public bool LockTransparencyBindable
     {
         get => lockTransparency;
@@ -36,4 +38,6 @@ internal class ImageLayerNodeViewModel : StructureMemberViewModel<ImageLayerNode
             OnPropertyChanged(nameof(ShouldDrawOnMask));
         }
     }
+
+    public Type? QuickEditTool { get; } = typeof(PenToolViewModel);
 }

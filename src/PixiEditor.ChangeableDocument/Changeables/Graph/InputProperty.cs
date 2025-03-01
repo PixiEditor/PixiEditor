@@ -16,6 +16,7 @@ public class InputProperty : IInputProperty
     private IOutputProperty? connection;
 
     public event Action ConnectionChanged;
+    public event Action<object> NonOverridenValueChanged;
 
     public string InternalPropertyName { get; }
     public string DisplayName { get; }
@@ -31,6 +32,11 @@ public class InputProperty : IInputProperty
 
             var connectionValue = Connection.Value;
 
+            if (connectionValue is null)
+            {
+                return null;
+            }
+
             if (!ValueType.IsAssignableTo(typeof(Delegate)) && connectionValue is Delegate connectionField)
             {
                 return connectionField.DynamicInvoke(FuncContext.NoContext);
@@ -41,7 +47,28 @@ public class InputProperty : IInputProperty
                 return FuncFactory(connectionValue);
             }
 
-            return connectionValue;
+            if (connectionValue.GetType().IsAssignableTo(ValueType))
+            {
+                return connectionValue;
+            }
+
+            if (connectionValue is Delegate func && ValueType.IsAssignableTo(typeof(Delegate)))
+            {
+                return FuncFactoryDelegate(func);
+            }
+
+            object target = connectionValue;
+            if (target is ShaderExpressionVariable shaderExpression)
+            {
+                target = shaderExpression.GetConstant();
+            }
+
+            if (!ConversionTable.TryConvert(target, ValueType, out object result))
+            {
+                return null;
+            }
+
+            return Validator.GetClosestValidValue(result);
         }
     }
 
@@ -50,7 +77,25 @@ public class InputProperty : IInputProperty
         get => _internalValue;
         set
         {
-            _internalValue = value;
+            object evaluatedValue = value;
+            if (value != null)
+            {
+                if (!value.GetType().IsAssignableTo(ValueType))
+                {
+                    if (!ConversionTable.TryConvert(value, ValueType, out object result))
+                    {
+                        evaluatedValue = null;
+                    }
+                    else
+                    {
+                        evaluatedValue = result;
+                    }
+                }
+            }
+
+            _internalValue = evaluatedValue;
+            NonOverridenValueChanged?.Invoke(evaluatedValue);
+            NonOverridenValueSet(evaluatedValue);
         }
     }
 
@@ -60,7 +105,7 @@ public class InputProperty : IInputProperty
         {
             if (validator is null)
             {
-                validator = new PropertyValidator();
+                validator = new PropertyValidator(this);
             }
 
             return validator;
@@ -91,17 +136,17 @@ public class InputProperty : IInputProperty
     {
         get
         {
-            if(Connection == null && lastConnectionHash != -1)
+            if (Connection == null && lastConnectionHash != -1)
             {
                 return true;
             }
-            
-            if(Connection != null && lastConnectionHash != Connection.GetHashCode())
+
+            if (Connection != null && lastConnectionHash != Connection.GetHashCode())
             {
                 lastConnectionHash = Connection.GetHashCode();
                 return true;
             }
-            
+
             if (Value is ICacheable cacheable)
             {
                 return cacheable.GetCacheHash() != _lastExecuteHash;
@@ -121,6 +166,10 @@ public class InputProperty : IInputProperty
         }
     }
 
+    protected virtual void NonOverridenValueSet(object value)
+    {
+    }
+
     internal virtual void UpdateCache()
     {
         if (Value is null)
@@ -135,7 +184,7 @@ public class InputProperty : IInputProperty
         {
             _lastExecuteHash = Value.GetHashCode();
         }
-        
+
         lastConnectionHash = Connection?.GetHashCode() ?? -1;
     }
 
@@ -162,6 +211,24 @@ public class InputProperty : IInputProperty
         Node = node;
         ValueType = valueType;
     }
+
+    public int GetCacheHash()
+    {
+        HashCode hash = new();
+        hash.Add(InternalPropertyName);
+        hash.Add(ValueType);
+        if(Value is ICacheable cacheable)
+        {
+            hash.Add(cacheable.GetCacheHash());
+        }
+        else
+        {
+            hash.Add(Value?.GetHashCode() ?? 0);
+        }
+
+        hash.Add(Connection?.GetCacheHash() ?? 0);
+        return hash.ToHashCode();
+    }
 }
 
 public class InputProperty<T> : InputProperty, IInputProperty<T>
@@ -176,30 +243,41 @@ public class InputProperty<T> : InputProperty, IInputProperty<T>
             if (value is T tValue)
                 return tValue;
 
-            if (value is Delegate func && typeof(T).IsAssignableTo(typeof(Delegate)))
-            {
-                return (T)FuncFactoryDelegate(func);
-            }
-
-            object target = value;
             if (value is ShaderExpressionVariable shaderExpression)
             {
-                target = shaderExpression.GetConstant();
+                value = shaderExpression.GetConstant();
             }
 
-            if (!ConversionTable.TryConvert(target, typeof(T), out object result))
+            var validated = Validator.GetClosestValidValue(value);
+
+            if (!ConversionTable.TryConvert(validated, ValueType, out object result))
             {
-                return default;
+                return default(T);
             }
 
-            return (T)Validator.GetClosestValidValue(result);
+            return (T)result;
         }
     }
 
     public T NonOverridenValue
     {
         get => (T)(base.NonOverridenValue ?? default(T));
-        set => base.NonOverridenValue = value;
+        set
+        {
+            base.NonOverridenValue = value;
+        }
+    }
+
+    protected override void NonOverridenValueSet(object value)
+    {
+        if (value is T casted)
+        {
+            NonOverridenValueSet(casted);
+        }
+    }
+
+    protected virtual void NonOverridenValueSet(T value)
+    {
     }
 
     internal InputProperty(Node node, string internalName, string displayName, T defaultValue) : base(node,
@@ -210,6 +288,12 @@ public class InputProperty<T> : InputProperty, IInputProperty<T>
     public InputProperty<T> WithRules(Action<PropertyValidator> rules)
     {
         rules(Validator);
+        return this;
+    }
+
+    public InputProperty<T> NonOverridenChanged(Action<T> callback)
+    {
+        NonOverridenValueChanged += value => callback((T)value);
         return this;
     }
 }

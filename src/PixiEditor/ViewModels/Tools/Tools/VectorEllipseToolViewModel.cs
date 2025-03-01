@@ -65,7 +65,7 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorEllipseTool();
     }
 
-    public override void OnPostUndo()
+    public override void OnPostUndoInlet()
     {
         if (IsActive)
         {
@@ -73,7 +73,7 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
         }
     }
 
-    public override void OnPostRedo()
+    public override void OnPostRedoInlet()
     {
         if (IsActive)
         {

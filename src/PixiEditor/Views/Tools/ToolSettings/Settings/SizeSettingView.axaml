@@ -14,6 +14,7 @@
                      MaxSize="{Binding Max}" 
                      MinSize="{Binding Min}"
                      Decimals="{Binding DecimalPlaces}"
+                     Unit="{Binding Unit}"
                      IsEnabled="{Binding IsEnabled}" FocusNext="False"
                      Size="{Binding Value, Mode=TwoWay}"/>
 </UserControl>

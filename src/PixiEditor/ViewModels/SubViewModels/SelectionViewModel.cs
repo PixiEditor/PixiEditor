@@ -7,6 +7,7 @@ using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using Drawie.Numerics;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 
@@ -45,13 +46,19 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
         Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.InvertSelection();
     }
 
-    [Evaluator.CanExecute("PixiEditor.Selection.IsNotEmpty")]
+    [Evaluator.CanExecute("PixiEditor.Selection.IsNotEmpty",
+        nameof(DocumentManagerViewModel.ActiveDocument),
+        nameof(DocumentManagerViewModel.ActiveDocument.SelectionPathBindable),
+        nameof(DocumentManagerViewModel.ActiveDocument.SelectionPathBindable.IsEmpty))]
     public bool SelectionIsNotEmpty()
     {
         return !Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectionPathBindable?.IsEmpty ?? false;
     }
 
-    [Evaluator.CanExecute("PixiEditor.Selection.IsNotEmptyAndHasMask")]
+    [Evaluator.CanExecute("PixiEditor.Selection.IsNotEmptyAndHasMask", 
+        nameof(DocumentManagerViewModel.ActiveDocument),
+        nameof(DocumentManagerViewModel.ActiveDocument.SelectedStructureMember),
+        nameof(DocumentManagerViewModel.ActiveDocument.SelectedStructureMember.HasMaskBindable))]
     public bool SelectionIsNotEmptyAndHasMask()
     {
         return SelectionIsNotEmpty() && (Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember?.HasMaskBindable ?? false);
@@ -104,7 +111,8 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
         document!.Operations.CropToSelection(document.AnimationDataViewModel.ActiveFrameBindable);
     }
 
-    [Evaluator.CanExecute("PixiEditor.Selection.CanNudgeSelectedObject")]
+    [Evaluator.CanExecute("PixiEditor.Selection.CanNudgeSelectedObject",
+        nameof(DocumentManagerViewModel.ActiveDocument))]
     public bool CanNudgeSelectedObject(int[] dist) => Owner.DocumentManagerSubViewModel.ActiveDocument
         ?.IsChangeFeatureActive<ITransformableExecutor>() ?? false;
 }

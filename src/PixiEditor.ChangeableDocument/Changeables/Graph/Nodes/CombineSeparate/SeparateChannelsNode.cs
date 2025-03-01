@@ -69,6 +69,9 @@ public class SeparateChannelsNode : Node, IRenderInput, IPreviewRenderable
 
     private void Paint(RenderContext context, DrawingSurface drawingSurface, ColorFilter colorFilter, ColorFilter grayscaleFilter)
     {
+        if(Image.Value == null)
+            return;
+        
         bool grayscale = Grayscale.Value;
         
         ColorFilter filter = grayscale ? grayscaleFilter : colorFilter; 

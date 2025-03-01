@@ -33,8 +33,9 @@ internal class DocumentViewModelBuilder
 
     public NodeGraphBuilder Graph { get; set; }
     public string ImageEncoderUsed { get; set; } = "QOI";
-    public bool UsesLegacyColorBlending { get; set; } = false;
+    public bool UsesSrgbColorBlending { get; set; } = false;
     public Version? PixiParserVersionUsed { get; set; }
+    public ResourceStorage DocumentResources { get; set; }
 
     public DocumentViewModelBuilder WithSize(int width, int height)
     {
@@ -126,9 +127,9 @@ internal class DocumentViewModelBuilder
         return this;
     }
 
-    public DocumentViewModelBuilder WithLegacyColorBlending(bool usesLegacyColorBlending)
+    public DocumentViewModelBuilder? WithSrgbColorBlending(bool usesLegacyColorBlending)
     {
-        UsesLegacyColorBlending = usesLegacyColorBlending;
+        UsesSrgbColorBlending = usesLegacyColorBlending;
         return this;
     }
 
@@ -242,6 +243,12 @@ internal class DocumentViewModelBuilder
     public DocumentViewModelBuilder WithPixiParserVersion(Version version)
     {
         PixiParserVersionUsed = version;
+        return this;
+    }
+
+    public DocumentViewModelBuilder WithResources(ResourceStorage documentResources)
+    {
+        DocumentResources = documentResources;
         return this;
     }
 }

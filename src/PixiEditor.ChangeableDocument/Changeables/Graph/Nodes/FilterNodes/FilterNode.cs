@@ -1,5 +1,4 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
@@ -7,15 +6,18 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 public abstract class FilterNode : Node
 {
     public OutputProperty<Filter> Output { get; }
-    
+
     public InputProperty<Filter?> Input { get; }
-    
+
+    protected override bool ExecuteOnlyOnCacheChange => true;
+    protected override CacheTriggerFlags CacheTrigger => CacheTriggerFlags.Inputs;
+
     public FilterNode()
     {
         Output = CreateOutput<Filter>(nameof(Output), "FILTERS", null);
         Input = CreateInput<Filter>(nameof(Input), "PREVIOUS", null);
     }
-    
+
     protected override void OnExecute(RenderContext context)
     {
         var colorFilter = GetColorFilter();
@@ -33,6 +35,6 @@ public abstract class FilterNode : Node
     }
 
     protected virtual ColorFilter? GetColorFilter() => null;
-    
+
     protected virtual ImageFilter? GetImageFilter() => null;
 }

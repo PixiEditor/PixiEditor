@@ -364,7 +364,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     /// <param name="guid">The <see cref="StructureNode.Id"/> of the member</param>
     public List<StructureNode> FindMemberPath(Guid guid)
     {
-        if (NodeGraph.OutputNode == null) return [];
+        //if (NodeGraph.OutputNode == null) return [];
 
         var list = new List<StructureNode>();
         var targetNode = FindNode(guid);

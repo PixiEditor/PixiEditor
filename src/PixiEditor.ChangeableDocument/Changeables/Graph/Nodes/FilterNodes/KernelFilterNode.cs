@@ -24,6 +24,7 @@ public class KernelFilterNode : FilterNode
     private TileMode lastTile;
     private double lastGain;
     private double lastBias;
+    private bool lastOnAlpha;
 
     private float[] lastKernelValues = new float[9];
 
@@ -40,13 +41,14 @@ public class KernelFilterNode : FilterNode
     {
         var kernel = Kernel.Value;
         
-        if (kernel.AsSpan().SequenceEqual(lastKernelValues) && Tile.Value == lastTile && Gain.Value == lastGain && Bias.Value == lastBias)
+        if (kernel.AsSpan().SequenceEqual(lastKernelValues) && Tile.Value == lastTile && Gain.Value == lastGain && Bias.Value == lastBias && OnAlpha.Value == lastOnAlpha)
             return filter;
         
         lastKernel = kernel;
         lastTile = Tile.Value;
         lastGain = Gain.Value;
         lastBias = Bias.Value;
+        lastOnAlpha = OnAlpha.Value;
         
         filter?.Dispose();
         

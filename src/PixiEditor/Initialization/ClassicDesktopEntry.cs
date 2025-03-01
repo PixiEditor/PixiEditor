@@ -59,7 +59,6 @@ internal class ClassicDesktopEntry
         StartupArgs.Args = e.Args.ToList();
         string arguments = string.Join(' ', e.Args);
 
-        Dispatcher dispatcher = Dispatcher.UIThread;
         InitOperatingSystem();
 
         if (ParseArgument("--crash (\"?)([A-z0-9:\\/\\ -_.]+)\\1", arguments, out Group[] groups))
@@ -85,9 +84,9 @@ internal class ClassicDesktopEntry
 
             return;
         }
-
-#if !STEAM
-        if (!HandleNewInstance(dispatcher))
+        
+#if !STEAM && !DEBUG
+        if (!HandleNewInstance(Dispatcher.UIThread))
         {
             return;
         }
@@ -177,7 +176,7 @@ internal class ClassicDesktopEntry
             StartupArgs.Args = args;
             StartupArgs.Args.Add("--openedInExisting");
             ViewModels_ViewModelMain viewModel = (ViewModels_ViewModelMain)mainWindow.DataContext;
-            viewModel.StartupCommand.Execute(null);
+            viewModel.OnStartup();
         }
     }
 

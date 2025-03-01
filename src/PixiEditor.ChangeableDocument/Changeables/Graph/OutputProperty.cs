@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.Common;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
@@ -64,6 +65,16 @@ public class OutputProperty : IOutputProperty
         }
 
         Disconnected?.Invoke(property, this);
+    }
+
+    public int GetCacheHash()
+    {
+        if (Value is ICacheable cacheable)
+        {
+            return cacheable.GetCacheHash();
+        }
+
+        return 0;
     }
 }
 

@@ -293,6 +293,8 @@ internal class TransformOverlay : Overlay
     private VecD lastSize;
     private bool actuallyMoved = false;
     private bool isShearing = false;
+    private int lastClickCount = 0;
+    private bool pressedWithinBounds = false;
 
     public TransformOverlay()
     {
@@ -549,8 +551,12 @@ internal class TransformOverlay : Overlay
     {
         if (args.PointerButton != MouseButton.Left)
             return;
+        
+        lastClickCount = args.ClickCount;
 
         if (Handles.Any(x => x.IsWithinHandle(x.Position, args.Point, ZoomScale))) return;
+
+        pressedWithinBounds = TestHit(args.Point);
 
         if (CanShear(args.Point, out var side))
         {
@@ -648,12 +654,16 @@ internal class TransformOverlay : Overlay
     protected override void OnOverlayPointerReleased(OverlayPointerArgs e)
     {
         if (e.InitialPressMouseButton != MouseButton.Left)
-            return;
-
-        if (!isRotating && !actuallyMoved)
         {
-            MouseOnCanvasEventArgs args = new(MouseButton.Left, e.Point, e.Modifiers);
+            pressedWithinBounds = false;
+            return;
+        }
+
+        if (!isRotating && !actuallyMoved && pressedWithinBounds)
+        {
+            MouseOnCanvasEventArgs args = new(MouseButton.Left, e.Point, e.Modifiers, lastClickCount);
             PassthroughPointerPressedCommand?.Execute(args);
+            lastClickCount = 0;
         }
 
         if (isRotating)
@@ -678,6 +688,7 @@ internal class TransformOverlay : Overlay
         StopMoving();
         IsSizeBoxEnabled = false;
         capturedAnchor = null;
+        pressedWithinBounds = false;
     }
 
     public override bool TestHit(VecD point)

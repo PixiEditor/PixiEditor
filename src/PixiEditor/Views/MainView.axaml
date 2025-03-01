@@ -15,11 +15,6 @@
     <Design.DataContext>
         <viewModels1:ViewModelMain />
     </Design.DataContext>
-    <Interaction.Behaviors>
-        <EventTriggerBehavior EventName="Loaded">
-            <InvokeCommandAction Command="{Binding StartupCommand}" />
-        </EventTriggerBehavior>
-    </Interaction.Behaviors>
     <Grid DragDrop.AllowDrop="True" Name="DropGrid">
         <!--A hacky way to fix first element not rendering in OpenGL render api--> 
         <visuals:TextureControl Name="OpenGlInitDummy" IsVisible="False"/>

@@ -100,14 +100,12 @@ public class LineVectorData : ShapeVectorData, IReadOnlyLineData
         return Start != End;
     }
 
-    public override int GetCacheHash()
+    protected override int GetSpecificHash()
     {
-        return HashCode.Combine(Start, End, StrokeColor, StrokeWidth, TransformationMatrix);
-    }
-
-    public override int CalculateHash()
-    {
-        return GetCacheHash();
+        HashCode hash = new();
+        hash.Add(Start);
+        hash.Add(End);
+        return hash.ToHashCode();
     }
 
     public override VectorPath ToPath()

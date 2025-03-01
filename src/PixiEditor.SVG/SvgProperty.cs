@@ -9,7 +9,7 @@ public abstract class SvgProperty
     {
         SvgName = svgName;
     }
-    
+
     protected SvgProperty(string svgName, string? namespaceName) : this(svgName)
     {
         NamespaceName = namespaceName;
@@ -18,6 +18,23 @@ public abstract class SvgProperty
     public string? NamespaceName { get; set; }
     public string SvgName { get; set; }
     public ISvgUnit? Unit { get; set; }
+
+    public ISvgUnit? CreateDefaultUnit()
+    {
+        var genericType = this.GetType().GetGenericArguments();
+        if (genericType.Length == 0)
+        {
+            return null;
+        }
+
+        ISvgUnit unit = Activator.CreateInstance(genericType[0]) as ISvgUnit;
+        if (unit == null)
+        {
+            throw new InvalidOperationException("Could not create unit");
+        }
+
+        return unit;
+    }
 }
 
 public class SvgProperty<T> : SvgProperty where T : struct, ISvgUnit
@@ -27,11 +44,11 @@ public class SvgProperty<T> : SvgProperty where T : struct, ISvgUnit
         get => (T?)base.Unit;
         set => base.Unit = value;
     }
-    
+
     public SvgProperty(string svgName) : base(svgName)
     {
     }
-    
+
     public SvgProperty(string svgName, string? namespaceName) : base(svgName, namespaceName)
     {
     }

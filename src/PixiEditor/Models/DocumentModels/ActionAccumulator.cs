@@ -82,18 +82,18 @@ internal class ActionAccumulator
         TryExecuteAccumulatedActions();
     }
 
-    internal async Task TryExecuteAccumulatedActions()
+    internal void TryExecuteAccumulatedActions()
     {
         if (executing || queuedActions.Count == 0)
             return;
         executing = true;
-        DispatcherTimer busyTimer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(2000) };
+        /*DispatcherTimer busyTimer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(2000) };
         busyTimer.Tick += (_, _) =>
         {
             busyTimer.Stop();
             document.Busy = true;
         };
-        busyTimer.Start();
+        busyTimer.Start();*/
 
         try
         {
@@ -109,7 +109,7 @@ internal class ActionAccumulator
                 }
                 else
                 {
-                    changes = await internals.Tracker.ProcessActions(toExecute);
+                    changes = internals.Tracker.ProcessActionsSync(toExecute);
                 }
 
                 List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);
@@ -137,13 +137,13 @@ internal class ActionAccumulator
                     canvasUpdater.UpdateGatheredChunksSync(affectedAreas,
                         undoBoundaryPassed || viewportRefreshRequest);
                 }
-                else
+                /*else
                 {
                     await canvasUpdater.UpdateGatheredChunks(affectedAreas,
                         undoBoundaryPassed || viewportRefreshRequest);
-                }
+                }*/
 
-                previewUpdater.UpdatePreviews(undoBoundaryPassed || changeFrameRequest || viewportRefreshRequest,
+                previewUpdater.UpdatePreviews(
                     affectedAreas.ImagePreviewAreas.Keys,
                     affectedAreas.MaskPreviewAreas.Keys,
                     affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames);
@@ -158,17 +158,17 @@ internal class ActionAccumulator
         }
         catch (Exception e)
         {
-            busyTimer.Stop();
+            //busyTimer.Stop();
             document.Busy = false;
             executing = false;
 #if DEBUG
             Console.WriteLine(e);
 #endif
-            await CrashHelper.SendExceptionInfoAsync(e);
+            CrashHelper.SendExceptionInfoAsync(e);
             throw;
         }
 
-        busyTimer.Stop();
+        //busyTimer.Stop();
         if (document.Busy)
             document.Busy = false;
         executing = false;

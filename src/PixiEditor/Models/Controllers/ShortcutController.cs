@@ -38,14 +38,14 @@ internal class ShortcutController
         _shortcutExecutionBlockers.Clear();
     }
 
-    public KeyCombination GetToolShortcut<T>()
+    public KeyCombination? GetToolShortcut<T>()
     {
         return GetToolShortcut(typeof(T));
     }
 
-    public KeyCombination GetToolShortcut(Type type)
+    public KeyCombination? GetToolShortcut(Type type)
     {
-        return CommandController.Current.Commands.First(x => x is Command.ToolCommand tool && tool.ToolType == type).Shortcut;
+        return CommandController.Current.Commands.FirstOrDefault(x => x is Command.ToolCommand tool && tool.ToolType == type)?.Shortcut;
     }
 
     public void KeyPressed(bool isRepeat, Key key, KeyModifiers modifiers)

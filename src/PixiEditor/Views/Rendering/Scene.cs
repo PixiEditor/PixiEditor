@@ -492,7 +492,39 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             InitialPressMouseButton = e is PointerReleasedEventArgs released
                 ? released.InitialPressMouseButton
                 : MouseButton.None,
+            ClickCount = e is PointerPressedEventArgs pressed ? pressed.ClickCount : 0,
         };
+    }
+
+    private void FocusOverlay()
+    {
+        Focus();
+    }
+
+    protected override void OnGotFocus(GotFocusEventArgs e)
+    {
+        base.OnGotFocus(e);
+        if (AllOverlays != null)
+        {
+            foreach (Overlay overlay in AllOverlays)
+            {
+                if (!overlay.IsVisible) continue;
+                overlay.FocusChanged(true);
+            }
+        }
+    }
+
+    protected override void OnLostFocus(RoutedEventArgs e)
+    {
+        base.OnLostFocus(e);
+        if (AllOverlays != null)
+        {
+            foreach (Overlay overlay in AllOverlays)
+            {
+                if (!overlay.IsVisible) continue;
+                overlay.FocusChanged(false);
+            }
+        }
     }
 
     private VecD ToCanvasSpace(Point scenePosition)
@@ -546,6 +578,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             {
                 overlay.RefreshRequested -= QueueRender;
                 overlay.RefreshCursorRequested -= RefreshCursor;
+                overlay.FocusRequested -= FocusOverlay;
             }
         }
 
@@ -555,6 +588,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             {
                 overlay.RefreshRequested += QueueRender;
                 overlay.RefreshCursorRequested += RefreshCursor;
+                overlay.FocusRequested += FocusOverlay;
             }
         }
     }
@@ -624,7 +658,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         renderTexture?.Dispose();
         renderTexture = null;
-        
+
         framebuffer?.Dispose();
         framebuffer = null;
 
@@ -732,10 +766,21 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private static void DocumentChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
     {
+        if (e.OldValue is DocumentViewModel oldDocumentViewModel)
+        {
+            oldDocumentViewModel.SizeChanged -= scene.DocumentViewModelOnSizeChanged;
+        }
+
         if (e.NewValue is DocumentViewModel documentViewModel)
         {
+            documentViewModel.SizeChanged += scene.DocumentViewModelOnSizeChanged;
             scene.ContentDimensions = documentViewModel.SizeBindable;
         }
+    }
+
+    private void DocumentViewModelOnSizeChanged(object? sender, DocumentSizeChangedEventArgs e)
+    {
+        ContentDimensions = e.NewSize;
     }
 
     private static void DefaultCursorChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)

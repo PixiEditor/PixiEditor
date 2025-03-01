@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using Drawie.Backend.Core.ColorsImpl;
@@ -16,6 +17,7 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.Handlers;
+using PixiEditor.OperatingSystem;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Menu;
 using PixiEditor.ViewModels.SubViewModels;
@@ -31,7 +33,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public IServiceProvider Services { get; private set; }
 
     public Action CloseAction { get; set; }
-    public event EventHandler OnStartupEvent;
+    public event Action OnStartupEvent;
     public FileViewModel FileSubViewModel { get; set; }
     public UpdateViewModel UpdateSubViewModel { get; set; }
     public IToolsHandler ToolsSubViewModel { get; set; }
@@ -277,10 +279,9 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         return false;
     }
 
-    [RelayCommand]
-    private void OnStartup(object parameter)
+    public void OnStartup()
     {
-        OnStartupEvent?.Invoke(this, EventArgs.Empty);
+        OnStartupEvent?.Invoke();
     }
 
     private void OnActiveDocumentChanged(object sender, DocumentChangedEventArgs e)

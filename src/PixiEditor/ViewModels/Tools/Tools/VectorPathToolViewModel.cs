@@ -62,6 +62,12 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
         {
             fillSetting.Value = false;
         }
+
+        var strokeSetting = Toolbar.GetSetting(nameof(ShapeToolbar.ToolSize));
+        if (strokeSetting != null)
+        {
+            strokeSetting.Value = 1d;
+        }
         
         actionDisplayDefault = new LocalizedString("PATH_TOOL_ACTION_DISPLAY");
         actionDisplayCtrl = new LocalizedString("PATH_TOOL_ACTION_DISPLAY_CTRL");
@@ -75,7 +81,7 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
         var doc =
             ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
 
-        if (doc is null || isActivated) return;
+        if (doc is null) return;
 
         if (!doc.PathOverlayViewModel.IsActive)
         {
@@ -128,7 +134,7 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
         }
     }
 
-    public override void OnPostUndo()
+    public override void OnPostUndoInlet()
     {
         if (isActivated)
         {
@@ -136,7 +142,7 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
         }
     }
 
-    public override void OnPostRedo()
+    public override void OnPostRedoInlet()
     {
         if (isActivated)
         {

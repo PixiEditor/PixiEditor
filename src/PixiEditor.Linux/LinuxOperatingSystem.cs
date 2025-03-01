@@ -10,19 +10,26 @@ public sealed class LinuxOperatingSystem : IOperatingSystem
     public string Name { get; } = "Linux";
     public string AnalyticsId => "Linux";
     public string AnalyticsName => LinuxOSInformation.FromReleaseFile().ToString();
-    public IInputKeys InputKeys { get; }
-    public IProcessUtility ProcessUtility { get; }
+    public IInputKeys InputKeys { get; } = new LinuxInputKeys();
+    public IProcessUtility ProcessUtility { get; } = new LinuxProcessUtility();
 
     public string ExecutableExtension { get; } = string.Empty;
 
     public void OpenUri(string uri)
     {
-        throw new NotImplementedException();
+        ProcessUtility.Execute($"xdg-open", uri);
     }
 
     public void OpenFolder(string path)
     {
-        throw new NotImplementedException();
+        try
+        {
+            ProcessUtility.Execute($"dbus-send", $"--session --dest=org.freedesktop.FileManager1 --type=method_call /org/freedesktop/FileManager1 org.freedesktop.FileManager1.ShowItems array:string:\"file://{path}\" string:\"\"");
+        }
+        catch (Exception e)
+        {
+            ProcessUtility.Execute($"xdg-open", Path.GetDirectoryName(path));
+        }
     }
 
     public bool HandleNewInstance(Dispatcher? dispatcher, Action<string, bool> openInExistingAction, IApplicationLifetime lifetime)
@@ -32,12 +39,12 @@ public sealed class LinuxOperatingSystem : IOperatingSystem
 
     public void HandleActivatedWithFile(FileActivatedEventArgs fileActivatedEventArgs)
     {
-        throw new NotImplementedException();
+        // TODO: Check if this is executed on Linux at all
     }
 
     public void HandleActivatedWithUri(ProtocolActivatedEventArgs openUriEventArgs)
     {
-        throw new NotImplementedException();
+        // TODO: Check if this is executed on Linux at all
     }
 
     class LinuxOSInformation
@@ -78,5 +85,22 @@ public sealed class LinuxOperatingSystem : IOperatingSystem
         public string? Version { get; private set; }
 
         public override string ToString() => $"{Name} {Version}";
+    }
+
+    public string GetActiveDesktopEnvironment()
+    {
+        var desktopSession = Environment.GetEnvironmentVariable("DESKTOP_SESSION");
+        if (desktopSession != null)
+        {
+            return desktopSession;
+        }
+
+        var desktopSessionFile = Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP");
+        if (desktopSessionFile != null)
+        {
+            return desktopSessionFile;
+        }
+
+        return "Unknown";
     }
 }

@@ -3,6 +3,7 @@ using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
+using Drawie.Numerics.Helpers;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
@@ -47,8 +48,7 @@ public class PointsVectorData : ShapeVectorData
             canvas.SetMatrix(final);
         }
 
-        canvas.DrawPoints(PointMode.Points, Points.Select(p => new VecF((float)p.X, (float)p.Y)).ToArray(),
-            paint);
+        canvas.DrawPoints(PointMode.Points, Points.ToVecFArray(), paint);
 
         if (applyTransform)
         {
@@ -61,14 +61,11 @@ public class PointsVectorData : ShapeVectorData
         return Points.Count > 0;
     }
 
-    public override int GetCacheHash()
+    protected override int GetSpecificHash()
     {
-        return CalculateHash();
-    }
-
-    public override int CalculateHash()
-    {
-        return Points.GetHashCode();
+        HashCode hash = new();
+        hash.Add(Points);
+        return hash.ToHashCode();
     }
 
     protected override void AdjustCopy(ShapeVectorData copy)

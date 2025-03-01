@@ -72,4 +72,19 @@ public class KeyFrameData : IDisposable, IReadOnlyKeyFrameData
             IsVisible = IsVisible
         };
     }
+
+    public int GetCacheHash()
+    {
+        HashCode hash = new();
+        hash.Add(StartFrame);
+        hash.Add(Duration);
+        hash.Add(KeyFrameGuid);
+        hash.Add(AffectedElement);
+        if (Data != null)
+        {
+            hash.Add(Data is ICacheable cacheable ? cacheable.GetCacheHash() : Data.GetHashCode());
+        }
+
+        return hash.ToHashCode();
+    }
 }

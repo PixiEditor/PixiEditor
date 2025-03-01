@@ -26,6 +26,8 @@ internal class SvgFileType : IoFileType
         job?.Report(0.5, string.Empty); 
         string xml = svgDocument.ToXml();
 
+        xml = $"<!-- Created with PixiEditor (https://pixieditor.net) -->{Environment.NewLine}" + xml;
+
         job?.Report(0.75, string.Empty);
         await using FileStream fileStream = new(pathWithExtension, FileMode.Create);
         await using StreamWriter writer = new(fileStream);

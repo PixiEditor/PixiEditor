@@ -16,6 +16,7 @@ using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentPassthroughActions;
+using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
@@ -142,6 +143,15 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
         args.Handled = true;
+
+        if (args.ClickCount >= 2)
+        {
+            if (SwitchToLayerTool())
+            {
+                return;
+            }
+        }
+
         var allLayers = document.StructureHelper.GetAllLayers();
         var topMostWithinClick = allLayers.Where(x =>
                 x is { IsVisibleBindable: true, TightBounds: not null } &&
@@ -176,6 +186,18 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
                 Deselect(topMostList);
             }
         }
+    }
+
+    private bool SwitchToLayerTool()
+    {
+        if (document.SelectedStructureMember is ILayerHandler layerHandler && layerHandler.QuickEditTool != null)
+        {
+            ViewModelMain.Current.ToolsSubViewModel.SetActiveTool(layerHandler.QuickEditTool, false);
+            ViewModelMain.Current.ToolsSubViewModel.QuickToolSwitchInlet();
+            return true;
+        }
+
+        return false;
     }
 
     public void OnTransformStopped()
