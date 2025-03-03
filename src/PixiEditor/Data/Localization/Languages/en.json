@@ -594,6 +594,7 @@
   "PIXI_FILE": "PixiEditor Files",
   "PNG_FILE": "PNG Images",
   "JPEG_FILE": "JPEG Images",
+  "WEBP_FILE": "WebP Images",
   "GIF_FILE": "GIFs",
   "BMP_FILE": "BMP Images",
   "IMAGE_FILES": "Image Files",
