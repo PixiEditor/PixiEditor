@@ -107,6 +107,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IoFileType, PngFileType>()
             .AddSingleton<IoFileType, JpegFileType>()
             .AddSingleton<IoFileType, BmpFileType>()
+            .AddSingleton<IoFileType, WebpFileType>()
             .AddSingleton<IoFileType, GifFileType>()
             .AddSingleton<IoFileType, Mp4FileType>()
             .AddSingleton<IoFileType, SvgFileType>()

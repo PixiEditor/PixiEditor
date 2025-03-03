@@ -1,5 +1,6 @@
 ﻿using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -52,10 +53,6 @@ public class OutlineNode : RenderNode, IRenderInput
     {
         base.OnExecute(context);
         lastDocumentSize = context.DocumentSize;
-        if(lastType == Type.Value)
-        {
-            return;
-        }
 
         Kernel finalKernel = Type.Value switch
         {
@@ -86,20 +83,27 @@ public class OutlineNode : RenderNode, IRenderInput
             paint.ImageFilter = filter;
             paint.ColorFilter = ColorFilter.CreateBlendMode(Color.Value, BlendMode.SrcIn);
 
-            int saved = surface.Canvas.SaveLayer(paint);
+            using Texture temp = Texture.ForProcessing(surface, context.ProcessingColorSpace);
+            int saved = temp.DrawingSurface.Canvas.SaveLayer(paint);
 
-            Background.Value.Paint(context, surface);
+            Background.Value.Paint(context, temp.DrawingSurface);
 
-            surface.Canvas.RestoreToCount(saved);
+            temp.DrawingSurface.Canvas.RestoreToCount(saved);
 
             for (int i = 1; i < (int)Thickness.Value; i++)
             {
-                saved = surface.Canvas.SaveLayer(paint);
+                saved = temp.DrawingSurface.Canvas.SaveLayer(paint);
 
-                surface.Canvas.DrawSurface(surface, 0, 0);
+                temp.DrawingSurface.Canvas.DrawSurface(temp.DrawingSurface, 0, 0);
 
-                surface.Canvas.RestoreToCount(saved);
+                temp.DrawingSurface.Canvas.RestoreToCount(saved);
             }
+
+            saved = surface.Canvas.Save();
+            surface.Canvas.SetMatrix(Matrix3X3.Identity);
+            surface.Canvas.DrawSurface(temp.DrawingSurface, 0, 0);
+
+            surface.Canvas.RestoreToCount(saved);
         }
 
         Background.Value.Paint(context, surface);

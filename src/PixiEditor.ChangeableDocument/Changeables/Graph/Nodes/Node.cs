@@ -48,6 +48,11 @@ public abstract class Node : IReadOnlyNode, IDisposable
     protected internal bool IsDisposed => _isDisposed;
     private bool _isDisposed;
 
+    protected virtual int GetContentCacheHash()
+    {
+        return 0;
+    }
+
     public void Execute(RenderContext context)
     {
         ExecuteInternal(context);
@@ -550,5 +555,31 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
 
         return default;
+    }
+
+    public int GetCacheHash()
+    {
+        HashCode hash = new();
+        hash.Add(GetType());
+        hash.Add(DisplayName);
+        hash.Add(Position);
+        foreach (var input in inputs)
+        {
+            hash.Add(input.GetCacheHash());
+        }
+
+        foreach (var output in outputs)
+        {
+            hash.Add(output.GetCacheHash());
+        }
+
+        foreach (var frame in keyFrames)
+        {
+            hash.Add(frame.GetCacheHash());
+        }
+
+        hash.Add(GetContentCacheHash());
+
+        return hash.ToHashCode();
     }
 }

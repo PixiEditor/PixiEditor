@@ -1,6 +1,8 @@
-﻿namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿using PixiEditor.Common;
 
-public interface INodeProperty
+namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+
+public interface INodeProperty : ICacheable
 {
     public string InternalPropertyName { get; }
     public string DisplayName { get; }

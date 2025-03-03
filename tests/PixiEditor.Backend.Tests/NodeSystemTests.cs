@@ -136,7 +136,7 @@ public class NodeSystemTests
                 if (input.ValueType.IsAssignableTo(typeof(Delegate))) continue;
                 bool hasFactory = factories.Any(x => x.OriginalType == input.ValueType);
                 Assert.True(
-                    input.ValueType.IsValueType || input.ValueType == typeof(string) || hasFactory,
+                    input.ValueType.IsPrimitive || input.ValueType.IsEnum || input.ValueType == typeof(string) || hasFactory,
                     $"{input.ValueType} doesn't have a factory and is not serializable. Property: {input.InternalPropertyName}, NodeType: {node.GetType().Name}");
             }
         }

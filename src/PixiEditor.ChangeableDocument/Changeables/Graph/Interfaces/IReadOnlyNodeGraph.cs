@@ -1,9 +1,10 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
+using PixiEditor.Common;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
-public interface IReadOnlyNodeGraph
+public interface IReadOnlyNodeGraph : ICacheable
 {
     public IReadOnlyCollection<IReadOnlyNode> AllNodes { get; }
     public IReadOnlyNode OutputNode { get; }
