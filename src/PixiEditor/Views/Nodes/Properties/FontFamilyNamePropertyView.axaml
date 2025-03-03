@@ -15,7 +15,7 @@
         HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
         <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
         <properties:FontFamilyPicker Margin="5 0"
-           SelectedFontFamily="{Binding Value, Mode=TwoWay}"
+           FontIndex="{Binding FontFamilyIndex, Mode=TwoWay}"
                           IsVisible="{Binding ShowInputField}">
             <Interaction.Behaviors>
                 <behaviours:GlobalShortcutFocusBehavior />

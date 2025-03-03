@@ -60,6 +60,11 @@ public partial class FontFamilyPicker : UserControl
             if (e.NewValue is int newIndex)
             {
                 sender.FontIndex = newIndex;
+                if (newIndex < 0 || newIndex >= sender.Fonts.Count)
+                {
+                    return;
+                }
+
                 sender.SelectedFontFamily = sender.Fonts[newIndex];
             }
         });

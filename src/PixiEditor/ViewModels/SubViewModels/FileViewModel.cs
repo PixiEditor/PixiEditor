@@ -504,7 +504,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         switch (result)
         {
             case DialogSaveResult.InvalidPath:
-                NoticeDialog.Show("ERROR", "ERROR_SAVE_LOCATION");
+                NoticeDialog.Show("ERROR_SAVE_LOCATION", "ERROR");
                 break;
             case DialogSaveResult.ConcurrencyError:
                 NoticeDialog.Show("INTERNAL_ERROR", "ERROR_WHILE_SAVING");
@@ -516,7 +516,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 NoticeDialog.Show(title: "IO_ERROR", message: "IO_ERROR_MSG");
                 break;
             case DialogSaveResult.UnknownError:
-                NoticeDialog.Show("ERROR", "UNKNOWN_ERROR_SAVING");
+                NoticeDialog.Show("UNKNOWN_ERROR_SAVING", "ERROR");
                 break;
         }
     }
