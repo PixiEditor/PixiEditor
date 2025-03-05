@@ -7,3 +7,6 @@
 [submodule "src/Drawie"]
 	path = src/Drawie
 	url = https://github.com/PixiEditor/Drawie.git
+[submodule "src/ColorPicker"]
+	path = src/ColorPicker
+	url = https://github.com/PixiEditor/ColorPicker.git
