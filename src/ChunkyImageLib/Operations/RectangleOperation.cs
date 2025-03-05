@@ -54,11 +54,11 @@ internal class RectangleOperation : IMirroredDrawOperation
     private void DrawPixelPerfect(DrawingSurface surf, RectD rect, RectD innerRect)
     {
         // draw fill
-        if (Data.FillColor.A > 0)
+        if (Data.FillPaintable.AnythingVisible)
         {
             int saved = surf.Canvas.Save();
             surf.Canvas.ClipRect(innerRect);
-            surf.Canvas.DrawColor(Data.FillColor, Data.BlendMode);
+            surf.Canvas.DrawPaintable(Data.FillPaintable, Data.BlendMode);
             surf.Canvas.RestoreToCount(saved);
         }
 
@@ -66,18 +66,18 @@ internal class RectangleOperation : IMirroredDrawOperation
         surf.Canvas.Save();
         surf.Canvas.ClipRect(rect);
         surf.Canvas.ClipRect(innerRect, ClipOperation.Difference);
-        surf.Canvas.DrawColor(Data.StrokeColor, Data.BlendMode);
+        surf.Canvas.DrawPaintable(Data.Stroke, Data.BlendMode);
     }
 
     private void DrawAntiAliased(DrawingSurface surf, RectD rect)
     {
         // draw fill
-        if (Data.FillColor.A > 0)
+        if (Data.FillPaintable.AnythingVisible)
         {
             int saved = surf.Canvas.Save();
 
             paint.StrokeWidth = 0;
-            paint.Color = Data.FillColor;
+            paint.SetPaintable(Data.FillPaintable);
             paint.Style = PaintStyle.Fill;
             surf.Canvas.DrawRect((float)rect.Left, (float)rect.Top, (float)rect.Width, (float)rect.Height, paint);
 
@@ -87,7 +87,7 @@ internal class RectangleOperation : IMirroredDrawOperation
         // draw stroke
         surf.Canvas.Save();
         paint.StrokeWidth = Data.StrokeWidth > 0 ? Data.StrokeWidth : 1;
-        paint.Color = Data.StrokeWidth > 0 ? Data.StrokeColor : Data.FillColor;
+        paint.SetPaintable(Data.StrokeWidth > 0 ? Data.Stroke : Data.FillPaintable);
         paint.Style = PaintStyle.Stroke;
         RectD innerRect = rect.Inflate(-Data.StrokeWidth / 2f);
         surf.Canvas.DrawRect((float)innerRect.Left, (float)innerRect.Top, (float)innerRect.Width, (float)innerRect.Height, paint);
@@ -96,13 +96,13 @@ internal class RectangleOperation : IMirroredDrawOperation
     public AffectedArea FindAffectedArea(VecI imageSize)
     {
         if (Math.Abs(Data.Size.X) < 1 || Math.Abs(Data.Size.Y) < 1 ||
-            (Data.StrokeColor.A == 0 && Data.FillColor.A == 0))
+            (!Data.Stroke.AnythingVisible && !Data.FillPaintable.AnythingVisible))
             return new();
 
         RectI affRect = (RectI)new ShapeCorners(Data.Center, Data.Size).AsRotated(Data.Angle, Data.Center).AABBBounds
             .RoundOutwards();
 
-        if (Data.FillColor.A != 0 || Math.Abs(Data.Size.X) == 1 || Math.Abs(Data.Size.Y) == 1)
+        if (Data.FillPaintable.AnythingVisible || Math.Abs(Data.Size.X) == 1 || Math.Abs(Data.Size.Y) == 1)
             return new(
                 OperationHelper.FindChunksTouchingRectangle(Data.Center, Data.Size.Abs(), Data.Angle,
                     ChunkPool.FullChunkSize), affRect);

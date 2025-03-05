@@ -92,8 +92,8 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
 
                 if (toolbar.SyncWithPrimaryColor)
                 {
-                    toolbar.StrokeColor = colorHandler.PrimaryColor.ToColor();
-                    toolbar.FillColor = colorHandler.PrimaryColor.ToColor();
+                    toolbar.StrokeBrush = new SolidColorBrush(colorHandler.PrimaryColor.ToColor());
+                    toolbar.FillBrush = new SolidColorBrush(colorHandler.PrimaryColor.ToColor());
                 }
 
                 //below forces undo before starting new path
@@ -166,8 +166,8 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
     {
         if (primary && toolbar.SyncWithPrimaryColor)
         {
-            toolbar.StrokeColor = color.ToColor();
-            toolbar.FillColor = color.ToColor();
+            toolbar.StrokeBrush = new SolidColorBrush(color.ToColor());
+            toolbar.FillBrush = new SolidColorBrush(color.ToColor());
         }
     }
 
@@ -200,8 +200,8 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
             return new PathVectorData(new VectorPath() { FillType = (PathFillType)vectorPathToolHandler.FillMode })
             {
                 StrokeWidth = (float)toolbar.ToolSize,
-                StrokeColor = toolbar.StrokeColor.ToColor(),
-                FillColor = toolbar.Fill ? toolbar.FillColor.ToColor() : Colors.Transparent,
+                Stroke = toolbar.StrokeBrush.ToPaintable(),
+                FillPaintable = toolbar.Fill ? toolbar.FillBrush.ToPaintable() : Colors.Transparent,
                 Fill = toolbar.Fill,
                 StrokeLineCap = vectorPathToolHandler.StrokeLineCap,
                 StrokeLineJoin = vectorPathToolHandler.StrokeLineJoin
@@ -211,8 +211,8 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         return new PathVectorData(new VectorPath(path) { FillType = (PathFillType)vectorPathToolHandler.FillMode })
         {
             StrokeWidth = (float)toolbar.ToolSize,
-            StrokeColor = toolbar.StrokeColor.ToColor(),
-            FillColor = toolbar.Fill ? toolbar.FillColor.ToColor() : Colors.Transparent,
+            Stroke = toolbar.StrokeBrush.ToPaintable(),
+            FillPaintable = toolbar.Fill ? toolbar.FillBrush.ToPaintable() : Colors.Transparent,
             Fill = toolbar.Fill,
             StrokeLineCap = vectorPathToolHandler.StrokeLineCap,
             StrokeLineJoin = vectorPathToolHandler.StrokeLineJoin
@@ -260,10 +260,10 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
     private void ApplySettings(PathVectorData pathData)
     {
         toolbar.ToolSize = pathData.StrokeWidth;
-        toolbar.StrokeColor = pathData.StrokeColor.ToColor();
+        toolbar.StrokeBrush = pathData.Stroke.ToBrush();
         toolbar.ToolSize = pathData.StrokeWidth;
         toolbar.Fill = pathData.Fill;
-        toolbar.FillColor = pathData.FillColor.ToColor();
+        toolbar.FillBrush = pathData.FillPaintable.ToBrush();
         toolbar.GetSetting<EnumSettingViewModel<VectorPathFillType>>(nameof(VectorPathToolViewModel.FillMode)).Value = (VectorPathFillType)pathData.Path.FillType;
         toolbar.GetSetting<EnumSettingViewModel<StrokeCap>>(nameof(VectorPathToolViewModel.StrokeLineCap)).Value = pathData.StrokeLineCap;
         toolbar.GetSetting<EnumSettingViewModel<StrokeJoin>>(nameof(VectorPathToolViewModel.StrokeLineJoin)).Value = pathData.StrokeLineJoin;

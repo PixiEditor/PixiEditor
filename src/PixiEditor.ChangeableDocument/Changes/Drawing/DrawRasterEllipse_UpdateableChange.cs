@@ -1,4 +1,5 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
 
@@ -8,8 +9,8 @@ internal class DrawRasterEllipse_UpdateableChange : UpdateableChange
     private readonly Guid memberGuid;
     private RectI location;
     private double rotation;
-    private Color strokeColor;
-    private Color fillColor;
+    private Paintable strokeColor;
+    private Paintable fillColor;
     private float strokeWidth;
     private readonly bool drawOnMask;
     private int frame;
@@ -18,7 +19,7 @@ internal class DrawRasterEllipse_UpdateableChange : UpdateableChange
     private CommittedChunkStorage? storedChunks;
 
     [GenerateUpdateableChangeActions]
-    public DrawRasterEllipse_UpdateableChange(Guid memberGuid, RectI location, double rotationRad, Color strokeColor, Color fillColor, float strokeWidth, bool antialiased, bool drawOnMask, int frame)
+    public DrawRasterEllipse_UpdateableChange(Guid memberGuid, RectI location, double rotationRad, Paintable strokeColor, Paintable fillColor, float strokeWidth, bool antialiased, bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.location = location;
@@ -32,7 +33,7 @@ internal class DrawRasterEllipse_UpdateableChange : UpdateableChange
     }
 
     [UpdateChangeMethod]
-    public void Update(RectI location, double rotationRad, Color strokeColor, Color fillColor, float strokeWidth)
+    public void Update(RectI location, double rotationRad, Paintable strokeColor, Paintable fillColor, float strokeWidth)
     {
         this.location = location;
         rotation = rotationRad;

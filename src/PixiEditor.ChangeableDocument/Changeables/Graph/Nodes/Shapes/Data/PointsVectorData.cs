@@ -37,7 +37,7 @@ public class PointsVectorData : ShapeVectorData
     private void Rasterize(Canvas canvas, bool applyTransform)
     {
         using Paint paint = new Paint();
-        paint.Color = FillColor;
+        paint.SetPaintable(FillPaintable);
         paint.StrokeWidth = StrokeWidth;
 
         int num = 0;

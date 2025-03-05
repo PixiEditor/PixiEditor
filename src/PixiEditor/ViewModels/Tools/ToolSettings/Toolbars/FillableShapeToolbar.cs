@@ -18,22 +18,22 @@ internal class FillableShapeToolbar : ShapeToolbar, IFillableShapeToolbar
         }
     }
 
-    public Color FillColor
+    public IBrush FillBrush
     {
         get
         {
-            return GetSetting<ColorSettingViewModel>(nameof(FillColor)).Value;
+            return GetSetting<ColorSettingViewModel>(nameof(FillBrush)).Value;
         }
         set
         {
-            GetSetting<ColorSettingViewModel>(nameof(FillColor)).Value = value;
+            GetSetting<ColorSettingViewModel>(nameof(FillBrush)).Value = value;
         }
     }
 
     public FillableShapeToolbar()
     {
         AddSetting(new BoolSettingViewModel(nameof(Fill), "FILL_SHAPE_LABEL") { Value = true });
-        AddSetting(new ColorSettingViewModel(nameof(FillColor), "FILL_COLOR_LABEL"));
+        AddSetting(new ColorSettingViewModel(nameof(FillBrush), "FILL_COLOR_LABEL"));
         GetSetting<SizeSettingViewModel>(nameof(ToolSize)).Value = 0;
     }
 }

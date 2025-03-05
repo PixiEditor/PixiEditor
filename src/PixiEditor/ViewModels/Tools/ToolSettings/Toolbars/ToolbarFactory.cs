@@ -1,7 +1,8 @@
 ﻿using System.Reflection;
+using Avalonia.Media;
 using PixiEditor.Helpers.Extensions;
-using Drawie.Backend.Core.ColorsImpl;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
+using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 
@@ -58,7 +59,7 @@ internal static class ToolbarFactory
         {
             Settings.BoolAttribute => new BoolSettingViewModel(name, (bool)(attribute.DefaultValue ?? false), label),
             Settings.ColorAttribute => new ColorSettingViewModel(name,
-                ((Color)(attribute.DefaultValue ?? Colors.White)).ToColor(), label),
+                ((IBrush)(attribute.DefaultValue ?? Brushes.White)), label),
             Settings.EnumAttribute => GetEnumSetting(propertyType, name, attribute),
             Settings.PercentAttribute percentAttribute => new PercentSettingViewModel(name, (float)(attribute.DefaultValue ?? 0f), label,
                 percentAttribute.Min, percentAttribute.Max),

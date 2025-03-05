@@ -1,4 +1,5 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Numerics;
@@ -7,18 +8,18 @@ namespace ChunkyImageLib.DataHolders;
 
 public record struct ShapeData
 {
-    public ShapeData(VecD center, VecD size, double rotation, float strokeWidth, Color strokeColor, Color fillColor, BlendMode blendMode = BlendMode.SrcOver)
+    public ShapeData(VecD center, VecD size, double rotation, float strokeWidth, Paintable stroke, Paintable fillPaintable, BlendMode blendMode = BlendMode.SrcOver)
     {
-        StrokeColor = strokeColor;
-        FillColor = fillColor;
+        Stroke = stroke;
+        FillPaintable = fillPaintable;
         Center = center;
         Size = size;
         Angle = rotation;
         StrokeWidth = strokeWidth;
         BlendMode = blendMode;
     }
-    public Color StrokeColor { get; }
-    public Color FillColor { get; }
+    public Paintable Stroke { get; }
+    public Paintable FillPaintable { get; }
     public BlendMode BlendMode { get; }
     public VecD Center { get; }
 
@@ -31,8 +32,8 @@ public record struct ShapeData
     
 
     public ShapeData AsMirroredAcrossHorAxis(double horAxisY)
-        => new ShapeData(Center.ReflectY(horAxisY), new(Size.X, -Size.Y), -Angle, StrokeWidth, StrokeColor, FillColor, BlendMode);
+        => new ShapeData(Center.ReflectY(horAxisY), new(Size.X, -Size.Y), -Angle, StrokeWidth, Stroke, FillPaintable, BlendMode);
     public ShapeData AsMirroredAcrossVerAxis(double verAxisX)
-        => new ShapeData(Center.ReflectX(verAxisX), new(-Size.X, Size.Y), -Angle, StrokeWidth, StrokeColor, FillColor, BlendMode);
+        => new ShapeData(Center.ReflectX(verAxisX), new(-Size.X, Size.Y), -Angle, StrokeWidth, Stroke, FillPaintable, BlendMode);
 
 }

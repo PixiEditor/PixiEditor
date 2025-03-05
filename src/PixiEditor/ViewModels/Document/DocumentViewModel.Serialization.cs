@@ -14,6 +14,7 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
@@ -175,11 +176,18 @@ internal partial class DocumentViewModel
             transform = transform.PostConcat(Matrix3X3.CreateScale((float)resizeFactor.X, (float)resizeFactor.Y));
             primitive.Transform.Unit = new SvgTransformUnit?(new SvgTransformUnit(transform));
 
-            primitive.Fill.Unit = SvgColorUnit.FromRgba(data.FillColor.R, data.FillColor.G,
-                data.FillColor.B, data.Fill ? data.FillColor.A : 0);
+            // TODO: add support for other paintables
+            if (data.FillPaintable is ColorPaintable colorPaintable)
+            {
+                primitive.Fill.Unit = SvgColorUnit.FromRgba(colorPaintable.Color.R, colorPaintable.Color.G,
+                    colorPaintable.Color.B, data.Fill ? colorPaintable.Color.A : 0);
+            }
 
-            primitive.Stroke.Unit = SvgColorUnit.FromRgba(data.StrokeColor.R, data.StrokeColor.G,
-                data.StrokeColor.B, data.StrokeColor.A);
+            if (data.Stroke is ColorPaintable strokeColorPaintable)
+            {
+                primitive.Stroke.Unit = SvgColorUnit.FromRgba(strokeColorPaintable.Color.R, strokeColorPaintable.Color.G,
+                    strokeColorPaintable.Color.B, strokeColorPaintable.Color.A);
+            }
 
             primitive.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(data.StrokeWidth);
         }
@@ -205,8 +213,12 @@ internal partial class DocumentViewModel
         line.X2.Unit = SvgNumericUnit.FromUserUnits(lineData.End.X);
         line.Y2.Unit = SvgNumericUnit.FromUserUnits(lineData.End.Y);
 
-        line.Stroke.Unit = SvgColorUnit.FromRgba(lineData.StrokeColor.R, lineData.StrokeColor.G,
-            lineData.StrokeColor.B, lineData.StrokeColor.A);
+        if (lineData.Stroke is ColorPaintable colorPaintable)
+        {
+            line.Stroke.Unit = SvgColorUnit.FromRgba(colorPaintable.Color.R, colorPaintable.Color.G,
+                colorPaintable.Color.B, colorPaintable.Color.A);
+        }
+
         line.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(lineData.StrokeWidth);
 
         return line;

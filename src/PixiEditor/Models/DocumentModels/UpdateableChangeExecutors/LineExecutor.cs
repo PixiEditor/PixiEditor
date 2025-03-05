@@ -1,7 +1,8 @@
-﻿using PixiEditor.ChangeableDocument.Actions;
+﻿using Avalonia.Media;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
+using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using Drawie.Backend.Core.ColorsImpl;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Handlers;
@@ -13,6 +14,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.ViewModels.Document.TransformOverlays;
+using Color = Drawie.Backend.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -20,7 +22,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
 {
     public override ExecutorType Type => ExecutorType.ToolLinked;
 
-    protected Color StrokeColor => toolbar!.StrokeColor.ToColor();
+    protected Paintable StrokePaintable => toolbar!.StrokeBrush.ToPaintable();
     protected double StrokeWidth => toolViewModel!.ToolSize;
     protected abstract bool UseGlobalUndo { get; }
     protected abstract bool ShowApplyButton { get; }
@@ -64,7 +66,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         {
             if (toolbar.SyncWithPrimaryColor)
             {
-                toolbar.StrokeColor = colorsVM.PrimaryColor.ToColor();
+                toolbar.StrokeBrush = new SolidColorBrush(colorsVM.PrimaryColor.ToColor());
                 ignoreNextColorChange = colorsVM.ColorsTempSwapped;
             }
 
@@ -207,7 +209,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         }
 
         ignoreNextColorChange = ActiveMode == ShapeToolMode.Drawing;
-        toolbar!.StrokeColor = color.ToColor();
+        toolbar!.StrokeBrush = new SolidColorBrush(color.ToColor());
         var colorChangedAction = SettingsChange();
         internals!.ActionAccumulator.AddActions(colorChangedAction);
     }
@@ -260,7 +262,10 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         var endDrawAction = EndDraw();
         internals!.ActionAccumulator.AddFinishedActions(endDrawAction);
 
-        colorsVM.AddSwatch(new PaletteColor(StrokeColor.R, StrokeColor.G, StrokeColor.B));
+        if (StrokePaintable is ColorPaintable colorPaintable)
+        {
+            colorsVM.AddSwatch(new PaletteColor(colorPaintable.Color.R, colorPaintable.Color.G, colorPaintable.Color.B));
+        }
     }
 
     public override void ForceStop()
@@ -299,12 +304,12 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
 
     protected LineVectorData ConstructLineData(VecD start, VecD end)
     {
-        return new LineVectorData(start, end) { StrokeWidth = (float)StrokeWidth, StrokeColor = StrokeColor };
+        return new LineVectorData(start, end) { StrokeWidth = (float)StrokeWidth, Stroke = StrokePaintable };
     }
     
     private void ApplyState(LineVectorData data)
     {
-        toolbar!.StrokeColor = data.StrokeColor.ToColor();
+        toolbar!.StrokeBrush = data.Stroke.ToBrush();
         toolbar!.ToolSize = data.StrokeWidth;
         
         document!.LineToolOverlayHandler.Show(data.Start, data.End, ShowApplyButton, AddToUndo);

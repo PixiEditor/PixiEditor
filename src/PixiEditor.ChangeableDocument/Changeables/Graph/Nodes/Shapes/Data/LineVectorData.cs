@@ -54,10 +54,10 @@ public class LineVectorData : ShapeVectorData, IReadOnlyLineData
         .WithMatrix(TransformationMatrix);
 
 
-    public LineVectorData(VecD startPos, VecD pos)
+    public LineVectorData(VecD startPos, VecD endPos)
     {
         Start = startPos;
-        End = pos;
+        End = endPos;
         
         Fill = false;
     }
@@ -83,7 +83,7 @@ public class LineVectorData : ShapeVectorData, IReadOnlyLineData
 
         using Paint paint = new Paint() { IsAntiAliased = true };
 
-        paint.Color = StrokeColor;
+        paint.SetPaintable(Stroke);
         paint.Style = PaintStyle.Stroke;
         paint.StrokeWidth = StrokeWidth;
 

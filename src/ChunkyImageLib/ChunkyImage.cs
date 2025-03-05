@@ -7,6 +7,7 @@ using OneOf.Types;
 using PixiEditor.Common;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
@@ -610,7 +611,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawEllipse(RectD location, Color strokeColor, Color fillColor, float strokeWidth,
+    public void EnqueueDrawEllipse(RectD location, Paintable strokeColor, Paintable fillColor, float strokeWidth,
         double rotationRad = 0, bool antiAliased = false,
         Paint? paint = null)
     {
@@ -737,12 +738,12 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawBresenhamLine(VecI from, VecI to, Color color, BlendMode blendMode)
+    public void EnqueueDrawBresenhamLine(VecI from, VecI to, Paintable paintable, BlendMode blendMode)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
-            BresenhamLineOperation operation = new(from, to, color, blendMode);
+            BresenhamLineOperation operation = new(from, to, paintable, blendMode);
             EnqueueOperation(operation);
         }
     }

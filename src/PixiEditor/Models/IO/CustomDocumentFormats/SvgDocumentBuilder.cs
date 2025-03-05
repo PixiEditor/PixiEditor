@@ -281,7 +281,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         {
             var target = styleContext.Fill.Unit;
             float opacity = (float)(styleContext.FillOpacity.Unit?.Value ?? 1);
-            shapeData.FillColor = target.Value.Color.WithAlpha((byte)(Math.Clamp(opacity, 0, 1) * 255));
+            shapeData.FillPaintable = target.Value.Color.WithAlpha((byte)(Math.Clamp(opacity, 0, 1) * 255));
         }
 
         if (hasStroke)
@@ -289,7 +289,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             var targetColor = styleContext.Stroke.Unit;
             var targetWidth = styleContext.StrokeWidth.Unit;
 
-            shapeData.StrokeColor = targetColor?.Color ?? Colors.Black;
+            shapeData.Stroke = targetColor?.Color ?? Colors.Black;
             shapeData.StrokeWidth = (float)(targetWidth?.PixelsValue ?? 1);
         }
 

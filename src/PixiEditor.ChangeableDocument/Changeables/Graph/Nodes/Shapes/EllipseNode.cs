@@ -27,7 +27,7 @@ public class EllipseNode : ShapeNode<EllipseVectorData>
     protected override EllipseVectorData? GetShapeData(RenderContext context)
     {
         return new EllipseVectorData(Center.Value, Radius.Value)
-            { StrokeColor = StrokeColor.Value, FillColor = FillColor.Value, StrokeWidth = StrokeWidth.Value };
+            { Stroke = StrokeColor.Value, FillPaintable = FillColor.Value, StrokeWidth = StrokeWidth.Value };
     }
 
     public override Node CreateCopy() => new EllipseNode();

@@ -1,4 +1,5 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using PixiEditor.Extensions.CommonApi.Palettes;
 
 namespace PixiEditor.Models.Handlers;

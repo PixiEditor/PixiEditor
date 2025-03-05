@@ -136,7 +136,8 @@ public class NodeSystemTests
                 if (input.ValueType.IsAssignableTo(typeof(Delegate))) continue;
                 bool hasFactory = factories.Any(x => x.OriginalType == input.ValueType);
                 Assert.True(
-                    input.ValueType.IsPrimitive || input.ValueType.IsEnum || input.ValueType == typeof(string) || hasFactory,
+                    input.ValueType.IsPrimitive || input.ValueType.IsEnum || input.ValueType == typeof(string) ||
+                    hasFactory,
                     $"{input.ValueType} doesn't have a factory and is not serializable. Property: {input.InternalPropertyName}, NodeType: {node.GetType().Name}");
             }
         }
@@ -157,13 +158,13 @@ public class NodeSystemTests
                         && x is { IsAbstract: false, IsInterface: false }).ToList();
 
         List<SerializationFactory> factories = new();
-        
+
         foreach (var factoryType in factoryTypes)
         {
             var factory = (SerializationFactory)Activator.CreateInstance(factoryType);
             factories.Add(factory);
         }
-        
+
         foreach (var type in allVectorTypes)
         {
             bool hasFactory = factories.Any(x => x.OriginalType == type);
@@ -179,7 +180,7 @@ public class NodeSystemTests
                         && x is { IsAbstract: false, IsInterface: false }).ToList();
 
         List<SerializationFactory> factories = new();
-        
+
         foreach (var factoryType in factoryTypes)
         {
             var factory = (SerializationFactory)Activator.CreateInstance(factoryType);

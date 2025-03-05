@@ -1,6 +1,6 @@
 ﻿using Avalonia.Input;
+using Avalonia.Media;
 using Avalonia.Threading;
-using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
@@ -16,6 +16,7 @@ using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using PixiEditor.ViewModels;
+using Color = Drawie.Backend.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -68,8 +69,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
                 textData.TransformationMatrix, textData.Spacing);
 
             toolbar.Fill = textData.Fill;
-            toolbar.FillColor = textData.FillColor.ToColor();
-            toolbar.StrokeColor = textData.StrokeColor.ToColor();
+            toolbar.FillBrush = textData.FillPaintable.ToBrush();
+            toolbar.StrokeBrush = textData.Stroke.ToBrush();
             toolbar.ToolSize = textData.StrokeWidth;
             toolbar.FontFamily = textData.Font.Family;
             toolbar.FontSize = textData.Font.Size;
@@ -201,8 +202,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             return;
         }
 
-        toolbar.StrokeColor = color.ToColor();
-        toolbar.FillColor = color.ToColor();
+        toolbar.StrokeBrush = new SolidColorBrush(color.ToColor());
+        toolbar.FillBrush = new SolidColorBrush(color.ToColor());
     }
 
     private void TryPutOnPath(VecD pos)
@@ -255,9 +256,9 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             Text = text,
             Position = position,
             Fill = toolbar.Fill,
-            FillColor = toolbar.FillColor.ToColor(),
+            FillPaintable = toolbar.FillBrush.ToPaintable(),
             StrokeWidth = (float)toolbar.ToolSize,
-            StrokeColor = toolbar.StrokeColor.ToColor(),
+            Stroke = toolbar.StrokeBrush.ToPaintable(),
             TransformationMatrix = lastMatrix,
             Font = cachedFont,
             Spacing = toolbar.Spacing,

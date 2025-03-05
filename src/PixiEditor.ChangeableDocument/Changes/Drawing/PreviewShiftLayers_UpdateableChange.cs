@@ -99,8 +99,8 @@ internal class PreviewShiftLayers_UpdateableChange : InterruptableUpdateableChan
                 var newShapeData = new PathVectorData(path)
                 {
                     StrokeWidth = originalShape.StrokeWidth,
-                    StrokeColor = originalShape.StrokeColor,
-                    FillColor = originalShape.FillColor,
+                    Stroke = originalShape.Stroke,
+                    FillPaintable = originalShape.FillPaintable,
                     Fill = originalShape.Fill,
                     TransformationMatrix = originalShape.TransformationMatrix,
                     StrokeLineJoin = join,

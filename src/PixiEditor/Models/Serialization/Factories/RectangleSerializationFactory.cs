@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
 
@@ -16,9 +17,8 @@ internal class RectangleSerializationFactory : VectorShapeSerializationFactory<R
         builder.AddVecD(original.Size);
     }
 
-    protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor,
-        bool fill,
-        Color fillColor,
+    protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Paintable strokePaintable,
+        bool fill, Paintable fillPaintable,
         float strokeWidth, (string serializerName, string serializerVersion) serializerData,
         out RectangleVectorData original)
     {
@@ -27,8 +27,8 @@ internal class RectangleSerializationFactory : VectorShapeSerializationFactory<R
 
         original = new RectangleVectorData(center, size)
         {
-            StrokeColor = strokeColor,
-            FillColor = fillColor,
+            Stroke = strokePaintable,
+            FillPaintable = fillPaintable,
             StrokeWidth = strokeWidth,
             TransformationMatrix = matrix,
             Fill = fill

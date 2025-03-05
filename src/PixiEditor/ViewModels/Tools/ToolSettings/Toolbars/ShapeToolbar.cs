@@ -19,15 +19,15 @@ internal class ShapeToolbar : Toolbar, IShapeToolbar
         }
     }
 
-    public Color StrokeColor
+    public IBrush StrokeBrush
     {
         get
         {
-            return GetSetting<ColorSettingViewModel>(nameof(StrokeColor)).Value;
+            return GetSetting<ColorSettingViewModel>(nameof(StrokeBrush)).Value;
         }
         set
         {
-            GetSetting<ColorSettingViewModel>(nameof(StrokeColor)).Value = value;
+            GetSetting<ColorSettingViewModel>(nameof(StrokeBrush)).Value = value;
         }
     }
 
@@ -63,6 +63,6 @@ internal class ShapeToolbar : Toolbar, IShapeToolbar
             new BoolSettingViewModel(nameof(SyncWithPrimaryColor))
                 { Value = true, Icon = PixiPerfectIcons.LinkedPipette,
                     Tooltip = "SYNC_WITH_PRIMARY_COLOR_LABEL"});
-        AddSetting(new ColorSettingViewModel(nameof(StrokeColor), "STROKE_COLOR_LABEL"));
+        AddSetting(new ColorSettingViewModel(nameof(StrokeBrush), "STROKE_COLOR_LABEL"));
     }
 }

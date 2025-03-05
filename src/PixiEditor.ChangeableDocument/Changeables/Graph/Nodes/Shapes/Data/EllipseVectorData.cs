@@ -54,14 +54,14 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
 
         if (Fill)
         {
-            shapePaint.Color = FillColor;
+            shapePaint.SetPaintable(FillPaintable);
             shapePaint.Style = PaintStyle.Fill;
             canvas.DrawOval(Center, Radius, shapePaint);
         }
 
         if (StrokeWidth > 0)
         {
-            shapePaint.Color = StrokeColor;
+            shapePaint.SetPaintable(Stroke);
             shapePaint.Style = PaintStyle.Stroke;
             shapePaint.StrokeWidth = StrokeWidth;
             canvas.DrawOval(Center, Radius, shapePaint);

@@ -226,8 +226,8 @@ internal class CombineStructureMembersOnto_Change : Change
             ShapeVectorData shape = clone as ShapeVectorData;
             data = new PathVectorData(targetPath)
             {
-                StrokeColor = shape.StrokeColor,
-                FillColor = shape.FillColor,
+                Stroke = shape.Stroke,
+                FillPaintable = shape.FillPaintable,
                 StrokeWidth = shape.StrokeWidth,
                 Fill = shape.Fill,
                 TransformationMatrix = shape.TransformationMatrix,

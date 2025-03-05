@@ -24,7 +24,7 @@ internal class RasterEllipseToolExecutor : DrawableShapeToolExecutor<IRasterElli
         lastRect = (RectD)rect;
         lastRadians = rotationRad;
 
-        internals!.ActionAccumulator.AddActions(new DrawRasterEllipse_Action(memberId, rect, rotationRad, StrokeColor, FillColor, (float)StrokeWidth, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
+        internals!.ActionAccumulator.AddActions(new DrawRasterEllipse_Action(memberId, rect, rotationRad, StrokePaintable, FillPaintable, (float)StrokeWidth, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     public override ExecutorType Type => ExecutorType.ToolLinked;
@@ -34,7 +34,7 @@ internal class RasterEllipseToolExecutor : DrawableShapeToolExecutor<IRasterElli
     protected override void DrawShape(VecD currentPos, double rotationRad, bool firstDraw) => DrawEllipseOrCircle(currentPos, rotationRad, firstDraw);
     protected override IAction SettingsChangedAction()
     {
-        return new DrawRasterEllipse_Action(memberId, (RectI)lastRect, lastRadians, StrokeColor, FillColor, (float)StrokeWidth, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+        return new DrawRasterEllipse_Action(memberId, (RectI)lastRect, lastRadians, StrokePaintable, FillPaintable, (float)StrokeWidth, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
     }
 
     protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners)
@@ -45,8 +45,8 @@ internal class RasterEllipseToolExecutor : DrawableShapeToolExecutor<IRasterElli
         lastRect = (RectD)rect;
         lastRadians = radians;
         
-        return new DrawRasterEllipse_Action(memberId, (RectI)lastRect, lastRadians, StrokeColor,
-            FillColor, (float)StrokeWidth, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+        return new DrawRasterEllipse_Action(memberId, (RectI)lastRect, lastRadians, StrokePaintable,
+            FillPaintable, (float)StrokeWidth, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
     }
 
     protected override bool CanEditShape(IStructureMemberHandler layer)

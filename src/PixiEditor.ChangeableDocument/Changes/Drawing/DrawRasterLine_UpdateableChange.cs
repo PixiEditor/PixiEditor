@@ -1,4 +1,5 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
@@ -11,7 +12,7 @@ internal class DrawRasterLine_UpdateableChange : UpdateableChange
     private VecD from;
     private VecD to;
     private float strokeWidth;
-    private Color color;
+    private Paintable paintable;
     private StrokeCap caps;
     private readonly bool drawOnMask;
     private CommittedChunkStorage? savedChunks;
@@ -21,32 +22,33 @@ internal class DrawRasterLine_UpdateableChange : UpdateableChange
 
     [GenerateUpdateableChangeActions]
     public DrawRasterLine_UpdateableChange
-        (Guid memberGuid, VecD from, VecD to, float strokeWidth, Color color, StrokeCap caps, bool antiAliasing, bool drawOnMask, int frame)
+        (Guid memberGuid, VecD from, VecD to, float strokeWidth, Paintable paintable, StrokeCap caps, bool antiAliasing, bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.from = from;
         this.to = to;
         this.strokeWidth = strokeWidth;
-        this.color = color;
+        this.paintable = paintable;
         this.caps = caps;
         this.drawOnMask = drawOnMask;
         this.frame = frame;
         this.antiAliasing = antiAliasing;
 
-        paint = new Paint() { Color = color, 
+        paint = new Paint() {
             StrokeWidth = strokeWidth, StrokeCap = caps, IsAntiAliased = antiAliasing, BlendMode = BlendMode.SrcOver };
+        paint.SetPaintable(paintable);
     }
 
     [UpdateChangeMethod]
-    public void Update(VecD from, VecD to, float strokeWidth, Color color, StrokeCap caps)
+    public void Update(VecD from, VecD to, float strokeWidth, Paintable paintable, StrokeCap caps)
     {
         this.from = from;
         this.to = to;
-        this.color = color;
+        this.paintable = paintable;
         this.caps = caps;
         this.strokeWidth = strokeWidth;
         
-        paint.Color = color;
+        paint.SetPaintable(paintable);
         paint.StrokeWidth = strokeWidth;
         paint.StrokeCap = caps;
     }
@@ -66,7 +68,7 @@ internal class DrawRasterLine_UpdateableChange : UpdateableChange
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
             if (Math.Abs(strokeWidth - 1) < 0.01f && !antiAliasing)
             {
-                image.EnqueueDrawBresenhamLine((VecI)from, (VecI)to, color, BlendMode.SrcOver);
+                image.EnqueueDrawBresenhamLine((VecI)from, (VecI)to, paintable, BlendMode.SrcOver);
             }
             else
             {

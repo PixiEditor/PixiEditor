@@ -1,4 +1,5 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
@@ -173,14 +174,14 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
         using Paint paint = new Paint() { IsAntiAliased = AntiAlias };
 
         richText.Fill = Fill;
-        richText.FillColor = FillColor;
-        richText.StrokeColor = StrokeColor;
+        richText.FillPaintable = FillPaintable;
+        richText.StrokePaintable = Stroke;
         richText.StrokeWidth = StrokeWidth;
         richText.Spacing = Spacing;
 
         if (MissingFontFamily != null)
         {
-            paint.Color = Fill ? FillColor : StrokeColor;
+            paint.SetPaintable(Fill ? FillPaintable : Stroke);
             canvas.DrawText($"{MissingFontText}: " + MissingFontFamily.Value.Name, Position, Font, paint);
         }
         else
