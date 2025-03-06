@@ -66,7 +66,7 @@ def update_locale_file(language):
       - Append new keys from POEditor at the bottom.
     """
     # Use "remote-code" if available, otherwise default to "code"
-    lang_code = language.get("remote-code", language["code"])
+    lang_code = language.get("remoteCode", language["code"])
     if language["code"].lower() == "en":
         return  # Skip English (do not update)
 
