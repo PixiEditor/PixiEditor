@@ -12,6 +12,7 @@ on:
         - Full Sync
         - Download only
         - Upload only
+  pull_request:
 
 jobs:
   Compare-Upload:
