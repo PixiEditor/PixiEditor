@@ -72,16 +72,16 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "Update language files"
-      - name: Push changes
-        run: |
-          git push --set-upstream origin $(git rev-parse --abbrev-ref HEAD)
-      - name: Create Pull Request
-        run: |
-          gh pr create --title "Language Update ${{ github.run_number }}" \
-                --body "This PR was created automatically.
+      # - name: Push changes
+      #   run: |
+      #     git push --set-upstream origin $(git rev-parse --abbrev-ref HEAD)
+      # - name: Create Pull Request
+      #   run: |
+      #     gh pr create --title "Language Update ${{ github.run_number }}" \
+      #           --body "This PR was created automatically.
 
-                https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}" \
-                --base master \
-                --head $(git rev-parse --abbrev-ref HEAD)
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #           https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}" \
+      #           --base master \
+      #           --head $(git rev-parse --abbrev-ref HEAD)
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
