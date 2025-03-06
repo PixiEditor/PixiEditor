@@ -83,15 +83,14 @@ def main():
     has_changes = (modifications or additions or deletions)
 
     with open(GITHUB_OUTPUT, "a") as f:
-        f.write(f"HAS_CHANGES={str(has_changes).lower()}")
-        print(f"HAS_CHANGES={str(has_changes).lower()}")
-
-    if not has_changes:
-        print("✅ No changes detected. Local and remote are in sync.")
-    else:
-        print_group("Key(s) Modified", modifications)
-        print_group("Key(s) to be Added", additions)
-        print_group("Key(s) to be Removed", deletions)
+        if not has_changes:
+            f.write(f"HAS_CHANGES=false")
+            print("✅ No changes detected. Local and remote are in sync.")
+        else:
+            f.write(f"HAS_CHANGES=true")
+            print_group("Key(s) Modified", modifications)
+            print_group("Key(s) to be Added", additions)
+            print_group("Key(s) to be Removed", deletions)
 
 if __name__ == "__main__":
     main()
