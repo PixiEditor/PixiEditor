@@ -16,6 +16,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   compare-upload:
@@ -69,3 +70,14 @@ jobs:
       - name: Push changes
         run: |
           git push --set-upstream origin $(git rev-parse --abbrev-ref HEAD)
+      - name: Create Pull Request
+        run: |
+          gh pr create --title "Language Update ${{ github.run_number }}" \
+                --body "This PR was created automatically.
+
+                [GitHub Actions Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})/jobs/${{ github.job }}" \
+                --base main \
+                --head $(git rev-parse --abbrev-ref HEAD)
+          gh pr edit --add-reviewer ${{ github.actor }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
