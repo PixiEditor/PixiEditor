@@ -31,7 +31,7 @@ def load_ordered_json(file_path):
 def write_ordered_json(file_path, data):
     """Write an OrderedDict to a JSON file in UTF-8 (without BOM)."""
     with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+        json.dump(data, f, indent=2, ensure_ascii=False)
 
 def fetch_poeditor_language_json(language_code):
     """
