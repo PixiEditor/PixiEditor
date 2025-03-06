@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v4.2.2
       - name: Compare local reference
         id: upload-comparison
-        run: python .github/workflows/localization/upload-comparison.py
+        run: python .github/workflows/localization/reference-comparison.py
         env:
           POEDITOR_API_KEY: ${{ secrets.POEDITORKEY }}
           POEDITOR_PROJECT_ID: ${{ secrets.POEDITORPROJECT }}
@@ -42,13 +42,15 @@ jobs:
     environment: poeditor
     if: needs.compare-upload.outputs.hasChanges
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
       - name: Upload Changes
-        run: echo "Changes would be uploaded here!"
+        run: python .github/workflows/localization/upload-reference.py
 
   download:
     name: "Download changes"
     runs-on: ubuntu-latest
-    if: ${{ inputs.mode != 'Upload only' }}
+    if: ${{ inputs.mode != 'Upload only' }} && false
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
