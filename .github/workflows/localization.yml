@@ -22,8 +22,6 @@ jobs:
   compare-upload:
     name: "Compare local English"
     runs-on: ubuntu-latest
-    outputs:
-      hasChanges: ${{ steps.upload-comparison.outputs.HAS_CHANGES }}
     if: ${{ inputs.mode != 'Download only' }}
     steps:
       - name: Checkout
@@ -34,6 +32,8 @@ jobs:
         env:
           POEDITOR_API_KEY: ${{ secrets.POEDITORKEY }}
           POEDITOR_PROJECT_ID: ${{ secrets.POEDITORPROJECT }}
+    outputs:
+      hasChanges: ${{ steps.upload-comparison.outputs.HAS_CHANGES }}
 
   upload:
     name: "Upload English changes"
@@ -64,20 +64,21 @@ jobs:
           POEDITOR_API_KEY: ${{ secrets.POEDITORKEY }}
           POEDITOR_PROJECT_ID: ${{ secrets.POEDITORPROJECT }}
       - name: Create branch
-        if: ${{ steps.download-languages.outputs.hasChanges == 'true' }}
+        if: ${{ steps.download-languages.outputs.HAS_CHANGES == 'true' }}
         run: git checkout -B "language-update-${{ github.run_number }}-${{ github.run_attempt }}"
       - name: Add changes and commit
+        if: ${{ steps.download-languages.outputs.HAS_CHANGES == 'true' }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "Update language files"
       - name: Push changes
-        if: ${{ steps.download-languages.outputs.hasChanges == 'true' }}
+        if: ${{ steps.download-languages.outputs.HAS_CHANGES == 'true' }}
         run: |
           git push --set-upstream origin $(git rev-parse --abbrev-ref HEAD)
       # - name: Create Pull Request
-      #   if: ${{ steps.download-languages.outputs.hasChanges == 'true' }}
+      #   if: ${{ steps.download-languages.outputs.HAS_CHANGES == 'true' }}
       #   run: |
       #     gh pr create --title "Language Update ${{ github.run_number }}" \
       #           --body "This PR was created automatically.

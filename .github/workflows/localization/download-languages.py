@@ -68,7 +68,7 @@ def update_locale_file(language):
     # Use "remote-code" if available, otherwise default to "code"
     lang_code = language.get("remoteCode", language["code"])
     if language["code"].lower() == "en":
-        return  # Skip English (do not update)
+        return False # Skip English (do not update)
 
     file_name = language["localeFileName"]
     file_path = os.path.join(LOCALES_DIR, file_name)
@@ -76,7 +76,7 @@ def update_locale_file(language):
     remote_data = fetch_poeditor_language_json(lang_code)
     if remote_data is None:
         print(f"::error::Skipping update for {language['name']} ({lang_code}) due to fetch error.")
-        return
+        return False
 
     # Build new ordered data:
     # 1. Start with keys from local file that exist in remote.
@@ -93,7 +93,7 @@ def update_locale_file(language):
     if updated_data != local_data:
         write_ordered_json(file_path, updated_data)
         print(f"✅ Updated locale file for {language['name']} ({language['code']}).")
-        return False
+        return True
     else:
         print(f"✅ No changes for {language['name']} ({language['code']}).")
         return False
