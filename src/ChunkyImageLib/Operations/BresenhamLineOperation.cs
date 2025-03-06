@@ -7,6 +7,7 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 
 namespace ChunkyImageLib.Operations;
+
 internal class BresenhamLineOperation : IMirroredDrawOperation
 {
     public bool IgnoreEmptyChunks => false;
@@ -21,17 +22,24 @@ internal class BresenhamLineOperation : IMirroredDrawOperation
     {
         this.from = from;
         this.to = to;
-        this.paintable = paintable;
+        this.paintable = paintable.Clone();
+        if (this.paintable is IStartEndPaintable startEndPaintable)
+        {
+            startEndPaintable.Start = from;
+            startEndPaintable.End = to;
+            this.paintable.AbsoluteValues = true;
+        }
+
         this.blendMode = blendMode;
-        paint = new Paint() { BlendMode = blendMode };
+        paint = new Paint() { BlendMode = blendMode, Paintable = paintable };
         points = BresenhamLineHelper.GetBresenhamLine(from, to).Select(v => new VecF(v)).ToArray();
     }
 
     public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
-        // a hacky way to make the lines look slightly better on non full res chunks
         if (paintable is ColorPaintable colorPaintable)
         {
+            // a hacky way to make the lines look slightly better on non full res chunks
             paint.Color = new Color(colorPaintable.Color.R, colorPaintable.Color.G, colorPaintable.Color.B,
                 (byte)(colorPaintable.Color.A * targetChunk.Resolution.Multiplier()));
         }
@@ -63,16 +71,19 @@ internal class BresenhamLineOperation : IMirroredDrawOperation
             newFrom = (RectI)newFrom.ReflectX((double)verAxisX).Round();
             newTo = (RectI)newTo.ReflectX((double)verAxisX).Round();
         }
+
         if (horAxisY is not null)
         {
             newFrom = (RectI)newFrom.ReflectY((double)horAxisY).Round();
             newTo = (RectI)newTo.ReflectY((double)horAxisY).Round();
         }
+
         return new BresenhamLineOperation(newFrom.Pos, newTo.Pos, paintable, blendMode);
     }
 
     public void Dispose()
     {
         paint.Dispose();
+        this.paintable.Dispose();
     }
 }

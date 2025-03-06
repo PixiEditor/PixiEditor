@@ -23,6 +23,7 @@ internal partial class ToolSettingColorPicker : UserControl
     public ToolSettingColorPicker()
     {
         InitializeComponent();
+        ColorPicker.SelectedColor = Colors.White;
         ColorPicker.SecondaryColor = Colors.Black;
         ColorPicker.TemplateApplied += ColorPickerOnTemplateApplied;
     }
