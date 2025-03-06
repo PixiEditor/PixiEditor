@@ -12,7 +12,6 @@ on:
         - Full Sync
         - Download only
         - Upload only
-  pull_request:
 
 permissions:
   contents: write
