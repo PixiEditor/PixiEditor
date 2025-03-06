@@ -10,6 +10,7 @@ LOCAL_FILE_PATH = "src/PixiEditor/Data/Localization/Languages/en.json"
 def upload_en_json():
     if not API_KEY or not PROJECT_ID:
         print("::error::Missing POEDITOR_API_KEY or POEDITOR_PROJECT_ID environment variables.")
+        exit(1)
         return
 
     try:
@@ -39,9 +40,11 @@ def upload_en_json():
         else:
             print("::error::Upload failed:")
             print(result)
+            exit(1)
     else:
         print("::error::HTTP Error:", response.status_code)
         print(response.text)
+        exit(1)
 
 if __name__ == "__main__":
     upload_en_json()

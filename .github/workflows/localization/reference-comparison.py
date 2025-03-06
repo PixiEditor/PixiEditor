@@ -74,6 +74,7 @@ def main():
     remote_json = fetch_poeditor_json()
     if remote_json is None:
         print("::error::Failed to fetch POEditor en.json")
+        exit(1)
         return
     
     local_json = load_local_json()

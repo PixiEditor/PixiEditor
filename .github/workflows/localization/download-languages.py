@@ -156,6 +156,7 @@ def main():
     localization_data = load_ordered_json(LOCALIZATION_DATA_PATH)
     if "Languages" not in localization_data:
         print("::error::'Languages' key not found in LocalizationData.json")
+        exit(1)
         return
     
     has_changes = False
