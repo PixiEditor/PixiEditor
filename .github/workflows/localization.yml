@@ -76,7 +76,7 @@ jobs:
                 --body "This PR was created automatically.
 
                 [GitHub Actions Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})/jobs/${{ github.job }}" \
-                --base main \
+                --base master \
                 --head $(git rev-parse --abbrev-ref HEAD)
           gh pr edit --add-reviewer ${{ github.actor }}
         env:
