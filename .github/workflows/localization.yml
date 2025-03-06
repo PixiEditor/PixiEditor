@@ -50,7 +50,7 @@ jobs:
   download:
     name: "Download changes"
     runs-on: ubuntu-latest
-    if: ${{ inputs.mode != 'Upload only' }} && false
+    if: ${{ inputs.mode == 'Upload only' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
@@ -77,7 +77,7 @@ jobs:
           gh pr create --title "Language Update ${{ github.run_number }}" \
                 --body "This PR was created automatically.
 
-                [GitHub Actions Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})/jobs/${{ github.job }}" \
+                https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}" \
                 --base master \
                 --head $(git rev-parse --abbrev-ref HEAD)
         env:
