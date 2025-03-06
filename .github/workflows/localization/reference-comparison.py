@@ -84,6 +84,7 @@ def main():
 
     with open(GITHUB_OUTPUT, "a") as f:
         f.write(f"HAS_CHANGES={str(has_changes).lower()}")
+        print(f"HAS_CHANGES={str(has_changes).lower()}")
 
     if not has_changes:
         print("✅ No changes detected. Local and remote are in sync.")
