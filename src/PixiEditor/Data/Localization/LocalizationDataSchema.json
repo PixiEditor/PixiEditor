@@ -16,18 +16,21 @@
             "description": "The code associated with the language",
             "minLength": 2
           },
+          "remote-code": {
+            "type": "string",
+            "description": "Code used by POEditor",
+            "minLength": 2
+          },
           "localeFileName": {
             "type": "string",
             "description": "The name of the key-value json file found in Data/Localization/Languages. Must be prepended with extension unique name and : (e.g. pixieditor.sampleExtension:en.json)",
             "pattern": ".*\\.json",
-            "format": "uri",
             "default": ".json"
           },
           "iconFileName": {
             "type": "string",
             "description": "The name of the png icon for the language found in Images/LanguageFlags",
             "pattern": ".*\\.png",
-            "format": "uri",
             "default": ".png"
           },
           "rightToLeft": {
