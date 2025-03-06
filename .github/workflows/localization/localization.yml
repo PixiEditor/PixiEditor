@@ -1,0 +1,27 @@
+name: Language Sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Mode"
+        required: true
+        default: "Full Sync"
+        type: choice
+        options:
+        - Full Sync
+        - Download only
+        - Upload only
+
+jobs:
+  Compare-Upload:
+    runs-on: ubuntu-latest
+    if: ${{ inputs.mode != 'Download only' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+      - name: Compare English
+        run: python .github/workflows/localization/upload-comparison.py
+        env:
+          POEDITOR_API_KEY: ${{ secrets.POEDITORKEY }}
+          POEDITOR_PROJECT_ID: ${{ secrets.POEDITORPROJECT }}
