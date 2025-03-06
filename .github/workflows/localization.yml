@@ -68,4 +68,4 @@ jobs:
           git commit -m "Update language files"
       - name: Push changes
         run: |
-          git push
+          git push --set-upstream origin $(git rev-parse --abbrev-ref HEAD)
