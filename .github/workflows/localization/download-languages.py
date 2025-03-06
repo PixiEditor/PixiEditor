@@ -6,6 +6,7 @@ from datetime import datetime
 
 API_KEY = os.getenv("POEDITOR_API_KEY")
 PROJECT_ID = os.getenv("POEDITOR_PROJECT_ID")
+GITHUB_OUTPUT = os.getenv('GITHUB_OUTPUT')
 
 # POEditor API URLs
 EXPORT_API_URL = "https://api.poeditor.com/v2/projects/export"
@@ -92,8 +93,10 @@ def update_locale_file(language):
     if updated_data != local_data:
         write_ordered_json(file_path, updated_data)
         print(f"✅ Updated locale file for {language['name']} ({language['code']}).")
+        return False
     else:
         print(f"✅ No changes for {language['name']} ({language['code']}).")
+        return False
 
 def fetch_languages_list():
     """
@@ -154,11 +157,17 @@ def main():
     if "Languages" not in localization_data:
         print("::error::'Languages' key not found in LocalizationData.json")
         return
+    
+    has_changes = False
 
     for language in localization_data["Languages"]:
         if language.get("code", "").lower() == "en":
             continue
-        update_locale_file(language)
+        if update_locale_file(language):
+            has_changes = True
+
+    with open(GITHUB_OUTPUT, "a") as f:
+        f.write(f"HAS_CHANGES={str(has_changes).lower()}")
 
     # Update lastUpdated field in LocalizationData.json
     update_localization_data(languages_updates)

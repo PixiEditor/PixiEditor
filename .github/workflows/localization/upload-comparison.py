@@ -4,6 +4,7 @@ import requests
 
 API_KEY = os.getenv("POEDITOR_API_KEY")
 PROJECT_ID = os.getenv("POEDITOR_PROJECT_ID")
+GITHUB_OUTPUT = os.getenv('GITHUB_OUTPUT')
 
 API_URL = "https://api.poeditor.com/v2/projects/export"
 LANGUAGE = "en"
@@ -70,8 +71,6 @@ def print_group(title, items):
         print("::endgroup::")
 
 def main():
-    print("");
-
     remote_json = fetch_poeditor_json()
     if remote_json is None:
         print("::error::Failed to fetch POEditor en.json")
@@ -80,8 +79,12 @@ def main():
     local_json = load_local_json()
     
     modifications, additions, deletions = compare_json(local_json, remote_json)
+    has_changes = (modifications or additions or deletions)
 
-    if not (modifications or additions or deletions):
+    with open(GITHUB_OUTPUT, "a") as f:
+        f.write(f"HAS_CHANGES={str(has_changes).lower()}")
+
+    if not has_changes:
         print("✅ No changes detected. Local and remote are in sync.")
     else:
         print_group("Key(s) Modified", modifications)

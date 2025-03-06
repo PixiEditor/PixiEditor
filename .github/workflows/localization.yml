@@ -14,15 +14,56 @@ on:
         - Upload only
   pull_request:
 
+permissions:
+  contents: write
+
 jobs:
-  Compare-Upload:
+  compare-upload:
+    name: "Compare local English"
     runs-on: ubuntu-latest
+    outputs:
+      hasChanges: ${{ steps.upload-comparison.outputs.HAS_CHANGES }}
     if: ${{ inputs.mode != 'Download only' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
-      - name: Compare English
+      - name: Compare local reference
+        id: upload-comparison
         run: python .github/workflows/localization/upload-comparison.py
         env:
           POEDITOR_API_KEY: ${{ secrets.POEDITORKEY }}
           POEDITOR_PROJECT_ID: ${{ secrets.POEDITORPROJECT }}
+
+  upload:
+    name: "Upload English changes"
+    runs-on: ubuntu-latest
+    needs: compare-upload
+    environment: poeditor
+    if: needs.compare-upload.outputs.hasChanges
+    steps:
+      - name: Upload Changes
+        run: echo "Changes would be uploaded here!"
+
+  download:
+    name: "Download changes"
+    runs-on: ubuntu-latest
+    if: ${{ inputs.mode != 'Upload only' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+      - name: Download languages
+        id: download-languages
+        run: python .github/workflows/localization/download-languages.py
+        env:
+          POEDITOR_API_KEY: ${{ secrets.POEDITORKEY }}
+          POEDITOR_PROJECT_ID: ${{ secrets.POEDITORPROJECT }}
+      - name: Create branch
+        if: steps.download-languages.outputs.HAS_CHANGES
+        run: git checkout -B "language-update-${{ github.run_number }}-${{ github.run_attempt }}"
+      - name: Add changes and commit
+        run: |
+          git add -A
+          git commit -m "Update language files"
+      - name: Push changes
+        run: |
+          git push
