@@ -46,6 +46,9 @@ jobs:
         uses: actions/checkout@v4.2.2
       - name: Upload Changes
         run: python .github/workflows/localization/upload-reference.py
+        env:
+          POEDITOR_API_KEY: ${{ secrets.POEDITORKEY }}
+          POEDITOR_PROJECT_ID: ${{ secrets.POEDITORPROJECT }}
 
   download:
     name: "Download changes"
