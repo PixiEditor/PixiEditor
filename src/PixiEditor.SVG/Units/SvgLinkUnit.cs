@@ -10,7 +10,7 @@ public struct SvgLinkUnit : ISvgUnit
         return ObjectReference != null ? $"url(#{ObjectReference}" : string.Empty;
     }
 
-    public void ValuesFromXml(string readerValue)
+    public void ValuesFromXml(string readerValue, SvgDefs defs)
     {
         if (readerValue.StartsWith("url(#") && readerValue.EndsWith(')'))
         {

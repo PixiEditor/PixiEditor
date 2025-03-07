@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.SVG.Units;
+﻿using PixiEditor.SVG.Elements;
+
+namespace PixiEditor.SVG.Units;
 
 public struct SvgStringUnit : ISvgUnit
 {
@@ -13,7 +15,7 @@ public struct SvgStringUnit : ISvgUnit
         return Value;
     }
 
-    public void ValuesFromXml(string readerValue)
+    public void ValuesFromXml(string readerValue, SvgDefs defs)
     {
         Value = readerValue;
     }

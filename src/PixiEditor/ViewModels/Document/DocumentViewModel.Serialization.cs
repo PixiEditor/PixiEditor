@@ -176,18 +176,8 @@ internal partial class DocumentViewModel
             transform = transform.PostConcat(Matrix3X3.CreateScale((float)resizeFactor.X, (float)resizeFactor.Y));
             primitive.Transform.Unit = new SvgTransformUnit?(new SvgTransformUnit(transform));
 
-            // TODO: add support for other paintables
-            if (data.FillPaintable is ColorPaintable colorPaintable)
-            {
-                primitive.Fill.Unit = SvgColorUnit.FromRgba(colorPaintable.Color.R, colorPaintable.Color.G,
-                    colorPaintable.Color.B, data.Fill ? colorPaintable.Color.A : 0);
-            }
-
-            if (data.Stroke is ColorPaintable strokeColorPaintable)
-            {
-                primitive.Stroke.Unit = SvgColorUnit.FromRgba(strokeColorPaintable.Color.R, strokeColorPaintable.Color.G,
-                    strokeColorPaintable.Color.B, strokeColorPaintable.Color.A);
-            }
+            primitive.Fill.Unit = new SvgPaintServerUnit(data.FillPaintable);
+            primitive.Stroke.Unit = new SvgPaintServerUnit(data.Stroke);
 
             primitive.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(data.StrokeWidth);
         }
@@ -213,11 +203,7 @@ internal partial class DocumentViewModel
         line.X2.Unit = SvgNumericUnit.FromUserUnits(lineData.End.X);
         line.Y2.Unit = SvgNumericUnit.FromUserUnits(lineData.End.Y);
 
-        if (lineData.Stroke is ColorPaintable colorPaintable)
-        {
-            line.Stroke.Unit = SvgColorUnit.FromRgba(colorPaintable.Color.R, colorPaintable.Color.G,
-                colorPaintable.Color.B, colorPaintable.Color.A);
-        }
+        line.Stroke.Unit = new SvgPaintServerUnit(lineData.Stroke);
 
         line.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(lineData.StrokeWidth);
 

@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using PixiEditor.SVG.Elements;
 
 namespace PixiEditor.SVG.Units;
 
@@ -62,7 +63,7 @@ public struct SvgNumericUnit(double value, string postFix) : ISvgUnit
         return $"{invariantValue}{PostFix}";
     }
 
-    public void ValuesFromXml(string readerValue)
+    public void ValuesFromXml(string readerValue, SvgDefs defs)
     {
         string? extractedPostFix = ExtractPostFix(readerValue);
 
@@ -110,5 +111,21 @@ public struct SvgNumericUnit(double value, string postFix) : ISvgUnit
 
 
         return readerValue.Substring(postFixStartIndex);
+    }
+
+    public double NormalizedValue(bool clamp = true)
+    {
+        double value = Value;
+        if (PostFix == "%")
+        {
+            value /= 100;
+        }
+
+        if (clamp)
+        {
+            value = Math.Clamp(value, 0, 1);
+        }
+
+        return value;
     }
 }

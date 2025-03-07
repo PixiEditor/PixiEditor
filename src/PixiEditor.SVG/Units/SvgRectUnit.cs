@@ -1,4 +1,5 @@
 ﻿using Drawie.Numerics;
+using PixiEditor.SVG.Elements;
 
 namespace PixiEditor.SVG.Units;
 
@@ -10,7 +11,7 @@ public struct SvgRectUnit(RectD rect) : ISvgUnit
         return $"{Value.X} {Value.Y} {Value.Width} {Value.Height}";
     }
 
-    public void ValuesFromXml(string readerValue)
+    public void ValuesFromXml(string readerValue, SvgDefs defs)
     {
         string[] values = readerValue.Split(' ');
         

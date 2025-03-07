@@ -1,4 +1,5 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
+using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Exceptions;
 using PixiEditor.SVG.Utils;
 
@@ -57,7 +58,7 @@ public struct SvgColorUnit : ISvgUnit
         return Value;
     }
 
-    public void ValuesFromXml(string readerValue)
+    public void ValuesFromXml(string readerValue, SvgDefs defs)
     {
         Value = readerValue;
     }

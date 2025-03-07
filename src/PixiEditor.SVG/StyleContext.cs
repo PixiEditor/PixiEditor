@@ -1,5 +1,7 @@
-﻿using Drawie.Backend.Core.Numerics;
+﻿using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
+using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
@@ -9,8 +11,8 @@ namespace PixiEditor.SVG;
 public struct StyleContext
 {
     public SvgProperty<SvgNumericUnit> StrokeWidth { get; }
-    public SvgProperty<SvgColorUnit> Stroke { get; }
-    public SvgProperty<SvgColorUnit> Fill { get; }
+    public SvgProperty<SvgPaintServerUnit> Stroke { get; }
+    public SvgProperty<SvgPaintServerUnit> Fill { get; }
     public SvgProperty<SvgNumericUnit> FillOpacity { get; }
     public SvgProperty<SvgTransformUnit> Transform { get; }
     public SvgProperty<SvgEnumUnit<SvgStrokeLineCap>> StrokeLineCap { get; }
@@ -18,6 +20,7 @@ public struct StyleContext
     public SvgProperty<SvgNumericUnit> Opacity { get; }
     public SvgProperty<SvgStyleUnit> InlineStyle { get; set; }
     public VecD ViewboxOrigin { get; set; }
+    public SvgDefs Defs { get; set; }
 
     public StyleContext()
     {
@@ -25,19 +28,20 @@ public struct StyleContext
         Stroke = new("stroke");
         Fill = new("fill");
         FillOpacity = new("fill-opacity");
-        Fill.Unit = new SvgColorUnit?(new SvgColorUnit("black"));
+        Fill.Unit = SvgPaintServerUnit.FromColor(Colors.Black);
         Transform = new("transform");
         StrokeLineCap = new("stroke-linecap");
         StrokeLineJoin = new("stroke-linejoin");
         Opacity = new("opacity");
         InlineStyle = new("style");
+        Defs = new();
     }
 
     public StyleContext(SvgDocument document)
     {
         StrokeWidth = FallbackToCssStyle(document.StrokeWidth, document.Style);
         Stroke = FallbackToCssStyle(document.Stroke, document.Style);
-        Fill = FallbackToCssStyle(document.Fill, document.Style, new SvgColorUnit("black"));
+        Fill = FallbackToCssStyle(document.Fill, document.Style, SvgPaintServerUnit.FromColor(Colors.Black));
         FillOpacity = FallbackToCssStyle(document.FillOpacity, document.Style);
         Transform = FallbackToCssStyle(document.Transform, document.Style, new SvgTransformUnit(Matrix3X3.Identity));
         StrokeLineCap = FallbackToCssStyle(document.StrokeLineCap, document.Style);
@@ -47,6 +51,7 @@ public struct StyleContext
             document.ViewBox.Unit.HasValue ? -document.ViewBox.Unit.Value.Value.X : 0,
             document.ViewBox.Unit.HasValue ? -document.ViewBox.Unit.Value.Value.Y : 0);
         InlineStyle = document.Style;
+        Defs = document.Defs;
     }
 
     public StyleContext WithElement(SvgElement element)
@@ -76,7 +81,7 @@ public struct StyleContext
         if (element is IFillable fillableElement)
         {
             styleContext.Fill.Unit = FallbackToCssStyle(fillableElement.Fill, styleContext.Fill,
-                styleContext.InlineStyle, new SvgColorUnit("black")).Unit;
+                styleContext.InlineStyle, SvgPaintServerUnit.FromColor(Colors.Black)).Unit;
             styleContext.FillOpacity.Unit =
                 FallbackToCssStyle(fillableElement.FillOpacity, styleContext.FillOpacity, styleContext.InlineStyle)
                     .Unit;
@@ -160,6 +165,8 @@ public struct StyleContext
             styleContext.InlineStyle.Unit = InlineStyle.Unit;
         }
 
+        styleContext.Defs = Defs;
+
         return styleContext;
     }
 
@@ -174,7 +181,7 @@ public struct StyleContext
         }
 
         SvgStyleUnit? style = inlineStyle.Unit;
-        return style?.TryGetStyleFor<SvgProperty<TUnit>, TUnit>(property.SvgName)
+        return style?.TryGetStyleFor<SvgProperty<TUnit>, TUnit>(property.SvgName, Defs)
                ?? (fallback.HasValue
                    ? new SvgProperty<TUnit>(property.SvgName) { Unit = fallback.Value }
                    : new SvgProperty<TUnit>(property.SvgName));
@@ -191,7 +198,7 @@ public struct StyleContext
         }
 
         SvgStyleUnit? style = inlineStyle.Unit;
-        var styleProp = style?.TryGetStyleFor<SvgProperty<TUnit>, TUnit>(property.SvgName);
+        var styleProp = style?.TryGetStyleFor<SvgProperty<TUnit>, TUnit>(property.SvgName, Defs);
         if (styleProp != null) return styleProp;
         if(parentStyleProperty.Unit != null)
         {

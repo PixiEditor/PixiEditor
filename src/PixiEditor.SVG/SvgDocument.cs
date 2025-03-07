@@ -1,20 +1,21 @@
 ﻿using System.Xml;
 using System.Xml.Linq;
 using Drawie.Numerics;
+using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG;
 
-public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFillable, IStrokable, IOpacity
+public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFillable, IStrokable, IOpacity, IDefsStorage
 {
     public string RootNamespace { get; set; } = "http://www.w3.org/2000/svg";
     public string Version { get; set; } = "1.1";
 
     public SvgProperty<SvgRectUnit> ViewBox { get; } = new("viewBox");
-    public SvgProperty<SvgColorUnit> Fill { get; } = new("fill");
-    public SvgProperty<SvgColorUnit> Stroke { get; } = new("stroke");
+    public SvgProperty<SvgPaintServerUnit> Fill { get; } = new("fill");
+    public SvgProperty<SvgPaintServerUnit> Stroke { get; } = new("stroke");
     public SvgProperty<SvgNumericUnit> StrokeWidth { get; } = new("stroke-width");
 
     public SvgProperty<SvgEnumUnit<SvgStrokeLineCap>> StrokeLineCap { get; } = new("stroke-linecap");
@@ -23,6 +24,8 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
     public SvgProperty<SvgTransformUnit> Transform { get; } = new("transform");
     public SvgProperty<SvgNumericUnit> Opacity { get; } = new("opacity");
     public SvgProperty<SvgNumericUnit> FillOpacity { get; } = new("fill-opacity");
+
+    public SvgDefs Defs { get; set; } = new();
     public List<SvgElement> Children { get; } = new();
 
     public SvgDocument() : base("svg")
@@ -34,7 +37,7 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
         ViewBox.Unit = new SvgRectUnit(viewBox);
     }
 
-    public override void ParseData(XmlReader reader)
+    public override void ParseData(XmlReader reader, SvgDefs defs)
     {
         List<SvgProperty> properties = new()
         {
@@ -46,10 +49,10 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
             ViewBox,
             StrokeLineCap,
             StrokeLineJoin,
-            Opacity
+            Opacity,
         };
 
-        ParseAttributes(properties, reader);
+        ParseAttributes(properties, reader, defs); // TODO: merge with Defs?
     }
 
     public string ToXml()

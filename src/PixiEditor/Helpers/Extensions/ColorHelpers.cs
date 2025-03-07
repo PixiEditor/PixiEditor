@@ -53,6 +53,10 @@ internal static class ColorHelpers
             radialGradientBrush.RadiusX.Scalar,
             radialGradientBrush.GradientStops.Select(stop =>
                 new GradientStop(new BackendColor(stop.Color.R, stop.Color.G, stop.Color.B), stop.Offset))),
+        IConicGradientBrush conicGradientBrush => new SweepGradientPaintable(
+            new VecD(conicGradientBrush.Center.Point.X, conicGradientBrush.Center.Point.Y),
+            conicGradientBrush.GradientStops.Select(stop =>
+                new GradientStop(new BackendColor(stop.Color.R, stop.Color.G, stop.Color.B), stop.Offset))),
 
     };
 
@@ -71,6 +75,11 @@ internal static class ColorHelpers
             RadiusX = new RelativeScalar(radialGradientPaintable.Radius, RelativeUnit.Absolute),
             RadiusY = new RelativeScalar(radialGradientPaintable.Radius, RelativeUnit.Absolute),
             GradientStops = ToAvaloniaGradientStops(radialGradientPaintable.GradientStops)
+        },
+        SweepGradientPaintable conicGradientPaintable => new ConicGradientBrush
+        {
+            Center = new RelativePoint(conicGradientPaintable.Center.X, conicGradientPaintable.Center.Y, RelativeUnit.Absolute),
+            GradientStops = ToAvaloniaGradientStops(conicGradientPaintable.GradientStops)
         },
         _ => throw new NotImplementedException()
     };
