@@ -25,7 +25,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
     protected double StrokeWidth => toolbar.ToolSize;
 
     protected Paintable FillPaintable =>
-        toolbar.Fill ? toolbar.FillBrush.ToPaintable() : Colors.Transparent;
+        toolbar.Fill ? toolbar.FillBrush?.ToPaintable() : Colors.Transparent;
 
     protected Paintable StrokePaintable => toolbar.StrokeBrush.ToPaintable();
     protected bool drawOnMask;
@@ -96,7 +96,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
             toolbar.StrokeBrush = shapeData.Stroke.ToBrush();
             toolbar.FillBrush = shapeData.FillPaintable.ToBrush();
             toolbar.ToolSize = shapeData.StrokeWidth;
-            toolbar.Fill = shapeData.FillPaintable is ColorPaintable cp && cp.Color != Colors.Transparent;
+            toolbar.Fill = shapeData.FillPaintable.AnythingVisible;
             initialCorners = shapeData.TransformationCorners;
 
             ShapeCorners corners = vectorLayerHandler.TransformationCorners;
