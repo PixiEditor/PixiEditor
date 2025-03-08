@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "./LocalizationDataSchema.json",
   "Languages": [
     {
@@ -13,21 +13,21 @@
       "code": "pl",
       "localeFileName": "pl.json",
       "iconFileName": "pl.png",
-      "lastUpdated": "2023-05-24 21:30:08"
+      "lastUpdated": "2025-01-10 16:27:36"
     },
     {
       "name": "Deutsch",
       "code": "de",
       "localeFileName": "de.json",
       "iconFileName": "de.png",
-      "lastUpdated": "2023-05-09 16:10:00"
+      "lastUpdated": "2025-01-10 16:14:53"
     },
     {
       "name": "Español",
       "code": "es",
       "localeFileName": "es.json",
       "iconFileName": "es.png",
-      "lastUpdated": "2023-05-17 18:46:19"
+      "lastUpdated": "2023-05-17 16:46:19"
     },
     {
       "name": "中文",
@@ -42,14 +42,14 @@
       "code": "ru",
       "localeFileName": "ru.json",
       "iconFileName": "ru.png",
-      "lastUpdated": "2023-05-15 00:49:58"
+      "lastUpdated": "2025-02-14 00:56:55"
     },
     {
       "name": "Українська",
       "code": "uk",
       "localeFileName": "uk.json",
       "iconFileName": "uk.png",
-      "lastUpdated": "2023-05-18 17:47:07"
+      "lastUpdated": "2025-01-10 17:55:45"
     },
     {
       "name": "عربي",
@@ -57,28 +57,28 @@
       "localeFileName": "ar.json",
       "iconFileName": "ar.png",
       "rightToLeft": true,
-      "lastUpdated": "2023-05-20 11:59:21"
+      "lastUpdated": "2024-07-25 16:37:09"
     },
     {
       "name": "Čeština",
       "code": "cs",
       "localeFileName": "cs.json",
       "iconFileName": "cs.png",
-      "lastUpdated": "2023-05-07 14:01:25"
+      "lastUpdated": "2025-02-11 21:40:35"
     },
     {
       "name": "Português (Brasil)",
       "code": "pt-br",
       "localeFileName": "pt-br.json",
       "iconFileName": "pt-br.png",
-      "lastUpdated": "2023-05-15 09:13:45"
+      "lastUpdated": "2023-07-06 02:00:39"
     },
     {
       "name": "Magyar",
       "code": "hu",
       "localeFileName": "hu.json",
       "iconFileName": "hu.png",
-      "lastUpdated": "2023-05-09 00:07:37"
+      "lastUpdated": "2023-05-08 22:07:37"
     }
   ]
 }
