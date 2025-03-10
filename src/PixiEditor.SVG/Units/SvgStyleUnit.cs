@@ -37,7 +37,7 @@ public struct SvgStyleUnit : ISvgUnit
         }
     }
 
-    public string ToXml()
+    public string ToXml(DefStorage defs)
     {
         return Value;
     }

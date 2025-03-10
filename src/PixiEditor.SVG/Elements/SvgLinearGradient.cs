@@ -18,7 +18,7 @@ public class SvgLinearGradient() : SvgElement("linearGradient"), IElementContain
     public SvgProperty<SvgNumericUnit> X2 { get; } = new("x2");
     public SvgProperty<SvgNumericUnit> Y2 { get; } = new("y2");
     public SvgProperty<SvgEnumUnit<SvgSpreadMethod>> SpreadMethod { get; } = new("spreadMethod");
-    public SvgProperty<SvgEnumUnit<SvgGradientUnit>> GradientUnits { get; } = new("gradientUnits");
+    public SvgProperty<SvgEnumUnit<SvgRelativityUnit>> GradientUnits { get; } = new("gradientUnits");
 
     public override void ParseData(XmlReader reader, SvgDefs defs)
     {
@@ -58,13 +58,12 @@ public class SvgLinearGradient() : SvgElement("linearGradient"), IElementContain
             }
         }
 
-        var unit = GetUnit(GradientUnits)?.Value ?? SvgGradientUnit.ObjectBoundingBox;
+        var unit = GetUnit(GradientUnits)?.Value ?? SvgRelativityUnit.ObjectBoundingBox;
         var transform = GetUnit(GradientTransform)?.MatrixValue ?? Matrix3X3.Identity;
 
-        // TODO: Implement gradient transform, spread method and gradient units
         return new LinearGradientPaintable(start, end, gradientStops)
         {
-            AbsoluteValues = unit == SvgGradientUnit.UserSpaceOnUse,
+            AbsoluteValues = unit == SvgRelativityUnit.UserSpaceOnUse,
             Transform = transform
         };
     }

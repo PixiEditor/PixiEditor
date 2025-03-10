@@ -19,7 +19,7 @@ public class SvgRadialGradient() : SvgElement("radialGradient"), IElementContain
     public SvgProperty<SvgNumericUnit> Fx { get; } = new("fx");
     public SvgProperty<SvgNumericUnit> Fy { get; } = new("fy");
     public SvgProperty<SvgEnumUnit<SvgSpreadMethod>> SpreadMethod { get; } = new("spreadMethod");
-    public SvgProperty<SvgEnumUnit<SvgGradientUnit>> GradientUnits { get; } = new("gradientUnits");
+    public SvgProperty<SvgEnumUnit<SvgRelativityUnit>> GradientUnits { get; } = new("gradientUnits");
 
     public override void ParseData(XmlReader reader, SvgDefs defs)
     {
@@ -61,13 +61,13 @@ public class SvgRadialGradient() : SvgElement("radialGradient"), IElementContain
             }
         }
 
-        var unit = GetUnit(GradientUnits)?.Value ?? SvgGradientUnit.ObjectBoundingBox;
+        var unit = GetUnit(GradientUnits)?.Value ?? SvgRelativityUnit.ObjectBoundingBox;
         var transform = GetUnit(GradientTransform)?.MatrixValue ?? Matrix3X3.Identity;
 
         RadialGradientPaintable radialGradientPaintable =
             new(center, radius, gradientStops)
             {
-                AbsoluteValues = unit == SvgGradientUnit.UserSpaceOnUse,
+                AbsoluteValues = unit == SvgRelativityUnit.UserSpaceOnUse,
                 Transform = transform
             };
 

@@ -5,7 +5,7 @@ namespace PixiEditor.SVG.Units;
 public struct SvgLinkUnit : ISvgUnit
 {
     public string? ObjectReference { get; set; } 
-    public string ToXml()
+    public string ToXml(DefStorage defs)
     {
         return ObjectReference != null ? $"url(#{ObjectReference}" : string.Empty;
     }

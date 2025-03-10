@@ -9,7 +9,7 @@ namespace PixiEditor.Models.Serialization.Factories;
 
 public abstract class VectorShapeSerializationFactory<T> : SerializationFactory<byte[], T> where T : ShapeVectorData
 {
-    private static List<SerializationFactory> paintableFactories;
+    private static List<SerializationFactory>? paintableFactories = null;
     private static List<SerializationFactory> PaintableFactories => paintableFactories ??= GatherPaintableFactories();
 
     private static List<SerializationFactory> GatherPaintableFactories()
@@ -20,7 +20,7 @@ public abstract class VectorShapeSerializationFactory<T> : SerializationFactory<
 
         foreach (Type type in types)
         {
-            if (type.IsSubclassOf(typeof(IPaintableSerializationFactory)))
+            if (type.IsAssignableTo(typeof(IPaintableSerializationFactory)) && type is { IsAbstract: false, IsInterface: false })
             {
                 factories.Add((SerializationFactory)Activator.CreateInstance(type));
             }

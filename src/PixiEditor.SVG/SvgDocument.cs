@@ -69,16 +69,25 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
 
         GatherRequiredNamespaces(usedNamespaces, Children);
 
-        foreach (var usedNamespace in usedNamespaces)
-        {
-            document.Root.Add(new XAttribute(XNamespace.Xmlns + usedNamespace.Key, usedNamespace.Value));
-        }
+        DefStorage defs = new(this);
 
-        AppendProperties(document.Root);
+        AppendProperties(document.Root, defs);
+
 
         foreach (SvgElement child in Children)
         {
-            document.Root.Add(child.ToXml(ns));
+            document.Root.Add(child.ToXml(ns, defs));
+        }
+
+        if (Defs?.Children.Count > 0)
+        {
+            document.Root.Add(Defs.ToXml(ns, defs));
+            GatherRequiredNamespaces(usedNamespaces, Defs.Children);
+        }
+
+        foreach (var usedNamespace in usedNamespaces)
+        {
+            document.Root.Add(new XAttribute(XNamespace.Xmlns + usedNamespace.Key, usedNamespace.Value));
         }
 
         return document.ToString();
@@ -106,41 +115,41 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
         }
     }
 
-    private void AppendProperties(XElement? root)
+    private void AppendProperties(XElement? root, DefStorage defs)
     {
         if (ViewBox.Unit != null)
         {
-            root.Add(new XAttribute("viewBox", ViewBox.Unit.Value.ToXml()));
+            root.Add(new XAttribute("viewBox", ViewBox.Unit.Value.ToXml(defs)));
         }
 
         if (Fill.Unit != null)
         {
-            root.Add(new XAttribute("fill", Fill.Unit.Value.ToXml()));
+            root.Add(new XAttribute("fill", Fill.Unit.Value.ToXml(defs)));
         }
 
         if (Stroke.Unit != null)
         {
-            root.Add(new XAttribute("stroke", Stroke.Unit.Value.ToXml()));
+            root.Add(new XAttribute("stroke", Stroke.Unit.Value.ToXml(defs)));
         }
 
         if (StrokeWidth.Unit != null)
         {
-            root.Add(new XAttribute("stroke-width", StrokeWidth.Unit.Value.ToXml()));
+            root.Add(new XAttribute("stroke-width", StrokeWidth.Unit.Value.ToXml(defs)));
         }
 
         if (Transform.Unit != null)
         {
-            root.Add(new XAttribute("transform", Transform.Unit.Value.ToXml()));
+            root.Add(new XAttribute("transform", Transform.Unit.Value.ToXml(defs)));
         }
 
         if (StrokeLineCap.Unit != null)
         {
-            root.Add(new XAttribute("stroke-linecap", StrokeLineCap.Unit.Value.ToXml()));
+            root.Add(new XAttribute("stroke-linecap", StrokeLineCap.Unit.Value.ToXml(defs)));
         }
 
         if (StrokeLineJoin.Unit != null)
         {
-            root.Add(new XAttribute("stroke-linejoin", StrokeLineJoin.Unit.Value.ToXml()));
+            root.Add(new XAttribute("stroke-linejoin", StrokeLineJoin.Unit.Value.ToXml(defs)));
         }
     }
 }

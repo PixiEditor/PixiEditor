@@ -57,7 +57,7 @@ public struct SvgNumericUnit(double value, string postFix) : ISvgUnit
         return new SvgNumericUnit(value, "%");
     }
 
-    public string ToXml()
+    public string ToXml(DefStorage defs)
     {
         string invariantValue = Value.ToString(CultureInfo.InvariantCulture);
         return $"{invariantValue}{PostFix}";

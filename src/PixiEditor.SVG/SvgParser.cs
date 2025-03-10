@@ -25,7 +25,8 @@ public class SvgParser
         { "linearGradient", typeof(SvgLinearGradient) },
         { "radialGradient", typeof(SvgRadialGradient) },
         { "stop", typeof(SvgStop) },
-        { "defs", typeof(SvgDefs) }
+        { "defs", typeof(SvgDefs) },
+        { "clipPath", typeof(SvgClipPath) }
     };
 
     public string Source { get; set; }

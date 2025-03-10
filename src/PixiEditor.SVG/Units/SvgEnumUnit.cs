@@ -14,7 +14,7 @@ public struct SvgEnumUnit<T> : ISvgUnit where T : struct, Enum
         Value = value;
     }
 
-    public string ToXml()
+    public string ToXml(DefStorage defs)
     {
         FieldInfo field = Value.GetType().GetField(Value.ToString());
         SvgValueAttribute attribute = field.GetCustomAttribute<SvgValueAttribute>();

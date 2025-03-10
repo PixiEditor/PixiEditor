@@ -18,7 +18,7 @@ public struct SvgTransformUnit : ISvgUnit
         MatrixValue = matrixValue;
     }
 
-    public string ToXml()
+    public string ToXml(DefStorage defs)
     {
         string translateX = MatrixValue.TransX.ToString(CultureInfo.InvariantCulture);
         string translateY = MatrixValue.TransY.ToString(CultureInfo.InvariantCulture);

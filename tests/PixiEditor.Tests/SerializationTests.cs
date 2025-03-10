@@ -1,5 +1,8 @@
+using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Skia;
+using DrawiEngine;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.Models.Serialization;
@@ -11,6 +14,17 @@ namespace PixiEditor.Tests;
 
 public class SerializationTests
 {
+    public SerializationTests()
+    {
+        if (DrawingBackendApi.HasBackend)
+        {
+            return;
+        }
+
+        SkiaDrawingBackend skiaDrawingBackend = new SkiaDrawingBackend();
+        DrawingBackendApi.SetupBackend(skiaDrawingBackend, new DrawieRenderingDispatcher());
+    }
+
     [Fact]
     public void TestThatAllPaintablesHaveFactories()
     {

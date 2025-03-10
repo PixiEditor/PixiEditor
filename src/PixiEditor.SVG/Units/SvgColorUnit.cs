@@ -53,7 +53,7 @@ public struct SvgColorUnit : ISvgUnit
         return new SvgColorUnit($"hsla({h},{s}%,{l}%,{a})");
     }
 
-    public string ToXml()
+    public string ToXml(DefStorage defs)
     {
         return Value;
     }

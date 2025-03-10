@@ -16,7 +16,7 @@ public class SvgElement(string tagName)
 
     public SvgProperty<SvgStyleUnit> Style { get; } = new("style");
 
-    public XElement ToXml(XNamespace nameSpace)
+    public XElement ToXml(XNamespace nameSpace, DefStorage defs)
     {
         XElement element = new XElement(nameSpace + TagName);
 
@@ -29,18 +29,18 @@ public class SvgElement(string tagName)
                 {
                     if (string.IsNullOrEmpty(prop.SvgName))
                     {
-                        element.Value = prop.Unit.ToXml();
+                        element.Value = prop.Unit.ToXml(defs);
                     }
                     else
                     {
                         if (!string.IsNullOrEmpty(prop.NamespaceName))
                         {
                             XName name = XNamespace.Get(RequiredNamespaces[prop.NamespaceName]) + prop.SvgName;
-                            element.Add(new XAttribute(name, prop.Unit.ToXml()));
+                            element.Add(new XAttribute(name, prop.Unit.ToXml(defs)));
                         }
                         else
                         {
-                            element.Add(new XAttribute(prop.SvgName, prop.Unit.ToXml()));
+                            element.Add(new XAttribute(prop.SvgName, prop.Unit.ToXml(defs)));
                         }
                     }
                 }
@@ -51,7 +51,7 @@ public class SvgElement(string tagName)
         {
             foreach (SvgElement child in container.Children)
             {
-                element.Add(child.ToXml(nameSpace));
+                element.Add(child.ToXml(nameSpace, defs));
             }
         }
 
