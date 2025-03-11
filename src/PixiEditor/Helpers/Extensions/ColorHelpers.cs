@@ -55,6 +55,7 @@ internal static class ColorHelpers
                 new GradientStop(new BackendColor(stop.Color.R, stop.Color.G, stop.Color.B), stop.Offset))),
         IConicGradientBrush conicGradientBrush => new SweepGradientPaintable(
             new VecD(conicGradientBrush.Center.Point.X, conicGradientBrush.Center.Point.Y),
+            conicGradientBrush.Angle,
             conicGradientBrush.GradientStops.Select(stop =>
                 new GradientStop(new BackendColor(stop.Color.R, stop.Color.G, stop.Color.B), stop.Offset))),
 
@@ -78,6 +79,7 @@ internal static class ColorHelpers
         },
         SweepGradientPaintable conicGradientPaintable => new ConicGradientBrush
         {
+            Angle = conicGradientPaintable.Angle,
             Center = new RelativePoint(conicGradientPaintable.Center.X, conicGradientPaintable.Center.Y, RelativeUnit.Absolute),
             GradientStops = ToAvaloniaGradientStops(conicGradientPaintable.GradientStops)
         },

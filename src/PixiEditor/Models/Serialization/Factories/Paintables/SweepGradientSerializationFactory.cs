@@ -10,13 +10,15 @@ internal class SweepGradientSerializationFactory : GradientPaintableSerializatio
     protected override void SerializeSpecificGradient(SweepGradientPaintable paintable, ByteBuilder builder)
     {
         builder.AddVecD(paintable.Center);
+        builder.AddDouble(paintable.Angle);
     }
 
     protected override SweepGradientPaintable DeserializeGradient(bool absoluteValues, Matrix3X3? transform, List<GradientStop> stops,
         ByteExtractor extractor)
     {
         VecD center = extractor.GetVecD();
+        double angle = extractor.GetDouble();
 
-        return new SweepGradientPaintable(center, stops) { AbsoluteValues = absoluteValues, Transform = transform };
+        return new SweepGradientPaintable(center, angle, stops) { AbsoluteValues = absoluteValues, Transform = transform };
     }
 }
