@@ -200,6 +200,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         if (initialized)
         {
+            surface.Dispose();
             await FreeGraphicsResources();
         }
 

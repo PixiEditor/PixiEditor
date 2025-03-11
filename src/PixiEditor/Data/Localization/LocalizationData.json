@@ -32,6 +32,7 @@
     {
       "name": "中文",
       "code": "zh",
+      "remoteCode": "zh-CN",
       "localeFileName": "zh.json",
       "iconFileName": "zh.png",
       "lastUpdated": "2023-05-15 03:23:28"
