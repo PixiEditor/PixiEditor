@@ -56,7 +56,7 @@ public abstract class VectorShapeSerializationFactory<T> : SerializationFactory<
 
         bool fileIsPrePaintables = serializerData.serializerName == "PixiEditor"
                                    && Version.TryParse(serializerData.serializerVersion, out Version version)
-                                   && version is { Major: 2, Minor: 0, Build: 0, Revision: < 61 };
+                                   && version is { Major: 2, Minor: 0, Build: 0, Revision: < 62 };
 
         ByteExtractor extractor = new ByteExtractor(data);
 
