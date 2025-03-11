@@ -12,6 +12,7 @@
     <Grid HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
         <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}"/>
         <colorPicker:PortableColorPicker
+            EnableGradientsTab="False"
             PointerPressed="InputElement_OnPointerPressed"
             Width="40" Height="20"
             IsVisible="{Binding ShowInputField}"
