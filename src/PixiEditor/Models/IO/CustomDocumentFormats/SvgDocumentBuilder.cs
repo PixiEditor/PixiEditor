@@ -272,8 +272,8 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             return;
         }
 
-        bool hasFill = styleContext.Fill.Unit is { Color.A: > 0 };
-        bool hasStroke = styleContext.Stroke.Unit is { Color.A: > 0 } || styleContext.StrokeWidth.Unit is { PixelsValue: > 0 };
+        bool hasFill = styleContext.Fill.Unit?.Paintable is { AnythingVisible: true };
+        bool hasStroke = styleContext.Stroke.Unit?.Paintable is { AnythingVisible: true } || styleContext.StrokeWidth.Unit is { PixelsValue: > 0 };
         bool hasTransform = styleContext.Transform.Unit is { MatrixValue.IsIdentity: false };
 
         shapeData.Fill = hasFill;
@@ -281,7 +281,9 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         {
             var target = styleContext.Fill.Unit;
             float opacity = (float)(styleContext.FillOpacity.Unit?.Value ?? 1);
-            shapeData.FillColor = target.Value.Color.WithAlpha((byte)(Math.Clamp(opacity, 0, 1) * 255));
+            opacity = Math.Clamp(opacity, 0, 1);
+            shapeData.FillPaintable = target.Value.Paintable;
+            shapeData.FillPaintable?.ApplyOpacity(opacity);
         }
 
         if (hasStroke)
@@ -289,7 +291,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             var targetColor = styleContext.Stroke.Unit;
             var targetWidth = styleContext.StrokeWidth.Unit;
 
-            shapeData.StrokeColor = targetColor?.Color ?? Colors.Black;
+            shapeData.Stroke = targetColor?.Paintable ?? Colors.Black;
             shapeData.StrokeWidth = (float)(targetWidth?.PixelsValue ?? 1);
         }
 

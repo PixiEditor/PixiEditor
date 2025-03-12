@@ -1,7 +1,10 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿using Avalonia.Media;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Actions;
-using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
@@ -10,6 +13,8 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.Views.Overlays.TransformOverlay;
+using Color = Drawie.Backend.Core.ColorsImpl.Color;
+using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -19,10 +24,10 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 {
     protected double StrokeWidth => toolbar.ToolSize;
 
-    protected Color FillColor =>
-        toolbar.Fill ? toolbar.FillColor.ToColor() : Colors.Transparent;
+    protected Paintable FillPaintable =>
+        toolbar.Fill ? toolbar.FillBrush?.ToPaintable() : Colors.Transparent;
 
-    protected Color StrokeColor => toolbar.StrokeColor.ToColor();
+    protected Paintable StrokePaintable => toolbar.StrokeBrush.ToPaintable();
     protected bool drawOnMask;
 
     protected T? toolViewModel;
@@ -34,13 +39,13 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
     protected IFillableShapeToolbar toolbar;
     private IColorsHandler? colorsVM;
     private bool ignoreNextColorChange = false;
-    
+
     protected abstract bool UseGlobalUndo { get; }
     protected abstract bool ShowApplyButton { get; }
 
     public override bool CanUndo => !UseGlobalUndo && document.TransformHandler.HasUndo;
     public override bool CanRedo => !UseGlobalUndo && document.TransformHandler.HasRedo;
-    
+
     public override ExecutionState Start()
     {
         if (base.Start() == ExecutionState.Error)
@@ -57,13 +62,13 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
             return ExecutionState.Error;
         if (!drawOnMask && member is not ILayerHandler)
             return ExecutionState.Error;
-        
+
         if (ActiveMode == ShapeToolMode.Drawing)
         {
             if (toolbar.SyncWithPrimaryColor)
             {
-                toolbar.FillColor = colorsVM.PrimaryColor.ToColor();
-                toolbar.StrokeColor = colorsVM.PrimaryColor.ToColor();
+                toolbar.FillBrush = new SolidColorBrush(colorsVM.PrimaryColor.ToColor());
+                toolbar.StrokeBrush = new SolidColorBrush(colorsVM.PrimaryColor.ToColor());
                 ignoreNextColorChange = colorsVM.ColorsTempSwapped;
             }
 
@@ -74,7 +79,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
             document.TransformHandler.ShowHandles = false;
             document.TransformHandler.IsSizeBoxEnabled = true;
             document.TransformHandler.CanAlignToPixels = AlignToPixels;
-            
+
             return ExecutionState.Success;
         }
 
@@ -88,12 +93,12 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
                 return ExecutionState.Success;
             }
 
-            toolbar.StrokeColor = shapeData.StrokeColor.ToColor();
-            toolbar.FillColor = shapeData.FillColor.ToColor();
+            toolbar.StrokeBrush = shapeData.Stroke.ToBrush();
+            toolbar.FillBrush = shapeData.FillPaintable.ToBrush();
             toolbar.ToolSize = shapeData.StrokeWidth;
-            toolbar.Fill = shapeData.FillColor != Colors.Transparent;
+            toolbar.Fill = shapeData.FillPaintable.AnythingVisible;
             initialCorners = shapeData.TransformationCorners;
-            
+
             ShapeCorners corners = vectorLayerHandler.TransformationCorners;
             document.TransformHandler.ShowTransform(
                 TransformMode, false, corners, false, UseGlobalUndo ? AddToUndo : null);
@@ -155,8 +160,8 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
     {
         var rect = RectD.FromCenterAndSize(corners.RectCenter, corners.RectSize);
         ShapeData shapeData = new ShapeData(rect.Center, rect.Size, corners.RectRotation, (float)StrokeWidth,
-            StrokeColor,
-            FillColor) { AntiAliasing = toolbar.AntiAliasing };
+            StrokePaintable,
+            FillPaintable) { AntiAliasing = toolbar.AntiAliasing };
         return shapeData;
     }
 
@@ -168,8 +173,16 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
         internals!.ActionAccumulator.AddFinishedActions(EndDrawAction());
         document!.TransformHandler.HideTransform();
 
-        colorsVM.AddSwatch(StrokeColor.ToPaletteColor());
-        colorsVM.AddSwatch(FillColor.ToPaletteColor());
+        // TODO: Add other paintables support
+        if (StrokePaintable is ColorPaintable strokeColor)
+        {
+            colorsVM.AddSwatch(strokeColor.Color.ToPaletteColor());
+        }
+
+        if (FillPaintable is ColorPaintable fillColor)
+        {
+            colorsVM.AddSwatch(fillColor.Color.ToPaletteColor());
+        }
 
         base.OnTransformApplied();
     }
@@ -188,8 +201,8 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
         ignoreNextColorChange = ActiveMode == ShapeToolMode.Drawing;
 
-        toolbar.StrokeColor = color.ToColor();
-        toolbar.FillColor = color.ToColor();
+        toolbar.StrokeBrush = new SolidColorBrush(color.ToColor());
+        toolbar.FillBrush = new SolidColorBrush(color.ToColor());
     }
 
     public override void OnSelectedObjectNudged(VecI distance)
@@ -255,7 +268,8 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
         startDrawingPos = startPos;
 
-        document!.TransformHandler.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect), false, UseGlobalUndo ? AddToUndo : null);
+        document!.TransformHandler.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect), false,
+            UseGlobalUndo ? AddToUndo : null);
         document.TransformHandler.CanAlignToPixels = AlignToPixels;
         document!.TransformHandler.Corners = new ShapeCorners((RectD)lastRect);
     }
@@ -370,7 +384,8 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
         if (mode == ShapeToolMode.Transform)
         {
             document.TransformHandler.HideTransform();
-            document!.TransformHandler.ShowTransform(TransformMode, false, initialCorners, ShowApplyButton, UseGlobalUndo ? AddToUndo : null);
+            document!.TransformHandler.ShowTransform(TransformMode, false, initialCorners, ShowApplyButton,
+                UseGlobalUndo ? AddToUndo : null);
             document.TransformHandler.CanAlignToPixels = AlignToPixels;
         }
     }
@@ -385,12 +400,13 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
     {
         document!.TransformHandler.HideTransform();
     }
-    
+
     private void AddToUndo(ShapeCorners corners)
     {
         if (UseGlobalUndo)
         {
-            internals!.ActionAccumulator.AddFinishedActions(EndDrawAction(), TransformMovedAction(ShapeDataFromCorners(corners), corners), EndDrawAction());
+            internals!.ActionAccumulator.AddFinishedActions(EndDrawAction(),
+                TransformMovedAction(ShapeDataFromCorners(corners), corners), EndDrawAction());
         }
     }
 }

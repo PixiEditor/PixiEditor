@@ -1,6 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.Common;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -15,8 +16,8 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
 
     public Matrix3X3 TransformationMatrix { get; set; } = Matrix3X3.Identity;
 
-    public Color StrokeColor { get; set; } = Colors.White;
-    public Color FillColor { get; set; } = Colors.White;
+    public Paintable Stroke { get; set; } = Colors.White;
+    public Paintable FillPaintable { get; set; } = Colors.White;
 
     public float StrokeWidth
     {
@@ -53,8 +54,8 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
     {
         HashCode hash = new();
         hash.Add(TransformationMatrix);
-        hash.Add(StrokeColor);
-        hash.Add(FillColor);
+        hash.Add(Stroke);
+        hash.Add(FillPaintable);
         hash.Add(StrokeWidth);
         hash.Add(Fill);
         hash.Add(GetSpecificHash());

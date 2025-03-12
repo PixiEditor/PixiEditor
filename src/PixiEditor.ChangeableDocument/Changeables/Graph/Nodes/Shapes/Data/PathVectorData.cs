@@ -59,17 +59,17 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
             IsAntiAliased = true, StrokeJoin = StrokeLineJoin, StrokeCap = StrokeLineCap
         };
 
-        if (Fill && FillColor.A > 0)
+        if (Fill && FillPaintable.AnythingVisible)
         {
-            paint.Color = FillColor;
+            paint.SetPaintable(FillPaintable);
             paint.Style = PaintStyle.Fill;
 
             canvas.DrawPath(Path, paint);
         }
 
-        if (StrokeWidth > 0)
+        if (StrokeWidth > 0 && Stroke.AnythingVisible)
         {
-            paint.Color = StrokeColor;
+            paint.SetPaintable(Stroke);
             paint.Style = PaintStyle.Stroke;
             paint.StrokeWidth = StrokeWidth;
             

@@ -2,6 +2,8 @@
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.IO;
 using Drawie.Numerics;
+using PixiEditor.Helpers;
+using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Models.Files;
@@ -32,8 +34,9 @@ internal class PixiFileType : IoFileType
         {
             return SaveResult.IoError;
         }
-        catch
+        catch (Exception e)
         {
+            CrashHelper.SendExceptionInfo(e);
             return SaveResult.UnknownError;
         }
 

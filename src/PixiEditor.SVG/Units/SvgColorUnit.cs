@@ -1,4 +1,5 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
+using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Exceptions;
 using PixiEditor.SVG.Utils;
 
@@ -52,12 +53,12 @@ public struct SvgColorUnit : ISvgUnit
         return new SvgColorUnit($"hsla({h},{s}%,{l}%,{a})");
     }
 
-    public string ToXml()
+    public string ToXml(DefStorage defs)
     {
         return Value;
     }
 
-    public void ValuesFromXml(string readerValue)
+    public void ValuesFromXml(string readerValue, SvgDefs defs)
     {
         Value = readerValue;
     }

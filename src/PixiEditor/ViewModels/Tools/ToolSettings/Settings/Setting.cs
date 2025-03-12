@@ -84,6 +84,11 @@ internal abstract class Setting : ObservableObject
         }
     }
 
+    protected void InvokeValueChanged()
+    {
+        ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<object>(_value, _value));
+    }
+
     public bool IsExposed
     {
         get => hasOverwrittenExposed ? overwrittenExposed : isExposed;

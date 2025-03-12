@@ -14,9 +14,9 @@ public class SvgText() : SvgPrimitive("text")
     public SvgProperty<SvgEnumUnit<SvgFontWeight>> FontWeight { get; } = new("font-weight");
     public SvgProperty<SvgEnumUnit<SvgFontStyle>> FontStyle { get; } = new("font-style");
 
-    public override void ParseData(XmlReader reader)
+    public override void ParseData(XmlReader reader, SvgDefs defs)
     {
-        base.ParseData(reader);
+        base.ParseData(reader, defs);
         Text.Unit = new SvgStringUnit(ParseContent(reader));
     }
 

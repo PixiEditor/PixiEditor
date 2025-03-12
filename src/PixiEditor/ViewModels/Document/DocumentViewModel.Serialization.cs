@@ -14,6 +14,7 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
@@ -175,11 +176,8 @@ internal partial class DocumentViewModel
             transform = transform.PostConcat(Matrix3X3.CreateScale((float)resizeFactor.X, (float)resizeFactor.Y));
             primitive.Transform.Unit = new SvgTransformUnit?(new SvgTransformUnit(transform));
 
-            primitive.Fill.Unit = SvgColorUnit.FromRgba(data.FillColor.R, data.FillColor.G,
-                data.FillColor.B, data.Fill ? data.FillColor.A : 0);
-
-            primitive.Stroke.Unit = SvgColorUnit.FromRgba(data.StrokeColor.R, data.StrokeColor.G,
-                data.StrokeColor.B, data.StrokeColor.A);
+            primitive.Fill.Unit = new SvgPaintServerUnit(data.FillPaintable);
+            primitive.Stroke.Unit = new SvgPaintServerUnit(data.Stroke);
 
             primitive.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(data.StrokeWidth);
         }
@@ -205,8 +203,8 @@ internal partial class DocumentViewModel
         line.X2.Unit = SvgNumericUnit.FromUserUnits(lineData.End.X);
         line.Y2.Unit = SvgNumericUnit.FromUserUnits(lineData.End.Y);
 
-        line.Stroke.Unit = SvgColorUnit.FromRgba(lineData.StrokeColor.R, lineData.StrokeColor.G,
-            lineData.StrokeColor.B, lineData.StrokeColor.A);
+        line.Stroke.Unit = new SvgPaintServerUnit(lineData.Stroke);
+
         line.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(lineData.StrokeWidth);
 
         return line;
@@ -325,6 +323,9 @@ internal partial class DocumentViewModel
         text.FontFamily.Unit = new SvgStringUnit(font.Family.Name);
         text.FontWeight.Unit = new SvgEnumUnit<SvgFontWeight>(font.Bold ? SvgFontWeight.Bold : SvgFontWeight.Normal);
         text.FontStyle.Unit = new SvgEnumUnit<SvgFontStyle>(font.Italic ? SvgFontStyle.Italic : SvgFontStyle.Normal);
+        text.Stroke.Unit = new SvgPaintServerUnit(textData.Stroke);
+        text.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(textData.StrokeWidth);
+        text.Fill.Unit = new SvgPaintServerUnit(textData.Fill ? textData.FillPaintable : new ColorPaintable(Colors.Transparent));
 
         return text;
     }

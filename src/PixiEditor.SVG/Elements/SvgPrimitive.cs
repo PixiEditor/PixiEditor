@@ -8,9 +8,9 @@ namespace PixiEditor.SVG.Elements;
 public abstract class SvgPrimitive(string tagName) : SvgElement(tagName), ITransformable, IFillable, IStrokable, IOpacity
 {
     public SvgProperty<SvgTransformUnit> Transform { get; } = new("transform");
-    public SvgProperty<SvgColorUnit> Fill { get; } = new("fill");
+    public SvgProperty<SvgPaintServerUnit> Fill { get; } = new("fill");
     public SvgProperty<SvgNumericUnit> FillOpacity { get; } = new("fill-opacity");
-    public SvgProperty<SvgColorUnit> Stroke { get; } = new("stroke");
+    public SvgProperty<SvgPaintServerUnit> Stroke { get; } = new("stroke");
     public SvgProperty<SvgNumericUnit> StrokeWidth { get; } = new("stroke-width");
     
     public SvgProperty<SvgEnumUnit<SvgStrokeLineCap>> StrokeLineCap { get; } = new("stroke-linecap");
@@ -19,7 +19,7 @@ public abstract class SvgPrimitive(string tagName) : SvgElement(tagName), ITrans
 
     public SvgProperty<SvgNumericUnit> Opacity { get; } = new("opacity");
 
-    public override void ParseData(XmlReader reader)
+    public override void ParseData(XmlReader reader, SvgDefs defs)
     {
         List<SvgProperty> properties = GetProperties().ToList();
         
@@ -34,7 +34,7 @@ public abstract class SvgPrimitive(string tagName) : SvgElement(tagName), ITrans
 
         do
         {
-            ParseAttributes(properties, reader);
+            ParseAttributes(properties, reader, defs);
         } while (reader.MoveToNextAttribute());
     }
 

@@ -20,6 +20,8 @@
         SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"
         SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"
         ColorState="{Binding ColorsSubViewModel.PrimaryColorState, Mode=TwoWay}"
+        EnableGradientsTab="False"
+        EnableRecentBrushes="False"
         UseHintColor="False">
     </input:SmallColorPicker>
 </UserControl>

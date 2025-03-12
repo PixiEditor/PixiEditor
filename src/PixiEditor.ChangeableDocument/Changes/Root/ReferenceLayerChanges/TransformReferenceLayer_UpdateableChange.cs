@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.ChangeInfos.Root.ReferenceLayerChangeInfos;
+﻿using Drawie.Backend.Core.Numerics;
+using PixiEditor.ChangeableDocument.ChangeInfos.Root.ReferenceLayerChangeInfos;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root.ReferenceLayerChanges;
 

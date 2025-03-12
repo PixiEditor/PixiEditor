@@ -16,6 +16,11 @@
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
                 <colorPicker:StandardColorPicker ColorState="{Binding Path=ColorState, Mode=TwoWay}"
                                                  SecondColorState="{Binding  Path=SecondColorState, Mode=TwoWay}"
+                                                 EnableGradientsTab="{Binding  Path=EnableGradientsTab}"
+                                                 GradientState="{Binding  Path=GradientState, Mode=TwoWay}"
+                                                 SelectedBrush="{Binding  Path=SelectedBrush, Mode=TwoWay}"
+                                                 EnableRecentColors="{TemplateBinding EnableRecentBrushes}"
+                                                 EnableRecentGradients="{TemplateBinding EnableRecentBrushes}"
                                                  IsVisible="{Binding  Path=Bounds.Height, Converter={converters:ThresholdVisibilityConverter CheckIfLess=False, Threshold=380}}"
                                                  x:Name="mainColorPicker" />
                 <Grid

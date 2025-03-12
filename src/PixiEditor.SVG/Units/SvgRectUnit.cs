@@ -1,16 +1,17 @@
 ﻿using Drawie.Numerics;
+using PixiEditor.SVG.Elements;
 
 namespace PixiEditor.SVG.Units;
 
 public struct SvgRectUnit(RectD rect) : ISvgUnit
 {
     public RectD Value { get; set; } = rect;
-    public string ToXml()
+    public string ToXml(DefStorage defs)
     {
         return $"{Value.X} {Value.Y} {Value.Width} {Value.Height}";
     }
 
-    public void ValuesFromXml(string readerValue)
+    public void ValuesFromXml(string readerValue, SvgDefs defs)
     {
         string[] values = readerValue.Split(' ');
         

@@ -36,11 +36,12 @@ internal class ConvertToCurve_Change : Change
         VectorLayerNode node = target.FindNodeOrThrow<VectorLayerNode>(memberId);
         originalData = node.ShapeData;
 
+        // TODO: Stroke Line cap and join is missing? Validate
         node.ShapeData = new PathVectorData(originalData.ToPath())
         {
             Fill = originalData.Fill,
-            FillColor = originalData.FillColor,
-            StrokeColor = originalData.StrokeColor,
+            FillPaintable = originalData.FillPaintable,
+            Stroke = originalData.Stroke,
             StrokeWidth = originalData.StrokeWidth,
             TransformationMatrix = originalData.TransformationMatrix
         };

@@ -24,6 +24,7 @@ internal static class Helpers
 
         StringBuilder sb = new();
          
+        sb.AppendLine("using Drawie.Backend.Core.Numerics;");
         sb.AppendLine("namespace PixiEditor.ChangeableDocument.Actions.Generated;\n");
         sb.AppendLine("[System.Runtime.CompilerServices.CompilerGenerated]");
         sb.AppendLine($"public record class {actionName} : PixiEditor.ChangeableDocument.Actions.IMakeChangeAction");
@@ -57,6 +58,7 @@ internal static class Helpers
 
         StringBuilder sb = new();
 
+        sb.AppendLine("using Drawie.Backend.Core.Numerics;");
         sb.AppendLine("namespace PixiEditor.ChangeableDocument.Actions.Generated;");
         sb.AppendLine($"public record class {actionName} : PixiEditor.ChangeableDocument.Actions.IStartOrUpdateChangeAction" + (isCancelable ? ", PixiEditor.ChangeableDocument.Actions.ICancelableAction" : ""));
         sb.AppendLine("{");

@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Numerics;
 using Drawie.Backend.Core.Numerics;
+using PixiEditor.SVG.Elements;
 
 namespace PixiEditor.SVG.Units;
 
@@ -17,7 +18,7 @@ public struct SvgTransformUnit : ISvgUnit
         MatrixValue = matrixValue;
     }
 
-    public string ToXml()
+    public string ToXml(DefStorage defs)
     {
         string translateX = MatrixValue.TransX.ToString(CultureInfo.InvariantCulture);
         string translateY = MatrixValue.TransY.ToString(CultureInfo.InvariantCulture);
@@ -29,11 +30,11 @@ public struct SvgTransformUnit : ISvgUnit
         return $"matrix({scaleX}, {skewY}, {skewX}, {scaleY}, {translateX}, {translateY})";
     }
 
-    public void ValuesFromXml(string readerValue)
+    public void ValuesFromXml(string readerValue, SvgDefs defs)
     {
         if (readerValue.StartsWith("matrix(") && readerValue.EndsWith(")"))
         {
-            string[] values = readerValue[7..^1].Split(", ");
+            string[] values = readerValue[7..^1].Replace(" ", "").Split(",");
             if (values.Length == 6)
             {
                 if (float.TryParse(values[0], NumberStyles.Any, CultureInfo.InvariantCulture, out float scaleX) &&

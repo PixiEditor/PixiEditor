@@ -1,20 +1,21 @@
 ﻿using System.Xml;
 using System.Xml.Linq;
 using Drawie.Numerics;
+using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
 
 namespace PixiEditor.SVG;
 
-public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFillable, IStrokable, IOpacity
+public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFillable, IStrokable, IOpacity, IDefsStorage
 {
     public string RootNamespace { get; set; } = "http://www.w3.org/2000/svg";
     public string Version { get; set; } = "1.1";
 
     public SvgProperty<SvgRectUnit> ViewBox { get; } = new("viewBox");
-    public SvgProperty<SvgColorUnit> Fill { get; } = new("fill");
-    public SvgProperty<SvgColorUnit> Stroke { get; } = new("stroke");
+    public SvgProperty<SvgPaintServerUnit> Fill { get; } = new("fill");
+    public SvgProperty<SvgPaintServerUnit> Stroke { get; } = new("stroke");
     public SvgProperty<SvgNumericUnit> StrokeWidth { get; } = new("stroke-width");
 
     public SvgProperty<SvgEnumUnit<SvgStrokeLineCap>> StrokeLineCap { get; } = new("stroke-linecap");
@@ -23,6 +24,8 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
     public SvgProperty<SvgTransformUnit> Transform { get; } = new("transform");
     public SvgProperty<SvgNumericUnit> Opacity { get; } = new("opacity");
     public SvgProperty<SvgNumericUnit> FillOpacity { get; } = new("fill-opacity");
+
+    public SvgDefs Defs { get; set; } = new();
     public List<SvgElement> Children { get; } = new();
 
     public SvgDocument() : base("svg")
@@ -34,7 +37,7 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
         ViewBox.Unit = new SvgRectUnit(viewBox);
     }
 
-    public override void ParseData(XmlReader reader)
+    public override void ParseData(XmlReader reader, SvgDefs defs)
     {
         List<SvgProperty> properties = new()
         {
@@ -46,10 +49,10 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
             ViewBox,
             StrokeLineCap,
             StrokeLineJoin,
-            Opacity
+            Opacity,
         };
 
-        ParseAttributes(properties, reader);
+        ParseAttributes(properties, reader, defs); // TODO: merge with Defs?
     }
 
     public string ToXml()
@@ -66,16 +69,25 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
 
         GatherRequiredNamespaces(usedNamespaces, Children);
 
-        foreach (var usedNamespace in usedNamespaces)
-        {
-            document.Root.Add(new XAttribute(XNamespace.Xmlns + usedNamespace.Key, usedNamespace.Value));
-        }
+        DefStorage defs = new(this);
 
-        AppendProperties(document.Root);
+        AppendProperties(document.Root, defs);
+
 
         foreach (SvgElement child in Children)
         {
-            document.Root.Add(child.ToXml(ns));
+            document.Root.Add(child.ToXml(ns, defs));
+        }
+
+        if (Defs?.Children.Count > 0)
+        {
+            document.Root.Add(Defs.ToXml(ns, defs));
+            GatherRequiredNamespaces(usedNamespaces, Defs.Children);
+        }
+
+        foreach (var usedNamespace in usedNamespaces)
+        {
+            document.Root.Add(new XAttribute(XNamespace.Xmlns + usedNamespace.Key, usedNamespace.Value));
         }
 
         return document.ToString();
@@ -103,41 +115,41 @@ public class SvgDocument : SvgElement, IElementContainer, ITransformable, IFilla
         }
     }
 
-    private void AppendProperties(XElement? root)
+    private void AppendProperties(XElement? root, DefStorage defs)
     {
         if (ViewBox.Unit != null)
         {
-            root.Add(new XAttribute("viewBox", ViewBox.Unit.Value.ToXml()));
+            root.Add(new XAttribute("viewBox", ViewBox.Unit.Value.ToXml(defs)));
         }
 
         if (Fill.Unit != null)
         {
-            root.Add(new XAttribute("fill", Fill.Unit.Value.ToXml()));
+            root.Add(new XAttribute("fill", Fill.Unit.Value.ToXml(defs)));
         }
 
         if (Stroke.Unit != null)
         {
-            root.Add(new XAttribute("stroke", Stroke.Unit.Value.ToXml()));
+            root.Add(new XAttribute("stroke", Stroke.Unit.Value.ToXml(defs)));
         }
 
         if (StrokeWidth.Unit != null)
         {
-            root.Add(new XAttribute("stroke-width", StrokeWidth.Unit.Value.ToXml()));
+            root.Add(new XAttribute("stroke-width", StrokeWidth.Unit.Value.ToXml(defs)));
         }
 
         if (Transform.Unit != null)
         {
-            root.Add(new XAttribute("transform", Transform.Unit.Value.ToXml()));
+            root.Add(new XAttribute("transform", Transform.Unit.Value.ToXml(defs)));
         }
 
         if (StrokeLineCap.Unit != null)
         {
-            root.Add(new XAttribute("stroke-linecap", StrokeLineCap.Unit.Value.ToXml()));
+            root.Add(new XAttribute("stroke-linecap", StrokeLineCap.Unit.Value.ToXml(defs)));
         }
 
         if (StrokeLineJoin.Unit != null)
         {
-            root.Add(new XAttribute("stroke-linejoin", StrokeLineJoin.Unit.Value.ToXml()));
+            root.Add(new XAttribute("stroke-linejoin", StrokeLineJoin.Unit.Value.ToXml(defs)));
         }
     }
 }

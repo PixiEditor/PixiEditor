@@ -67,7 +67,7 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
 
         RectangleVectorData data = new RectangleVectorData(firstCenter, firstSize)
         {
-            StrokeColor = StrokeColor, FillColor = FillColor, StrokeWidth = (float)StrokeWidth,
+            Stroke = StrokePaintable, FillPaintable = FillPaintable, StrokeWidth = (float)StrokeWidth,
         };
 
         lastRect = rect;
@@ -80,8 +80,8 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
         return new SetShapeGeometry_Action(memberId,
             new RectangleVectorData(firstCenter, firstSize)
             {
-                StrokeColor = StrokeColor,
-                FillColor = FillColor,
+                Stroke = StrokePaintable,
+                FillPaintable = FillPaintable,
                 StrokeWidth = (float)StrokeWidth,
                 TransformationMatrix = lastMatrix
             });
@@ -116,8 +116,8 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
 
         RectangleVectorData newData = new RectangleVectorData(firstCenter, firstSize)
         {
-            StrokeColor = data.StrokeColor,
-            FillColor = data.FillColor,
+            Stroke = data.Stroke,
+            FillPaintable = data.FillPaintable,
             StrokeWidth = data.StrokeWidth,
             TransformationMatrix = matrix
         };

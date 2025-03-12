@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Exceptions;
 using PixiEditor.SVG.Features;
 using PixiEditor.SVG.Units;
@@ -15,7 +16,7 @@ public class SvgElement(string tagName)
 
     public SvgProperty<SvgStyleUnit> Style { get; } = new("style");
 
-    public XElement ToXml(XNamespace nameSpace)
+    public XElement ToXml(XNamespace nameSpace, DefStorage defs)
     {
         XElement element = new XElement(nameSpace + TagName);
 
@@ -28,18 +29,18 @@ public class SvgElement(string tagName)
                 {
                     if (string.IsNullOrEmpty(prop.SvgName))
                     {
-                        element.Value = prop.Unit.ToXml();
+                        element.Value = prop.Unit.ToXml(defs);
                     }
                     else
                     {
                         if (!string.IsNullOrEmpty(prop.NamespaceName))
                         {
                             XName name = XNamespace.Get(RequiredNamespaces[prop.NamespaceName]) + prop.SvgName;
-                            element.Add(new XAttribute(name, prop.Unit.ToXml()));
+                            element.Add(new XAttribute(name, prop.Unit.ToXml(defs)));
                         }
                         else
                         {
-                            element.Add(new XAttribute(prop.SvgName, prop.Unit.ToXml()));
+                            element.Add(new XAttribute(prop.SvgName, prop.Unit.ToXml(defs)));
                         }
                     }
                 }
@@ -50,20 +51,44 @@ public class SvgElement(string tagName)
         {
             foreach (SvgElement child in container.Children)
             {
-                element.Add(child.ToXml(nameSpace));
+                element.Add(child.ToXml(nameSpace, defs));
             }
         }
 
         return element;
     }
 
-    public virtual void ParseData(XmlReader reader)
+    public virtual void ParseData(XmlReader reader, SvgDefs defs)
     {
         // This is supposed to be overriden by child classes
         throw new SvgParsingException($"Element {TagName} does not support parsing");
     }
 
-    protected void ParseAttributes(List<SvgProperty> properties, XmlReader reader)
+    /// <summary>
+    /// Gets unit for property. If property does not have unit, it will try to get it from inlined style.
+    /// </summary>
+    /// <param name="forProperty">Property to get unit for</param>
+    /// <param name="defs">Optional defs element to get units from</param>
+    /// <typeparam name="TUnit">Type of unit to get</typeparam>
+    /// <returns>Unit for property</returns>
+    public TUnit? GetUnit<TUnit>(SvgProperty<TUnit> forProperty, SvgDefs defs = default)
+        where TUnit : struct, ISvgUnit
+    {
+        if (forProperty.Unit != null) return forProperty.Unit.Value;
+
+        if (Style.Unit != null)
+        {
+            var styleProp = Style.Unit.Value.TryGetStyleFor<SvgProperty<TUnit>, TUnit>(forProperty.SvgName, defs);
+            if (styleProp != null && styleProp.Unit != null)
+            {
+                return styleProp.Unit.Value;
+            }
+        }
+
+        return null;
+    }
+
+    protected void ParseAttributes(List<SvgProperty> properties, XmlReader reader, SvgDefs defs)
     {
         if (!properties.Contains(Id))
         {
@@ -81,27 +106,27 @@ public class SvgElement(string tagName)
                 string.Equals(x.SvgName, reader.Name, StringComparison.OrdinalIgnoreCase));
             if (matchingProperty != null)
             {
-                ParseAttribute(matchingProperty, reader);
+                ParseAttribute(matchingProperty, reader, defs);
             }
         } while (reader.MoveToNextAttribute());
     }
 
-    private void ParseAttribute(SvgProperty property, XmlReader reader)
+    private void ParseAttribute(SvgProperty property, XmlReader reader, SvgDefs defs)
     {
         if (property is SvgList list)
         {
-            ParseListProperty(list, reader);
+            ParseListProperty(list, reader, defs);
         }
         else
         {
             property.Unit ??= property.CreateDefaultUnit();
-            property.Unit.ValuesFromXml(reader.Value);
+            property.Unit.ValuesFromXml(reader.Value, defs);
         }
     }
 
-    private void ParseListProperty(SvgList list, XmlReader reader)
+    private void ParseListProperty(SvgList list, XmlReader reader, SvgDefs defs)
     {
         list.Unit ??= list.CreateDefaultUnit();
-        list.Unit.ValuesFromXml(reader.Value);
+        list.Unit.ValuesFromXml(reader.Value, defs);
     }
 }

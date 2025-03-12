@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
@@ -29,9 +30,8 @@ internal class VectorPathSerializationFactory : VectorShapeSerializationFactory<
         }
     }
 
-    protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor,
-        bool fill,
-        Color fillColor,
+    protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Paintable strokePaintable,
+        bool fill, Paintable fillPaintable,
         float strokeWidth, (string serializerName, string serializerVersion) serializerData,
         out PathVectorData original)
     {
@@ -48,11 +48,11 @@ internal class VectorPathSerializationFactory : VectorShapeSerializationFactory<
 
         original = new PathVectorData(path)
         {
-            StrokeColor = strokeColor,
-            FillColor = fillColor,
+            Stroke = strokePaintable,
+            FillPaintable = fillPaintable,
             StrokeWidth = strokeWidth,
             TransformationMatrix = matrix,
-            Fill = fill
+            Fill = fill, // TODO: Check if stroke line cap and join are serialized
         };
 
         return true;

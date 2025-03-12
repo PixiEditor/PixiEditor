@@ -100,10 +100,10 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.11.0"/>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0"/>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
-    <PackageReference Include="PixiEditor.ColorPicker.AvaloniaUI" Version="1.0.6"/>
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ColorPicker\src\ColorPicker.AvaloniaUI\ColorPicker.AvaloniaUI.csproj" />
     <ProjectReference Include="..\Drawie\src\Drawie.Interop.Avalonia\Drawie.Interop.Avalonia.csproj"/>
     <ProjectReference Include="..\Drawie\src\Drawie.Interop.Avalonia.Core\Drawie.Interop.Avalonia.Core.csproj"/>
     <ProjectReference Include="..\PixiDocks\src\PixiDocks.Avalonia\PixiDocks.Avalonia.csproj"/>
@@ -141,6 +141,10 @@
     </Compile>
     <Compile Update="Views\Tools\ToolSettings\Settings\FontFamilySettingView.axaml.cs">
       <DependentUpon>FontFamilySettingView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Nodes\Properties\ColorPropertyView.axaml.cs">
+      <DependentUpon>ColorPropertyView.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

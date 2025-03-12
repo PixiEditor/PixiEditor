@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.SVG.Units;
+﻿using PixiEditor.SVG.Elements;
+
+namespace PixiEditor.SVG.Units;
 
 public struct SvgStyleUnit : ISvgUnit
 {
@@ -35,23 +37,23 @@ public struct SvgStyleUnit : ISvgUnit
         }
     }
 
-    public string ToXml()
+    public string ToXml(DefStorage defs)
     {
         return Value;
     }
 
-    public void ValuesFromXml(string readerValue)
+    public void ValuesFromXml(string readerValue, SvgDefs defs)
     {
         Value = readerValue;
     }
 
-    public TProp TryGetStyleFor<TProp, TUnit>(string property) where TProp : SvgProperty<TUnit> where TUnit : struct, ISvgUnit
+    public TProp TryGetStyleFor<TProp, TUnit>(string property, SvgDefs defs) where TProp : SvgProperty<TUnit> where TUnit : struct, ISvgUnit
     {
         if (inlineDefinedProperties.TryGetValue(property, out var definedProperty))
         {
             TProp prop = (TProp)Activator.CreateInstance(typeof(TProp), property);
             var unit = (TUnit)prop.CreateDefaultUnit();
-            unit.ValuesFromXml(definedProperty);
+            unit.ValuesFromXml(definedProperty, defs);
             prop.Unit = unit;
 
             return prop;

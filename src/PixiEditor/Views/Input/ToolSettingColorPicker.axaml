@@ -13,5 +13,5 @@
                                      HintColor="{Binding DataContext.ColorsSubViewModel.PrimaryColor,
         RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type views:MainWindow}, AncestorLevel=1},
         Converter={converters:GenericColorToMediaColorConverter}}"
-                                     SelectedColor="{Binding SelectedColor, ElementName=SettingColorPicker, Mode=TwoWay}"/>
+                                     SelectedBrush="{Binding SelectedBrush, ElementName=SettingColorPicker, Mode=TwoWay}"/>
 </UserControl>

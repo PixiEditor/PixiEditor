@@ -1,5 +1,7 @@
 ﻿using System.Numerics;
 using System.Reflection;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Numerics;
@@ -12,35 +14,37 @@ public static class ConversionTable
         new()
         {
             {
-                typeof(double), 
-                [
+                typeof(double), [
                     (typeof(int), new TypeConverter<double, int>(DoubleToInt)),
                     (typeof(VecD), new TypeConverter<double, VecD>(DoubleToVecD)),
                     (typeof(VecI), new TypeConverter<double, VecI>(DoubleToVecI))
                 ]
             },
             {
-                typeof(int), 
-                [
+                typeof(int), [
                     (typeof(double), new TypeConverter<int, double>(ConvertIntToDouble)),
                     (typeof(VecI), new TypeConverter<int, VecI>(IntToVecI)),
                     (typeof(VecD), new TypeConverter<int, VecD>(IntToVecD)),
                 ]
             },
             {
-                typeof(VecD), 
-                [
+                typeof(VecD), [
                     (typeof(double), new TypeConverter<VecD, double>(VecDToDouble)),
                     (typeof(int), new TypeConverter<VecD, int>(VecDToInt)),
                     (typeof(VecI), new TypeConverter<VecD, VecI>(VecDToVecI)),
                 ]
             },
             {
-                typeof(VecI),
-                [
+                typeof(VecI), [
                     (typeof(double), new TypeConverter<VecI, double>(VecIToDouble)),
                     (typeof(int), new TypeConverter<VecI, int>(VecIToInt)),
                     (typeof(VecD), new TypeConverter<VecI, VecD>(VecIToVecD))
+                ]
+            },
+            {
+                typeof(Color),
+                [
+                    (typeof(Paintable), new TypeConverter<Color, Paintable>(c => new ColorPaintable(c))),
                 ]
             }
         };
@@ -66,7 +70,7 @@ public static class ConversionTable
             result = arg;
             return true;
         }
-        
+
         if (_conversionTable.TryGetValue(arg.GetType(), out var converters))
         {
             foreach (var (outType, converter) in converters)
@@ -78,7 +82,7 @@ public static class ConversionTable
                 }
             }
         }
-        
+
         try
         {
             result = System.Convert.ChangeType(arg, targetType);
@@ -90,7 +94,7 @@ public static class ConversionTable
             return false;
         }
     }
-    
+
     public static object Convert(object arg, Type targetType)
     {
         if (TryConvert(arg, targetType, out var result))
@@ -110,52 +114,52 @@ public static class ConversionTable
     {
         return i;
     }
-    
+
     private static double VecDToDouble(VecD vec)
     {
         return vec.X;
-    } 
-    
+    }
+
     private static double VecIToDouble(VecI vecI)
     {
         return vecI.X;
     }
-    
+
     private static VecD DoubleToVecD(double d)
     {
         return new VecD(d, d);
     }
-    
+
     private static VecI DoubleToVecI(double d)
     {
         return new VecI((int)d, (int)d);
     }
-    
+
     private static VecI IntToVecI(int i)
     {
         return new VecI(i, i);
     }
-    
+
     private static VecD IntToVecD(int i)
     {
         return new VecD(i, i);
     }
-    
+
     private static int VecIToInt(VecI vec)
     {
         return vec.X;
     }
-    
+
     private static VecD VecIToVecD(VecI vec)
     {
         return new VecD(vec.X, vec.Y);
     }
-    
+
     private static VecI VecDToVecI(VecD vec)
     {
         return new VecI((int)vec.X, (int)vec.Y);
     }
-    
+
     private static int VecDToInt(VecD vec)
     {
         return (int)vec.X;
