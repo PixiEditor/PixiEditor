@@ -175,7 +175,7 @@ internal class EllipseOperation : IMirroredDrawOperation
         RectD fillRect = ((RectD)location).Inflate(-strokeWidth / 2f);
         
         surf.Canvas.DrawOval(fillRect.Center, fillRect.Size / 2f, paint);
-        
+
         paint.IsAntiAliased = true;
         paint.SetPaintable(strokeWidth <= 0 ? fillPaintable : strokePaintable);
         paint.Style = PaintStyle.Stroke;
@@ -195,7 +195,7 @@ internal class EllipseOperation : IMirroredDrawOperation
         RectI bounds = (RectI)corners.AABBBounds.RoundOutwards();
         
         var chunks = OperationHelper.FindChunksTouchingRectangle(bounds, ChunkyImage.FullChunkSize);
-        if (!fillPaintable.AnythingVisible)
+        if (!fillPaintable?.AnythingVisible ?? false)
         {
              chunks.ExceptWith(OperationHelper.FindChunksFullyInsideEllipse
                 (location.Center, location.Width / 2.0 - strokeWidth * 2, location.Height / 2.0 - strokeWidth * 2, ChunkyImage.FullChunkSize, rotation));

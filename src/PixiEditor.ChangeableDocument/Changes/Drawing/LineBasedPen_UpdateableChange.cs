@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.Operations;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
@@ -43,10 +44,10 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         this.spacing = spacing;
         points.Add(pos);
         this.frame = frame;
-        
+
         srcPaint.Shader?.Dispose();
         srcPaint.Shader = null;
-        
+
         if (this.antiAliasing && !erasing)
         {
             srcPaint.BlendMode = BlendMode.SrcOver;
@@ -65,7 +66,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             var bresenham = BresenhamLineHelper.GetBresenhamLine(points[^1], pos);
             points.AddRange(bresenham);
         }
-        
+
         this.strokeWidth = strokeWidth;
     }
 
@@ -90,8 +91,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         int opCount = image.QueueLength;
 
         float spacingPixels = strokeWidth * spacing;
-        
-        for(int i = Math.Max(lastAppliedPointIndex, 0); i < points.Count; i++)
+
+        for (int i = Math.Max(lastAppliedPointIndex, 0); i < points.Count; i++)
         {
             var point = points[i];
             if (points.Count > 1 && VecF.Distance(lastPos, point) < spacingPixels)
@@ -99,14 +100,15 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
             lastPos = point;
             var rect = new RectI(point - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
+            Paintable finalPaintable = color;
             if (antiAliasing)
             {
-                ApplySoftnessGradient((VecD)point);
+                finalPaintable = ApplySoftnessGradient((VecD)point);
             }
 
-            image.EnqueueDrawEllipse((RectD)rect, color, color, 0, 0, antiAliasing, srcPaint);
+            image.EnqueueDrawEllipse((RectD)rect, finalPaintable, finalPaintable, 0, 0, antiAliasing, srcPaint);
         }
-        
+
         lastAppliedPointIndex = points.Count - 1;
 
         var affChunks = image.FindAffectedArea(opCount);
@@ -119,19 +121,20 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         if (points.Count == 1)
         {
             var rect = new RectI(points[0] - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
+            Paintable finalPaintable = color;
             if (antiAliasing)
             {
-                ApplySoftnessGradient(points[0]);
+                finalPaintable = ApplySoftnessGradient(points[0]);
             }
 
-            targetImage.EnqueueDrawEllipse((RectD)rect, color, color, 0, 0, antiAliasing, srcPaint);
+            targetImage.EnqueueDrawEllipse((RectD)rect, finalPaintable, finalPaintable, 0, 0, antiAliasing, srcPaint);
             return;
         }
 
         VecF lastPos = points[0];
 
         float spacingInPixels = strokeWidth * this.spacing;
-        
+
         for (int i = 0; i < points.Count; i++)
         {
             if (i > 0 && VecF.Distance(lastPos, points[i]) < spacingInPixels)
@@ -139,24 +142,27 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
             lastPos = points[i];
             var rect = new RectI(points[i] - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
+            Paintable? finalPaintable = color;
             if (antiAliasing)
             {
-                ApplySoftnessGradient(points[i]);
+                finalPaintable = ApplySoftnessGradient(points[i]);
             }
 
-            targetImage.EnqueueDrawEllipse((RectD)rect, color, color, 0, 0, antiAliasing, srcPaint);
+            targetImage.EnqueueDrawEllipse((RectD)rect, finalPaintable, finalPaintable, 0, 0, antiAliasing, srcPaint);
         }
     }
 
-    private void ApplySoftnessGradient(VecD pos)
+    private RadialGradientPaintable? ApplySoftnessGradient(VecD pos)
     {
-        if (hardness >= 1) return;
-        srcPaint.Shader?.Dispose();
+        if (hardness >= 1) return null;
+        srcPaint.Paintable?.Dispose();
         float radius = strokeWidth / 2f;
         radius = MathF.Max(1, radius);
-        srcPaint.Shader = Shader.CreateRadialGradient(
-            pos, radius, [color, color.WithAlpha(0)],
-            [Math.Max(hardness - 0.05f, 0), 0.95f], ShaderTileMode.Clamp);
+        return new RadialGradientPaintable(pos, radius,
+        [
+            new GradientStop(color, Math.Max(hardness - 0.05f, 0)),
+            new GradientStop(color.WithAlpha(0), 0.95f)
+        ]) { AbsoluteValues = true };
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
