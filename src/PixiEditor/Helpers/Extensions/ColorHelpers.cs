@@ -58,6 +58,7 @@ internal static class ColorHelpers
             conicGradientBrush.Angle,
             conicGradientBrush.GradientStops.Select(stop =>
                 new GradientStop(new BackendColor(stop.Color.R, stop.Color.G, stop.Color.B), stop.Offset))),
+        null => null,
 
     };
 
@@ -83,6 +84,7 @@ internal static class ColorHelpers
             Center = new RelativePoint(conicGradientPaintable.Center.X, conicGradientPaintable.Center.Y, RelativeUnit.Absolute),
             GradientStops = ToAvaloniaGradientStops(conicGradientPaintable.GradientStops)
         },
+        null => null,
         _ => throw new NotImplementedException()
     };
 

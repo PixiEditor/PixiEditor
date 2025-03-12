@@ -143,6 +143,10 @@
       <DependentUpon>FontFamilySettingView.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\Nodes\Properties\ColorPropertyView.axaml.cs">
+      <DependentUpon>ColorPropertyView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

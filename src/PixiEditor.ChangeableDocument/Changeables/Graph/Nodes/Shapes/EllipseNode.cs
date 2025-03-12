@@ -1,6 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes;
@@ -10,8 +11,8 @@ public class EllipseNode : ShapeNode<EllipseVectorData>
 {
     public InputProperty<VecD> Center { get; }
     public InputProperty<VecD> Radius { get; }
-    public InputProperty<Color> StrokeColor { get; }
-    public InputProperty<Color> FillColor { get; }
+    public InputProperty<Paintable> StrokeColor { get; }
+    public InputProperty<Paintable> FillColor { get; }
     public InputProperty<int> StrokeWidth { get; }
 
     public EllipseNode()
@@ -19,8 +20,8 @@ public class EllipseNode : ShapeNode<EllipseVectorData>
         Center = CreateInput<VecD>("Position", "POSITION", VecI.Zero);
         Radius = CreateInput<VecD>("Radius", "RADIUS", new VecD(32, 32)).WithRules(
             v => v.Min(new VecD(1)));
-        StrokeColor = CreateInput<Color>("StrokeColor", "STROKE_COLOR", new Color(0, 0, 0, 255));
-        FillColor = CreateInput<Color>("FillColor", "FILL_COLOR", new Color(0, 0, 0, 255));
+        StrokeColor = CreateInput<Paintable>("StrokeColor", "STROKE_COLOR", new Color(0, 0, 0, 255));
+        FillColor = CreateInput<Paintable>("FillColor", "FILL_COLOR", new Color(0, 0, 0, 255));
         StrokeWidth = CreateInput<int>("StrokeWidth", "STROKE_WIDTH", 1);
     }
 

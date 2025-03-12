@@ -8,14 +8,14 @@
                              xmlns:input="clr-namespace:PixiEditor.Views.Input"
                              xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-                             x:Class="PixiEditor.Views.Nodes.Properties.ColorPropertyView">
+                             x:Class="PixiEditor.Views.Nodes.Properties.PaintablePropertyView">
     <Grid HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
         <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}"/>
         <colorPicker:PortableColorPicker
-            EnableGradientsTab="false"
+            EnableGradientsTab="{Binding EnableGradients}"
             PointerPressed="InputElement_OnPointerPressed"
             Width="40" Height="20"
             IsVisible="{Binding ShowInputField}"
-            SelectedColor="{Binding Value, Mode=TwoWay}" />
+            SelectedBrush="{Binding Value, Mode=TwoWay}" />
     </Grid>
 </properties:NodePropertyView>
