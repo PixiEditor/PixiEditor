@@ -223,6 +223,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
 
         keyFrame?.Document.AnimationHandler.AddSelectedKeyFrame(keyFrame.Id);
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedKeyFrames)));
     }
 
     public bool DragAllSelectedKeyFrames(int delta)
@@ -304,13 +305,14 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
                     int groupStartIndex = -1;
                     int groupEndIndex = -1;
-                    
+
                     for (int i = 0; i < KeyFrames.Count; i++)
                     {
                         if (KeyFrames[i].LayerGuid == lastSelected.LayerGuid)
                         {
                             groupStartIndex = i;
                         }
+
                         if (KeyFrames[i].LayerGuid == e.LayerGuid)
                         {
                             groupEndIndex = i;
@@ -398,6 +400,8 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         {
             keyFrame.Document.AnimationDataViewModel.RemoveSelectedKeyFrame(keyFrame.Id);
         }
+
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedKeyFrames)));
     }
 
     private void TimelineKeyFramesScrollOnScrollChanged(object? sender, ScrollChangedEventArgs e)

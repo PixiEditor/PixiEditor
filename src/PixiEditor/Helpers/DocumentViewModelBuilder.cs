@@ -316,7 +316,7 @@ internal class GroupKeyFrameBuilder : KeyFrameBuilder
     }
 
     public new GroupKeyFrameBuilder WithNodeId(int layerGuid) =>
-        base.WithKeyFrameId(layerGuid) as GroupKeyFrameBuilder;
+        base.WithNodeId(layerGuid) as GroupKeyFrameBuilder;
 }
 
 internal class NodeGraphBuilder
