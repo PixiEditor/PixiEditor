@@ -47,17 +47,17 @@ internal static class ColorHelpers
                 new VecD(linearGradientBrush.StartPoint.Point.X, linearGradientBrush.StartPoint.Point.Y),
                 new VecD(linearGradientBrush.EndPoint.Point.X, linearGradientBrush.EndPoint.Point.Y),
                 linearGradientBrush.GradientStops.Select(stop =>
-                    new GradientStop(new BackendColor(stop.Color.R, stop.Color.G, stop.Color.B), stop.Offset))),
+                    new GradientStop(new BackendColor(stop.Color.R, stop.Color.G, stop.Color.B, stop.Color.A), stop.Offset))),
         IRadialGradientBrush radialGradientBrush => new RadialGradientPaintable(
             new VecD(radialGradientBrush.Center.Point.X, radialGradientBrush.Center.Point.Y),
             radialGradientBrush.RadiusX.Scalar,
             radialGradientBrush.GradientStops.Select(stop =>
-                new GradientStop(new BackendColor(stop.Color.R, stop.Color.G, stop.Color.B), stop.Offset))),
+                new GradientStop(new BackendColor(stop.Color.R, stop.Color.G, stop.Color.B, stop.Color.A), stop.Offset))),
         IConicGradientBrush conicGradientBrush => new SweepGradientPaintable(
             new VecD(conicGradientBrush.Center.Point.X, conicGradientBrush.Center.Point.Y),
             conicGradientBrush.Angle,
             conicGradientBrush.GradientStops.Select(stop =>
-                new GradientStop(new BackendColor(stop.Color.R, stop.Color.G, stop.Color.B), stop.Offset))),
+                new GradientStop(new BackendColor(stop.Color.R, stop.Color.G, stop.Color.B, stop.Color.A), stop.Offset))),
         null => null,
 
     };
