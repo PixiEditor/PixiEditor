@@ -11,6 +11,7 @@
     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="5">
         <colorPicker:PortableColorPicker
             ColorChanged="PortableColorPicker_ColorChanged"
+            EnableGradientsTab="False"
             SelectedColor="{Binding SelectedColor, ElementName=paletteColorAdder, Mode=TwoWay}"
             UseHintColor="True" HintColor="{Binding ElementName=paletteColorAdder, Path=HintColor}"
             Width="50" Focusable="False"

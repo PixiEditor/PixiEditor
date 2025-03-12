@@ -15,6 +15,15 @@ internal partial class SmallColorPicker : DualPickerControlBase, IGradientStorag
     public static readonly StyledProperty<bool> EnableGradientsTabProperty = AvaloniaProperty.Register<SmallColorPicker, bool>(
         nameof(EnableGradientsTab));
 
+    public static readonly StyledProperty<bool> EnableRecentBrushesProperty = AvaloniaProperty.Register<SmallColorPicker, bool>(
+        nameof(EnableRecentBrushes), true);
+
+    public bool EnableRecentBrushes
+    {
+        get => GetValue(EnableRecentBrushesProperty);
+        set => SetValue(EnableRecentBrushesProperty, value);
+    }
+
     public bool EnableGradientsTab
     {
         get => GetValue(EnableGradientsTabProperty);
