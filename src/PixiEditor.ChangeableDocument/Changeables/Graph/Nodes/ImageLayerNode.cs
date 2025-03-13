@@ -100,7 +100,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             GetLayerImageAtFrame(ctx.FrameTime.Frame).DrawMostUpToDateRegionOn(
                 new RectI(0, 0, layerImage.LatestSize.X, layerImage.LatestSize.Y),
                 ChunkResolution.Full,
-                workingSurface, -(VecI)topLeft, paint);
+                workingSurface, -topLeft, paint);
         }
         else
         {
