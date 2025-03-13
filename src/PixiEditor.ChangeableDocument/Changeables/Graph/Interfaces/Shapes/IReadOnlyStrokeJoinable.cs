@@ -3,7 +3,8 @@ using Drawie.Backend.Core.Vector;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 
-public interface IReadOnlyPathData : IReadOnlyShapeVectorData, IReadOnlyStrokeJoinable
+public interface IReadOnlyStrokeJoinable
 {
-    public VectorPath Path { get; }
+    public StrokeJoin StrokeLineJoin { get; }
+    public StrokeCap StrokeLineCap { get; }
 }
