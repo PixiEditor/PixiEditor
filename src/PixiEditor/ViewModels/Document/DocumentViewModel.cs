@@ -225,6 +225,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
     IAnimationHandler IDocument.AnimationHandler => AnimationDataViewModel;
     public bool UsesSrgbBlending { get; private set; }
+    public AutosaveDocumentViewModel AutosaveViewModel { get; }
 
     private DocumentViewModel()
     {
@@ -539,6 +540,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         lastChangeOnSave = Internals.Tracker.LastChangeGuid;
         OnPropertyChanged(nameof(AllChangesSaved));
+    }
+
+    public void MarkAsAutosaved()
+    {
+        Internals.ActionAccumulator.AddActions(new MarkAsSavedAutosaved_PassthroughAction(DocumentMarkType.Autosaved));
     }
 
     public void MarkAsUnsaved()

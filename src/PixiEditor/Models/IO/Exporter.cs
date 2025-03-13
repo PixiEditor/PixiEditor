@@ -61,7 +61,8 @@ internal class Exporter
             var file = await desktop.MainWindow.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
                 FileTypeChoices = SupportedFilesHelper.BuildSaveFilter(
-                    FileTypeDialogDataSet.SetKind.Any & ~FileTypeDialogDataSet.SetKind.Video), DefaultExtension = "pixi"
+                    FileTypeDialogDataSet.SetKind.Any & ~FileTypeDialogDataSet.SetKind.Video),
+                DefaultExtension = "pixi"
             });
 
             if (file is null)
@@ -117,7 +118,34 @@ internal class Exporter
 
         try
         {
-            var result = await typeFromPath.TrySave(pathWithExtension, document, exportConfig, job);
+            var result = await typeFromPath.TrySaveAsync(pathWithExtension, document, exportConfig, job);
+            job?.Finish();
+            return result;
+        }
+        catch (Exception e)
+        {
+            job?.Finish();
+            Console.WriteLine(e);
+            CrashHelper.SendExceptionInfo(e);
+            return SaveResult.UnknownError;
+        }
+    }
+
+    public static SaveResult TrySave(DocumentViewModel document, string pathWithExtension,
+        ExportConfig exportConfig, ExportJob? job)
+    {
+        string directory = Path.GetDirectoryName(pathWithExtension);
+        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            return SaveResult.InvalidPath;
+
+        var typeFromPath = SupportedFilesHelper.ParseImageFormat(Path.GetExtension(pathWithExtension));
+
+        if (typeFromPath is null)
+            return SaveResult.UnknownError;
+
+        try
+        {
+            var result = typeFromPath.TrySave(pathWithExtension, document, exportConfig, job);
             job?.Finish();
             return result;
         }

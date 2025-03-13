@@ -101,8 +101,51 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     private void OpenHelloTherePopup()
     {
-        var popup = new HelloTherePopup(this);
-        popup.Show();
+        List<string> args = StartupArgs.Args;
+        string file = args.FirstOrDefault(x => Importer.IsSupportedFile(x) && File.Exists(x));
+
+        var preferences = IPreferences.Current;
+
+        try
+        {
+            if (!args.Contains("--crash"))
+            {
+                var lastCrash = preferences!.GetLocalPreference<string>(PreferencesConstants.LastCrashFile);
+
+                if (lastCrash == null)
+                {
+                    MaybeReopenTempAutosavedFiles();
+                }
+                else
+                {
+                    preferences.UpdateLocalPreference<string>(PreferencesConstants.LastCrashFile, null);
+
+                    var report = CrashReport.Parse(lastCrash);
+                    OpenFromReport(report, out bool showMissingFilesDialog);
+
+                    if (showMissingFilesDialog)
+                    {
+                        CrashReportViewModel.ShowMissingFilesDialog(report);
+                    }
+                }
+            }
+        }
+        catch (Exception exc)
+        {
+            CrashHelper.SendExceptionInfo(exc);
+        }
+
+        if (file != null)
+        {
+            OpenFromPath(file);
+        }
+        else if ((Owner.DocumentManagerSubViewModel.Documents.Count == 0 && !args.Contains("--crash")) && !args.Contains("--openedInExisting"))
+        {
+            if (preferences!.GetPreference("ShowStartupWindow", true))
+            {
+                OpenHelloTherePopup();
+            }
+        }
     }
 
     private void Owner_OnStartupEvent()
@@ -412,7 +455,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         string finalPath = null;
         if (asNew || string.IsNullOrEmpty(document.FullFilePath))
         {
-            ExportConfig config = new ExportConfig() { ExportSize = document.SizeBindable };
+            ExportConfig config = new ExportConfig(document.SizeBindable);
             var result = await Exporter.TrySaveWithDialog(document, config, null);
             if (result.Result == DialogSaveResult.Cancelled)
                 return false;
@@ -427,7 +470,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
         else
         {
-            ExportConfig config = new ExportConfig() { ExportSize = document.SizeBindable };
+            ExportConfig config = new ExportConfig(document.SizeBindable);
             var result = await Exporter.TrySaveAsync(document, document.FullFilePath, config, null);
             if (result != SaveResult.Success)
             {

@@ -10,4 +10,18 @@ public static class PreferencesConstants
     public const string DisableNewsPanel = "DisableNewsPanel";
     public const string LastCheckedNewsIds = "LastCheckedNewsIds";
     public const string NewsPanelCollapsed = "NewsPanelCollapsed";
+
+    public const string SaveSessionStateEnabled = "SaveSessionStateEnabled";
+    public const bool SaveSessionStateDefault = true;
+
+    public const string AutosaveEnabled = "AutosaveEnabled";
+    public const bool AutosaveEnabledDefault = true;
+
+    public const string AutosaveHistory = "AutosaveHistory";
+
+    public const string AutosavePeriodMinutes = "AutosavePeriodMinutes";
+    public const double AutosavePeriodDefault = 3;
+
+    public const string AutosaveToDocumentPath = "AutosaveToDocumentPath";
+    public const bool AutosaveToDocumentPathDefault = false;
 }

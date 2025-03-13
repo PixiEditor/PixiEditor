@@ -87,6 +87,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
     public ActionDisplayList ActionDisplays { get; }
     public bool UserWantsToClose { get; private set; }
+    public Guid CurrentSessionId { get; } = Guid.NewGuid();
+    public DateTime LaunchDateTime { get; } = DateTime.Now;
 
     public ViewModelMain()
     {

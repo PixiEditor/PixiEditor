@@ -104,7 +104,7 @@ internal partial class MainWindow : Window
         {
             try
             {
-                fileVM.OpenRecoveredDotPixi(document.Path, document.GetRecoveredBytes());
+                fileVM.OpenRecoveredDotPixi(document.OriginalPath, document.GetRecoveredBytes());
                 i++;
             }
             catch (Exception e)
