@@ -19,7 +19,7 @@ public static class IReadOnlyChunkyImageEx
     /// <param name="pos">Starting position on the surface</param>
     /// <param name="paint">Paint to use for drawing</param>
     public static void DrawMostUpToDateRegionOn
-        (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, DrawingSurface surface, VecI pos, Paint? paint = null)
+        (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, DrawingSurface surface, VecD pos, Paint? paint = null)
     {
         DrawRegionOn(fullResRegion, resolution, surface, pos, image.DrawMostUpToDateChunkOn, paint);
     }
@@ -44,12 +44,12 @@ public static class IReadOnlyChunkyImageEx
         RectI fullResRegion,
         ChunkResolution resolution,
         DrawingSurface surface,
-        VecI pos,
-        Func<VecI, ChunkResolution, DrawingSurface, VecI, Paint?, bool> drawingFunc,
+        VecD pos,
+        Func<VecI, ChunkResolution, DrawingSurface, VecD, Paint?, bool> drawingFunc,
         Paint? paint = null)
     {
         int count = surface.Canvas.Save();
-        surface.Canvas.ClipRect(RectD.Create(pos, fullResRegion.Size));
+        surface.Canvas.ClipRect(new RectD(pos, fullResRegion.Size));
 
         VecI chunkTopLeft = OperationHelper.GetChunkPos(fullResRegion.TopLeft, ChunkyImage.FullChunkSize);
         VecI chunkBotRight = OperationHelper.GetChunkPos(fullResRegion.BottomRight, ChunkyImage.FullChunkSize);
