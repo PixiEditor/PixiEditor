@@ -22,7 +22,7 @@ internal class RasterLineToolExecutor : LineExecutor<ILineToolHandler>
         VecD dir = GetSignedDirection(startDrawingPos, pos);
         VecD oppositeDir = new VecD(-dir.X, -dir.Y);
         return new DrawRasterLine_Action(memberId, ToPixelPos(startDrawingPos, oppositeDir), ToPixelPos(pos, dir), (float)StrokeWidth,
-            StrokeColor, StrokeCap.Butt, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+            StrokePaintable, StrokeCap.Butt, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
     }
 
     protected override IAction TransformOverlayMoved(VecD start, VecD end)
@@ -30,7 +30,7 @@ internal class RasterLineToolExecutor : LineExecutor<ILineToolHandler>
         VecD dir = GetSignedDirection(start, end);
         VecD oppositeDir = new VecD(-dir.X, -dir.Y);
         return new DrawRasterLine_Action(memberId, ToPixelPos(start, oppositeDir), ToPixelPos(end, dir), 
-            (float)StrokeWidth, StrokeColor, StrokeCap.Butt, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+            (float)StrokeWidth, StrokePaintable, StrokeCap.Butt, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
     }
 
     protected override IAction[] SettingsChange()
@@ -38,7 +38,7 @@ internal class RasterLineToolExecutor : LineExecutor<ILineToolHandler>
         VecD dir = GetSignedDirection(startDrawingPos, curPos);
         VecD oppositeDir = new VecD(-dir.X, -dir.Y);
         return [new DrawRasterLine_Action(memberId, ToPixelPos(startDrawingPos, oppositeDir), ToPixelPos(curPos, dir), (float)StrokeWidth,
-            StrokeColor, StrokeCap.Butt, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)];
+            StrokePaintable, StrokeCap.Butt, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)];
     }
 
     private VecI ToPixelPos(VecD pos, VecD dir)

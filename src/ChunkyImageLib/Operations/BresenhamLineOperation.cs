@@ -1,35 +1,52 @@
 ﻿using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 
 namespace ChunkyImageLib.Operations;
+
 internal class BresenhamLineOperation : IMirroredDrawOperation
 {
     public bool IgnoreEmptyChunks => false;
     private readonly VecI from;
     private readonly VecI to;
-    private readonly Color color;
+    private readonly Paintable paintable;
     private readonly BlendMode blendMode;
     private readonly VecF[] points;
     private Paint paint;
 
-    public BresenhamLineOperation(VecI from, VecI to, Color color, BlendMode blendMode)
+    public BresenhamLineOperation(VecI from, VecI to, Paintable paintable, BlendMode blendMode)
     {
         this.from = from;
         this.to = to;
-        this.color = color;
+        this.paintable = paintable.Clone();
+        if (this.paintable is IStartEndPaintable startEndPaintable)
+        {
+            startEndPaintable.Start = from;
+            startEndPaintable.End = to;
+            this.paintable.AbsoluteValues = true;
+        }
+
         this.blendMode = blendMode;
-        paint = new Paint() { BlendMode = blendMode };
+        paint = new Paint() { BlendMode = blendMode, Paintable = paintable };
         points = BresenhamLineHelper.GetBresenhamLine(from, to).Select(v => new VecF(v)).ToArray();
     }
 
     public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
-        // a hacky way to make the lines look slightly better on non full res chunks
-        paint.Color = new Color(color.R, color.G, color.B, (byte)(color.A * targetChunk.Resolution.Multiplier()));
+        if (paintable is ColorPaintable colorPaintable)
+        {
+            // a hacky way to make the lines look slightly better on non full res chunks
+            paint.Color = new Color(colorPaintable.Color.R, colorPaintable.Color.G, colorPaintable.Color.B,
+                (byte)(colorPaintable.Color.A * targetChunk.Resolution.Multiplier()));
+        }
+        else
+        {
+            paint.SetPaintable(paintable);
+        }
 
         var surf = targetChunk.Surface.DrawingSurface;
         surf.Canvas.Save();
@@ -54,16 +71,19 @@ internal class BresenhamLineOperation : IMirroredDrawOperation
             newFrom = (RectI)newFrom.ReflectX((double)verAxisX).Round();
             newTo = (RectI)newTo.ReflectX((double)verAxisX).Round();
         }
+
         if (horAxisY is not null)
         {
             newFrom = (RectI)newFrom.ReflectY((double)horAxisY).Round();
             newTo = (RectI)newTo.ReflectY((double)horAxisY).Round();
         }
-        return new BresenhamLineOperation(newFrom.Pos, newTo.Pos, color, blendMode);
+
+        return new BresenhamLineOperation(newFrom.Pos, newTo.Pos, paintable, blendMode);
     }
 
     public void Dispose()
     {
         paint.Dispose();
+        this.paintable.Dispose();
     }
 }

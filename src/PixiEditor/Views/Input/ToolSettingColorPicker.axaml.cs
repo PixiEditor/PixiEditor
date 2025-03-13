@@ -10,19 +10,20 @@ namespace PixiEditor.Views.Input;
 
 internal partial class ToolSettingColorPicker : UserControl
 {
-    public static readonly StyledProperty<Color> SelectedColorProperty =
-        AvaloniaProperty.Register<ToolSettingColorPicker, Color>(
-            nameof(SelectedColor));
+    public static readonly StyledProperty<IBrush> SelectedBrushProperty =
+        AvaloniaProperty.Register<ToolSettingColorPicker, IBrush>(
+            nameof(SelectedBrush));
 
-    public Color SelectedColor
+    public IBrush SelectedBrush
     {
-        get => GetValue(SelectedColorProperty);
-        set => SetValue(SelectedColorProperty, value);
+        get => GetValue(SelectedBrushProperty);
+        set => SetValue(SelectedBrushProperty, value);
     }
 
     public ToolSettingColorPicker()
     {
         InitializeComponent();
+        ColorPicker.SelectedColor = Colors.White;
         ColorPicker.SecondaryColor = Colors.Black;
         ColorPicker.TemplateApplied += ColorPickerOnTemplateApplied;
     }

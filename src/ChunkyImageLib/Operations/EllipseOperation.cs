@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -12,8 +13,8 @@ internal class EllipseOperation : IMirroredDrawOperation
     public bool IgnoreEmptyChunks => false;
 
     private readonly RectD location;
-    private readonly Color strokeColor;
-    private readonly Color fillColor;
+    private readonly Paintable strokePaintable;
+    private readonly Paintable fillPaintable;
     private readonly float strokeWidth;
     private readonly double rotation;
     private readonly Paint paint;
@@ -27,12 +28,12 @@ internal class EllipseOperation : IMirroredDrawOperation
     private RectI? ellipseFillRect;
     private bool antialiased;
 
-    public EllipseOperation(RectD location, Color strokeColor, Color fillColor, float strokeWidth, double rotationRad,
+    public EllipseOperation(RectD location, Paintable strokePaintable, Paintable fillPaintable, float strokeWidth, double rotationRad,
         bool antiAliased, Paint? paint = null)
     {
         this.location = location;
-        this.strokeColor = strokeColor;
-        this.fillColor = fillColor;
+        this.strokePaintable = strokePaintable;
+        this.fillPaintable = fillPaintable;
         this.strokeWidth = strokeWidth;
         this.rotation = rotationRad;
         this.paint = paint?.Clone() ?? new Paint();
@@ -56,7 +57,7 @@ internal class EllipseOperation : IMirroredDrawOperation
 
                     ellipse = ellipseList.Select(a => new VecF(a)).ToArray();
 
-                    if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
+                    if (fillPaintable.AnythingVisible || paint.BlendMode != BlendMode.SrcOver)
                     {
                         (var fill, ellipseFillRect) =
                             EllipseHelper.SplitEllipseFillIntoRegions(ellipseList.ToList(), (RectI)location);
@@ -108,14 +109,14 @@ internal class EllipseOperation : IMirroredDrawOperation
         {
             if (Math.Abs(rotation) < 0.001 && strokeWidth > 0)
             {
-                if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
+                if (fillPaintable.AnythingVisible || paint.BlendMode != BlendMode.SrcOver)
                 {
-                    paint.Color = fillColor;
+                    paint.SetPaintable(fillPaintable);
                     surf.Canvas.DrawPoints(PointMode.Lines, ellipseFill!, paint);
                     surf.Canvas.DrawRect((RectD)ellipseFillRect!.Value, paint);
                 }
                 
-                paint.Color = strokeWidth <= 0 ? fillColor : strokeColor;
+                paint.SetPaintable(strokeWidth <= 0 ? fillPaintable : strokePaintable);
                 paint.StrokeWidth = 1f;
                 surf.Canvas.DrawPoints(PointMode.Points, ellipse!, paint);
             }
@@ -124,16 +125,16 @@ internal class EllipseOperation : IMirroredDrawOperation
                 surf.Canvas.Save();
                 surf.Canvas.RotateRadians((float)rotation, (float)location.Center.X, (float)location.Center.Y);
                 
-                if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
+                if (fillPaintable.AnythingVisible || paint.BlendMode != BlendMode.SrcOver)
                 {
-                    paint.Color = fillColor;
+                    paint.SetPaintable(fillPaintable);
                     paint.Style = PaintStyle.Fill;
                     surf.Canvas.DrawPath(ellipseOutline!, paint);
                 }
 
                 if (strokeWidth > 0)
                 {
-                    paint.Color = strokeColor;
+                    paint.SetPaintable(strokePaintable);
                     paint.Style = PaintStyle.Stroke;
                     paint.StrokeWidth = 1;
 
@@ -145,19 +146,19 @@ internal class EllipseOperation : IMirroredDrawOperation
         }
         else
         {
-            if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
+            if (fillPaintable.AnythingVisible || paint.BlendMode != BlendMode.SrcOver)
             {
                 surf.Canvas.Save();
                 surf.Canvas.RotateRadians((float)rotation, (float)location.Center.X, (float)location.Center.Y);
                 surf.Canvas.ClipPath(innerPath!);
-                surf.Canvas.DrawColor(fillColor, paint.BlendMode);
+                surf.Canvas.DrawPaintable(fillPaintable, paint.BlendMode);
                 surf.Canvas.Restore();
             }
             surf.Canvas.Save();
             surf.Canvas.RotateRadians((float)rotation, (float)location.Center.X, (float)location.Center.Y);
             surf.Canvas.ClipPath(outerPath!);
             surf.Canvas.ClipPath(innerPath!, ClipOperation.Difference);
-            surf.Canvas.DrawColor(strokeColor, paint.BlendMode);
+            surf.Canvas.DrawPaintable(strokePaintable, paint.BlendMode);
             surf.Canvas.Restore();
         }
     }
@@ -168,15 +169,15 @@ internal class EllipseOperation : IMirroredDrawOperation
         surf.Canvas.RotateRadians((float)rotation, (float)location.Center.X, (float)location.Center.Y);
         
         paint.IsAntiAliased = false;
-        paint.Color = fillColor;
+        paint.SetPaintable(fillPaintable);
         paint.Style = PaintStyle.Fill;
         
         RectD fillRect = ((RectD)location).Inflate(-strokeWidth / 2f);
         
         surf.Canvas.DrawOval(fillRect.Center, fillRect.Size / 2f, paint);
-        
+
         paint.IsAntiAliased = true;
-        paint.Color = strokeWidth <= 0 ? fillColor : strokeColor;
+        paint.SetPaintable(strokeWidth <= 0 ? fillPaintable : strokePaintable);
         paint.Style = PaintStyle.Stroke;
         paint.StrokeWidth = strokeWidth <= 0 ? 1f : strokeWidth;
         
@@ -194,7 +195,7 @@ internal class EllipseOperation : IMirroredDrawOperation
         RectI bounds = (RectI)corners.AABBBounds.RoundOutwards();
         
         var chunks = OperationHelper.FindChunksTouchingRectangle(bounds, ChunkyImage.FullChunkSize);
-        if (fillColor.A == 0)
+        if (!fillPaintable?.AnythingVisible ?? false)
         {
              chunks.ExceptWith(OperationHelper.FindChunksFullyInsideEllipse
                 (location.Center, location.Width / 2.0 - strokeWidth * 2, location.Height / 2.0 - strokeWidth * 2, ChunkyImage.FullChunkSize, rotation));
@@ -210,7 +211,7 @@ internal class EllipseOperation : IMirroredDrawOperation
             newLocation = newLocation.ReflectX((double)verAxisX).Round();
         if (horAxisY is not null)
             newLocation = newLocation.ReflectY((double)horAxisY).Round();
-        return new EllipseOperation(newLocation, strokeColor, fillColor, strokeWidth, rotation, antialiased, paint);
+        return new EllipseOperation(newLocation, strokePaintable, fillPaintable, strokeWidth, rotation, antialiased, paint);
     }
 
     public void Dispose()

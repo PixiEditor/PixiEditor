@@ -1,0 +1,21 @@
+﻿<properties:NodePropertyView xmlns="https://github.com/avaloniaui"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                             xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
+                             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                             xmlns:input="clr-namespace:PixiEditor.Views.Input"
+                             xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
+                             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:Class="PixiEditor.Views.Nodes.Properties.PaintablePropertyView">
+    <Grid HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
+        <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}"/>
+        <colorPicker:PortableColorPicker
+            EnableGradientsTab="{Binding EnableGradients}"
+            PointerPressed="InputElement_OnPointerPressed"
+            Width="40" Height="20"
+            IsVisible="{Binding ShowInputField}"
+            SelectedBrush="{Binding Value, Mode=TwoWay}" />
+    </Grid>
+</properties:NodePropertyView>

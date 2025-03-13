@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
 
@@ -15,9 +16,8 @@ public class EllipseSerializationFactory : VectorShapeSerializationFactory<Ellip
         builder.AddVecD(original.Radius);
     }
 
-    protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor,
-        bool fill,
-        Color fillColor,
+    protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Paintable strokePaintable,
+        bool fill, Paintable fillPaintable,
         float strokeWidth, (string serializerName, string serializerVersion) serializerData,
         out EllipseVectorData original)
     {
@@ -26,9 +26,9 @@ public class EllipseSerializationFactory : VectorShapeSerializationFactory<Ellip
 
         original = new EllipseVectorData(center, radius)
         {
-            StrokeColor = strokeColor,
+            Stroke = strokePaintable,
             Fill = fill,
-            FillColor = fillColor,
+            FillPaintable = fillPaintable,
             StrokeWidth = strokeWidth,
             TransformationMatrix = matrix
         };

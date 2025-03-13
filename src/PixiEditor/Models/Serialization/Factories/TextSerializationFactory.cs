@@ -1,5 +1,7 @@
 ﻿using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
@@ -39,8 +41,8 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
         }
     }
 
-    protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor,
-        bool fill, Color fillColor,
+    protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Paintable strokePaintable,
+        bool fill, Paintable fillPaintable,
         float strokeWidth, (string serializerName, string serializerVersion) serializerData,
         out TextVectorData original)
     {
@@ -93,9 +95,9 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
         original = new TextVectorData(text)
         {
             TransformationMatrix = matrix,
-            StrokeColor = strokeColor,
+            Stroke = strokePaintable,
             Fill = fill,
-            FillColor = fillColor,
+            FillPaintable = fillPaintable,
             StrokeWidth = strokeWidth,
             Position = position,
             Font = font,

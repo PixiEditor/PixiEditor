@@ -35,6 +35,13 @@ public abstract class SerializationFactory
             _ => throw new InvalidOperationException("Value is not an array.")
         };
     }
+
+    protected bool IsFilePreVersion((string serializerName, string serializerVersion) serializerData, Version minSupportedVersion)
+    {
+        return serializerData.serializerName == "PixiEditor"
+               && Version.TryParse(serializerData.serializerVersion, out Version version)
+                && version < minSupportedVersion;
+    }
 }
 
 public abstract class SerializationFactory<TSerializable, TOriginal> : SerializationFactory

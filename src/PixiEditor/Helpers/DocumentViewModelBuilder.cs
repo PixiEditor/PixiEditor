@@ -7,6 +7,7 @@ using PixiEditor.ViewModels.Document;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using Drawie.Numerics;
@@ -316,7 +317,7 @@ internal class GroupKeyFrameBuilder : KeyFrameBuilder
     }
 
     public new GroupKeyFrameBuilder WithNodeId(int layerGuid) =>
-        base.WithKeyFrameId(layerGuid) as GroupKeyFrameBuilder;
+        base.WithNodeId(layerGuid) as GroupKeyFrameBuilder;
 }
 
 internal class NodeGraphBuilder

@@ -21,7 +21,12 @@ public class SvgParser
         { "mask", typeof(SvgMask) },
         { "image", typeof(SvgImage) },
         { "svg", typeof(SvgDocument) },
-        { "text", typeof(SvgText) }
+        { "text", typeof(SvgText) },
+        { "linearGradient", typeof(SvgLinearGradient) },
+        { "radialGradient", typeof(SvgRadialGradient) },
+        { "stop", typeof(SvgStop) },
+        { "defs", typeof(SvgDefs) },
+        { "clipPath", typeof(SvgClipPath) }
     };
 
     public string Source { get; set; }
@@ -41,25 +46,28 @@ public class SvgParser
         {
             return null;
         }
-        
-        SvgDocument root = (SvgDocument)ParseElement(reader)!;
+
+        SvgDocument root = (SvgDocument)ParseElement(reader, new SvgDefs())!;
 
         RectD bounds = ParseBounds(reader); // this takes into account viewBox, width, height, x, y
-        
+
         root.ViewBox.Unit = new SvgRectUnit(bounds);
+
+        using var defsReader = document.CreateReader();
+        root.Defs = ParseDefs(defsReader);
 
         while (reader.Read())
         {
             if (reader.NodeType == XmlNodeType.Element)
             {
-                SvgElement? element = ParseElement(reader);
+                SvgElement? element = ParseElement(reader, root.Defs);
                 if (element != null)
                 {
                     root.Children.Add(element);
 
-                    if (element is IElementContainer container)
+                    if (element is IElementContainer container && element.TagName != "defs")
                     {
-                        ParseChildren(reader, container, element.TagName);
+                        ParseChildren(reader, container, root.Defs, element.TagName);
                     }
                 }
             }
@@ -68,38 +76,59 @@ public class SvgParser
         return root;
     }
 
-    private void ParseChildren(XmlReader reader, IElementContainer container, string tagName)
+    private SvgDefs ParseDefs(XmlReader reader)
+    {
+        XmlNodeType node = reader.MoveToContent();
+        if (node != XmlNodeType.Element)
+        {
+            return null;
+        }
+
+        while (reader.Read())
+        {
+            if (reader.NodeType == XmlNodeType.Element && reader.LocalName == "defs")
+            {
+                break;
+            }
+        }
+
+        SvgDefs defs = new();
+        ParseChildren(reader, defs, new SvgDefs(), "defs");
+        return defs;
+    }
+
+    private void ParseChildren(XmlReader reader, IElementContainer container, SvgDefs defs, string tagName)
     {
         while (reader.Read())
         {
             if (reader.NodeType == XmlNodeType.Element)
             {
-                SvgElement? element = ParseElement(reader);
+                SvgElement? element = ParseElement(reader, defs);
                 if (element != null)
                 {
                     container.Children.Add(element);
 
                     if (element is IElementContainer childContainer)
                     {
-                        ParseChildren(reader, childContainer, element.TagName);
+                        ParseChildren(reader, childContainer, defs, element.TagName);
                     }
                 }
             }
-            else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == tagName)
+            else if (reader.NodeType == XmlNodeType.EndElement && reader.LocalName == tagName)
             {
                 break;
             }
         }
     }
 
-    private SvgElement? ParseElement(XmlReader reader)
+    private SvgElement? ParseElement(XmlReader reader, SvgDefs defs)
     {
         if (wellKnownElements.TryGetValue(reader.LocalName, out Type elementType))
         {
             SvgElement element = (SvgElement)Activator.CreateInstance(elementType);
             if (reader.MoveToFirstAttribute())
             {
-                element.ParseData(reader);
+                element.ParseData(reader, defs);
             }
 
             return element;

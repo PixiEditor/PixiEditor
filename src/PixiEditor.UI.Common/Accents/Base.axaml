@@ -52,6 +52,7 @@
             <Color x:Key="FloatSocketColor">#ffc66d</Color>
             <Color x:Key="DoubleSocketColor">#efb66d</Color>
             <Color x:Key="ColorSocketColor">#8cf2dd</Color>
+            <Color x:Key="PaintableSocketColor">#48b099</Color>
             <Color x:Key="VecDSocketColor">#c984ca</Color>
             <Color x:Key="Vec3DSocketColor">#597513</Color>
             <Color x:Key="VecISocketColor">#c9b4ca</Color>
@@ -145,6 +146,7 @@
             <SolidColorBrush x:Key="DoubleSocketBrush" Color="{StaticResource DoubleSocketColor}"/>
             <SolidColorBrush x:Key="Float1SocketBrush" Color="{StaticResource DoubleSocketColor}"/>
             <SolidColorBrush x:Key="ColorSocketBrush" Color="{StaticResource ColorSocketColor}"/>
+            <SolidColorBrush x:Key="PaintableSocketBrush" Color="{StaticResource PaintableSocketColor}"/>
             <SolidColorBrush x:Key="Half4SocketBrush" Color="{StaticResource ColorSocketColor}"/>
             <SolidColorBrush x:Key="VecDSocketBrush" Color="{StaticResource VecDSocketColor}"/>
             <SolidColorBrush x:Key="Vec3DSocketBrush" Color="{StaticResource Vec3DSocketColor}"/>
@@ -155,6 +157,7 @@
             <SolidColorBrush x:Key="Int1SocketBrush" Color="{StaticResource IntSocketColor}"/>
             <SolidColorBrush x:Key="StringSocketBrush" Color="{StaticResource StringSocketColor}"/>
             <SolidColorBrush x:Key="Matrix3X3SocketBrush" Color="{StaticResource Matrix3X3SocketColor}"/>
+
             <ConicGradientBrush x:Key="ShapeVectorDataSocketBrush" GradientStops="{StaticResource ShapeDataSocketGradient}"/>
             <SolidColorBrush x:Key="EllipseVectorDataSocketBrush" Color="{StaticResource EllipseDataSocketColor}"/>
             <SolidColorBrush x:Key="PointsVectorDataSocketBrush" Color="{StaticResource PointsDataSocketColor}"/>

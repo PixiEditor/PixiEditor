@@ -2,8 +2,10 @@
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
@@ -16,7 +18,7 @@ public class CreateImageNode : Node, IPreviewRenderable
 
     public InputProperty<VecI> Size { get; }
 
-    public InputProperty<Color> Fill { get; }
+    public InputProperty<Paintable> Fill { get; }
 
     public RenderInputProperty Content { get; }
 
@@ -30,7 +32,7 @@ public class CreateImageNode : Node, IPreviewRenderable
     {
         Output = CreateOutput<Texture>(nameof(Output), "IMAGE", null);
         Size = CreateInput(nameof(Size), "SIZE", new VecI(32, 32)).WithRules(v => v.Min(VecI.One));
-        Fill = CreateInput(nameof(Fill), "FILL", Colors.Transparent);
+        Fill = CreateInput<Paintable>(nameof(Fill), "FILL", new ColorPaintable(Colors.Transparent));
         Content = CreateRenderInput(nameof(Content), "CONTENT");
         ContentOffset = CreateInput(nameof(ContentOffset), "CONTENT_OFFSET", VecD.Zero);
         RenderOutput = CreateRenderOutput("RenderOutput", "RENDER_OUTPUT", () => new Painter(OnPaint));
@@ -54,7 +56,16 @@ public class CreateImageNode : Node, IPreviewRenderable
     {
         var surface = textureCache.RequestTexture(0, Size.Value, context.ProcessingColorSpace, false);
 
-        surface.DrawingSurface.Canvas.Clear(Fill.Value);
+        if (Fill.Value is ColorPaintable colorPaintable)
+        {
+            surface.DrawingSurface.Canvas.Clear(colorPaintable.Color);
+        }
+        else
+        {
+            using Paint paint = new Paint();
+            paint.SetPaintable(Fill.Value);
+            surface.DrawingSurface.Canvas.DrawRect(0, 0, Size.Value.X, Size.Value.Y, paint);
+        }
 
         int saved = surface.DrawingSurface.Canvas.Save();
 

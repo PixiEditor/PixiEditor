@@ -21,9 +21,9 @@ public class SvgImage : SvgElement
         RequiredNamespaces.Add("xlink", "http://www.w3.org/1999/xlink");
     }
 
-    public override void ParseData(XmlReader reader)
+    public override void ParseData(XmlReader reader, SvgDefs defs)
     {
         List<SvgProperty> properties = new List<SvgProperty>() { X, Y, Width, Height, Href, Mask, ImageRendering };
-        ParseAttributes(properties, reader);
+        ParseAttributes(properties, reader, defs);
     }
 }

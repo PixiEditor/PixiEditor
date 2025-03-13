@@ -1,6 +1,8 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.Views.Overlays.PathOverlay;
@@ -20,6 +22,9 @@ internal class VectorPathSerializationFactory : VectorShapeSerializationFactory<
 
         EditableVectorPath path = new EditableVectorPath(original.Path);
 
+        builder.AddInt((int)original.StrokeLineJoin);
+        builder.AddInt((int)original.StrokeLineCap);
+
         builder.AddInt((int)path.Path.FillType);
         builder.AddInt(path.SubShapes.Count);
 
@@ -29,12 +34,20 @@ internal class VectorPathSerializationFactory : VectorShapeSerializationFactory<
         }
     }
 
-    protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Color strokeColor,
-        bool fill,
-        Color fillColor,
+    protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Paintable strokePaintable,
+        bool fill, Paintable fillPaintable,
         float strokeWidth, (string serializerName, string serializerVersion) serializerData,
         out PathVectorData original)
     {
+        StrokeJoin join = StrokeJoin.Round;
+        StrokeCap cap = StrokeCap.Round;
+
+        if (!IsFilePreVersion(serializerData, new Version(2, 0, 0, 62)))
+        {
+            join = (StrokeJoin)extractor.GetInt();
+            cap = (StrokeCap)extractor.GetInt();
+        }
+
         VectorPath path;
         if (IsOldSerializer(serializerData))
         {
@@ -48,11 +61,13 @@ internal class VectorPathSerializationFactory : VectorShapeSerializationFactory<
 
         original = new PathVectorData(path)
         {
-            StrokeColor = strokeColor,
-            FillColor = fillColor,
+            Stroke = strokePaintable,
+            FillPaintable = fillPaintable,
             StrokeWidth = strokeWidth,
             TransformationMatrix = matrix,
-            Fill = fill
+            Fill = fill,
+            StrokeLineJoin = join,
+            StrokeLineCap = cap
         };
 
         return true;
