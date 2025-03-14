@@ -78,7 +78,12 @@ internal class AutosaveDocumentViewModel : ObservableObject
     public bool AutosaveOnClose()
     {
         if (Document.AllChangesSaved)
+        {
+            AddAutosaveHistoryEntry(
+                AutosaveHistoryType.OnClose,
+                AutosaveHistoryResult.NothingToSave);
             return true;
+        }
 
         try
         {
@@ -114,7 +119,7 @@ internal class AutosaveDocumentViewModel : ObservableObject
             currentSession = historySessions[^1];
         }
 
-        AutosaveHistoryEntry entry = new(DateTime.Now, type, result, autosaveFileGuid);
+        AutosaveHistoryEntry entry = new(DateTime.Now, type, result, autosaveFileGuid, Document.FullFilePath);
         currentSession.AutosaveEntries.Add(entry);
 
         IPreferences.Current.UpdateLocalPreference(PreferencesConstants.AutosaveHistory, historySessions);

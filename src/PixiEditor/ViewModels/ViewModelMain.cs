@@ -91,6 +91,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public Guid CurrentSessionId { get; } = Guid.NewGuid();
     public DateTime LaunchDateTime { get; } = DateTime.Now;
 
+    public event Action<DocumentViewModel> BeforeDocumentClosed;
+
     public ViewModelMain()
     {
         Current = this;
@@ -166,6 +168,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         ExtensionsSubViewModel = services.GetService<ExtensionsViewModel>(); // Must be last
 
         DocumentManagerSubViewModel.ActiveDocumentChanged += OnActiveDocumentChanged;
+        BeforeDocumentClosed += OnBeforeDocumentClosed;
     }
 
     public bool DocumentIsNotNull(object property)
@@ -181,7 +184,6 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     [RelayCommand]
     public async Task CloseWindow()
     {
-        AutosaveAllForNextSession();
         UserWantsToClose = await DisposeAllDocumentsWithSaveConfirmation();
 
         if (UserWantsToClose)
@@ -236,15 +238,12 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         return true;
     }
 
-    public void AutosaveAllForNextSession()
+    private void OnBeforeDocumentClosed(DocumentViewModel document)
     {
         if (!AutosaveViewModel.SaveSessionStateEnabled || DebugSubViewModel.ModifiedEditorData)
             return;
 
-        foreach (DocumentViewModel document in DocumentManagerSubViewModel.Documents)
-        {
-            document.AutosaveViewModel.AutosaveOnClose();
-        }
+        document.AutosaveViewModel.AutosaveOnClose();
     }
 
     /// <summary>
@@ -265,6 +264,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
 
         ConfirmationType result = ConfirmationType.No;
+        bool saved = false;
         if (!document.AllChangesSaved)
         {
             result = await ConfirmationDialog.Show(ConfirmationDialogMessage, ConfirmationDialogTitle);
@@ -272,11 +272,14 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
             {
                 if (!await FileSubViewModel.SaveDocument(document, false))
                     return false;
+
+                saved = true;
             }
         }
 
         if (result != ConfirmationType.Canceled)
         {
+            BeforeDocumentClosed?.Invoke(document);
             if (!DocumentManagerSubViewModel.Documents.Remove(document))
                 throw new InvalidOperationException(
                     "Trying to close a document that's not in the documents collection. Likely, the document wasn't added there after creation by mistake.");

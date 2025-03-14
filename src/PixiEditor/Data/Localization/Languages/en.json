@@ -908,6 +908,9 @@
   "TEMPERATURE_VALUE": "Temperature",
   "TINT_VALUE": "Tint",
   "FAILED_DOWNLOADING_UPDATE_TITLE": "Failed to download update",
-  "FAILED_DOWNLOADING_UPDATE": "Failed to download the update. Try again later."
-
+  "FAILED_DOWNLOADING_UPDATE": "Failed to download the update. Try again later.",
+  "UNEXPECTED_SHUTDOWN": "Unexpected shutdown",
+  "UNEXPECTED_SHUTDOWN_MSG": "PixiEditor was unexpectedly shut down. We've loaded latest autosave of your files.",
+  "OK": "OK",
+  "OPEN_AUTOSAVES": "Browse Autosaves"
 }

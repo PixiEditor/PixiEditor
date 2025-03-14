@@ -320,7 +320,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     /// <summary>
     /// Opens a .pixi file from path, creates a document from it, and adds it to the system
     /// </summary>
-    public void OpenRecoveredDotPixi(string? originalPath, string? autosavePath, Guid? autosaveGuid, byte[] dotPixiBytes)
+    public void OpenRecoveredDotPixi(string? originalPath, string? autosavePath, Guid? autosaveGuid,
+        byte[] dotPixiBytes)
     {
         DocumentViewModel document = Importer.ImportDocument(dotPixiBytes, originalPath);
         document.MarkAsUnsaved();
@@ -647,7 +648,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         // Todo sure, no session saving, but shouldn't we still load backups in case of unexpected shutdown?
         // it probably should be handled elsewhere
-        if (!preferences.GetPreference<bool>(PreferencesConstants.SaveSessionStateEnabled, PreferencesConstants.SaveSessionStateDefault))
+        if (!preferences.GetPreference<bool>(PreferencesConstants.SaveSessionStateEnabled,
+                PreferencesConstants.SaveSessionStateDefault))
             return;
 
         var history =
@@ -669,18 +671,13 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             select entryGroup.OrderBy(a => a.DateTime).ToList()
         ).ToList();
 
-        /*bool shutdownWasUnexpected = lastSession.AutosaveEntries.All(a => a.Type != AutosaveHistoryType.OnClose);
+        bool shutdownWasUnexpected = lastSession.AutosaveEntries.All(a => a.Type != AutosaveHistoryType.OnClose);
         if (shutdownWasUnexpected)
         {
-            List<List<AutosaveHistoryEntry>> lastBackups = (
-                from entry in lastSession.AutosaveEntries
-                group entry by entry.TempFileGuid into entryGroup
-                select entryGroup.OrderBy(a => a.DateTime).ToList()
-                ).ToList();
-            // todo notify about files getting recovered after unexpected shutdown
-            // also separate this out into a function
+            LoadFromUnexpectedShutdown(lastSession);
+
             return;
-        }*/
+        }
 
         foreach (var documentHistory in perDocumentHistories)
         {
@@ -690,6 +687,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 if (lastEntry.Type != AutosaveHistoryType.OnClose)
                 {
                     // unexpected shutdown happened, this file wasn't saved on close, but we supposedly have a backup
+                    LoadFromAutosave(lastEntry);
                 }
                 else
                 {
@@ -700,7 +698,11 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                             break;
                         case AutosaveHistoryResult.SavedUserFile:
                         case AutosaveHistoryResult.NothingToSave:
-                            // load from user file
+                            if (lastEntry.OriginalPath != null)
+                            {
+                                OpenFromPath(lastEntry.OriginalPath);
+                            }
+
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -714,40 +716,64 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
 
         Owner.AutosaveViewModel.CleanupAutosavedFilesAndHistory();
+    }
 
-        /*foreach (var file in files)
+    private void LoadFromUnexpectedShutdown(AutosaveHistorySession lastSession)
+    {
+        List<List<AutosaveHistoryEntry>> lastBackups = (
+            from entry in lastSession.AutosaveEntries
+            group entry by entry.TempFileGuid
+            into entryGroup
+            select entryGroup.OrderBy(a => a.DateTime).ToList()
+        ).ToList();
+
+        try
         {
-            try
+            foreach (var backup in lastBackups)
             {
-                if (file.AutosavePath != null)
-                {
-                    var document = OpenFromPath(file.AutosavePath, false);
-                    document.FullFilePath = file.OriginalPath;
+                AutosaveHistoryEntry lastEntry = backup[^1];
 
-                    if (file.AutosavePath != null)
-                    {
-                        document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(
-                            AutosaveHelper.GetAutosaveGuid(file.AutosavePath)!.Value, file.AutosavePath);
-                    }
+                bool loadFromUserFile = false;
+
+                if (lastEntry.OriginalPath != null && File.Exists(lastEntry.OriginalPath))
+                {
+                    DateTime saveFileWriteTime = File.GetLastWriteTime(lastEntry.OriginalPath);
+                    DateTime autosaveWriteTime = lastEntry.DateTime;
+
+                    loadFromUserFile = saveFileWriteTime > autosaveWriteTime;
+                }
+
+                if (loadFromUserFile)
+                {
+                    OpenFromPath(lastEntry.OriginalPath);
                 }
                 else
                 {
-                    OpenFromPath(file.OriginalPath);
+                    LoadFromAutosave(lastEntry);
                 }
             }
-            catch (Exception e)
+
+            OptionsDialog<LocalizedString> dialog = new OptionsDialog<LocalizedString>("UNEXPECTED_SHUTDOWN",
+                new LocalizedString("UNEXPECTED_SHUTDOWN_MSG"),
+                MainWindow.Current!)
             {
-                CrashHelper.SendExceptionInfo(e);
-            }
-        }*/
+                { "OPEN_AUTOSAVES", _ => { IOperatingSystem.Current.OpenFolder(Paths.PathToUnsavedFilesFolder); } },
+                "OK"
+            };
+            dialog.ShowDialog(true);
+        }
+        catch (Exception e)
+        {
+            CrashHelper.SendExceptionInfo(e);
+        }
     }
 
     private void LoadFromAutosave(AutosaveHistoryEntry entry)
     {
         string path = AutosaveHelper.GetAutosavePath(entry.TempFileGuid);
-        if (path == null)
+        if (path == null || !File.Exists(path))
         {
-            // TODO: Notify
+            // TODO: Notice user when non-blocking notification system is implemented
             return;
         }
 
