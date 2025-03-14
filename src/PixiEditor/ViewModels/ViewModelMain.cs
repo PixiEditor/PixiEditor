@@ -60,12 +60,13 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public MenuBarViewModel MenuBarViewModel { get; set; }
     public AnimationsViewModel AnimationsSubViewModel { get; set; }
     public NodeGraphManagerViewModel NodeGraphManager { get; set; }
+    public AutosaveViewModel AutosaveViewModel { get; set; }
 
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
 
-    public ConfigManager Config { get; set; }    
-    
+    public ConfigManager Config { get; set; }
+
     public LocalizedString ActiveActionDisplay
     {
         get
@@ -100,11 +101,11 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     {
         Services = services;
 
-        Config = new ConfigManager(); 
+        Config = new ConfigManager();
 
         Preferences = services.GetRequiredService<IPreferences>();
         Preferences.Init();
-        
+
         SupportedFilesHelper.InitFileTypes(services.GetServices<IoFileType>());
 
         CommandController = services.GetService<CommandController>();
@@ -155,11 +156,13 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         ToolsSubViewModel?.SetupToolsTooltipShortcuts();
 
         SearchSubViewModel = services.GetService<SearchViewModel>();
-        
+
         AnimationsSubViewModel = services.GetService<AnimationsViewModel>();
-        
+
         NodeGraphManager = services.GetService<NodeGraphManagerViewModel>();
-        
+
+        AutosaveViewModel = services.GetService<AutosaveViewModel>();
+
         ExtensionsSubViewModel = services.GetService<ExtensionsViewModel>(); // Must be last
 
         DocumentManagerSubViewModel.ActiveDocumentChanged += OnActiveDocumentChanged;
@@ -178,6 +181,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     [RelayCommand]
     public async Task CloseWindow()
     {
+        AutosaveAllForNextSession();
         UserWantsToClose = await DisposeAllDocumentsWithSaveConfirmation();
 
         if (UserWantsToClose)
@@ -232,6 +236,17 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         return true;
     }
 
+    public void AutosaveAllForNextSession()
+    {
+        if (!AutosaveViewModel.SaveSessionStateEnabled || DebugSubViewModel.ModifiedEditorData)
+            return;
+
+        foreach (DocumentViewModel document in DocumentManagerSubViewModel.Documents)
+        {
+            document.AutosaveViewModel.AutosaveOnClose();
+        }
+    }
+
     /// <summary>
     /// Disposes the active document after showing the unsaved changes confirmation dialog.
     /// </summary>
@@ -263,7 +278,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         if (result != ConfirmationType.Canceled)
         {
             if (!DocumentManagerSubViewModel.Documents.Remove(document))
-                throw new InvalidOperationException("Trying to close a document that's not in the documents collection. Likely, the document wasn't added there after creation by mistake.");
+                throw new InvalidOperationException(
+                    "Trying to close a document that's not in the documents collection. Likely, the document wasn't added there after creation by mistake.");
 
             if (DocumentManagerSubViewModel.ActiveDocument == document)
             {
@@ -278,6 +294,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
             return true;
         }
+
         return false;
     }
 

@@ -241,6 +241,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         AnimationDataViewModel = new(this, Internals);
 
         NodeGraph = new NodeGraphViewModel(this, Internals);
+        AutosaveViewModel = new AutosaveDocumentViewModel(this, Internals);
 
         TransformViewModel = new(this);
         TransformViewModel.TransformChanged += (args) => Internals.ChangeController.TransformChangedInlet(args);

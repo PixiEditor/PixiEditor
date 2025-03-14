@@ -24,4 +24,7 @@ public static class PreferencesConstants
 
     public const string AutosaveToDocumentPath = "AutosaveToDocumentPath";
     public const bool AutosaveToDocumentPathDefault = false;
+
+    public const string LastCrashFile = "LastCrashFile";
+    /*public const string UnsavedNextSessionFiles = "UnsavedNextSessionFiles";*/
 }
