@@ -93,6 +93,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public DateTime LaunchDateTime { get; } = DateTime.Now;
 
     public event Action<DocumentViewModel> BeforeDocumentClosed;
+    public event Action<LazyDocumentViewModel> LazyDocumentClosed;
 
     public ViewModelMain()
     {
@@ -170,6 +171,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
         DocumentManagerSubViewModel.ActiveDocumentChanged += OnActiveDocumentChanged;
         BeforeDocumentClosed += OnBeforeDocumentClosed;
+        LazyDocumentClosed += OnLazyDocumentClosed;
     }
 
     public bool DocumentIsNotNull(object property)
@@ -185,6 +187,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     [RelayCommand]
     public async Task CloseWindow()
     {
+        ResetNextSessionFiles();
         UserWantsToClose = await DisposeAllDocumentsWithSaveConfirmation();
 
         if (UserWantsToClose)
@@ -195,6 +198,11 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
                 await analytics.StopAsync();
             }
         }
+    }
+
+    public void ResetNextSessionFiles()
+    {
+        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.NextSessionFiles, Array.Empty<SessionFile>());
     }
 
     private void ToolsSubViewModel_SelectedToolChanged(object sender, SelectedToolEventArgs e)
@@ -236,6 +244,12 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
             }
         }
 
+        foreach (var lazyDoc in DocumentManagerSubViewModel.LazyDocuments)
+        {
+            CloseLazyDocument(lazyDoc);
+            WindowSubViewModel.CloseViewportForLazyDocument(lazyDoc);
+        }
+
         return true;
     }
 
@@ -246,11 +260,31 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
         document.AutosaveViewModel.AutosaveOnClose();
 
-        List<SessionFile> sessionFiles = IPreferences.Current.GetLocalPreference<SessionFile[]>(PreferencesConstants.NextSessionFiles)?.ToList() ?? new();
-        sessionFiles.RemoveAll(x => x.OriginalFilePath == document.FullFilePath || x.AutosaveFilePath == document.AutosaveViewModel.LastAutosavedPath);
+        List<SessionFile> sessionFiles = IPreferences.Current
+            .GetLocalPreference<SessionFile[]>(PreferencesConstants.NextSessionFiles)?.ToList() ?? new();
+        sessionFiles.RemoveAll(x =>
+            x.OriginalFilePath == document.FullFilePath ||
+            x.AutosaveFilePath == document.AutosaveViewModel.LastAutosavedPath);
         sessionFiles.Add(new SessionFile(document.FullFilePath, document.AutosaveViewModel.LastAutosavedPath));
 
         IPreferences.Current.UpdateLocalPreference(PreferencesConstants.NextSessionFiles, sessionFiles.ToArray());
+    }
+
+    private void OnLazyDocumentClosed(LazyDocumentViewModel document)
+    {
+        List<SessionFile> sessionFiles = IPreferences.Current
+            .GetLocalPreference<SessionFile[]>(PreferencesConstants.NextSessionFiles)?.ToList() ?? new();
+        sessionFiles.RemoveAll(x =>
+            x.OriginalFilePath == document.OriginalPath ||
+            x.AutosaveFilePath == document.Path);
+        sessionFiles.Add(new SessionFile(document.OriginalPath, document.Path));
+
+        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.NextSessionFiles, sessionFiles.ToArray());
+    }
+
+    internal void CloseLazyDocument(LazyDocumentViewModel document)
+    {
+        LazyDocumentClosed?.Invoke(document);
     }
 
     /// <summary>
@@ -296,7 +330,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
                 if (DocumentManagerSubViewModel.Documents.Count > 0)
                     WindowSubViewModel.MakeDocumentViewportActive(DocumentManagerSubViewModel.Documents.Last());
                 else
-                    WindowSubViewModel.MakeDocumentViewportActive(null);
+                    WindowSubViewModel.MakeDocumentViewportActive((DocumentViewModel)null);
             }
 
             WindowSubViewModel.CloseViewportsForDocument(document);

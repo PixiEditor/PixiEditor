@@ -261,6 +261,17 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         return null;
     }
 
+    public LazyDocumentViewModel OpenFromPathLazy(string path, bool associatePath = true)
+    {
+        if (MakeExistingDocumentActiveIfOpened(path))
+            return null;
+
+        LazyDocumentViewModel lazyDoc = new LazyDocumentViewModel(path, associatePath);
+        AddLazyDocumentToTheSystem(lazyDoc);
+
+        return lazyDoc;
+    }
+
     private bool IsCustomFormat(string path)
     {
         string extension = Path.GetExtension(path);
@@ -489,6 +500,13 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         return doc;
     }
 
+    public void AddLazyDocumentToTheSystem(LazyDocumentViewModel doc)
+    {
+        Owner.DocumentManagerSubViewModel.LazyDocuments.Add(doc);
+        Owner.WindowSubViewModel.CreateNewViewport(doc);
+        Owner.WindowSubViewModel.MakeDocumentViewportActive(doc);
+    }
+
     private void AddDocumentViewModelToTheSystem(DocumentViewModel doc)
     {
         Owner.DocumentManagerSubViewModel.Documents.Add(doc);
@@ -646,12 +664,6 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     {
         var preferences = Owner.Preferences;
 
-        // Todo sure, no session saving, but shouldn't we still load backups in case of unexpected shutdown?
-        // it probably should be handled elsewhere
-        if (!preferences.GetPreference<bool>(PreferencesConstants.SaveSessionStateEnabled,
-                PreferencesConstants.SaveSessionStateDefault))
-            return;
-
         var history =
             preferences.GetLocalPreference<List<AutosaveHistorySession>>(PreferencesConstants.AutosaveHistory);
 
@@ -671,11 +683,16 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
+        if (!preferences.GetPreference<bool>(PreferencesConstants.SaveSessionStateEnabled,
+                PreferencesConstants.SaveSessionStateDefault))
+            return;
+
         var nextSessionFiles = preferences.GetLocalPreference<SessionFile[]>(PreferencesConstants.NextSessionFiles, []);
         List<List<AutosaveHistoryEntry>> perDocumentHistories = (
             from entry in lastSession.AutosaveEntries
             where nextSessionFiles.Any(a =>
-                a.AutosaveFilePath == AutosaveHelper.GetAutosavePath(entry.TempFileGuid) || entry.Type != AutosaveHistoryType.OnClose)
+                a.AutosaveFilePath == AutosaveHelper.GetAutosavePath(entry.TempFileGuid) ||
+                entry.Type != AutosaveHistoryType.OnClose)
             group entry by entry.TempFileGuid
             into entryGroup
             select entryGroup.OrderBy(a => a.DateTime).ToList()
@@ -691,14 +708,14 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 if (lastEntry.Type != AutosaveHistoryType.OnClose)
                 {
                     // unexpected shutdown happened, this file wasn't saved on close, but we supposedly have a backup
-                    LoadNewest(lastEntry);
+                    LoadNewest(lastEntry, true);
                     toLoad.RemoveAll(a =>
                         a.AutosaveFilePath == AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid)
                         || a.OriginalFilePath == lastEntry.OriginalPath);
                 }
-                else if (lastEntry.Result == AutosaveHistoryResult.SavedBackup)
+                else if (lastEntry.Result == AutosaveHistoryResult.SavedBackup || lastEntry.OriginalPath == null)
                 {
-                    LoadFromAutosave(lastEntry);
+                    LoadFromAutosave(lastEntry, true);
                     toLoad.RemoveAll(a =>
                         a.AutosaveFilePath == AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid)
                         || a.OriginalFilePath == lastEntry.OriginalPath);
@@ -736,7 +753,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             foreach (var backup in lastBackups)
             {
                 AutosaveHistoryEntry lastEntry = backup[^1];
-                LoadNewest(lastEntry);
+                LoadNewest(lastEntry, false);
             }
 
             OptionsDialog<LocalizedString> dialog = new OptionsDialog<LocalizedString>("UNEXPECTED_SHUTDOWN",
@@ -754,7 +771,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private void LoadNewest(AutosaveHistoryEntry lastEntry)
+    private void LoadNewest(AutosaveHistoryEntry lastEntry, bool lazy)
     {
         bool loadFromUserFile = false;
 
@@ -768,15 +785,22 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         if (loadFromUserFile)
         {
-            OpenFromPath(lastEntry.OriginalPath);
+            if (lazy)
+            {
+                OpenFromPathLazy(lastEntry.OriginalPath);
+            }
+            else
+            {
+                OpenFromPath(lastEntry.OriginalPath);
+            }
         }
         else
         {
-            LoadFromAutosave(lastEntry);
+            LoadFromAutosave(lastEntry, lazy);
         }
     }
 
-    private void LoadFromAutosave(AutosaveHistoryEntry entry)
+    private void LoadFromAutosave(AutosaveHistoryEntry entry, bool lazy)
     {
         string path = AutosaveHelper.GetAutosavePath(entry.TempFileGuid);
         if (path == null || !File.Exists(path))
@@ -785,8 +809,16 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        var document = OpenFromPath(path, false);
-        document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(entry.TempFileGuid, path);
+        if (lazy)
+        {
+            var lazyDoc = OpenFromPathLazy(path, false);
+            lazyDoc.SetTempFileGuidAndLastSavedPath(entry.TempFileGuid, entry.OriginalPath);
+        }
+        else
+        {
+            var document = OpenFromPath(path, false);
+            document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(entry.TempFileGuid, path);
+        }
     }
 
     private List<RecentlyOpenedDocument> GetRecentlyOpenedDocuments()
@@ -802,5 +834,18 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
 
         return documents;
+    }
+
+    public void LoadLazyDocument(LazyDocumentViewModel lazyDocument)
+    {
+        var document = OpenFromPath(lazyDocument.Path, lazyDocument.AssociatePath);
+
+        if (document is null)
+        {
+            NoticeDialog.Show("FAILED_TO_OPEN_FILE", "ERROR");
+            return;
+        }
+
+        document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(lazyDocument.TempFileGuid, lazyDocument.Path);
     }
 }

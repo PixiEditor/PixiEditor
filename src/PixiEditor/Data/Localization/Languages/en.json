@@ -918,5 +918,6 @@
   "AUTOSAVE_SETTINGS_PERIOD": "Autosave period",
   "AUTOSAVE_ENABLED": "Autosave enabled",
   "MINUTE_UNIVERSAL": "min",
-  "AUTOSAVE_SETTINGS_SAVE_USER_FILE": "Autosave to selected file"
+  "AUTOSAVE_SETTINGS_SAVE_USER_FILE": "Autosave to selected file",
+  "LOAD_LAZY_FILE_MESSAGE": "To improve startup time, PixiEditor didn't load this file. Click the button below to load it.",
 }
