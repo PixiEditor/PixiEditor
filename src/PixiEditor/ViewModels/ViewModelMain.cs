@@ -15,6 +15,7 @@ using PixiEditor.Models.Config;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.DocumentModels;
+using PixiEditor.Models.DocumentModels.Autosave;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.Handlers;
 using PixiEditor.OperatingSystem;
@@ -244,6 +245,12 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
             return;
 
         document.AutosaveViewModel.AutosaveOnClose();
+
+        List<SessionFile> sessionFiles = IPreferences.Current.GetLocalPreference<SessionFile[]>(PreferencesConstants.NextSessionFiles)?.ToList() ?? new();
+        sessionFiles.RemoveAll(x => x.OriginalFilePath == document.FullFilePath || x.AutosaveFilePath == document.AutosaveViewModel.LastAutosavedPath);
+        sessionFiles.Add(new SessionFile(document.FullFilePath, document.AutosaveViewModel.LastAutosavedPath));
+
+        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.NextSessionFiles, sessionFiles.ToArray());
     }
 
     /// <summary>
@@ -294,6 +301,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
             WindowSubViewModel.CloseViewportsForDocument(document);
             document.Dispose();
+            document.AutosaveViewModel.OnDocumentClosed();
 
             return true;
         }

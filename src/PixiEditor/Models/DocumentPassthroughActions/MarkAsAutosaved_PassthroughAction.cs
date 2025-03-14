@@ -11,4 +11,4 @@ internal enum DocumentMarkType
     UnAutosaved
 }
 
-internal record class MarkAsSavedAutosaved_PassthroughAction(DocumentMarkType Type) : IChangeInfo, IAction;
+internal record class MarkAsAutosaved_PassthroughAction(DocumentMarkType Type) : IChangeInfo, IAction;

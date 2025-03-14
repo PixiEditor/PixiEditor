@@ -308,6 +308,7 @@ internal class CrashReport : IDisposable
             .AppendLine($"  Size: {document.SizeBindable}")
             .AppendLine($"  Layer Count: {FormatObject(document.StructureHelper.GetAllLayers().Count)}")
             .AppendLine($"  Has all changes saved: {document.AllChangesSaved}")
+            .AppendLine($"  Has all changes autosaved: {document.AllChangesAutosaved}")
             .AppendLine($"  Horizontal Symmetry Enabled: {document.HorizontalSymmetryAxisEnabledBindable}")
             .AppendLine($"  Horizontal Symmetry Value: {FormatObject(document.HorizontalSymmetryAxisYBindable)}")
             .AppendLine($"  Vertical Symmetry Enabled: {document.VerticalSymmetryAxisEnabledBindable}")
@@ -470,20 +471,15 @@ internal class CrashReport : IDisposable
                     .Where(x =>
                         x.FullName.StartsWith("Documents") &&
                         x.FullName.EndsWith(".pixi"))
-                    .Select(entry => new RecoveredPixi(null, null, entry, null)));
+                    .Select(entry => new RecoveredPixi(null, null, entry)));
 
             return recoveredDocuments;
         }
 
         foreach (var doc in sessionInfo.OpenedDocuments)
         {
-            ZipArchiveEntry? autosaved = null;
-            if (doc.AutosavePath != null)
-            {
-                autosaved = ZipFile.GetEntry($"Autosave/{Path.GetFileName(doc.AutosavePath)}");
-            }
-
-            recoveredDocuments.Add(new RecoveredPixi(doc.OriginalPath, doc.AutosavePath, ZipFile.GetEntry($"Documents/{doc.ZipName}"), autosaved));
+            recoveredDocuments.Add(new RecoveredPixi(doc.OriginalPath, doc.AutosavePath,
+                ZipFile.GetEntry($"Documents/{doc.ZipName}")));
         }
 
         return recoveredDocuments;
@@ -575,23 +571,11 @@ internal class CrashReport : IDisposable
 
                 using Stream documentStream = archive.CreateEntry($"Documents/{nameInZip}").Open();
                 documentStream.Write(serialized);
+                document.AutosaveViewModel.Autosave(AutosaveHistoryType.Crash);
 
                 originalPaths.Add(new CrashedFileInfo(nameInZip, document.FullFilePath,
                     document.AutosaveViewModel.LastAutosavedPath));
-            }
-            catch { }
 
-            try
-            {
-                if (document.AutosaveViewModel.LastAutosavedPath != null)
-                {
-                    using var file = File.OpenRead(document.AutosaveViewModel.LastAutosavedPath);
-                    using var entry = archive
-                        .CreateEntry($"Autosave/{Path.GetFileName(document.AutosaveViewModel.LastAutosavedPath)}")
-                        .Open();
-
-                    file.CopyTo(entry);
-                }
             }
             catch { }
 
@@ -638,7 +622,6 @@ internal class CrashReport : IDisposable
         public string? AutosavePath { get; }
 
         public ZipArchiveEntry RecoveredEntry { get; }
-        public ZipArchiveEntry? AutosaveEntry { get; }
 
         public byte[] GetRecoveredBytes()
         {
@@ -650,22 +633,23 @@ internal class CrashReport : IDisposable
             return buffer;
         }
 
-        public byte[] GetAutosaveBytes()
-        {
-            var buffer = new byte[AutosaveEntry.Length];
-            using var stream = AutosaveEntry.Open();
-
-            stream.ReadExactly(buffer);
-
-            return buffer;
-        }
-
-        public RecoveredPixi(string? originalPath, string? autosavePath, ZipArchiveEntry recoveredEntry, ZipArchiveEntry? autosaveEntry)
+        public RecoveredPixi(string? originalPath, string? autosavePath, ZipArchiveEntry recoveredEntry)
         {
             OriginalPath = originalPath;
             AutosavePath = autosavePath;
             RecoveredEntry = recoveredEntry;
-            AutosaveEntry = autosaveEntry;
+        }
+
+        public byte[] TryGetAutoSaveBytes()
+        {
+            if (AutosavePath == null)
+                return [];
+
+            string autosavePixiFile = AutosavePath;
+            if (!File.Exists(autosavePixiFile))
+                return [];
+
+            return File.ReadAllBytes(autosavePixiFile);
         }
     }
 }

@@ -912,5 +912,11 @@
   "UNEXPECTED_SHUTDOWN": "Unexpected shutdown",
   "UNEXPECTED_SHUTDOWN_MSG": "PixiEditor was unexpectedly shut down. We've loaded latest autosave of your files.",
   "OK": "OK",
-  "OPEN_AUTOSAVES": "Browse Autosaves"
+  "OPEN_AUTOSAVES": "Browse Autosaves",
+  "AUTOSAVE_SETTINGS_HEADER": "Autosave",
+  "AUTOSAVE_SETTINGS_SAVE_STATE": "Reopen last files on startup",
+  "AUTOSAVE_SETTINGS_PERIOD": "Autosave period",
+  "AUTOSAVE_ENABLED": "Autosave enabled",
+  "MINUTE_UNIVERSAL": "min",
+  "AUTOSAVE_SETTINGS_SAVE_USER_FILE": "Autosave to selected file"
 }

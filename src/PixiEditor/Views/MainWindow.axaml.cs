@@ -102,8 +102,6 @@ internal partial class MainWindow : Window
 
         fileVM.OpenFromReport(report, out showMissingFilesDialog);
 
-        showMissingFilesDialog = documents.Count != i;
-
         return window;
 
         MainWindow GetMainWindow(Guid? analyticsSession)

@@ -11,6 +11,7 @@ namespace PixiEditor.ViewModels.Document;
 internal class AutosaveDocumentViewModel : ObservableObject
 {
     private AutosaveStateData? autosaveStateData;
+
     public AutosaveStateData? AutosaveStateData
     {
         get => autosaveStateData;
@@ -18,6 +19,7 @@ internal class AutosaveDocumentViewModel : ObservableObject
     }
 
     private bool currentDocumentAutosaveEnabled = true;
+
     public bool CurrentDocumentAutosaveEnabled
     {
         get => currentDocumentAutosaveEnabled;
@@ -38,9 +40,16 @@ internal class AutosaveDocumentViewModel : ObservableObject
 
     public string LastAutosavedPath { get; set; }
 
-    private static bool SaveUserFileEnabled => IPreferences.Current!.GetPreference(PreferencesConstants.AutosaveToDocumentPath, PreferencesConstants.AutosaveToDocumentPathDefault);
-    private static double AutosavePeriod => IPreferences.Current!.GetPreference(PreferencesConstants.AutosavePeriodMinutes, PreferencesConstants.AutosavePeriodDefault);
-    private static bool AutosaveEnabledGlobally => IPreferences.Current!.GetPreference(PreferencesConstants.AutosaveEnabled, PreferencesConstants.AutosaveEnabledDefault);
+    private static bool SaveUserFileEnabled => IPreferences.Current!.GetPreference(
+        PreferencesConstants.AutosaveToDocumentPath, PreferencesConstants.AutosaveToDocumentPathDefault);
+
+    private static double AutosavePeriod =>
+        IPreferences.Current!.GetPreference(PreferencesConstants.AutosavePeriodMinutes,
+            PreferencesConstants.AutosavePeriodDefault);
+
+    private static bool AutosaveEnabledGlobally =>
+        IPreferences.Current!.GetPreference(PreferencesConstants.AutosaveEnabled,
+            PreferencesConstants.AutosaveEnabledDefault);
 
     public AutosaveDocumentViewModel(DocumentViewModel document, DocumentInternalParts internals)
     {
@@ -75,12 +84,12 @@ internal class AutosaveDocumentViewModel : ObservableObject
         AutosaveStateData = autosaver.State;
     }
 
-    public bool AutosaveOnClose()
+    public bool Autosave(AutosaveHistoryType type)
     {
         if (Document.AllChangesSaved)
         {
             AddAutosaveHistoryEntry(
-                AutosaveHistoryType.OnClose,
+                type,
                 AutosaveHistoryResult.NothingToSave);
             return true;
         }
@@ -92,7 +101,10 @@ internal class AutosaveDocumentViewModel : ObservableObject
             ExportConfig config = new ExportConfig(Document.SizeBindable);
             bool success = Exporter.TrySave(Document, filePath, config, null) == SaveResult.Success;
             if (success)
-                AddAutosaveHistoryEntry(AutosaveHistoryType.OnClose, AutosaveHistoryResult.SavedBackup);
+            {
+                AddAutosaveHistoryEntry(type, AutosaveHistoryResult.SavedBackup);
+                LastAutosavedPath = filePath;
+            }
 
             return success;
         }
@@ -102,16 +114,24 @@ internal class AutosaveDocumentViewModel : ObservableObject
         }
     }
 
+    public bool AutosaveOnClose()
+    {
+        return Autosave(AutosaveHistoryType.OnClose);
+    }
+
     public void AddAutosaveHistoryEntry(AutosaveHistoryType type, AutosaveHistoryResult result)
     {
-        List<AutosaveHistorySession>? historySessions = IPreferences.Current!.GetLocalPreference<List<AutosaveHistorySession>>(PreferencesConstants.AutosaveHistory);
+        List<AutosaveHistorySession>? historySessions =
+            IPreferences.Current!.GetLocalPreference<List<AutosaveHistorySession>>(PreferencesConstants
+                .AutosaveHistory);
         if (historySessions is null)
             historySessions = new();
 
         AutosaveHistorySession currentSession;
         if (historySessions.Count == 0 || historySessions[^1].SessionGuid != ViewModelMain.Current.CurrentSessionId)
         {
-            currentSession = new AutosaveHistorySession(ViewModelMain.Current.CurrentSessionId, ViewModelMain.Current.LaunchDateTime);
+            currentSession = new AutosaveHistorySession(ViewModelMain.Current.CurrentSessionId,
+                ViewModelMain.Current.LaunchDateTime);
             historySessions.Add(currentSession);
         }
         else

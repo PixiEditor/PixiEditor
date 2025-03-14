@@ -3,5 +3,6 @@
 internal enum AutosaveHistoryType
 {
     Periodic,
-    OnClose
+    OnClose,
+    Crash
 }

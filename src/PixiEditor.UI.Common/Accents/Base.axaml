@@ -96,6 +96,9 @@
             <Color x:Key="VerticalSnapAxisColor">#5fad65</Color>
             <Color x:Key="SnapPointPreviewColor">#68abdf</Color>
 
+            <Color x:Key="AutosaveDotColor">white</Color>
+            <Color x:Key="UnsavedDotColor">white</Color>
+
             <system:Double x:Key="ThemeDisabledOpacity">0.4</system:Double>
 
             <SolidColorBrush x:Key="ThemeForegroundLowBrush" Color="gray"></SolidColorBrush>
@@ -204,6 +207,9 @@
             <SolidColorBrush x:Key="DockApplicationAccentBrushHigh" Color="{DynamicResource AccentHighColor}"/>
             <SolidColorBrush x:Key="DockApplicationAccentForegroundBrush" Color="{DynamicResource ThemeForegroundColor}"/>
             <SolidColorBrush x:Key="DockApplicationAccentBrushIndicator" Color="{DynamicResource AccentColor}"/>
+
+            <SolidColorBrush x:Key="UnsavedDotBrush" Color="{DynamicResource UnsavedDotColor}"/>
+            <SolidColorBrush x:Key="AutosaveDotBrush" Color="{DynamicResource AutosaveDotColor}"/>
 
             <SolidColorBrush x:Key="DockThemeBorderLowBrush" Color="{DynamicResource ThemeBorderMidColor}" />
             <SolidColorBrush x:Key="DockThemeBackgroundBrush" Color="{DynamicResource ThemeBackgroundColor}" />

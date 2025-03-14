@@ -26,5 +26,5 @@ public static class PreferencesConstants
     public const bool AutosaveToDocumentPathDefault = false;
 
     public const string LastCrashFile = "LastCrashFile";
-    /*public const string UnsavedNextSessionFiles = "UnsavedNextSessionFiles";*/
+    public const string NextSessionFiles = "NextSessionFiles";
 }

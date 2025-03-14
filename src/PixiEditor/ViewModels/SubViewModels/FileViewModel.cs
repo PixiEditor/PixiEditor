@@ -416,7 +416,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                     try
                     {
                         OpenRecoveredDotPixi(document.OriginalPath, document.AutosavePath,
-                            AutosaveHelper.GetAutosaveGuid(document.AutosavePath), document.GetAutosaveBytes());
+                            AutosaveHelper.GetAutosaveGuid(document.AutosavePath), document.TryGetAutoSaveBytes());
                     }
                     catch (Exception veryDeepE)
                     {
@@ -664,20 +664,24 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         if (lastSession.AutosaveEntries.Count == 0)
             return;
 
+        bool shutdownWasUnexpected = lastSession.AutosaveEntries.All(a => a.Type != AutosaveHistoryType.OnClose);
+        if (shutdownWasUnexpected)
+        {
+            LoadFromUnexpectedShutdown(lastSession);
+            return;
+        }
+
+        var nextSessionFiles = preferences.GetLocalPreference<SessionFile[]>(PreferencesConstants.NextSessionFiles, []);
         List<List<AutosaveHistoryEntry>> perDocumentHistories = (
             from entry in lastSession.AutosaveEntries
+            where nextSessionFiles.Any(a =>
+                a.AutosaveFilePath == AutosaveHelper.GetAutosavePath(entry.TempFileGuid) || entry.Type != AutosaveHistoryType.OnClose)
             group entry by entry.TempFileGuid
             into entryGroup
             select entryGroup.OrderBy(a => a.DateTime).ToList()
         ).ToList();
 
-        bool shutdownWasUnexpected = lastSession.AutosaveEntries.All(a => a.Type != AutosaveHistoryType.OnClose);
-        if (shutdownWasUnexpected)
-        {
-            LoadFromUnexpectedShutdown(lastSession);
-
-            return;
-        }
+        var toLoad = nextSessionFiles.ToList();
 
         foreach (var documentHistory in perDocumentHistories)
         {
@@ -687,26 +691,17 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 if (lastEntry.Type != AutosaveHistoryType.OnClose)
                 {
                     // unexpected shutdown happened, this file wasn't saved on close, but we supposedly have a backup
-                    LoadFromAutosave(lastEntry);
+                    LoadNewest(lastEntry);
+                    toLoad.RemoveAll(a =>
+                        a.AutosaveFilePath == AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid)
+                        || a.OriginalFilePath == lastEntry.OriginalPath);
                 }
-                else
+                else if (lastEntry.Result == AutosaveHistoryResult.SavedBackup)
                 {
-                    switch (lastEntry.Result)
-                    {
-                        case AutosaveHistoryResult.SavedBackup:
-                            LoadFromAutosave(lastEntry);
-                            break;
-                        case AutosaveHistoryResult.SavedUserFile:
-                        case AutosaveHistoryResult.NothingToSave:
-                            if (lastEntry.OriginalPath != null)
-                            {
-                                OpenFromPath(lastEntry.OriginalPath);
-                            }
-
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
+                    LoadFromAutosave(lastEntry);
+                    toLoad.RemoveAll(a =>
+                        a.AutosaveFilePath == AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid)
+                        || a.OriginalFilePath == lastEntry.OriginalPath);
                 }
             }
             catch (Exception e)
@@ -715,7 +710,16 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             }
         }
 
+        foreach (var file in toLoad)
+        {
+            if (file.OriginalFilePath != null)
+            {
+                OpenFromPath(file.OriginalFilePath);
+            }
+        }
+
         Owner.AutosaveViewModel.CleanupAutosavedFilesAndHistory();
+        preferences.UpdateLocalPreference(PreferencesConstants.NextSessionFiles, Array.Empty<SessionFile>());
     }
 
     private void LoadFromUnexpectedShutdown(AutosaveHistorySession lastSession)
@@ -732,25 +736,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             foreach (var backup in lastBackups)
             {
                 AutosaveHistoryEntry lastEntry = backup[^1];
-
-                bool loadFromUserFile = false;
-
-                if (lastEntry.OriginalPath != null && File.Exists(lastEntry.OriginalPath))
-                {
-                    DateTime saveFileWriteTime = File.GetLastWriteTime(lastEntry.OriginalPath);
-                    DateTime autosaveWriteTime = lastEntry.DateTime;
-
-                    loadFromUserFile = saveFileWriteTime > autosaveWriteTime;
-                }
-
-                if (loadFromUserFile)
-                {
-                    OpenFromPath(lastEntry.OriginalPath);
-                }
-                else
-                {
-                    LoadFromAutosave(lastEntry);
-                }
+                LoadNewest(lastEntry);
             }
 
             OptionsDialog<LocalizedString> dialog = new OptionsDialog<LocalizedString>("UNEXPECTED_SHUTDOWN",
@@ -765,6 +751,28 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         catch (Exception e)
         {
             CrashHelper.SendExceptionInfo(e);
+        }
+    }
+
+    private void LoadNewest(AutosaveHistoryEntry lastEntry)
+    {
+        bool loadFromUserFile = false;
+
+        if (lastEntry.OriginalPath != null && File.Exists(lastEntry.OriginalPath))
+        {
+            DateTime saveFileWriteTime = File.GetLastWriteTime(lastEntry.OriginalPath);
+            DateTime autosaveWriteTime = lastEntry.DateTime;
+
+            loadFromUserFile = saveFileWriteTime > autosaveWriteTime;
+        }
+
+        if (loadFromUserFile)
+        {
+            OpenFromPath(lastEntry.OriginalPath);
+        }
+        else
+        {
+            LoadFromAutosave(lastEntry);
         }
     }
 

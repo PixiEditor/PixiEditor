@@ -62,11 +62,11 @@ internal class FileSettings : SettingsGroup
         set => RaiseAndUpdatePreference(ref autosaveEnabled, value);
     }
 
-    private bool saveSessionEnabled = GetPreference(PreferencesConstants.SaveSessionStateEnabled, PreferencesConstants.SaveSessionStateDefault);
-    public bool SaveSessionEnabled
+    private bool saveSessionStateEnabled = GetPreference(PreferencesConstants.SaveSessionStateEnabled, PreferencesConstants.SaveSessionStateDefault);
+    public bool SaveSessionStateEnabled
     {
-        get => saveSessionEnabled;
-        set => RaiseAndUpdatePreference(ref saveSessionEnabled, value);
+        get => saveSessionStateEnabled;
+        set => RaiseAndUpdatePreference(ref saveSessionStateEnabled, value);
     }
 
     private double autosavePeriodMinutes = GetPreference(PreferencesConstants.AutosavePeriodMinutes, PreferencesConstants.AutosavePeriodDefault);

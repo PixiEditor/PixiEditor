@@ -35,4 +35,10 @@ public static class ThemeResources
 
     public static SolidColorBrush ThemeControlLowBrush =>
         ResourceLoader.GetResource<SolidColorBrush>("ThemeControlLowBrush", Application.Current.ActualThemeVariant);
+
+    public static IBrush AutosaveDotBrush =>
+        ResourceLoader.GetResource<IBrush>("AutosaveDotBrush", Application.Current.ActualThemeVariant);
+
+    public static IBrush UnsavedDotBrush =>
+        ResourceLoader.GetResource<IBrush>("UnsavedDotBrush", Application.Current.ActualThemeVariant);
 }
