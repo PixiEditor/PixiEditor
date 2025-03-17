@@ -8,7 +8,6 @@ body:
   attributes:
     label: Feature Description
     description: A general description of the feature
-    placeholder: ""
   validations:
     required: true
 - type: textarea
