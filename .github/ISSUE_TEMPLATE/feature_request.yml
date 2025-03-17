@@ -1,5 +1,5 @@
-name: "Feature request"
-description: "Suggest an improvement or a feature"
+name: Feature request
+description: Suggest an improvement or a feature
 title: "[FEATURE]: "
 labels: ["enhancement"]
 body:
@@ -7,7 +7,7 @@ body:
   id: featuredesc
   attributes:
     label: Feature Description
-    description: "A general description of the feature"
+    description: A general description of the feature
     placeholder: ""
   validations:
     required: true
@@ -16,7 +16,7 @@ body:
   id: featuresteps
   attributes:
     label: Steps how to use this feature
-    description: "A step by step list how to utilize this feature. How exactly do you imagine users use it and what result they can expect?"
+    description: A step by step list how to utilize this feature. How exactly do you imagine users use it and what result they can expect?
     value: |
       1.
       2.
