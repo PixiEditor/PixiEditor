@@ -37,6 +37,7 @@ namespace PixiEditor.ViewModels.SubViewModels;
 [Command.Group("PixiEditor.File", "FILE")]
 internal class FileViewModel : SubViewModel<ViewModelMain>
 {
+    public static long LazyFileThreshold = 2 * 1024 * 1024; // 2MB
     private bool hasRecent;
 
     public bool HasRecent
@@ -735,7 +736,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         return perDocumentHistories;
     }
 
-    private void TryOpenFromSession(List<List<AutosaveHistoryEntry>> perDocumentHistories, List<SessionFile> toLoad, bool tryRecover)
+    private void TryOpenFromSession(List<List<AutosaveHistoryEntry>> perDocumentHistories, List<SessionFile> toLoad,
+        bool tryRecover)
     {
         foreach (var documentHistory in perDocumentHistories)
         {
@@ -761,7 +763,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                         continue;
                     }
 
-                    LoadFromAutosave(AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid), lastEntry.OriginalPath, true);
+                    LoadFromAutosave(AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid), lastEntry.OriginalPath,
+                        true);
                     toLoad.RemoveAll(a =>
                         (a.AutosaveFilePath != null && a.AutosaveFilePath ==
                             AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid))
@@ -807,7 +810,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private void LoadNewest(string? originalPath, string? autosavePath, bool lazy)
+    private void LoadNewest(string? originalPath, string? autosavePath, bool allowLazy)
     {
         bool loadFromUserFile = false;
 
@@ -821,7 +824,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         if (loadFromUserFile)
         {
-            if (lazy)
+            var fileSize = new FileInfo(originalPath).Length;
+            if (allowLazy && fileSize > LazyFileThreshold)
             {
                 OpenFromPathLazy(originalPath);
             }
@@ -832,11 +836,11 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
         else
         {
-            LoadFromAutosave(autosavePath, originalPath, lazy);
+            LoadFromAutosave(autosavePath, originalPath, allowLazy);
         }
     }
 
-    private void LoadFromAutosave(string autosavePath, string? originalPath, bool lazy)
+    private void LoadFromAutosave(string autosavePath, string? originalPath, bool allowLazy)
     {
         string path = autosavePath;
         if (path == null || !File.Exists(path))
@@ -846,7 +850,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
 
         Guid? autosaveGuid = AutosaveHelper.GetAutosaveGuid(autosavePath);
-        if (lazy)
+        var fileSize = new FileInfo(path).Length;
+        if (allowLazy && fileSize > LazyFileThreshold)
         {
             var lazyDoc = OpenFromPathLazy(path, false);
             lazyDoc.SetTempFileGuidAndLastSavedPath(autosaveGuid, path);
@@ -856,6 +861,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             var document = OpenFromPath(path, false);
             document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(autosaveGuid, path);
+            document.FullFilePath = originalPath;
+            document.MarkAsUnsaved();
         }
     }
 
@@ -886,7 +893,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
 
         document.FullFilePath = lazyDocument.OriginalPath;
-        document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(lazyDocument.TempFileGuid, lazyDocument.AutosavePath);
+        document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(lazyDocument.TempFileGuid,
+            lazyDocument.AutosavePath);
         if (lazyDocument.Path != lazyDocument.OriginalPath)
         {
             document.MarkAsUnsaved();
