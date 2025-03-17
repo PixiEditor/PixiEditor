@@ -11,20 +11,23 @@ using PixiEditor.Views.Visuals;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 #nullable enable
-internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockableContent, IDockableCloseEvents, IDockableSelectionEvents
+internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockableContent, IDockableCloseEvents,
+    IDockableSelectionEvents
 {
     public DocumentViewModel Document { get; }
     public ExecutionTrigger<VecI> CenterViewportTrigger { get; } = new ExecutionTrigger<VecI>();
     public ExecutionTrigger<double> ZoomViewportTrigger { get; } = new ExecutionTrigger<double>();
 
-    
+
     public string Index => _index;
 
     public string Id => id;
     public string Title => $"{Document.FileName}{Index}";
     public bool CanFloat => true;
     public bool CanClose => true;
-    public DocumentTabCustomizationSettings TabCustomizationSettings { get; } = new DocumentTabCustomizationSettings(showCloseButton: true);
+
+    public DocumentTabCustomizationSettings TabCustomizationSettings { get; } =
+        new DocumentTabCustomizationSettings(showCloseButton: true);
 
     TabCustomizationSettings IDockableContent.TabCustomizationSettings => TabCustomizationSettings;
 
@@ -44,7 +47,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
             OnPropertyChanged(nameof(FlipX));
         }
     }
-    
+
     private bool _flipY;
 
     public bool FlipY
@@ -56,7 +59,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
             OnPropertyChanged(nameof(FlipY));
         }
     }
-    
+
     public string RenderOutputName
     {
         get => renderOutputName;
@@ -68,7 +71,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     }
 
     private ViewportColorChannels _channels = ViewportColorChannels.Default;
-    
+
     public ViewportColorChannels Channels
     {
         get => _channels;
@@ -102,7 +105,8 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         Document = document;
         Document.SizeChanged += DocumentOnSizeChanged;
         Document.PropertyChanged += DocumentOnPropertyChanged;
-        previewPainterControl = new PreviewPainterControl(Document.PreviewPainter, Document.AnimationDataViewModel.ActiveFrameTime.Frame);
+        previewPainterControl = new PreviewPainterControl(Document.PreviewPainter,
+            Document.AnimationDataViewModel.ActiveFrameTime.Frame);
         TabCustomizationSettings.Icon = previewPainterControl;
     }
 
@@ -119,7 +123,11 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         }
         else if (e.PropertyName == nameof(DocumentViewModel.AllChangesSaved))
         {
-            TabCustomizationSettings.IsSaved = Document.AllChangesSaved;
+            TabCustomizationSettings.SavedState = GetSaveState(Document);
+        }
+        else if (e.PropertyName == nameof(DocumentViewModel.AllChangesAutosaved))
+        {
+            TabCustomizationSettings.SavedState = GetSaveState(Document);
         }
     }
 
@@ -150,6 +158,21 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         }
 
         return _closeRequested;
+    }
+
+    private static SavedState GetSaveState(DocumentViewModel document)
+    {
+        if (document.AllChangesSaved)
+        {
+            return SavedState.Saved;
+        }
+
+        if (document.AllChangesAutosaved)
+        {
+            return SavedState.Autosaved;
+        }
+
+        return SavedState.Unsaved;
     }
 
     void IDockableSelectionEvents.OnSelected()

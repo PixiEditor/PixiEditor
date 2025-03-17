@@ -19,7 +19,7 @@ internal abstract class ImageFileType : IoFileType
 
     public override FileTypeDialogDataSet.SetKind SetKind { get; } = FileTypeDialogDataSet.SetKind.Image;
 
-    public override async Task<SaveResult> TrySave(string pathWithExtension, DocumentViewModel document,
+    public override async Task<SaveResult> TrySaveAsync(string pathWithExtension, DocumentViewModel document,
         ExportConfig exportConfig, ExportJob? job)
     {
         Surface finalSurface;
@@ -33,13 +33,13 @@ internal abstract class ImageFileType : IoFileType
         else
         {
             job?.Report(0, new LocalizedString("RENDERING_IMAGE"));
-            
+
             var exportSize = exportConfig.ExportSize;
             if (exportSize.X <= 0 || exportSize.Y <= 0)
             {
                 return SaveResult.UnknownError; // TODO: Add InvalidParameters error type
             }
-            
+
             var maybeBitmap = document.TryRenderWholeImage(0, exportSize);
             if (maybeBitmap.IsT0)
                 return SaveResult.ConcurrencyError;
@@ -55,9 +55,53 @@ internal abstract class ImageFileType : IoFileType
         }
 
         UniversalFileEncoder encoder = new(mappedFormat);
-        var result = await TrySaveAs(encoder, pathWithExtension, finalSurface);
+        var result = await TrySaveAsAsync(encoder, pathWithExtension, finalSurface);
         finalSurface.Dispose();
-        
+
+        job?.Report(1, new LocalizedString("FINISHED"));
+
+        return result;
+    }
+
+    public override SaveResult TrySave(string pathWithExtension, DocumentViewModel document, ExportConfig config,
+        ExportJob? job)
+    {
+        Surface finalSurface;
+        if (config.ExportAsSpriteSheet)
+        {
+            job?.Report(0, new LocalizedString("GENERATING_SPRITE_SHEET"));
+            finalSurface = GenerateSpriteSheet(document, config, job);
+            if (finalSurface == null)
+                return SaveResult.UnknownError;
+        }
+        else
+        {
+            job?.Report(0, new LocalizedString("RENDERING_IMAGE"));
+
+            var exportSize = config.ExportSize;
+            if (exportSize.X <= 0 || exportSize.Y <= 0)
+            {
+                return SaveResult.UnknownError; // TODO: Add InvalidParameters error type
+            }
+
+            var maybeBitmap = document.TryRenderWholeImage(0, exportSize);
+            if (maybeBitmap.IsT0)
+                return SaveResult.ConcurrencyError;
+
+            finalSurface = maybeBitmap.AsT1;
+        }
+
+        EncodedImageFormat mappedFormat = EncodedImageFormat;
+
+        if (mappedFormat == EncodedImageFormat.Unknown)
+        {
+            return SaveResult.UnknownError;
+        }
+
+        UniversalFileEncoder encoder = new(mappedFormat);
+        var result = TrySaveAs(encoder, pathWithExtension, finalSurface);
+        finalSurface.Dispose();
+
         job?.Report(1, new LocalizedString("FINISHED"));
 
         return result;
@@ -69,32 +113,34 @@ internal abstract class ImageFileType : IoFileType
             return null;
 
         var (rows, columns) = (config.SpriteSheetRows, config.SpriteSheetColumns);
-        
+
         rows = Math.Max(1, rows);
         columns = Math.Max(1, columns);
 
         Surface surface = new Surface(new VecI(config.ExportSize.X * columns, config.ExportSize.Y * rows));
-        
+
         job?.Report(0, new LocalizedString("RENDERING_FRAME", 0, document.AnimationDataViewModel.FramesCount));
 
         document.RenderFramesProgressive(
             (frame, index) =>
-        {
-            job?.CancellationTokenSource.Token.ThrowIfCancellationRequested();
-            
-            job?.Report(index / (double)document.AnimationDataViewModel.FramesCount, new LocalizedString("RENDERING_FRAME", index, document.AnimationDataViewModel.FramesCount));
-            int x = index % columns;
-            int y = index / columns;
-            Surface target = frame;
-            if (config.ExportSize != frame.Size)
             {
-                target =
-                    frame.ResizeNearestNeighbor(new VecI(config.ExportSize.X, config.ExportSize.Y));
-            }
-            
-            surface!.DrawingSurface.Canvas.DrawSurface(target.DrawingSurface, x * config.ExportSize.X, y * config.ExportSize.Y);
-            target.Dispose();
-        }, job?.CancellationTokenSource.Token ?? CancellationToken.None);
+                job?.CancellationTokenSource.Token.ThrowIfCancellationRequested();
+
+                job?.Report(index / (double)document.AnimationDataViewModel.FramesCount,
+                    new LocalizedString("RENDERING_FRAME", index, document.AnimationDataViewModel.FramesCount));
+                int x = index % columns;
+                int y = index / columns;
+                Surface target = frame;
+                if (config.ExportSize != frame.Size)
+                {
+                    target =
+                        frame.ResizeNearestNeighbor(new VecI(config.ExportSize.X, config.ExportSize.Y));
+                }
+
+                surface!.DrawingSurface.Canvas.DrawSurface(target.DrawingSurface, x * config.ExportSize.X,
+                    y * config.ExportSize.Y);
+                target.Dispose();
+            }, job?.CancellationTokenSource.Token ?? CancellationToken.None);
 
         return surface;
     }
@@ -102,7 +148,7 @@ internal abstract class ImageFileType : IoFileType
     /// <summary>
     /// Saves image to PNG file. Messes with the passed bitmap.
     /// </summary>
-    private static async Task<SaveResult> TrySaveAs(IFileEncoder encoder, string savePath, Surface bitmap)
+    private static async Task<SaveResult> TrySaveAsAsync(IFileEncoder encoder, string savePath, Surface bitmap)
     {
         try
         {
@@ -111,6 +157,39 @@ internal abstract class ImageFileType : IoFileType
 
             await using var stream = new FileStream(savePath, FileMode.Create);
             await encoder.SaveAsync(stream, bitmap);
+        }
+        catch (SecurityException)
+        {
+            return SaveResult.SecurityError;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return SaveResult.SecurityError;
+        }
+        catch (IOException)
+        {
+            return SaveResult.IoError;
+        }
+        catch
+        {
+            return SaveResult.UnknownError;
+        }
+
+        return SaveResult.Success;
+    }
+
+    /// <summary>
+    /// Saves image to PNG file. Messes with the passed bitmap.
+    /// </summary>
+    private static SaveResult TrySaveAs(IFileEncoder encoder, string savePath, Surface bitmap)
+    {
+        try
+        {
+            if (!encoder.SupportsTransparency)
+                bitmap.DrawingSurface.Canvas.DrawColor(Colors.White, BlendMode.Multiply);
+
+            using var stream = new FileStream(savePath, FileMode.Create);
+            encoder.Save(stream, bitmap);
         }
         catch (SecurityException)
         {

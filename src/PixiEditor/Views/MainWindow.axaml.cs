@@ -100,20 +100,7 @@ internal partial class MainWindow : Window
 
         var i = 0;
 
-        foreach (var document in documents)
-        {
-            try
-            {
-                fileVM.OpenRecoveredDotPixi(document.Path, document.GetRecoveredBytes());
-                i++;
-            }
-            catch (Exception e)
-            {
-                CrashHelper.SendExceptionInfo(e);
-            }
-        }
-
-        showMissingFilesDialog = documents.Count != i;
+        fileVM.OpenFromReport(report, out showMissingFilesDialog);
 
         return window;
 

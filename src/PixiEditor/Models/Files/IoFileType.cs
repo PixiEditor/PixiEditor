@@ -47,5 +47,6 @@ internal abstract class IoFileType
         return "*" + extension;
     }
 
-    public abstract Task<SaveResult> TrySave(string pathWithExtension, DocumentViewModel document, ExportConfig config, ExportJob? job);
+    public abstract Task<SaveResult> TrySaveAsync(string pathWithExtension, DocumentViewModel document, ExportConfig config, ExportJob? job);
+    public abstract SaveResult TrySave(string pathWithExtension, DocumentViewModel document, ExportConfig config, ExportJob? job);
 }

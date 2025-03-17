@@ -107,12 +107,21 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     }
 
     private Guid? lastChangeOnSave = null;
+    private Guid? lastChangeOnAutosave = null;
 
     public bool AllChangesSaved
     {
         get
         {
             return Internals.Tracker.LastChangeGuid == lastChangeOnSave;
+        }
+    }
+
+    public bool AllChangesAutosaved
+    {
+        get
+        {
+            return Internals.Tracker.LastChangeGuid == lastChangeOnAutosave;
         }
     }
 
@@ -225,6 +234,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
     IAnimationHandler IDocument.AnimationHandler => AnimationDataViewModel;
     public bool UsesSrgbBlending { get; private set; }
+    public AutosaveDocumentViewModel AutosaveViewModel { get; }
 
     private DocumentViewModel()
     {
@@ -240,6 +250,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         AnimationDataViewModel = new(this, Internals);
 
         NodeGraph = new NodeGraphViewModel(this, Internals);
+        AutosaveViewModel = new AutosaveDocumentViewModel(this, Internals);
 
         TransformViewModel = new(this);
         TransformViewModel.TransformChanged += (args) => Internals.ChangeController.TransformChangedInlet(args);
@@ -537,14 +548,40 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public void MarkAsSaved()
     {
-        lastChangeOnSave = Internals.Tracker.LastChangeGuid;
-        OnPropertyChanged(nameof(AllChangesSaved));
+        Internals.ActionAccumulator.AddActions(new MarkAsAutosaved_PassthroughAction(DocumentMarkType.Saved));
+    }
+
+    public void MarkAsAutosaved()
+    {
+        Internals.ActionAccumulator.AddActions(new MarkAsAutosaved_PassthroughAction(DocumentMarkType.Autosaved));
     }
 
     public void MarkAsUnsaved()
     {
-        lastChangeOnSave = Guid.NewGuid();
-        OnPropertyChanged(nameof(AllChangesSaved));
+        Internals.ActionAccumulator.AddActions(new MarkAsAutosaved_PassthroughAction(DocumentMarkType.Unsaved));
+    }
+
+    public void InternalMarkSaveState(DocumentMarkType type)
+    {
+        switch (type)
+        {
+            case DocumentMarkType.Saved:
+                lastChangeOnSave = Internals.Tracker.LastChangeGuid;
+                OnPropertyChanged(nameof(AllChangesSaved));
+                break;
+            case DocumentMarkType.Unsaved:
+                lastChangeOnSave = Guid.NewGuid();
+                OnPropertyChanged(nameof(AllChangesSaved));
+                break;
+            case DocumentMarkType.Autosaved:
+                lastChangeOnAutosave = Internals.Tracker.LastChangeGuid;
+                OnPropertyChanged(nameof(AllChangesAutosaved));
+                break;
+            case DocumentMarkType.UnAutosaved:
+                lastChangeOnAutosave = Guid.NewGuid();
+                OnPropertyChanged(nameof(AllChangesAutosaved));
+                break;
+        }
     }
 
     public OneOf<Error, Surface> TryRenderWholeImage(KeyFrameTime frameTime, VecI renderSize)

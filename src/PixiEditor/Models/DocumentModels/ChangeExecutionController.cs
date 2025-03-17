@@ -229,7 +229,7 @@ internal class ChangeExecutionController
             transformableExecutor.OnTransformChanged(corners);
         }
     }
-    
+
     public void TransformDraggedInlet(VecD from, VecD to)
     {
         if (currentSession is ITransformDraggedEvent transformableExecutor)
@@ -240,7 +240,7 @@ internal class ChangeExecutionController
 
     public void TransformStoppedInlet()
     {
-        if(currentSession is ITransformStoppedEvent transformStoppedEvent)
+        if (currentSession is ITransformStoppedEvent transformStoppedEvent)
         {
             transformStoppedEvent.OnTransformStopped();
         }
@@ -257,7 +257,7 @@ internal class ChangeExecutionController
         {
             transformableExecutor.OnTransformApplied();
         }
-    } 
+    }
 
     public void SettingsChangedInlet(string name, object value)
     {
@@ -269,7 +269,7 @@ internal class ChangeExecutionController
         if (currentSession is ITransformableExecutor lineOverlayExecutor)
         {
             lineOverlayExecutor.OnLineOverlayMoved(start, end);
-        } 
+        }
     }
 
     public void SelectedObjectNudgedInlet(VecI distance)
@@ -277,7 +277,7 @@ internal class ChangeExecutionController
         if (currentSession is ITransformableExecutor transformableExecutor)
         {
             transformableExecutor.OnSelectedObjectNudged(distance);
-        } 
+        }
     }
 
     public void PrimaryColorChangedInlet(Color color)
@@ -294,7 +294,7 @@ internal class ChangeExecutionController
     {
         if (currentSession is T feature)
             return feature;
-        
+
         return default;
     }
 

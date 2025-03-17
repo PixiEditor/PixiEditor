@@ -83,6 +83,71 @@ public class FFMpegRenderer : IAnimationRenderer
         }
     }
 
+    public bool Render(List<Image> rawFrames, string outputPath, CancellationToken cancellationToken,
+        Action<double>? progressCallback)
+    {
+        string path = $"ThirdParty/{IOperatingSystem.Current.Name}/ffmpeg";
+
+        string binaryPath = Path.Combine(Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory), path);
+
+        GlobalFFOptions.Configure(new FFOptions() { BinaryFolder = binaryPath });
+
+        if (IOperatingSystem.Current.IsUnix)
+        {
+            MakeExecutableIfNeeded(binaryPath);
+        }
+
+        string paletteTempPath = Path.Combine(Path.GetDirectoryName(outputPath), "RenderTemp", "palette.png");
+
+        try
+        {
+            List<ImgFrame> frames = new();
+
+            foreach (var frame in rawFrames)
+            {
+                frames.Add(new ImgFrame(frame));
+            }
+
+            RawVideoPipeSource streamPipeSource = new(frames) { FrameRate = FrameRate, };
+
+
+            if (!Directory.Exists(Path.GetDirectoryName(paletteTempPath)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(paletteTempPath));
+            }
+
+            if (RequiresPaletteGeneration())
+            {
+                GeneratePalette(streamPipeSource, paletteTempPath);
+            }
+
+            streamPipeSource = new(frames) { FrameRate = FrameRate, };
+
+            var args = FFMpegArguments
+                .FromPipeInput(streamPipeSource, options =>
+                {
+                    options.WithFramerate(FrameRate);
+                });
+
+            var outputArgs = GetProcessorForFormat(args, outputPath, paletteTempPath);
+            TimeSpan totalTimeSpan = TimeSpan.FromSeconds(frames.Count / (float)FrameRate);
+            var result = outputArgs.CancellableThrough(cancellationToken)
+                .NotifyOnProgress(progressCallback, totalTimeSpan).ProcessSynchronously();
+
+            DisposeStream(frames);
+
+            return result;
+        }
+        finally
+        {
+            if (RequiresPaletteGeneration() && File.Exists(paletteTempPath))
+            {
+                File.Delete(paletteTempPath);
+                Directory.Delete(Path.GetDirectoryName(paletteTempPath));
+            }
+        }
+    }
+
     private static void MakeExecutableIfNeeded(string binaryPath)
     {
         string filePath = Path.Combine(binaryPath, "ffmpeg");

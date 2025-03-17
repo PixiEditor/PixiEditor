@@ -147,6 +147,10 @@
       <DependentUpon>ColorPropertyView.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\Dock\LazyDocumentTemplate.axaml.cs">
+      <DependentUpon>LazyDocumentTemplate.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

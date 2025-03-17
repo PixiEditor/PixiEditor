@@ -908,6 +908,16 @@
   "TEMPERATURE_VALUE": "Temperature",
   "TINT_VALUE": "Tint",
   "FAILED_DOWNLOADING_UPDATE_TITLE": "Failed to download update",
-  "FAILED_DOWNLOADING_UPDATE": "Failed to download the update. Try again later."
-
+  "FAILED_DOWNLOADING_UPDATE": "Failed to download the update. Try again later.",
+  "UNEXPECTED_SHUTDOWN": "Unexpected shutdown",
+  "UNEXPECTED_SHUTDOWN_MSG": "PixiEditor was unexpectedly shut down. We've loaded latest autosave of your files.",
+  "OK": "OK",
+  "OPEN_AUTOSAVES": "Browse Autosaves",
+  "AUTOSAVE_SETTINGS_HEADER": "Autosave",
+  "AUTOSAVE_SETTINGS_SAVE_STATE": "Reopen last files on startup",
+  "AUTOSAVE_SETTINGS_PERIOD": "Autosave period",
+  "AUTOSAVE_ENABLED": "Autosave enabled",
+  "MINUTE_UNIVERSAL": "min",
+  "AUTOSAVE_SETTINGS_SAVE_USER_FILE": "Autosave to selected file",
+  "LOAD_LAZY_FILE_MESSAGE": "To improve startup time, PixiEditor didn't load this file. Click the button below to load it.",
 }

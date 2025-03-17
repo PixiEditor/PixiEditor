@@ -84,6 +84,26 @@ internal partial class CrashReportViewModel : Window
         return hasRecoveredDocuments;
     }
 
+    public static void ShowMissingFilesDialog(CrashReport crashReport)
+    {
+        var dialog = new OptionsDialog<LocalizedString>(
+            "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE",
+            new LocalizedString("CRASH_NOT_ALL_DOCUMENTS_RECOVERED"), MainWindow.Current)
+        {
+            {
+                "SEND", _ =>
+                {
+                    var sendReportDialog = new SendCrashReportDialog(crashReport);
+                    sendReportDialog.ShowDialog(MainWindow.Current);
+                }
+            },
+            "CLOSE"
+        };
+
+        dialog.ShowDialog(true);
+    }
+
+
     [Conditional("DEBUG")]
     private void SetIsDebug()
     {

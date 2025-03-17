@@ -214,6 +214,9 @@ internal class DocumentUpdater
             case ProcessingColorSpace_ChangeInfo info:
                 ProcessProcessingColorSpace(info);
                 break;
+            case MarkAsAutosaved_PassthroughAction info:
+                MarkAsAutosaved(info);
+                break;
         }
     }
 
@@ -795,5 +798,10 @@ internal class DocumentUpdater
     private void ProcessProcessingColorSpace(ProcessingColorSpace_ChangeInfo info)
     {
         doc.SetProcessingColorSpace(info.NewColorSpace);
+    }
+
+    private void MarkAsAutosaved(MarkAsAutosaved_PassthroughAction info)
+    {
+        doc.InternalMarkSaveState(info.Type);
     }
 }

@@ -13,6 +13,7 @@ using PixiEditor.Linux;
 #endif
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands;
+using PixiEditor.Models.DocumentModels.Autosave;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels;
@@ -198,6 +199,8 @@ internal class CrashReport : IDisposable
             .AppendLine($"  Has shared toolbar enabled: {GetPreferenceFormatted("EnableSharedToolbar", true, false)}")
             .AppendLine($"  Right click mode: {GetPreferenceFormatted<RightClickMode>("RightClickMode", true)}")
             .AppendLine($"  Has Rich presence enabled: {GetPreferenceFormatted("EnableRichPresence", true, true)}")
+            .AppendLine(
+                $"   Autosaving Enabled: {GetPreferenceFormatted(PreferencesConstants.AutosaveEnabled, true, PreferencesConstants.AutosaveEnabledDefault)}")
             .AppendLine($"  Debug Mode enabled: {GetPreferenceFormatted("IsDebugModeEnabled", true, false)}")
             .AppendLine("\nUI:")
             .AppendLine($"  MainWindow not null: {GetFormatted(() => MainWindow.Current != null)}")
@@ -305,6 +308,7 @@ internal class CrashReport : IDisposable
             .AppendLine($"  Size: {document.SizeBindable}")
             .AppendLine($"  Layer Count: {FormatObject(document.StructureHelper.GetAllLayers().Count)}")
             .AppendLine($"  Has all changes saved: {document.AllChangesSaved}")
+            .AppendLine($"  Has all changes autosaved: {document.AllChangesAutosaved}")
             .AppendLine($"  Horizontal Symmetry Enabled: {document.HorizontalSymmetryAxisEnabledBindable}")
             .AppendLine($"  Horizontal Symmetry Value: {FormatObject(document.HorizontalSymmetryAxisYBindable)}")
             .AppendLine($"  Vertical Symmetry Enabled: {document.VerticalSymmetryAxisEnabledBindable}")
@@ -455,6 +459,11 @@ internal class CrashReport : IDisposable
         List<RecoveredPixi> recoveredDocuments = new();
 
         sessionInfo = TryGetSessionInfo();
+        if (sessionInfo == null)
+        {
+            return recoveredDocuments;
+        }
+
         if (sessionInfo?.OpenedDocuments == null)
         {
             recoveredDocuments.AddRange(
@@ -462,13 +471,16 @@ internal class CrashReport : IDisposable
                     .Where(x =>
                         x.FullName.StartsWith("Documents") &&
                         x.FullName.EndsWith(".pixi"))
-                    .Select(entry => new RecoveredPixi(null, entry)));
+                    .Select(entry => new RecoveredPixi(null, null, entry)));
 
             return recoveredDocuments;
         }
 
-        recoveredDocuments.AddRange(sessionInfo.OpenedDocuments.Select(path =>
-            new RecoveredPixi(path.OriginalPath, ZipFile.GetEntry($"Documents/{path.ZipName}"))));
+        foreach (var doc in sessionInfo.OpenedDocuments)
+        {
+            recoveredDocuments.Add(new RecoveredPixi(doc.OriginalPath, doc.AutosavePath,
+                ZipFile.GetEntry($"Documents/{doc.ZipName}")));
+        }
 
         return recoveredDocuments;
 
@@ -543,7 +555,6 @@ internal class CrashReport : IDisposable
         // Write the documents into zip
         int counter = 0;
         var originalPaths = new List<CrashedFileInfo>();
-        //TODO: Implement
         foreach (var document in documents)
         {
             try
@@ -560,8 +571,11 @@ internal class CrashReport : IDisposable
 
                 using Stream documentStream = archive.CreateEntry($"Documents/{nameInZip}").Open();
                 documentStream.Write(serialized);
+                document.AutosaveViewModel.Autosave(AutosaveHistoryType.Crash);
 
-                originalPaths.Add(new CrashedFileInfo(nameInZip, document.FullFilePath));
+                originalPaths.Add(new CrashedFileInfo(nameInZip, document.FullFilePath,
+                    document.AutosaveViewModel.LastAutosavedPath));
+
             }
             catch { }
 
@@ -604,7 +618,8 @@ internal class CrashReport : IDisposable
 
     public class RecoveredPixi
     {
-        public string? Path { get; }
+        public string? OriginalPath { get; }
+        public string? AutosavePath { get; }
 
         public ZipArchiveEntry RecoveredEntry { get; }
 
@@ -618,10 +633,23 @@ internal class CrashReport : IDisposable
             return buffer;
         }
 
-        public RecoveredPixi(string? path, ZipArchiveEntry recoveredEntry)
+        public RecoveredPixi(string? originalPath, string? autosavePath, ZipArchiveEntry recoveredEntry)
         {
-            Path = path;
+            OriginalPath = originalPath;
+            AutosavePath = autosavePath;
             RecoveredEntry = recoveredEntry;
+        }
+
+        public byte[] TryGetAutoSaveBytes()
+        {
+            if (AutosavePath == null)
+                return [];
+
+            string autosavePixiFile = AutosavePath;
+            if (!File.Exists(autosavePixiFile))
+                return [];
+
+            return File.ReadAllBytes(autosavePixiFile);
         }
     }
 }

@@ -139,11 +139,11 @@ internal class LayoutManager
         registeredDockables.Remove(dockable);
     }
 
-    public void AddViewport(ViewportWindowViewModel viewportWindowViewModel)
+    public void AddViewport(IDockableContent viewport)
     {
-        RegisterDockable(viewportWindowViewModel);
+        RegisterDockable(viewport);
         DockableArea? documentsArea = TryFindArea("DocumentArea");
-        IDockable dockable = DockContext.CreateDockable(viewportWindowViewModel);
+        IDockable dockable = DockContext.CreateDockable(viewport);
         if (documentsArea != null)
         {
             documentsArea.AddDockable(dockable);
@@ -169,17 +169,17 @@ internal class LayoutManager
         return result;
     }
 
-    public void RemoveViewport(ViewportWindowViewModel viewportWindowViewModel)
+    public void RemoveViewport(IDockableContent content)
     {
         foreach (var element in ActiveLayout.Root)
         {
             if (element is IDockableHost dockableHost)
             {
-                var dockable = dockableHost.Dockables.FirstOrDefault(x => x.Id == viewportWindowViewModel.Id);
+                var dockable = dockableHost.Dockables.FirstOrDefault(x => x.Id == content.Id);
                 if (dockable != null)
                 {
                     dockableHost?.RemoveDockable(dockable);
-                    UnregisterDockable(viewportWindowViewModel);
+                    UnregisterDockable(content);
                     return;
                 }
             }
