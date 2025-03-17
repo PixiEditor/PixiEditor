@@ -13,4 +13,9 @@ public class ExportConfig
    public IAnimationRenderer? AnimationRenderer { get; set; }
    
    public VectorExportConfig? VectorExportConfig { get; set; }
+
+   public ExportConfig(VecI exportSize)
+   {
+        ExportSize = exportSize;
+   }
 }

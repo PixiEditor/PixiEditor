@@ -16,6 +16,7 @@ using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Structures;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.Models.DocumentPassthroughActions;
 
 namespace PixiEditor.Models.Handlers;
 
@@ -66,4 +67,5 @@ internal interface IDocument : IHandler
     public void UpdateSavedState();
 
     internal void InternalRaiseLayersChanged(LayersChangedEventArgs e);
+    internal void InternalMarkSaveState(DocumentMarkType type);
 }

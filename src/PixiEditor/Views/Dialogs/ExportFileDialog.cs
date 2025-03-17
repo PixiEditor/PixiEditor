@@ -24,7 +24,7 @@ internal class ExportFileDialog : CustomDialog
     
     private DocumentViewModel document;
     
-    public ExportConfig ExportConfig { get; set; } = new ExportConfig();
+    public ExportConfig ExportConfig { get; set; } = new ExportConfig(VecI.Zero);
 
     public ExportFileDialog(Window owner, VecI size, DocumentViewModel doc) : base(owner)
     {

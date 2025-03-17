@@ -20,6 +20,9 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.UserData;
 using Drawie.Numerics;
 using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Models.DocumentModels.Autosave;
+using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO.CustomDocumentFormats;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Parser;
@@ -34,6 +37,7 @@ namespace PixiEditor.ViewModels.SubViewModels;
 [Command.Group("PixiEditor.File", "FILE")]
 internal class FileViewModel : SubViewModel<ViewModelMain>
 {
+    public static long LazyFileThreshold = 2 * 1024 * 1024; // 2MB
     private bool hasRecent;
 
     public bool HasRecent
@@ -101,22 +105,52 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     private void OpenHelloTherePopup()
     {
-        var popup = new HelloTherePopup(this);
-        popup.Show();
+        new HelloTherePopup(this).Show();
     }
 
     private void Owner_OnStartupEvent()
     {
         List<string> args = StartupArgs.Args;
         string file = args.FirstOrDefault(x => Importer.IsSupportedFile(x) && File.Exists(x));
+
+        var preferences = IPreferences.Current;
+
+        try
+        {
+            if (!args.Contains("--crash"))
+            {
+                var lastCrash = preferences!.GetLocalPreference<string>(PreferencesConstants.LastCrashFile);
+
+                if (lastCrash == null)
+                {
+                    TryReopenTempAutosavedFiles();
+                }
+                else
+                {
+                    preferences.UpdateLocalPreference<string>(PreferencesConstants.LastCrashFile, null);
+
+                    var report = CrashReport.Parse(lastCrash);
+                    OpenFromReport(report, out bool showMissingFilesDialog);
+
+                    if (showMissingFilesDialog)
+                    {
+                        CrashReportViewModel.ShowMissingFilesDialog(report);
+                    }
+                }
+            }
+        }
+        catch (Exception exc)
+        {
+            CrashHelper.SendExceptionInfo(exc);
+        }
+
         if (file != null)
         {
             OpenFromPath(file);
         }
-        else if ((Owner.DocumentManagerSubViewModel.Documents.Count == 0 && !args.Contains("--crash")) &&
-                 !args.Contains("--openedInExisting"))
+        else if (!args.Contains("--crash") && !args.Contains("--openedInExisting"))
         {
-            if (PixiEditorSettings.StartupWindow.ShowStartupWindow.Value)
+            if (preferences!.GetPreference("ShowStartupWindow", true))
             {
                 OpenHelloTherePopup();
             }
@@ -196,25 +230,24 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     /// <summary>
     /// Tries to open the passed file if it isn't already open
     /// </summary>
-    public void OpenFromPath(string path, bool associatePath = true)
+    public DocumentViewModel OpenFromPath(string path, bool associatePath = true)
     {
         if (MakeExistingDocumentActiveIfOpened(path))
-            return;
+            return null;
 
         try
         {
             if (path.EndsWith(".pixi"))
             {
-                OpenDotPixi(path, associatePath);
+                return OpenDotPixi(path, associatePath);
             }
-            else if (IsCustomFormat(path))
+
+            if (IsCustomFormat(path))
             {
-                OpenCustomFormat(path, associatePath);
+                return OpenCustomFormat(path, associatePath);
             }
-            else
-            {
-                OpenRegularImage(path, associatePath);
-            }
+
+            return OpenRegularImage(path, associatePath);
         }
         catch (RecoverableException ex)
         {
@@ -224,6 +257,19 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             NoticeDialog.Show("OLD_FILE_FORMAT_DESCRIPTION", "OLD_FILE_FORMAT");
         }
+
+        return null;
+    }
+
+    public LazyDocumentViewModel OpenFromPathLazy(string path, bool associatePath = true)
+    {
+        if (MakeExistingDocumentActiveIfOpened(path))
+            return null;
+
+        LazyDocumentViewModel lazyDoc = new LazyDocumentViewModel(path, associatePath);
+        AddLazyDocumentToTheSystem(lazyDoc);
+
+        return lazyDoc;
     }
 
     private bool IsCustomFormat(string path)
@@ -232,7 +278,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         return documentBuilders.Any(x => x.Extensions.Contains(extension, StringComparer.OrdinalIgnoreCase));
     }
 
-    private void OpenCustomFormat(string path, bool associatePath)
+    private DocumentViewModel? OpenCustomFormat(string path, bool associatePath)
     {
         IDocumentBuilder builder = documentBuilders.First(x =>
             x.Extensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase));
@@ -240,7 +286,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         if (!File.Exists(path))
         {
             NoticeDialog.Show("FILE_NOT_FOUND", "FAILED_TO_OPEN_FILE");
-            return;
+            return null;
         }
 
         try
@@ -254,6 +300,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             }
 
             AddRecentlyOpened(document.FullFilePath);
+            return document;
         }
         catch (Exception ex)
         {
@@ -261,12 +308,14 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             Console.WriteLine(ex);
             CrashHelper.SendExceptionInfo(ex);
         }
+
+        return null;
     }
 
     /// <summary>
     /// Opens a .pixi file from path, creates a document from it, and adds it to the system
     /// </summary>
-    private void OpenDotPixi(string path, bool associatePath = true)
+    private DocumentViewModel OpenDotPixi(string path, bool associatePath = true)
     {
         DocumentViewModel document = Importer.ImportDocument(path, associatePath);
 
@@ -275,26 +324,41 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         var fileSize = new FileInfo(path).Length;
         Analytics.SendOpenFile(PixiFileType.PixiFile, fileSize, document.SizeBindable);
+
+        return document;
     }
 
     /// <summary>
     /// Opens a .pixi file from path, creates a document from it, and adds it to the system
     /// </summary>
-    public void OpenRecoveredDotPixi(string? originalPath, byte[] dotPixiBytes)
+    public void OpenRecoveredDotPixi(string? originalPath, string? autosavePath, Guid? autosaveGuid,
+        byte[] dotPixiBytes)
     {
         DocumentViewModel document = Importer.ImportDocument(dotPixiBytes, originalPath);
         document.MarkAsUnsaved();
+
+        if (autosavePath != null)
+        {
+            document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(autosaveGuid!.Value, autosavePath);
+        }
+
+        AddDocumentViewModelToTheSystem(document);
+    }
+
+    public void OpenFromPixiBytes(byte[] bytes)
+    {
+        DocumentViewModel document = Importer.ImportDocument(bytes, null);
         AddDocumentViewModelToTheSystem(document);
     }
 
     /// <summary>
     /// Opens a regular image file from path, creates a document from it, and adds it to the system.
     /// </summary>
-    private void OpenRegularImage(string path, bool associatePath)
+    private DocumentViewModel OpenRegularImage(string path, bool associatePath)
     {
         var image = Importer.ImportImage(path, VecI.NegativeOne);
 
-        if (image == null) return;
+        if (image == null) return null;
 
         var doc = NewDocument(b => b
             .WithSize(image.Size)
@@ -326,8 +390,58 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             CrashHelper.SendExceptionInfo(new InvalidFileTypeException(default,
                 $"Invalid file type '{fileType}'"));
         }
+
+        return doc;
     }
 
+    public void OpenFromReport(CrashReport report, out bool showMissingFilesDialog)
+    {
+        var documents = report.RecoverDocuments(out var info);
+
+        var i = 0;
+
+        Exception firstException = null;
+        Exception secondException = null;
+        Exception thirdException = null;
+
+        foreach (var document in documents)
+        {
+            try
+            {
+                OpenRecoveredDotPixi(document.OriginalPath, document.AutosavePath,
+                    AutosaveHelper.GetAutosaveGuid(document.AutosavePath), document.GetRecoveredBytes());
+                i++;
+            }
+            catch (Exception e)
+            {
+                firstException = e;
+
+                try
+                {
+                    OpenFromPath(document.AutosavePath, false);
+                }
+                catch (Exception deepE)
+                {
+                    secondException = deepE;
+
+                    try
+                    {
+                        OpenRecoveredDotPixi(document.OriginalPath, document.AutosavePath,
+                            AutosaveHelper.GetAutosaveGuid(document.AutosavePath), document.TryGetAutoSaveBytes());
+                    }
+                    catch (Exception veryDeepE)
+                    {
+                        thirdException = veryDeepE;
+                    }
+                }
+            }
+
+            var exceptions = new[] { firstException, secondException, thirdException };
+            CrashHelper.SendExceptionInfo(new AggregateException(exceptions.Where(x => x != null).ToArray()));
+        }
+
+        showMissingFilesDialog = documents.Count != i;
+    }
 
     /// <summary>
     /// Opens a regular image file from path, creates a document from it, and adds it to the system.
@@ -386,6 +500,13 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         return doc;
     }
 
+    public void AddLazyDocumentToTheSystem(LazyDocumentViewModel doc)
+    {
+        Owner.DocumentManagerSubViewModel.LazyDocuments.Add(doc);
+        Owner.WindowSubViewModel.CreateNewViewport(doc);
+        Owner.WindowSubViewModel.MakeDocumentViewportActive(doc);
+    }
+
     private void AddDocumentViewModelToTheSystem(DocumentViewModel doc)
     {
         Owner.DocumentManagerSubViewModel.Documents.Add(doc);
@@ -412,7 +533,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         string finalPath = null;
         if (asNew || string.IsNullOrEmpty(document.FullFilePath))
         {
-            ExportConfig config = new ExportConfig() { ExportSize = document.SizeBindable };
+            ExportConfig config = new ExportConfig(document.SizeBindable);
             var result = await Exporter.TrySaveWithDialog(document, config, null);
             if (result.Result == DialogSaveResult.Cancelled)
                 return false;
@@ -427,7 +548,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
         else
         {
-            ExportConfig config = new ExportConfig() { ExportSize = document.SizeBindable };
+            ExportConfig config = new ExportConfig(document.SizeBindable);
             var result = await Exporter.TrySaveAsync(document, document.FullFilePath, config, null);
             if (result != SaveResult.Success)
             {
@@ -539,9 +660,216 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
     }
 
+    private void TryReopenTempAutosavedFiles()
+    {
+        var preferences = Owner.Preferences;
+
+        var history =
+            preferences.GetLocalPreference<List<AutosaveHistorySession>>(PreferencesConstants.AutosaveHistory);
+
+        // There are no autosave attempts .. but what if the user has just launched pixieditor for the first time,
+        // and it unexpectedly closed before auto saving anything. They could've still had some files open, and they won't be reopened in this session
+        // I'll say this is by design
+        if (history is null || history.Count == 0)
+            return;
+        var lastSession = history[^1];
+        if (lastSession.AutosaveEntries.Count == 0)
+            return;
+
+        bool shutdownWasUnexpected = lastSession.AutosaveEntries.All(a => a.Type != AutosaveHistoryType.OnClose);
+        if (shutdownWasUnexpected)
+        {
+            LoadFromUnexpectedShutdown(lastSession);
+            return;
+        }
+
+        if (!preferences.GetPreference<bool>(PreferencesConstants.SaveSessionStateEnabled,
+                PreferencesConstants.SaveSessionStateDefault))
+            return;
+
+        var nextSessionFiles = preferences.GetLocalPreference<SessionFile[]>(PreferencesConstants.NextSessionFiles, []);
+        var perDocumentHistories = GetHistoriesFromSession(lastSession, nextSessionFiles);
+
+        var toLoad = nextSessionFiles.ToList();
+
+        TryOpenFromSession(perDocumentHistories, toLoad, true);
+
+        // Files that were inside a previous session as lazy document and was not opened
+        if (toLoad.Any(x => x.OriginalFilePath == null && !string.IsNullOrEmpty(x.AutosaveFilePath)))
+        {
+            for (int i = history.Count - 2; i >= 0; i--)
+            {
+                var session = history[i];
+                var histories = GetHistoriesFromSession(session, nextSessionFiles);
+                TryOpenFromSession(histories, toLoad, false);
+
+                if (toLoad.Count == 0 || toLoad.All(x => x.OriginalFilePath != null))
+                    break;
+            }
+        }
+
+        foreach (var file in toLoad)
+        {
+            if (file.OriginalFilePath != null)
+            {
+                LoadNewest(file.OriginalFilePath, file.AutosaveFilePath, true);
+            }
+        }
+
+        Owner.AutosaveViewModel.CleanupAutosavedFilesAndHistory();
+        preferences.UpdateLocalPreference(PreferencesConstants.NextSessionFiles, Array.Empty<SessionFile>());
+    }
+
+    private static List<List<AutosaveHistoryEntry>> GetHistoriesFromSession(AutosaveHistorySession lastSession,
+        SessionFile[]? nextSessionFiles)
+    {
+        List<List<AutosaveHistoryEntry>> perDocumentHistories = (
+            from entry in lastSession.AutosaveEntries
+            where nextSessionFiles.Any(a =>
+                a.AutosaveFilePath == AutosaveHelper.GetAutosavePath(entry.TempFileGuid) ||
+                entry.Type != AutosaveHistoryType.OnClose)
+            group entry by entry.TempFileGuid
+            into entryGroup
+            select entryGroup.OrderBy(a => a.DateTime).ToList()
+        ).ToList();
+        return perDocumentHistories;
+    }
+
+    private void TryOpenFromSession(List<List<AutosaveHistoryEntry>> perDocumentHistories, List<SessionFile> toLoad,
+        bool tryRecover)
+    {
+        foreach (var documentHistory in perDocumentHistories)
+        {
+            AutosaveHistoryEntry lastEntry = documentHistory[^1];
+            try
+            {
+                if (tryRecover && lastEntry.Type != AutosaveHistoryType.OnClose)
+                {
+                    // unexpected shutdown happened, this file wasn't saved on close, but we supposedly have a backup
+                    LoadNewest(lastEntry.OriginalPath, AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid), true);
+                    toLoad.RemoveAll(a =>
+                        (a.AutosaveFilePath != null &&
+                         a.AutosaveFilePath == AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid))
+                        || (a.OriginalFilePath != null && a.OriginalFilePath == lastEntry.OriginalPath));
+                }
+                else if (lastEntry.Result == AutosaveHistoryResult.SavedBackup || lastEntry.OriginalPath == null)
+                {
+                    var matchingFile = toLoad.FirstOrDefault(x =>
+                        x.OriginalFilePath == null &&
+                        x.AutosaveFilePath == AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid));
+                    if (string.IsNullOrEmpty(matchingFile.AutosaveFilePath))
+                    {
+                        continue;
+                    }
+
+                    LoadFromAutosave(AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid), lastEntry.OriginalPath,
+                        true);
+                    toLoad.RemoveAll(a =>
+                        (a.AutosaveFilePath != null && a.AutosaveFilePath ==
+                            AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid))
+                        || (a.OriginalFilePath != null && a.OriginalFilePath == lastEntry.OriginalPath));
+                }
+            }
+            catch (Exception e)
+            {
+                CrashHelper.SendExceptionInfo(e);
+            }
+        }
+    }
+
+    private void LoadFromUnexpectedShutdown(AutosaveHistorySession lastSession)
+    {
+        List<List<AutosaveHistoryEntry>> lastBackups = (
+            from entry in lastSession.AutosaveEntries
+            group entry by entry.TempFileGuid
+            into entryGroup
+            select entryGroup.OrderBy(a => a.DateTime).ToList()
+        ).ToList();
+
+        try
+        {
+            foreach (var backup in lastBackups)
+            {
+                AutosaveHistoryEntry lastEntry = backup[^1];
+                LoadNewest(lastEntry.OriginalPath, AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid), false);
+            }
+
+            OptionsDialog<LocalizedString> dialog = new OptionsDialog<LocalizedString>("UNEXPECTED_SHUTDOWN",
+                new LocalizedString("UNEXPECTED_SHUTDOWN_MSG"),
+                MainWindow.Current!)
+            {
+                { "OPEN_AUTOSAVES", _ => { IOperatingSystem.Current.OpenFolder(Paths.PathToUnsavedFilesFolder); } },
+                "OK"
+            };
+            dialog.ShowDialog(true);
+        }
+        catch (Exception e)
+        {
+            CrashHelper.SendExceptionInfo(e);
+        }
+    }
+
+    private void LoadNewest(string? originalPath, string? autosavePath, bool allowLazy)
+    {
+        bool loadFromUserFile = false;
+
+        if (originalPath != null && File.Exists(originalPath))
+        {
+            DateTime saveFileWriteTime = File.GetLastWriteTime(originalPath);
+            bool autosaveExists = autosavePath != null && File.Exists(autosavePath);
+            DateTime autosaveWriteTime = autosaveExists ? File.GetLastWriteTime(autosavePath) : DateTime.MinValue;
+
+            loadFromUserFile = saveFileWriteTime > autosaveWriteTime;
+        }
+
+        if (loadFromUserFile)
+        {
+            var fileSize = new FileInfo(originalPath).Length;
+            if (allowLazy && fileSize > LazyFileThreshold)
+            {
+                OpenFromPathLazy(originalPath);
+            }
+            else
+            {
+                OpenFromPath(originalPath);
+            }
+        }
+        else
+        {
+            LoadFromAutosave(autosavePath, originalPath, allowLazy);
+        }
+    }
+
+    private void LoadFromAutosave(string autosavePath, string? originalPath, bool allowLazy)
+    {
+        string path = autosavePath;
+        if (path == null || !File.Exists(path))
+        {
+            // TODO: Notice user when non-blocking notification system is implemented
+            return;
+        }
+
+        Guid? autosaveGuid = AutosaveHelper.GetAutosaveGuid(autosavePath);
+        var fileSize = new FileInfo(path).Length;
+        if (allowLazy && fileSize > LazyFileThreshold)
+        {
+            var lazyDoc = OpenFromPathLazy(path, false);
+            lazyDoc.SetTempFileGuidAndLastSavedPath(autosaveGuid, path);
+            lazyDoc.OriginalPath = originalPath;
+        }
+        else
+        {
+            var document = OpenFromPath(path, false);
+            document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(autosaveGuid, path);
+            document.FullFilePath = originalPath;
+            document.MarkAsUnsaved();
+        }
+    }
+
     private List<RecentlyOpenedDocument> GetRecentlyOpenedDocuments()
     {
-        var paths = PixiEditorSettings.File.RecentlyOpened.Value.Take(PixiEditorSettings.File.MaxOpenedRecently.Value);
+        var paths = PixiEditorSettings.File.RecentlyOpened.Value.Take(PixiEditorSettings.File.MaxOpenedRecently
+            .Value);
         List<RecentlyOpenedDocument> documents = new List<RecentlyOpenedDocument>();
 
         foreach (string path in paths)
@@ -552,5 +880,24 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
 
         return documents;
+    }
+
+    public void LoadLazyDocument(LazyDocumentViewModel lazyDocument)
+    {
+        var document = OpenFromPath(lazyDocument.Path, lazyDocument.AssociatePath);
+
+        if (document is null)
+        {
+            NoticeDialog.Show("FAILED_TO_OPEN_FILE", "ERROR");
+            return;
+        }
+
+        document.FullFilePath = lazyDocument.OriginalPath;
+        document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(lazyDocument.TempFileGuid,
+            lazyDocument.AutosavePath);
+        if (lazyDocument.Path != lazyDocument.OriginalPath)
+        {
+            document.MarkAsUnsaved();
+        }
     }
 }

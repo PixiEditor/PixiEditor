@@ -26,9 +26,13 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     private CommandController commandController;
     public RelayCommand<string> ShowAvalonDockWindowCommand { get; set; }
     public ObservableCollection<ViewportWindowViewModel> Viewports { get; } = new();
+    public ObservableCollection<LazyViewportWindowViewModel> LazyViewports { get; } = new();
     public event EventHandler<ViewportWindowViewModel>? ActiveViewportChanged;
     public event Action<ViewportWindowViewModel> ViewportAdded;
     public event Action<ViewportWindowViewModel> ViewportClosed;
+
+    public event Action<LazyViewportWindowViewModel> LazyViewportAdded;
+    public event Action<LazyViewportWindowViewModel> LazyViewportRemoved;
 
     private object? activeWindow;
 
@@ -118,6 +122,14 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         ViewportAdded?.Invoke(newViewport);
     }
 
+    public void CreateNewViewport(LazyDocumentViewModel lazyDoc)
+    {
+        LazyViewportWindowViewModel newViewport = new LazyViewportWindowViewModel(this, lazyDoc);
+        LazyViewports.Add(newViewport);
+
+        LazyViewportAdded?.Invoke(newViewport);
+    }
+
     public void MakeDocumentViewportActive(DocumentViewModel? doc)
     {
         if (doc is null)
@@ -128,6 +140,17 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         }
 
         ActiveWindow = Viewports.FirstOrDefault(viewport => viewport.Document == doc);
+    }
+
+    public void MakeDocumentViewportActive(LazyDocumentViewModel? doc)
+    {
+        if (doc is null)
+        {
+            ActiveWindow = null;
+            return;
+        }
+
+        ActiveWindow = LazyViewports.FirstOrDefault(viewport => viewport.LazyDocument == doc);
     }
 
     public string CalculateViewportIndex(ViewportWindowViewModel viewport)
@@ -159,6 +182,13 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         return true;
     }
 
+    public void OnLazyViewportWindowCloseButtonPressed(LazyViewportWindowViewModel viewport)
+    {
+        LazyViewports.Remove(viewport);
+        LazyViewportRemoved?.Invoke(viewport);
+        Owner.CloseLazyDocument(viewport.LazyDocument);
+    }
+
     public void CloseViewportsForDocument(DocumentViewModel document)
     {
         var viewports = Viewports.Where(vp => vp.Document == document).ToArray();
@@ -166,6 +196,16 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         {
             Viewports.Remove(viewport);
             ViewportClosed?.Invoke(viewport);
+        }
+    }
+
+    public void CloseViewportForLazyDocument(LazyDocumentViewModel lazyDoc)
+    {
+        var viewport = LazyViewports.FirstOrDefault(vp => vp.LazyDocument == lazyDoc);
+        if (viewport is not null)
+        {
+            LazyViewports.Remove(viewport);
+            LazyViewportRemoved?.Invoke(viewport);
         }
     }
 

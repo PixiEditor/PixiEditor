@@ -10,4 +10,7 @@ internal class Constants
 
     public const string NativeExtensionNoDot = "pixi";
     public const string NativeExtension = "." + NativeExtensionNoDot;
+
+    public const double MaxAutosaveFilesLifetimeDays = 10;
+
 }

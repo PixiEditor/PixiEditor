@@ -15,6 +15,7 @@ public class ViewLocator : IDataTemplate
     public static Dictionary<Type, Type> ViewBindingsMap = new Dictionary<Type, Type>()
     {
         [typeof(ViewportWindowViewModel)] = typeof(DocumentTemplate),
+        [typeof(LazyViewportWindowViewModel)] = typeof(LazyDocumentTemplate),
         [typeof(LayersDockViewModel)] = typeof(LayersManager),
     };
 

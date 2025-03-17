@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Avalonia.Input;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Dialogs;
@@ -18,6 +19,7 @@ namespace PixiEditor.ViewModels.Document;
 internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocumentManagerHandler
 {
     public ObservableCollection<DocumentViewModel> Documents { get; } = new ObservableCollection<DocumentViewModel>();
+    public ObservableCollection<LazyDocumentViewModel> LazyDocuments { get; } = new ObservableCollection<LazyDocumentViewModel>();
     public event EventHandler<DocumentChangedEventArgs>? ActiveDocumentChanged;
 
     private DocumentViewModel? activeDocument;
@@ -259,6 +261,14 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
             return;
 
         ActiveDocument.Operations.UseSrgbProcessing();
+    }
+
+    [Command.Internal("PixiEditor.Document.LoadLazyDocument")]
+    public void LoadLazyDocument(LazyDocumentViewModel lazyDocument)
+    {
+        Owner.FileSubViewModel.LoadLazyDocument(lazyDocument);
+        LazyDocuments.Remove(lazyDocument);
+        Owner.WindowSubViewModel.CloseViewportForLazyDocument(lazyDocument);
     }
 
     [Evaluator.CanExecute("PixiEditor.DocumentUsesSrgbBlending", nameof(ActiveDocument),

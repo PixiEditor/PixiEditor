@@ -11,7 +11,14 @@ internal class OtfFileType : IoFileType
 
     public override bool CanSave => false;
 
-    public override Task<SaveResult> TrySave(string pathWithExtension, DocumentViewModel document, ExportConfig config, ExportJob? job)
+    public override Task<SaveResult> TrySaveAsync(string pathWithExtension, DocumentViewModel document,
+        ExportConfig config, ExportJob? job)
+    {
+        throw new NotSupportedException("Saving OTF files is not supported.");
+    }
+
+    public override SaveResult TrySave(string pathWithExtension, DocumentViewModel document, ExportConfig config,
+        ExportJob? job)
     {
         throw new NotSupportedException("Saving OTF files is not supported.");
     }

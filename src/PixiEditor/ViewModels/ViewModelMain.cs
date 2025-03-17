@@ -15,6 +15,7 @@ using PixiEditor.Models.Config;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.DocumentModels;
+using PixiEditor.Models.DocumentModels.Autosave;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.Handlers;
 using PixiEditor.OperatingSystem;
@@ -60,12 +61,13 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public MenuBarViewModel MenuBarViewModel { get; set; }
     public AnimationsViewModel AnimationsSubViewModel { get; set; }
     public NodeGraphManagerViewModel NodeGraphManager { get; set; }
+    public AutosaveViewModel AutosaveViewModel { get; set; }
 
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
 
-    public ConfigManager Config { get; set; }    
-    
+    public ConfigManager Config { get; set; }
+
     public LocalizedString ActiveActionDisplay
     {
         get
@@ -87,6 +89,11 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
     public ActionDisplayList ActionDisplays { get; }
     public bool UserWantsToClose { get; private set; }
+    public Guid CurrentSessionId { get; } = Guid.NewGuid();
+    public DateTime LaunchDateTime { get; } = DateTime.Now;
+
+    public event Action<DocumentViewModel> BeforeDocumentClosed;
+    public event Action<LazyDocumentViewModel> LazyDocumentClosed;
 
     public ViewModelMain()
     {
@@ -98,11 +105,11 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     {
         Services = services;
 
-        Config = new ConfigManager(); 
+        Config = new ConfigManager();
 
         Preferences = services.GetRequiredService<IPreferences>();
         Preferences.Init();
-        
+
         SupportedFilesHelper.InitFileTypes(services.GetServices<IoFileType>());
 
         CommandController = services.GetService<CommandController>();
@@ -153,14 +160,18 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         ToolsSubViewModel?.SetupToolsTooltipShortcuts();
 
         SearchSubViewModel = services.GetService<SearchViewModel>();
-        
+
         AnimationsSubViewModel = services.GetService<AnimationsViewModel>();
-        
+
         NodeGraphManager = services.GetService<NodeGraphManagerViewModel>();
-        
+
+        AutosaveViewModel = services.GetService<AutosaveViewModel>();
+
         ExtensionsSubViewModel = services.GetService<ExtensionsViewModel>(); // Must be last
 
         DocumentManagerSubViewModel.ActiveDocumentChanged += OnActiveDocumentChanged;
+        BeforeDocumentClosed += OnBeforeDocumentClosed;
+        LazyDocumentClosed += OnLazyDocumentClosed;
     }
 
     public bool DocumentIsNotNull(object property)
@@ -176,6 +187,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     [RelayCommand]
     public async Task CloseWindow()
     {
+        ResetNextSessionFiles();
         UserWantsToClose = await DisposeAllDocumentsWithSaveConfirmation();
 
         if (UserWantsToClose)
@@ -186,6 +198,11 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
                 await analytics.StopAsync();
             }
         }
+    }
+
+    public void ResetNextSessionFiles()
+    {
+        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.NextSessionFiles, Array.Empty<SessionFile>());
     }
 
     private void ToolsSubViewModel_SelectedToolChanged(object sender, SelectedToolEventArgs e)
@@ -227,7 +244,51 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
             }
         }
 
+        int lazyDocCount = DocumentManagerSubViewModel.LazyDocuments.Count;
+        for (int i = 0; i < lazyDocCount; i++)
+        {
+            var lazyDoc = DocumentManagerSubViewModel.LazyDocuments.First();
+            CloseLazyDocument(lazyDoc);
+            WindowSubViewModel.CloseViewportForLazyDocument(lazyDoc);
+        }
+
         return true;
+    }
+
+    private void OnBeforeDocumentClosed(DocumentViewModel document)
+    {
+        if (!AutosaveViewModel.SaveSessionStateEnabled || DebugSubViewModel.ModifiedEditorData)
+            return;
+
+        document.AutosaveViewModel.AutosaveOnClose();
+
+        List<SessionFile> sessionFiles = IPreferences.Current
+            .GetLocalPreference<SessionFile[]>(PreferencesConstants.NextSessionFiles)?.ToList() ?? new();
+        sessionFiles.RemoveAll(x =>
+            (x.OriginalFilePath != null && x.OriginalFilePath == document.FullFilePath) ||
+            (x.AutosaveFilePath != null && x.AutosaveFilePath == document.AutosaveViewModel.LastAutosavedPath));
+        sessionFiles.Add(new SessionFile(document.FullFilePath, document.AutosaveViewModel.LastAutosavedPath));
+
+        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.NextSessionFiles, sessionFiles.ToArray());
+    }
+
+    private void OnLazyDocumentClosed(LazyDocumentViewModel document)
+    {
+        List<SessionFile> sessionFiles = IPreferences.Current
+            .GetLocalPreference<SessionFile[]>(PreferencesConstants.NextSessionFiles)?.ToList() ?? new();
+        sessionFiles.RemoveAll(x =>
+            (x.OriginalFilePath != null && x.OriginalFilePath == document.OriginalPath) ||
+            (x.AutosaveFilePath != null && x.AutosaveFilePath == document.AutosavePath));
+
+        sessionFiles.Add(new SessionFile(document.OriginalPath, document.AutosavePath));
+
+        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.NextSessionFiles, sessionFiles.ToArray());
+    }
+
+    internal void CloseLazyDocument(LazyDocumentViewModel document)
+    {
+        DocumentManagerSubViewModel.LazyDocuments.Remove(document);
+        LazyDocumentClosed?.Invoke(document);
     }
 
     /// <summary>
@@ -248,6 +309,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
 
         ConfirmationType result = ConfirmationType.No;
+        bool saved = false;
         if (!document.AllChangesSaved)
         {
             result = await ConfirmationDialog.Show(ConfirmationDialogMessage, ConfirmationDialogTitle);
@@ -255,27 +317,33 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
             {
                 if (!await FileSubViewModel.SaveDocument(document, false))
                     return false;
+
+                saved = true;
             }
         }
 
         if (result != ConfirmationType.Canceled)
         {
+            BeforeDocumentClosed?.Invoke(document);
             if (!DocumentManagerSubViewModel.Documents.Remove(document))
-                throw new InvalidOperationException("Trying to close a document that's not in the documents collection. Likely, the document wasn't added there after creation by mistake.");
+                throw new InvalidOperationException(
+                    "Trying to close a document that's not in the documents collection. Likely, the document wasn't added there after creation by mistake.");
 
             if (DocumentManagerSubViewModel.ActiveDocument == document)
             {
                 if (DocumentManagerSubViewModel.Documents.Count > 0)
                     WindowSubViewModel.MakeDocumentViewportActive(DocumentManagerSubViewModel.Documents.Last());
                 else
-                    WindowSubViewModel.MakeDocumentViewportActive(null);
+                    WindowSubViewModel.MakeDocumentViewportActive((DocumentViewModel)null);
             }
 
             WindowSubViewModel.CloseViewportsForDocument(document);
             document.Dispose();
+            document.AutosaveViewModel.OnDocumentClosed();
 
             return true;
         }
+
         return false;
     }
 

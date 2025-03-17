@@ -19,7 +19,9 @@ internal class LayoutViewModel : SubViewModel<ViewModelMain>
     {
         LayoutManager = layoutManager;
         owner.WindowSubViewModel.ViewportAdded += WindowSubViewModel_ViewportAdded;
+        owner.WindowSubViewModel.LazyViewportAdded += WindowSubViewModel_LazyViewportAdded;
         owner.WindowSubViewModel.ViewportClosed += WindowSubViewModel_ViewportRemoved;
+        owner.WindowSubViewModel.LazyViewportRemoved += WindowSubViewModel_LazyViewportRemoved;
     }
 
     private void WindowSubViewModel_ViewportAdded(ViewportWindowViewModel obj)
@@ -28,6 +30,16 @@ internal class LayoutViewModel : SubViewModel<ViewModelMain>
     }
 
     private void WindowSubViewModel_ViewportRemoved(ViewportWindowViewModel obj)
+    {
+        LayoutManager.RemoveViewport(obj);
+    }
+
+    private void WindowSubViewModel_LazyViewportAdded(LazyViewportWindowViewModel obj)
+    {
+        LayoutManager.AddViewport(obj);
+    }
+
+    private void WindowSubViewModel_LazyViewportRemoved(LazyViewportWindowViewModel obj)
     {
         LayoutManager.RemoveViewport(obj);
     }
