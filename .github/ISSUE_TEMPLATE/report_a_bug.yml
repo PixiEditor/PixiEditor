@@ -42,7 +42,8 @@ body:
         - Microsoft Store
         - Steam
         - GitHub
-        - Linux Package Manager
+        - Linux Package Manager (specify in Additional Context)
+        - App Store
         - Built from source
     validations:
       required: true
@@ -83,7 +84,7 @@ body:
       label: Additional Context
       description: Additional context that could help us fix the issue.
     validations:
-      required: true
+      required: false
   - type: checkboxes
     id: terms
     attributes:
