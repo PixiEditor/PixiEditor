@@ -215,8 +215,8 @@ internal class DrawSurfaceOperation : SkiaDrawOperation
             float scaleX = (float)Bounds.Width / Surface.Size.X;
             float scaleY = (float)Bounds.Height / Surface.Size.Y;
             var scale = Math.Min(scaleX, scaleY);
-            float dX = (float)Bounds.Width / 2 / scale - Surface.Size.X / 2;
-            float dY = (float)Bounds.Height / 2 / scale - Surface.Size.Y / 2;
+            float dX = (float)Bounds.Width / 2f / scale - Surface.Size.X / 2f;
+            float dY = (float)Bounds.Height / 2f / scale - Surface.Size.Y / 2f;
             canvas.Scale(scale, scale);
             canvas.Translate(dX, dY);
         }

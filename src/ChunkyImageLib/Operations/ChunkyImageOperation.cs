@@ -63,7 +63,7 @@ internal class ChunkyImageOperation : IMirroredDrawOperation
         VecI bottomLeft = OperationHelper.GetChunkPos(
             new VecI(chunkCenterOnImage.X - halfChunk.X, chunkCenterOnImage.Y + halfChunk.Y), ChunkyImage.FullChunkSize);
 
-        Func<VecI, ChunkResolution, DrawingSurface, VecI, Paint?, bool> drawMethod = drawUpToDate ? imageToDraw.DrawMostUpToDateChunkOn : imageToDraw.DrawCommittedChunkOn;
+        Func<VecI, ChunkResolution, DrawingSurface, VecD, Paint?, bool> drawMethod = drawUpToDate ? imageToDraw.DrawMostUpToDateChunkOn : imageToDraw.DrawCommittedChunkOn;
         
         drawMethod(
             topLeft,
