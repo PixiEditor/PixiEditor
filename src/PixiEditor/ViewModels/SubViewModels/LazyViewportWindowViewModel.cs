@@ -1,4 +1,5 @@
-﻿using PixiDocks.Core.Docking;
+﻿using System.ComponentModel;
+using PixiDocks.Core.Docking;
 using PixiDocks.Core.Docking.Events;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
@@ -9,7 +10,7 @@ internal class LazyViewportWindowViewModel : SubViewModel<WindowViewModel>, IDoc
     IDockableSelectionEvents
 {
     public string Id { get; } = Guid.NewGuid().ToString();
-    public string Title => Path.GetFileName(LazyDocument.OriginalPath ?? LazyDocument.Path);
+    public string Title => LazyDocument.FileName;
     public bool CanFloat { get; } = true;
     public bool CanClose { get; } = true;
     public TabCustomizationSettings TabCustomizationSettings { get; } = new DocumentTabCustomizationSettings();
@@ -19,6 +20,15 @@ internal class LazyViewportWindowViewModel : SubViewModel<WindowViewModel>, IDoc
     public LazyViewportWindowViewModel(WindowViewModel owner, LazyDocumentViewModel lazyDoc) : base(owner)
     {
         LazyDocument = lazyDoc;
+        LazyDocument.PropertyChanged += LazyDocumentOnPropertyChanged;
+    }
+
+    private void LazyDocumentOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(LazyDocumentViewModel.OriginalPath))
+        {
+            OnPropertyChanged(nameof(Title));
+        }
     }
 
     void IDockableSelectionEvents.OnSelected()

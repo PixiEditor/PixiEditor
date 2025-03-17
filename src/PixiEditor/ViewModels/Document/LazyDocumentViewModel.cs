@@ -7,6 +7,7 @@ internal class LazyDocumentViewModel : PixiObservableObject
     private string path;
     private bool associatePath;
     private Guid tempFileGuid;
+    private string? autosavePath;
     private string? originalPath;
 
     public string Path
@@ -27,23 +28,41 @@ internal class LazyDocumentViewModel : PixiObservableObject
         set => SetProperty(ref tempFileGuid, value);
     }
 
+    public string? AutosavePath
+    {
+        get => autosavePath;
+        set => SetProperty(ref autosavePath, value);
+    }
+
+    public string FileName => System.IO.Path.GetFileName(OriginalPath ?? Path);
+
     public string? OriginalPath
     {
         get => originalPath;
         set => SetProperty(ref originalPath, value);
     }
 
-    public string FileName => System.IO.Path.GetFileName(Path);
-
     public LazyDocumentViewModel(string path, bool associatePath)
     {
         Path = path;
+        OriginalPath = path;
         AssociatePath = associatePath;
     }
 
-    public void SetTempFileGuidAndLastSavedPath(Guid tempGuid, string? originalPath)
+    public void SetTempFileGuidAndLastSavedPath(Guid? tempGuid, string? tempPath)
     {
-        TempFileGuid = tempGuid;
-        OriginalPath = originalPath;
+        if (tempGuid == null)
+        {
+            return;
+        }
+
+        TempFileGuid = tempGuid.Value;
+
+        if (tempPath == null)
+        {
+            return;
+        }
+
+        AutosavePath = tempPath;
     }
 }

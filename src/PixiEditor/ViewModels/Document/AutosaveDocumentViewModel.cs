@@ -145,9 +145,9 @@ internal class AutosaveDocumentViewModel : ObservableObject
         IPreferences.Current.UpdateLocalPreference(PreferencesConstants.AutosaveHistory, historySessions);
     }
 
-    public void SetTempFileGuidAndLastSavedPath(Guid guid, string lastSavedPath)
+    public void SetTempFileGuidAndLastSavedPath(Guid? guid, string lastSavedPath)
     {
-        autosaveFileGuid = guid;
+        autosaveFileGuid = guid == null || guid.Value == Guid.Empty ? Guid.NewGuid() : guid.Value;
         LastAutosavedPath = lastSavedPath;
     }
 

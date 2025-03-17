@@ -244,8 +244,10 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
             }
         }
 
-        foreach (var lazyDoc in DocumentManagerSubViewModel.LazyDocuments)
+        int lazyDocCount = DocumentManagerSubViewModel.LazyDocuments.Count;
+        for (int i = 0; i < lazyDocCount; i++)
         {
+            var lazyDoc = DocumentManagerSubViewModel.LazyDocuments.First();
             CloseLazyDocument(lazyDoc);
             WindowSubViewModel.CloseViewportForLazyDocument(lazyDoc);
         }
@@ -263,8 +265,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         List<SessionFile> sessionFiles = IPreferences.Current
             .GetLocalPreference<SessionFile[]>(PreferencesConstants.NextSessionFiles)?.ToList() ?? new();
         sessionFiles.RemoveAll(x =>
-            x.OriginalFilePath == document.FullFilePath ||
-            x.AutosaveFilePath == document.AutosaveViewModel.LastAutosavedPath);
+            (x.OriginalFilePath != null && x.OriginalFilePath == document.FullFilePath) ||
+            (x.AutosaveFilePath != null && x.AutosaveFilePath == document.AutosaveViewModel.LastAutosavedPath));
         sessionFiles.Add(new SessionFile(document.FullFilePath, document.AutosaveViewModel.LastAutosavedPath));
 
         IPreferences.Current.UpdateLocalPreference(PreferencesConstants.NextSessionFiles, sessionFiles.ToArray());
@@ -275,15 +277,17 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         List<SessionFile> sessionFiles = IPreferences.Current
             .GetLocalPreference<SessionFile[]>(PreferencesConstants.NextSessionFiles)?.ToList() ?? new();
         sessionFiles.RemoveAll(x =>
-            x.OriginalFilePath == document.OriginalPath ||
-            x.AutosaveFilePath == document.Path);
-        sessionFiles.Add(new SessionFile(document.OriginalPath, document.Path));
+            (x.OriginalFilePath != null && x.OriginalFilePath == document.OriginalPath) ||
+            (x.AutosaveFilePath != null && x.AutosaveFilePath == document.AutosavePath));
+
+        sessionFiles.Add(new SessionFile(document.OriginalPath, document.AutosavePath));
 
         IPreferences.Current.UpdateLocalPreference(PreferencesConstants.NextSessionFiles, sessionFiles.ToArray());
     }
 
     internal void CloseLazyDocument(LazyDocumentViewModel document)
     {
+        DocumentManagerSubViewModel.LazyDocuments.Remove(document);
         LazyDocumentClosed?.Invoke(document);
     }
 

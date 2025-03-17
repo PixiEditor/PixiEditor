@@ -688,6 +688,41 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             return;
 
         var nextSessionFiles = preferences.GetLocalPreference<SessionFile[]>(PreferencesConstants.NextSessionFiles, []);
+        var perDocumentHistories = GetHistoriesFromSession(lastSession, nextSessionFiles);
+
+        var toLoad = nextSessionFiles.ToList();
+
+        TryOpenFromSession(perDocumentHistories, toLoad, true);
+
+        // Files that were inside a previous session as lazy document and was not opened
+        if (toLoad.Any(x => x.OriginalFilePath == null && !string.IsNullOrEmpty(x.AutosaveFilePath)))
+        {
+            for (int i = history.Count - 2; i >= 0; i--)
+            {
+                var session = history[i];
+                var histories = GetHistoriesFromSession(session, nextSessionFiles);
+                TryOpenFromSession(histories, toLoad, false);
+
+                if (toLoad.Count == 0 || toLoad.All(x => x.OriginalFilePath != null))
+                    break;
+            }
+        }
+
+        foreach (var file in toLoad)
+        {
+            if (file.OriginalFilePath != null)
+            {
+                LoadNewest(file.OriginalFilePath, file.AutosaveFilePath, true);
+            }
+        }
+
+        Owner.AutosaveViewModel.CleanupAutosavedFilesAndHistory();
+        preferences.UpdateLocalPreference(PreferencesConstants.NextSessionFiles, Array.Empty<SessionFile>());
+    }
+
+    private static List<List<AutosaveHistoryEntry>> GetHistoriesFromSession(AutosaveHistorySession lastSession,
+        SessionFile[]? nextSessionFiles)
+    {
         List<List<AutosaveHistoryEntry>> perDocumentHistories = (
             from entry in lastSession.AutosaveEntries
             where nextSessionFiles.Any(a =>
@@ -697,28 +732,40 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             into entryGroup
             select entryGroup.OrderBy(a => a.DateTime).ToList()
         ).ToList();
+        return perDocumentHistories;
+    }
 
-        var toLoad = nextSessionFiles.ToList();
-
+    private void TryOpenFromSession(List<List<AutosaveHistoryEntry>> perDocumentHistories, List<SessionFile> toLoad, bool tryRecover)
+    {
         foreach (var documentHistory in perDocumentHistories)
         {
             AutosaveHistoryEntry lastEntry = documentHistory[^1];
             try
             {
-                if (lastEntry.Type != AutosaveHistoryType.OnClose)
+                if (tryRecover && lastEntry.Type != AutosaveHistoryType.OnClose)
                 {
                     // unexpected shutdown happened, this file wasn't saved on close, but we supposedly have a backup
-                    LoadNewest(lastEntry, true);
+                    LoadNewest(lastEntry.OriginalPath, AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid), true);
                     toLoad.RemoveAll(a =>
-                        a.AutosaveFilePath == AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid)
-                        || a.OriginalFilePath == lastEntry.OriginalPath);
+                        (a.AutosaveFilePath != null &&
+                         a.AutosaveFilePath == AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid))
+                        || (a.OriginalFilePath != null && a.OriginalFilePath == lastEntry.OriginalPath));
                 }
                 else if (lastEntry.Result == AutosaveHistoryResult.SavedBackup || lastEntry.OriginalPath == null)
                 {
-                    LoadFromAutosave(lastEntry, true);
+                    var matchingFile = toLoad.FirstOrDefault(x =>
+                        x.OriginalFilePath == null &&
+                        x.AutosaveFilePath == AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid));
+                    if (string.IsNullOrEmpty(matchingFile.AutosaveFilePath))
+                    {
+                        continue;
+                    }
+
+                    LoadFromAutosave(AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid), lastEntry.OriginalPath, true);
                     toLoad.RemoveAll(a =>
-                        a.AutosaveFilePath == AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid)
-                        || a.OriginalFilePath == lastEntry.OriginalPath);
+                        (a.AutosaveFilePath != null && a.AutosaveFilePath ==
+                            AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid))
+                        || (a.OriginalFilePath != null && a.OriginalFilePath == lastEntry.OriginalPath));
                 }
             }
             catch (Exception e)
@@ -726,17 +773,6 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 CrashHelper.SendExceptionInfo(e);
             }
         }
-
-        foreach (var file in toLoad)
-        {
-            if (file.OriginalFilePath != null)
-            {
-                OpenFromPath(file.OriginalFilePath);
-            }
-        }
-
-        Owner.AutosaveViewModel.CleanupAutosavedFilesAndHistory();
-        preferences.UpdateLocalPreference(PreferencesConstants.NextSessionFiles, Array.Empty<SessionFile>());
     }
 
     private void LoadFromUnexpectedShutdown(AutosaveHistorySession lastSession)
@@ -753,7 +789,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             foreach (var backup in lastBackups)
             {
                 AutosaveHistoryEntry lastEntry = backup[^1];
-                LoadNewest(lastEntry, false);
+                LoadNewest(lastEntry.OriginalPath, AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid), false);
             }
 
             OptionsDialog<LocalizedString> dialog = new OptionsDialog<LocalizedString>("UNEXPECTED_SHUTDOWN",
@@ -771,14 +807,14 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private void LoadNewest(AutosaveHistoryEntry lastEntry, bool lazy)
+    private void LoadNewest(string? originalPath, string? autosavePath, bool lazy)
     {
         bool loadFromUserFile = false;
 
-        if (lastEntry.OriginalPath != null && File.Exists(lastEntry.OriginalPath))
+        if (originalPath != null && File.Exists(originalPath))
         {
-            DateTime saveFileWriteTime = File.GetLastWriteTime(lastEntry.OriginalPath);
-            DateTime autosaveWriteTime = lastEntry.DateTime;
+            DateTime saveFileWriteTime = File.GetLastWriteTime(originalPath);
+            DateTime autosaveWriteTime = File.GetLastWriteTime(autosavePath);
 
             loadFromUserFile = saveFileWriteTime > autosaveWriteTime;
         }
@@ -787,43 +823,46 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             if (lazy)
             {
-                OpenFromPathLazy(lastEntry.OriginalPath);
+                OpenFromPathLazy(originalPath);
             }
             else
             {
-                OpenFromPath(lastEntry.OriginalPath);
+                OpenFromPath(originalPath);
             }
         }
         else
         {
-            LoadFromAutosave(lastEntry, lazy);
+            LoadFromAutosave(autosavePath, originalPath, lazy);
         }
     }
 
-    private void LoadFromAutosave(AutosaveHistoryEntry entry, bool lazy)
+    private void LoadFromAutosave(string autosavePath, string? originalPath, bool lazy)
     {
-        string path = AutosaveHelper.GetAutosavePath(entry.TempFileGuid);
+        string path = autosavePath;
         if (path == null || !File.Exists(path))
         {
             // TODO: Notice user when non-blocking notification system is implemented
             return;
         }
 
+        Guid? autosaveGuid = AutosaveHelper.GetAutosaveGuid(autosavePath);
         if (lazy)
         {
             var lazyDoc = OpenFromPathLazy(path, false);
-            lazyDoc.SetTempFileGuidAndLastSavedPath(entry.TempFileGuid, entry.OriginalPath);
+            lazyDoc.SetTempFileGuidAndLastSavedPath(autosaveGuid, path);
+            lazyDoc.OriginalPath = originalPath;
         }
         else
         {
             var document = OpenFromPath(path, false);
-            document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(entry.TempFileGuid, path);
+            document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(autosaveGuid, path);
         }
     }
 
     private List<RecentlyOpenedDocument> GetRecentlyOpenedDocuments()
     {
-        var paths = PixiEditorSettings.File.RecentlyOpened.Value.Take(PixiEditorSettings.File.MaxOpenedRecently.Value);
+        var paths = PixiEditorSettings.File.RecentlyOpened.Value.Take(PixiEditorSettings.File.MaxOpenedRecently
+            .Value);
         List<RecentlyOpenedDocument> documents = new List<RecentlyOpenedDocument>();
 
         foreach (string path in paths)
@@ -846,6 +885,11 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(lazyDocument.TempFileGuid, lazyDocument.Path);
+        document.FullFilePath = lazyDocument.OriginalPath;
+        document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(lazyDocument.TempFileGuid, lazyDocument.AutosavePath);
+        if (lazyDocument.Path != lazyDocument.OriginalPath)
+        {
+            document.MarkAsUnsaved();
+        }
     }
 }
