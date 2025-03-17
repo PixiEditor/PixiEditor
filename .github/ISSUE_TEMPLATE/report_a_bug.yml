@@ -42,7 +42,7 @@ body:
         - Microsoft Store
         - Steam
         - GitHub
-        - Linux Package Manager (specify in Additional Context)
+        - Linux Package Manager
         - App Store
         - Built from source
     validations:
@@ -76,6 +76,14 @@ body:
         - MacOS
         - Linux
       default: 0
+    validations:
+      required: true
+  - type: input
+    id: osVersion
+    attributes:
+      label: OS Version
+      description: Version of above operating system (ex. Windows 11, macOS Sonoma 14.7.3, Arch Linux). Please specify Linux Desktop Environment if applicable.
+      placeholder: "Windows 11"
     validations:
       required: true
   - type: textarea
