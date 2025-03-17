@@ -148,8 +148,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             OpenFromPath(file);
         }
-        else if ((Owner.DocumentManagerSubViewModel.Documents.Count == 0 && !args.Contains("--crash")) &&
-                 !args.Contains("--openedInExisting"))
+        else if (!args.Contains("--crash") && !args.Contains("--openedInExisting"))
         {
             if (preferences!.GetPreference("ShowStartupWindow", true))
             {
@@ -817,7 +816,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         if (originalPath != null && File.Exists(originalPath))
         {
             DateTime saveFileWriteTime = File.GetLastWriteTime(originalPath);
-            DateTime autosaveWriteTime = File.GetLastWriteTime(autosavePath);
+            bool autosaveExists = autosavePath != null && File.Exists(autosavePath);
+            DateTime autosaveWriteTime = autosaveExists ? File.GetLastWriteTime(autosavePath) : DateTime.MinValue;
 
             loadFromUserFile = saveFileWriteTime > autosaveWriteTime;
         }
