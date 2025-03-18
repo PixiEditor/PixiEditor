@@ -42,15 +42,20 @@ public static class ConversionTable
                 ]
             },
             {
-                typeof(Color),
-                [
+                typeof(Color), [
                     (typeof(Paintable), new TypeConverter<Color, Paintable>(c => new ColorPaintable(c))),
                 ]
             }
         };
 
-    public static bool TryConvert(object arg, Type targetType, out object result)
+    public static bool TryConvert(object? arg, Type targetType, out object result)
     {
+        if (arg is null)
+        {
+            result = null;
+            return false;
+        }
+
         if (arg is Delegate func)
         {
             try
