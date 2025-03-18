@@ -1,8 +1,12 @@
- ## Pull Requests
+ ## Clearly describe changes, as detailed as possible
 
- Pull request rules:
+_Include the link to the related issues if relevant_ 
 
- 1. Clearly describe changes, as detailed as possible
- 2. If possible, show examples of usage
- 3. Ensure any install or build dependencies are removed before the end of the layer when doing a build.
- 4. Make sure all tests are passing.
+ ## If possible, show examples of usage
+
+_a video, screenshots, text description_
+
+## SELECT BELOW TO CONTINUE
+- [ ] I wrote tests for my changes (if possible)
+- [ ] I've included XML docs inside the code in relevant places
+- [ ] I agree to [PixiEditor's Code of Conduct](https://github.com/PixiEditor/PixiEditor/blob/master/CODE_OF_CONDUCT.md)
