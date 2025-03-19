@@ -12,10 +12,6 @@
 
 ### Check out our website [pixieditor.net](https://pixieditor.net) and [PixiEditor Forum](https://forum.pixieditor.net/)
 
-# Feature Contributions temporarily freezed!
-
-PixiEditor is undergoing massive changes, master branch is unstable. We will not accept any feature contributions at the moment, until version 2.0 comes out. Feel free to fix bugs though. But before you do, let us know on [Discord](https://discord.gg/qSRMYmq), since we already might've fixed them.
-
 ## About PixiEditor
 
 PixiEditor aims to be all-in-one solution for 2D image editing, we aim to achieve this by building a solid foundation with basic functionalities, and exposing complex extension system, that would customize PixiEditor for all your needs.
@@ -136,7 +132,7 @@ dotnet workload install wasi-experimental
 
 ## Contributing 
 
-PixiEditor is undergoing massive changes, master branch is unstable. We will not accept any contributions at the moment, until version 2.0 comes out.
+Start with [Contributing Guide](https://github.com/PixiEditor/PixiEditor/blob/master/CONTRIBUTING.md)
 
 ## License
 
