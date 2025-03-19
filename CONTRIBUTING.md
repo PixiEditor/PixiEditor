@@ -1,21 +1,28 @@
 # Contributing
 
-Hey! Thanks for being interested in the project! It means a lot. But, before contributing please read this guide :) 
+Hey! Thanks for being interested in contributing to the PixiEditor! Please read below guide before continuing.
 
-When contributing to this repository, please first discuss the change you wish to make via issue,
-email, or any other method with the owners of this repository before making a change. 
+## Overview
 
-## Issues
+PixiEditor consists of a few sub-projects:
 
-If you want to report a bug, follow the steps below, if you want to request a feature, check [this](https://github.com/flabbet/PixiEditor/blob/master/.github/ISSUE_TEMPLATE/feature_request.md)
+- [ColorPicker](https://github.com/PixiEditor/ColorPicker) - UI component for picking colors and gradients.
+- [Drawie](https://github.com/PixiEditor/Drawie) - Core rendering library
+- [PixiDocks](https://github.com/PixiEditor/PixiDocks) - Docking and layout manager for Avalonia
+- [PixiParser](https://github.com/PixiEditor/PixiParser) - Parser for .pixi files
 
-* First of all, check if the issue is on the [list](https://github.com/flabbet/PixiEditor/issues) and/or [board](https://github.com/flabbet/PixiEditor/projects), if yes, upvote it.
+Before making any changes to files that are part of above, remember that these are standalone, PixiEditor independed libraries and shouldn't contain code strictly related to PixiEditor codebase.
 
-* If not, report an issue [here](https://github.com/flabbet/PixiEditor/issues) while following these guidelines:
- 1. Keep the title short and straightforward.
- 2. Describe the issue as detailed as possible
- 3. Include screenshots if you can.
+## Where to start?
 
- ## Pull Requests
+PixiEditor codebase is big, it might be a little intimidating to start. Make sure to start with little tasks first and get slowly familiar with it. 
+The very first place to look at is [Issues](https://github.com/PixiEditor/PixiEditor/issues), find issues with `good first issue` labels. Each issue should contain a description or comments with tips on what files to look at.
 
- Before submitting a pull request, read [this](https://github.com/flabbet/PixiEditor/blob/master/PULL_REQUEST_TEMPLATE.md)
+And if you're stuck, don't hesitate to join our [Discord](https://discord.gg/qSRMYmq). We are more than happy to guide you and help.
+
+It is also a good practice to comment on the issue that you want to work on it, we'll assign the issue to you. Generally, you should take the issues with `up-for-grabs` label, it basically means that core development team doesn't plan to work on them anytime soon. If the issue is assigned
+to someone, ask in the comments if the person is actively working on it, and if not you might be assigned.
+
+## **Do not make undiscussed features!**
+
+It is very important to discuss any new features with PixiEditor's development team. This is just to ensure that your work and our time won't be wasted, it is perfectly sufficient to create an issue on GitHub or even ask on [Discord](https://discord.gg/qSRMYmq) or [Forum](https://forum.pixieditor.net) with brief description of what you want to do.

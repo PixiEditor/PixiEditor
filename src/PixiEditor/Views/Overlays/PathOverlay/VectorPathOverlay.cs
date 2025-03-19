@@ -409,7 +409,7 @@ public class VectorPathOverlay : Overlay
             anchor.OnRelease += OnHandleRelease;
             anchor.OnTap += OnHandleTap;
             AddHandle(anchor);
-            SnappingController.AddXYAxis($"editingPath[{atIndex}]", () =>
+            SnappingController?.AddXYAxis($"editingPath[{atIndex}]", () =>
             {
                 var subs = editableVectorPath.GetSubShapeContainingIndex(atIndex);
                 int localIndex = editableVectorPath.GetSubShapePointIndex(atIndex, subs);

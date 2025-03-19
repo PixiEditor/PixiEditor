@@ -136,7 +136,7 @@ internal class MoveStructureMember_Change : Change
 
         if (targetNode is FolderNode folder)
         {
-            folder.Content.Connection.Node.TraverseBackwards(contentNode =>
+            folder.Content.Connection?.Node.TraverseBackwards(contentNode =>
             {
                 if (contentNode is Node node)
                 {
