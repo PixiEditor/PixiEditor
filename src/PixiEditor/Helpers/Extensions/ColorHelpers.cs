@@ -41,7 +41,7 @@ internal static class ColorHelpers
     public static Paintable ToPaintable(this IBrush avaloniaBrush) => avaloniaBrush switch
     {
         ISolidColorBrush solidColorBrush => new BackendColor(solidColorBrush.Color.R, solidColorBrush.Color.G,
-            solidColorBrush.Color.B),
+            solidColorBrush.Color.B, solidColorBrush.Color.A),
         ILinearGradientBrush linearGradientBrush =>
             new LinearGradientPaintable(
                 new VecD(linearGradientBrush.StartPoint.Point.X, linearGradientBrush.StartPoint.Point.Y),
