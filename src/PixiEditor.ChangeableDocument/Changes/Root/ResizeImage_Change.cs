@@ -51,7 +51,7 @@ internal class ResizeImage_Change : Change
 
     private void ScaleChunkyImage(ChunkyImage image)
     {
-        using Surface originalSurface = new(originalSize);
+        using Surface originalSurface = Surface.ForProcessing(originalSize, image.ProcessingColorSpace);
         image.DrawMostUpToDateRegionOn(
             new(VecI.Zero, originalSize),
             ChunkResolution.Full,
@@ -62,7 +62,7 @@ internal class ResizeImage_Change : Change
         FilterQuality quality = ToFilterQuality(method, downscaling);
         using Paint paint = new() { FilterQuality = quality, BlendMode = BlendMode.Src, };
 
-        using Surface newSurface = new(newSize);
+        using Surface newSurface = Surface.ForProcessing(newSize, image.ProcessingColorSpace);
         newSurface.DrawingSurface.Canvas.Save();
         newSurface.DrawingSurface.Canvas.Scale(newSize.X / (float)originalSize.X, newSize.Y / (float)originalSize.Y);
         newSurface.DrawingSurface.Canvas.DrawSurface(originalSurface.DrawingSurface, 0, 0, paint);

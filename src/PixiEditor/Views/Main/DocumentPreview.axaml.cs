@@ -158,7 +158,7 @@ internal partial class DocumentPreview : UserControl
 
         ColorCursorPosition = new VecI(x, y);
         
-        var color = Document.PickColor(new(x, y), DocumentScope.AllLayers, false, true, Document.AnimationDataViewModel.ActiveFrameBindable);
+        var color = Document.PickColor(new(x, y), DocumentScope.Canvas, false, true, Document.AnimationDataViewModel.ActiveFrameBindable);
         ColorCursorColor = Color.FromArgb(color.A, color.R, color.G, color.B);
     }
 }

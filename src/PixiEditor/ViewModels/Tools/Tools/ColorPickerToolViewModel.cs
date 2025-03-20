@@ -66,7 +66,7 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
 
     public bool PickOnlyFromReferenceLayer => !pickFromCanvas && pickFromReferenceLayer;
 
-    [Settings.Enum("SCOPE_LABEL", DocumentScope.AllLayers)]
+    [Settings.Enum("SCOPE_LABEL", DocumentScope.Canvas)]
     public DocumentScope Mode => GetValue<DocumentScope>();
 
     public ColorPickerToolViewModel()
