@@ -85,7 +85,7 @@ internal class Document : IChangeable, IReadOnlyDocument
 
         tightBounds = tightBounds.Value.Intersect(RectI.Create(0, 0, Size.X, Size.Y));
 
-        Surface surface = new Surface(tightBounds.Value.Size);
+        Surface surface = Surface.ForProcessing(tightBounds.Value.Size, ProcessingColorSpace);
 
         using var paint = new Paint();
 
@@ -94,7 +94,7 @@ internal class Document : IChangeable, IReadOnlyDocument
         if (layer is IReadOnlyImageNode imageNode)
         {
             var chunkyImage = imageNode.GetLayerImageAtFrame(frame);
-            using Surface chunkSurface = new Surface(chunkyImage.CommittedSize);
+            using Surface chunkSurface = Surface.ForProcessing(chunkyImage.CommittedSize, chunkyImage.ProcessingColorSpace);
             chunkyImage.DrawCommittedRegionOn(
                 new RectI(0, 0, chunkyImage.CommittedSize.X, chunkyImage.CommittedSize.Y),
                 ChunkResolution.Full,

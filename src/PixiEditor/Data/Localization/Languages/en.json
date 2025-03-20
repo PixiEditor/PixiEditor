@@ -519,7 +519,7 @@
   "FAILED_ASSOCIATE_PIXI": "Failed to associate .pixi file with PixiEditor.",
   "COULD_NOT_SAVE_PALETTE": "There was an error while saving the palette.",
   "NO_COLORS_TO_SAVE": "There are no colors to save.",
-  "ALL_LAYERS": "All Layers",
+  "CANVAS": "Canvas",
   "SINGLE_LAYER": "Single Layer",
   "CHOOSE": "Choose",
   "REMOVE": "Remove",
@@ -920,4 +920,6 @@
   "MINUTE_UNIVERSAL": "min",
   "AUTOSAVE_SETTINGS_SAVE_USER_FILE": "Autosave to selected file",
   "LOAD_LAZY_FILE_MESSAGE": "To improve startup time, PixiEditor didn't load this file. Click the button below to load it.",
+  "EASING_NODE": "Easing",
+  "EASING_TYPE": "Easing Type"
 }

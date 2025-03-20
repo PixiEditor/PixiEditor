@@ -289,7 +289,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
         if (previewSize != ExportPreview.Size)
         {
             ExportPreview?.Dispose();
-            ExportPreview = new Surface(previewSize);
+            ExportPreview = Surface.ForDisplay(previewSize);
 
             Task.Run(() =>
             {
@@ -340,7 +340,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
                 if (previewSize != ExportPreview.Size)
                 {
                     ExportPreview?.Dispose();
-                    ExportPreview = new Surface(previewSize);
+                    ExportPreview = Surface.ForDisplay(previewSize);
                 }
 
                 IsGeneratingPreview = false;

@@ -240,7 +240,7 @@ public static class FloodFillHelper
 
     public static Surface FillSelection(IReadOnlyDocument document, VectorPath selection)
     {
-        Surface surface = new Surface(document.Size);
+        Surface surface = Surface.ForProcessing(document.Size, document.ProcessingColorSpace);
 
         var inverse = new VectorPath();
         inverse.AddRect((RectD)new RectI(new(0, 0), document.Size));

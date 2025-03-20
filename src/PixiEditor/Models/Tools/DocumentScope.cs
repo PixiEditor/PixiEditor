@@ -6,6 +6,6 @@ public enum DocumentScope
 {
     [Description("SINGLE_LAYER")]
     SingleLayer,
-    [Description("ALL_LAYERS")]
-    AllLayers
+    [Description("CANVAS")]
+    Canvas
 }

@@ -45,6 +45,8 @@ public class Chunk : IDisposable
     /// The resolution of the chunk
     /// </summary>
     public ChunkResolution Resolution { get; }
+
+    public ColorSpace ColorSpace { get; }
     
     public bool Disposed => returned;
 
@@ -54,6 +56,7 @@ public class Chunk : IDisposable
         int size = resolution.PixelSize();
 
         Resolution = resolution;
+        ColorSpace = colorSpace;
         PixelSize = new(size, size);
         internalSurface = new Surface(new ImageInfo(size, size, ColorType.RgbaF16, AlphaType.Premul, colorSpace));
     }
@@ -63,7 +66,7 @@ public class Chunk : IDisposable
     /// </summary>
     public static Chunk Create(ColorSpace chunkCs, ChunkResolution resolution = ChunkResolution.Full)
     {
-        var chunk = ChunkPool.Instance.Get(resolution) ?? new Chunk(resolution, chunkCs);
+        var chunk = ChunkPool.Instance.Get(resolution, chunkCs) ?? new Chunk(resolution, chunkCs);
         chunk.returned = false;
         Interlocked.Increment(ref chunkCounter);
         return chunk;

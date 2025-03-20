@@ -221,6 +221,18 @@ public class InputProperty : IInputProperty
         {
             hash.Add(cacheable.GetCacheHash());
         }
+        else if (Value is Delegate func && Connection == null)
+        {
+            try
+            {
+                var constant = func.DynamicInvoke(FuncContext.NoContext);
+                if (constant is ShaderExpressionVariable shaderExpression)
+                {
+                    hash.Add(shaderExpression.GetConstant());
+                }
+            }
+            catch { }
+        }
         else
         {
             hash.Add(Value?.GetHashCode() ?? 0);
@@ -248,12 +260,12 @@ public class InputProperty<T> : InputProperty, IInputProperty<T>
                 value = shaderExpression.GetConstant();
             }
 
-            var validated = Validator.GetClosestValidValue(value);
-
-            if (!ConversionTable.TryConvert(validated, ValueType, out object result))
+            if (!ConversionTable.TryConvert(value, ValueType, out object result))
             {
-                return default(T);
+                result = default(T);
             }
+
+            result = Validator.GetClosestValidValue(result);
 
             return (T)result;
         }
