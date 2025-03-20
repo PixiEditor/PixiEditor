@@ -260,12 +260,12 @@ public class InputProperty<T> : InputProperty, IInputProperty<T>
                 value = shaderExpression.GetConstant();
             }
 
-            var validated = Validator.GetClosestValidValue(value);
-
-            if (!ConversionTable.TryConvert(validated, ValueType, out object result))
+            if (!ConversionTable.TryConvert(value, ValueType, out object result))
             {
-                return default(T);
+                result = default(T);
             }
+
+            result = Validator.GetClosestValidValue(result);
 
             return (T)result;
         }
