@@ -765,12 +765,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             // it might've been a better idea to implement this function asynchronously
             // via a passthrough action to avoid all the try catches
-            if (scope == DocumentScope.AllLayers)
+            if (scope == DocumentScope.Canvas)
             {
-                using Surface tmpSurface = new Surface(SizeBindable);
-                HashSet<Guid> layers = StructureHelper.TraverseAllMembers().Select(x => x.Id).ToHashSet();
-                Renderer.RenderLayers(tmpSurface.DrawingSurface, layers, frameTime.Frame, ChunkResolution.Full,
-                    SizeBindable);
+                using Surface tmpSurface = new Surface(SizeBindable); // new Surface is on purpose, Surface.ForDisplay doesn't work here
+                Renderer.RenderDocument(tmpSurface.DrawingSurface, frameTime, SizeBindable);
 
                 return tmpSurface.GetSrgbPixel(pos);
             }
@@ -782,7 +780,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 if (maybeMember is IRasterizable rasterizable)
                 {
-                    using Texture texture = new Texture(SizeBindable);
+                    using Texture texture = Texture.ForDisplay(SizeBindable);
                     using Paint paint = new Paint();
                     rasterizable.Rasterize(texture.DrawingSurface, paint);
                     return texture.GetSRGBPixel(pos);

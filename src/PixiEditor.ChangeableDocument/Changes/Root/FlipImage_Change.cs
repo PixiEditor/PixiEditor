@@ -66,14 +66,14 @@ internal sealed class FlipImage_Change : Change
             }
         }
 
-        using Surface originalSurface = new(img.LatestSize);
+        using Surface originalSurface = Surface.ForProcessing(img.LatestSize, img.ProcessingColorSpace);
         img.DrawMostUpToDateRegionOn(
             new RectI(VecI.Zero, img.LatestSize), 
             ChunkResolution.Full,
             originalSurface.DrawingSurface,
             VecI.Zero);
 
-        using Surface flipped = new Surface(img.LatestSize);
+        using Surface flipped = Surface.ForProcessing(img.LatestSize, img.ProcessingColorSpace);
 
         bool flipX = flipType == FlipType.Horizontal;
         bool flipY = flipType == FlipType.Vertical;

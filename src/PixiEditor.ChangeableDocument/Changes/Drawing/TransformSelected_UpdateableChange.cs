@@ -226,7 +226,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
         clipPath.Transform(Matrix3X3.CreateTranslation(-pathBounds.X, -pathBounds.Y));
 
         // draw
-        Surface output = new(pathBounds.Size);
+        Surface output = Surface.ForProcessing(pathBounds.Size, image.ProcessingColorSpace);
         output.DrawingSurface.Canvas.Save();
         output.DrawingSurface.Canvas.ClipPath(clipPath);
         image.DrawMostUpToDateRegionOn(pathBounds, ChunkResolution.Full, output.DrawingSurface, VecI.Zero);

@@ -100,14 +100,14 @@ internal sealed class RotateImage_Change : Change
 
         using Paint paint = new() { BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src };
 
-        using Surface originalSurface = new(oldSize);
+        using Surface originalSurface = Surface.ForProcessing(oldSize, img.ProcessingColorSpace);
         img.DrawMostUpToDateRegionOn(
             bounds,
             ChunkResolution.Full,
             originalSurface.DrawingSurface,
             VecI.Zero);
 
-        using Surface flipped = new Surface(newSize);
+        using Surface flipped = Surface.ForProcessing(newSize, img.ProcessingColorSpace);
 
         float translationX = newSize.X;
         float translationY = newSize.Y;
