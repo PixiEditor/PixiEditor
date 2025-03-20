@@ -221,6 +221,18 @@ public class InputProperty : IInputProperty
         {
             hash.Add(cacheable.GetCacheHash());
         }
+        else if (Value is Delegate func && Connection == null)
+        {
+            try
+            {
+                var constant = func.DynamicInvoke(FuncContext.NoContext);
+                if (constant is ShaderExpressionVariable shaderExpression)
+                {
+                    hash.Add(shaderExpression.GetConstant());
+                }
+            }
+            catch { }
+        }
         else
         {
             hash.Add(Value?.GetHashCode() ?? 0);
