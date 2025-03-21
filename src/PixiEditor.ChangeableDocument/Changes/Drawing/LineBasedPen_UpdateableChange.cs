@@ -152,10 +152,14 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         }
     }
 
-    private RadialGradientPaintable? ApplySoftnessGradient(VecD pos)
+    private Paintable? ApplySoftnessGradient(VecD pos)
     {
-        if (hardness >= 1) return null;
         srcPaint.Paintable?.Dispose();
+        if (hardness >= 1)
+        {
+            return new ColorPaintable(color);
+        }
+
         float radius = strokeWidth / 2f;
         radius = MathF.Max(1, radius);
         return new RadialGradientPaintable(pos, radius,

@@ -618,7 +618,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     public void QueueNextFrame()
     {
-        if (initialized && !updateQueued && compositor != null)
+        if (initialized && !updateQueued && compositor != null && surface is { IsDisposed: false })
         {
             updateQueued = true;
             compositor.RequestCompositionUpdate(update);
