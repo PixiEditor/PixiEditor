@@ -453,7 +453,6 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
 
         isInProgress = false;
         document.TransformHandler.PassthroughPointerPressed -= OnLeftMouseButtonDown;
-        DuplicateIfRequired();
     }
 
     private void DuplicateIfRequired()
