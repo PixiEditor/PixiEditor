@@ -16,6 +16,7 @@
     xmlns:subViewModels="clr-namespace:PixiEditor.ViewModels.SubViewModels"
     xmlns:palettes="clr-namespace:PixiEditor.Views.Palettes"
     xmlns:palettes1="clr-namespace:PixiEditor.Extensions.CommonApi.Palettes;assembly=PixiEditor.Extensions.CommonApi"
+    xmlns:input="clr-namespace:PixiEditor.Views.Input"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -131,6 +132,26 @@
                                           Classes="OverlayToggleButton pixi-icon"
                                           Content="{DynamicResource icon-snapping}"
                                           IsChecked="{Binding SnappingEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
+                        </StackPanel>
+                        <Separator />
+                        <StackPanel Spacing="10" HorizontalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock VerticalAlignment="Center"
+                                       ui:Translator.Key="GRIDLINES_XSIZE" />
+                            <input:NumberInput Width="32"
+                                         HorizontalAlignment="Left"
+                                         Min="1" Decimals="0"
+                                         Max="1024"
+                                         Value="{Binding GridLinesXSize, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
+                        </StackPanel>
+                        <Separator />
+                        <StackPanel Spacing="10" HorizontalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock VerticalAlignment="Center"
+                                       ui:Translator.Key="GRIDLINES_YSIZE" />
+                            <input:NumberInput Width="32"
+                                         HorizontalAlignment="Left"
+                                         Min="1" Decimals="0"
+                                         Max="1024"
+                                         Value="{Binding GridLinesYSize, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
                         </StackPanel>
                         <Separator />
                         <TextBlock ui:Translator.Key="RENDER_PREVIEW" />

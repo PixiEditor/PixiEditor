@@ -12,11 +12,11 @@ namespace PixiEditor.Views.Overlays;
 
 public class GridLinesOverlay : Overlay
 {
-    public static readonly StyledProperty<int> RowsProperty = AvaloniaProperty.Register<GridLinesOverlay, int>(
-        nameof(Rows));
+    public static readonly StyledProperty<double> GridXSizeProperty = AvaloniaProperty.Register<GridLinesOverlay, double>(
+        nameof(GridXSize));
 
-    public static readonly StyledProperty<int> ColumnsProperty = AvaloniaProperty.Register<GridLinesOverlay, int>(
-        nameof(Columns));
+    public static readonly StyledProperty<double> GridYSizeProperty = AvaloniaProperty.Register<GridLinesOverlay, double>(
+        nameof(GridYSize));
 
     public static readonly StyledProperty<int> PixelWidthProperty = AvaloniaProperty.Register<GridLinesOverlay, int>(
         nameof(PixelWidth));
@@ -36,16 +36,16 @@ public class GridLinesOverlay : Overlay
         set => SetValue(PixelWidthProperty, value);
     }
 
-    public int Columns
+    public double GridXSize
     {
-        get => GetValue(ColumnsProperty);
-        set => SetValue(ColumnsProperty, value);
+        get => GetValue(GridXSizeProperty);
+        set => SetValue(GridXSizeProperty, value);
     }
 
-    public int Rows
+    public double GridYSize
     {
-        get => GetValue(RowsProperty);
-        set => SetValue(RowsProperty, value);
+        get => GetValue(GridYSizeProperty);
+        set => SetValue(GridYSizeProperty, value);
     }
 
     private const float PenWidth = 0.8f;
@@ -56,6 +56,8 @@ public class GridLinesOverlay : Overlay
     static GridLinesOverlay()
     {
         IsVisibleProperty.Changed.Subscribe(OnIsVisibleChanged);
+        GridXSizeProperty.Changed.Subscribe(OnNumberChanged);
+        GridYSizeProperty.Changed.Subscribe(OnNumberChanged);
     }
 
     public GridLinesOverlay()
@@ -75,20 +77,20 @@ public class GridLinesOverlay : Overlay
         double width = PixelWidth;
         double height = PixelHeight;
 
-        double columnWidth = width / Columns;
-        double rowHeight = height / Rows;
+        double columnWidth = GridXSize;
+        double rowHeight = GridYSize;
 
         pen1.StrokeWidth = (float)ReciprocalConverter.Convert(ZoomScale);
         pen2.StrokeWidth = (float)ReciprocalConverter.Convert(ZoomScale, 1.2);
 
-        for (int i = 0; i < Columns; i++)
+        for (int i = 0; i < width / columnWidth; i++)
         {
             double x = i * columnWidth;
             context.DrawLine(new VecD(x, 0), new VecD(x, height), pen1);
             context.DrawLine(new VecD(x, 0), new VecD(x, height), pen2);
         }
 
-        for (int i = 0; i < Rows; i++)
+        for (int i = 0; i < height / rowHeight; i++)
         {
             double y = i * rowHeight;
             context.DrawLine(new VecD(0, y), new VecD(width, y), pen1);
@@ -97,6 +99,13 @@ public class GridLinesOverlay : Overlay
     }
 
     private static void OnIsVisibleChanged(AvaloniaPropertyChangedEventArgs<bool> e)
+    {
+        if (e.Sender is GridLinesOverlay gridLines)
+        {
+            gridLines.Refresh();
+        }
+    }
+    private static void OnNumberChanged(AvaloniaPropertyChangedEventArgs<double> e)
     {
         if (e.Sender is GridLinesOverlay gridLines)
         {

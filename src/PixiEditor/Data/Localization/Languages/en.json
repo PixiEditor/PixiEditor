@@ -248,6 +248,8 @@
   "REDO_DESCRIPTIVE": "Redo last action",
   "WINDOWS": "Windows",
   "TOGGLE_GRIDLINES": "Toggle gridlines",
+  "GRIDLINES_XSIZE": "Grid X Size",
+  "GRIDLINES_YSIZE": "Grid Y Size",
   "ZOOM_IN": "Zoom in",
   "ZOOM_OUT": "Zoom out",
   "NEW_WINDOW_FOR_IMG": "New window for current image",
