@@ -134,25 +134,14 @@
                                           IsChecked="{Binding SnappingEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
                         </StackPanel>
                         <Separator />
-                        <StackPanel Spacing="10" HorizontalAlignment="Center" Orientation="Horizontal">
-                            <TextBlock VerticalAlignment="Center"
-                                       ui:Translator.Key="GRIDLINES_XSIZE" />
-                            <input:NumberInput Width="32"
-                                         HorizontalAlignment="Left"
-                                         Min="1" Decimals="0"
-                                         Max="1024"
-                                         Value="{Binding GridLinesXSize, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
-                        </StackPanel>
-                        <Separator />
-                        <StackPanel Spacing="10" HorizontalAlignment="Center" Orientation="Horizontal">
-                            <TextBlock VerticalAlignment="Center"
-                                       ui:Translator.Key="GRIDLINES_YSIZE" />
-                            <input:NumberInput Width="32"
-                                         HorizontalAlignment="Left"
-                                         Min="1" Decimals="0"
-                                         Max="1024"
-                                         Value="{Binding GridLinesYSize, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
-                        </StackPanel>
+                        <TextBlock HorizontalAlignment="Center"
+                                   ui:Translator.Key="GRIDLINES_SIZE" Margin="0 0 0 10"/>
+                        <input:NumberInput Min="1"
+                                           Max="1024"
+                                           Value="{Binding GridLinesXSize, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
+                        <input:NumberInput Min="1"
+                                           Max="1024"
+                                           Value="{Binding GridLinesYSize, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
                         <Separator />
                         <TextBlock ui:Translator.Key="RENDER_PREVIEW" />
                         <ComboBox

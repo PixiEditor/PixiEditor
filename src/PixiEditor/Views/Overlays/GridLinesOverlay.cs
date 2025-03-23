@@ -67,7 +67,7 @@ public class GridLinesOverlay : Overlay
 
     public override bool CanRender()
     {
-        return visibilityConverter.Check(ZoomScale);
+        return visibilityConverter.Check(ZoomScale * Math.Min(GridXSize, GridYSize));
     }
 
     public override void RenderOverlay(Canvas context, RectD canvasBounds)
