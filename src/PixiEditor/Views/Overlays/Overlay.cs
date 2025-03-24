@@ -55,6 +55,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     public event KeyEvent? KeyReleasedOverlay;
 
     public Handle? CapturedHandle { get; set; } = null!;
+    public VecD PointerPosition { get; internal set; }
 
     private readonly Dictionary<AvaloniaProperty, OverlayTransition> activeTransitions = new();
 

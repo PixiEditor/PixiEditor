@@ -30,4 +30,5 @@ public interface INodeHandler : INotifyPropertyChanged
     public void TraverseForwards(Func<INodeHandler, bool> func);
     public void TraverseForwards(Func<INodeHandler, INodeHandler, bool> func);
     public void TraverseForwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, bool> func);
+    public void TraverseForwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, INodePropertyHandler, bool> func);
 }

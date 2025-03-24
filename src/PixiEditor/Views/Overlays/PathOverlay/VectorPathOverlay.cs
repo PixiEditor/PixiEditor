@@ -733,7 +733,7 @@ public class VectorPathOverlay : Overlay
     {
         var snappedPoint = SnappingController.GetSnapPoint(point, out string axisX, out string axisY);
         var snapped = new VecD((float)snappedPoint.X, (float)snappedPoint.Y);
-        TryHighlightSnap(axisX, axisY);
+        TryHighlightSnap(axisX, axisY, snapped);
         return snapped;
     }
 
@@ -756,11 +756,11 @@ public class VectorPathOverlay : Overlay
         Refresh();
     }
 
-    private void TryHighlightSnap(string axisX, string axisY)
+    private void TryHighlightSnap(string axisX, string axisY, VecD? point = null)
     {
         SnappingController.HighlightedXAxis = axisX;
         SnappingController.HighlightedYAxis = axisY;
-        SnappingController.HighlightedPoint = null;
+        SnappingController.HighlightedPoint = point;
     }
 
     private AnchorHandle? GetHandleAt(int index)

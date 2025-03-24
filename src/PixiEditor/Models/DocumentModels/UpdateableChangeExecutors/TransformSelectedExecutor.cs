@@ -35,6 +35,8 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     private bool movedOnce;
     private bool duplicateOnStop = false;
 
+    private List<Guid> disabledSnappingMembers = new();
+
     public TransformSelectedExecutor(bool toolLinked)
     {
         Type = toolLinked ? ExecutorType.ToolLinked : ExecutorType.Regular;
@@ -117,6 +119,17 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         foreach (var structureMemberHandler in members)
         {
             document.SnappingHandler.Remove(structureMemberHandler.Id.ToString());
+            disabledSnappingMembers.Add(structureMemberHandler.Id);
+            var parents = document.StructureHelper.GetParents(structureMemberHandler.Id);
+
+            foreach (var parent in parents)
+            {
+                document.SnappingHandler.Remove(parent.Id.ToString());
+                if (!disabledSnappingMembers.Contains(parent.Id))
+                {
+                    disabledSnappingMembers.Add(parent.Id);
+                }
+            }
         }
 
         selectedMembers = members.Select(m => m.Id).ToList();
@@ -426,7 +439,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();
-        AddSnappingForMembers(memberCorners.Keys.ToList());
+        RestoreSnapping();
         onEnded!.Invoke(this);
 
         if (Type == ExecutorType.ToolLinked)
@@ -449,7 +462,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();
-        AddSnappingForMembers(memberCorners.Keys.ToList());
+        RestoreSnapping();
 
         isInProgress = false;
         document.TransformHandler.PassthroughPointerPressed -= OnLeftMouseButtonDown;
@@ -478,6 +491,20 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             {
                 document!.SnappingHandler.AddFromBounds(layer.Id.ToString(), () => layer.TightBounds ?? RectD.Empty);
             }
+        }
+    }
+
+    private void RestoreSnapping()
+    {
+        foreach (var id in disabledSnappingMembers)
+        {
+            var member = document!.StructureHelper.Find(id);
+            if (member is null)
+            {
+                continue;
+            }
+
+            document!.SnappingHandler.AddFromBounds(id.ToString(), () => member?.TightBounds ?? RectD.Empty);
         }
     }
 

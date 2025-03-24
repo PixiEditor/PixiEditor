@@ -28,7 +28,6 @@ internal class SnappingOverlay : Overlay
     private Paint horizontalAxisPen;
     private Paint verticalAxisPen; 
     private Paint previewPointPen;
-    private VecD lastMousePosition;
 
     private Paint distanceTextPaint;
     private Font distanceFont = Font.CreateDefault();
@@ -59,7 +58,7 @@ internal class SnappingOverlay : Overlay
             return;
         }
 
-        VecD mousePoint = SnappingController.HighlightedPoint ?? lastMousePosition;
+        VecD mousePoint = SnappingController.HighlightedPoint ?? PointerPosition;
 
         if (!string.IsNullOrEmpty(SnappingController.HighlightedXAxis))
         {
@@ -109,11 +108,6 @@ internal class SnappingOverlay : Overlay
         distanceTextPaint.Color = Colors.White;
         distanceTextPaint.Style = PaintStyle.Fill;
         context.DrawText($"{distance.Length.ToString("F2", CultureInfo.CurrentCulture)} px", center, distanceFont, distanceTextPaint);
-    }
-
-    protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
-    {
-        lastMousePosition = args.Point;
     }
 
     protected override void ZoomChanged(double newZoom)

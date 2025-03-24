@@ -34,6 +34,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
     private IFillableShapeToolbar toolbar;
     private IColorsHandler colorHandler;
     private bool isValidPathLayer;
+    private IDisposable restoreSnapping;
 
     public override ExecutorType Type => ExecutorType.ToolLinked;
 
@@ -107,7 +108,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
             return ExecutionState.Error;
         }
 
-        document.SnappingHandler.Remove(member.Id.ToString()); // This disables self-snapping
+        restoreSnapping = SimpleShapeToolExecutor.DisableSelfSnapping(member.Id, document);
         return ExecutionState.Success;
     }
 
@@ -182,10 +183,8 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
     public override void ForceStop()
     {
         document.PathOverlayHandler.Hide();
-        if (member.IsVisibleBindable)
-        {
-            document.SnappingHandler.AddFromBounds(member.Id.ToString(), () => member.TightBounds ?? RectD.Empty);
-        }
+
+        restoreSnapping?.Dispose();
 
         HighlightSnapping(null, null);
         internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());

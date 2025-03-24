@@ -170,7 +170,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         if (!startedDrawing)
         {
             internals.ActionAccumulator.AddFinishedActions(EndDraw());
-            AddMemberToSnapping();
+            AddMembersToSnapping();
             
             base.OnLeftMouseButtonUp(argsPositionOnCanvas);
             ActiveMode = ShapeToolMode.Preview;
