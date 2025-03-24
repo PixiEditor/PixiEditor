@@ -8,6 +8,7 @@ using Drawie.Numerics;
 using Point = Avalonia.Point;
 
 namespace PixiEditor.Views.Overlays.TransformOverlay;
+
 internal static class TransformHelper
 {
     public static RectD ToHandleRect(VecD pos, VecD size, double zoomboxScale)
@@ -77,6 +78,7 @@ internal static class TransformHelper
     {
         return Math.Round(angle * 8 / (Math.PI * 2)) * (Math.PI * 2) / 8;
     }
+
     public static double FindSnappingAngle(ShapeCorners corners, double desiredAngle)
     {
         var desTop = (corners.TopLeft - corners.TopRight).Rotate(desiredAngle).Angle;
@@ -106,7 +108,7 @@ internal static class TransformHelper
             GetAnchorPosition(corners, Anchor.Bottom),
             GetAnchorPosition(corners, Anchor.Left),
             GetAnchorPosition(corners, Anchor.Right)
-            );
+        );
         return maybeOrigin ?? corners.TopLeft.Lerp(corners.BottomRight, 0.5);
     }
 
@@ -238,7 +240,8 @@ internal static class TransformHelper
         };
     }
 
-    public static Anchor? GetAnchorInPosition(VecD pos, ShapeCorners corners, VecD origin, double zoomboxScale, VecD size)
+    public static Anchor? GetAnchorInPosition(VecD pos, ShapeCorners corners, VecD origin, double zoomboxScale,
+        VecD size)
     {
         VecD topLeft = corners.TopLeft;
         VecD topRight = corners.TopRight;
@@ -281,8 +284,10 @@ internal static class TransformHelper
     public static VecD GetHandlePos(ShapeCorners corners, double zoomboxScale, VecD size)
     {
         VecD max = new(
-            Math.Max(Math.Max(corners.TopLeft.X, corners.TopRight.X), Math.Max(corners.BottomLeft.X, corners.BottomRight.X)),
-            Math.Max(Math.Max(corners.TopLeft.Y, corners.TopRight.Y), Math.Max(corners.BottomLeft.Y, corners.BottomRight.Y)));
+            Math.Max(Math.Max(corners.TopLeft.X, corners.TopRight.X),
+                Math.Max(corners.BottomLeft.X, corners.BottomRight.X)),
+            Math.Max(Math.Max(corners.TopLeft.Y, corners.TopRight.Y),
+                Math.Max(corners.BottomLeft.Y, corners.BottomRight.Y)));
         return max + new VecD(size.X / zoomboxScale, size.Y / zoomboxScale);
     }
 
@@ -323,5 +328,27 @@ internal static class TransformHelper
         double normalized = Math.Abs(radians % (2 * Math.PI));
         double[] cardinals = { 0, Math.PI / 2, Math.PI, 3 * Math.PI / 2, 2 * Math.PI };
         return cardinals.Any(cardinal => Math.Abs(normalized - cardinal) < threshold);
+    }
+
+    public static VecD? GetClosestAnchorToPoint(VecD point, ShapeCorners corners)
+    {
+        var distances = new Dictionary<Anchor, double>
+        {
+            { Anchor.TopLeft, (point - corners.TopLeft).Length },
+            { Anchor.TopRight, (point - corners.TopRight).Length },
+            { Anchor.BottomLeft, (point - corners.BottomLeft).Length },
+            { Anchor.BottomRight, (point - corners.BottomRight).Length },
+            { Anchor.Left, (point - corners.LeftCenter).Length },
+            { Anchor.Right, (point - corners.RightCenter).Length },
+            { Anchor.Top, (point - corners.TopCenter).Length },
+            { Anchor.Bottom, (point - corners.BottomCenter).Length },
+        };
+
+        var ordered = distances.OrderBy(pair => pair.Value).ToList();
+        if (!ordered.Any())
+            return null;
+
+        var anchor = ordered.First().Key;
+        return GetAnchorPosition(corners, anchor);
     }
 }

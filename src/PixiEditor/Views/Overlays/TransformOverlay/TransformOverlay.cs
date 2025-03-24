@@ -301,7 +301,6 @@ internal class TransformOverlay : Overlay
     public TransformOverlay()
     {
         topLeftHandle = new AnchorHandle(this);
-        topLeftHandle.Name = "TL";
         topRightHandle = new AnchorHandle(this);
         bottomLeftHandle = new AnchorHandle(this);
         bottomRightHandle = new AnchorHandle(this);
@@ -752,8 +751,7 @@ internal class TransformOverlay : Overlay
         if (ActionCompleted is not null && ActionCompleted.CanExecute(null))
             ActionCompleted.Execute(null);
 
-        SnappingController.HighlightedXAxis = string.Empty;
-        SnappingController.HighlightedYAxis = string.Empty;
+        HighlightSnappedAxis(null, null);
         IsSizeBoxEnabled = false;
     }
 
@@ -794,8 +792,7 @@ internal class TransformOverlay : Overlay
 
         VecD snapDelta = snapDeltaResult.Delta;
 
-        SnappingController.HighlightedXAxis = snapDeltaResult.SnapAxisXName;
-        SnappingController.HighlightedYAxis = snapDeltaResult.SnapAxisYName;
+        HighlightSnappedAxis(snapDeltaResult.SnapAxisXName, snapDeltaResult.SnapAxisYName, snapDeltaResult.SnapSource);
 
         VecD from = originOnStartMove;
 
@@ -828,13 +825,20 @@ internal class TransformOverlay : Overlay
         VecD[] pointsToTest = new VecD[]
         {
             rawCorners.RectCenter, rawCorners.TopLeft, rawCorners.TopRight, rawCorners.BottomLeft,
-            rawCorners.BottomRight
+            rawCorners.BottomRight, rawCorners.TopCenter, rawCorners.BottomCenter, rawCorners.LeftCenter,
+            rawCorners.RightCenter
         };
 
         VecD snapDelta = SnappingController.GetSnapDeltaForPoints(pointsToTest, out string snapAxisX,
-            out string snapAxisY);
+            out string snapAxisY, out VecD? snapSource);
 
-        return new SnapData() { Delta = snapDelta, SnapAxisXName = snapAxisX, SnapAxisYName = snapAxisY };
+        return new SnapData()
+        {
+            Delta = snapDelta,
+            SnapSource = snapSource + snapDelta,
+            SnapAxisXName = snapAxisX,
+            SnapAxisYName = snapAxisY
+        };
     }
 
     private Cursor HandleRotate(VecD pos)
@@ -898,9 +902,9 @@ internal class TransformOverlay : Overlay
                 InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos,
                 ScaleFromCenter,
                 SnappingController,
-                out string snapX, out string snapY);
+                out string snapX, out string snapY, out VecD? snapPoint);
 
-            HighlightSnappedAxis(snapX, snapY);
+            HighlightSnappedAxis(snapX, snapY, snapPoint);
 
             if (newCorners is not null)
             {
@@ -980,12 +984,17 @@ internal class TransformOverlay : Overlay
             ((Anchor)capturedAnchor, SideFreedom, InternalState.ProportionalAngle1,
                 InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos + snapped.Delta,
                 ScaleFromCenter,
-                SnappingController, out string snapX, out string snapY);
+                SnappingController, out string snapX, out string snapY, out _);
 
             string finalSnapX = snapped.SnapAxisXName ?? snapX;
             string finalSnapY = snapped.SnapAxisYName ?? snapY;
+            VecD? finalSnapPoint = null;
+            if (newCorners.HasValue)
+            {
+                finalSnapPoint = TransformHelper.GetAnchorPosition(newCorners.Value, (Anchor)capturedAnchor);
+            }
 
-            HighlightSnappedAxis(finalSnapX, finalSnapY);
+            HighlightSnappedAxis(finalSnapX, finalSnapY, finalSnapPoint);
 
             if (newCorners is not null)
             {
@@ -1119,7 +1128,7 @@ internal class TransformOverlay : Overlay
         VecD[] pointsToTest = new VecD[] { anchor };
 
         VecD snapDelta = SnappingController.GetSnapDeltaForPoints(pointsToTest, out string snapAxisX,
-            out string snapAxisY);
+            out string snapAxisY, out VecD? snapSource);
 
         // snap delta is a straight line from the anchor to the snapped point, we need to find intersection between snap point axis and line starting from projectLineStart going through transformed
         VecD snapPoint = anchor + snapDelta;
@@ -1136,7 +1145,10 @@ internal class TransformOverlay : Overlay
             snapDelta = VecD.Zero;
         }
 
-        return new SnapData() { Delta = snapDelta, SnapAxisXName = snapAxisX, SnapAxisYName = snapAxisY };
+        return new SnapData()
+        {
+            Delta = snapDelta, SnapSource = snapSource, SnapAxisXName = snapAxisX, SnapAxisYName = snapAxisY
+        };
     }
 
     private VecD FindHorizontalIntersection(VecD p1, VecD p2, double y)
@@ -1177,15 +1189,19 @@ internal class TransformOverlay : Overlay
         VecD[] pointsToTest = new VecD[] { anchorPos };
 
         VecD snapDelta = SnappingController.GetSnapDeltaForPoints(pointsToTest, out string snapAxisX,
-            out string snapAxisY);
+            out string snapAxisY, out VecD? snapSource);
 
-        return new SnapData() { Delta = snapDelta, SnapAxisXName = snapAxisX, SnapAxisYName = snapAxisY };
+        return new SnapData()
+        {
+            Delta = snapDelta, SnapSource = snapSource, SnapAxisXName = snapAxisX, SnapAxisYName = snapAxisY
+        };
     }
 
-    private void HighlightSnappedAxis(string snapAxisXName, string snapAxisYName)
+    private void HighlightSnappedAxis(string snapAxisXName, string snapAxisYName, VecD? snapSource = null)
     {
         SnappingController.HighlightedXAxis = snapAxisXName;
         SnappingController.HighlightedYAxis = snapAxisYName;
+        SnappingController.HighlightedPoint = snapSource;
     }
 
     private void UpdateOriginPos()
@@ -1237,8 +1253,7 @@ internal class TransformOverlay : Overlay
 
         IsSizeBoxEnabled = false;
 
-        SnappingController.HighlightedXAxis = string.Empty;
-        SnappingController.HighlightedYAxis = string.Empty;
+        HighlightSnappedAxis(null, null);
     }
 
     private Handle? GetSnapHandleOfOrigin()
@@ -1292,4 +1307,5 @@ struct SnapData
     public VecD Delta { get; set; }
     public string SnapAxisXName { get; set; }
     public string SnapAxisYName { get; set; }
+    public VecD? SnapSource { get; set; }
 }
