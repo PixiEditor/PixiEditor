@@ -16,8 +16,8 @@ public class SnappingController
     /// </summary>
     public double SnapDistance { get; set; } = DefaultSnapDistance;
 
-    public Dictionary<string, Func<double>> HorizontalSnapPoints { get; } = new();
-    public Dictionary<string, Func<double>> VerticalSnapPoints { get; } = new();
+    public Dictionary<string, Func<VecD>> HorizontalSnapPoints { get; } = new();
+    public Dictionary<string, Func<VecD>> VerticalSnapPoints { get; } = new();
 
     public string HighlightedXAxis
     {
@@ -84,12 +84,12 @@ public class SnappingController
         }
 
         snapAxis = HorizontalSnapPoints.First().Key;
-        double closest = HorizontalSnapPoints.First().Value();
+        double closest = HorizontalSnapPoints.First().Value().X;
         foreach (var snapPoint in HorizontalSnapPoints)
         {
-            if (Math.Abs(snapPoint.Value() - xPos) < Math.Abs(closest - xPos))
+            if (Math.Abs(snapPoint.Value().X - xPos) < Math.Abs(closest - xPos))
             {
-                closest = snapPoint.Value();
+                closest = snapPoint.Value().X;
                 snapAxis = snapPoint.Key;
             }
         }
@@ -118,12 +118,12 @@ public class SnappingController
         }
 
         snapAxisKey = VerticalSnapPoints.First().Key;
-        double closest = VerticalSnapPoints.First().Value();
+        double closest = VerticalSnapPoints.First().Value().Y;
         foreach (var snapPoint in VerticalSnapPoints)
         {
-            if (Math.Abs(snapPoint.Value() - yPos) < Math.Abs(closest - yPos))
+            if (Math.Abs(snapPoint.Value().Y - yPos) < Math.Abs(closest - yPos))
             {
-                closest = snapPoint.Value();
+                closest = snapPoint.Value().Y;
                 snapAxisKey = snapPoint.Key;
             }
         }
@@ -139,20 +139,20 @@ public class SnappingController
 
     public void AddXYAxis(string identifier, VecD axisVector)
     {
-        HorizontalSnapPoints[identifier] = () => axisVector.X;
-        VerticalSnapPoints[identifier] = () => axisVector.Y;
+        HorizontalSnapPoints[identifier] = () => axisVector;
+        VerticalSnapPoints[identifier] = () => axisVector;
     }
 
     public void AddBounds(string identifier, Func<RectD> tightBounds)
     {
-        HorizontalSnapPoints[$"{identifier}.center"] = () => tightBounds().Center.X;
-        VerticalSnapPoints[$"{identifier}.center"] = () => tightBounds().Center.Y;
+        HorizontalSnapPoints[$"{identifier}.center"] = () => tightBounds().Center;
+        VerticalSnapPoints[$"{identifier}.center"] = () => tightBounds().Center;
 
-        HorizontalSnapPoints[$"{identifier}.left"] = () => tightBounds().Left;
-        VerticalSnapPoints[$"{identifier}.top"] = () => tightBounds().Top;
+        HorizontalSnapPoints[$"{identifier}.left"] = () => tightBounds().TopLeft;
+        VerticalSnapPoints[$"{identifier}.top"] = () => tightBounds().TopRight;
 
-        HorizontalSnapPoints[$"{identifier}.right"] = () => tightBounds().Right;
-        VerticalSnapPoints[$"{identifier}.bottom"] = () => tightBounds().Bottom;
+        HorizontalSnapPoints[$"{identifier}.right"] = () => tightBounds().BottomRight;
+        VerticalSnapPoints[$"{identifier}.bottom"] = () => tightBounds().BottomLeft;
     }
 
     /// <summary>
@@ -373,8 +373,8 @@ public class SnappingController
 
     public void AddXYAxis(string identifier, Func<VecD> pointFunc)
     {
-        HorizontalSnapPoints[identifier] = () => pointFunc().X;
-        VerticalSnapPoints[identifier] = () => pointFunc().Y;
+        HorizontalSnapPoints[identifier] = pointFunc;
+        VerticalSnapPoints[identifier] = pointFunc;
     }
     
     private bool IsWithinSnapDistance(VecD snapPoint, VecD pos)
