@@ -63,6 +63,12 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     public static readonly StyledProperty<bool> GridLinesVisibleProperty =
         AvaloniaProperty.Register<Viewport, bool>(nameof(GridLinesVisible), false);
 
+    public static readonly StyledProperty<double> GridLinesXSizeProperty =
+        AvaloniaProperty.Register<Viewport, double>(nameof(GridLinesXSize), 1.0);
+
+    public static readonly StyledProperty<double> GridLinesYSizeProperty =
+        AvaloniaProperty.Register<Viewport, double>(nameof(GridLinesYSize), 1.0);
+
     public static readonly StyledProperty<bool> ZoomOutOnClickProperty =
         AvaloniaProperty.Register<Viewport, bool>(nameof(ZoomOutOnClick), false);
 
@@ -174,6 +180,17 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         get => (bool)GetValue(GridLinesVisibleProperty);
         set => SetValue(GridLinesVisibleProperty, value);
+    }
+
+    public double GridLinesXSize
+    {
+        get => (double)GetValue(GridLinesXSizeProperty);
+        set => SetValue(GridLinesXSizeProperty, value);
+    }
+    public double GridLinesYSize
+    {
+        get => (double)GetValue(GridLinesYSizeProperty);
+        set => SetValue(GridLinesYSizeProperty, value);
     }
 
     public bool Delayed
