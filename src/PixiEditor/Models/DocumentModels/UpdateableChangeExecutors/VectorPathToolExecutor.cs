@@ -182,7 +182,11 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
     public override void ForceStop()
     {
         document.PathOverlayHandler.Hide();
-        document.SnappingHandler.AddFromBounds(member.Id.ToString(), () => member.TightBounds ?? RectD.Empty);
+        if (member.IsVisibleBindable)
+        {
+            document.SnappingHandler.AddFromBounds(member.Id.ToString(), () => member.TightBounds ?? RectD.Empty);
+        }
+
         HighlightSnapping(null, null);
         internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
     }
