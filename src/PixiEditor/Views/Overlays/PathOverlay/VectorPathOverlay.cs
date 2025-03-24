@@ -506,7 +506,7 @@ public class VectorPathOverlay : Overlay
         }
         else if (args.Modifiers == KeyModifiers.None)
         {
-            args.Handled = AddNewPointFromClick(args.Point);
+            args.Handled = AddNewPointFromClick(SnappingController.GetSnapPoint(args.Point, out _, out _));
             AddToUndoCommand.Execute(Path);
         }
     }
