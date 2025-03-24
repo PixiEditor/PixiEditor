@@ -33,7 +33,7 @@ internal static class TransformUpdateHelper
             VecD oppositePos = TransformHelper.GetAnchorPosition(corners, opposite);
 
             snapX = snapY = "";
-            snapPoint = oppositePos;
+            snapPoint = null;
 
             // constrain desired pos to a "propotional" diagonal line if needed
             if (freedom == TransformCornerFreedom.ScaleProportionally && corners.IsRect)
@@ -45,7 +45,7 @@ internal static class TransformUpdateHelper
                 if (snappingController is not null)
                 {
                     desiredPos = snappingController.GetSnapPoint(desiredPos, direction, out snapX, out snapY);
-                    snapPoint = desiredPos;
+                    snapPoint = string.IsNullOrEmpty(snapX) && string.IsNullOrEmpty(snapY) ? null : desiredPos;
                 }
             }
             else if (freedom == TransformCornerFreedom.ScaleProportionally)
@@ -56,7 +56,7 @@ internal static class TransformUpdateHelper
                 if (snappingController is not null)
                 {
                     desiredPos = snappingController.GetSnapPoint(desiredPos, direction, out snapX, out snapY);
-                    snapPoint = desiredPos;
+                    snapPoint = string.IsNullOrEmpty(snapX) && string.IsNullOrEmpty(snapY) ? null : desiredPos;
                 }
             }
             else
@@ -64,7 +64,7 @@ internal static class TransformUpdateHelper
                 if (snappingController is not null)
                 {
                     desiredPos = snappingController.GetSnapPoint(desiredPos, out snapX, out snapY);
-                    snapPoint = desiredPos;
+                    snapPoint = string.IsNullOrEmpty(snapX) && string.IsNullOrEmpty(snapY) ? null : desiredPos;
                 }
             }
 
@@ -195,13 +195,12 @@ internal static class TransformUpdateHelper
     public static ShapeCorners? UpdateShapeFromSide
     (Anchor targetSide, TransformSideFreedom freedom, double propAngle1, double propAngle2, ShapeCorners corners,
         VecD desiredPos, bool scaleFromCenter, SnappingController? snappingController, out string snapX,
-        out string snapY, out VecD? snapPoint)
+        out string snapY)
     {
         if (!TransformHelper.IsSide(targetSide))
             throw new ArgumentException($"{targetSide} is not a side");
 
         snapX = snapY = "";
-        snapPoint = null;
 
         if (freedom == TransformSideFreedom.Locked)
             return corners;
@@ -221,7 +220,6 @@ internal static class TransformUpdateHelper
             {
                 VecD scaleDirection = corners.RectCenter - oppositePos;
                 desiredPos = snappingController.GetSnapPoint(desiredPos, scaleDirection, out snapX, out snapY);
-                snapPoint = desiredPos;
             }
 
             double scalingFactor = (desiredPos - oppositePos) * direction;
@@ -312,7 +310,6 @@ internal static class TransformUpdateHelper
                 {
                     VecD direction = corners.RectCenter - desiredPos;
                     desiredPos = snappingController.GetSnapPoint(desiredPos, direction, out snapX, out snapY);
-                    snapPoint = desiredPos;
                 }
             }
             else if (freedom == TransformSideFreedom.Stretch)
@@ -327,7 +324,6 @@ internal static class TransformUpdateHelper
                 {
                     VecD direction = desiredPos - targetPos;
                     desiredPos = snappingController.GetSnapPoint(desiredPos, direction, out snapX, out snapY);
-                    snapPoint = desiredPos;
                 }
             }
 

@@ -984,12 +984,12 @@ internal class TransformOverlay : Overlay
             ((Anchor)capturedAnchor, SideFreedom, InternalState.ProportionalAngle1,
                 InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos + snapped.Delta,
                 ScaleFromCenter,
-                SnappingController, out string snapX, out string snapY, out _);
+                SnappingController, out string snapX, out string snapY);
 
             string finalSnapX = snapped.SnapAxisXName ?? snapX;
             string finalSnapY = snapped.SnapAxisYName ?? snapY;
             VecD? finalSnapPoint = null;
-            if (newCorners.HasValue)
+            if (newCorners.HasValue && snapped.Delta != VecD.Zero)
             {
                 finalSnapPoint = TransformHelper.GetAnchorPosition(newCorners.Value, (Anchor)capturedAnchor);
             }
