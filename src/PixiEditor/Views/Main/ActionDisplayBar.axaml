@@ -58,7 +58,7 @@
             <Button
                 IsVisible="{Binding DataContext.UpdateSubViewModel.UpdateReadyToInstall, FallbackValue=False, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                 Background="{DynamicResource ThemeAccentBrush}"
-                Command="{xaml:Command PixiEditor.Restart}" ui:Translator.Key="RESTART" />
+                Command="{xaml:Command PixiEditor.RestartToUpdate}" ui:Translator.Key="RESTART" />
             <TextBlock
                 VerticalAlignment="Center"
                 Padding="10, 0"
