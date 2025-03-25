@@ -18,6 +18,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorNode, IRasterizable
 {
     public OutputProperty<ShapeVectorData> Shape { get; }
+
     public Matrix3X3 TransformationMatrix
     {
         get => ShapeData?.TransformationMatrix ?? Matrix3X3.Identity;
@@ -37,6 +38,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         get => Shape.Value;
         set => Shape.Value = value;
     }
+
     IReadOnlyShapeVectorData IReadOnlyVectorNode.ShapeData => ShapeData;
 
 
@@ -48,7 +50,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         AllowHighDpiRendering = true;
         Shape = CreateOutput<ShapeVectorData>("Shape", "SHAPE", null);
     }
-    
+
     protected override VecI GetTargetSize(RenderContext ctx)
     {
         return ctx.DocumentSize;
@@ -61,7 +63,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         {
             return;
         }
-        
+
         Rasterize(workingSurface, paint);
     }
 
@@ -71,7 +73,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         {
             return;
         }
-        
+
         Rasterize(workingSurface, paint);
     }
 
@@ -85,13 +87,18 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         {
             return ShapeData?.TransformedVisualAABB;
         }
-        
+
         return null;
     }
 
     public override bool RenderPreview(DrawingSurface renderOn, RenderContext context,
         string elementToRenderName)
     {
+        if (elementToRenderName == nameof(EmbeddedMask))
+        {
+            return base.RenderPreview(renderOn, context, elementToRenderName);
+        }
+
         if (ShapeData == null)
         {
             return false;
@@ -104,9 +111,9 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         VecI translation = new VecI(
             (int)Math.Max(ShapeData.TransformedAABB.TopLeft.X, 0),
             (int)Math.Max(ShapeData.TransformedAABB.TopLeft.Y, 0));
-        
+
         VecI size = tightBoundsSize + translation;
-        
+
         if (size.X == 0 || size.Y == 0)
         {
             return false;
@@ -159,7 +166,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     {
         int layer = surface.Canvas.SaveLayer(paint);
         ShapeData?.RasterizeTransformed(surface.Canvas);
-        
+
         surface.Canvas.RestoreToCount(layer);
     }
 
