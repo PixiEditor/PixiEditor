@@ -79,8 +79,6 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         ColorFilter = ColorFilter.CreateCompose(Nodes.Filters.AlphaGrayscaleFilter, Nodes.Filters.MaskFilter)
     };
 
-    private int maskCacheHash = 0;
-
     protected StructureNode()
     {
         Painter filterlessPainter = new Painter(OnFilterlessPaint);
@@ -211,16 +209,9 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         }
     }
 
-    protected override bool CacheChanged(RenderContext context)
+    protected override int GetContentCacheHash()
     {
-        int cacheHash = EmbeddedMask?.GetCacheHash() ?? 0;
-        return base.CacheChanged(context) || maskCacheHash != cacheHash;
-    }
-
-    protected override void UpdateCache(RenderContext context)
-    {
-        base.UpdateCache(context);
-        maskCacheHash = EmbeddedMask?.GetCacheHash() ?? 0;
+        return HashCode.Combine(base.GetContentCacheHash(), EmbeddedMask?.GetCacheHash() ?? 0, ClipToPreviousMember ? 1 : 0);
     }
 
     public virtual void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime, ColorSpace processingColorSpace)
@@ -297,10 +288,11 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         }
     }
 
-    internal override OneOf<None, IChangeInfo, List<IChangeInfo>> DeserializeAdditionalData(IReadOnlyDocument target,
-        IReadOnlyDictionary<string, object> data)
+    internal override void DeserializeAdditionalData(IReadOnlyDocument target,
+        IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
     {
-        base.DeserializeAdditionalData(target, data);
+        base.DeserializeAdditionalData(target, data, infos);
+
         bool hasMask = data.ContainsKey("embeddedMask");
         if (hasMask)
         {
@@ -309,16 +301,14 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
             EmbeddedMask?.Dispose();
             EmbeddedMask = mask;
 
-            return new List<IChangeInfo> { new StructureMemberMask_ChangeInfo(Id, mask != null) };
+            infos.Add(new StructureMemberMask_ChangeInfo(Id, mask != null));
         }
         
-        if (data.ContainsKey("clipToPreviousMember"))
+        if (data.TryGetValue("clipToPreviousMember", out var clip))
         {
-            ClipToPreviousMember = (bool)data["clipToPreviousMember"];
-            return new List<IChangeInfo> { new StructureMemberClipToMemberBelow_ChangeInfo(Id, ClipToPreviousMember) };
+            ClipToPreviousMember = (bool)clip;
+            infos.Add(new StructureMemberClipToMemberBelow_ChangeInfo(Id, ClipToPreviousMember));
         }
-
-        return new None();
     }
 
     public override RectD? GetPreviewBounds(int frame, string elementFor = "")

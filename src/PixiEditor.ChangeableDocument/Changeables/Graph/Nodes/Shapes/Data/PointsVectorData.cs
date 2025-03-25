@@ -76,15 +76,20 @@ public class PointsVectorData : ShapeVectorData
         }
     }
 
-    public override VectorPath ToPath()
+    public override VectorPath ToPath(bool transformed = false)
     {
         VectorPath path = new VectorPath();
-        
+
         foreach (VecD point in Points)
         {
             path.LineTo((VecF)point);
         }
-        
+
+        if (transformed)
+        {
+            path.Transform(TransformationMatrix);
+        }
+
         return path;
     }
 }

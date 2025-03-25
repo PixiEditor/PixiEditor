@@ -205,7 +205,8 @@ internal class CombineStructureMembersOnto_Change : Change
             if (targetData == null)
             {
                 targetData = vectorNode.ShapeData;
-                targetPath = path;
+                targetPath = new VectorPath();
+                targetPath.AddPath(path, vectorNode.ShapeData.TransformationMatrix, AddPathMode.Append);
 
                 if (originalPaths.ContainsKey(frame))
                     originalPaths[frame].Dispose();
@@ -214,7 +215,7 @@ internal class CombineStructureMembersOnto_Change : Change
             }
             else
             {
-                targetPath.AddPath(path, AddPathMode.Append);
+                targetPath.AddPath(path, vectorNode.ShapeData.TransformationMatrix, AddPathMode.Append);
                 path.Dispose();
             }
         }
@@ -230,12 +231,13 @@ internal class CombineStructureMembersOnto_Change : Change
                 FillPaintable = shape.FillPaintable,
                 StrokeWidth = shape.StrokeWidth,
                 Fill = shape.Fill,
-                TransformationMatrix = shape.TransformationMatrix,
+                TransformationMatrix = Matrix3X3.Identity
             };
         }
         else
         {
             data = vectorData;
+            data.TransformationMatrix = Matrix3X3.Identity;
             data.Path = targetPath;
         }
 

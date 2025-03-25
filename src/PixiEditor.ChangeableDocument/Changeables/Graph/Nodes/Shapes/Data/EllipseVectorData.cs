@@ -85,14 +85,17 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
 
     protected override void AdjustCopy(ShapeVectorData copy)
     {
-       
     }
 
-    public override VectorPath ToPath()
+    public override VectorPath ToPath(bool transformed = false)
     {
-        // TODO: Apply transformation matrix
         VectorPath path = new VectorPath();
         path.AddOval(RectD.FromCenterAndSize(Center, Radius * 2));
+        if (transformed)
+        {
+            path.Transform(TransformationMatrix);
+        }
+
         return path;
     }
 }

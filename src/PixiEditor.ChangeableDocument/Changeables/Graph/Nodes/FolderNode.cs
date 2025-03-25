@@ -3,6 +3,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
@@ -67,8 +68,6 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
             return;
         }
 
-        RectD bounds = RectD.Create(VecI.Zero, sceneContext.DocumentSize);
-
         if (sceneContext.TargetPropertyOutput == Output)
         {
             if (Background.Value != null)
@@ -76,19 +75,24 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
                 blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
             }
 
-            RenderFolderContent(sceneContext, bounds, true);
+            RenderFolderContent(sceneContext, true);
         }
         else if (sceneContext.TargetPropertyOutput == FilterlessOutput ||
                  sceneContext.TargetPropertyOutput == RawOutput)
         {
-            RenderFolderContent(sceneContext, bounds, false);
+            RenderFolderContent(sceneContext, false);
         }
     }
 
-    private void RenderFolderContent(SceneObjectRenderContext sceneContext, RectD bounds, bool useFilters)
+    private void RenderFolderContent(SceneObjectRenderContext sceneContext, bool useFilters)
     {
-        VecI size = (VecI)bounds.Size;
+        VecI size = sceneContext.RenderSurface.DeviceClipBounds.Size + sceneContext.RenderSurface.DeviceClipBounds.Pos;
         var outputWorkingSurface = RequestTexture(0, size, sceneContext.ProcessingColorSpace, true);
+        outputWorkingSurface.DrawingSurface.Canvas.Save();
+        outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(sceneContext.RenderSurface.Canvas.TotalMatrix);
+
+        int saved = sceneContext.RenderSurface.Canvas.Save();
+        sceneContext.RenderSurface.Canvas.SetMatrix(Matrix3X3.Identity);
 
         blendPaint.ImageFilter = null;
         blendPaint.ColorFilter = null;
@@ -100,6 +104,10 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
         if (Background.Value != null && sceneContext.TargetPropertyOutput != RawOutput)
         {
             Texture tempSurface = RequestTexture(1, outputWorkingSurface.Size, sceneContext.ProcessingColorSpace);
+            tempSurface.DrawingSurface.Canvas.Save();
+            tempSurface.DrawingSurface.Canvas.SetMatrix(outputWorkingSurface.DrawingSurface.Canvas.TotalMatrix);
+
+            outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
             if (Background.Connection.Node is IClipSource clipSource && ClipToPreviousMember)
             {
                 DrawClipSource(tempSurface.DrawingSurface, clipSource, sceneContext);
@@ -112,6 +120,9 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
 
         blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
         sceneContext.RenderSurface.Canvas.DrawSurface(outputWorkingSurface.DrawingSurface, 0, 0, blendPaint);
+
+        sceneContext.RenderSurface.Canvas.RestoreToCount(saved);
+        outputWorkingSurface.DrawingSurface.Canvas.Restore();
     }
 
     private void AdjustPaint(bool useFilters)

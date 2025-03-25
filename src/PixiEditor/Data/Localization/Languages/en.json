@@ -922,5 +922,6 @@
   "AUTOSAVE_SETTINGS_SAVE_USER_FILE": "Autosave to selected file",
   "LOAD_LAZY_FILE_MESSAGE": "To improve startup time, PixiEditor didn't load this file. Click the button below to load it.",
   "EASING_NODE": "Easing",
-  "EASING_TYPE": "Easing Type"
+  "EASING_TYPE": "Easing Type",
+  "OPEN_DIRECTORY_ON_EXPORT": "Open directory on export"
 }

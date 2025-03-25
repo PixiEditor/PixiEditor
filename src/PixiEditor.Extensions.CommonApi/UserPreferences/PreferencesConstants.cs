@@ -27,4 +27,7 @@ public static class PreferencesConstants
 
     public const string LastCrashFile = "LastCrashFile";
     public const string NextSessionFiles = "NextSessionFiles";
+
+    public const string OpenDirectoryOnExport = "OpenDirectoryOnExport";
+    public const bool OpenDirectoryOnExportDefault = true;
 }

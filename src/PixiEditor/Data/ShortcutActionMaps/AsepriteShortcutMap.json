@@ -359,14 +359,6 @@
       },
       "Parameters": []
     },
-    "": {
-      "Command": "PixiEditor.Restart",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
     "ShowGrid": {
       "Command": "PixiEditor.View.ToggleGrid",
       "DefaultShortcut": {

@@ -133,7 +133,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
         foreach (var type in SupportedLayerTypes)
         {
-            if (type.IsInstanceOfType(layer) || IsFolderAndRasterSupported(layer))
+            if (type.IsInstanceOfType(layer) || IsMaskSelectedAndRasterSupported(layer))
             {
                 CanBeUsedOnActiveLayer = true;
                 return;
@@ -143,9 +143,12 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
         CanBeUsedOnActiveLayer = false;
     }
 
-    private bool IsFolderAndRasterSupported(IStructureMemberHandler layer)
+    private bool IsMaskSelectedAndRasterSupported(IStructureMemberHandler layer)
     {
-        return SupportedLayerTypes.Contains(typeof(IRasterLayerHandler)) && layer is IFolderHandler;
+        return SupportedLayerTypes.Contains(typeof(IRasterLayerHandler)) && layer is IFolderHandler or ILayerHandler
+        {
+            ShouldDrawOnMask: true
+        };
     }
 
     private void OnLanguageChanged(Language obj)

@@ -16,5 +16,5 @@ public interface IReadOnlyShapeVectorData
     public RectD GeometryAABB { get; }
     public RectD TransformedAABB { get; }
     public ShapeCorners TransformationCorners { get; }
-    public VectorPath ToPath();
+    public VectorPath ToPath(bool transformed = false);
 }

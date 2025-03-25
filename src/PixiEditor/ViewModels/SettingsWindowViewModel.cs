@@ -270,6 +270,7 @@ internal partial class SettingsWindowViewModel : ViewModelBase
             new("GENERAL"),
             new("DISCORD"),
             new("KEY_BINDINGS"),
+            new("EXPORT"),
         };
 
         ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
