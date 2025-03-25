@@ -34,7 +34,7 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         Center = center;
         Size = size;
     }
-    
+
     public RectangleVectorData(double x, double y, double width, double height)
     {
         Center = new VecD(x + width / 2, y + height / 2);
@@ -95,10 +95,15 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         return HashCode.Combine(Center, Size);
     }
 
-    public override VectorPath ToPath()
+    public override VectorPath ToPath(bool transformed = false)
     {
         VectorPath path = new VectorPath();
         path.AddRect(RectD.FromCenterAndSize(Center, Size));
+        if (transformed)
+        {
+            path.Transform(TransformationMatrix);
+        }
+
         return path;
     }
 }

@@ -18,7 +18,7 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
         new ShapeCorners(GeometryAABB).WithMatrix(TransformationMatrix);
 
     public StrokeCap StrokeLineCap { get; set; } = StrokeCap.Round;
-    
+
     public StrokeJoin StrokeLineJoin { get; set; } = StrokeJoin.Round;
 
     public PathVectorData(VectorPath path)
@@ -42,7 +42,7 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
 
     private void Rasterize(Canvas canvas, bool applyTransform)
     {
-        if(Path == null)
+        if (Path == null)
         {
             return;
         }
@@ -72,7 +72,7 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
             paint.SetPaintable(Stroke);
             paint.Style = PaintStyle.Stroke;
             paint.StrokeWidth = StrokeWidth;
-            
+
             canvas.DrawPath(Path, paint);
         }
 
@@ -105,8 +105,14 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
         }
     }
 
-    public override VectorPath ToPath()
+    public override VectorPath ToPath(bool transformed = false)
     {
-        return new VectorPath(Path);
+        VectorPath newPath = new VectorPath(Path);
+        if (transformed)
+        {
+            newPath.Transform(TransformationMatrix);
+        }
+
+        return newPath;
     }
 }

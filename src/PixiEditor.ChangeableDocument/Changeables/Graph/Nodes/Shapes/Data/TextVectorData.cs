@@ -88,12 +88,12 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
             lastBounds = richText.MeasureBounds(Font);
         }
     }
-    
+
     public bool AntiAlias { get; set; } = true;
 
     protected override void OnStrokeWidthChanged()
     {
-        if(richText == null)
+        if (richText == null)
         {
             return;
         }
@@ -135,7 +135,6 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
 
     public TextVectorData()
     {
-
     }
 
     public TextVectorData(string text)
@@ -144,10 +143,15 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
     }
 
 
-    public override VectorPath ToPath()
+    public override VectorPath ToPath(bool transformed = false)
     {
         var path = richText.ToPath(Font);
         path.Offset(Position);
+
+        if (transformed)
+        {
+            path.Transform(TransformationMatrix);
+        }
 
         return path;
     }

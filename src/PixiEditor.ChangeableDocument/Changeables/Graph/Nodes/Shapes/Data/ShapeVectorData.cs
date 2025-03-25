@@ -81,5 +81,5 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
         return GetCacheHash();
     }
 
-    public abstract VectorPath ToPath();
+    public abstract VectorPath ToPath(bool transformed = false);
 }

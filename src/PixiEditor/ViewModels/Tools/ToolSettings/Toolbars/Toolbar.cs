@@ -18,7 +18,10 @@ internal abstract class Toolbar : ObservableObject, IToolbar
     {
         setting.ValueChanged += (sender, args) =>
         {
-            SettingChanged?.Invoke(setting.Name, setting.Value);
+            if (args.OldValue != args.NewValue)
+            {
+                SettingChanged?.Invoke(setting.Name, setting.Value);
+            }
         };
         
         settings.Add(setting);

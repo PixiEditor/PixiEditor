@@ -58,7 +58,7 @@ public class LineVectorData : ShapeVectorData, IReadOnlyLineData
     {
         Start = startPos;
         End = endPos;
-        
+
         Fill = false;
     }
 
@@ -108,13 +108,16 @@ public class LineVectorData : ShapeVectorData, IReadOnlyLineData
         return hash.ToHashCode();
     }
 
-    public override VectorPath ToPath()
+    public override VectorPath ToPath(bool transformed = false)
     {
-        // TODO: Apply transformation matrix
-
         VectorPath path = new VectorPath();
         path.MoveTo((VecF)Start);
         path.LineTo((VecF)End);
+        if (transformed)
+        {
+            path.Transform(TransformationMatrix);
+        }
+
         return path;
     }
 }

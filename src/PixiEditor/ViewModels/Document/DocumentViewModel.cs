@@ -947,6 +947,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public void UpdateSavedState()
     {
         OnPropertyChanged(nameof(AllChangesSaved));
+        OnPropertyChanged(nameof(HasSavedUndo));
+        OnPropertyChanged(nameof(HasSavedRedo));
     }
 
     private void ExtractSelectedLayers(IFolderHandler folder, HashSet<Guid> list,
