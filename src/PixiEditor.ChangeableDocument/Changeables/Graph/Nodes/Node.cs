@@ -516,10 +516,10 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
     }
 
-    internal virtual OneOf<None, IChangeInfo, List<IChangeInfo>> DeserializeAdditionalData(IReadOnlyDocument target,
-        IReadOnlyDictionary<string, object> data)
+    internal virtual void DeserializeAdditionalData(IReadOnlyDocument target,
+        IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
     {
-        return new None();
+
     }
 
     private void InvokeConnectionsChanged()

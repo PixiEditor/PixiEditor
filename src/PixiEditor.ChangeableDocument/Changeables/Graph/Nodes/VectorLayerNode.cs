@@ -125,21 +125,21 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         additionalData["ShapeData"] = ShapeData;
     }
 
-    internal override OneOf<None, IChangeInfo, List<IChangeInfo>> DeserializeAdditionalData(IReadOnlyDocument target,
-        IReadOnlyDictionary<string, object> data)
+    internal override void DeserializeAdditionalData(IReadOnlyDocument target,
+        IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
     {
-        base.DeserializeAdditionalData(target, data);
+        base.DeserializeAdditionalData(target, data, infos);
         ShapeData = (ShapeVectorData)data["ShapeData"];
 
         if (ShapeData == null)
         {
-            return new None();
+            return;
         }
-        
+
         var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
             (RectI)ShapeData.TransformedAABB, ChunkyImage.FullChunkSize));
 
-        return new VectorShape_ChangeInfo(Id, affected);
+        infos.Add(new VectorShape_ChangeInfo(Id, affected));
     }
 
     protected override bool CacheChanged(RenderContext context)

@@ -6,6 +6,7 @@ using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.Changes.Structure;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -85,14 +86,12 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
         additionalData["AllowHighDpiRendering"] = AllowHighDpiRendering;
     }
 
-    internal override OneOf<None, IChangeInfo, List<IChangeInfo>> DeserializeAdditionalData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data)
+    internal override void DeserializeAdditionalData(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
     {
-        base.DeserializeAdditionalData(target, data);
+        base.DeserializeAdditionalData(target, data, infos);
 
         if(data.TryGetValue("AllowHighDpiRendering", out var value))
             AllowHighDpiRendering = (bool)value;
-
-        return new None();
     }
 
     public override void Dispose()
