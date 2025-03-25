@@ -48,6 +48,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
     protected internal bool IsDisposed => _isDisposed;
     private bool _isDisposed;
 
+    private int lastContentCacheHash = -1;
+
     protected virtual int GetContentCacheHash()
     {
         return 0;
@@ -91,6 +93,10 @@ public abstract class Node : IReadOnlyNode, IDisposable
             changed |= lastFrameTime.Frame != context.FrameTime.Frame || Math.Abs(lastFrameTime.NormalizedTime - context.FrameTime.NormalizedTime) > float.Epsilon;
         }
 
+        int contentCacheHash = GetContentCacheHash();
+
+        changed |= contentCacheHash != lastContentCacheHash;
+
         return changed;
     }
 
@@ -102,6 +108,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
 
         lastFrameTime = context.FrameTime;
+
+        lastContentCacheHash = GetContentCacheHash();
     }
 
     public void TraverseBackwards(Func<IReadOnlyNode, IInputProperty, bool> action)

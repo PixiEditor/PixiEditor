@@ -79,9 +79,6 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         ColorFilter = ColorFilter.CreateCompose(Nodes.Filters.AlphaGrayscaleFilter, Nodes.Filters.MaskFilter)
     };
 
-    private int maskCacheHash = 0;
-    private int clipCacheHash = 0;
-
     protected StructureNode()
     {
         Painter filterlessPainter = new Painter(OnFilterlessPaint);
@@ -212,18 +209,9 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         }
     }
 
-    protected override bool CacheChanged(RenderContext context)
+    protected override int GetContentCacheHash()
     {
-        int cacheHash = EmbeddedMask?.GetCacheHash() ?? 0;
-        int clipHash = ClipToPreviousMember ? 1 : 0;
-        return base.CacheChanged(context) || maskCacheHash != cacheHash || clipHash != clipCacheHash;
-    }
-
-    protected override void UpdateCache(RenderContext context)
-    {
-        base.UpdateCache(context);
-        maskCacheHash = EmbeddedMask?.GetCacheHash() ?? 0;
-        clipCacheHash = ClipToPreviousMember ? 1 : 0;
+        return HashCode.Combine(base.GetContentCacheHash(), EmbeddedMask?.GetCacheHash() ?? 0, ClipToPreviousMember ? 1 : 0);
     }
 
     public virtual void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime, ColorSpace processingColorSpace)

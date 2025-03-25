@@ -40,8 +40,6 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     IReadOnlyShapeVectorData IReadOnlyVectorNode.ShapeData => ShapeData;
 
 
-    private int lastCacheHash;
-
     public override VecD GetScenePosition(KeyFrameTime time) => ShapeData?.TransformedAABB.Center ?? VecD.Zero;
     public override VecD GetSceneSize(KeyFrameTime time) => ShapeData?.TransformedAABB.Size ?? VecD.Zero;
 
@@ -142,15 +140,9 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         infos.Add(new VectorShape_ChangeInfo(Id, affected));
     }
 
-    protected override bool CacheChanged(RenderContext context)
+    protected override int GetContentCacheHash()
     {
-        return base.CacheChanged(context) || (ShapeData?.GetCacheHash() ?? -1) != lastCacheHash;
-    }
-
-    protected override void UpdateCache(RenderContext context)
-    {
-        base.UpdateCache(context);
-        lastCacheHash = ShapeData?.GetCacheHash() ?? -1;
+        return HashCode.Combine(base.GetContentCacheHash(), ShapeData?.GetCacheHash() ?? 0);
     }
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
