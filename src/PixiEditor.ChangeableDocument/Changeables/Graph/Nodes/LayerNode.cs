@@ -111,7 +111,6 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         target.Canvas.RestoreToCount(scaled);
     }
 
-    protected abstract VecI GetTargetSize(RenderContext ctx);
 
     protected internal virtual void DrawLayerInScene(SceneObjectRenderContext ctx,
         DrawingSurface workingSurface,
@@ -125,35 +124,34 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
     {
         blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * ctx.Opacity * 255));
 
+        var targetSurface = workingSurface;
+        Texture? tex = null;
+        int saved = -1;
+        if (!ctx.ProcessingColorSpace.IsSrgb)
+        {
+            saved = workingSurface.Canvas.Save();
+
+            tex = Texture.ForProcessing(workingSurface,
+                ColorSpace.CreateSrgb());
+            targetSurface = tex.DrawingSurface;
+            workingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+        }
         if (useFilters && Filters.Value != null)
         {
             blendPaint.SetFilters(Filters.Value);
-
-            var targetSurface = workingSurface;
-            Texture? tex = null;
-            int saved = -1;
-            if (!ctx.ProcessingColorSpace.IsSrgb)
-            {
-                saved = workingSurface.Canvas.Save();
-
-                tex = Texture.ForProcessing(workingSurface, ColorSpace.CreateSrgb()); // filters are meant to be applied in sRGB
-                targetSurface = tex.DrawingSurface;
-                workingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
-            }
-
             DrawWithFilters(ctx, targetSurface, blendPaint);
-
-            if(targetSurface != workingSurface)
-            {
-                workingSurface.Canvas.DrawSurface(targetSurface, 0, 0);
-                tex.Dispose();
-                workingSurface.Canvas.RestoreToCount(saved);
-            }
         }
         else
         {
             blendPaint.SetFilters(null);
-            DrawWithoutFilters(ctx, workingSurface, blendPaint);
+            DrawWithoutFilters(ctx, targetSurface, blendPaint);
+        }
+
+        if (targetSurface != workingSurface)
+        {
+            workingSurface.Canvas.DrawSurface(targetSurface, 0, 0);
+            tex.Dispose();
+            workingSurface.Canvas.RestoreToCount(saved);
         }
     }
 

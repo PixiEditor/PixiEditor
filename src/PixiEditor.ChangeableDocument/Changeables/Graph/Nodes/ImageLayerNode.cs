@@ -47,11 +47,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return (RectD?)GetLayerImageAtFrame(frameTime.Frame).FindTightCommittedBounds();
     }
 
-    protected override VecI GetTargetSize(RenderContext ctx)
-    {
-        return (GetFrameWithImage(ctx.FrameTime).Data as ChunkyImage).LatestSize;
-    }
-
     protected internal override void DrawLayerInScene(SceneObjectRenderContext ctx,
         DrawingSurface workingSurface,
         bool useFilters = true)

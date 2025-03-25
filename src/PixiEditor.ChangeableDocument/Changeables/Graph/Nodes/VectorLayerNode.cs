@@ -9,6 +9,7 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 
@@ -49,11 +50,6 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     {
         AllowHighDpiRendering = true;
         Shape = CreateOutput<ShapeVectorData>("Shape", "SHAPE", null);
-    }
-
-    protected override VecI GetTargetSize(RenderContext ctx)
-    {
-        return ctx.DocumentSize;
     }
 
     protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
@@ -120,7 +116,21 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         }
 
         Matrix3X3 matrix = ShapeData.TransformationMatrix;
-        Rasterize(renderOn, paint);
+
+        if (!context.ProcessingColorSpace.IsSrgb)
+        {
+            int saved = renderOn.Canvas.Save();
+            Texture tex = Texture.ForProcessing(renderOn, ColorSpace.CreateSrgb());
+            renderOn.Canvas.SetMatrix(Matrix3X3.Identity);
+            Rasterize(tex.DrawingSurface, paint);
+            renderOn.Canvas.DrawSurface(tex.DrawingSurface, 0, 0);
+            renderOn.Canvas.RestoreToCount(saved);
+        }
+        else
+        {
+            Rasterize(renderOn, paint);
+        }
+
         return true;
     }
 
