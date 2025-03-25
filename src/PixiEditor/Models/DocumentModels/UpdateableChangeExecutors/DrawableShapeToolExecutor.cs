@@ -358,7 +358,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
             if (noMovement)
             {
                 internals!.ActionAccumulator.AddFinishedActions(EndDrawAction());
-                AddMemberToSnapping();
+                AddMembersToSnapping();
 
                 base.OnLeftMouseButtonUp(argsPositionOnCanvas);
                 onEnded?.Invoke(this);

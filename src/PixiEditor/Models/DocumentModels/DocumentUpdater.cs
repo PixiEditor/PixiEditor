@@ -446,6 +446,14 @@ internal class DocumentUpdater
     {
         IStructureMemberHandler? memberVM = doc.StructureHelper.FindOrThrow(info.Id);
         memberVM.SetIsVisible(info.IsVisible);
+        if (info.IsVisible)
+        {
+            doc.SnappingHandler.AddFromBounds(memberVM.Id.ToString(), () => memberVM.TightBounds ?? RectD.Empty);
+        }
+        else
+        {
+            doc.SnappingHandler.Remove(memberVM.Id.ToString());
+        }
     }
 
     private void ProcessUpdateStructureMemberName(StructureMemberName_ChangeInfo info)

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.DocumentModels.Public;
@@ -99,16 +100,21 @@ internal class DocumentStructureModule
         return result;
     }
 
-    public (IStructureMemberHandler?, INodeHandler?) FindChildAndParent(Guid childGuid)
+    public List<IStructureMemberHandler> GetParents(Guid child)
     {
-        List<IStructureMemberHandler>? path = FindPath(childGuid);
-        return path.Count switch
+        var childNode = FindNode<IStructureMemberHandler>(child);
+        if (childNode == null)
+            return new List<IStructureMemberHandler>();
+
+        List<IStructureMemberHandler> parents = new List<IStructureMemberHandler>();
+        childNode.TraverseForwards((node, previous, output, input) =>
         {
-            0 => (null, null),
-            1 => (path[0], null),
-            >= 2 => (path[0], path[1]),
-            _ => (null, null),
-        };
+            if (node is IStructureMemberHandler parent && input is { PropertyName: FolderNode.ContentInternalName })
+                parents.Add(parent);
+            return true;
+        });
+
+        return parents;
     }
 
     public (IStructureMemberHandler, IFolderHandler) FindChildAndParentOrThrow(Guid childGuid)

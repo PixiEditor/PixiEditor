@@ -22,6 +22,7 @@ public delegate void HandleEvent(Handle source, OverlayPointerArgs args);
 
 public abstract class Handle : IHandle
 {
+    public string Name { get; set; }
     public Paint? FillPaint { get; set; } = GetPaint("HandleBackgroundBrush");
     public Paint? StrokePaint { get; set; } = GetPaint("HandleBrush", PaintStyle.Stroke);
     public double ZoomScale { get; set; } = 1.0;

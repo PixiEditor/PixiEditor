@@ -330,7 +330,7 @@ internal class LineToolOverlay : Overlay
         VecD[] pointsToTest = new VecD[] { center + delta, originalStart + delta, originalEnd + delta, };
 
         VecD snapDelta =
-            SnappingController.GetSnapDeltaForPoints(pointsToTest, out string snapAxisX, out string snapAxisY);
+            SnappingController.GetSnapDeltaForPoints(pointsToTest, out string snapAxisX, out string snapAxisY, out _);
 
         return ((snapAxisX, snapAxisY), snapDelta);
     }

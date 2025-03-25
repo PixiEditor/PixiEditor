@@ -140,6 +140,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private PixelSize lastSize = PixelSize.Empty;
     private Cursor lastCursor;
+    private VecD lastMousePosition;
 
     public static readonly StyledProperty<string> RenderOutputProperty =
         AvaloniaProperty.Register<Scene, string>("RenderOutput");
@@ -299,6 +300,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                     continue;
                 }
 
+                overlay.PointerPosition = lastMousePosition;
                 overlay.ZoomScale = Scale;
 
                 if (!overlay.CanRender()) continue;
@@ -331,6 +333,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         if (AllOverlays != null)
         {
             OverlayPointerArgs args = ConstructPointerArgs(e);
+            lastMousePosition = args.Point;
 
             Cursor finalCursor = DefaultCursor;
 

@@ -84,16 +84,30 @@ internal class ImageOperation : IMirroredDrawOperation
         float scaleMult = (float)targetChunk.Resolution.Multiplier();
         VecD trans = -chunkPos * ChunkPool.FullChunkSize;
 
-        var scaleTrans = Matrix3X3.CreateScaleTranslation(scaleMult, scaleMult, (float)trans.X * scaleMult, (float)trans.Y * scaleMult);
+        var scaleTrans = Matrix3X3.CreateScaleTranslation(scaleMult, scaleMult, (float)trans.X * scaleMult,
+            (float)trans.Y * scaleMult);
         var finalMatrix = Matrix3X3.Concat(scaleTrans, transformMatrix);
 
         using var snapshot = toPaint.DrawingSurface.Snapshot();
-        ShapeCorners chunkCorners = new ShapeCorners(new RectD(VecD.Zero, targetChunk.PixelSize));
-        RectD rect = chunkCorners.WithMatrix(finalMatrix.Invert()).AABBBounds;
-
         targetChunk.Surface.DrawingSurface.Canvas.Save();
         targetChunk.Surface.DrawingSurface.Canvas.SetMatrix(finalMatrix);
-        targetChunk.Surface.DrawingSurface.Canvas.DrawImage(snapshot, rect, rect, customPaint);
+
+        bool hasPerspective = Math.Abs(finalMatrix.Persp0) > 0.0001 || Math.Abs(finalMatrix.Persp1) > 0.0001;
+
+        // More optimized, but works badly with perspective transformation
+        if (!hasPerspective)
+        {
+            ShapeCorners chunkCorners = new ShapeCorners(new RectD(VecD.Zero, targetChunk.PixelSize));
+            RectD rect = chunkCorners.WithMatrix(finalMatrix.Invert()).AABBBounds;
+
+            targetChunk.Surface.DrawingSurface.Canvas.DrawImage(snapshot, rect, rect, customPaint);
+        }
+        else
+        {
+            // Slower, but works with perspective transformation
+            targetChunk.Surface.DrawingSurface.Canvas.DrawImage(snapshot, 0, 0, customPaint);
+        }
+
         targetChunk.Surface.DrawingSurface.Canvas.Restore();
     }
 
