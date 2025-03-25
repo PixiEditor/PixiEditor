@@ -176,6 +176,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         {
             ShapeData = (ShapeVectorData?)ShapeData?.Clone(),
             ClipToPreviousMember = this.ClipToPreviousMember,
+            EmbeddedMask = this.EmbeddedMask?.CloneFromCommitted(),
             AllowHighDpiRendering = this.AllowHighDpiRendering
         };
     }
