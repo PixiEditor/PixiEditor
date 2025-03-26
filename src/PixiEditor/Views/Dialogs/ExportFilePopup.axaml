@@ -44,9 +44,11 @@
                             </Grid.RowDefinitions>
                             <TextBlock ui1:Translator.Key="ROWS" Grid.Row="0" Grid.Column="0"/>
                             <input:NumberInput Min="0" Width="50" Grid.Column="1" Grid.Row="0"
+                                               Decimals="0"
                                                Value="{Binding ElementName=saveFilePopup, Path=SpriteSheetRows, Mode=TwoWay}" />
                             <TextBlock ui1:Translator.Key="COLUMNS" Grid.Row="1" Grid.Column="0"/>
                             <input:NumberInput Min="0" Width="50" Grid.Column="1" Grid.Row="1"
+                                               Decimals="0"
                                                Value="{Binding ElementName=saveFilePopup, Path=SpriteSheetColumns, Mode=TwoWay}" />
                         </Grid>
                     </TabItem>

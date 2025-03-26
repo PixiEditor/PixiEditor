@@ -421,4 +421,19 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         this.keyFrames = new KeyFrameCollection(layerKeyFrames);
         OnPropertyChanged(nameof(KeyFrames));
     }
+
+    public int GetFirstVisibleFrame()
+    {
+        return keyFrames.Count > 0 ? keyFrames.Where(x => x.IsVisible).Min(x => x.StartFrameBindable) : 0;
+    }
+
+    public int GetLastVisibleFrame()
+    {
+        return keyFrames.Count > 0 ? keyFrames.Where(x => x.IsVisible).Max(x => x.StartFrameBindable + x.DurationBindable) : 0;
+    }
+
+    public int GetVisibleFramesCount()
+    {
+        return GetLastVisibleFrame() - GetFirstVisibleFrame();
+    }
 }

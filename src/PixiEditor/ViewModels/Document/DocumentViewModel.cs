@@ -978,8 +978,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         if (token.IsCancellationRequested)
             return [];
 
-        int firstFrame = AnimationDataViewModel.FirstFrame;
-        int lastFrame = AnimationDataViewModel.LastFrame;
+        int firstFrame = AnimationDataViewModel.GetFirstVisibleFrame();
+        int lastFrame = AnimationDataViewModel.GetLastVisibleFrame();
 
         int framesCount = lastFrame - firstFrame;
 
@@ -1021,8 +1021,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         if (AnimationDataViewModel.KeyFrames.Count == 0)
             return;
 
-        int firstFrame = AnimationDataViewModel.FirstFrame;
-        int framesCount = AnimationDataViewModel.FramesCount;
+        int firstFrame = AnimationDataViewModel.GetFirstVisibleFrame();
+        int framesCount = AnimationDataViewModel.GetLastVisibleFrame();
         int lastFrame = firstFrame + framesCount;
 
         int activeFrame = AnimationDataViewModel.ActiveFrameBindable;
@@ -1049,12 +1049,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         var keyFrames = AnimationDataViewModel.KeyFrames;
         int firstFrame = 0;
-        int lastFrame = AnimationDataViewModel.FramesCount;
+        int lastFrame = AnimationDataViewModel.GetVisibleFramesCount();
 
         if (keyFrames.Count > 0)
         {
-            firstFrame = keyFrames.Min(x => x.StartFrameBindable);
-            lastFrame = keyFrames.Max(x => x.StartFrameBindable + x.DurationBindable);
+            firstFrame = AnimationDataViewModel.GetFirstVisibleFrame();
+            lastFrame = AnimationDataViewModel.GetLastVisibleFrame();
         }
 
         for (int i = firstFrame; i < lastFrame; i++)
