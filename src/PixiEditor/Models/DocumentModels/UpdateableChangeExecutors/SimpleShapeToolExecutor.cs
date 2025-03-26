@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Utils;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Tools;
@@ -26,7 +27,7 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 ///         - Transform -> Preview (when user applies the transform)
 ///         - Transform -> Drawing (when user clicks outside of shape transform bounds)
 /// </summary>
-internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor, 
+internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
     ITransformableExecutor, IMidChangeUndoableExecutor, IDelayedColorSwapFeature
 {
     private ShapeToolMode activeMode;
@@ -41,10 +42,13 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
             StartMode(activeMode);
         }
     }
+
     protected virtual bool AlignToPixels { get; } = true;
-    
+
     protected Guid memberId;
     protected VecD startDrawingPos;
+
+    private IDisposable restoreSnapping;
 
     public override bool BlocksOtherActions => ActiveMode == ShapeToolMode.Drawing;
 
@@ -66,7 +70,7 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
             ActiveMode = ShapeToolMode.Preview;
         }
 
-        document.SnappingHandler.Remove(memberId.ToString()); // This disables self-snapping
+        restoreSnapping = DisableSelfSnapping(memberId, document);
 
         return ExecutionState.Success;
     }
@@ -144,17 +148,16 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
         ActiveMode = ShapeToolMode.Transform;
     }
 
-    public bool IsTransforming => ActiveMode == ShapeToolMode.Transform; 
+    public bool IsTransforming => ActiveMode == ShapeToolMode.Transform;
 
     public virtual void OnTransformChanged(ShapeCorners corners)
     {
-        
     }
 
     public virtual void OnTransformApplied()
     {
         ActiveMode = ShapeToolMode.Preview;
-        AddMemberToSnapping();
+        AddMembersToSnapping();
         HighlightSnapping(null, null);
     }
 
@@ -169,7 +172,7 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
     public override void ForceStop()
     {
         StopMode(activeMode);
-        AddMemberToSnapping();
+        AddMembersToSnapping();
         HighlightSnapping(null, null);
     }
 
@@ -180,15 +183,15 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
         document.SnappingHandler.SnappingController.HighlightedPoint = null;
     }
 
-    protected void AddMemberToSnapping()
+    protected void AddMembersToSnapping()
     {
-        var member = document.StructureHelper.Find(memberId);
-        document!.SnappingHandler.AddFromBounds(memberId.ToString(), () => member?.TightBounds ?? RectD.Empty);
+        restoreSnapping?.Dispose();
     }
-    
+
     protected VecD SnapAndHighlight(VecD pos)
     {
-        VecD snapped = document.SnappingHandler.SnappingController.GetSnapPoint(pos, out string snapX, out string snapY);
+        VecD snapped =
+            document.SnappingHandler.SnappingController.GetSnapPoint(pos, out string snapX, out string snapY);
         HighlightSnapping(snapX, snapY);
         return snapped;
     }
@@ -209,12 +212,41 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
             document.SnappingHandler.SnappingController.HighlightedPoint = null;
         }
     }
-    
+
+    public static IDisposable DisableSelfSnapping(Guid memberId, IDocument document)
+    {
+        List<Guid> disabledSnappingMembers = new();
+        disabledSnappingMembers.Add(memberId);
+        document.SnappingHandler.Remove(memberId.ToString());
+
+        Guid child = memberId;
+
+        var parents = document.StructureHelper.GetParents(child);
+
+        foreach (var parent in parents)
+        {
+            disabledSnappingMembers.Add(parent.Id);
+            document.SnappingHandler.Remove(parent.Id.ToString());
+        }
+
+        return Disposable.Create(() =>
+        {
+            foreach (var id in disabledSnappingMembers)
+            {
+                var member = document.StructureHelper.Find(id);
+                if (member != null && member.IsVisibleBindable)
+                {
+                    document.SnappingHandler.AddFromBounds(id.ToString(), () => member?.TightBounds ?? RectD.Empty);
+                }
+            }
+        });
+    }
+
     protected virtual void PrecisePositionChangeDrawingMode(VecD pos) { }
     protected virtual void PrecisePositionChangeTransformMode(VecD pos) { }
     public abstract void OnMidChangeUndo();
     public abstract void OnMidChangeRedo();
-    public abstract bool CanUndo { get; } 
+    public abstract bool CanUndo { get; }
     public abstract bool CanRedo { get; }
 
     public virtual bool IsFeatureEnabled(IExecutorFeature feature)
@@ -223,17 +255,17 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
         {
             return IsTransforming;
         }
-        
+
         if (feature is IMidChangeUndoableExecutor)
         {
             return ActiveMode == ShapeToolMode.Transform;
         }
-        
+
         if (feature is IDelayedColorSwapFeature)
         {
             return true;
         }
-        
+
         return false;
     }
 }

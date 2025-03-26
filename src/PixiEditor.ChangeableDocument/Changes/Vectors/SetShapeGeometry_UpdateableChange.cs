@@ -26,6 +26,7 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
     {
         if (target.TryFindNode<VectorLayerNode>(TargetId, out var node))
         {
+            // TODO: Add is identical check
             originalData = (ShapeVectorData?)node.ShapeData?.Clone();
             return true;
         }

@@ -9,9 +9,26 @@ internal class EnumToLocalizedStringConverter : SingleInstanceConverter<EnumToLo
     {
         if (value is Enum enumValue)
         {
-            return EnumHelpers.GetDescription(enumValue);
+            if (EnumHelpers.HasDescription(enumValue))
+            {
+                return EnumHelpers.GetDescription(enumValue);
+            }
+
+            return ToLocalizedStringFormat(enumValue);
         }
 
         return value;
+    }
+
+    private string ToLocalizedStringFormat(Enum enumValue)
+    {
+        // VALUE_ENUMTYPE
+        // for example BlendMode.Normal becomes NORMAL_BLEND_MODE
+
+        string enumType = enumValue.GetType().Name;
+
+        string value = enumValue.ToString();
+
+        return $"{value.ToSnakeCase()}_{enumType.ToSnakeCase()}".ToUpper();
     }
 }

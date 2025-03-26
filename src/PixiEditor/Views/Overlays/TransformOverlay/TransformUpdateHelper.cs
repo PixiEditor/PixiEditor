@@ -13,7 +13,7 @@ internal static class TransformUpdateHelper
     public static ShapeCorners? UpdateShapeFromCorner
     (Anchor targetCorner, TransformCornerFreedom freedom, double propAngle1, double propAngle2, ShapeCorners corners,
         VecD desiredPos, bool scaleFromCenter,
-        SnappingController? snappingController, out string snapX, out string snapY)
+        SnappingController? snappingController, out string snapX, out string snapY, out VecD? snapPoint)
     {
         if (!TransformHelper.IsCorner(targetCorner))
             throw new ArgumentException($"{targetCorner} is not a corner");
@@ -21,6 +21,7 @@ internal static class TransformUpdateHelper
         if (freedom == TransformCornerFreedom.Locked)
         {
             snapX = snapY = "";
+            snapPoint = null;
             return corners;
         }
 
@@ -32,6 +33,7 @@ internal static class TransformUpdateHelper
             VecD oppositePos = TransformHelper.GetAnchorPosition(corners, opposite);
 
             snapX = snapY = "";
+            snapPoint = null;
 
             // constrain desired pos to a "propotional" diagonal line if needed
             if (freedom == TransformCornerFreedom.ScaleProportionally && corners.IsRect)
@@ -43,6 +45,7 @@ internal static class TransformUpdateHelper
                 if (snappingController is not null)
                 {
                     desiredPos = snappingController.GetSnapPoint(desiredPos, direction, out snapX, out snapY);
+                    snapPoint = string.IsNullOrEmpty(snapX) && string.IsNullOrEmpty(snapY) ? null : desiredPos;
                 }
             }
             else if (freedom == TransformCornerFreedom.ScaleProportionally)
@@ -53,6 +56,7 @@ internal static class TransformUpdateHelper
                 if (snappingController is not null)
                 {
                     desiredPos = snappingController.GetSnapPoint(desiredPos, direction, out snapX, out snapY);
+                    snapPoint = string.IsNullOrEmpty(snapX) && string.IsNullOrEmpty(snapY) ? null : desiredPos;
                 }
             }
             else
@@ -60,6 +64,7 @@ internal static class TransformUpdateHelper
                 if (snappingController is not null)
                 {
                     desiredPos = snappingController.GetSnapPoint(desiredPos, out snapX, out snapY);
+                    snapPoint = string.IsNullOrEmpty(snapX) && string.IsNullOrEmpty(snapY) ? null : desiredPos;
                 }
             }
 
@@ -138,6 +143,7 @@ internal static class TransformUpdateHelper
         if (freedom == TransformCornerFreedom.Free)
         {
             snapX = snapY = "";
+            snapPoint = null;
             ShapeCorners newCorners = TransformHelper.UpdateCorner(corners, targetCorner, desiredPos);
             return newCorners.IsLegal ? newCorners : null;
         }

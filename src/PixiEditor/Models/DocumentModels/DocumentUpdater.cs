@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Reflection;
+using Avalonia.Threading;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Exceptions;
@@ -22,6 +23,7 @@ using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using Drawie.Numerics;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Nodes;
@@ -59,6 +61,9 @@ internal class DocumentUpdater
         //TODO: Find a more elegant way to do this
         switch (arbitraryInfo)
         {
+            case ChangeError_Info error:
+                ProcessError(error);
+                break;
             case InvokeAction_PassthroughAction info:
                 ProcessInvokeAction(info);
                 break;
@@ -218,6 +223,14 @@ internal class DocumentUpdater
                 MarkAsAutosaved(info);
                 break;
         }
+    }
+
+    private void ProcessError(ChangeError_Info info)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            NoticeDialog.Show(info.Message, "ERROR");
+        });
     }
 
     private void ProcessInvokeAction(InvokeAction_PassthroughAction info)
@@ -446,6 +459,14 @@ internal class DocumentUpdater
     {
         IStructureMemberHandler? memberVM = doc.StructureHelper.FindOrThrow(info.Id);
         memberVM.SetIsVisible(info.IsVisible);
+        if (info.IsVisible)
+        {
+            doc.SnappingHandler.AddFromBounds(memberVM.Id.ToString(), () => memberVM.TightBounds ?? RectD.Empty);
+        }
+        else
+        {
+            doc.SnappingHandler.Remove(memberVM.Id.ToString());
+        }
     }
 
     private void ProcessUpdateStructureMemberName(StructureMemberName_ChangeInfo info)

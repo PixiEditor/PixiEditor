@@ -33,9 +33,15 @@ internal class MoveStructureMember_Change : Change
     public override bool InitializeAndValidate(Document document)
     {
         var member = document.FindMember(memberGuid);
-        var targetFolder = document.FindNode(targetNodeGuid);
-        if (member is null || targetFolder is null)
+        var targetNode = document.FindNode(targetNodeGuid);
+        if (member is null || targetNode is null)
             return false;
+
+        if (WillCreateLoop(member, targetNode))
+        {
+            FailedMessage = "ERROR_LOOP_DETECTED_MESSAGE";
+            return false;
+        }
 
         originalConnections = NodeOperations.CreateConnectionsData(member);
 
@@ -67,7 +73,7 @@ internal class MoveStructureMember_Change : Change
         var previouslyConnected = inputProperty.Connection;
 
         bool isMovingBelow = false;
-        
+
         inputProperty.Node.TraverseForwards(x =>
         {
             if (x.Id == sourceNodeGuid)
@@ -75,13 +81,14 @@ internal class MoveStructureMember_Change : Change
                 isMovingBelow = true;
                 return false;
             }
-            
+
             return true;
         });
 
         if (isMovingBelow)
         {
-            changes.AddRange(NodeOperations.AdjustPositionsBeforeAppend(sourceNode, inputProperty.Node, out originalPositions));
+            changes.AddRange(
+                NodeOperations.AdjustPositionsBeforeAppend(sourceNode, inputProperty.Node, out originalPositions));
         }
 
         changes.AddRange(NodeOperations.DetachStructureNode(sourceNode));
@@ -129,8 +136,9 @@ internal class MoveStructureMember_Change : Change
 
         return changes;
     }
-    
-    private static List<IChangeInfo> AdjustPutIntoFolderPositions(Node targetNode, Dictionary<Guid, VecD> originalPositions)
+
+    private static List<IChangeInfo> AdjustPutIntoFolderPositions(Node targetNode,
+        Dictionary<Guid, VecD> originalPositions)
     {
         List<IChangeInfo> changes = new();
 
@@ -144,14 +152,14 @@ internal class MoveStructureMember_Change : Change
                     {
                         originalPositions[node.Id] = node.Position;
                     }
-                    
+
                     node.Position = new VecD(node.Position.X, folder.Position.Y + 250);
                     changes.Add(new NodePosition_ChangeInfo(node.Id, node.Position));
                 }
-                
+
                 return true;
             });
-            
+
             folder.Background.Connection?.Node.TraverseBackwards(bgNode =>
             {
                 if (bgNode is Node node)
@@ -167,15 +175,53 @@ internal class MoveStructureMember_Change : Change
                     {
                         pos -= 250;
                     }
-                    
+
                     node.Position = new VecD(node.Position.X, pos);
                     changes.Add(new NodePosition_ChangeInfo(node.Id, node.Position));
                 }
-                
+
                 return true;
             });
         }
 
         return changes;
+    }
+
+    private bool WillCreateLoop(StructureNode member, Node targetNode)
+    {
+        InputProperty? input = targetNode.GetInputProperty("Background");
+        OutputProperty output = member.Output;
+
+        if (input is null)
+            return false;
+
+        return IsLoop(input, output);
+    }
+
+    private static bool IsLoop(InputProperty input, OutputProperty output)
+    {
+        if (input.Node == output.Node)
+        {
+            return true;
+        }
+
+        if (input.Node.OutputProperties.Any(x => x.InternalPropertyName != "Output" && x.Connections.Any(y => y.Node == output.Node)))
+        {
+            return true;
+        }
+
+        bool isLoop = false;
+        input.Node.TraverseForwards((node, inputProp) =>
+        {
+            if (node == output.Node && inputProp.InternalPropertyName != "Background")
+            {
+                isLoop = true;
+                return false;
+            }
+
+            return true;
+        });
+
+        return isLoop;
     }
 }

@@ -34,6 +34,7 @@ using PixiEditor.Views.Visuals;
 using Bitmap = Drawie.Backend.Core.Surfaces.Bitmap;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
 using Point = Avalonia.Point;
+using TileMode = Drawie.Backend.Core.Surfaces.TileMode;
 
 namespace PixiEditor.Views.Rendering;
 
@@ -140,6 +141,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private PixelSize lastSize = PixelSize.Empty;
     private Cursor lastCursor;
+    private VecD lastMousePosition;
 
     public static readonly StyledProperty<string> RenderOutputProperty =
         AvaloniaProperty.Register<Scene, string>("RenderOutput");
@@ -280,7 +282,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         {
             Shader = Shader.CreateBitmap(
                 checkerBitmap,
-                ShaderTileMode.Repeat, ShaderTileMode.Repeat,
+                TileMode.Repeat, TileMode.Repeat,
                 Matrix3X3.CreateScale(checkerScale, checkerScale)),
             FilterQuality = FilterQuality.None
         };
@@ -299,6 +301,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                     continue;
                 }
 
+                overlay.PointerPosition = lastMousePosition;
                 overlay.ZoomScale = Scale;
 
                 if (!overlay.CanRender()) continue;
@@ -331,6 +334,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         if (AllOverlays != null)
         {
             OverlayPointerArgs args = ConstructPointerArgs(e);
+            lastMousePosition = args.Point;
 
             Cursor finalCursor = DefaultCursor;
 

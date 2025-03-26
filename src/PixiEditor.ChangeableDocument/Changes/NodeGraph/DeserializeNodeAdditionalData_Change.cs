@@ -22,10 +22,11 @@ internal class DeserializeNodeAdditionalData_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         Node node = target.FindNode<Node>(nodeId);
-        
-        var changeInfos = node.DeserializeAdditionalData(target, data);
+
+        List<IChangeInfo> infos = new();
+        node.DeserializeAdditionalData(target, data, infos);
         ignoreInUndo = false;
-        return changeInfos;
+        return infos;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)

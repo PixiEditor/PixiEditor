@@ -11,6 +11,11 @@ public class FontFamilySerializationFactory : SerializationFactory<byte[], FontF
     {
         ByteBuilder builder = new ByteBuilder();
 
+        if (original.Name == null)
+        {
+            original = new FontFamilyName(FontLibrary.DefaultFontFamily.Name) { FontUri = original.FontUri };
+        }
+
         builder.AddString(original.Name);
         builder.AddBool(original.FontUri?.IsFile ?? false);
         if (original.FontUri?.IsFile ?? false)

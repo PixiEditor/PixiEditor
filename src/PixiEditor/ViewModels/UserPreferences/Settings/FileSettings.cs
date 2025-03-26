@@ -82,4 +82,11 @@ internal class FileSettings : SettingsGroup
         get => autosaveToDocumentPath;
         set => RaiseAndUpdatePreference(ref autosaveToDocumentPath, value);
     }
+
+    private bool openDirectoryOnExport = GetPreference(PreferencesConstants.OpenDirectoryOnExport, PreferencesConstants.OpenDirectoryOnExportDefault);
+    public bool OpenDirectoryOnExport
+    {
+        get => openDirectoryOnExport;
+        set => RaiseAndUpdatePreference(ref openDirectoryOnExport, value);
+    }
 }

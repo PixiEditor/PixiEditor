@@ -26,7 +26,7 @@ internal class Caret : IDisposable
     public VecF[] GlyphPositions { get; set; }
     public VecD Offset { get; set; }
     public float[] GlyphWidths { get; set; }
-    public float CaretWidth { get; set; } = 1;
+    public float CaretWidth { get; set; } = 0.5f;
 
     private Paint paint = new Paint() { Color = Colors.White, Style = PaintStyle.StrokeAndFill, StrokeWidth = 3 };
 
@@ -63,7 +63,10 @@ internal class Caret : IDisposable
 
         paint.Color = new Color(Colors.White.R, Colors.White.G, Colors.White.B, (byte)(visible ? 255 : 0));
 
-        canvas.DrawLine(from, to, paint);
+        VecD strokeOffset = new VecD(CaretWidth / 2, 0);
+        canvas.DrawLine(from - strokeOffset, to - strokeOffset, paint);
+        paint.Color = new Color(Colors.Black.R, Colors.Black.G, Colors.Black.B, (byte)(visible ? 255 : 0));
+        canvas.DrawLine(from + strokeOffset, to + strokeOffset, paint);
     }
 
     public void Dispose()

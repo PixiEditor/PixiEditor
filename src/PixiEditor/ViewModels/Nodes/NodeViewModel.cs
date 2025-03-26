@@ -47,12 +47,12 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
             }
         }
     }
-    
+
     public string Category { get; }
 
     public string NodeNameBindable
     {
-        get => nodeNameBindable ?? DisplayName;
+        get => nodeNameBindable ?? DisplayName.Key;
         set
         {
             if (!Document.BlockingUpdateableChangeActive)
@@ -60,7 +60,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
                 Internals.ActionAccumulator.AddFinishedActions(
                     new SetNodeName_Action(Id, value));
             }
-        } 
+        }
     }
 
     public string InternalName { get; private set; }
@@ -71,11 +71,12 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         {
             if (categoryBrush == null)
             {
-                if (!string.IsNullOrWhiteSpace(Category) && Application.Current.Styles.TryGetResource($"{Stylize(Category)}CategoryBackgroundBrush", App.Current.ActualThemeVariant, out var brushObj) && brushObj is IBrush brush)
+                if (!string.IsNullOrWhiteSpace(Category) &&
+                    Application.Current.Styles.TryGetResource($"{Stylize(Category)}CategoryBackgroundBrush",
+                        App.Current.ActualThemeVariant, out var brushObj) && brushObj is IBrush brush)
                 {
                     categoryBrush = brush;
                 }
-
             }
 
             return categoryBrush;
@@ -83,7 +84,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
             string Stylize(string input) => string.Concat(input[0].ToString().ToUpper(), input.ToLower().AsSpan(1));
         }
     }
-    
+
     public NodeMetadata? Metadata { get; set; }
 
     public VecD PositionBindable
@@ -117,7 +118,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         get => resultPainter;
         set => SetProperty(ref resultPainter, value);
     }
-    
+
     public bool IsNodeSelected
     {
         get => isSelected;
@@ -134,18 +135,19 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         Document = document;
         Internals = internals;
     }
-    
+
     public virtual void OnInitialized() { }
-    
+
     public NodeViewModel()
     {
         var attribute = GetType().GetCustomAttribute<NodeViewModelAttribute>();
-        
+
         displayName = attribute.DisplayName;
         Category = attribute.Category;
     }
 
-    public NodeViewModel(string nodeNameBindable, Guid id, VecD position, DocumentViewModel document, DocumentInternalParts internals)
+    public NodeViewModel(string nodeNameBindable, Guid id, VecD position, DocumentViewModel document,
+        DocumentInternalParts internals)
     {
         this.nodeNameBindable = nodeNameBindable;
         this.id = id;
@@ -153,13 +155,13 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         Document = document;
         Internals = internals;
     }
-    
+
     public void SetPosition(VecD newPosition)
     {
         position = newPosition;
         OnPropertyChanged(nameof(PositionBindable));
     }
-    
+
     public void SetName(string newName)
     {
         nodeNameBindable = new LocalizedString(newName);
@@ -212,7 +214,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
             {
                 continue;
             }
-            
+
             if (!func(node.Item1, node.Item2))
             {
                 return;
@@ -223,7 +225,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
                 if (inputProperty.ConnectedOutput != null)
                 {
                     queueNodes.Enqueue((inputProperty.ConnectedOutput.Node, node.Item1));
-                } 
+                }
             }
         }
     }
@@ -242,7 +244,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
             {
                 continue;
             }
-            
+
             if (!func(node.Item1, node.Item2, node.Item3))
             {
                 return;
@@ -253,7 +255,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
                 if (inputProperty.ConnectedOutput != null)
                 {
                     queueNodes.Enqueue((inputProperty.ConnectedOutput.Node, node.Item1, inputProperty));
-                } 
+                }
             }
         }
     }
@@ -287,7 +289,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
             }
         }
     }
-    
+
     public void TraverseForwards(Func<INodeHandler, INodeHandler, bool> func)
     {
         var visited = new HashSet<INodeHandler>();
@@ -302,7 +304,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
             {
                 continue;
             }
-            
+
             if (!func(node.Item1, node.Item2))
             {
                 return;
@@ -317,7 +319,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
             }
         }
     }
-    
+
     public void TraverseForwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, bool> func)
     {
         var visited = new HashSet<INodeHandler>();
@@ -332,7 +334,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
             {
                 continue;
             }
-            
+
             if (!func(node.Item1, node.Item2, node.Item3))
             {
                 return;
@@ -348,11 +350,41 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         }
     }
 
+    public void TraverseForwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, INodePropertyHandler, bool> func)
+    {
+        var visited = new HashSet<INodeHandler>();
+        var queueNodes = new Queue<(INodeHandler, INodeHandler, INodePropertyHandler, INodePropertyHandler)>();
+        queueNodes.Enqueue((this, null, null, null));
+
+        while (queueNodes.Count > 0)
+        {
+            var node = queueNodes.Dequeue();
+
+            if (!visited.Add(node.Item1))
+            {
+                continue;
+            }
+
+            if (!func(node.Item1, node.Item2, node.Item3, node.Item4))
+            {
+                return;
+            }
+
+            foreach (var outputProperty in node.Item1.Outputs)
+            {
+                foreach (var connection in outputProperty.ConnectedInputs)
+                {
+                    queueNodes.Enqueue((connection.Node, node.Item1, outputProperty, connection));
+                }
+            }
+        }
+    }
+
     public NodePropertyViewModel FindInputProperty(string propName)
     {
         return Inputs.FirstOrDefault(x => x.PropertyName == propName) as NodePropertyViewModel;
     }
-    
+
     public NodePropertyViewModel<T> FindInputProperty<T>(string propName)
     {
         return Inputs.FirstOrDefault(x => x.PropertyName == propName) as NodePropertyViewModel<T>;
@@ -369,4 +401,6 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
     }
 }
 
-internal abstract class NodeViewModel<T> : NodeViewModel where T : Node { }
+internal abstract class NodeViewModel<T> : NodeViewModel where T : Node
+{
+}

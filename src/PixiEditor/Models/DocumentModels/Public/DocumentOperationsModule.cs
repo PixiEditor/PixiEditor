@@ -211,7 +211,10 @@ internal class DocumentOperationsModule : IDocumentOperations
         bool isFolder = Document.StructureHelper.Find(guidValue) is IFolderHandler;
         if (!isFolder)
         {
-            Internals.ActionAccumulator.AddFinishedActions(new DuplicateLayer_Action(guidValue, Guid.NewGuid()));
+            Guid newGuid = Guid.NewGuid();
+            Internals.ActionAccumulator.AddFinishedActions(
+                new DuplicateLayer_Action(guidValue, newGuid),
+                new CreateAnimationDataFromLayer_Action(newGuid));
         }
         else
         {
@@ -540,6 +543,8 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Guid newGuid = Guid.NewGuid();
 
+        Internals.ActionAccumulator.StartChangeBlock();
+
         //make a new layer, put combined image onto it, delete layers that were merged
         bool allVectorNodes = members.All(x => Document.StructureHelper.Find(x) is IVectorLayerHandler);
         Type layerToCreate = allVectorNodes ? typeof(VectorLayerNode) : typeof(ImageLayerNode);
@@ -549,7 +554,7 @@ internal class DocumentOperationsModule : IDocumentOperations
             new CombineStructureMembersOnto_Action(members.ToHashSet(), newGuid));
         foreach (var member in members)
             Internals.ActionAccumulator.AddActions(new DeleteStructureMember_Action(member));
-        Internals.ActionAccumulator.AddActions(new ChangeBoundary_Action());
+        Internals.ActionAccumulator.EndChangeBlock();
     }
 
     /// <summary>

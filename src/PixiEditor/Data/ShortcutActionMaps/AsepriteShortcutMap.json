@@ -359,14 +359,6 @@
       },
       "Parameters": []
     },
-    "": {
-      "Command": "PixiEditor.Restart",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
     "ShowGrid": {
       "Command": "PixiEditor.View.ToggleGrid",
       "DefaultShortcut": {
@@ -468,7 +460,7 @@
       "Parameters": []
     },
     "Clear": {
-      "Command": "PixiEditor.Document.DeletePixels",
+      "Command": "PixiEditor.Document.DeleteSelected",
       "DefaultShortcut": {
         "key": "Delete",
         "modifiers": null

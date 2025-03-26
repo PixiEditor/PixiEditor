@@ -50,7 +50,9 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             OnPropertyChanged(nameof(UpdateReadyToInstall));
             if (value)
             {
-                VersionText = new LocalizedString("TO_INSTALL_UPDATE", UpdateChecker.LatestReleaseInfo.TagName); // Button shows "Restart" before this text
+                VersionText =
+                    new LocalizedString("TO_INSTALL_UPDATE",
+                        UpdateChecker.LatestReleaseInfo.TagName); // Button shows "Restart" before this text
             }
         }
     }
@@ -73,22 +75,23 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     public async Task<bool> CheckForUpdate()
     {
-        if(!IOperatingSystem.Current.IsWindows)
+        if (!IOperatingSystem.Current.IsWindows)
         {
             return false;
         }
-        
+
         bool updateAvailable = await UpdateChecker.CheckUpdateAvailable();
-        if(!UpdateChecker.LatestReleaseInfo.WasDataFetchSuccessful || string.IsNullOrEmpty(UpdateChecker.LatestReleaseInfo.TagName))
+        if (!UpdateChecker.LatestReleaseInfo.WasDataFetchSuccessful ||
+            string.IsNullOrEmpty(UpdateChecker.LatestReleaseInfo.TagName))
         {
             return false;
         }
-        
+
         bool updateCompatible = await UpdateChecker.IsUpdateCompatible();
         bool autoUpdateFailed = CheckAutoupdateFailed();
         bool updateFileDoesNotExists = !File.Exists(
             Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip"));
-        
+
         bool updateExeDoesNotExists = !File.Exists(
             Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.exe"));
         if (updateAvailable && (updateFileDoesNotExists && updateExeDoesNotExists) || autoUpdateFailed)
@@ -117,7 +120,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
                 NoticeDialog.Show("FAILED_DOWNLOADING", "FAILED_DOWNLOADING_TITLE");
                 return false;
             }
-            catch(TaskCanceledException ex)
+            catch (TaskCanceledException ex)
             {
                 return false;
             }
@@ -139,7 +142,8 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         string dir = AppDomain.CurrentDomain.BaseDirectory;
 
         UpdateDownloader.CreateTempDirectory();
-        if(UpdateChecker.LatestReleaseInfo == null || string.IsNullOrEmpty(UpdateChecker.LatestReleaseInfo.TagName)) return;
+        if (UpdateChecker.LatestReleaseInfo == null ||
+            string.IsNullOrEmpty(UpdateChecker.LatestReleaseInfo.TagName)) return;
         bool updateFileExists = File.Exists(
             Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip"));
         string exePath = Path.Join(UpdateDownloader.DownloadLocation,
@@ -147,7 +151,8 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
         bool updateExeExists = File.Exists(exePath);
 
-        if (updateExeExists && !UpdateChecker.VersionDifferent(UpdateChecker.LatestReleaseInfo.TagName, UpdateChecker.CurrentVersionTag))
+        if (updateExeExists &&
+            !UpdateChecker.VersionDifferent(UpdateChecker.LatestReleaseInfo.TagName, UpdateChecker.CurrentVersionTag))
         {
             File.Delete(exePath);
             updateExeExists = false;
@@ -176,8 +181,8 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             CreateUpdateInfo(UpdateChecker.LatestReleaseInfo.TagName);
             return;
         }
-        
-        if(!CanInstallUpdate(UpdateChecker.LatestReleaseInfo.TagName, info) && !updateExeExists)
+
+        if (!CanInstallUpdate(UpdateChecker.LatestReleaseInfo.TagName, info) && !updateExeExists)
         {
             return;
         }
@@ -225,8 +230,15 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     private static void RestartToUpdate(string updateExeFile)
     {
-        Process.Start(updateExeFile);
-        Shutdown();
+        try
+        {
+            IOperatingSystem.Current.ProcessUtility.RunAsAdmin(updateExeFile);
+            Shutdown();
+        }
+        catch (Win32Exception)
+        {
+            NoticeDialog.Show("COULD_NOT_UPDATE_WITHOUT_ADMIN", "INSUFFICIENT_PERMISSIONS");
+        }
     }
 
     private static void Shutdown()
@@ -235,12 +247,13 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             desktop.Shutdown();
     }
 
-    [Command.Internal("PixiEditor.Restart")]
-    public static void RestartApplication()
+    [Command.Internal("PixiEditor.RestartToUpdate")]
+    public static void RestartApplicationToUpdate()
     {
         try
         {
-            ProcessHelper.RunAsAdmin(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "PixiEditor.UpdateInstaller.exe"));
+            ProcessHelper.RunAsAdmin(Path.Join(AppDomain.CurrentDomain.BaseDirectory,
+                "PixiEditor.UpdateInstaller.exe"));
             Shutdown();
         }
         catch (Win32Exception)
@@ -262,7 +275,8 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             try
             {
                 await CheckForUpdate();
-                if(UpdateChecker.LatestReleaseInfo != null && UpdateChecker.LatestReleaseInfo.TagName == VersionHelpers.GetCurrentAssemblyVersionString())
+                if (UpdateChecker.LatestReleaseInfo != null && UpdateChecker.LatestReleaseInfo.TagName ==
+                    VersionHelpers.GetCurrentAssemblyVersionString())
                 {
                     EnsureUpdateFilesDeleted();
                 }
@@ -280,17 +294,17 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             Install();
         }
     }
-    
+
     private bool OsSupported()
     {
         return IOperatingSystem.Current.IsWindows;
     }
-    
+
     private bool UpdateInfoExists()
     {
         return File.Exists(Path.Join(Paths.TempFilesPath, "updateInfo.txt"));
     }
-    
+
     private void CreateUpdateInfo(string targetVersion)
     {
         StringBuilder sb = new StringBuilder();
@@ -298,7 +312,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         sb.AppendLine("0");
         File.WriteAllText(Path.Join(Paths.TempFilesPath, "updateInfo.txt"), sb.ToString());
     }
-    
+
     private string[] IncrementUpdateInfo()
     {
         string[] lines = File.ReadAllLines(Path.Join(Paths.TempFilesPath, "updateInfo.txt"));
@@ -306,53 +320,54 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         count++;
         lines[1] = count.ToString();
         File.WriteAllLines(Path.Join(Paths.TempFilesPath, "updateInfo.txt"), lines);
-        
+
         return lines;
     }
-    
+
     private void EnsureUpdateFilesDeleted()
     {
         string path = Path.Combine(Paths.TempFilesPath, "updateInfo.txt");
-        if(File.Exists(path))
+        if (File.Exists(path))
         {
             File.Delete(path);
         }
     }
-    
+
     private bool CanInstallUpdate(string forVersion, string[] lines)
     {
         if (lines.Length != 2) return false;
-        
+
         if (lines[0] != forVersion) return false;
-        
+
         return int.TryParse(lines[1], out int count) && count < MaxRetryCount;
     }
-    
+
     private bool UpdateInfoValid(string forVersion, string[] lines)
     {
         if (lines.Length != 2) return false;
-        
+
         if (lines[0] != forVersion) return false;
-        
+
         return int.TryParse(lines[1], out _);
     }
-    
+
     private bool CheckAutoupdateFailed()
     {
         string path = Path.Combine(Paths.TempFilesPath, "updateInfo.txt");
         if (!File.Exists(path)) return false;
-        
+
         string[] lines = File.ReadAllLines(path);
         if (lines.Length != 2) return false;
-        
+
         if (!int.TryParse(lines[1], out int count)) return false;
-        
+
         return count >= MaxRetryCount;
     }
-    
+
     private void RemoveZipIfExists()
     {
-        string zipPath = Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip");
+        string zipPath = Path.Join(UpdateDownloader.DownloadLocation,
+            $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip");
         if (File.Exists(zipPath))
         {
             File.Delete(zipPath);

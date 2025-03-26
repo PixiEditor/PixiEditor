@@ -21,7 +21,7 @@ internal abstract class VideoFileType : IoFileType
         job?.Report(0, new LocalizedString("WARMING_UP"));
 
         int frameRendered = 0;
-        int totalFrames = document.AnimationDataViewModel.FramesCount;
+        int totalFrames = document.AnimationDataViewModel.GetVisibleFramesCount();
 
         document.RenderFrames(frames, surface =>
         {
