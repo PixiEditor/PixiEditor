@@ -34,6 +34,7 @@ using PixiEditor.Views.Visuals;
 using Bitmap = Drawie.Backend.Core.Surfaces.Bitmap;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
 using Point = Avalonia.Point;
+using TileMode = Drawie.Backend.Core.Surfaces.TileMode;
 
 namespace PixiEditor.Views.Rendering;
 
@@ -281,7 +282,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         {
             Shader = Shader.CreateBitmap(
                 checkerBitmap,
-                ShaderTileMode.Repeat, ShaderTileMode.Repeat,
+                TileMode.Repeat, TileMode.Repeat,
                 Matrix3X3.CreateScale(checkerScale, checkerScale)),
             FilterQuality = FilterQuality.None
         };

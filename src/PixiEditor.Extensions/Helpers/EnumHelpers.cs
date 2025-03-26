@@ -41,12 +41,25 @@ public static class EnumHelpers
         if (fieldInfo != null)
         {
             var attrs = fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), true);
-            if (attrs != null && attrs.Length > 0)
+            if (attrs is { Length: > 0 })
             {
                 description = ((DescriptionAttribute)attrs[0]).Description;
             }
         }
 
         return description;
+    }
+
+    public static bool HasDescription(Enum enumValue)
+    {
+        var fieldInfo = enumValue.GetType().GetField(enumValue.ToString());
+
+        if (fieldInfo != null)
+        {
+            var attrs = fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), true);
+            return attrs is { Length: > 0 };
+        }
+
+        return false;
     }
 }
