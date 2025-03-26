@@ -52,7 +52,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
 
     public string NodeNameBindable
     {
-        get => nodeNameBindable ?? DisplayName;
+        get => nodeNameBindable ?? DisplayName.Key;
         set
         {
             if (!Document.BlockingUpdateableChangeActive)
