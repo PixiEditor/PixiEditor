@@ -378,6 +378,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
     private void KeyFramePressed(PointerPressedEventArgs? e)
     {
+        e.PreventGestureRecognition(); // Prevents digital pen losing capture when dragging
         shouldShiftSelect = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
         shouldClearNextSelection = !shouldShiftSelect && !e.KeyModifiers.HasFlag(KeyModifiers.Control);
         KeyFrame target = null;
@@ -473,7 +474,6 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
             () =>
             {
                 newOffsetX = Math.Clamp(newOffsetX, 0, _timelineKeyFramesScroll.ScrollBarMaximum.X);
-
                 ScrollOffset = new Vector(newOffsetX, 0);
             }, DispatcherPriority.Render);
 
@@ -488,14 +488,16 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         }
 
         var mouseButton = e.GetMouseButton(content);
+        e.PreventGestureRecognition();
 
-        if (mouseButton == MouseButton.Left)
+        if (mouseButton == MouseButton.Left && !e.KeyModifiers.HasFlag(KeyModifiers.Control))
         {
             _selectionRectangle.IsVisible = true;
             _selectionRectangle.Width = 0;
             _selectionRectangle.Height = 0;
         }
-        else if (mouseButton == MouseButton.Middle)
+        else if (mouseButton == MouseButton.Middle ||
+                 (mouseButton == MouseButton.Left && e.KeyModifiers.HasFlag(KeyModifiers.Control)))
         {
             Cursor = new Cursor(StandardCursorType.SizeAll);
             e.Pointer.Capture(content);
@@ -517,11 +519,13 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
             return;
         }
 
-        if (e.GetCurrentPoint(content).Properties.IsLeftButtonPressed)
+        if (e.GetCurrentPoint(content).Properties.IsLeftButtonPressed && !e.KeyModifiers.HasFlag(KeyModifiers.Control))
         {
             HandleMoveSelection(e, content);
         }
-        else if (e.GetCurrentPoint(content).Properties.IsMiddleButtonPressed)
+        else if (e.GetCurrentPoint(content).Properties.IsMiddleButtonPressed ||
+                 (e.GetCurrentPoint(content).Properties.IsLeftButtonPressed &&
+                  e.KeyModifiers.HasFlag(KeyModifiers.Control)))
         {
             HandleTimelinePan(e, content);
         }
@@ -563,7 +567,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
             var translated = frame.TranslatePoint(new Point(0, 0), _contentGrid);
             Rect frameBounds = new Rect(translated.Value.X, translated.Value.Y, frame.Bounds.Width,
                 frame.Bounds.Height);
-            if (bounds.Contains(frameBounds))
+            if (bounds.Intersects(frameBounds))
             {
                 SelectKeyFrame(frame.Item, false);
             }

@@ -15,10 +15,10 @@
                             Background="{DynamicResource ThemeBackgroundBrush1}" Margin="0 15"
                             BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="1">
                         <Grid>
-                            <Panel HorizontalAlignment="Right" Name="PART_ResizePanelRight" Width="5"
+                            <Panel HorizontalAlignment="Right" Name="PART_ResizePanelRight" Width="15"
                                    Cursor="SizeWestEast" Background="Transparent" ZIndex="1" />
                             <Panel Margin="-35, 0, 0, 0" HorizontalAlignment="Left" Name="PART_ResizePanelLeft"
-                                   Width="5" Cursor="SizeWestEast" Background="Transparent" ZIndex="1" />
+                                   Width="15" Cursor="SizeWestEast" Background="Transparent" ZIndex="1" />
                         </Grid>
                     </Border>
 
