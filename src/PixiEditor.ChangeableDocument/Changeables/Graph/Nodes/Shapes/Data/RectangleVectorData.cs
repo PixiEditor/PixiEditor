@@ -10,8 +10,8 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
 public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
 {
-    public VecD Center { get; }
-    public VecD Size { get; }
+    public VecD Center { get; set; }
+    public VecD Size { get; set; }
 
     public override RectD GeometryAABB => RectD.FromCenterAndSize(Center, Size);
 

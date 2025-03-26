@@ -5,11 +5,12 @@ using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
-public class TextVectorData : ShapeVectorData, IReadOnlyTextData
+public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
 {
     private string text;
     private Font font = Font.CreateDefault();
@@ -236,5 +237,24 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData
         hash.Add(MissingFontText);
 
         return hash.ToHashCode();
+    }
+
+    public void Resize(VecD multiplier)
+    {
+        // TODO: Resize font size
+        /*Position = Position.Multiply(multiplier);
+        if(Font != null)
+        {
+            Font.Size *= multiplier.Y;
+        }
+
+        if (Spacing.HasValue)
+        {
+            Spacing *= multiplier.Y;
+        }*/
+
+        TransformationMatrix = TransformationMatrix.PostConcat(Matrix3X3.CreateScale((float)multiplier.X, (float)multiplier.Y));
+
+        lastBounds = richText.MeasureBounds(Font);
     }
 }

@@ -120,4 +120,5 @@ public class LineVectorData : ShapeVectorData, IReadOnlyLineData
 
         return path;
     }
+
 }

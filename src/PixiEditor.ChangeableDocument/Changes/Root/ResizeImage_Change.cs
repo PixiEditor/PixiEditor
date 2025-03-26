@@ -6,6 +6,7 @@ using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using BlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
@@ -98,6 +99,11 @@ internal class ResizeImage_Change : Change
                     img.CommitChanges();
                 });
             }
+            else if (member is IScalable scalableLayer)
+            {
+                VecD multiplier = new VecD(newSize.X / (double)originalSize.X, newSize.Y / (double)originalSize.Y);
+                scalableLayer.Resize(multiplier);
+            }
 
             // Add support for different Layer types
 
@@ -128,6 +134,11 @@ internal class ResizeImage_Change : Change
                     savedChunks[layer.Id].ApplyChunksToImage(layerImage);
                     layerImage.CommitChanges();
                 });
+            }
+            else if (member is IScalable scalableLayer)
+            {
+                VecD multiplier = new VecD(originalSize.X / (double)newSize.X, originalSize.Y / (double)newSize.Y);
+                scalableLayer.Resize(multiplier);
             }
 
             if (member.EmbeddedMask is not null)
