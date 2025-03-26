@@ -211,7 +211,10 @@ internal class DocumentOperationsModule : IDocumentOperations
         bool isFolder = Document.StructureHelper.Find(guidValue) is IFolderHandler;
         if (!isFolder)
         {
-            Internals.ActionAccumulator.AddFinishedActions(new DuplicateLayer_Action(guidValue, Guid.NewGuid()));
+            Guid newGuid = Guid.NewGuid();
+            Internals.ActionAccumulator.AddFinishedActions(
+                new DuplicateLayer_Action(guidValue, newGuid),
+                new CreateAnimationDataFromLayer_Action(newGuid));
         }
         else
         {
