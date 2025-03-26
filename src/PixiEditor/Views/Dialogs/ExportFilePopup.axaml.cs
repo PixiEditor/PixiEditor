@@ -178,7 +178,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
         };
         videoPreviewTimer.Tick += OnVideoPreviewTimerOnTick;
 
-        int framesCount = document.AnimationDataViewModel.FramesCount;
+        int framesCount = document.AnimationDataViewModel.GetVisibleFramesCount();
 
         var (rows, columns) = SpriteSheetUtility.CalculateGridDimensionsAuto(framesCount);
         SpriteSheetColumns = columns;

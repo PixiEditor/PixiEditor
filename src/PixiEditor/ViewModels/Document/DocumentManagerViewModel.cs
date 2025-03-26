@@ -185,15 +185,23 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         ActiveDocument.EventInlet.OnSymmetryDragEnded(dir);
     }
 
-    [Command.Basic("PixiEditor.Document.DeletePixels", "DELETE_PIXELS", "DELETE_PIXELS_DESCRIPTIVE",
-        CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.Delete,
+    [Command.Basic("PixiEditor.Document.DeleteSelected", "DELETE_SELECTED", "DELETE_SELECTED_DESCRIPTIVE",
+        Key = Key.Delete,
         ShortcutContexts = [typeof(ViewportWindowViewModel)],
         Icon = PixiPerfectIcons.Eraser,
-        MenuItemPath = "EDIT/DELETE_SELECTED_PIXELS", MenuItemOrder = 6, AnalyticsTrack = true)]
-    public void DeletePixels()
+        MenuItemPath = "EDIT/DELETE_SELECTED", MenuItemOrder = 6, AnalyticsTrack = true)]
+    public void DeleteSelected()
     {
-        Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.DeleteSelectedPixels(activeDocument
-            .AnimationDataViewModel.ActiveFrameBindable);
+        if (ActiveDocument.SelectionPathBindable is { IsEmpty: false })
+        {
+            Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.DeleteSelectedPixels(activeDocument
+                .AnimationDataViewModel.ActiveFrameBindable);
+        }
+        else
+        {
+            var selectedMembers = ActiveDocument?.GetSelectedMembers();
+            Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.DeleteStructureMembers(selectedMembers);
+        }
     }
 
 

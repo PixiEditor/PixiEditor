@@ -16,7 +16,7 @@ using Drawie.Numerics;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("VectorLayer")]
-public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorNode, IRasterizable
+public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorNode, IRasterizable, IScalable
 {
     public OutputProperty<ShapeVectorData> Shape { get; }
 
@@ -189,5 +189,24 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             EmbeddedMask = this.EmbeddedMask?.CloneFromCommitted(),
             AllowHighDpiRendering = this.AllowHighDpiRendering
         };
+    }
+
+    public void Resize(VecD multiplier)
+    {
+        if (ShapeData == null)
+        {
+            return;
+        }
+
+        if(ShapeData is IScalable resizable)
+        {
+            resizable.Resize(multiplier);
+        }
+        else
+        {
+            ShapeData.TransformationMatrix =
+                ShapeData.TransformationMatrix.PostConcat(Matrix3X3.CreateScale((float)multiplier.X,
+                    (float)multiplier.Y));
+        }
     }
 }

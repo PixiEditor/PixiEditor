@@ -169,7 +169,7 @@ internal class ConnectProperties_Change : Change
         return changes;
     }
 
-    private bool IsLoop(InputProperty input, OutputProperty output)
+    private static bool IsLoop(InputProperty input, OutputProperty output)
     {
         if (input.Node == output.Node)
         {

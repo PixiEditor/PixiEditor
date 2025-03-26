@@ -109,7 +109,8 @@ internal class KeyFrame : TemplatedControl
         {
             return;
         }
-        
+
+        e.PreventGestureRecognition();
         e.Pointer.Capture(sender as IInputElement);
         e.Handled = true;
     }
@@ -146,7 +147,7 @@ internal class KeyFrame : TemplatedControl
             }
             
             int oldStartFrame = Item.StartFrameBindable;
-            Item.ChangeFrameLength(frame, Item.DurationBindable + oldStartFrame - frame + 1);
+            Item.ChangeFrameLength(frame, Item.DurationBindable + oldStartFrame - frame);
         }
         
         e.Handled = true;

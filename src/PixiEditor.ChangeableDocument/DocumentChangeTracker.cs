@@ -210,7 +210,7 @@ public class DocumentChangeTracker : IDisposable
         }
 
         bool ignoreInUndo = false;
-        List<IChangeInfo> changeInfos = new();
+        System.Collections.Generic.List<IChangeInfo> changeInfos = new();
 
         if (activeUpdateableChange is InterruptableUpdateableChange interruptable)
         {
@@ -232,9 +232,10 @@ public class DocumentChangeTracker : IDisposable
         var validationResult = change.InitializeAndValidate(document);
         if (!validationResult)
         {
-            Trace.WriteLine($"Change {change} failed validation");
+            string? failedMessage = change.FailedMessage;
+            Trace.WriteLine($"Change {change} failed validation. Reason: {failedMessage}");
             change.Dispose();
-            return new None();
+            return string.IsNullOrEmpty(failedMessage) ? new None() : new ChangeError_Info(failedMessage);
         }
 
         var info = change.Apply(document, true, out ignoreInUndo);

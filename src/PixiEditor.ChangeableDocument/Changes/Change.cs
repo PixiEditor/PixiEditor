@@ -2,6 +2,7 @@
 
 internal abstract class Change : IDisposable
 {
+    public string FailedMessage { get; protected set; }
     public Guid ChangeGuid { get; } = Guid.NewGuid();
 
     /// <summary>

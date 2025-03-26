@@ -418,10 +418,25 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
         DocumentViewModel? oldDoc = e.OldValue.Value;
 
+        if (oldDoc != null)
+        {
+            oldDoc.SizeChanged -= viewport.OnDocumentSizeChanged;
+        }
+
         DocumentViewModel? newDoc = e.NewValue.Value;
+
+        if (newDoc != null)
+        {
+            newDoc.SizeChanged += viewport.OnDocumentSizeChanged;
+        }
 
         oldDoc?.Operations.RemoveViewport(viewport.GuidValue);
         newDoc?.Operations.AddOrUpdateViewport(viewport.GetLocation());
+    }
+
+    private void OnDocumentSizeChanged(object? sender, DocumentSizeChangedEventArgs documentSizeChangedEventArgs)
+    {
+        scene.CenterContent(documentSizeChangedEventArgs.NewSize);
     }
 
     private ChunkResolution CalculateResolution()

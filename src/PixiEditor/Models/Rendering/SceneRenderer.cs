@@ -25,6 +25,7 @@ internal class SceneRenderer
     private bool lastHighResRendering = true;
     private int lastGraphCacheHash = -1;
     private KeyFrameTime lastFrameTime;
+    private Dictionary<Guid, bool> lastFramesVisibility = new();
 
     public SceneRenderer(IReadOnlyDocument trackerDocument, IDocument documentViewModel)
     {
@@ -136,6 +137,23 @@ internal class SceneRenderer
         {
             lastFrameTime = DocumentViewModel.AnimationHandler.ActiveFrameTime;
             return true;
+        }
+
+        foreach (var frame in DocumentViewModel.AnimationHandler.KeyFrames)
+        {
+            if (lastFramesVisibility.TryGetValue(frame.Id, out var lastVisibility))
+            {
+                if (frame.IsVisible != lastVisibility)
+                {
+                    lastFramesVisibility[frame.Id] = frame.IsVisible;
+                    return true;
+                }
+            }
+            else
+            {
+                lastFramesVisibility[frame.Id] = frame.IsVisible;
+                return true;
+            }
         }
 
         if (!renderInDocumentSize)

@@ -15,8 +15,8 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 public class TileNode : RenderNode
 {
     public InputProperty<Texture> Image { get; }
-    public InputProperty<ShaderTileMode> TileModeX { get; }
-    public InputProperty<ShaderTileMode> TileModeY { get; }
+    public InputProperty<TileMode> TileModeX { get; }
+    public InputProperty<TileMode> TileModeY { get; }
     public InputProperty<Matrix3X3> Matrix { get; }
 
     private Drawie.Backend.Core.Surfaces.ImageData.Image lastImage;
@@ -26,8 +26,8 @@ public class TileNode : RenderNode
     public TileNode()
     {
         Image = CreateInput<Texture>("Image", "IMAGE", null);
-        TileModeX = CreateInput<ShaderTileMode>("TileModeX", "TILE_MODE_X", ShaderTileMode.Repeat);
-        TileModeY = CreateInput<ShaderTileMode>("TileModeY", "TILE_MODE_Y", ShaderTileMode.Repeat);
+        TileModeX = CreateInput<TileMode>("TileModeX", "TILE_MODE_X", TileMode.Repeat);
+        TileModeY = CreateInput<TileMode>("TileModeY", "TILE_MODE_Y", TileMode.Repeat);
         Matrix = CreateInput<Matrix3X3>("Matrix", "MATRIX", Matrix3X3.Identity);
 
         Output.FirstInChain = null;
