@@ -460,7 +460,7 @@
       "Parameters": []
     },
     "Clear": {
-      "Command": "PixiEditor.Document.DeletePixels",
+      "Command": "PixiEditor.Document.DeleteSelected",
       "DefaultShortcut": {
         "key": "Delete",
         "modifiers": null
