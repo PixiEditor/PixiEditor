@@ -20,6 +20,7 @@ public struct StyleContext
     public SvgProperty<SvgNumericUnit> Opacity { get; }
     public SvgProperty<SvgStyleUnit> InlineStyle { get; set; }
     public VecD ViewboxOrigin { get; set; }
+    public VecD ViewboxSize { get; set; }
     public SvgDefs Defs { get; set; }
 
     public StyleContext()
@@ -50,6 +51,9 @@ public struct StyleContext
         ViewboxOrigin = new VecD(
             document.ViewBox.Unit.HasValue ? -document.ViewBox.Unit.Value.Value.X : 0,
             document.ViewBox.Unit.HasValue ? -document.ViewBox.Unit.Value.Value.Y : 0);
+        ViewboxSize = new VecD(
+            document.ViewBox.Unit.HasValue ? document.ViewBox.Unit.Value.Value.Width : 0,
+            document.ViewBox.Unit.HasValue ? document.ViewBox.Unit.Value.Value.Height : 0);
         InlineStyle = document.Style;
         Defs = document.Defs;
     }
@@ -159,6 +163,7 @@ public struct StyleContext
         }
 
         styleContext.ViewboxOrigin = ViewboxOrigin;
+        styleContext.ViewboxSize = ViewboxSize;
 
         if (InlineStyle.Unit != null)
         {

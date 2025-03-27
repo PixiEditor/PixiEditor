@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
@@ -29,7 +31,7 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         string xml = File.ReadAllText(path);
         SvgDocument document = SvgDocument.Parse(xml);
 
-        if(document == null)
+        if (document == null)
         {
             throw new SvgParsingException("Failed to parse SVG document");
         }
@@ -57,6 +59,10 @@ internal class SvgDocumentBuilder : IDocumentBuilder
                     else if (element is SvgGroup group)
                     {
                         lastId = AddGroup(group, graph, style, lastId);
+                    }
+                    else if (element is SvgImage svgImage)
+                    {
+                        lastId = AddImage(svgImage, style, graph, lastId);
                     }
                 }
 
@@ -103,7 +109,10 @@ internal class SvgDocumentBuilder : IDocumentBuilder
 
         NodeGraphBuilder.NodeBuilder nBuilder = graph.WithNodeOfType<VectorLayerNode>(out int id)
             .WithName(name)
-            .WithInputValues(new Dictionary<string, object>() { { StructureNode.OpacityPropertyName, (float)(styleContext.Opacity.Unit?.Value ?? 1f) } })
+            .WithInputValues(new Dictionary<string, object>()
+            {
+                { StructureNode.OpacityPropertyName, (float)(styleContext.Opacity.Unit?.Value ?? 1f) }
+            })
             .WithAdditionalData(new Dictionary<string, object>() { { "ShapeData", shapeData } });
 
         if (lastId != null)
@@ -136,6 +145,10 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             else if (child is SvgGroup childGroup)
             {
                 childId = AddGroup(childGroup, graph, childStyle, childId, connectTo);
+            }
+            else if (child is SvgImage image)
+            {
+                childId = AddImage(image, childStyle, graph, childId);
             }
         }
 
@@ -171,6 +184,87 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         lastId = id;
 
         return lastId;
+    }
+
+    private int? AddImage(SvgImage image, StyleContext style, NodeGraphBuilder graph, int? lastId)
+    {
+        byte[] bytes = TryReadImage(image.Href.Unit?.Value ?? "");
+
+        Surface? imgSurface = bytes is { Length: > 0 } ? Surface.Load(bytes) : null;
+        Surface? finalSurface = null;
+
+        if (style.ViewboxSize.ShortestAxis > 0)
+        {
+            finalSurface = new Surface((VecI)style.ViewboxSize);
+            double x = image.X.Unit?.PixelsValue ?? 0;
+            double y = image.Y.Unit?.PixelsValue ?? 0;
+            finalSurface.DrawingSurface.Canvas.DrawSurface(imgSurface.DrawingSurface, (int)x, (int)y);
+            imgSurface.Dispose();
+
+            if (finalSurface.Size.X != (int)image.Width.Unit?.PixelsValue || finalSurface.Size.Y != (int)image.Height.Unit?.PixelsValue)
+            {
+                var resized = finalSurface.ResizeNearestNeighbor((VecI)style.ViewboxSize);
+                finalSurface.Dispose();
+                finalSurface = resized;
+            }
+
+        }
+
+        var graphBuilder = graph.WithImageLayerNode(
+            image.Id.Unit?.Value ?? new LocalizedString("NEW_LAYER").Value,
+            finalSurface, ColorSpace.CreateSrgb(), out int id);
+
+        if (lastId != null)
+        {
+            var nodeBuilder = graphBuilder.AllNodes[^1];
+
+            Dictionary<string, object> inputValues = new()
+            {
+                { StructureNode.OpacityPropertyName, (float)(style.Opacity.Unit?.Value ?? 1f) }
+            };
+
+            nodeBuilder.WithInputValues(inputValues);
+            nodeBuilder.WithConnections([
+                new PropertyConnection()
+                {
+                    InputPropertyName = "Background", OutputPropertyName = "Output", OutputNodeId = lastId.Value
+                }
+            ]);
+        }
+
+        lastId = id;
+
+        return lastId;
+    }
+
+    private byte[] TryReadImage(string svgHref)
+    {
+        if (string.IsNullOrEmpty(svgHref))
+        {
+            return [];
+        }
+
+        if (svgHref.StartsWith("data:image/png;base64,"))
+        {
+            return Convert.FromBase64String(svgHref.Replace("data:image/png;base64,", ""));
+        }
+
+        // TODO: Implement downloading images from the internet
+        /*if (Uri.TryCreate(svgHref, UriKind.Absolute, out Uri? uri))
+        {
+            try
+            {
+                using WebClient client = new();
+                return client.DownloadData(uri);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return [];
+            }
+        }*/
+
+        return [];
     }
 
     private EllipseVectorData AddEllipse(SvgElement element)
@@ -242,9 +336,11 @@ internal class SvgDocumentBuilder : IDocumentBuilder
 
     private TextVectorData AddText(SvgText element)
     {
-        Font font = element.FontFamily.Unit.HasValue ? Font.FromFamilyName(element.FontFamily.Unit.Value.Value) : Font.CreateDefault();
+        Font font = element.FontFamily.Unit.HasValue
+            ? Font.FromFamilyName(element.FontFamily.Unit.Value.Value)
+            : Font.CreateDefault();
         FontFamilyName? missingFont = null;
-        if(font == null)
+        if (font == null)
         {
             font = Font.CreateDefault();
             missingFont = new FontFamilyName(element.FontFamily.Unit.Value.Value);
@@ -273,7 +369,8 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         }
 
         bool hasFill = styleContext.Fill.Unit?.Paintable is { AnythingVisible: true };
-        bool hasStroke = styleContext.Stroke.Unit?.Paintable is { AnythingVisible: true } || styleContext.StrokeWidth.Unit is { PixelsValue: > 0 };
+        bool hasStroke = styleContext.Stroke.Unit?.Paintable is { AnythingVisible: true } ||
+                         styleContext.StrokeWidth.Unit is { PixelsValue: > 0 };
         bool hasTransform = styleContext.Transform.Unit is { MatrixValue.IsIdentity: false };
 
         shapeData.Fill = hasFill;

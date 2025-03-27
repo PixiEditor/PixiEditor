@@ -282,6 +282,7 @@ internal partial class DocumentViewModel
         });
 
         var image = CreateImageElement(resizeFactor, tightBounds.Value, toSave, useNearestNeighborForImageUpscaling);
+        image.Id.Unit = new SvgStringUnit(member.NodeNameBindable);
 
         elementContainer.Children.Add(image);
     }
