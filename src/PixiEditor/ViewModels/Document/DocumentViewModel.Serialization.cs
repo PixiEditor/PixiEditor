@@ -325,7 +325,8 @@ internal partial class DocumentViewModel
         text.FontStyle.Unit = new SvgEnumUnit<SvgFontStyle>(font.Italic ? SvgFontStyle.Italic : SvgFontStyle.Normal);
         text.Stroke.Unit = new SvgPaintServerUnit(textData.Stroke);
         text.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(textData.StrokeWidth);
-        text.Fill.Unit = new SvgPaintServerUnit(textData.Fill ? textData.FillPaintable : new ColorPaintable(Colors.Transparent));
+        text.Fill.Unit =
+            new SvgPaintServerUnit(textData.Fill ? textData.FillPaintable : new ColorPaintable(Colors.Transparent));
 
         return text;
     }
@@ -540,6 +541,8 @@ internal partial class DocumentViewModel
         {
             if (keyFrame is IKeyFrameChildrenContainer container)
             {
+                if (!nodeIdMap.ContainsKey(keyFrame.NodeId)) continue;
+
                 KeyFrameGroup group = new();
                 group.NodeId = nodeIdMap[keyFrame.NodeId];
                 group.Enabled = keyFrame.IsVisible;
@@ -548,6 +551,8 @@ internal partial class DocumentViewModel
                 {
                     if (child is IReadOnlyRasterKeyFrame rasterKeyFrame)
                     {
+                        if (!nodeIdMap.ContainsKey(rasterKeyFrame.NodeId)) continue;
+
                         BuildRasterKeyFrame(rasterKeyFrame, graph, group, nodeIdMap, keyFrameIds);
                     }
                 }
