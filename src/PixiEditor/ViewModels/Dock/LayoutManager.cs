@@ -101,7 +101,8 @@ internal class LayoutManager
                     SplitDirection = DockingDirection.Bottom,
                     Second = new DockableArea
                     {
-                        Id = "DocumentPreviewArea", ActiveDockable = DockContext.CreateDockable(documentPreviewDockViewModel)
+                        Id = "DocumentPreviewArea",
+                        ActiveDockable = DockContext.CreateDockable(documentPreviewDockViewModel)
                     }
                 }
             }
@@ -152,6 +153,22 @@ internal class LayoutManager
         else
         {
             DockContext.Float(dockable, 0, 0);
+        }
+    }
+
+    public void ShowViewport(ViewportWindowViewModel viewport)
+    {
+        foreach (var element in ActiveLayout.Root)
+        {
+            if (element is IDockableHost dockableHost)
+            {
+                var dockable = dockableHost.Dockables.FirstOrDefault(x => x.Id == viewport.Id);
+                if (dockable != null)
+                {
+                    dockableHost.ActiveDockable = dockable;
+                    return;
+                }
+            }
         }
     }
 

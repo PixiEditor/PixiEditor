@@ -46,7 +46,10 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
             activeWindow = value;
             OnPropertyChanged(nameof(ActiveWindow));
             if (activeWindow is ViewportWindowViewModel viewport)
+            {
+                Owner.LayoutSubViewModel.LayoutManager.ShowViewport(viewport);
                 ActiveViewportChanged?.Invoke(this, viewport);
+            }
         }
     }
 
