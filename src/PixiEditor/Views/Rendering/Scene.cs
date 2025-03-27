@@ -200,6 +200,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     protected override async void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
+        framebuffer?.Dispose();
+        framebuffer = null;
+
         if (initialized)
         {
             surface.Dispose();
