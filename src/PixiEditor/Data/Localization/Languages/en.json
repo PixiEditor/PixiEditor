@@ -981,5 +981,11 @@
   "CLAMP_TILE_MODE": "Clamp",
   "REPEAT_TILE_MODE": "Repeat",
   "MIRROR_TILE_MODE": "Mirror",
-  "DECAL_TILE_MODE": "Decal"
+  "DECAL_TILE_MODE": "Decal",
+  "ERR_UNKNOWN_FILE_FORMAT": "Unknown file format",
+  "ERR_EXPORT_SIZE_INVALID": "Invalid export size. Values must be greater than 0.",
+  "ERR_UNKNOWN_IMG_FORMAT": "Unknown image format '{0}'.",
+  "ERR_FAILED_GENERATE_SPRITE_SHEET": "Failed generating sprite sheet",
+  "ERR_NO_RENDERER": "Animation renderer not found.",
+  "ERR_RENDERING_FAILED": "Rendering failed"
 }

@@ -535,9 +535,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             ExportConfig config = new ExportConfig(document.SizeBindable);
             var result = await Exporter.TrySaveWithDialog(document, config, null);
-            if (result.Result == DialogSaveResult.Cancelled)
+            if (result.Result.ResultType == SaveResultType.Cancelled)
                 return false;
-            if (result.Result != DialogSaveResult.Success)
+            if (result.Result.ResultType != SaveResultType.Success)
             {
                 ShowSaveError(result.Result);
                 return false;
@@ -550,9 +550,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             ExportConfig config = new ExportConfig(document.SizeBindable);
             var result = await Exporter.TrySaveAsync(document, document.FullFilePath, config, null);
-            if (result != SaveResult.Success)
+            if (result.ResultType != SaveResultType.Success)
             {
-                ShowSaveError((DialogSaveResult)result);
+                ShowSaveError(result);
                 return false;
             }
 
@@ -595,7 +595,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                             info.ExportConfig,
                             job);
 
-                    if (result.result == SaveResult.Success)
+                    if (result.result.ResultType == SaveResultType.Success)
                     {
                         Dispatcher.UIThread.Post(() =>
                         {
@@ -609,7 +609,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                     {
                         Dispatcher.UIThread.Post(() =>
                         {
-                            ShowSaveError((DialogSaveResult)result.result);
+                            ShowSaveError(result.result);
                         });
                     }
                 });
@@ -623,23 +623,28 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private void ShowSaveError(DialogSaveResult result)
+    private void ShowSaveError(SaveResult result)
     {
-        switch (result)
+        switch (result.ResultType)
         {
-            case DialogSaveResult.InvalidPath:
+            case SaveResultType.InvalidPath:
                 NoticeDialog.Show("ERROR_SAVE_LOCATION", "ERROR");
                 break;
-            case DialogSaveResult.ConcurrencyError:
+            case SaveResultType.ConcurrencyError:
                 NoticeDialog.Show("INTERNAL_ERROR", "ERROR_WHILE_SAVING");
                 break;
-            case DialogSaveResult.SecurityError:
+            case SaveResultType.SecurityError:
                 NoticeDialog.Show(title: "SECURITY_ERROR", message: "SECURITY_ERROR_MSG");
                 break;
-            case DialogSaveResult.IoError:
+            case SaveResultType.IoError:
                 NoticeDialog.Show(title: "IO_ERROR", message: "IO_ERROR_MSG");
                 break;
-            case DialogSaveResult.UnknownError:
+            case SaveResultType.CustomError:
+                NoticeDialog.Show(result.ErrorMessage, "ERROR");
+                break;
+            case SaveResultType.Cancelled:
+                break;
+            case SaveResultType.UnknownError:
                 NoticeDialog.Show("UNKNOWN_ERROR_SAVING", "ERROR");
                 break;
         }

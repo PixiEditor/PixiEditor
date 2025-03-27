@@ -35,7 +35,7 @@ internal class SvgFileType : IoFileType
         await writer.WriteAsync(xml);
 
         job?.Report(1, string.Empty);
-        return SaveResult.Success;
+        return new SaveResult(SaveResultType.Success);
     }
 
     public override SaveResult TrySave(string pathWithExtension, DocumentViewModel document, ExportConfig config,
@@ -55,6 +55,6 @@ internal class SvgFileType : IoFileType
         writer.Write(xml);
 
         job?.Report(1, string.Empty);
-        return SaveResult.Success;
+        return new SaveResult(SaveResultType.Success);
     }
 }
