@@ -8,18 +8,11 @@ namespace PixiEditor.ViewModels.UserPreferences.Settings;
 
 internal class GeneralSettings : SettingsGroup
 {
-    private bool imagePreviewInTaskbar = GetPreference(nameof(ImagePreviewInTaskbar), false);
     private LanguageData? selectedLanguage = ILocalizationProvider.Current?.SelectedLanguage;
     private List<LanguageData>? availableLanguages = ILocalizationProvider.Current?.LocalizationData.Languages
         .OrderByDescending(x => x == ILocalizationProvider.Current.FollowSystem)
         .ThenByDescending(x => CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == x.Code || CultureInfo.InstalledUICulture.TwoLetterISOLanguageName == x.Code)
         .ThenBy(x => x.Name).ToList();
-
-    public bool ImagePreviewInTaskbar
-    {
-        get => imagePreviewInTaskbar;
-        set => RaiseAndUpdatePreference(ref imagePreviewInTaskbar, value);
-    }
 
     private bool isDebugModeEnabled = GetPreference(nameof(IsDebugModeEnabled), false);
     public bool IsDebugModeEnabled

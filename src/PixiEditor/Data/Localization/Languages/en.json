@@ -9,7 +9,6 @@
   "KEY_BINDINGS": "Key Bindings",
   "MISC": "Misc",
   "SHOW_STARTUP_WINDOW": "Show Startup Window",
-  "SHOW_IMAGE_PREVIEW_TASKBAR": "Show image preview in taskbar",
   "RECENT_FILE_LENGTH": "Recent file list length",
   "RECENT_FILE_LENGTH_TOOLTIP": "How many documents are shown under File > Recent. Default: 8",
   "DEFAULT_NEW_SIZE": "Default new file size",
@@ -989,5 +988,6 @@
   "ERR_NO_RENDERER": "Animation renderer not found.",
   "ERR_RENDERING_FAILED": "Rendering failed",
   "ENABLE_ANALYTICS": "Send anonymous analytics",
-  "ANALYTICS_INFO": "We collect anonymous usage data to improve PixiEditor. No personal data is collected."
+  "ANALYTICS_INFO": "We collect anonymous usage data to improve PixiEditor. No personal data is collected.",
+  "LANGUAGE_INFO": "All translations are community-driven. Join our Discord server for more information."
 }

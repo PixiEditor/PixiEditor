@@ -93,6 +93,8 @@
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
 
+                            <TextBlock Classes="leftOffset subtext" ui:Translator.Key="LANGUAGE_INFO" />
+
                             <TextBlock ui:Translator.Key="MISC" Classes="h5" />
 
                             <CheckBox Classes="leftOffset" ui:Translator.Key="SHOW_STARTUP_WINDOW"
@@ -100,9 +102,6 @@
 
                             <CheckBox Classes="leftOffset" ui:Translator.Key="DISABLE_NEWS_PANEL"
                                       IsChecked="{Binding SettingsSubViewModel.File.DisableNewsPanel}" />
-
-                            <CheckBox Classes="leftOffset" ui:Translator.Key="SHOW_IMAGE_PREVIEW_TASKBAR"
-                                      IsChecked="{Binding SettingsSubViewModel.General.ImagePreviewInTaskbar}" />
 
                             <StackPanel Classes="leftOffset" Orientation="Horizontal">
                                 <Label
