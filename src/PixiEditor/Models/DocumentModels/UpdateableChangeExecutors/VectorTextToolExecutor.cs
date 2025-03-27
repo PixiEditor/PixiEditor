@@ -124,6 +124,11 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         document.Operations.InvokeCustomAction(
             () =>
             {
+                if (!document.TextOverlayHandler.IsActive)
+                {
+                    document.TextOverlayHandler.Show(lastText, position, toolbar.ConstructFont(), lastMatrix,
+                        toolbar.Spacing);
+                }
                 document.TextOverlayHandler.SetCursorPosition(args.PositionOnCanvas);
             }, false);
     }
