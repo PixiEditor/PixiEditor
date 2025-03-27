@@ -193,21 +193,25 @@ internal class SvgDocumentBuilder : IDocumentBuilder
         Surface? imgSurface = bytes is { Length: > 0 } ? Surface.Load(bytes) : null;
         Surface? finalSurface = null;
 
-        if (style.ViewboxSize.ShortestAxis > 0)
+        if (imgSurface != null)
+        {
+            if (imgSurface.Size.X != (int)image.Width.Unit?.PixelsValue ||
+                imgSurface.Size.Y != (int)image.Height.Unit?.PixelsValue)
+            {
+                var resized = imgSurface.ResizeNearestNeighbor(
+                    new VecI((int)image.Width.Unit?.PixelsValue, (int)image.Height.Unit?.PixelsValue));
+                imgSurface.Dispose();
+                imgSurface = resized;
+            }
+        }
+
+        if (style.ViewboxSize.ShortestAxis > 0 && imgSurface != null)
         {
             finalSurface = new Surface((VecI)style.ViewboxSize);
             double x = image.X.Unit?.PixelsValue ?? 0;
             double y = image.Y.Unit?.PixelsValue ?? 0;
             finalSurface.DrawingSurface.Canvas.DrawSurface(imgSurface.DrawingSurface, (int)x, (int)y);
             imgSurface.Dispose();
-
-            if (finalSurface.Size.X != (int)image.Width.Unit?.PixelsValue || finalSurface.Size.Y != (int)image.Height.Unit?.PixelsValue)
-            {
-                var resized = finalSurface.ResizeNearestNeighbor((VecI)style.ViewboxSize);
-                finalSurface.Dispose();
-                finalSurface = resized;
-            }
-
         }
 
         var graphBuilder = graph.WithImageLayerNode(
