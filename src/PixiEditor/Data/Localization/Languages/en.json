@@ -987,5 +987,7 @@
   "ERR_UNKNOWN_IMG_FORMAT": "Unknown image format '{0}'.",
   "ERR_FAILED_GENERATE_SPRITE_SHEET": "Failed generating sprite sheet",
   "ERR_NO_RENDERER": "Animation renderer not found.",
-  "ERR_RENDERING_FAILED": "Rendering failed"
+  "ERR_RENDERING_FAILED": "Rendering failed",
+  "ENABLE_ANALYTICS": "Send anonymous analytics",
+  "ANALYTICS_INFO": "We collect anonymous usage data to improve PixiEditor. No personal data is collected."
 }

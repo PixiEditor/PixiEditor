@@ -57,6 +57,11 @@
                         <Style Selector=":is(Control).leftOffset">
                             <Setter Property="Margin" Value="20, 0, 0, 0" />
                         </Style>
+                        <Style Selector=":is(TextBlock).subtext">
+                            <Setter Property="FontSize" Value="12" />
+                            <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundLowBrush}" />
+                            <Setter Property="TextWrapping" Value="Wrap" />
+                        </Style>
                     </Grid.Styles>
                     <ScrollViewer>
                         <ScrollViewer.IsVisible>
@@ -208,6 +213,13 @@
                             <CheckBox Classes="leftOffset"
                                       IsChecked="{Binding SettingsSubViewModel.General.IsDebugModeEnabled}"
                                       ui:Translator.Key="ENABLE_DEBUG_MODE" d:Content="Enable Debug Mode" />
+
+                            <TextBlock ui:Translator.Key="MISC"/>
+
+                            <CheckBox Classes="leftOffset"
+                                      IsChecked="{Binding SettingsSubViewModel.General.AnalyticsEnabled, Mode=TwoWay}"
+                                      ui:Translator.Key="ENABLE_ANALYTICS" d:Content="Enable Analytics" />
+                            <TextBlock ui:Translator.Key="ANALYTICS_INFO" Classes="leftOffset subtext"/>
                             <!--<Label Classes="{StaticResource SettingsText}" VerticalAlignment="Center">
                             <ui1:Hyperlink Command="{cmds:Command PixiEditor.Debug.OpenCrashReportsDirectory}" Style="{StaticResource SettingsLink}">
                                 <Run ui:Translator.Key="OPEN_CRASH_REPORTS_DIR" d:Text="Open crash reports directory"/>

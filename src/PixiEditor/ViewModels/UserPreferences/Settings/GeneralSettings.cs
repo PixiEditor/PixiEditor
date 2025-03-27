@@ -46,4 +46,11 @@ internal class GeneralSettings : SettingsGroup
             }
         }
     }
+
+    private bool isAnalyticsEnabled = GetPreference(PreferencesConstants.AnalyticsEnabled, PreferencesConstants.AnalyticsEnabledDefault);
+    public bool AnalyticsEnabled
+    {
+        get => isAnalyticsEnabled;
+        set => RaiseAndUpdatePreference(ref isAnalyticsEnabled, value);
+    }
 }
