@@ -103,7 +103,7 @@ public class SvgElement(string tagName)
         do
         {
             SvgProperty matchingProperty = properties.FirstOrDefault(x =>
-                string.Equals(x.SvgName, reader.Name, StringComparison.OrdinalIgnoreCase));
+                string.Equals(x.SvgFullName, reader.Name, StringComparison.OrdinalIgnoreCase));
             if (matchingProperty != null)
             {
                 ParseAttribute(matchingProperty, reader, defs);

@@ -29,19 +29,19 @@ internal class PixiFileType : IoFileType
         }
         catch (UnauthorizedAccessException e)
         {
-            return SaveResult.SecurityError;
+            return new SaveResult(SaveResultType.SecurityError);
         }
         catch (IOException)
         {
-            return SaveResult.IoError;
+            return new SaveResult(SaveResultType.IoError);
         }
         catch (Exception e)
         {
             CrashHelper.SendExceptionInfo(e);
-            return SaveResult.UnknownError;
+            return new SaveResult(SaveResultType.UnknownError);
         }
 
-        return SaveResult.Success;
+        return new SaveResult(SaveResultType.Success);
     }
 
     public override SaveResult TrySave(string pathWithExtension, DocumentViewModel document, ExportConfig config,
@@ -55,18 +55,18 @@ internal class PixiFileType : IoFileType
         }
         catch (UnauthorizedAccessException e)
         {
-            return SaveResult.SecurityError;
+            return new SaveResult(SaveResultType.SecurityError);
         }
         catch (IOException)
         {
-            return SaveResult.IoError;
+            return new SaveResult(SaveResultType.IoError);
         }
         catch (Exception e)
         {
             CrashHelper.SendExceptionInfo(e);
-            return SaveResult.UnknownError;
+            return new SaveResult(SaveResultType.UnknownError);
         }
 
-        return SaveResult.Success;
+        return new SaveResult(SaveResultType.Success);
     }
 }

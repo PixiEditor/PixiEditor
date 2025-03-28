@@ -13,33 +13,36 @@ using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Models.IO;
 
-internal enum DialogSaveResult
+internal enum SaveResultType
 {
     Success = 0,
     InvalidPath = 1,
     ConcurrencyError = 2,
     SecurityError = 3,
     IoError = 4,
-    UnknownError = 5,
-    Cancelled = 6,
+    CustomError = 5,
+    UnknownError = 6,
+    Cancelled = 7,
 }
 
-internal enum SaveResult
+internal class SaveResult
 {
-    Success = 0,
-    InvalidPath = 1,
-    ConcurrencyError = 2,
-    SecurityError = 3,
-    IoError = 4,
-    UnknownError = 5,
+    public SaveResultType ResultType { get; set; }
+    public string? ErrorMessage { get; set; }
+
+    public SaveResult(SaveResultType resultType, string? errorMessage = null)
+    {
+        ResultType = resultType;
+        ErrorMessage = errorMessage;
+    }
 }
 
 internal class ExporterResult
 {
-    public DialogSaveResult Result { get; set; }
+    public SaveResult Result { get; set; }
     public string Path { get; set; }
 
-    public ExporterResult(DialogSaveResult result, string path)
+    public ExporterResult(SaveResult result, string path)
     {
         Result = result;
         Path = path;
@@ -54,7 +57,7 @@ internal class Exporter
     public static async Task<ExporterResult> TrySaveWithDialog(DocumentViewModel document, ExportConfig exportConfig,
         ExportJob? job)
     {
-        ExporterResult result = new(DialogSaveResult.UnknownError, null);
+        ExporterResult result = new(new SaveResult(SaveResultType.UnknownError), null);
 
         if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -67,7 +70,7 @@ internal class Exporter
 
             if (file is null)
             {
-                result.Result = DialogSaveResult.Cancelled;
+                result.Result.ResultType = SaveResultType.Cancelled;
                 return result;
             }
 
@@ -75,12 +78,12 @@ internal class Exporter
 
             (SaveResult Result, string finalPath) saveResult =
                 await TrySaveUsingDataFromDialog(document, file.Path.LocalPath, fileType, exportConfig, job);
-            if (saveResult.Result == SaveResult.Success)
+            if (saveResult.Result.ResultType == SaveResultType.Success)
             {
                 result.Path = saveResult.finalPath;
             }
 
-            result.Result = (DialogSaveResult)saveResult.Result;
+            result.Result = saveResult.Result;
         }
 
         return result;
@@ -95,7 +98,7 @@ internal class Exporter
     {
         string finalPath = SupportedFilesHelper.FixFileExtension(pathFromDialog, fileTypeFromDialog);
         var saveResult = await TrySaveAsync(document, finalPath, exportConfig, job);
-        if (saveResult != SaveResult.Success)
+        if (saveResult.ResultType != SaveResultType.Success)
             finalPath = "";
 
         return (saveResult, finalPath);
@@ -109,12 +112,12 @@ internal class Exporter
     {
         string directory = Path.GetDirectoryName(pathWithExtension);
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-            return SaveResult.InvalidPath;
+            return new SaveResult(SaveResultType.InvalidPath);
 
         var typeFromPath = SupportedFilesHelper.ParseImageFormat(Path.GetExtension(pathWithExtension));
 
         if (typeFromPath is null)
-            return SaveResult.UnknownError;
+            return new SaveResult(SaveResultType.CustomError, "ERR_UNKNOWN_FILE_FORMAT");
 
         try
         {
@@ -127,7 +130,7 @@ internal class Exporter
             job?.Finish();
             Console.WriteLine(e);
             CrashHelper.SendExceptionInfo(e);
-            return SaveResult.UnknownError;
+            return new SaveResult(SaveResultType.UnknownError);
         }
     }
 
@@ -136,12 +139,12 @@ internal class Exporter
     {
         string directory = Path.GetDirectoryName(pathWithExtension);
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-            return SaveResult.InvalidPath;
+            return new SaveResult(SaveResultType.InvalidPath);
 
         var typeFromPath = SupportedFilesHelper.ParseImageFormat(Path.GetExtension(pathWithExtension));
 
         if (typeFromPath is null)
-            return SaveResult.UnknownError;
+            return new SaveResult(SaveResultType.CustomError, "ERR_UNKNOWN_FILE_FORMAT");
 
         try
         {
@@ -154,7 +157,7 @@ internal class Exporter
             job?.Finish();
             Console.WriteLine(e);
             CrashHelper.SendExceptionInfo(e);
-            return SaveResult.UnknownError;
+            return new SaveResult(SaveResultType.UnknownError);
         }
     }
 

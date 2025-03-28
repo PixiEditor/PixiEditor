@@ -56,7 +56,7 @@ internal class AutosaverSaveBackupJob(DocumentViewModel documentToSave, int back
             ExportConfig config = new ExportConfig(documentToSave.SizeBindable);
             var result = Exporter.TrySave(documentToSave, filePath, config, null);
 
-            if (result == SaveResult.Success)
+            if (result.ResultType == SaveResultType.Success)
             {
                 documentToSave.MarkAsAutosaved();
                 documentToSave.AutosaveViewModel.AddAutosaveHistoryEntry(AutosaveHistoryType.Periodic,

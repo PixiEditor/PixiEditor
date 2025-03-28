@@ -18,6 +18,7 @@ public abstract class SvgProperty
     public string? NamespaceName { get; set; }
     public string SvgName { get; set; }
     public ISvgUnit? Unit { get; set; }
+    public string? SvgFullName => NamespaceName == null ? SvgName : $"{NamespaceName}:{SvgName}";
 
     public ISvgUnit? CreateDefaultUnit()
     {

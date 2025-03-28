@@ -1,4 +1,7 @@
-﻿using PixiEditor.Helpers;
+﻿using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
+using PixiEditor.Helpers;
 
 namespace PixiEditor.Models.AnalyticsAPI;
 
@@ -6,11 +9,11 @@ public class AnalyticsPeriodicReporter
 {
     private int _sendExceptions = 0;
     private bool _resumeSession;
-    
+
     private readonly SemaphoreSlim _semaphore = new(1, 1);
     private readonly AnalyticsClient _client;
     private readonly PeriodicPerformanceReporter _performanceReporter;
-    
+
     private readonly List<AnalyticEvent> _backlog = new();
     private readonly CancellationTokenSource _cancellationToken = new();
 
@@ -19,25 +22,30 @@ public class AnalyticsPeriodicReporter
     public static AnalyticsPeriodicReporter? Instance { get; private set; }
 
     public Guid SessionId { get; private set; }
-    
+
     public AnalyticsPeriodicReporter(AnalyticsClient client)
     {
         if (Instance != null)
             throw new InvalidOperationException("There's already a AnalyticsReporter present");
 
         Instance = this;
-        
+
         _client = client;
         _performanceReporter = new PeriodicPerformanceReporter(this);
+
+        PixiEditorSettings.Analytics.AnalyticsEnabled.ValueChanged += EnableAnalyticsOnValueChanged;
     }
 
     public void Start(Guid? sessionId)
     {
+        if (!PixiEditorSettings.Analytics.AnalyticsEnabled.Value)
+            return;
+
         if (sessionId != null)
         {
             SessionId = sessionId.Value;
             _resumeSession = true;
-            
+
             _backlog.Add(new AnalyticEvent { Time = DateTime.UtcNow, EventType = AnalyticEventTypes.ResumeSession });
         }
 
@@ -47,7 +55,7 @@ public class AnalyticsPeriodicReporter
 
     public async Task StopAsync()
     {
-        _cancellationToken.Cancel();
+        await _cancellationToken.CancelAsync();
 
         await _client.EndSessionAsync(SessionId).WaitAsync(TimeSpan.FromSeconds(1));
     }
@@ -59,7 +67,7 @@ public class AnalyticsPeriodicReporter
         {
             return;
         }
-        
+
         Task.Run(() =>
         {
             _semaphore.Wait();
@@ -97,7 +105,7 @@ public class AnalyticsPeriodicReporter
             {
                 if (_backlog.Any(x => x.ExpectingEndTimeReport))
                     WaitForEndTimes();
-                
+
                 await SendBacklogAsync();
 
                 await Task.Delay(TimeSpan.FromSeconds(10));
@@ -137,7 +145,7 @@ public class AnalyticsPeriodicReporter
             {
                 return;
             }
-            
+
             var result = await _client.SendEventsAsync(SessionId, _backlog, _cancellationToken.Token);
             _backlog.Clear();
 
@@ -184,7 +192,7 @@ public class AnalyticsPeriodicReporter
 
         if (!result)
         {
-            _cancellationToken.Cancel();
+            await _cancellationToken.CancelAsync();
         }
     }
 
@@ -194,6 +202,18 @@ public class AnalyticsPeriodicReporter
         {
             await CrashHelper.SendExceptionInfoAsync(e);
             _sendExceptions++;
+        }
+    }
+
+    private void EnableAnalyticsOnValueChanged(Setting<bool> setting, bool enabled)
+    {
+        if (enabled)
+        {
+            Start(null);
+        }
+        else
+        {
+            StopAsync();
         }
     }
 }
