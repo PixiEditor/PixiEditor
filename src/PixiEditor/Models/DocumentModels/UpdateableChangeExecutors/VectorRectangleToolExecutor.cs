@@ -30,6 +30,7 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
 
     protected override bool DeleteLayerOnNoDraw => true;
     protected override bool SelectLayerOnTap => true;
+    protected override bool ApplyEachSettingsChange => true;
 
     protected override Predicate<ILayerHandler> CanSelectLayer => x => x is IVectorLayerHandler vec
                                                                        && vec.GetShapeData(vec.Document.AnimationHandler
@@ -82,7 +83,8 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
 
         lastRect = rect;
 
-        internals!.ActionAccumulator.AddActions(new SetShapeGeometry_Action(memberId, data, VectorShapeChangeType.GeometryData));
+        internals!.ActionAccumulator.AddActions(new SetShapeGeometry_Action(memberId, data,
+            VectorShapeChangeType.GeometryData));
     }
 
     protected override IAction SettingsChangedAction(string name, object value)

@@ -29,6 +29,7 @@ internal class VectorEllipseToolExecutor : DrawableShapeToolExecutor<IVectorElli
     protected override bool AlignToPixels => false;
     protected override bool DeleteLayerOnNoDraw => true;
     protected override bool SelectLayerOnTap => true;
+    protected override bool ApplyEachSettingsChange => true;
 
     protected override Predicate<ILayerHandler> CanSelectLayer => x => x is IVectorLayerHandler vec
                                                                        && vec.GetShapeData(vec.Document.AnimationHandler

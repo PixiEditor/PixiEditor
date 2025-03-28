@@ -55,6 +55,8 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
     public override bool CanUndo => !UseGlobalUndo && document.TransformHandler.HasUndo;
     public override bool CanRedo => !UseGlobalUndo && document.TransformHandler.HasRedo;
 
+    protected virtual bool ApplyEachSettingsChange => false;
+
     public override ExecutionState Start()
     {
         if (base.Start() == ExecutionState.Error)
@@ -372,9 +374,15 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
         if (CanEditShape(layer))
         {
-            internals!.ActionAccumulator.AddFinishedActions(EndDrawAction(), SettingsChangedAction(name, value),
-                EndDrawAction());
-            // TODO add to undo
+            if (ApplyEachSettingsChange)
+            {
+                internals!.ActionAccumulator.AddFinishedActions(EndDrawAction(), SettingsChangedAction(name, value),
+                    EndDrawAction());
+            }
+            else
+            {
+                internals!.ActionAccumulator.AddActions(SettingsChangedAction(name, value));
+            }
         }
     }
 
