@@ -60,10 +60,11 @@ internal class VectorLineToolExecutor : LineExecutor<IVectorLineToolHandler>
         return new EndSetShapeGeometry_Action();
     }
 
-    public override bool IsFeatureEnabled(IExecutorFeature feature)
+    public override bool IsFeatureEnabled<T>()
     {
-        if(feature is IMidChangeUndoableExecutor) return false;
+        Type feature = typeof(T);
+        if(feature == typeof(IMidChangeUndoableExecutor)) return false;
         
-        return base.IsFeatureEnabled(feature);
+        return base.IsFeatureEnabled<T>();
     }
 }

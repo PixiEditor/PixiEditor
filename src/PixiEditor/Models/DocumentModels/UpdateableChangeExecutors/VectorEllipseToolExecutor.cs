@@ -125,9 +125,9 @@ internal class VectorEllipseToolExecutor : DrawableShapeToolExecutor<IVectorElli
         return new EndSetShapeGeometry_Action();
     }
 
-    public override bool IsFeatureEnabled(IExecutorFeature feature)
+    public override bool IsFeatureEnabled<T>()
     {
-        if(feature is IMidChangeUndoableExecutor) return false;
-        return base.IsFeatureEnabled(feature);
+        if(typeof(T) == typeof(IMidChangeUndoableExecutor)) return false;
+        return base.IsFeatureEnabled<T>();
     }
 }

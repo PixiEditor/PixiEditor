@@ -273,8 +273,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
         };
     }
 
-    bool IExecutorFeature.IsFeatureEnabled(IExecutorFeature feature)
+    bool IExecutorFeature.IsFeatureEnabled<T>()
     {
-        return feature is ITextOverlayEvents || feature is IQuickToolSwitchable;
+        return typeof(T) == typeof(ITextOverlayEvents) || typeof(T) == typeof(IQuickToolSwitchable);
     }
 }

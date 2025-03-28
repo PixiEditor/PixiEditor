@@ -74,7 +74,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
             lastRect = new RectD(startDrawingPos, VecD.Zero);
 
-            document!.TransformHandler.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect.Inflate(1)),
+            document!.TransformHandler.ShowTransform(TransformMode, false, new ShapeCorners(lastRect),
                 false, UseGlobalUndo ? AddToUndo : null);
             document.TransformHandler.ShowHandles = false;
             document.TransformHandler.IsSizeBoxEnabled = true;
@@ -362,6 +362,23 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
                 base.OnLeftMouseButtonUp(argsPositionOnCanvas);
                 onEnded?.Invoke(this);
+
+                if (lastRect.Size == VecD.Zero)
+                {
+                    var member = document!.StructureHelper.Find(memberId);
+                    if (member is not null)
+                    {
+                        document.Operations.DeleteStructureMember(memberId);
+                        document.TransformHandler.HideTransform();
+                    }
+                }
+
+                var layersUnderCursor = QueryLayers<ILayerHandler>(argsPositionOnCanvas);
+                if (layersUnderCursor.Any())
+                {
+                    document.Operations.SetSelectedMember(layersUnderCursor.First().Id);
+                }
+
                 return;
             }
         }
