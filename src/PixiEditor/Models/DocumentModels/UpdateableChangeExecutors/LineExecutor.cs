@@ -30,7 +30,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
     protected bool drawOnMask;
 
     protected VecD curPos;
-    private bool startedDrawing = false;
+    protected bool startedDrawing = false;
     private T? toolViewModel;
     private IColorsHandler? colorsVM;
     protected IShapeToolbar? toolbar;

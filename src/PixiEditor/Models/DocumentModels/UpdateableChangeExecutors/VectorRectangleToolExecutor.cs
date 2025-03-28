@@ -8,6 +8,7 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
 
@@ -24,6 +25,13 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
     private Matrix3X3 lastMatrix = Matrix3X3.Identity;
 
     protected override bool AlignToPixels => false;
+
+    protected override bool DeleteLayerOnNoDraw => true;
+    protected override bool SelectLayerOnTap => true;
+
+    protected override Predicate<ILayerHandler> CanSelectLayer => x => x is IVectorLayerHandler vec
+                                                                       && vec.GetShapeData(vec.Document.AnimationHandler
+                                                                           .ActiveFrameTime) is IReadOnlyRectangleData;
 
     protected override bool InitShapeData(IReadOnlyShapeVectorData data)
     {

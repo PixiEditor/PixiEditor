@@ -34,6 +34,10 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
     protected RectD lastRect;
     protected double lastRadians;
 
+    protected virtual bool DeleteLayerOnNoDraw => false;
+    protected virtual bool SelectLayerOnTap => false;
+    protected virtual Predicate<ILayerHandler> CanSelectLayer => x => true;
+
     private ShapeCorners initialCorners;
     private bool noMovement = true;
     protected IFillableShapeToolbar toolbar;
@@ -363,20 +367,27 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
                 base.OnLeftMouseButtonUp(argsPositionOnCanvas);
                 onEnded?.Invoke(this);
 
-                if (lastRect.Size == VecD.Zero)
+                if (DeleteLayerOnNoDraw)
                 {
-                    var member = document!.StructureHelper.Find(memberId);
-                    if (member is not null)
+                    if (lastRect.Size == VecD.Zero)
                     {
-                        document.Operations.DeleteStructureMember(memberId);
-                        document.TransformHandler.HideTransform();
+                        var member = document!.StructureHelper.Find(memberId);
+                        if (member is not null)
+                        {
+                            document.Operations.DeleteStructureMember(memberId);
+                            document.TransformHandler.HideTransform();
+                        }
                     }
                 }
 
-                var layersUnderCursor = QueryLayers<ILayerHandler>(argsPositionOnCanvas);
-                if (layersUnderCursor.Any())
+                if (SelectLayerOnTap)
                 {
-                    document.Operations.SetSelectedMember(layersUnderCursor.First().Id);
+                    var layersUnderCursor = QueryLayers<ILayerHandler>(argsPositionOnCanvas);
+                    var firstValidLayer = layersUnderCursor.FirstOrDefault(x => CanSelectLayer(x));
+                    if (firstValidLayer != null)
+                    {
+                        document.Operations.SetSelectedMember(firstValidLayer.Id);
+                    }
                 }
 
                 return;
