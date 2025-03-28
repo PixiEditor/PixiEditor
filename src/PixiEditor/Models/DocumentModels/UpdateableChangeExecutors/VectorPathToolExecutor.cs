@@ -12,6 +12,7 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changes.Vectors;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentModels.Public;
@@ -176,8 +177,17 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
     {
         if (document.PathOverlayHandler.IsActive)
         {
+            VectorShapeChangeType changeType = name switch
+            {
+                nameof(IFillableShapeToolbar.Fill) => VectorShapeChangeType.Fill,
+                nameof(IShapeToolbar.StrokeBrush) => VectorShapeChangeType.Stroke,
+                nameof(IShapeToolbar.ToolSize) => VectorShapeChangeType.Stroke,
+                nameof(IShapeToolbar.AntiAliasing) => VectorShapeChangeType.OtherVisuals,
+                _ => VectorShapeChangeType.All
+            };
+
             internals.ActionAccumulator.AddFinishedActions(
-                new SetShapeGeometry_Action(member.Id, ConstructShapeData(startingPath)),
+                new SetShapeGeometry_Action(member.Id, ConstructShapeData(startingPath), changeType),
                 new EndSetShapeGeometry_Action());
         }
     }
@@ -195,7 +205,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
     private void AddToUndo(VectorPath path)
     {
         internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action(),
-            new SetShapeGeometry_Action(member.Id, ConstructShapeData(path)), new EndSetShapeGeometry_Action());
+            new SetShapeGeometry_Action(member.Id, ConstructShapeData(path), VectorShapeChangeType.GeometryData), new EndSetShapeGeometry_Action());
     }
 
     private PathVectorData ConstructShapeData(VectorPath? path)
@@ -230,7 +240,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         {
             startingPath = path;
             internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id,
-                ConstructShapeData(startingPath)));
+                ConstructShapeData(startingPath), VectorShapeChangeType.GeometryData));
         }
     }
 

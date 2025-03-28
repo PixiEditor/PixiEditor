@@ -135,17 +135,28 @@ public class DocumentChangeTracker : IDisposable
         }
 
         List<IChangeInfo> changeInfos = new();
-        var changePacket = undoStack.Pop();
+        bool handledUserChange = false;
 
-        for (int i = changePacket.changes.Count - 1; i >= 0; i--)
+        (ActionSource source, List<Change> changes) changePacket;
+        do
         {
-            changePacket.changes[i].Revert(document).Switch(
-                (None _) => { },
-                (IChangeInfo info) => changeInfos.Add(info),
-                (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
-        }
+            changePacket = undoStack.Pop();
+            for (int i = changePacket.changes.Count - 1; i >= 0; i--)
+            {
+                changePacket.changes[i].Revert(document).Switch(
+                    (None _) => { },
+                    (IChangeInfo info) => changeInfos.Add(info),
+                    (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
+            }
 
-        redoStack.Push(changePacket);
+            if (changePacket.source == ActionSource.User)
+                handledUserChange = true;
+
+            redoStack.Push(changePacket);
+        } while (undoStack.Count > 0 &&
+                 ((changePacket.source == ActionSource.Automated && !handledUserChange)
+                  || undoStack.Peek().source == ActionSource.Automated));
+
         return changeInfos;
     }
 
@@ -161,17 +172,28 @@ public class DocumentChangeTracker : IDisposable
         }
 
         List<IChangeInfo> changeInfos = new();
-        var changePacket = redoStack.Pop();
+        (ActionSource source, List<Change> changes) changePacket;
+        bool handledUserChange = false;
 
-        for (int i = 0; i < changePacket.changes.Count; i++)
+        do
         {
-            changePacket.changes[i].Apply(document, false, out _).Switch(
-                (None _) => { },
-                (IChangeInfo info) => changeInfos.Add(info),
-                (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
-        }
+            changePacket = redoStack.Pop();
+            for (int i = 0; i < changePacket.changes.Count; i++)
+            {
+                changePacket.changes[i].Apply(document, false, out _).Switch(
+                    (None _) => { },
+                    (IChangeInfo info) => changeInfos.Add(info),
+                    (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
+            }
 
-        undoStack.Push(changePacket);
+            if (changePacket.source == ActionSource.User)
+                handledUserChange = true;
+
+            undoStack.Push(changePacket);
+        } while (redoStack.Count > 0
+                 && ((changePacket.source == ActionSource.Automated && !handledUserChange)
+                     || redoStack.Peek().source == ActionSource.Automated));
+
         return changeInfos;
     }
 

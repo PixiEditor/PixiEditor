@@ -5,8 +5,10 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.Models.Handlers.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changes.Vectors;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Handlers.Toolbars;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -38,7 +40,7 @@ internal class VectorLineToolExecutor : LineExecutor<IVectorLineToolHandler>
         startPoint = startDrawingPos;
         endPoint = pos;
 
-        return new SetShapeGeometry_Action(memberId, data);
+        return new SetShapeGeometry_Action(memberId, data, VectorShapeChangeType.GeometryData);
     }
 
     protected override IAction TransformOverlayMoved(VecD start, VecD end)
@@ -48,7 +50,22 @@ internal class VectorLineToolExecutor : LineExecutor<IVectorLineToolHandler>
         startPoint = start;
         endPoint = end;
 
-        return new SetShapeGeometry_Action(memberId, data);
+        return new SetShapeGeometry_Action(memberId, data, VectorShapeChangeType.GeometryData);
+    }
+
+    protected IAction SettingsChanged(string name, object value)
+    {
+        var data = ConstructLineData(startPoint, endPoint);
+
+        VectorShapeChangeType changeType = name switch
+        {
+            nameof(IShapeToolbar.StrokeBrush) => VectorShapeChangeType.Stroke,
+            nameof(IShapeToolbar.ToolSize) => VectorShapeChangeType.Stroke,
+            nameof(IShapeToolbar.AntiAliasing) => VectorShapeChangeType.OtherVisuals,
+            _ => VectorShapeChangeType.All
+        };
+
+        return new SetShapeGeometry_Action(memberId, data, changeType);
     }
 
     public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
@@ -74,9 +91,9 @@ internal class VectorLineToolExecutor : LineExecutor<IVectorLineToolHandler>
         }
     }
 
-    protected override IAction[] SettingsChange()
+    protected override IAction[] SettingsChange(string name, object value)
     {
-        return [TransformOverlayMoved(startPoint, endPoint), new EndSetShapeGeometry_Action()];
+        return [SettingsChanged(name, value), new EndSetShapeGeometry_Action()];
     }
 
     protected override IAction EndDraw()

@@ -8,6 +8,7 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
+using PixiEditor.ChangeableDocument.Changes.Vectors;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
@@ -158,7 +159,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     {
         var constructedText = ConstructTextData(text);
         internals.ActionAccumulator.AddFinishedActions(
-            new SetShapeGeometry_Action(selectedMember.Id, constructedText),
+            new SetShapeGeometry_Action(selectedMember.Id, constructedText, VectorShapeChangeType.GeometryData),
             new EndSetShapeGeometry_Action(),
             new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering));
         lastText = text;
@@ -191,9 +192,20 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             cachedFont.Italic = toolbar.Italic;
         }
 
+        VectorShapeChangeType changeType = name switch {
+            nameof(ITextToolbar.Fill) => VectorShapeChangeType.Fill,
+            nameof(ITextToolbar.FillBrush) => VectorShapeChangeType.Fill,
+            nameof(ITextToolbar.StrokeBrush) => VectorShapeChangeType.Stroke,
+            nameof(ITextToolbar.ToolSize) => VectorShapeChangeType.GeometryData,
+            nameof(ITextToolbar.Spacing) => VectorShapeChangeType.GeometryData,
+            nameof(ITextToolbar.AntiAliasing) => VectorShapeChangeType.OtherVisuals,
+            nameof(ITextToolbar.ForceLowDpiRendering) => VectorShapeChangeType.OtherVisuals,
+            _ => VectorShapeChangeType.OtherVisuals
+        };
+
         var constructedText = ConstructTextData(lastText);
         internals.ActionAccumulator.AddActions(
-            new SetShapeGeometry_Action(selectedMember.Id, constructedText),
+            new SetShapeGeometry_Action(selectedMember.Id, constructedText, changeType),
             new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering));
 
         document.TextOverlayHandler.Font = constructedText.Font;
@@ -233,10 +245,10 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
         var constructedText = ConstructTextData(lastText);
         internals.ActionAccumulator.AddFinishedActions(
-            new SetShapeGeometry_Action(selectedMember.Id, constructedText),
+            new SetShapeGeometry_Action(selectedMember.Id, constructedText, VectorShapeChangeType.GeometryData),
             new EndSetShapeGeometry_Action(),
             new SetLowDpiRendering_Action(selectedMember.Id, toolbar.ForceLowDpiRendering),
-            new SetShapeGeometry_Action(firstValidLayer.Id, newShape),
+            new SetShapeGeometry_Action(firstValidLayer.Id, newShape, VectorShapeChangeType.GeometryData),
             new EndSetShapeGeometry_Action());
     }
 
@@ -266,6 +278,8 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
             Stroke = toolbar.StrokeBrush.ToPaintable(),
             TransformationMatrix = lastMatrix,
             Font = cachedFont,
+            Bold = toolbar.Bold,
+            Italic = toolbar.Italic,
             Spacing = toolbar.Spacing,
             AntiAlias = toolbar.AntiAliasing,
             Path = onPath,

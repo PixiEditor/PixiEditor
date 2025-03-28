@@ -12,6 +12,8 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 
 public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
 {
+    private bool bold;
+    private bool italic;
     private string text;
     private Font font = Font.CreateDefault();
     private double? spacing = null;
@@ -52,6 +54,28 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
             }
 
             lastBounds = richText.MeasureBounds(value);
+        }
+    }
+
+    public bool Bold
+    {
+        get => bold;
+        set
+        {
+            bold = value;
+            Font.Bold = value;
+            lastBounds = richText.MeasureBounds(Font);
+        }
+    }
+
+    public bool Italic
+    {
+        get => italic;
+        set
+        {
+            italic = value;
+            Font.Italic = value;
+            lastBounds = richText.MeasureBounds(Font);
         }
     }
 
@@ -235,6 +259,9 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         hash.Add(AntiAlias);
         hash.Add(MissingFontFamily);
         hash.Add(MissingFontText);
+        hash.Add(MaxWidth);
+        hash.Add(Bold);
+        hash.Add(Italic);
 
         return hash.ToHashCode();
     }
@@ -256,5 +283,36 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         TransformationMatrix = TransformationMatrix.PostConcat(Matrix3X3.CreateScale((float)multiplier.X, (float)multiplier.Y));
 
         lastBounds = richText.MeasureBounds(Font);
+    }
+
+    protected bool Equals(TextVectorData other)
+    {
+        return base.Equals(other) && Position.Equals(other.Position) && MaxWidth.Equals(other.MaxWidth) && AntiAlias == other.AntiAlias && Nullable.Equals(MissingFontFamily, other.MissingFontFamily) && MissingFontText == other.MissingFontText
+            && Text == other.Text && Font.Equals(other.Font) && Spacing.Equals(other.Spacing) && Path == other.Path && Bold == other.Bold && Italic == other.Italic;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null)
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+
+        if (obj.GetType() != GetType())
+        {
+            return false;
+        }
+
+        return Equals((TextVectorData)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(base.GetHashCode(), Position, MaxWidth, AntiAlias, MissingFontFamily, MissingFontText, Font, HashCode.Combine(Text, Spacing, Path));
     }
 }

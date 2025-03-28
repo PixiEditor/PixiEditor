@@ -10,7 +10,10 @@ using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changes.Vectors;
 using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.Views.Overlays.TransformOverlay;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
@@ -43,6 +46,8 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
     protected IFillableShapeToolbar toolbar;
     private IColorsHandler? colorsVM;
     private bool ignoreNextColorChange = false;
+
+    private bool preventSettingsChange = false;
 
     protected abstract bool UseGlobalUndo { get; }
     protected abstract bool ShowApplyButton { get; }
@@ -119,7 +124,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
     }
 
     protected abstract void DrawShape(VecD currentPos, double rotationRad, bool firstDraw);
-    protected abstract IAction SettingsChangedAction();
+    protected abstract IAction SettingsChangedAction(string name, object value);
     protected abstract IAction TransformMovedAction(ShapeData data, ShapeCorners corners);
     protected virtual bool InitShapeData(IReadOnlyShapeVectorData data) { return true; }
     protected abstract bool CanEditShape(IStructureMemberHandler layer);
@@ -205,8 +210,23 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
         ignoreNextColorChange = ActiveMode == ShapeToolMode.Drawing;
 
+        preventSettingsChange = true;
         toolbar.StrokeBrush = new SolidColorBrush(color.ToColor());
         toolbar.FillBrush = new SolidColorBrush(color.ToColor());
+        preventSettingsChange = false;
+
+        var layer = document.StructureHelper.Find(memberId);
+        if (layer is null)
+            return;
+
+        if (CanEditShape(layer))
+        {
+            internals!.ActionAccumulator.AddFinishedActions(
+                EndDrawAction(),
+                SettingsChangedAction("FillAndStroke", color),
+                EndDrawAction());
+            // TODO add to undo
+        }
     }
 
     public override void OnSelectedObjectNudged(VecI distance)
@@ -344,13 +364,16 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
     public override void OnSettingsChanged(string name, object value)
     {
+        if (preventSettingsChange) return;
+
         var layer = document.StructureHelper.Find(memberId);
         if (layer is null)
             return;
 
         if (CanEditShape(layer))
         {
-            internals!.ActionAccumulator.AddActions(SettingsChangedAction());
+            internals!.ActionAccumulator.AddFinishedActions(EndDrawAction(), SettingsChangedAction(name, value),
+                EndDrawAction());
             // TODO add to undo
         }
     }
@@ -374,7 +397,9 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
                         var member = document!.StructureHelper.Find(memberId);
                         if (member is not null)
                         {
-                            document.Operations.DeleteStructureMember(memberId);
+                            internals.ActionAccumulator.AddActions(ActionSource.Automated,
+                                new DeleteStructureMember_Action(memberId));
+                            //internals.ActionAccumulator.AddFinishedActions();
                             document.TransformHandler.HideTransform();
                         }
                     }

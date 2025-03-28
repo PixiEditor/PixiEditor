@@ -639,7 +639,7 @@ internal class TextOverlay : Overlay
 
     private void UpdateGlyphs()
     {
-        if (Font == null) return;
+        if (Font == null || Font.IsDisposed) return;
 
         richText = new(Text);
         richText.Spacing = Spacing;

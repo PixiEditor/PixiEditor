@@ -41,7 +41,7 @@ internal class RasterRectangleToolExecutor : DrawableShapeToolExecutor<IRasterRe
     protected override void DrawShape(VecD currentPos, double rotationRad, bool first) =>
         DrawRectangle(currentPos, rotationRad, first);
 
-    protected override IAction SettingsChangedAction()
+    protected override IAction SettingsChangedAction(string name, object value)
     {
         lastData = new ShapeData(lastData.Center, lastData.Size, lastRadians, (float)StrokeWidth, StrokePaintable, FillPaintable)
         {
