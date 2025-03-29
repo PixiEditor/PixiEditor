@@ -106,4 +106,34 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
 
         return path;
     }
+
+    protected bool Equals(RectangleVectorData other)
+    {
+        return base.Equals(other) && Center.Equals(other.Center) && Size.Equals(other.Size);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null)
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+
+        if (obj.GetType() != GetType())
+        {
+            return false;
+        }
+
+        return Equals((RectangleVectorData)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(base.GetHashCode(), Center, Size);
+    }
 }

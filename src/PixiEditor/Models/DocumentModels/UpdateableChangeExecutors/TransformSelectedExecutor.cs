@@ -13,6 +13,7 @@ using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.Document.Nodes;
+using Type = System.Type;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
@@ -508,9 +509,11 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         }
     }
 
-    public bool IsFeatureEnabled(IExecutorFeature feature)
+    public bool IsFeatureEnabled<T>()
     {
-        return feature is ITransformableExecutor && IsTransforming || feature is IMidChangeUndoableExecutor ||
-               feature is ITransformStoppedEvent || feature is ITransformDraggedEvent;
+        Type feature = typeof(T);
+        return feature == typeof(ITransformableExecutor) && IsTransforming ||
+               feature == typeof(IMidChangeUndoableExecutor) ||
+               feature == typeof(ITransformStoppedEvent) || feature == typeof(ITransformDraggedEvent);
     }
 }

@@ -37,6 +37,9 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
         get => activeMode;
         set
         {
+            if (activeMode == value)
+                return;
+
             StopMode(activeMode);
             activeMode = value;
             StartMode(activeMode);
@@ -249,19 +252,20 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
     public abstract bool CanUndo { get; }
     public abstract bool CanRedo { get; }
 
-    public virtual bool IsFeatureEnabled(IExecutorFeature feature)
+    public virtual bool IsFeatureEnabled<T>()
     {
-        if (feature is ITransformableExecutor)
+        Type t = typeof(T);
+        if (t == typeof(ITransformableExecutor))
         {
             return IsTransforming;
         }
 
-        if (feature is IMidChangeUndoableExecutor)
+        if (t == typeof(IMidChangeUndoableExecutor))
         {
             return ActiveMode == ShapeToolMode.Transform;
         }
 
-        if (feature is IDelayedColorSwapFeature)
+        if (t == typeof(IDelayedColorSwapFeature))
         {
             return true;
         }

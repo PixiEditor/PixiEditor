@@ -30,7 +30,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
     protected bool drawOnMask;
 
     protected VecD curPos;
-    private bool startedDrawing = false;
+    protected bool startedDrawing = false;
     private T? toolViewModel;
     private IColorsHandler? colorsVM;
     protected IShapeToolbar? toolbar;
@@ -112,7 +112,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
     protected abstract bool InitShapeData(IReadOnlyLineData? data);
     protected abstract IAction DrawLine(VecD pos);
     protected abstract IAction TransformOverlayMoved(VecD start, VecD end);
-    protected abstract IAction[] SettingsChange();
+    protected abstract IAction[] SettingsChange(string name, object value);
     protected abstract IAction EndDraw();
 
     protected override void PrecisePositionChangeDrawingMode(VecD pos)
@@ -210,7 +210,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
 
         ignoreNextColorChange = ActiveMode == ShapeToolMode.Drawing;
         toolbar!.StrokeBrush = new SolidColorBrush(color.ToColor());
-        var colorChangedAction = SettingsChange();
+        var colorChangedAction = SettingsChange(nameof(IShapeToolbar.StrokeBrush), color);
         internals!.ActionAccumulator.AddActions(colorChangedAction);
     }
 
@@ -225,7 +225,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
 
     public override void OnSettingsChanged(string name, object value)
     {
-        var colorChangedActions = SettingsChange();
+        var colorChangedActions = SettingsChange(name, value);
         if (ActiveMode == ShapeToolMode.Transform)
         {
             internals!.ActionAccumulator.AddFinishedActions(colorChangedActions);

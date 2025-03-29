@@ -90,12 +90,13 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
         internals!.ActionAccumulator.AddActions(new EndPasteImage_Action());
     }
 
-    public bool IsFeatureEnabled(IExecutorFeature feature)
+    public bool IsFeatureEnabled<T>()
     {
-        if (feature is ITransformableExecutor)
+        Type featureType = typeof(T);
+        if (featureType == typeof(ITransformableExecutor))
             return IsTransforming;
         
-        if (feature is IMidChangeUndoableExecutor)
+        if (featureType == typeof(IMidChangeUndoableExecutor))
             return true;
 
         return false;

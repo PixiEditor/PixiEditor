@@ -92,4 +92,34 @@ public class PointsVectorData : ShapeVectorData
 
         return path;
     }
+
+    protected bool Equals(PointsVectorData other)
+    {
+        return base.Equals(other) && (Points.Equals(other.Points) || Points.SequenceEqual(other.Points));
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null)
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+
+        if (obj.GetType() != GetType())
+        {
+            return false;
+        }
+
+        return Equals((PointsVectorData)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(base.GetHashCode(), Points);
+    }
 }

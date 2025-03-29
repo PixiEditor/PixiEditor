@@ -98,4 +98,34 @@ public class EllipseVectorData : ShapeVectorData, IReadOnlyEllipseData
 
         return path;
     }
+
+    protected bool Equals(EllipseVectorData other)
+    {
+        return base.Equals(other) && Radius.Equals(other.Radius) && Center.Equals(other.Center);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null)
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+
+        if (obj.GetType() != GetType())
+        {
+            return false;
+        }
+
+        return Equals((EllipseVectorData)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(base.GetHashCode(), Radius, Center);
+    }
 }

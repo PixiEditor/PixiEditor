@@ -121,4 +121,33 @@ public class LineVectorData : ShapeVectorData, IReadOnlyLineData
         return path;
     }
 
+    protected bool Equals(LineVectorData other)
+    {
+        return base.Equals(other) && Start.Equals(other.Start) && End.Equals(other.End);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null)
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+
+        if (obj.GetType() != GetType())
+        {
+            return false;
+        }
+
+        return Equals((LineVectorData)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(base.GetHashCode(), Start, End);
+    }
 }

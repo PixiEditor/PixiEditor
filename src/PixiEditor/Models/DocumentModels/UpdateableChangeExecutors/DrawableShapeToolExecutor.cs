@@ -10,7 +10,10 @@ using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changes.Vectors;
 using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.Views.Overlays.TransformOverlay;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
@@ -34,17 +37,25 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
     protected RectD lastRect;
     protected double lastRadians;
 
+    protected virtual bool DeleteLayerOnNoDraw => false;
+    protected virtual bool SelectLayerOnTap => false;
+    protected virtual Predicate<ILayerHandler> CanSelectLayer => x => true;
+
     private ShapeCorners initialCorners;
     private bool noMovement = true;
     protected IFillableShapeToolbar toolbar;
     private IColorsHandler? colorsVM;
     private bool ignoreNextColorChange = false;
 
+    private bool preventSettingsChange = false;
+
     protected abstract bool UseGlobalUndo { get; }
     protected abstract bool ShowApplyButton { get; }
 
     public override bool CanUndo => !UseGlobalUndo && document.TransformHandler.HasUndo;
     public override bool CanRedo => !UseGlobalUndo && document.TransformHandler.HasRedo;
+
+    protected virtual bool ApplyEachSettingsChange => false;
 
     public override ExecutionState Start()
     {
@@ -74,7 +85,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
             lastRect = new RectD(startDrawingPos, VecD.Zero);
 
-            document!.TransformHandler.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect.Inflate(1)),
+            document!.TransformHandler.ShowTransform(TransformMode, false, new ShapeCorners(lastRect),
                 false, UseGlobalUndo ? AddToUndo : null);
             document.TransformHandler.ShowHandles = false;
             document.TransformHandler.IsSizeBoxEnabled = true;
@@ -115,7 +126,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
     }
 
     protected abstract void DrawShape(VecD currentPos, double rotationRad, bool firstDraw);
-    protected abstract IAction SettingsChangedAction();
+    protected abstract IAction SettingsChangedAction(string name, object value);
     protected abstract IAction TransformMovedAction(ShapeData data, ShapeCorners corners);
     protected virtual bool InitShapeData(IReadOnlyShapeVectorData data) { return true; }
     protected abstract bool CanEditShape(IStructureMemberHandler layer);
@@ -201,8 +212,23 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
         ignoreNextColorChange = ActiveMode == ShapeToolMode.Drawing;
 
+        preventSettingsChange = true;
         toolbar.StrokeBrush = new SolidColorBrush(color.ToColor());
         toolbar.FillBrush = new SolidColorBrush(color.ToColor());
+        preventSettingsChange = false;
+
+        var layer = document.StructureHelper.Find(memberId);
+        if (layer is null)
+            return;
+
+        if (CanEditShape(layer))
+        {
+            internals!.ActionAccumulator.AddFinishedActions(
+                EndDrawAction(),
+                SettingsChangedAction("FillAndStroke", color),
+                EndDrawAction());
+            // TODO add to undo
+        }
     }
 
     public override void OnSelectedObjectNudged(VecI distance)
@@ -340,14 +366,23 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
     public override void OnSettingsChanged(string name, object value)
     {
+        if (preventSettingsChange) return;
+
         var layer = document.StructureHelper.Find(memberId);
         if (layer is null)
             return;
 
         if (CanEditShape(layer))
         {
-            internals!.ActionAccumulator.AddActions(SettingsChangedAction());
-            // TODO add to undo
+            if (ApplyEachSettingsChange)
+            {
+                internals!.ActionAccumulator.AddFinishedActions(EndDrawAction(), SettingsChangedAction(name, value),
+                    EndDrawAction());
+            }
+            else
+            {
+                internals!.ActionAccumulator.AddActions(SettingsChangedAction(name, value));
+            }
         }
     }
 
@@ -362,6 +397,32 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
                 base.OnLeftMouseButtonUp(argsPositionOnCanvas);
                 onEnded?.Invoke(this);
+
+                if (DeleteLayerOnNoDraw)
+                {
+                    if (lastRect.Size == VecD.Zero)
+                    {
+                        var member = document!.StructureHelper.Find(memberId);
+                        if (member is not null)
+                        {
+                            internals.ActionAccumulator.AddActions(ActionSource.Automated,
+                                new DeleteStructureMember_Action(memberId));
+                            //internals.ActionAccumulator.AddFinishedActions();
+                            document.TransformHandler.HideTransform();
+                        }
+                    }
+                }
+
+                if (SelectLayerOnTap)
+                {
+                    var layersUnderCursor = QueryLayers<ILayerHandler>(argsPositionOnCanvas);
+                    var firstValidLayer = layersUnderCursor.FirstOrDefault(x => CanSelectLayer(x));
+                    if (firstValidLayer != null)
+                    {
+                        document.Operations.SetSelectedMember(firstValidLayer.Id);
+                    }
+                }
+
                 return;
             }
         }
