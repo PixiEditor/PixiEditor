@@ -128,7 +128,7 @@ internal static class ClipboardController
         await Clipboard.SetDataObjectAsync(data);
     }
 
-    public static async Task CopyVisibleToClipboard(DocumentViewModel document)
+    public static async Task CopyVisibleToClipboard(DocumentViewModel document, string? output = null)
     {
         await Clipboard.ClearAsync();
 
@@ -148,7 +148,7 @@ internal static class ClipboardController
         using Surface documentSurface = new Surface(document.SizeBindable);
 
         document.Renderer.RenderDocument(documentSurface.DrawingSurface,
-            document.AnimationDataViewModel.ActiveFrameTime, document.SizeBindable);
+            document.AnimationDataViewModel.ActiveFrameTime, document.SizeBindable, output);
 
         Surface surfaceToCopy = new Surface((VecI)copyArea.Size.Ceiling());
         using Paint paint = new Paint();
