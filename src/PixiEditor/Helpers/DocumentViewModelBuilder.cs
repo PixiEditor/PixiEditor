@@ -429,6 +429,7 @@ internal class NodeGraphBuilder
         public KeyFrameData[] KeyFrames { get; set; }
         public Dictionary<string, object> AdditionalData { get; set; }
         public Dictionary<int, List<(string inputPropName, string outputPropName)>> InputConnections { get; set; }
+        public int? PairId { get; set; }
 
         public NodeBuilder WithId(int id)
         {
@@ -487,6 +488,12 @@ internal class NodeGraphBuilder
         public NodeBuilder WithKeyFrames(KeyFrameData[] keyFrames)
         {
             KeyFrames = keyFrames;
+            return this;
+        }
+
+        public NodeBuilder WithPairId(int? nodePairId)
+        {
+            PairId = nodePairId;
             return this;
         }
     }

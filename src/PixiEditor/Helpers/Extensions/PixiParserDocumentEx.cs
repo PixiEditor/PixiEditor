@@ -1,6 +1,7 @@
 ﻿using Drawie.Backend.Core;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.Models.IO;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Graph;
@@ -57,6 +58,7 @@ internal static class PixiParserDocumentEx
                     .WithKeyFrames(node.KeyFrames)
                     .WithInputValues(ToDictionary(node.InputPropertyValues))
                     .WithAdditionalData(node.AdditionalData)
+                    .WithPairId(node.PairId)
                     .WithConnections(node.InputConnections));
             }
         }

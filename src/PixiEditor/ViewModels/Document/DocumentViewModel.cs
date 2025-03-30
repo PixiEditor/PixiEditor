@@ -50,6 +50,7 @@ using PixiEditor.Models.Serialization.Factories;
 using PixiEditor.Models.Structures;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.Models.IO;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
@@ -374,7 +375,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         if (builderInstance.Graph.AllNodes.Count == 0 || !builderInstance.Graph.AllNodes.Any(x => x is OutputNode))
         {
             Guid outputNodeGuid = Guid.NewGuid();
-            acc.AddActions(new CreateNode_Action(typeof(OutputNode), outputNodeGuid));
+            acc.AddActions(new CreateNode_Action(typeof(OutputNode), outputNodeGuid, Guid.Empty));
         }
 
         AddAnimationData(builderInstance.AnimationData, mappedNodeIds, mappedKeyFrameIds);
@@ -434,7 +435,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             Guid guid = Guid.NewGuid();
             mappedNodeIds.Add(id, guid);
-            acc.AddActions(new CreateNodeFromName_Action(serializedNode.UniqueNodeName, guid));
+            Guid pairGuid = Guid.Empty;
+
+            if (serializedNode.PairId != null && mappedNodeIds.TryGetValue(serializedNode.PairId.Value, out Guid pairId))
+            {
+                pairGuid = pairId;
+            }
+
+            acc.AddActions(new CreateNodeFromName_Action(serializedNode.UniqueNodeName, guid, pairGuid));
             acc.AddFinishedActions(new NodePosition_Action([guid], serializedNode.Position.ToVecD()),
                 new EndNodePosition_Action());
 
