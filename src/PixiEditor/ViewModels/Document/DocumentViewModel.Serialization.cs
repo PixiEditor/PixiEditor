@@ -553,6 +553,7 @@ internal partial class DocumentViewModel
                     if (child is IReadOnlyRasterKeyFrame rasterKeyFrame)
                     {
                         if (!nodeIdMap.ContainsKey(rasterKeyFrame.NodeId)) continue;
+                        if(!keyFrameIds.ContainsKey(rasterKeyFrame.Id)) continue;
 
                         BuildRasterKeyFrame(rasterKeyFrame, graph, group, nodeIdMap, keyFrameIds);
                     }
