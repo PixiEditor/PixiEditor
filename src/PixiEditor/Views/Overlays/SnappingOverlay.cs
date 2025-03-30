@@ -69,7 +69,7 @@ internal class SnappingOverlay : Overlay
                     VecD snapPointValue = snapPoint.Value();
                     context.DrawLine(new VecD(snapPointValue.X, mousePoint.Y), new VecD(snapPointValue.X, snapPointValue.Y), horizontalAxisPen);
 
-                    DrawDistanceText(context, snapPointValue + new VecD(10 / ZoomScale, 0), mousePoint);
+                    DrawDistanceText(context, snapPointValue, new VecD(10 / ZoomScale, 0), mousePoint);
                 }
             }
         }
@@ -83,7 +83,7 @@ internal class SnappingOverlay : Overlay
                     var snapPointValue = snapPoint.Value();
                     context.DrawLine(new VecD(mousePoint.X, snapPointValue.Y), new VecD(snapPointValue.X, snapPointValue.Y), verticalAxisPen);
 
-                    DrawDistanceText(context, snapPointValue + new VecD(0, -10 / ZoomScale), mousePoint);
+                    DrawDistanceText(context, snapPointValue, new VecD(0, -10 / ZoomScale), mousePoint);
                 }
             }
         }
@@ -94,7 +94,7 @@ internal class SnappingOverlay : Overlay
         }
     }
 
-    private void DrawDistanceText(Canvas context, VecD snapPointValue, VecD mousePoint)
+    private void DrawDistanceText(Canvas context, VecD snapPointValue, VecD drawOffset, VecD mousePoint)
     {
         VecD distance = snapPointValue - mousePoint;
         VecD center = (snapPointValue + mousePoint) / 2;
@@ -104,10 +104,10 @@ internal class SnappingOverlay : Overlay
         distanceTextPaint.Style = PaintStyle.Stroke;
         distanceTextPaint.StrokeWidth = 2f / (float)ZoomScale;
 
-        context.DrawText($"{distance.Length.ToString("F2", CultureInfo.CurrentCulture)} px", center, distanceFont, distanceTextPaint);
+        context.DrawText($"{distance.Length.ToString("0.##", CultureInfo.CurrentCulture)} px", center + drawOffset, distanceFont, distanceTextPaint);
         distanceTextPaint.Color = Colors.White;
         distanceTextPaint.Style = PaintStyle.Fill;
-        context.DrawText($"{distance.Length.ToString("F2", CultureInfo.CurrentCulture)} px", center, distanceFont, distanceTextPaint);
+        context.DrawText($"{distance.Length.ToString("0.##", CultureInfo.CurrentCulture)} px", center + drawOffset, distanceFont, distanceTextPaint);
     }
 
     protected override void ZoomChanged(double newZoom)
