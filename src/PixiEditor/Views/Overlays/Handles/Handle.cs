@@ -33,6 +33,8 @@ public abstract class Handle : IHandle
     public bool HitTestVisible { get; set; } = true;
     public bool IsHovered => isHovered;
 
+    public virtual VecD HitSizeMargin { get; set; } = VecD.Zero;
+
     public event HandleEvent OnPress;
     public event HandleEvent OnDrag;
     public event HandleEvent OnRelease;
@@ -60,7 +62,7 @@ public abstract class Handle : IHandle
 
     public virtual bool IsWithinHandle(VecD handlePos, VecD pos, double zoomboxScale)
     {
-        return TransformHelper.IsWithinHandle(handlePos, pos, zoomboxScale, Size);
+        return TransformHelper.IsWithinHandle(handlePos, pos, zoomboxScale, Size + HitSizeMargin);
     }
 
     public static T? GetResource<T>(string key)
