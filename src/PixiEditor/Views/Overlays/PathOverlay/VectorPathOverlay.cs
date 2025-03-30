@@ -155,7 +155,7 @@ public class VectorPathOverlay : Overlay
             }
         }
 
-        transformHandle.Position = Path.TightBounds.BottomRight + new VecD(1, 1);
+        transformHandle.Position = Path.TightBounds.BottomRight + new VecD(transformHandle.Size.X / ZoomScale, transformHandle.Size.Y / ZoomScale);
         transformHandle.Draw(context);
     }
 
