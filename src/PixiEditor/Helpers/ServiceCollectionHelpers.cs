@@ -69,6 +69,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<NodeGraphManagerViewModel>()
             .AddSingleton<AutosaveViewModel>()
             .AddSingleton<IColorsHandler, ColorsViewModel>(x => x.GetRequiredService<ColorsViewModel>())
+            .AddSingleton<IWindowHandler, WindowViewModel>(x => x.GetRequiredService<WindowViewModel>())
             .AddSingleton<RegistryViewModel>()
             .AddSingleton(static x => new DiscordViewModel(x.GetService<ViewModels_ViewModelMain>(), "764168193685979138"))
             .AddSingleton<DebugViewModel>()
