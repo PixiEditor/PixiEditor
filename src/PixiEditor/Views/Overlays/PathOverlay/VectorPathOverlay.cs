@@ -61,6 +61,8 @@ public class VectorPathOverlay : Overlay
     private EditableVectorPath editableVectorPath;
     private bool canInsert = false;
 
+    private bool isDragging = false;
+
     static VectorPathOverlay()
     {
         AffectsOverlayRender(PathProperty);
@@ -103,7 +105,7 @@ public class VectorPathOverlay : Overlay
             insertPreviewHandle.Draw(context);
         }
 
-        if (IsOverAnyHandle() || canInsert)
+        if ((IsOverAnyHandle() && !isDragging) || canInsert)
         {
             TryHighlightSnap(null, null);
         }
@@ -339,6 +341,7 @@ public class VectorPathOverlay : Overlay
         TryHighlightSnap(null, null);
         args.Pointer.Capture(this);
         args.Handled = true;
+        isDragging = true;
     }
 
 
@@ -348,13 +351,14 @@ public class VectorPathOverlay : Overlay
 
         VectorPath updatedPath = new VectorPath(pathOnStartDrag);
 
-        delta = TryFindAnySnap(delta, pathOnStartDrag, out string axisX, out string axisY);
+        delta = TryFindAnySnap(delta, pathOnStartDrag, out string axisX, out string axisY, out VecD? snapPoint);
         updatedPath.Transform(Matrix3X3.CreateTranslation((float)delta.X, (float)delta.Y));
 
-        TryHighlightSnap(axisX, axisY);
+        TryHighlightSnap(axisX, axisY, snapPoint);
 
         Path = updatedPath;
         args.Handled = true;
+        isDragging = true;
     }
 
     protected override void OnKeyPressed(Key key, KeyModifiers keyModifiers, string? symbol)
@@ -522,6 +526,12 @@ public class VectorPathOverlay : Overlay
         {
             canInsert = false;
         }
+    }
+
+    protected override void OnPointerReleased(PointerReleasedEventArgs e)
+    {
+        base.OnPointerReleased(e);
+        isDragging = false;
     }
 
     private bool AddNewPointFromClick(VecD point)
@@ -787,11 +797,12 @@ public class VectorPathOverlay : Overlay
         anchorHandles.Clear();
     }
 
-    private VecD TryFindAnySnap(VecD delta, VectorPath path, out string? axisX, out string? axisY)
+    private VecD TryFindAnySnap(VecD delta, VectorPath path, out string? axisX, out string? axisY, out VecD? snapPoint)
     {
         VecD closestSnapDelta = new VecD(double.PositiveInfinity, double.PositiveInfinity);
         axisX = null;
         axisY = null;
+        snapPoint = null;
 
         SnappingController.RemoveAll("editingPath");
 
@@ -802,12 +813,14 @@ public class VectorPathOverlay : Overlay
             {
                 closestSnapDelta = new VecD(snap.X, closestSnapDelta.Y);
                 axisX = x;
+                snapPoint = (VecD)point;
             }
 
             if (snap.Y < closestSnapDelta.Y && !string.IsNullOrEmpty(y))
             {
                 closestSnapDelta = new VecD(closestSnapDelta.X, snap.Y);
                 axisY = y;
+                snapPoint = (VecD)point;
             }
         }
 
@@ -821,6 +834,11 @@ public class VectorPathOverlay : Overlay
         if (closestSnapDelta.Y == double.PositiveInfinity)
         {
             closestSnapDelta = new VecD(closestSnapDelta.X, 0);
+        }
+
+        if (snapPoint != null)
+        {
+            snapPoint = snapPoint + delta + closestSnapDelta;
         }
 
         return delta + closestSnapDelta;
