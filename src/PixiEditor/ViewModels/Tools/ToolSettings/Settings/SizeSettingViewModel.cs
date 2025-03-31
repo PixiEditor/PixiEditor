@@ -14,12 +14,12 @@ internal sealed class SizeSettingViewModel : Setting<double>
     private int decimalPlaces;
     private string unit = "px";
     
-    public SizeSettingViewModel(string name, string label = null, double min = 1, double max = double.PositiveInfinity,
+    public SizeSettingViewModel(string name, string label = null, double defaultValue = 1, double min = 1, double max = double.PositiveInfinity,
         int decimalPlaces = 0, string unit = "px")
         : base(name)
     {
         Label = label;
-        Value = 1;
+        Value = defaultValue;
 
         this.min = min;
         this.max = max;

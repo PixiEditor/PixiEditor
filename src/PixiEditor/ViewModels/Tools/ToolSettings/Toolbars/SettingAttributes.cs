@@ -80,7 +80,9 @@ public static class Settings
     /// </summary>
     public class SizeAttribute : SettingsAttribute
     {
-        public SizeAttribute(string labelKey) : base(labelKey) { }
+        public SizeAttribute(string labelKey, double defaultValue = 1) : base(labelKey, defaultValue) { }
+
+        public double Min { get; set; } = 1;
     }
 
     /// <summary>

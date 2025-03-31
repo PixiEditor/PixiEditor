@@ -7,6 +7,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using Drawie.Numerics;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.ViewModels.Tools.Tools;
 
@@ -14,11 +15,6 @@ namespace PixiEditor.ViewModels.Tools.Tools;
 internal class RasterRectangleToolViewModel : ShapeTool, IRasterRectangleToolHandler
 {
     private string defaultActionDisplay = "RECTANGLE_TOOL_ACTION_DISPLAY_DEFAULT";
-
-    public RasterRectangleToolViewModel()
-    {
-        ActionDisplay = defaultActionDisplay;
-    }
 
     public override string ToolNameLocalizationKey => "RECTANGLE_TOOL";
     public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
@@ -29,6 +25,27 @@ internal class RasterRectangleToolViewModel : ShapeTool, IRasterRectangleToolHan
     public override string DefaultIcon => PixiPerfectIcons.LowResSquare;
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
+
+
+    [Settings.Size("RADIUS", 0, ExposedByDefault = true, Min = 0)]
+    public double CornerRadius
+    {
+        get
+        {
+            return GetValue<double>();
+        }
+        set
+        {
+            SetValue(value);
+        }
+    }
+
+
+    public RasterRectangleToolViewModel()
+    {
+        ActionDisplay = defaultActionDisplay;
+        Toolbar = ToolbarFactory.Create<RasterRectangleToolViewModel, FillableShapeToolbar>(this);
+    }
 
     public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
     {

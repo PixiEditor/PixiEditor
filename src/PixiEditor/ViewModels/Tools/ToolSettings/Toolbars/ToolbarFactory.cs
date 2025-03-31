@@ -65,7 +65,7 @@ internal static class ToolbarFactory
                 percentAttribute.Min, percentAttribute.Max),
             Settings.FloatAttribute floatAttribute => new FloatSettingViewModel(name, (float)(attribute.DefaultValue ?? 0f), label,
                 floatAttribute.Min, floatAttribute.Max),
-            Settings.SizeAttribute => new SizeSettingViewModel(name, label),
+            Settings.SizeAttribute sa => new SizeSettingViewModel(name, label, (double)(sa.DefaultValue ?? 0f), sa.Min),
             _ => throw new NotImplementedException(
                 $"SettingsAttribute of type '{attribute.GetType().FullName}' has not been implemented")
         };

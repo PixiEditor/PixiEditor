@@ -335,7 +335,8 @@ internal class SvgDocumentBuilder : IDocumentBuilder
     {
         return new RectangleVectorData(
             element.X.Unit?.PixelsValue ?? 0, element.Y.Unit?.PixelsValue ?? 0,
-            element.Width.Unit?.PixelsValue ?? 0, element.Height.Unit?.PixelsValue ?? 0);
+            element.Width.Unit?.PixelsValue ?? 0, element.Height.Unit?.PixelsValue ?? 0)
+            { CornerRadius = (element.Rx.Unit?.PixelsValue ?? element.Ry.Unit?.PixelsValue) ?? 0 };
     }
 
     private TextVectorData AddText(SvgText element)

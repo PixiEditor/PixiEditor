@@ -8,7 +8,7 @@ namespace ChunkyImageLib.DataHolders;
 
 public record struct ShapeData
 {
-    public ShapeData(VecD center, VecD size, double rotation, float strokeWidth, Paintable stroke, Paintable fillPaintable, BlendMode blendMode = BlendMode.SrcOver)
+    public ShapeData(VecD center, VecD size, double cornerRadius, double rotation, float strokeWidth, Paintable stroke, Paintable fillPaintable, BlendMode blendMode = BlendMode.SrcOver)
     {
         Stroke = stroke;
         FillPaintable = fillPaintable;
@@ -16,6 +16,7 @@ public record struct ShapeData
         Size = size;
         Angle = rotation;
         StrokeWidth = strokeWidth;
+        CornerRadius = cornerRadius;
         BlendMode = blendMode;
     }
     public Paintable Stroke { get; }
@@ -25,15 +26,16 @@ public record struct ShapeData
 
     /// <summary>Can be negative to show flipping </summary>
     public VecD Size { get; }
+
+    public double CornerRadius { get; }
     public double Angle { get; }
     public float StrokeWidth { get; }
-
     public bool AntiAliasing { get; set; } = false;
     
 
     public ShapeData AsMirroredAcrossHorAxis(double horAxisY)
-        => new ShapeData(Center.ReflectY(horAxisY), new(Size.X, -Size.Y), -Angle, StrokeWidth, Stroke, FillPaintable, BlendMode);
+        => new ShapeData(Center.ReflectY(horAxisY), new(Size.X, -Size.Y), CornerRadius, -Angle, StrokeWidth, Stroke, FillPaintable, BlendMode);
     public ShapeData AsMirroredAcrossVerAxis(double verAxisX)
-        => new ShapeData(Center.ReflectX(verAxisX), new(-Size.X, Size.Y), -Angle, StrokeWidth, Stroke, FillPaintable, BlendMode);
+        => new ShapeData(Center.ReflectX(verAxisX), new(-Size.X, Size.Y), CornerRadius, -Angle, StrokeWidth, Stroke, FillPaintable, BlendMode);
 
 }

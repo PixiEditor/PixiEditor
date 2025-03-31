@@ -1,5 +1,7 @@
-﻿namespace PixiEditor.Models.Handlers.Tools;
+﻿using Drawie.Numerics;
 
-internal interface IVectorRectangleToolHandler : IShapeToolHandler
+namespace PixiEditor.Models.Handlers.Tools;
+
+internal interface IVectorRectangleToolHandler : IShapeToolHandler, ICornerRadiusTool
 {
 }

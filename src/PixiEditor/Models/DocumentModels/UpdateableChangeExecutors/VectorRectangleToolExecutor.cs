@@ -44,6 +44,8 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
         firstCenter = rectData.Center;
         firstSize = rectData.Size;
         lastMatrix = rectData.TransformationMatrix;
+        toolViewModel.CornerRadius = rectData.CornerRadius;
+
         return true;
     }
 
@@ -79,6 +81,7 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
         RectangleVectorData data = new RectangleVectorData(firstCenter, firstSize)
         {
             Stroke = StrokePaintable, FillPaintable = FillPaintable, StrokeWidth = (float)StrokeWidth,
+            CornerRadius = toolViewModel.CornerRadius,
         };
 
         lastRect = rect;
@@ -94,6 +97,7 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
             nameof(IFillableShapeToolbar.Fill) => VectorShapeChangeType.Fill,
             nameof(IFillableShapeToolbar.FillBrush) => VectorShapeChangeType.Fill,
             nameof(IShapeToolbar.StrokeBrush) => VectorShapeChangeType.Stroke,
+            "Radius" => VectorShapeChangeType.GeometryData,
             nameof(IShapeToolbar.ToolSize) => VectorShapeChangeType.Stroke,
             nameof(IShapeToolbar.AntiAliasing) => VectorShapeChangeType.OtherVisuals,
             "FillAndStroke" => VectorShapeChangeType.Fill | VectorShapeChangeType.Stroke,
@@ -105,6 +109,7 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
                 Stroke = StrokePaintable,
                 FillPaintable = FillPaintable,
                 StrokeWidth = (float)StrokeWidth,
+                CornerRadius = toolViewModel.CornerRadius,
                 TransformationMatrix = lastMatrix
             }, changeType);
     }
@@ -141,6 +146,7 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
             Stroke = data.Stroke,
             FillPaintable = data.FillPaintable,
             StrokeWidth = data.StrokeWidth,
+            CornerRadius = data.CornerRadius,
             TransformationMatrix = matrix
         };
 
