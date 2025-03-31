@@ -107,7 +107,7 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
 
     protected override int GetSpecificHash()
     {
-        return HashCode.Combine(Center, Size, StrokeLineCap, StrokeLineJoin, CornerRadius);
+        return HashCode.Combine(Center, Size, CornerRadius);
     }
 
     public override VectorPath ToPath(bool transformed = false)
@@ -133,7 +133,6 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
     protected bool Equals(RectangleVectorData other)
     {
         return base.Equals(other) && Center.Equals(other.Center) && Size.Equals(other.Size) &&
-               StrokeLineJoin == other.StrokeLineJoin && StrokeLineCap == other.StrokeLineCap &&
                CornerRadius.Equals(other.CornerRadius);
     }
 
@@ -159,6 +158,6 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(base.GetHashCode(), Center, Size, StrokeLineJoin, StrokeLineCap, CornerRadius);
+        return HashCode.Combine(base.GetHashCode(), Center, Size, CornerRadius);
     }
 }
