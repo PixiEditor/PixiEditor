@@ -13,8 +13,6 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
     public VecD Center { get; set; }
     public VecD Size { get; set; }
     public double CornerRadius { get; set; }
-    public StrokeJoin StrokeLineJoin { get; set; } = StrokeJoin.Round;
-    public StrokeCap StrokeLineCap { get; } = StrokeCap.Butt;
 
     public override RectD GeometryAABB => RectD.FromCenterAndSize(Center, Size);
 
@@ -79,8 +77,6 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
             paint.Style = PaintStyle.Stroke;
 
             paint.StrokeWidth = StrokeWidth;
-            paint.StrokeCap = StrokeLineCap;
-            paint.StrokeJoin = StrokeLineJoin;
 
             DrawRect(canvas, paint);
         }
