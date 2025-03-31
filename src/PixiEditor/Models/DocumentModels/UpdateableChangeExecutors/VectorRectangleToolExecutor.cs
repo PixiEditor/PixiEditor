@@ -44,7 +44,7 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
         firstCenter = rectData.Center;
         firstSize = rectData.Size;
         lastMatrix = rectData.TransformationMatrix;
-        toolViewModel.CornerRadius = rectData.CornerRadius;
+        toolViewModel.CornerRadius = (float)rectData.CornerRadius;
 
         return true;
     }

@@ -333,10 +333,20 @@ internal class SvgDocumentBuilder : IDocumentBuilder
 
     private RectangleVectorData AddRect(SvgRectangle element)
     {
+        double rx = element.Rx.Unit?.PixelsValue ?? 0;
+        double ry = element.Ry.Unit?.PixelsValue ?? 0;
+        double width = element.Width.Unit?.PixelsValue ?? 0;
+        double height = element.Height.Unit?.PixelsValue ?? 0;
+
+        double shortestAxis = Math.Min(width, height);
+
+        double cornerRadius = Math.Max(rx, ry);
+        double cornerRadiusPercent = cornerRadius / (shortestAxis / 2f);
+
         return new RectangleVectorData(
             element.X.Unit?.PixelsValue ?? 0, element.Y.Unit?.PixelsValue ?? 0,
-            element.Width.Unit?.PixelsValue ?? 0, element.Height.Unit?.PixelsValue ?? 0)
-            { CornerRadius = (element.Rx.Unit?.PixelsValue ?? element.Ry.Unit?.PixelsValue) ?? 0 };
+            width, height)
+            { CornerRadius = cornerRadiusPercent };
     }
 
     private TextVectorData AddText(SvgText element)

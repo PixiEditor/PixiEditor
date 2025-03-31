@@ -89,14 +89,17 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
 
     private void DrawRect(Canvas canvas, Paint paint)
     {
-        if (CornerRadius == 0)
+        double maxRadiusPx = Math.Min(Size.X, Size.Y) / 2f;
+        double radiusPx = CornerRadius * maxRadiusPx;
+
+        if (radiusPx == 0)
         {
             canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
         }
         else
         {
             RectD rect = RectD.FromCenterAndSize(Center, Size);
-            canvas.DrawRoundRect((float)rect.Pos.X, (float)rect.Pos.Y, (float)rect.Width, (float)rect.Height, (float)CornerRadius, (float)CornerRadius, paint);
+            canvas.DrawRoundRect((float)rect.Pos.X, (float)rect.Pos.Y, (float)rect.Width, (float)rect.Height, (float)radiusPx, (float)radiusPx, paint);
         }
     }
 

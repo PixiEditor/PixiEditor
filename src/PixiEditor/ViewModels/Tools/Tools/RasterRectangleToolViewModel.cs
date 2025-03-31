@@ -27,12 +27,12 @@ internal class RasterRectangleToolViewModel : ShapeTool, IRasterRectangleToolHan
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
 
 
-    [Settings.Size("RADIUS", 0, ExposedByDefault = true, Min = 0)]
-    public double CornerRadius
+    [Settings.Percent("RADIUS", 0, ExposedByDefault = true, Min = 0)]
+    public float CornerRadius
     {
         get
         {
-            return GetValue<double>();
+            return GetValue<float>();
         }
         set
         {

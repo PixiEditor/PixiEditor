@@ -31,12 +31,12 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
 
     private VecD cornerRadius = new VecD(0, 0);
 
-    [Settings.Size("RADIUS", 0, ExposedByDefault = true, Min = 0)]
-    public double CornerRadius
+    [Settings.Percent("RADIUS", 0, ExposedByDefault = true, Min = 0)]
+    public float CornerRadius
     {
         get
         {
-            return GetValue<double>();
+            return GetValue<float>();
         }
         set
         {

@@ -4,5 +4,5 @@ namespace PixiEditor.Models.Handlers.Tools;
 
 public interface ICornerRadiusTool
 {
-    public double CornerRadius { get; set; }
+    public float CornerRadius { get; set; }
 }

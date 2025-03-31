@@ -39,13 +39,16 @@ internal class RectangleOperation : IMirroredDrawOperation
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);
         surf.Canvas.RotateRadians((float)Data.Angle, (float)rect.Center.X, (float)rect.Center.Y);
 
+        double maxRadiusInPx = Math.Min(Data.Size.X, Data.Size.Y) / 2;
+        double radiusInPx = Data.CornerRadius * maxRadiusInPx;
+
         if (Data.AntiAliasing)
         {
-            DrawAntiAliased(surf, rect, Data.CornerRadius);
+            DrawAntiAliased(surf, rect, radiusInPx);
         }
         else
         {
-            DrawPixelPerfect(surf, rect, innerRect, Data.CornerRadius);
+            DrawPixelPerfect(surf, rect, innerRect, radiusInPx);
         }
 
         surf.Canvas.RestoreToCount(initial);
