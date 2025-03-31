@@ -44,7 +44,7 @@ internal class ChangeExecutionController
 
     public bool IsChangeOfTypeActive<T>() where T : IExecutorFeature
     {
-        return currentSession is T sessionT && sessionT.IsFeatureEnabled(sessionT);
+        return currentSession is T sessionT && sessionT.IsFeatureEnabled<T>();
     }
 
     public ExecutorType GetCurrentExecutorType()

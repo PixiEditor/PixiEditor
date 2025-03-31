@@ -32,7 +32,7 @@ internal class RasterEllipseToolExecutor : DrawableShapeToolExecutor<IRasterElli
     protected override bool UseGlobalUndo => false;
     protected override bool ShowApplyButton => true;
     protected override void DrawShape(VecD currentPos, double rotationRad, bool firstDraw) => DrawEllipseOrCircle(currentPos, rotationRad, firstDraw);
-    protected override IAction SettingsChangedAction()
+    protected override IAction SettingsChangedAction(string name, object value)
     {
         return new DrawRasterEllipse_Action(memberId, (RectI)lastRect, lastRadians, StrokePaintable, FillPaintable, (float)StrokeWidth, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
     }

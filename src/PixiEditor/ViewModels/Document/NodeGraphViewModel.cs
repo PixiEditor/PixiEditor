@@ -253,7 +253,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
         else
         {
             Guid nodeId = Guid.NewGuid();
-            changes.Add(new CreateNode_Action(nodeType, nodeId));
+            changes.Add(new CreateNode_Action(nodeType, nodeId, Guid.Empty));
 
             if (pos != default)
             {

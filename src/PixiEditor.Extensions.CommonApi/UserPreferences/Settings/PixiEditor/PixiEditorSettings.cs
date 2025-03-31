@@ -64,4 +64,9 @@ public static class PixiEditorSettings
 
         public static SyncedSetting<bool> ShowLayerCount { get; } = SyncedSetting.NonOwned(PixiEditor, true);
     }
+
+    public static class Analytics
+    {
+        public static SyncedSetting<bool> AnalyticsEnabled { get; } = SyncedSetting.NonOwned(PixiEditor, true);
+    }
 }

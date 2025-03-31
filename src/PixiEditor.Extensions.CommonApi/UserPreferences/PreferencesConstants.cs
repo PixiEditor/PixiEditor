@@ -30,4 +30,7 @@ public static class PreferencesConstants
 
     public const string OpenDirectoryOnExport = "OpenDirectoryOnExport";
     public const bool OpenDirectoryOnExportDefault = true;
+
+    public const string AnalyticsEnabled = "AnalyticsEnabled";
+    public const bool AnalyticsEnabledDefault = true;
 }

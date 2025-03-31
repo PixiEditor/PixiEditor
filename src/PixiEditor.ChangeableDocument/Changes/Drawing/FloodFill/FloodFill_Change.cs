@@ -2,6 +2,7 @@
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 
@@ -32,7 +33,7 @@ internal class FloodFill_Change : Change
     {
         if (pos.X < 0 || pos.Y < 0 || pos.X >= target.Size.X || pos.Y >= target.Size.Y)
             return false;
-        
+
         return DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask);
     }
 
@@ -46,7 +47,8 @@ internal class FloodFill_Change : Change
             target.ForEveryReadonlyMember(member => membersToReference.Add(member.Id));
         else
             membersToReference.Add(memberGuid);
-        var floodFilledChunks = FloodFillHelper.FloodFill(membersToReference, target, selection, pos, color, tolerance, frame);
+        bool lockTransparency = target.FindMember(memberGuid) is ImageLayerNode { LockTransparency: true };
+        var floodFilledChunks = FloodFillHelper.FloodFill(membersToReference, target, selection, pos, color, tolerance, frame, lockTransparency);
         if (floodFilledChunks.Count == 0)
         {
             ignoreInUndo = true;

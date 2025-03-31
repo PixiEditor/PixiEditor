@@ -14,7 +14,7 @@ internal abstract class VideoFileType : IoFileType
         ExportConfig config, ExportJob? job)
     {
         if (config.AnimationRenderer is null)
-            return SaveResult.UnknownError;
+            return new SaveResult(SaveResultType.CustomError, new LocalizedString("ERR_NO_RENDERER"));
 
         List<Image> frames = new();
 
@@ -51,14 +51,14 @@ internal abstract class VideoFileType : IoFileType
             frame.Dispose();
         }
 
-        return result ? SaveResult.Success : SaveResult.UnknownError;
+        return result ? new SaveResult(SaveResultType.Success) : new SaveResult(SaveResultType.CustomError, new LocalizedString("ERR_RENDERING_FAILED"));
     }
 
     public override SaveResult TrySave(string pathWithExtension, DocumentViewModel document, ExportConfig config,
         ExportJob? job)
     {
         if (config.AnimationRenderer is null)
-            return SaveResult.UnknownError;
+            return new SaveResult(SaveResultType.CustomError, new LocalizedString("ERR_NO_RENDERER"));
 
         List<Image> frames = new();
 
@@ -95,6 +95,6 @@ internal abstract class VideoFileType : IoFileType
             frame.Dispose();
         }
 
-        return result ? SaveResult.Success : SaveResult.UnknownError;
+        return result ? new SaveResult(SaveResultType.Success) : new SaveResult(SaveResultType.CustomError, new LocalizedString("ERR_RENDERING_FAILED"));
     }
 }

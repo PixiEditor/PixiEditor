@@ -319,7 +319,10 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         if (doc is null)
             return;
 
-        await ClipboardController.CopyVisibleToClipboard(doc);
+        await ClipboardController.CopyVisibleToClipboard(
+            doc, Owner.WindowSubViewModel.ActiveWindow is ViewportWindowViewModel viewportWindowViewModel
+                ? viewportWindowViewModel.RenderOutputName
+                : null);
 
         hasImageInClipboard = true;
     }

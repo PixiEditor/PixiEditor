@@ -14,6 +14,7 @@ public class AnchorHandle : RectangleHandle
     private Paint selectedPaint;
     
     public bool IsSelected { get; set; } = false;
+    public override VecD HitSizeMargin { get; set; } = new VecD(5, 5);
 
     public AnchorHandle(Overlay owner) : base(owner)
     {

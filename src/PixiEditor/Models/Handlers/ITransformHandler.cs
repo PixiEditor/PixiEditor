@@ -23,4 +23,5 @@ internal interface ITransformHandler : IHandler
     public bool ShowHandles { get; set; }
     public bool IsSizeBoxEnabled { get; set; }
     public bool CanAlignToPixels { get; set; }
+    public bool TransformActive { get; }
 }

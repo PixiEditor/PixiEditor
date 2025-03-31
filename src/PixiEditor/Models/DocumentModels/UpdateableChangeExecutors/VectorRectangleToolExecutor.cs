@@ -8,8 +8,11 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
+using PixiEditor.ChangeableDocument.Changes.Vectors;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
+using PixiEditor.Models.Handlers.Toolbars;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -24,6 +27,14 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
     private Matrix3X3 lastMatrix = Matrix3X3.Identity;
 
     protected override bool AlignToPixels => false;
+
+    protected override bool DeleteLayerOnNoDraw => true;
+    protected override bool SelectLayerOnTap => true;
+    protected override bool ApplyEachSettingsChange => true;
+
+    protected override Predicate<ILayerHandler> CanSelectLayer => x => x is IVectorLayerHandler vec
+                                                                       && vec.GetShapeData(vec.Document.AnimationHandler
+                                                                           .ActiveFrameTime) is IReadOnlyRectangleData;
 
     protected override bool InitShapeData(IReadOnlyShapeVectorData data)
     {
@@ -72,11 +83,22 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
 
         lastRect = rect;
 
-        internals!.ActionAccumulator.AddActions(new SetShapeGeometry_Action(memberId, data));
+        internals!.ActionAccumulator.AddActions(new SetShapeGeometry_Action(memberId, data,
+            VectorShapeChangeType.GeometryData));
     }
 
-    protected override IAction SettingsChangedAction()
+    protected override IAction SettingsChangedAction(string name, object value)
     {
+        VectorShapeChangeType changeType = name switch
+        {
+            nameof(IFillableShapeToolbar.Fill) => VectorShapeChangeType.Fill,
+            nameof(IFillableShapeToolbar.FillBrush) => VectorShapeChangeType.Fill,
+            nameof(IShapeToolbar.StrokeBrush) => VectorShapeChangeType.Stroke,
+            nameof(IShapeToolbar.ToolSize) => VectorShapeChangeType.Stroke,
+            nameof(IShapeToolbar.AntiAliasing) => VectorShapeChangeType.OtherVisuals,
+            "FillAndStroke" => VectorShapeChangeType.Fill | VectorShapeChangeType.Stroke,
+            _ => VectorShapeChangeType.All
+        };
         return new SetShapeGeometry_Action(memberId,
             new RectangleVectorData(firstCenter, firstSize)
             {
@@ -84,7 +106,7 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
                 FillPaintable = FillPaintable,
                 StrokeWidth = (float)StrokeWidth,
                 TransformationMatrix = lastMatrix
-            });
+            }, changeType);
     }
 
     protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners)
@@ -124,7 +146,7 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
 
         lastMatrix = matrix;
 
-        return new SetShapeGeometry_Action(memberId, newData);
+        return new SetShapeGeometry_Action(memberId, newData, VectorShapeChangeType.GeometryData);
     }
 
     protected override IAction EndDrawAction()
@@ -132,9 +154,9 @@ internal class VectorRectangleToolExecutor : DrawableShapeToolExecutor<IVectorRe
         return new EndSetShapeGeometry_Action();
     }
 
-    public override bool IsFeatureEnabled(IExecutorFeature feature)
+    public override bool IsFeatureEnabled<T>()
     {
-        if (feature is IMidChangeUndoableExecutor) return false;
-        return base.IsFeatureEnabled(feature);
+        if (typeof(T) == typeof(IMidChangeUndoableExecutor)) return false;
+        return base.IsFeatureEnabled<T>();
     }
 }

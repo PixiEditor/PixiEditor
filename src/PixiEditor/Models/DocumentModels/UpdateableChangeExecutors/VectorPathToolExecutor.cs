@@ -12,6 +12,7 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces.Shapes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changes.Vectors;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers.InputDevice;
 using PixiEditor.Models.DocumentModels.Public;
@@ -98,9 +99,9 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
                 }
 
                 //below forces undo before starting new path
-               // internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
+                // internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action());
 
-               // internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData(startingPath)));
+                // internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData(startingPath)));
             }
         }
         else
@@ -150,11 +151,11 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
             }
         }
     }
-    
+
     private bool WholePathClosed()
     {
         EditableVectorPath editablePath = new EditableVectorPath(startingPath);
-        
+
         return editablePath.SubShapes.Count > 0 && editablePath.SubShapes.All(x => x.IsClosed);
     }
 
@@ -176,7 +177,18 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
     {
         if (document.PathOverlayHandler.IsActive)
         {
-            internals.ActionAccumulator.AddFinishedActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData(startingPath)), new EndSetShapeGeometry_Action());
+            VectorShapeChangeType changeType = name switch
+            {
+                nameof(IFillableShapeToolbar.Fill) => VectorShapeChangeType.Fill,
+                nameof(IShapeToolbar.StrokeBrush) => VectorShapeChangeType.Stroke,
+                nameof(IShapeToolbar.ToolSize) => VectorShapeChangeType.Stroke,
+                nameof(IShapeToolbar.AntiAliasing) => VectorShapeChangeType.OtherVisuals,
+                _ => VectorShapeChangeType.All
+            };
+
+            internals.ActionAccumulator.AddFinishedActions(
+                new SetShapeGeometry_Action(member.Id, ConstructShapeData(startingPath), changeType),
+                new EndSetShapeGeometry_Action());
         }
     }
 
@@ -193,12 +205,12 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
     private void AddToUndo(VectorPath path)
     {
         internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action(),
-            new SetShapeGeometry_Action(member.Id, ConstructShapeData(path)), new EndSetShapeGeometry_Action());
+            new SetShapeGeometry_Action(member.Id, ConstructShapeData(path), VectorShapeChangeType.GeometryData), new EndSetShapeGeometry_Action());
     }
 
     private PathVectorData ConstructShapeData(VectorPath? path)
     {
-        if(path is null)
+        if (path is null)
         {
             return new PathVectorData(new VectorPath() { FillType = (PathFillType)vectorPathToolHandler.FillMode })
             {
@@ -210,7 +222,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
                 StrokeLineJoin = vectorPathToolHandler.StrokeLineJoin
             };
         }
-        
+
         return new PathVectorData(new VectorPath(path) { FillType = (PathFillType)vectorPathToolHandler.FillMode })
         {
             StrokeWidth = (float)toolbar.ToolSize,
@@ -227,19 +239,17 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         if (document.PathOverlayHandler.IsActive)
         {
             startingPath = path;
-            internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id, ConstructShapeData(startingPath)));
+            internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(member.Id,
+                ConstructShapeData(startingPath), VectorShapeChangeType.GeometryData));
         }
     }
 
-    public bool IsFeatureEnabled(IExecutorFeature feature)
+    public bool IsFeatureEnabled<T>()
     {
-        return feature switch
-        {
-            IPathExecutorFeature _ => true,
-            IMidChangeUndoableExecutor _ => true,
-            ITransformableExecutor _ => true,
-            _ => false
-        };
+        Type feature = typeof(T);
+        return feature == typeof(IMidChangeUndoableExecutor)
+               || feature == typeof(ITransformableExecutor)
+               || feature == typeof(IPathExecutorFeature);
     }
 
     protected void HighlightSnapping(string? snapX, string? snapY)
@@ -259,7 +269,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
 
         return shapeData is not IReadOnlyPathData pathData || pathData.Path.IsClosed;
     }
-    
+
     private void ApplySettings(PathVectorData pathData)
     {
         toolbar.ToolSize = pathData.StrokeWidth;
@@ -267,8 +277,11 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         toolbar.ToolSize = pathData.StrokeWidth;
         toolbar.Fill = pathData.Fill;
         toolbar.FillBrush = pathData.FillPaintable.ToBrush();
-        toolbar.GetSetting<EnumSettingViewModel<VectorPathFillType>>(nameof(VectorPathToolViewModel.FillMode)).Value = (VectorPathFillType)pathData.Path.FillType;
-        toolbar.GetSetting<EnumSettingViewModel<StrokeCap>>(nameof(VectorPathToolViewModel.StrokeLineCap)).Value = pathData.StrokeLineCap;
-        toolbar.GetSetting<EnumSettingViewModel<StrokeJoin>>(nameof(VectorPathToolViewModel.StrokeLineJoin)).Value = pathData.StrokeLineJoin;
+        toolbar.GetSetting<EnumSettingViewModel<VectorPathFillType>>(nameof(VectorPathToolViewModel.FillMode)).Value =
+            (VectorPathFillType)pathData.Path.FillType;
+        toolbar.GetSetting<EnumSettingViewModel<StrokeCap>>(nameof(VectorPathToolViewModel.StrokeLineCap)).Value =
+            pathData.StrokeLineCap;
+        toolbar.GetSetting<EnumSettingViewModel<StrokeJoin>>(nameof(VectorPathToolViewModel.StrokeLineJoin)).Value =
+            pathData.StrokeLineJoin;
     }
 }

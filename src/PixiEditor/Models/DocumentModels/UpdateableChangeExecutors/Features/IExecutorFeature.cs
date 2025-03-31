@@ -2,5 +2,5 @@
 
 public interface IExecutorFeature
 {
-    public bool IsFeatureEnabled(IExecutorFeature feature);
+    public bool IsFeatureEnabled<T>();
 }

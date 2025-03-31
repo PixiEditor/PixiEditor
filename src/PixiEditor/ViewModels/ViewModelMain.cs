@@ -307,7 +307,6 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         const string ConfirmationDialogTitle = "UNSAVED_CHANGES";
         const string ConfirmationDialogMessage = "DOCUMENT_MODIFIED_SAVE";
 
-
         ConfirmationType result = ConfirmationType.No;
         bool saved = false;
         if (!document.AllChangesSaved)

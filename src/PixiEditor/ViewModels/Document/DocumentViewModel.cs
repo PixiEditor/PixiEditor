@@ -50,6 +50,7 @@ using PixiEditor.Models.Serialization.Factories;
 using PixiEditor.Models.Structures;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.Models.IO;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
@@ -374,7 +375,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         if (builderInstance.Graph.AllNodes.Count == 0 || !builderInstance.Graph.AllNodes.Any(x => x is OutputNode))
         {
             Guid outputNodeGuid = Guid.NewGuid();
-            acc.AddActions(new CreateNode_Action(typeof(OutputNode), outputNodeGuid));
+            acc.AddActions(new CreateNode_Action(typeof(OutputNode), outputNodeGuid, Guid.Empty));
         }
 
         AddAnimationData(builderInstance.AnimationData, mappedNodeIds, mappedKeyFrameIds);
@@ -434,7 +435,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             Guid guid = Guid.NewGuid();
             mappedNodeIds.Add(id, guid);
-            acc.AddActions(new CreateNodeFromName_Action(serializedNode.UniqueNodeName, guid));
+            Guid pairGuid = Guid.Empty;
+
+            if (serializedNode.PairId != null && mappedNodeIds.TryGetValue(serializedNode.PairId.Value, out Guid pairId))
+            {
+                pairGuid = pairId;
+            }
+
+            acc.AddActions(new CreateNodeFromName_Action(serializedNode.UniqueNodeName, guid, pairGuid));
             acc.AddFinishedActions(new NodePosition_Action([guid], serializedNode.Position.ToVecD()),
                 new EndNodePosition_Action());
 
@@ -710,7 +718,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     /// <param name="includeCanvas">Should the color be picked from the canvas</param>
     /// <param name="referenceTopmost">Is the reference layer topmost. (Only affects the result is includeReference and includeCanvas are set.)</param>
     public Color PickColor(VecD pos, DocumentScope scope, bool includeReference, bool includeCanvas, int frame,
-        bool referenceTopmost = false)
+        bool referenceTopmost = false, string? customOutput = null)
     {
         if (scope == DocumentScope.SingleLayer && includeReference && includeCanvas)
             includeReference = false;
@@ -736,7 +744,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
 
         if (includeCanvas)
-            return PickColorFromCanvas((VecI)pos, scope, frame);
+        {
+            return PickColorFromCanvas((VecI)pos, scope, frame, customOutput);
+        }
+
         if (includeReference)
             return PickColorFromReferenceLayer(pos) ?? Colors.Transparent;
         return Colors.Transparent;
@@ -758,7 +769,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         return bitmap.GetSRGBPixel(new VecI((int)transformed.X, (int)transformed.Y));
     }
 
-    public Color PickColorFromCanvas(VecI pos, DocumentScope scope, KeyFrameTime frameTime)
+    public Color PickColorFromCanvas(VecI pos, DocumentScope scope, KeyFrameTime frameTime, string? customOutput = null)
     {
         // there is a tiny chance that the image might get disposed by another thread
         try
@@ -768,7 +779,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             if (scope == DocumentScope.Canvas)
             {
                 using Surface tmpSurface = new Surface(SizeBindable); // new Surface is on purpose, Surface.ForDisplay doesn't work here
-                Renderer.RenderDocument(tmpSurface.DrawingSurface, frameTime, SizeBindable);
+                Renderer.RenderDocument(tmpSurface.DrawingSurface, frameTime, SizeBindable, customOutput);
 
                 return tmpSurface.GetSrgbPixel(pos);
             }

@@ -33,7 +33,7 @@ internal class RasterLineToolExecutor : LineExecutor<ILineToolHandler>
             (float)StrokeWidth, StrokePaintable, StrokeCap.Butt, toolbar.AntiAliasing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
     }
 
-    protected override IAction[] SettingsChange()
+    protected override IAction[] SettingsChange(string name, object value)
     {
         VecD dir = GetSignedDirection(startDrawingPos, curPos);
         VecD oppositeDir = new VecD(-dir.X, -dir.Y);

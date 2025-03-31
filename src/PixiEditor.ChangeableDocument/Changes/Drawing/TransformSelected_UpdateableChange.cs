@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Objects;
 using PixiEditor.ChangeableDocument.Changes.Selection;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -35,6 +36,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
     private AffectedArea lastAffectedArea;
 
     private static Paint RegularPaint { get; } = new() { BlendMode = BlendMode.SrcOver };
+    private static Paint LockedAlphaPaint { get; } = new() { BlendMode = BlendMode.SrcIn, Color = Colors.White };
 
     [GenerateUpdateableChangeActions]
     public TransformSelected_UpdateableChange(
@@ -250,7 +252,8 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
             {
                 ChunkyImage memberImage =
                     DrawingChangeHelper.GetTargetImageOrThrow(target, member.MemberId, drawOnMask, frame);
-                var area = DrawImage(member, memberImage);
+                var memberNode = target.FindMember(member.MemberId);
+                var area = DrawImage(member, memberImage, isTransformingSelection && memberNode is ImageLayerNode { LockTransparency: true });
                 member.SavedChunks = new(memberImage, memberImage.FindAffectedArea().Chunks);
                 memberImage.CommitChanges();
                 infos.Add(DrawingChangeHelper.CreateAreaChangeInfo(member.MemberId, area, drawOnMask).AsT1);
@@ -287,8 +290,9 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
                 ChunkyImage targetImage =
                     DrawingChangeHelper.GetTargetImageOrThrow(target, member.MemberId, drawOnMask, frame);
 
+                var memberNode = target.FindMember(member.MemberId);
                 infos.Add(DrawingChangeHelper.CreateAreaChangeInfo(member.MemberId,
-                        DrawImage(member, targetImage), drawOnMask)
+                        DrawImage(member, targetImage, isTransformingSelection && memberNode is ImageLayerNode { LockTransparency: true }), drawOnMask)
                     .AsT1);
             }
             else if (member.IsTransformable)
@@ -392,7 +396,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
         return final;
     }
 
-    private AffectedArea DrawImage(MemberTransformationData data, ChunkyImage memberImage)
+    private AffectedArea DrawImage(MemberTransformationData data, ChunkyImage memberImage, bool lockAlpha)
     {
         var prevAffArea = memberImage.FindAffectedArea();
 
@@ -400,7 +404,14 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
 
         if (!keepOriginal)
             memberImage.EnqueueClearPath(data.OriginalPath!, data.RoundedOriginalBounds);
-        memberImage.EnqueueDrawImage(data.LocalMatrix, data.Image, RegularPaint, false);
+        var finalPaint = RegularPaint;
+
+        if (lockAlpha)
+        {
+            finalPaint = LockedAlphaPaint;
+        }
+
+        memberImage.EnqueueDrawImage(data.LocalMatrix, data.Image, finalPaint, false);
         hasEnqueudImages = true;
 
         var affectedArea = memberImage.FindAffectedArea();

@@ -15,7 +15,6 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
     private float strokeWidth = 0;
 
     public Matrix3X3 TransformationMatrix { get; set; } = Matrix3X3.Identity;
-
     public Paintable Stroke { get; set; } = Colors.White;
     public Paintable FillPaintable { get; set; } = Colors.White;
 
@@ -78,8 +77,33 @@ public abstract class ShapeVectorData : ICacheable, ICloneable, IReadOnlyShapeVe
 
     public override int GetHashCode()
     {
-        return GetCacheHash();
+        return HashCode.Combine(TransformationMatrix, Stroke, FillPaintable, Fill);
     }
 
     public abstract VectorPath ToPath(bool transformed = false);
+
+    protected bool Equals(ShapeVectorData other)
+    {
+        return TransformationMatrix.Equals(other.TransformationMatrix) && Stroke.Equals(other.Stroke) && FillPaintable.Equals(other.FillPaintable) && Fill == other.Fill && StrokeWidth.Equals(other.StrokeWidth);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null)
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+
+        if (obj.GetType() != GetType())
+        {
+            return false;
+        }
+
+        return Equals((ShapeVectorData)obj);
+    }
 }

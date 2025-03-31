@@ -57,6 +57,11 @@
                         <Style Selector=":is(Control).leftOffset">
                             <Setter Property="Margin" Value="20, 0, 0, 0" />
                         </Style>
+                        <Style Selector=":is(TextBlock).subtext">
+                            <Setter Property="FontSize" Value="12" />
+                            <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundLowBrush}" />
+                            <Setter Property="TextWrapping" Value="Wrap" />
+                        </Style>
                     </Grid.Styles>
                     <ScrollViewer>
                         <ScrollViewer.IsVisible>
@@ -88,6 +93,8 @@
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
 
+                            <TextBlock Classes="leftOffset subtext" ui:Translator.Key="LANGUAGE_INFO" />
+
                             <TextBlock ui:Translator.Key="MISC" Classes="h5" />
 
                             <CheckBox Classes="leftOffset" ui:Translator.Key="SHOW_STARTUP_WINDOW"
@@ -95,9 +102,6 @@
 
                             <CheckBox Classes="leftOffset" ui:Translator.Key="DISABLE_NEWS_PANEL"
                                       IsChecked="{Binding SettingsSubViewModel.File.DisableNewsPanel}" />
-
-                            <CheckBox Classes="leftOffset" ui:Translator.Key="SHOW_IMAGE_PREVIEW_TASKBAR"
-                                      IsChecked="{Binding SettingsSubViewModel.General.ImagePreviewInTaskbar}" />
 
                             <StackPanel Classes="leftOffset" Orientation="Horizontal">
                                 <Label
@@ -208,6 +212,13 @@
                             <CheckBox Classes="leftOffset"
                                       IsChecked="{Binding SettingsSubViewModel.General.IsDebugModeEnabled}"
                                       ui:Translator.Key="ENABLE_DEBUG_MODE" d:Content="Enable Debug Mode" />
+
+                            <TextBlock ui:Translator.Key="MISC"/>
+
+                            <CheckBox Classes="leftOffset"
+                                      IsChecked="{Binding SettingsSubViewModel.General.AnalyticsEnabled, Mode=TwoWay}"
+                                      ui:Translator.Key="ENABLE_ANALYTICS" d:Content="Enable Analytics" />
+                            <TextBlock ui:Translator.Key="ANALYTICS_INFO" Classes="leftOffset subtext"/>
                             <!--<Label Classes="{StaticResource SettingsText}" VerticalAlignment="Center">
                             <ui1:Hyperlink Command="{cmds:Command PixiEditor.Debug.OpenCrashReportsDirectory}" Style="{StaticResource SettingsLink}">
                                 <Run ui:Translator.Key="OPEN_CRASH_REPORTS_DIR" d:Text="Open crash reports directory"/>

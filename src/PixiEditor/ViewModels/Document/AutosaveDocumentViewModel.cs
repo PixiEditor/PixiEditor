@@ -99,7 +99,7 @@ internal class AutosaveDocumentViewModel : ObservableObject
             string filePath = AutosavePath;
             Directory.CreateDirectory(Directory.GetParent(filePath)!.FullName);
             ExportConfig config = new ExportConfig(Document.SizeBindable);
-            bool success = Exporter.TrySave(Document, filePath, config, null) == SaveResult.Success;
+            bool success = Exporter.TrySave(Document, filePath, config, null).ResultType == SaveResultType.Success;
             if (success)
             {
                 AddAutosaveHistoryEntry(type, AutosaveHistoryResult.SavedBackup);

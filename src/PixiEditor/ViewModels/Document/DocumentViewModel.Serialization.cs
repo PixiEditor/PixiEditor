@@ -282,6 +282,7 @@ internal partial class DocumentViewModel
         });
 
         var image = CreateImageElement(resizeFactor, tightBounds.Value, toSave, useNearestNeighborForImageUpscaling);
+        image.Id.Unit = new SvgStringUnit(member.NodeNameBindable);
 
         elementContainer.Children.Add(image);
     }
@@ -325,7 +326,8 @@ internal partial class DocumentViewModel
         text.FontStyle.Unit = new SvgEnumUnit<SvgFontStyle>(font.Italic ? SvgFontStyle.Italic : SvgFontStyle.Normal);
         text.Stroke.Unit = new SvgPaintServerUnit(textData.Stroke);
         text.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(textData.StrokeWidth);
-        text.Fill.Unit = new SvgPaintServerUnit(textData.Fill ? textData.FillPaintable : new ColorPaintable(Colors.Transparent));
+        text.Fill.Unit =
+            new SvgPaintServerUnit(textData.Fill ? textData.FillPaintable : new ColorPaintable(Colors.Transparent));
 
         return text;
     }
@@ -442,6 +444,16 @@ internal partial class DocumentViewModel
                 }
             }
 
+            int? pairNodeId = null;
+            if (node is IPairNode pairNode)
+            {
+                if (pairNode.OtherNode != Guid.Empty &&
+                    nodeIdMap.TryGetValue(pairNode.OtherNode, out var value))
+                {
+                    pairNodeId = value;
+                }
+            }
+
             Node parserNode = new Node()
             {
                 Id = nodeIdMap[node.Id],
@@ -451,7 +463,8 @@ internal partial class DocumentViewModel
                 InputPropertyValues = properties,
                 AdditionalData = converted,
                 KeyFrames = keyFrames,
-                InputConnections = connections.ToArray()
+                InputConnections = connections.ToArray(),
+                PairId = pairNodeId,
             };
 
             targetGraph.AllNodes.Add(parserNode);
@@ -540,6 +553,8 @@ internal partial class DocumentViewModel
         {
             if (keyFrame is IKeyFrameChildrenContainer container)
             {
+                if (!nodeIdMap.ContainsKey(keyFrame.NodeId)) continue;
+
                 KeyFrameGroup group = new();
                 group.NodeId = nodeIdMap[keyFrame.NodeId];
                 group.Enabled = keyFrame.IsVisible;
@@ -548,6 +563,9 @@ internal partial class DocumentViewModel
                 {
                     if (child is IReadOnlyRasterKeyFrame rasterKeyFrame)
                     {
+                        if (!nodeIdMap.ContainsKey(rasterKeyFrame.NodeId)) continue;
+                        if (!keyFrameIds.ContainsKey(rasterKeyFrame.Id)) continue;
+
                         BuildRasterKeyFrame(rasterKeyFrame, graph, group, nodeIdMap, keyFrameIds);
                     }
                 }

@@ -50,8 +50,8 @@ internal class TransformReferenceLayerExecutor : UpdateableChangeExecutor, ITran
         document.ReferenceLayerHandler.IsTransforming = false;
     }
 
-    public bool IsFeatureEnabled(IExecutorFeature feature)
+    public bool IsFeatureEnabled<T>()
     {
-        return feature is ITransformableExecutor;
+        return typeof(T) == typeof(ITransformableExecutor);
     }
 }

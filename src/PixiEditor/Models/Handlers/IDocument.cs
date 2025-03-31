@@ -61,7 +61,7 @@ internal interface IDocument : IHandler
     public void SetSize(VecI infoSize);
 
     public Color PickColor(VecD controllerLastPrecisePosition, DocumentScope scope, bool includeReference,
-        bool includeCanvas, int frame, bool isTopMost);
+        bool includeCanvas, int frame, bool isTopMost, string? customOutput);
 
     public HashSet<Guid> ExtractSelectedLayers(bool includeFoldersWithMask = false);
     public void UpdateSavedState();

@@ -413,8 +413,8 @@ internal partial class ExportFilePopup : PixiEditorPopup
         {
             Title = new LocalizedString("EXPORT_SAVE_TITLE"),
             SuggestedFileName = SuggestedName,
-            SuggestedStartLocation =
-                await GetTopLevel(this).StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents),
+            SuggestedStartLocation = string.IsNullOrEmpty(document.FullFilePath) ? await GetTopLevel(this).StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents) : await GetTopLevel(this).StorageProvider.TryGetFolderFromPathAsync(document.FullFilePath),
+                
             FileTypeChoices =
                 SupportedFilesHelper.BuildSaveFilter(SelectedExportIndex == 1
                     ? FileTypeDialogDataSet.SetKind.Video

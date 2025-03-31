@@ -45,7 +45,7 @@ public static class FloodFillHelper
         VecI startingPos,
         Color drawingColor,
         float tolerance,
-        int frame)
+        int frame, bool lockTransparency)
     {
         if (selection is not null && !selection.Contains(startingPos.X + 0.5f, startingPos.Y + 0.5f))
             return new();
@@ -76,6 +76,11 @@ public static class FloodFillHelper
 
         if ((colorSpaceCorrectedColor.A == 0) || colorToReplace == colorSpaceCorrectedColor)
             return new();
+
+        if (colorToReplace.A == 0 && lockTransparency)
+        {
+            return new();
+        }
 
         RectI globalSelectionBounds = (RectI?)selection?.TightBounds ?? new RectI(VecI.Zero, document.Size);
 

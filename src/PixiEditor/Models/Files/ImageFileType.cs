@@ -28,7 +28,7 @@ internal abstract class ImageFileType : IoFileType
             job?.Report(0, new LocalizedString("GENERATING_SPRITE_SHEET"));
             finalSurface = GenerateSpriteSheet(document, exportConfig, job);
             if (finalSurface == null)
-                return SaveResult.UnknownError;
+                return new SaveResult(SaveResultType.CustomError, "ERR_FAILED_GENERATE_SPRITE_SHEET");
         }
         else
         {
@@ -37,12 +37,12 @@ internal abstract class ImageFileType : IoFileType
             var exportSize = exportConfig.ExportSize;
             if (exportSize.X <= 0 || exportSize.Y <= 0)
             {
-                return SaveResult.UnknownError; // TODO: Add InvalidParameters error type
+                return new SaveResult(SaveResultType.CustomError, "ERR_EXPORT_SIZE_INVALID");
             }
 
             var maybeBitmap = document.TryRenderWholeImage(0, exportSize);
             if (maybeBitmap.IsT0)
-                return SaveResult.ConcurrencyError;
+                return new SaveResult(SaveResultType.ConcurrencyError);
 
             finalSurface = maybeBitmap.AsT1;
         }
@@ -51,7 +51,7 @@ internal abstract class ImageFileType : IoFileType
 
         if (mappedFormat == EncodedImageFormat.Unknown)
         {
-            return SaveResult.UnknownError;
+            return new SaveResult(SaveResultType.CustomError, new LocalizedString("ERR_UNKNOWN_IMG_FORMAT", EncodedImageFormat));
         }
 
         UniversalFileEncoder encoder = new(mappedFormat);
@@ -72,7 +72,7 @@ internal abstract class ImageFileType : IoFileType
             job?.Report(0, new LocalizedString("GENERATING_SPRITE_SHEET"));
             finalSurface = GenerateSpriteSheet(document, config, job);
             if (finalSurface == null)
-                return SaveResult.UnknownError;
+                return new SaveResult(SaveResultType.CustomError, "ERR_FAILED_GENERATE_SPRITE_SHEET");
         }
         else
         {
@@ -81,12 +81,12 @@ internal abstract class ImageFileType : IoFileType
             var exportSize = config.ExportSize;
             if (exportSize.X <= 0 || exportSize.Y <= 0)
             {
-                return SaveResult.UnknownError; // TODO: Add InvalidParameters error type
+                return new SaveResult(SaveResultType.CustomError, "ERR_EXPORT_SIZE_INVALID");
             }
 
             var maybeBitmap = document.TryRenderWholeImage(0, exportSize);
             if (maybeBitmap.IsT0)
-                return SaveResult.ConcurrencyError;
+                return new SaveResult(SaveResultType.ConcurrencyError);
 
             finalSurface = maybeBitmap.AsT1;
         }
@@ -95,7 +95,7 @@ internal abstract class ImageFileType : IoFileType
 
         if (mappedFormat == EncodedImageFormat.Unknown)
         {
-            return SaveResult.UnknownError;
+            return new SaveResult(SaveResultType.CustomError, new LocalizedString("ERR_UNKNOWN_IMG_FORMAT", EncodedImageFormat));
         }
 
         UniversalFileEncoder encoder = new(mappedFormat);
@@ -160,22 +160,22 @@ internal abstract class ImageFileType : IoFileType
         }
         catch (SecurityException)
         {
-            return SaveResult.SecurityError;
+            return new SaveResult(SaveResultType.SecurityError);
         }
         catch (UnauthorizedAccessException)
         {
-            return SaveResult.SecurityError;
+            return new SaveResult(SaveResultType.SecurityError);
         }
         catch (IOException)
         {
-            return SaveResult.IoError;
+            return new SaveResult(SaveResultType.IoError);
         }
         catch
         {
-            return SaveResult.UnknownError;
+            return new SaveResult(SaveResultType.UnknownError);
         }
 
-        return SaveResult.Success;
+        return new SaveResult(SaveResultType.Success);
     }
 
     /// <summary>
@@ -193,21 +193,21 @@ internal abstract class ImageFileType : IoFileType
         }
         catch (SecurityException)
         {
-            return SaveResult.SecurityError;
+            return new SaveResult(SaveResultType.SecurityError);
         }
         catch (UnauthorizedAccessException)
         {
-            return SaveResult.SecurityError;
+            return new SaveResult(SaveResultType.SecurityError);
         }
         catch (IOException)
         {
-            return SaveResult.IoError;
+            return new SaveResult(SaveResultType.IoError);
         }
         catch
         {
-            return SaveResult.UnknownError;
+            return new SaveResult(SaveResultType.UnknownError);
         }
 
-        return SaveResult.Success;
+        return new SaveResult(SaveResultType.Success);
     }
 }
