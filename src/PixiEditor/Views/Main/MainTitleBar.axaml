@@ -86,6 +86,7 @@
             </Border>
         </StackPanel>
         <main:MiniAnimationPlayer
+            Name="MiniPlayer"
             ActiveFrame="{Binding ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, Source={viewModels:MainVM DocumentManagerSVM}, Mode=TwoWay}"
             FramesCount="{Binding ActiveDocument.AnimationDataViewModel.FramesCount, Source={viewModels:MainVM DocumentManagerSVM}}"
             IsPlaying="{Binding ActiveDocument.AnimationDataViewModel.IsPlayingBindable, Source={viewModels:MainVM DocumentManagerSVM}, Mode=TwoWay}"
