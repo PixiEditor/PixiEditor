@@ -5,6 +5,7 @@ using PixiDocks.Core.Docking.Events;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.DocumentModels;
 using Drawie.Numerics;
+using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.Views.Visuals;
@@ -12,7 +13,7 @@ using PixiEditor.Views.Visuals;
 namespace PixiEditor.ViewModels.SubViewModels;
 #nullable enable
 internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockableContent, IDockableCloseEvents,
-    IDockableSelectionEvents
+    IDockableSelectionEvents, IViewport
 {
     public DocumentViewModel Document { get; }
     public ExecutionTrigger<VecI> CenterViewportTrigger { get; } = new ExecutionTrigger<VecI>();

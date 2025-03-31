@@ -4,6 +4,7 @@ internal class CreateNodeFromName_Change : Change
 {
     private string nodeUniqueName;
     private Guid id;
+    private Guid pairId;
 
     private Type typeToCreate;
 
@@ -11,10 +12,11 @@ internal class CreateNodeFromName_Change : Change
     private CreateNode_Change change;
 
     [GenerateMakeChangeAction]
-    public CreateNodeFromName_Change(string nodeUniqueName, Guid id)
+    public CreateNodeFromName_Change(string nodeUniqueName, Guid id, Guid pairId)
     {
         this.id = id;
         this.nodeUniqueName = nodeUniqueName;
+        this.pairId = pairId;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -26,7 +28,7 @@ internal class CreateNodeFromName_Change : Change
         }
 
         typeToCreate = nodeType;
-        change = new CreateNode_Change(nodeType, id);
+        change = new CreateNode_Change(nodeType, id, pairId);
         return true;
     }
 

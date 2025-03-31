@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using PixiDocks.Core.Docking;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands;
+using PixiEditor.Models.Handlers;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.Views;
@@ -21,7 +22,7 @@ namespace PixiEditor.ViewModels.SubViewModels;
 
 #nullable enable
 [Commands_Command.Group("PixiEditor.Window", "WINDOWS")]
-internal class WindowViewModel : SubViewModel<ViewModelMain>
+internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
 {
     private CommandController commandController;
     public RelayCommand<string> ShowAvalonDockWindowCommand { get; set; }

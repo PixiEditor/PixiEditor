@@ -15,12 +15,14 @@ internal class CreateNode_Change : Change
 {
     private Type nodeType;
     private Guid id;
+    private Guid? pairId;
 
     [GenerateMakeChangeAction]
-    public CreateNode_Change(Type nodeType, Guid id)
+    public CreateNode_Change(Type nodeType, Guid id, Guid pairId)
     {
         this.id = id;
         this.nodeType = nodeType;
+        this.pairId = pairId == Guid.Empty ? null : pairId;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -36,6 +38,10 @@ internal class CreateNode_Change : Change
             id = Guid.NewGuid();
 
         Node node = NodeOperations.CreateNode(nodeType, target);
+        if (pairId.HasValue && node is IPairNode pairNode)
+        {
+            pairNode.OtherNode = pairId.Value;
+        }
 
         node.Position = new VecD(0, 0);
         node.Id = id;

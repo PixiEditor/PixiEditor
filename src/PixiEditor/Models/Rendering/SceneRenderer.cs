@@ -40,7 +40,7 @@ internal class SceneRenderer
 
         string adjustedTargetOutput = targetOutput ?? "";
 
-        IReadOnlyNodeGraph finalGraph = SolveFinalNodeGraph(targetOutput);
+        IReadOnlyNodeGraph finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
         bool shouldRerender = ShouldRerender(target, resolution, adjustedTargetOutput, finalGraph);
         if (shouldRerender)
         {
@@ -184,42 +184,7 @@ internal class SceneRenderer
         return solveMatrixDiff;
     }
 
-    private IReadOnlyNodeGraph SolveFinalNodeGraph(string? targetOutput)
-    {
-        if (targetOutput == null)
-        {
-            return Document.NodeGraph;
-        }
 
-        CustomOutputNode[] outputNodes = Document.NodeGraph.AllNodes.OfType<CustomOutputNode>().ToArray();
-
-        foreach (CustomOutputNode outputNode in outputNodes)
-        {
-            if (outputNode.OutputName.Value == targetOutput)
-            {
-                return GraphFromOutputNode(outputNode);
-            }
-        }
-
-        return Document.NodeGraph;
-    }
-
-    private IReadOnlyNodeGraph GraphFromOutputNode(CustomOutputNode outputNode)
-    {
-        NodeGraph graph = new();
-        outputNode.TraverseBackwards(n =>
-        {
-            if (n is Node node)
-            {
-                graph.AddNode(node);
-            }
-
-            return true;
-        });
-
-        graph.CustomOutputNode = outputNode;
-        return graph;
-    }
 
     private bool HighDpiRenderNodePresent(IReadOnlyNodeGraph documentNodeGraph)
     {
@@ -246,7 +211,7 @@ internal class SceneRenderer
         double onionOpacity = animationData.OnionOpacity / 100.0;
         double alphaFalloffMultiplier = 1.0 / animationData.OnionFrames;
 
-        var finalGraph = SolveFinalNodeGraph(targetOutput);
+        var finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
 
         // Render previous frames'
         for (int i = 1; i <= animationData.OnionFrames; i++)

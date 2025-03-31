@@ -13,6 +13,7 @@ internal class ColorPickerToolExecutor : UpdateableChangeExecutor
     private bool includeCanvas;
     private DocumentScope scope;
     private IColorsHandler? colorsViewModel;
+    private IWindowHandler? windowHandler;
 
     public override ExecutionState Start()
     {
@@ -25,8 +26,13 @@ internal class ColorPickerToolExecutor : UpdateableChangeExecutor
         scope = tool.Mode;
         includeReference = tool.PickFromReferenceLayer && document!.ReferenceLayerHandler.ReferenceTexture is not null;
         includeCanvas = tool.PickFromCanvas;
-        
-        colorsViewModel.PrimaryColor = document.PickColor(controller.LastPrecisePosition, scope, includeReference, includeCanvas, document.AnimationHandler.ActiveFrameBindable, document.ReferenceLayerHandler.IsTopMost);
+
+        windowHandler = GetHandler<IWindowHandler>();
+
+        string? customOutput = windowHandler.ActiveWindow is IViewport viewport ? viewport.RenderOutputName : null;
+        customOutput = customOutput == "DEFAULT" ? null : customOutput;
+
+        colorsViewModel.PrimaryColor = document.PickColor(controller.LastPrecisePosition, scope, includeReference, includeCanvas, document.AnimationHandler.ActiveFrameBindable, document.ReferenceLayerHandler.IsTopMost, customOutput);
         return ExecutionState.Success;
     }
 
@@ -34,12 +40,19 @@ internal class ColorPickerToolExecutor : UpdateableChangeExecutor
     {
         if (!includeReference)
             return;
-        colorsViewModel.PrimaryColor = document.PickColor(pos, scope, includeReference, includeCanvas, document.AnimationHandler.ActiveFrameBindable, document.ReferenceLayerHandler.IsTopMost);
+
+        string? customOutput = windowHandler?.ActiveWindow is IViewport viewport ? viewport.RenderOutputName : null;
+        customOutput = customOutput == "DEFAULT" ? null : customOutput;
+
+        colorsViewModel.PrimaryColor = document.PickColor(pos, scope, includeReference, includeCanvas, document.AnimationHandler.ActiveFrameBindable, document.ReferenceLayerHandler.IsTopMost, customOutput);
     }
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        colorsViewModel.PrimaryColor = document.PickColor(pos, scope, includeReference, includeCanvas, document.AnimationHandler.ActiveFrameBindable, document.ReferenceLayerHandler.IsTopMost);
+        string? customOutput = windowHandler?.ActiveWindow is IViewport viewport ? viewport.RenderOutputName : null;
+        customOutput = customOutput == "DEFAULT" ? null : customOutput;
+
+        colorsViewModel.PrimaryColor = document.PickColor(pos, scope, includeReference, includeCanvas, document.AnimationHandler.ActiveFrameBindable, document.ReferenceLayerHandler.IsTopMost, customOutput);
     }
 
     public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)

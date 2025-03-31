@@ -444,6 +444,16 @@ internal partial class DocumentViewModel
                 }
             }
 
+            int? pairNodeId = null;
+            if (node is IPairNode pairNode)
+            {
+                if (pairNode.OtherNode != Guid.Empty &&
+                    nodeIdMap.TryGetValue(pairNode.OtherNode, out var value))
+                {
+                    pairNodeId = value;
+                }
+            }
+
             Node parserNode = new Node()
             {
                 Id = nodeIdMap[node.Id],
@@ -453,7 +463,8 @@ internal partial class DocumentViewModel
                 InputPropertyValues = properties,
                 AdditionalData = converted,
                 KeyFrames = keyFrames,
-                InputConnections = connections.ToArray()
+                InputConnections = connections.ToArray(),
+                PairId = pairNodeId,
             };
 
             targetGraph.AllNodes.Add(parserNode);
@@ -553,6 +564,7 @@ internal partial class DocumentViewModel
                     if (child is IReadOnlyRasterKeyFrame rasterKeyFrame)
                     {
                         if (!nodeIdMap.ContainsKey(rasterKeyFrame.NodeId)) continue;
+                        if (!keyFrameIds.ContainsKey(rasterKeyFrame.Id)) continue;
 
                         BuildRasterKeyFrame(rasterKeyFrame, graph, group, nodeIdMap, keyFrameIds);
                     }

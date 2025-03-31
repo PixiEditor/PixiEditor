@@ -203,7 +203,7 @@ public class DocumentRenderer : IPreviewRenderable
         return true;
     }
 
-    public void RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime, VecI renderSize)
+    public void RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime, VecI renderSize, string? customOutput = null)
     {
         IsBusy = true;
 
@@ -223,7 +223,19 @@ public class DocumentRenderer : IPreviewRenderable
         RenderContext context =
             new(renderTexture.DrawingSurface, frameTime, ChunkResolution.Full, Document.Size,
                 Document.ProcessingColorSpace) { FullRerender = true };
-        Document.NodeGraph.Execute(context);
+
+        bool hasCustomOutput = !string.IsNullOrEmpty(customOutput) && customOutput != "DEFAULT";
+
+        var graph = hasCustomOutput
+            ? RenderingUtils.SolveFinalNodeGraph(customOutput, Document)
+            : Document.NodeGraph;
+
+        if (hasCustomOutput)
+        {
+            context.TargetOutput = customOutput;
+        }
+
+        graph.Execute(context);
 
         toRenderOn.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
 
