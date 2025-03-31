@@ -104,9 +104,11 @@ internal abstract class Setting : ObservableObject
     public string Tooltip { get; set; }
 
     public bool HasLabel => !string.IsNullOrEmpty(Label);
+    public bool IsBuiltInLabelVisible => HasLabel && IsLabelVisible;
     public bool HasIcon => !string.IsNullOrEmpty(Icon);
-
     public bool AllowIconLabel { get; protected set; } = true;
+
+    public bool IsLabelVisible { get; set; } = true;
 
     public object UserValue
     {

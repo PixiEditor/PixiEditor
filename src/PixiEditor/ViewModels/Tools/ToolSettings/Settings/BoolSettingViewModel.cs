@@ -19,5 +19,6 @@ internal sealed class BoolSettingViewModel : Setting<bool>
     {
         Label = label;
         Value = isChecked;
+        IsLabelVisible = false;
     }
 }
