@@ -29,9 +29,9 @@
                 </Border>
             </dialogs:DialogTitleBar.AdditionalElement>
         </dialogs:DialogTitleBar>
-        <Svg DockPanel.Dock="Left" HorizontalAlignment="Left" Path="/Images/PixiEditorLogo.svg"
-             Width="20" Height="20">
-            <Svg.Margin>
+        <ToggleButton Name="LogoButton" Padding="0" BorderThickness="0" DockPanel.Dock="Left"
+                      HorizontalAlignment="Left" Width="20" Height="20">
+            <ToggleButton.Margin>
                 <OnPlatform>
                     <OnPlatform.macOS>
                         <Thickness>75, 0, 0, 0</Thickness>
@@ -40,8 +40,33 @@
                         <Thickness>10, 0, 0, 0</Thickness>
                     </OnPlatform.Default>
                 </OnPlatform>
-            </Svg.Margin>
-        </Svg>
+            </ToggleButton.Margin>
+            <ToggleButton.Background>
+                <VisualBrush>
+                    <VisualBrush.Visual>
+                        <Svg Path="/Images/PixiEditorLogo.svg" />
+                    </VisualBrush.Visual>
+                </VisualBrush>
+            </ToggleButton.Background>
+            <ToggleButton.Flyout>
+                <Flyout Placement="BottomEdgeAlignedLeft">
+                    <Flyout.Content>
+                        <StackPanel Margin="5">
+                            <TextBlock Text="PixiEditor" FontSize="20" />
+                            <TextBlock Text="{Binding UpdateViewModel.VersionText}" />
+                            <TextBlock Text="{Binding UpdateViewModel.UpdateStateString}" />
+                            <Button ui:Translator.Key="DOWNLOAD_UPDATE"
+                                    Command="{Binding UpdateViewModel.DownloadCommand}"
+                                    IsVisible="{Binding UpdateViewModel.IsUpdateAvailable}" />
+                            <Button ui:Translator.Key="SWITCH_TO_NEW_VERSION"
+                                    Command="{Binding UpdateViewModel.InstallCommand}"
+                                    IsVisible="{Binding UpdateViewModel.UpdateReadyToInstall}" />
+                        </StackPanel>
+                    </Flyout.Content>
+                </Flyout>
+            </ToggleButton.Flyout>
+        </ToggleButton>
+
         <StackPanel Orientation="Horizontal">
             <StackPanel.Margin>
                 <OnPlatform>

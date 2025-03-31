@@ -147,7 +147,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         RegistrySubViewModel = services.GetService<RegistryViewModel>();
 
         AdditionalContentSubViewModel = services.GetService<AdditionalContentViewModel>();
-        MenuBarViewModel = new MenuBarViewModel(AdditionalContentSubViewModel);
+        MenuBarViewModel = new MenuBarViewModel(AdditionalContentSubViewModel, UpdateSubViewModel);
 
         CommandController.Init(services);
         LayoutSubViewModel.LayoutManager.InitLayout(this);

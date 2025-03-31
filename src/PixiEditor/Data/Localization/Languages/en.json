@@ -989,5 +989,8 @@
   "ERR_RENDERING_FAILED": "Rendering failed",
   "ENABLE_ANALYTICS": "Send anonymous analytics",
   "ANALYTICS_INFO": "We collect anonymous usage data to improve PixiEditor. No personal data is collected.",
-  "LANGUAGE_INFO": "All translations are community-driven. Join our Discord server for more information."
+  "LANGUAGE_INFO": "All translations are community-driven. Join our Discord server for more information.",
+  "UP_TO_DATE_UNKNOWN": "Couldn't check for updates",
+  "UP_TO_DATE": "PixiEditor is up to date",
+  "UPDATE_AVAILABLE": "Update {0} is available"
 }
