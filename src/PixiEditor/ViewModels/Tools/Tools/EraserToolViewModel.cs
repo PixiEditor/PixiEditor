@@ -27,7 +27,7 @@ internal class EraserToolViewModel : ToolViewModel, IEraserToolHandler
     public override bool IsErasable => true;
 
     public override string ToolNameLocalizationKey => "ERASER_TOOL";
-    public override BrushShape FinalBrushShape => PenShape == PenBrushShape.Square ? BrushShape.Square : BrushShapeSetting;
+    public override BrushShape FinalBrushShape => PaintShape == PaintBrushShape.Square ? BrushShape.Square : BrushShapeSetting;
     public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
 
     public override string DefaultIcon => PixiPerfectIcons.Eraser;
@@ -41,9 +41,9 @@ internal class EraserToolViewModel : ToolViewModel, IEraserToolHandler
     public BrushShape BrushShapeSetting => GetValue<BrushShape>();
 
     [Settings.Inherited(Notify = nameof(PenShapeChanged))]
-    public PenBrushShape PenShape
+    public PaintBrushShape PaintShape
     {
-        get => GetValue<PenBrushShape>();
+        get => GetValue<PaintBrushShape>();
         set
         {
             SetValue(value);

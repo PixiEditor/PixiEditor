@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Models.Handlers.Toolbars;
 
-public enum PenBrushShape
+public enum PaintBrushShape
 {
     Circle,
     Square,

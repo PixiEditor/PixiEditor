@@ -23,7 +23,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
         public override string ToolNameLocalizationKey => "PEN_TOOL";
 
         public override BrushShape FinalBrushShape =>
-            PenShape == PenBrushShape.Square ? BrushShape.Square : BrushShapeSetting;
+            PaintShape == PaintBrushShape.Square ? BrushShape.Square : BrushShapeSetting;
         
         public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
 
@@ -58,7 +58,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
         }
 
         [Settings.Inherited(Notify = nameof(PenShapeChanged))]
-        public PenBrushShape PenShape => GetValue<PenBrushShape>();
+        public PaintBrushShape PaintShape => GetValue<PaintBrushShape>();
 
         public override string DefaultIcon => PixiPerfectIcons.Pen;
 
@@ -155,7 +155,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
 
         private void PenShapeChanged()
         {
-            OnPropertyChanged(nameof(PenShape));
+            OnPropertyChanged(nameof(PaintShape));
             OnPropertyChanged(nameof(FinalBrushShape));
         }
     }

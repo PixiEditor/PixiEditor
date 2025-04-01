@@ -16,13 +16,16 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
     private readonly bool repeat;
     private int frame;
     private int lastAppliedPointIndex = -1;
+    private bool squareBrush;
 
     private List<VecI> ellipseLines;
+    private RectI squareRect;
 
     private CommittedChunkStorage? savedChunks;
 
     [GenerateUpdateableChangeActions]
     public ChangeBrightness_UpdateableChange(Guid layerGuid, VecI pos, float correctionFactor, int strokeWidth,
+        bool square,
         bool repeat, int frame)
     {
         this.layerGuid = layerGuid;
@@ -30,11 +33,16 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
         this.strokeWidth = strokeWidth;
         this.repeat = repeat;
         this.frame = frame;
+        this.squareBrush = square;
         positions.Add(pos);
 
-        ellipseLines =
-            EllipseHelper.SplitEllipseIntoLines(
-                (EllipseHelper.GenerateEllipseFromRect(new RectI(0, 0, strokeWidth, strokeWidth), 0)));
+        squareRect = new RectI(0, 0, strokeWidth, strokeWidth);
+        if (!square)
+        {
+            ellipseLines =
+                EllipseHelper.SplitEllipseIntoLines(
+                    (EllipseHelper.GenerateEllipseFromRect(squareRect, 0)));
+        }
     }
 
     [UpdateChangeMethod]
@@ -67,8 +75,16 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
         for (int i = Math.Max(lastAppliedPointIndex, 0); i < positions.Count; i++)
         {
             VecI pos = positions[i];
-            ChangeBrightness(ellipseLines, strokeWidth, pos + new VecI(-strokeWidth / 2), correctionFactor, repeat,
-                layerImage);
+            if (squareBrush)
+            {
+                ChangeBrightness(squareRect, pos + new VecI(-strokeWidth / 2), correctionFactor, repeat,
+                    layerImage);
+            }
+            else
+            {
+                ChangeBrightness(ellipseLines, pos + new VecI(-strokeWidth / 2), correctionFactor, repeat,
+                    layerImage);
+            }
         }
 
         var affected = layerImage.FindAffectedArea(queueLength);
@@ -79,11 +95,9 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
     }
 
     private static void ChangeBrightness(
-        List<VecI> circleLines, int circleDiameter, VecI offset, float correctionFactor, bool repeat,
+        List<VecI> circleLines, VecI offset, float correctionFactor, bool repeat,
         ChunkyImage layerImage)
     {
-        // TODO: Circle diameter is unused, check if it should be used
-
         for (var i = 0; i < circleLines.Count - 1; i++)
         {
             VecI left = circleLines[i];
@@ -94,6 +108,27 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
             {
                 layerImage.EnqueueDrawPixel(
                     pos + offset,
+                    (commitedColor, upToDateColor) =>
+                    {
+                        Color newColor = ColorHelper.ChangeColorBrightness(repeat ? upToDateColor : commitedColor,
+                            correctionFactor);
+                        return ColorHelper.ChangeColorBrightness(newColor, correctionFactor);
+                    },
+                    BlendMode.Src);
+            }
+        }
+    }
+
+    private static void ChangeBrightness(
+        RectI square, VecI offset, float correctionFactor, bool repeat,
+        ChunkyImage layerImage)
+    {
+        for (int i = square.X; i < square.X + square.Width; i++)
+        {
+            for (int j = square.Y; j < square.Y + square.Height; j++)
+            {
+                layerImage.EnqueueDrawPixel(
+                    new VecI(i, j) + offset,
                     (commitedColor, upToDateColor) =>
                     {
                         Color newColor = ColorHelper.ChangeColorBrightness(repeat ? upToDateColor : commitedColor,
@@ -121,8 +156,16 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, layerImage, layerGuid, false);
             foreach (VecI pos in positions)
             {
-                ChangeBrightness(ellipseLines, strokeWidth, pos + new VecI(-strokeWidth / 2), correctionFactor, repeat,
-                    layerImage);
+                if (squareBrush)
+                {
+                    ChangeBrightness(squareRect, pos + new VecI(-strokeWidth / 2), correctionFactor, repeat,
+                        layerImage);
+                }
+                else
+                {
+                    ChangeBrightness(ellipseLines, pos + new VecI(-strokeWidth / 2), correctionFactor, repeat,
+                        layerImage);
+                }
             }
         }
 

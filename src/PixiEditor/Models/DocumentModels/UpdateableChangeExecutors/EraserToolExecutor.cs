@@ -14,7 +14,7 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
 internal class EraserToolExecutor : UpdateableChangeExecutor
 {
-    public bool SquareBrush => penToolbar.PenShape == PenBrushShape.Square;
+    public bool SquareBrush => penToolbar.PaintShape == PaintBrushShape.Square;
     private Guid guidValue;
     private Color color;
     private double toolSize;

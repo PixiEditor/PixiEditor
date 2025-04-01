@@ -30,10 +30,10 @@ internal class PenToolbar : Toolbar, IPenToolbar
         set => GetSetting<SizeSettingViewModel>(nameof(ToolSize)).Value = value;
     }
 
-    public PenBrushShape PenShape
+    public PaintBrushShape PaintShape
     {
-        get => GetSetting<EnumSettingViewModel<PenBrushShape>>(nameof(PenShape)).Value;
-        set => GetSetting<EnumSettingViewModel<PenBrushShape>>(nameof(PenShape)).Value = value;
+        get => GetSetting<EnumSettingViewModel<PaintBrushShape>>(nameof(PaintShape)).Value;
+        set => GetSetting<EnumSettingViewModel<PaintBrushShape>>(nameof(PaintShape)).Value = value;
     }
 
     public override void OnLoadedSettings()
@@ -49,6 +49,6 @@ internal class PenToolbar : Toolbar, IPenToolbar
         var setting = new SizeSettingViewModel(nameof(ToolSize), "TOOL_SIZE_LABEL");
         setting.ValueChanged += (_, _) => OnPropertyChanged(nameof(ToolSize));
         AddSetting(setting);
-        AddSetting(new EnumSettingViewModel<PenBrushShape>(nameof(PenShape), "PEN_SHAPE_SETTING") { IsExposed = false });
+        AddSetting(new EnumSettingViewModel<PaintBrushShape>(nameof(PaintShape), "PAINT_SHAPE_SETTING") { IsExposed = false });
     }
 }

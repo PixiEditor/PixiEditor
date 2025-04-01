@@ -15,7 +15,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
     private Guid guidValue;
     private Color color;
     public double ToolSize => penToolbar.ToolSize;
-    public bool SquareBrush => penToolbar.PenShape == PenBrushShape.Square;
+    public bool SquareBrush => penToolbar.PaintShape == PaintBrushShape.Square;
 
     private bool drawOnMask;
     private bool pixelPerfect;

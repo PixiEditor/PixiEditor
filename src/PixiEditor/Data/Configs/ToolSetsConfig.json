@@ -10,7 +10,7 @@
         "Settings": {
           "ExposePixelPerfectEnabled": true,
           "Spacing": 0,
-          "ExposePenShape": true
+          "ExposePaintShape": true
         }
       },
       "Select",
@@ -32,7 +32,7 @@
         "ToolName": "Eraser",
         "Settings": {
           "Spacing": 0,
-          "ExposePenShape": true,
+          "ExposePaintShape": true
         }
       },
       "ColorPicker",
@@ -53,7 +53,7 @@
           "ExposeHardness": true,
           "ExposeSpacing": true,
           "BrushShapeSetting": "CircleSmooth",
-          "PenShape": "Circle"
+          "PaintShape": "Circle"
         }
       },
       "Select",
@@ -106,7 +106,7 @@
           "ExposeHardness": true,
           "ExposeSpacing": true,
           "BrushShapeSetting": "CircleSmooth",
-          "PenShape": "Circle"
+          "PaintShape": "Circle"
         }
       },
       "ColorPicker",
