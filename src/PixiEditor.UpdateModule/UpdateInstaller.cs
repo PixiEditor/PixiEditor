@@ -24,7 +24,7 @@ public class UpdateInstaller
 
     public void Install(StringBuilder log)
     {
-        var processes = Process.GetProcessesByName("PixiEditor");
+        var processes = Process.GetProcessesByName("PixiEditor.Desktop");
         log.AppendLine($"Found {processes.Length} PixiEditor processes running.");
         if (processes.Length > 0)
         {
@@ -40,8 +40,18 @@ public class UpdateInstaller
         log.AppendLine("Files extracted");
         string dirWithFiles = Directory.GetDirectories(UpdateFilesPath)[0];
         log.AppendLine($"Copying files from {dirWithFiles} to {TargetDirectory}");
-        
-        CopyFilesToDestination(dirWithFiles, log);
+
+        try
+        {
+            CopyFilesToDestination(dirWithFiles, log);
+        }
+        catch (IOException ex)
+        {
+            log.AppendLine($"Error copying files: {ex.Message}. Retrying in 1 second...");
+            System.Threading.Thread.Sleep(1000);
+            CopyFilesToDestination(dirWithFiles, log);
+        }
+
         log.AppendLine("Files copied");
         log.AppendLine("Deleting archive and update files");
         
