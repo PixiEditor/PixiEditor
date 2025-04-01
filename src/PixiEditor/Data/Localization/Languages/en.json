@@ -757,7 +757,7 @@
   "MODULO": "Modulo",
   "STEP": "Step",
   "SMOOTH_STEP": "Smoothstep",
-  "PIXEL_ART_TOOLSET": "Pixel Art",
+  "PIXEL_PERFECT_TOOLSET": "Pixel Perfect",
   "VECTOR_TOOLSET": "Vector",
   "VECTOR_LAYER": "Vector Layer",
   "STROKE_COLOR_LABEL": "Stroke",
@@ -997,5 +997,6 @@
   "SWITCH_TO_NEW_VERSION": "Switch",
   "DOWNLOAD_UPDATE": "Download",
   "DOWNLOADING_UPDATE": "Downloading update...",
-  "CHECKING_FOR_UPDATES": "Checking for updates..."
+  "CHECKING_FOR_UPDATES": "Checking for updates...",
+  "PEN_SHAPE_SETTING": "Brush shape"
 }

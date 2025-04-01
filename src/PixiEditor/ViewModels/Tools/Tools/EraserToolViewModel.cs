@@ -6,6 +6,7 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using Drawie.Numerics;
+using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.Overlays.BrushShapeOverlay;
@@ -26,7 +27,7 @@ internal class EraserToolViewModel : ToolViewModel, IEraserToolHandler
     public override bool IsErasable => true;
 
     public override string ToolNameLocalizationKey => "ERASER_TOOL";
-    public override BrushShape BrushShape => BrushShapeSetting;
+    public override BrushShape FinalBrushShape => PenShape == PenBrushShape.Square ? BrushShape.Square : BrushShapeSetting;
     public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
 
     public override string DefaultIcon => PixiPerfectIcons.Eraser;
@@ -39,6 +40,17 @@ internal class EraserToolViewModel : ToolViewModel, IEraserToolHandler
         Notify = nameof(BrushShapeChanged))]
     public BrushShape BrushShapeSetting => GetValue<BrushShape>();
 
+    [Settings.Inherited(Notify = nameof(PenShapeChanged))]
+    public PenBrushShape PenShape
+    {
+        get => GetValue<PenBrushShape>();
+        set
+        {
+            SetValue(value);
+            OnPropertyChanged(nameof(FinalBrushShape));
+        }
+    }
+
     public override void UseTool(VecD pos)
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseEraserTool();
@@ -46,6 +58,11 @@ internal class EraserToolViewModel : ToolViewModel, IEraserToolHandler
 
     private void BrushShapeChanged()
     {
-        OnPropertyChanged(nameof(BrushShape));
+        OnPropertyChanged(nameof(FinalBrushShape));
+    }
+
+    private void PenShapeChanged()
+    {
+        OnPropertyChanged(nameof(FinalBrushShape));
     }
 }

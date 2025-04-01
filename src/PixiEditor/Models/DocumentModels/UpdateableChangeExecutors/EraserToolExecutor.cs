@@ -14,6 +14,7 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
 internal class EraserToolExecutor : UpdateableChangeExecutor
 {
+    public bool SquareBrush => penToolbar.PenShape == PenBrushShape.Square;
     private Guid guidValue;
     private Color color;
     private double toolSize;
@@ -22,12 +23,14 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
     private float spacing;
     
     private bool drawOnMask;
+    private IPenToolbar penToolbar;
 
     public override ExecutionState Start()
     {
         IStructureMemberHandler? member = document!.SelectedStructureMember;
         IEraserToolHandler? eraserTool = GetHandler<IEraserToolHandler>();
         IPenToolbar? toolbar = eraserTool?.Toolbar as IPenToolbar;
+        penToolbar = toolbar;
         IColorsHandler? colorsHandler = GetHandler<IColorsHandler>();
 
         if (colorsHandler is null || eraserTool is null || member is null || toolbar is null)
@@ -48,7 +51,7 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
 
         colorsHandler.AddSwatch(new PaletteColor(color.R, color.G, color.B));
         IAction? action = new LineBasedPen_Action(guidValue, Colors.White, controller!.LastPixelPosition, (float)toolSize, true,
-            antiAliasing, hardness, spacing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+            antiAliasing, hardness, spacing, SquareBrush, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);
 
         return ExecutionState.Success;
@@ -56,7 +59,7 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        IAction? action = new LineBasedPen_Action(guidValue, Colors.White, pos, (float)toolSize, true, antiAliasing, hardness, spacing, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
+        IAction? action = new LineBasedPen_Action(guidValue, Colors.White, pos, (float)toolSize, true, antiAliasing, hardness, spacing, SquareBrush, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);
     }
 

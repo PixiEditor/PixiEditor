@@ -432,7 +432,7 @@ internal class ViewportOverlays
 
         Binding brushShapeBinding = new()
         {
-            Source = ViewModelMain.Current.ToolsSubViewModel, Path = "ActiveTool.BrushShape", Mode = BindingMode.OneWay
+            Source = ViewModelMain.Current.ToolsSubViewModel, Path = "ActiveTool.FinalBrushShape", Mode = BindingMode.OneWay
         };
 
         MultiBinding isVisibleMultiBinding = new()
