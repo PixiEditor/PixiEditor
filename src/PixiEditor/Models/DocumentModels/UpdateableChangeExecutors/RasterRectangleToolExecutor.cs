@@ -26,7 +26,7 @@ internal class RasterRectangleToolExecutor : DrawableShapeToolExecutor<IRasterRe
         lastRect = (RectD)rect;
         lastRadians = rotationRad;
 
-        lastData = new ShapeData(rect.Center, rect.Size, rotationRad, (float)StrokeWidth, StrokePaintable, FillPaintable)
+        lastData = new ShapeData(rect.Center, rect.Size, toolViewModel.CornerRadius, rotationRad, (float)StrokeWidth, StrokePaintable, FillPaintable)
         {
             AntiAliasing = toolbar.AntiAliasing
         };
@@ -43,7 +43,7 @@ internal class RasterRectangleToolExecutor : DrawableShapeToolExecutor<IRasterRe
 
     protected override IAction SettingsChangedAction(string name, object value)
     {
-        lastData = new ShapeData(lastData.Center, lastData.Size, lastRadians, (float)StrokeWidth, StrokePaintable, FillPaintable)
+        lastData = new ShapeData(lastData.Center, lastData.Size, toolViewModel.CornerRadius, lastRadians, (float)StrokeWidth, StrokePaintable, FillPaintable)
         {
             AntiAliasing = toolbar.AntiAliasing
         };

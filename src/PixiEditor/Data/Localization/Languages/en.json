@@ -55,9 +55,7 @@
   "APPLY_TRANSFORM": "Apply transform",
   "INCREASE_TOOL_SIZE": "Increase tool size",
   "DECREASE_TOOL_SIZE": "Decrease tool size",
-  "TO_INSTALL_UPDATE": "to install update {0}",
-  "DOWNLOADING_UPDATE": "Downloading update...",
-  "UPDATE_READY": "Update is ready to be installed. Do you want to install it now?",
+ "UPDATE_READY": "Update is ready to be installed. Do you want to install it now?",
   "NEW_UPDATE": "New update",
   "COULD_NOT_UPDATE_WITHOUT_ADMIN": "Couldn't update without admin privileges. Please run PixiEditor as administrator.",
   "INSUFFICIENT_PERMISSIONS": "Insufficient permissions",
@@ -989,5 +987,15 @@
   "ERR_RENDERING_FAILED": "Rendering failed",
   "ENABLE_ANALYTICS": "Send anonymous analytics",
   "ANALYTICS_INFO": "We collect anonymous usage data to improve PixiEditor. No personal data is collected.",
-  "LANGUAGE_INFO": "All translations are community-driven. Join our Discord server for more information."
+  "LANGUAGE_INFO": "All translations are community-driven. Join our Discord server for more information.",
+  "UP_TO_DATE_UNKNOWN": "Couldn't check for updates",
+  "UP_TO_DATE": "PixiEditor is up to date",
+  "UPDATE_AVAILABLE": "Update {0} is available",
+  "CHECKING_UPDATES": "Checking for updates...",
+  "UPDATE_FAILED_DOWNLOAD": "Failed to download the update",
+  "UPDATE_READY_TO_INSTALL": "Update is ready. Switch to {0}?",
+  "SWITCH_TO_NEW_VERSION": "Switch",
+  "DOWNLOAD_UPDATE": "Download",
+  "DOWNLOADING_UPDATE": "Downloading update...",
+  "CHECKING_FOR_UPDATES": "Checking for updates..."
 }

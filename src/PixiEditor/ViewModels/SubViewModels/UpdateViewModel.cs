@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Threading;
+using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Views.Dialogs;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
@@ -23,11 +25,26 @@ namespace PixiEditor.ViewModels.SubViewModels;
 internal class UpdateViewModel : SubViewModel<ViewModelMain>
 {
     public const int MaxRetryCount = 3;
-    private bool updateReadyToInstall = false;
-
     public UpdateChecker UpdateChecker { get; set; }
 
     public List<UpdateChannel> UpdateChannels { get; } = new List<UpdateChannel>();
+
+    private UpdateState _updateState = UpdateState.Checking;
+
+    public UpdateState UpdateState
+    {
+        get => _updateState;
+        set
+        {
+            _updateState = value;
+            OnPropertyChanged(nameof(UpdateState));
+            OnPropertyChanged(nameof(IsUpdateAvailable));
+            OnPropertyChanged(nameof(UpdateReadyToInstall));
+            OnPropertyChanged(nameof(IsDownloading));
+            OnPropertyChanged(nameof(IsUpToDate));
+            OnPropertyChanged(nameof(UpdateStateString));
+        }
+    }
 
     private string versionText;
 
@@ -41,26 +58,70 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    public bool UpdateReadyToInstall
+
+    public string UpdateStateString
     {
-        get => updateReadyToInstall;
-        set
+        get
         {
-            updateReadyToInstall = value;
-            OnPropertyChanged(nameof(UpdateReadyToInstall));
-            if (value)
+            if (!SelfUpdatingAvailable)
+                return string.Empty;
+            switch (_updateState)
             {
-                VersionText =
-                    new LocalizedString("TO_INSTALL_UPDATE",
-                        UpdateChecker.LatestReleaseInfo.TagName); // Button shows "Restart" before this text
+                case UpdateState.UnableToCheck:
+                    return new LocalizedString("UP_TO_DATE_UNKNOWN");
+                case UpdateState.Checking:
+                    return new LocalizedString("CHECKING_FOR_UPDATES");
+                case UpdateState.FailedDownload:
+                    return new LocalizedString("UPDATE_FAILED_DOWNLOAD");
+                case UpdateState.ReadyToInstall:
+                    return new LocalizedString("UPDATE_READY_TO_INSTALL", UpdateChecker.LatestReleaseInfo.TagName);
+                case UpdateState.Downloading:
+                    return new LocalizedString("DOWNLOADING_UPDATE");
+                case UpdateState.UpdateAvailable:
+                    return new LocalizedString("UPDATE_AVAILABLE", UpdateChecker.LatestReleaseInfo.TagName);
+                case UpdateState.UpToDate:
+                    return new LocalizedString("UP_TO_DATE");
+                default:
+                    return new LocalizedString("UP_TO_DATE_UNKNOWN");
             }
         }
     }
+
+    public bool IsUpdateAvailable
+    {
+        get => _updateState == UpdateState.UpdateAvailable;
+    }
+
+    public bool UpdateReadyToInstall
+    {
+        get => _updateState == UpdateState.ReadyToInstall;
+    }
+
+    public bool IsDownloading
+    {
+        get => _updateState == UpdateState.Downloading;
+    }
+
+    public bool IsUpToDate
+    {
+        get => _updateState == UpdateState.UpToDate;
+    }
+
+    public bool SelfUpdatingAvailable =>
+#if UPDATE
+        PixiEditorSettings.Update.CheckUpdatesOnStartup.Value && OsSupported();
+#else
+        false;
+#endif
+
+    public AsyncRelayCommand DownloadCommand => new AsyncRelayCommand(Download);
+    public RelayCommand InstallCommand => new RelayCommand(Install);
 
     public UpdateViewModel(ViewModelMain owner)
         : base(owner)
     {
         Owner.OnStartupEvent += Owner_OnStartupEvent;
+        Owner.OnClose += Owner_OnClose;
         PixiEditorSettings.Update.UpdateChannel.ValueChanged += (_, value) =>
         {
             string prevChannel = UpdateChecker.Channel.ApiUrl;
@@ -69,83 +130,111 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             {
                 ConditionalUPDATE();
             }
+
+            OnPropertyChanged(nameof(UpdateStateString));
+            OnPropertyChanged(nameof(SelfUpdatingAvailable));
         };
         InitUpdateChecker();
     }
 
-    public async Task<bool> CheckForUpdate()
+    public async Task CheckForUpdate()
     {
         if (!IOperatingSystem.Current.IsWindows)
         {
-            return false;
+            return;
         }
 
         bool updateAvailable = await UpdateChecker.CheckUpdateAvailable();
         if (!UpdateChecker.LatestReleaseInfo.WasDataFetchSuccessful ||
             string.IsNullOrEmpty(UpdateChecker.LatestReleaseInfo.TagName))
         {
-            return false;
+            UpdateState = UpdateState.UnableToCheck;
+            return;
         }
 
-        bool updateCompatible = await UpdateChecker.IsUpdateCompatible();
-        bool autoUpdateFailed = CheckAutoupdateFailed();
-        bool updateFileDoesNotExists = !File.Exists(
-            Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip"));
+        UpdateState = updateAvailable ? UpdateState.UpdateAvailable : UpdateState.UpToDate;
+    }
 
-        bool updateExeDoesNotExists = !File.Exists(
-            Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.exe"));
-        if (updateAvailable && (updateFileDoesNotExists && updateExeDoesNotExists) || autoUpdateFailed)
+    private void Owner_OnClose()
+    {
+        if (UpdateState == UpdateState.ReadyToInstall)
         {
-            UpdateReadyToInstall = false;
-            VersionText = new LocalizedString("DOWNLOADING_UPDATE");
+            Install(false);
+        }
+    }
+
+    public async Task Download()
+    {
+        bool updateCompatible = await UpdateChecker.IsUpdateCompatible();
+        bool updateFileDoesNotExists = !AutoUpdateFileExists();
+        bool updateExeDoesNotExists = !UpdateInstallerFileExists();
+
+        if (!updateExeDoesNotExists || !updateFileDoesNotExists)
+        {
+            UpdateState = UpdateState.ReadyToInstall;
+            return;
+        }
+
+        if ((updateFileDoesNotExists && updateExeDoesNotExists))
+        {
             try
             {
-                if (updateCompatible && !autoUpdateFailed)
+                UpdateState = UpdateState.Downloading;
+                if (updateCompatible)
                 {
                     await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
                 }
                 else
                 {
                     await UpdateDownloader.DownloadInstaller(UpdateChecker.LatestReleaseInfo);
-                    if (autoUpdateFailed)
-                    {
-                        RemoveZipIfExists();
-                    }
                 }
 
-                UpdateReadyToInstall = true;
+                UpdateState = UpdateState.ReadyToInstall;
             }
             catch (IOException ex)
             {
-                NoticeDialog.Show("FAILED_DOWNLOADING", "FAILED_DOWNLOADING_TITLE");
-                return false;
+                UpdateState = UpdateState.FailedDownload;
             }
             catch (TaskCanceledException ex)
             {
-                return false;
+                UpdateState = UpdateState.UpdateAvailable;
             }
-
-            return true;
+            catch (Exception ex)
+            {
+                UpdateState = UpdateState.FailedDownload;
+            }
         }
-
-        return false;
     }
 
-    private async void Install()
+    private bool AutoUpdateFileExists()
+    {
+        string path = Path.Join(UpdateDownloader.DownloadLocation,
+            $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip");
+        return File.Exists(path);
+    }
+
+    private bool UpdateInstallerFileExists()
+    {
+        string path = Path.Join(UpdateDownloader.DownloadLocation,
+            $"update-{UpdateChecker.LatestReleaseInfo.TagName}.exe");
+        return File.Exists(path);
+    }
+
+
+    private void Install()
+    {
+        Install(true);
+    }
+
+    private void Install(bool startAfterUpdate)
     {
 #if RELEASE || DEVRELEASE
-        if (!PixiEditorSettings.Update.CheckUpdatesOnStartup.Value)
-        {
-            return;
-        }
-
         string dir = AppDomain.CurrentDomain.BaseDirectory;
 
         UpdateDownloader.CreateTempDirectory();
         if (UpdateChecker.LatestReleaseInfo == null ||
             string.IsNullOrEmpty(UpdateChecker.LatestReleaseInfo.TagName)) return;
-        bool updateFileExists = File.Exists(
-            Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip"));
+        bool updateFileExists = AutoUpdateFileExists();
         string exePath = Path.Join(UpdateDownloader.DownloadLocation,
             $"update-{UpdateChecker.LatestReleaseInfo.TagName}.exe");
 
@@ -163,33 +252,14 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         if (!updateFileExists && !updateExeExists)
         {
             EnsureUpdateFilesDeleted();
-            return;
-        }
-
-        ViewModelMain.Current.UpdateSubViewModel.UpdateReadyToInstall = true;
-        if (!UpdateInfoExists())
-        {
-            CreateUpdateInfo(UpdateChecker.LatestReleaseInfo.TagName);
-            return;
-        }
-
-        string[] info = IncrementUpdateInfo();
-
-        if (!UpdateInfoValid(UpdateChecker.LatestReleaseInfo.TagName, info))
-        {
-            File.Delete(Path.Join(Paths.TempFilesPath, "updateInfo.txt"));
-            CreateUpdateInfo(UpdateChecker.LatestReleaseInfo.TagName);
-            return;
-        }
-
-        if (!CanInstallUpdate(UpdateChecker.LatestReleaseInfo.TagName, info) && !updateExeExists)
-        {
+            UpdateState = UpdateState.Checking;
+            Dispatcher.UIThread.InvokeAsync(async () => await CheckForUpdate());
             return;
         }
 
         if (updateFileExists && File.Exists(updaterPath))
         {
-            InstallHeadless(updaterPath);
+            InstallHeadless(updaterPath, startAfterUpdate);
         }
         else if (updateExeExists)
         {
@@ -198,11 +268,11 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 #endif
     }
 
-    private static void InstallHeadless(string updaterPath)
+    private static void InstallHeadless(string updaterPath, bool startAfterUpdate)
     {
         try
         {
-            ProcessHelper.RunAsAdmin(updaterPath, false);
+            ProcessHelper.RunAsAdmin(updaterPath, startAfterUpdate ? "--startOnSuccess" : null, false);
             Shutdown();
         }
         catch (Win32Exception)
@@ -232,7 +302,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     {
         try
         {
-            IOperatingSystem.Current.ProcessUtility.RunAsAdmin(updateExeFile);
+            IOperatingSystem.Current.ProcessUtility.RunAsAdmin(updateExeFile, null);
             Shutdown();
         }
         catch (Win32Exception)
@@ -275,6 +345,15 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             try
             {
                 await CheckForUpdate();
+                if (UpdateState == UpdateState.UpdateAvailable)
+                {
+                    bool updateFileExists = AutoUpdateFileExists() || UpdateInstallerFileExists();
+                    if (updateFileExists)
+                    {
+                        UpdateState = UpdateState.ReadyToInstall;
+                    }
+                }
+
                 if (UpdateChecker.LatestReleaseInfo != null && UpdateChecker.LatestReleaseInfo.TagName ==
                     VersionHelpers.GetCurrentAssemblyVersionString())
                 {
@@ -283,45 +362,19 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             }
             catch (System.Net.Http.HttpRequestException)
             {
-                NoticeDialog.Show("COULD_NOT_CHECK_FOR_UPDATES", "UPDATE_CHECK_FAILED");
+                UpdateState = UpdateState.UnableToCheck;
             }
             catch (Exception e)
             {
+                UpdateState = UpdateState.UnableToCheck;
                 CrashHelper.SendExceptionInfoAsync(e);
-                NoticeDialog.Show("COULD_NOT_CHECK_FOR_UPDATES", "UPDATE_CHECK_FAILED");
             }
-
-            Install();
         }
     }
 
     private bool OsSupported()
     {
         return IOperatingSystem.Current.IsWindows;
-    }
-
-    private bool UpdateInfoExists()
-    {
-        return File.Exists(Path.Join(Paths.TempFilesPath, "updateInfo.txt"));
-    }
-
-    private void CreateUpdateInfo(string targetVersion)
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.AppendLine(targetVersion);
-        sb.AppendLine("0");
-        File.WriteAllText(Path.Join(Paths.TempFilesPath, "updateInfo.txt"), sb.ToString());
-    }
-
-    private string[] IncrementUpdateInfo()
-    {
-        string[] lines = File.ReadAllLines(Path.Join(Paths.TempFilesPath, "updateInfo.txt"));
-        int.TryParse(lines[1], out int count);
-        count++;
-        lines[1] = count.ToString();
-        File.WriteAllLines(Path.Join(Paths.TempFilesPath, "updateInfo.txt"), lines);
-
-        return lines;
     }
 
     private void EnsureUpdateFilesDeleted()
@@ -331,37 +384,6 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         {
             File.Delete(path);
         }
-    }
-
-    private bool CanInstallUpdate(string forVersion, string[] lines)
-    {
-        if (lines.Length != 2) return false;
-
-        if (lines[0] != forVersion) return false;
-
-        return int.TryParse(lines[1], out int count) && count < MaxRetryCount;
-    }
-
-    private bool UpdateInfoValid(string forVersion, string[] lines)
-    {
-        if (lines.Length != 2) return false;
-
-        if (lines[0] != forVersion) return false;
-
-        return int.TryParse(lines[1], out _);
-    }
-
-    private bool CheckAutoupdateFailed()
-    {
-        string path = Path.Combine(Paths.TempFilesPath, "updateInfo.txt");
-        if (!File.Exists(path)) return false;
-
-        string[] lines = File.ReadAllLines(path);
-        if (lines.Length != 2) return false;
-
-        if (!int.TryParse(lines[1], out int count)) return false;
-
-        return count >= MaxRetryCount;
     }
 
     private void RemoveZipIfExists()
@@ -396,4 +418,15 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         UpdateChannel selectedChannel = UpdateChannels.FirstOrDefault(x => x.Name == channelName, UpdateChannels[0]);
         return selectedChannel;
     }
+}
+
+public enum UpdateState
+{
+    Checking,
+    UnableToCheck,
+    UpdateAvailable,
+    Downloading,
+    FailedDownload,
+    ReadyToInstall,
+    UpToDate,
 }

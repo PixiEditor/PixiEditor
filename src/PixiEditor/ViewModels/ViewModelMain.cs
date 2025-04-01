@@ -33,7 +33,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public static ViewModelMain Current { get; set; }
     public IServiceProvider Services { get; private set; }
 
-    public Action CloseAction { get; set; }
+    public event Action OnClose;
     public event Action OnStartupEvent;
     public FileViewModel FileSubViewModel { get; set; }
     public UpdateViewModel UpdateSubViewModel { get; set; }
@@ -147,7 +147,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         RegistrySubViewModel = services.GetService<RegistryViewModel>();
 
         AdditionalContentSubViewModel = services.GetService<AdditionalContentViewModel>();
-        MenuBarViewModel = new MenuBarViewModel(AdditionalContentSubViewModel);
+        MenuBarViewModel = new MenuBarViewModel(AdditionalContentSubViewModel, UpdateSubViewModel);
 
         CommandController.Init(services);
         LayoutSubViewModel.LayoutManager.InitLayout(this);
@@ -197,6 +197,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
             {
                 await analytics.StopAsync();
             }
+
+            OnClose?.Invoke();
         }
     }
 

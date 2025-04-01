@@ -170,7 +170,14 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
     private ShapeData ShapeDataFromCorners(ShapeCorners corners)
     {
         var rect = RectD.FromCenterAndSize(corners.RectCenter, corners.RectSize);
-        ShapeData shapeData = new ShapeData(rect.Center, rect.Size, corners.RectRotation, (float)StrokeWidth,
+        double cornerRadius = 0;
+        if (toolViewModel is ICornerRadiusTool cornerRadiusTool)
+        {
+            cornerRadius = cornerRadiusTool.CornerRadius;
+        }
+
+        ShapeData shapeData = new ShapeData(rect.Center, rect.Size, cornerRadius, corners.RectRotation,
+            (float)StrokeWidth,
             StrokePaintable,
             FillPaintable) { AntiAliasing = toolbar.AntiAliasing };
         return shapeData;

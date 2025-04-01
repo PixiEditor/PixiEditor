@@ -7,12 +7,12 @@ namespace PixiEditor.Linux;
 
 public class LinuxProcessUtility : IProcessUtility
 {
-    public Process RunAsAdmin(string path)
+    public Process RunAsAdmin(string path, string args)
     {
         throw new NotImplementedException("Running as admin is not supported on Linux");
     }
 
-    public Process RunAsAdmin(string path, bool createWindow)
+    public Process RunAsAdmin(string path, string args, bool createWindow)
     {
         throw new NotImplementedException("Running as admin is not supported on Linux");
     }

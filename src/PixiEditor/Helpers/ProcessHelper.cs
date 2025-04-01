@@ -5,9 +5,9 @@ namespace PixiEditor.Helpers;
 
 internal static class ProcessHelper
 {
-    public static Process RunAsAdmin(string path)
+    public static Process RunAsAdmin(string path, string? args = null)
     {
-        return IOperatingSystem.Current.ProcessUtility.RunAsAdmin(path);
+        return IOperatingSystem.Current.ProcessUtility.RunAsAdmin(path, args);
     }
 
     public static bool IsRunningAsAdministrator()
@@ -15,8 +15,8 @@ internal static class ProcessHelper
         return IOperatingSystem.Current.ProcessUtility.IsRunningAsAdministrator();
     }
 
-    public static void RunAsAdmin(string updaterPath, bool showWindow)
+    public static void RunAsAdmin(string path, string? args, bool showWindow)
     {
-        IOperatingSystem.Current.ProcessUtility.RunAsAdmin(updaterPath, showWindow);
+        IOperatingSystem.Current.ProcessUtility.RunAsAdmin(path, args, showWindow);
     }
 }

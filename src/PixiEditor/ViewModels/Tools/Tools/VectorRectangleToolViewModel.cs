@@ -9,6 +9,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using Drawie.Numerics;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.ViewModels.Tools.Tools;
 
@@ -20,12 +21,6 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
     private string defaultActionDisplay = "RECTANGLE_TOOL_ACTION_DISPLAY_DEFAULT";
     public override string ToolNameLocalizationKey => "RECTANGLE_TOOL";
     public override bool IsErasable => false;
-
-    public VectorRectangleToolViewModel()
-    {
-        ActionDisplay = defaultActionDisplay;
-    }
-
     public override Type[]? SupportedLayerTypes { get; } = [];
     public override LocalizedString Tooltip => new LocalizedString("RECTANGLE_TOOL_TOOLTIP", Shortcut);
 
@@ -33,6 +28,27 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
     public string? DefaultNewLayerName { get; } = new LocalizedString(NewLayerKey);
+
+    private VecD cornerRadius = new VecD(0, 0);
+
+    [Settings.Percent("RADIUS", 0, ExposedByDefault = true, Min = 0)]
+    public float CornerRadius
+    {
+        get
+        {
+            return GetValue<float>();
+        }
+        set
+        {
+            SetValue(value);
+        }
+    }
+
+    public VectorRectangleToolViewModel()
+    {
+        ActionDisplay = defaultActionDisplay;
+        Toolbar = ToolbarFactory.Create<VectorRectangleToolViewModel, FillableShapeToolbar>(this);
+    }
 
     public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
     {

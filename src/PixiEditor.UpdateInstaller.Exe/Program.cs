@@ -4,6 +4,17 @@ using PixiEditor.UpdateInstaller.ViewModels;
 
 UpdateController controller = new UpdateController();
 StringBuilder log = new StringBuilder();
+bool startAfterUpdate = false;
+
+foreach (string arg in args)
+{
+    if (arg == "--startOnSuccess")
+    {
+        startAfterUpdate = true;
+        log.AppendLine($"{DateTime.Now}: Found --startOnSuccess argument, will start PixiEditor after update.");
+        break;
+    }
+}
 
 try
 {
@@ -24,13 +35,16 @@ finally
     }
     catch
     {
-       // probably permissions or disk full, the best we can do is to ignore this 
+        // probably permissions or disk full, the best we can do is to ignore this
     }
-    
-    var files = Directory.GetFiles(controller.UpdateDirectory, "PixiEditor.exe");
-    if (files.Length > 0)
+
+    if (startAfterUpdate)
     {
-        string pixiEditorExecutablePath = files[0];
-        Process.Start(pixiEditorExecutablePath);
+        var files = Directory.GetFiles(controller.UpdateDirectory, "PixiEditor.exe");
+        if (files.Length > 0)
+        {
+            string pixiEditorExecutablePath = files[0];
+            Process.Start(pixiEditorExecutablePath);
+        }
     }
 }

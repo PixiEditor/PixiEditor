@@ -28,7 +28,7 @@ public class RectangleOperationTests
     public void FindAffectedArea_SmallStrokeOnly_FindsCorrectChunks()
     {
         var (x, y, w, h) = (chunkSize / 2, chunkSize / 2, chunkSize, chunkSize);
-        RectangleOperation operation = new(new(new(x, y), new(w, h), 0, 1, Colors.Black, Colors.Transparent));
+        RectangleOperation operation = new(new(new(x, y), new(w, h), 0, 0, 1, Colors.Black, Colors.Transparent));
 
         HashSet<VecI> expected = new() { new(0, 0) };
         var actual = operation.FindAffectedArea(new(chunkSize)).Chunks;
@@ -40,7 +40,7 @@ public class RectangleOperationTests
     public void FindAffectedArea_2by2StrokeOnly_FindsCorrectChunks()
     {
         var (x, y, w, h) = (0, 0, chunkSize * 2, chunkSize * 2);
-        RectangleOperation operation = new(new(new(x, y), new(w, h), 0, 1, Colors.Black, Colors.Transparent));
+        RectangleOperation operation = new(new(new(x, y), new(w, h), 0, 0, 1, Colors.Black, Colors.Transparent));
 
         HashSet<VecI> expected = new() { new(-1, -1), new(0, -1), new(-1, 0), new(0, 0) };
         var actual = operation.FindAffectedArea(new(chunkSize)).Chunks;
@@ -52,7 +52,7 @@ public class RectangleOperationTests
     public void FindAffectedArea_3x3PositiveStrokeOnly_FindsCorrectChunks()
     {
         var (x, y, w, h) = (2 * chunkSize + chunkSize / 2, 2 * chunkSize + chunkSize / 2, chunkSize * 2, chunkSize * 2);
-        RectangleOperation operation = new(new(new(x, y), new(w, h), 0, 1, Colors.Black, Colors.Transparent));
+        RectangleOperation operation = new(new(new(x, y), new(w, h), 0, 0, 1, Colors.Black, Colors.Transparent));
 
         HashSet<VecI> expected = new()
         {
@@ -70,7 +70,7 @@ public class RectangleOperationTests
     {
         var (x, y, w, h) = (-chunkSize * 2 - chunkSize / 2, -chunkSize * 2 - chunkSize / 2, chunkSize * 2,
             chunkSize * 2);
-        RectangleOperation operation = new(new(new(x, y), new(w, h), 0, 1, Colors.Black, Colors.Transparent));
+        RectangleOperation operation = new(new(new(x, y), new(w, h), 0, 0, 1, Colors.Black, Colors.Transparent));
 
         HashSet<VecI> expected = new()
         {
@@ -87,7 +87,7 @@ public class RectangleOperationTests
     public void FindAffectedArea_3x3PositiveFilled_FindsCorrectChunks()
     {
         var (x, y, w, h) = (2 * chunkSize + chunkSize / 2, 2 * chunkSize + chunkSize / 2, chunkSize * 2, chunkSize * 2);
-        RectangleOperation operation = new(new(new(x, y), new(w, h), 0, 1, Colors.Black, Colors.White));
+        RectangleOperation operation = new(new(new(x, y), new(w, h), 0, 0, 1, Colors.Black, Colors.White));
 
         HashSet<VecI> expected = new()
         {
@@ -104,7 +104,8 @@ public class RectangleOperationTests
     public void FindAffectedArea_ThickPositiveStroke_FindsCorrectChunks()
     {
         var (x, y, w, h) = (2 * chunkSize + chunkSize / 2, 2 * chunkSize + chunkSize / 2, chunkSize * 4, chunkSize * 4);
-        RectangleOperation operation = new(new(new(x, y), new(w, h), 0, chunkSize, Colors.Black, Colors.Transparent));
+        RectangleOperation operation =
+            new(new(new(x, y), new(w, h), 0, 0, chunkSize, Colors.Black, Colors.Transparent));
 
         HashSet<VecI> expected = new()
         {
@@ -123,7 +124,7 @@ public class RectangleOperationTests
     public void FindAffectedArea_SmallButThick_FindsCorrectChunks()
     {
         var (x, y, w, h) = (chunkSize / 2f - 0.5, chunkSize / 2f - 0.5, 1, 1);
-        RectangleOperation operation = new(new(new(x, y), new(w, h), 0, chunkSize, Colors.Black, Colors.White));
+        RectangleOperation operation = new(new(new(x, y), new(w, h), 0, 0, chunkSize, Colors.Black, Colors.White));
 
         HashSet<VecI> expected = new() { new(0, 0) };
         var actual = operation.FindAffectedArea(new(chunkSize)).Chunks;

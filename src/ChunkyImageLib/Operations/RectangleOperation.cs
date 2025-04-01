@@ -39,37 +39,58 @@ internal class RectangleOperation : IMirroredDrawOperation
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);
         surf.Canvas.RotateRadians((float)Data.Angle, (float)rect.Center.X, (float)rect.Center.Y);
 
+        double maxRadiusInPx = Math.Min(Data.Size.X, Data.Size.Y) / 2;
+        double radiusInPx = Data.CornerRadius * maxRadiusInPx;
+
         if (Data.AntiAliasing)
         {
-            DrawAntiAliased(surf, rect);
+            DrawAntiAliased(surf, rect, radiusInPx);
         }
         else
         {
-            DrawPixelPerfect(surf, rect, innerRect);
+            DrawPixelPerfect(surf, rect, innerRect, radiusInPx);
         }
 
         surf.Canvas.RestoreToCount(initial);
     }
 
-    private void DrawPixelPerfect(DrawingSurface surf, RectD rect, RectD innerRect)
+    private void DrawPixelPerfect(DrawingSurface surf, RectD rect, RectD innerRect, double radius)
     {
         // draw fill
         if (Data.FillPaintable.AnythingVisible)
         {
             int saved = surf.Canvas.Save();
-            surf.Canvas.ClipRect(innerRect);
+            if (radius == 0)
+            {
+                surf.Canvas.ClipRect(innerRect);
+            }
+            else
+            {
+                surf.Canvas.ClipRoundRect(innerRect, new VecD(radius), ClipOperation.Intersect);
+            }
+
             surf.Canvas.DrawPaintable(Data.FillPaintable, Data.BlendMode);
             surf.Canvas.RestoreToCount(saved);
         }
 
         // draw stroke
         surf.Canvas.Save();
-        surf.Canvas.ClipRect(rect);
-        surf.Canvas.ClipRect(innerRect, ClipOperation.Difference);
+        if (radius == 0)
+        {
+            surf.Canvas.ClipRect(rect);
+            surf.Canvas.ClipRect(innerRect, ClipOperation.Difference);
+        }
+        else
+        {
+            VecD vecRadius = new VecD(radius);
+            surf.Canvas.ClipRoundRect(rect, vecRadius, ClipOperation.Intersect);
+            surf.Canvas.ClipRoundRect(innerRect, vecRadius, ClipOperation.Difference);
+        }
+
         surf.Canvas.DrawPaintable(Data.Stroke, Data.BlendMode);
     }
 
-    private void DrawAntiAliased(DrawingSurface surf, RectD rect)
+    private void DrawAntiAliased(DrawingSurface surf, RectD rect, double radius)
     {
         // draw fill
         if (Data.FillPaintable.AnythingVisible)
@@ -79,7 +100,15 @@ internal class RectangleOperation : IMirroredDrawOperation
             paint.StrokeWidth = 0;
             paint.SetPaintable(Data.FillPaintable);
             paint.Style = PaintStyle.Fill;
-            surf.Canvas.DrawRect((float)rect.Left, (float)rect.Top, (float)rect.Width, (float)rect.Height, paint);
+            if (radius == 0)
+            {
+                surf.Canvas.DrawRect((float)rect.Left, (float)rect.Top, (float)rect.Width, (float)rect.Height, paint);
+            }
+            else
+            {
+                surf.Canvas.DrawRoundRect((float)rect.Left, (float)rect.Top, (float)rect.Width,
+                    (float)rect.Height, (float)radius, (float)radius, paint);
+            }
 
             surf.Canvas.RestoreToCount(saved);
         }
@@ -90,7 +119,17 @@ internal class RectangleOperation : IMirroredDrawOperation
         paint.SetPaintable(Data.StrokeWidth > 0 ? Data.Stroke : Data.FillPaintable);
         paint.Style = PaintStyle.Stroke;
         RectD innerRect = rect.Inflate(-Data.StrokeWidth / 2f);
-        surf.Canvas.DrawRect((float)innerRect.Left, (float)innerRect.Top, (float)innerRect.Width, (float)innerRect.Height, paint);
+
+        if (radius == 0)
+        {
+            surf.Canvas.DrawRect((float)innerRect.Left, (float)innerRect.Top, (float)innerRect.Width,
+                (float)innerRect.Height, paint);
+        }
+        else
+        {
+            surf.Canvas.DrawRoundRect((float)innerRect.Left, (float)innerRect.Top, (float)innerRect.Width,
+                (float)innerRect.Height, (float)radius, (float)radius, paint);
+        }
     }
 
     public AffectedArea FindAffectedArea(VecI imageSize)

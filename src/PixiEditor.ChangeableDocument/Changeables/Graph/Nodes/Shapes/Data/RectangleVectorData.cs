@@ -12,6 +12,7 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
 {
     public VecD Center { get; set; }
     public VecD Size { get; set; }
+    public double CornerRadius { get; set; }
 
     public override RectD GeometryAABB => RectD.FromCenterAndSize(Center, Size);
 
@@ -67,7 +68,7 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         {
             paint.SetPaintable(FillPaintable);
             paint.Style = PaintStyle.Fill;
-            canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
+            DrawRect(canvas, paint);
         }
 
         if (StrokeWidth > 0 && Stroke.AnythingVisible)
@@ -76,12 +77,29 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
             paint.Style = PaintStyle.Stroke;
 
             paint.StrokeWidth = StrokeWidth;
-            canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
+
+            DrawRect(canvas, paint);
         }
 
         if (applyTransform)
         {
             canvas.RestoreToCount(saved);
+        }
+    }
+
+    private void DrawRect(Canvas canvas, Paint paint)
+    {
+        double maxRadiusPx = Math.Min(Size.X, Size.Y) / 2f;
+        double radiusPx = CornerRadius * maxRadiusPx;
+
+        if (radiusPx == 0)
+        {
+            canvas.DrawRect(RectD.FromCenterAndSize(Center, Size), paint);
+        }
+        else
+        {
+            RectD rect = RectD.FromCenterAndSize(Center, Size);
+            canvas.DrawRoundRect((float)rect.Pos.X, (float)rect.Pos.Y, (float)rect.Width, (float)rect.Height, (float)radiusPx, (float)radiusPx, paint);
         }
     }
 
@@ -92,13 +110,21 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
 
     protected override int GetSpecificHash()
     {
-        return HashCode.Combine(Center, Size);
+        return HashCode.Combine(Center, Size, CornerRadius);
     }
 
     public override VectorPath ToPath(bool transformed = false)
     {
         VectorPath path = new VectorPath();
-        path.AddRect(RectD.FromCenterAndSize(Center, Size));
+        if (CornerRadius == 0)
+        {
+            path.AddRect(RectD.FromCenterAndSize(Center, Size));
+        }
+        else
+        {
+            path.AddRoundRect(RectD.FromCenterAndSize(Center, Size), new VecD(CornerRadius));
+        }
+
         if (transformed)
         {
             path.Transform(TransformationMatrix);
@@ -109,7 +135,8 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
 
     protected bool Equals(RectangleVectorData other)
     {
-        return base.Equals(other) && Center.Equals(other.Center) && Size.Equals(other.Size);
+        return base.Equals(other) && Center.Equals(other.Center) && Size.Equals(other.Size) &&
+               CornerRadius.Equals(other.CornerRadius);
     }
 
     public override bool Equals(object? obj)
@@ -134,6 +161,6 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(base.GetHashCode(), Center, Size);
+        return HashCode.Combine(base.GetHashCode(), Center, Size, CornerRadius);
     }
 }
