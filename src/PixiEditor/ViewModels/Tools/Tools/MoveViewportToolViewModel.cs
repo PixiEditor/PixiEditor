@@ -28,5 +28,12 @@ internal class MoveViewportToolViewModel : ToolViewModel
     protected override void OnSelected(bool restoring)
     {
         ActionDisplay = new LocalizedString("MOVE_VIEWPORT_ACTION_DISPLAY");
+        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.SuppressAllOverlayEvents(ToolName);
+    }
+
+    protected override void OnDeselecting(bool transient)
+    {
+        base.OnDeselecting(transient);
+        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.RestoreAllOverlayEvents(ToolName);
     }
 }

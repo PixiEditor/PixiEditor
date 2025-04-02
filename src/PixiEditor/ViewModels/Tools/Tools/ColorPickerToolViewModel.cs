@@ -170,4 +170,16 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
 
     public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey) =>
         UpdateActionDisplay(ctrlIsDown, shiftIsDown);
+
+    protected override void OnSelected(bool restoring)
+    {
+        base.OnSelected(restoring);
+        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.SuppressAllOverlayEvents(ToolName);
+    }
+
+    protected override void OnDeselecting(bool transient)
+    {
+        base.OnDeselecting(transient);
+        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.RestoreAllOverlayEvents(ToolName);
+    }
 }

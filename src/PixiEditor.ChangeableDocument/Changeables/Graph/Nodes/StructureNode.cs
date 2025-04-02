@@ -124,6 +124,11 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         }
     }
 
+    protected override void Paint(RenderContext context, DrawingSurface surface)
+    {
+        OnPaint(context, surface);
+    }
+
     protected override void OnPaint(RenderContext context, DrawingSurface renderTarget)
     {
         if (Output.Connections.Count > 0)

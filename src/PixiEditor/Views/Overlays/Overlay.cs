@@ -57,6 +57,18 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     public Handle? CapturedHandle { get; set; } = null!;
     public VecD PointerPosition { get; internal set; }
 
+    public static readonly StyledProperty<bool> SuppressEventsProperty = AvaloniaProperty.Register<Overlay, bool>(
+        nameof(SuppressEvents));
+
+    public bool SuppressEvents
+    {
+        get => GetValue(SuppressEventsProperty);
+        set
+        {
+            SetValue(SuppressEventsProperty, value);
+        }
+    }
+
     private readonly Dictionary<AvaloniaProperty, OverlayTransition> activeTransitions = new();
 
     private DispatcherTimer? transitionTimer;
@@ -99,6 +111,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
 
     public void EnterPointer(OverlayPointerArgs args)
     {
+        if(SuppressEvents) return;
         OnOverlayPointerEntered(args);
         if (args.Handled) return;
         InvokeHandleEvent(HandleEventType.PointerEnteredOverlay, args);
@@ -108,6 +121,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
 
     public void ExitPointer(OverlayPointerArgs args)
     {
+        if(SuppressEvents) return;
         OnOverlayPointerExited(args);
         if (args.Handled) return;
         InvokeHandleEvent(HandleEventType.PointerExitedOverlay, args);
@@ -117,6 +131,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
 
     public void MovePointer(OverlayPointerArgs args)
     {
+        if(SuppressEvents) return;
         InvokeHandleEvent(HandleEventType.PointerMovedOverlay, args);
         if (args.Handled) return;
         OnOverlayPointerMoved(args);
@@ -138,6 +153,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
 
     public void PressPointer(OverlayPointerArgs args)
     {
+        if(SuppressEvents) return;
         InvokeHandleEvent(HandleEventType.PointerPressedOverlay, args);
         if (args.Handled) return;
         OnOverlayPointerPressed(args);
@@ -147,6 +163,7 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
 
     public void ReleasePointer(OverlayPointerArgs args)
     {
+        if(SuppressEvents) return;
         InvokeHandleEvent(HandleEventType.PointerReleasedOverlay, args);
         if (args.Handled)
         {
@@ -165,19 +182,21 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     
     public void KeyPressed(KeyEventArgs args)
     {
+        if(SuppressEvents) return;
         OnKeyPressed(args.Key, args.KeyModifiers, args.KeySymbol);
         KeyPressedOverlay?.Invoke(args.Key, args.KeyModifiers);
     }
 
     public void KeyReleased(KeyEventArgs keyEventArgs)
     {
+        if(SuppressEvents) return;
         OnKeyReleased(keyEventArgs.Key, keyEventArgs.KeyModifiers);
         KeyReleasedOverlay?.Invoke(keyEventArgs.Key, keyEventArgs.KeyModifiers);
     }
 
     public virtual bool TestHit(VecD point)
     {
-        return Handles.Any(handle => handle.IsWithinHandle(handle.Position, new VecD(point.X, point.Y), ZoomScale));
+        return !SuppressEvents && Handles.Any(handle => handle.IsWithinHandle(handle.Position, new VecD(point.X, point.Y), ZoomScale));
     }
 
     public void AddHandle(Handle handle)

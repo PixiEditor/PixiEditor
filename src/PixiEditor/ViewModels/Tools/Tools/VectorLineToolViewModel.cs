@@ -72,8 +72,6 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
 
     protected override void OnSelected(bool restoring)
     {
-        if (restoring) return;
-
         var document = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
         document.Tools.UseVectorLineTool();
     }
