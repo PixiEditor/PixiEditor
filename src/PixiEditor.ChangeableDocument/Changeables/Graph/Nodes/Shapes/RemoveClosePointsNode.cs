@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
+﻿using System.Diagnostics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Numerics;
@@ -13,6 +14,8 @@ public class RemoveClosePointsNode : ShapeNode<PointsVectorData>
     public InputProperty<double> MinDistance { get; }
 
     public InputProperty<int> Seed { get; }
+
+    protected override bool ExecuteOnlyOnCacheChange => true;
 
     public RemoveClosePointsNode()
     {
@@ -33,7 +36,7 @@ public class RemoveClosePointsNode : ShapeNode<PointsVectorData>
             return null;
         }
 
-        var availablePoints = data.Points.Distinct().ToList();
+        var availablePoints = data.Points.ToList();
         List<VecD> newPoints = new List<VecD>();
 
         var random = new Random(Seed.Value);
