@@ -1,5 +1,6 @@
 ﻿using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Surfaces;
@@ -49,7 +50,16 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
                                && surface.DeviceClipBounds.Size != context.DocumentSize;
         if (useIntermediate)
         {
-            Texture intermediate = textureCache.RequestTexture(0, context.DocumentSize, context.ProcessingColorSpace);
+            Texture intermediate = textureCache.RequestTexture(-6451, context.DocumentSize, context.ProcessingColorSpace);
+
+            int saved = intermediate.DrawingSurface.Canvas.Save();
+            Matrix3X3 fitMatrix = Matrix3X3.CreateScale(
+                (float)context.DocumentSize.X / surface.DeviceClipBounds.Size.X,
+                (float)context.DocumentSize.Y / surface.DeviceClipBounds.Size.Y);
+            intermediate.DrawingSurface.Canvas.SetMatrix(fitMatrix);
+            intermediate.DrawingSurface.Canvas.DrawSurface(surface, 0, 0);
+            intermediate.DrawingSurface.Canvas.RestoreToCount(saved);
+
             target = intermediate.DrawingSurface;
         }
 
