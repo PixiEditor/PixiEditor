@@ -12,11 +12,8 @@
                          x:Class="PixiEditor.Views.Dialogs.ExportFilePopup"
                          x:ClassModifier="internal"
                          ui1:Translator.Key="EXPORT_IMAGE">
-    <DockPanel Background="{DynamicResource ThemeBackgroundBrush}">
-        <Button DockPanel.Dock="Bottom" HorizontalAlignment="Center" IsDefault="True"
-                ui1:Translator.Key="EXPORT" Command="{Binding ExportCommand, ElementName=saveFilePopup}" />
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Stretch" Orientation="Vertical"
-                    Margin="0,15,0,0">
+    <DockPanel Margin="10" Background="{DynamicResource ThemeBackgroundBrush}">
+        <StackPanel Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Stretch" Orientation="Vertical">
             <TabControl SelectedIndex="{Binding SelectedExportIndex, ElementName=saveFilePopup}">
                 <TabControl.Styles>
                     <Style Selector="TabControl">
@@ -27,11 +24,8 @@
                     </Style>
                 </TabControl.Styles>
                 <TabControl.Items>
-                    <TabItem IsSelected="True" ui1:Translator.Key="EXPORT_IMAGE_HEADER">
-                    </TabItem>
-                    <TabItem ui1:Translator.Key="EXPORT_ANIMATION_HEADER">
-
-                    </TabItem>
+                    <TabItem IsSelected="True" ui1:Translator.Key="EXPORT_IMAGE_HEADER"/>
+                    <TabItem ui1:Translator.Key="EXPORT_ANIMATION_HEADER"/>
                     <TabItem ui1:Translator.Key="EXPORT_SPRITESHEET_HEADER">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -42,11 +36,11 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <TextBlock ui1:Translator.Key="ROWS" Grid.Row="0" Grid.Column="0"/>
+                            <TextBlock ui1:Translator.Key="ROWS" Grid.Row="0" Grid.Column="0" />
                             <input:NumberInput Min="0" Width="50" Grid.Column="1" Grid.Row="0"
                                                Decimals="0"
                                                Value="{Binding ElementName=saveFilePopup, Path=SpriteSheetRows, Mode=TwoWay}" />
-                            <TextBlock ui1:Translator.Key="COLUMNS" Grid.Row="1" Grid.Column="0"/>
+                            <TextBlock ui1:Translator.Key="COLUMNS" Grid.Row="1" Grid.Column="0" />
                             <input:NumberInput Min="0" Width="50" Grid.Column="1" Grid.Row="1"
                                                Decimals="0"
                                                Value="{Binding ElementName=saveFilePopup, Path=SpriteSheetColumns, Mode=TwoWay}" />
@@ -54,15 +48,15 @@
                     </TabItem>
                 </TabControl.Items>
             </TabControl>
-            <Border Margin="15, 30" Padding="10"
-                    Background="{DynamicResource ThemeBackgroundBrush1}"
-                    CornerRadius="{DynamicResource ControlCornerRadius}">
-                <Grid MinHeight="205" MinWidth="400">
+            <Border
+                Background="{DynamicResource ThemeBackgroundBrush1}"
+                CornerRadius="{DynamicResource ControlCornerRadius}">
+                <Grid MinWidth="400">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="160" />
+                        <ColumnDefinition Width="192" />
                     </Grid.ColumnDefinitions>
-                    <Grid>
+                    <Grid Margin="5">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
@@ -86,33 +80,24 @@
                         </TextBlock>
                     </Grid>
                     <Grid Grid.Column="1">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="30" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Text="Export Preview" />
-                        <indicators:LoadingIndicator Grid.Row="1"
-                                                     IsVisible="{Binding IsGeneratingPreview, ElementName=saveFilePopup}"
-                                                     Margin="0, 10, 0, 0" />
-                        <Border Grid.Row="1" BorderThickness="1" Height="200" Width="150"
-                                IsVisible="{Binding !IsGeneratingPreview, ElementName=saveFilePopup}">
-                            <Border RenderOptions.BitmapInterpolationMode="None">
-                                <visuals:SurfaceControl x:Name="surfaceControl"
-                                                        Surface="{Binding ExportPreview, ElementName=saveFilePopup}"
-                                                        Stretch="Uniform" HorizontalAlignment="Center"
-                                                        VerticalAlignment="Center"
-                                                        RenderOptions.BitmapInterpolationMode="None">
-                                    <visuals:SurfaceControl.Background>
-                                        <ImageBrush Source="/Images/CheckerTile.png"
-                                                    TileMode="Tile" DestinationRect="0, 0, 25, 25" />
-                                    </visuals:SurfaceControl.Background>
-                                </visuals:SurfaceControl>
-                            </Border>
-                        </Border>
+                        <indicators:LoadingIndicator
+                            IsVisible="{Binding IsGeneratingPreview, ElementName=saveFilePopup}" />
+                        <visuals:SurfaceControl x:Name="surfaceControl" Width="190" Height="190"
+                                                Surface="{Binding ExportPreview, ElementName=saveFilePopup}"
+                                                Stretch="Uniform" HorizontalAlignment="Center"
+                                                IsVisible="{Binding !IsGeneratingPreview, ElementName=saveFilePopup}"
+                                                VerticalAlignment="Center"
+                                                RenderOptions.BitmapInterpolationMode="None">
+                            <visuals:SurfaceControl.Background>
+                                <ImageBrush Source="/Images/CheckerTile.png"
+                                            TileMode="Tile" DestinationRect="0, 0, 25, 25" />
+                            </visuals:SurfaceControl.Background>
+                        </visuals:SurfaceControl>
                     </Grid>
                 </Grid>
             </Border>
+            <Button HorizontalAlignment="Center" IsDefault="True"
+                    ui1:Translator.Key="EXPORT" Command="{Binding ExportCommand, ElementName=saveFilePopup}" />
         </StackPanel>
     </DockPanel>
 </dialogs:PixiEditorPopup>

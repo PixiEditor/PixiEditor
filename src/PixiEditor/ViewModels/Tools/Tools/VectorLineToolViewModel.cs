@@ -24,11 +24,6 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
 
     public override bool IsErasable => false;
 
-    public VectorLineToolViewModel()
-    {
-        ActionDisplay = defaultActionDisplay;
-        Toolbar = ToolbarFactory.Create<VectorLineToolViewModel, ShapeToolbar>(this);
-    }
 
     public override string ToolNameLocalizationKey => "LINE_TOOL";
     public override LocalizedString Tooltip => new LocalizedString("LINE_TOOL_TOOLTIP", Shortcut);
@@ -42,6 +37,17 @@ internal class VectorLineToolViewModel : ShapeTool, IVectorLineToolHandler
     public bool Snap { get; private set; }
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(VectorLayerNode);
+
+    public VectorLineToolViewModel()
+    {
+        ActionDisplay = defaultActionDisplay;
+        Toolbar = ToolbarFactory.Create<VectorLineToolViewModel, ShapeToolbar>(this);
+        var strokeSetting = Toolbar.GetSetting(nameof(ShapeToolbar.ToolSize));
+        if (strokeSetting != null)
+        {
+            strokeSetting.Value = 1d;
+        }
+    }
 
     public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
     {
