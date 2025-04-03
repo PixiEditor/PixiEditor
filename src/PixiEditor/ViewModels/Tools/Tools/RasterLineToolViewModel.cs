@@ -17,12 +17,6 @@ internal class RasterLineToolViewModel : ShapeTool, ILineToolHandler
 {
     private string defaultActionDisplay = "LINE_TOOL_ACTION_DISPLAY_DEFAULT";
 
-    public RasterLineToolViewModel()
-    {
-        ActionDisplay = defaultActionDisplay;
-        Toolbar = ToolbarFactory.Create<RasterLineToolViewModel, ShapeToolbar>(this);
-    }
-
     public override string ToolNameLocalizationKey => "LINE_TOOL";
     public override LocalizedString Tooltip => new LocalizedString("LINE_TOOL_TOOLTIP", Shortcut);
 
@@ -34,6 +28,17 @@ internal class RasterLineToolViewModel : ShapeTool, ILineToolHandler
     public bool Snap { get; private set; }
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
+
+    public RasterLineToolViewModel()
+    {
+        ActionDisplay = defaultActionDisplay;
+        Toolbar = ToolbarFactory.Create<RasterLineToolViewModel, ShapeToolbar>(this);
+        var strokeSetting = Toolbar.GetSetting(nameof(ShapeToolbar.ToolSize));
+        if (strokeSetting != null)
+        {
+            strokeSetting.Value = 1d;
+        }
+    }
 
     public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
     {

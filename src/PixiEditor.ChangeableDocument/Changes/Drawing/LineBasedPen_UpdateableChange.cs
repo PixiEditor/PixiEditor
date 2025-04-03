@@ -17,6 +17,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private readonly bool erasing;
     private readonly bool drawOnMask;
     private readonly bool antiAliasing;
+    private bool squareBrush;
     private float hardness;
     private float spacing = 1;
     private readonly Paint srcPaint = new Paint() { BlendMode = BlendMode.Src };
@@ -32,6 +33,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         bool antiAliasing,
         float hardness,
         float spacing,
+        bool squareBrush,
         bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
@@ -42,6 +44,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         this.drawOnMask = drawOnMask;
         this.hardness = hardness;
         this.spacing = spacing;
+        this.squareBrush = squareBrush;
         points.Add(pos);
         this.frame = frame;
 
@@ -101,12 +104,23 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             lastPos = point;
             var rect = new RectI(point - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
             Paintable finalPaintable = color;
-            if (antiAliasing)
-            {
-                finalPaintable = ApplySoftnessGradient((VecD)point);
-            }
 
-            image.EnqueueDrawEllipse((RectD)rect, finalPaintable, finalPaintable, 0, 0, antiAliasing, srcPaint);
+            if (!squareBrush)
+            {
+                if (antiAliasing)
+                {
+                    finalPaintable = ApplySoftnessGradient((VecD)point);
+                }
+
+                image.EnqueueDrawEllipse((RectD)rect, finalPaintable, finalPaintable, 0, 0, antiAliasing, srcPaint);
+            }
+            else
+            {
+                BlendMode blendMode = srcPaint.BlendMode;
+                ShapeData shapeData = new ShapeData(rect.Center, rect.Size, 0, 0, 0, finalPaintable, finalPaintable,
+                    blendMode);
+                image.EnqueueDrawRectangle(shapeData);
+            }
         }
 
         lastAppliedPointIndex = points.Count - 1;
@@ -122,12 +136,25 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         {
             var rect = new RectI(points[0] - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
             Paintable finalPaintable = color;
-            if (antiAliasing)
+
+            if (!squareBrush)
             {
-                finalPaintable = ApplySoftnessGradient(points[0]);
+                if (antiAliasing)
+                {
+                    finalPaintable = ApplySoftnessGradient(points[0]);
+                }
+
+                targetImage.EnqueueDrawEllipse((RectD)rect, finalPaintable, finalPaintable, 0, 0, antiAliasing,
+                    srcPaint);
+            }
+            else
+            {
+                BlendMode blendMode = srcPaint.BlendMode;
+                ShapeData shapeData = new ShapeData(rect.Center, rect.Size, 0, 0, 0, finalPaintable, finalPaintable,
+                    blendMode);
+                targetImage.EnqueueDrawRectangle(shapeData);
             }
 
-            targetImage.EnqueueDrawEllipse((RectD)rect, finalPaintable, finalPaintable, 0, 0, antiAliasing, srcPaint);
             return;
         }
 
@@ -143,12 +170,24 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             lastPos = points[i];
             var rect = new RectI(points[i] - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
             Paintable? finalPaintable = color;
-            if (antiAliasing)
-            {
-                finalPaintable = ApplySoftnessGradient(points[i]);
-            }
 
-            targetImage.EnqueueDrawEllipse((RectD)rect, finalPaintable, finalPaintable, 0, 0, antiAliasing, srcPaint);
+            if (!squareBrush)
+            {
+                if (antiAliasing)
+                {
+                    finalPaintable = ApplySoftnessGradient(points[i]);
+                }
+
+                targetImage.EnqueueDrawEllipse((RectD)rect, finalPaintable, finalPaintable, 0, 0, antiAliasing,
+                    srcPaint);
+            }
+            else
+            {
+                BlendMode blendMode = srcPaint.BlendMode;
+                ShapeData shapeData = new ShapeData(rect.Center, rect.Size, 0, 0, 0, finalPaintable, finalPaintable,
+                    blendMode);
+                targetImage.EnqueueDrawRectangle(shapeData);
+            }
         }
     }
 

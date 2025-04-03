@@ -8,7 +8,7 @@ namespace PixiEditor.ViewModels.Tools;
 
 internal abstract class ShapeTool : ToolViewModel, IShapeToolHandler
 {
-    public override BrushShape BrushShape => BrushShape.Hidden;
+    public override BrushShape FinalBrushShape => BrushShape.Hidden;
 
     public override bool UsesColor => true;
 

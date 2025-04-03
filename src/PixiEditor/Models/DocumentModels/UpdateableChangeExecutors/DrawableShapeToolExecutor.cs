@@ -128,7 +128,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
     protected abstract void DrawShape(VecD currentPos, double rotationRad, bool firstDraw);
     protected abstract IAction SettingsChangedAction(string name, object value);
     protected abstract IAction TransformMovedAction(ShapeData data, ShapeCorners corners);
-    protected virtual bool InitShapeData(IReadOnlyShapeVectorData data) { return true; }
+    protected virtual bool InitShapeData(IReadOnlyShapeVectorData data) { return false; }
     protected abstract bool CanEditShape(IStructureMemberHandler layer);
     protected abstract IAction EndDrawAction();
     protected virtual DocumentTransformMode TransformMode => DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective;
@@ -234,7 +234,6 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
                 EndDrawAction(),
                 SettingsChangedAction("FillAndStroke", color),
                 EndDrawAction());
-            // TODO add to undo
         }
     }
 
@@ -315,7 +314,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
         if (highlight)
         {
-            HighlightSnapAxis(snapXAxis, snapYAxis);
+            HighlightSnapAxis(snapXAxis, snapYAxis, string.IsNullOrEmpty(snapXAxis) && string.IsNullOrEmpty(snapYAxis) ? null : snapped);
         }
 
         if (AlignToPixels)
@@ -345,7 +344,7 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
 
         if (highlight)
         {
-            HighlightSnapAxis(snapXAxis, snapYAxis);
+            HighlightSnapAxis(snapXAxis, snapYAxis, string.IsNullOrEmpty(snapXAxis) && string.IsNullOrEmpty(snapYAxis) ? null : snapped);
         }
 
         if (snapped != VecI.Zero)
@@ -364,11 +363,11 @@ internal abstract class DrawableShapeToolExecutor<T> : SimpleShapeToolExecutor w
         return snapped;
     }
 
-    private void HighlightSnapAxis(string snapXAxis, string snapYAxis)
+    private void HighlightSnapAxis(string snapXAxis, string snapYAxis, VecD? snapPoint)
     {
         document.SnappingHandler.SnappingController.HighlightedXAxis = snapXAxis;
         document.SnappingHandler.SnappingController.HighlightedYAxis = snapYAxis;
-        document.SnappingHandler.SnappingController.HighlightedPoint = null;
+        document.SnappingHandler.SnappingController.HighlightedPoint = snapPoint;
     }
 
     public override void OnSettingsChanged(string name, object value)

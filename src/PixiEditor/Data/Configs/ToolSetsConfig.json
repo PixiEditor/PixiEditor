@@ -1,6 +1,6 @@
 ﻿[
   {
-    "Name": "PIXEL_ART_TOOLSET",
+    "Name": "PIXEL_PERFECT_TOOLSET",
     "Tools": [
       "MoveViewport",
       "RotateViewport",
@@ -9,7 +9,8 @@
         "ToolName": "Pen",
         "Settings": {
           "ExposePixelPerfectEnabled": true,
-          "Spacing": 0
+          "Spacing": 0,
+          "ExposePaintShape": true
         }
       },
       "Select",
@@ -30,7 +31,8 @@
       {
         "ToolName": "Eraser",
         "Settings": {
-          "Spacing": 0
+          "Spacing": 0,
+          "ExposePaintShape": true
         }
       },
       "ColorPicker",
@@ -50,7 +52,8 @@
           "AntiAliasing": true,
           "ExposeHardness": true,
           "ExposeSpacing": true,
-          "BrushShapeSetting": "CircleSmooth"
+          "BrushShapeSetting": "CircleSmooth",
+          "PaintShape": "Circle"
         }
       },
       "Select",
@@ -102,7 +105,8 @@
           "AntiAliasing": true,
           "ExposeHardness": true,
           "ExposeSpacing": true,
-          "BrushShapeSetting": "CircleSmooth"
+          "BrushShapeSetting": "CircleSmooth",
+          "PaintShape": "Circle"
         }
       },
       "ColorPicker",

@@ -18,7 +18,7 @@ internal class FloodFillToolViewModel : ToolViewModel, IFloodFillToolHandler
     private readonly string defaultActionDisplay = "FLOOD_FILL_TOOL_ACTION_DISPLAY_DEFAULT";
 
     public override string ToolNameLocalizationKey => "FLOOD_FILL_TOOL";
-    public override BrushShape BrushShape => BrushShape.Pixel;
+    public override BrushShape FinalBrushShape => BrushShape.Pixel;
     public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
 
     public override LocalizedString Tooltip => new("FLOOD_FILL_TOOL_TOOLTIP", Shortcut);

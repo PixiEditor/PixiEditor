@@ -10,7 +10,7 @@ namespace PixiEditor.ViewModels.Tools.Tools;
 internal class MoveViewportToolViewModel : ToolViewModel
 {
     public override string ToolNameLocalizationKey => "MOVE_VIEWPORT_TOOL";
-    public override BrushShape BrushShape => BrushShape.Hidden;
+    public override BrushShape FinalBrushShape => BrushShape.Hidden;
     public override Type[]? SupportedLayerTypes { get; } = null;
     public override Type LayerTypeToCreateOnEmptyUse { get; } = null;
     public override bool HideHighlight => true;
@@ -28,5 +28,12 @@ internal class MoveViewportToolViewModel : ToolViewModel
     protected override void OnSelected(bool restoring)
     {
         ActionDisplay = new LocalizedString("MOVE_VIEWPORT_ACTION_DISPLAY");
+        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.SuppressAllOverlayEvents(ToolName);
+    }
+
+    protected override void OnDeselecting(bool transient)
+    {
+        base.OnDeselecting(transient);
+        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.RestoreAllOverlayEvents(ToolName);
     }
 }

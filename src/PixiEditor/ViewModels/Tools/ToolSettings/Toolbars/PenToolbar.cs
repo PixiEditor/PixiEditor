@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
+using PixiEditor.Views.Overlays.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 
@@ -29,6 +30,12 @@ internal class PenToolbar : Toolbar, IPenToolbar
         set => GetSetting<SizeSettingViewModel>(nameof(ToolSize)).Value = value;
     }
 
+    public PaintBrushShape PaintShape
+    {
+        get => GetSetting<EnumSettingViewModel<PaintBrushShape>>(nameof(PaintShape)).Value;
+        set => GetSetting<EnumSettingViewModel<PaintBrushShape>>(nameof(PaintShape)).Value = value;
+    }
+
     public override void OnLoadedSettings()
     {
         OnPropertyChanged(nameof(ToolSize));
@@ -42,5 +49,6 @@ internal class PenToolbar : Toolbar, IPenToolbar
         var setting = new SizeSettingViewModel(nameof(ToolSize), "TOOL_SIZE_LABEL");
         setting.ValueChanged += (_, _) => OnPropertyChanged(nameof(ToolSize));
         AddSetting(setting);
+        AddSetting(new EnumSettingViewModel<PaintBrushShape>(nameof(PaintShape), "PAINT_SHAPE_SETTING") { IsExposed = false });
     }
 }

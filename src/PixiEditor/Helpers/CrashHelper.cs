@@ -190,10 +190,13 @@ internal partial class CrashHelper
         {
             return;
         }
-        
-        using var analyticsClient = new AnalyticsClient(analyticsUrl);
 
-        await analyticsClient.SendReportAsync(report.ApiReportJson);
+        try
+        {
+            using var analyticsClient = new AnalyticsClient(analyticsUrl);
+            await analyticsClient.SendReportAsync(report.ApiReportJson);
+        }
+        catch { }
     }
 
     /// <summary>

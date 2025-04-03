@@ -7,6 +7,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.Overlays.BrushShapeOverlay;
@@ -29,7 +30,7 @@ internal class BrightnessToolViewModel : ToolViewModel, IBrightnessToolHandler
     public override bool IsErasable => true;
     public override LocalizedString Tooltip => new LocalizedString("BRIGHTNESS_TOOL_TOOLTIP", Shortcut);
 
-    public override BrushShape BrushShape => BrushShape.CirclePixelated;
+    public override BrushShape FinalBrushShape => BrushShape == PaintBrushShape.Square ? Views.Overlays.BrushShapeOverlay.BrushShape.Square : Views.Overlays.BrushShapeOverlay.BrushShape.CirclePixelated;
 
     public override string DefaultIcon => PixiPerfectIcons.Sun;
 
@@ -51,6 +52,17 @@ internal class BrightnessToolViewModel : ToolViewModel, IBrightnessToolHandler
 
     [Settings.Enum("MODE_LABEL")]
     public BrightnessMode BrightnessMode => GetValue<BrightnessMode>();
+
+    [Settings.Enum("PAINT_SHAPE_SETTING", PaintBrushShape.Circle, Notify = nameof(BrushShapeChanged))]
+    public PaintBrushShape BrushShape
+    {
+        get => GetValue<PaintBrushShape>();
+        set
+        {
+            SetValue(value);
+            OnPropertyChanged(nameof(FinalBrushShape));
+        }
+    }
     
     public bool Darken { get; private set; } = false;
 
@@ -75,5 +87,10 @@ internal class BrightnessToolViewModel : ToolViewModel, IBrightnessToolHandler
     public override void UseTool(VecD pos)
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseBrightnessTool();
+    }
+
+    private void BrushShapeChanged()
+    {
+        OnPropertyChanged(nameof(FinalBrushShape));
     }
 }

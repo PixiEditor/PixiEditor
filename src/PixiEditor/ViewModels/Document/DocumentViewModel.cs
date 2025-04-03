@@ -157,6 +157,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public bool AnySymmetryAxisEnabledBindable =>
         HorizontalSymmetryAxisEnabledBindable || VerticalSymmetryAxisEnabledBindable;
 
+
+    public bool OverlayEventsSuppressed => overlaySuppressors.Count > 0;
+
+    private readonly HashSet<string> overlaySuppressors = new();
+
     private VecI size = new VecI(64, 64);
     public int Width => size.X;
     public int Height => size.Y;
@@ -223,6 +228,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public LineToolOverlayViewModel LineToolOverlayViewModel { get; }
     public AnimationDataViewModel AnimationDataViewModel { get; }
     public TextOverlayViewModel TextOverlayViewModel { get; }
+
 
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers => softSelectedStructureMembers;
     private DocumentInternalParts Internals { get; }
@@ -437,7 +443,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             mappedNodeIds.Add(id, guid);
             Guid pairGuid = Guid.Empty;
 
-            if (serializedNode.PairId != null && mappedNodeIds.TryGetValue(serializedNode.PairId.Value, out Guid pairId))
+            if (serializedNode.PairId != null &&
+                mappedNodeIds.TryGetValue(serializedNode.PairId.Value, out Guid pairId))
             {
                 pairGuid = pairId;
             }
@@ -769,6 +776,18 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         return bitmap.GetSRGBPixel(new VecI((int)transformed.X, (int)transformed.Y));
     }
 
+    public void SuppressAllOverlayEvents(string suppressor)
+    {
+        overlaySuppressors.Add(suppressor);
+        OnPropertyChanged(nameof(OverlayEventsSuppressed));
+    }
+
+    public void RestoreAllOverlayEvents(string suppressor)
+    {
+        overlaySuppressors.Remove(suppressor);
+        OnPropertyChanged(nameof(OverlayEventsSuppressed));
+    }
+
     public Color PickColorFromCanvas(VecI pos, DocumentScope scope, KeyFrameTime frameTime, string? customOutput = null)
     {
         // there is a tiny chance that the image might get disposed by another thread
@@ -778,7 +797,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             // via a passthrough action to avoid all the try catches
             if (scope == DocumentScope.Canvas)
             {
-                using Surface tmpSurface = new Surface(SizeBindable); // new Surface is on purpose, Surface.ForDisplay doesn't work here
+                using Surface
+                    tmpSurface =
+                        new Surface(SizeBindable); // new Surface is on purpose, Surface.ForDisplay doesn't work here
                 Renderer.RenderDocument(tmpSurface.DrawingSurface, frameTime, SizeBindable, customOutput);
 
                 return tmpSurface.GetSrgbPixel(pos);

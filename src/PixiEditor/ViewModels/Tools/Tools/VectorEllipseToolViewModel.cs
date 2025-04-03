@@ -60,8 +60,6 @@ internal class VectorEllipseToolViewModel : ShapeTool, IVectorEllipseToolHandler
 
     protected override void OnSelected(bool restoring)
     {
-        if (restoring) return;
-
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorEllipseTool();
     }
 
