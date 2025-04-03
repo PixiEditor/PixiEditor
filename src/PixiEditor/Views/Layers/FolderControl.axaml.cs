@@ -64,6 +64,11 @@ internal partial class FolderControl : UserControl
         middleDropGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_CenterLeave);
         middleDropGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Center);
         
+        DisableDropPanels();
+    }
+
+    private void DisableDropPanels()
+    {
         TopDropGrid.IsVisible = false;
         middleDropGrid.IsVisible = false;
         BottomDropGrid.IsVisible = false;
@@ -101,30 +106,33 @@ internal partial class FolderControl : UserControl
         LayerControl.RemoveDragEffect(centerGrid);
     }
 
-    private void HandleDrop(IDataObject dataObj, StructureMemberPlacement placement)
+    private bool HandleDrop(IDataObject dataObj, StructureMemberPlacement placement)
     {
+        DisableDropPanels();
         Guid? droppedMemberGuid = LayerControl.ExtractMemberGuid(dataObj);
         if (droppedMemberGuid is null)
-            return;
+            return false;
         Folder.Document.Operations.MoveStructureMember((Guid)droppedMemberGuid, Folder.Id, placement);
+
+        return true;
     }
 
     private void Grid_Drop_Top(object sender, DragEventArgs e)
     {
         LayerControl.RemoveDragEffect((Grid)sender);
-        HandleDrop(e.Data, StructureMemberPlacement.Above);
+        e.Handled = HandleDrop(e.Data, StructureMemberPlacement.Above);
     }
 
     private void Grid_Drop_Center(object sender, DragEventArgs e)
     {
         LayerControl.RemoveDragEffect(centerGrid);
-        HandleDrop(e.Data, StructureMemberPlacement.Inside);
+        e.Handled = HandleDrop(e.Data, StructureMemberPlacement.Inside);
     }
 
     private void Grid_Drop_Bottom(object sender, DragEventArgs e)
     {
         LayerControl.RemoveDragEffect((Grid)sender);
-        HandleDrop(e.Data, StructureMemberPlacement.Below);
+        e.Handled = HandleDrop(e.Data, StructureMemberPlacement.Below);
     }
 
     private void FolderControl_DragEnter(object sender, DragEventArgs e)

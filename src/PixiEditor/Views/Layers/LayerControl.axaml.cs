@@ -149,32 +149,34 @@ internal partial class LayerControl : UserControl
         return null;
     }
 
-    private void HandleDrop(IDataObject dataObj, StructureMemberPlacement placement)
+    private bool HandleDrop(IDataObject dataObj, StructureMemberPlacement placement)
     {
         if (placement == StructureMemberPlacement.Inside)
-            return;
+            return false;
         Guid? droppedMemberGuid = ExtractMemberGuid(dataObj);
         if (droppedMemberGuid is null)
-            return;
+            return false;
         Layer.Document.Operations.MoveStructureMember((Guid)droppedMemberGuid, Layer.Id, placement);
+
+        return true;
     }
 
     private void Grid_Drop_Top(object sender, DragEventArgs e)
     {
         RemoveDragEffect((Grid)sender);
-        HandleDrop(e.Data, StructureMemberPlacement.Above);
+        e.Handled = HandleDrop(e.Data, StructureMemberPlacement.Above);
     }
 
     private void Grid_Drop_Bottom(object sender, DragEventArgs e)
     {
         RemoveDragEffect((Grid)sender);
-        HandleDrop(e.Data, StructureMemberPlacement.Below);
+        e.Handled = HandleDrop(e.Data, StructureMemberPlacement.Below);
     }
 
     private void Grid_Drop_Below(object sender, DragEventArgs e)
     {
         RemoveDragEffect((Grid)sender);
-        HandleDrop(e.Data, StructureMemberPlacement.BelowOutsideFolder);
+        e.Handled = HandleDrop(e.Data, StructureMemberPlacement.BelowOutsideFolder);
     }
 
     private void RenameMenuItem_Click(object sender, RoutedEventArgs e)

@@ -33,6 +33,7 @@ internal partial class LayersManager : UserControl
         dropBorder.AddHandler(DragDrop.DragEnterEvent, Grid_DragEnter);
         dropBorder.AddHandler(DragDrop.DragLeaveEvent, Grid_DragLeave);
         dropBorder.AddHandler(DragDrop.DropEvent, Grid_Drop);
+        RootGrid.AddHandler(DragDrop.DropEvent, Grid_Drop);
     }
 
     private void LayerControl_MouseDown(object sender, PointerPressedEventArgs e)
