@@ -94,7 +94,8 @@ internal class Document : IChangeable, IReadOnlyDocument
         if (layer is IReadOnlyImageNode imageNode)
         {
             var chunkyImage = imageNode.GetLayerImageAtFrame(frame);
-            using Surface chunkSurface = Surface.ForProcessing(chunkyImage.CommittedSize, chunkyImage.ProcessingColorSpace);
+            using Surface chunkSurface =
+                Surface.ForProcessing(chunkyImage.CommittedSize, chunkyImage.ProcessingColorSpace);
             chunkyImage.DrawCommittedRegionOn(
                 new RectI(0, 0, chunkyImage.CommittedSize.X, chunkyImage.CommittedSize.Y),
                 ChunkResolution.Full,
@@ -142,6 +143,23 @@ internal class Document : IChangeable, IReadOnlyDocument
     public void InitProcessingColorSpace(ColorSpace processingColorSpace)
     {
         ProcessingColorSpace = processingColorSpace;
+    }
+
+    public List<IReadOnlyStructureNode> GetParents(Guid memberGuid)
+    {
+        var childNode = FindNode<StructureNode>(memberGuid);
+        if (childNode == null)
+            return new List<IReadOnlyStructureNode>();
+
+        List<IReadOnlyStructureNode> parents = new();
+        childNode.TraverseForwards((node, input) =>
+        {
+            if (node is IReadOnlyStructureNode parent && input is { InternalPropertyName: FolderNode.ContentInternalName })
+                parents.Add(parent);
+            return true;
+        });
+
+        return parents;
     }
 
     private void ForEveryReadonlyMember(IReadOnlyNodeGraph graph, Action<IReadOnlyStructureNode> action)
