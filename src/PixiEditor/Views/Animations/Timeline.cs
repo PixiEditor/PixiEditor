@@ -457,18 +457,10 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
         double mouseXInViewport = e.GetPosition(_timelineKeyFramesScroll).X;
 
-        double currentFrameUnderMouse = towardsFrame;
+        double currentFrameUnderMouse = towardsFrame - 1;
         double newOffsetX = currentFrameUnderMouse * newScale - mouseXInViewport + MinLeftOffset;
 
-        if (towardsFrame * MarginMultiplier > KeyFrames.FrameCount)
-        {
-            // 50 is a magic number I found working ok, for bigger frames it is a bit too big, maybe find a better way to calculate this?
-            extendingElement.Margin = new Thickness(newOffsetX * 50, 0, 0, 0);
-        }
-        else
-        {
-            extendingElement.Margin = new Thickness(_timelineKeyFramesScroll.Viewport.Width, 0, 0, 0);
-        }
+        extendingElement.Margin = new Thickness(_timelineKeyFramesScroll.Viewport.Width + newOffsetX * 1.1f, 0, 0, 0);
 
         Dispatcher.UIThread.Post(
             () =>
