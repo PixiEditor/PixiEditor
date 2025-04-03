@@ -1,8 +1,10 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers;
@@ -34,6 +36,7 @@ internal partial class LayersManager : UserControl
         dropBorder.AddHandler(DragDrop.DragLeaveEvent, Grid_DragLeave);
         dropBorder.AddHandler(DragDrop.DropEvent, Grid_Drop);
         RootGrid.AddHandler(DragDrop.DropEvent, Grid_Drop);
+        treeView.AddHandler(DragDrop.DragOverEvent, TreeView_DragScroll);
     }
 
     private void LayerControl_MouseDown(object sender, PointerPressedEventArgs e)
@@ -254,5 +257,27 @@ internal partial class LayersManager : UserControl
         }
 
         return matches;
+    }
+
+    private void TreeView_DragScroll(object sender, DragEventArgs e)
+    {
+        if (sender is not TreeView treeView)
+            return;
+
+        var point = e.GetPosition(treeView);
+
+        ScrollViewer scrollViewer = treeView.FindDescendantOfType<ScrollViewer>();
+
+        if (scrollViewer is null)
+            return;
+
+        if (point.Y < 10)
+        {
+            scrollViewer.Offset = new Vector(scrollViewer.Offset.X, scrollViewer.Offset.Y - 10);
+        }
+        else if (point.Y > treeView.Bounds.Height - 10)
+        {
+            scrollViewer.Offset = new Vector(scrollViewer.Offset.X, scrollViewer.Offset.Y + 10);
+        }
     }
 }
