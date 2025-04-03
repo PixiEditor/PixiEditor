@@ -29,9 +29,9 @@
                 </Border>
             </dialogs:DialogTitleBar.AdditionalElement>
         </dialogs:DialogTitleBar>
-        <Svg DockPanel.Dock="Left" HorizontalAlignment="Left" Path="/Images/PixiEditorLogo.svg"
-             Width="20" Height="20">
-            <Svg.Margin>
+        <Panel DockPanel.Dock="Left"
+               HorizontalAlignment="Left" Width="20" Height="20">
+            <Panel.Margin>
                 <OnPlatform>
                     <OnPlatform.macOS>
                         <Thickness>75, 0, 0, 0</Thickness>
@@ -40,8 +40,75 @@
                         <Thickness>10, 0, 0, 0</Thickness>
                     </OnPlatform.Default>
                 </OnPlatform>
-            </Svg.Margin>
-        </Svg>
+            </Panel.Margin>
+            <ToggleButton Name="LogoButton" Padding="0" BorderThickness="0">
+                <ToggleButton.Background>
+                    <VisualBrush>
+                        <VisualBrush.Visual>
+                            <Svg Path="/Images/PixiEditorLogo.svg" />
+                        </VisualBrush.Visual>
+                    </VisualBrush>
+                </ToggleButton.Background>
+                <ToggleButton.Styles>
+                    <Style Selector="FlyoutPresenter.arrow">
+                        <Setter Property="Cursor" Value="Arrow" />
+                    </Style>
+                </ToggleButton.Styles>
+                <ToggleButton.Flyout>
+                    <Flyout Placement="BottomEdgeAlignedLeft" FlyoutPresenterClasses="arrow">
+                        <Flyout.Content>
+                            <StackPanel Spacing="5" Margin="5">
+                                <TextBlock Text="PixiEditor" Classes="h3" />
+                                <TextBlock Text="{Binding UpdateViewModel.VersionText}" />
+                                <TextBlock IsVisible="{Binding UpdateViewModel.SelfUpdatingAvailable}"
+                                           Text="{Binding UpdateViewModel.UpdateStateString}" />
+                                <Button ui:Translator.Key="DOWNLOAD_UPDATE"
+                                        Background="{DynamicResource ThemeAccentBrush}"
+                                        Command="{Binding UpdateViewModel.DownloadCommand}"
+                                        IsVisible="{Binding UpdateViewModel.IsUpdateAvailable}" />
+                                <Button ui:Translator.Key="SWITCH_TO_NEW_VERSION"
+                                        Background="{DynamicResource ThemeAccentBrush}"
+                                        Command="{Binding UpdateViewModel.InstallCommand}"
+                                        IsVisible="{Binding UpdateViewModel.UpdateReadyToInstall}" />
+                            </StackPanel>
+                        </Flyout.Content>
+                    </Flyout>
+                </ToggleButton.Flyout>
+            </ToggleButton>
+            <Panel ClipToBounds="False" Margin="10, 10, 0, 0"
+                   IsVisible="{Binding UpdateViewModel.SelfUpdatingAvailable}"
+                   IsHitTestVisible="False" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                <TextBlock Text="!" IsVisible="{Binding UpdateViewModel.IsUpdateAvailable}"
+                           ClipToBounds="False"
+                           FontWeight="SemiBold"
+                           Foreground="Yellow" FontSize="18" />
+                <TextBlock Text="{DynamicResource icon-settings}"
+                           ClipToBounds="False"
+                            Width="16" Height="16"
+                           IsVisible="{Binding UpdateViewModel.IsDownloading}"
+                           Classes="pixi-icon" Foreground="DarkGray" FontSize="16">
+                    <TextBlock.Styles>
+                        <Style Selector="TextBlock">
+                            <Style.Animations>
+                                <Animation Duration="0:0:5" IterationCount="Infinite">
+                                    <KeyFrame Cue="0%">
+                                        <Setter Property="RotateTransform.Angle" Value="0.0" />
+                                    </KeyFrame>
+                                    <KeyFrame Cue="100%">
+                                        <Setter Property="RotateTransform.Angle" Value="360" />
+                                    </KeyFrame>
+                                </Animation>
+                            </Style.Animations>
+                        </Style>
+                    </TextBlock.Styles>
+                </TextBlock>
+                <Ellipse
+                    ClipToBounds="False"
+                    Fill="{DynamicResource ThemeAccent3Brush}" IsVisible="{Binding UpdateViewModel.UpdateReadyToInstall}"
+                    Width="8" Height="8" />
+            </Panel>
+        </Panel>
+
         <StackPanel Orientation="Horizontal">
             <StackPanel.Margin>
                 <OnPlatform>
@@ -86,6 +153,7 @@
             </Border>
         </StackPanel>
         <main:MiniAnimationPlayer
+            Name="MiniPlayer"
             ActiveFrame="{Binding ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, Source={viewModels:MainVM DocumentManagerSVM}, Mode=TwoWay}"
             FramesCount="{Binding ActiveDocument.AnimationDataViewModel.FramesCount, Source={viewModels:MainVM DocumentManagerSVM}}"
             IsPlaying="{Binding ActiveDocument.AnimationDataViewModel.IsPlayingBindable, Source={viewModels:MainVM DocumentManagerSVM}, Mode=TwoWay}"

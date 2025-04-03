@@ -12,6 +12,7 @@ using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.UI;
 using PixiEditor.Models.Commands;
 using PixiEditor.OperatingSystem;
+using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
 using Command = PixiEditor.Models.Commands.Commands.Command;
 using Commands_Command = PixiEditor.Models.Commands.Commands.Command;
@@ -22,11 +23,18 @@ namespace PixiEditor.ViewModels.Menu;
 internal class MenuBarViewModel : PixiObservableObject
 {
     private AdditionalContentViewModel additionalContentViewModel;
+    private UpdateViewModel updateViewModel;
 
     public AdditionalContentViewModel AdditionalContentSubViewModel
     {
         get => additionalContentViewModel;
         set => SetProperty(ref additionalContentViewModel, value);
+    }
+
+    public UpdateViewModel UpdateViewModel
+    {
+        get => updateViewModel;
+        set => SetProperty(ref updateViewModel, value);
     }
 
     public ObservableCollection<MenuItem>? MenuEntries { get; set; }
@@ -47,9 +55,10 @@ internal class MenuBarViewModel : PixiObservableObject
         { "DEBUG", 1000 },
     };
 
-    public MenuBarViewModel(AdditionalContentViewModel? additionalContentSubViewModel)
+    public MenuBarViewModel(AdditionalContentViewModel? additionalContentSubViewModel, UpdateViewModel? updateViewModel)
     {
         AdditionalContentSubViewModel = additionalContentSubViewModel;
+        UpdateViewModel = updateViewModel;
     }
 
     public void Init(IServiceProvider serviceProvider, CommandController controller)

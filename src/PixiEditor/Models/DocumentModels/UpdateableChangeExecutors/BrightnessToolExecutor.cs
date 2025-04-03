@@ -15,6 +15,7 @@ internal class BrightnessToolExecutor : UpdateableChangeExecutor
     private bool repeat;
     private float correctionFactor;
     private int toolSize;
+    private bool squareBrush;
 
     public override ExecutionState Start()
     {
@@ -30,7 +31,9 @@ internal class BrightnessToolExecutor : UpdateableChangeExecutor
         toolSize = (int)toolbar.ToolSize;
         correctionFactor = tool.Darken || tool.UsedWith == MouseButton.Right ? -tool.CorrectionFactor : tool.CorrectionFactor;
 
-        ChangeBrightness_Action action = new(guidValue, controller!.LastPixelPosition, correctionFactor, toolSize, repeat, document.AnimationHandler.ActiveFrameBindable);
+        squareBrush = tool.BrushShape == PaintBrushShape.Square;
+
+        ChangeBrightness_Action action = new(guidValue, controller!.LastPixelPosition, correctionFactor, toolSize, squareBrush, repeat, document.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);
 
         return ExecutionState.Success;
@@ -38,7 +41,7 @@ internal class BrightnessToolExecutor : UpdateableChangeExecutor
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        ChangeBrightness_Action action = new(guidValue, pos, correctionFactor, toolSize, repeat, document!.AnimationHandler.ActiveFrameBindable);
+        ChangeBrightness_Action action = new(guidValue, pos, correctionFactor, toolSize, squareBrush, repeat, document!.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);
     }
 

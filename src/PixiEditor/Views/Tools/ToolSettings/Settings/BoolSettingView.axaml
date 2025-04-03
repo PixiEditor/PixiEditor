@@ -12,7 +12,9 @@
     </Design.DataContext>
 
     <Grid>
-        <CheckBox VerticalAlignment="Center" Focusable="False" IsChecked="{Binding Value, Mode=TwoWay}">
+        <CheckBox VerticalAlignment="Center" Focusable="False"
+                  ui:Translator.Key="{Binding Label}"
+                  IsChecked="{Binding Value, Mode=TwoWay}">
            <CheckBox.IsVisible>
                <MultiBinding Converter="{converters:AllTrueConverter}">
                    <Binding Path="HasLabel"/>

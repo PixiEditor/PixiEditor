@@ -8,21 +8,19 @@ namespace PixiEditor.ViewModels.Tools;
 
 internal abstract class ShapeTool : ToolViewModel, IShapeToolHandler
 {
-    public override BrushShape BrushShape => BrushShape.Hidden;
+    public override BrushShape FinalBrushShape => BrushShape.Hidden;
 
     public override bool UsesColor => true;
 
     public override bool IsErasable => true;
     public bool DrawEven { get; protected set; }
     public bool DrawFromCenter { get; protected set; }
-    
 
     public ShapeTool()
     {
         Cursor = new Cursor(StandardCursorType.Cross);
         Toolbar = new FillableShapeToolbar();
     }
-
 
     protected override void OnDeselecting(bool transient)
     {

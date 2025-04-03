@@ -91,6 +91,8 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
                 return ExecutionState.Success;
             }
 
+            toolbar.StrokeBrush = data.Stroke.ToBrush();
+
             if (!InitShapeData(data))
             {
                 ActiveMode = ShapeToolMode.Preview;
@@ -192,8 +194,8 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
         var moveOverlayAction = TransformOverlayMoved(start, end);
         internals!.ActionAccumulator.AddActions(moveOverlayAction);
 
-        startDrawingPos = (VecI)start;
-        curPos = (VecI)end;
+        startDrawingPos = start;
+        curPos = end;
     }
 
     public override void OnColorChanged(Color color, bool primary)

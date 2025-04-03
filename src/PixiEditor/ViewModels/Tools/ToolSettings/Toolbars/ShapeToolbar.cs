@@ -54,7 +54,7 @@ internal class ShapeToolbar : Toolbar, IShapeToolbar
 
     public ShapeToolbar()
     {
-        AddSetting(new SizeSettingViewModel(nameof(ToolSize), "STROKE_WIDTH", 0, decimalPlaces: 2));
+        AddSetting(new SizeSettingViewModel(nameof(ToolSize), "STROKE_WIDTH", 0, min: 0, decimalPlaces: 2));
         AddSetting(new BoolSettingViewModel(nameof(AntiAliasing), "ANTI_ALIASING_LABEL")
         {
             IsExposed = false, Value = false

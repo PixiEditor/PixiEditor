@@ -123,6 +123,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         bool useFilters)
     {
         blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * ctx.Opacity * 255));
+        var finalPaint = blendPaint;
 
         var targetSurface = workingSurface;
         Texture? tex = null;
@@ -135,21 +136,23 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 ColorSpace.CreateSrgb());
             targetSurface = tex.DrawingSurface;
             workingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+
+            finalPaint = new Paint();
         }
         if (useFilters && Filters.Value != null)
         {
             blendPaint.SetFilters(Filters.Value);
-            DrawWithFilters(ctx, targetSurface, blendPaint);
+            DrawWithFilters(ctx, targetSurface, finalPaint);
         }
         else
         {
             blendPaint.SetFilters(null);
-            DrawWithoutFilters(ctx, targetSurface, blendPaint);
+            DrawWithoutFilters(ctx, targetSurface, finalPaint);
         }
 
         if (targetSurface != workingSurface)
         {
-            workingSurface.Canvas.DrawSurface(targetSurface, 0, 0);
+            workingSurface.Canvas.DrawSurface(targetSurface, 0, 0, blendPaint);
             tex.Dispose();
             workingSurface.Canvas.RestoreToCount(saved);
         }

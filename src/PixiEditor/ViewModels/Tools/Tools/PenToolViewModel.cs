@@ -7,6 +7,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Input;
 using Drawie.Numerics;
+using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
@@ -20,7 +21,9 @@ namespace PixiEditor.ViewModels.Tools.Tools
         private double actualToolSize;
 
         public override string ToolNameLocalizationKey => "PEN_TOOL";
-        public override BrushShape BrushShape => BrushShapeSetting;
+
+        public override BrushShape FinalBrushShape =>
+            PaintShape == PaintBrushShape.Square ? BrushShape.Square : BrushShapeSetting;
         
         public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
 
@@ -41,7 +44,21 @@ namespace PixiEditor.ViewModels.Tools.Tools
         public bool PixelPerfectEnabled => GetValue<bool>();
         
         [Settings.Enum("BRUSH_SHAPE_SETTING", BrushShape.CirclePixelated, ExposedByDefault = false, Notify = nameof(BrushShapeChanged))]
-        public BrushShape BrushShapeSetting => GetValue<BrushShape>();
+        public BrushShape BrushShapeSetting
+        {
+            get
+            {
+                return GetValue<BrushShape>();
+            }
+            set
+            {
+                SetValue(value);
+                OnPropertyChanged(nameof(FinalBrushShape));
+            }
+        }
+
+        [Settings.Inherited(Notify = nameof(PenShapeChanged))]
+        public PaintBrushShape PaintShape => GetValue<PaintBrushShape>();
 
         public override string DefaultIcon => PixiPerfectIcons.Pen;
 
@@ -133,7 +150,13 @@ namespace PixiEditor.ViewModels.Tools.Tools
         
         private void BrushShapeChanged()
         {
-            OnPropertyChanged(nameof(BrushShape));
+            OnPropertyChanged(nameof(FinalBrushShape));
+        }
+
+        private void PenShapeChanged()
+        {
+            OnPropertyChanged(nameof(PaintShape));
+            OnPropertyChanged(nameof(FinalBrushShape));
         }
     }
 }

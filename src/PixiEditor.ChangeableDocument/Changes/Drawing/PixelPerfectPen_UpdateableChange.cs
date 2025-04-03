@@ -78,6 +78,7 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
         {
             pixelsToConfirm.Add(pixel);
         }
+
         image.EnqueueDrawPixels(line.Select(point => new VecI((int)point.X, (int)point.Y)), color, BlendMode.Src);
 
         if (pointsCount >= 3 && IsLShape(pointsCount - 1) && !confirmedPixels.Contains(incomingPoints[pointsCount - 2]))

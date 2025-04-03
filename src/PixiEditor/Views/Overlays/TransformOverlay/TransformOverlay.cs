@@ -902,9 +902,9 @@ internal class TransformOverlay : Overlay
                 InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos,
                 ScaleFromCenter,
                 SnappingController,
-                out string snapX, out string snapY, out VecD? snapPoint);
+                out string snapX, out string snapY);
 
-            HighlightSnappedAxis(snapX, snapY, snapPoint);
+            VecD? snapPoint = null;
 
             if (newCorners is not null)
             {
@@ -917,8 +917,13 @@ internal class TransformOverlay : Overlay
                     : (ShapeCorners)newCorners;
 
                 Corners = (ShapeCorners)newCorners;
+                if (!string.IsNullOrEmpty(snapX) || !string.IsNullOrEmpty(snapY))
+                {
+                    snapPoint = TransformHelper.GetAnchorPosition((ShapeCorners)newCorners, (Anchor)capturedAnchor);
+                }
             }
 
+            HighlightSnappedAxis(snapX, snapY, snapPoint);
             UpdateOriginPos();
         }
         else if (TransformHelper.IsSide((Anchor)capturedAnchor))

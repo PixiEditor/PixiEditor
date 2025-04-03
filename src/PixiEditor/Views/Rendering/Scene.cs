@@ -305,6 +305,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 }
 
                 overlay.PointerPosition = lastMousePosition;
+
                 overlay.ZoomScale = Scale;
 
                 if (!overlay.CanRender()) continue;

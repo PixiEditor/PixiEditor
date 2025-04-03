@@ -119,8 +119,6 @@ internal class VectorPathToolViewModel : ShapeTool, IVectorPathToolHandler
     
     protected override void OnSelected(bool restoring)
     {
-        if (restoring) return;
-
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorPathTool();
         isActivated = true;
     }
