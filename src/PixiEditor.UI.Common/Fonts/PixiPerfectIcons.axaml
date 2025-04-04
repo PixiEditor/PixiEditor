@@ -5,6 +5,7 @@
         <ResourceDictionary>
             <FontFamily x:Key="PixiPerfectIcons">avares://PixiEditor.UI.Common/Fonts/PixiPerfect.ttf#pixiperfect</FontFamily>
 
+            <system:String x:Key="icon-ghost">&#xe812;</system:String>
             <system:String x:Key="icon-add-reference">&#xE900;</system:String>
             <system:String x:Key="icon-add-to-mask">&#xE901;</system:String>
             <system:String x:Key="icon-alpha-lock">&#xE902;</system:String>

@@ -1007,5 +1007,7 @@
   "DIFFERENCE_VECTOR_PATH_OP": "Difference",
   "INTERSECT_VECTOR_PATH_OP": "Intersect",
   "XOR_VECTOR_PATH_OP": "XOR",
-  "REVERSE_DIFFERENCE_VECTOR_PATH_OP": "Reverse Difference"
+  "REVERSE_DIFFERENCE_VECTOR_PATH_OP": "Reverse Difference",
+  "NO_DOCUMENT_OPEN": "Nothing's here",
+  "EMPTY_DOCUMENT_ACTION_BTN": "Start creating"
 }

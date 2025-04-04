@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="viewModels:ViewModelMain"
              x:Class="PixiEditor.Views.Main.CreateDocumentFallbackView">
@@ -10,8 +11,10 @@
         <viewModels:ViewModelMain/>
     </Design.DataContext>
 
-    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-        <TextBlock Text="Create new document" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Button Content="Create" Command="{Binding FileSubViewModel.CreateFromNewFileDialog}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="48">
+        <TextBlock Classes="h1" Foreground="{DynamicResource ThemeForegroundBrush}"  ui:Translator.Key="NO_DOCUMENT_OPEN" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock FontSize="128" Opacity="0.5" Classes="pixi-icon" Foreground="{DynamicResource ThemeForegroundBrush}"
+                   Text="{DynamicResource icon-ghost}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Button Width="240" Background="{DynamicResource ThemeAccentBrush}" ui:Translator.Key="EMPTY_DOCUMENT_ACTION_BTN" Command="{Binding WindowSubViewModel.OpenHelloThereWindow}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </StackPanel>
 </UserControl>
