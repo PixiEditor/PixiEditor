@@ -8,7 +8,8 @@
              mc:Ignorable="d" x:Name="etb"
              d:DesignHeight="60" d:DesignWidth="100" Focusable="True">
     <Grid>
-        <TextBlock Foreground="{Binding ElementName=etb, Path=Foreground}" PointerPressed="TextBlock_MouseDown"
+        <TextBlock Foreground="{Binding ElementName=etb, Path=Foreground}"
+                   DoubleTapped="OnDoubleTapped"
                    TextTrimming="CharacterEllipsis" Name="textBlock"
                    IsVisible="{Binding Path=TextBlockVisibility, ElementName=etb}"
                    Text="{Binding Path=Text, ElementName=etb, Mode=TwoWay}" />

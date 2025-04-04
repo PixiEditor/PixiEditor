@@ -104,4 +104,5 @@ public interface IReadOnlyDocument : IDisposable
     public DocumentRenderer Renderer { get; }
     public ColorSpace ProcessingColorSpace { get; }
     public void InitProcessingColorSpace(ColorSpace processingColorSpace);
+    public List<IReadOnlyStructureNode> GetParents(Guid memberGuid);
 }

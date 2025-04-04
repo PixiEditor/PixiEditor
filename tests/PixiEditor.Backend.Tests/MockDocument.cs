@@ -79,4 +79,9 @@ public class MockDocument : IReadOnlyDocument
     {
         throw new NotImplementedException();
     }
+
+    public List<IReadOnlyStructureNode> GetParents(Guid memberGuid)
+    {
+        throw new NotImplementedException();
+    }
 }

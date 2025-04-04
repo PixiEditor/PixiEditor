@@ -8,6 +8,9 @@ internal class FlyUIApi : ApiGroupHandler
     [ApiFunction("subscribe_to_event")]
     public void SubscribeToEvent(int controlId, string eventName)
     {
+        if (!LayoutBuilder.ManagedElements.ContainsKey(controlId))
+            return;
+
         LayoutBuilder.ManagedElements[controlId].AddEvent(eventName, (args) =>
         {
             var action = Instance.GetAction<int, int>("raise_element_event");
@@ -21,7 +24,9 @@ internal class FlyUIApi : ApiGroupHandler
     [ApiFunction("state_changed")]
     public void StateChanged(int controlId, Span<byte> bodySpan)
     {
-        var element = LayoutBuilder.ManagedElements[controlId];
+        if (!LayoutBuilder.ManagedElements.TryGetValue(controlId, out var element))
+            return;
+
         var body = LayoutBuilder.Deserialize(bodySpan, DuplicateResolutionTactic.ReplaceRemoveChildren);
 
         Dispatcher.UIThread.InvokeAsync(() =>
