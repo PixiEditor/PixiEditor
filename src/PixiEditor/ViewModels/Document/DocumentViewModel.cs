@@ -157,6 +157,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public bool AnySymmetryAxisEnabledBindable =>
         HorizontalSymmetryAxisEnabledBindable || VerticalSymmetryAxisEnabledBindable;
 
+
+    public bool OverlayEventsSuppressed => overlaySuppressors.Count > 0;
+
+    private readonly HashSet<string> overlaySuppressors = new();
+
     private VecI size = new VecI(64, 64);
     public int Width => size.X;
     public int Height => size.Y;
@@ -223,6 +228,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public LineToolOverlayViewModel LineToolOverlayViewModel { get; }
     public AnimationDataViewModel AnimationDataViewModel { get; }
     public TextOverlayViewModel TextOverlayViewModel { get; }
+
 
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers => softSelectedStructureMembers;
     private DocumentInternalParts Internals { get; }
@@ -768,6 +774,18 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             return null;
 
         return bitmap.GetSRGBPixel(new VecI((int)transformed.X, (int)transformed.Y));
+    }
+
+    public void SuppressAllOverlayEvents(string suppressor)
+    {
+        overlaySuppressors.Add(suppressor);
+        OnPropertyChanged(nameof(OverlayEventsSuppressed));
+    }
+
+    public void RestoreAllOverlayEvents(string suppressor)
+    {
+        overlaySuppressors.Remove(suppressor);
+        OnPropertyChanged(nameof(OverlayEventsSuppressed));
     }
 
     public Color PickColorFromCanvas(VecI pos, DocumentScope scope, KeyFrameTime frameTime, string? customOutput = null)

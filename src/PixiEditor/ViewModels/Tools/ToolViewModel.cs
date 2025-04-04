@@ -28,7 +28,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
 
     public virtual string DefaultIcon => $"\u25a1";
 
-    public virtual BrushShape BrushShape => BrushShape.Square;
+    public virtual BrushShape FinalBrushShape => BrushShape.Square;
 
     public abstract Type[]? SupportedLayerTypes { get; }
 

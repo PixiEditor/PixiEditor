@@ -10,4 +10,5 @@ internal interface IBrightnessToolHandler : IToolHandler
     public bool Darken { get; }
     public MouseButton UsedWith { get; }
     public float CorrectionFactor { get; }
+    public PaintBrushShape BrushShape { get; }
 }

@@ -57,7 +57,15 @@ public class AnalyticsPeriodicReporter
     {
         await _cancellationToken.CancelAsync();
 
-        await _client.EndSessionAsync(SessionId).WaitAsync(TimeSpan.FromSeconds(1));
+        try
+        {
+            await _client.EndSessionAsync(SessionId).WaitAsync(TimeSpan.FromSeconds(1));
+        }
+        catch (TaskCanceledException) { }
+        catch (Exception e)
+        {
+            await SendExceptionAsync(e);
+        }
     }
 
     public void AddEvent(AnalyticEvent value)
@@ -87,14 +95,21 @@ public class AnalyticsPeriodicReporter
     {
         if (!_resumeSession)
         {
-            var createSession = await _client.CreateSessionAsync(_cancellationToken.Token);
-
-            if (!createSession.HasValue)
+            try
             {
+                var createSession = await _client.CreateSessionAsync(_cancellationToken.Token);
+                if (!createSession.HasValue)
+                {
+                    return;
+                }
+
+                SessionId = createSession.Value;
+            }
+            catch (Exception e)
+            {
+                await SendExceptionAsync(e);
                 return;
             }
-
-            SessionId = createSession.Value;
         }
 
         Task.Run(RunHeartbeatAsync);

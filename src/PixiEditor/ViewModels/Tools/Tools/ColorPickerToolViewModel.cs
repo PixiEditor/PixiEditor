@@ -28,7 +28,7 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
     public override bool UsesColor => true;
 
     public override string ToolNameLocalizationKey => "COLOR_PICKER_TOOL";
-    public override BrushShape BrushShape => BrushShape.Pixel;
+    public override BrushShape FinalBrushShape => BrushShape.Pixel;
 
     public override string DefaultIcon => PixiPerfectIcons.Picker;
 
@@ -170,4 +170,16 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
 
     public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey) =>
         UpdateActionDisplay(ctrlIsDown, shiftIsDown);
+
+    protected override void OnSelected(bool restoring)
+    {
+        base.OnSelected(restoring);
+        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.SuppressAllOverlayEvents(ToolName);
+    }
+
+    protected override void OnDeselecting(bool transient)
+    {
+        base.OnDeselecting(transient);
+        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.RestoreAllOverlayEvents(ToolName);
+    }
 }

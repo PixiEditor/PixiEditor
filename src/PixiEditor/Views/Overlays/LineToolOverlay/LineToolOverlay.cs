@@ -167,6 +167,7 @@ internal class LineToolOverlay : Overlay
         {
             SnappingController.HighlightedXAxis = null;
             SnappingController.HighlightedYAxis = null;
+            SnappingController.HighlightedPoint = null;
             Refresh();
         }
 
@@ -273,6 +274,7 @@ internal class LineToolOverlay : Overlay
 
             SnappingController.HighlightedXAxis = snapAxisX;
             SnappingController.HighlightedYAxis = snapAxisY;
+            SnappingController.HighlightedPoint = x != null || y != null ? final : null;
         }
 
         return final;
@@ -294,12 +296,13 @@ internal class LineToolOverlay : Overlay
         VecD mappedStart = lineStartOnMouseDown;
         VecD mappedEnd = lineEndOnMouseDown;
 
-        ((string, string), VecD) snapDeltaResult = TrySnapLine(mappedStart, mappedEnd, delta);
+        ((string, string), VecD) snapDeltaResult = TrySnapLine(mappedStart, mappedEnd, delta, out VecD? snapSource);
 
         if (SnappingController != null)
         {
             SnappingController.HighlightedXAxis = snapDeltaResult.Item1.Item1;
             SnappingController.HighlightedYAxis = snapDeltaResult.Item1.Item2;
+            SnappingController.HighlightedPoint = snapSource;
         }
 
         LineStart = lineStartOnMouseDown + delta + snapDeltaResult.Item2;
@@ -319,10 +322,11 @@ internal class LineToolOverlay : Overlay
             ActionCompleted.Execute(null);
     }
 
-    private ((string, string), VecD) TrySnapLine(VecD originalStart, VecD originalEnd, VecD delta)
+    private ((string, string), VecD) TrySnapLine(VecD originalStart, VecD originalEnd, VecD delta, out VecD? snapSource)
     {
         if (SnappingController == null)
         {
+            snapSource = null;
             return ((string.Empty, string.Empty), delta);
         }
 
@@ -330,7 +334,13 @@ internal class LineToolOverlay : Overlay
         VecD[] pointsToTest = new VecD[] { center + delta, originalStart + delta, originalEnd + delta, };
 
         VecD snapDelta =
-            SnappingController.GetSnapDeltaForPoints(pointsToTest, out string snapAxisX, out string snapAxisY, out _);
+            SnappingController.GetSnapDeltaForPoints(pointsToTest, out string snapAxisX, out string snapAxisY,
+                out snapSource);
+
+        if (snapSource != null)
+        {
+            snapSource += snapDelta;
+        }
 
         return ((snapAxisX, snapAxisY), snapDelta);
     }

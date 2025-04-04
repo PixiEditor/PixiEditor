@@ -17,11 +17,11 @@ public class MergeNode : RenderNode
     public RenderInputProperty Bottom { get; }
 
     private Paint paint = new Paint();
-    
+
     private int topLayer;
     private int bottomLayer;
-    
-    public MergeNode() 
+
+    public MergeNode()
     {
         BlendMode = CreateInput("BlendMode", "BlendMode", Enums.BlendMode.Normal);
         Top = CreateRenderInput("Top", "TOP");
@@ -36,16 +36,17 @@ public class MergeNode : RenderNode
 
     protected override void OnPaint(RenderContext context, DrawingSurface target)
     {
-        if(Top.Value == null && Bottom.Value == null)
-        {
-            return;
-        }
-        
-        if(target == null || target.DeviceClipBounds.Size == VecI.Zero)
+        if (Top.Value == null && Bottom.Value == null)
         {
             return;
         }
 
+        if (target == null || target.DeviceClipBounds.Size == VecI.Zero)
+        {
+            return;
+        }
+
+        AllowHighDpiRendering = true;
         Merge(target, context);
     }
 
@@ -59,7 +60,7 @@ public class MergeNode : RenderNode
 
             paint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
             target.Canvas.SaveLayer(paint);
-            
+
             Top.Value?.Paint(context, target);
             target.Canvas.RestoreToCount(saved);
             return;
@@ -71,13 +72,13 @@ public class MergeNode : RenderNode
 
     public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
     {
-        if(Top.Value == null && Bottom.Value == null)
+        if (Top.Value == null && Bottom.Value == null)
         {
             return null;
         }
 
-        RectD? totalBounds = null; 
-        
+        RectD? totalBounds = null;
+
         if (Top.Connection != null && Top.Connection.Node is IPreviewRenderable topPreview)
         {
             var topBounds = topPreview.GetPreviewBounds(frame, elementToRenderName);
@@ -86,16 +87,16 @@ public class MergeNode : RenderNode
                 totalBounds = totalBounds?.Union(topBounds.Value) ?? topBounds;
             }
         }
-        
+
         if (Bottom.Connection != null && Bottom.Connection.Node is IPreviewRenderable bottomPreview)
         {
             var bottomBounds = bottomPreview.GetPreviewBounds(frame, elementToRenderName);
             if (bottomBounds != null)
             {
                 totalBounds = totalBounds?.Union(bottomBounds.Value) ?? bottomBounds;
-            } 
+            }
         }
-        
+
         return totalBounds;
     }
 

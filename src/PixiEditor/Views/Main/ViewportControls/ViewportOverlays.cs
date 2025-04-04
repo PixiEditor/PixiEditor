@@ -69,6 +69,13 @@ internal class ViewportOverlays
         textOverlay = new TextOverlay();
         BindTextOverlay();
 
+        Binding suppressOverlayEventsBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.OverlayEventsSuppressed",
+            Mode = BindingMode.OneWay
+        };
+
         Viewport.ActiveOverlays.Add(gridLinesOverlay);
         Viewport.ActiveOverlays.Add(referenceLayerOverlay);
         Viewport.ActiveOverlays.Add(selectionOverlay);
@@ -79,6 +86,11 @@ internal class ViewportOverlays
         Viewport.ActiveOverlays.Add(snappingOverlay);
         Viewport.ActiveOverlays.Add(brushShapeOverlay);
         Viewport.ActiveOverlays.Add(textOverlay);
+
+        foreach (var overlay in Viewport.ActiveOverlays)
+        {
+            overlay.Bind(Overlay.SuppressEventsProperty, suppressOverlayEventsBinding);
+        }
     }
 
     private void BindReferenceLayerOverlay()
@@ -432,7 +444,7 @@ internal class ViewportOverlays
 
         Binding brushShapeBinding = new()
         {
-            Source = ViewModelMain.Current.ToolsSubViewModel, Path = "ActiveTool.BrushShape", Mode = BindingMode.OneWay
+            Source = ViewModelMain.Current.ToolsSubViewModel, Path = "ActiveTool.FinalBrushShape", Mode = BindingMode.OneWay
         };
 
         MultiBinding isVisibleMultiBinding = new()

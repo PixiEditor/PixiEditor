@@ -22,7 +22,8 @@ internal class DrawRasterLine_UpdateableChange : UpdateableChange
 
     [GenerateUpdateableChangeActions]
     public DrawRasterLine_UpdateableChange
-        (Guid memberGuid, VecD from, VecD to, float strokeWidth, Paintable paintable, StrokeCap caps, bool antiAliasing, bool drawOnMask, int frame)
+    (Guid memberGuid, VecD from, VecD to, float strokeWidth, Paintable paintable, StrokeCap caps, bool antiAliasing,
+        bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.from = from;
@@ -34,8 +35,10 @@ internal class DrawRasterLine_UpdateableChange : UpdateableChange
         this.frame = frame;
         this.antiAliasing = antiAliasing;
 
-        paint = new Paint() {
-            StrokeWidth = strokeWidth, StrokeCap = caps, IsAntiAliased = antiAliasing, BlendMode = BlendMode.SrcOver };
+        paint = new Paint()
+        {
+            StrokeWidth = strokeWidth, StrokeCap = caps, IsAntiAliased = antiAliasing, BlendMode = BlendMode.SrcOver
+        };
         paint.SetPaintable(paintable);
     }
 
@@ -47,7 +50,7 @@ internal class DrawRasterLine_UpdateableChange : UpdateableChange
         this.paintable = paintable;
         this.caps = caps;
         this.strokeWidth = strokeWidth;
-        
+
         paint.SetPaintable(paintable);
         paint.StrokeWidth = strokeWidth;
         paint.StrokeCap = caps;
@@ -66,15 +69,23 @@ internal class DrawRasterLine_UpdateableChange : UpdateableChange
         if (from != to)
         {
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
-            if (Math.Abs(strokeWidth - 1) < 0.01f && !antiAliasing)
+            if (strokeWidth == 0)
             {
-                image.EnqueueDrawBresenhamLine((VecI)from, (VecI)to, paintable, BlendMode.SrcOver);
+                image.CancelChanges();
             }
             else
             {
-                image.EnqueueDrawSkiaLine(from, to, paint);
+                if (Math.Abs(strokeWidth - 1) < 0.01f && !antiAliasing)
+                {
+                    image.EnqueueDrawBresenhamLine((VecI)from, (VecI)to, paintable, BlendMode.SrcOver);
+                }
+                else
+                {
+                    image.EnqueueDrawSkiaLine(from, to, paint);
+                }
             }
         }
+
         var totalAffected = image.FindAffectedArea();
         totalAffected.UnionWith(oldAffected);
         return totalAffected;
@@ -85,7 +96,8 @@ internal class DrawRasterLine_UpdateableChange : UpdateableChange
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, CommonApply(target), drawOnMask);
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
+        out bool ignoreInUndo)
     {
         if (from == to)
         {

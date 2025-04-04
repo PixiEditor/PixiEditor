@@ -11,6 +11,8 @@ public class DistributePointsNode : ShapeNode<PointsVectorData>
 
     public InputProperty<int> Seed { get; }
 
+    protected override bool ExecuteOnlyOnCacheChange => true;
+
     public DistributePointsNode()
     {
         MaxPointCount = CreateInput("MaxPointCount", "MAX_POINTS", 10).

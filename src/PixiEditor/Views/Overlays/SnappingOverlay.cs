@@ -53,7 +53,7 @@ internal class SnappingOverlay : Overlay
 
     public override void RenderOverlay(Canvas context, RectD canvasBounds)
     {
-        if (SnappingController is null)
+        if (SnappingController is null || SuppressEvents)
         {
             return;
         }

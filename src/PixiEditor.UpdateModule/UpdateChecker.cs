@@ -19,7 +19,8 @@ public class UpdateChecker
     public ReleaseInfo LatestReleaseInfo { get; private set; }
 
     private UpdateChannel _channel;
-    public UpdateChannel Channel 
+
+    public UpdateChannel Channel
     {
         get => _channel;
         set
@@ -45,7 +46,7 @@ public class UpdateChecker
     {
         return ExtractVersionString(originalVer) != ExtractVersionString(newVer);
     }
-    
+
     /// <summary>
     ///     Checks if originalVer is smaller than newVer
     /// </summary>
@@ -59,24 +60,17 @@ public class UpdateChecker
 
         if (normalizedOriginal == normalizedNew) return false;
 
-        bool parsed = TryParseToFloatVersion(normalizedOriginal, out float orgFloat);
-        if (!parsed) throw new Exception($"Couldn't parse version {originalVer} to float.");
-
-        parsed = TryParseToFloatVersion(normalizedNew, out float newFloat);
-        if (!parsed) throw new Exception($"Couldn't parse version {newVer} to float.");
-
-        return orgFloat < newFloat;
-    }
-
-    private static bool TryParseToFloatVersion(string normalizedString, out float ver)
-    {
-        if (string.IsNullOrEmpty(normalizedString))
+        if (!Version.TryParse(normalizedOriginal, out Version original))
         {
-            ver = 0;
-            return false;
+            throw new ArgumentException($"Invalid version string: {normalizedOriginal}");
         }
-        
-        return float.TryParse(normalizedString.Replace(".", string.Empty).Insert(1, "."), NumberStyles.Any, CultureInfo.InvariantCulture, out ver);
+
+        if (!Version.TryParse(normalizedNew, out Version newVersion))
+        {
+            throw new ArgumentException($"Invalid version string: {normalizedNew}");
+        }
+
+        return original < newVersion;
     }
 
     public async Task<bool> CheckUpdateAvailable()
@@ -89,20 +83,45 @@ public class UpdateChecker
     {
         if (latestRelease == null || string.IsNullOrEmpty(latestRelease.TagName)) return false;
         if (CurrentVersionTag == null) return false;
-        
+
         return latestRelease.WasDataFetchSuccessful && VersionDifferent(CurrentVersionTag, latestRelease.TagName);
     }
 
     public bool IsUpdateCompatible(string[] incompatibleVersions)
     {
-        return !incompatibleVersions.Select(x => x.Trim()).Contains(ExtractVersionString(CurrentVersionTag));
+        string extractedVersion = ExtractVersionString(CurrentVersionTag);
+        bool containsVersion = incompatibleVersions.Select(x => x.Trim()).Contains(extractedVersion);
+        if (containsVersion)
+        {
+            return false;
+        }
+
+        Version biggestIncompatibleVersion = incompatibleVersions
+            .Select(x => Version.TryParse(ExtractVersionString(x), out Version version) ? version : null)
+            .Where(x => x != null)
+            .OrderByDescending(x => x)
+            .FirstOrDefault();
+
+        if (biggestIncompatibleVersion == null)
+        {
+            return true;
+        }
+
+        Version currentVersion = Version.TryParse(ExtractVersionString(CurrentVersionTag), out Version version) ? version : null;
+
+        bool biggestVersionBiggerThanCurrent =
+            biggestIncompatibleVersion >= currentVersion;
+
+        return !biggestVersionBiggerThanCurrent;
     }
 
     public async Task<bool> IsUpdateCompatible()
     {
         string[] incompatibleVersions = await GetUpdateIncompatibleVersionsAsync(LatestReleaseInfo.TagName);
         bool isDowngrading = VersionSmaller(LatestReleaseInfo.TagName, CurrentVersionTag);
-        return IsUpdateCompatible(incompatibleVersions) && !isDowngrading; // Incompatible.json doesn't support backwards compatibility, thus downgrading always means update is not compatble
+        return
+            IsUpdateCompatible(incompatibleVersions) &&
+            !isDowngrading; // Incompatible.json doesn't support backwards compatibility, thus downgrading always means update is not compatble
     }
 
     public async Task<string[]> GetUpdateIncompatibleVersionsAsync(string tag)
@@ -140,7 +159,7 @@ public class UpdateChecker
     private static string ExtractVersionString(string versionString)
     {
         if (string.IsNullOrEmpty(versionString)) return string.Empty;
-        
+
         for (int i = 0; i < versionString.Length; i++)
         {
             if (!char.IsDigit(versionString[i]) && versionString[i] != '.')
@@ -148,7 +167,7 @@ public class UpdateChecker
                 return versionString[..i];
             }
         }
-        
+
         return versionString;
     }
 }

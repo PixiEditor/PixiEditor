@@ -7,19 +7,8 @@ using PixiEditor.Views.Overlays.PathOverlay;
 
 namespace PixiEditor.Tests;
 
-public class EditableVectorPathTests
+public class EditableVectorPathTests : PixiEditorTest
 {
-    public EditableVectorPathTests()
-    {
-        if (DrawingBackendApi.HasBackend)
-        {
-            return;
-        }
-        
-        SkiaDrawingBackend skiaDrawingBackend = new SkiaDrawingBackend();
-        DrawingBackendApi.SetupBackend(skiaDrawingBackend, new DrawieRenderingDispatcher());
-    }
-
     [Fact]
     public void TestThatRectVectorShapeReturnsCorrectSubShapes()
     {

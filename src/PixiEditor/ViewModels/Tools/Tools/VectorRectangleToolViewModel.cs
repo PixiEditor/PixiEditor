@@ -73,8 +73,6 @@ internal class VectorRectangleToolViewModel : ShapeTool, IVectorRectangleToolHan
 
     protected override void OnSelected(bool restoring)
     {
-        if (restoring) return;
-
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseVectorRectangleTool();
     }
 
