@@ -11,6 +11,7 @@ internal class MouseInputFilter
     public EventHandler<MouseOnCanvasEventArgs> OnMouseDown;
     public EventHandler<VecD> OnMouseMove;
     public EventHandler<MouseOnCanvasEventArgs> OnMouseUp;
+    public EventHandler<ScrollOnCanvasEventArgs> OnMouseWheel;
 
 
     private Dictionary<MouseButton, bool> buttonStates = new()
@@ -35,7 +36,6 @@ internal class MouseInputFilter
     }
 
     public void MouseMoveInlet(object args) => OnMouseMove?.Invoke(this, ((MouseOnCanvasEventArgs)args).PositionOnCanvas);
-
     public void MouseUpInlet(object args) => MouseUpInlet(((MouseOnCanvasEventArgs)args));
     public void MouseUpInlet(object? sender, Point p, MouseButton button) => MouseUpInlet(button);
     public void MouseUpInlet(MouseOnCanvasEventArgs args)
@@ -48,6 +48,8 @@ internal class MouseInputFilter
 
         OnMouseUp?.Invoke(this, args);
     }
+
+    public void MouseWheelInlet(ScrollOnCanvasEventArgs e) => OnMouseWheel?.Invoke(this, e);
 
     public void DeactivatedInlet(object? sender, EventArgs e)
     {

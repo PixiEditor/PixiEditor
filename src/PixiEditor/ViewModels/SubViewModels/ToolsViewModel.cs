@@ -309,11 +309,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         SetActiveTool(tool.GetType(), false, source);
     }
 
-    [Command.Basic("PixiEditor.Tools.IncreaseSize", 1, "INCREASE_TOOL_SIZE", "INCREASE_TOOL_SIZE",
+    [Command.Basic("PixiEditor.Tools.IncreaseSize", 1d, "INCREASE_TOOL_SIZE", "INCREASE_TOOL_SIZE",
         CanExecute = "PixiEditor.Tools.CanChangeToolSize", Key = Key.OemCloseBrackets, AnalyticsTrack = true)]
-    [Command.Basic("PixiEditor.Tools.DecreaseSize", -1, "DECREASE_TOOL_SIZE", "DECREASE_TOOL_SIZE",
+    [Command.Basic("PixiEditor.Tools.DecreaseSize", -1d, "DECREASE_TOOL_SIZE", "DECREASE_TOOL_SIZE",
         CanExecute = "PixiEditor.Tools.CanChangeToolSize", Key = Key.OemOpenBrackets, AnalyticsTrack = true)]
-    public void ChangeToolSize(int increment)
+    public void ChangeToolSize(double increment)
     {
         if (ActiveTool?.Toolbar is not IToolSizeToolbar toolbar)
             return;
