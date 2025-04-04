@@ -25,6 +25,7 @@
         MouseDownCommand="{Binding Path=IoSubViewModel.MouseDownCommand, Source={viewModels1:MainVM}}"
         MouseMoveCommand="{Binding Path=IoSubViewModel.MouseMoveCommand, Source={viewModels1:MainVM}}"
         MouseUpCommand="{Binding Path=IoSubViewModel.MouseUpCommand, Source={viewModels1:MainVM}}"
+        MouseWheelCommand="{Binding Path=IoSubViewModel.MouseWheelCommand, Source={viewModels1:MainVM}}"
         MiddleMouseClickedCommand="{Binding IoSubViewModel.PreviewMouseMiddleButtonCommand, Source={viewModels1:MainVM}}"
         Cursor="{Binding ToolsSubViewModel.ToolCursor, Source={viewModels1:MainVM}}"
         GridLinesVisible="{Binding ViewportSubViewModel.GridLinesEnabled, Source={viewModels1:MainVM}}"

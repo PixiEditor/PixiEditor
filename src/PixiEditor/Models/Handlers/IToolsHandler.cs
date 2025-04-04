@@ -36,4 +36,5 @@ internal interface IToolsHandler : IHandler
     public void OnPreRedoInlet();
     public void OnPreUndoInlet();
     public void QuickToolSwitchInlet();
+    public void ChangeToolSize(double by);
 }
