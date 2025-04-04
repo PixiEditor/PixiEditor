@@ -16,8 +16,6 @@ namespace PixiEditor.Views.Layers;
 #nullable enable
 internal partial class LayerControl : UserControl
 {
-    public static string? LayerControlDataName = typeof(LayerControl).FullName;
-
     public static readonly StyledProperty<ILayerHandler> LayerProperty =
         AvaloniaProperty.Register<LayerControl, ILayerHandler>(nameof(Layer));
 
@@ -87,7 +85,7 @@ internal partial class LayerControl : UserControl
         {
             highlightColor = value as IBrush;
         }
-     
+
         TopGrid.AddHandler(DragDrop.DragEnterEvent, Grid_DragEnter);
         TopGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_DragLeave);
         TopGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Top);
@@ -98,9 +96,9 @@ internal partial class LayerControl : UserControl
         thirdDropGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_DragLeave);
         thirdDropGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Bottom);
     }
-    
+
     private void LayerControl_Unloaded(object? sender, RoutedEventArgs e)
-    { 
+    {
         mouseUpdateController?.Dispose();
     }
 
@@ -138,14 +136,20 @@ internal partial class LayerControl : UserControl
             RemoveDragEffect(item);
     }
 
-    public static Guid? ExtractMemberGuid(IDataObject droppedMemberDataObject)
+    public static Guid[]? ExtractMemberGuids(IDataObject droppedMemberDataObject)
     {
-        object droppedLayer = droppedMemberDataObject.Get(LayerControlDataName);
-        object droppedFolder = droppedMemberDataObject.Get(FolderControl.FolderControlDataName);
-        if (droppedLayer is LayerControl layer)
-            return layer.Layer.Id;
-        else if (droppedFolder is FolderControl folder)
-            return folder.Folder.Id;
+        object droppedLayer = droppedMemberDataObject.Get(LayersManager.LayersDataName);
+        if (droppedLayer is null)
+            return null;
+
+        if (droppedLayer is Guid droppedLayerGuid)
+            return new[] { droppedLayerGuid };
+
+        if (droppedLayer is Guid[] droppedLayerGuids)
+        {
+            return droppedLayerGuids;
+        }
+
         return null;
     }
 
@@ -153,10 +157,27 @@ internal partial class LayerControl : UserControl
     {
         if (placement == StructureMemberPlacement.Inside)
             return false;
-        Guid? droppedMemberGuid = ExtractMemberGuid(dataObj);
-        if (droppedMemberGuid is null)
+        Guid[]? droppedMemberGuids = ExtractMemberGuids(dataObj);
+        if (droppedMemberGuids is null)
             return false;
-        Layer.Document.Operations.MoveStructureMember((Guid)droppedMemberGuid, Layer.Id, placement);
+        if (Layer is null)
+            return false;
+
+        if(placement is StructureMemberPlacement.Below or StructureMemberPlacement.BelowOutsideFolder)
+        {
+            droppedMemberGuids = droppedMemberGuids.Reverse().ToArray();
+        }
+
+        var document = Layer.Document;
+
+        using var block = Layer.Document.Operations.StartChangeBlock();
+        Guid lastMovedMember = Layer.Id;
+        foreach (Guid memberGuid in droppedMemberGuids)
+        {
+            document.Operations.MoveStructureMember(memberGuid, lastMovedMember, placement);
+            lastMovedMember = memberGuid;
+            block.ExecuteQueuedActions();
+        }
 
         return true;
     }

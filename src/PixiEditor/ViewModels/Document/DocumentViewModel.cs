@@ -437,7 +437,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             mappedNodeIds.Add(id, guid);
             Guid pairGuid = Guid.Empty;
 
-            if (serializedNode.PairId != null && mappedNodeIds.TryGetValue(serializedNode.PairId.Value, out Guid pairId))
+            if (serializedNode.PairId != null &&
+                mappedNodeIds.TryGetValue(serializedNode.PairId.Value, out Guid pairId))
             {
                 pairGuid = pairId;
             }
@@ -778,7 +779,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             // via a passthrough action to avoid all the try catches
             if (scope == DocumentScope.Canvas)
             {
-                using Surface tmpSurface = new Surface(SizeBindable); // new Surface is on purpose, Surface.ForDisplay doesn't work here
+                using Surface
+                    tmpSurface =
+                        new Surface(SizeBindable); // new Surface is on purpose, Surface.ForDisplay doesn't work here
                 Renderer.RenderDocument(tmpSurface.DrawingSurface, frameTime, SizeBindable, customOutput);
 
                 return tmpSurface.GetSrgbPixel(pos);
@@ -922,6 +925,31 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
 
         return layerGuids;
+    }
+
+
+    public List<Guid> GetSelectedMembersInOrder(bool includeNested = false)
+    {
+        var selectedMembers = GetSelectedMembers();
+        List<Guid> orderedMembers = new List<Guid>();
+        var allMembers = StructureHelper.TraverseAllMembers();
+
+        for (var index = 0; index < allMembers.Count; index++)
+        {
+            var member = allMembers[index];
+            if (selectedMembers.Contains(member.Id))
+            {
+                if (!includeNested)
+                {
+                    var parents = StructureHelper.GetParents(member.Id);
+                    if(parents.Any(x => selectedMembers.Contains(x.Id)))
+                        continue;
+                }
+                orderedMembers.Add(member.Id);
+            }
+        }
+
+        return orderedMembers;
     }
 
     /// <summary>

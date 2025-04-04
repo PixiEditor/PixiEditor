@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument;
+using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.Layers;
 
 namespace PixiEditor.Models.Handlers;
@@ -13,4 +14,5 @@ internal interface IDocumentOperations
     public void ClearSoftSelectedMembers();
     public Guid? CreateStructureMember(Type type, ActionSource source, string? name = null);
     public void InvokeCustomAction(Action action, bool stopActiveExecutor = true);
+    public ChangeBlock StartChangeBlock();
 }

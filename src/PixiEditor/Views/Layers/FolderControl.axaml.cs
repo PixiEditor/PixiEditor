@@ -12,7 +12,6 @@ namespace PixiEditor.Views.Layers;
 #nullable enable
 internal partial class FolderControl : UserControl
 {
-
     public static readonly StyledProperty<FolderNodeViewModel> FolderProperty =
         AvaloniaProperty.Register<FolderControl, FolderNodeViewModel>(nameof(Folder));
 
@@ -21,8 +20,6 @@ internal partial class FolderControl : UserControl
         get => GetValue(FolderProperty);
         set => SetValue(FolderProperty, value);
     }
-
-    public static string? FolderControlDataName = typeof(FolderControl).FullName;
 
     public static readonly StyledProperty<LayersManager> ManagerProperty =
         AvaloniaProperty.Register<FolderControl, LayersManager>(nameof(Manager));
@@ -35,7 +32,7 @@ internal partial class FolderControl : UserControl
 
     private readonly IBrush? highlightColor;
 
-    
+
     private MouseUpdateController? mouseUpdateController;
 
     public FolderControl()
@@ -48,22 +45,22 @@ internal partial class FolderControl : UserControl
 
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
-        
+
         AddHandler(DragDrop.DragEnterEvent, FolderControl_DragEnter);
         AddHandler(DragDrop.DragLeaveEvent, FolderControl_DragLeave);
-        
+
         TopDropGrid.AddHandler(DragDrop.DragEnterEvent, Grid_DragEnter);
         TopDropGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_DragLeave);
         TopDropGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Top);
-        
+
         BottomDropGrid.AddHandler(DragDrop.DragEnterEvent, Grid_DragEnter);
         BottomDropGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_DragLeave);
         BottomDropGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Bottom);
-        
+
         middleDropGrid.AddHandler(DragDrop.DragEnterEvent, Grid_CenterEnter);
         middleDropGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_CenterLeave);
         middleDropGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Center);
-        
+
         DisableDropPanels();
     }
 
@@ -109,10 +106,31 @@ internal partial class FolderControl : UserControl
     private bool HandleDrop(IDataObject dataObj, StructureMemberPlacement placement)
     {
         DisableDropPanels();
-        Guid? droppedMemberGuid = LayerControl.ExtractMemberGuid(dataObj);
-        if (droppedMemberGuid is null)
+        Guid[]? droppedGuids = LayerControl.ExtractMemberGuids(dataObj);
+        if (droppedGuids is null)
             return false;
-        Folder.Document.Operations.MoveStructureMember((Guid)droppedMemberGuid, Folder.Id, placement);
+
+        var document = Folder.Document;
+        if (placement is StructureMemberPlacement.Below or StructureMemberPlacement.BelowOutsideFolder or StructureMemberPlacement.Inside)
+        {
+            droppedGuids = droppedGuids.Reverse().ToArray();
+        }
+
+        using var block = document.Operations.StartChangeBlock();
+        Guid lastMovedMember = Folder.Id;
+
+        foreach (Guid memberGuid in droppedGuids)
+        {
+            document.Operations.MoveStructureMember(memberGuid, lastMovedMember,
+                placement);
+            lastMovedMember = memberGuid;
+            if (placement == StructureMemberPlacement.Inside)
+            {
+                placement = StructureMemberPlacement.Below;
+            }
+
+            block.ExecuteQueuedActions();
+        }
 
         return true;
     }
