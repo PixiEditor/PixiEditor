@@ -96,6 +96,10 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     public static readonly StyledProperty<ICommand> MiddleMouseClickedCommandProperty =
         AvaloniaProperty.Register<Viewport, ICommand>(nameof(MiddleMouseClickedCommand), null);
 
+    public static readonly StyledProperty<ICommand> MouseWheelCommandProperty =
+        AvaloniaProperty.Register<Viewport, ICommand>(
+            nameof(MouseWheelCommand));
+
     public static readonly StyledProperty<ViewportColorChannels> ChannelsProperty =
         AvaloniaProperty.Register<Viewport, ViewportColorChannels>(
             nameof(Channels));
@@ -152,6 +156,12 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         set => SetValue(StylusButtonDownCommandProperty, value);
     }
 
+    public ICommand MouseWheelCommand
+    {
+        get => GetValue(MouseWheelCommandProperty);
+        set => SetValue(MouseWheelCommandProperty, value);
+    }
+
     public bool UseTouchGestures
     {
         get => (bool)GetValue(UseTouchGesturesProperty);
@@ -187,6 +197,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         get => (double)GetValue(GridLinesXSizeProperty);
         set => SetValue(GridLinesXSizeProperty, value);
     }
+
     public double GridLinesYSize
     {
         get => (double)GetValue(GridLinesYSizeProperty);
@@ -318,8 +329,9 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     public static readonly StyledProperty<ObservableCollection<string>> AvailableRenderOutputsProperty =
         AvaloniaProperty.Register<Viewport, ObservableCollection<string>>(nameof(AvailableRenderOutputs));
 
-    public static readonly StyledProperty<string> ViewportRenderOutputProperty = AvaloniaProperty.Register<Viewport, string>(
-        nameof(ViewportRenderOutput), "DEFAULT");
+    public static readonly StyledProperty<string> ViewportRenderOutputProperty =
+        AvaloniaProperty.Register<Viewport, string>(
+            nameof(ViewportRenderOutput), "DEFAULT");
 
     public string ViewportRenderOutput
     {
@@ -359,6 +371,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         //TODO: It's weird that I had to do it this way, right click didn't raise Image_MouseUp otherwise.
         viewportGrid.AddHandler(PointerReleasedEvent, Image_MouseUp, RoutingStrategies.Tunnel);
         viewportGrid.AddHandler(PointerPressedEvent, Image_MouseDown, RoutingStrategies.Bubble);
+        viewportGrid.AddHandler(PointerWheelChangedEvent, Image_MouseWheel, RoutingStrategies.Tunnel);
 
         Scene.PointerExited += (sender, args) => IsOverCanvas = false;
         Scene.PointerEntered += (sender, args) => IsOverCanvas = true;
@@ -475,7 +488,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
         var pos = e.GetPosition(Scene);
         VecD scenePos = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
-        MouseOnCanvasEventArgs? parameter = new MouseOnCanvasEventArgs(mouseButton, scenePos, e.KeyModifiers, e.ClickCount);
+        MouseOnCanvasEventArgs? parameter =
+            new MouseOnCanvasEventArgs(mouseButton, scenePos, e.KeyModifiers, e.ClickCount);
 
         if (MouseDownCommand.CanExecute(parameter))
             MouseDownCommand.Execute(parameter);
@@ -506,6 +520,21 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         MouseOnCanvasEventArgs parameter = new(e.InitialPressMouseButton, conv, e.KeyModifiers, 0);
         if (MouseUpCommand.CanExecute(parameter))
             MouseUpCommand.Execute(parameter);
+    }
+
+    private void Image_MouseWheel(object? sender, PointerWheelEventArgs e)
+    {
+        if (MouseWheelCommand is null)
+            return;
+
+        VecD delta = new VecD(e.Delta.X, e.Delta.Y);
+        Point pos = e.GetPosition(Scene);
+        VecD posOnCanvas = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
+        ScrollOnCanvasEventArgs args = new ScrollOnCanvasEventArgs(delta, posOnCanvas, e.KeyModifiers);
+        if (MouseWheelCommand.CanExecute(args))
+            MouseWheelCommand.Execute(args);
+
+        e.Handled = args.Handled;
     }
 
     private void CenterZoomboxContent(object? sender, VecI args)
@@ -613,7 +642,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         if (e.Source is ComboBox comboBox)
         {
-            if(!comboBox.IsAttachedToVisualTree()) return;
+            if (!comboBox.IsAttachedToVisualTree()) return;
 
             if (e.AddedItems.Count > 0)
             {

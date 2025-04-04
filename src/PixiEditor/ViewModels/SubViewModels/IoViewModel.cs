@@ -36,6 +36,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     public RelayCommand<MouseOnCanvasEventArgs> MouseDownCommand { get; set; }
     public RelayCommand PreviewMouseMiddleButtonCommand { get; set; }
     public RelayCommand<MouseOnCanvasEventArgs> MouseUpCommand { get; set; }
+    public RelayCommand<ScrollOnCanvasEventArgs> MouseWheelCommand { get; set; }
 
     private MouseInputFilter mouseFilter = new();
     private KeyboardInputFilter keyboardFilter = new();
@@ -46,6 +47,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         MouseDownCommand = new RelayCommand<MouseOnCanvasEventArgs>(mouseFilter.MouseDownInlet);
         MouseMoveCommand = new RelayCommand<MouseOnCanvasEventArgs>(mouseFilter.MouseMoveInlet);
         MouseUpCommand = new RelayCommand<MouseOnCanvasEventArgs>(mouseFilter.MouseUpInlet);
+        MouseWheelCommand = new RelayCommand<ScrollOnCanvasEventArgs>(mouseFilter.MouseWheelInlet);
         PreviewMouseMiddleButtonCommand = new RelayCommand(OnMiddleMouseButton);
         Owner.LayoutSubViewModel.LayoutManager.WindowFloated += OnLayoutManagerOnWindowFloated;
         // TODO: Implement mouse capturing
@@ -63,6 +65,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         mouseFilter.OnMouseDown += OnMouseDown;
         mouseFilter.OnMouseMove += OnMouseMove;
         mouseFilter.OnMouseUp += OnMouseUp;
+        mouseFilter.OnMouseWheel += HandleMouseWheel;
 
         keyboardFilter.OnAnyKeyDown += OnKeyDown;
         keyboardFilter.OnAnyKeyUp += OnKeyUp;
@@ -354,6 +357,20 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             case MouseButton.Right when tools.RightClickMode == RightClickMode.Erase:
                 HandleRightMouseEraseUp(tools);
                 break;
+        }
+    }
+
+    private void HandleMouseWheel(object sender, ScrollOnCanvasEventArgs args)
+    {
+        if (Owner.DocumentManagerSubViewModel.ActiveDocument is null)
+            return;
+
+        if (args.KeyModifiers == KeyModifiers.Control)
+        {
+            var delta = args.Delta;
+
+            Owner.ToolsSubViewModel.ChangeToolSize(delta.Y);
+            args.Handled = true;
         }
     }
 

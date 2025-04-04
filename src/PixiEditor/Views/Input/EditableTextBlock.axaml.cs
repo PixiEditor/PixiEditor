@@ -36,7 +36,7 @@ internal partial class EditableTextBlock : UserControl
 
     public static readonly StyledProperty<SolidColorBrush> ForegroundProperty =
         AvaloniaProperty.Register<EditableTextBlock, SolidColorBrush>(
-        nameof(Foreground), new SolidColorBrush(Brushes.White.Color));
+            nameof(Foreground), new SolidColorBrush(Brushes.White.Color));
 
     public SolidColorBrush Foreground
     {
@@ -82,10 +82,10 @@ internal partial class EditableTextBlock : UserControl
 
         Dispatcher.UIThread.Post(
             () =>
-        {
-            textBox.Focus();
-            textBox.SelectAll();
-        }, DispatcherPriority.Input);
+            {
+                textBox.Focus();
+                textBox.SelectAll();
+            }, DispatcherPriority.Input);
     }
 
     public void DisableEditing()
@@ -105,13 +105,10 @@ internal partial class EditableTextBlock : UserControl
         }
     }
 
-    private void TextBlock_MouseDown(object? sender, PointerPressedEventArgs e)
+    private void OnDoubleTapped(object sender, TappedEventArgs e)
     {
-        if (e.ClickCount == 2)
-        {
-            EnableEditing();
-            e.Handled = true;
-        }
+        EnableEditing();
+        e.Handled = true;
     }
 
     private void TextBox_KeyDown(object sender, KeyEventArgs e)

@@ -2,6 +2,8 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Media;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.ViewModels;
@@ -13,16 +15,18 @@ namespace PixiEditor.Views.Layers;
 internal partial class ReferenceLayer : UserControl
 {
     private Command command;
+    private Rect originalBounds;
 
-    public static readonly StyledProperty<DocumentViewModel> DocumentProperty = AvaloniaProperty.Register<ReferenceLayer, DocumentViewModel>(
-        nameof(Document));
+    public static readonly StyledProperty<DocumentViewModel> DocumentProperty =
+        AvaloniaProperty.Register<ReferenceLayer, DocumentViewModel>(
+            nameof(Document));
 
     public DocumentViewModel Document
     {
         get => GetValue(DocumentProperty);
         set => SetValue(DocumentProperty, value);
     }
-    
+
     static ReferenceLayer()
     {
         DocumentProperty.Changed.Subscribe(OnDocumentChanged);
@@ -32,12 +36,12 @@ internal partial class ReferenceLayer : UserControl
     {
         command = CommandController.Current.Commands["PixiEditor.Clipboard.PasteReferenceLayer"];
         InitializeComponent();
-        
+
         DragBorder.AddHandler(DragDrop.DragEnterEvent, ReferenceLayer_DragEnter);
         DragBorder.AddHandler(DragDrop.DragLeaveEvent, ReferenceLayer_DragLeave);
         DragBorder.AddHandler(DragDrop.DropEvent, ReferenceLayer_Drop);
     }
-    
+
     private static void OnDocumentChanged(AvaloniaPropertyChangedEventArgs<DocumentViewModel> e)
     {
         ReferenceLayer referenceLayer = (ReferenceLayer)e.Sender;
@@ -45,7 +49,7 @@ internal partial class ReferenceLayer : UserControl
         {
             e.OldValue.Value.ReferenceLayerViewModel.PropertyChanged -= referenceLayer.OnDocumentPropertyChanged;
         }
-        
+
         if (e.NewValue.HasValue && e.NewValue.Value != null)
         {
             e.NewValue.Value.ReferenceLayerViewModel.PropertyChanged += referenceLayer.OnDocumentPropertyChanged;

@@ -40,15 +40,6 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     {
     }
 
-    public void CreateFolderFromActiveLayers()
-    {
-    }
-
-    public bool CanCreateFolderFromSelected()
-    {
-        return false;
-    }
-
     [Evaluator.CanExecute("PixiEditor.Layer.CanDeleteSelected",
         nameof(DocumentManagerViewModel.ActiveDocument),
         nameof(DocumentManagerViewModel.ActiveDocument.SelectedStructureMember))]
@@ -122,7 +113,39 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is not { } doc)
             return;
-        doc.Operations.CreateStructureMember(StructureMemberType.Folder);
+
+        using var block = doc.Operations.StartChangeBlock();
+        Guid? guid = doc.Operations.CreateStructureMember(StructureMemberType.Folder);
+        if(doc.SoftSelectedStructureMembers.Count == 0)
+            return;
+        var selectedInOrder = doc.GetSelectedMembersInOrder();
+        selectedInOrder.Reverse();
+        block.ExecuteQueuedActions();
+
+        if (guid is null)
+            return;
+
+        if (selectedInOrder.Count > 0)
+        {
+            Guid lastMovedMember = guid.Value;
+            StructureMemberPlacement placement = StructureMemberPlacement.Inside;
+
+            foreach (Guid memberGuid in selectedInOrder)
+            {
+                doc.Operations.MoveStructureMember(memberGuid, lastMovedMember, placement);
+                lastMovedMember = memberGuid;
+                if (placement == StructureMemberPlacement.Inside)
+                {
+                    placement = StructureMemberPlacement.Below;
+                }
+
+                block.ExecuteQueuedActions();
+            }
+
+            doc.Operations.ClearSoftSelectedMembers();
+        }
+
+        doc.Operations.SetSelectedMember(guid.Value);
     }
 
     [Command.Basic("PixiEditor.Layer.NewLayer", "NEW_LAYER", "CREATE_NEW_LAYER",
@@ -133,7 +156,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is not { } doc)
             return;
-        
+
         doc.Operations.CreateStructureMember(StructureMemberType.Layer);
     }
 
@@ -141,7 +164,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is not { } doc)
             return null;
-        
+
         return doc.Operations.CreateStructureMember(layerType, source, name);
     }
 
@@ -184,7 +207,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public void OpacitySliderSet(double value)
     {
         var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        
+
         if (document?.SelectedStructureMember != null)
         {
             document.Operations.SetMemberOpacity(document.SelectedStructureMember.Id, (float)value);
@@ -201,7 +224,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         member.Document.Operations.DuplicateMember(member.Id);
     }
 
-    [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsLayer", 
+    [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsLayer",
         nameof(DocumentManagerViewModel.ActiveDocument), nameof(DocumentViewModel.SelectedStructureMember))]
     public bool SelectedMemberIsLayer(object property)
     {
@@ -216,7 +239,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
         return member is ILayerHandler && member is not IRasterLayerHandler;
     }
-    
+
     [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsVectorLayer",
         nameof(DocumentManagerViewModel.ActiveDocument), nameof(DocumentViewModel.SelectedStructureMember))]
     public bool SelectedMemberIsVectorLayer(object property)
@@ -341,14 +364,14 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         member.IsVisibleBindable = !member.IsVisibleBindable;
     }
 
-    [Evaluator.CanExecute("PixiEditor.Layer.HasMemberAbove", 
-        nameof(DocumentManagerViewModel.ActiveDocument), 
+    [Evaluator.CanExecute("PixiEditor.Layer.HasMemberAbove",
+        nameof(DocumentManagerViewModel.ActiveDocument),
         nameof(DocumentViewModel.SelectedStructureMember), nameof(DocumentViewModel.AllChangesSaved))]
     public bool HasMemberAbove(object property) => HasSelectedMember(true);
 
     [Evaluator.CanExecute("PixiEditor.Layer.HasMemberBelow",
-    nameof(DocumentManagerViewModel.ActiveDocument), 
-    nameof(DocumentViewModel.SelectedStructureMember), nameof(DocumentViewModel.AllChangesSaved))]
+        nameof(DocumentManagerViewModel.ActiveDocument),
+        nameof(DocumentViewModel.SelectedStructureMember), nameof(DocumentViewModel.AllChangesSaved))]
     public bool HasMemberBelow(object property) => HasSelectedMember(false);
 
     [Command.Basic("PixiEditor.Layer.MoveSelectedMemberUpwards", "MOVE_MEMBER_UP", "MOVE_MEMBER_UP_DESCRIPTIVE",
@@ -410,7 +433,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public bool ReferenceLayerExists() =>
         Owner.DocumentManagerSubViewModel.ActiveDocument?.ReferenceLayerViewModel.ReferenceTexture is not null;
 
-    [Evaluator.CanExecute("PixiEditor.Layer.ReferenceLayerDoesntExist", 
+    [Evaluator.CanExecute("PixiEditor.Layer.ReferenceLayerDoesntExist",
         nameof(ViewModelMain.DocumentManagerSubViewModel),
         nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument),
         nameof(ViewModelMain.DocumentManagerSubViewModel.ActiveDocument.ReferenceLayerViewModel.ReferenceTexture))]
@@ -441,14 +464,14 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             NoticeDialog.Show(title: "ERROR", message: e.DisplayMessage);
             return;
         }
-        catch(ArgumentException e)
+        catch (ArgumentException e)
         {
             NoticeDialog.Show(title: "ERROR", message: e.Message);
             return;
         }
 
         byte[] bytes = bitmap.ToByteArray();
-        
+
         bitmap.Dispose();
 
         VecI size = new VecI(bitmap.Size.X, bitmap.Size.Y);
@@ -535,7 +558,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
         doc!.Operations.Rasterize(member.Id);
     }
-    
+
     [Command.Basic("PixiEditor.Layer.ConvertToCurve", "CONVERT_TO_CURVE", "CONVERT_TO_CURVE_DESCRIPTIVE",
         CanExecute = "PixiEditor.Layer.SelectedMemberIsVectorLayer")]
     public void ConvertActiveLayerToCurve()

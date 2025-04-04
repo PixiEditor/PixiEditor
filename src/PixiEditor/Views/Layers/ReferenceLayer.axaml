@@ -29,7 +29,7 @@
             <behaviours:ClearFocusOnClickBehavior />
         </Interaction.Behaviors>
         <DockPanel Background="Transparent">
-            <controls:Shelf>
+            <controls:Shelf ControlToCollapse="{Binding RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}">
                 <Grid Height="40" x:Name="mainDockPanel">
                     <Grid
                         IsVisible="{Binding Document.ReferenceLayerViewModel.ReferenceTexture, ElementName=uc, Converter={converters:NullToVisibilityConverter}}"

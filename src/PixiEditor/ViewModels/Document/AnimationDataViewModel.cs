@@ -140,7 +140,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
                 frameToCopyFrom ?? -1, toCloneFrom ?? Guid.Empty));
             return newCelGuid;
         }
-        
+
         return null;
     }
 
@@ -230,7 +230,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         {
             cachedFirstFrame = null;
             cachedLastFrame = null;
-            
+
             keyFrame.SetStartFrame(newStartFrame);
             keyFrame.SetDuration(newDuration);
             keyFrames.NotifyCollectionChanged();
@@ -274,10 +274,10 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         }
 
         SortByLayers();
-        
+
         cachedFirstFrame = null;
         cachedLastFrame = null;
-        
+
         OnPropertyChanged(nameof(FirstFrame));
         OnPropertyChanged(nameof(LastFrame));
         OnPropertyChanged(nameof(FramesCount));
@@ -304,7 +304,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         });
 
         allCels.RemoveAll(x => x.Id == keyFrameId);
-        
+
         cachedFirstFrame = null;
         cachedLastFrame = null;
 
@@ -398,8 +398,12 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     public void SortByLayers()
     {
         var allLayers = Document.StructureHelper.GetAllLayers();
+
+        if (!OrderDifferent(keyFrames, allLayers)) return;
+
         var unsortedKeyFrames = keyFrames.ToList();
         var layerKeyFrames = new List<CelGroupViewModel>();
+
         foreach (var layer in allLayers)
         {
             var group = unsortedKeyFrames.FirstOrDefault(x =>
@@ -429,11 +433,42 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public int GetLastVisibleFrame()
     {
-        return keyFrames.Count > 0 ? keyFrames.Where(x => x.IsVisible).Max(x => x.StartFrameBindable + x.DurationBindable) : 0;
+        return keyFrames.Count > 0
+            ? keyFrames.Where(x => x.IsVisible).Max(x => x.StartFrameBindable + x.DurationBindable)
+            : 0;
     }
 
     public int GetVisibleFramesCount()
     {
         return GetLastVisibleFrame() - GetFirstVisibleFrame();
+    }
+
+    private static bool OrderDifferent(IReadOnlyCollection<ICelHandler> keyFrames,
+        IReadOnlyCollection<ILayerHandler> allLayers)
+    {
+        List<ICelGroupHandler> groups = new List<ICelGroupHandler>();
+
+        foreach (var keyFrame in keyFrames)
+        {
+            if (keyFrame is ICelGroupHandler group)
+            {
+                groups.Add(group);
+            }
+        }
+
+        if (groups.Count != allLayers.Count)
+        {
+            return true;
+        }
+
+        for (int i = 0; i < groups.Count; i++)
+        {
+            if (groups[i].LayerGuid != allLayers.ElementAt(i).Id)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -90,7 +90,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         if (CacheTrigger.HasFlag(CacheTriggerFlags.Timeline))
         {
-            changed |= lastFrameTime.Frame != context.FrameTime.Frame || Math.Abs(lastFrameTime.NormalizedTime - context.FrameTime.NormalizedTime) > float.Epsilon;
+            changed |= lastFrameTime.Frame != context.FrameTime.Frame ||
+                       Math.Abs(lastFrameTime.NormalizedTime - context.FrameTime.NormalizedTime) > float.Epsilon;
         }
 
         int contentCacheHash = GetContentCacheHash();
@@ -268,6 +269,39 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
     }
 
+    public void TraverseForwards(Func<IReadOnlyNode, IInputProperty, IOutputProperty, bool> action)
+    {
+        var visited = new HashSet<IReadOnlyNode>();
+        var queueNodes = new Queue<(IReadOnlyNode, IInputProperty, IOutputProperty)>();
+        queueNodes.Enqueue((this, null, null));
+
+        while (queueNodes.Count > 0)
+        {
+            var node = queueNodes.Dequeue();
+
+            if (!visited.Add((node.Item1)))
+            {
+                continue;
+            }
+
+            if (!action(node.Item1, node.Item2, node.Item3))
+            {
+                return;
+            }
+
+            foreach (var outputProperty in node.Item1.OutputProperties)
+            {
+                foreach (var connection in outputProperty.Connections)
+                {
+                    if (connection.Connection != null)
+                    {
+                        queueNodes.Enqueue((connection.Node, connection, outputProperty));
+                    }
+                }
+            }
+        }
+    }
+
     public void RemoveKeyFrame(Guid keyFrameId)
     {
         keyFrames.RemoveAll(x => x.KeyFrameGuid == keyFrameId);
@@ -365,7 +399,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     protected void RemoveInputProperty(InputProperty property)
     {
-        if(inputs.Remove(property))
+        if (inputs.Remove(property))
         {
             property.ConnectionChanged -= InvokeConnectionsChanged;
         }
@@ -527,7 +561,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
     internal virtual void DeserializeAdditionalData(IReadOnlyDocument target,
         IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
     {
-
     }
 
     private void InvokeConnectionsChanged()
