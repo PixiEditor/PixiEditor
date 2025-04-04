@@ -32,7 +32,7 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
 
     public override string DefaultIcon => PixiPerfectIcons.Picker;
 
-    public override Type[]? SupportedLayerTypes { get; } = null;  // all layer types are supported
+    public override Type[]? SupportedLayerTypes { get; } = null; // all layer types are supported
 
     public override LocalizedString Tooltip => new("COLOR_PICKER_TOOLTIP", Shortcut);
 
@@ -173,12 +173,18 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
 
     protected override void OnSelected(bool restoring)
     {
+        if (ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument == null)
+            return;
+
         base.OnSelected(restoring);
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.SuppressAllOverlayEvents(ToolName);
     }
 
     protected override void OnDeselecting(bool transient)
     {
+        if (ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument == null)
+            return;
+
         base.OnDeselecting(transient);
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.RestoreAllOverlayEvents(ToolName);
     }
