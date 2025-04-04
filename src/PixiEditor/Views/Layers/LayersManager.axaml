@@ -21,7 +21,7 @@
     <UserControl.Resources>
         <sys:Double x:Key="OpacityMultiplier">100</sys:Double>
     </UserControl.Resources>
-    <Grid>
+    <Grid DragDrop.AllowDrop="True" Name="RootGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="58"/>
             <RowDefinition Height="15"/>

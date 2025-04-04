@@ -1,8 +1,10 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers;
@@ -18,6 +20,7 @@ namespace PixiEditor.Views.Layers;
 #nullable enable
 internal partial class LayersManager : UserControl
 {
+    public const string LayersDataName = "PixiEditor.LayersData";
     public DocumentViewModel ActiveDocument => DataContext is LayersDockViewModel vm ? vm.ActiveDocument : null;
     private readonly IBrush? highlightColor;
 
@@ -29,10 +32,12 @@ internal partial class LayersManager : UserControl
         {
             highlightColor = value as IBrush;
         }
-      
+
         dropBorder.AddHandler(DragDrop.DragEnterEvent, Grid_DragEnter);
         dropBorder.AddHandler(DragDrop.DragLeaveEvent, Grid_DragLeave);
         dropBorder.AddHandler(DragDrop.DropEvent, Grid_Drop);
+        RootGrid.AddHandler(DragDrop.DropEvent, Grid_Drop);
+        treeView.AddHandler(DragDrop.DragOverEvent, TreeView_DragScroll);
     }
 
     private void LayerControl_MouseDown(object sender, PointerPressedEventArgs e)
@@ -63,7 +68,8 @@ internal partial class LayersManager : UserControl
         if (e.Source is LayerControl container && isLeftPressed && Equals(e.Pointer.Captured, container))
         {
             DataObject data = new();
-            data.Set(LayerControl.LayerControlDataName, container);
+            Guid[] selectedGuids = container.Layer.Document.GetSelectedMembersInOrder().ToArray();
+            data.Set(LayersDataName, selectedGuids);
             Dispatcher.UIThread.InvokeAsync(() => DragDrop.DoDragDrop(e, data, DragDropEffects.Move));
         }
     }
@@ -72,6 +78,16 @@ internal partial class LayersManager : UserControl
     {
         if (sender is not LayerControl)
             return;
+
+        if (e is { Source: LayerControl layerControl, InitialPressMouseButton: MouseButton.Left } &&
+            !e.KeyModifiers.HasFlag(KeyModifiers.Control) && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+        {
+            if (layerControl.Layer is not null)
+            {
+                layerControl.Layer.Document.Operations.SetSelectedMember(layerControl.Layer.Id);
+                layerControl.Layer.Document.Operations.ClearSoftSelectedMembers();
+            }
+        }
 
         e.Pointer.Capture(null);
     }
@@ -104,7 +120,8 @@ internal partial class LayersManager : UserControl
             isLeftPressed && Equals(e.Pointer.Captured, container))
         {
             DataObject data = new();
-            data.Set(FolderControl.FolderControlDataName, container);
+            Guid[] selectedGuids = container.Folder.Document.GetSelectedMembersInOrder().ToArray();
+            data.Set(LayersDataName, selectedGuids);
             Dispatcher.UIThread.InvokeAsync(() => DragDrop.DoDragDrop(e, data, DragDropEffects.Move));
         }
     }
@@ -113,6 +130,16 @@ internal partial class LayersManager : UserControl
     {
         if (sender is not FolderControl folderControl)
             return;
+
+        if (e is { Source: FolderControl layerControl, InitialPressMouseButton: MouseButton.Left } &&
+            !e.KeyModifiers.HasFlag(KeyModifiers.Control) && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+        {
+            if (layerControl.Folder is not null)
+            {
+                layerControl.Folder.Document.Operations.SetSelectedMember(layerControl.Folder.Id);
+                layerControl.Folder.Document.Operations.ClearSoftSelectedMembers();
+            }
+        }
 
         e.Pointer.Capture(null);
     }
@@ -137,12 +164,19 @@ internal partial class LayersManager : UserControl
         }
 
         dropBorder.BorderBrush = Brushes.Transparent;
-        Guid? droppedGuid = LayerControl.ExtractMemberGuid(e.Data);
-
-        if (droppedGuid is not null && ActiveDocument is not null)
+        Guid[]? droppedGuids = LayerControl.ExtractMemberGuids(e.Data);
+        if (droppedGuids != null)
         {
-            ActiveDocument.Operations.MoveStructureMember((Guid)droppedGuid,
-                ActiveDocument.NodeGraph.StructureTree.Members[^1].Id, StructureMemberPlacement.Below);
+            using var block = ActiveDocument.Operations.StartChangeBlock();
+            Guid lastMovedMember = ActiveDocument.NodeGraph.StructureTree.Members[^1].Id;
+
+            foreach (Guid memberGuid in droppedGuids)
+            {
+                ActiveDocument.Operations.MoveStructureMember(memberGuid, lastMovedMember,
+                    StructureMemberPlacement.Below);
+                lastMovedMember = memberGuid;
+            }
+
             e.Handled = true;
         }
 
@@ -159,7 +193,7 @@ internal partial class LayersManager : UserControl
             return;
         }
 
-        var member = LayerControl.ExtractMemberGuid(e.Data);
+        var member = LayerControl.ExtractMemberGuids(e.Data);
 
         if (member == null)
         {
@@ -217,7 +251,7 @@ internal partial class LayersManager : UserControl
                         member.Document.Operations.AddSoftSelectedMember(member.Id);
                 });
         }
-        else
+        else if (!ActiveDocument.SelectedMembers.Contains(memberVM.Id))
         {
             ActiveDocument.Operations.SetSelectedMember(memberVM.Id);
             ActiveDocument.Operations.ClearSoftSelectedMembers();
@@ -229,7 +263,7 @@ internal partial class LayersManager : UserControl
     {
         if (matches == 2)
             return 2;
-        
+
         var reversed = root.Reverse();
         foreach (var child in reversed)
         {
@@ -253,5 +287,27 @@ internal partial class LayersManager : UserControl
         }
 
         return matches;
+    }
+
+    private void TreeView_DragScroll(object sender, DragEventArgs e)
+    {
+        if (sender is not TreeView treeView)
+            return;
+
+        var point = e.GetPosition(treeView);
+
+        ScrollViewer scrollViewer = treeView.FindDescendantOfType<ScrollViewer>();
+
+        if (scrollViewer is null)
+            return;
+
+        if (point.Y < 10)
+        {
+            scrollViewer.Offset = new Vector(scrollViewer.Offset.X, scrollViewer.Offset.Y - 10);
+        }
+        else if (point.Y > treeView.Bounds.Height - 10)
+        {
+            scrollViewer.Offset = new Vector(scrollViewer.Offset.X, scrollViewer.Offset.Y + 10);
+        }
     }
 }

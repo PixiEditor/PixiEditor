@@ -64,6 +64,7 @@ internal interface IDocument : IHandler
         bool includeCanvas, int frame, bool isTopMost, string? customOutput);
 
     public HashSet<Guid> ExtractSelectedLayers(bool includeFoldersWithMask = false);
+    public List<Guid> GetSelectedMembersInOrder(bool includeNested = false);
     public void UpdateSavedState();
 
     internal void InternalRaiseLayersChanged(LayersChangedEventArgs e);
