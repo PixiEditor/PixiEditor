@@ -945,6 +945,31 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         return layerGuids;
     }
 
+
+    public List<Guid> GetSelectedMembersInOrder(bool includeNested = false)
+    {
+        var selectedMembers = GetSelectedMembers();
+        List<Guid> orderedMembers = new List<Guid>();
+        var allMembers = StructureHelper.TraverseAllMembers();
+
+        for (var index = 0; index < allMembers.Count; index++)
+        {
+            var member = allMembers[index];
+            if (selectedMembers.Contains(member.Id))
+            {
+                if (!includeNested)
+                {
+                    var parents = StructureHelper.GetParents(member.Id);
+                    if(parents.Any(x => selectedMembers.Contains(x.Id)))
+                        continue;
+                }
+                orderedMembers.Add(member.Id);
+            }
+        }
+
+        return orderedMembers;
+    }
+
     /// <summary>
     ///     Gets all selected layers extracted from selected folders.
     /// </summary>

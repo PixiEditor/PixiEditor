@@ -40,9 +40,9 @@
                 <RowDefinition Height="16" />
                 <RowDefinition Height="10" />
             </Grid.RowDefinitions>
-            <Grid DragDrop.AllowDrop="True" Name="TopDropGrid" Grid.Row="0" Grid.ColumnSpan="3"
+            <Grid DragDrop.AllowDrop="True" IsVisible="False" Name="TopDropGrid" Grid.Row="0" Grid.ColumnSpan="3"
                   Background="Transparent" Panel.ZIndex="3" />
-            <Grid IsVisible="True" Margin="20, 0, 0,0" x:Name="middleDropGrid" Grid.Row="1" DragDrop.AllowDrop="True"
+            <Grid IsVisible="False" Margin="20, 0, 0,0" x:Name="middleDropGrid" Grid.Row="1" DragDrop.AllowDrop="True"
                   Panel.ZIndex="2" Background="Transparent" />
             <Grid x:Name="centerGrid" Grid.Row="0" Grid.RowSpan="3" Background="Transparent">
                 <Grid.ColumnDefinitions>
@@ -140,6 +140,7 @@
             <Grid
                 Grid.Row="2"
                 Name="BottomDropGrid"
+                IsVisible="False"
                 DragDrop.AllowDrop="True"
                 Grid.ColumnSpan="2" Background="Transparent" />
         </Grid>
