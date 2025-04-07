@@ -99,7 +99,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
             return;
-        var selected = GetSelected();
+        var selected = doc.ExtractSelectedLayers(true).Concat(doc.SelectedMembers).Distinct().ToList();
         if (selected.Count > 0)
         {
             doc.Operations.DeleteStructureMembers(selected);
