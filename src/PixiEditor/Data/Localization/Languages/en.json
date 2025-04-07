@@ -1009,5 +1009,6 @@
   "XOR_VECTOR_PATH_OP": "XOR",
   "REVERSE_DIFFERENCE_VECTOR_PATH_OP": "Reverse Difference",
   "NO_DOCUMENT_OPEN": "Nothing's here",
-  "EMPTY_DOCUMENT_ACTION_BTN": "Start creating"
+  "EMPTY_DOCUMENT_ACTION_BTN": "Start creating",
+  "GRAPH_STATE_UNABLE_TO_CREATE_MEMBER": "Current Node Graph state disallows creation of a new layer next to the selected one."
 }
