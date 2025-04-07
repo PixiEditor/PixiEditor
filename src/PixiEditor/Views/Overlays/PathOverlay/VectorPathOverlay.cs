@@ -361,11 +361,12 @@ public class VectorPathOverlay : Overlay
         isDragging = true;
     }
 
-    protected override void OnKeyPressed(Key key, KeyModifiers keyModifiers, string? symbol)
+    protected override void OnKeyPressed(KeyEventArgs args)
     {
-        if (key == Key.Delete)
+        if (args.Key == Key.Delete)
         {
             DeleteSelectedPoints();
+            args.Handled = true;
         }
     }
 

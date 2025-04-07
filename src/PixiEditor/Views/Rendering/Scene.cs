@@ -472,6 +472,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             foreach (Overlay overlay in AllOverlays)
             {
                 if (!overlay.IsVisible) continue;
+
                 overlay.KeyPressed(e);
             }
         }
