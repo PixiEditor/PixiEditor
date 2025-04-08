@@ -1153,6 +1153,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public void Dispose()
     {
+        Internals.ChangeController.TryStopActiveExecutor();
         Internals.Tracker.Dispose();
         Internals.Tracker.Document.Dispose();
     }
