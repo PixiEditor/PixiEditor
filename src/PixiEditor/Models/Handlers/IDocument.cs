@@ -16,6 +16,8 @@ using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Structures;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Models.DocumentPassthroughActions;
 
 namespace PixiEditor.Models.Handlers;
@@ -69,4 +71,5 @@ internal interface IDocument : IHandler
 
     internal void InternalRaiseLayersChanged(LayersChangedEventArgs e);
     internal void InternalMarkSaveState(DocumentMarkType type);
+    public ICrossDocumentPipe<T> ShareNode<T>(Guid layerId) where T : class, IReadOnlyNode;
 }

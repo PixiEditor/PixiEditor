@@ -443,11 +443,14 @@ internal class TextOverlay : Overlay
         return indexOfClosest;
     }
 
-    protected override void OnKeyPressed(Key key, KeyModifiers keyModifiers, string? keySymbol)
+    protected override void OnKeyPressed(KeyEventArgs args)
     {
         if (!IsEditing) return;
 
         ShortcutController.BlockShortcutExecution(nameof(TextOverlay));
+
+        var key = args.Key;
+        var keyModifiers = args.KeyModifiers;
 
         if (IsUndoRedoShortcut(key, keyModifiers))
         {
@@ -461,7 +464,7 @@ internal class TextOverlay : Overlay
             return;
         }
 
-        InsertChar(key, keySymbol);
+        InsertChar(key, args.KeySymbol);
     }
 
     private bool IsUndoRedoShortcut(Key key, KeyModifiers keyModifiers)

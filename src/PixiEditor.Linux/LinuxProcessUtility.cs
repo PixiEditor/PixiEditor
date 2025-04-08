@@ -12,11 +12,6 @@ public class LinuxProcessUtility : IProcessUtility
         throw new NotImplementedException("Running as admin is not supported on Linux");
     }
 
-    public Process RunAsAdmin(string path, string args, bool createWindow)
-    {
-        throw new NotImplementedException("Running as admin is not supported on Linux");
-    }
-
     public bool IsRunningAsAdministrator()
     {
         return Environment.IsPrivilegedProcess;

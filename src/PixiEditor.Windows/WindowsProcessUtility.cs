@@ -9,21 +9,12 @@ public class WindowsProcessUtility : IProcessUtility
 {
     public Process RunAsAdmin(string path, string args)
     {
-        return RunAsAdmin(path, args, true);
-    }
-
-    public Process RunAsAdmin(string path, string args, bool createWindow)
-    {
         ProcessStartInfo startInfo = new ProcessStartInfo
         {
             FileName = path,
             Verb = "runas",
             Arguments = args,
-            UseShellExecute = createWindow,
-            CreateNoWindow = !createWindow,
-            RedirectStandardOutput = !createWindow,
-            RedirectStandardError = !createWindow,
-            WindowStyle = createWindow ? ProcessWindowStyle.Normal : ProcessWindowStyle.Hidden
+            UseShellExecute = true
         };
 
         Process p = new Process();

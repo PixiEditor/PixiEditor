@@ -22,6 +22,7 @@ internal partial class LayersManager : UserControl
 {
     public const string LayersDataName = "PixiEditor.LayersData";
     public DocumentViewModel ActiveDocument => DataContext is LayersDockViewModel vm ? vm.ActiveDocument : null;
+    public DocumentManagerViewModel ManagerViewModel => DataContext is LayersDockViewModel vm ? vm.DocumentManager : null;
     private readonly IBrush? highlightColor;
 
     public LayersManager()
@@ -180,7 +181,7 @@ internal partial class LayersManager : UserControl
             e.Handled = true;
         }
 
-        if (ClipboardController.TryPaste(ActiveDocument, new[] { (IDataObject)e.Data }, true))
+        if (ClipboardController.TryPaste(ActiveDocument, ManagerViewModel, new[] { (IDataObject)e.Data }, true))
         {
             e.Handled = true;
         }

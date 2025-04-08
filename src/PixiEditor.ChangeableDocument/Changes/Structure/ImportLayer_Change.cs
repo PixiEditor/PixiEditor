@@ -1,43 +1,45 @@
 ﻿using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
-internal class DuplicateLayer_Change : Change
+internal class ImportLayer_Change : Change
 {
-    private readonly Guid layerGuid;
-    private Guid duplicateGuid;
-    
-    private ConnectionsData? connectionsData;
+    private ICrossDocumentPipe<IReadOnlyLayerNode> sourceDocumentPipe;
     private Dictionary<Guid, VecD> originalPositions;
+    private ConnectionsData? connectionsData;
+
+    private Guid duplicateGuid;
 
     [GenerateMakeChangeAction]
-    public DuplicateLayer_Change(Guid layerGuid, Guid newGuid)
+    public ImportLayer_Change(ICrossDocumentPipe<IReadOnlyLayerNode> pipe, Guid newGuid)
     {
-        this.layerGuid = layerGuid;
-        this.duplicateGuid = newGuid;
+        sourceDocumentPipe = pipe;
+        duplicateGuid = newGuid;
     }
 
     public override bool InitializeAndValidate(Document target)
     {
-        if (!target.TryFindMember<LayerNode>(layerGuid, out LayerNode? layer))
+        if (sourceDocumentPipe is not { CanOpen: true })
             return false;
-        
-        connectionsData = NodeOperations.CreateConnectionsData(layer);
 
-        var targetInput = layer.InputProperties.FirstOrDefault(x =>
-            x.ValueType == typeof(Painter) &&
-            x.Connection is { Node: StructureNode }) as InputProperty<Painter?>;
-
-        if (targetInput == null)
+        if (!sourceDocumentPipe.IsOpen)
         {
-            FailedMessage = "GRAPH_STATE_UNABLE_TO_CREATE_MEMBER";
-            return false;
+            sourceDocumentPipe.Open();
         }
+
+        IReadOnlyLayerNode? layer = sourceDocumentPipe.TryAccessData();
+        if (layer == null || target.NodeGraph.OutputNode == null)
+            return false;
+
+        connectionsData = NodeOperations.CreateConnectionsData(target.NodeGraph.OutputNode);
+
+        if (target.NodeGraph.OutputNode == null) return false;
 
         return true;
     }
@@ -45,16 +47,21 @@ internal class DuplicateLayer_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
         out bool ignoreInUndo)
     {
-        (LayerNode existingLayer, Node parent) = ((LayerNode, Node))target.FindChildAndParentOrThrow(layerGuid);
+        ignoreInUndo = false;
 
+        var layer = sourceDocumentPipe.TryAccessData();
+        if (layer is not LayerNode layerNode)
+        {
+            ignoreInUndo = true;
+            return new None();
+        }
 
-        LayerNode clone = (LayerNode)existingLayer.Clone();
+        var clone = (LayerNode)layerNode.Clone();
         clone.Id = duplicateGuid;
 
-        InputProperty<Painter?> targetInput = parent.InputProperties.FirstOrDefault(x =>
-            x.ValueType == typeof(Painter) &&
-            x.Connection is { Node: StructureNode }) as InputProperty<Painter?>;
-        
+        var targetInput = target.NodeGraph.OutputNode?.InputProperties.FirstOrDefault(x =>
+            x.ValueType == typeof(Painter)) as InputProperty<Painter?>;
+
         var previousConnection = targetInput?.Connection;
 
         List<IChangeInfo> operations = new();
@@ -62,7 +69,7 @@ internal class DuplicateLayer_Change : Change
         target.NodeGraph.AddNode(clone);
 
         operations.Add(CreateLayer_ChangeInfo.FromLayer(clone));
-        
+
         operations.AddRange(NodeOperations.AppendMember(targetInput, clone.Output, clone.Background, clone.Id));
 
         operations.AddRange(NodeOperations.AdjustPositionsAfterAppend(clone, targetInput.Node,
@@ -84,15 +91,22 @@ internal class DuplicateLayer_Change : Change
 
         changes.AddRange(NodeOperations.DetachStructureNode(member));
         changes.Add(new DeleteStructureMember_ChangeInfo(member.Id));
-        
+
         if (connectionsData is not null)
         {
-            Node originalNode = target.FindNodeOrThrow<Node>(layerGuid);
-            changes.AddRange(NodeOperations.ConnectStructureNodeProperties(connectionsData, originalNode, target.NodeGraph));
+            Node originalNode = target.NodeGraph.OutputNode;
+            changes.AddRange(
+                NodeOperations.ConnectStructureNodeProperties(connectionsData, originalNode, target.NodeGraph));
         }
-        
+
         changes.AddRange(NodeOperations.RevertPositions(originalPositions, target));
-        
+
         return changes;
     }
+
+    public override void Dispose()
+    {
+        sourceDocumentPipe?.Dispose();
+    }
 }
+

@@ -183,14 +183,18 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     public void KeyPressed(KeyEventArgs args)
     {
         if(SuppressEvents) return;
-        OnKeyPressed(args.Key, args.KeyModifiers, args.KeySymbol);
+        if (args.Handled) return;
+        OnKeyPressed(args);
+        if (args.Handled) return;
         KeyPressedOverlay?.Invoke(args.Key, args.KeyModifiers);
     }
 
     public void KeyReleased(KeyEventArgs keyEventArgs)
     {
         if(SuppressEvents) return;
-        OnKeyReleased(keyEventArgs.Key, keyEventArgs.KeyModifiers);
+        if (keyEventArgs.Handled) return;
+        OnKeyReleased(keyEventArgs);
+        if (keyEventArgs.Handled) return;
         KeyReleasedOverlay?.Invoke(keyEventArgs.Key, keyEventArgs.KeyModifiers);
     }
 
@@ -314,11 +318,11 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     {
     }
     
-    protected virtual void OnKeyPressed(Key key, KeyModifiers keyModifiers, string? keySymbol)
+    protected virtual void OnKeyPressed(KeyEventArgs args)
     {
     }
     
-    protected virtual void OnKeyReleased(Key key, KeyModifiers keyModifiers)
+    protected virtual void OnKeyReleased(KeyEventArgs args)
     {
     }
 

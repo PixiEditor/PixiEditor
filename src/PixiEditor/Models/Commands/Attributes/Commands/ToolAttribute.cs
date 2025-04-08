@@ -8,6 +8,7 @@ internal partial class Command
     internal class ToolAttribute : CommandAttribute
     {
         public Key Transient { get; set; }
+        public bool TransientImmediate { get; set; } = false;
 
         public ToolAttribute() : base(null, null, null)
         {

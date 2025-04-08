@@ -142,23 +142,23 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
-        RectI? bounds = null;
+        RectD? bounds = null;
         if (Content.Connection != null)
         {
             Content.Connection.Node.TraverseBackwards((n) =>
             {
                 if (n is StructureNode structureNode)
                 {
-                    RectI? imageBounds = (RectI?)structureNode.GetTightBounds(frameTime);
-                    if (imageBounds != null)
+                    RectD? childBounds = structureNode.GetTightBounds(frameTime);
+                    if (childBounds != null)
                     {
                         if (bounds == null)
                         {
-                            bounds = imageBounds;
+                            bounds = childBounds;
                         }
                         else
                         {
-                            bounds = bounds.Value.Union(imageBounds.Value);
+                            bounds = bounds.Value.Union(childBounds.Value);
                         }
                     }
                 }
@@ -166,7 +166,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
                 return true;
             });
 
-            return (RectD?)bounds ?? RectD.Empty;
+            return bounds ?? RectD.Empty;
         }
 
         return null;

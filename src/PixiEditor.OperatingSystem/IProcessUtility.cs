@@ -5,7 +5,6 @@ namespace PixiEditor.OperatingSystem;
 public interface IProcessUtility
 {
     public Process RunAsAdmin(string path, string? args);
-    public Process RunAsAdmin(string path, string? args, bool createWindow);
     public bool IsRunningAsAdministrator();
     public Process ShellExecute(string toExecute);
     public Process ShellExecute(string toExecute, string args);

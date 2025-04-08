@@ -23,6 +23,7 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 namespace PixiEditor.Models.DocumentModels.Public;
 #nullable enable
@@ -90,7 +91,8 @@ internal class DocumentOperationsModule : IDocumentOperations
         bool drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
         if (drawOnMask && !member.HasMaskBindable)
             return;
-        Internals.ActionAccumulator.AddActions(new ClearSelectedArea_Action(member.Id, Internals.Tracker.Document.Selection.SelectionPath, drawOnMask, frame));
+        Internals.ActionAccumulator.AddActions(new ClearSelectedArea_Action(member.Id,
+            Internals.Tracker.Document.Selection.SelectionPath, drawOnMask, frame));
         if (clearSelection)
             Internals.ActionAccumulator.AddActions(new ClearSelection_Action());
         Internals.ActionAccumulator.AddFinishedActions();
@@ -221,6 +223,38 @@ internal class DocumentOperationsModule : IDocumentOperations
             Guid newGuid = Guid.NewGuid();
             Internals.ActionAccumulator.AddFinishedActions(
                 new DuplicateFolder_Action(guidValue, newGuid, null),
+                new SetSelectedMember_PassthroughAction(newGuid));
+        }
+    }
+
+    public void ImportMember(Guid layerId, IDocument sourceDocument)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        if (sourceDocument == this.Document)
+        {
+            DuplicateMember(layerId);
+            return;
+        }
+
+        if (!sourceDocument.StructureHelper.TryFindNode(layerId, out IStructureMemberHandler? member))
+            return;
+
+        if (member is ILayerHandler layer)
+        {
+            Guid newGuid = Guid.NewGuid();
+            Internals.ActionAccumulator.AddFinishedActions(
+                new ImportLayer_Action(sourceDocument.ShareNode<IReadOnlyLayerNode>(layer.Id), newGuid),
+                new CreateAnimationDataFromLayer_Action(newGuid));
+        }
+        else if (member is IFolderHandler folder)
+        {
+            Guid newGuid = Guid.NewGuid();
+            Internals.ActionAccumulator.AddFinishedActions(
+                new ImportFolder_Action(sourceDocument.ShareNode<IReadOnlyFolderNode>(folder.Id), newGuid, null),
                 new SetSelectedMember_PassthroughAction(newGuid));
         }
     }

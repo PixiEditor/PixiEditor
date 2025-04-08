@@ -105,4 +105,5 @@ public interface IReadOnlyDocument : IDisposable
     public ColorSpace ProcessingColorSpace { get; }
     public void InitProcessingColorSpace(ColorSpace processingColorSpace);
     public List<IReadOnlyStructureNode> GetParents(Guid memberGuid);
+    public ICrossDocumentPipe<T> CreateNodePipe<T>(Guid layerId) where T : class, IReadOnlyNode;
 }
