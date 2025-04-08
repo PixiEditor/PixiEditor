@@ -164,7 +164,7 @@ internal class ActionAccumulator
 #if DEBUG
             Console.WriteLine(e);
 #endif
-            CrashHelper.SendExceptionInfoAsync(e);
+            CrashHelper.SendExceptionInfo(e);
             throw;
         }
 
