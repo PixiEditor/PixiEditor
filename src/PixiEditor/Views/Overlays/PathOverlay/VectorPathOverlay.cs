@@ -155,7 +155,8 @@ public class VectorPathOverlay : Overlay
             }
         }
 
-        transformHandle.Position = Path.TightBounds.BottomRight + new VecD(transformHandle.Size.X / ZoomScale, transformHandle.Size.Y / ZoomScale);
+        transformHandle.Position = Path.TightBounds.BottomRight +
+                                   new VecD(transformHandle.Size.X / ZoomScale, transformHandle.Size.Y / ZoomScale);
         transformHandle.Draw(context);
     }
 
@@ -377,7 +378,7 @@ public class VectorPathOverlay : Overlay
         {
             return;
         }
-        
+
         int handleAdjustment = 0;
 
         foreach (var handle in selectedHandles)
@@ -394,10 +395,10 @@ public class VectorPathOverlay : Overlay
             {
                 subShapeContainingIndex.RemovePoint(localIndex);
             }
-            
+
             handleAdjustment++;
         }
-        
+
         Path = editableVectorPath.ToVectorPath();
         AddToUndoCommand.Execute(Path);
     }
@@ -557,7 +558,7 @@ public class VectorPathOverlay : Overlay
             Path = editableVectorPath.ToVectorPath();
             SelectAnchor(anchorHandles.Last());
         }
-        
+
         return true;
     }
 
@@ -616,28 +617,43 @@ public class VectorPathOverlay : Overlay
             return;
         }
 
-        var index = anchorHandles.IndexOf(handle);
-
-        var targetPos = ApplySnapping(args.Point);
-
-        SubShape subShapeContainingIndex = editableVectorPath.GetSubShapeContainingIndex(index);
-
-        int localIndex = editableVectorPath.GetSubShapePointIndex(index, subShapeContainingIndex);
-
         bool isDraggingControlPoints = args.Modifiers.HasFlag(KeyModifiers.Control);
 
-        if (isDraggingControlPoints)
-        {
-            var newPath = ConvertTouchingVerbsToCubic(handle);
+        var selectedAnchors = isDraggingControlPoints
+            ? new List<AnchorHandle>() { handle }
+            : anchorHandles.Where(h => h.IsSelected).OrderByDescending(h => h == handle).ToList();
 
-            subShapeContainingIndex = newPath.GetSubShapeContainingIndex(index);
-            localIndex = newPath.GetSubShapePointIndex(index, subShapeContainingIndex);
+        var targetPos = ApplySnapping(args.Point);
+        VecF delta = VecF.Zero;
 
-            HandleContinousCubicDrag(targetPos, handle, subShapeContainingIndex, localIndex, true);
-        }
-        else
+        for (int i = 0; i < selectedAnchors.Count; i++)
         {
-            subShapeContainingIndex.SetPointPosition(localIndex, (VecF)targetPos, true);
+            var anchor = selectedAnchors[i];
+            var index = anchorHandles.IndexOf(anchor);
+
+            SubShape subShapeContainingIndex = editableVectorPath.GetSubShapeContainingIndex(index);
+
+            int localIndex = editableVectorPath.GetSubShapePointIndex(index, subShapeContainingIndex);
+
+            if (isDraggingControlPoints)
+            {
+                var newPath = ConvertTouchingVerbsToCubic(anchor);
+
+                subShapeContainingIndex = newPath.GetSubShapeContainingIndex(index);
+                localIndex = newPath.GetSubShapePointIndex(index, subShapeContainingIndex);
+
+                HandleContinousCubicDrag(targetPos, anchor, subShapeContainingIndex, localIndex, true);
+            }
+            else
+            {
+                VecF pos = (VecF)subShapeContainingIndex.Points[localIndex].Position;
+                if (i == 0)
+                {
+                    delta = (VecF)targetPos - pos;
+                }
+                VecF newPos = i == 0 ? (VecF)targetPos : pos + delta;
+                subShapeContainingIndex.SetPointPosition(localIndex, newPos, true);
+            }
         }
 
         Path = editableVectorPath.ToVectorPath();
