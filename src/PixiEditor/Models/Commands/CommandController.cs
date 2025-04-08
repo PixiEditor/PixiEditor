@@ -214,6 +214,7 @@ internal class CommandController
                 Icon = toolInstance.DefaultIcon,
                 IconEvaluator = IconEvaluator.Default,
                 TransientKey = toolAttr.Transient,
+                TransientImmediate = toolAttr.TransientImmediate,
                 DefaultShortcut = toolAttr.GetShortcut(),
                 Shortcut = GetShortcut(internalName, toolAttr.GetShortcut(), template),
                 ToolType = type,

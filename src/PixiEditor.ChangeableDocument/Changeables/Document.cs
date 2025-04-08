@@ -48,6 +48,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     public bool VerticalSymmetryAxisEnabled { get; set; }
     public double HorizontalSymmetryAxisY { get; set; }
     public double VerticalSymmetryAxisX { get; set; }
+    public bool IsDisposed { get; private set; }
 
     public Document()
     {
@@ -57,6 +58,9 @@ internal class Document : IChangeable, IReadOnlyDocument
 
     public void Dispose()
     {
+        if (IsDisposed) return;
+
+        IsDisposed = true;
         NodeGraph.Dispose();
         Selection.Dispose();
     }
@@ -154,12 +158,18 @@ internal class Document : IChangeable, IReadOnlyDocument
         List<IReadOnlyStructureNode> parents = new();
         childNode.TraverseForwards((node, input) =>
         {
-            if (node is IReadOnlyStructureNode parent && input is { InternalPropertyName: FolderNode.ContentInternalName })
+            if (node is IReadOnlyStructureNode parent &&
+                input is { InternalPropertyName: FolderNode.ContentInternalName })
                 parents.Add(parent);
             return true;
         });
 
         return parents;
+    }
+
+    public ICrossDocumentPipe<T> CreateNodePipe<T>(Guid layerId) where T : class, IReadOnlyNode
+    {
+        return new DocumentNodePipe<T>(this, layerId);
     }
 
     private void ForEveryReadonlyMember(IReadOnlyNodeGraph graph, Action<IReadOnlyStructureNode> action)

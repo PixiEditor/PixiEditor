@@ -15,11 +15,25 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
     public override RectD VisualAABB => GeometryAABB.Inflate(StrokeWidth / 2);
 
     public override ShapeCorners TransformationCorners =>
-        new ShapeCorners(GeometryAABB).WithMatrix(TransformationMatrix);
+        new ShapeCorners(VisualAABB).WithMatrix(TransformationMatrix);
 
     public StrokeCap StrokeLineCap { get; set; } = StrokeCap.Round;
 
     public StrokeJoin StrokeLineJoin { get; set; } = StrokeJoin.Round;
+
+    public PathFillType FillType
+    {
+        get => Path?.FillType ?? PathFillType.Winding;
+        set
+        {
+            if (Path == null)
+            {
+                return;
+            }
+
+            Path.FillType = value;
+        }
+    }
 
     public PathVectorData(VectorPath path)
     {
@@ -93,6 +107,7 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
         hash.Add(Path);
         hash.Add(StrokeLineCap);
         hash.Add(StrokeLineJoin);
+        hash.Add(FillType);
 
         return hash.ToHashCode();
     }
@@ -118,7 +133,8 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
 
     protected bool Equals(PathVectorData other)
     {
-        return base.Equals(other) && Path.Equals(other.Path) && StrokeLineCap == other.StrokeLineCap && StrokeLineJoin == other.StrokeLineJoin;
+        return base.Equals(other) && Path.Equals(other.Path) && StrokeLineCap == other.StrokeLineCap && StrokeLineJoin == other.StrokeLineJoin
+                && FillType == other.FillType;
     }
 
     public override bool Equals(object? obj)
@@ -143,6 +159,6 @@ public class PathVectorData : ShapeVectorData, IReadOnlyPathData
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(base.GetHashCode(), Path, (int)StrokeLineCap, (int)StrokeLineJoin);
+        return HashCode.Combine(base.GetHashCode(), Path, (int)StrokeLineCap, (int)StrokeLineJoin, FillType);
     }
 }

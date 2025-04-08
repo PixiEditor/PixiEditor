@@ -272,7 +272,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     {
         try
         {
-            ProcessHelper.RunAsAdmin(updaterPath, startAfterUpdate ? "--startOnSuccess" : null, false);
+            ProcessHelper.RunAsAdmin(updaterPath, startAfterUpdate ? "--startOnSuccess" : null);
             Shutdown();
         }
         catch (Win32Exception)

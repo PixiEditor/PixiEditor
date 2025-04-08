@@ -6,7 +6,7 @@ using PixiEditor.Views.Overlays.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.Tools.Tools;
 
-[Command.Tool(Key = Key.H, Transient = Key.Space)]
+[Command.Tool(Key = Key.H, Transient = Key.Space, TransientImmediate = true)]
 internal class MoveViewportToolViewModel : ToolViewModel
 {
     public override string ToolNameLocalizationKey => "MOVE_VIEWPORT_TOOL";
