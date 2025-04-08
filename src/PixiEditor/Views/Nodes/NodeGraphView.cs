@@ -23,6 +23,7 @@ using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.Views.Nodes.Properties;
+using PixiEditor.Zoombox;
 using Point = Avalonia.Point;
 
 namespace PixiEditor.Views.Nodes;
@@ -366,10 +367,18 @@ internal class NodeGraphView : Zoombox.Zoombox
 
         if (e.GetMouseButton(this) == MouseButton.Left)
         {
-            ClearSelection();
-            isSelecting = true;
-            selectionRectangle.IsVisible = true;
-            e.Handled = true;
+            if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
+            {
+                ZoomMode = ZoomboxMode.Move;
+            }
+            else
+            {
+                ClearSelection();
+                isSelecting = true;
+                selectionRectangle.IsVisible = true;
+                ZoomMode = ZoomboxMode.Normal;
+                e.Handled = true;
+            }
         }
         else
         {
