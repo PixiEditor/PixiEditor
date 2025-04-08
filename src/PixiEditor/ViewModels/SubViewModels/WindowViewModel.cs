@@ -235,6 +235,14 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
         new HelloTherePopup(Owner.FileSubViewModel).Show(MainWindow.Current);
     }
 
+    [Command.Basic("PixiEditor.Window.OpenOnboardingWindow", "OPEN_ONBOARDING_WINDOW", "OPEN_ONBOARDING_WINDOW",
+        Icon = PixiPerfectIcons.Home, MenuItemPath = "VIEW/OPEN_ONBOARDING_WINDOW",
+        AnalyticsTrack = true)]
+    public void OpenOnboardingWindow()
+    {
+        new OnboardingDialog().Show(MainWindow.Current);
+    }
+
     [Commands_Command.Basic("PixiEditor.Window.OpenShortcutWindow", "OPEN_SHORTCUT_WINDOW", "OPEN_SHORTCUT_WINDOW",
         Key = Key.F1,
         Icon = PixiPerfectIcons.Book, MenuItemPath = "VIEW/OPEN_SHORTCUT_WINDOW", MenuItemOrder = 2,

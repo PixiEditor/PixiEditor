@@ -1,0 +1,37 @@
+<dialogs:PixiEditorPopup xmlns="https://github.com/avaloniaui"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+                         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                         x:Class="PixiEditor.Views.Dialogs.OnboardingDialog"
+                         Title="Onboarding" Width="600" Height="345">
+    <Panel>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Classes="h1"
+                       Foreground="{DynamicResource ThemeForegroundBrush}"
+                       ui:Translator.Key="ONBOARDING_TITLE" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <TextBlock Grid.Row="1"
+                       ui:Translator.Key="ONBOARDING_DESCRIPTION"
+                       Foreground="{DynamicResource ThemeForegroundBrush}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <StackPanel Orientation="Horizontal" Grid.Row="2">
+                <Button ui:Translator.Key="ONBOARDING_SKIP_BTN"
+                        Command="{Binding CloseCommand}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                <Button Background="{DynamicResource ThemeAccentBrush}"
+                        ui:Translator.Key="ONBOARDING_ACTION_BTN"
+                        Command="{Binding OpenHelloThereWindowCommand}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </StackPanel>
+        </Grid>
+    </Panel>
+</dialogs:PixiEditorPopup>
