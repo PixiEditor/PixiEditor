@@ -10,6 +10,7 @@ using PixiEditor.Models.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.UserPreferences;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 using PixiEditor.Views.Windows;
@@ -240,7 +241,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
         AnalyticsTrack = true)]
     public void OpenOnboardingWindow()
     {
-        new OnboardingDialog().Show(MainWindow.Current);
+        new OnboardingDialog { DataContext = new OnboardingViewModel() }.ShowDialog(MainWindow.Current);
     }
 
     [Commands_Command.Basic("PixiEditor.Window.OpenShortcutWindow", "OPEN_SHORTCUT_WINDOW", "OPEN_SHORTCUT_WINDOW",

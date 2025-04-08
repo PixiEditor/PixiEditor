@@ -57,11 +57,6 @@
                         <Style Selector=":is(Control).leftOffset">
                             <Setter Property="Margin" Value="20, 0, 0, 0" />
                         </Style>
-                        <Style Selector=":is(TextBlock).subtext">
-                            <Setter Property="FontSize" Value="12" />
-                            <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundLowBrush}" />
-                            <Setter Property="TextWrapping" Value="Wrap" />
-                        </Style>
                     </Grid.Styles>
                     <ScrollViewer>
                         <ScrollViewer.IsVisible>

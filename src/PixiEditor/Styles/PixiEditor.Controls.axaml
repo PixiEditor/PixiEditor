@@ -19,6 +19,7 @@
                 <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/NodeSocket.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/ConnectionView.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/NodePicker.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor/Styles/Templates/ShortcutsTemplateCard.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>

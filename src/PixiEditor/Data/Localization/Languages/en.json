@@ -1009,5 +1009,16 @@
   "XOR_VECTOR_PATH_OP": "XOR",
   "REVERSE_DIFFERENCE_VECTOR_PATH_OP": "Reverse Difference",
   "NO_DOCUMENT_OPEN": "Nothing's here",
-  "EMPTY_DOCUMENT_ACTION_BTN": "Start creating"
+  "EMPTY_DOCUMENT_ACTION_BTN": "Start creating",
+  "ONBOARDING_TITLE": "Welcome to",
+  "ONBOARDING_DESCRIPTION": "Let's set up your workspace!",
+  "ONBOARDING_SKIP_BTN": "Skip",
+  "ONBOARDING_ACTION_BTN": "Let's begin",
+  "ONB_SELECT_PRIMARY_TOOLSET": "Select Your Primary Toolset",
+  "ONB_NEXT_BTN": "Next",
+  "ONB_BACK_BTN": "Previous",
+  "ONB_ANALYTICS": "Anonymous Analytics",
+  "ANALYTICS_INFO_DETAILED": "PixiEditor collects anonymous usage data to improve the app. The data does not contain any personal information. Among other things, PixiEditor tracks the following:\n- Which and how the tools are used\n- How long you've used the app for\n- Which commands are used\n- Performance data\n\n You can opt out of analytics at any time in the settings.",
+  "PRIVACY_POLICY": "Privacy Policy",
+  "ONB_SHORTCUTS": "Select Your Shortcuts"
 }

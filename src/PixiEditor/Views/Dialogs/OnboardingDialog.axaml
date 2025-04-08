@@ -1,37 +1,212 @@
-<dialogs:PixiEditorPopup xmlns="https://github.com/avaloniaui"
-                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                         xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
-                         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
-                         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-                         x:Class="PixiEditor.Views.Dialogs.OnboardingDialog"
-                         Title="Onboarding" Width="600" Height="345">
-    <Panel>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+        xmlns:userPreferences="clr-namespace:PixiEditor.ViewModels.UserPreferences"
+        xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+        xmlns:shortcuts="clr-namespace:PixiEditor.Views.Shortcuts"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="PixiEditor.Views.Dialogs.OnboardingDialog"
+        ShowInTaskbar="False"
+        CanResize="False"
+        d:DataContext="{x:Type userPreferences:OnboardingViewModel}"
+        Title="Onboarding" Width="600" Height="345">
+    <Design.DataContext>
+        <userPreferences:OnboardingViewModel />
+    </Design.DataContext>
 
-            <TextBlock Grid.Row="0" Classes="h1"
-                       Foreground="{DynamicResource ThemeForegroundBrush}"
-                       ui:Translator.Key="ONBOARDING_TITLE" HorizontalAlignment="Center" VerticalAlignment="Center" />
-            <TextBlock Grid.Row="1"
-                       ui:Translator.Key="ONBOARDING_DESCRIPTION"
+    <Panel>
+        <Panel.Styles>
+            <Style Selector="shortcuts|ShortcutsTemplateCard.Selected">
+                <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentHighBrush}" />
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <SolidColorBrush Color="{DynamicResource AccentHighColor}" Opacity="0.1" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </Panel.Styles>
+        <StackPanel
+            IsVisible="{Binding Page, Converter={converters:IsEqualConverter}, ConverterParameter=0}"
+            Spacing="24" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <StackPanel Spacing="13" Orientation="Horizontal">
+                <TextBlock Classes="h1"
+                           Foreground="{DynamicResource ThemeForegroundBrush}"
+                           ui:Translator.Key="ONBOARDING_TITLE" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <Svg Path="/Images/PixiEditorLogoWithName.svg" Height="60" />
+            </StackPanel>
+            <TextBlock ui:Translator.Key="ONBOARDING_DESCRIPTION"
+                       Classes="h5"
                        Foreground="{DynamicResource ThemeForegroundBrush}"
                        HorizontalAlignment="Center" VerticalAlignment="Center" />
-            <StackPanel Orientation="Horizontal" Grid.Row="2">
+            <StackPanel HorizontalAlignment="Center"
+                        Spacing="12"
+                        Margin="0, 24, 0, 0" Orientation="Horizontal">
                 <Button ui:Translator.Key="ONBOARDING_SKIP_BTN"
-                        Command="{Binding CloseCommand}"
+                        Padding="8, 4"
+                        Command="{Binding Close, RelativeSource={RelativeSource AncestorType=dialogs:OnboardingDialog, Mode=FindAncestor}}"
                         HorizontalAlignment="Center" VerticalAlignment="Center" />
 
                 <Button Background="{DynamicResource ThemeAccentBrush}"
                         ui:Translator.Key="ONBOARDING_ACTION_BTN"
-                        Command="{Binding OpenHelloThereWindowCommand}"
+                        Command="{Binding NextPage}"
                         HorizontalAlignment="Center" VerticalAlignment="Center" />
             </StackPanel>
+        </StackPanel>
+        <Grid
+            HorizontalAlignment="Center"
+            Margin="0, 32"
+            IsVisible="{Binding Page, Converter={converters:IsEqualConverter}, ConverterParameter=1}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Classes="h2"
+                       Foreground="{DynamicResource ThemeForegroundBrush}"
+                       ui:Translator.LocalizedString="{Binding FormStep.Title}" HorizontalAlignment="Center"
+                       VerticalAlignment="Center" />
+            <StackPanel Grid.Row="1"
+                        IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=0}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="32" Orientation="Horizontal">
+                <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+                    <ItemsControl
+                        ItemsSource="{Binding ToolSets}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <shortcuts:ShortcutsTemplateCard
+                                    TemplateName="{Binding Item.Name}"
+                                    Margin="0 0 5 0"
+                                    Logo="{Binding Item.LogoPath}"
+                                    Cursor="Hand"
+                                    HoverLogo="{Binding Path=Item.HoverLogoPath}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </StackPanel>
+            <StackPanel Grid.Row="1"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Spacing="32"
+                        IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=1}">
+                <ComboBox Width="200" HorizontalAlignment="Center" Margin="0, -20, 0, 0"
+                          ItemsSource="{Binding GeneralSettings.AvailableLanguages}"
+                          SelectedItem="{Binding GeneralSettings.SelectedLanguage, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Height="20">
+                                <Image
+                                    MaxHeight="20"
+                                    Margin="3, 0"
+                                    VerticalAlignment="Center"
+                                    Source="{Binding IconFullPath, Converter={converters:ImagePathToBitmapConverter}}" />
+                                <TextBlock VerticalAlignment="Center" Text="{Binding Name}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBlock DockPanel.Dock="Bottom" Classes="subtext" ui:Translator.Key="LANGUAGE_INFO" />
+            </StackPanel>
+            <StackPanel Grid.Row="1"
+                        IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=2}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="32" Orientation="Vertical">
+                <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+                    <ItemsControl
+                        ItemsSource="{Binding Templates}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <shortcuts:ShortcutsTemplateCard
+                                    Width="150"
+                                    Height="150"
+                                    TemplateName="{Binding Item.Name}"
+                                    Margin="0 0 5 0"
+                                    Logo="{Binding Item.LogoPath}"
+                                    Classes.Selected="{Binding IsSelected}"
+                                    Cursor="Hand"
+                                    Name="ShortcutsTemplateCard"
+                                    PressedCommand="{Binding SelectCommand}"
+                                    PressedCommandParameter="{Binding Item}"
+                                    HoverLogo="{Binding Path=Item.HoverLogoPath}">
+                                </shortcuts:ShortcutsTemplateCard>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </StackPanel>
+            <StackPanel Grid.Row="1"
+                        IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=3}"
+                        VerticalAlignment="Center" Orientation="Vertical">
+                <CheckBox HorizontalAlignment="Center"
+                          IsChecked="{Binding GeneralSettings.AnalyticsEnabled, Mode=TwoWay}"
+                          ui:Translator.Key="ENABLE_ANALYTICS" d:Content="Enable Analytics" />
+                <TextBlock Padding="20" Classes="subtext" ui:Translator.Key="ANALYTICS_INFO_DETAILED"
+                           TextWrapping="Wrap">
+                    <TextBlock Text=" " />
+                    <TextBlock ui:Hyperlink.Url="https://pixieditor.net/docs/privacy-policy"
+                               ui:Translator.Key="PRIVACY_POLICY" />
+                </TextBlock>
+            </StackPanel>
         </Grid>
+        <DockPanel
+            LastChildFill="True"
+            VerticalAlignment="Bottom"
+            HorizontalAlignment="Stretch"
+            IsVisible="{Binding Page, Converter={converters:IsEqualConverter}, ConverterParameter=1}"
+            Margin="20, 0, 20, 32">
+            <Button ui:Translator.Key="ONB_BACK_BTN" DockPanel.Dock="Left"
+                    Width="100"
+                    Padding="8, 4"
+                    Command="{Binding PreviousFormStepCommand}"
+                    HorizontalAlignment="Left" VerticalAlignment="Bottom" />
+            <Button ui:Translator.Key="ONB_NEXT_BTN"
+                    DockPanel.Dock="Right"
+                    Width="100"
+                    Padding="8, 4"
+                    Background="{DynamicResource ThemeAccentBrush}"
+                    Command="{Binding NextFormStepCommand}"
+                    HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+
+            <ItemsControl HorizontalAlignment="Center" ItemsSource="{Binding AllFormSteps}">
+                <ItemsControl.Styles>
+                    <Style Selector="Rectangle.Active">
+                        <Setter Property="Fill" Value="{DynamicResource ThemeAccentBrush}" />
+                    </Style>
+                </ItemsControl.Styles>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" Spacing="15" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="userPreferences:FormStep">
+                        <Rectangle Width="50"
+                                   Height="5"
+                                   RadiusX="2.5"
+                                   RadiusY="2.5"
+                                   Classes.Active="{Binding IsActive}"
+                                   Fill="{DynamicResource ThemeControlHighlightBrush}">
+                            <Rectangle.Transitions>
+                                <Transitions>
+                                    <BrushTransition Property="Fill" Duration="0.2" />
+                                </Transitions>
+                            </Rectangle.Transitions>
+                        </Rectangle>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+        </DockPanel>
     </Panel>
-</dialogs:PixiEditorPopup>
+</Window>
