@@ -46,11 +46,13 @@
                         Margin="0, 24, 0, 0" Orientation="Horizontal">
                 <Button ui:Translator.Key="ONBOARDING_SKIP_BTN"
                         Padding="8, 4"
+                        Focusable="False"
                         Command="{Binding Close, RelativeSource={RelativeSource AncestorType=dialogs:OnboardingDialog, Mode=FindAncestor}}"
                         HorizontalAlignment="Center" VerticalAlignment="Center" />
 
                 <Button Background="{DynamicResource ThemeAccentBrush}"
                         ui:Translator.Key="ONBOARDING_ACTION_BTN"
+                        Focusable="False"
                         Command="{Binding NextPage}"
                         HorizontalAlignment="Center" VerticalAlignment="Center" />
             </StackPanel>
@@ -133,7 +135,8 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <TextBlock DockPanel.Dock="Bottom" Classes="subtext" ui:Translator.Key="LANGUAGE_INFO" />
+                <TextBlock DockPanel.Dock="Bottom" ui:Hyperlink.Url="https://discord.gg/qSRMYmq"
+                           ui:Translator.Key="LANGUAGE_INFO" />
             </StackPanel>
             <StackPanel Grid.Row="1"
                         IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=2}"
@@ -227,7 +230,21 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-
         </DockPanel>
+
+        <StackPanel
+            IsVisible="{Binding Page, Converter={converters:IsEqualConverter}, ConverterParameter=2}"
+            HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="32" Orientation="Vertical">
+
+            <TextBlock HorizontalAlignment="Center" ui:Translator.Key="ONB_ALL_SET" Classes="h3"/>
+            <TextBlock HorizontalAlignment="Center" Text="{DynamicResource icon-check}" Classes="pixi-icon"
+                       Foreground="{DynamicResource ThemeBorderHighBrush}"
+                       FontSize="72"/>
+            <Button
+                ui:Translator.Key="ONB_ALL_SET_BTN"
+                Background="{DynamicResource ThemeAccentBrush}"
+                Command="{Binding Finish, RelativeSource={RelativeSource AncestorType=dialogs:OnboardingDialog, Mode=FindAncestor}}"
+                HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </StackPanel>
     </Panel>
 </Window>

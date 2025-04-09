@@ -237,7 +237,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
     }
 
     [Command.Basic("PixiEditor.Window.OpenOnboardingWindow", "OPEN_ONBOARDING_WINDOW", "OPEN_ONBOARDING_WINDOW",
-        Icon = PixiPerfectIcons.Home, MenuItemPath = "VIEW/OPEN_ONBOARDING_WINDOW",
+        Icon = PixiPerfectIcons.Compass, MenuItemPath = "VIEW/OPEN_ONBOARDING_WINDOW", MenuItemOrder = 2,
         AnalyticsTrack = true)]
     public void OpenOnboardingWindow()
     {

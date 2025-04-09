@@ -125,6 +125,7 @@ internal class OnboardingViewModel : PixiObservableObject
         ToolSets = new ObservableCollection<SelectionCard<IToolSetHandler>>(
             ViewModelMain.Current.ToolsSubViewModel.AllToolSets.Select(x =>
                 new SelectionCard<IToolSetHandler>(x, SelectToolsetCommand)));
+
         var firstToolSet = ToolSets.FirstOrDefault();
         if (firstToolSet != null)
         {
@@ -166,6 +167,11 @@ internal class OnboardingViewModel : PixiObservableObject
     public void PreviousPage()
     {
         Page--;
+    }
+
+    public void OnFinish()
+    {
+        ViewModelMain.Current.WindowSubViewModel.OpenHelloThereWindow();
     }
 }
 

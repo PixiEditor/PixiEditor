@@ -1018,8 +1018,12 @@
   "ONB_NEXT_BTN": "Next",
   "ONB_BACK_BTN": "Previous",
   "ONB_ANALYTICS": "Anonymous Analytics",
+  "ONB_ALL_SET": "You are all set!",
+  "ONB_ALL_SET_BTN": "Start creating",
   "ANALYTICS_INFO_DETAILED": "PixiEditor collects anonymous usage data to improve the app. The data does not contain any personal information. Among other things, PixiEditor tracks the following:\n- Which and how the tools are used\n- How long you've used the app for\n- Which commands are used\n- Performance data\n\n You can opt out of analytics at any time in the settings.",
   "PRIVACY_POLICY": "Privacy Policy",
   "ONB_SHORTCUTS": "Select Your Shortcuts",
-  "GRAPH_STATE_UNABLE_TO_CREATE_MEMBER": "Current Node Graph setup disallows creation of a new layer next to the selected one."
+  "GRAPH_STATE_UNABLE_TO_CREATE_MEMBER": "Current Node Graph setup disallows creation of a new layer next to the selected one.",
+  "PRIMARY_TOOLSET": "Primary Toolset",
+  "OPEN_ONBOARDING_WINDOW": "Open onboarding window"
 }
