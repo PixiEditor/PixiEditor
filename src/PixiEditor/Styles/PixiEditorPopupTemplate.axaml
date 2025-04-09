@@ -49,6 +49,7 @@
                         <DockPanel>
                             <controls:DialogTitleBar
                                 Name="PART_TitleBar"
+                                IsVisible="{TemplateBinding ShowTitleBar}"
                                 DockPanel.Dock="Top" 
                                 CloseCommand="{TemplateBinding CloseCommand}"
                                 CanMinimize="{TemplateBinding CanMinimize}"

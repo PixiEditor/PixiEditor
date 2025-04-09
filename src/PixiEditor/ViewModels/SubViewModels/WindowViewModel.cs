@@ -10,6 +10,7 @@ using PixiEditor.Models.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.UserPreferences;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 using PixiEditor.Views.Windows;
@@ -233,6 +234,14 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
     public void OpenHelloThereWindow()
     {
         new HelloTherePopup(Owner.FileSubViewModel).Show(MainWindow.Current);
+    }
+
+    [Command.Basic("PixiEditor.Window.OpenOnboardingWindow", "OPEN_ONBOARDING_WINDOW", "OPEN_ONBOARDING_WINDOW",
+        Icon = PixiPerfectIcons.Compass, MenuItemPath = "VIEW/OPEN_ONBOARDING_WINDOW", MenuItemOrder = 2,
+        AnalyticsTrack = true)]
+    public void OpenOnboardingWindow()
+    {
+        new OnboardingDialog { DataContext = new OnboardingViewModel() }.ShowDialog(MainWindow.Current);
     }
 
     [Commands_Command.Basic("PixiEditor.Window.OpenShortcutWindow", "OPEN_SHORTCUT_WINDOW", "OPEN_SHORTCUT_WINDOW",

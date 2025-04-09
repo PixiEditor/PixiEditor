@@ -30,6 +30,8 @@ public static class PixiEditorSettings
         public static SyncedSetting<RightClickMode> RightClickMode { get; } = SyncedSetting.NonOwned<RightClickMode>(PixiEditor);
         
         public static SyncedSetting<bool> IsPenModeEnabled { get; } = SyncedSetting.NonOwned<bool>(PixiEditor);
+
+        public static SyncedSetting<string> PrimaryToolset { get; } = SyncedSetting.NonOwned<string>(PixiEditor, "PAINT_TOOLSET");
     }
 
     public static class File

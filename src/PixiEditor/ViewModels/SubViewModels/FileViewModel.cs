@@ -150,7 +150,12 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
         else if (!args.Contains("--crash") && !args.Contains("--openedInExisting"))
         {
-            if (preferences!.GetPreference("ShowStartupWindow", true))
+            if(preferences.GetLocalPreference("OnboardingShown", false) == false)
+            {
+                preferences.UpdateLocalPreference("OnboardingShown", true);
+                Owner.WindowSubViewModel.OpenOnboardingWindow();
+            }
+            else if (preferences!.GetPreference("ShowStartupWindow", true))
             {
                 OpenHelloTherePopup();
             }

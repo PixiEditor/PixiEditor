@@ -18,6 +18,7 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Tools;
@@ -95,6 +96,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     ICollection<IToolSetHandler> IToolsHandler.AllToolSets => AllToolSets;
 
     public ObservableCollection<IToolSetHandler> AllToolSets { get; } = new();
+    public List<string> AllToolSetNames => AllToolSets.Select(x => x.Name).ToList();
 
     public event EventHandler<SelectedToolEventArgs>? SelectedToolChanged;
 
@@ -106,12 +108,39 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     private ToolViewModel _preTransientTool;
 
     private List<IToolHandler> allTools = new();
+    private List<ToolSetConfig> originalToolSets = new();
     private IToolSetHandler? _activeToolSet;
 
     public ToolsViewModel(ViewModelMain owner)
         : base(owner)
     {
         owner.DocumentManagerSubViewModel.ActiveDocumentChanged += ActiveDocumentChanged;
+        PixiEditorSettings.Tools.PrimaryToolset.ValueChanged += PrimaryToolsetOnValueChanged;
+    }
+
+    private void PrimaryToolsetOnValueChanged(Setting<string> setting, string? newPrimaryToolset)
+    {
+        var toolset = AllToolSets.FirstOrDefault(x => x.Name == newPrimaryToolset);
+
+        if (toolset is not null)
+        {
+            var orderedToolSetConfig = originalToolSets
+                .OrderByDescending(toolSet => toolSet.Name == newPrimaryToolset)
+                .ToList();
+            var toolsets = new List<IToolSetHandler>(AllToolSets);
+            AllToolSets.Clear();
+
+            foreach (var toolSetConfig in orderedToolSetConfig)
+            {
+                var foundToolSet = toolsets.FirstOrDefault(x => x.Name == toolSetConfig.Name);
+                if (foundToolSet is not null)
+                {
+                   AllToolSets.Add(foundToolSet);
+                }
+            }
+
+            SetActiveToolSet(toolset);
+        }
     }
 
     public void SetupTools(IServiceProvider services, ToolSetsConfig toolSetConfig)
@@ -471,9 +500,21 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     private void AddToolSets(ToolSetsConfig toolSetConfig)
     {
-        foreach (ToolSetConfig toolSet in toolSetConfig)
+        var primaryToolSet = PixiEditorSettings.Tools.PrimaryToolset.Value;
+        if (string.IsNullOrEmpty(primaryToolSet))
         {
-            var toolSetViewModel = new ToolSetViewModel(toolSet.Name);
+            primaryToolSet = toolSetConfig.First().Name;
+        }
+
+        originalToolSets = toolSetConfig.ToList();
+
+        var orderedToolSetConfig = toolSetConfig
+            .OrderByDescending(toolSet => toolSet.Name == primaryToolSet)
+            .ToList();
+
+        foreach (ToolSetConfig toolSet in orderedToolSetConfig)
+        {
+            var toolSetViewModel = new ToolSetViewModel(toolSet.Name, toolSet.Icon);
 
             foreach (var toolFromToolset in toolSet.Tools)
             {
