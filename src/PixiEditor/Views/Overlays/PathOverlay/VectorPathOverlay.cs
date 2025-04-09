@@ -63,6 +63,8 @@ public class VectorPathOverlay : Overlay
 
     private bool isDragging = false;
 
+    private List<int> lastSelectedIndices = new();
+
     static VectorPathOverlay()
     {
         AffectsOverlayRender(PathProperty);
@@ -223,7 +225,16 @@ public class VectorPathOverlay : Overlay
                 CreateHandle(controlPointHandles.Count, true);
             }
 
-            SelectAnchor(GetHandleAt(pointsCount - 1));
+            foreach (var sel in lastSelectedIndices)
+            {
+                if (sel >= anchorHandles.Count)
+                {
+                    continue;
+                }
+
+                var handle = anchorHandles[sel];
+                handle.IsSelected = true;
+            }
 
             ConnectControlPointsToAnchors();
         }
@@ -617,6 +628,11 @@ public class VectorPathOverlay : Overlay
             return;
         }
 
+        if (!handle.IsSelected)
+        {
+            SelectAnchor(handle, false);
+        }
+
         bool isDraggingControlPoints = args.Modifiers.HasFlag(KeyModifiers.Control);
 
         var selectedAnchors = isDraggingControlPoints
@@ -651,6 +667,7 @@ public class VectorPathOverlay : Overlay
                 {
                     delta = (VecF)targetPos - pos;
                 }
+
                 VecF newPos = i == 0 ? (VecF)targetPos : pos + delta;
                 subShapeContainingIndex.SetPointPosition(localIndex, newPos, true);
             }
@@ -802,13 +819,21 @@ public class VectorPathOverlay : Overlay
 
     private void ClearAnchorHandles()
     {
+        lastSelectedIndices.Clear();
+        int index = 0;
         foreach (var handle in anchorHandles)
         {
+            if (handle.IsSelected)
+            {
+                lastSelectedIndices.Add(index);
+            }
+
             handle.OnPress -= OnHandlePress;
             handle.OnDrag -= OnHandleDrag;
             handle.OnRelease -= OnHandleRelease;
             handle.OnTap -= OnHandleTap;
             Handles.Remove(handle);
+            index++;
         }
 
         anchorHandles.Clear();
