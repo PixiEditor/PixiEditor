@@ -599,6 +599,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
+    public ICrossDocumentPipe<T> ShareNode<T>(Guid layerId) where T : class, IReadOnlyNode
+    {
+        return Internals.Tracker.Document.CreateNodePipe<T>(layerId);
+    }
+
     public OneOf<Error, Surface> TryRenderWholeImage(KeyFrameTime frameTime, VecI renderSize)
     {
         try
@@ -1148,6 +1153,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public void Dispose()
     {
+        Internals.ChangeController.TryStopActiveExecutor();
         Internals.Tracker.Dispose();
         Internals.Tracker.Document.Dispose();
     }

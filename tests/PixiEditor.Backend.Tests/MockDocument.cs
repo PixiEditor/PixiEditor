@@ -84,4 +84,9 @@ public class MockDocument : IReadOnlyDocument
     {
         throw new NotImplementedException();
     }
+
+    public ICrossDocumentPipe<T> CreateNodePipe<T>(Guid layerId) where T : class, IReadOnlyNode
+    {
+        throw new NotImplementedException();
+    }
 }

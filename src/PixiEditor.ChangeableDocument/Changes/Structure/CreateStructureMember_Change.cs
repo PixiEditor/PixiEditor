@@ -33,7 +33,21 @@ internal class CreateStructureMember_Change : Change
             !structureMemberOfType.IsAssignableTo(typeof(StructureNode)))
             return false;
 
-        return target.TryFindNode<Node>(parentGuid, out _);
+        if (!target.TryFindNode<Node>(parentGuid, out Node parent))
+        {
+            return false;
+        }
+
+        var painterInput = parent.InputProperties.FirstOrDefault(x =>
+            x.ValueType == typeof(Painter)) as InputProperty<Painter>;
+
+        if (painterInput == null)
+        {
+            FailedMessage = "GRAPH_STATE_UNABLE_TO_CREATE_MEMBER";
+            return false;
+        }
+
+        return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document document, bool firstApply,
@@ -49,7 +63,13 @@ internal class CreateStructureMember_Change : Change
         InputProperty<Painter> targetInput = parentNode.InputProperties.FirstOrDefault(x =>
             x.ValueType == typeof(Painter)) as InputProperty<Painter>;
 
-        var previouslyConnected = targetInput.Connection;
+        if (targetInput == null)
+        {
+            ignoreInUndo = true;
+            return new None();
+        }
+
+        var previouslyConnected = targetInput?.Connection;
 
         if (member is FolderNode folder)
         {

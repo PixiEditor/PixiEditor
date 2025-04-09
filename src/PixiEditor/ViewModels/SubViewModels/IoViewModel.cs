@@ -32,6 +32,8 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     private bool? drawingWithRight;
     private bool startedWithEraser;
 
+    private Key? queuedTransientKey;
+
     public RelayCommand<MouseOnCanvasEventArgs> MouseMoveCommand { get; set; }
     public RelayCommand<MouseOnCanvasEventArgs> MouseDownCommand { get; set; }
     public RelayCommand PreviewMouseMiddleButtonCommand { get; set; }
@@ -125,19 +127,28 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         Owner.DocumentManagerSubViewModel.ActiveDocument?.EventInlet.OnKeyDown(args.Key);
     }
 
-    private void HandleTransientKey(Key transientKey)
+    private bool HandleTransientKey(Key transientKey, bool executeOnlyImmediate)
     {
         if (ShortcutController.ShortcutExecutionBlocked)
         {
-            return;
+            return false;
         }
 
         var tool = GetTransientTool(transientKey);
 
-        if (tool is not null)
+        if (tool is null)
         {
-            Owner.ToolsSubViewModel.SetActiveTool(tool.ToolType, true);
+            return false;
         }
+
+        if (!tool.TransientImmediate && executeOnlyImmediate)
+        {
+            return false;
+        }
+
+        Owner.ToolsSubViewModel.SetActiveTool(tool.ToolType, true);
+
+        return true;
     }
 
     private static Command.ToolCommand? GetTransientTool(Key transientKey)
@@ -152,11 +163,18 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     {
         if (argsModifiers == KeyModifiers.None && !isRepeat)
         {
-            HandleTransientKey(key);
+            if (!HandleTransientKey(key, true))
+            {
+                queuedTransientKey = key;
+            }
+        }
+        else
+        {
+            queuedTransientKey = null;
         }
 
         if (isRepeat && Owner.ShortcutController.LastCommands != null &&
-            Owner.ShortcutController.LastCommands.Any(x => x is Command.ToolCommand))
+            Owner.ShortcutController.LastCommands.Any(x => x is Command.ToolCommand cmd && cmd.Shortcut == new KeyCombination(key, argsModifiers)))
         {
             Owner.ToolsSubViewModel.HandleToolRepeatShortcutDown();
         }
@@ -186,6 +204,12 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnMouseDown(object? sender, MouseOnCanvasEventArgs args)
     {
+        if (args.Button == MouseButton.Left && queuedTransientKey != null)
+        {
+            HandleTransientKey(queuedTransientKey.Value, false);
+            queuedTransientKey = null;
+        }
+
         if (drawingWithRight != null || args.Button is not (MouseButton.Left or MouseButton.Right))
             return;
 
@@ -199,8 +223,8 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
         drawingWithRight = args.Button == MouseButton.Right;
         activeDocument.EventInlet.OnCanvasLeftMouseButtonDown(args);
-        if(args.Handled) return;
-        
+        if (args.Handled) return;
+
         Owner.ToolsSubViewModel.UseToolEventInlet(args.PositionOnCanvas, args.Button);
 
         if (args.Button == MouseButton.Right)

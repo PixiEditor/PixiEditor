@@ -48,6 +48,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     public bool VerticalSymmetryAxisEnabled { get; set; }
     public double HorizontalSymmetryAxisY { get; set; }
     public double VerticalSymmetryAxisX { get; set; }
+    public bool IsDisposed { get; private set; }
 
     public Document()
     {
@@ -57,6 +58,9 @@ internal class Document : IChangeable, IReadOnlyDocument
 
     public void Dispose()
     {
+        if (IsDisposed) return;
+
+        IsDisposed = true;
         NodeGraph.Dispose();
         Selection.Dispose();
     }
@@ -154,12 +158,18 @@ internal class Document : IChangeable, IReadOnlyDocument
         List<IReadOnlyStructureNode> parents = new();
         childNode.TraverseForwards((node, input) =>
         {
-            if (node is IReadOnlyStructureNode parent && input is { InternalPropertyName: FolderNode.ContentInternalName })
+            if (node is IReadOnlyStructureNode parent &&
+                input is { InternalPropertyName: FolderNode.ContentInternalName })
                 parents.Add(parent);
             return true;
         });
 
         return parents;
+    }
+
+    public ICrossDocumentPipe<T> CreateNodePipe<T>(Guid layerId) where T : class, IReadOnlyNode
+    {
+        return new DocumentNodePipe<T>(this, layerId);
     }
 
     private void ForEveryReadonlyMember(IReadOnlyNodeGraph graph, Action<IReadOnlyStructureNode> action)
@@ -340,17 +350,17 @@ internal class Document : IChangeable, IReadOnlyDocument
     }
 
     /// <summary>
-    /// Finds a member with the <paramref name="childGuid"/> and its parent
+    /// Finds a node with the <paramref name="childGuid"/> and its parent
     /// </summary>
     /// <param name="childGuid">The <see cref="StructureNode.Id"/> of the member</param>
     /// <returns>A value tuple consisting of child (<see cref="ValueTuple{T, T}.Item1"/>) and parent (<see cref="ValueTuple{T, T}.Item2"/>)<para>Child and parent can be null if not found!</para></returns>
-    public (StructureNode?, FolderNode?) FindChildAndParent(Guid childGuid)
+    public (StructureNode?, Node?) FindChildAndParent(Guid childGuid)
     {
-        var path = FindMemberPath(childGuid);
+        var path = FindNodePath(childGuid);
         return path.Count switch
         {
-            1 => (path[0], null),
-            > 1 => (path[0], (FolderNode)path[1]),
+            1 => (path[0] as StructureNode, null),
+            > 1 => (path[0] as StructureNode, path[1]),
             _ => (null, null),
         };
     }

@@ -757,7 +757,7 @@
   "MODULO": "Modulo",
   "STEP": "Step",
   "SMOOTH_STEP": "Smoothstep",
-  "PIXEL_PERFECT_TOOLSET": "Pixel Perfect",
+  "PIXEL_PERFECT_TOOLSET": "Pixel Art",
   "VECTOR_TOOLSET": "Vector",
   "VECTOR_LAYER": "Vector Layer",
   "STROKE_COLOR_LABEL": "Stroke",
@@ -1020,5 +1020,6 @@
   "ONB_ANALYTICS": "Anonymous Analytics",
   "ANALYTICS_INFO_DETAILED": "PixiEditor collects anonymous usage data to improve the app. The data does not contain any personal information. Among other things, PixiEditor tracks the following:\n- Which and how the tools are used\n- How long you've used the app for\n- Which commands are used\n- Performance data\n\n You can opt out of analytics at any time in the settings.",
   "PRIVACY_POLICY": "Privacy Policy",
-  "ONB_SHORTCUTS": "Select Your Shortcuts"
+  "ONB_SHORTCUTS": "Select Your Shortcuts",
+  "GRAPH_STATE_UNABLE_TO_CREATE_MEMBER": "Current Node Graph setup disallows creation of a new layer next to the selected one."
 }

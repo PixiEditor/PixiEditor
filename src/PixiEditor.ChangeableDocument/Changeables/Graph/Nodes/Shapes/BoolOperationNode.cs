@@ -1,4 +1,5 @@
-﻿using Drawie.Backend.Core.Vector;
+﻿using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Vector;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
 
@@ -45,12 +46,64 @@ public class BoolOperationNode : Node
         ShapeVectorData shapeA = ShapeA.Value;
         ShapeVectorData shapeB = ShapeB.Value;
 
-        Result.Value = new PathVectorData(shapeA.ToPath(true).Op(shapeB.ToPath(true), Operation.Value))
+        StrokeCap cap = StrokeCap.Round;
+        StrokeJoin join = StrokeJoin.Round;
+        PathFillType fillType = PathFillType.Winding;
+
+        if (shapeA is PathVectorData pathA)
+        {
+            cap = pathA.StrokeLineCap;
+            join = pathA.StrokeLineJoin;
+        }
+        else if (shapeB is PathVectorData pathB)
+        {
+            cap = pathB.StrokeLineCap;
+            join = pathB.StrokeLineJoin;
+        }
+
+        var firstPath = shapeA.ToPath(true);
+        var secondPath = shapeB.ToPath(true);
+
+        if (firstPath == null)
+        {
+            if (secondPath == null)
+            {
+                Result.Value = null;
+                return;
+            }
+
+            Result.Value = new PathVectorData(secondPath)
+            {
+                Fill = shapeB.Fill,
+                Stroke = shapeB.Stroke,
+                StrokeWidth = shapeB.StrokeWidth,
+                FillPaintable = shapeB.FillPaintable,
+                StrokeLineCap = cap,
+                StrokeLineJoin = join,
+            };
+        }
+        else if (secondPath == null)
+        {
+            Result.Value = new PathVectorData(firstPath)
+            {
+                Fill = shapeA.Fill,
+                Stroke = shapeA.Stroke,
+                StrokeWidth = shapeA.StrokeWidth,
+                FillPaintable = shapeA.FillPaintable,
+                StrokeLineCap = cap,
+                StrokeLineJoin = join,
+            };
+            return;
+        }
+
+        Result.Value = new PathVectorData(firstPath.Op(secondPath, Operation.Value))
         {
             Fill = shapeA.Fill,
             Stroke = shapeA.Stroke,
             StrokeWidth = shapeA.StrokeWidth,
             FillPaintable = shapeA.FillPaintable,
+            StrokeLineCap = cap,
+            StrokeLineJoin = join,
         };
     }
 

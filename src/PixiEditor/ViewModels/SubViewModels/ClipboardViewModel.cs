@@ -77,7 +77,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
             Guid[] guids = doc.StructureHelper.GetAllLayers().Select(x => x.Id).ToArray();
-            await ClipboardController.TryPasteFromClipboard(doc, pasteAsNewLayer);
+            await ClipboardController.TryPasteFromClipboard(doc, Owner.DocumentManagerSubViewModel, pasteAsNewLayer);
 
             doc.Operations.InvokeCustomAction(() =>
             {

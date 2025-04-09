@@ -27,6 +27,7 @@ using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels.Document;
@@ -189,23 +190,28 @@ internal static class ClipboardController
     /// <summary>
     ///     Pastes image from clipboard into new layer.
     /// </summary>
-    public static bool TryPaste(DocumentViewModel document, IEnumerable<IDataObject> data, bool pasteAsNew = false)
+    public static bool TryPaste(DocumentViewModel document, DocumentManagerViewModel manager, IEnumerable<IDataObject>
+        data, bool pasteAsNew = false)
     {
-        Guid sourceDocument = GetSourceDocument(data);
+        Guid sourceDocument = GetSourceDocument(data, document.Id);
         Guid[] layerIds = GetLayerIds(data);
-
-        if (sourceDocument != document.Id)
-        {
-            layerIds = [];
-        }
 
         bool hasPos = data.Any(x => x.Contains(ClipboardDataFormats.PositionFormat));
 
-        if (pasteAsNew && layerIds is { Length: > 0 } && (!hasPos || AllMatchesPos(layerIds, data, document)))
+        IDocument? targetDoc = manager.Documents.FirstOrDefault(x => x.Id == sourceDocument);
+
+        if (targetDoc != null && pasteAsNew && layerIds is { Length: > 0 } && (!hasPos || AllMatchesPos(layerIds, data, targetDoc)))
         {
             foreach (var layerId in layerIds)
             {
-                document.Operations.DuplicateMember(layerId);
+                if (sourceDocument == document.Id)
+                {
+                    document.Operations.DuplicateMember(layerId);
+                }
+                else
+                {
+                    document.Operations.ImportMember(layerId, targetDoc);
+                }
             }
 
             return true;
@@ -250,7 +256,7 @@ internal static class ClipboardController
         return true;
     }
 
-    private static bool AllMatchesPos(Guid[] layerIds, IEnumerable<IDataObject> data, DocumentViewModel doc)
+    private static bool AllMatchesPos(Guid[] layerIds, IEnumerable<IDataObject> data, IDocument doc)
     {
         var dataObjects = data as IDataObject[] ?? data.ToArray();
 
@@ -299,7 +305,7 @@ internal static class ClipboardController
         return [];
     }
 
-    private static Guid GetSourceDocument(IEnumerable<IDataObject> data)
+    private static Guid GetSourceDocument(IEnumerable<IDataObject> data, Guid fallback)
     {
         foreach (var dataObject in data)
         {
@@ -311,19 +317,20 @@ internal static class ClipboardController
             }
         }
 
-        return Guid.Empty;
+        return fallback;
     }
 
     /// <summary>
     ///     Pastes image from clipboard into new layer.
     /// </summary>
-    public static async Task<bool> TryPasteFromClipboard(DocumentViewModel document, bool pasteAsNew = false)
+    public static async Task<bool> TryPasteFromClipboard(DocumentViewModel document, DocumentManagerViewModel manager,
+        bool pasteAsNew = false)
     {
         var data = await TryGetDataObject();
         if (data == null)
             return false;
 
-        return TryPaste(document, data, pasteAsNew);
+        return TryPaste(document, manager, data, pasteAsNew);
     }
 
     private static async Task<List<DataObject?>> TryGetDataObject()

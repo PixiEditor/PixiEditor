@@ -337,6 +337,7 @@ internal class AffectedAreasGatherer
         for (int i = ignoreSelf ? 1 : 0; i < path.Count; i++)
         {
             var member = path[i];
+            if(member == null) continue;
             if (!ImagePreviewAreas.ContainsKey(member.Id))
             {
                 ImagePreviewAreas[member.Id] = new AffectedArea(area);

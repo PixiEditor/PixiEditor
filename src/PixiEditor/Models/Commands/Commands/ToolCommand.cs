@@ -10,6 +10,7 @@ internal partial class Command
         public Type ToolType { get; init; }
 
         public Key TransientKey { get; init; }
+        public bool TransientImmediate { get; init; } = false;
 
         public override object GetParameter() => ToolType;
     }
