@@ -11,7 +11,7 @@ internal class DuplicateLayer_Change : Change
 {
     private readonly Guid layerGuid;
     private Guid duplicateGuid;
-    
+
     private ConnectionsData? connectionsData;
     private Dictionary<Guid, VecD> originalPositions;
 
@@ -26,10 +26,18 @@ internal class DuplicateLayer_Change : Change
     {
         if (!target.TryFindMember<LayerNode>(layerGuid, out LayerNode? layer))
             return false;
-        
+
+        (_, Node parent) = ((LayerNode, Node))target.FindChildAndParent(layerGuid);
+
         connectionsData = NodeOperations.CreateConnectionsData(layer);
 
-        var targetInput = layer.InputProperties.FirstOrDefault(x =>
+        if(parent == null)
+        {
+            FailedMessage = "GRAPH_STATE_UNABLE_TO_CREATE_MEMBER";
+            return false;
+        }
+
+        var targetInput = parent.InputProperties.FirstOrDefault(x =>
             x.ValueType == typeof(Painter) &&
             x.Connection is { Node: StructureNode }) as InputProperty<Painter?>;
 
@@ -54,7 +62,7 @@ internal class DuplicateLayer_Change : Change
         InputProperty<Painter?> targetInput = parent.InputProperties.FirstOrDefault(x =>
             x.ValueType == typeof(Painter) &&
             x.Connection is { Node: StructureNode }) as InputProperty<Painter?>;
-        
+
         var previousConnection = targetInput?.Connection;
 
         List<IChangeInfo> operations = new();
@@ -62,7 +70,7 @@ internal class DuplicateLayer_Change : Change
         target.NodeGraph.AddNode(clone);
 
         operations.Add(CreateLayer_ChangeInfo.FromLayer(clone));
-        
+
         operations.AddRange(NodeOperations.AppendMember(targetInput, clone.Output, clone.Background, clone.Id));
 
         operations.AddRange(NodeOperations.AdjustPositionsAfterAppend(clone, targetInput.Node,
@@ -84,15 +92,16 @@ internal class DuplicateLayer_Change : Change
 
         changes.AddRange(NodeOperations.DetachStructureNode(member));
         changes.Add(new DeleteStructureMember_ChangeInfo(member.Id));
-        
+
         if (connectionsData is not null)
         {
             Node originalNode = target.FindNodeOrThrow<Node>(layerGuid);
-            changes.AddRange(NodeOperations.ConnectStructureNodeProperties(connectionsData, originalNode, target.NodeGraph));
+            changes.AddRange(
+                NodeOperations.ConnectStructureNodeProperties(connectionsData, originalNode, target.NodeGraph));
         }
-        
+
         changes.AddRange(NodeOperations.RevertPositions(originalPositions, target));
-        
+
         return changes;
     }
 }
