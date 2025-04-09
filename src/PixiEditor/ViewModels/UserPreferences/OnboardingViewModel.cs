@@ -23,7 +23,7 @@ internal class OnboardingViewModel : PixiObservableObject
         get => page;
         set
         {
-            value = Math.Clamp(value, 0, 5);
+            value = Math.Clamp(value, 0, AllFormSteps.Count + 1);
             SetProperty(ref page, value);
         }
     }
@@ -146,6 +146,12 @@ internal class OnboardingViewModel : PixiObservableObject
 
     public void PreviousFormStep()
     {
+        if (FormStep.Step == 0)
+        {
+            PreviousPage();
+            return;
+        }
+
         FormStep = AllFormSteps[FormStep.Step - 1];
     }
 
@@ -156,7 +162,7 @@ internal class OnboardingViewModel : PixiObservableObject
 
     public bool CanPreviousFormStep()
     {
-        return FormStep.Step > 0;
+        return true;
     }
 
     public void NextPage()
