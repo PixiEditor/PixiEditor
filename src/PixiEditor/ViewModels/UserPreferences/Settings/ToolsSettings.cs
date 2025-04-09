@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.ViewModels.UserPreferences.Settings;
+﻿using PixiEditor.Extensions.CommonApi.UserPreferences;
+
+namespace PixiEditor.ViewModels.UserPreferences.Settings;
 
 internal class ToolsSettings : SettingsGroup
 {
@@ -12,5 +14,14 @@ internal class ToolsSettings : SettingsGroup
             enableSharedToolbar = value;
             RaiseAndUpdatePreference(nameof(EnableSharedToolbar), value);
         }
+    }
+
+    private string primaryToolset =
+        GetPreference(PreferencesConstants.PrimaryToolset, PreferencesConstants.PrimaryToolsetDefault);
+
+    public string PrimaryToolset
+    {
+        get => primaryToolset;
+        set => RaiseAndUpdatePreference(ref primaryToolset, value);
     }
 }

@@ -20,12 +20,12 @@ public class Program
             .UsePlatformDetect()
             .With(new Win32PlatformOptions()
             {
-                RenderingMode = new Win32RenderingMode[] { Win32RenderingMode.Vulkan, Win32RenderingMode.Wgl },
+                RenderingMode = new Win32RenderingMode[] { Win32RenderingMode.Vulkan },
                 OverlayPopups = true
             })
             .With(new X11PlatformOptions()
             {
-                RenderingMode = new X11RenderingMode[] { X11RenderingMode.Vulkan, X11RenderingMode.Glx },
+                RenderingMode = new X11RenderingMode[] { X11RenderingMode.Vulkan },
                 OverlayPopups = true,
             })
             .WithDrawie()

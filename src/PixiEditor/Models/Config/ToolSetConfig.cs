@@ -10,9 +10,12 @@ public class ToolSetsConfig : List<ToolSetConfig>
 public class ToolSetConfig
 {
     public string Name { get; set; }
-    
+
+    public string? Icon { get; set; }
+
     [JsonConverter(typeof(ToolConverter))]
     public List<ToolConfig> Tools { get; set; }
+
 }
 
 public class ToolConfig

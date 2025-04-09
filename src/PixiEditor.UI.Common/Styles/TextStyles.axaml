@@ -2,40 +2,46 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Design.PreviewWith>
         <Border Padding="20">
-            <TextBlock Classes="h1"/>
+            <TextBlock Classes="h1" />
         </Border>
     </Design.PreviewWith>
-    
+
     <Style Selector="TextBlock">
-        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
     <Style Selector="TextBlock.h1">
-        <Setter Property="FontSize" Value="{DynamicResource Header1}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Header1}" />
     </Style>
 
     <Style Selector="TextBlock.h2">
-        <Setter Property="FontSize" Value="{DynamicResource Header2}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Header2}" />
     </Style>
 
     <Style Selector="TextBlock.h3">
-        <Setter Property="FontSize" Value="{DynamicResource Header3}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Header3}" />
     </Style>
 
     <Style Selector="TextBlock.h4">
-        <Setter Property="FontSize" Value="{DynamicResource Header4}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Header4}" />
     </Style>
-    
+
     <Style Selector="TextBlock.h5">
-        <Setter Property="FontSize" Value="{DynamicResource Header5}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Header5}" />
     </Style>
 
     <Style Selector="TextBlock.hyperlink">
-        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundSecondaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundSecondaryBrush}" />
     </Style>
 
     <Style Selector="TextBlock.hyperlink:pointerover">
-        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}"/>
-        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <Style Selector=":is(TextBlock).subtext">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundLowBrush}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
 </Styles>

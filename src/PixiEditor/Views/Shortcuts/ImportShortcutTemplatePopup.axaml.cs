@@ -24,6 +24,11 @@ internal partial class ImportShortcutTemplatePopup : PixiEditorPopup
     [Command.Internal("PixiEditor.Shortcuts.Provider.ImportDefault")]
     public static void ImportDefaults(ShortcutProvider provider)
     {
+        ImportDefaults(provider, false);
+    }
+
+    public static void ImportDefaults(ShortcutProvider provider, bool quiet)
+    {
         if (provider is not IShortcutDefaults defaults)
         {
             throw new ArgumentException("Provider must implement IShortcutDefaults", nameof(provider));
@@ -32,11 +37,17 @@ internal partial class ImportShortcutTemplatePopup : PixiEditorPopup
         CommandController.Current.ResetShortcuts();
         CommandController.Current.Import(defaults.DefaultShortcuts);
 
-        Success(provider);
+        if (!quiet)
+            Success(provider);
     }
 
     [Command.Internal("PixiEditor.Shortcuts.Provider.ImportInstallation")]
     public static void ImportInstallation(ShortcutProvider provider)
+    {
+        ImportInstallation(provider, false);
+    }
+
+    public static void ImportInstallation(ShortcutProvider provider, bool quiet)
     {
         if (provider is not IShortcutInstallation defaults)
         {
@@ -55,10 +66,14 @@ internal partial class ImportShortcutTemplatePopup : PixiEditorPopup
             return;
         }
 
-        Success(provider);
+        if (!quiet)
+        {
+            Success(provider);
+        }
     }
 
-    private static void Success(ShortcutProvider provider) => NoticeDialog.Show(new LocalizedString("SHORTCUTS_IMPORTED", provider.Name), "SUCCESS");
+    private static void Success(ShortcutProvider provider) =>
+        NoticeDialog.Show(new LocalizedString("SHORTCUTS_IMPORTED", provider.Name), "SUCCESS");
 
     // TODO figure out what these are for
     /*
@@ -78,27 +93,36 @@ internal partial class ImportShortcutTemplatePopup : PixiEditorPopup
     /// </summary>
     /// <param name="provider">Shortcut provider.</param>
     /// <returns>True if imported shortcuts.</returns>
-    private async Task<bool> ImportFromProvider(ShortcutProvider? provider)
+    public static async Task<bool> ImportFromProvider(ShortcutProvider? provider, bool quiet = false)
     {
         if (provider is null)
             return false;
-        if (provider.ProvidesFromInstallation && provider.HasInstallationPresent)
+        if (provider is { ProvidesFromInstallation: true, HasInstallationPresent: true })
         {
-            OptionsDialog<string> dialog = new(provider.Name, new LocalizedString("SHORTCUT_PROVIDER_DETECTED"), MainWindow.Current!)
+            if (!quiet)
             {
-                { new LocalizedString("IMPORT_INSTALLATION_OPTION1"), x => ImportInstallation(provider) },
-                { new LocalizedString("IMPORT_INSTALLATION_OPTION2"), x => ImportDefaults(provider) },
-            };
+                OptionsDialog<string> dialog =
+                    new(provider.Name, new LocalizedString("SHORTCUT_PROVIDER_DETECTED", provider.Name),
+                        MainWindow.Current!)
+                    {
+                        {
+                            new LocalizedString("IMPORT_INSTALLATION_OPTION1"), x => ImportInstallation(provider, quiet)
+                        },
+                        { new LocalizedString("IMPORT_INSTALLATION_OPTION2"), x => ImportDefaults(provider, quiet) },
+                    };
+                return await dialog.ShowDialog();
+            }
 
-            return await dialog.ShowDialog();
-        }
-        
-        if (provider.HasDefaultShortcuts)
-        {
-            ImportDefaults(provider);
+            ImportInstallation(provider, quiet);
             return true;
         }
-        
+
+        if (provider.HasDefaultShortcuts)
+        {
+            ImportDefaults(provider, quiet);
+            return true;
+        }
+
         return false;
     }
 

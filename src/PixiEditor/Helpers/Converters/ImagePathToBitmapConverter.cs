@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using Avalonia;
+using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Svg.Skia;
 using PixiEditor.Helpers.Extensions;
@@ -19,12 +20,27 @@ internal class ImagePathToBitmapConverter : SingleInstanceConverter<ImagePathToB
 
         try
         {
-            return LoadBitmapFromRelativePath(path);
+            return LoadImageFromRelativePath(path);
         }
         catch (FileNotFoundException)
         {
             return AvaloniaProperty.UnsetValue;
         }
+    }
+
+    public static IImage LoadImageFromRelativePath(string path)
+    {
+        Uri baseUri = new Uri($"avares://{Assembly.GetExecutingAssembly().GetName().Name}");
+        Uri uri = new(baseUri, path);
+        if (!AssetLoader.Exists(uri))
+            throw new FileNotFoundException($"Could not find asset with path {path}");
+
+        if (path.EndsWith(".svg"))
+        {
+            return new SvgImage() { Source = new SvgSource(baseUri) { Path = path } };
+        }
+
+        return new Bitmap(AssetLoader.Open(uri));
     }
 
     public static Bitmap LoadBitmapFromRelativePath(string path)

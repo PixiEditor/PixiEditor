@@ -1,6 +1,7 @@
 ﻿[
   {
-    "Name": "PIXEL_PERFECT_TOOLSET",
+    "Name": "PIXEL_ART_TOOLSET",
+    "Icon": "\uE986",
     "Tools": [
       "MoveViewport",
       "RotateViewport",
@@ -42,6 +43,7 @@
   },
   {
     "Name": "PAINT_TOOLSET",
+    "Icon": "\uE912",
     "Tools": [
       "MoveViewport",
       "RotateViewport",
@@ -115,6 +117,7 @@
   },
   {
     "Name": "VECTOR_TOOLSET",
+    "Icon": "\uE945",
     "Tools": [
       "MoveViewport",
       "RotateViewport",

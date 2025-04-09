@@ -61,7 +61,42 @@ public class BoolOperationNode : Node
             join = pathB.StrokeLineJoin;
         }
 
-        Result.Value = new PathVectorData(shapeA.ToPath(true).Op(shapeB.ToPath(true), Operation.Value))
+        var firstPath = shapeA.ToPath(true);
+        var secondPath = shapeB.ToPath(true);
+
+        if (firstPath == null)
+        {
+            if (secondPath == null)
+            {
+                Result.Value = null;
+                return;
+            }
+
+            Result.Value = new PathVectorData(secondPath)
+            {
+                Fill = shapeB.Fill,
+                Stroke = shapeB.Stroke,
+                StrokeWidth = shapeB.StrokeWidth,
+                FillPaintable = shapeB.FillPaintable,
+                StrokeLineCap = cap,
+                StrokeLineJoin = join,
+            };
+        }
+        else if (secondPath == null)
+        {
+            Result.Value = new PathVectorData(firstPath)
+            {
+                Fill = shapeA.Fill,
+                Stroke = shapeA.Stroke,
+                StrokeWidth = shapeA.StrokeWidth,
+                FillPaintable = shapeA.FillPaintable,
+                StrokeLineCap = cap,
+                StrokeLineJoin = join,
+            };
+            return;
+        }
+
+        Result.Value = new PathVectorData(firstPath.Op(secondPath, Operation.Value))
         {
             Fill = shapeA.Fill,
             Stroke = shapeA.Stroke,

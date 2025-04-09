@@ -33,6 +33,15 @@ public partial class PixiEditorPopup : Window, IPopupWindow
         AvaloniaProperty.Register<PixiEditorPopup, ICommand>(
             nameof(CloseCommand));
 
+    public static readonly StyledProperty<bool> ShowTitleBarProperty = AvaloniaProperty.Register<PixiEditorPopup, bool>(
+        nameof(ShowTitleBar), defaultValue: true);
+
+    public bool ShowTitleBar
+    {
+        get => GetValue(ShowTitleBarProperty);
+        set => SetValue(ShowTitleBarProperty, value);
+    }
+
     public ICommand CloseCommand
     {
         get => GetValue(CloseCommandProperty);

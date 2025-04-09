@@ -350,17 +350,17 @@ internal class Document : IChangeable, IReadOnlyDocument
     }
 
     /// <summary>
-    /// Finds a member with the <paramref name="childGuid"/> and its parent
+    /// Finds a node with the <paramref name="childGuid"/> and its parent
     /// </summary>
     /// <param name="childGuid">The <see cref="StructureNode.Id"/> of the member</param>
     /// <returns>A value tuple consisting of child (<see cref="ValueTuple{T, T}.Item1"/>) and parent (<see cref="ValueTuple{T, T}.Item2"/>)<para>Child and parent can be null if not found!</para></returns>
-    public (StructureNode?, FolderNode?) FindChildAndParent(Guid childGuid)
+    public (StructureNode?, Node?) FindChildAndParent(Guid childGuid)
     {
-        var path = FindMemberPath(childGuid);
+        var path = FindNodePath(childGuid);
         return path.Count switch
         {
-            1 => (path[0], null),
-            > 1 => (path[0], (FolderNode)path[1]),
+            1 => (path[0] as StructureNode, null),
+            > 1 => (path[0] as StructureNode, path[1]),
             _ => (null, null),
         };
     }
