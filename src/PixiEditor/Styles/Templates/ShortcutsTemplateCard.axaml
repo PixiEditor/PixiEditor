@@ -34,6 +34,11 @@
                                 </Transitions>
                             </Image.Transitions>
                         </Image>
+                        <TextBlock Classes="pixi-icon" Text="{TemplateBinding Icon}"
+                                   FontSize="64"
+                                   Grid.Row="0" Grid.RowSpan="2" Name="icon" HorizontalAlignment="Center"
+                               VerticalAlignment="Center">
+                        </TextBlock>
                         <TextBlock
                             Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center"
                             Margin="0, 0, 0, 10" Padding="0"

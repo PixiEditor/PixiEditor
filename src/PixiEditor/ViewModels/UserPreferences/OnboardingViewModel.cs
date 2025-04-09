@@ -2,6 +2,7 @@
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Drawie.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Templates;
@@ -55,6 +56,8 @@ internal class OnboardingViewModel : PixiObservableObject
     public RelayCommand PreviousFormStepCommand { get; }
 
     public GeneralSettings GeneralSettings { get; } = new();
+    public FileSettings FileSettings { get; } = new();
+    public ToolsSettings ToolSettings { get; } = new();
 
     public ObservableCollection<SelectionCard<ShortcutProvider>> Templates { get; set; }
     public ObservableCollection<SelectionCard<IToolSetHandler>> ToolSets { get; }
@@ -62,6 +65,13 @@ internal class OnboardingViewModel : PixiObservableObject
     public AsyncRelayCommand<ShortcutProvider> SelectShortcutCommand { get; }
 
     public RelayCommand<IToolSetHandler> SelectToolsetCommand { get; }
+
+    Dictionary<string, VecI> DefaultNewFileSizes = new()
+    {
+        { "PIXEL_ART_TOOLSET", new VecI(64, 64) },
+        { "PAINT_TOOLSET", new VecI(1920, 1080) },
+        { "VECTOR_TOOLSET", new VecI(512, 512) }
+    };
 
     public OnboardingViewModel()
     {
@@ -73,6 +83,13 @@ internal class OnboardingViewModel : PixiObservableObject
             foreach (var toolset in ToolSets)
             {
                 toolset.IsSelected = toolset.Item == x;
+            }
+
+            ToolSettings.PrimaryToolset = x.Name;
+            if (DefaultNewFileSizes.ContainsKey(x.Name))
+            {
+                FileSettings.DefaultNewFileWidth = DefaultNewFileSizes[x.Name].X;
+                FileSettings.DefaultNewFileHeight = DefaultNewFileSizes[x.Name].Y;
             }
         });
 

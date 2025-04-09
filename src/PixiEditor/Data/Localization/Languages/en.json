@@ -757,7 +757,7 @@
   "MODULO": "Modulo",
   "STEP": "Step",
   "SMOOTH_STEP": "Smoothstep",
-  "PIXEL_PERFECT_TOOLSET": "Pixel Art",
+  "PIXEL_ART_TOOLSET": "Pixel Art",
   "VECTOR_TOOLSET": "Vector",
   "VECTOR_LAYER": "Vector Layer",
   "STROKE_COLOR_LABEL": "Stroke",

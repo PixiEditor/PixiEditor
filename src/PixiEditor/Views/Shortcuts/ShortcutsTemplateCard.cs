@@ -30,6 +30,14 @@ public partial class ShortcutsTemplateCard : TemplatedControl
     public static readonly StyledProperty<object> PressedCommandParameterProperty = AvaloniaProperty.Register<ShortcutsTemplateCard, object>(
         nameof(PressedCommandParameter));
 
+    public static readonly StyledProperty<string> IconProperty = AvaloniaProperty.Register<ShortcutsTemplateCard, string>(
+        nameof(Icon));
+
+    public string Icon
+    {
+        get => GetValue(IconProperty);
+        set => SetValue(IconProperty, value);
+    }
     public object PressedCommandParameter
     {
         get => GetValue(PressedCommandParameterProperty);

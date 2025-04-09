@@ -33,4 +33,6 @@ public static class PreferencesConstants
 
     public const string AnalyticsEnabled = "AnalyticsEnabled";
     public const bool AnalyticsEnabledDefault = true;
+    public const string PrimaryToolset = "PrimaryToolset";
+    public const string PrimaryToolsetDefault = "PAINT_TOOLSET";
 }

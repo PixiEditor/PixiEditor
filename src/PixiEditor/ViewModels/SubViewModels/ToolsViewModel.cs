@@ -471,9 +471,19 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     private void AddToolSets(ToolSetsConfig toolSetConfig)
     {
-        foreach (ToolSetConfig toolSet in toolSetConfig)
+        var primaryToolSet = PixiEditorSettings.Tools.PrimaryToolset.Value;
+        if (string.IsNullOrEmpty(primaryToolSet))
         {
-            var toolSetViewModel = new ToolSetViewModel(toolSet.Name);
+            primaryToolSet = toolSetConfig.First().Name;
+        }
+
+        var orderedToolSetConfig = toolSetConfig
+            .OrderByDescending(toolSet => toolSet.Name == primaryToolSet)
+            .ToList();
+
+        foreach (ToolSetConfig toolSet in orderedToolSetConfig)
+        {
+            var toolSetViewModel = new ToolSetViewModel(toolSet.Name, toolSet.Icon);
 
             foreach (var toolFromToolset in toolSet.Tools)
             {

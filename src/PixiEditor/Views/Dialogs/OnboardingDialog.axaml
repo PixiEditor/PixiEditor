@@ -84,9 +84,30 @@
                                 <shortcuts:ShortcutsTemplateCard
                                     TemplateName="{Binding Item.Name}"
                                     Margin="0 0 5 0"
-                                    Logo="{Binding Item.LogoPath}"
-                                    Cursor="Hand"
-                                    HoverLogo="{Binding Path=Item.HoverLogoPath}" />
+                                    Icon="{Binding Item.Icon}"
+                                    PressedCommand="{Binding SelectCommand}"
+                                    PressedCommandParameter="{Binding Item}"
+                                    Classes.Selected="{Binding IsSelected}"
+                                    Cursor="Hand">
+                                    <shortcuts:ShortcutsTemplateCard.Styles>
+                                        <Style Selector="TextBlock.pixi-icon">
+                                            <Setter Property="Foreground"
+                                                    Value="{DynamicResource ThemeBorderHighBrush}" />
+                                            <Setter Property="Transitions">
+                                                <Setter.Value>
+                                                    <Transitions>
+                                                        <BrushTransition Property="Foreground" Duration="0.2" />
+                                                    </Transitions>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+
+                                        <Style Selector="shortcuts|ShortcutsTemplateCard.Selected TextBlock.pixi-icon">
+                                            <Setter Property="Foreground"
+                                                    Value="{DynamicResource ThemeAccentHighBrush}" />
+                                        </Style>
+                                    </shortcuts:ShortcutsTemplateCard.Styles>
+                                </shortcuts:ShortcutsTemplateCard>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
