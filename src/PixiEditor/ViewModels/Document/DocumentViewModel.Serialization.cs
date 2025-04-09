@@ -584,7 +584,7 @@ internal partial class DocumentViewModel
 
         DrawingSurface surface = null;
 
-        if (bounds != null)
+        if (bounds != null && bounds.Value.Width > 0 && bounds.Value.Height > 0)
         {
             surface = DrawingBackendApi.Current.SurfaceImplementation.Create(
                 new ImageInfo(bounds.Value.Width, bounds.Value.Height));
