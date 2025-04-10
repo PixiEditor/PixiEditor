@@ -354,5 +354,6 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         Output.Value = null;
         maskPaint.Dispose();
         blendPaint.Dispose();
+        maskPreviewPaint.Dispose();
     }
 }

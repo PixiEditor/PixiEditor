@@ -150,6 +150,11 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
             DrawWithoutFilters(ctx, targetSurface, finalPaint);
         }
 
+        if (finalPaint != blendPaint)
+        {
+            finalPaint.Dispose();
+        }
+
         if (targetSurface != workingSurface)
         {
             workingSurface.Canvas.DrawSurface(targetSurface, 0, 0, blendPaint);

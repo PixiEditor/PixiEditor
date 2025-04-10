@@ -31,7 +31,7 @@ public class Chunk : IDisposable
             {
                 throw new ObjectDisposedException("Chunk has been disposed");
             }
-            
+
             return internalSurface;
         }
     }
@@ -47,10 +47,11 @@ public class Chunk : IDisposable
     public ChunkResolution Resolution { get; }
 
     public ColorSpace ColorSpace { get; }
-    
+
     public bool Disposed => returned;
 
     private Surface internalSurface;
+
     private Chunk(ChunkResolution resolution, ColorSpace colorSpace)
     {
         int size = resolution.PixelSize();
@@ -66,7 +67,12 @@ public class Chunk : IDisposable
     /// </summary>
     public static Chunk Create(ColorSpace chunkCs, ChunkResolution resolution = ChunkResolution.Full)
     {
-        var chunk = ChunkPool.Instance.Get(resolution, chunkCs) ?? new Chunk(resolution, chunkCs);
+        var chunk = ChunkPool.Instance.Get(resolution, chunkCs);
+        if (chunk == null || chunk.Disposed)
+        {
+            chunk = new Chunk(resolution, chunkCs);
+        }
+
         chunk.returned = false;
         Interlocked.Increment(ref chunkCounter);
         return chunk;
@@ -81,18 +87,20 @@ public class Chunk : IDisposable
     {
         surface.Canvas.DrawSurface(Surface.DrawingSurface, (float)pos.X, (float)pos.Y, paint);
     }
-    
+
     public unsafe RectI? FindPreciseBounds(RectI? passedSearchRegion = null)
     {
         RectI? bounds = null;
-        if (returned) 
+        if (returned)
             return bounds;
 
-        if (passedSearchRegion is not null && !new RectI(VecI.Zero, Surface.Size).ContainsInclusive(passedSearchRegion.Value))
-            throw new ArgumentException("Passed search region lies outside of the chunk's surface", nameof(passedSearchRegion));
+        if (passedSearchRegion is not null &&
+            !new RectI(VecI.Zero, Surface.Size).ContainsInclusive(passedSearchRegion.Value))
+            throw new ArgumentException("Passed search region lies outside of the chunk's surface",
+                nameof(passedSearchRegion));
 
         RectI searchRegion = passedSearchRegion ?? new RectI(VecI.Zero, Surface.Size);
-        
+
         ulong* ptr = (ulong*)Surface.PixelBuffer;
         for (int y = searchRegion.Top; y < searchRegion.Bottom; y++)
         {
@@ -108,7 +116,7 @@ public class Chunk : IDisposable
                 }
             }
         }
-        
+
         return bounds;
     }
 

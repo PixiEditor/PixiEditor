@@ -21,6 +21,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private float hardness;
     private float spacing = 1;
     private readonly Paint srcPaint = new Paint() { BlendMode = BlendMode.Src };
+    private Paintable? finalPaintable;
 
     private CommittedChunkStorage? storedChunks;
     private readonly List<VecI> points = new();
@@ -103,7 +104,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
             lastPos = point;
             var rect = new RectI(point - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
-            Paintable finalPaintable = color;
+            finalPaintable = color;
 
             if (!squareBrush)
             {
@@ -135,7 +136,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         if (points.Count == 1)
         {
             var rect = new RectI(points[0] - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
-            Paintable finalPaintable = color;
+            finalPaintable = color;
 
             if (!squareBrush)
             {
@@ -169,7 +170,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
             lastPos = points[i];
             var rect = new RectI(points[i] - new VecI((int)(strokeWidth / 2f)), new VecI((int)strokeWidth));
-            Paintable? finalPaintable = color;
+            finalPaintable = color;
 
             if (!squareBrush)
             {
@@ -250,5 +251,6 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     public override void Dispose()
     {
         storedChunks?.Dispose();
+        srcPaint.Dispose();
     }
 }
