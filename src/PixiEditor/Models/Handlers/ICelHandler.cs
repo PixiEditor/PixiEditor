@@ -4,7 +4,7 @@ using PixiEditor.Models.Rendering;
 
 namespace PixiEditor.Models.Handlers;
 
-internal interface ICelHandler
+internal interface ICelHandler : IDisposable
 {
     public PreviewPainter? PreviewPainter { get; set; }
     public int StartFrameBindable { get; }

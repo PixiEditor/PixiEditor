@@ -150,6 +150,11 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
             DrawWithoutFilters(ctx, targetSurface, finalPaint);
         }
 
+        if (finalPaint != blendPaint)
+        {
+            finalPaint.Dispose();
+        }
+
         if (targetSurface != workingSurface)
         {
             workingSurface.Canvas.DrawSurface(targetSurface, 0, 0, blendPaint);
@@ -184,5 +189,17 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
     void IClipSource.DrawClipSource(SceneObjectRenderContext context, DrawingSurface drawOnto)
     {
         RenderContent(context, drawOnto, false);
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        if (workingSurfaces != null)
+        {
+            foreach (var workingSurface in workingSurfaces.Values)
+            {
+                workingSurface?.Dispose();
+            }
+        }
     }
 }

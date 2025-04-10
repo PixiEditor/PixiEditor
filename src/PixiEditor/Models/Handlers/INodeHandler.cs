@@ -11,7 +11,7 @@ using Drawie.Numerics;
 
 namespace PixiEditor.Models.Handlers;
 
-public interface INodeHandler : INotifyPropertyChanged
+public interface INodeHandler : INotifyPropertyChanged, IDisposable
 {
     public Guid Id { get; }
     public string NodeNameBindable { get; set; }

@@ -46,6 +46,10 @@ public partial class MainView : UserControl
                 OpenGlInitDummy.IsVisible = false;
             });
         }
+        else
+        {
+            OpenGlInitDummy.IsVisible = false;
+        }
 
         if (DataContext is ViewModelMain vm)
         {

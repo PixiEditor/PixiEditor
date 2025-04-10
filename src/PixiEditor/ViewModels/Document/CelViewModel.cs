@@ -140,4 +140,10 @@ internal abstract class CelViewModel : ObservableObject, ICelHandler
     {
         return frame >= StartFrameBindable && frame < StartFrameBindable + DurationBindable;
     }
+
+    public void Dispose()
+    {
+        PreviewPainter?.Dispose();
+        PreviewPainter = null;
+    }
 }

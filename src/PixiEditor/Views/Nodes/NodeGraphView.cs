@@ -382,6 +382,7 @@ internal class NodeGraphView : Zoombox.Zoombox
         }
         else
         {
+            ZoomMode = e.GetMouseButton(this) == MouseButton.Middle ? ZoomboxMode.Move : ZoomboxMode.Normal;
             isSelecting = false;
             selectionRectangle.IsVisible = false;
         }

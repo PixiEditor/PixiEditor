@@ -11,6 +11,7 @@ internal class ChunkPool
 
     private static object lockObj = new();
     private static ChunkPool? instance;
+
     /// <summary>
     /// The instance of the <see cref="ChunkPool"/>
     /// </summary>
@@ -25,6 +26,7 @@ internal class ChunkPool
                     instance ??= new ChunkPool();
                 }
             }
+
             return instance;
         }
     }
@@ -39,7 +41,8 @@ internal class ChunkPool
     /// </summary>
     /// <param name="resolution">The resolution for the chunk</param>
     /// <param name="chunkCs"></param>
-    internal Chunk? Get(ChunkResolution resolution, ColorSpace chunkCs) => GetBag(resolution, chunkCs).TryTake(out Chunk? item) ? item : null;
+    internal Chunk? Get(ChunkResolution resolution, ColorSpace chunkCs) =>
+        GetBag(resolution, chunkCs).TryTake(out Chunk? item) ? item : null;
 
     private ConcurrentBag<Chunk> GetBag(ChunkResolution resolution, ColorSpace colorSpace)
     {
@@ -60,7 +63,7 @@ internal class ChunkPool
     {
         var chunks = GetBag(chunk.Resolution, chunk.ColorSpace);
         //a race condition can cause the count to go above 200, but likely not by much
-        if (chunks.Count < 200)
+        if (chunks.Count <= 32)
             chunks.Add(chunk);
         else
             chunk.Surface.Dispose();
