@@ -14,7 +14,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.Models.Rendering;
 
-public class PreviewPainter
+public class PreviewPainter : IDisposable
 {
     public string ElementToRenderName { get; set; }
     public IPreviewRenderable PreviewRenderable { get; set; }
@@ -126,6 +126,8 @@ public class PreviewPainter
         RepaintDirty();
     }
 
+
+
     private void RepaintDirty()
     {
         var dirtyArray = dirtyTextures.ToArray();
@@ -209,6 +211,14 @@ public class PreviewPainter
                         }
                     });
                 });
+        }
+    }
+
+    public void Dispose()
+    {
+        foreach (var texture in renderTextures)
+        {
+            texture.Value.Dispose();
         }
     }
 }

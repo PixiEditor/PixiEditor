@@ -14,7 +14,7 @@ using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.Rendering;
 
-internal class SceneRenderer
+internal class SceneRenderer : IDisposable
 {
     public const double ZoomDiffToRerender = 20;
     public IReadOnlyDocument Document { get; }
@@ -244,6 +244,14 @@ internal class SceneRenderer
                 finalOpacity);
             onionContext.TargetOutput = targetOutput;
             finalGraph.Execute(onionContext);
+        }
+    }
+
+    public void Dispose()
+    {
+        foreach (var texture in cachedTextures)
+        {
+            texture.Value?.Dispose();
         }
     }
 }

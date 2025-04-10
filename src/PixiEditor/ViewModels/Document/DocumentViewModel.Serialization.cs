@@ -73,6 +73,14 @@ internal partial class DocumentViewModel
 
         AddNodes(doc.NodeGraph, graph, nodeIdMap, keyFrameIdMap, serializationConfig, factories);
 
+        var preview = TryRenderWholeImage(0);
+        byte[]? previewBytes = null;
+        if (preview.IsT1)
+        {
+            previewBytes = preview.AsT1.DrawingSurface.Snapshot().Encode().AsSpan().ToArray();
+            preview.AsT1.Dispose();
+        }
+
         var document = new PixiDocument
         {
             SerializerName = "PixiEditor",
@@ -83,8 +91,7 @@ internal partial class DocumentViewModel
             Swatches = ToCollection(Swatches),
             Palette = ToCollection(Palette),
             Graph = graph,
-            PreviewImage =
-                (TryRenderWholeImage(0).Value as Surface)?.DrawingSurface.Snapshot().Encode().AsSpan().ToArray(),
+            PreviewImage = previewBytes,
             ReferenceLayer = GetReferenceLayer(doc, serializationConfig),
             AnimationData = ToAnimationData(doc.AnimationData, doc.NodeGraph, nodeIdMap, keyFrameIdMap),
             ImageEncoderUsed = encoder.EncodedFormatName,

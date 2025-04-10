@@ -15,7 +15,7 @@ public class ChunkyImageSerializationFactory : SerializationFactory<byte[], Chun
         var encoder = Config.Encoder;
         surfaceFactory.Config = Config;
 
-        Surface surface = new Surface(original.LatestSize);
+        using Surface surface = new Surface(original.LatestSize);
         original.DrawMostUpToDateRegionOn(
             new RectI(0, 0, original.LatestSize.X,
                 original.LatestSize.Y), ChunkResolution.Full, surface.DrawingSurface, new VecI(0, 0), new Paint());
@@ -38,6 +38,7 @@ public class ChunkyImageSerializationFactory : SerializationFactory<byte[], Chun
             original = new ChunkyImage(surface.Size, Config.ProcessingColorSpace);
             original.EnqueueDrawImage(VecI.Zero, surface);
             original.CommitChanges();
+            surface.Dispose();
             return true;
         }
 

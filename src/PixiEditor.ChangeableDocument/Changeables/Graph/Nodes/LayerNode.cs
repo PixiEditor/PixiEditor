@@ -185,4 +185,16 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
     {
         RenderContent(context, drawOnto, false);
     }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        if (workingSurfaces != null)
+        {
+            foreach (var workingSurface in workingSurfaces.Values)
+            {
+                workingSurface?.Dispose();
+            }
+        }
+    }
 }

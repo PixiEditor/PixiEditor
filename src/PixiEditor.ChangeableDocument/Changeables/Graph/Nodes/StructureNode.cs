@@ -348,8 +348,10 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
 
     public override void Dispose()
     {
-        Output.Value = null;
         base.Dispose();
+        renderedMask?.Dispose();
+        EmbeddedMask?.Dispose();
+        Output.Value = null;
         maskPaint.Dispose();
         blendPaint.Dispose();
     }

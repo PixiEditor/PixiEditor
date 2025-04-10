@@ -471,4 +471,12 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
         return false;
     }
+
+    public void Dispose()
+    {
+        foreach (var cel in allCels)
+        {
+            cel.Dispose();
+        }
+    }
 }
