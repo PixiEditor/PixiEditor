@@ -206,7 +206,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
                     if (command.IsDebug)
                         continue;
                     keyDefinitions.Add($"(provider).{command.InternalName}",
-                        new KeyDefinition(command.InternalName, new HumanReadableKeyCombination("None"),
+                        new KeyDefinition([command.InternalName], new HumanReadableKeyCombination("None"),
                             Array.Empty<string>()));
                 }
 
@@ -252,9 +252,12 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
 
                 foreach (var keyDefinition in keyDefinitions)
                 {
-                    if (!Owner.CommandController.Commands.ContainsKey(keyDefinition.Value.Command))
+                    foreach (var command in keyDefinition.Value.Commands)
                     {
-                        unknownCommands++;
+                        if (!Owner.CommandController.Commands.ContainsKey(command))
+                        {
+                            unknownCommands++;
+                        }
                     }
                 }
 
@@ -461,10 +464,8 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         if (File.Exists(file))
         {
             OptionsDialog<string> dialog =
-                new("ARE_YOU_SURE", $"Are you sure you want to overwrite {path}\n(Full Path: {file})", MainWindow.Current)
-                {
-                    { "Yes", x => File.Delete(file) }, "Cancel"
-                };
+                new("ARE_YOU_SURE", $"Are you sure you want to overwrite {path}\n(Full Path: {file})",
+                    MainWindow.Current) { { "Yes", x => File.Delete(file) }, "Cancel" };
 
             dialog.ShowDialog();
         }

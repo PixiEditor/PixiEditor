@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using Avalonia.Input;
 using PixiEditor.Models.Commands.Templates.Providers.Parsers;
 using PixiEditor.Models.Input;
@@ -20,7 +21,10 @@ public sealed class ShortcutsTemplate
         ShortcutsTemplate template = new ShortcutsTemplate();
         foreach (KeyDefinition keyDefinition in keyDefinitions)
         {
-            template.Shortcuts.Add(new Shortcut(keyDefinition.DefaultShortcut.ToKeyCombination(), keyDefinition.Command));
+            foreach (string command in keyDefinition.Commands)
+            {
+                template.Shortcuts.Add(new Shortcut(keyDefinition.DefaultShortcut.ToKeyCombination(), command));
+            }
         }
 
         return template;
@@ -28,6 +32,7 @@ public sealed class ShortcutsTemplate
 }
 
 [Serializable]
+[DebuggerDisplay("KeyCombination = {KeyCombination}, Commands = {Commands}")]
 public sealed class Shortcut
 {
     public KeyCombination KeyCombination { get; set; }
