@@ -77,7 +77,7 @@ internal class CommandController
             {
                 if (Commands.ContainsKey(command))
                 {
-                    ReplaceShortcut(Commands[command], shortcut.KeyCombination);
+                    ReplaceShortcut(Commands[command], shortcut.KeyCombination, false);
                 }
             }
         }
@@ -178,7 +178,8 @@ internal class CommandController
     {
         foreach (var evaluator in objectsToInvokeOn)
         {
-            if (evaluator.Methods.CanExecuteEvaluator.DependentOn != null && evaluator.Methods.CanExecuteEvaluator.DependentOn.Contains(propertyName))
+            if (evaluator.Methods.CanExecuteEvaluator.DependentOn != null &&
+                evaluator.Methods.CanExecuteEvaluator.DependentOn.Contains(propertyName))
             {
                 evaluator.OnCanExecuteChanged();
             }
@@ -258,7 +259,8 @@ internal class CommandController
                 var customOsShortcuts = methodInfo.GetCustomAttributes<CustomOsShortcutAttribute>();
 
                 CustomOsShortcutAttribute? customOsShortcut =
-                    customOsShortcuts.FirstOrDefault(x => string.Equals(x.ValidOs, IOperatingSystem.Current.Name, StringComparison.InvariantCultureIgnoreCase));
+                    customOsShortcuts.FirstOrDefault(x => string.Equals(x.ValidOs, IOperatingSystem.Current.Name,
+                        StringComparison.InvariantCultureIgnoreCase));
 
                 foreach (var attribute in commandAttrs)
                 {
@@ -313,7 +315,7 @@ internal class CommandController
                         var validCustomShortcut = customOsShortcut?.TargetCommand == menu.InternalName
                             ? customOsShortcut
                             : null;
-                        
+
                         ISearchHandler searchHandler = serviceProvider.GetRequiredService<ISearchHandler>();
 
                         if (searchHandler is null)
@@ -329,7 +331,8 @@ internal class CommandController
                                 Description = menu.DisplayName,
                                 IconEvaluator = IconEvaluator.Default,
                                 DefaultShortcut = AdjustForOS(menu.GetShortcut(), validCustomShortcut),
-                                Shortcut = GetShortcut(name, AdjustForOS(attribute.GetShortcut(), validCustomShortcut), template)
+                                Shortcut = GetShortcut(name, AdjustForOS(attribute.GetShortcut(), validCustomShortcut),
+                                    template)
                             };
 
                         Commands.Add(command);
@@ -602,7 +605,8 @@ internal class CommandController
                                     CanExecuteEvaluators,
                                     evaluateFunction => new CanExecuteEvaluator()
                                     {
-                                        Name = attribute.Name, Evaluate = evaluateFunction.Invoke,
+                                        Name = attribute.Name,
+                                        Evaluate = evaluateFunction.Invoke,
                                         DependentOn = canExecuteAttribute.DependentOn
                                     });
                                 break;
@@ -644,14 +648,32 @@ internal class CommandController
     /// <summary>
     /// Deletes all shortcuts of <paramref name="newShortcut"/> and adds <paramref name="command"/>
     /// </summary>
-    public void ReplaceShortcut(Command command, KeyCombination newShortcut)
+    public void ReplaceShortcut(Command command, KeyCombination newShortcut, bool clear = true)
     {
+        List<Command> toRemove = new List<Command>();
         foreach (Command other in Commands[newShortcut])
         {
-            other.Shortcut = KeyCombination.None;
+            bool anyContextOverlap = (other.ShortcutContexts != null && other.ShortcutContexts
+                                         .Any(x => command.ShortcutContexts != null &&
+                                                   command.ShortcutContexts.Contains(x)))
+                                     || other.ShortcutContexts == null && command.ShortcutContexts == null;
+            if (anyContextOverlap && newShortcut == other.Shortcut && other.Shortcut != KeyCombination.None)
+            {
+                toRemove.Add(other);
+            }
         }
 
-        Commands.ClearShortcut(newShortcut);
+        if (clear)
+        {
+            Commands.ClearShortcut(newShortcut);
+        }
+
+        foreach (var cmd in toRemove)
+        {
+            Commands.RemoveShortcut(cmd, cmd.Shortcut);
+            cmd.Shortcut = KeyCombination.None;
+        }
+
         Commands.RemoveShortcut(command, command.Shortcut);
         Commands.AddShortcut(command, newShortcut);
         command.Shortcut = newShortcut;
