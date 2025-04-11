@@ -6,14 +6,14 @@ namespace PixiEditor.Models.Commands.Templates.Providers.Parsers;
 [Serializable]
 public class KeyDefinition
 {
-    public string Command { get; set; }
+    public string[] Commands { get; set; }
     public HumanReadableKeyCombination DefaultShortcut { get; set; }
     public string[] Parameters { get; set; }
     
     public KeyDefinition() { }
-    public KeyDefinition(string command, HumanReadableKeyCombination defaultShortcut, params string[] parameters)
+    public KeyDefinition(string[] commands, HumanReadableKeyCombination defaultShortcut, params string[] parameters)
     {
-        Command = command;
+        Commands = commands;
         DefaultShortcut = defaultShortcut;
         Parameters = parameters;
     }

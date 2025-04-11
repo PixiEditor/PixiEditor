@@ -20,7 +20,10 @@ public sealed class ShortcutsTemplate
         ShortcutsTemplate template = new ShortcutsTemplate();
         foreach (KeyDefinition keyDefinition in keyDefinitions)
         {
-            template.Shortcuts.Add(new Shortcut(keyDefinition.DefaultShortcut.ToKeyCombination(), keyDefinition.Command));
+            foreach (string command in keyDefinition.Commands)
+            {
+                template.Shortcuts.Add(new Shortcut(keyDefinition.DefaultShortcut.ToKeyCombination(), command));
+            }
         }
 
         return template;
