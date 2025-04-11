@@ -13,7 +13,7 @@ using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
 
-public class DocumentRenderer : IPreviewRenderable
+public class DocumentRenderer : IPreviewRenderable, IDisposable
 {
     private Queue<RenderRequest> renderRequests = new();
     private Texture renderTexture;
@@ -25,9 +25,9 @@ public class DocumentRenderer : IPreviewRenderable
 
     private IReadOnlyDocument Document { get; }
     public bool IsBusy { get; private set; }
-    
+
     private bool isExecuting = false;
-    
+
     public void UpdateChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime)
     {
         try
@@ -109,27 +109,29 @@ public class DocumentRenderer : IPreviewRenderable
         toRenderOn.Canvas.Save();
         toRenderOn.Canvas.SetMatrix(Matrix3X3.Identity);
 
-        RenderContext context = new(renderTexture.DrawingSurface, frameTime, resolution, Document.Size, Document.ProcessingColorSpace);
+        RenderContext context = new(renderTexture.DrawingSurface, frameTime, resolution, Document.Size,
+            Document.ProcessingColorSpace);
         context.FullRerender = true;
 
         node.RenderForOutput(context, toRenderOn, null);
-        
+
         renderTexture.DrawingSurface.Canvas.Restore();
         toRenderOn.Canvas.Restore();
-        
+
         IsBusy = false;
     }
 
-    public async Task RenderNodePreview(IPreviewRenderable previewRenderable, DrawingSurface renderOn, RenderContext context,
+    public async Task RenderNodePreview(IPreviewRenderable previewRenderable, DrawingSurface renderOn,
+        RenderContext context,
         string elementToRenderName)
     {
         if (previewRenderable is Node { IsDisposed: true }) return;
         TaskCompletionSource<bool> tcs = new();
         RenderRequest request = new(tcs, context, renderOn, previewRenderable, elementToRenderName);
-        
+
         renderRequests.Enqueue(request);
         ExecuteRenderRequests();
-        
+
         await tcs.Task;
     }
 
@@ -203,7 +205,8 @@ public class DocumentRenderer : IPreviewRenderable
         return true;
     }
 
-    public void RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime, VecI renderSize, string? customOutput = null)
+    public void RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime, VecI renderSize,
+        string? customOutput = null)
     {
         IsBusy = true;
 
@@ -247,8 +250,8 @@ public class DocumentRenderer : IPreviewRenderable
 
     private void ExecuteRenderRequests()
     {
-        if(isExecuting) return;
-        
+        if (isExecuting) return;
+
         isExecuting = true;
         while (renderRequests.Count > 0)
         {
@@ -273,7 +276,7 @@ public class DocumentRenderer : IPreviewRenderable
                 request.TaskCompletionSource.SetException(e);
             }
         }
-        
+
         isExecuting = false;
     }
 
@@ -315,6 +318,19 @@ public class DocumentRenderer : IPreviewRenderable
 
         return found ?? (membersOnlyGraph.OutputNode as IRenderInput)?.Background;
     }
+
+    public void Dispose()
+    {
+        renderTexture?.Dispose();
+        renderTexture = null;
+
+        foreach (var request in renderRequests)
+        {
+            if (request.TaskCompletionSource == null) continue;
+
+            request.TaskCompletionSource.TrySetCanceled();
+        }
+    }
 }
 
 public struct RenderRequest
@@ -325,16 +341,18 @@ public struct RenderRequest
     public IPreviewRenderable? PreviewRenderable { get; set; }
     public string ElementToRenderName { get; set; }
     public TaskCompletionSource<bool> TaskCompletionSource { get; set; }
-    
-    public RenderRequest(TaskCompletionSource<bool> completionSource, RenderContext context, DrawingSurface renderOn, IReadOnlyNodeGraph nodeGraph)
+
+    public RenderRequest(TaskCompletionSource<bool> completionSource, RenderContext context, DrawingSurface renderOn,
+        IReadOnlyNodeGraph nodeGraph)
     {
         TaskCompletionSource = completionSource;
         Context = context;
         RenderOn = renderOn;
         NodeGraph = nodeGraph;
     }
-    
-    public RenderRequest(TaskCompletionSource<bool> completionSource, RenderContext context, DrawingSurface renderOn, IPreviewRenderable previewRenderable, string elementToRenderName)
+
+    public RenderRequest(TaskCompletionSource<bool> completionSource, RenderContext context, DrawingSurface renderOn,
+        IPreviewRenderable previewRenderable, string elementToRenderName)
     {
         TaskCompletionSource = completionSource;
         Context = context;

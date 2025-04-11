@@ -19,7 +19,6 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
 {
     public StructureMemberViewModel()
     {
-        
     }
 
     private bool isVisible;
@@ -44,10 +43,10 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
 
     public RectD? TightBounds => Internals.Tracker.Document.FindMember(Id)
         ?.GetTightBounds(Document.AnimationDataViewModel.ActiveFrameBindable);
-    
+
     public ShapeCorners TransformationCorners => Internals.Tracker.Document.FindMember(Id)
         ?.GetTransformationCorners(Document.AnimationDataViewModel.ActiveFrameBindable) ?? new ShapeCorners();
-    
+
     public void SetMaskIsVisible(bool maskIsVisible)
     {
         this.maskIsVisible = maskIsVisible;
@@ -114,7 +113,7 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
     {
         get => hasMask;
     }
-    
+
     private float opacity;
 
     public void SetOpacity(float newOpacity)
@@ -161,6 +160,15 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
     }
 
     IDocument IStructureMemberHandler.Document => Document;
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        PreviewPainter?.Dispose();
+        MaskPreviewPainter?.Dispose();
+        PreviewPainter = null;
+        MaskPreviewPainter = null;
+    }
 }
 
 public static class StructureMemberViewModel

@@ -267,11 +267,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     public override void Dispose()
     {
         base.Dispose();
-
-        foreach (var workingSurface in workingSurfaces)
-        {
-            workingSurface.Value.Dispose();
-        }
+        fullResrenderedSurface.Dispose();
     }
 
     IReadOnlyChunkyImage IReadOnlyImageNode.GetLayerImageAtFrame(int frame) => GetLayerImageAtFrame(frame);

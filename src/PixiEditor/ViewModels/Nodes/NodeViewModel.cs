@@ -380,6 +380,11 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         }
     }
 
+    public virtual void Dispose()
+    {
+        ResultPainter?.Dispose();
+    }
+
     public NodePropertyViewModel FindInputProperty(string propName)
     {
         return Inputs.FirstOrDefault(x => x.PropertyName == propName) as NodePropertyViewModel;

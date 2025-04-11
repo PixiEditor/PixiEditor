@@ -2,7 +2,7 @@
 
 namespace PixiEditor.Models.Handlers;
 
-internal interface IAnimationHandler
+internal interface IAnimationHandler : IDisposable
 {
     public IReadOnlyCollection<ICelHandler> KeyFrames { get; }
     public int ActiveFrameBindable { get; set; }

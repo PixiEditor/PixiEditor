@@ -16,7 +16,7 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document;
 
-internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
+internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposable
 {
     public DocumentViewModel DocumentViewModel { get; }
     public ObservableCollection<INodeHandler> AllNodes { get; } = new();
@@ -372,6 +372,14 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
             {
                 AvailableRenderOutputs.Add(output);
             }
+        }
+    }
+
+    public void Dispose()
+    {
+        foreach (var node in AllNodes)
+        {
+            node.Dispose();
         }
     }
 }
