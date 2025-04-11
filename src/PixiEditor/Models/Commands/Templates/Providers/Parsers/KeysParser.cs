@@ -14,10 +14,10 @@ public abstract class KeysParser
 
     public Dictionary<string, KeyDefinition> Map => _cachedMap ??= LoadKeysMap();
     private Dictionary<string, KeyDefinition> _cachedMap;
-    
+
     public List<Shortcut> Defaults => _cachedDefaults ??= ParseDefaults();
     private List<Shortcut> _cachedDefaults;
-    
+
     public KeysParser(string mapFileName)
     {
         if (mapFileName.StartsWith("avares://"))
@@ -28,7 +28,7 @@ public abstract class KeysParser
         {
             SetPathOrThrow(mapFileName);
         }
-        
+
         MapFileName = mapFileName;
     }
 
@@ -57,13 +57,13 @@ public abstract class KeysParser
     /// <param name="applyTemplateDefaults">If true, all shortcuts available in the key map will be loaded, and then overwritten by entries in the file. If false, only entries from the file will be applied.</param>
     /// <returns>Parsed ShortcutTemplate.</returns>
     public abstract ShortcutsTemplate Parse(string filePath, bool applyTemplateDefaults);
-    
+
     private Dictionary<string, KeyDefinition> LoadKeysMap()
     {
         string text = ReadMap();
         var dict = JsonConvert.DeserializeObject<Dictionary<string, KeyDefinition>>(text);
-        if(dict == null) throw new Exception("Keys map file is empty.");
-        if(dict.ContainsKey("")) dict.Remove("");
+        if (dict == null) throw new Exception("Keys map file is empty.");
+        if (dict.ContainsKey("")) dict.Remove("");
         return dict;
     }
 
@@ -86,10 +86,13 @@ public abstract class KeysParser
         {
             if (value.DefaultShortcut != null)
             {
-                defaults.Add(new Shortcut(value.DefaultShortcut.ToKeyCombination(), Map[key].Command));
+                foreach (var keyCommand in Map[key].Commands)
+                {
+                    defaults.Add(new Shortcut(value.DefaultShortcut.ToKeyCombination(), keyCommand));
+                }
             }
         }
-        
+
         return defaults;
     }
 }
