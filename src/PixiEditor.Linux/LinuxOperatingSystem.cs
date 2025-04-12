@@ -51,34 +51,33 @@ public sealed class LinuxOperatingSystem : IOperatingSystem
     {
         const string FilePath = "/etc/os-release";
         
-        private LinuxOSInformation(string? name, string? version, bool available)
+        private LinuxOSInformation(string? name, string? version)
         {
             Name = name;
             Version = version;
-            Available = available;
         }
 
         public static LinuxOSInformation FromReleaseFile()
         {
             if (!File.Exists(FilePath))
             {
-                return new LinuxOSInformation(null, null, false);
+                return new LinuxOSInformation(null, null);
             }
             
             // Parse /etc/os-release file (e.g. 'NAME="Ubuntu"')
-            var lines = File.ReadAllLines(FilePath).Select<string, (string Key, string Value)>(x =>
+            var lines = File.ReadAllLines(FilePath).Select<string, (string? Key, string Value)>(line =>
             {
-                var separatorIndex = x.IndexOf('=');
-                return (x[..separatorIndex], x[(separatorIndex + 1)..]);
+                var separatorIndex = line.IndexOf('=');
+                return (line[..separatorIndex], line[(separatorIndex + 1)..]);
             }).ToList();
             
-            var name = lines.FirstOrDefault(x => x.Key == "NAME").Value.Trim('"');
-            var version = lines.FirstOrDefault(x => x.Key == "VERSION").Value.Trim('"');
+            var name = GetKeyValue("NAME") ?? GetKeyValue("ID");
+            var version = GetKeyValue("VERSION");
             
-            return new LinuxOSInformation(name, version, true);
+            return new LinuxOSInformation(name, version);
+
+            string? GetKeyValue(string key) => lines.FirstOrDefault(x => x.Key?.ToUpper() == key).Value?.Trim('"');
         }
-        
-        public bool Available { get; }
         
         public string? Name { get; private set; }
         
