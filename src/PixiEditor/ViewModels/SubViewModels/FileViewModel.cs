@@ -441,8 +441,13 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 }
             }
 
-            var exceptions = new[] { firstException, secondException, thirdException };
-            CrashHelper.SendExceptionInfo(new AggregateException(exceptions.Where(x => x != null).ToArray()));
+            var exceptions = new[] { firstException, secondException, thirdException }
+                .Where(x => x != null).ToArray();
+
+            if (exceptions.Length > 0)
+            {
+                CrashHelper.SendExceptionInfo(new AggregateException(exceptions));
+            }
         }
 
         showMissingFilesDialog = documents.Count != i;
