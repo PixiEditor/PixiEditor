@@ -68,7 +68,10 @@ public sealed class LinuxOperatingSystem : IOperatingSystem
             var lines = File.ReadAllLines(FilePath).Select<string, (string? Key, string Value)>(line =>
             {
                 var separatorIndex = line.IndexOf('=');
-                return (line[..separatorIndex], line[(separatorIndex + 1)..]);
+                
+                return separatorIndex != -1 
+                    ? (line[..separatorIndex], line[(separatorIndex + 1)..])
+                    : (null, null);
             }).ToList();
             
             var name = GetKeyValue("NAME") ?? GetKeyValue("ID");
