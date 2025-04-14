@@ -405,12 +405,12 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         var i = 0;
 
-        Exception firstException = null;
-        Exception secondException = null;
-        Exception thirdException = null;
-
         foreach (var document in documents)
         {
+            Exception firstException = null;
+            Exception secondException = null;
+            Exception thirdException = null;
+
             try
             {
                 OpenRecoveredDotPixi(document.OriginalPath, document.AutosavePath,
