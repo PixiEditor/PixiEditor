@@ -61,7 +61,7 @@ internal class ClassicDesktopEntry
 
         InitOperatingSystem();
 
-        if (ParseArgument("--crash (\"?)([A-z0-9:\\/\\ -_.]+)\\1", arguments, out Group[] groups))
+        if (ParseArgument(@"--crash (""?)([\w:\/\ -_.]+)\1", arguments, out Group[] groups))
         {
             try
             {

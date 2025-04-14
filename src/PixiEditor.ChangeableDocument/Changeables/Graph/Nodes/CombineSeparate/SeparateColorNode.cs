@@ -56,13 +56,13 @@ public class SeparateColorNode : Node
         };
 
     private Half4 GetRgba(FuncContext ctx) => 
-        contextVariables.GetOrAttachNew(ctx, Color, () => ctx.GetValue(Color));
+        ctx.HasContext ? contextVariables.GetOrAttachNew(ctx, Color, () => ctx.GetValue(Color)) : ctx.GetValue(Color);
 
     private Half4 GetHsva(FuncContext ctx) =>
-        contextVariables.GetOrAttachNew(ctx, Color, () => ctx.RgbaToHsva(ctx.GetValue(Color)));
+        ctx.HasContext ? contextVariables.GetOrAttachNew(ctx, Color, () => ctx.RgbaToHsva(ctx.GetValue(Color))) : ctx.RgbaToHsva(ctx.GetValue(Color));
 
     private Half4 GetHsla(FuncContext ctx) =>
-        contextVariables.GetOrAttachNew(ctx, Color, () => ctx.RgbaToHsla(ctx.GetValue(Color)));
+        ctx.HasContext ? contextVariables.GetOrAttachNew(ctx, Color, () => ctx.RgbaToHsla(ctx.GetValue(Color))) : ctx.RgbaToHsla(ctx.GetValue(Color));
 
     public override Node CreateCopy() => new SeparateColorNode();
 }
