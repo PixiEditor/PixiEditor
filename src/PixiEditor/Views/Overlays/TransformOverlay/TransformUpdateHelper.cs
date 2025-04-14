@@ -33,7 +33,7 @@ internal static class TransformUpdateHelper
 
             snapX = snapY = "";
 
-            // constrain desired pos to a "propotional" diagonal line if needed
+            // constrain desired pos to a "proportional" diagonal line if needed
             if (freedom == TransformCornerFreedom.ScaleProportionally && corners.IsRect)
             {
                 double correctAngle = targetCorner is Anchor.TopLeft or Anchor.BottomRight ? propAngle1 : propAngle2;
@@ -68,23 +68,15 @@ internal static class TransformUpdateHelper
             VecD leftNeighborPos = TransformHelper.GetAnchorPosition(corners, leftNeighbor);
             VecD rightNeighborPos = TransformHelper.GetAnchorPosition(corners, rightNeighbor);
 
-            double angle = corners.RectRotation;
-            if (double.IsNaN(angle))
-                angle = 0;
-
-            if (scaleFromCenter)
-            {
-                return ScaleCornersFromCenter(corners, targetCorner, desiredPos, angle);
-            }
-
-            // find positions of neighboring corners relative to the opposite corner, while also undoing the transform rotation
-            VecD targetTrans = (targetPos - oppositePos).Rotate(-angle);
-            VecD leftNeighTrans = (leftNeighborPos - oppositePos).Rotate(-angle);
-            VecD rightNeighTrans = (rightNeighborPos - oppositePos).Rotate(-angle);
+            // find positions of neighboring corners relative to the opposite corner
+            VecD targetTrans = targetPos - oppositePos;
+            VecD leftNeighTrans = leftNeighborPos - oppositePos;
+            VecD rightNeighTrans = rightNeighborPos - oppositePos;
 
             // find by how much move each corner
-            VecD delta = (desiredPos - targetPos).Rotate(-angle);
+            VecD delta = desiredPos - targetPos;
             VecD leftNeighDelta, rightNeighDelta;
+            VecD oppositeDelta = scaleFromCenter ? -delta : VecD.Zero;
 
             if (corners.IsPartiallyDegenerate)
             {
@@ -94,10 +86,12 @@ internal static class TransformUpdateHelper
             }
             else
             {
-                VecD? newLeftPos = TransformHelper.TwoLineIntersection(VecD.Zero, leftNeighTrans, targetTrans + delta,
-                    leftNeighTrans + delta);
-                VecD? newRightPos = TransformHelper.TwoLineIntersection(VecD.Zero, rightNeighTrans, targetTrans + delta,
-                    rightNeighTrans + delta);
+                VecD? newLeftPos = TransformHelper.TwoLineIntersection(
+                    oppositeDelta, leftNeighTrans + oppositeDelta, 
+                    targetTrans + delta, leftNeighTrans + delta);
+                VecD? newRightPos = TransformHelper.TwoLineIntersection(
+                    oppositeDelta, rightNeighTrans + oppositeDelta,
+                    targetTrans + delta, rightNeighTrans + delta);
                 if (newLeftPos is null || newRightPos is null)
                     return null;
                 leftNeighDelta = newLeftPos.Value - leftNeighTrans;
@@ -121,14 +115,16 @@ internal static class TransformUpdateHelper
                 rightNeighDelta = TransferZeros(SwapAxes(leftNeighTrans), delta);
             }
 
-            // move the corners, while reapplying the transform rotation
+            // move the corners, finally
             corners = TransformHelper.UpdateCorner(corners, targetCorner,
-                (targetTrans + delta).Rotate(angle) + oppositePos);
+                targetTrans + delta + oppositePos);
+            corners = TransformHelper.UpdateCorner(corners, opposite,
+                oppositePos + oppositeDelta);
             corners = TransformHelper.UpdateCorner(corners, leftNeighbor,
-                (leftNeighTrans + leftNeighDelta).Rotate(angle) + oppositePos);
+                leftNeighTrans + leftNeighDelta + oppositePos);
             corners = TransformHelper.UpdateCorner(corners, rightNeighbor,
-                (rightNeighTrans + rightNeighDelta).Rotate(angle) + oppositePos);
-
+                rightNeighTrans + rightNeighDelta + oppositePos);
+            
             if (!corners.IsLegal)
                 return null;
 
@@ -143,36 +139,6 @@ internal static class TransformUpdateHelper
         }
 
         throw new ArgumentException($"Freedom degree {freedom} is not supported");
-    }
-
-    private static ShapeCorners? ScaleCornersFromCenter(ShapeCorners corners, Anchor targetCorner, VecD desiredPos, 
-        double angle)
-    {
-        // un rotate to properly calculate the scaling
-        // here is a skewing issue, since angle for skewed rects is already non 0
-        // (this is an issue in itself, since when user skews a non-rotated rect, the angle should be 0,
-        // so maybe if we find a way to get "un skewed" angle
-        // we can use it here and there. Idk if it's possible, It's hard to say what should be a "proper" angle for skewed rect,
-        // when you didn't see it getting skewed, so perhaps some tracking for overlay session would be the only solution)
-        desiredPos = desiredPos.Rotate(-angle, corners.RectCenter);
-        corners = corners.AsRotated(-angle, corners.RectCenter);
-
-        VecD targetPos = TransformHelper.GetAnchorPosition(corners, targetCorner);
-
-        VecD currentCenter = corners.RectCenter;
-        VecD targetPosToCenter = (targetPos - currentCenter);
-
-        if (targetPosToCenter.Length < epsilon)
-            return corners;
-
-        VecD desiredPosToCenter = (desiredPos - currentCenter);
-
-        VecD scaling = new(desiredPosToCenter.X / targetPosToCenter.X, desiredPosToCenter.Y / targetPosToCenter.Y);
-        
-        // when rect is skewed and falsely un rotated, this applies scaling in wrong directions
-        corners = corners.AsScaled((float)scaling.X, (float)scaling.Y);
-
-        return corners.AsRotated(angle, corners.RectCenter);
     }
 
     private static VecD SwapAxes(VecD vec) => new VecD(vec.Y, vec.X);

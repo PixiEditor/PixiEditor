@@ -30,21 +30,34 @@ public class SampleImageNode : Node
 
     private Half4 GetColor(FuncContext context)
     {
-        context.ThrowOnMissingContext();
-
         if (Image.Value is null)
         {
             return new Half4("");
         }
 
-        Expression uv = context.GetValue(Coordinate);
+        if (context.HasContext)
+        {
+            Expression uv = context.GetValue(Coordinate);
 
-        return context.SampleSurface(Image.Value.DrawingSurface, uv, SampleMode.Value);
+            return context.SampleSurface(Image.Value.DrawingSurface, uv, SampleMode.Value);
+        }
+
+        Color color;
+        VecI pixelCoordinate = (VecI)context.GetValue(Coordinate).ConstantValue.Round();
+        if (SampleMode.Value == ColorSampleMode.ColorManaged)
+        {
+            color = Image.Value.GetSRGBPixel(pixelCoordinate);
+        }
+        else
+        {
+            color = Image.Value.GetPixel(pixelCoordinate);
+        }
+
+        return new Half4("") { ConstantValue = color };
     }
 
     protected override void OnExecute(RenderContext context)
     {
-
     }
 
     public override Node CreateCopy() => new SampleImageNode();
