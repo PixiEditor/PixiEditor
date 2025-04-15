@@ -120,7 +120,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         if (!context.ProcessingColorSpace.IsSrgb)
         {
             int saved = renderOn.Canvas.Save();
-            Texture tex = Texture.ForProcessing(renderOn, ColorSpace.CreateSrgb());
+            using Texture tex = Texture.ForProcessing(renderOn, ColorSpace.CreateSrgb());
             renderOn.Canvas.SetMatrix(Matrix3X3.Identity);
             Rasterize(tex.DrawingSurface, paint);
             renderOn.Canvas.DrawSurface(tex.DrawingSurface, 0, 0);

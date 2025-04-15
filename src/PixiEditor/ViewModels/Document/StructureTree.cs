@@ -96,7 +96,8 @@ internal class StructureTree
             if (oldRoot != root)
             {
                 oldRoot.Remove(member);
-                root.Insert(relativeIndex, member);
+                int clampIndex = Math.Clamp(relativeIndex, 0, root.Count);
+                root.Insert(clampIndex, member);
                 _memberMap[member] = root;
             }
         }
