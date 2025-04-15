@@ -1,0 +1,23 @@
+<dialogs:PixiEditorPopup xmlns="https://github.com/avaloniaui"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+                         xmlns:auth="clr-namespace:PixiEditor.Views.Auth"
+                         xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
+                         xmlns:subViewModels="clr-namespace:PixiEditor.ViewModels.SubViewModels"
+                         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                         x:Class="PixiEditor.Views.Auth.LoginPopup"
+                         Width="400" Height="300"
+                         Title="LoginPopup">
+    <Design.DataContext>
+        <subViewModels:UserViewModel />
+    </Design.DataContext>
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="5" Margin="10" MinWidth="300">
+        <auth:LoginForm RequestLoginCommand="{Binding Path=RequestLoginCommand}" />
+        <TextBlock Text="Email sent! Check your inbox." IsVisible="{Binding WaitingForActivation}"/>
+        <TextBlock Text="Logged in as " IsVisible="{Binding IsLoggedIn}">
+            <Run Text="{Binding User.Email}"/>
+        </TextBlock>
+    </StackPanel>
+</dialogs:PixiEditorPopup>

@@ -21,7 +21,14 @@ public class PixiAuthClient
         if (response.IsSuccessStatusCode)
         {
             string result = await response.Content.ReadAsStringAsync();
-            if (Guid.TryParse(result, out Guid sessionId))
+            Dictionary<string, string>? resultDict =
+                System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(result);
+            if (resultDict == null || !resultDict.TryGetValue("sessionId", out string? sessionIdString))
+            {
+                return null;
+            }
+
+            if (Guid.TryParse(sessionIdString, out Guid sessionId))
             {
                 return sessionId;
             }
@@ -30,17 +37,25 @@ public class PixiAuthClient
         return null;
     }
 
-    public async Task<string?> TryGetSessionToken(string email, Guid session)
+    public async Task<string?> TryClaimSessionToken(string email, Guid session)
     {
         Dictionary<string, string> body = new() { { "email", email }, { "sessionId", session.ToString() } };
-        var response = await httpClient.PostAsJsonAsync("/session/getSessionToken", body);
+        var response = await httpClient.GetAsync($"/session/claimToken?userEmail={email}&sessionId={session}");
 
         if (response.IsSuccessStatusCode)
         {
             string result = await response.Content.ReadAsStringAsync();
-            if (!string.IsNullOrEmpty(result))
+            Dictionary<string, string>? resultDict =
+                System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(result);
+            string? token = null;
+            if (resultDict != null && resultDict.TryGetValue("token", out token))
             {
-                return result;
+                return token;
+            }
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                return token;
             }
         }
 

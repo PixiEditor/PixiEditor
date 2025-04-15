@@ -12,6 +12,7 @@ using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.UserPreferences;
 using PixiEditor.Views;
+using PixiEditor.Views.Auth;
 using PixiEditor.Views.Dialogs;
 using PixiEditor.Views.Windows;
 using Command = PixiEditor.Models.Commands.Attributes.Commands.Command;
@@ -268,5 +269,13 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
     public void ShowDockWindow(string id)
     {
         Owner.LayoutSubViewModel.LayoutManager.ShowDockable(id);
+    }
+
+    [Commands_Command.Basic("PixiEditor.Window.OpenLoginWindow", "OPEN_LOGIN_WINDOW", "OPEN_LOGIN_WINDOW",
+        MenuItemOrder = 6, AnalyticsTrack = true)]
+    public void OpenLoginWindow()
+    {
+        LoginPopup popup = new LoginPopup() { DataContext = Owner.UserViewModel };
+        popup.Show();
     }
 }

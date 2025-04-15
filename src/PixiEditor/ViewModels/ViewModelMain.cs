@@ -62,6 +62,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public AnimationsViewModel AnimationsSubViewModel { get; set; }
     public NodeGraphManagerViewModel NodeGraphManager { get; set; }
     public AutosaveViewModel AutosaveViewModel { get; set; }
+    public UserViewModel UserViewModel { get; set; }
 
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
@@ -166,6 +167,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         NodeGraphManager = services.GetService<NodeGraphManagerViewModel>();
 
         AutosaveViewModel = services.GetService<AutosaveViewModel>();
+
+        UserViewModel = services.GetRequiredService<UserViewModel>();
 
         ExtensionsSubViewModel = services.GetService<ExtensionsViewModel>(); // Must be last
 
