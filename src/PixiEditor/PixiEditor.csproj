@@ -155,6 +155,7 @@
 
   <ItemGroup>
     <Folder Include="Extensions\"/>
+    <Folder Include="ViewModels\Auth\" />
   </ItemGroup>
 
 </Project>

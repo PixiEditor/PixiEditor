@@ -7,6 +7,7 @@ public sealed class StandalonePlatform : IPlatform
 
     public bool PerformHandshake()
     {
+
         return true;
     }
 
