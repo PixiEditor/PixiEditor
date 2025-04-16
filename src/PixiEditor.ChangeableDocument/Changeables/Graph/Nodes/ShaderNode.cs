@@ -1,5 +1,6 @@
 ﻿using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Surfaces;
@@ -222,6 +223,22 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
                 {
                     input = CreateInput<Vec3D>(uniform.Name, uniform.Name, new Vec3D(0, 0, 0));
                 }
+                else if (uniform.DataType == UniformValueType.Vector4)
+                {
+                    input = CreateInput<Vec4D>(uniform.Name, uniform.Name, new Vec4D(0, 0, 0, 0));
+                }
+                else if (uniform.DataType == UniformValueType.Int)
+                {
+                    input = CreateInput<int>(uniform.Name, uniform.Name, 0);
+                }
+                else if (uniform.DataType == UniformValueType.Vector2Int)
+                {
+                    input = CreateInput<VecI>(uniform.Name, uniform.Name, new VecI(0, 0));
+                }
+                else if (uniform.DataType == UniformValueType.Matrix3X3)
+                {
+                    input = CreateInput<Matrix3X3>(uniform.Name, uniform.Name, Matrix3X3.Identity);
+                }
                 else
                 {
                     continue;
@@ -259,9 +276,12 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
                 {
                     uniforms.Add(input.Key, new Uniform(input.Key, (float)doubleValue));
                 }
-                else if (value is int intValue)
+            }
+            else if (input.Value.valueType == UniformValueType.Int)
+            {
+                if (value is int intValue)
                 {
-                    uniforms.Add(input.Key, new Uniform(input.Key, (float)intValue));
+                    uniforms.Add(input.Key, new Uniform(input.Key, intValue));
                 }
             }
             else if (input.Value.valueType == UniformValueType.Vector2)
@@ -269,10 +289,6 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
                 if (value is VecD vector)
                 {
                     uniforms.Add(input.Key, new Uniform(input.Key, vector));
-                }
-                else if (value is VecI vecI)
-                {
-                    uniforms.Add(input.Key, new Uniform(input.Key, new VecD(vecI.X, vecI.Y)));
                 }
             }
             else if (input.Value.valueType == UniformValueType.Vector3)
@@ -287,6 +303,27 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
                 if (value is Vec4D vector)
                 {
                     uniforms.Add(input.Key, new Uniform(input.Key, vector));
+                }
+            }
+            else if (input.Value.valueType == UniformValueType.Vector2Int)
+            {
+                if (value is VecI vector)
+                {
+                    uniforms.Add(input.Key, new Uniform(input.Key, vector));
+                }
+            }
+            else if (input.Value.valueType is UniformValueType.Vector3Int or UniformValueType.Vector4Int)
+            {
+                if (value is int[] vector)
+                {
+                    uniforms.Add(input.Key, new Uniform(input.Key, vector));
+                }
+            }
+            else if (input.Value.valueType == UniformValueType.Matrix3X3)
+            {
+                if (value is Matrix3X3 matrix)
+                {
+                    uniforms.Add(input.Key, new Uniform(input.Key, matrix));
                 }
             }
             else if (input.Value.valueType == UniformValueType.Color)
