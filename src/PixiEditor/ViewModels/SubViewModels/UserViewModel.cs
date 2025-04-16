@@ -79,6 +79,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         {
             await LoadUserData();
             await TryRefreshToken();
+            await LogoutIfTokenExpired();
         });
     }
 
@@ -166,11 +167,13 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
         try
         {
-            string? token = await PixiAuthClient.RefreshToken(User.SessionId.Value, User.SessionToken);
+            (string? token, DateTime? expirationDate) =
+                await PixiAuthClient.RefreshToken(User.SessionId.Value, User.SessionToken);
 
             if (token != null)
             {
                 User.SessionToken = token;
+                User.SessionExpirationDate = expirationDate;
                 NotifyProperties();
                 SaveUserInfo();
                 return true;
@@ -202,11 +205,13 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
         try
         {
-            string? token = await PixiAuthClient.TryClaimSessionToken(User.Email, User.SessionId.Value);
+            (string? token, DateTime? expirationDate) =
+                await PixiAuthClient.TryClaimSessionToken(User.Email, User.SessionId.Value);
             if (token != null)
             {
                 LastError = null;
                 User.SessionToken = token;
+                User.SessionExpirationDate = expirationDate;
                 NotifyProperties();
                 SaveUserInfo();
                 return true;
@@ -229,17 +234,21 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
     public async Task Logout()
     {
-        if (!apiValid) return;
-
         if (!IsLoggedIn)
         {
             return;
         }
 
+        Guid? sessionId = User?.SessionId;
+        string? sessionToken = User?.SessionToken;
+
         User = null;
         NotifyProperties();
         SaveUserInfo();
-        await PixiAuthClient.Logout(User.SessionId.Value, User.SessionToken);
+
+        if (!apiValid) return;
+
+        await PixiAuthClient.Logout(sessionId.Value, sessionToken);
     }
 
     public async Task SaveUserInfo()
@@ -250,6 +259,15 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
     public async Task LoadUserData()
     {
         User = await IOperatingSystem.Current.SecureStorage.GetValueAsync<User>("UserData", null);
+    }
+
+    public async Task LogoutIfTokenExpired()
+    {
+        if (User?.SessionExpirationDate != null && User.SessionExpirationDate < DateTime.Now)
+        {
+            await Logout();
+            LastError = new LocalizedString("SESSION_EXPIRED");
+        }
     }
 
     private void NotifyProperties()

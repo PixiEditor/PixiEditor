@@ -17,7 +17,6 @@ public class PixiAuthClient
         httpClient = new HttpClient();
         httpClient.BaseAddress = new Uri(baseUrl);
         // TODO: Update expiration date locally
-        // TODO: Add error code handling
     }
 
     public async Task<Guid?> GenerateSession(string email)
@@ -51,7 +50,7 @@ public class PixiAuthClient
         return null;
     }
 
-    public async Task<string?> TryClaimSessionToken(string email, Guid session)
+    public async Task<(string? token, DateTime? expirationDate)> TryClaimSessionToken(string email, Guid session)
     {
         Dictionary<string, string> body = new() { { "email", email }, { "sessionId", session.ToString() } };
         var response = await httpClient.GetAsync($"/session/claimToken?userEmail={email}&sessionId={session}");
@@ -62,14 +61,19 @@ public class PixiAuthClient
             Dictionary<string, string>? resultDict =
                 System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(result);
             string? token = null;
+            DateTime? expirationDate = null;
             if (resultDict != null && resultDict.TryGetValue("token", out token))
             {
-                return token;
-            }
+                DateTime? expiration = null;
+                if (resultDict.TryGetValue("expirationDate", out string? expirationString))
+                {
+                    if (DateTime.TryParse(expirationString, out DateTime expirationDateValue))
+                    {
+                        expirationDate = expirationDateValue;
+                    }
+                }
 
-            if (!string.IsNullOrEmpty(token))
-            {
-                return token;
+                return (token, expirationDate);
             }
         }
         else if (response.StatusCode == HttpStatusCode.BadRequest)
@@ -81,7 +85,7 @@ public class PixiAuthClient
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
         }
 
-        return null;
+        return (null, null);
     }
 
     /// <summary>
@@ -91,11 +95,12 @@ public class PixiAuthClient
     /// <param name="userSessionToken">Authentication token.</param>
     /// <returns>Token if successful, null otherwise.</returns>
     /// <exception cref="UnauthorizedAccessException">Thrown if the session is not valid.</exception>
-    public async Task<string?> RefreshToken(Guid userSessionId, string userSessionToken)
+    public async Task<(string? token, DateTime? expirationDate)> RefreshToken(Guid userSessionId,
+        string userSessionToken)
     {
         if (string.IsNullOrEmpty(userSessionToken))
         {
-            return null;
+            return (null, null);
         }
 
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/session/refreshToken");
@@ -112,12 +117,16 @@ public class PixiAuthClient
             string? token = null;
             if (resultDict != null && resultDict.TryGetValue("token", out token))
             {
-                return token;
-            }
+                DateTime? expirationDate = null;
+                if (resultDict.TryGetValue("expirationDate", out string? expirationString))
+                {
+                    if (DateTime.TryParse(expirationString, out DateTime expirationDateValue))
+                    {
+                        expirationDate = expirationDateValue;
+                    }
+                }
 
-            if (!string.IsNullOrEmpty(token))
-            {
-                return token;
+                return (token, expirationDate);
             }
         }
         else if (response.StatusCode == HttpStatusCode.Forbidden)
@@ -133,7 +142,7 @@ public class PixiAuthClient
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
         }
 
-        return null;
+        return (null, null);
     }
 
     public async Task Logout(Guid userSessionId, string userSessionToken)
@@ -161,42 +170,50 @@ public class PixiAuthClient
         var response = await httpClient.PostAsJsonAsync("/session/resendActivation",
             new ResendActivationModel(userEmail, userSessionId));
 
-        if (!response.IsSuccessStatusCode)
+        if (response.StatusCode == HttpStatusCode.BadRequest)
         {
-            Dictionary<string, object> responseData =
-                System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(
-                    await response.Content.ReadAsStringAsync());
-            if (responseData != null && responseData.TryGetValue("error", out object? error))
+            string responseString = await response.Content.ReadAsStringAsync();
+            try
             {
-                if (error is JsonElement errorElement)
+                Dictionary<string, object> responseData =
+                    System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
+                if (responseData != null && responseData.TryGetValue("error", out object? error))
                 {
-                    error = errorElement.GetString();
-                }
-
-
-                if (error is string errorString and "TOO_MANY_REQUESTS")
-                {
-                    if (responseData.TryGetValue("timeLeft", out object? timeLeft))
+                    if (error is JsonElement errorElement)
                     {
-                        if (timeLeft is JsonElement timeLeftElement)
-                        {
-                            timeLeft = timeLeftElement.GetDouble();
-                        }
-
-                        if (timeLeft is double timeLeftDouble)
-                        {
-                            double seconds = double.Round(timeLeftDouble / 1000);
-                            throw new TooManyRequestsException(errorString, seconds);
-                        }
+                        error = errorElement.GetString();
                     }
 
-                    throw new BadRequestException(errorString);
+
+                    if (error is string errorString and "TOO_MANY_REQUESTS")
+                    {
+                        if (responseData.TryGetValue("timeLeft", out object? timeLeft))
+                        {
+                            if (timeLeft is JsonElement timeLeftElement)
+                            {
+                                timeLeft = timeLeftElement.GetDouble();
+                            }
+
+                            if (timeLeft is double timeLeftDouble)
+                            {
+                                double seconds = double.Round(timeLeftDouble / 1000);
+                                throw new TooManyRequestsException(errorString, seconds);
+                            }
+                        }
+
+                        throw new BadRequestException(errorString);
+                    }
                 }
             }
-            else if (response.StatusCode == HttpStatusCode.InternalServerError)
+            catch (JsonException)
             {
-                throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
+                // Handle JSON parsing error
+                throw new BadRequestException(responseString);
             }
+        }
+        else if (response.StatusCode == HttpStatusCode.InternalServerError)
+        {
+            throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
         }
     }
 }
