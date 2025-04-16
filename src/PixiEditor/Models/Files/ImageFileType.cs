@@ -152,9 +152,6 @@ internal abstract class ImageFileType : IoFileType
     {
         try
         {
-            if (!encoder.SupportsTransparency)
-                bitmap.DrawingSurface.Canvas.DrawColor(Colors.White, BlendMode.Multiply);
-
             await using var stream = new FileStream(savePath, FileMode.Create);
             await encoder.SaveAsync(stream, bitmap);
         }
