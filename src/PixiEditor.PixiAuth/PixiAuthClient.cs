@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using PixiEditor.PixiAuth.Exceptions;
 
 namespace PixiEditor.PixiAuth;
@@ -167,13 +168,25 @@ public class PixiAuthClient
                     await response.Content.ReadAsStringAsync());
             if (responseData != null && responseData.TryGetValue("error", out object? error))
             {
+                if (error is JsonElement errorElement)
+                {
+                    error = errorElement.GetString();
+                }
+
+
                 if (error is string errorString and "TOO_MANY_REQUESTS")
                 {
                     if (responseData.TryGetValue("timeLeft", out object? timeLeft))
                     {
+                        if (timeLeft is JsonElement timeLeftElement)
+                        {
+                            timeLeft = timeLeftElement.GetDouble();
+                        }
+
                         if (timeLeft is double timeLeftDouble)
                         {
-                            throw new TooManyRequestsException(errorString, timeLeftDouble);
+                            double seconds = double.Round(timeLeftDouble / 1000);
+                            throw new TooManyRequestsException(errorString, seconds);
                         }
                     }
 

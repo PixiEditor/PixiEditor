@@ -1,3 +1,4 @@
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
@@ -29,6 +30,22 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
     }
 
     private bool apiValid = true;
+
+    public DateTime? TimeToEndTimeout { get; private set; } = null;
+
+    public string TimeToEndTimeoutString
+    {
+        get
+        {
+            if (TimeToEndTimeout == null)
+            {
+                return string.Empty;
+            }
+
+            TimeSpan timeLeft = TimeToEndTimeout.Value - DateTime.Now;
+            return timeLeft.TotalSeconds > 0 ? $"({timeLeft:ss})" : string.Empty;
+        }
+    }
 
     public UserViewModel(ViewModelMain owner) : base(owner)
     {
@@ -65,7 +82,6 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         });
     }
 
-
     public async Task RequestLogin(string email)
     {
         if (!apiValid) return;
@@ -83,7 +99,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         }
         catch (PixiAuthException authException)
         {
-           LastError = new LocalizedString(authException.Message);
+            LastError = new LocalizedString(authException.Message);
         }
     }
 
@@ -99,11 +115,17 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         try
         {
             await PixiAuthClient.ResendActivation(User.Email, User.SessionId.Value);
+            TimeToEndTimeout = DateTime.Now.Add(TimeSpan.FromSeconds(60));
+            RunTimeoutTimers(60);
+            NotifyProperties();
             LastError = null;
         }
         catch (TooManyRequestsException e)
         {
             LastError = new LocalizedString(e.Message, e.TimeLeft);
+            TimeToEndTimeout = DateTime.Now.Add(TimeSpan.FromSeconds(e.TimeLeft));
+            RunTimeoutTimers(e.TimeLeft);
+            NotifyProperties();
         }
         catch (PixiAuthException authException)
         {
@@ -111,9 +133,26 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         }
     }
 
+    private void RunTimeoutTimers(double timeLeft)
+    {
+        DispatcherTimer.RunOnce(
+            () =>
+            {
+                TimeToEndTimeout = null;
+                NotifyProperties();
+            },
+            TimeSpan.FromSeconds(timeLeft));
+
+        DispatcherTimer.Run(() =>
+        {
+            NotifyProperties();
+            return TimeToEndTimeout != null;
+        }, TimeSpan.FromSeconds(1));
+    }
+
     public bool CanResendActivation()
     {
-        return WaitingForActivation;
+        return WaitingForActivation && TimeToEndTimeout == null;
     }
 
     public async Task<bool> TryRefreshToken()
@@ -219,5 +258,9 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         OnPropertyChanged(nameof(NotLoggedIn));
         OnPropertyChanged(nameof(WaitingForActivation));
         OnPropertyChanged(nameof(IsLoggedIn));
+        OnPropertyChanged(nameof(LastError));
+        OnPropertyChanged(nameof(TimeToEndTimeout));
+        OnPropertyChanged(nameof(TimeToEndTimeoutString));
+        ResendActivationCommand.NotifyCanExecuteChanged();
     }
 }

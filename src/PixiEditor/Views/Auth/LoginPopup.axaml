@@ -20,8 +20,11 @@
         <TextBlock Text="Logged in as " IsVisible="{Binding IsLoggedIn}">
             <Run Text="{Binding User.Email}" />
         </TextBlock>
-        <Button IsVisible="{Binding WaitingForActivation}"
-                Command="{Binding Path=ResendActivationCommand}" Content="Resend" HorizontalAlignment="Right">
+        <Button IsVisible="{Binding WaitingForActivation}" Width="100"
+                Command="{Binding Path=ResendActivationCommand}" HorizontalAlignment="Right">
+            <TextBlock Text="Resend" Width="100">
+                <TextBlock Text="{Binding TimeToEndTimeoutString}"/>
+            </TextBlock>
         </Button>
         <Button IsVisible="{Binding IsLoggedIn}"
                 Command="{Binding Path=LogoutCommand}" Content="Logout" HorizontalAlignment="Right" />
