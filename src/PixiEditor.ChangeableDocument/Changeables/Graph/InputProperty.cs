@@ -39,7 +39,14 @@ public class InputProperty : IInputProperty
 
             if (!ValueType.IsAssignableTo(typeof(Delegate)) && connectionValue is Delegate connectionField)
             {
-                return connectionField.DynamicInvoke(FuncContext.NoContext);
+                try
+                {
+                    return connectionField.DynamicInvoke(FuncContext.NoContext);
+                }
+                catch
+                {
+                    return null;
+                }
             }
 
             if (ValueType.IsAssignableTo(typeof(Delegate)) && connectionValue is not Delegate)
@@ -217,7 +224,7 @@ public class InputProperty : IInputProperty
         HashCode hash = new();
         hash.Add(InternalPropertyName);
         hash.Add(ValueType);
-        if(Value is ICacheable cacheable)
+        if (Value is ICacheable cacheable)
         {
             hash.Add(cacheable.GetCacheHash());
         }

@@ -1113,6 +1113,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         int firstFrame = 0;
         int lastFrame = AnimationDataViewModel.GetVisibleFramesCount();
 
+        lastFrame = Math.Max(1, lastFrame);
+
         if (keyFrames.Count > 0)
         {
             firstFrame = AnimationDataViewModel.GetFirstVisibleFrame();
