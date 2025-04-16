@@ -27,7 +27,7 @@ public class ModifyImageLeftNode : Node, IPairNode, IPreviewRenderable
     public ModifyImageLeftNode()
     {
         Image = CreateInput<Texture?>("Surface", "IMAGE", null);
-        Coordinate = CreateFuncOutput("Coordinate", "UV", ctx => ctx.OriginalPosition);
+        Coordinate = CreateFuncOutput("Coordinate", "UV", ctx => ctx.OriginalPosition ?? new Float2(""));
         Color = CreateFuncOutput("Color", "COLOR", GetColor);
         SampleMode = CreateInput("SampleMode", "COLOR_SAMPLE_MODE", ColorSampleMode.ColorManaged);
     }
