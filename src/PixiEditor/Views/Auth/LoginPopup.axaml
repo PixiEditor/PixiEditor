@@ -16,13 +16,16 @@
     </Design.DataContext>
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="5" Margin="10" MinWidth="300">
         <auth:LoginForm IsVisible="{Binding NotLoggedIn}" RequestLoginCommand="{Binding Path=RequestLoginCommand}" />
-        <TextBlock Text="Email sent! Check your inbox." IsVisible="{Binding WaitingForActivation}"/>
+        <TextBlock Text="Email sent! Check your inbox." IsVisible="{Binding WaitingForActivation}" />
         <TextBlock Text="Logged in as " IsVisible="{Binding IsLoggedIn}">
-            <Run Text="{Binding User.Email}"/>
+            <Run Text="{Binding User.Email}" />
         </TextBlock>
+        <Button IsVisible="{Binding WaitingForActivation}"
+                Command="{Binding Path=ResendActivationCommand}" Content="Resend" HorizontalAlignment="Right">
+        </Button>
         <Button IsVisible="{Binding IsLoggedIn}"
-                Command="{Binding Path=LogoutCommand}" Content="Logout" HorizontalAlignment="Right"/>
+                Command="{Binding Path=LogoutCommand}" Content="Logout" HorizontalAlignment="Right" />
         <TextBlock ui:Translator.LocalizedString="{Binding LastError}" IsVisible="{Binding !!LastError}"
-                   Foreground="{DynamicResource ErrorBrush}"/>
+                   Foreground="{DynamicResource ErrorBrush}" />
     </StackPanel>
 </dialogs:PixiEditorPopup>

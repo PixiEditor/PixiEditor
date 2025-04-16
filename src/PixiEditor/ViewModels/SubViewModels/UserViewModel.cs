@@ -19,6 +19,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
     public AsyncRelayCommand<string> RequestLoginCommand { get; }
     public AsyncRelayCommand TryValidateSessionCommand { get; }
+    public AsyncRelayCommand ResendActivationCommand { get; }
     public AsyncRelayCommand LogoutCommand { get; }
 
     public LocalizedString? LastError
@@ -33,6 +34,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
     {
         RequestLoginCommand = new AsyncRelayCommand<string>(RequestLogin);
         TryValidateSessionCommand = new AsyncRelayCommand(TryValidateSession);
+        ResendActivationCommand = new AsyncRelayCommand(ResendActivation, CanResendActivation);
         LogoutCommand = new AsyncRelayCommand(Logout);
 
         string baseUrl = BuildConstants.PixiEditorApiUrl;
@@ -83,6 +85,35 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         {
            LastError = new LocalizedString(authException.Message);
         }
+    }
+
+    public async Task ResendActivation()
+    {
+        if (!apiValid) return;
+
+        if (User?.SessionId == null)
+        {
+            return;
+        }
+
+        try
+        {
+            await PixiAuthClient.ResendActivation(User.Email, User.SessionId.Value);
+            LastError = null;
+        }
+        catch (TooManyRequestsException e)
+        {
+            LastError = new LocalizedString(e.Message, e.TimeLeft);
+        }
+        catch (PixiAuthException authException)
+        {
+            LastError = new LocalizedString(authException.Message);
+        }
+    }
+
+    public bool CanResendActivation()
+    {
+        return WaitingForActivation;
     }
 
     public async Task<bool> TryRefreshToken()

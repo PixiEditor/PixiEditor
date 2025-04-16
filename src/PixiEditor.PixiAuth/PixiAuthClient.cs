@@ -149,4 +149,41 @@ public class PixiAuthClient
 
         await httpClient.SendAsync(request);
     }
+
+    public async Task ResendActivation(string userEmail, Guid userSessionId)
+    {
+        if (string.IsNullOrEmpty(userEmail))
+        {
+            return;
+        }
+
+        var response = await httpClient.PostAsJsonAsync("/session/resendActivation",
+            new ResendActivationModel(userEmail, userSessionId));
+
+        if (!response.IsSuccessStatusCode)
+        {
+            Dictionary<string, object> responseData =
+                System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(
+                    await response.Content.ReadAsStringAsync());
+            if (responseData != null && responseData.TryGetValue("error", out object? error))
+            {
+                if (error is string errorString and "TOO_MANY_REQUESTS")
+                {
+                    if (responseData.TryGetValue("timeLeft", out object? timeLeft))
+                    {
+                        if (timeLeft is double timeLeftDouble)
+                        {
+                            throw new TooManyRequestsException(errorString, timeLeftDouble);
+                        }
+                    }
+
+                    throw new BadRequestException(errorString);
+                }
+            }
+            else if (response.StatusCode == HttpStatusCode.InternalServerError)
+            {
+                throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
+            }
+        }
+    }
 }
