@@ -1,12 +1,15 @@
 using CommunityToolkit.Mvvm.Input;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.OperatingSystem;
 using PixiEditor.PixiAuth;
+using PixiEditor.PixiAuth.Exceptions;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 
 internal class UserViewModel : SubViewModel<ViewModelMain>
 {
+    private LocalizedString? lastError = null;
     public PixiAuthClient PixiAuthClient { get; }
     public User? User { get; private set; }
 
@@ -16,6 +19,13 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
     public AsyncRelayCommand<string> RequestLoginCommand { get; }
     public AsyncRelayCommand TryValidateSessionCommand { get; }
+    public AsyncRelayCommand LogoutCommand { get; }
+
+    public LocalizedString? LastError
+    {
+        get => lastError;
+        set => SetProperty(ref lastError, value);
+    }
 
     private bool apiValid = true;
 
@@ -23,6 +33,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
     {
         RequestLoginCommand = new AsyncRelayCommand<string>(RequestLogin);
         TryValidateSessionCommand = new AsyncRelayCommand(TryValidateSession);
+        LogoutCommand = new AsyncRelayCommand(Logout);
 
         string baseUrl = BuildConstants.PixiEditorApiUrl;
 #if DEBUG
@@ -45,7 +56,11 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             apiValid = false;
         }
 
-        Task.Run(async () => await LoadUserData());
+        Task.Run(async () =>
+        {
+            await LoadUserData();
+            await TryRefreshToken();
+        });
     }
 
 
@@ -53,13 +68,57 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
     {
         if (!apiValid) return;
 
-        Guid? session = await PixiAuthClient.GenerateSession(email);
-        if (session != null)
+        try
         {
-            User = new User(email) { SessionId = session.Value };
+            Guid? session = await PixiAuthClient.GenerateSession(email);
+            if (session != null)
+            {
+                LastError = null;
+                User = new User(email) { SessionId = session.Value };
+                NotifyProperties();
+                SaveUserInfo();
+            }
+        }
+        catch (PixiAuthException authException)
+        {
+           LastError = new LocalizedString(authException.Message);
+        }
+    }
+
+    public async Task<bool> TryRefreshToken()
+    {
+        if (!apiValid) return false;
+
+        if (!IsLoggedIn)
+        {
+            return false;
+        }
+
+        try
+        {
+            string? token = await PixiAuthClient.RefreshToken(User.SessionId.Value, User.SessionToken);
+
+            if (token != null)
+            {
+                User.SessionToken = token;
+                NotifyProperties();
+                SaveUserInfo();
+                return true;
+            }
+        }
+        catch (ForbiddenException e)
+        {
+            User = null;
             NotifyProperties();
             SaveUserInfo();
+            LastError = new LocalizedString(e.Message);
         }
+        catch (PixiAuthException authException)
+        {
+            LastError = new LocalizedString(authException.Message);
+        }
+
+        return false;
     }
 
     public async Task<bool> TryValidateSession()
@@ -71,16 +130,46 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             return false;
         }
 
-        string? token = await PixiAuthClient.TryClaimSessionToken(User.Email, User.SessionId.Value);
-        if (token != null)
+        try
         {
-            User.SessionToken = token;
-            NotifyProperties();
-            SaveUserInfo();
-            return true;
+            string? token = await PixiAuthClient.TryClaimSessionToken(User.Email, User.SessionId.Value);
+            if (token != null)
+            {
+                LastError = null;
+                User.SessionToken = token;
+                NotifyProperties();
+                SaveUserInfo();
+                return true;
+            }
+        }
+        catch (BadRequestException ex)
+        {
+            if (ex.Message == "SESSION_NOT_VALIDATED")
+            {
+                LastError = null;
+            }
+        }
+        catch (PixiAuthException authException)
+        {
+            LastError = new LocalizedString(authException.Message);
         }
 
         return false;
+    }
+
+    public async Task Logout()
+    {
+        if (!apiValid) return;
+
+        if (!IsLoggedIn)
+        {
+            return;
+        }
+
+        User = null;
+        NotifyProperties();
+        SaveUserInfo();
+        await PixiAuthClient.Logout(User.SessionId.Value, User.SessionToken);
     }
 
     public async Task SaveUserInfo()

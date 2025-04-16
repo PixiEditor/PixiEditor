@@ -6,6 +6,7 @@
                          xmlns:auth="clr-namespace:PixiEditor.Views.Auth"
                          xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
                          xmlns:subViewModels="clr-namespace:PixiEditor.ViewModels.SubViewModels"
+                         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
                          mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                          x:Class="PixiEditor.Views.Auth.LoginPopup"
                          Width="400" Height="300"
@@ -19,5 +20,9 @@
         <TextBlock Text="Logged in as " IsVisible="{Binding IsLoggedIn}">
             <Run Text="{Binding User.Email}"/>
         </TextBlock>
+        <Button IsVisible="{Binding IsLoggedIn}"
+                Command="{Binding Path=LogoutCommand}" Content="Logout" HorizontalAlignment="Right"/>
+        <TextBlock ui:Translator.LocalizedString="{Binding LastError}" IsVisible="{Binding !!LastError}"
+                   Foreground="{DynamicResource ErrorBrush}"/>
     </StackPanel>
 </dialogs:PixiEditorPopup>
