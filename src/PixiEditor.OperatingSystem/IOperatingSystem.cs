@@ -13,6 +13,7 @@ public interface IOperatingSystem
 
     public IInputKeys InputKeys { get; }
     public IProcessUtility ProcessUtility { get; }
+    public ISecureStorage SecureStorage { get; }
     public bool IsMacOs => Name == "MacOS";
     public bool IsWindows => Name == "Windows";
     public bool IsLinux => Name == "Linux";
@@ -32,7 +33,10 @@ public interface IOperatingSystem
 
     public void OpenUri(string uri);
     public void OpenFolder(string path);
-    public bool HandleNewInstance(Dispatcher? dispatcher, Action<string, bool> openInExistingAction, IApplicationLifetime lifetime);
+
+    public bool HandleNewInstance(Dispatcher? dispatcher, Action<string, bool> openInExistingAction,
+        IApplicationLifetime lifetime);
+
     public void HandleActivatedWithFile(FileActivatedEventArgs fileActivatedEventArgs);
     public void HandleActivatedWithUri(ProtocolActivatedEventArgs openUriEventArgs);
 }

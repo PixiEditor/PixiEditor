@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.OperatingSystem;
 using PixiEditor.PixiAuth;
 
 namespace PixiEditor.ViewModels.SubViewModels;
@@ -9,6 +10,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
     public PixiAuthClient PixiAuthClient { get; }
     public User? User { get; private set; }
 
+    public bool NotLoggedIn => User?.SessionId is null || User.SessionId == Guid.Empty;
     public bool WaitingForActivation => User is { SessionId: not null } && string.IsNullOrEmpty(User.SessionToken);
     public bool IsLoggedIn => User is { SessionId: not null } && !string.IsNullOrEmpty(User.SessionToken);
 
@@ -42,6 +44,8 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             Console.WriteLine($"Invalid api URL format: {e.Message}");
             apiValid = false;
         }
+
+        Task.Run(async () => await LoadUserData());
     }
 
 
@@ -53,8 +57,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         if (session != null)
         {
             User = new User(email) { SessionId = session.Value };
-            OnPropertyChanged(nameof(WaitingForActivation));
-            OnPropertyChanged(nameof(IsLoggedIn));
+            NotifyProperties();
             SaveUserInfo();
         }
     }
@@ -72,9 +75,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         if (token != null)
         {
             User.SessionToken = token;
-            OnPropertyChanged(nameof(User));
-            OnPropertyChanged(nameof(WaitingForActivation));
-            OnPropertyChanged(nameof(IsLoggedIn));
+            NotifyProperties();
             SaveUserInfo();
             return true;
         }
@@ -82,8 +83,21 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         return false;
     }
 
-    public void SaveUserInfo()
+    public async Task SaveUserInfo()
     {
-        // TODO:
+        await IOperatingSystem.Current.SecureStorage.SetValueAsync("UserData", User);
+    }
+
+    public async Task LoadUserData()
+    {
+        User = await IOperatingSystem.Current.SecureStorage.GetValueAsync<User>("UserData", null);
+    }
+
+    private void NotifyProperties()
+    {
+        OnPropertyChanged(nameof(User));
+        OnPropertyChanged(nameof(NotLoggedIn));
+        OnPropertyChanged(nameof(WaitingForActivation));
+        OnPropertyChanged(nameof(IsLoggedIn));
     }
 }

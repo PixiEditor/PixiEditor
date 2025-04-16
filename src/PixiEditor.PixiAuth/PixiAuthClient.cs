@@ -12,6 +12,9 @@ public class PixiAuthClient
     {
         httpClient = new HttpClient();
         httpClient.BaseAddress = new Uri(baseUrl);
+        // TODO: Add error code handling
+        // TODO: Add refreshing token
+        // TODO: Add logout
     }
 
     public async Task<Guid?> GenerateSession(string email)
