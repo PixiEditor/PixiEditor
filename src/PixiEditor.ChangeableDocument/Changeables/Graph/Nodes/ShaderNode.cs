@@ -88,7 +88,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         Uniforms uniforms;
         uniforms = new Uniforms();
 
-        uniforms.Add("iResolution", new Uniform("iResolution", context.DocumentSize));
+        uniforms.Add("iResolution", new Uniform("iResolution", (VecD)context.DocumentSize));
         uniforms.Add("iNormalizedTime", new Uniform("iNormalizedTime", (float)context.FrameTime.NormalizedTime));
         uniforms.Add("iFrame", new Uniform("iFrame", context.FrameTime.Frame));
 

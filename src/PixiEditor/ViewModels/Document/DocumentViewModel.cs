@@ -611,7 +611,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             Surface finalSurface = null;
             DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
             {
-                finalSurface = new Surface(renderSize);
+                finalSurface = Surface.ForDisplay(renderSize);
                 finalSurface.DrawingSurface.Canvas.Save();
                 VecD scaling = new VecD(renderSize.X / (double)SizeBindable.X, renderSize.Y / (double)SizeBindable.Y);
 
