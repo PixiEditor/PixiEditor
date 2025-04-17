@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
         <CodeAnalysisRuleSet>../Custom.ruleset</CodeAnalysisRuleSet>
-		<AvaloniaVersion>11.2.6</AvaloniaVersion>
+		<AvaloniaVersion>11.2.7</AvaloniaVersion>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" />
