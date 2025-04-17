@@ -1033,5 +1033,9 @@
   "TOO_MANY_REQUESTS": "Too many requests. Try again in {0} seconds.",
   "SESSION_EXPIRED": "Session expired. Please log in again.",
   "CONNECTION_ERROR": "Connection error. Please check your internet connection.",
-  "FAIL_LOAD_USER_DATA": "Failed to load saved user data"
+  "FAIL_LOAD_USER_DATA": "Failed to load saved user data",
+  "LOGOUT": "Logout",
+  "LOGIN": "Login",
+  "LOGGED_IN_AS": "Logged in as",
+  "AVATAR_INFO": "Avatar taken from Gravatar, click to go to gravatar.com"
 }

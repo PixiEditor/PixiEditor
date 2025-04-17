@@ -154,6 +154,8 @@ public static class PixiPerfectIcons
     public const string Cone = "\uE99c";
     public const string Camera = "\uE99d";
     public const string ChartSpline = "\ue99e";
+    public const string Logout = "\ue99f";
+    public const string User = "\ue9a0";
 
     public static Stream GetFontStream()
     {

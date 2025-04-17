@@ -1,0 +1,55 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:subViewModels="clr-namespace:PixiEditor.ViewModels.SubViewModels"
+             xmlns:pixiAuth="clr-namespace:PixiEditor.PixiAuth;assembly=PixiEditor.PixiAuth"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:ClassModifier="internal"
+             x:Class="PixiEditor.Views.Auth.UserAvatarToggle">
+    <Design.DataContext>
+        <subViewModels:UserViewModel />
+    </Design.DataContext>
+
+    <Grid>
+        <Border ClipToBounds="True" IsVisible="{Binding IsLoggedIn}" CornerRadius="25">
+            <Button Name="UserAvatarButton" Padding="0"
+                    BorderThickness="0" Classes="pixi-icon">
+                <Button.Content>
+                    <Image asyncImageLoader:ImageLoader.Source="{Binding UserGravatarUrl}" />
+                </Button.Content>
+                <Button.Styles>
+                    <Style Selector="FlyoutPresenter.arrow">
+                        <Setter Property="Cursor" Value="Arrow" />
+                    </Style>
+                </Button.Styles>
+                <Button.Flyout>
+                    <Flyout>
+                        <StackPanel IsVisible="{Binding IsLoggedIn}" Margin="5" Spacing="5" Orientation="Vertical">
+                            <Border ClipToBounds="True" Width="100" Height="100" CornerRadius="100">
+                                <HyperlinkButton NavigateUri="https://gravatar.com/connect" Cursor="Hand" ui:Translator.TooltipKey="AVATAR_INFO">
+                                    <Image asyncImageLoader:ImageLoader.Source="{Binding UserGravatarUrl}" />
+                                </HyperlinkButton>
+                            </Border>
+                            <TextBlock ui:Translator.Key="LOGGED_IN_AS">
+                                <Run Text=" " />
+                                <Run Text="{Binding User.Email}" />
+                            </TextBlock>
+                            <Button HorizontalAlignment="Right" ui:Translator.TooltipKey="LOGOUT" Classes="pixi-icon"
+                                    Content="{DynamicResource icon-logout}"
+                                    Foreground="{DynamicResource ErrorOnDarkBrush}"
+                                    Command="{Binding LogoutCommand}" />
+                        </StackPanel>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
+        </Border>
+        <Button IsVisible="{Binding !IsLoggedIn}"
+                Classes="pixi-icon"
+                Content="{DynamicResource icon-user}"
+                Command="{xaml:Command Name=PixiEditor.Window.OpenLoginWindow}" />
+    </Grid>
+</UserControl>

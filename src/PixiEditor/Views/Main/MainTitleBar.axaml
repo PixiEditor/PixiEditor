@@ -11,6 +11,7 @@
              xmlns:menu="clr-namespace:PixiEditor.ViewModels.Menu"
              xmlns:main="clr-namespace:PixiEditor.Views.Main"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:auth="clr-namespace:PixiEditor.Views.Auth"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="menu:MenuBarViewModel"
              x:Class="PixiEditor.Views.Main.MainTitleBar">
@@ -21,12 +22,15 @@
         <dialogs:DialogTitleBar
             DockPanel.Dock="Top">
             <dialogs:DialogTitleBar.AdditionalElement>
-                <Border BorderThickness="1" BorderBrush="{DynamicResource AccentColor}"
-                        Padding="5 0" CornerRadius="5" Height="25"
-                        IsVisible="{Binding Path=AdditionalContentSubViewModel.IsSupporterPackAvailable, FallbackValue=False}">
-                    <TextBlock VerticalAlignment="Center"
-                               ui:Translator.Key="PixiEditor.SupporterPack:AWESOME_SUPPORTER" />
-                </Border>
+                <StackPanel Margin="5 0" Spacing="5" Orientation="Horizontal" DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType=main:MainTitleBar}}">
+                    <Border BorderThickness="1" BorderBrush="{DynamicResource AccentColor}"
+                            Padding="5 0" CornerRadius="5" Height="25"
+                            IsVisible="{Binding Path=AdditionalContentSubViewModel.IsSupporterPackAvailable, FallbackValue=False}">
+                        <TextBlock VerticalAlignment="Center"
+                                   ui:Translator.Key="PixiEditor.SupporterPack:AWESOME_SUPPORTER" />
+                    </Border>
+                    <auth:UserAvatarToggle Width="26" Height="26" DataContext="{Binding Path=UserViewModel}" />
+                </StackPanel>
             </dialogs:DialogTitleBar.AdditionalElement>
         </dialogs:DialogTitleBar>
         <Panel DockPanel.Dock="Left"
@@ -84,7 +88,7 @@
                            Foreground="Yellow" FontSize="18" />
                 <TextBlock Text="{DynamicResource icon-settings}"
                            ClipToBounds="False"
-                            Width="16" Height="16"
+                           Width="16" Height="16"
                            IsVisible="{Binding UpdateViewModel.IsDownloading}"
                            Classes="pixi-icon" Foreground="DarkGray" FontSize="16">
                     <TextBlock.Styles>
@@ -104,7 +108,8 @@
                 </TextBlock>
                 <Ellipse
                     ClipToBounds="False"
-                    Fill="{DynamicResource ThemeAccent3Brush}" IsVisible="{Binding UpdateViewModel.UpdateReadyToInstall}"
+                    Fill="{DynamicResource ThemeAccent3Brush}"
+                    IsVisible="{Binding UpdateViewModel.UpdateReadyToInstall}"
                     Width="8" Height="8" />
             </Panel>
         </Panel>

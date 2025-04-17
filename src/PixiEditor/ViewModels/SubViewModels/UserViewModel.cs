@@ -48,6 +48,9 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         }
     }
 
+    public string? UserGravatarUrl =>
+        User?.Email != null ? $"https://www.gravatar.com/avatar/{GetEmailHash()}?s=100&d=initials" : null;
+
     public UserViewModel(ViewModelMain owner) : base(owner)
     {
         RequestLoginCommand = new AsyncRelayCommand<string>(RequestLogin);
@@ -315,6 +318,14 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         }
     }
 
+    private string GetEmailHash()
+    {
+        using var sha256 = System.Security.Cryptography.SHA256.Create();
+        byte[] inputBytes = System.Text.Encoding.UTF8.GetBytes(User?.Email.ToLower() ?? string.Empty);
+        byte[] hashBytes = sha256.ComputeHash(inputBytes);
+        return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+    }
+
     private void NotifyProperties()
     {
         OnPropertyChanged(nameof(User));
@@ -324,6 +335,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         OnPropertyChanged(nameof(LastError));
         OnPropertyChanged(nameof(TimeToEndTimeout));
         OnPropertyChanged(nameof(TimeToEndTimeoutString));
+        OnPropertyChanged(nameof(UserGravatarUrl));
         ResendActivationCommand.NotifyCanExecuteChanged();
     }
 }

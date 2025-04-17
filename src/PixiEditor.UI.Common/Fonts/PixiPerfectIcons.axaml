@@ -159,6 +159,9 @@
             <system:String x:Key="icon-terminal">&#xE99b;</system:String>
             <system:String x:Key="icon-cone">&#xE99c;</system:String>
             <system:String x:Key="icon-camera">&#xE99d;</system:String>
+            <system:String x:Key="icon-chart-spline">&#xE99e;</system:String>
+            <system:String x:Key="icon-logout">&#xE99f;</system:String>
+            <system:String x:Key="icon-user">&#xE9A0;</system:String>
 
         </ResourceDictionary>
     </Styles.Resources>

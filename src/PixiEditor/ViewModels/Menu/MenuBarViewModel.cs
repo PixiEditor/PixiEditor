@@ -24,6 +24,7 @@ internal class MenuBarViewModel : PixiObservableObject
 {
     private AdditionalContentViewModel additionalContentViewModel;
     private UpdateViewModel updateViewModel;
+    private UserViewModel userViewModel;
 
     public AdditionalContentViewModel AdditionalContentSubViewModel
     {
@@ -35,6 +36,12 @@ internal class MenuBarViewModel : PixiObservableObject
     {
         get => updateViewModel;
         set => SetProperty(ref updateViewModel, value);
+    }
+
+    public UserViewModel UserViewModel
+    {
+        get => userViewModel;
+        set => SetProperty(ref userViewModel, value);
     }
 
     public ObservableCollection<MenuItem>? MenuEntries { get; set; }
@@ -55,10 +62,11 @@ internal class MenuBarViewModel : PixiObservableObject
         { "DEBUG", 1000 },
     };
 
-    public MenuBarViewModel(AdditionalContentViewModel? additionalContentSubViewModel, UpdateViewModel? updateViewModel)
+    public MenuBarViewModel(AdditionalContentViewModel? additionalContentSubViewModel, UpdateViewModel? updateViewModel, UserViewModel? userViewModel)
     {
         AdditionalContentSubViewModel = additionalContentSubViewModel;
         UpdateViewModel = updateViewModel;
+        UserViewModel = userViewModel;
     }
 
     public void Init(IServiceProvider serviceProvider, CommandController controller)

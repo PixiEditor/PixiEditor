@@ -147,8 +147,9 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         StylusSubViewModel = services.GetService<StylusViewModel>();
         RegistrySubViewModel = services.GetService<RegistryViewModel>();
 
+        UserViewModel = services.GetRequiredService<UserViewModel>();
         AdditionalContentSubViewModel = services.GetService<AdditionalContentViewModel>();
-        MenuBarViewModel = new MenuBarViewModel(AdditionalContentSubViewModel, UpdateSubViewModel);
+        MenuBarViewModel = new MenuBarViewModel(AdditionalContentSubViewModel, UpdateSubViewModel, UserViewModel);
 
         CommandController.Init(services);
         LayoutSubViewModel.LayoutManager.InitLayout(this);
@@ -168,7 +169,6 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
         AutosaveViewModel = services.GetService<AutosaveViewModel>();
 
-        UserViewModel = services.GetRequiredService<UserViewModel>();
 
         ExtensionsSubViewModel = services.GetService<ExtensionsViewModel>(); // Must be last
 
