@@ -102,6 +102,10 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         {
             LastError = new LocalizedString(authException.Message);
         }
+        catch (HttpRequestException httpRequestException)
+        {
+            LastError = new LocalizedString("CONNECTION_ERROR");
+        }
     }
 
     public async Task ResendActivation()
@@ -131,6 +135,10 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         catch (PixiAuthException authException)
         {
             LastError = new LocalizedString(authException.Message);
+        }
+        catch (HttpRequestException httpRequestException)
+        {
+            LastError = new LocalizedString("CONNECTION_ERROR");
         }
     }
 
@@ -190,6 +198,10 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         {
             LastError = new LocalizedString(authException.Message);
         }
+        catch (HttpRequestException httpRequestException)
+        {
+            LastError = new LocalizedString("CONNECTION_ERROR");
+        }
 
         return false;
     }
@@ -228,6 +240,10 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         {
             LastError = new LocalizedString(authException.Message);
         }
+        catch (HttpRequestException httpRequestException)
+        {
+            LastError = new LocalizedString("CONNECTION_ERROR");
+        }
 
         return false;
     }
@@ -248,7 +264,18 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
         if (!apiValid) return;
 
-        await PixiAuthClient.Logout(sessionId.Value, sessionToken);
+        try
+        {
+            await PixiAuthClient.Logout(sessionId.Value, sessionToken);
+        }
+        catch (PixiAuthException authException)
+        {
+
+        }
+        catch (HttpRequestException httpRequestException)
+        {
+
+        }
     }
 
     public async Task SaveUserInfo()
