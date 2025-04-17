@@ -302,6 +302,17 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
     }
 
+    public void ForEveryFrame(Action<ChunkyImage, Guid> action)
+    {
+        foreach (var frame in keyFrames)
+        {
+            if (frame.Data is ChunkyImage imageFrame)
+            {
+                action(imageFrame, frame.KeyFrameGuid);
+            }
+        }
+    }
+
     public ChunkyImage GetLayerImageAtFrame(int frame)
     {
         return GetFrameWithImage(frame).Data as ChunkyImage;

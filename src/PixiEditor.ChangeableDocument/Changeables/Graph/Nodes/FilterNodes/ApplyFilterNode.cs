@@ -35,18 +35,23 @@ public class ApplyFilterNode : RenderNode, IRenderInput
 
         if (!context.ProcessingColorSpace.IsSrgb)
         {
-            var target = Texture.ForProcessing(surface, ColorSpace.CreateSrgb());
+            var intermediate = Texture.ForProcessing(surface, context.ProcessingColorSpace);
 
             int saved = surface.Canvas.Save();
             surface.Canvas.SetMatrix(Matrix3X3.Identity);
 
-            target.DrawingSurface.Canvas.SaveLayer(_paint);
-            Background.Value?.Paint(context, target.DrawingSurface);
-            target.DrawingSurface.Canvas.Restore();
+            Background.Value?.Paint(context, intermediate.DrawingSurface);
 
-            surface.Canvas.DrawSurface(target.DrawingSurface, 0, 0);
+            var srgbSurface = Texture.ForProcessing(intermediate.Size, ColorSpace.CreateSrgb());
+
+            srgbSurface.DrawingSurface.Canvas.SaveLayer(_paint);
+            srgbSurface.DrawingSurface.Canvas.DrawSurface(intermediate.DrawingSurface, 0, 0);
+            srgbSurface.DrawingSurface.Canvas.Restore();
+
+            surface.Canvas.DrawSurface(srgbSurface.DrawingSurface, 0, 0);
             surface.Canvas.RestoreToCount(saved);
-            target.Dispose();
+            intermediate.Dispose();
+            srgbSurface.Dispose();
         }
         else
         {
@@ -59,16 +64,6 @@ public class ApplyFilterNode : RenderNode, IRenderInput
     public override RectD? GetPreviewBounds(int frame, string elementToRenderName = "")
     {
         return PreviewUtils.FindPreviewBounds(Background.Connection, frame, elementToRenderName);
-    }
-
-    public override bool RenderPreview(DrawingSurface renderOn, RenderContext context,
-        string elementToRenderName)
-    {
-        int layer = renderOn.Canvas.SaveLayer(_paint);
-        Background.Value?.Paint(context, renderOn);
-        renderOn.Canvas.RestoreToCount(layer);
-
-        return true;
     }
 
     public override Node CreateCopy() => new ApplyFilterNode();
