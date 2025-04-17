@@ -64,7 +64,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
         if (_isDisposed) throw new ObjectDisposedException("Node was disposed before execution.");
 
-        if (ExecuteOnlyOnCacheChange && !CacheChanged(context))
+        if (!context.FullRerender && ExecuteOnlyOnCacheChange && !CacheChanged(context))
         {
             return;
         }
