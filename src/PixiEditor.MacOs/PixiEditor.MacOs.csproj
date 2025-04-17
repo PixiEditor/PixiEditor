@@ -10,4 +10,8 @@
       <ProjectReference Include="..\PixiEditor.OperatingSystem\PixiEditor.OperatingSystem.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="DeviceId.Mac" Version="6.9.0" />
+    </ItemGroup>
+
 </Project>

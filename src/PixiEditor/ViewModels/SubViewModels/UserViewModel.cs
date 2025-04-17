@@ -1,6 +1,7 @@
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.OperatingSystem;
 using PixiEditor.PixiAuth;
@@ -280,12 +281,29 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
     public async Task SaveUserInfo()
     {
-        await IOperatingSystem.Current.SecureStorage.SetValueAsync("UserData", User);
+        try
+        {
+            await SecureStorage.SetValueAsync("UserData", User);
+        }
+        catch (Exception e)
+        {
+            CrashHelper.SendExceptionInfo(e);
+        }
     }
 
     public async Task LoadUserData()
     {
-        User = await IOperatingSystem.Current.SecureStorage.GetValueAsync<User>("UserData", null);
+        try
+        {
+            User = await SecureStorage.GetValueAsync<User>("UserData", null);
+        }
+        catch (Exception e)
+        {
+            CrashHelper.SendExceptionInfo(e);
+            User = null;
+            NotifyProperties();
+            LastError = "FAIL_LOAD_USER_DATA";
+        }
     }
 
     public async Task LogoutIfTokenExpired()

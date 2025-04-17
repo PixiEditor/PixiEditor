@@ -14,7 +14,7 @@ public sealed class WindowsOperatingSystem : IOperatingSystem
     
     public IInputKeys InputKeys { get; } = new WindowsInputKeys();
     public IProcessUtility ProcessUtility { get; } = new WindowsProcessUtility();
-    public ISecureStorage SecureStorage { get; } = new WindowsSecureStorage();
+    public IEncryptor Encryptor { get; } = new DpapiEncryptor();
 
     private const string UniqueEventName = "33f1410b-2ad7-412a-a468-34fe0a85747c";
     

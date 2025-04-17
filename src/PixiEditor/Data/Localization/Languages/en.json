@@ -1032,5 +1032,6 @@
   "INTERNAL_SERVER_ERROR": "There was an internal server error. Please try again later.",
   "TOO_MANY_REQUESTS": "Too many requests. Try again in {0} seconds.",
   "SESSION_EXPIRED": "Session expired. Please log in again.",
-  "CONNECTION_ERROR": "Connection error. Please check your internet connection."
+  "CONNECTION_ERROR": "Connection error. Please check your internet connection.",
+  "FAIL_LOAD_USER_DATA": "Failed to load saved user data"
 }

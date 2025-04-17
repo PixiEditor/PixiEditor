@@ -13,7 +13,7 @@ public interface IOperatingSystem
 
     public IInputKeys InputKeys { get; }
     public IProcessUtility ProcessUtility { get; }
-    public ISecureStorage SecureStorage { get; }
+    public IEncryptor Encryptor { get; }
     public bool IsMacOs => Name == "MacOS";
     public bool IsWindows => Name == "Windows";
     public bool IsLinux => Name == "Linux";

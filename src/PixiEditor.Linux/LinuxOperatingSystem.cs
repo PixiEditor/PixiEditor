@@ -1,7 +1,9 @@
 ﻿using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Threading;
+using DeviceId;
 using PixiEditor.OperatingSystem;
+using PixiEditor.OperatingSystem.Cryptography;
 
 namespace PixiEditor.Linux;
 
@@ -12,6 +14,10 @@ public sealed class LinuxOperatingSystem : IOperatingSystem
     public string AnalyticsName => LinuxOSInformation.FromReleaseFile().ToString();
     public IInputKeys InputKeys { get; } = new LinuxInputKeys();
     public IProcessUtility ProcessUtility { get; } = new LinuxProcessUtility();
+
+    public IEncryptor Encryptor { get; } = new AesHmacEncryptor(
+        new LinuxDeviceIdBuilder(new DeviceIdBuilder()).AddMachineId().AddCpuInfo().AddMotherboardSerialNumber()
+            .AddSystemDriveSerialNumber().ToString());
 
     public string ExecutableExtension { get; } = string.Empty;
 

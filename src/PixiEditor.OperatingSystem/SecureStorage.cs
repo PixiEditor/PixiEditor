@@ -1,18 +1,16 @@
-using System.Security.Cryptography;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
-using PixiEditor.OperatingSystem;
 
-namespace PixiEditor.Windows;
+namespace PixiEditor.OperatingSystem;
 
-internal class WindowsSecureStorage : ISecureStorage
+public static class SecureStorage
 {
-    public string PathToStorage => Path.Combine(
+    public static string PathToStorage => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "PixiEditor",
         "SecureStorage.data");
 
-    public WindowsSecureStorage()
+    static SecureStorage()
     {
         if (!File.Exists(PathToStorage))
         {
@@ -21,16 +19,13 @@ internal class WindowsSecureStorage : ISecureStorage
         }
     }
 
-    public async Task<T?> GetValueAsync<T>(string key, T defaultValue = default)
+    public static async Task<T?> GetValueAsync<T>(string key, T? defaultValue = default)
     {
         byte[] current = ReadExistingData();
 
         if (current is { Length: > 0 })
         {
-            byte[] decryptedData = ProtectedData.Unprotect(
-                current,
-                null,
-                DataProtectionScope.CurrentUser);
+            byte[] decryptedData = IOperatingSystem.Current.Encryptor.Decrypt(current);
 
             string existingValue = Encoding.UTF8.GetString(decryptedData);
             Dictionary<string, object>? data = JsonSerializer.Deserialize<Dictionary<string, object>>(existingValue);
@@ -49,37 +44,32 @@ internal class WindowsSecureStorage : ISecureStorage
         return defaultValue;
     }
 
-    public async Task SetValueAsync<T>(string key, T value)
+    public static async Task SetValueAsync<T>(string key, T value)
     {
         byte[] current = ReadExistingData();
 
         Dictionary<string, object> data = new Dictionary<string, object>();
 
-        if(current is { Length: > 0 })
+        if (current is { Length: > 0 })
         {
-            byte[] decryptedData = ProtectedData.Unprotect(
-                current,
-                null,
-                DataProtectionScope.CurrentUser);
+            byte[] decryptedData = IOperatingSystem.Current.Encryptor.Decrypt(current);
 
             string existingValue = Encoding.UTF8.GetString(decryptedData);
-            data = JsonSerializer.Deserialize<Dictionary<string, object>>(existingValue) ?? new Dictionary<string, object>();
+            data = JsonSerializer.Deserialize<Dictionary<string, object>>(existingValue) ??
+                   new Dictionary<string, object>();
         }
 
         data[key] = value;
 
         byte[] newData = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data));
-        byte[] encryptedData = ProtectedData.Protect(
-            newData,
-            null,
-            DataProtectionScope.CurrentUser);
+        byte[] encryptedData = IOperatingSystem.Current.Encryptor.Encrypt(newData);
 
         await using var stream = new FileStream(PathToStorage, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
         await stream.WriteAsync(encryptedData, 0, encryptedData.Length);
         await stream.FlushAsync();
     }
 
-    private byte[] ReadExistingData()
+    private static byte[] ReadExistingData()
     {
         var stream = new FileStream(PathToStorage, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         byte[] existingData = new byte[stream.Length];
