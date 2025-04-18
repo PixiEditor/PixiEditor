@@ -16,7 +16,6 @@ public class PixiAuthClient
     {
         httpClient = new HttpClient();
         httpClient.BaseAddress = new Uri(baseUrl);
-        // TODO: Update expiration date locally
     }
 
     public async Task<Guid?> GenerateSession(string email)
@@ -50,10 +49,9 @@ public class PixiAuthClient
         return null;
     }
 
-    public async Task<(string? token, DateTime? expirationDate)> TryClaimSessionToken(string email, Guid session)
+    public async Task<(string? token, DateTime? expirationDate)> TryClaimSessionToken(Guid session)
     {
-        Dictionary<string, string> body = new() { { "email", email }, { "sessionId", session.ToString() } };
-        var response = await httpClient.GetAsync($"/session/claimToken?userEmail={email}&sessionId={session}");
+        var response = await httpClient.GetAsync($"/session/claimToken?sessionId={session}");
 
         if (response.IsSuccessStatusCode)
         {
@@ -92,20 +90,19 @@ public class PixiAuthClient
     ///     /// Refreshes the session token.
     /// </summary>
     /// <param name="userSessionId">Id of the session.</param>
-    /// <param name="userSessionToken">Authentication token.</param>
+    /// <param name="sessionToken">Authentication token.</param>
     /// <returns>Token if successful, null otherwise.</returns>
     /// <exception cref="UnauthorizedAccessException">Thrown if the session is not valid.</exception>
-    public async Task<(string? token, DateTime? expirationDate)> RefreshToken(Guid userSessionId,
-        string userSessionToken)
+    public async Task<(string? token, DateTime? expirationDate)> RefreshToken(string sessionToken)
     {
-        if (string.IsNullOrEmpty(userSessionToken))
+        if (string.IsNullOrEmpty(sessionToken))
         {
             return (null, null);
         }
 
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/session/refreshToken");
-        request.Content = JsonContent.Create(new SessionModel(userSessionId, userSessionToken));
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", userSessionToken);
+        request.Content = JsonContent.Create(sessionToken); // Name is important here, do not change!
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", sessionToken);
 
         var response = await httpClient.SendAsync(request);
 
@@ -145,7 +142,7 @@ public class PixiAuthClient
         return (null, null);
     }
 
-    public async Task Logout(Guid userSessionId, string userSessionToken)
+    public async Task Logout(string userSessionToken)
     {
         if (string.IsNullOrEmpty(userSessionToken))
         {
@@ -153,22 +150,14 @@ public class PixiAuthClient
         }
 
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/session/logout");
-        string sessionId = userSessionId.ToString(); // Name is important here, do not change!
-        request.Content = JsonContent.Create(sessionId);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", userSessionToken);
 
         await httpClient.SendAsync(request);
     }
 
-    public async Task ResendActivation(string userEmail, Guid userSessionId)
+    public async Task ResendActivation(Guid userSessionId)
     {
-        if (string.IsNullOrEmpty(userEmail))
-        {
-            return;
-        }
-
-        var response = await httpClient.PostAsJsonAsync("/session/resendActivation",
-            new ResendActivationModel(userEmail, userSessionId));
+        var response = await httpClient.PostAsJsonAsync("/session/resendActivation", userSessionId);
 
         if (response.StatusCode == HttpStatusCode.BadRequest)
         {

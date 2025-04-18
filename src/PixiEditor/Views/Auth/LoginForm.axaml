@@ -3,12 +3,86 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:auth1="clr-namespace:PixiEditor.Views.Auth"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:subViewModels="clr-namespace:PixiEditor.ViewModels.SubViewModels"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Auth.LoginForm">
-    <StackPanel>
-        <TextBox Name="Email" />
-        <Button Name="LoginButton" Content="Login"
-                Command="{Binding RequestLoginCommand, RelativeSource={RelativeSource AncestorType=auth1:LoginForm, Mode=FindAncestor}}"
-                CommandParameter="{Binding ElementName=Email, Path=Text}" />
-    </StackPanel>
+    <Design.DataContext>
+        <subViewModels:UserViewModel />
+    </Design.DataContext>
+
+    <Panel>
+        <StackPanel IsVisible="{Binding !IsLoggedIn}" VerticalAlignment="Top" Spacing="12">
+            <TextBox Text="{Binding CurrentEmail, Mode=TwoWay}" Watermark="{ui:Translate Key=ENTER_EMAIL}" Name="Email"
+                     IsVisible="{Binding !IsLoggedIn}" />
+            <Button Name="LoginButton" ui:Translator.Key="LOGIN_LINK"
+                    Command="{Binding RequestLoginCommand}"
+                    CommandParameter="{Binding ElementName=Email, Path=Text}">
+                <Button.IsVisible>
+                    <MultiBinding Converter="{converters:OneTrueConverter}">
+                        <Binding Path="NotLoggedIn" />
+                        <Binding Path="!EmailEqualsLastSentMail" />
+                    </MultiBinding>
+                </Button.IsVisible>
+            </Button>
+            <Button Command="{Binding Path=ResendActivationCommand}"
+                    CommandParameter="{Binding ElementName=Email, Path=Text}">
+                <Button.IsVisible>
+                    <MultiBinding Converter="{converters:AllTrueConverter}">
+                        <Binding Path="WaitingForActivation" />
+                        <Binding Path="EmailEqualsLastSentMail" />
+                    </MultiBinding>
+                </Button.IsVisible>
+                <TextBlock ui:Translator.Key="RESEND_ACTIVATION">
+                    <TextBlock Text="{Binding TimeToEndTimeoutString}" />
+                </TextBlock>
+            </Button>
+
+            <Panel IsVisible="{Binding LastError, Converter={converters:NullToVisibilityConverter}}">
+                <TextBlock Classes="subtext" Text="{ui:Translate Key=LOGIN_LINK_INFO}"
+                           FontSize="{DynamicResource FontSizeNormal}">
+                    <TextBlock.IsVisible>
+                        <MultiBinding Converter="{converters:OneTrueConverter}">
+                            <Binding Path="NotLoggedIn" />
+                            <Binding Path="!EmailEqualsLastSentMail" />
+                        </MultiBinding>
+                    </TextBlock.IsVisible>
+                </TextBlock>
+                <TextBlock Text="✓" Foreground="{DynamicResource ThemeAccent2Brush}"
+                           FontSize="{DynamicResource FontSizeNormal}">
+                    <TextBlock.IsVisible>
+                        <MultiBinding Converter="{converters:AllTrueConverter}">
+                            <Binding Path="WaitingForActivation" />
+                            <Binding Path="EmailEqualsLastSentMail" />
+                        </MultiBinding>
+                    </TextBlock.IsVisible>
+                    <Run />
+                    <TextBlock ui:Translator.Key="EMAIL_SENT" />
+                </TextBlock>
+            </Panel>
+            <TextBlock Text="✕" IsVisible="{Binding !!LastError}" TextWrapping="Wrap"
+                       Foreground="{DynamicResource ErrorOnDarkBrush}">
+                <Run Text=""/>
+                <Run ui:Translator.LocalizedString="{Binding LastError}" />
+            </TextBlock>
+        </StackPanel>
+        <StackPanel IsVisible="{Binding IsLoggedIn}" Margin="5" Spacing="12" Orientation="Vertical">
+            <Border ClipToBounds="True" Width="100" Height="100" CornerRadius="100">
+                <HyperlinkButton NavigateUri="https://gravatar.com/connect" Cursor="Hand"
+                                 ui:Translator.TooltipKey="AVATAR_INFO">
+                    <Image asyncImageLoader:ImageLoader.Source="{Binding UserGravatarUrl}" />
+                </HyperlinkButton>
+            </Border>
+            <TextBlock HorizontalAlignment="Center" FontSize="{DynamicResource FontSizeNormal}"
+                       ui:Translator.Key="LOGGED_IN_AS">
+                <Run Text="" />
+                <Run Text="{Binding User.Username}" />
+            </TextBlock>
+            <Button
+                Content="{ui:Translate Key=LOGOUT}"
+                Command="{Binding LogoutCommand}" />
+        </StackPanel>
+    </Panel>
 </UserControl>

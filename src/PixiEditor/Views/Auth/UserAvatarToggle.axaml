@@ -22,25 +22,27 @@
                     <Image asyncImageLoader:ImageLoader.Source="{Binding UserGravatarUrl}" />
                 </Button.Content>
                 <Button.Styles>
+                    <Style Selector="FlyoutPresenter">
+                        <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}" />
+                    </Style>
                     <Style Selector="FlyoutPresenter.arrow">
                         <Setter Property="Cursor" Value="Arrow" />
                     </Style>
                 </Button.Styles>
                 <Button.Flyout>
                     <Flyout>
-                        <StackPanel IsVisible="{Binding IsLoggedIn}" Margin="5" Spacing="5" Orientation="Vertical">
+                        <StackPanel IsVisible="{Binding IsLoggedIn}" Margin="5" Spacing="12" Orientation="Vertical">
                             <Border ClipToBounds="True" Width="100" Height="100" CornerRadius="100">
                                 <HyperlinkButton NavigateUri="https://gravatar.com/connect" Cursor="Hand" ui:Translator.TooltipKey="AVATAR_INFO">
                                     <Image asyncImageLoader:ImageLoader.Source="{Binding UserGravatarUrl}" />
                                 </HyperlinkButton>
                             </Border>
-                            <TextBlock ui:Translator.Key="LOGGED_IN_AS">
-                                <Run Text=" " />
-                                <Run Text="{Binding User.Email}" />
+                            <TextBlock HorizontalAlignment="Center" FontSize="{DynamicResource FontSizeNormal}" ui:Translator.Key="LOGGED_IN_AS">
+                                <Run Text="" />
+                                <Run Text="{Binding User.Username}" />
                             </TextBlock>
-                            <Button HorizontalAlignment="Right" ui:Translator.TooltipKey="LOGOUT" Classes="pixi-icon"
-                                    Content="{DynamicResource icon-logout}"
-                                    Foreground="{DynamicResource ErrorOnDarkBrush}"
+                            <Button
+                                    Content="{ui:Translate Key=LOGOUT}"
                                     Command="{Binding LogoutCommand}" />
                         </StackPanel>
                     </Flyout>

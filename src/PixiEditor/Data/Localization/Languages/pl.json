@@ -560,5 +560,6 @@
   "TRANSFORM_ACTION_DISPLAY_SCALE_ROTATE_SHEAR_PERSPECTIVE": "Przeciągnij uchwyty aby skalować transformację. Przytrzymaj Ctrl i przeciągnij aby przemieścić uchwyt swobodnie. Przytrzymaj Shify aby skalować proporcjonalnie. Przytrzymaj Alt i przeciągnij boczny uchwyt aby ściąć. Porusz zewnętrzne uchwyty aby obracać.",
   "TRANSFORM_ACTION_DISPLAY_SCALE_ROTATE_SHEAR_NOPERSPECTIVE": "Przeciągnij uchwyty aby skalować transformację. Przytrzymaj Shify aby zrobić to proporcjonalnie. Przytrzymaj Alt i przeciągnij aby ściąć. Przeciągnij zewnętrzne uchwyty aby obracać.",
   "TRANSFORM_ACTION_DISPLAY_SCALE_ROTATE_NOSHEAR_NOPERSPECTIVE": "Przeciągnij uchwyty aby skalować transformację. Przytrzymaj Shify aby skalować proporcjonalnie. Przeciągnij zewnętrzne uchwyty aby obracać.",
-  "TRANSFORM_ACTION_DISPLAY_SCALE_NOROTATE_NOSHEAR_NOPERSPECTIVE": "Przeciągnij uchwyty aby skalować transformację. Przytrzymaj Shift aby skalować proporcjonalnie."
+  "TRANSFORM_ACTION_DISPLAY_SCALE_NOROTATE_NOSHEAR_NOPERSPECTIVE": "Przeciągnij uchwyty aby skalować transformację. Przytrzymaj Shift aby skalować proporcjonalnie.",
+  "ENTER_EMAIL": "Wpisz adres e-mail"
 }

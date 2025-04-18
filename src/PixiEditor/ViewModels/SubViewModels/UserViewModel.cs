@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.User;
 using PixiEditor.OperatingSystem;
 using PixiEditor.PixiAuth;
 using PixiEditor.PixiAuth.Exceptions;
@@ -18,11 +19,14 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
     public bool NotLoggedIn => User?.SessionId is null || User.SessionId == Guid.Empty;
     public bool WaitingForActivation => User is { SessionId: not null } && string.IsNullOrEmpty(User.SessionToken);
     public bool IsLoggedIn => User is { SessionId: not null } && !string.IsNullOrEmpty(User.SessionToken);
+    public bool EmailEqualsLastSentMail => (CurrentEmail != null ? GetEmailHash(CurrentEmail) : "") == lastSentHash;
 
     public AsyncRelayCommand<string> RequestLoginCommand { get; }
     public AsyncRelayCommand TryValidateSessionCommand { get; }
-    public AsyncRelayCommand ResendActivationCommand { get; }
+    public AsyncRelayCommand<string> ResendActivationCommand { get; }
     public AsyncRelayCommand LogoutCommand { get; }
+
+    private string lastSentHash = string.Empty;
 
     public LocalizedString? LastError
     {
@@ -49,13 +53,26 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
     }
 
     public string? UserGravatarUrl =>
-        User?.Email != null ? $"https://www.gravatar.com/avatar/{GetEmailHash()}?s=100&d=initials" : null;
+        User?.EmailHash != null ? $"https://www.gravatar.com/avatar/{User.EmailHash}?s=100&d=initials" : null;
+
+    private string currentEmail = string.Empty;
+    public string CurrentEmail
+    {
+        get => currentEmail;
+        set
+        {
+            if (SetProperty(ref currentEmail, value))
+            {
+                NotifyProperties();
+            }
+        }
+    }
 
     public UserViewModel(ViewModelMain owner) : base(owner)
     {
-        RequestLoginCommand = new AsyncRelayCommand<string>(RequestLogin);
+        RequestLoginCommand = new AsyncRelayCommand<string>(RequestLogin, CanRequestLogin);
         TryValidateSessionCommand = new AsyncRelayCommand(TryValidateSession);
-        ResendActivationCommand = new AsyncRelayCommand(ResendActivation, CanResendActivation);
+        ResendActivationCommand = new AsyncRelayCommand<string>(ResendActivation, CanResendActivation);
         LogoutCommand = new AsyncRelayCommand(Logout);
 
         string baseUrl = BuildConstants.PixiEditorApiUrl;
@@ -97,7 +114,8 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             if (session != null)
             {
                 LastError = null;
-                User = new User(email) { SessionId = session.Value };
+                User = new User { SessionId = session.Value, EmailHash = GetEmailHash(email) };
+                lastSentHash = User.EmailHash;
                 NotifyProperties();
                 SaveUserInfo();
             }
@@ -112,9 +130,21 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    public async Task ResendActivation()
+    public bool CanRequestLogin(string email)
+    {
+        return !string.IsNullOrEmpty(email) && email.Contains('@');
+    }
+
+    public async Task ResendActivation(string email)
     {
         if (!apiValid) return;
+
+        string emailHash = GetEmailHash(email);
+        if (User?.EmailHash != emailHash)
+        {
+            await RequestLogin(email);
+            return;
+        }
 
         if (User?.SessionId == null)
         {
@@ -123,7 +153,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
         try
         {
-            await PixiAuthClient.ResendActivation(User.Email, User.SessionId.Value);
+            await PixiAuthClient.ResendActivation(User.SessionId.Value);
             TimeToEndTimeout = DateTime.Now.Add(TimeSpan.FromSeconds(60));
             RunTimeoutTimers(60);
             NotifyProperties();
@@ -163,8 +193,15 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         }, TimeSpan.FromSeconds(1));
     }
 
-    public bool CanResendActivation()
+    public bool CanResendActivation(string email)
     {
+        if (email == null || User?.EmailHash == null)
+        {
+            return false;
+        }
+
+        if (User?.EmailHash != GetEmailHash(email)) return true;
+
         return WaitingForActivation && TimeToEndTimeout == null;
     }
 
@@ -179,8 +216,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
         try
         {
-            (string? token, DateTime? expirationDate) =
-                await PixiAuthClient.RefreshToken(User.SessionId.Value, User.SessionToken);
+            (string? token, DateTime? expirationDate) = await PixiAuthClient.RefreshToken(User.SessionToken);
 
             if (token != null)
             {
@@ -222,12 +258,22 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         try
         {
             (string? token, DateTime? expirationDate) =
-                await PixiAuthClient.TryClaimSessionToken(User.Email, User.SessionId.Value);
+                await PixiAuthClient.TryClaimSessionToken(User.SessionId.Value);
             if (token != null)
             {
                 LastError = null;
                 User.SessionToken = token;
                 User.SessionExpirationDate = expirationDate;
+                User.Username = GenerateUsername(User.EmailHash);
+                try
+                {
+                    User.Username = await TryFetchUserName(User.EmailHash);
+                }
+                catch
+                {
+                }
+
+                CurrentEmail = null;
                 NotifyProperties();
                 SaveUserInfo();
                 return true;
@@ -259,7 +305,6 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        Guid? sessionId = User?.SessionId;
         string? sessionToken = User?.SessionToken;
 
         User = null;
@@ -270,15 +315,13 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
         try
         {
-            await PixiAuthClient.Logout(sessionId.Value, sessionToken);
+            await PixiAuthClient.Logout(sessionToken);
         }
         catch (PixiAuthException authException)
         {
-
         }
         catch (HttpRequestException httpRequestException)
         {
-
         }
     }
 
@@ -299,6 +342,14 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         try
         {
             User = await SecureStorage.GetValueAsync<User>("UserData", null);
+            try
+            {
+                User.Username = await TryFetchUserName(User.EmailHash);
+                NotifyProperties();
+            }
+            catch
+            {
+            }
         }
         catch (Exception e)
         {
@@ -318,12 +369,39 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private string GetEmailHash()
+    private async Task<string> TryFetchUserName(string emailHash)
+    {
+        try
+        {
+            string? username = await Gravatar.GetUsername(emailHash);
+            if (username != null)
+            {
+                return username;
+            }
+        }
+        catch (PixiAuthException authException)
+        {
+            LastError = new LocalizedString(authException.Message);
+        }
+        catch (HttpRequestException httpRequestException)
+        {
+            LastError = new LocalizedString("CONNECTION_ERROR");
+        }
+
+        return GenerateUsername(emailHash);
+    }
+
+    private string GetEmailHash(string email)
     {
         using var sha256 = System.Security.Cryptography.SHA256.Create();
-        byte[] inputBytes = System.Text.Encoding.UTF8.GetBytes(User?.Email.ToLower() ?? string.Empty);
+        byte[] inputBytes = System.Text.Encoding.UTF8.GetBytes(email.ToLower());
         byte[] hashBytes = sha256.ComputeHash(inputBytes);
         return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+    }
+
+    private string GenerateUsername(string emailHash)
+    {
+        return UsernameGenerator.GenerateUsername(emailHash);
     }
 
     private void NotifyProperties()
@@ -336,6 +414,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         OnPropertyChanged(nameof(TimeToEndTimeout));
         OnPropertyChanged(nameof(TimeToEndTimeoutString));
         OnPropertyChanged(nameof(UserGravatarUrl));
+        OnPropertyChanged(nameof(EmailEqualsLastSentMail));
         ResendActivationCommand.NotifyCanExecuteChanged();
     }
 }

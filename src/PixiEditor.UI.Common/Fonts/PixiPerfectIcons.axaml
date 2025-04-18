@@ -185,6 +185,7 @@
         <Setter Property="Padding" Value="0" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="BorderThickness" Value="0" />
     </Style>
 
     <Style Selector="Button.pixi-icon:pointerover">
