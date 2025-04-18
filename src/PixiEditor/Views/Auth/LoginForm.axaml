@@ -18,6 +18,7 @@
             <TextBox Text="{Binding CurrentEmail, Mode=TwoWay}" Watermark="{ui:Translate Key=ENTER_EMAIL}" Name="Email"
                      IsVisible="{Binding !IsLoggedIn}" />
             <Button Name="LoginButton" ui:Translator.Key="LOGIN_LINK"
+                    IsDefault="True"
                     Command="{Binding RequestLoginCommand}"
                     CommandParameter="{Binding ElementName=Email, Path=Text}">
                 <Button.IsVisible>
@@ -78,7 +79,7 @@
             <TextBlock HorizontalAlignment="Center" FontSize="{DynamicResource FontSizeNormal}"
                        ui:Translator.Key="LOGGED_IN_AS">
                 <Run Text="" />
-                <Run Text="{Binding User.Username}" />
+                <Run Text="{Binding Username}" />
             </TextBlock>
             <Button
                 Content="{ui:Translate Key=LOGOUT}"

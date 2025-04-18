@@ -16,6 +16,7 @@ public class PixiAuthClient
     {
         httpClient = new HttpClient();
         httpClient.BaseAddress = new Uri(baseUrl);
+        httpClient.Timeout = TimeSpan.FromSeconds(30);
     }
 
     public async Task<Guid?> GenerateSession(string email)

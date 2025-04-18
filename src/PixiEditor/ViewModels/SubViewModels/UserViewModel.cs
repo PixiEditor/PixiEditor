@@ -56,6 +56,8 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         User?.EmailHash != null ? $"https://www.gravatar.com/avatar/{User.EmailHash}?s=100&d=initials" : null;
 
     private string currentEmail = string.Empty;
+    private string username;
+
     public string CurrentEmail
     {
         get => currentEmail;
@@ -65,6 +67,15 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             {
                 NotifyProperties();
             }
+        }
+    }
+
+    public string Username
+    {
+        get => username;
+        set
+        {
+            SetProperty(ref username, value);
         }
     }
 
@@ -111,10 +122,12 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         try
         {
             Guid? session = await PixiAuthClient.GenerateSession(email);
+            string hash = GetEmailHash(email);
             if (session != null)
             {
                 LastError = null;
-                User = new User { SessionId = session.Value, EmailHash = GetEmailHash(email) };
+                Username = null;
+                User = new User { SessionId = session.Value, EmailHash = hash, Username = GenerateUsername(hash) };
                 lastSentHash = User.EmailHash;
                 NotifyProperties();
                 SaveUserInfo();
@@ -127,6 +140,10 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         catch (HttpRequestException httpRequestException)
         {
             LastError = new LocalizedString("CONNECTION_ERROR");
+        }
+        catch (TaskCanceledException timeoutException)
+        {
+            LastError = new LocalizedString("CONNECTION_TIMEOUT");
         }
     }
 
@@ -173,6 +190,10 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         catch (HttpRequestException httpRequestException)
         {
             LastError = new LocalizedString("CONNECTION_ERROR");
+        }
+        catch (TaskCanceledException timeoutException)
+        {
+            LastError = new LocalizedString("CONNECTION_TIMEOUT");
         }
     }
 
@@ -242,6 +263,10 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         {
             LastError = new LocalizedString("CONNECTION_ERROR");
         }
+        catch (TaskCanceledException timeoutException)
+        {
+            LastError = new LocalizedString("CONNECTION_TIMEOUT");
+        }
 
         return false;
     }
@@ -264,14 +289,20 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
                 LastError = null;
                 User.SessionToken = token;
                 User.SessionExpirationDate = expirationDate;
-                User.Username = GenerateUsername(User.EmailHash);
-                try
+                Task.Run(async () =>
                 {
+                    string username = User.Username;
                     User.Username = await TryFetchUserName(User.EmailHash);
-                }
-                catch
-                {
-                }
+                    Username = User.Username;
+                    if (username != User.Username)
+                    {
+                        Dispatcher.UIThread.Invoke(() =>
+                        {
+                            NotifyProperties();
+                            SaveUserInfo();
+                        });
+                    }
+                });
 
                 CurrentEmail = null;
                 NotifyProperties();
@@ -293,6 +324,10 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         catch (HttpRequestException httpRequestException)
         {
             LastError = new LocalizedString("CONNECTION_ERROR");
+        }
+        catch (TaskCanceledException timeoutException)
+        {
+            LastError = new LocalizedString("CONNECTION_TIMEOUT");
         }
 
         return false;
@@ -323,6 +358,9 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         catch (HttpRequestException httpRequestException)
         {
         }
+        catch (TaskCanceledException timeoutException)
+        {
+        }
     }
 
     public async Task SaveUserInfo()
@@ -345,6 +383,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             try
             {
                 User.Username = await TryFetchUserName(User.EmailHash);
+                Username = User.Username;
                 NotifyProperties();
             }
             catch
@@ -386,6 +425,10 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         catch (HttpRequestException httpRequestException)
         {
             LastError = new LocalizedString("CONNECTION_ERROR");
+        }
+        catch (TaskCanceledException timeoutException)
+        {
+            LastError = new LocalizedString("CONNECTION_TIMEOUT");
         }
 
         return GenerateUsername(emailHash);
