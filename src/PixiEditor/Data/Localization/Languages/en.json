@@ -783,7 +783,7 @@
   "PATH_TOOL_TOOLTIP": "Create vector paths and curves ({0}).",
   "PATH_TOOL_ACTION_DISPLAY": "Click to add a point.",
   "PATH_TOOL_ACTION_DISPLAY_CTRL": "Click on existing point and drag to make it a curve. Tap on a control point to select it.",
-  "PATH_TOOL_ACTION_DISPLAY_SHIFT": "Click on a path to insert a point.",
+  "PATH_TOOL_ACTION_DISPLAY_SHIFT": "Click to create a new layer.",
   "PATH_TOOL_ACTION_DISPLAY_CTRL_SHIFT": "Tap on a control point to add it to the selection.",
   "PATH_TOOL_ACTION_DISPLAY_ALT": "Click on a control point and move to adjust only one side of the curve.",
   "DEFAULT_PATH_LAYER_NAME": "Path",
@@ -1025,5 +1025,12 @@
   "ONB_SHORTCUTS": "Select Your Shortcuts",
   "GRAPH_STATE_UNABLE_TO_CREATE_MEMBER": "Current Node Graph setup disallows creation of a new layer next to the selected one.",
   "PRIMARY_TOOLSET": "Primary Toolset",
-  "OPEN_ONBOARDING_WINDOW": "Open onboarding window"
+  "OPEN_ONBOARDING_WINDOW": "Open onboarding window",
+  "AUTO_SCALE_BACKGROUND": "Auto scale background",
+  "UPDATES": "Updates",
+  "SCENE": "Scene",
+  "CUSTOM_BACKGROUND_SCALE": "Custom background scale",
+  "PRIMARY_BG_COLOR": "Primary background color",
+  "SECONDARY_BG_COLOR": "Secondary background color",
+  "RESET": "Reset"
 }

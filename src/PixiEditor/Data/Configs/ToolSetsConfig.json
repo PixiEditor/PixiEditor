@@ -17,7 +17,12 @@
       "Select",
       "MagicWand",
       "Lasso",
-      "FloodFill",
+      {
+        "ToolName": "FloodFill",
+        "Settings": {
+          "Tolerance": 0
+        }
+      },
       "RasterLine",
       "RasterEllipse",
       "RasterRectangle",

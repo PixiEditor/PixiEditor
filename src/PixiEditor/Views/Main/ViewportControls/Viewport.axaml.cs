@@ -13,6 +13,7 @@ using PixiEditor.ViewModels;
 using PixiEditor.Views.Visuals;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
 using PixiEditor.Helpers.Behaviours;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers.InputDevice;
@@ -113,6 +114,41 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     public static readonly StyledProperty<bool> HighResPreviewProperty =
         AvaloniaProperty.Register<Viewport, bool>(nameof(HighResPreview), true);
+
+    public static readonly StyledProperty<bool> AutoBackgroundScaleProperty = AvaloniaProperty.Register<Viewport, bool>(
+        nameof(AutoBackgroundScale), true);
+
+    public static readonly StyledProperty<double> CustomBackgroundScaleXProperty = AvaloniaProperty.Register<Viewport, double>(
+        nameof(CustomBackgroundScaleX));
+
+    public static readonly StyledProperty<double> CustomBackgroundScaleYProperty = AvaloniaProperty.Register<Viewport, double>(
+        nameof(CustomBackgroundScaleY));
+
+    public static readonly StyledProperty<Bitmap> BackgroundBitmapProperty = AvaloniaProperty.Register<Viewport, Bitmap>(
+        nameof(BackgroundBitmap));
+
+    public Bitmap BackgroundBitmap
+    {
+        get => GetValue(BackgroundBitmapProperty);
+        set => SetValue(BackgroundBitmapProperty, value);
+    }
+
+    public double CustomBackgroundScaleY
+    {
+        get => GetValue(CustomBackgroundScaleYProperty);
+        set => SetValue(CustomBackgroundScaleYProperty, value);
+    }
+    public double CustomBackgroundScaleX
+    {
+        get => GetValue(CustomBackgroundScaleXProperty);
+        set => SetValue(CustomBackgroundScaleXProperty, value);
+    }
+
+    public bool AutoBackgroundScale
+    {
+        get => GetValue(AutoBackgroundScaleProperty);
+        set => SetValue(AutoBackgroundScaleProperty, value);
+    }
 
     public SnappingViewModel SnappingViewModel
     {

@@ -165,9 +165,9 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
     public void DeleteCels()
     {
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        var selected = activeDocument.AnimationDataViewModel.AllCels.Where(x => x.IsSelected).ToArray();
+        var selected = activeDocument?.AnimationDataViewModel?.AllCels.Where(x => x is { IsSelected: true }).ToArray();
 
-        if (activeDocument is null || selected.Length == 0)
+        if (activeDocument is null || selected == null || selected.Length == 0)
             return;
 
         List<Guid> celIds = selected.Select(x => x.Id).ToList();

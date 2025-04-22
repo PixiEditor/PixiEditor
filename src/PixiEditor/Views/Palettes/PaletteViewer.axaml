@@ -122,7 +122,6 @@
                                                           DragDrop.AllowDrop="True" Color="{Binding}"
                                                           Height="24" Width="24" CornerRadius="0"
                                                           DropCommand="{Binding ElementName=paletteControl, Path=DropColorCommand}">
-                                >
                                 <Interaction.Behaviors>
                                     <EventTriggerBehavior EventName="PointerReleased">
                                         <InvokeCommandAction

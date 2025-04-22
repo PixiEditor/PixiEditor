@@ -65,7 +65,7 @@ public class EditableVectorPath
         {
             newPath = new VectorPath();
         }
-        
+
         newPath.FillType = FillType;
 
         foreach (var subShape in subShapes)
@@ -307,7 +307,7 @@ public class EditableVectorPath
         return closest;
     }
 
-    public void AddPointAt(VecD point)
+    public int? AddPointAt(VecD point)
     {
         SubShape targetSubShape = null;
         Verb verb = null;
@@ -321,8 +321,24 @@ public class EditableVectorPath
             }
         }
 
-        targetSubShape?.InsertPointAt((VecF)point, verb);
+        if (targetSubShape != null)
+        {
+            int localIndex = targetSubShape.InsertPointAt((VecF)point, verb);
+            int globalIndex = GetGlobalIndex(targetSubShape, localIndex);
+            return globalIndex;
+        }
+
+        return null;
     }
+
+    /*
+    public void NewSubShape(VecD point)
+    {
+        VecF pointF = (VecF)point;
+        ShapePoint newPoint = new ShapePoint(pointF, 0, new Verb(PathVerb.Move, pointF, pointF, null, null, 0));
+        var newSubShape = new SubShape(new List<ShapePoint>() { newPoint }, false);
+        subShapes.Add(newSubShape);
+    }*/
 
     public void RemoveSubShape(SubShape subShapeContainingIndex)
     {

@@ -9,6 +9,8 @@ public class ControlPointHandle : Handle
 {
     public Handle ConnectedTo { get; set; }
 
+    public override VecD HitSizeMargin { get; set; } = new VecD(10);
+
     public ControlPointHandle(IOverlay owner) : base(owner)
     {
         Size = new VecD(GetResource<double>("AnchorHandleSize"));
