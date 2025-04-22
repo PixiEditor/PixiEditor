@@ -16,6 +16,7 @@
     </Design.DataContext>
     <Button Command="{xaml:Command PixiEditor.Tools.SelectTool, UseProvided=true}"
             CommandParameter="{Binding}"
+            Focusable="False"
             Width="44" Height="34"
             ui:Translator.TooltipLocalizedString="{Binding Tooltip}"
             Background="{DynamicResource ThemeBackgroundBrush1}">
