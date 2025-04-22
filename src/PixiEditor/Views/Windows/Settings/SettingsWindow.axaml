@@ -17,6 +17,7 @@
     xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
     xmlns:settings="clr-namespace:PixiEditor.Views.Windows.Settings"
     xmlns:localization="clr-namespace:PixiEditor.Extensions.Common.Localization;assembly=PixiEditor.Extensions"
+    xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
     mc:Ignorable="d"
     x:Class="PixiEditor.Views.Windows.Settings.SettingsWindow"
     Name="window"
@@ -192,36 +193,6 @@
                                       IsChecked="{Binding SettingsSubViewModel.Tools.EnableSharedToolbar}"
                                       ui:Translator.Key="ENABLE_SHARED_TOOLBAR" />
 
-                            <TextBlock ui:Translator.Key="AUTOMATIC_UPDATES" Classes="h5" />
-
-                            <CheckBox
-                                VerticalAlignment="Center"
-                                IsEnabled="{Binding Path=ShowUpdateTab}"
-                                IsChecked="{Binding SettingsSubViewModel.Update.CheckUpdatesOnStartup}"
-                                ui:Translator.Key="CHECK_FOR_UPDATES"
-                                Classes="leftOffset" />
-
-                            <StackPanel Orientation="Horizontal" Classes="leftOffset">
-                                <Label Target="updateStreamComboBox" ui:Translator.Key="UPDATE_STREAM"
-                                       VerticalAlignment="Center" />
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
-                                            HorizontalAlignment="Left">
-                                    <ComboBox Width="110"
-                                              Name="updateStreamComboBox"
-                                              VerticalAlignment="Center"
-                                              IsEnabled="{Binding Path=ShowUpdateTab}"
-                                              ItemsSource="{Binding SettingsSubViewModel.Update.UpdateChannels}"
-                                              SelectedValue="{Binding SettingsSubViewModel.Update.UpdateChannelName}" />
-                                    <Image Cursor="Help"
-                                           Source="/Images/Commands/PixiEditor/Links/OpenDocumentation.png"
-                                           VerticalAlignment="Center"
-                                           ToolTip.ShowDelay="0"
-                                           IsVisible="{Binding !ShowUpdateTab}"
-                                           ui:Translator.TooltipKey="UPDATE_CHANNEL_HELP_TOOLTIP" />
-                                    <!-- ToolTipService.InitialShowDelay="0"-->
-                                </StackPanel>
-                            </StackPanel>
-
                             <TextBlock ui:Translator.Key="DEBUG" Classes="h5" />
                             <CheckBox Classes="leftOffset"
                                       IsChecked="{Binding SettingsSubViewModel.General.IsDebugModeEnabled}"
@@ -331,10 +302,101 @@
                         <!--Background="{StaticResource AccentColor}"-->
                         <controls:FixedSizeStackPanel Orientation="Vertical" ChildSize="32"
                                                       VerticalChildrenAlignment="Center" Margin="12">
+                            <TextBlock ui:Translator.Key="AUTOMATIC_UPDATES" Classes="h5" />
+
+                            <CheckBox
+                                VerticalAlignment="Center"
+                                IsEnabled="{Binding Path=ShowUpdateTab}"
+                                IsChecked="{Binding SettingsSubViewModel.Update.CheckUpdatesOnStartup}"
+                                ui:Translator.Key="CHECK_FOR_UPDATES"
+                                Classes="leftOffset" />
+
+                            <StackPanel Orientation="Horizontal" Classes="leftOffset">
+                                <Label Target="updateStreamComboBox" ui:Translator.Key="UPDATE_STREAM"
+                                       VerticalAlignment="Center" />
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                                            HorizontalAlignment="Left">
+                                    <ComboBox Width="110"
+                                              Name="updateStreamComboBox"
+                                              VerticalAlignment="Center"
+                                              IsEnabled="{Binding Path=ShowUpdateTab}"
+                                              ItemsSource="{Binding SettingsSubViewModel.Update.UpdateChannels}"
+                                              SelectedValue="{Binding SettingsSubViewModel.Update.UpdateChannelName}" />
+                                    <Image Cursor="Help"
+                                           Source="/Images/Commands/PixiEditor/Links/OpenDocumentation.png"
+                                           VerticalAlignment="Center"
+                                           ToolTip.ShowDelay="0"
+                                           IsVisible="{Binding !ShowUpdateTab}"
+                                           ui:Translator.TooltipKey="UPDATE_CHANNEL_HELP_TOOLTIP" />
+                                    <!-- ToolTipService.InitialShowDelay="0"-->
+                                </StackPanel>
+                            </StackPanel>
+                        </controls:FixedSizeStackPanel>
+                    </ScrollViewer>
+
+                    <ScrollViewer>
+                        <ScrollViewer.IsVisible>
+                            <Binding Path="CurrentPage" Converter="{converters:IsEqualConverter}">
+                                <Binding.ConverterParameter>
+                                    <sys:Int32>4</sys:Int32>
+                                </Binding.ConverterParameter>
+                            </Binding>
+                        </ScrollViewer.IsVisible>
+                        <!--Background="{StaticResource AccentColor}"-->
+                        <controls:FixedSizeStackPanel Orientation="Vertical" ChildSize="32"
+                                                      VerticalChildrenAlignment="Center" Margin="12">
 
                             <CheckBox Classes="leftOffset" Width="200" HorizontalAlignment="Left"
                                       ui:Translator.Key="OPEN_DIRECTORY_ON_EXPORT"
                                       IsChecked="{Binding SettingsSubViewModel.File.OpenDirectoryOnExport}" />
+                        </controls:FixedSizeStackPanel>
+                    </ScrollViewer>
+                    <ScrollViewer>
+                        <ScrollViewer.IsVisible>
+                            <Binding Path="CurrentPage" Converter="{converters:IsEqualConverter}">
+                                <Binding.ConverterParameter>
+                                    <sys:Int32>5</sys:Int32>
+                                </Binding.ConverterParameter>
+                            </Binding>
+                        </ScrollViewer.IsVisible>
+                        <!--Background="{StaticResource AccentColor}"-->
+                        <controls:FixedSizeStackPanel Orientation="Vertical" ChildSize="32"
+                                                      VerticalChildrenAlignment="Center" Margin="12">
+
+                            <TextBlock ui:Translator.Key="BACKGROUND" Classes="h4" />
+
+                            <CheckBox Classes="leftOffset" Width="200" HorizontalAlignment="Left"
+                                      ui:Translator.Key="AUTO_SCALE_BACKGROUND"
+                                      IsChecked="{Binding SettingsSubViewModel.Scene.AutoScaleBackground}" />
+
+                            <TextBlock ui:Translator.Key="CUSTOM_BACKGROUND_SCALE" Classes="h5" />
+                            <StackPanel Spacing="5" Orientation="Horizontal" Classes="leftOffset">
+                                <Label Content="X" />
+                                <input:SizeInput MinSize="0.5" Decimals="1"
+                                                 Size="{Binding SettingsSubViewModel.Scene.CustomBackgroundScaleX, Mode=TwoWay}"
+                                                 HorizontalAlignment="Left" />
+                                <Label Content="Y" />
+                                <input:SizeInput MinSize="0.5" Decimals="1"
+                                                 Size="{Binding SettingsSubViewModel.Scene.CustomBackgroundScaleY, Mode=TwoWay}"
+                                                 HorizontalAlignment="Left" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <TextBlock ui:Translator.Key="PRIMARY_BG_COLOR" />
+                                <colorPicker:PortableColorPicker Width="40" Height="20" EnableGradientsTab="False"
+                                                                 SelectedColor="{Binding SettingsSubViewModel.Scene.PrimaryBackgroundColor, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <TextBlock ui:Translator.Key="SECONDARY_BG_COLOR" />
+                                <colorPicker:PortableColorPicker Width="40" Height="20" EnableGradientsTab="False"
+                                                                 SelectedColor="{Binding SettingsSubViewModel.Scene.SecondaryBackgroundColor, Mode=TwoWay}" />
+                            </StackPanel>
+
+                            <Button
+                                Command="{Binding SettingsSubViewModel.Scene.ResetBackgroundCommand}"
+                                d:Content="Reset"
+                                Background="{DynamicResource ThemeAccentBrush}"
+                                ui:Translator.Key="RESET" />
                         </controls:FixedSizeStackPanel>
                     </ScrollViewer>
                 </Grid>

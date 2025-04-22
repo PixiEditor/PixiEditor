@@ -13,11 +13,11 @@ internal partial class SizeInput : UserControl
     public static readonly StyledProperty<double> SizeProperty =
         AvaloniaProperty.Register<SizeInput, double>(nameof(Size), defaultValue: 1);
 
-    public static readonly StyledProperty<int> MinSizeProperty = AvaloniaProperty.Register<SizeInput, int>(
+    public static readonly StyledProperty<double> MinSizeProperty = AvaloniaProperty.Register<SizeInput, double>(
         nameof(MinSize), defaultValue: 1);
 
-    public static readonly StyledProperty<int> MaxSizeProperty =
-        AvaloniaProperty.Register<SizeInput, int>(nameof(MaxSize), defaultValue: int.MaxValue);
+    public static readonly StyledProperty<double> MaxSizeProperty =
+        AvaloniaProperty.Register<SizeInput, double>(nameof(MaxSize), defaultValue: double.MaxValue);
 
     public static readonly StyledProperty<bool> BehaveLikeSmallEmbeddedFieldProperty =
         AvaloniaProperty.Register<SizeInput, bool>(nameof(BehaveLikeSmallEmbeddedField), defaultValue: true);
@@ -58,13 +58,13 @@ internal partial class SizeInput : UserControl
         set => SetValue(SizeProperty, value);
     }
 
-    public int MinSize
+    public double MinSize
     {
         get => GetValue(MinSizeProperty);
         set => SetValue(MinSizeProperty, value);
     }
 
-    public int MaxSize
+    public double MaxSize
     {
         get => (int)GetValue(MaxSizeProperty);
         set => SetValue(MaxSizeProperty, value);

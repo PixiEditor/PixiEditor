@@ -137,26 +137,26 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
 
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
-        bool allClosed = WholePathClosed();
-        if (!isValidPathLayer || allClosed)
+        if (args.KeyModifiers.HasFlag(KeyModifiers.Shift) || NeedsNewLayer(member, document.AnimationHandler.ActiveFrameTime))
         {
-            if (NeedsNewLayer(document.SelectedStructureMember, document.AnimationHandler.ActiveFrameTime))
-            {
-                Guid? created =
-                    document.Operations.CreateStructureMember(typeof(VectorLayerNode), ActionSource.Automated);
+            Guid? created =
+                document.Operations.CreateStructureMember(typeof(VectorLayerNode), ActionSource.Automated);
 
-                if (created is null) return;
+            if (created is null) return;
 
-                document.Operations.SetSelectedMember(created.Value);
-            }
+            document.Operations.SetSelectedMember(created.Value);
         }
     }
 
-    private bool WholePathClosed()
+    private bool NeedsNewLayer(IStructureMemberHandler? member, KeyFrameTime frameTime)
     {
-        EditableVectorPath editablePath = new EditableVectorPath(startingPath);
+        var shapeData = (member as IVectorLayerHandler).GetShapeData(frameTime);
+        if (shapeData is null)
+        {
+            return false;
+        }
 
-        return editablePath.SubShapes.Count > 0 && editablePath.SubShapes.All(x => x.IsClosed);
+        return shapeData is not IReadOnlyPathData pathData;
     }
 
     public override void OnLeftMouseButtonUp(VecD pos)
@@ -205,7 +205,8 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
     private void AddToUndo(VectorPath path)
     {
         internals.ActionAccumulator.AddFinishedActions(new EndSetShapeGeometry_Action(),
-            new SetShapeGeometry_Action(member.Id, ConstructShapeData(path), VectorShapeChangeType.GeometryData), new EndSetShapeGeometry_Action());
+            new SetShapeGeometry_Action(member.Id, ConstructShapeData(path), VectorShapeChangeType.GeometryData),
+            new EndSetShapeGeometry_Action());
     }
 
     private PathVectorData ConstructShapeData(VectorPath? path)
@@ -257,17 +258,6 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         document!.SnappingHandler.SnappingController.HighlightedXAxis = snapX;
         document!.SnappingHandler.SnappingController.HighlightedYAxis = snapY;
         document.SnappingHandler.SnappingController.HighlightedPoint = null;
-    }
-
-    private bool NeedsNewLayer(IStructureMemberHandler? member, KeyFrameTime frameTime)
-    {
-        var shapeData = (member as IVectorLayerHandler).GetShapeData(frameTime);
-        if (shapeData is null)
-        {
-            return false;
-        }
-
-        return shapeData is not IReadOnlyPathData pathData || pathData.Path.IsClosed;
     }
 
     private void ApplySettings(PathVectorData pathData)

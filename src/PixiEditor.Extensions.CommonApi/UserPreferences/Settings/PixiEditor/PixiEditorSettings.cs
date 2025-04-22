@@ -71,4 +71,15 @@ public static class PixiEditorSettings
     {
         public static SyncedSetting<bool> AnalyticsEnabled { get; } = SyncedSetting.NonOwned(PixiEditor, true);
     }
+
+    public static class Scene
+    {
+        public static SyncedSetting<bool> AutoScaleBackground { get; } = SyncedSetting.NonOwned(PixiEditor, PreferencesConstants.AutoScaleBackgroundDefault, PreferencesConstants.AutoScaleBackground);
+        public static SyncedSetting<double> CustomBackgroundScaleX { get; } = SyncedSetting.NonOwned(PixiEditor, PreferencesConstants.CustomBackgroundScaleDefault, PreferencesConstants.CustomBackgroundScaleX);
+        public static SyncedSetting<double> CustomBackgroundScaleY { get; } = SyncedSetting.NonOwned(PixiEditor, PreferencesConstants.CustomBackgroundScaleDefault, PreferencesConstants.CustomBackgroundScaleY);
+
+        public static SyncedSetting<string> PrimaryBackgroundColor { get; } = SyncedSetting.NonOwned(PixiEditor, PreferencesConstants.PrimaryBackgroundColorDefault, PreferencesConstants.PrimaryBackgroundColor);
+        public static SyncedSetting<string> SecondaryBackgroundColor { get; } = SyncedSetting.NonOwned(PixiEditor, PreferencesConstants.SecondaryBackgroundColorDefault, PreferencesConstants.SecondaryBackgroundColor);
+
+    }
 }

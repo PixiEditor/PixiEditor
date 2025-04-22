@@ -51,9 +51,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         AvaloniaProperty.Register<Scene, ObservableCollection<Overlay>>(
             nameof(AllOverlays));
 
-    public static readonly StyledProperty<string> CheckerImagePathProperty = AvaloniaProperty.Register<Scene, string>(
-        nameof(CheckerImagePath));
-
     public static readonly StyledProperty<Cursor> DefaultCursorProperty = AvaloniaProperty.Register<Scene, Cursor>(
         nameof(DefaultCursor));
 
@@ -65,6 +62,42 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         AvaloniaProperty.Register<Scene, SceneRenderer>(
             nameof(SceneRenderer));
 
+    public static readonly StyledProperty<bool> AutoBackgroundScaleProperty = AvaloniaProperty.Register<Scene, bool>(
+        nameof(AutoBackgroundScale), true);
+
+    public bool AutoBackgroundScale
+    {
+        get => GetValue(AutoBackgroundScaleProperty);
+        set => SetValue(AutoBackgroundScaleProperty, value);
+    }
+
+    public static readonly StyledProperty<double> CustomBackgroundScaleXProperty = AvaloniaProperty.Register<Scene, double>(
+        nameof(CustomBackgroundScaleX));
+
+    public double CustomBackgroundScaleX
+    {
+        get => GetValue(CustomBackgroundScaleXProperty);
+        set => SetValue(CustomBackgroundScaleXProperty, value);
+    }
+
+    public static readonly StyledProperty<double> CustomBackgroundScaleYProperty = AvaloniaProperty.Register<Scene, double>(
+        nameof(CustomBackgroundScaleY));
+
+    public double CustomBackgroundScaleY
+    {
+        get => GetValue(CustomBackgroundScaleYProperty);
+        set => SetValue(CustomBackgroundScaleYProperty, value);
+    }
+
+    public static readonly StyledProperty<Bitmap> BackgroundBitmapProperty = AvaloniaProperty.Register<Scene, Bitmap>(
+        nameof(BackgroundBitmap));
+
+    public Bitmap BackgroundBitmap
+    {
+        get => GetValue(BackgroundBitmapProperty);
+        set => SetValue(BackgroundBitmapProperty, value);
+    }
+
     public SceneRenderer SceneRenderer
     {
         get => GetValue(SceneRendererProperty);
@@ -75,12 +108,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         get => GetValue(DefaultCursorProperty);
         set => SetValue(DefaultCursorProperty, value);
-    }
-
-    public string CheckerImagePath
-    {
-        get => GetValue(CheckerImagePathProperty);
-        set => SetValue(CheckerImagePathProperty, value);
     }
 
     public ObservableCollection<Overlay> AllOverlays
@@ -112,9 +139,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         get { return (string)GetValue(RenderOutputProperty); }
         set { SetValue(RenderOutputProperty, value); }
     }
-
-
-    private Bitmap? checkerBitmap;
 
     private Overlay? capturedOverlay;
 
@@ -150,16 +174,20 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty, ScaleProperty, AngleRadiansProperty,
             FlipXProperty,
-            FlipYProperty, DocumentProperty, AllOverlaysProperty, ContentDimensionsProperty);
+            FlipYProperty, DocumentProperty, AllOverlaysProperty, ContentDimensionsProperty,
+            AutoBackgroundScaleProperty, CustomBackgroundScaleXProperty, CustomBackgroundScaleYProperty);
 
         FadeOutProperty.Changed.AddClassHandler<Scene>(FadeOutChanged);
-        CheckerImagePathProperty.Changed.AddClassHandler<Scene>(CheckerImagePathChanged);
         AllOverlaysProperty.Changed.AddClassHandler<Scene>(ActiveOverlaysChanged);
         DefaultCursorProperty.Changed.AddClassHandler<Scene>(DefaultCursorChanged);
         ChannelsProperty.Changed.AddClassHandler<Scene>(Refresh);
         DocumentProperty.Changed.AddClassHandler<Scene>(DocumentChanged);
         FlipXProperty.Changed.AddClassHandler<Scene>(Refresh);
         FlipYProperty.Changed.AddClassHandler<Scene>(Refresh);
+        AutoBackgroundScaleProperty.Changed.AddClassHandler<Scene>(Refresh);
+        CustomBackgroundScaleXProperty.Changed.AddClassHandler<Scene>(Refresh);
+        CustomBackgroundScaleYProperty.Changed.AddClassHandler<Scene>(Refresh);
+        BackgroundBitmapProperty.Changed.AddClassHandler<Scene>(Refresh);
     }
 
     private static void Refresh(Scene scene, AvaloniaPropertyChangedEventArgs args)
@@ -276,18 +304,21 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private void DrawCheckerboard(DrawingSurface surface, RectD dirtyBounds)
     {
-        if (checkerBitmap == null) return;
+        if (BackgroundBitmap == null) return;
 
         RectD operationSurfaceRectToRender = new RectD(0, 0, dirtyBounds.Width, dirtyBounds.Height);
-        float checkerScale = (float)ZoomToViewportConverter.ZoomToViewport(16, Scale) * 0.5f;
+        VecD checkerScale = AutoBackgroundScale
+            ? new VecD(ZoomToViewportConverter.ZoomToViewport(16, Scale) * 0.5f)
+            : new VecD(CustomBackgroundScaleX, CustomBackgroundScaleY);
+        checkerScale = new VecD(Math.Max(0.5, checkerScale.X), Math.Max(0.5, checkerScale.Y));
         checkerPaint?.Shader?.Dispose();
         checkerPaint?.Dispose();
         checkerPaint = new Paint
         {
             Shader = Shader.CreateBitmap(
-                checkerBitmap,
+                BackgroundBitmap,
                 TileMode.Repeat, TileMode.Repeat,
-                Matrix3X3.CreateScale(checkerScale, checkerScale)),
+                Matrix3X3.CreateScale((float)checkerScale.X, (float)checkerScale.Y)),
             FilterQuality = FilterQuality.None
         };
 
@@ -760,18 +791,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         if (e.NewValue is ObservableCollection<Overlay> newOverlays)
         {
             newOverlays.CollectionChanged += scene.OverlayCollectionChanged;
-        }
-    }
-
-    private static void CheckerImagePathChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
-    {
-        if (e.NewValue is string path)
-        {
-            scene.checkerBitmap = ImagePathToBitmapConverter.LoadDrawingApiBitmapFromRelativePath(path);
-        }
-        else
-        {
-            scene.checkerBitmap = null;
         }
     }
 
