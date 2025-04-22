@@ -15,6 +15,8 @@ internal class SettingsViewModel : SubViewModel<SettingsWindowViewModel>
 
     public DiscordSettings Discord { get; set; } = new();
 
+    public SceneSettings Scene { get; set; } = new();
+
     public SettingsViewModel(SettingsWindowViewModel owner)
         : base(owner)
     {

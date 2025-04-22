@@ -40,6 +40,9 @@
         SnappingEnabled="{Binding ViewportSubViewModel.SnappingEnabled, Source={viewModels1:MainVM}, Mode=TwoWay}"
         AvailableRenderOutputs="{Binding ActiveDocument.NodeGraph.AvailableRenderOutputs, Source={viewModels1:MainVM DocumentManagerSVM}}"
         ViewportRenderOutput="{Binding RenderOutputName, Mode=TwoWay}"
+        AutoBackgroundScale="{Binding AutoScaleBackground, Mode=OneWay}"
+        CustomBackgroundScaleX="{Binding CustomBackgroundScaleX, Mode=OneWay}"
+        CustomBackgroundScaleY="{Binding CustomBackgroundScaleY, Mode=OneWay}"
         HudVisible="{Binding HudVisible}"
         Document="{Binding Document}">
     </viewportControls:Viewport>

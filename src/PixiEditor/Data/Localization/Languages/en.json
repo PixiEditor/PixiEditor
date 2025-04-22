@@ -1025,5 +1025,9 @@
   "ONB_SHORTCUTS": "Select Your Shortcuts",
   "GRAPH_STATE_UNABLE_TO_CREATE_MEMBER": "Current Node Graph setup disallows creation of a new layer next to the selected one.",
   "PRIMARY_TOOLSET": "Primary Toolset",
-  "OPEN_ONBOARDING_WINDOW": "Open onboarding window"
+  "OPEN_ONBOARDING_WINDOW": "Open onboarding window",
+  "AUTO_SCALE_BACKGROUND": "Auto scale background",
+  "UPDATES": "Updates",
+  "SCENE": "Scene",
+  "CUSTOM_BACKGROUND_SCALE": "Custom background scale",
 }

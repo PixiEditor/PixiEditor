@@ -43,9 +43,10 @@
                                         PassEventArgsToCommand="True"/>
             </EventTriggerBehavior>-->
         </Interaction.Behaviors>
-        <overlays:TogglableFlyout IsVisible="{Binding HudVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}" 
-                                  Margin="5" Icon="{DynamicResource icon-tool}"
-                                  ZIndex="2" HorizontalAlignment="Right" VerticalAlignment="Top">
+        <overlays:TogglableFlyout
+            IsVisible="{Binding HudVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
+            Margin="5" Icon="{DynamicResource icon-tool}"
+            ZIndex="2" HorizontalAlignment="Right" VerticalAlignment="Top">
             <overlays:TogglableFlyout.Child>
                 <Border Padding="5"
                         CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -112,7 +113,7 @@
                                           IsChecked="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
                                           Content="{DynamicResource icon-y-flip}"
                                           Cursor="Hand" />
-                            <ToggleButton  Width="32" Height="32"
+                            <ToggleButton Width="32" Height="32"
                                           ui:Translator.TooltipKey="FLIP_VIEWPORT_VERTICALLY"
                                           Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
@@ -135,7 +136,7 @@
                         </StackPanel>
                         <Separator />
                         <TextBlock HorizontalAlignment="Center"
-                                   ui:Translator.Key="GRIDLINES_SIZE" Margin="0 0 0 10"/>
+                                   ui:Translator.Key="GRIDLINES_SIZE" Margin="0 0 0 10" />
                         <input:NumberInput Min="1"
                                            Max="1024"
                                            Value="{Binding GridLinesXSize, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
@@ -160,7 +161,8 @@
                 </Border>
             </overlays:TogglableFlyout.Child>
         </overlays:TogglableFlyout>
-        <Grid IsVisible="{Binding HudVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
+        <Grid
+            IsVisible="{Binding HudVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
             ZIndex="100" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition MinHeight="40" MaxHeight="120" />
@@ -206,6 +208,9 @@
             FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
             DefaultCursor="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolCursor, Mode=OneWay}"
             RenderOutput="{Binding ViewportRenderOutput, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
+            AutoBackgroundScale="{Binding AutoBackgroundScale, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
+            CustomBackgroundScaleX="{Binding CustomBackgroundScaleX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
+            CustomBackgroundScaleY="{Binding CustomBackgroundScaleY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             CheckerImagePath="/Images/CheckerTile.png"
             PointerPressed="Scene_OnContextMenuOpening"
             ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}">

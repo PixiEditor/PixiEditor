@@ -114,6 +114,32 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     public static readonly StyledProperty<bool> HighResPreviewProperty =
         AvaloniaProperty.Register<Viewport, bool>(nameof(HighResPreview), true);
 
+    public static readonly StyledProperty<bool> AutoBackgroundScaleProperty = AvaloniaProperty.Register<Viewport, bool>(
+        nameof(AutoBackgroundScale), true);
+
+    public static readonly StyledProperty<double> CustomBackgroundScaleXProperty = AvaloniaProperty.Register<Viewport, double>(
+        nameof(CustomBackgroundScaleX));
+
+    public static readonly StyledProperty<double> CustomBackgroundScaleYProperty = AvaloniaProperty.Register<Viewport, double>(
+        nameof(CustomBackgroundScaleY));
+
+    public double CustomBackgroundScaleY
+    {
+        get => GetValue(CustomBackgroundScaleYProperty);
+        set => SetValue(CustomBackgroundScaleYProperty, value);
+    }
+    public double CustomBackgroundScaleX
+    {
+        get => GetValue(CustomBackgroundScaleXProperty);
+        set => SetValue(CustomBackgroundScaleXProperty, value);
+    }
+
+    public bool AutoBackgroundScale
+    {
+        get => GetValue(AutoBackgroundScaleProperty);
+        set => SetValue(AutoBackgroundScaleProperty, value);
+    }
+
     public SnappingViewModel SnappingViewModel
     {
         get => GetValue(SnappingViewModelProperty);

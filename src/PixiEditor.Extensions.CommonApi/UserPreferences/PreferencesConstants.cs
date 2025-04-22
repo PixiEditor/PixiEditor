@@ -33,6 +33,14 @@ public static class PreferencesConstants
 
     public const string AnalyticsEnabled = "AnalyticsEnabled";
     public const bool AnalyticsEnabledDefault = true;
+
     public const string PrimaryToolset = "PrimaryToolset";
     public const string PrimaryToolsetDefault = "PAINT_TOOLSET";
+
+    public const string AutoScaleBackground = "AutoScaleBackground";
+    public const bool AutoScaleBackgroundDefault = true;
+
+    public const string CustomBackgroundScaleX = "CustomBackgroundScaleX";
+    public const string CustomBackgroundScaleY = "CustomBackgroundScaleY";
+    public const double CustomBackgroundScaleDefault = 16;
 }

@@ -5,6 +5,8 @@ using PixiDocks.Core.Docking.Events;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.DocumentModels;
 using Drawie.Numerics;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
@@ -91,6 +93,39 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         }
     }
 
+    private bool autoScaleBackground = true;
+    public bool AutoScaleBackground
+    {
+        get => autoScaleBackground;
+        set
+        {
+            autoScaleBackground = value;
+            OnPropertyChanged(nameof(AutoScaleBackground));
+        }
+    }
+
+    private double customBackgroundScaleX = 16;
+    public double CustomBackgroundScaleX
+    {
+        get => customBackgroundScaleX;
+        set
+        {
+            customBackgroundScaleX = value;
+            OnPropertyChanged(nameof(CustomBackgroundScaleX));
+        }
+    }
+
+    private double customBackgroundScaleY = 16;
+    public double CustomBackgroundScaleY
+    {
+        get => customBackgroundScaleY;
+        set
+        {
+            customBackgroundScaleY = value;
+            OnPropertyChanged(nameof(CustomBackgroundScaleY));
+        }
+    }
+
     private PreviewPainterControl previewPainterControl;
 
     public void IndexChanged()
@@ -106,6 +141,15 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         Document = document;
         Document.SizeChanged += DocumentOnSizeChanged;
         Document.PropertyChanged += DocumentOnPropertyChanged;
+
+        AutoScaleBackground = PixiEditorSettings.Scene.AutoScaleBackground.Value;
+        CustomBackgroundScaleX = PixiEditorSettings.Scene.CustomBackgroundScaleX.Value;
+        CustomBackgroundScaleY = PixiEditorSettings.Scene.CustomBackgroundScaleY.Value;
+
+        PixiEditorSettings.Scene.AutoScaleBackground.ValueChanged += UpdateAutoScaleBackground;
+        PixiEditorSettings.Scene.CustomBackgroundScaleX.ValueChanged += UpdateCustomBackgroundScaleX;
+        PixiEditorSettings.Scene.CustomBackgroundScaleY.ValueChanged += UpdateCustomBackgroundScaleY;
+
         previewPainterControl = new PreviewPainterControl(Document.PreviewPainter,
             Document.AnimationDataViewModel.ActiveFrameTime.Frame);
         TabCustomizationSettings.Icon = previewPainterControl;
@@ -132,12 +176,6 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         }
     }
 
-    ~ViewportWindowViewModel()
-    {
-        Document.SizeChanged -= DocumentOnSizeChanged;
-        Document.PropertyChanged -= DocumentOnPropertyChanged;
-    }
-
     private void DocumentOnSizeChanged(object? sender, DocumentSizeChangedEventArgs e)
     {
         previewPainterControl.QueueNextFrame();
@@ -154,11 +192,35 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
                 {
                     _closeRequested =
                         await Owner.OnViewportWindowCloseButtonPressed(this);
+                    if (_closeRequested)
+                    {
+                        Document.SizeChanged -= DocumentOnSizeChanged;
+                        Document.PropertyChanged -= DocumentOnPropertyChanged;
+
+                        PixiEditorSettings.Scene.AutoScaleBackground.ValueChanged -= UpdateAutoScaleBackground;
+                        PixiEditorSettings.Scene.CustomBackgroundScaleX.ValueChanged -= UpdateCustomBackgroundScaleX;
+                        PixiEditorSettings.Scene.CustomBackgroundScaleY.ValueChanged -= UpdateCustomBackgroundScaleY;
+                    }
                 });
             });
         }
 
         return _closeRequested;
+    }
+
+    private void UpdateAutoScaleBackground(Setting<bool> setting, bool newValue)
+    {
+        AutoScaleBackground = newValue;
+    }
+
+    private void UpdateCustomBackgroundScaleX(Setting<double> setting, double newValue)
+    {
+        CustomBackgroundScaleX = newValue;
+    }
+
+    private void UpdateCustomBackgroundScaleY(Setting<double> setting, double newValue)
+    {
+        CustomBackgroundScaleY = newValue;
     }
 
     private static SavedState GetSaveState(DocumentViewModel document)
@@ -186,4 +248,5 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     {
         Owner.Owner.ShortcutController.ClearContext(GetType());
     }
+
 }

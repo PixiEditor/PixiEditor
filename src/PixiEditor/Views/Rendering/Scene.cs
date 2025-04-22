@@ -65,6 +65,33 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         AvaloniaProperty.Register<Scene, SceneRenderer>(
             nameof(SceneRenderer));
 
+    public static readonly StyledProperty<bool> AutoBackgroundScaleProperty = AvaloniaProperty.Register<Scene, bool>(
+        nameof(AutoBackgroundScale), true);
+
+    public bool AutoBackgroundScale
+    {
+        get => GetValue(AutoBackgroundScaleProperty);
+        set => SetValue(AutoBackgroundScaleProperty, value);
+    }
+
+    public static readonly StyledProperty<double> CustomBackgroundScaleXProperty = AvaloniaProperty.Register<Scene, double>(
+        nameof(CustomBackgroundScaleX));
+
+    public double CustomBackgroundScaleX
+    {
+        get => GetValue(CustomBackgroundScaleXProperty);
+        set => SetValue(CustomBackgroundScaleXProperty, value);
+    }
+
+    public static readonly StyledProperty<double> CustomBackgroundScaleYProperty = AvaloniaProperty.Register<Scene, double>(
+        nameof(CustomBackgroundScaleY));
+
+    public double CustomBackgroundScaleY
+    {
+        get => GetValue(CustomBackgroundScaleYProperty);
+        set => SetValue(CustomBackgroundScaleYProperty, value);
+    }
+
     public SceneRenderer SceneRenderer
     {
         get => GetValue(SceneRendererProperty);
@@ -113,7 +140,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         set { SetValue(RenderOutputProperty, value); }
     }
 
-
     private Bitmap? checkerBitmap;
 
     private Overlay? capturedOverlay;
@@ -150,7 +176,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty, ScaleProperty, AngleRadiansProperty,
             FlipXProperty,
-            FlipYProperty, DocumentProperty, AllOverlaysProperty, ContentDimensionsProperty);
+            FlipYProperty, DocumentProperty, AllOverlaysProperty, ContentDimensionsProperty,
+            AutoBackgroundScaleProperty, CustomBackgroundScaleXProperty, CustomBackgroundScaleYProperty);
 
         FadeOutProperty.Changed.AddClassHandler<Scene>(FadeOutChanged);
         CheckerImagePathProperty.Changed.AddClassHandler<Scene>(CheckerImagePathChanged);
@@ -160,6 +187,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         DocumentProperty.Changed.AddClassHandler<Scene>(DocumentChanged);
         FlipXProperty.Changed.AddClassHandler<Scene>(Refresh);
         FlipYProperty.Changed.AddClassHandler<Scene>(Refresh);
+        AutoBackgroundScaleProperty.Changed.AddClassHandler<Scene>(Refresh);
+        CustomBackgroundScaleXProperty.Changed.AddClassHandler<Scene>(Refresh);
+        CustomBackgroundScaleYProperty.Changed.AddClassHandler<Scene>(Refresh);
     }
 
     private static void Refresh(Scene scene, AvaloniaPropertyChangedEventArgs args)
@@ -279,7 +309,10 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         if (checkerBitmap == null) return;
 
         RectD operationSurfaceRectToRender = new RectD(0, 0, dirtyBounds.Width, dirtyBounds.Height);
-        float checkerScale = (float)ZoomToViewportConverter.ZoomToViewport(16, Scale) * 0.5f;
+        VecD checkerScale = AutoBackgroundScale
+            ? new VecD(ZoomToViewportConverter.ZoomToViewport(16, Scale) * 0.5f)
+            : new VecD(CustomBackgroundScaleX, CustomBackgroundScaleY);
+        checkerScale = new VecD(Math.Max(0.5, checkerScale.X), Math.Max(0.5, checkerScale.Y));
         checkerPaint?.Shader?.Dispose();
         checkerPaint?.Dispose();
         checkerPaint = new Paint
@@ -287,7 +320,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             Shader = Shader.CreateBitmap(
                 checkerBitmap,
                 TileMode.Repeat, TileMode.Repeat,
-                Matrix3X3.CreateScale(checkerScale, checkerScale)),
+                Matrix3X3.CreateScale((float)checkerScale.X, (float)checkerScale.Y)),
             FilterQuality = FilterQuality.None
         };
 
