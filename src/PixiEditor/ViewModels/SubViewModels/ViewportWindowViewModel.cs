@@ -1,10 +1,16 @@
 ﻿using System.ComponentModel;
 using Avalonia.Threading;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiDocks.Core.Docking;
 using PixiDocks.Core.Docking.Events;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.DocumentModels;
 using Drawie.Numerics;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
@@ -91,6 +97,50 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         }
     }
 
+    private bool autoScaleBackground = true;
+    public bool AutoScaleBackground
+    {
+        get => autoScaleBackground;
+        set
+        {
+            autoScaleBackground = value;
+            OnPropertyChanged(nameof(AutoScaleBackground));
+        }
+    }
+
+    private double customBackgroundScaleX = 16;
+    public double CustomBackgroundScaleX
+    {
+        get => customBackgroundScaleX;
+        set
+        {
+            customBackgroundScaleX = value;
+            OnPropertyChanged(nameof(CustomBackgroundScaleX));
+        }
+    }
+
+    private double customBackgroundScaleY = 16;
+    public double CustomBackgroundScaleY
+    {
+        get => customBackgroundScaleY;
+        set
+        {
+            customBackgroundScaleY = value;
+            OnPropertyChanged(nameof(CustomBackgroundScaleY));
+        }
+    }
+
+    private Bitmap backgroundBitmap;
+    public Bitmap BackgroundBitmap
+    {
+        get => backgroundBitmap;
+        set
+        {
+            backgroundBitmap = value;
+            OnPropertyChanged(nameof(BackgroundBitmap));
+        }
+    }
+
     private PreviewPainterControl previewPainterControl;
 
     public void IndexChanged()
@@ -106,6 +156,20 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         Document = document;
         Document.SizeChanged += DocumentOnSizeChanged;
         Document.PropertyChanged += DocumentOnPropertyChanged;
+
+        AutoScaleBackground = PixiEditorSettings.Scene.AutoScaleBackground.Value;
+        CustomBackgroundScaleX = PixiEditorSettings.Scene.CustomBackgroundScaleX.Value;
+        CustomBackgroundScaleY = PixiEditorSettings.Scene.CustomBackgroundScaleY.Value;
+        BackgroundBitmap = BitmapFromColors(
+            PixiEditorSettings.Scene.PrimaryBackgroundColor.Value,
+            PixiEditorSettings.Scene.SecondaryBackgroundColor.Value);
+
+        PixiEditorSettings.Scene.AutoScaleBackground.ValueChanged += UpdateAutoScaleBackground;
+        PixiEditorSettings.Scene.CustomBackgroundScaleX.ValueChanged += UpdateCustomBackgroundScaleX;
+        PixiEditorSettings.Scene.CustomBackgroundScaleY.ValueChanged += UpdateCustomBackgroundScaleY;
+        PixiEditorSettings.Scene.PrimaryBackgroundColor.ValueChanged += UpdateBackgroundBitmap;
+        PixiEditorSettings.Scene.SecondaryBackgroundColor.ValueChanged += UpdateBackgroundBitmap;
+
         previewPainterControl = new PreviewPainterControl(Document.PreviewPainter,
             Document.AnimationDataViewModel.ActiveFrameTime.Frame);
         TabCustomizationSettings.Icon = previewPainterControl;
@@ -132,12 +196,6 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         }
     }
 
-    ~ViewportWindowViewModel()
-    {
-        Document.SizeChanged -= DocumentOnSizeChanged;
-        Document.PropertyChanged -= DocumentOnPropertyChanged;
-    }
-
     private void DocumentOnSizeChanged(object? sender, DocumentSizeChangedEventArgs e)
     {
         previewPainterControl.QueueNextFrame();
@@ -154,11 +212,64 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
                 {
                     _closeRequested =
                         await Owner.OnViewportWindowCloseButtonPressed(this);
+                    if (_closeRequested)
+                    {
+                        Document.SizeChanged -= DocumentOnSizeChanged;
+                        Document.PropertyChanged -= DocumentOnPropertyChanged;
+
+                        PixiEditorSettings.Scene.AutoScaleBackground.ValueChanged -= UpdateAutoScaleBackground;
+                        PixiEditorSettings.Scene.CustomBackgroundScaleX.ValueChanged -= UpdateCustomBackgroundScaleX;
+                        PixiEditorSettings.Scene.CustomBackgroundScaleY.ValueChanged -= UpdateCustomBackgroundScaleY;
+                        PixiEditorSettings.Scene.PrimaryBackgroundColor.ValueChanged -= UpdateBackgroundBitmap;
+                        PixiEditorSettings.Scene.SecondaryBackgroundColor.ValueChanged -= UpdateBackgroundBitmap;
+                    }
                 });
             });
         }
 
         return _closeRequested;
+    }
+
+    private void UpdateAutoScaleBackground(Setting<bool> setting, bool newValue)
+    {
+        AutoScaleBackground = newValue;
+    }
+
+    private void UpdateCustomBackgroundScaleX(Setting<double> setting, double newValue)
+    {
+        CustomBackgroundScaleX = newValue;
+    }
+
+    private void UpdateCustomBackgroundScaleY(Setting<double> setting, double newValue)
+    {
+        CustomBackgroundScaleY = newValue;
+    }
+
+    private void UpdateBackgroundBitmap(Setting<string> setting, string newValue)
+    {
+        BackgroundBitmap?.Dispose();
+        BackgroundBitmap = BitmapFromColors(
+            PixiEditorSettings.Scene.PrimaryBackgroundColor.Value,
+            PixiEditorSettings.Scene.SecondaryBackgroundColor.Value);
+    }
+
+    private static Bitmap BitmapFromColors(string primaryHex, string secondaryHex)
+    {
+        Color primary = Color.FromHex(primaryHex);
+        Color secondary = Color.FromHex(secondaryHex);
+
+        Surface surface = Surface.ForDisplay(new VecI(2, 2));
+        surface.DrawingSurface.Canvas.Clear(primary);
+        using Paint secondaryPaint = new Paint
+        {
+            Color = secondary,
+            Style = PaintStyle.Fill
+        };
+        surface.DrawingSurface.Canvas.DrawRect(1, 0, 1, 1, secondaryPaint);
+        surface.DrawingSurface.Canvas.DrawRect(0, 1, 1, 1, secondaryPaint);
+
+        using var snapshot = surface.DrawingSurface.Snapshot();
+        return Bitmap.FromImage(snapshot);
     }
 
     private static SavedState GetSaveState(DocumentViewModel document)
@@ -186,4 +297,5 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     {
         Owner.Owner.ShortcutController.ClearContext(GetType());
     }
+
 }

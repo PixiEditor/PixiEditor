@@ -515,7 +515,7 @@ public class VectorPathOverlay : Overlay
             return;
         }
 
-        if (args.Modifiers == KeyModifiers.Shift && IsOverPath(args.Point, out VecD closestPoint))
+        if (IsOverPath(args.Point, out VecD closestPoint))
         {
             AddPointAt(closestPoint);
             AddToUndoCommand.Execute(Path);
@@ -530,7 +530,7 @@ public class VectorPathOverlay : Overlay
 
     protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
-        if (args.Modifiers == KeyModifiers.Shift && IsOverPath(args.Point, out VecD closestPoint))
+        if (IsOverPath(args.Point, out VecD closestPoint))
         {
             insertPreviewHandle.Position = closestPoint;
             canInsert = true;
@@ -554,7 +554,13 @@ public class VectorPathOverlay : Overlay
 
         if (subShape.IsClosed)
         {
-            return false;
+            var path = editableVectorPath.ToVectorPath();
+            VectorPath newShape = new VectorPath();
+            newShape.MoveTo((VecF)point);
+            path.AddPath(newShape, AddPathMode.Append);
+            Path = path;
+            SelectAnchor(anchorHandles.Last());
+            return true;
         }
 
         if (Path.IsEmpty)
@@ -575,8 +581,9 @@ public class VectorPathOverlay : Overlay
 
     private void AddPointAt(VecD point)
     {
-        editableVectorPath.AddPointAt(point);
+        int? insertedAt = editableVectorPath.AddPointAt(point);
         Path = editableVectorPath.ToVectorPath();
+        SelectAnchor(insertedAt is > 0 && insertedAt.Value < anchorHandles.Count ? anchorHandles[insertedAt.Value] : anchorHandles.Last());
     }
 
     private bool IsOverPath(VecD point, out VecD closestPoint)
@@ -593,6 +600,7 @@ public class VectorPathOverlay : Overlay
         {
             SnappingController.RemoveAll($"editingPath[{anchorHandles.IndexOf(anchorHandle)}]");
             CaptureHandle(source);
+            canInsert = false;
             args.Handled = true;
         }
     }

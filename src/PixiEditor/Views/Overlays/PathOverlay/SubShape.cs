@@ -52,7 +52,7 @@ public class SubShape
             {
                 previousPoint.Verb.To = nextPoint.Position;
             }
-            
+
             for (int j = i + 1; j < points.Count; j++)
             {
                 points[j].Index--;
@@ -70,8 +70,8 @@ public class SubShape
         }
 
         points.RemoveAt(i);
-        
-        if(points.Count < 3)
+
+        if (points.Count < 3)
         {
             IsClosed = false;
         }
@@ -128,7 +128,7 @@ public class SubShape
         }
     }
 
-    public void InsertPointAt(VecF point, Verb pointVerb)
+    public int InsertPointAt(VecF point, Verb pointVerb)
     {
         int indexOfVerb = this.points.FirstOrDefault(x => x.Verb == pointVerb)?.Index ?? -1;
         if (indexOfVerb == -1)
@@ -187,6 +187,8 @@ public class SubShape
         {
             this.points[i].Index++;
         }
+
+        return indexOfVerb + 1;
     }
 
     public VecD? GetClosestPointOnPath(VecD point, float maxDistanceInPixels)

@@ -33,6 +33,21 @@ public static class PreferencesConstants
 
     public const string AnalyticsEnabled = "AnalyticsEnabled";
     public const bool AnalyticsEnabledDefault = true;
+
     public const string PrimaryToolset = "PrimaryToolset";
     public const string PrimaryToolsetDefault = "PAINT_TOOLSET";
+
+    public const string AutoScaleBackground = "AutoScaleBackground";
+    public const bool AutoScaleBackgroundDefault = true;
+
+    public const string CustomBackgroundScaleX = "CustomBackgroundScaleX";
+    public const string CustomBackgroundScaleY = "CustomBackgroundScaleY";
+    public const double CustomBackgroundScaleDefault = 16;
+
+    public const string PrimaryBackgroundColorDefault = "#616161";
+    public const string PrimaryBackgroundColor = "PrimaryBackgroundColor";
+
+    public const string SecondaryBackgroundColorDefault = "#353535";
+    public const string SecondaryBackgroundColor = "SecondaryBackgroundColor";
+
 }

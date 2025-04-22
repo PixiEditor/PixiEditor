@@ -42,6 +42,7 @@
                 <RowDefinition Height="10" />
                 <RowDefinition Height="26" />
             </Grid.RowDefinitions>
+            <Panel Grid.ColumnSpan="2" Grid.RowSpan="2" Name="BackgroundGrid" Background="Transparent" DragDrop.AllowDrop="True"/>
             <Grid DragDrop.AllowDrop="True"
                   Name="TopGrid"
                   Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent" />

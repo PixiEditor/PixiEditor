@@ -89,6 +89,7 @@ internal partial class LayerControl : UserControl
         TopGrid.AddHandler(DragDrop.DragEnterEvent, Grid_DragEnter);
         TopGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_DragLeave);
         TopGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Top);
+        BackgroundGrid.AddHandler(DragDrop.DropEvent, BackgroundGrid_Drop);
         dropBelowGrid.AddHandler(DragDrop.DragEnterEvent, Grid_DragEnter);
         dropBelowGrid.AddHandler(DragDrop.DragLeaveEvent, Grid_DragLeave);
         dropBelowGrid.AddHandler(DragDrop.DropEvent, Grid_Drop_Below);
@@ -136,6 +137,11 @@ internal partial class LayerControl : UserControl
             RemoveDragEffect(item);
     }
 
+    private void BackgroundGrid_Drop(object sender, DragEventArgs e)
+    {
+        e.Handled = true;
+    }
+
     public static Guid[]? ExtractMemberGuids(IDataObject droppedMemberDataObject)
     {
         object droppedLayer = droppedMemberDataObject.Get(LayersManager.LayersDataName);
@@ -163,7 +169,7 @@ internal partial class LayerControl : UserControl
         if (Layer is null)
             return false;
 
-        if(placement is StructureMemberPlacement.Below or StructureMemberPlacement.BelowOutsideFolder)
+        if (placement is StructureMemberPlacement.Below or StructureMemberPlacement.BelowOutsideFolder)
         {
             droppedMemberGuids = droppedMemberGuids.Reverse().ToArray();
         }

@@ -52,8 +52,8 @@ internal sealed class RotateImage_Change : Change
                     }
                 }
             }
-            
-            if(frame != null && (bounds == null || bounds.Value.IsZeroArea)) return false;
+
+            if (frame != null && (bounds == null || bounds.Value.IsZeroArea)) return false;
         }
 
         originalSize = target.Size;
@@ -83,7 +83,7 @@ internal sealed class RotateImage_Change : Change
                 bounds = preciseBounds.Value;
             }
         }
-        
+
         if (bounds.IsZeroArea)
         {
             return;
@@ -167,10 +167,8 @@ internal sealed class RotateImage_Change : Change
                     }
                     else
                     {
-                        layer.ForEveryFrame(img =>
-                        {
-                            Resize(img, layer.Id, deletedChunks, changes);
-                        });
+                        var img = layer.GetLayerImageAtFrame(0);
+                        Resize(img, layer.Id, deletedChunks, changes);
                     }
                 }
                 else if (member is ITransformableObject transformableObject)
@@ -216,9 +214,9 @@ internal sealed class RotateImage_Change : Change
                 }
                 else
                 {
-                    layer.ForEveryFrame(img =>
+                    layer.ForEveryFrame((img, id) =>
                     {
-                        Resize(img, layer.Id, deletedChunks, null);
+                        Resize(img, id, deletedChunks, null);
                     });
                 }
             }
@@ -245,7 +243,32 @@ internal sealed class RotateImage_Change : Change
     private OneOf<None, IChangeInfo, List<IChangeInfo>> RevertRotateWholeImage(Document target)
     {
         target.Size = originalSize;
-        RevertRotateMembers(target);
+        List<IChangeInfo> revertChanges = new List<IChangeInfo>();
+        target.ForEveryMember((member) =>
+        {
+            if (membersToRotate.Count > 0 && !membersToRotate.Contains(member.Id)) return;
+            if (member is ImageLayerNode layer)
+            {
+                if (frame != null)
+                {
+                    RevertFrame(layer, frame.Value, revertChanges);
+                }
+                else
+                {
+                    layer.ForEveryFrame((img, id) =>
+                    {
+                        RevertFrame(img, id, revertChanges);
+                    });
+                }
+            }
+
+            if (member.EmbeddedMask is null)
+                return;
+
+            RevertMask(member, revertChanges);
+        });
+
+        DisposeDeletedChunks();
 
         target.HorizontalSymmetryAxisY = originalHorAxisY;
         target.VerticalSymmetryAxisX = originalVerAxisX;
@@ -261,36 +284,42 @@ internal sealed class RotateImage_Change : Change
             if (membersToRotate.Count > 0 && !membersToRotate.Contains(member.Id)) return;
             if (member is ImageLayerNode layer)
             {
-                if (frame != null)
-                {
-                    var layerImage = layer.GetLayerImageAtFrame(frame.Value);
-                    layerImage.EnqueueResize(originalSize);
-                    deletedChunks[layer.Id].ApplyChunksToImage(layerImage);
-                    revertChanges.Add(new LayerImageArea_ChangeInfo(layer.Id, layerImage.FindAffectedArea()));
-                    layerImage.CommitChanges();
-                }
-                else
-                {
-                    layer.ForEveryFrame(img =>
-                    {
-                        img.EnqueueResize(originalSize);
-                        deletedChunks[layer.Id].ApplyChunksToImage(img);
-                        revertChanges.Add(new LayerImageArea_ChangeInfo(layer.Id, img.FindAffectedArea()));
-                        img.CommitChanges();
-                    });
-                }
+                RevertFrame(layer, frame ?? 0, revertChanges);
             }
 
             if (member.EmbeddedMask is null)
                 return;
-            member.EmbeddedMask.EnqueueResize(originalSize);
-            deletedMaskChunks[member.Id].ApplyChunksToImage(member.EmbeddedMask);
-            revertChanges.Add(new LayerImageArea_ChangeInfo(member.Id, member.EmbeddedMask.FindAffectedArea()));
-            member.EmbeddedMask.CommitChanges();
+            RevertMask(member, revertChanges);
         });
 
         DisposeDeletedChunks();
         return revertChanges;
+    }
+
+
+    private void RevertFrame(ImageLayerNode layer, int targetFrame, List<IChangeInfo> revertChanges)
+    {
+        RevertFrame(layer.GetLayerImageAtFrame(targetFrame), layer.Id, revertChanges);
+    }
+
+    private void RevertFrame(ChunkyImage img, Guid id, List<IChangeInfo> revertChanges)
+    {
+        img.EnqueueResize(originalSize);
+        if (deletedChunks.ContainsKey(id))
+        {
+            deletedChunks[id].ApplyChunksToImage(img);
+        }
+
+        revertChanges.Add(new LayerImageArea_ChangeInfo(id, img.FindAffectedArea()));
+        img.CommitChanges();
+    }
+
+    private void RevertMask(StructureNode member, List<IChangeInfo> revertChanges)
+    {
+        member.EmbeddedMask.EnqueueResize(originalSize);
+        deletedMaskChunks[member.Id].ApplyChunksToImage(member.EmbeddedMask);
+        revertChanges.Add(new LayerImageArea_ChangeInfo(member.Id, member.EmbeddedMask.FindAffectedArea()));
+        member.EmbeddedMask.CommitChanges();
     }
 
     private void DisposeDeletedChunks()
