@@ -137,7 +137,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
 
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
-        if (args.KeyModifiers.HasFlag(KeyModifiers.Shift))
+        if (args.KeyModifiers.HasFlag(KeyModifiers.Shift) || NeedsNewLayer(member, document.AnimationHandler.ActiveFrameTime))
         {
             Guid? created =
                 document.Operations.CreateStructureMember(typeof(VectorLayerNode), ActionSource.Automated);
@@ -148,11 +148,15 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
         }
     }
 
-    private bool WholePathClosed()
+    private bool NeedsNewLayer(IStructureMemberHandler? member, KeyFrameTime frameTime)
     {
-        EditableVectorPath editablePath = new EditableVectorPath(startingPath);
+        var shapeData = (member as IVectorLayerHandler).GetShapeData(frameTime);
+        if (shapeData is null)
+        {
+            return false;
+        }
 
-        return editablePath.SubShapes.Count > 0 && editablePath.SubShapes.All(x => x.IsClosed);
+        return shapeData is not IReadOnlyPathData pathData;
     }
 
     public override void OnLeftMouseButtonUp(VecD pos)
