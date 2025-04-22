@@ -344,7 +344,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         CanExecute = "PixiEditor.Tools.CanChangeToolSize", Key = Key.OemOpenBrackets, AnalyticsTrack = true)]
     public void ChangeToolSize(double increment)
     {
-        if (ActiveTool?.Toolbar is not IToolSizeToolbar toolbar)
+        if (ActiveTool?.Toolbar is not IToolSizeToolbar toolbar || !CanChangeToolSize())
             return;
         double newSize = toolbar.ToolSize + increment;
         if (newSize > 0)
