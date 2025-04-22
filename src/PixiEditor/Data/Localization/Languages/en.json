@@ -783,7 +783,7 @@
   "PATH_TOOL_TOOLTIP": "Create vector paths and curves ({0}).",
   "PATH_TOOL_ACTION_DISPLAY": "Click to add a point.",
   "PATH_TOOL_ACTION_DISPLAY_CTRL": "Click on existing point and drag to make it a curve. Tap on a control point to select it.",
-  "PATH_TOOL_ACTION_DISPLAY_SHIFT": "Click on a path to insert a point.",
+  "PATH_TOOL_ACTION_DISPLAY_SHIFT": "Click to create a new layer.",
   "PATH_TOOL_ACTION_DISPLAY_CTRL_SHIFT": "Tap on a control point to add it to the selection.",
   "PATH_TOOL_ACTION_DISPLAY_ALT": "Click on a control point and move to adjust only one side of the curve.",
   "DEFAULT_PATH_LAYER_NAME": "Path",
