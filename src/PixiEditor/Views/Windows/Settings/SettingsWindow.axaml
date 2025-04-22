@@ -17,6 +17,7 @@
     xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
     xmlns:settings="clr-namespace:PixiEditor.Views.Windows.Settings"
     xmlns:localization="clr-namespace:PixiEditor.Extensions.Common.Localization;assembly=PixiEditor.Extensions"
+    xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
     mc:Ignorable="d"
     x:Class="PixiEditor.Views.Windows.Settings.SettingsWindow"
     Name="window"
@@ -379,6 +380,23 @@
                                                  Size="{Binding SettingsSubViewModel.Scene.CustomBackgroundScaleY, Mode=TwoWay}"
                                                  HorizontalAlignment="Left" />
                             </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <TextBlock ui:Translator.Key="PRIMARY_BG_COLOR" />
+                                <colorPicker:PortableColorPicker Width="40" Height="20" EnableGradientsTab="False"
+                                                                 SelectedColor="{Binding SettingsSubViewModel.Scene.PrimaryBackgroundColor, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <TextBlock ui:Translator.Key="SECONDARY_BG_COLOR" />
+                                <colorPicker:PortableColorPicker Width="40" Height="20" EnableGradientsTab="False"
+                                                                 SelectedColor="{Binding SettingsSubViewModel.Scene.SecondaryBackgroundColor, Mode=TwoWay}" />
+                            </StackPanel>
+
+                            <Button
+                                Command="{Binding SettingsSubViewModel.Scene.ResetBackgroundCommand}"
+                                d:Content="Reset"
+                                Background="{DynamicResource ThemeAccentBrush}"
+                                ui:Translator.Key="RESET" />
                         </controls:FixedSizeStackPanel>
                     </ScrollViewer>
                 </Grid>

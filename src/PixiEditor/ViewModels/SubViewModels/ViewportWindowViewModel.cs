@@ -1,5 +1,9 @@
 ﻿using System.ComponentModel;
 using Avalonia.Threading;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.PaintImpl;
 using PixiDocks.Core.Docking;
 using PixiDocks.Core.Docking.Events;
 using PixiEditor.Helpers.UI;
@@ -126,6 +130,17 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         }
     }
 
+    private Bitmap backgroundBitmap;
+    public Bitmap BackgroundBitmap
+    {
+        get => backgroundBitmap;
+        set
+        {
+            backgroundBitmap = value;
+            OnPropertyChanged(nameof(BackgroundBitmap));
+        }
+    }
+
     private PreviewPainterControl previewPainterControl;
 
     public void IndexChanged()
@@ -145,10 +160,15 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         AutoScaleBackground = PixiEditorSettings.Scene.AutoScaleBackground.Value;
         CustomBackgroundScaleX = PixiEditorSettings.Scene.CustomBackgroundScaleX.Value;
         CustomBackgroundScaleY = PixiEditorSettings.Scene.CustomBackgroundScaleY.Value;
+        BackgroundBitmap = BitmapFromColors(
+            PixiEditorSettings.Scene.PrimaryBackgroundColor.Value,
+            PixiEditorSettings.Scene.SecondaryBackgroundColor.Value);
 
         PixiEditorSettings.Scene.AutoScaleBackground.ValueChanged += UpdateAutoScaleBackground;
         PixiEditorSettings.Scene.CustomBackgroundScaleX.ValueChanged += UpdateCustomBackgroundScaleX;
         PixiEditorSettings.Scene.CustomBackgroundScaleY.ValueChanged += UpdateCustomBackgroundScaleY;
+        PixiEditorSettings.Scene.PrimaryBackgroundColor.ValueChanged += UpdateBackgroundBitmap;
+        PixiEditorSettings.Scene.SecondaryBackgroundColor.ValueChanged += UpdateBackgroundBitmap;
 
         previewPainterControl = new PreviewPainterControl(Document.PreviewPainter,
             Document.AnimationDataViewModel.ActiveFrameTime.Frame);
@@ -200,6 +220,8 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
                         PixiEditorSettings.Scene.AutoScaleBackground.ValueChanged -= UpdateAutoScaleBackground;
                         PixiEditorSettings.Scene.CustomBackgroundScaleX.ValueChanged -= UpdateCustomBackgroundScaleX;
                         PixiEditorSettings.Scene.CustomBackgroundScaleY.ValueChanged -= UpdateCustomBackgroundScaleY;
+                        PixiEditorSettings.Scene.PrimaryBackgroundColor.ValueChanged -= UpdateBackgroundBitmap;
+                        PixiEditorSettings.Scene.SecondaryBackgroundColor.ValueChanged -= UpdateBackgroundBitmap;
                     }
                 });
             });
@@ -221,6 +243,33 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     private void UpdateCustomBackgroundScaleY(Setting<double> setting, double newValue)
     {
         CustomBackgroundScaleY = newValue;
+    }
+
+    private void UpdateBackgroundBitmap(Setting<string> setting, string newValue)
+    {
+        BackgroundBitmap?.Dispose();
+        BackgroundBitmap = BitmapFromColors(
+            PixiEditorSettings.Scene.PrimaryBackgroundColor.Value,
+            PixiEditorSettings.Scene.SecondaryBackgroundColor.Value);
+    }
+
+    private static Bitmap BitmapFromColors(string primaryHex, string secondaryHex)
+    {
+        Color primary = Color.FromHex(primaryHex);
+        Color secondary = Color.FromHex(secondaryHex);
+
+        Surface surface = Surface.ForDisplay(new VecI(2, 2));
+        surface.DrawingSurface.Canvas.Clear(primary);
+        using Paint secondaryPaint = new Paint
+        {
+            Color = secondary,
+            Style = PaintStyle.Fill
+        };
+        surface.DrawingSurface.Canvas.DrawRect(1, 0, 1, 1, secondaryPaint);
+        surface.DrawingSurface.Canvas.DrawRect(0, 1, 1, 1, secondaryPaint);
+
+        using var snapshot = surface.DrawingSurface.Snapshot();
+        return Bitmap.FromImage(snapshot);
     }
 
     private static SavedState GetSaveState(DocumentViewModel document)

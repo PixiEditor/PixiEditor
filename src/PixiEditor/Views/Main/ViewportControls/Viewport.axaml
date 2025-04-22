@@ -211,7 +211,7 @@
             AutoBackgroundScale="{Binding AutoBackgroundScale, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             CustomBackgroundScaleX="{Binding CustomBackgroundScaleX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             CustomBackgroundScaleY="{Binding CustomBackgroundScaleY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
-            CheckerImagePath="/Images/CheckerTile.png"
+            BackgroundBitmap="{Binding BackgroundBitmap, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             PointerPressed="Scene_OnContextMenuOpening"
             ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}">
             <rendering:Scene.ContextFlyout>

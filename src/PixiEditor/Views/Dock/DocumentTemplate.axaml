@@ -43,6 +43,7 @@
         AutoBackgroundScale="{Binding AutoScaleBackground, Mode=OneWay}"
         CustomBackgroundScaleX="{Binding CustomBackgroundScaleX, Mode=OneWay}"
         CustomBackgroundScaleY="{Binding CustomBackgroundScaleY, Mode=OneWay}"
+        BackgroundBitmap="{Binding BackgroundBitmap, Mode=OneWay}"
         HudVisible="{Binding HudVisible}"
         Document="{Binding Document}">
     </viewportControls:Viewport>

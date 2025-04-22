@@ -43,4 +43,11 @@ public static class PreferencesConstants
     public const string CustomBackgroundScaleX = "CustomBackgroundScaleX";
     public const string CustomBackgroundScaleY = "CustomBackgroundScaleY";
     public const double CustomBackgroundScaleDefault = 16;
+
+    public const string PrimaryBackgroundColorDefault = "#616161";
+    public const string PrimaryBackgroundColor = "PrimaryBackgroundColor";
+
+    public const string SecondaryBackgroundColorDefault = "#353535";
+    public const string SecondaryBackgroundColor = "SecondaryBackgroundColor";
+
 }
