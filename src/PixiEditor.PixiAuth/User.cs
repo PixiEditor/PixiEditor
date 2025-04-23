@@ -9,6 +9,8 @@ public class User
     public string? SessionToken { get; set; } = string.Empty;
     public DateTime? SessionExpirationDate { get; set; }
 
+    public List<string> OwnedProducts { get; set; } = new();
+
     public User()
     {
 

@@ -1052,5 +1052,6 @@
   "CUSTOM_BACKGROUND_SCALE": "Custom background scale",
   "PRIMARY_BG_COLOR": "Primary background color",
   "SECONDARY_BG_COLOR": "Secondary background color",
-  "RESET": "Reset"
+  "RESET": "Reset",
+  "INSTALL": "Install"
 }

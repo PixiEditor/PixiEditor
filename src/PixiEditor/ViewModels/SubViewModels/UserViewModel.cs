@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Extensions.Common.Localization;
@@ -25,6 +26,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
     public AsyncRelayCommand TryValidateSessionCommand { get; }
     public AsyncRelayCommand<string> ResendActivationCommand { get; }
     public AsyncRelayCommand LogoutCommand { get; }
+    public AsyncRelayCommand<string> InstallContentCommand { get; }
 
     private string lastSentHash = string.Empty;
 
@@ -55,6 +57,8 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
     public string? UserGravatarUrl =>
         User?.EmailHash != null ? $"https://www.gravatar.com/avatar/{User.EmailHash}?s=100&d=initials" : null;
 
+    public ObservableCollection<string> OwnedProducts { get; private set; } = new ObservableCollection<string>();
+
     private string currentEmail = string.Empty;
     private string username;
 
@@ -84,6 +88,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         RequestLoginCommand = new AsyncRelayCommand<string>(RequestLogin, CanRequestLogin);
         TryValidateSessionCommand = new AsyncRelayCommand(TryValidateSession);
         ResendActivationCommand = new AsyncRelayCommand<string>(ResendActivation, CanResendActivation);
+        InstallContentCommand = new AsyncRelayCommand<string>(InstallContent);
         LogoutCommand = new AsyncRelayCommand(Logout);
 
         string baseUrl = BuildConstants.PixiEditorApiUrl;
@@ -289,6 +294,14 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
                 LastError = null;
                 User.SessionToken = token;
                 User.SessionExpirationDate = expirationDate;
+                var products = await PixiAuthClient.GetOwnedProducts(User.SessionToken);
+                if (products != null)
+                {
+                    User.OwnedProducts = products;
+                    OwnedProducts = new ObservableCollection<string>(User.OwnedProducts);
+                    NotifyProperties();
+                }
+
                 Task.Run(async () =>
                 {
                     string username = User.Username;
@@ -343,6 +356,9 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         string? sessionToken = User?.SessionToken;
 
         User = null;
+        LastError = null;
+        OwnedProducts.Clear();
+        Username = string.Empty;
         NotifyProperties();
         SaveUserInfo();
 
@@ -360,6 +376,48 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         }
         catch (TaskCanceledException timeoutException)
         {
+        }
+    }
+
+    public async Task InstallContent(string productId)
+    {
+        if (!apiValid) return;
+
+        if (User?.SessionToken == null)
+        {
+            LastError = new LocalizedString("NOT_LOGGED_IN");
+            return;
+        }
+
+        try
+        {
+            var stream = await PixiAuthClient.DownloadProduct(User.SessionToken, productId);
+            if (stream != null)
+            {
+                var packagesPath = Owner.ExtensionsSubViewModel.ExtensionLoader.PackagesPath;
+                var filePath = Path.Combine(packagesPath, $"{productId}.pixiext");
+                await using (var fileStream = File.Create(filePath))
+                {
+                    await stream.CopyToAsync(fileStream);
+                }
+
+                await stream.DisposeAsync();
+
+                Owner.ExtensionsSubViewModel.LoadExtensionAdHoc(filePath);
+                LastError = null;
+            }
+        }
+        catch (PixiAuthException authException)
+        {
+            LastError = new LocalizedString(authException.Message);
+        }
+        catch (HttpRequestException httpRequestException)
+        {
+            LastError = new LocalizedString("CONNECTION_ERROR");
+        }
+        catch (TaskCanceledException timeoutException)
+        {
+            LastError = new LocalizedString("CONNECTION_TIMEOUT");
         }
     }
 
@@ -383,6 +441,13 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             try
             {
                 User.Username = await TryFetchUserName(User.EmailHash);
+                var products = await PixiAuthClient.GetOwnedProducts(User.SessionToken);
+                if (products != null)
+                {
+                    User.OwnedProducts = products;
+                    OwnedProducts = new ObservableCollection<string>(User.OwnedProducts);
+                }
+
                 Username = User.Username;
                 NotifyProperties();
             }
@@ -458,6 +523,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         OnPropertyChanged(nameof(TimeToEndTimeoutString));
         OnPropertyChanged(nameof(UserGravatarUrl));
         OnPropertyChanged(nameof(EmailEqualsLastSentMail));
+        OnPropertyChanged(nameof(OwnedProducts));
         ResendActivationCommand.NotifyCanExecuteChanged();
     }
 }

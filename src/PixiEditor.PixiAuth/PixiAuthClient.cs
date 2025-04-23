@@ -206,4 +206,110 @@ public class PixiAuthClient
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
         }
     }
+
+    public async Task<bool> OwnsProduct(string token, string productId)
+    {
+        HttpRequestMessage request =
+            new HttpRequestMessage(HttpMethod.Get, $"/session/ownsProduct?productId={productId}");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var response = await httpClient.SendAsync(request);
+
+        if (response.StatusCode == HttpStatusCode.BadRequest)
+        {
+            throw new BadRequestException(await response.Content.ReadAsStringAsync());
+        }
+
+        if (response.StatusCode == HttpStatusCode.InternalServerError)
+        {
+            throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
+        }
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            string result = await response.Content.ReadAsStringAsync();
+            Dictionary<string, string>? resultDict =
+                System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(result);
+            if (resultDict != null && resultDict.TryGetValue("ownsProduct", out string? ownsProductString))
+            {
+                if (bool.TryParse(ownsProductString, out bool ownsProduct))
+                {
+                    return ownsProduct;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public async Task<List<string>> GetOwnedProducts(string token)
+    {
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "/content/getOwnedProducts");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var response = await httpClient.SendAsync(request);
+
+        if (response.StatusCode == HttpStatusCode.BadRequest)
+        {
+            throw new BadRequestException(await response.Content.ReadAsStringAsync());
+        }
+
+        if (response.StatusCode == HttpStatusCode.InternalServerError)
+        {
+            throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
+        }
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            string result = await response.Content.ReadAsStringAsync();
+            List<Dictionary<string, string>>? ownedProducts =
+                System.Text.Json.JsonSerializer.Deserialize<List<Dictionary<string, string>>>(result);
+
+            if (ownedProducts != null)
+            {
+                List<string> productIds = new List<string>();
+                foreach (var ownedProduct in ownedProducts)
+                {
+                    if (ownedProduct.TryGetValue("productId", out string? productId))
+                    {
+                        productIds.Add(productId);
+                    }
+                }
+
+                return productIds;
+            }
+        }
+
+        return new List<string>();
+    }
+
+    public async Task<Stream> DownloadProduct(string token, string productId)
+    {
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"/content/downloadProduct?productId={productId}");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        request.Content = JsonContent.Create(productId);
+
+        var response = await httpClient.SendAsync(request);
+
+        if (response.StatusCode == HttpStatusCode.BadRequest)
+        {
+            throw new BadRequestException(await response.Content.ReadAsStringAsync());
+        }
+
+        if (response.StatusCode == HttpStatusCode.InternalServerError)
+        {
+            throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
+        }
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            var result = await response.Content.ReadAsStreamAsync();
+            if (result != null)
+            {
+                return result;
+            }
+        }
+
+        throw new BadRequestException("DOWNLOAD_FAILED");
+    }
 }

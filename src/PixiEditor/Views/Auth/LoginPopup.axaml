@@ -10,12 +10,29 @@
                          mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                          x:Class="PixiEditor.Views.Auth.LoginPopup"
                          CanMinimize="False"
-                         CanResize="False"
-                         Width="320" Height="190"
+                         CanResize="True"
+                         Width="320" MinHeight="190"
                          ui:Translator.Key="LOGIN_WINDOW_TITLE">
     <Design.DataContext>
         <subViewModels:UserViewModel />
     </Design.DataContext>
 
-    <auth:LoginForm Margin="15" DataContext="{Binding}" />
+    <StackPanel Margin="15" Spacing="5" Orientation="Vertical">
+        <auth:LoginForm DataContext="{Binding}" />
+        <Separator />
+        <TextBlock Text="{ui:Translate Key=OWNED_PRODUCTS}" Classes="h4" />
+        <ItemsControl IsVisible="{Binding !!User}" ItemsSource="{Binding OwnedProducts}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Vertical" Spacing="5">
+                        <TextBlock Text="{Binding }" />
+                    <Button
+                        Content="{ui:Translate Key=INSTALL}"
+                        Command="{Binding DataContext.InstallContentCommand, RelativeSource={RelativeSource AncestorType=auth:LoginPopup, Mode=FindAncestor}}"
+                        CommandParameter="{Binding}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>
 </dialogs:PixiEditorPopup>

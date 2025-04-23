@@ -2,7 +2,12 @@
 
 public partial class FilteringSettings
 {
-    public FilteringSettings(ColorsNumberMode colorsNumberMode, int colorsCount, string name, bool showOnlyFavourites, List<string> favourites)
+    public FilteringSettings()
+    {
+    }
+
+    public FilteringSettings(ColorsNumberMode colorsNumberMode, int colorsCount, string name, bool showOnlyFavourites,
+        List<string> favourites)
     {
         ColorsNumberMode = colorsNumberMode;
         ColorsCount = colorsCount;
@@ -14,7 +19,8 @@ public partial class FilteringSettings
     public bool Filter(IPalette palette)
     {
         // Lexical comparison
-        bool result = string.IsNullOrWhiteSpace(Name) || palette.Name.Contains(Name, StringComparison.OrdinalIgnoreCase);
+        bool result = string.IsNullOrWhiteSpace(Name) ||
+                      palette.Name.Contains(Name, StringComparison.OrdinalIgnoreCase);
 
         if (!result)
         {

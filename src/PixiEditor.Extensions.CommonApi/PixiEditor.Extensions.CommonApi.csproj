@@ -11,11 +11,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="protobuf-net" Version="3.2.45" />
+      <PackageReference Include="protobuf-net" Version="3.2.52" />
     </ItemGroup>
   
   <PropertyGroup>
-    <ProtogenVersion>3.2.42</ProtogenVersion>
+    <ProtogenVersion>3.2.52</ProtogenVersion>
   </PropertyGroup>
   
   <Target Name="ProtogenCheck" BeforeTargets="GenerateProtoContracts">

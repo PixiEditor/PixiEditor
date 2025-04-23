@@ -16,7 +16,8 @@ internal class LocalizationProvider : ILocalizationProvider
 {
     private Language debugLanguage;
 
-    public string LocalizationDataPath { get; } = Path.Combine(Paths.DataResourceUri, "Localization", "LocalizationData.json");
+    public string LocalizationDataPath { get; } =
+        Path.Combine(Paths.DataResourceUri, "Localization", "LocalizationData.json");
 
     public LocalizationData LocalizationData { get; private set; }
 
@@ -43,14 +44,17 @@ internal class LocalizationProvider : ILocalizationProvider
     public void LoadData(string currentLanguageCode = null)
     {
         JsonSerializer serializer = new();
-        
+
         if (!AssetLoader.Exists(new Uri(LocalizationDataPath)))
         {
             throw new FileNotFoundException("Localization data file not found.", LocalizationDataPath);
         }
-        
+
         using Stream stream = AssetLoader.Open(new Uri(LocalizationDataPath));
-        LocalizationData = serializer.Deserialize<LocalizationData>(new JsonTextReader(new StreamReader(stream)) { Culture = CultureInfo.InvariantCulture, DateTimeZoneHandling = DateTimeZoneHandling.Utc });
+        LocalizationData = serializer.Deserialize<LocalizationData>(new JsonTextReader(new StreamReader(stream))
+        {
+            Culture = CultureInfo.InvariantCulture, DateTimeZoneHandling = DateTimeZoneHandling.Utc
+        });
 
         if (LocalizationData is null)
         {
@@ -65,15 +69,26 @@ internal class LocalizationProvider : ILocalizationProvider
         }
 
         LocalizationData.Languages.Add(FollowSystem);
-        
+
         DefaultLanguage = LoadLanguageInternal(LocalizationData.Languages[0]);
 
         LoadLanguage(LocalizationData.Languages.FirstOrDefault(x => x.Code == currentLanguageCode, FollowSystem));
     }
 
+    public void LoadExtensionData(Extension extension)
+    {
+        LoadExtensionData(extension, LocalizationData);
+        LoadLanguage(CurrentLanguage.LanguageData, true);
+    }
+
+    private void LoadExtensionData(Extension extension, LocalizationData data)
+    {
+        data.MergeWith(extension.Metadata.Localization.Languages, Path.GetDirectoryName(extension.Location));
+    }
+
     private void LoadExtensionLocalizationData(LocalizationData localizationData)
     {
-        if(localizationData is null)
+        if (localizationData is null)
         {
             throw new InvalidDataException(nameof(localizationData));
         }
@@ -90,32 +105,33 @@ internal class LocalizationProvider : ILocalizationProvider
                 continue;
             }
 
-            localizationData.MergeWith(extension.Metadata.Localization.Languages, Path.GetDirectoryName(extension.Location));
+            LoadExtensionData(extension, localizationData);
         }
     }
 
-    public void LoadLanguage(LanguageData languageData)
+    public void LoadLanguage(LanguageData languageData, bool forceReload = false)
     {
         if (languageData is null)
         {
             throw new ArgumentNullException(nameof(languageData));
         }
-        
-        if(languageData.Code == CurrentLanguage?.LanguageData.Code)
+
+        if (languageData.Code == CurrentLanguage?.LanguageData.Code && !forceReload)
         {
             return;
         }
-        
+
         bool firstLoad = CurrentLanguage is null;
-        
+
         SelectedLanguage = languageData;
 
         if (languageData.Code == FollowSystem.Code)
         {
             string osLanguage = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-            languageData = LocalizationData.Languages.FirstOrDefault(x => x.Code == osLanguage, LocalizationData.Languages[0]);
+            languageData =
+                LocalizationData.Languages.FirstOrDefault(x => x.Code == osLanguage, LocalizationData.Languages[0]);
         }
-        
+
         CurrentLanguage = LoadLanguageInternal(languageData);
 
         if (!firstLoad)
@@ -127,14 +143,10 @@ internal class LocalizationProvider : ILocalizationProvider
     public void LoadDebugKeys(Dictionary<string, string> languageKeys, bool rightToLeft)
     {
         debugLanguage = new Language(
-            new LanguageData
-        {
-            Code = "debug",
-            Name = "Debug"
-        }, languageKeys, rightToLeft);
+            new LanguageData { Code = "debug", Name = "Debug" }, languageKeys, rightToLeft);
 
         CurrentLanguage = debugLanguage;
-        
+
         OnLanguageChanged?.Invoke(debugLanguage);
     }
 
