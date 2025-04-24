@@ -12,7 +12,7 @@
                          CanMinimize="False"
                          CanResize="True"
                          Width="320" MinHeight="190"
-                         ui:Translator.Key="LOGIN_WINDOW_TITLE">
+                         ui:Translator.Key="ACCOUNT_WINDOW_TITLE">
     <Design.DataContext>
         <subViewModels:UserViewModel />
     </Design.DataContext>

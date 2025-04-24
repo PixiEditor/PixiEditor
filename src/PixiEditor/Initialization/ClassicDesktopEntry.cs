@@ -16,6 +16,7 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
+using PixiEditor.PixiAuth;
 using PixiEditor.Platform;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
@@ -84,7 +85,7 @@ internal class ClassicDesktopEntry
 
             return;
         }
-        
+
 #if !STEAM && !DEBUG
         if (!HandleNewInstance(Dispatcher.UIThread))
         {
@@ -112,10 +113,6 @@ internal class ClassicDesktopEntry
         InitPlatform();
 
         ExtensionLoader extensionLoader = new ExtensionLoader(Paths.ExtensionPackagesPath, Paths.UserExtensionsPath);
-        //TODO: fetch from extension store
-        extensionLoader.AddOfficialExtension("pixieditor.supporterpack",
-            new OfficialExtensionData("supporter-pack.snk", AdditionalContentProduct.SupporterPack));
-        extensionLoader.AddOfficialExtension("pixieditor.beta", new OfficialExtensionData());
         extensionLoader.LoadExtensions();
 
         return extensionLoader;
@@ -128,7 +125,7 @@ internal class ClassicDesktopEntry
 #elif MSIX || MSIX_DEBUG
         return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform();
 #else
-        return new PixiEditor.Platform.Standalone.StandalonePlatform();
+        return new PixiEditor.Platform.Standalone.StandalonePlatform(Paths.ExtensionPackagesPath, GetApiUrl());
 #endif
     }
 
@@ -218,5 +215,22 @@ internal class ClassicDesktopEntry
                 });
             });
         }
+    }
+
+    private string GetApiUrl()
+    {
+        string baseUrl = BuildConstants.PixiEditorApiUrl;
+#if DEBUG
+        if (baseUrl.Contains('{') && baseUrl.Contains('}'))
+        {
+            string? envUrl = Environment.GetEnvironmentVariable("PIXIEDITOR_API_URL");
+            if (envUrl != null)
+            {
+                baseUrl = envUrl;
+            }
+        }
+#endif
+
+        return baseUrl;
     }
 }

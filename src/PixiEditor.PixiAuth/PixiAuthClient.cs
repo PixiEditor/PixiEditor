@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using PixiEditor.PixiAuth.Exceptions;
+using PixiEditor.PixiAuth.Models;
 
 namespace PixiEditor.PixiAuth;
 
@@ -242,7 +243,7 @@ public class PixiAuthClient
         return false;
     }
 
-    public async Task<List<string>> GetOwnedProducts(string token)
+    public async Task<List<Product>> GetOwnedProducts(string token)
     {
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "/content/getOwnedProducts");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -262,25 +263,20 @@ public class PixiAuthClient
         if (response.StatusCode == HttpStatusCode.OK)
         {
             string result = await response.Content.ReadAsStringAsync();
-            List<Dictionary<string, string>>? ownedProducts =
-                System.Text.Json.JsonSerializer.Deserialize<List<Dictionary<string, string>>>(result);
-
-            if (ownedProducts != null)
+            try
             {
-                List<string> productIds = new List<string>();
-                foreach (var ownedProduct in ownedProducts)
-                {
-                    if (ownedProduct.TryGetValue("productId", out string? productId))
-                    {
-                        productIds.Add(productId);
-                    }
-                }
+                List<Product>? ownedProducts = JsonSerializer.Deserialize<List<Product>>(result);
 
-                return productIds;
+                return ownedProducts ?? new List<Product>();
+            }
+            catch (JsonException)
+            {
+                // Handle JSON parsing error
+                throw new BadRequestException("PARSING_FAILED");
             }
         }
 
-        return new List<string>();
+        return [];
     }
 
     public async Task<Stream> DownloadProduct(string token, string productId)

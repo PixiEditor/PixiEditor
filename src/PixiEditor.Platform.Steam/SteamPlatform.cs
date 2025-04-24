@@ -1,4 +1,5 @@
-﻿using Steamworks;
+﻿using PixiEditor.IdentityProvider;
+using Steamworks;
 using Timer = System.Timers.Timer;
 
 namespace PixiEditor.Platform.Steam;
@@ -27,4 +28,5 @@ public class SteamPlatform : IPlatform
     }
 
     public IAdditionalContentProvider? AdditionalContentProvider { get; } = new SteamAdditionalContentProvider();
+    public IIdentityProvider? IdentityProvider { get; } = new SteamIdentityProvider();
 }

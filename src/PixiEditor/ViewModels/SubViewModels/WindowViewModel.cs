@@ -271,9 +271,9 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
         Owner.LayoutSubViewModel.LayoutManager.ShowDockable(id);
     }
 
-    [Commands_Command.Basic("PixiEditor.Window.OpenLoginWindow", "OPEN_LOGIN_WINDOW", "OPEN_LOGIN_WINDOW",
+    [Commands_Command.Basic("PixiEditor.Window.OpenAccountWindow", "OPEN_ACCOUNT_WINDOW", "OPEN_ACCOUNT_WINDOW",
         MenuItemOrder = 6, AnalyticsTrack = true)]
-    public void OpenLoginWindow()
+    public void OpenAccountWindow()
     {
         LoginPopup popup = new LoginPopup() { DataContext = Owner.UserViewModel };
         popup.Show();

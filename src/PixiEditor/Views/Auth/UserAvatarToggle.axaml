@@ -19,7 +19,7 @@
             <Button Name="UserAvatarButton" Padding="0"
                     BorderThickness="0" Classes="pixi-icon">
                 <Button.Content>
-                    <Image asyncImageLoader:ImageLoader.Source="{Binding UserGravatarUrl}" />
+                    <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}" />
                 </Button.Content>
                 <Button.Styles>
                     <Style Selector="FlyoutPresenter">
@@ -33,17 +33,19 @@
                     <Flyout>
                         <StackPanel IsVisible="{Binding IsLoggedIn}" Margin="5" Spacing="12" Orientation="Vertical">
                             <Border ClipToBounds="True" Width="100" Height="100" CornerRadius="100">
-                                <HyperlinkButton NavigateUri="https://gravatar.com/connect" Cursor="Hand" ui:Translator.TooltipKey="AVATAR_INFO">
-                                    <Image asyncImageLoader:ImageLoader.Source="{Binding UserGravatarUrl}" />
+                                <HyperlinkButton NavigateUri="https://gravatar.com/connect" Cursor="Hand"
+                                                 ui:Translator.TooltipKey="AVATAR_INFO">
+                                    <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}" />
                                 </HyperlinkButton>
                             </Border>
-                            <TextBlock HorizontalAlignment="Center" FontSize="{DynamicResource FontSizeNormal}" ui:Translator.Key="LOGGED_IN_AS">
+                            <TextBlock HorizontalAlignment="Center" FontSize="{DynamicResource FontSizeNormal}"
+                                       ui:Translator.Key="LOGGED_IN_AS">
                                 <Run Text="" />
-                                <Run Text="{Binding User.Username}" />
+                                <Run Text="{Binding Username}" />
                             </TextBlock>
                             <Button
-                                    Content="{ui:Translate Key=LOGOUT}"
-                                    Command="{Binding LogoutCommand}" />
+                                Content="{ui:Translate Key=MANAGE_ACCOUNT}"
+                                Command="{xaml:Command Name=PixiEditor.Window.OpenAccountWindow}" />
                         </StackPanel>
                     </Flyout>
                 </Button.Flyout>
@@ -52,6 +54,6 @@
         <Button IsVisible="{Binding !IsLoggedIn}"
                 Classes="pixi-icon"
                 Content="{DynamicResource icon-user}"
-                Command="{xaml:Command Name=PixiEditor.Window.OpenLoginWindow}" />
+                Command="{xaml:Command Name=PixiEditor.Window.OpenAccountWindow}" />
     </Grid>
 </UserControl>

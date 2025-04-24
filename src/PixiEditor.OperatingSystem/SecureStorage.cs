@@ -77,4 +77,29 @@ public static class SecureStorage
         stream.Close();
         return existingData;
     }
+
+    public static T GetValue<T>(string key, T? defaultValue = default)
+    {
+        byte[] current = ReadExistingData();
+
+        if (current is { Length: > 0 })
+        {
+            byte[] decryptedData = IOperatingSystem.Current.Encryptor.Decrypt(current);
+
+            string existingValue = Encoding.UTF8.GetString(decryptedData);
+            Dictionary<string, object>? data = JsonSerializer.Deserialize<Dictionary<string, object>>(existingValue);
+            if (data != null && data.TryGetValue(key, out object value))
+            {
+                if (value is JsonElement jsonElement)
+                {
+                    string jsonString = jsonElement.GetRawText();
+                    return JsonSerializer.Deserialize<T>(jsonString);
+                }
+
+                return (T)value;
+            }
+        }
+
+        return defaultValue;
+    }
 }

@@ -1043,9 +1043,9 @@
   "ENTER_EMAIL": "Enter your email",
   "LOGIN_LINK": "Send Login Link",
   "LOGIN_LINK_INFO": "We'll email you a secure link to log in. No password needed.",
-  "LOGIN_WINDOW_TITLE": "Founder's Account",
+  "ACCOUNT_WINDOW_TITLE": "Founder's Account",
   "CONNECTION_TIMEOUT": "Connection timed out. Please try again.",
-  "OPEN_LOGIN_WINDOW": "Open login window",
+  "OPEN_ACCOUNT_WINDOW": "Manage Account",
   "AUTO_SCALE_BACKGROUND": "Auto scale background",
   "UPDATES": "Updates",
   "SCENE": "Scene",
@@ -1053,5 +1053,7 @@
   "PRIMARY_BG_COLOR": "Primary background color",
   "SECONDARY_BG_COLOR": "Secondary background color",
   "RESET": "Reset",
-  "INSTALL": "Install"
+  "INSTALL": "Install",
+  "MANAGE_ACCOUNT": "Manage",
+  "OWNED_PRODUCTS": "Owned Content"
 }

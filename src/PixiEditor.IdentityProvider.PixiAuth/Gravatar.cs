@@ -1,6 +1,6 @@
 using System.Net.Http.Headers;
 
-namespace PixiEditor.Models.User;
+namespace PixiEditor.IdentityProvider.PixiAuth;
 
 public static class Gravatar
 {

@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace PixiEditor.Models.User;
+namespace PixiEditor.IdentityProvider.PixiAuth;
 
 public static class UsernameGenerator
 {

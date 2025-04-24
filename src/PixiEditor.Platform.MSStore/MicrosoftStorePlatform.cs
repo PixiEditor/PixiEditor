@@ -1,7 +1,17 @@
-﻿namespace PixiEditor.Platform.MSStore;
+﻿using PixiEditor.IdentityProvider;
+using PixiEditor.IdentityProvider.PixiAuth;
+
+namespace PixiEditor.Platform.MSStore;
 
 public sealed class MicrosoftStorePlatform : IPlatform
 {
+    public MicrosoftStorePlatform(string extensionsPath, string apiUrl)
+    {
+        var provider = new PixiAuthIdentityProvider(apiUrl);
+        IdentityProvider = provider;
+        AdditionalContentProvider = new MSAdditionalContentProvider(extensionsPath, provider);
+    }
+
     public string Id { get; } = "ms-store";
     public string Name => "Microsoft Store";
 
@@ -15,5 +25,6 @@ public sealed class MicrosoftStorePlatform : IPlatform
 
     }
 
-    public IAdditionalContentProvider? AdditionalContentProvider { get; } = new MSAdditionalContentProvider();
+    public IAdditionalContentProvider? AdditionalContentProvider { get; }
+    public IIdentityProvider? IdentityProvider { get; }
 }

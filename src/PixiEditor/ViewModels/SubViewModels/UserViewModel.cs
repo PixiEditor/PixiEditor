@@ -1,26 +1,40 @@
 using System.Collections.ObjectModel;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
+using DiscordRPC;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
+using PixiEditor.IdentityProvider;
+using PixiEditor.IdentityProvider.PixiAuth;
 using PixiEditor.Models.Commands.Attributes.Commands;
-using PixiEditor.Models.User;
 using PixiEditor.OperatingSystem;
 using PixiEditor.PixiAuth;
 using PixiEditor.PixiAuth.Exceptions;
+using PixiEditor.PixiAuth.Utils;
+using PixiEditor.Platform;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 
 internal class UserViewModel : SubViewModel<ViewModelMain>
 {
     private LocalizedString? lastError = null;
-    public PixiAuthClient PixiAuthClient { get; }
-    public User? User { get; private set; }
 
-    public bool NotLoggedIn => User?.SessionId is null || User.SessionId == Guid.Empty;
-    public bool WaitingForActivation => User is { SessionId: not null } && string.IsNullOrEmpty(User.SessionToken);
-    public bool IsLoggedIn => User is { SessionId: not null } && !string.IsNullOrEmpty(User.SessionToken);
-    public bool EmailEqualsLastSentMail => (CurrentEmail != null ? GetEmailHash(CurrentEmail) : "") == lastSentHash;
+    public IIdentityProvider IdentityProvider { get; }
+    public IAdditionalContentProvider AdditionalContentProvider { get; }
+
+    public bool NotLoggedIn => !IsLoggedIn && !WaitingForActivation;
+
+    public bool WaitingForActivation => IdentityProvider is PixiAuthIdentityProvider
+    {
+        User: { IsWaitingForActivation: true }
+    };
+
+    public bool IsLoggedIn => IdentityProvider.IsLoggedIn;
+
+    public IUser User => IdentityProvider.User;
+
+    public bool EmailEqualsLastSentMail =>
+        (CurrentEmail != null ? EmailUtility.GetEmailHash(CurrentEmail) : "") == lastSentHash;
 
     public AsyncRelayCommand<string> RequestLoginCommand { get; }
     public AsyncRelayCommand TryValidateSessionCommand { get; }
@@ -36,7 +50,6 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         set => SetProperty(ref lastError, value);
     }
 
-    private bool apiValid = true;
 
     public DateTime? TimeToEndTimeout { get; private set; } = null;
 
@@ -54,13 +67,9 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    public string? UserGravatarUrl =>
-        User?.EmailHash != null ? $"https://www.gravatar.com/avatar/{User.EmailHash}?s=100&d=initials" : null;
-
-    public ObservableCollection<string> OwnedProducts { get; private set; } = new ObservableCollection<string>();
+    public ObservableCollection<string> OwnedProducts => new(IdentityProvider?.User?.OwnedProducts ?? new List<string>());
 
     private string currentEmail = string.Empty;
-    private string username;
 
     public string CurrentEmail
     {
@@ -74,131 +83,95 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    public string Username
-    {
-        get => username;
-        set
-        {
-            SetProperty(ref username, value);
-        }
-    }
+    public string Username => IdentityProvider?.User?.Username;
+
+    public string? AvatarUrl => IdentityProvider.User?.AvatarUrl;
 
     public UserViewModel(ViewModelMain owner) : base(owner)
     {
+        IdentityProvider = IPlatform.Current.IdentityProvider;
+        AdditionalContentProvider = IPlatform.Current.AdditionalContentProvider;
         RequestLoginCommand = new AsyncRelayCommand<string>(RequestLogin, CanRequestLogin);
         TryValidateSessionCommand = new AsyncRelayCommand(TryValidateSession);
         ResendActivationCommand = new AsyncRelayCommand<string>(ResendActivation, CanResendActivation);
         InstallContentCommand = new AsyncRelayCommand<string>(InstallContent);
         LogoutCommand = new AsyncRelayCommand(Logout);
 
-        string baseUrl = BuildConstants.PixiEditorApiUrl;
-#if DEBUG
-        if (baseUrl.Contains('{') && baseUrl.Contains('}'))
-        {
-            string? envUrl = Environment.GetEnvironmentVariable("PIXIEDITOR_API_URL");
-            if (envUrl != null)
-            {
-                baseUrl = envUrl;
-            }
-        }
-#endif
-        try
-        {
-            PixiAuthClient = new PixiAuthClient(baseUrl);
-        }
-        catch (UriFormatException e)
-        {
-            Console.WriteLine($"Invalid api URL format: {e.Message}");
-            apiValid = false;
-        }
+        IdentityProvider.OnError += OnError;
+        IdentityProvider.OwnedProductsUpdated += IdentityProviderOnOwnedProductsUpdated;
+        IdentityProvider.UsernameUpdated += IdentityProviderOnUsernameUpdated;
 
-        Task.Run(async () =>
+        if (IdentityProvider is PixiAuthIdentityProvider pixiAuth)
         {
-            await LoadUserData();
-            await TryRefreshToken();
-            await LogoutIfTokenExpired();
-        });
+            pixiAuth.LoginRequestSuccessful += PixiAuthOnLoginRequestSuccessful;
+            pixiAuth.LoginTimeout += PixiAuthOnLoginTimeout;
+            pixiAuth.LoggedOut += PixiAuthOnLoggedOut;
+        }
+    }
+
+    private void IdentityProviderOnUsernameUpdated(string newUsername)
+    {
+        NotifyProperties();
+    }
+
+    private void IdentityProviderOnOwnedProductsUpdated(List<string> products)
+    {
+        NotifyProperties();
+    }
+
+    private void PixiAuthOnLoggedOut()
+    {
+        OwnedProducts.Clear();
+        NotifyProperties();
+    }
+
+    private void PixiAuthOnLoginTimeout(double seconds)
+    {
+        TimeToEndTimeout = DateTime.Now.AddSeconds(seconds);
+        RunTimeoutTimers(seconds);
+        NotifyProperties();
+    }
+
+    private void PixiAuthOnLoginRequestSuccessful(PixiUser user)
+    {
+        lastSentHash = user.EmailHash;
+        NotifyProperties();
     }
 
     public async Task RequestLogin(string email)
     {
-        if (!apiValid) return;
-
-        try
+        if (IdentityProvider is PixiAuthIdentityProvider pixiAuthIdentityProvider)
         {
-            Guid? session = await PixiAuthClient.GenerateSession(email);
-            string hash = GetEmailHash(email);
-            if (session != null)
+            LastError = null;
+            try
             {
-                LastError = null;
-                Username = null;
-                User = new User { SessionId = session.Value, EmailHash = hash, Username = GenerateUsername(hash) };
-                lastSentHash = User.EmailHash;
-                NotifyProperties();
-                SaveUserInfo();
+                await pixiAuthIdentityProvider.RequestLogin(email);
             }
-        }
-        catch (PixiAuthException authException)
-        {
-            LastError = new LocalizedString(authException.Message);
-        }
-        catch (HttpRequestException httpRequestException)
-        {
-            LastError = new LocalizedString("CONNECTION_ERROR");
-        }
-        catch (TaskCanceledException timeoutException)
-        {
-            LastError = new LocalizedString("CONNECTION_TIMEOUT");
+            catch (Exception ex)
+            {
+                CrashHelper.SendExceptionInfo(ex);
+            }
         }
     }
 
     public bool CanRequestLogin(string email)
     {
-        return !string.IsNullOrEmpty(email) && email.Contains('@');
+        return IdentityProvider is PixiAuthIdentityProvider && !string.IsNullOrEmpty(email) && email.Contains('@');
     }
 
     public async Task ResendActivation(string email)
     {
-        if (!apiValid) return;
-
-        string emailHash = GetEmailHash(email);
-        if (User?.EmailHash != emailHash)
+        if (IdentityProvider is PixiAuthIdentityProvider pixiAuthIdentityProvider)
         {
-            await RequestLogin(email);
-            return;
-        }
-
-        if (User?.SessionId == null)
-        {
-            return;
-        }
-
-        try
-        {
-            await PixiAuthClient.ResendActivation(User.SessionId.Value);
-            TimeToEndTimeout = DateTime.Now.Add(TimeSpan.FromSeconds(60));
-            RunTimeoutTimers(60);
-            NotifyProperties();
             LastError = null;
-        }
-        catch (TooManyRequestsException e)
-        {
-            LastError = new LocalizedString(e.Message, e.TimeLeft);
-            TimeToEndTimeout = DateTime.Now.Add(TimeSpan.FromSeconds(e.TimeLeft));
-            RunTimeoutTimers(e.TimeLeft);
-            NotifyProperties();
-        }
-        catch (PixiAuthException authException)
-        {
-            LastError = new LocalizedString(authException.Message);
-        }
-        catch (HttpRequestException httpRequestException)
-        {
-            LastError = new LocalizedString("CONNECTION_ERROR");
-        }
-        catch (TaskCanceledException timeoutException)
-        {
-            LastError = new LocalizedString("CONNECTION_TIMEOUT");
+            try
+            {
+                await pixiAuthIdentityProvider.ResendActivation(email);
+            }
+            catch (Exception ex)
+            {
+                CrashHelper.SendExceptionInfo(ex);
+            }
         }
     }
 
@@ -221,295 +194,107 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
     public bool CanResendActivation(string email)
     {
-        if (email == null || User?.EmailHash == null)
+        if (IdentityProvider is not PixiAuthIdentityProvider pixiAuthIdentityProvider)
         {
             return false;
         }
 
-        if (User?.EmailHash != GetEmailHash(email)) return true;
+        if (email == null || pixiAuthIdentityProvider?.User?.EmailHash == null)
+        {
+            return false;
+        }
+
+        if (pixiAuthIdentityProvider.User?.EmailHash != EmailUtility.GetEmailHash(email)) return true;
 
         return WaitingForActivation && TimeToEndTimeout == null;
     }
 
-    public async Task<bool> TryRefreshToken()
-    {
-        if (!apiValid) return false;
-
-        if (!IsLoggedIn)
-        {
-            return false;
-        }
-
-        try
-        {
-            (string? token, DateTime? expirationDate) = await PixiAuthClient.RefreshToken(User.SessionToken);
-
-            if (token != null)
-            {
-                User.SessionToken = token;
-                User.SessionExpirationDate = expirationDate;
-                NotifyProperties();
-                SaveUserInfo();
-                return true;
-            }
-        }
-        catch (ForbiddenException e)
-        {
-            User = null;
-            NotifyProperties();
-            SaveUserInfo();
-            LastError = new LocalizedString(e.Message);
-        }
-        catch (PixiAuthException authException)
-        {
-            LastError = new LocalizedString(authException.Message);
-        }
-        catch (HttpRequestException httpRequestException)
-        {
-            LastError = new LocalizedString("CONNECTION_ERROR");
-        }
-        catch (TaskCanceledException timeoutException)
-        {
-            LastError = new LocalizedString("CONNECTION_TIMEOUT");
-        }
-
-        return false;
-    }
-
     public async Task<bool> TryValidateSession()
     {
-        if (!apiValid) return false;
-
-        if (User?.SessionId == null)
+        if (IdentityProvider is not PixiAuthIdentityProvider pixiAuthIdentityProvider)
         {
             return false;
         }
 
+        LastError = null;
         try
         {
-            (string? token, DateTime? expirationDate) =
-                await PixiAuthClient.TryClaimSessionToken(User.SessionId.Value);
-            if (token != null)
+            bool validated = await pixiAuthIdentityProvider.TryValidateSession();
+            if (validated)
             {
-                LastError = null;
-                User.SessionToken = token;
-                User.SessionExpirationDate = expirationDate;
-                var products = await PixiAuthClient.GetOwnedProducts(User.SessionToken);
-                if (products != null)
-                {
-                    User.OwnedProducts = products;
-                    OwnedProducts = new ObservableCollection<string>(User.OwnedProducts);
-                    NotifyProperties();
-                }
-
-                Task.Run(async () =>
-                {
-                    string username = User.Username;
-                    User.Username = await TryFetchUserName(User.EmailHash);
-                    Username = User.Username;
-                    if (username != User.Username)
-                    {
-                        Dispatcher.UIThread.Invoke(() =>
-                        {
-                            NotifyProperties();
-                            SaveUserInfo();
-                        });
-                    }
-                });
-
                 CurrentEmail = null;
                 NotifyProperties();
-                SaveUserInfo();
-                return true;
             }
-        }
-        catch (BadRequestException ex)
-        {
-            if (ex.Message == "SESSION_NOT_VALIDATED")
-            {
-                LastError = null;
-            }
-        }
-        catch (PixiAuthException authException)
-        {
-            LastError = new LocalizedString(authException.Message);
-        }
-        catch (HttpRequestException httpRequestException)
-        {
-            LastError = new LocalizedString("CONNECTION_ERROR");
-        }
-        catch (TaskCanceledException timeoutException)
-        {
-            LastError = new LocalizedString("CONNECTION_TIMEOUT");
-        }
 
-        return false;
+            return validated;
+        }
+        catch (Exception ex)
+        {
+            CrashHelper.SendExceptionInfo(ex);
+            return false;
+        }
     }
 
     public async Task Logout()
     {
+        if (IdentityProvider is not PixiAuthIdentityProvider pixiAuthIdentityProvider)
+        {
+            return;
+        }
+
         if (!IsLoggedIn)
         {
             return;
         }
 
-        string? sessionToken = User?.SessionToken;
-
-        User = null;
         LastError = null;
-        OwnedProducts.Clear();
-        Username = string.Empty;
-        NotifyProperties();
-        SaveUserInfo();
-
-        if (!apiValid) return;
-
         try
         {
-            await PixiAuthClient.Logout(sessionToken);
+            await pixiAuthIdentityProvider.Logout();
         }
-        catch (PixiAuthException authException)
+        catch (Exception ex)
         {
-        }
-        catch (HttpRequestException httpRequestException)
-        {
-        }
-        catch (TaskCanceledException timeoutException)
-        {
+            CrashHelper.SendExceptionInfo(ex);
         }
     }
 
     public async Task InstallContent(string productId)
     {
-        if (!apiValid) return;
-
-        if (User?.SessionToken == null)
+        LastError = null;
+        if (IdentityProvider is not PixiAuthIdentityProvider pixiAuthIdentityProvider)
         {
-            LastError = new LocalizedString("NOT_LOGGED_IN");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(productId))
+        {
             return;
         }
 
         try
         {
-            var stream = await PixiAuthClient.DownloadProduct(User.SessionToken, productId);
-            if (stream != null)
+            string? extensionPath = await AdditionalContentProvider.InstallContent(productId);
+            if (extensionPath != null)
             {
-                var packagesPath = Owner.ExtensionsSubViewModel.ExtensionLoader.PackagesPath;
-                var filePath = Path.Combine(packagesPath, $"{productId}.pixiext");
-                await using (var fileStream = File.Create(filePath))
-                {
-                    await stream.CopyToAsync(fileStream);
-                }
-
-                await stream.DisposeAsync();
-
-                Owner.ExtensionsSubViewModel.LoadExtensionAdHoc(filePath);
-                LastError = null;
+                Owner.ExtensionsSubViewModel.LoadExtensionAdHoc(extensionPath);
             }
         }
-        catch (PixiAuthException authException)
+        catch (Exception ex)
         {
-            LastError = new LocalizedString(authException.Message);
-        }
-        catch (HttpRequestException httpRequestException)
-        {
-            LastError = new LocalizedString("CONNECTION_ERROR");
-        }
-        catch (TaskCanceledException timeoutException)
-        {
-            LastError = new LocalizedString("CONNECTION_TIMEOUT");
+            CrashHelper.SendExceptionInfo(ex);
         }
     }
 
-    public async Task SaveUserInfo()
+    private void OnError(string error, object? arg = null)
     {
-        try
+        if (error == "SESSION_NOT_VALIDATED")
         {
-            await SecureStorage.SetValueAsync("UserData", User);
+            LastError = null;
         }
-        catch (Exception e)
+        else
         {
-            CrashHelper.SendExceptionInfo(e);
+            LastError = arg != null ? new LocalizedString(error, arg) : new LocalizedString(error);
         }
-    }
-
-    public async Task LoadUserData()
-    {
-        try
-        {
-            User = await SecureStorage.GetValueAsync<User>("UserData", null);
-            try
-            {
-                User.Username = await TryFetchUserName(User.EmailHash);
-                var products = await PixiAuthClient.GetOwnedProducts(User.SessionToken);
-                if (products != null)
-                {
-                    User.OwnedProducts = products;
-                    OwnedProducts = new ObservableCollection<string>(User.OwnedProducts);
-                }
-
-                Username = User.Username;
-                NotifyProperties();
-            }
-            catch
-            {
-            }
-        }
-        catch (Exception e)
-        {
-            CrashHelper.SendExceptionInfo(e);
-            User = null;
-            NotifyProperties();
-            LastError = "FAIL_LOAD_USER_DATA";
-        }
-    }
-
-    public async Task LogoutIfTokenExpired()
-    {
-        if (User?.SessionExpirationDate != null && User.SessionExpirationDate < DateTime.Now)
-        {
-            await Logout();
-            LastError = new LocalizedString("SESSION_EXPIRED");
-        }
-    }
-
-    private async Task<string> TryFetchUserName(string emailHash)
-    {
-        try
-        {
-            string? username = await Gravatar.GetUsername(emailHash);
-            if (username != null)
-            {
-                return username;
-            }
-        }
-        catch (PixiAuthException authException)
-        {
-            LastError = new LocalizedString(authException.Message);
-        }
-        catch (HttpRequestException httpRequestException)
-        {
-            LastError = new LocalizedString("CONNECTION_ERROR");
-        }
-        catch (TaskCanceledException timeoutException)
-        {
-            LastError = new LocalizedString("CONNECTION_TIMEOUT");
-        }
-
-        return GenerateUsername(emailHash);
-    }
-
-    private string GetEmailHash(string email)
-    {
-        using var sha256 = System.Security.Cryptography.SHA256.Create();
-        byte[] inputBytes = System.Text.Encoding.UTF8.GetBytes(email.ToLower());
-        byte[] hashBytes = sha256.ComputeHash(inputBytes);
-        return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
-    }
-
-    private string GenerateUsername(string emailHash)
-    {
-        return UsernameGenerator.GenerateUsername(emailHash);
     }
 
     private void NotifyProperties()
@@ -521,7 +306,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         OnPropertyChanged(nameof(LastError));
         OnPropertyChanged(nameof(TimeToEndTimeout));
         OnPropertyChanged(nameof(TimeToEndTimeoutString));
-        OnPropertyChanged(nameof(UserGravatarUrl));
+        OnPropertyChanged(nameof(AvatarUrl));
         OnPropertyChanged(nameof(EmailEqualsLastSentMail));
         OnPropertyChanged(nameof(OwnedProducts));
         ResendActivationCommand.NotifyCanExecuteChanged();

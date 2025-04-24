@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Metadata;
 using PixiEditor.Extensions.WasmRuntime;
 using PixiEditor.Platform;
@@ -10,13 +11,12 @@ namespace PixiEditor.Extensions.Runtime;
 
 public class ExtensionLoader
 {
-    private readonly Dictionary<string, OfficialExtensionData> _officialExtensionsKeys =
-        new Dictionary<string, OfficialExtensionData>();
-
     public List<Extension> LoadedExtensions { get; } = new();
 
     public string PackagesPath { get; }
     public string UnpackedExtensionsPath { get; }
+
+    public ExtensionServices Services { get; set; }
 
     private WasmRuntime.WasmRuntime _wasmRuntime = new WasmRuntime.WasmRuntime();
 
@@ -25,11 +25,6 @@ public class ExtensionLoader
         PackagesPath = packagesPath;
         UnpackedExtensionsPath = unpackedExtensionsPath;
         ValidateExtensionFolder();
-    }
-
-    public void AddOfficialExtension(string uniqueName, OfficialExtensionData data)
-    {
-        _officialExtensionsKeys.Add(uniqueName, data);
     }
 
     public void LoadExtensions()
@@ -262,12 +257,12 @@ public class ExtensionLoader
                 throw new ForbiddenUniqueNameExtension();
             }
 
-            if (!IsAdditionalContentInstalled(fixedUniqueName))
+            if (!IsAdditionalContentOwned(fixedUniqueName))
             {
                 return false;
             }
         }
-        // TODO: Validate if unique name is unique
+        // TODO: Validate if unique name is in fact, unique
 
         if (string.IsNullOrEmpty(metadata.DisplayName))
         {
@@ -282,67 +277,28 @@ public class ExtensionLoader
         return true;
     }
 
-    private bool IsAdditionalContentInstalled(string fixedUniqueName)
+    private bool IsAdditionalContentOwned(string fixedUniqueName)
     {
-        if (!_officialExtensionsKeys.ContainsKey(fixedUniqueName)) return false;
-        AdditionalContentProduct? product = _officialExtensionsKeys[fixedUniqueName].Product;
-
-        if (product == null) return true;
-
-        return IPlatform.Current.AdditionalContentProvider?.IsContentInstalled(product.Value) ?? false;
+        return IPlatform.Current.AdditionalContentProvider?.IsContentOwned(fixedUniqueName) ?? false;
     }
 
     private bool IsOfficialAssemblyLegit(string metadataUniqueName, ExtensionEntry entry)
     {
         if (entry == null) return false; // All official extensions must have a valid assembly
-        if (!_officialExtensionsKeys.ContainsKey(metadataUniqueName)) return false;
 
         if (entry is DllExtensionEntry dllExtensionEntry)
         {
-            return VerifyAssemblySignature(metadataUniqueName, dllExtensionEntry.Assembly);
+            return false;
         }
 
         if (entry is WasmExtensionEntry wasmExtensionEntry)
         {
             return true;
             //TODO: Verify wasm signature somehow
-            //return VerifyAssemblySignature(metadataUniqueName, wasmExtensionEntry.Instance);
         }
 
         return false;
     }
-
-    private bool VerifyAssemblySignature(string metadataUniqueName, Assembly assembly)
-    {
-        bool wasVerified = false;
-        bool verified = StrongNameSignatureVerificationEx(assembly.Location, true, ref wasVerified);
-        if (!verified || !wasVerified) return false;
-
-        byte[]? assemblyPublicKey = assembly.GetName().GetPublicKey();
-        if (assemblyPublicKey == null) return false;
-
-        return PublicKeysMatch(assemblyPublicKey, _officialExtensionsKeys[metadataUniqueName].PublicKeyName);
-    }
-
-    private bool PublicKeysMatch(byte[] assemblyPublicKey, string pathToPublicKey)
-    {
-        Assembly currentAssembly = Assembly.GetExecutingAssembly();
-        using Stream? stream =
-            currentAssembly.GetManifestResourceStream(
-                $"{currentAssembly.GetName().Name}.OfficialExtensions.{pathToPublicKey}");
-        if (stream == null) return false;
-
-        using MemoryStream memoryStream = new MemoryStream();
-        stream.CopyTo(memoryStream);
-        byte[] publicKey = memoryStream.ToArray();
-
-        return assemblyPublicKey.SequenceEqual(publicKey);
-    }
-
-    //TODO: uhh, other platforms dumbass?
-    [DllImport("mscoree.dll", CharSet = CharSet.Unicode)]
-    static extern bool StrongNameSignatureVerificationEx(string wszFilePath, bool fForceVerification,
-        ref bool pfWasVerified);
 
     private Extension LoadExtensionEntry(ExtensionEntry entry, ExtensionMetadata metadata)
     {
@@ -424,18 +380,5 @@ public class ExtensionLoader
         }
 
         return null;
-    }
-}
-
-public struct OfficialExtensionData
-{
-    public string PublicKeyName { get; }
-    public AdditionalContentProduct? Product { get; }
-    public string? PurchaseLink { get; }
-
-    public OfficialExtensionData(string publicKeyName, AdditionalContentProduct product, string? purchaseLink = null)
-    {
-        PublicKeyName = publicKeyName;
-        Product = product;
     }
 }

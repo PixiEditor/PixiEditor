@@ -14,6 +14,7 @@ using Avalonia.VisualTree;
 using Microsoft.Extensions.DependencyInjection;
 using Drawie.Backend.Core.Bridge;
 using PixiDocks.Avalonia.Helpers;
+using PixiEditor.Extensions;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
@@ -78,6 +79,7 @@ internal partial class MainWindow : Window
         platform = services.GetRequiredService<IPlatform>();
         DataContext = services.GetRequiredService<ViewModels_ViewModelMain>();
         DataContext.Setup(services);
+        extensionLoader.Services = new ExtensionServices(services);
         StartupPerformance.ReportToMainViewModel();
 
         var analytics = services.GetService<AnalyticsPeriodicReporter>();

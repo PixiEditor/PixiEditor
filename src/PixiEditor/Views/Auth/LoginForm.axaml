@@ -73,7 +73,7 @@
             <Border ClipToBounds="True" Width="100" Height="100" CornerRadius="100">
                 <HyperlinkButton NavigateUri="https://gravatar.com/connect" Cursor="Hand"
                                  ui:Translator.TooltipKey="AVATAR_INFO">
-                    <Image asyncImageLoader:ImageLoader.Source="{Binding UserGravatarUrl}" />
+                    <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}" />
                 </HyperlinkButton>
             </Border>
             <TextBlock HorizontalAlignment="Center" FontSize="{DynamicResource FontSizeNormal}"

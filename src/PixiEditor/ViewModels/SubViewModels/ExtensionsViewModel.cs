@@ -21,11 +21,6 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
         Owner.OnStartupEvent += Owner_OnStartupEvent;
     }
 
-    private void RegisterCoreWindows(WindowProvider? windowProvider)
-    {
-        windowProvider?.RegisterWindow<PalettesBrowser>();
-    }
-
     public void LoadExtensionAdHoc(string extension)
     {
         if (extension.EndsWith(".pixiext"))
@@ -39,6 +34,11 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
             ILocalizationProvider.Current.LoadExtensionData(loadedExtension);
             loadedExtension.Initialize(new ExtensionServices(Owner.Services));
         }
+    }
+
+    private void RegisterCoreWindows(WindowProvider? windowProvider)
+    {
+        windowProvider?.RegisterWindow<PalettesBrowser>();
     }
 
     private void Owner_OnStartupEvent()

@@ -25,7 +25,7 @@
                 <StackPanel Margin="5 0" Spacing="5" Orientation="Horizontal" DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType=main:MainTitleBar}}">
                     <Border BorderThickness="1" BorderBrush="{DynamicResource AccentColor}"
                             Padding="5 0" CornerRadius="5" Height="25"
-                            IsVisible="{Binding Path=AdditionalContentSubViewModel.IsSupporterPackAvailable, FallbackValue=False}">
+                            IsVisible="{Binding Path=AdditionalContentSubViewModel.IsFoundersPackAvailable, FallbackValue=False}">
                         <TextBlock VerticalAlignment="Center"
                                    ui:Translator.Key="PixiEditor.SupporterPack:AWESOME_SUPPORTER" />
                     </Border>

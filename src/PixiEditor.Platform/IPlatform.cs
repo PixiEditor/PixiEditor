@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.Platform;
+﻿using PixiEditor.IdentityProvider;
+
+namespace PixiEditor.Platform;
 
 public interface IPlatform
 {
@@ -8,6 +10,7 @@ public interface IPlatform
     public bool PerformHandshake();
     public void Update();
     public IAdditionalContentProvider? AdditionalContentProvider { get; }
+    public IIdentityProvider? IdentityProvider { get; }
 
     public static void RegisterPlatform(IPlatform platform)
     {

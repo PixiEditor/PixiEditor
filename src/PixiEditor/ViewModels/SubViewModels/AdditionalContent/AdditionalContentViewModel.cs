@@ -10,7 +10,7 @@ internal class AdditionalContentViewModel : ViewModelBase
         AdditionalContentProvider = additionalContentProvider;
     }
 
-    public bool IsSupporterPackAvailable => AdditionalContentProvider != null 
-                                            && AdditionalContentProvider.IsContentInstalled(AdditionalContentProduct.SupporterPack)
+    public bool IsFoundersPackAvailable => AdditionalContentProvider != null
+                                            && AdditionalContentProvider.IsContentOwned("PixiEditor.FoundersPack")
                                             && ViewModelMain.Current.ExtensionsSubViewModel.ExtensionLoader.LoadedExtensions.Any(x => x.Metadata.UniqueName == "PixiEditor.SupporterPack");
 }
