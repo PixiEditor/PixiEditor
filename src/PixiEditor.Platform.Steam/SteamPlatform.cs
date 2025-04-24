@@ -13,7 +13,10 @@ public class SteamPlatform : IPlatform
     {
         try
         {
-            SteamAPI.Init();
+            bool initialized = SteamAPI.Init();
+            if (!initialized) return false;
+
+            IdentityProvider?.Initialize();
             return true;
         }
         catch

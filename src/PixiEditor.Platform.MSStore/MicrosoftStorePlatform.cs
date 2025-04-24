@@ -17,12 +17,12 @@ public sealed class MicrosoftStorePlatform : IPlatform
 
     public bool PerformHandshake()
     {
+        IdentityProvider?.Initialize();
         return true;
     }
 
     public void Update()
     {
-
     }
 
     public IAdditionalContentProvider? AdditionalContentProvider { get; }

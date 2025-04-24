@@ -87,16 +87,24 @@ public static class SecureStorage
             byte[] decryptedData = IOperatingSystem.Current.Encryptor.Decrypt(current);
 
             string existingValue = Encoding.UTF8.GetString(decryptedData);
-            Dictionary<string, object>? data = JsonSerializer.Deserialize<Dictionary<string, object>>(existingValue);
-            if (data != null && data.TryGetValue(key, out object value))
+            try
             {
-                if (value is JsonElement jsonElement)
+                Dictionary<string, object>?
+                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(existingValue);
+                if (data != null && data.TryGetValue(key, out object value))
                 {
-                    string jsonString = jsonElement.GetRawText();
-                    return JsonSerializer.Deserialize<T>(jsonString);
-                }
+                    if (value is JsonElement jsonElement)
+                    {
+                        string jsonString = jsonElement.GetRawText();
+                        return JsonSerializer.Deserialize<T>(jsonString);
+                    }
 
-                return (T)value;
+                    return (T)value;
+                }
+            }
+            catch (JsonException)
+            {
+               return defaultValue;
             }
         }
 

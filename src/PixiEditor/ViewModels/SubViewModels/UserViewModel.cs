@@ -67,7 +67,8 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    public ObservableCollection<string> OwnedProducts => new(IdentityProvider?.User?.OwnedProducts ?? new List<string>());
+    public ObservableCollection<ProductData> OwnedProducts =>
+        new(IdentityProvider?.User?.OwnedProducts ?? new List<ProductData>());
 
     private string currentEmail = string.Empty;
 
@@ -94,7 +95,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         RequestLoginCommand = new AsyncRelayCommand<string>(RequestLogin, CanRequestLogin);
         TryValidateSessionCommand = new AsyncRelayCommand(TryValidateSession);
         ResendActivationCommand = new AsyncRelayCommand<string>(ResendActivation, CanResendActivation);
-        InstallContentCommand = new AsyncRelayCommand<string>(InstallContent);
+        InstallContentCommand = new AsyncRelayCommand<string>(InstallContent, CanInstallContent);
         LogoutCommand = new AsyncRelayCommand(Logout);
 
         IdentityProvider.OnError += OnError;
@@ -114,7 +115,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         NotifyProperties();
     }
 
-    private void IdentityProviderOnOwnedProductsUpdated(List<string> products)
+    private void IdentityProviderOnOwnedProductsUpdated(List<ProductData> products)
     {
         NotifyProperties();
     }
@@ -258,13 +259,25 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         }
     }
 
+    public bool CanInstallContent(string productId)
+    {
+        return !IsInstalled(productId);
+    }
+
+    private bool IsInstalled(string productId)
+    {
+        if (AdditionalContentProvider.IsInstalled(productId))
+        {
+            return true;
+        }
+
+        return Owner.ExtensionsSubViewModel.ExtensionLoader.LoadedExtensions.Any(x =>
+            x.Metadata.UniqueName == productId);
+    }
+
     public async Task InstallContent(string productId)
     {
         LastError = null;
-        if (IdentityProvider is not PixiAuthIdentityProvider pixiAuthIdentityProvider)
-        {
-            return;
-        }
 
         if (string.IsNullOrEmpty(productId))
         {
@@ -300,6 +313,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
     private void NotifyProperties()
     {
         OnPropertyChanged(nameof(User));
+        OnPropertyChanged(nameof(Username));
         OnPropertyChanged(nameof(NotLoggedIn));
         OnPropertyChanged(nameof(WaitingForActivation));
         OnPropertyChanged(nameof(IsLoggedIn));

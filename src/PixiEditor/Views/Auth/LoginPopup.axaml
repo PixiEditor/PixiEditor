@@ -25,11 +25,12 @@
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Vertical" Spacing="5">
-                        <TextBlock Text="{Binding }" />
-                    <Button
-                        Content="{ui:Translate Key=INSTALL}"
-                        Command="{Binding DataContext.InstallContentCommand, RelativeSource={RelativeSource AncestorType=auth:LoginPopup, Mode=FindAncestor}}"
-                        CommandParameter="{Binding}"/>
+                        <TextBlock Text="{Binding DisplayName}" />
+                        <Button
+                            Command="{Binding DataContext.InstallContentCommand, RelativeSource={RelativeSource AncestorType=auth:LoginPopup, Mode=FindAncestor}}"
+                            CommandParameter="{Binding Id}">
+                            <TextBlock Text="{ui:Translate Key=INSTALL}" />
+                        </Button>
                     </StackPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

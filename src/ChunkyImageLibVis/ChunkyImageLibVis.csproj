@@ -5,7 +5,7 @@
     <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
-    <Configurations>Debug;Release;Steam;DevRelease</Configurations>
+    <Configurations>Debug;Release;Steam;DevRelease;DebugSteam</Configurations>
     <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 

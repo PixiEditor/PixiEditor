@@ -12,7 +12,7 @@
     <PackageIcon>icon.ico</PackageIcon>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
     <Authors>Krzysztof Krysiński, Egor Mozgovoy, CPK, Contributors</Authors>
-    <Configurations>Debug;Release;MSIX;MSIX Debug;Steam;DevRelease;DevSteam</Configurations>
+    <Configurations>Debug;Release;MSIX;MSIX Debug;Steam;DevRelease;DevSteam;DebugSteam</Configurations>
     <Platforms>x64;arm64</Platforms>
     <RuntimeIdentifiers>win-x64;win-arm64;linux-x64;linux-arm64;osx-x64;osx-arm64</RuntimeIdentifiers>
     <ImplicitUsings>true</ImplicitUsings>
@@ -51,6 +51,11 @@
   <ItemGroup Condition="'$(Configuration)' == 'DevSteam'">
     <ProjectReference Include="..\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj"/>
   </ItemGroup>
+  
+  <ItemGroup Condition="'$(Configuration)' == 'DebugSteam'">
+    <ProjectReference Include="..\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj"/>
+  </ItemGroup>
+
 
   <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj"/>
@@ -92,6 +97,7 @@
     <PackageReference Include="Avalonia.Svg.Skia" Version="11.2.0.2"/>
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)"/>
+    <PackageReference Condition="'$(Configuration)' == 'DebugSteam'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)"/>
     <PackageReference Include="ByteSize" Version="2.1.2"/>
     <PackageReference Include="CLSEncoderDecoder" Version="1.0.0"/>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2"/>
@@ -103,13 +109,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ColorPicker\src\ColorPicker.AvaloniaUI\ColorPicker.AvaloniaUI.csproj" />
+    <ProjectReference Include="..\ColorPicker\src\ColorPicker.AvaloniaUI\ColorPicker.AvaloniaUI.csproj"/>
     <ProjectReference Include="..\Drawie\src\Drawie.Interop.Avalonia\Drawie.Interop.Avalonia.csproj"/>
     <ProjectReference Include="..\Drawie\src\Drawie.Interop.Avalonia.Core\Drawie.Interop.Avalonia.Core.csproj"/>
     <ProjectReference Include="..\PixiDocks\src\PixiDocks.Avalonia\PixiDocks.Avalonia.csproj"/>
-    <ProjectReference Include="..\PixiEditor.IdentityProvider.PixiAuth\PixiEditor.IdentityProvider.PixiAuth.csproj" />
-    <ProjectReference Include="..\PixiEditor.IdentityProvider\PixiEditor.IdentityProvider.csproj" />
-    <ProjectReference Include="..\PixiEditor.PixiAuth\PixiEditor.PixiAuth.csproj" />
+    <ProjectReference Include="..\PixiEditor.IdentityProvider.PixiAuth\PixiEditor.IdentityProvider.PixiAuth.csproj"/>
+    <ProjectReference Include="..\PixiEditor.IdentityProvider\PixiEditor.IdentityProvider.csproj"/>
+    <ProjectReference Include="..\PixiEditor.PixiAuth\PixiEditor.PixiAuth.csproj"/>
     <ProjectReference Include="..\PixiEditor.SVG\PixiEditor.SVG.csproj"/>
     <ProjectReference Include="..\PixiParser\src\PixiParser.Skia\PixiParser.Skia.csproj"/>
     <ProjectReference Include="..\PixiParser\src\PixiParser\PixiParser.csproj"/>
@@ -158,7 +164,7 @@
 
   <ItemGroup>
     <Folder Include="Extensions\"/>
-    <Folder Include="Models\User\" />
+    <Folder Include="Models\User\"/>
   </ItemGroup>
 
 </Project>

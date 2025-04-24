@@ -16,6 +16,12 @@ public sealed class MSAdditionalContentProvider : IAdditionalContentProvider
         ExtensionsPath = extensionsPath;
     }
 
+    public bool IsInstalled(string productId)
+    {
+        var filePath = Path.Combine(ExtensionsPath, $"{productId}.pixiext");
+        return File.Exists(filePath);
+    }
+
     public async Task<string?> InstallContent(string productId)
     {
         if (!IdentityProvider.ApiValid) return null;

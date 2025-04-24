@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
-    <Configurations>Debug;Release;Steam;DevRelease;DevSteam</Configurations>
+    <Configurations>Debug;Release;Steam;DevRelease;DevSteam;DebugSteam</Configurations>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 

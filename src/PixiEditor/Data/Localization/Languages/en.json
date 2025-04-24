@@ -1036,14 +1036,13 @@
   "FAIL_LOAD_USER_DATA": "Failed to load saved user data",
   "LOGOUT": "Logout",
   "LOGGED_IN_AS": "Hello",
-  "AVATAR_INFO": "Profile taken from Gravatar.\nEdit at gravatar.com",
   "EMAIL_SENT": "Email sent! Check your inbox.",
   "RESEND_ACTIVATION": "Resend",
   "INVALID_TOKEN": "Session is invalid or expired. Please log in again.",
   "ENTER_EMAIL": "Enter your email",
   "LOGIN_LINK": "Send Login Link",
   "LOGIN_LINK_INFO": "We'll email you a secure link to log in. No password needed.",
-  "ACCOUNT_WINDOW_TITLE": "Founder's Account",
+  "ACCOUNT_WINDOW_TITLE": "Account",
   "CONNECTION_TIMEOUT": "Connection timed out. Please try again.",
   "OPEN_ACCOUNT_WINDOW": "Manage Account",
   "AUTO_SCALE_BACKGROUND": "Auto scale background",
@@ -1055,5 +1054,7 @@
   "RESET": "Reset",
   "INSTALL": "Install",
   "MANAGE_ACCOUNT": "Manage",
-  "OWNED_PRODUCTS": "Owned Content"
+  "OWNED_PRODUCTS": "Owned Content",
+  "INSTALLED": "Installed",
+  "ACCOUNT_PROVIDER_INFO": "Account handled by"
 }

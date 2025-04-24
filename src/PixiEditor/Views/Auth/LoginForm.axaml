@@ -65,23 +65,28 @@
             </Panel>
             <TextBlock Text="✕" IsVisible="{Binding !!LastError}" TextWrapping="Wrap"
                        Foreground="{DynamicResource ErrorOnDarkBrush}">
-                <Run Text=""/>
+                <Run Text="" />
                 <Run ui:Translator.LocalizedString="{Binding LastError}" />
             </TextBlock>
         </StackPanel>
         <StackPanel IsVisible="{Binding IsLoggedIn}" Margin="5" Spacing="12" Orientation="Vertical">
             <Border ClipToBounds="True" Width="100" Height="100" CornerRadius="100">
-                <HyperlinkButton NavigateUri="https://gravatar.com/connect" Cursor="Hand"
-                                 ui:Translator.TooltipKey="AVATAR_INFO">
+                <HyperlinkButton NavigateUri="{Binding IdentityProvider.EditProfileUrl}"
+                                 ToolTip.Tip="{Binding IdentityProvider.EditProfileUrl}"
+                                 Cursor="Hand">
                     <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}" />
                 </HyperlinkButton>
             </Border>
+            <TextBlock HorizontalAlignment="Center" Classes="subtext">
+                <Run Text="{ui:Translate Key=ACCOUNT_PROVIDER_INFO}" />
+                <Run Text="{Binding IdentityProvider.ProviderName}" />
+            </TextBlock>
             <TextBlock HorizontalAlignment="Center" FontSize="{DynamicResource FontSizeNormal}"
                        ui:Translator.Key="LOGGED_IN_AS">
                 <Run Text="" />
                 <Run Text="{Binding Username}" />
             </TextBlock>
-            <Button
+            <Button IsVisible="{Binding IdentityProvider.AllowsLogout}"
                 Content="{ui:Translate Key=LOGOUT}"
                 Command="{Binding LogoutCommand}" />
         </StackPanel>

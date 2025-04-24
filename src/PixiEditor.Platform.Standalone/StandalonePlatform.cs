@@ -21,11 +21,11 @@ public sealed class StandalonePlatform : IPlatform
 
     public bool PerformHandshake()
     {
+        IdentityProvider?.Initialize();
         return true;
     }
 
     public void Update()
     {
-
     }
 }

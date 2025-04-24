@@ -8,6 +8,9 @@ public class Product
     [JsonPropertyName("productId")]
     public string ProductId { get; set; } = string.Empty;
 
+    [JsonPropertyName("productName")]
+    public string ProductName { get; set; } = string.Empty;
+
     [JsonPropertyName("isDlc")]
     public bool IsDlc { get; set; }
 

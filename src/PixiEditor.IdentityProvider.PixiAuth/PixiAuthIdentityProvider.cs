@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using PixiEditor.OperatingSystem;
+﻿using PixiEditor.OperatingSystem;
 using PixiEditor.PixiAuth;
 using PixiEditor.PixiAuth.Exceptions;
 using PixiEditor.PixiAuth.Utils;
@@ -8,14 +7,17 @@ namespace PixiEditor.IdentityProvider.PixiAuth;
 
 public class PixiAuthIdentityProvider : IIdentityProvider
 {
+    public string ProviderName { get; } = "PixiAuth";
+    public bool AllowsLogout { get; } = true;
     public bool ApiValid => apiValid;
     private bool apiValid = true;
     public PixiAuthClient PixiAuthClient { get; }
     public PixiUser User { get; private set; }
     public bool IsLoggedIn => User?.IsLoggedIn ?? false;
+    public Uri? EditProfileUrl { get; } = new Uri("https://gravatar.com/connect");
 
     public event Action<string, object>? OnError;
-    public event Action<List<string>>? OwnedProductsUpdated;
+    public event Action<List<ProductData>>? OwnedProductsUpdated;
     public event Action<string>? UsernameUpdated;
     public event Action<PixiUser>? LoginRequestSuccessful;
     public event Action<double>? LoginTimeout;
@@ -34,7 +36,10 @@ public class PixiAuthIdentityProvider : IIdentityProvider
             Console.WriteLine($"Invalid api URL format: {e.Message}");
             apiValid = false;
         }
+    }
 
+    public void Initialize()
+    {
         User = SecureStorage.GetValue<PixiUser>("UserData", null);
         Task.Run(async () =>
         {
@@ -43,6 +48,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
             await LogoutIfTokenExpired();
         });
     }
+
 
     public async Task RequestLogin(string email)
     {
@@ -206,9 +212,9 @@ public class PixiAuthIdentityProvider : IIdentityProvider
             var products = await PixiAuthClient.GetOwnedProducts(User.SessionToken);
             if (products != null)
             {
-                User.OwnedProducts = products.Where(x => x.IsDlc && x.Target == "PixiEditor")
-                    .Select(x => x.ProductId).ToList();
-                OwnedProductsUpdated?.Invoke(new List<string>(User.OwnedProducts));
+                User.OwnedProducts = products.Where(x => x is { IsDlc: true, Target: "PixiEditor" })
+                    .Select(x => new ProductData(x.ProductId, x.ProductName)).ToList();
+                OwnedProductsUpdated?.Invoke(new List<ProductData>(User.OwnedProducts));
             }
         }
         catch (Exception e)
@@ -247,8 +253,8 @@ public class PixiAuthIdentityProvider : IIdentityProvider
                 if (products != null)
                 {
                     User.OwnedProducts = products.Where(x => x.IsDlc && x.Target == "PixiEditor")
-                        .Select(x => x.ProductId).ToList();
-                    OwnedProductsUpdated?.Invoke(new List<string>(User.OwnedProducts));
+                        .Select(x => new ProductData(x.ProductId, x.ProductName)).ToList();
+                    OwnedProductsUpdated?.Invoke(new List<ProductData>(User.OwnedProducts));
                 }
 
                 Task.Run(async () =>

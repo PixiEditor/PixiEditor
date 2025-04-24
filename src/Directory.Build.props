@@ -1,14 +1,14 @@
 <Project>
-    <PropertyGroup>
-        <CodeAnalysisRuleSet>../Custom.ruleset</CodeAnalysisRuleSet>
-		    <AvaloniaVersion>11.2.7</AvaloniaVersion>
-    </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" />
-    </ItemGroup>
-    <ItemGroup>
-        <AdditionalFiles Include="$(SolutionDir)/stylecop.json" />
-    </ItemGroup>
+  <PropertyGroup>
+    <CodeAnalysisRuleSet>../Custom.ruleset</CodeAnalysisRuleSet>
+    <AvaloniaVersion>11.2.7</AvaloniaVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118"/>
+  </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="$(SolutionDir)/stylecop.json"/>
+  </ItemGroup>
 
   <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Windows')) AND '$(Platform)' == 'x64'">
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
@@ -63,6 +63,12 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)'=='DebugSteam'">
+    <DefineConstants>TRACE;DEBUG;STEAM</DefineConstants>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)'=='Steam'">
     <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
     <Optimize>True</Optimize>
@@ -107,5 +113,5 @@
   <PropertyGroup Condition="'$(RuntimeIdentifier)'=='osx-arm64'">
     <DefineConstants>$(DefineConstants);MACOS</DefineConstants>
   </PropertyGroup>
-  
+
 </Project>

@@ -12,6 +12,7 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
     public PixiAuthIdentityProvider IdentityProvider { get; }
 
     public event Action<string, object>? OnError;
+
     public StandaloneAdditionalContentProvider(string extensionsPath, PixiAuthIdentityProvider identityProvider)
     {
         IdentityProvider = identityProvider;
@@ -59,6 +60,14 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
         return null;
     }
 
+    public bool IsInstalled(string productId)
+    {
+        if (string.IsNullOrEmpty(productId)) return false;
+
+        string filePath = Path.Combine(ExtensionsPath, $"{productId}.pixiext");
+        return File.Exists(filePath);
+    }
+
     public bool IsContentOwned(string product)
     {
         if (!PlatformHasContent(product)) return false;
@@ -68,7 +77,7 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
             return false;
         }
 
-        return IdentityProvider.User.OwnedProducts.Contains(product, StringComparer.OrdinalIgnoreCase);
+        return IdentityProvider.User.OwnedProducts.Any(x => x.Id.Equals(product, StringComparison.OrdinalIgnoreCase));
     }
 
     public bool PlatformHasContent(string product)

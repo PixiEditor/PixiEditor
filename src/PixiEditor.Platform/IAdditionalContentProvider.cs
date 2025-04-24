@@ -7,4 +7,5 @@ public interface IAdditionalContentProvider
     public bool PlatformHasContent(string productId);
 
     public event Action<string, object> OnError;
+    public bool IsInstalled(string productId);
 }
