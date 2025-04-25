@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -27,6 +28,8 @@ namespace PixiEditor.Initialization;
 
 internal class ClassicDesktopEntry
 {
+    public static ClassicDesktopEntry? Active { get; private set; }
+    private bool restartQueued;
     private IClassicDesktopStyleApplicationLifetime desktop;
 
     public ClassicDesktopEntry(IClassicDesktopStyleApplicationLifetime desktop)
@@ -34,6 +37,8 @@ internal class ClassicDesktopEntry
         this.desktop = desktop;
         IActivatableLifetime? activable =
             (IActivatableLifetime?)App.Current.TryGetFeature(typeof(IActivatableLifetime));
+
+        Active = this;
         if (activable != null)
         {
             activable.Activated += ActivableOnActivated;
@@ -118,6 +123,12 @@ internal class ClassicDesktopEntry
         return extensionLoader;
     }
 
+    public void Restart()
+    {
+        restartQueued = true;
+        desktop.TryShutdown();
+    }
+
     private IPlatform GetActivePlatform()
     {
 #if STEAM || DEV_STEAM
@@ -196,11 +207,11 @@ internal class ClassicDesktopEntry
         var vm = ViewModels_ViewModelMain.Current;
         if (vm is null)
             return;
-
-        if (vm.DocumentManagerSubViewModel.Documents.Any(x => !x.AllChangesSaved))
+        e.Cancel = true;
+        Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            e.Cancel = true;
-            Task.Run(async () =>
+            await vm.CloseWindow();
+            if (vm.DocumentManagerSubViewModel.Documents.Any(x => !x.AllChangesSaved))
             {
                 await Dispatcher.UIThread.InvokeAsync(async () =>
                 {
@@ -208,13 +219,39 @@ internal class ClassicDesktopEntry
                         new LocalizedString("SESSION_UNSAVED_DATA", "Shutdown"),
                         $"Shutdown");
 
-                    if (confirmation != ConfirmationType.Yes)
+                    if (confirmation == ConfirmationType.Yes)
                     {
+                        if (restartQueued)
+                        {
+                            var process = Process.GetCurrentProcess().MainModule.FileName;
+                            desktop.Exit += (_, _) =>
+                            {
+                                Process.Start(process);
+                            };
+                        }
+
                         desktop.Shutdown();
                     }
+                    else
+                    {
+                        restartQueued = false;
+                    }
                 });
-            });
-        }
+            }
+            else
+            {
+                if (restartQueued)
+                {
+                    var process = Process.GetCurrentProcess().MainModule.FileName;
+                    desktop.Exit += (_, _) =>
+                    {
+                        Process.Start(process);
+                    };
+                }
+
+                desktop.Shutdown();
+            }
+        });
     }
 
     private string GetApiUrl()

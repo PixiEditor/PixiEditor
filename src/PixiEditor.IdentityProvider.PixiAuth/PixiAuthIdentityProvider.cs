@@ -213,7 +213,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
             if (products != null)
             {
                 User.OwnedProducts = products.Where(x => x is { IsDlc: true, Target: "PixiEditor" })
-                    .Select(x => new ProductData(x.ProductId, x.ProductName)).ToList();
+                    .Select(x => new ProductData(x.ProductId, x.ProductName) { LatestVersion = x.LatestVersion }).ToList();
                 OwnedProductsUpdated?.Invoke(new List<ProductData>(User.OwnedProducts));
             }
         }
@@ -252,8 +252,8 @@ public class PixiAuthIdentityProvider : IIdentityProvider
                 var products = await PixiAuthClient.GetOwnedProducts(User.SessionToken);
                 if (products != null)
                 {
-                    User.OwnedProducts = products.Where(x => x.IsDlc && x.Target == "PixiEditor")
-                        .Select(x => new ProductData(x.ProductId, x.ProductName)).ToList();
+                    User.OwnedProducts = products.Where(x => x is { IsDlc: true, Target: "PixiEditor" })
+                        .Select(x => new ProductData(x.ProductId, x.ProductName) { LatestVersion = x.LatestVersion }).ToList();
                     OwnedProductsUpdated?.Invoke(new List<ProductData>(User.OwnedProducts));
                 }
 

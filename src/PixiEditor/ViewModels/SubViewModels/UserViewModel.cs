@@ -135,7 +135,14 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         {
             bool isInstalled = IsInstalled(product.Id);
 
-            OwnedProducts.Add(new OwnedProductViewModel(product, isInstalled, InstallContentCommand, IsInstalled));
+            string? installedVersion = null;
+            if (isInstalled)
+            {
+                installedVersion = Owner.ExtensionsSubViewModel.ExtensionLoader.LoadedExtensions
+                    .FirstOrDefault(x => x.Metadata.UniqueName == product.Id)?.Metadata.Version;
+            }
+
+            OwnedProducts.Add(new OwnedProductViewModel(product, isInstalled, installedVersion, InstallContentCommand, IsInstalled));
         }
 
         NotifyProperties();
@@ -282,7 +289,21 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
     public bool CanInstallContent(string productId)
     {
-        return !IsInstalled(productId);
+        return !IsInstalled(productId) || UpdateAvailable(productId);
+    }
+
+    private bool UpdateAvailable(string productId)
+    {
+        ProductData product = IdentityProvider.User.OwnedProducts
+            .FirstOrDefault(x => x.Id == productId);
+
+        if (product == null)
+        {
+            return false;
+        }
+
+        return Owner.ExtensionsSubViewModel.ExtensionLoader.LoadedExtensions
+                   .FirstOrDefault(x => x.Metadata.UniqueName == productId)?.Metadata.Version != product.LatestVersion;
     }
 
     private bool IsInstalled(string productId)
@@ -312,7 +333,6 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             {
                 Owner.ExtensionsSubViewModel.LoadExtensionAdHoc(extensionPath);
             }
-
         }
         catch (Exception ex)
         {

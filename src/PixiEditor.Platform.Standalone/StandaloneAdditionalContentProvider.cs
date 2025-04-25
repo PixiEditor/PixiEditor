@@ -30,16 +30,31 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
 
         try
         {
-            var stream = await IdentityProvider.PixiAuthClient.DownloadProduct(IdentityProvider.User.SessionToken, productId);
+            var stream =
+                await IdentityProvider.PixiAuthClient.DownloadProduct(IdentityProvider.User.SessionToken, productId);
             if (stream != null)
             {
                 var filePath = Path.Combine(ExtensionsPath, $"{productId}.pixiext");
-                await using (var fileStream = File.Create(filePath))
+                try
                 {
-                    await stream.CopyToAsync(fileStream);
-                }
+                    await using (var fileStream = File.Create(filePath))
+                    {
+                        await stream.CopyToAsync(fileStream);
+                    }
 
-                await stream.DisposeAsync();
+                    await stream.DisposeAsync();
+                }
+                catch (IOException e)
+                {
+                    filePath = Path.Combine(ExtensionsPath, $"{productId}.update");
+                    await using (var fileStream = File.Create(filePath))
+                    {
+                        await stream.CopyToAsync(fileStream);
+                    }
+
+                    await stream.DisposeAsync();
+                    return null;
+                }
 
                 return filePath;
             }

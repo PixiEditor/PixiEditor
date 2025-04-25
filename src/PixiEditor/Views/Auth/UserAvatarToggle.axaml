@@ -42,7 +42,7 @@
                             </Border>
                             <TextBlock Margin="0, 12, 0, 24" HorizontalAlignment="Center"
                                        FontSize="{DynamicResource FontSizeLarge}">
-                                <Run ui:Translator.Key="LOGGED_IN_AS"/>
+                                <Run ui:Translator.Key="LOGGED_IN_AS" />
                                 <Run Text="{Binding Username}" />
                             </TextBlock>
 
@@ -59,12 +59,32 @@
                                             <TextBlock DockPanel.Dock="Left" HorizontalAlignment="Left"
                                                        Text="{Binding ProductData.DisplayName}" />
                                             <Button DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                                    IsVisible="{Binding !RestartRequired}"
+                                                    FontSize="{DynamicResource FontSizeNormal}"
                                                     Command="{Binding InstallCommand}">
                                                 <Panel Margin="4 0">
-                                                    <TextBlock IsVisible="{Binding IsInstalled}">
+                                                    <TextBlock>
+                                                        <TextBlock.IsVisible>
+                                                            <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                                <Binding Path="IsInstalled" />
+                                                                <Binding Path="!UpdateAvailable" />
+                                                            </MultiBinding>
+                                                        </TextBlock.IsVisible>
                                                         <Run Classes="pixi-icon"
-                                                              Text="{DynamicResource icon-checkTick}"/>
+                                                             Text="{DynamicResource icon-checkTick}" />
                                                         <Run ui:Translator.Key="INSTALLED" />
+                                                    </TextBlock>
+
+                                                    <TextBlock Foreground="{DynamicResource ThemeAccent3Brush}">
+                                                        <TextBlock.IsVisible>
+                                                            <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                                <Binding Path="UpdateAvailable" />
+                                                                <Binding Path="!IsInstalling" />
+                                                            </MultiBinding>
+                                                        </TextBlock.IsVisible>
+                                                        <Run Classes="pixi-icon"
+                                                             Text="{DynamicResource icon-download}" />
+                                                        <Run ui:Translator.Key="UPDATE" />
                                                     </TextBlock>
 
                                                     <TextBlock>
@@ -72,10 +92,11 @@
                                                             <MultiBinding Converter="{converters:AllTrueConverter}">
                                                                 <Binding Path="!IsInstalled" />
                                                                 <Binding Path="!IsInstalling" />
+                                                                <Binding Path="!UpdateAvailable" />
                                                             </MultiBinding>
                                                         </TextBlock.IsVisible>
 
-                                                        <Run Classes="pixi-icon" Text="{DynamicResource icon-download}"/>
+                                                        <Run Classes="pixi-icon" Text="{DynamicResource icon-download}" />
                                                         <Run ui:Translator.Key="INSTALL" />
                                                     </TextBlock>
 
@@ -83,6 +104,12 @@
                                                                ui:Translator.Key="INSTALLING" />
                                                 </Panel>
                                             </Button>
+                                            <Button DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                                    FontSize="{DynamicResource FontSizeNormal}"
+                                                    IsVisible="{Binding RestartRequired}"
+                                                    ui:Translator.Key="RESTART"
+                                                    Background="{DynamicResource ThemeAccentBrush}"
+                                                    Command="{xaml:Command Name=PixiEditor.Restart}"/>
                                         </DockPanel>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>

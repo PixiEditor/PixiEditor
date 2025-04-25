@@ -29,12 +29,31 @@ public class ExtensionLoader
 
     public void LoadExtensions()
     {
-        foreach (var file in Directory.GetFiles(PackagesPath))
+        foreach (var updateFile in Directory.GetFiles(PackagesPath, "*.update"))
         {
-            if (file.EndsWith(".pixiext"))
+            try
             {
-                LoadExtension(file);
+                string newExtension = Path.ChangeExtension(updateFile, ".pixiext");
+                if (File.Exists(newExtension))
+                {
+                    File.Delete(newExtension);
+                }
+
+                File.Move(updateFile, newExtension);
             }
+            catch (IOException)
+            {
+                // File is in use, ignore
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // File is in use, ignore
+            }
+        }
+
+        foreach (var file in Directory.GetFiles(PackagesPath, "*.pixiext"))
+        {
+            LoadExtension(file);
         }
     }
 

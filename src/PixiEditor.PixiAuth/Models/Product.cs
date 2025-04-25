@@ -16,4 +16,7 @@ public class Product
 
     [JsonPropertyName("target")]
     public string Target { get; set; }
+
+    [JsonPropertyName("latestVersion")]
+    public string? LatestVersion { get; set; }
 }

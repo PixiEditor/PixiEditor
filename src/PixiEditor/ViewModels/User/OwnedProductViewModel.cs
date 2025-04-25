@@ -25,20 +25,45 @@ public class OwnedProductViewModel : ObservableObject
         set => SetProperty(ref isInstalling, value);
     }
 
+    private bool updateAvailable;
+
+    public bool UpdateAvailable
+    {
+        get => updateAvailable;
+        set => SetProperty(ref updateAvailable, value);
+    }
+
+    private bool restartRequired;
+    public bool RestartRequired
+    {
+        get => restartRequired;
+        set => SetProperty(ref restartRequired, value);
+    }
+
     public IAsyncRelayCommand InstallCommand { get; }
 
-    public OwnedProductViewModel(ProductData productData, bool isInstalled,
+    public OwnedProductViewModel(ProductData productData, bool isInstalled, string? installedVersion,
         IAsyncRelayCommand<string> installContentCommand, Func<string, bool> isInstalledFunc)
     {
         ProductData = productData;
         IsInstalled = isInstalled;
+        if (productData.LatestVersion != null && installedVersion != null)
+        {
+            UpdateAvailable = productData.LatestVersion != installedVersion;
+        }
+        else
+        {
+            UpdateAvailable = false;
+        }
+
         InstallCommand = new AsyncRelayCommand(
             async () =>
-        {
-            IsInstalling = true;
-            await installContentCommand.ExecuteAsync(ProductData.Id);
-            IsInstalling = false;
-            IsInstalled = isInstalledFunc(ProductData.Id);
-        }, () => !IsInstalled && !IsInstalling);
+            {
+                IsInstalling = true;
+                UpdateAvailable = false;
+                await installContentCommand.ExecuteAsync(ProductData.Id);
+                IsInstalling = false;
+                RestartRequired = true;
+            }, () => !IsInstalled && !IsInstalling || UpdateAvailable);
     }
 }
