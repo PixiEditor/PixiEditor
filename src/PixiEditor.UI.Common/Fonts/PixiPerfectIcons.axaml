@@ -162,6 +162,7 @@
             <system:String x:Key="icon-chart-spline">&#xE99e;</system:String>
             <system:String x:Key="icon-logout">&#xE99f;</system:String>
             <system:String x:Key="icon-user">&#xE9A0;</system:String>
+            <system:String x:Key="icon-checkTick">&#xE9A1;</system:String>
 
         </ResourceDictionary>
     </Styles.Resources>

@@ -7,6 +7,8 @@
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:auth="clr-namespace:PixiEditor.Views.Auth"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:ClassModifier="internal"
              x:Class="PixiEditor.Views.Auth.UserAvatarToggle">
@@ -31,21 +33,64 @@
                 </Button.Styles>
                 <Button.Flyout>
                     <Flyout>
-                        <StackPanel IsVisible="{Binding IsLoggedIn}" Margin="5" Spacing="12" Orientation="Vertical">
-                            <Border ClipToBounds="True" Width="100" Height="100" CornerRadius="100">
-                                <HyperlinkButton NavigateUri="https://gravatar.com/connect" Cursor="Hand"
-                                                 ui:Translator.TooltipKey="AVATAR_INFO">
+                        <StackPanel Width="250" IsVisible="{Binding IsLoggedIn}" Margin="15" Orientation="Vertical">
+                            <Border ClipToBounds="True" Width="50" Height="50" CornerRadius="50">
+                                <HyperlinkButton NavigateUri="{Binding IdentityProvider.EditProfileUrl}" Cursor="Hand"
+                                                 ToolTip.Tip="{Binding IdentityProvider.EditProfileUrl}">
                                     <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}" />
                                 </HyperlinkButton>
                             </Border>
-                            <TextBlock HorizontalAlignment="Center" FontSize="{DynamicResource FontSizeNormal}"
-                                       ui:Translator.Key="LOGGED_IN_AS">
-                                <Run Text="" />
+                            <TextBlock Margin="0, 12, 0, 24" HorizontalAlignment="Center"
+                                       FontSize="{DynamicResource FontSizeLarge}">
+                                <Run ui:Translator.Key="LOGGED_IN_AS"/>
                                 <Run Text="{Binding Username}" />
                             </TextBlock>
-                            <Button
-                                Content="{ui:Translate Key=MANAGE_ACCOUNT}"
-                                Command="{xaml:Command Name=PixiEditor.Window.OpenAccountWindow}" />
+
+                            <TextBlock Text="{ui:Translate Key=OWNED_PRODUCTS}" FontWeight="Bold" />
+                            <ItemsControl IsVisible="{Binding !!User}" ItemsSource="{Binding OwnedProducts}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Spacing="12" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <DockPanel>
+                                            <TextBlock DockPanel.Dock="Left" HorizontalAlignment="Left"
+                                                       Text="{Binding ProductData.DisplayName}" />
+                                            <Button DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                                    Command="{Binding InstallCommand}">
+                                                <Panel Margin="4 0">
+                                                    <TextBlock IsVisible="{Binding IsInstalled}">
+                                                        <Run Classes="pixi-icon"
+                                                              Text="{DynamicResource icon-checkTick}"/>
+                                                        <Run ui:Translator.Key="INSTALLED" />
+                                                    </TextBlock>
+
+                                                    <TextBlock>
+                                                        <TextBlock.IsVisible>
+                                                            <MultiBinding Converter="{converters:AllTrueConverter}">
+                                                                <Binding Path="!IsInstalled" />
+                                                                <Binding Path="!IsInstalling" />
+                                                            </MultiBinding>
+                                                        </TextBlock.IsVisible>
+
+                                                        <Run Classes="pixi-icon" Text="{DynamicResource icon-download}"/>
+                                                        <Run ui:Translator.Key="INSTALL" />
+                                                    </TextBlock>
+
+                                                    <TextBlock IsVisible="{Binding IsInstalling}"
+                                                               ui:Translator.Key="INSTALLING" />
+                                                </Panel>
+                                            </Button>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <Button Margin="0, 24, 0, 0"
+                                    Content="{ui:Translate Key=LOGOUT}"
+                                    Command="{Binding LogoutCommand}" />
                         </StackPanel>
                     </Flyout>
                 </Button.Flyout>

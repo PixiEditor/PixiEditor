@@ -15,8 +15,11 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
     public ExtensionsViewModel(ViewModelMain owner, ExtensionLoader loader) : base(owner)
     {
         ExtensionLoader = loader;
-        WindowProvider windowProvider = (WindowProvider)Owner.Services.GetService<IWindowProvider>();
+    }
 
+    public void Init()
+    {
+        WindowProvider windowProvider = (WindowProvider)Owner.Services.GetService<IWindowProvider>();
         RegisterCoreWindows(windowProvider);
         Owner.OnStartupEvent += Owner_OnStartupEvent;
     }

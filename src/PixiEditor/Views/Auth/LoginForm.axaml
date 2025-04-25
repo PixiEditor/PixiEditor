@@ -77,7 +77,7 @@
                     <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}" />
                 </HyperlinkButton>
             </Border>
-            <TextBlock HorizontalAlignment="Center" Classes="subtext">
+            <TextBlock IsVisible="{Binding NonDefaultIdentityProvider}" HorizontalAlignment="Center" Classes="subtext">
                 <Run Text="{ui:Translate Key=ACCOUNT_PROVIDER_INFO}" />
                 <Run Text="{Binding IdentityProvider.ProviderName}" />
             </TextBlock>

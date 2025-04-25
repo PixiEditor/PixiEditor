@@ -12,6 +12,7 @@ using PixiEditor.PixiAuth;
 using PixiEditor.PixiAuth.Exceptions;
 using PixiEditor.PixiAuth.Utils;
 using PixiEditor.Platform;
+using PixiEditor.ViewModels.User;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 
@@ -67,8 +68,8 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    public ObservableCollection<ProductData> OwnedProducts =>
-        new(IdentityProvider?.User?.OwnedProducts ?? new List<ProductData>());
+    public ObservableCollection<OwnedProductViewModel> OwnedProducts { get; } =
+        new ObservableCollection<OwnedProductViewModel>();
 
     private string currentEmail = string.Empty;
 
@@ -87,6 +88,8 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
     public string Username => IdentityProvider?.User?.Username;
 
     public string? AvatarUrl => IdentityProvider.User?.AvatarUrl;
+
+    public bool NonDefaultIdentityProvider => IdentityProvider is not PixiAuthIdentityProvider;
 
     public UserViewModel(ViewModelMain owner) : base(owner)
     {
@@ -108,6 +111,11 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             pixiAuth.LoginTimeout += PixiAuthOnLoginTimeout;
             pixiAuth.LoggedOut += PixiAuthOnLoggedOut;
         }
+
+        if (IdentityProvider?.User != null)
+        {
+            IdentityProviderOnOwnedProductsUpdated(IdentityProvider.User.OwnedProducts);
+        }
     }
 
     private void IdentityProviderOnUsernameUpdated(string newUsername)
@@ -117,6 +125,19 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
     private void IdentityProviderOnOwnedProductsUpdated(List<ProductData> products)
     {
+        OwnedProducts.Clear();
+        if (products == null)
+        {
+            return;
+        }
+
+        foreach (ProductData product in products)
+        {
+            bool isInstalled = IsInstalled(product.Id);
+
+            OwnedProducts.Add(new OwnedProductViewModel(product, isInstalled, InstallContentCommand, IsInstalled));
+        }
+
         NotifyProperties();
     }
 
@@ -291,6 +312,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             {
                 Owner.ExtensionsSubViewModel.LoadExtensionAdHoc(extensionPath);
             }
+
         }
         catch (Exception ex)
         {

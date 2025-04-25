@@ -1055,6 +1055,7 @@
   "INSTALL": "Install",
   "MANAGE_ACCOUNT": "Manage",
   "OWNED_PRODUCTS": "Owned Content",
+  "INSTALLING": "Installing",
   "INSTALLED": "Installed",
   "ACCOUNT_PROVIDER_INFO": "Account handled by"
 }

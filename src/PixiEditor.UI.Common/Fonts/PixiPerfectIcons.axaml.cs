@@ -156,6 +156,7 @@ public static class PixiPerfectIcons
     public const string ChartSpline = "\ue99e";
     public const string Logout = "\ue99f";
     public const string User = "\ue9a0";
+    public const string CheckTick = "\ue9a1";
 
     public static Stream GetFontStream()
     {

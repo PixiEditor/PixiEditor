@@ -147,6 +147,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         StylusSubViewModel = services.GetService<StylusViewModel>();
         RegistrySubViewModel = services.GetService<RegistryViewModel>();
 
+        ExtensionsSubViewModel = services.GetService<ExtensionsViewModel>();
+
         UserViewModel = services.GetRequiredService<UserViewModel>();
         AdditionalContentSubViewModel = services.GetService<AdditionalContentViewModel>();
         MenuBarViewModel = new MenuBarViewModel(AdditionalContentSubViewModel, UpdateSubViewModel, UserViewModel);
@@ -169,8 +171,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
         AutosaveViewModel = services.GetService<AutosaveViewModel>();
 
-
-        ExtensionsSubViewModel = services.GetService<ExtensionsViewModel>(); // Must be last
+        ExtensionsSubViewModel.Init();  // Must be last
 
         DocumentManagerSubViewModel.ActiveDocumentChanged += OnActiveDocumentChanged;
         BeforeDocumentClosed += OnBeforeDocumentClosed;
