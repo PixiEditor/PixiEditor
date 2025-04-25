@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.Commands.XAML;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.UI;
+using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Commands;
 using PixiEditor.OperatingSystem;
 using PixiEditor.ViewModels.SubViewModels;
@@ -25,6 +26,7 @@ internal class MenuBarViewModel : PixiObservableObject
     private AdditionalContentViewModel additionalContentViewModel;
     private UpdateViewModel updateViewModel;
     private UserViewModel userViewModel;
+    private ExecutionTrigger _openPixiEditorMenuTrigger;
 
     public AdditionalContentViewModel AdditionalContentSubViewModel
     {
@@ -47,6 +49,12 @@ internal class MenuBarViewModel : PixiObservableObject
     public ObservableCollection<MenuItem>? MenuEntries { get; set; }
     public NativeMenu? NativeMenu { get; private set; }
 
+    public ExecutionTrigger OpenPixiEditorMenuTrigger
+    {
+        get => _openPixiEditorMenuTrigger;
+        set => SetProperty(ref _openPixiEditorMenuTrigger, value);
+    }
+
     private Dictionary<string, MenuTreeItem> menuItems = new();
     private List<NativeMenuItem> nativeMenuItems;
 
@@ -62,11 +70,13 @@ internal class MenuBarViewModel : PixiObservableObject
         { "DEBUG", 1000 },
     };
 
-    public MenuBarViewModel(AdditionalContentViewModel? additionalContentSubViewModel, UpdateViewModel? updateViewModel, UserViewModel? userViewModel)
+    public MenuBarViewModel(AdditionalContentViewModel? additionalContentSubViewModel, UpdateViewModel? updateViewModel,
+        UserViewModel? userViewModel)
     {
         AdditionalContentSubViewModel = additionalContentSubViewModel;
         UpdateViewModel = updateViewModel;
         UserViewModel = userViewModel;
+        OpenPixiEditorMenuTrigger = new ExecutionTrigger();
     }
 
     public void Init(IServiceProvider serviceProvider, CommandController controller)
@@ -85,6 +95,33 @@ internal class MenuBarViewModel : PixiObservableObject
         }
 
         BuildMenu(controller, builders);
+
+        if (!UpdateViewModel.IsUpdateAvailable)
+        {
+            UpdateViewModel.PropertyChanged += UpdateViewModelChanged;
+        }
+        else
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                OpenPixiEditorMenuTrigger.Execute(this);
+            });
+        }
+    }
+
+    private void UpdateViewModelChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(UpdateViewModel.IsUpdateAvailable))
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (UpdateViewModel.IsUpdateAvailable)
+                {
+                    UpdateViewModel.PropertyChanged -= UpdateViewModelChanged;
+                    OpenPixiEditorMenuTrigger.Execute(this);
+                }
+            });
+        }
     }
 
     private int GetCategoryMultiplier(Commands_Command command)
