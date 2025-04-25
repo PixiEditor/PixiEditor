@@ -60,10 +60,18 @@ public class OwnedProductViewModel : ObservableObject
             async () =>
             {
                 IsInstalling = true;
+                bool wasUpdating = UpdateAvailable;
                 UpdateAvailable = false;
                 await installContentCommand.ExecuteAsync(ProductData.Id);
                 IsInstalling = false;
-                RestartRequired = true;
+                if (wasUpdating)
+                {
+                    RestartRequired = true;
+                }
+                else
+                {
+                    IsInstalled = isInstalledFunc(ProductData.Id);
+                }
             }, () => !IsInstalled && !IsInstalling || UpdateAvailable);
     }
 }

@@ -109,7 +109,7 @@
                                                     IsVisible="{Binding RestartRequired}"
                                                     ui:Translator.Key="RESTART"
                                                     Background="{DynamicResource ThemeAccentBrush}"
-                                                    Command="{xaml:Command Name=PixiEditor.Restart}"/>
+                                                    Command="{xaml:Command Name=PixiEditor.Restart}" />
                                         </DockPanel>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -117,12 +117,29 @@
 
                             <Button Margin="0, 24, 0, 0"
                                     Content="{ui:Translate Key=LOGOUT}"
+                                    IsVisible="{Binding IdentityProvider.AllowsLogout}"
                                     Command="{Binding LogoutCommand}" />
+
+                            <TextBlock Classes="subtext" HorizontalAlignment="Center"
+                                       Margin="0, 12, 0, 0"
+                                       IsVisible="{Binding NonDefaultIdentityProvider}">
+                                <Run Text="{ui:Translate Key=ACCOUNT_PROVIDER_INFO}" />
+                                <Run Text="{Binding IdentityProvider.ProviderName}" />
+                            </TextBlock>
                         </StackPanel>
                     </Flyout>
                 </Button.Flyout>
             </Button>
         </Border>
+
+        <Ellipse IsVisible="{Binding AnyUpdateAvailable}"
+                   ClipToBounds="False"
+                   Width="12" Height="12"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Bottom"
+                   StrokeThickness="2"
+                   Stroke="{DynamicResource ThemeBackgroundBrush}"
+                   Fill="{DynamicResource ThemeAccent3Brush}" />
         <Button IsVisible="{Binding !IsLoggedIn}"
                 Classes="pixi-icon"
                 Content="{DynamicResource icon-user}"

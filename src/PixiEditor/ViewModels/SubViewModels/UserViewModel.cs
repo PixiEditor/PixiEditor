@@ -90,6 +90,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
     public string? AvatarUrl => IdentityProvider.User?.AvatarUrl;
 
     public bool NonDefaultIdentityProvider => IdentityProvider is not PixiAuthIdentityProvider;
+    public bool AnyUpdateAvailable => OwnedProducts.Any(x => x.UpdateAvailable);
 
     public UserViewModel(ViewModelMain owner) : base(owner)
     {
@@ -365,6 +366,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         OnPropertyChanged(nameof(AvatarUrl));
         OnPropertyChanged(nameof(EmailEqualsLastSentMail));
         OnPropertyChanged(nameof(OwnedProducts));
+        OnPropertyChanged(nameof(AnyUpdateAvailable));
         ResendActivationCommand.NotifyCanExecuteChanged();
     }
 }
