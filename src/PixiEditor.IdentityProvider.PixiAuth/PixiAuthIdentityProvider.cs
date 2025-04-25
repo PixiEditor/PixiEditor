@@ -82,6 +82,11 @@ public class PixiAuthIdentityProvider : IIdentityProvider
         {
             Error("CONNECTION_TIMEOUT");
         }
+        catch (TooManyRequestsException tooManyRequestsException)
+        {
+            Error(tooManyRequestsException.Message, tooManyRequestsException.TimeLeft);
+            LoginTimeout?.Invoke(tooManyRequestsException.TimeLeft);
+        }
     }
 
     public async Task ResendActivation(string email)

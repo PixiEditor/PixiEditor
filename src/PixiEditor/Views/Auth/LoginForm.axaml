@@ -17,7 +17,7 @@
         <StackPanel IsVisible="{Binding !IsLoggedIn}" VerticalAlignment="Top" Spacing="12">
             <TextBox Text="{Binding CurrentEmail, Mode=TwoWay}" Watermark="{ui:Translate Key=ENTER_EMAIL}" Name="Email"
                      IsVisible="{Binding !IsLoggedIn}" />
-            <Button Name="LoginButton" ui:Translator.Key="LOGIN_LINK"
+            <Button Name="LoginButton"
                     IsDefault="True"
                     Command="{Binding RequestLoginCommand}"
                     CommandParameter="{Binding ElementName=Email, Path=Text}">
@@ -27,6 +27,10 @@
                         <Binding Path="!EmailEqualsLastSentMail" />
                     </MultiBinding>
                 </Button.IsVisible>
+                <TextBlock>
+                    <Run ui:Translator.Key="LOGIN_LINK" />
+                    <Run Text="{Binding TimeToEndTimeoutString}" />
+                </TextBlock>
             </Button>
             <Button Command="{Binding Path=ResendActivationCommand}"
                     CommandParameter="{Binding ElementName=Email, Path=Text}">
@@ -87,8 +91,8 @@
                 <Run Text="{Binding Username}" />
             </TextBlock>
             <Button IsVisible="{Binding IdentityProvider.AllowsLogout}"
-                Content="{ui:Translate Key=LOGOUT}"
-                Command="{Binding LogoutCommand}" />
+                    Content="{ui:Translate Key=LOGOUT}"
+                    Command="{Binding LogoutCommand}" />
         </StackPanel>
     </Panel>
 </UserControl>

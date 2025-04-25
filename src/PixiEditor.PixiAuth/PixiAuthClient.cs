@@ -47,6 +47,16 @@ public class PixiAuthClient
         {
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
         }
+        else if (response.StatusCode == HttpStatusCode.TooManyRequests)
+        {
+            if (response.Headers.TryGetValues("Retry-After", out var values))
+            {
+                if (int.TryParse(values.FirstOrDefault(), out int retryAfter))
+                {
+                    throw new TooManyRequestsException("TOO_MANY_REQUESTS", retryAfter / 1000d);
+                }
+            }
+        }
 
         return null;
     }
@@ -161,45 +171,14 @@ public class PixiAuthClient
     {
         var response = await httpClient.PostAsJsonAsync("/session/resendActivation", userSessionId);
 
-        if (response.StatusCode == HttpStatusCode.BadRequest)
+        if (response.StatusCode == HttpStatusCode.TooManyRequests)
         {
-            string responseString = await response.Content.ReadAsStringAsync();
-            try
+            if (response.Headers.TryGetValues("Retry-After", out var values))
             {
-                Dictionary<string, object> responseData =
-                    System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(responseString);
-                if (responseData != null && responseData.TryGetValue("error", out object? error))
+                if (int.TryParse(values.FirstOrDefault(), out int retryAfter))
                 {
-                    if (error is JsonElement errorElement)
-                    {
-                        error = errorElement.GetString();
-                    }
-
-
-                    if (error is string errorString and "TOO_MANY_REQUESTS")
-                    {
-                        if (responseData.TryGetValue("timeLeft", out object? timeLeft))
-                        {
-                            if (timeLeft is JsonElement timeLeftElement)
-                            {
-                                timeLeft = timeLeftElement.GetDouble();
-                            }
-
-                            if (timeLeft is double timeLeftDouble)
-                            {
-                                double seconds = double.Round(timeLeftDouble / 1000);
-                                throw new TooManyRequestsException(errorString, seconds);
-                            }
-                        }
-
-                        throw new BadRequestException(errorString);
-                    }
+                    throw new TooManyRequestsException("TOO_MANY_REQUESTS", retryAfter / 1000d);
                 }
-            }
-            catch (JsonException)
-            {
-                // Handle JSON parsing error
-                throw new BadRequestException(responseString);
             }
         }
         else if (response.StatusCode == HttpStatusCode.InternalServerError)
@@ -281,7 +260,8 @@ public class PixiAuthClient
 
     public async Task<Stream> DownloadProduct(string token, string productId)
     {
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"/content/downloadProduct?productId={productId}");
+        HttpRequestMessage request =
+            new HttpRequestMessage(HttpMethod.Get, $"/content/downloadProduct?productId={productId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         request.Content = JsonContent.Create(productId);
 

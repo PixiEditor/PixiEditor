@@ -186,7 +186,8 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 
     public bool CanRequestLogin(string email)
     {
-        return IdentityProvider is PixiAuthIdentityProvider && !string.IsNullOrEmpty(email) && email.Contains('@');
+        return IdentityProvider is PixiAuthIdentityProvider && !string.IsNullOrEmpty(email) && email.Contains('@') &&
+               !HasTimeout();
     }
 
     public async Task ResendActivation(string email)
@@ -205,12 +206,23 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         }
     }
 
+    public bool HasTimeout()
+    {
+        if (TimeToEndTimeout != null)
+        {
+            return DateTime.Now < TimeToEndTimeout;
+        }
+
+        return false;
+    }
+
     private void RunTimeoutTimers(double timeLeft)
     {
         DispatcherTimer.RunOnce(
             () =>
             {
                 TimeToEndTimeout = null;
+                LastError = null;
                 NotifyProperties();
             },
             TimeSpan.FromSeconds(timeLeft));
@@ -368,5 +380,6 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         OnPropertyChanged(nameof(OwnedProducts));
         OnPropertyChanged(nameof(AnyUpdateAvailable));
         ResendActivationCommand.NotifyCanExecuteChanged();
+        RequestLoginCommand.NotifyCanExecuteChanged();
     }
 }
