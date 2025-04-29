@@ -73,7 +73,7 @@ public sealed class MSAdditionalContentProvider : IAdditionalContentProvider
             return false;
         }
 
-        return IdentityProvider.User.OwnedProducts.Contains(product);
+        return IdentityProvider.User.OwnedProducts.Any(x => x.Id.Equals(product, StringComparison.OrdinalIgnoreCase));
     }
 
     public bool PlatformHasContent(string product)

@@ -362,6 +362,13 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         else
         {
             LastError = arg != null ? new LocalizedString(error, arg) : new LocalizedString(error);
+            if(User is PixiUser { IsWaitingForActivation: true } pixiUser)
+            {
+                pixiUser.SessionId = null;
+                pixiUser.SessionToken = null;
+                pixiUser.SessionExpirationDate = null;
+                NotifyProperties();
+            }
         }
     }
 
