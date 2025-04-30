@@ -1032,5 +1032,8 @@
   "CUSTOM_BACKGROUND_SCALE": "Custom background scale",
   "PRIMARY_BG_COLOR": "Primary background color",
   "SECONDARY_BG_COLOR": "Secondary background color",
-  "RESET": "Reset"
+  "RESET": "Reset",
+  "AUTOSAVE_OPEN_FOLDER": "Open autosave folder",
+   "AUTOSAVE_OPEN_FOLDER_DESCRIPTIVE": "Open the folder where autosaves are stored",
+  "AUTOSAVE_TOGGLE_DESCRIPTIVE": "Enable/disable autosave"
 }

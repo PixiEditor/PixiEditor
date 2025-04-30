@@ -227,7 +227,7 @@ internal partial class HelloTherePopup : PixiEditorPopup
 
     private void CheckHasClipboardInImage()
     {
-        Task.Run(async () =>
+        Dispatcher.UIThread.InvokeAsync(async () =>
         {
             hasImageInClipboard = await ClipboardController.IsImageInClipboard();
         }).ContinueWith(_ =>

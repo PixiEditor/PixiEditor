@@ -1,12 +1,12 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Threading;
+using Avalonia.Controls.ApplicationLifetimes;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
+using PixiEditor.Initialization;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Views;
@@ -79,6 +79,16 @@ internal partial class CrashReportViewModel : Window
         Application.Current.Run(window);
     }
 
+    [RelayCommand]
+    public void RunInSafeMode()
+    {
+        var app = (App)Application.Current;
+        ClassicDesktopEntry entry = new(app.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime);
+        StartupArgs.Args = new List<string> { "--safeMode" };
+        var window = new MainWindow(entry.InitApp(true), null);
+        Application.Current.Run(window);
+    }
+
     public bool CanRecoverDocuments()
     {
         return hasRecoveredDocuments;
@@ -108,14 +118,5 @@ internal partial class CrashReportViewModel : Window
     private void SetIsDebug()
     {
         IsDebugBuild = true;
-    }
-
-    [RelayCommand]
-    private void AttachDebugger()
-    {
-        if (!Debugger.Launch())
-        {
-            /*TODO: MessageBox.Show("Starting debugger failed", "Starting debugger failed", MessageBoxButton.OK, MessageBoxImage.Error);*/
-        }
     }
 }

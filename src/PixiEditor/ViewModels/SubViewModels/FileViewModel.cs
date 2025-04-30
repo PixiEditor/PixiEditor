@@ -117,7 +117,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         try
         {
-            if (!args.Contains("--crash"))
+            if (!args.Contains("--crash") && !args.Contains("--safeMode"))
             {
                 var lastCrash = preferences!.GetLocalPreference<string>(PreferencesConstants.LastCrashFile);
 

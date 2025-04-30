@@ -61,6 +61,8 @@ internal class ClassicDesktopEntry
 
         InitOperatingSystem();
 
+        bool safeMode = arguments.Contains("--safeMode", StringComparison.OrdinalIgnoreCase);
+
         if (ParseArgument(@"--crash (""?)([\w:\/\ -_.]+)\1", arguments, out Group[] groups))
         {
             try
@@ -92,7 +94,7 @@ internal class ClassicDesktopEntry
         }
 #endif
 
-        var extensionLoader = InitApp();
+        var extensionLoader = InitApp(safeMode);
 
         desktop.MainWindow = new MainWindow(extensionLoader);
         desktop.MainWindow.Show();
@@ -105,7 +107,7 @@ internal class ClassicDesktopEntry
         platform.PerformHandshake();
     }
 
-    public ExtensionLoader InitApp()
+    public ExtensionLoader InitApp(bool safeMode)
     {
         LoadingWindow.ShowInNewThread();
 
@@ -116,7 +118,10 @@ internal class ClassicDesktopEntry
         extensionLoader.AddOfficialExtension("pixieditor.supporterpack",
             new OfficialExtensionData("supporter-pack.snk", AdditionalContentProduct.SupporterPack));
         extensionLoader.AddOfficialExtension("pixieditor.beta", new OfficialExtensionData());
-        extensionLoader.LoadExtensions();
+        if (!safeMode)
+        {
+            extensionLoader.LoadExtensions();
+        }
 
         return extensionLoader;
     }
