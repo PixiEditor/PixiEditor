@@ -58,6 +58,7 @@ internal class ImportLayer_Change : Change
 
         var clone = (LayerNode)layerNode.Clone();
         clone.Id = duplicateGuid;
+        ResizeImageData(clone, target.Size);
 
         var targetInput = target.NodeGraph.OutputNode?.InputProperties.FirstOrDefault(x =>
             x.ValueType == typeof(Painter)) as InputProperty<Painter?>;
@@ -107,6 +108,18 @@ internal class ImportLayer_Change : Change
     public override void Dispose()
     {
         sourceDocumentPipe?.Dispose();
+    }
+
+    private void ResizeImageData(LayerNode layerNode, VecI docSize)
+    {
+        foreach (var imageData in layerNode.KeyFrames)
+        {
+            if (imageData.Data is ChunkyImage img)
+            {
+                img.EnqueueResize(docSize);
+                img.CommitChanges();
+            }
+        }
     }
 }
 
