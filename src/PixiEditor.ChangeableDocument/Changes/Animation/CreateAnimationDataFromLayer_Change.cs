@@ -27,7 +27,7 @@ internal class CreateAnimationDataFromLayer_Change : Change
         List<IChangeInfo> infos = new List<IChangeInfo>();
         foreach (var frame in layer.KeyFrames)
         {
-            Guid keyFrameId = Guid.NewGuid();
+            Guid keyFrameId = frame.KeyFrameGuid;
             target.AnimationData.AddKeyFrame(new RasterKeyFrame(keyFrameId, layer.Id, frame.StartFrame, target)
             {
                 Duration = frame.Duration

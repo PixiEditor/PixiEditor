@@ -155,7 +155,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
             startDrawingPos = center + (center - snapped);
         }
 
-        HighlightSnapping(snapX, snapY);
+        HighlightSnapping(snapX, snapY, !string.IsNullOrEmpty(snapX) || !string.IsNullOrEmpty(snapY) ? snapped : null);
         document!.LineToolOverlayHandler.LineEnd = snapped;
 
         curPos = snapped;

@@ -135,7 +135,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                 var foundToolSet = toolsets.FirstOrDefault(x => x.Name == toolSetConfig.Name);
                 if (foundToolSet is not null)
                 {
-                   AllToolSets.Add(foundToolSet);
+                    AllToolSets.Add(foundToolSet);
                 }
             }
 
@@ -424,6 +424,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         {
             if (ActiveTool.LayerTypeToCreateOnEmptyUse == null) return;
 
+            using var changeBlock = Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.StartChangeBlock();
             Guid? createdLayer = Owner.LayersSubViewModel.NewLayer(
                 ActiveTool.LayerTypeToCreateOnEmptyUse,
                 ActionSource.Automated,
@@ -433,21 +434,10 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                 Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.SetSelectedMember(createdLayer.Value);
             }
 
-            waitForChange = true;
+            changeBlock.ExecuteQueuedActions();
         }
 
-        if (waitForChange)
-        {
-            Owner.DocumentManagerSubViewModel.ActiveDocument.Operations
-                .InvokeCustomAction(() =>
-                {
-                    ActiveTool.UseTool(canvasPos);
-                });
-        }
-        else
-        {
-            ActiveTool.UseTool(canvasPos);
-        }
+        ActiveTool.UseTool(canvasPos);
     }
 
     public void ConvertedKeyDownInlet(FilteredKeyEventArgs args)
