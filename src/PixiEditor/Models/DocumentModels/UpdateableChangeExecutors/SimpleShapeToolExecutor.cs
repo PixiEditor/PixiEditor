@@ -73,7 +73,11 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
             ActiveMode = ShapeToolMode.Preview;
         }
 
-        restoreSnapping = DisableSelfSnapping(memberId, document);
+        if (controller.LeftMousePressed)
+        {
+            restoreSnapping?.Dispose();
+            restoreSnapping = DisableSelfSnapping(memberId, document);
+        }
 
         return ExecutionState.Success;
     }
@@ -127,6 +131,9 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
         {
             ActiveMode = ShapeToolMode.Drawing;
         }
+
+        restoreSnapping?.Dispose();
+        restoreSnapping = DisableSelfSnapping(memberId, document);
     }
 
     public override void OnPrecisePositionChange(VecD pos)
