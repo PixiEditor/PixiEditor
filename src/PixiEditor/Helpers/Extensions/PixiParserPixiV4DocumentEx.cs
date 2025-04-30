@@ -162,7 +162,9 @@ internal static class PixiParserPixiV4DocumentEx
                     new KeyFrameData()
                     {
                         AffectedElement = ImageLayerNode.ImageLayerKey,
-                        Data = new ChunkyImage(Surface.Load(layer.ImageBytes), ColorSpace.CreateSrgb()),
+                        Data = layer is { Width: > 0, Height: > 0, ImageBytes.Length: > 0 }
+                            ? new ChunkyImage(Surface.Load(layer.ImageBytes), ColorSpace.CreateSrgb()) :
+                            new ChunkyImage(new VecI(document.Width, document.Height), ColorSpace.CreateSrgb()),
                         Duration = 0,
                         StartFrame = 0,
                         IsVisible = true
