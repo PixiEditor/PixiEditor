@@ -37,7 +37,7 @@ public sealed class WindowsOperatingSystem : IOperatingSystem
     public void OpenFolder(string path)
     {
         string dirName = Path.GetDirectoryName(path);
-        string fileName = Path.GetFileName(path);
+        string fileName = !string.IsNullOrEmpty(Path.GetExtension(path)) ? Path.GetFileName(path) : null;
 
         if (dirName == null)
         {
@@ -50,7 +50,7 @@ public sealed class WindowsOperatingSystem : IOperatingSystem
             return;
         }
 
-        WindowsProcessUtility.ShellExecuteEV(dirName);
+        WindowsProcessUtility.ShellExecuteEV(path);
     }
 
     public bool HandleNewInstance(Dispatcher? dispatcher, Action<string, bool> openInExistingAction, IApplicationLifetime lifetime)
