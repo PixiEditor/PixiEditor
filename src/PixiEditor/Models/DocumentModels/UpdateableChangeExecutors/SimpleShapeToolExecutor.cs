@@ -154,7 +154,7 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
 
     public override void OnLeftMouseButtonUp(VecD argsPositionOnCanvas)
     {
-        HighlightSnapping(null, null);
+        HighlightSnapping(null, null, null);
         ActiveMode = ShapeToolMode.Transform;
     }
 
@@ -168,7 +168,7 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
     {
         ActiveMode = ShapeToolMode.Preview;
         AddMembersToSnapping();
-        HighlightSnapping(null, null);
+        HighlightSnapping(null, null, null);
     }
 
     public virtual void OnLineOverlayMoved(VecD start, VecD end)
@@ -183,14 +183,14 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
     {
         StopMode(activeMode);
         AddMembersToSnapping();
-        HighlightSnapping(null, null);
+        HighlightSnapping(null, null, null);
     }
 
-    protected void HighlightSnapping(string? snapX, string? snapY)
+    protected void HighlightSnapping(string? snapX, string? snapY, VecD? snapPoint)
     {
         document!.SnappingHandler.SnappingController.HighlightedXAxis = snapX;
         document!.SnappingHandler.SnappingController.HighlightedYAxis = snapY;
-        document.SnappingHandler.SnappingController.HighlightedPoint = null;
+        document.SnappingHandler.SnappingController.HighlightedPoint = snapPoint;
     }
 
     protected void AddMembersToSnapping()
@@ -202,7 +202,7 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
     {
         VecD snapped =
             document.SnappingHandler.SnappingController.GetSnapPoint(pos, out string snapX, out string snapY);
-        HighlightSnapping(snapX, snapY);
+        HighlightSnapping(snapX, snapY, snapped);
         return snapped;
     }
 
@@ -211,7 +211,7 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
         VecD mouseSnap =
             document.SnappingHandler.SnappingController.GetSnapPoint(pos, out string snapXAxis,
                 out string snapYAxis);
-        HighlightSnapping(snapXAxis, snapYAxis);
+        HighlightSnapping(snapXAxis, snapYAxis, null);
 
         if (!string.IsNullOrEmpty(snapXAxis) || !string.IsNullOrEmpty(snapYAxis))
         {
