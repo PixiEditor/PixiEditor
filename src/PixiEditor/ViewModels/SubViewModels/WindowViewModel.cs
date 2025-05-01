@@ -206,6 +206,9 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
 
     public void CloseViewportForLazyDocument(LazyDocumentViewModel lazyDoc)
     {
+        if (lazyDoc is null)
+            return;
+
         var viewport = LazyViewports.FirstOrDefault(vp => vp.LazyDocument == lazyDoc);
         if (viewport is not null)
         {

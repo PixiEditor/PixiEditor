@@ -150,7 +150,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
         else if (!args.Contains("--crash") && !args.Contains("--openedInExisting"))
         {
-            if(preferences.GetLocalPreference("OnboardingShown", false) == false)
+            if (preferences.GetLocalPreference("OnboardingShown", false) == false)
             {
                 preferences.UpdateLocalPreference("OnboardingShown", true);
                 Owner.WindowSubViewModel.OpenOnboardingWindow();
@@ -902,6 +902,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     public void LoadLazyDocument(LazyDocumentViewModel lazyDocument)
     {
+        if (lazyDocument == null || lazyDocument.Path == null)
+            return;
+
         var document = OpenFromPath(lazyDocument.Path, lazyDocument.AssociatePath);
 
         if (document is null)

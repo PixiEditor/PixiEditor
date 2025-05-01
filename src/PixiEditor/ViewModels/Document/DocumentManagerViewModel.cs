@@ -19,7 +19,10 @@ namespace PixiEditor.ViewModels.Document;
 internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocumentManagerHandler
 {
     public ObservableCollection<DocumentViewModel> Documents { get; } = new ObservableCollection<DocumentViewModel>();
-    public ObservableCollection<LazyDocumentViewModel> LazyDocuments { get; } = new ObservableCollection<LazyDocumentViewModel>();
+
+    public ObservableCollection<LazyDocumentViewModel> LazyDocuments { get; } =
+        new ObservableCollection<LazyDocumentViewModel>();
+
     public event EventHandler<DocumentChangedEventArgs>? ActiveDocumentChanged;
 
     private DocumentViewModel? activeDocument;
@@ -274,6 +277,9 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     [Command.Internal("PixiEditor.Document.LoadLazyDocument")]
     public void LoadLazyDocument(LazyDocumentViewModel lazyDocument)
     {
+        if (lazyDocument == null)
+            return;
+
         Owner.FileSubViewModel.LoadLazyDocument(lazyDocument);
         LazyDocuments.Remove(lazyDocument);
         Owner.WindowSubViewModel.CloseViewportForLazyDocument(lazyDocument);
