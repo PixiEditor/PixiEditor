@@ -24,6 +24,19 @@ public class ApplyFilterNode : RenderNode, IRenderInput
         Filter = CreateInput<Filter>("Filter", "FILTER", null);
         Output.FirstInChain = null;
         AllowHighDpiRendering = true;
+        Background.ConnectionChanged += OnConnectionChanged;
+    }
+
+    private void OnConnectionChanged()
+    {
+        if (Background.Connection == null)
+        {
+            AllowHighDpiRendering = true;
+        }
+        else
+        {
+            AllowHighDpiRendering = (Background.Connection.Node as RenderNode)?.AllowHighDpiRendering ?? true;
+        }
     }
 
     protected override void OnPaint(RenderContext context, DrawingSurface surface)

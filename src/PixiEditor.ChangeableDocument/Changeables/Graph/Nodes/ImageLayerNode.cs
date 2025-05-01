@@ -54,6 +54,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         int scaled = workingSurface.Canvas.Save();
         float multiplier = (float)ctx.ChunkResolution.InvertedMultiplier();
         workingSurface.Canvas.Translate(GetScenePosition(ctx.FrameTime));
+
         base.DrawLayerInScene(ctx, workingSurface, useFilters);
 
         workingSurface.Canvas.RestoreToCount(scaled);

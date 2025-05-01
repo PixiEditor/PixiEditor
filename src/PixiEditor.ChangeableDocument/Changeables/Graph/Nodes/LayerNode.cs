@@ -44,7 +44,18 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
             }
 
-            DrawLayerInScene(context, renderOnto, useFilters);
+            if (AllowHighDpiRendering)
+            {
+                DrawLayerInScene(context, renderOnto, useFilters);
+            }
+            else
+            {
+                using var tempSurface = Texture.ForProcessing(context.DocumentSize, context.ProcessingColorSpace);
+                DrawLayerOnTexture(context, tempSurface.DrawingSurface, useFilters);
+
+                renderOnto.Canvas.DrawSurface(tempSurface.DrawingSurface, 0, 0, blendPaint);
+            }
+
             return;
         }
 
@@ -134,11 +145,13 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
             tex = Texture.ForProcessing(workingSurface,
                 ColorSpace.CreateSrgb());
-            targetSurface = tex.DrawingSurface;
             workingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+
+            targetSurface = tex.DrawingSurface;
 
             finalPaint = new Paint();
         }
+
         if (useFilters && Filters.Value != null)
         {
             blendPaint.SetFilters(Filters.Value);
