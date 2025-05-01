@@ -113,10 +113,14 @@ internal partial class EditableTextBlock : UserControl
 
     private void TextBox_KeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Enter)
+        if (e.Key is Key.Enter or Key.Escape)
         {
             DisableEditing();
+            e.Handled = true;
+            return;
         }
+
+        e.Handled = e.Key is Key.Left or Key.Right;
     }
 
     private void TextBox_LostFocus(object? sender, RoutedEventArgs routedEventArgs)
