@@ -32,7 +32,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         blendPaint.BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver;
 
         RenderContent(sceneContext, sceneContext.RenderSurface,
-            sceneContext.TargetPropertyOutput != FilterlessOutput);
+            sceneContext.TargetPropertyOutput == Output);
     }
 
     private void RenderContent(SceneObjectRenderContext context, DrawingSurface renderOnto, bool useFilters)
@@ -53,7 +53,9 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 using var tempSurface = Texture.ForProcessing(context.DocumentSize, context.ProcessingColorSpace);
                 DrawLayerOnTexture(context, tempSurface.DrawingSurface, useFilters);
 
-                renderOnto.Canvas.DrawSurface(tempSurface.DrawingSurface, 0, 0, blendPaint);
+                using var paint = new Paint();
+                paint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
+                renderOnto.Canvas.DrawSurface(tempSurface.DrawingSurface, 0, 0, paint);
             }
 
             return;
