@@ -54,6 +54,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         int scaled = workingSurface.Canvas.Save();
         float multiplier = (float)ctx.ChunkResolution.InvertedMultiplier();
         workingSurface.Canvas.Translate(GetScenePosition(ctx.FrameTime));
+
         base.DrawLayerInScene(ctx, workingSurface, useFilters);
 
         workingSurface.Canvas.RestoreToCount(scaled);
@@ -61,13 +62,13 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     protected internal override void DrawLayerOnTexture(SceneObjectRenderContext ctx,
         DrawingSurface workingSurface,
-        bool useFilters)
+        bool useFilters, Paint paint)
     {
         int scaled = workingSurface.Canvas.Save();
         workingSurface.Canvas.Translate(GetScenePosition(ctx.FrameTime) * ctx.ChunkResolution.Multiplier());
         workingSurface.Canvas.Scale((float)ctx.ChunkResolution.Multiplier());
 
-        DrawLayerOnto(ctx, workingSurface, useFilters);
+        DrawLayerOnto(ctx, workingSurface, useFilters, paint);
 
         workingSurface.Canvas.RestoreToCount(scaled);
     }
