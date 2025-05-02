@@ -182,11 +182,15 @@
                                ui:Translator.Key="PRIVACY_POLICY" />
                 </TextBlock>
             </StackPanel>
-            <Grid Grid.Row="1"
-                  IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=4}">
-                <TextBlock Text="{ui:Translate Key=FOUNDERS_BUNDLE_SUBTEXT}" HorizontalAlignment="Center" />
-                <Svg VerticalAlignment="Center" Path="/Images/FoundersBundle.svg" Width="532" />
-            </Grid>
+            <DockPanel Grid.Row="1" LastChildFill="True"
+                       IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=4}">
+                <TextBlock DockPanel.Dock="Top" Text="{ui:Translate Key=FOUNDERS_BUNDLE_SUBTEXT}" HorizontalAlignment="Center" />
+                <StackPanel Spacing="12" HorizontalAlignment="Center" DockPanel.Dock="Bottom" Orientation="Horizontal">
+                    <Button ui:Translator.Key="LOGIN" Background="Transparent"/>
+                    <Button ui:Translator.Key="BECOME_A_FOUNDER" Background="Transparent"/>
+                </StackPanel>
+                <Svg  VerticalAlignment="Center" Path="/Images/FoundersBundle.svg" Width="532" />
+            </DockPanel>
         </Grid>
         <DockPanel
             LastChildFill="True"
