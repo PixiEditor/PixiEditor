@@ -15,6 +15,7 @@ internal class RectangleSerializationFactory : VectorShapeSerializationFactory<R
     {
         builder.AddVecD(original.Center);
         builder.AddVecD(original.Size);
+        builder.AddDouble(original.CornerRadius);
     }
 
     protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Paintable strokePaintable,
@@ -24,6 +25,11 @@ internal class RectangleSerializationFactory : VectorShapeSerializationFactory<R
     {
         VecD center = extractor.GetVecD();
         VecD size = extractor.GetVecD();
+        double cornerRadius = 0;
+        if (!IsFilePreVersion(serializerData, new Version(2, 0, 0, 81)))
+        {
+            cornerRadius = extractor.GetDouble();
+        }
 
         original = new RectangleVectorData(center, size)
         {
@@ -31,7 +37,8 @@ internal class RectangleSerializationFactory : VectorShapeSerializationFactory<R
             FillPaintable = fillPaintable,
             StrokeWidth = strokeWidth,
             TransformationMatrix = matrix,
-            Fill = fill
+            Fill = fill,
+            CornerRadius = cornerRadius
         };
 
         return true;

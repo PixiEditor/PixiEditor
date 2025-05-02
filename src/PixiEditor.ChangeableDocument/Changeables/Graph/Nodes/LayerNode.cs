@@ -32,7 +32,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         blendPaint.BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver;
 
         RenderContent(sceneContext, sceneContext.RenderSurface,
-            sceneContext.TargetPropertyOutput != FilterlessOutput);
+            sceneContext.TargetPropertyOutput == Output);
     }
 
     private void RenderContent(SceneObjectRenderContext context, DrawingSurface renderOnto, bool useFilters)
@@ -44,7 +44,24 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
             }
 
-            DrawLayerInScene(context, renderOnto, useFilters);
+            if (AllowHighDpiRendering)
+            {
+                DrawLayerInScene(context, renderOnto, useFilters);
+            }
+            else
+            {
+                using var targetPaint = new Paint
+                {
+                    Color = new Color(255, 255, 255, 255),
+                    BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver
+                };
+
+                using var tempSurface = Texture.ForProcessing(context.DocumentSize, context.ProcessingColorSpace);
+                DrawLayerOnTexture(context, tempSurface.DrawingSurface, useFilters, targetPaint);
+
+                renderOnto.Canvas.DrawSurface(tempSurface.DrawingSurface, 0, 0, blendPaint);
+            }
+
             return;
         }
 
@@ -59,7 +76,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         renderOnto.Canvas.SetMatrix(Matrix3X3.Identity);
 
-        DrawLayerOnTexture(context, outputWorkingSurface.DrawingSurface, useFilters);
+        DrawLayerOnTexture(context, outputWorkingSurface.DrawingSurface, useFilters, blendPaint);
 
         ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, context);
 
@@ -90,12 +107,12 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
     protected internal virtual void DrawLayerOnTexture(SceneObjectRenderContext ctx,
         DrawingSurface workingSurface,
-        bool useFilters)
+        bool useFilters, Paint paint)
     {
         int scaled = workingSurface.Canvas.Save();
         workingSurface.Canvas.Scale((float)ctx.ChunkResolution.Multiplier());
 
-        DrawLayerOnto(ctx, workingSurface, useFilters);
+        DrawLayerOnto(ctx, workingSurface, useFilters, paint);
 
         workingSurface.Canvas.RestoreToCount(scaled);
     }
@@ -116,14 +133,14 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         DrawingSurface workingSurface,
         bool useFilters = true)
     {
-        DrawLayerOnto(ctx, workingSurface, useFilters);
+        DrawLayerOnto(ctx, workingSurface, useFilters, blendPaint);
     }
 
     protected void DrawLayerOnto(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
-        bool useFilters)
+        bool useFilters, Paint paint)
     {
-        blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * ctx.Opacity * 255));
-        var finalPaint = blendPaint;
+        paint.Color = paint.Color.WithAlpha((byte)Math.Round(Opacity.Value * ctx.Opacity * 255));
+        var finalPaint = paint;
 
         var targetSurface = workingSurface;
         Texture? tex = null;
@@ -134,30 +151,32 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
             tex = Texture.ForProcessing(workingSurface,
                 ColorSpace.CreateSrgb());
-            targetSurface = tex.DrawingSurface;
             workingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+
+            targetSurface = tex.DrawingSurface;
 
             finalPaint = new Paint();
         }
+
         if (useFilters && Filters.Value != null)
         {
-            blendPaint.SetFilters(Filters.Value);
+            paint.SetFilters(Filters.Value);
             DrawWithFilters(ctx, targetSurface, finalPaint);
         }
         else
         {
-            blendPaint.SetFilters(null);
+            paint.SetFilters(null);
             DrawWithoutFilters(ctx, targetSurface, finalPaint);
         }
 
-        if (finalPaint != blendPaint)
+        if (finalPaint != paint)
         {
             finalPaint.Dispose();
         }
 
         if (targetSurface != workingSurface)
         {
-            workingSurface.Canvas.DrawSurface(targetSurface, 0, 0, blendPaint);
+            workingSurface.Canvas.DrawSurface(targetSurface, 0, 0, paint);
             tex.Dispose();
             workingSurface.Canvas.RestoreToCount(saved);
         }
