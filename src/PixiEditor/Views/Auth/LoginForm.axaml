@@ -7,6 +7,7 @@
              xmlns:subViewModels="clr-namespace:PixiEditor.ViewModels.SubViewModels"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Auth.LoginForm">
     <Design.DataContext>
@@ -14,6 +15,47 @@
     </Design.DataContext>
 
     <Panel>
+        <Panel.Resources>
+            <LinearGradientBrush
+                StartPoint="0%, 84%"
+                EndPoint="100%, 34%"
+                x:Key="FoundersGradientBrush">
+                <GradientStops>
+                    <GradientStop Offset="0" Color="#832ED7" />
+                    <GradientStop Offset="0.24" Color="#9D42F8" />
+                    <GradientStop Offset="0.48" Color="#DCB8FF" />
+                    <GradientStop Offset="0.72" Color="#AB56FF" />
+                    <GradientStop Offset="0.96" Color="#762BC0" />
+                </GradientStops>
+            </LinearGradientBrush>
+            <LinearGradientBrush
+                StartPoint="0%, 84%"
+                EndPoint="100%, 34%"
+                x:Key="FoundersGradientBrushShifted">
+                <GradientStops>
+                    <GradientStop Offset="0" Color="#832ED7" />
+                    <GradientStop Offset="0.25" Color="#DCB8FF" />
+                    <GradientStop Offset="0.75" Color="#DCB8FF" />
+                    <GradientStop Offset="1" Color="#762BC0" />
+                </GradientStops>
+            </LinearGradientBrush>
+        </Panel.Resources>
+        <Panel.Styles>
+            <Style Selector="Button.foundersButton">
+                <Setter Property="BorderBrush" Value="{StaticResource FoundersGradientBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource FoundersGradientBrush}" />
+                <Setter Property="Transitions">
+                    <Transitions>
+                        <BrushTransition Property="BorderBrush" Delay="0" Duration="0:0:0.2" Easing="SineEaseOut" />
+                        <BrushTransition Property="Foreground" Delay="0" Duration="0:0:0.2" Easing="SineEaseOut" />
+                    </Transitions>
+                </Setter>
+            </Style>
+            <Style Selector="Button.foundersButton:pointerover">
+                <Setter Property="BorderBrush" Value="{StaticResource FoundersGradientBrushShifted}" />
+                <Setter Property="Foreground" Value="{StaticResource FoundersGradientBrushShifted}" />
+            </Style>
+        </Panel.Styles>
         <StackPanel IsVisible="{Binding !IsLoggedIn}" VerticalAlignment="Top" Spacing="12">
             <TextBox Text="{Binding CurrentEmail, Mode=TwoWay}" Watermark="{ui:Translate Key=ENTER_EMAIL}" Name="Email"
                      IsVisible="{Binding !IsLoggedIn}" />
@@ -72,27 +114,41 @@
                 <Run Text="" />
                 <Run ui:Translator.LocalizedString="{Binding LastError}" />
             </TextBlock>
+
+            <Separator />
+            <TextBlock HorizontalAlignment="Center" Classes="subtext" ui:Translator.Key="NOT_FOUNDER_YET" />
+            <Button ui:Translator.Key="BECOME_A_FOUNDER" Background="Transparent"
+                    Command="{xaml:Command Name=PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                    CommandParameter="{Binding FoundersBundleLink}"
+                    HorizontalAlignment="Center"
+                    Classes="foundersButton"
+                    Padding="8, 4" />
         </StackPanel>
-        <StackPanel IsVisible="{Binding IsLoggedIn}" Margin="5" Spacing="12" Orientation="Vertical">
-            <Border ClipToBounds="True" Width="100" Height="100" CornerRadius="100">
-                <HyperlinkButton NavigateUri="{Binding IdentityProvider.EditProfileUrl}"
-                                 ToolTip.Tip="{Binding IdentityProvider.EditProfileUrl}"
-                                 Cursor="Hand">
-                    <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}" />
-                </HyperlinkButton>
-            </Border>
-            <TextBlock IsVisible="{Binding NonDefaultIdentityProvider}" HorizontalAlignment="Center" Classes="subtext">
-                <Run Text="{ui:Translate Key=ACCOUNT_PROVIDER_INFO}" />
-                <Run Text="{Binding IdentityProvider.ProviderName}" />
-            </TextBlock>
-            <TextBlock HorizontalAlignment="Center" FontSize="{DynamicResource FontSizeNormal}"
-                       ui:Translator.Key="LOGGED_IN_AS">
-                <Run Text="" />
-                <Run Text="{Binding Username}" />
-            </TextBlock>
+        <DockPanel LastChildFill="True" IsVisible="{Binding IsLoggedIn}" Margin="5">
             <Button IsVisible="{Binding IdentityProvider.AllowsLogout}"
                     Content="{ui:Translate Key=LOGOUT}"
+                    DockPanel.Dock="Bottom"
                     Command="{Binding LogoutCommand}" />
-        </StackPanel>
+
+            <StackPanel VerticalAlignment="Center" Orientation="Vertical" Spacing="12">
+                <Border ClipToBounds="True" Width="100" Height="100" CornerRadius="100">
+                    <HyperlinkButton NavigateUri="{Binding IdentityProvider.EditProfileUrl}"
+                                     ToolTip.Tip="{Binding IdentityProvider.EditProfileUrl}"
+                                     Cursor="Hand">
+                        <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}" />
+                    </HyperlinkButton>
+                </Border>
+                <TextBlock IsVisible="{Binding NonDefaultIdentityProvider}" HorizontalAlignment="Center"
+                           Classes="subtext">
+                    <Run Text="{ui:Translate Key=ACCOUNT_PROVIDER_INFO}" />
+                    <Run Text="{Binding IdentityProvider.ProviderName}" />
+                </TextBlock>
+                <TextBlock HorizontalAlignment="Center" FontSize="{DynamicResource FontSizeNormal}"
+                           ui:Translator.Key="LOGGED_IN_AS">
+                    <Run Text="" />
+                    <Run Text="{Binding Username}" />
+                </TextBlock>
+            </StackPanel>
+        </DockPanel>
     </Panel>
 </UserControl>

@@ -92,6 +92,14 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
     public bool NonDefaultIdentityProvider => IdentityProvider is not PixiAuthIdentityProvider;
     public bool AnyUpdateAvailable => OwnedProducts.Any(x => x.UpdateAvailable);
 
+
+    public static string FoundersBundleLink =>
+#if STEAM
+        "https://store.steampowered.com/app/2435860/PixiEditor__Supporter_Pack/";
+#else
+        "https://pixieditor.net/purchase/";
+#endif
+
     public UserViewModel(ViewModelMain owner) : base(owner)
     {
         IdentityProvider = IPlatform.Current.IdentityProvider;
@@ -143,7 +151,8 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
                     .FirstOrDefault(x => x.Metadata.UniqueName == product.Id)?.Metadata.Version;
             }
 
-            OwnedProducts.Add(new OwnedProductViewModel(product, isInstalled, installedVersion, InstallContentCommand, IsInstalled));
+            OwnedProducts.Add(new OwnedProductViewModel(product, isInstalled, installedVersion, InstallContentCommand,
+                IsInstalled));
         }
 
         NotifyProperties();
@@ -316,7 +325,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         }
 
         return Owner.ExtensionsSubViewModel.ExtensionLoader.LoadedExtensions
-                   .FirstOrDefault(x => x.Metadata.UniqueName == productId)?.Metadata.Version != product.LatestVersion;
+            .FirstOrDefault(x => x.Metadata.UniqueName == productId)?.Metadata.Version != product.LatestVersion;
     }
 
     private bool IsInstalled(string productId)
@@ -362,7 +371,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         else
         {
             LastError = arg != null ? new LocalizedString(error, arg) : new LocalizedString(error);
-            if(User is PixiUser { IsWaitingForActivation: true } pixiUser)
+            if (User is PixiUser { IsWaitingForActivation: true } pixiUser)
             {
                 pixiUser.SessionId = null;
                 pixiUser.SessionToken = null;

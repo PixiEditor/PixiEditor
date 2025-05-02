@@ -287,7 +287,6 @@
                                 Command="{xaml:Command Name=PixiEditor.Links.OpenHyperlink, UseProvided=True}"
                                 CommandParameter="{Binding FoundersBundleLink}"
                                 Classes="foundersButton"
-                                FontWeight="700"
                                 Padding="8, 4" />
                     </StackPanel>
                     <Svg VerticalAlignment="Center" Path="/Images/FoundersBundle.svg" Width="532" />

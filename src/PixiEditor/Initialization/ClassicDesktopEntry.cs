@@ -265,7 +265,7 @@ internal class ClassicDesktopEntry
 #if DEBUG
         if (baseUrl.Contains('{') && baseUrl.Contains('}'))
         {
-            string? envUrl = Environment.GetEnvironmentVariable("PIXIEDITOR_API_URL");
+            string? envUrl = Environment.GetEnvironmentVariable("PIXIAUTH_API_URL");
             if (envUrl != null)
             {
                 baseUrl = envUrl;

@@ -67,12 +67,7 @@ internal class OnboardingViewModel : PixiObservableObject
 
     public RelayCommand<IToolSetHandler> SelectToolsetCommand { get; }
 
-    public string FoundersBundleLink =>
-#if STEAM
-        "https://store.steampowered.com/app/2435860/PixiEditor__Supporter_Pack/";
-#else
-        "https://pixieditor.net/purchase/";
-#endif
+    public string FoundersBundleLink => UserViewModel.FoundersBundleLink;
 
     Dictionary<string, VecI> DefaultNewFileSizes = new()
     {

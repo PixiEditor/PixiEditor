@@ -11,7 +11,7 @@
                          x:Class="PixiEditor.Views.Auth.LoginPopup"
                          CanMinimize="True"
                          CanResize="False"
-                         Width="320" Height="190"
+                         Width="320" Height="280"
                          ui:Translator.Key="ACCOUNT_WINDOW_TITLE">
     <Design.DataContext>
         <subViewModels:UserViewModel />
