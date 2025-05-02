@@ -26,6 +26,13 @@ public class ApplyFilterNode : RenderNode, IRenderInput
         AllowHighDpiRendering = true;
     }
 
+
+    protected override void Paint(RenderContext context, DrawingSurface surface)
+    {
+        AllowHighDpiRendering = (Background.Connection.Node as RenderNode)?.AllowHighDpiRendering ?? true;
+        base.Paint(context, surface);
+    }
+
     protected override void OnPaint(RenderContext context, DrawingSurface surface)
     {
         if (_paint == null)

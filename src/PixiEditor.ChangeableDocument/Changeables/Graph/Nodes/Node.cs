@@ -509,7 +509,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         foreach (var keyFrame in keyFrames)
         {
-            KeyFrameData newKeyFrame = new KeyFrameData(keyFrame.KeyFrameGuid, keyFrame.StartFrame, keyFrame.Duration,
+            Guid newGuid = Guid.NewGuid();
+            KeyFrameData newKeyFrame = new KeyFrameData(newGuid, keyFrame.StartFrame, keyFrame.Duration,
                 keyFrame.AffectedElement)
             {
                 IsVisible = keyFrame.IsVisible,
@@ -517,7 +518,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
                 Data = keyFrame.Data is ICloneable cloneable ? cloneable.Clone() : keyFrame.Data
             };
 
-            clone.AddFrame(newKeyFrame.KeyFrameGuid, newKeyFrame);
+            clone.AddFrame(newGuid, newKeyFrame);
         }
 
         return clone;

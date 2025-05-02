@@ -112,7 +112,7 @@ internal partial class MainWindow : Window
             {
                 var app = (App)Application.Current;
                 ClassicDesktopEntry entry = new(app.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime);
-                return new MainWindow(entry.InitApp(), analyticsSession);
+                return new MainWindow(entry.InitApp(false), analyticsSession);
             }
             catch (Exception e)
             {

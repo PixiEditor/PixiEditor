@@ -31,7 +31,12 @@ public class RemoveClosePointsNode : ShapeNode<PointsVectorData>
         var distance = MinDistance.Value;
         var minDistanceSquared = distance * distance;
 
-        if (distance == 0 || data == null || data.Points == null)
+        if (distance == 0)
+        {
+            return data;
+        }
+
+        if (data?.Points == null)
         {
             return null;
         }

@@ -161,11 +161,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             }
         }
 
-        var allLayers = document.StructureHelper.GetAllLayers();
-        var topMostWithinClick = allLayers.Where(x =>
-                x is { IsVisibleBindable: true, TightBounds: not null } &&
-                x.TightBounds.Value.ContainsInclusive(args.PositionOnCanvas))
-            .OrderByDescending(x => allLayers.IndexOf(x));
+        var topMostWithinClick = QueryLayers<ILayerHandler>(args.PositionOnCanvas);
 
         var nonSelected = topMostWithinClick.Where(x => x != document.SelectedStructureMember
                                                         && !document.SoftSelectedStructureMembers.Contains(x))

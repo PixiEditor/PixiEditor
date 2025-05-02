@@ -5,6 +5,8 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.DocumentModels.Autosave;
 using PixiEditor.Models.IO;
+using PixiEditor.OperatingSystem;
+using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.ViewModels.SubViewModels;
@@ -13,7 +15,17 @@ internal class AutosaveViewModel(ViewModelMain owner, DocumentManagerViewModel d
 {
     public static bool SaveSessionStateEnabled => IPreferences.Current!.GetPreference(PreferencesConstants.SaveSessionStateEnabled, PreferencesConstants.SaveSessionStateDefault);
 
-    [Command.Basic("PixiEditor.Autosave.ToggleAutosave", "AUTOSAVE_TOGGLE", "AUTOSAVE_TOGGLE_DESCRIPTION",
+    [Command.Basic("PixiEditor.Autosave.OpenAutosaveFolder", "AUTOSAVE_OPEN_FOLDER", "AUTOSAVE_OPEN_FOLDER_DESCRIPTIVE",
+        Icon = PixiPerfectIcons.Folder)]
+    public void OpenAutosaveFolder()
+    {
+        if (Directory.Exists(Paths.PathToUnsavedFilesFolder))
+        {
+            IOperatingSystem.Current.OpenFolder(Paths.PathToUnsavedFilesFolder);
+        }
+    }
+
+    [Command.Basic("PixiEditor.Autosave.ToggleAutosave", "AUTOSAVE_TOGGLE", "AUTOSAVE_TOGGLE_DESCRIPTIVE",
         CanExecute = "PixiEditor.Autosave.HasDocumentAndAutosaveEnabled")]
     public void ToggleAutosave()
     {

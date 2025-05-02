@@ -75,6 +75,11 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
     {
         ignoreInUndo = false;
         var node = target.FindNode<VectorLayerNode>(TargetId);
+        if (node == null)
+        {
+            return new None();
+        }
+
         node.ShapeData = Data;
 
         RectD aabb = node.ShapeData.TransformedAABB.RoundOutwards();

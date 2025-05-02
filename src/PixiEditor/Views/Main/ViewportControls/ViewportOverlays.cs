@@ -147,8 +147,8 @@ internal class ViewportOverlays
     {
         Binding showFillBinding = new()
         {
-            Source = Viewport,
-            Path = "Document.ToolsSubViewModel.ActiveTool",
+            Source = ViewModelMain.Current,
+            Path = "ToolsSubViewModel.ActiveTool",
             Converter = new IsSelectionToolConverter(),
             Mode = BindingMode.OneWay
         };

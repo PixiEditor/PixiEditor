@@ -7,6 +7,7 @@ using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.Views.Overlays.SelectionOverlay;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
@@ -65,6 +66,7 @@ internal class SelectToolExecutor : UpdateableChangeExecutor
 
     public override void ForceStop()
     {
+
         IAction action = CreateEndAction(selectShape);
         internals!.ActionAccumulator.AddFinishedActions(action);
     }
