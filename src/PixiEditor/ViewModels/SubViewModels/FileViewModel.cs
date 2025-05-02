@@ -150,9 +150,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
         else if (!args.Contains("--crash") && !args.Contains("--openedInExisting"))
         {
-            if (preferences.GetLocalPreference("OnboardingShown", false) == false)
+            if (preferences.GetLocalPreference("OnboardingV2Shown", false) == false)
             {
-                preferences.UpdateLocalPreference("OnboardingShown", true);
+                preferences.UpdateLocalPreference("OnboardingV2Shown", true);
                 Owner.WindowSubViewModel.OpenOnboardingWindow();
             }
             else if (preferences!.GetPreference("ShowStartupWindow", true))
