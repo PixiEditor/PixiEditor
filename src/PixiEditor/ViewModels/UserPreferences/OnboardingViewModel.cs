@@ -49,7 +49,8 @@ internal class OnboardingViewModel : PixiObservableObject
         new FormStep { Title = new LocalizedString("ONB_SELECT_PRIMARY_TOOLSET"), Step = 0 },
         new FormStep { Title = new LocalizedString("LANGUAGE"), Step = 1 },
         new FormStep { Title = new LocalizedString("ONB_SHORTCUTS"), Step = 2 },
-        new FormStep { Title = new LocalizedString("ONB_ANALYTICS"), Step = 3 }
+        new FormStep { Title = new LocalizedString("ONB_ANALYTICS"), Step = 3 },
+        new FormStep { Title = new LocalizedString("FOUNDERS_BUNDLE"), Step = 4 }
     };
 
     public RelayCommand NextFormStepCommand { get; }
@@ -135,7 +136,7 @@ internal class OnboardingViewModel : PixiObservableObject
 
     public void NextFormStep()
     {
-        if (FormStep.Step == 3)
+        if (FormStep.Step == AllFormSteps.Count - 1)
         {
             NextPage();
             return;

@@ -59,14 +59,14 @@
         </StackPanel>
         <Grid
             HorizontalAlignment="Center"
-            Margin="0, 32"
+            Margin="0, 32, 0, 64"
             IsVisible="{Binding Page, Converter={converters:IsEqualConverter}, ConverterParameter=1}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <TextBlock Classes="h2"
+            <TextBlock Classes="h4"
                        Foreground="{DynamicResource ThemeForegroundBrush}"
                        ui:Translator.LocalizedString="{Binding FormStep.Title}" HorizontalAlignment="Center"
                        VerticalAlignment="Center" />
@@ -182,6 +182,11 @@
                                ui:Translator.Key="PRIVACY_POLICY" />
                 </TextBlock>
             </StackPanel>
+            <Grid Grid.Row="1"
+                  IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=4}">
+                <TextBlock Text="{ui:Translate Key=FOUNDERS_BUNDLE_SUBTEXT}" HorizontalAlignment="Center" />
+                <Svg VerticalAlignment="Center" Path="/Images/FoundersBundle.svg" Width="532" />
+            </Grid>
         </Grid>
         <DockPanel
             LastChildFill="True"
@@ -236,10 +241,10 @@
             IsVisible="{Binding Page, Converter={converters:IsEqualConverter}, ConverterParameter=2}"
             HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="32" Orientation="Vertical">
 
-            <TextBlock HorizontalAlignment="Center" ui:Translator.Key="ONB_ALL_SET" Classes="h3"/>
+            <TextBlock HorizontalAlignment="Center" ui:Translator.Key="ONB_ALL_SET" Classes="h3" />
             <TextBlock HorizontalAlignment="Center" Text="{DynamicResource icon-check}" Classes="pixi-icon"
                        Foreground="{DynamicResource ThemeBorderHighBrush}"
-                       FontSize="72"/>
+                       FontSize="72" />
             <Button
                 ui:Translator.Key="ONB_ALL_SET_BTN"
                 Background="{DynamicResource ThemeAccentBrush}"

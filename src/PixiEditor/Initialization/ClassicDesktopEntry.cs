@@ -120,10 +120,6 @@ internal class ClassicDesktopEntry
         InitPlatform();
 
         ExtensionLoader extensionLoader = new ExtensionLoader(Paths.ExtensionPackagesPath, Paths.UserExtensionsPath);
-        //TODO: fetch from extension store
-        extensionLoader.AddOfficialExtension("pixieditor.supporterpack",
-            new OfficialExtensionData("supporter-pack.snk", AdditionalContentProduct.SupporterPack));
-        extensionLoader.AddOfficialExtension("pixieditor.beta", new OfficialExtensionData());
         if (!safeMode)
         {
             extensionLoader.LoadExtensions();

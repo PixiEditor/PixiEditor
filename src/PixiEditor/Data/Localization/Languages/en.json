@@ -1061,5 +1061,7 @@
   "UPDATE": "Update",
   "AUTOSAVE_OPEN_FOLDER": "Open autosave folder",
    "AUTOSAVE_OPEN_FOLDER_DESCRIPTIVE": "Open the folder where autosaves are stored",
-  "AUTOSAVE_TOGGLE_DESCRIPTIVE": "Enable/disable autosave"
+  "AUTOSAVE_TOGGLE_DESCRIPTIVE": "Enable/disable autosave",
+  "FOUNDERS_BUNDLE": "Founder's Bundle",
+  "FOUNDERS_BUNDLE_SUBTEXT": "Support PixiEditor and get exclusive perks!"
 }
