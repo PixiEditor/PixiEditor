@@ -44,7 +44,8 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
             }
 
-            if (AllowHighDpiRendering)
+            // TODO: Very low performance when in folder
+            if (AllowHighDpiRendering || renderOnto.DeviceClipBounds.Size == context.DocumentSize)
             {
                 DrawLayerInScene(context, renderOnto, useFilters);
             }
@@ -57,6 +58,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 };
 
                 using var tempSurface = Texture.ForProcessing(context.DocumentSize, context.ProcessingColorSpace);
+                tempSurface.DrawingSurface.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
                 DrawLayerOnTexture(context, tempSurface.DrawingSurface, useFilters, targetPaint);
 
                 renderOnto.Canvas.DrawSurface(tempSurface.DrawingSurface, 0, 0, blendPaint);
