@@ -46,7 +46,8 @@ def fetch_poeditor_language_json(language_code):
         "api_token": API_KEY,
         "id": PROJECT_ID,
         "type": "key_value_json",
-        "language": language_code
+        "language": language_code,
+        "filters": "translated"
     })
     if response.status_code == 200:
         data = response.json()
