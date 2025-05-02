@@ -67,6 +67,13 @@ internal class OnboardingViewModel : PixiObservableObject
 
     public RelayCommand<IToolSetHandler> SelectToolsetCommand { get; }
 
+    public string FoundersBundleLink =>
+#if STEAM
+        "https://store.steampowered.com/app/2435860/PixiEditor__Supporter_Pack/";
+#else
+        "https://pixieditor.net/purchase/";
+#endif
+
     Dictionary<string, VecI> DefaultNewFileSizes = new()
     {
         { "PIXEL_ART_TOOLSET", new VecI(64, 64) },
@@ -94,23 +101,22 @@ internal class OnboardingViewModel : PixiObservableObject
             }
         });
 
-        SelectShortcutCommand = new AsyncRelayCommand<ShortcutProvider>(
-            async x =>
+        SelectShortcutCommand = new AsyncRelayCommand<ShortcutProvider>(async x =>
+        {
+            foreach (var template in Templates)
             {
-                foreach (var template in Templates)
-                {
-                    template.IsSelected = template.Item == x;
-                }
+                template.IsSelected = template.Item == x;
+            }
 
-                if (x == Templates[0].Item)
-                {
-                    CommandController.Current.ResetShortcuts();
-                }
-                else
-                {
-                    await ImportShortcutTemplatePopup.ImportFromProvider(x, true);
-                }
-            });
+            if (x == Templates[0].Item)
+            {
+                CommandController.Current.ResetShortcuts();
+            }
+            else
+            {
+                await ImportShortcutTemplatePopup.ImportFromProvider(x, true);
+            }
+        });
 
         FormStep = AllFormSteps[0];
         GeneralSettings = new GeneralSettings();

@@ -1016,6 +1016,7 @@
   "ONBOARDING_ACTION_BTN": "Let's begin",
   "ONB_SELECT_PRIMARY_TOOLSET": "Select Your Primary Toolset",
   "ONB_NEXT_BTN": "Next",
+  "ONB_FINISH_BTN": "Finish",
   "ONB_BACK_BTN": "Previous",
   "ONB_ANALYTICS": "Anonymous Analytics",
   "ONB_ALL_SET": "You are all set!",
@@ -1063,7 +1064,7 @@
    "AUTOSAVE_OPEN_FOLDER_DESCRIPTIVE": "Open the folder where autosaves are stored",
   "AUTOSAVE_TOGGLE_DESCRIPTIVE": "Enable/disable autosave",
   "FOUNDERS_BUNDLE": "Founder's Bundle",
-  "FOUNDERS_BUNDLE_SUBTEXT": "Support PixiEditor and get exclusive perks!",
+  "FOUNDERS_BUNDLE_SUBTEXT": "Support PixiEditor and boost your productivity!",
   "BECOME_A_FOUNDER": "Become a Founder",
   "LOGIN": "Login"
 }

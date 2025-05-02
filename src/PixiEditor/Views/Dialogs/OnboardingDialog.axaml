@@ -7,6 +7,8 @@
         xmlns:userPreferences="clr-namespace:PixiEditor.ViewModels.UserPreferences"
         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
         xmlns:shortcuts="clr-namespace:PixiEditor.Views.Shortcuts"
+        xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+        xmlns:lottie="clr-namespace:Avalonia.Labs.Lottie;assembly=Avalonia.Labs.Lottie"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="PixiEditor.Views.Dialogs.OnboardingDialog"
         ShowInTaskbar="False"
@@ -18,6 +20,55 @@
     </Design.DataContext>
 
     <Panel>
+        <Panel.Resources>
+            <LinearGradientBrush
+                StartPoint="-50%, 84%"
+                EndPoint="50%, 34%"
+                x:Key="FoundersGradientBrushStart">
+                <GradientStops>
+                    <GradientStop Offset="0" Color="#AB56FF" />
+                    <GradientStop Offset="0.24" Color="#762BC0" />
+                    <GradientStop Offset="0.48" Color="#832ED7" />
+                    <GradientStop Offset="0.72" Color="#9D42F8" />
+                    <GradientStop Offset="0.96" Color="#DCB8FF" />
+                </GradientStops>
+            </LinearGradientBrush>
+            <LinearGradientBrush
+                StartPoint="100%, 84%"
+                EndPoint="200%, 34%"
+                x:Key="FoundersGradientBrushEnd">
+                <GradientStops>
+                    <GradientStop Offset="0" Color="#832ED7" />
+                    <GradientStop Offset="0.24" Color="#9D42F8" />
+                    <GradientStop Offset="0.48" Color="#DCB8FF" />
+                    <GradientStop Offset="0.72" Color="#AB56FF" />
+                    <GradientStop Offset="0.96" Color="#762BC0" />
+                </GradientStops>
+            </LinearGradientBrush>
+            <LinearGradientBrush
+                StartPoint="0%, 84%"
+                EndPoint="100%, 34%"
+                x:Key="FoundersGradientBrush">
+                <GradientStops>
+                    <GradientStop Offset="0" Color="#832ED7" />
+                    <GradientStop Offset="0.24" Color="#9D42F8" />
+                    <GradientStop Offset="0.48" Color="#DCB8FF" />
+                    <GradientStop Offset="0.72" Color="#AB56FF" />
+                    <GradientStop Offset="0.96" Color="#762BC0" />
+                </GradientStops>
+            </LinearGradientBrush>
+            <LinearGradientBrush
+                StartPoint="0%, 84%"
+                EndPoint="100%, 34%"
+                x:Key="FoundersGradientBrushShifted">
+                <GradientStops>
+                    <GradientStop Offset="0" Color="#832ED7" />
+                    <GradientStop Offset="0.25" Color="#DCB8FF" />
+                    <GradientStop Offset="0.75" Color="#DCB8FF" />
+                    <GradientStop Offset="1" Color="#762BC0" />
+                </GradientStops>
+            </LinearGradientBrush>
+        </Panel.Resources>
         <Panel.Styles>
             <Style Selector="shortcuts|ShortcutsTemplateCard.Selected">
                 <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentHighBrush}" />
@@ -26,6 +77,44 @@
                         <SolidColorBrush Color="{DynamicResource AccentHighColor}" Opacity="0.1" />
                     </Setter.Value>
                 </Setter>
+            </Style>
+            <Style Selector="TextBlock.foundersTitle">
+                <Setter Property="Foreground" Value="{StaticResource FoundersGradientBrush}" />
+                <Setter Property="FontWeight" Value="700" />
+                <Style.Animations>
+                    <Animation Duration="00:00:03" Easing="SineEaseInOut">
+                        <KeyFrame Cue="0%">
+                            <Setter Property="Foreground" Value="{StaticResource FoundersGradientBrushStart}" />
+                        </KeyFrame>
+                        <KeyFrame Cue="50%">
+                            <Setter Property="Foreground" Value="{StaticResource FoundersGradientBrushEnd}" />
+                        </KeyFrame>
+                        <KeyFrame Cue="100%">
+                            <Setter Property="Foreground" Value="{StaticResource FoundersGradientBrush}" />
+                        </KeyFrame>
+                    </Animation>
+                </Style.Animations>
+            </Style>
+            <Style Selector="Border.foundersPanel">
+                <Setter Property="Background" Value="#212121" />
+                <Setter Property="Padding" Value="12" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="BorderBrush" Value="#B47AFF" />
+                <Setter Property="BorderThickness" Value="1" />
+            </Style>
+            <Style Selector="Button.foundersButton">
+                <Setter Property="BorderBrush" Value="{StaticResource FoundersGradientBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource FoundersGradientBrush}" />
+                <Setter Property="Transitions">
+                    <Transitions>
+                        <BrushTransition Property="BorderBrush" Delay="0" Duration="0:0:0.2" Easing="SineEaseOut" />
+                        <BrushTransition Property="Foreground" Delay="0" Duration="0:0:0.2" Easing="SineEaseOut" />
+                    </Transitions>
+                </Setter>
+            </Style>
+            <Style Selector="Button.foundersButton:pointerover">
+                <Setter Property="BorderBrush" Value="{StaticResource FoundersGradientBrushShifted}" />
+                <Setter Property="Foreground" Value="{StaticResource FoundersGradientBrushShifted}" />
             </Style>
         </Panel.Styles>
         <StackPanel
@@ -57,141 +146,154 @@
                         HorizontalAlignment="Center" VerticalAlignment="Center" />
             </StackPanel>
         </StackPanel>
-        <Grid
-            HorizontalAlignment="Center"
-            Margin="0, 32, 0, 64"
-            IsVisible="{Binding Page, Converter={converters:IsEqualConverter}, ConverterParameter=1}">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <TextBlock Classes="h4"
-                       Foreground="{DynamicResource ThemeForegroundBrush}"
-                       ui:Translator.LocalizedString="{Binding FormStep.Title}" HorizontalAlignment="Center"
-                       VerticalAlignment="Center" />
-            <StackPanel Grid.Row="1"
-                        IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=0}"
-                        HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="32" Orientation="Horizontal">
-                <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
-                    <ItemsControl
-                        ItemsSource="{Binding ToolSets}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <shortcuts:ShortcutsTemplateCard
-                                    TemplateName="{Binding Item.Name}"
-                                    Margin="0 0 5 0"
-                                    Icon="{Binding Item.Icon}"
-                                    PressedCommand="{Binding SelectCommand}"
-                                    PressedCommandParameter="{Binding Item}"
-                                    Classes.Selected="{Binding IsSelected}"
-                                    Cursor="Hand">
-                                    <shortcuts:ShortcutsTemplateCard.Styles>
-                                        <Style Selector="TextBlock.pixi-icon">
-                                            <Setter Property="Foreground"
-                                                    Value="{DynamicResource ThemeBorderHighBrush}" />
-                                            <Setter Property="Transitions">
-                                                <Setter.Value>
-                                                    <Transitions>
-                                                        <BrushTransition Property="Foreground" Duration="0.2" />
-                                                    </Transitions>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </Style>
+        <Border HorizontalAlignment="Center"
+                Margin="0, 16, 0, 80"
+                IsVisible="{Binding Page, Converter={converters:IsEqualConverter}, ConverterParameter=1}"
+                Classes.foundersPanel="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=4}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Classes="h4"
+                           Classes.foundersTitle="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=4}"
+                           ui:Translator.LocalizedString="{Binding FormStep.Title}" HorizontalAlignment="Center"
+                           VerticalAlignment="Center" />
+                <StackPanel Grid.Row="1"
+                            IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=0}"
+                            HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="32"
+                            Orientation="Horizontal">
+                    <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+                        <ItemsControl
+                            ItemsSource="{Binding ToolSets}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <shortcuts:ShortcutsTemplateCard
+                                        TemplateName="{Binding Item.Name}"
+                                        Margin="0 0 5 0"
+                                        Icon="{Binding Item.Icon}"
+                                        PressedCommand="{Binding SelectCommand}"
+                                        PressedCommandParameter="{Binding Item}"
+                                        Classes.Selected="{Binding IsSelected}"
+                                        Cursor="Hand">
+                                        <shortcuts:ShortcutsTemplateCard.Styles>
+                                            <Style Selector="TextBlock.pixi-icon">
+                                                <Setter Property="Foreground"
+                                                        Value="{DynamicResource ThemeBorderHighBrush}" />
+                                                <Setter Property="Transitions">
+                                                    <Setter.Value>
+                                                        <Transitions>
+                                                            <BrushTransition Property="Foreground" Duration="0.2" />
+                                                        </Transitions>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
 
-                                        <Style Selector="shortcuts|ShortcutsTemplateCard.Selected TextBlock.pixi-icon">
-                                            <Setter Property="Foreground"
-                                                    Value="{DynamicResource ThemeAccentHighBrush}" />
-                                        </Style>
-                                    </shortcuts:ShortcutsTemplateCard.Styles>
-                                </shortcuts:ShortcutsTemplateCard>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-            </StackPanel>
-            <StackPanel Grid.Row="1"
-                        HorizontalAlignment="Center" VerticalAlignment="Center"
-                        Spacing="32"
-                        IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=1}">
-                <ComboBox Width="200" HorizontalAlignment="Center" Margin="0, -20, 0, 0"
-                          ItemsSource="{Binding GeneralSettings.AvailableLanguages}"
-                          SelectedItem="{Binding GeneralSettings.SelectedLanguage, Mode=TwoWay}">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" Height="20">
-                                <Image
-                                    MaxHeight="20"
-                                    Margin="3, 0"
-                                    VerticalAlignment="Center"
-                                    Source="{Binding IconFullPath, Converter={converters:ImagePathToBitmapConverter}}" />
-                                <TextBlock VerticalAlignment="Center" Text="{Binding Name}" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-                <TextBlock DockPanel.Dock="Bottom" ui:Hyperlink.Url="https://discord.gg/qSRMYmq"
-                           ui:Translator.Key="LANGUAGE_INFO" />
-            </StackPanel>
-            <StackPanel Grid.Row="1"
-                        IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=2}"
-                        HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="32" Orientation="Vertical">
-                <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
-                    <ItemsControl
-                        ItemsSource="{Binding Templates}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <shortcuts:ShortcutsTemplateCard
-                                    Width="150"
-                                    Height="150"
-                                    TemplateName="{Binding Item.Name}"
-                                    Margin="0 0 5 0"
-                                    Logo="{Binding Item.LogoPath}"
-                                    Classes.Selected="{Binding IsSelected}"
-                                    Cursor="Hand"
-                                    Name="ShortcutsTemplateCard"
-                                    PressedCommand="{Binding SelectCommand}"
-                                    PressedCommandParameter="{Binding Item}"
-                                    HoverLogo="{Binding Path=Item.HoverLogoPath}">
-                                </shortcuts:ShortcutsTemplateCard>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-            </StackPanel>
-            <StackPanel Grid.Row="1"
-                        IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=3}"
-                        VerticalAlignment="Center" Orientation="Vertical">
-                <CheckBox HorizontalAlignment="Center"
-                          IsChecked="{Binding GeneralSettings.AnalyticsEnabled, Mode=TwoWay}"
-                          ui:Translator.Key="ENABLE_ANALYTICS" d:Content="Enable Analytics" />
-                <TextBlock Padding="20" Classes="subtext" ui:Translator.Key="ANALYTICS_INFO_DETAILED"
-                           TextWrapping="Wrap">
-                    <TextBlock Text=" " />
-                    <TextBlock ui:Hyperlink.Url="https://pixieditor.net/docs/privacy-policy"
-                               ui:Translator.Key="PRIVACY_POLICY" />
-                </TextBlock>
-            </StackPanel>
-            <DockPanel Grid.Row="1" LastChildFill="True"
-                       IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=4}">
-                <TextBlock DockPanel.Dock="Top" Text="{ui:Translate Key=FOUNDERS_BUNDLE_SUBTEXT}" HorizontalAlignment="Center" />
-                <StackPanel Spacing="12" HorizontalAlignment="Center" DockPanel.Dock="Bottom" Orientation="Horizontal">
-                    <Button ui:Translator.Key="LOGIN" Background="Transparent"/>
-                    <Button ui:Translator.Key="BECOME_A_FOUNDER" Background="Transparent"/>
+                                            <Style
+                                                Selector="shortcuts|ShortcutsTemplateCard.Selected TextBlock.pixi-icon">
+                                                <Setter Property="Foreground"
+                                                        Value="{DynamicResource ThemeAccentHighBrush}" />
+                                            </Style>
+                                        </shortcuts:ShortcutsTemplateCard.Styles>
+                                    </shortcuts:ShortcutsTemplateCard>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                 </StackPanel>
-                <Svg  VerticalAlignment="Center" Path="/Images/FoundersBundle.svg" Width="532" />
-            </DockPanel>
-        </Grid>
+                <StackPanel Grid.Row="1"
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Spacing="32"
+                            IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=1}">
+                    <ComboBox Width="200" HorizontalAlignment="Center" Margin="0, -20, 0, 0"
+                              ItemsSource="{Binding GeneralSettings.AvailableLanguages}"
+                              SelectedItem="{Binding GeneralSettings.SelectedLanguage, Mode=TwoWay}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Height="20">
+                                    <Image
+                                        MaxHeight="20"
+                                        Margin="3, 0"
+                                        VerticalAlignment="Center"
+                                        Source="{Binding IconFullPath, Converter={converters:ImagePathToBitmapConverter}}" />
+                                    <TextBlock VerticalAlignment="Center" Text="{Binding Name}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <TextBlock DockPanel.Dock="Bottom" ui:Hyperlink.Url="https://discord.gg/qSRMYmq"
+                               ui:Translator.Key="LANGUAGE_INFO" />
+                </StackPanel>
+                <StackPanel Grid.Row="1"
+                            IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=2}"
+                            HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="32" Orientation="Vertical">
+                    <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+                        <ItemsControl
+                            ItemsSource="{Binding Templates}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <shortcuts:ShortcutsTemplateCard
+                                        Width="150"
+                                        Height="150"
+                                        TemplateName="{Binding Item.Name}"
+                                        Margin="0 0 5 0"
+                                        Logo="{Binding Item.LogoPath}"
+                                        Classes.Selected="{Binding IsSelected}"
+                                        Cursor="Hand"
+                                        Name="ShortcutsTemplateCard"
+                                        PressedCommand="{Binding SelectCommand}"
+                                        PressedCommandParameter="{Binding Item}"
+                                        HoverLogo="{Binding Path=Item.HoverLogoPath}">
+                                    </shortcuts:ShortcutsTemplateCard>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </StackPanel>
+                <StackPanel Grid.Row="1"
+                            IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=3}"
+                            VerticalAlignment="Center" Orientation="Vertical">
+                    <CheckBox HorizontalAlignment="Center"
+                              IsChecked="{Binding GeneralSettings.AnalyticsEnabled, Mode=TwoWay}"
+                              ui:Translator.Key="ENABLE_ANALYTICS" d:Content="Enable Analytics" />
+                    <TextBlock Padding="20" Classes="subtext" ui:Translator.Key="ANALYTICS_INFO_DETAILED"
+                               TextWrapping="Wrap">
+                        <TextBlock Text=" " />
+                        <TextBlock ui:Hyperlink.Url="https://pixieditor.net/docs/privacy-policy"
+                                   ui:Translator.Key="PRIVACY_POLICY" />
+                    </TextBlock>
+                </StackPanel>
+                <DockPanel Grid.Row="1" LastChildFill="True"
+                           IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=4}">
+                    <TextBlock DockPanel.Dock="Top" Text="{ui:Translate Key=FOUNDERS_BUNDLE_SUBTEXT}"
+                               HorizontalAlignment="Center" />
+                    <StackPanel Spacing="12" HorizontalAlignment="Center" DockPanel.Dock="Bottom"
+                                Orientation="Horizontal">
+                        <Button ui:Translator.Key="LOGIN"
+                                Command="{xaml:Command Name=PixiEditor.Window.OpenAccountWindow}"
+                                Background="Transparent" Padding="8, 4" />
+                        <Button ui:Translator.Key="BECOME_A_FOUNDER" Background="Transparent"
+                                Command="{xaml:Command Name=PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                                CommandParameter="{Binding FoundersBundleLink}"
+                                Classes="foundersButton"
+                                FontWeight="700"
+                                Padding="8, 4" />
+                    </StackPanel>
+                    <Svg VerticalAlignment="Center" Path="/Images/FoundersBundle.svg" Width="532" />
+                </DockPanel>
+            </Grid>
+        </Border>
         <DockPanel
             LastChildFill="True"
             VerticalAlignment="Bottom"
@@ -209,7 +311,14 @@
                     Padding="8, 4"
                     Background="{DynamicResource ThemeAccentBrush}"
                     Command="{Binding NextFormStepCommand}"
-                    HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+                    HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                <Panel>
+                    <TextBlock ui:Translator.Key="ONB_NEXT_BTN"
+                               IsVisible="{Binding !IsVisible, ElementName=FinishText}" />
+                    <TextBlock ui:Translator.Key="ONB_FINISH_BTN" Name="FinishText"
+                               IsVisible="{Binding FormStep.Step, Converter={converters:IsEqualConverter}, ConverterParameter=4}" />
+                </Panel>
+            </Button>
 
             <ItemsControl HorizontalAlignment="Center" ItemsSource="{Binding AllFormSteps}">
                 <ItemsControl.Styles>
@@ -243,17 +352,18 @@
 
         <StackPanel
             IsVisible="{Binding Page, Converter={converters:IsEqualConverter}, ConverterParameter=2}"
-            HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="32" Orientation="Vertical">
+            HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="24" Orientation="Vertical">
 
-            <TextBlock HorizontalAlignment="Center" ui:Translator.Key="ONB_ALL_SET" Classes="h3" />
-            <TextBlock HorizontalAlignment="Center" Text="{DynamicResource icon-check}" Classes="pixi-icon"
-                       Foreground="{DynamicResource ThemeBorderHighBrush}"
-                       FontSize="72" />
-            <Button
-                ui:Translator.Key="ONB_ALL_SET_BTN"
-                Background="{DynamicResource ThemeAccentBrush}"
-                Command="{Binding Finish, RelativeSource={RelativeSource AncestorType=dialogs:OnboardingDialog, Mode=FindAncestor}}"
-                HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <lottie:Lottie RepeatCount="1" Width="300" VerticalAlignment="Center" Margin="0, -100, 0, 0"
+                           Path="avares://PixiEditor.UI.Common/Assets/Animations/CheckAnimation.json" />
+            <StackPanel Spacing="24" Margin="0, -100, 0, 0" Orientation="Vertical"  HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock ui:Translator.Key="ONB_ALL_SET" Classes="h2" />
+                <Button
+                    ui:Translator.Key="ONB_ALL_SET_BTN"
+                    Background="{DynamicResource ThemeAccentBrush}"
+                    Command="{Binding Finish, RelativeSource={RelativeSource AncestorType=dialogs:OnboardingDialog, Mode=FindAncestor}}"
+                    />
+            </StackPanel>
         </StackPanel>
     </Panel>
 </Window>

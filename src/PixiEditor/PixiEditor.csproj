@@ -167,4 +167,9 @@
     <Folder Include="Models\User\"/>
   </ItemGroup>
 
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Fonts\NodeIcons.cs" />
+    <UpToDateCheckInput Remove="Fonts\nodeicons.ttf" />
+  </ItemGroup>
+
 </Project>
