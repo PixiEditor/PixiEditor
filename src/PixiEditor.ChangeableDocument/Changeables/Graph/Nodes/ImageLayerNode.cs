@@ -47,6 +47,11 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return (RectD?)GetLayerImageAtFrame(frameTime.Frame).FindTightCommittedBounds();
     }
 
+    public override RectD? GetApproxBounds(KeyFrameTime frameTime)
+    {
+        return (RectD?)GetLayerImageAtFrame(frameTime.Frame).FindChunkAlignedCommittedBounds();
+    }
+
     protected internal override void DrawLayerInScene(SceneObjectRenderContext ctx,
         DrawingSurface workingSurface,
         bool useFilters = true)

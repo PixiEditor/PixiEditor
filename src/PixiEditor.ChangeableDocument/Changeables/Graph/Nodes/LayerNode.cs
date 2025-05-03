@@ -57,10 +57,14 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                     BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver
                 };
 
-                using var tempSurface = Texture.ForProcessing(context.DocumentSize, context.ProcessingColorSpace);
+                using var tempSurface = Texture.ForProcessing(context.DocumentSize, ColorSpace.CreateSrgb());
                 tempSurface.DrawingSurface.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
+                ColorSpace processingCs = context.ProcessingColorSpace;
+                context.ProcessingColorSpace = ColorSpace.CreateSrgb();
+
                 DrawLayerOnTexture(context, tempSurface.DrawingSurface, useFilters, targetPaint);
 
+                context.ProcessingColorSpace = processingCs;
                 renderOnto.Canvas.DrawSurface(tempSurface.DrawingSurface, 0, 0, blendPaint);
             }
 

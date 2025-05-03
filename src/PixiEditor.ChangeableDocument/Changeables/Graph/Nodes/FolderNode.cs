@@ -11,7 +11,7 @@ using Drawie.Numerics;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("Folder")]
-public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPreviewRenderable
+public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 {
     public const string ContentInternalName = "Content";
     private VecI documentSize;
@@ -25,16 +25,16 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
 
     public override Node CreateCopy() => new FolderNode
     {
-        MemberName = MemberName, 
+        MemberName = MemberName,
         ClipToPreviousMember = this.ClipToPreviousMember,
         EmbeddedMask = this.EmbeddedMask?.CloneFromCommitted()
     };
 
     public override VecD GetScenePosition(KeyFrameTime time) =>
-        documentSize / 2f; 
+        documentSize / 2f;
 
     public override VecD GetSceneSize(KeyFrameTime time) =>
-        documentSize; 
+        documentSize;
 
     protected override void OnExecute(RenderContext context)
     {
@@ -172,6 +172,38 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
         return null;
     }
 
+    public override RectD? GetApproxBounds(KeyFrameTime frameTime)
+    {
+        RectD? bounds = null;
+        if (Content.Connection != null)
+        {
+            Content.Connection.Node.TraverseBackwards((n) =>
+            {
+                if (n is StructureNode structureNode)
+                {
+                    RectD? childBounds = structureNode.GetApproxBounds(frameTime);
+                    if (childBounds != null)
+                    {
+                        if (bounds == null)
+                        {
+                            bounds = childBounds;
+                        }
+                        else
+                        {
+                            bounds = bounds.Value.Union(childBounds.Value);
+                        }
+                    }
+                }
+
+                return true;
+            });
+
+            return bounds ?? RectD.Empty;
+        }
+
+        return null;
+    }
+
     public HashSet<Guid> GetLayerNodeGuids()
     {
         HashSet<Guid> guids = new();
@@ -195,7 +227,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
             return base.GetPreviewBounds(frame, elementFor);
         }
 
-        return GetTightBounds(frame);
+        return GetApproxBounds(frame);
     }
 
     public override bool RenderPreview(DrawingSurface renderOn, RenderContext context,

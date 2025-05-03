@@ -279,6 +279,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     }
 
     public abstract RectD? GetTightBounds(KeyFrameTime frameTime);
+    public abstract RectD? GetApproxBounds(KeyFrameTime frameTime);
 
     public override void SerializeAdditionalData(Dictionary<string, object> additionalData)
     {
