@@ -1,20 +1,18 @@
 using Avalonia.Headless.XUnit;
 using Drawie.Backend.Core;
-using Drawie.Backend.Core.ColorsImpl;
-using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.ImageData;
-using Drawie.Numerics;
-using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.Models.IO;
-using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Tests;
 
 public class RenderTests : FullPixiEditorTest
 {
     [AvaloniaTheory]
-    [InlineData("fibi")]
+    [InlineData("Fibi")]
     [InlineData("Pond")]
+    [InlineData("SmlPxlCircShadWithMask")]
+    [InlineData("SmallPixelArtCircleShadow")]
+    [InlineData("SmlPxlCircShadWithMaskClipped")]
+    [InlineData("SmlPxlCircShadWithMaskClippedInFolder")]
     public void TestThatPixiFilesRenderTheSameResultAsSavedPng(string fileName)
     {
         string pixiFile = Path.Combine("TestFiles", "RenderTests", fileName + ".pixi");

@@ -44,7 +44,6 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
             }
 
-            // TODO: Very low performance when in folder
             if (AllowHighDpiRendering || renderOnto.DeviceClipBounds.Size == context.DocumentSize)
             {
                 DrawLayerInScene(context, renderOnto, useFilters);
@@ -57,32 +56,39 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                     BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver
                 };
 
-                using var tempSurface = Texture.ForProcessing(context.DocumentSize, ColorSpace.CreateSrgb());
+                using var tempSurface = Texture.ForProcessing(context.DocumentSize, context.ProcessingColorSpace);
                 tempSurface.DrawingSurface.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
-                ColorSpace processingCs = context.ProcessingColorSpace;
-                context.ProcessingColorSpace = ColorSpace.CreateSrgb();
 
                 DrawLayerOnTexture(context, tempSurface.DrawingSurface, useFilters, targetPaint);
 
-                context.ProcessingColorSpace = processingCs;
+                blendPaint.SetFilters(null);
                 renderOnto.Canvas.DrawSurface(tempSurface.DrawingSurface, 0, 0, blendPaint);
             }
 
             return;
         }
 
-        VecI size = renderOnto.DeviceClipBounds.Size + renderOnto.DeviceClipBounds.Pos;
+        VecI size = AllowHighDpiRendering
+            ? renderOnto.DeviceClipBounds.Size + renderOnto.DeviceClipBounds.Pos
+            : context.DocumentSize;
         int saved = renderOnto.Canvas.Save();
 
         var outputWorkingSurface =
             TryInitWorkingSurface(size, context.ChunkResolution, context.ProcessingColorSpace, 1);
         outputWorkingSurface.DrawingSurface.Canvas.Clear();
         outputWorkingSurface.DrawingSurface.Canvas.Save();
-        outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(renderOnto.Canvas.TotalMatrix);
+        if (AllowHighDpiRendering)
+        {
+            outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(renderOnto.Canvas.TotalMatrix);
+            renderOnto.Canvas.SetMatrix(Matrix3X3.Identity);
+        }
 
-        renderOnto.Canvas.SetMatrix(Matrix3X3.Identity);
+        using var paint = new Paint
+        {
+            Color = new Color(255, 255, 255, 255), BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver
+        };
 
-        DrawLayerOnTexture(context, outputWorkingSurface.DrawingSurface, useFilters, blendPaint);
+        DrawLayerOnTexture(context, outputWorkingSurface.DrawingSurface, false, paint);
 
         ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, context);
 
@@ -105,6 +111,15 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         }
 
         blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
+        if (useFilters)
+        {
+            blendPaint.SetFilters(Filters.Value);
+        }
+        else
+        {
+            blendPaint.SetFilters(null);
+        }
+
         DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, context.ChunkResolution);
 
         renderOnto.Canvas.RestoreToCount(saved);
