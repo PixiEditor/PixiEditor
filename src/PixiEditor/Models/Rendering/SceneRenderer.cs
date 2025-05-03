@@ -35,7 +35,7 @@ internal class SceneRenderer : IDisposable
 
     public void RenderScene(DrawingSurface target, ChunkResolution resolution, string? targetOutput = null)
     {
-        if (Document.Renderer.IsBusy || DocumentViewModel.Busy) return;
+        if (Document.Renderer.IsBusy || DocumentViewModel.Busy || target.DeviceClipBounds.Size.ShortestAxis <= 0) return;
         RenderOnionSkin(target, resolution, targetOutput);
 
         string adjustedTargetOutput = targetOutput ?? "";
@@ -63,7 +63,8 @@ internal class SceneRenderer : IDisposable
         }
     }
 
-    private Texture RenderGraph(DrawingSurface target, ChunkResolution resolution, string? targetOutput, IReadOnlyNodeGraph finalGraph)
+    private Texture RenderGraph(DrawingSurface target, ChunkResolution resolution, string? targetOutput,
+        IReadOnlyNodeGraph finalGraph)
     {
         DrawingSurface renderTarget = target;
         Texture? renderTexture = null;
@@ -133,7 +134,7 @@ internal class SceneRenderer : IDisposable
             return true;
         }
 
-        if(lastFrameTime.Frame != DocumentViewModel.AnimationHandler.ActiveFrameTime.Frame)
+        if (lastFrameTime.Frame != DocumentViewModel.AnimationHandler.ActiveFrameTime.Frame)
         {
             lastFrameTime = DocumentViewModel.AnimationHandler.ActiveFrameTime;
             return true;
@@ -158,8 +159,10 @@ internal class SceneRenderer : IDisposable
 
         if (!renderInDocumentSize)
         {
-            double lengthDiff = target.LocalClipBounds.Size.Length - cachedTexture.DrawingSurface.LocalClipBounds.Size.Length;
-            if (lengthDiff > 0 || target.LocalClipBounds.Pos != cachedTexture.DrawingSurface.LocalClipBounds.Pos || lengthDiff < -ZoomDiffToRerender)
+            double lengthDiff = target.LocalClipBounds.Size.Length -
+                                cachedTexture.DrawingSurface.LocalClipBounds.Size.Length;
+            if (lengthDiff > 0 || target.LocalClipBounds.Pos != cachedTexture.DrawingSurface.LocalClipBounds.Pos ||
+                lengthDiff < -ZoomDiffToRerender)
             {
                 return true;
             }
@@ -183,7 +186,6 @@ internal class SceneRenderer : IDisposable
         Matrix3X3 solveMatrixDiff = current.Concat(old.Invert());
         return solveMatrixDiff;
     }
-
 
 
     private bool HighDpiRenderNodePresent(IReadOnlyNodeGraph documentNodeGraph)
