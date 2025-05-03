@@ -1,6 +1,11 @@
 using Drawie.Backend.Core.Bridge;
+using Drawie.Numerics;
+using Drawie.RenderApi.Vulkan;
+using Drawie.Silk;
 using Drawie.Skia;
+using Drawie.Windowing;
 using DrawiEngine;
+using DrawiEngine.Desktop;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
@@ -22,8 +27,12 @@ public class PixiEditorTest
             return;
         }
 
-        SkiaDrawingBackend skiaDrawingBackend = new SkiaDrawingBackend();
-        DrawingBackendApi.SetupBackend(skiaDrawingBackend, new DrawieRenderingDispatcher());
+        var engine = DesktopDrawingEngine.CreateDefaultDesktop();
+        var app = new TestingApp();
+        app.Initialize(engine);
+        IWindow window = app.CreateMainWindow();
+        window.Initialize();
+        DrawingBackendApi.InitializeBackend(engine.RenderApi);
     }
 }
 
@@ -33,26 +42,33 @@ public class FullPixiEditorTest : PixiEditorTest
     {
         ExtensionLoader loader = new ExtensionLoader("TestExtensions", "TestExtensions/Unpacked");
 
-        IOperatingSystem os;
-        if (System.OperatingSystem.IsWindows())
+        if (IOperatingSystem.Current == null)
         {
-            os = new WindowsOperatingSystem();
-        }
-        else if (System.OperatingSystem.IsLinux())
-        {
-            os = new LinuxOperatingSystem();
-        }
-        else if (System.OperatingSystem.IsMacOS())
-        {
-            os = new MacOperatingSystem();
-        }
-        else
-        {
-            throw new NotSupportedException("Unsupported operating system");
+            IOperatingSystem os;
+            if (System.OperatingSystem.IsWindows())
+            {
+                os = new WindowsOperatingSystem();
+            }
+            else if (System.OperatingSystem.IsLinux())
+            {
+                os = new LinuxOperatingSystem();
+            }
+            else if (System.OperatingSystem.IsMacOS())
+            {
+                os = new MacOperatingSystem();
+            }
+            else
+            {
+                throw new NotSupportedException("Unsupported operating system");
+            }
+
+            IOperatingSystem.RegisterOS(os);
         }
 
-        IOperatingSystem.RegisterOS(os);
-        IPlatform.RegisterPlatform(new TestPlatform());
+        if (IPlatform.Current == null)
+        {
+            IPlatform.RegisterPlatform(new TestPlatform());
+        }
 
         var services = new ServiceCollection()
             .AddPlatform()
@@ -80,5 +96,18 @@ public class FullPixiEditorTest : PixiEditorTest
         }
 
         public IAdditionalContentProvider? AdditionalContentProvider { get; } = new NullAdditionalContentProvider();
+    }
+}
+
+public class TestingApp : DrawieApp
+{
+    public override IWindow CreateMainWindow()
+    {
+        return Engine.WindowingPlatform.CreateWindow("Testing app", VecI.One);
+    }
+
+    protected override void OnInitialize()
+    {
+
     }
 }

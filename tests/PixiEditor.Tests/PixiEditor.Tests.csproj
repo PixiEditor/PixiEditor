@@ -27,6 +27,7 @@
 
 
     <ItemGroup>
+      <ProjectReference Include="..\..\src\Drawie\src\DrawiEngine.Desktop\DrawiEngine.Desktop.csproj" />
       <ProjectReference Include="..\..\src\PixiEditor.Desktop\PixiEditor.Desktop.csproj" />
       <ProjectReference Include="..\..\src\PixiEditor.Linux\PixiEditor.Linux.csproj" />
       <ProjectReference Include="..\..\src\PixiEditor.MacOs\PixiEditor.MacOs.csproj" />

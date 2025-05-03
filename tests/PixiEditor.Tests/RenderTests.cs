@@ -2,6 +2,8 @@ using Avalonia.Headless.XUnit;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.Models.IO;
 using PixiEditor.ViewModels.Document;
@@ -10,34 +12,28 @@ namespace PixiEditor.Tests;
 
 public class RenderTests : FullPixiEditorTest
 {
-    [AvaloniaFact]
-    public void TestThatPixiFilesRenderTheSameResultAsSavedPng()
+    [AvaloniaTheory]
+    [InlineData("fibi")]
+    [InlineData("Pond")]
+    public void TestThatPixiFilesRenderTheSameResultAsSavedPng(string fileName)
     {
-        string[] files = Directory.GetFiles("TestFiles/RenderTests", "*.pixi");
-        string[] results = Directory.GetFiles("TestFiles/RenderTests", "*.png");
+        string pixiFile = Path.Combine("TestFiles", "RenderTests", fileName + ".pixi");
+        string pngFile = Path.Combine("TestFiles", "RenderTests", fileName + ".png");
+        var document = Importer.ImportDocument(pixiFile);
 
-        Assert.Equal(files.Length, results.Length);
+        Assert.NotNull(pngFile);
 
-        for (int i = 0; i < files.Length; i++)
-        {
-            string pixiFile = files[i];
-            var document = Importer.ImportDocument(pixiFile);
-            var pngFile = results.FirstOrDefault(x => x.EndsWith(Path.GetFileNameWithoutExtension(pixiFile) + ".png"));
+        var result = document.TryRenderWholeImage(0);
 
-            Assert.NotNull(pngFile);
+        Assert.True(result is { IsT1: true, AsT1: not null }); // Check if rendering was successful
 
-            var result = document.TryRenderWholeImage(0);
+        using var image = result.AsT1;
 
-            Assert.True(result is { IsT1: true, AsT1: not null }); // Check if rendering was successful
+        using var toCompareTo = Importer.ImportImage(pngFile, document.SizeBindable);
 
-            using var image = result.AsT1;
+        Assert.NotNull(toCompareTo);
 
-            using var toCompareTo = Importer.ImportImage(results[i], document.SizeBindable);
-
-            Assert.NotNull(toCompareTo);
-
-            Assert.True(PixelCompare(image, toCompareTo));
-        }
+        Assert.True(PixelCompare(image, toCompareTo));
     }
 
     private static bool PixelCompare(Surface image, Surface compareTo)
@@ -47,22 +43,28 @@ public class RenderTests : FullPixiEditorTest
             return false;
         }
 
-        Pixmap imagePixmap = image.PeekPixels();
-        Pixmap compareToPixmap = compareTo.PeekPixels();
+        using Surface compareSurface1 = new Surface(image.Size);
+        using Surface compareSurface2 = new Surface(image.Size);
 
-        if (imagePixmap == null || compareToPixmap == null)
+        compareSurface1.DrawingSurface.Canvas.DrawSurface(image.DrawingSurface, 0, 0);
+        compareSurface2.DrawingSurface.Canvas.DrawSurface(compareTo.DrawingSurface, 0, 0);
+
+        var imageData1 = compareSurface1.PeekPixels();
+        var imageData2 = compareSurface2.PeekPixels();
+
+        if (imageData1.Width != imageData2.Width || imageData1.Height != imageData2.Height)
         {
             return false;
         }
 
-        for (int y = 0; y < image.Size.Y; y++)
+        for (int y = 0; y < imageData1.Height; y++)
         {
-            for (int x = 0; x < image.Size.X; x++)
+            for (int x = 0; x < imageData1.Width; x++)
             {
-                Color color1 = imagePixmap.GetPixelColor(x, y);
-                Color color2 = compareToPixmap.GetPixelColor(x, y);
+                var pixel1 = imageData1.GetPixelColor(x, y);
+                var pixel2 = imageData2.GetPixelColor(x, y);
 
-                if (color1 != color2)
+                if (pixel1 != pixel2)
                 {
                     return false;
                 }
