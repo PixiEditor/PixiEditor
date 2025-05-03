@@ -14,8 +14,6 @@ public static class ApplicationExtensions
             case IClassicDesktopStyleApplicationLifetime desktop:
                 action(desktop.MainWindow);
                 break;
-            default:
-                throw new NotSupportedException("ApplicationLifetime is not supported");
         }
     }
 

@@ -19,3 +19,15 @@ public interface IPlatform
         Current = platform;
     }
 }
+
+public class NullAdditionalContentProvider : IAdditionalContentProvider
+{
+    public bool IsContentInstalled(AdditionalContentProduct product) => false;
+    public bool PlatformHasContent(AdditionalContentProduct product)
+    {
+        return false;
+    }
+
+    public void InstallContent(AdditionalContentProduct product) { }
+    public void UninstallContent(AdditionalContentProduct product) { }
+}
