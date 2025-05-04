@@ -89,7 +89,7 @@ steps:
     inputs:
       SourceFolder: 'tests/TestDrivers/Windows/'
       Contents: '*.dll'
-      TargetFolder: 'tests/PixiEditor.Tests/bin/Release/net8.0/'
+      TargetFolder: 'tests/PixiEditor.Tests/bin/Release/net8.0/win-x64/'
 
   - task: DotNetCoreCLI@2
     displayName: Tests
