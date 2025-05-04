@@ -27,13 +27,20 @@ public class PixiEditorTest
             return;
         }
 
-        var engine = DesktopDrawingEngine.CreateDefaultDesktop();
-        var app = new TestingApp();
-        app.Initialize(engine);
-        IWindow window = app.CreateMainWindow();
-        window.IsVisible = false;
-        window.Initialize();
-        DrawingBackendApi.InitializeBackend(engine.RenderApi);
+        try
+        {
+            var engine = DesktopDrawingEngine.CreateDefaultDesktop();
+            var app = new TestingApp();
+            app.Initialize(engine);
+            IWindow window = app.CreateMainWindow();
+            window.IsVisible = false;
+            window.Initialize();
+            DrawingBackendApi.InitializeBackend(engine.RenderApi);
+        }
+        catch (Exception ex)
+        {
+            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend(), new DrawieRenderingDispatcher());
+        }
     }
 }
 

@@ -1,11 +1,20 @@
 using Avalonia.Headless.XUnit;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
 using PixiEditor.Models.IO;
+using Xunit.Abstractions;
 
 namespace PixiEditor.Tests;
 
 public class RenderTests : FullPixiEditorTest
 {
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public RenderTests(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper;
+    }
+
     [AvaloniaTheory]
     [InlineData("Fibi")]
     [InlineData("Pond")]
@@ -15,6 +24,12 @@ public class RenderTests : FullPixiEditorTest
     [InlineData("SmlPxlCircShadWithMaskClippedInFolder")]
     public void TestThatPixiFilesRenderTheSameResultAsSavedPng(string fileName)
     {
+        if (!DrawingBackendApi.Current.IsHardwareAccelerated)
+        {
+            _testOutputHelper.WriteLine("Skipping the test because hardware acceleration is not enabled.");
+            return;
+        }
+
         string pixiFile = Path.Combine("TestFiles", "RenderTests", fileName + ".pixi");
         string pngFile = Path.Combine("TestFiles", "RenderTests", fileName + ".png");
         var document = Importer.ImportDocument(pixiFile);
