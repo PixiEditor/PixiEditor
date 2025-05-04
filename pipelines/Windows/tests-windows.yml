@@ -22,8 +22,8 @@ steps:
 
   - task: ExtractFiles@1
     inputs:
-      archiveFilePatterns: '/tests/TestDrivers/Windows/*.zip'
-      destinationFolder: '/tests/TestDrivers/Windows/'
+      archiveFilePatterns: 'tests/TestDrivers/Windows/*.zip'
+      destinationFolder: 'tests/TestDrivers/Windows/'
       cleanDestinationFolder: false
       overwriteExistingFiles: false
 
