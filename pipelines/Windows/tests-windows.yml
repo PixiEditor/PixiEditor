@@ -20,14 +20,6 @@ steps:
       packageType: 'sdk'
       version: '$(dotnetVersion)'
 
-  - task: ExtractFiles@1
-    displayName: 'Extract SwiftShader drivers'
-    inputs:
-      archiveFilePatterns: 'tests/TestDrivers/Windows/*.zip'
-      destinationFolder: 'tests/TestDrivers/Windows/'
-      cleanDestinationFolder: false
-      overwriteExistingFiles: false
-
   - task: CmdLine@2
     displayName: 'Download WASI SDK'
     inputs:
@@ -84,12 +76,6 @@ steps:
       command: 'build'
       projects: '**/*.csproj'
       arguments: '--configuration Release -r $(buildPlatform)'
-
-  - task: CopyFiles@2
-    inputs:
-      SourceFolder: 'tests/TestDrivers/Windows/'
-      Contents: '*.dll'
-      TargetFolder: 'tests/PixiEditor.Tests/bin/Release/net8.0/win-x64/'
 
   - task: DotNetCoreCLI@2
     displayName: Tests
