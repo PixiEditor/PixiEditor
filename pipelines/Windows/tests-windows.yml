@@ -41,7 +41,7 @@ steps:
       script: |
         echo "SwiftShader ICD env variable set to: $VK_ICD_FILENAMES"
         echo "Contents of directory:"
-        ls $(Build.SourcesDirectory)/tests/TestDrivers/Windows/
+        ls tests/TestDrivers/Windows/
 
   - task: CmdLine@2
     displayName: 'Download WASI SDK'
