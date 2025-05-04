@@ -20,27 +20,18 @@ steps:
       packageType: 'sdk'
       version: '$(dotnetVersion)'
 
-  - task: Bash@3
-    displayName: Clone SwiftShader
+  - task: ExtractFiles@1
     inputs:
-      targetType: 'inline'
-      script: 'git clone https://github.com/google/swiftshader.git swiftshader'
-
-  - task: CMake@1
-    inputs:
-      workingDirectory: 'swiftshader/build'
-      cmakeArgs: '..'
-
-  - task: CMake@1
-    inputs:
-      workingDirectory: 'swiftshader/build'
-      cmakeArgs: '--build . --parallel'
+      archiveFilePatterns: 'PixiEditor/tests/TestDrivers/Windows/*.zip'
+      destinationFolder: 'PixiEditor/tests/TestDrivers/Windows/'
+      cleanDestinationFolder: false
+      overwriteExistingFiles: false
 
   - task: Bash@3
     displayName: "Set SwiftShader ICD env variable"
     inputs:
       targetType: 'inline'
-      script: 'echo "##vso[task.setvariable variable=VK_ICD_FILENAMES;]swiftshader\build\Windows\vk_swiftshader_icd.json"'
+      script: 'echo "##vso[task.setvariable variable=VK_ICD_FILENAMES;]PixiEditor\tests\TestDrivers\Windows\vk_swiftshader_icd.json"'
 
   - task: CmdLine@2
     displayName: 'Download WASI SDK'
