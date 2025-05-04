@@ -1,7 +1,7 @@
 trigger:
-- development
-- master
-- 2.0-cicd
+  - development
+  - master
+  - 2.0-cicd
 
 pool:
   vmImage: 'windows-latest'
@@ -14,73 +14,94 @@ variables:
   wasiUrl: 'https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-24/$(wasiVer).tar.gz'
 
 steps:
-- task: UseDotNet@2
-  displayName: 'Install .NET SDK'
-  inputs:
-    packageType: 'sdk'
-    version: '$(dotnetVersion)'
-    
-- task: CmdLine@2
-  displayName: 'Download WASI SDK'
-  inputs:
-    script: |
-      curl -L -o $(wasiVer).tar.gz $(wasiUrl)
+  - task: UseDotNet@2
+    displayName: 'Install .NET SDK'
+    inputs:
+      packageType: 'sdk'
+      version: '$(dotnetVersion)'
 
-- task: CmdLine@2
-  displayName: 'Unpack WASI SDK'
-  inputs:
-    script: |
-      tar -xzf $(wasiVer).tar.gz
-      echo "Contents of directory after extraction:"
-      dir $(wasiVer)
+  - task: Bash@3
+    displayName: Clone SwiftShader
+    inputs:
+      targetType: 'inline'
+      script: 'git clone https://github.com/google/swiftshader.git swiftshader'
 
-- task: PowerShell@2
-  displayName: 'Set Environment Path for WASI SDK'
-  inputs:
-    targetType: 'inline'
-    script: |
-      $env:WASI_SDK_PATH = "$(Get-Location)\$(wasiVer)"
-      Write-Host "##vso[task.setvariable variable=WASI_SDK_PATH]$env:WASI_SDK_PATH"
+  - task: CMake@1
+    inputs:
+      workingDirectory: 'swiftshader/build'
+      cmakeArgs: '..'
 
-- task: PowerShell@2
-  displayName: 'Verify Environment Path'
-  inputs:
-    targetType: 'inline'
-    script: |
-      Write-Host "Environment path set to: $env:WASI_SDK_PATH"
+  - task: CMake@1
+    inputs:
+      workingDirectory: 'swiftshader/build'
+      cmakeArgs: '--build . --parallel'
 
+  - task: Bash@3
+    displayName: "Set SwiftShader ICD env variable"
+    inputs:
+      targetType: 'inline'
+      script: 'echo "##vso[task.setvariable variable=VK_ICD_FILENAMES;]swiftshader\build\Windows\vk_swiftshader_icd.json"'
 
-- task: NuGetToolInstaller@1
+  - task: CmdLine@2
+    displayName: 'Download WASI SDK'
+    inputs:
+      script: |
+        curl -L -o $(wasiVer).tar.gz $(wasiUrl)
 
-- task: DotNetCoreCLI@2
-  displayName: Install wasi-wasm
-  inputs:
-    command: 'custom'
-    custom: 'workload'
-    arguments: 'install wasi-experimental'
+  - task: CmdLine@2
+    displayName: 'Unpack WASI SDK'
+    inputs:
+      script: |
+        tar -xzf $(wasiVer).tar.gz
+        echo "Contents of directory after extraction:"
+        dir $(wasiVer)
 
-- task: DotNetCoreCLI@2
-  displayName: Install wasm-tools
-  inputs:
-    command: 'custom'
-    custom: 'workload'
-    arguments: 'install wasm-tools'
+  - task: PowerShell@2
+    displayName: 'Set Environment Path for WASI SDK'
+    inputs:
+      targetType: 'inline'
+      script: |
+        $env:WASI_SDK_PATH = "$(Get-Location)\$(wasiVer)"
+        Write-Host "##vso[task.setvariable variable=WASI_SDK_PATH]$env:WASI_SDK_PATH"
 
-- task: NuGetCommand@2
-  displayName: 'Restore solution'
-  inputs:
-    restoreSolution: '$(solution)'
+  - task: PowerShell@2
+    displayName: 'Verify Environment Path'
+    inputs:
+      targetType: 'inline'
+      script: |
+        Write-Host "Environment path set to: $env:WASI_SDK_PATH"
 
-- task: DotNetCoreCLI@2
-  displayName: Build
-  inputs:
-    command: 'build'
-    projects: '**/*.csproj'
-    arguments: '--configuration Release -r $(buildPlatform)'
+  - task: NuGetToolInstaller@1
 
-- task: DotNetCoreCLI@2
-  displayName: Tests
-  inputs:
-    command: test
-    projects: '**/*Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration) -r $(buildPlatform)'
+  - task: DotNetCoreCLI@2
+    displayName: Install wasi-wasm
+    inputs:
+      command: 'custom'
+      custom: 'workload'
+      arguments: 'install wasi-experimental'
+
+  - task: DotNetCoreCLI@2
+    displayName: Install wasm-tools
+    inputs:
+      command: 'custom'
+      custom: 'workload'
+      arguments: 'install wasm-tools'
+
+  - task: NuGetCommand@2
+    displayName: 'Restore solution'
+    inputs:
+      restoreSolution: '$(solution)'
+
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      command: 'build'
+      projects: '**/*.csproj'
+      arguments: '--configuration Release -r $(buildPlatform)'
+
+  - task: DotNetCoreCLI@2
+    displayName: Tests
+    inputs:
+      command: test
+      projects: '**/*Tests/*.csproj'
+      arguments: '--configuration $(buildConfiguration) -r $(buildPlatform)'
