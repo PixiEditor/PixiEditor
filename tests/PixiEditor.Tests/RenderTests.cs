@@ -1,8 +1,13 @@
 using Avalonia.Headless.XUnit;
+using ChunkyImageLib;
+using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Numerics;
 using PixiEditor.Models.IO;
 using Xunit.Abstractions;
+using Color = Drawie.Backend.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Tests;
 
@@ -49,6 +54,26 @@ public class RenderTests : FullPixiEditorTest
         Assert.True(PixelCompare(image, toCompareTo));
     }
 
+    [AvaloniaTheory]
+    [InlineData("SingleLayer")]
+    [InlineData("SingleLayerWithMask")]
+    [InlineData("LayerWithMaskClipped")]
+    [InlineData("LayerWithMaskClippedHighDpiPresent")]
+    [InlineData("LayerWithMaskClippedInFolder")]
+    [InlineData("LayerWithMaskClippedInFolderWithMask")]
+    public void TestThatHalfResolutionScalesRenderCorrectly(string pixiName)
+    {
+        string pixiFile = Path.Combine("TestFiles", "ResolutionTests", pixiName + ".pixi");
+
+        var document = Importer.ImportDocument(pixiFile);
+        using Surface output = Surface.ForDisplay(document.SizeBindable);
+        document.SceneRenderer.RenderScene(output.DrawingSurface, ChunkResolution.Half);
+
+        Color expectedColor = Colors.Yellow;
+
+        Assert.True(AllPixelsAreColor(output, expectedColor));
+    }
+
     private static bool PixelCompare(Surface image, Surface compareTo)
     {
         if (image.Size != compareTo.Size)
@@ -78,6 +103,25 @@ public class RenderTests : FullPixiEditorTest
                 var pixel2 = imageData2.GetPixelColor(x, y);
 
                 if (pixel1 != pixel2)
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private static bool AllPixelsAreColor(Surface image, Color color)
+    {
+        var imageData = image.PeekPixels();
+
+        for (int y = 0; y < imageData.Height; y++)
+        {
+            for (int x = 0; x < imageData.Width; x++)
+            {
+                var pixel = imageData.GetPixelColor(x, y);
+                if (pixel != color)
                 {
                     return false;
                 }

@@ -36,5 +36,9 @@
     <ItemGroup>
         <Content Include="TestFiles\**" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="TestFiles\ResolutionTests\" />
+    </ItemGroup>
 
 </Project>
