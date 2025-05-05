@@ -31,15 +31,23 @@ public class PixiEditorTest
         {
             var engine = DesktopDrawingEngine.CreateDefaultDesktop();
             var app = new TestingApp();
+            Console.WriteLine("Running DrawieEngine with configuration:");
+            Console.WriteLine($"\t- RenderApi: {engine.RenderApi}");
+            Console.WriteLine($"\t- WindowingPlatform: {engine.RenderApi}");
+            Console.WriteLine($"\t- DrawingBackend: {engine.RenderApi}");
+
             app.Initialize(engine);
             IWindow window = app.CreateMainWindow();
-            window.IsVisible = false;
+
             window.Initialize();
-            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend(), new DrawieRenderingDispatcher());
+
+            DrawingBackendApi.InitializeBackend(engine.RenderApi);
+
+            app.Run();
         }
         catch (Exception ex)
         {
-            if(!DrawingBackendApi.HasBackend)
+            if (!DrawingBackendApi.HasBackend)
                 DrawingBackendApi.SetupBackend(new SkiaDrawingBackend(), new DrawieRenderingDispatcher());
         }
     }
@@ -110,13 +118,16 @@ public class FullPixiEditorTest : PixiEditorTest
 
 public class TestingApp : DrawieApp
 {
+    IWindow window;
+
     public override IWindow CreateMainWindow()
     {
-        return Engine.WindowingPlatform.CreateWindow("Testing app", VecI.One);
+        window = Engine.WindowingPlatform.CreateWindow("Testing app", VecI.One);
+        return window;
     }
 
     protected override void OnInitialize()
     {
-
+        window.IsVisible = false;
     }
 }

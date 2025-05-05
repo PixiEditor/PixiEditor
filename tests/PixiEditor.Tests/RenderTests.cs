@@ -27,6 +27,9 @@ public class RenderTests : FullPixiEditorTest
     [InlineData("SmallPixelArtCircleShadow")]
     [InlineData("SmlPxlCircShadWithMaskClipped")]
     [InlineData("SmlPxlCircShadWithMaskClippedInFolder")]
+    [InlineData("VectorRectangleClippedToCircle")]
+    [InlineData("VectorRectangleClippedToCircleShadowFilter")]
+    [InlineData("VectorRectangleClippedToCircleMasked")]
     public void TestThatPixiFilesRenderTheSameResultAsSavedPng(string fileName)
     {
         if (!DrawingBackendApi.Current.IsHardwareAccelerated)
