@@ -35,11 +35,12 @@ public class PixiEditorTest
             IWindow window = app.CreateMainWindow();
             window.IsVisible = false;
             window.Initialize();
-            DrawingBackendApi.InitializeBackend(engine.RenderApi);
+            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend(), new DrawieRenderingDispatcher());
         }
         catch (Exception ex)
         {
-            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend(), new DrawieRenderingDispatcher());
+            if(!DrawingBackendApi.HasBackend)
+                DrawingBackendApi.SetupBackend(new SkiaDrawingBackend(), new DrawieRenderingDispatcher());
         }
     }
 }

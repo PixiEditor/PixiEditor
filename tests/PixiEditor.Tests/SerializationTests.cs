@@ -12,19 +12,8 @@ using PixiEditor.Parser.Skia.Encoders;
 
 namespace PixiEditor.Tests;
 
-public class SerializationTests
+public class SerializationTests : PixiEditorTest
 {
-    public SerializationTests()
-    {
-        if (DrawingBackendApi.HasBackend)
-        {
-            return;
-        }
-
-        SkiaDrawingBackend skiaDrawingBackend = new SkiaDrawingBackend();
-        DrawingBackendApi.SetupBackend(skiaDrawingBackend, new DrawieRenderingDispatcher());
-    }
-
     [Fact]
     public void TestThatAllPaintablesHaveFactories()
     {
