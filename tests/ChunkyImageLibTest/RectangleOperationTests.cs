@@ -5,23 +5,15 @@ using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Numerics;
 using Drawie.Skia;
+using PixiEditor.Tests;
 using Xunit;
 
 namespace ChunkyImageLibTest;
 
-public class RectangleOperationTests
+public class RectangleOperationTests : PixiEditorTest
 {
     const int chunkSize = ChunkPool.FullChunkSize;
-    public RectangleOperationTests()
-    {
-        try
-        {
-            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend(), null);
-        }
-        catch
-        {
-        }
-    }
+
 // to keep expected rectangles aligned
 #pragma warning disable format
     [Fact]

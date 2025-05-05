@@ -133,9 +133,19 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
 
+        if (doc is null)
+            return;
+
         // TODO: Exception handling would probably be good
         var bitmap = Importer.GetPreviewSurface(path);
+
+        if (bitmap is null)
+            return;
+
         byte[] pixels = bitmap.ToWriteableBitmap().ExtractPixels();
+
+        if (pixels.Length == 0)
+            return;
 
         doc.Operations.ImportReferenceLayer(
             pixels.ToImmutableArray(),
@@ -426,8 +436,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     public bool CanCopyCels()
     {
         return Owner.DocumentIsNotNull(null) &&
-               Owner.DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.AllCels.Any(
-                   x => x.IsSelected);
+               Owner.DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.AllCels.Any(x => x.IsSelected);
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanCopyNodes",
@@ -539,8 +548,8 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
                     continue;
 
                 var inputProperty =
-                    inputNodeInstance.Inputs.FirstOrDefault(
-                        x => x.PropertyName == connection.InputProperty.PropertyName);
+                    inputNodeInstance.Inputs.FirstOrDefault(x =>
+                        x.PropertyName == connection.InputProperty.PropertyName);
                 var outputProperty =
                     outputNodeInstance.Outputs.FirstOrDefault(x =>
                         x.PropertyName == connection.OutputProperty.PropertyName);
@@ -595,18 +604,17 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        var newTask = Dispatcher.UIThread.InvokeAsync(
-            async () =>
+        var newTask = Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            T result = await task();
+            if (!EqualityComparer<T>.Default.Equals(result, value))
             {
-                T result = await task();
-                if (!EqualityComparer<T>.Default.Equals(result, value))
-                {
-                    updateAction(result);
-                    CommandController.CanExecuteChanged("PixiEditor.Clipboard");
-                }
+                updateAction(result);
+                CommandController.CanExecuteChanged("PixiEditor.Clipboard");
+            }
 
-                clipboardTasks.Remove(key, out _);
-            });
+            clipboardTasks.Remove(key, out _);
+        });
 
         clipboardTasks.TryAdd(key, newTask);
     }

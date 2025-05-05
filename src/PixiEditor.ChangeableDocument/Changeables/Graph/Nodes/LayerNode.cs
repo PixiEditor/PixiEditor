@@ -44,7 +44,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
             }
 
-            if (AllowHighDpiRendering)
+            if (AllowHighDpiRendering || renderOnto.DeviceClipBounds.Size == context.DocumentSize)
             {
                 DrawLayerInScene(context, renderOnto, useFilters);
             }
@@ -56,38 +56,59 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                     BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver
                 };
 
-                using var tempSurface = Texture.ForProcessing(context.DocumentSize, context.ProcessingColorSpace);
-                DrawLayerOnTexture(context, tempSurface.DrawingSurface, useFilters, targetPaint);
+                var tempSurface = TryInitWorkingSurface(context.DocumentSize, context.ChunkResolution,
+                    context.ProcessingColorSpace, 22);
 
-                renderOnto.Canvas.DrawSurface(tempSurface.DrawingSurface, 0, 0, blendPaint);
+                DrawLayerOnTexture(context, tempSurface.DrawingSurface, context.ChunkResolution, useFilters, targetPaint);
+
+                blendPaint.SetFilters(null);
+                DrawWithResolution(tempSurface.DrawingSurface, renderOnto, context.ChunkResolution);
             }
 
             return;
         }
 
-        VecI size = renderOnto.DeviceClipBounds.Size + renderOnto.DeviceClipBounds.Pos;
+        VecI size = AllowHighDpiRendering
+            ? renderOnto.DeviceClipBounds.Size + renderOnto.DeviceClipBounds.Pos
+            : context.DocumentSize;
         int saved = renderOnto.Canvas.Save();
 
+        var adjustedResolution = AllowHighDpiRendering ? ChunkResolution.Full : context.ChunkResolution;
+
         var outputWorkingSurface =
-            TryInitWorkingSurface(size, context.ChunkResolution, context.ProcessingColorSpace, 1);
+            TryInitWorkingSurface(size, adjustedResolution, context.ProcessingColorSpace, 1);
         outputWorkingSurface.DrawingSurface.Canvas.Clear();
         outputWorkingSurface.DrawingSurface.Canvas.Save();
-        outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(renderOnto.Canvas.TotalMatrix);
+        if (AllowHighDpiRendering)
+        {
+            outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(renderOnto.Canvas.TotalMatrix);
+            renderOnto.Canvas.SetMatrix(Matrix3X3.Identity);
+        }
 
-        renderOnto.Canvas.SetMatrix(Matrix3X3.Identity);
+        using var paint = new Paint
+        {
+            Color = new Color(255, 255, 255, 255), BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver
+        };
 
-        DrawLayerOnTexture(context, outputWorkingSurface.DrawingSurface, useFilters, blendPaint);
+        DrawLayerOnTexture(context, outputWorkingSurface.DrawingSurface, adjustedResolution, false, paint);
 
-        ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, context);
+        ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, context, adjustedResolution);
 
         if (Background.Value != null)
         {
-            Texture tempSurface = TryInitWorkingSurface(size, context.ChunkResolution, context.ProcessingColorSpace, 4);
+            Texture tempSurface = TryInitWorkingSurface(size, adjustedResolution, context.ProcessingColorSpace, 4);
 
             tempSurface.DrawingSurface.Canvas.Save();
-            tempSurface.DrawingSurface.Canvas.SetMatrix(outputWorkingSurface.DrawingSurface.Canvas.TotalMatrix);
-
-            outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+            if (AllowHighDpiRendering)
+            {
+                tempSurface.DrawingSurface.Canvas.SetMatrix(outputWorkingSurface.DrawingSurface.Canvas.TotalMatrix);
+                outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+            }
+            else
+            {
+                tempSurface.DrawingSurface.Canvas.Scale(
+                    (float)context.ChunkResolution.Multiplier());
+            }
 
             tempSurface.DrawingSurface.Canvas.Clear();
             if (Background.Connection is { Node: IClipSource clipSource } && ClipToPreviousMember)
@@ -99,7 +120,16 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         }
 
         blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
-        DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, context.ChunkResolution);
+        if (useFilters)
+        {
+            blendPaint.SetFilters(Filters.Value);
+        }
+        else
+        {
+            blendPaint.SetFilters(null);
+        }
+
+        DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, adjustedResolution);
 
         renderOnto.Canvas.RestoreToCount(saved);
         outputWorkingSurface.DrawingSurface.Canvas.Restore();
@@ -107,10 +137,11 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
     protected internal virtual void DrawLayerOnTexture(SceneObjectRenderContext ctx,
         DrawingSurface workingSurface,
+        ChunkResolution resolution,
         bool useFilters, Paint paint)
     {
         int scaled = workingSurface.Canvas.Save();
-        workingSurface.Canvas.Scale((float)ctx.ChunkResolution.Multiplier());
+        workingSurface.Canvas.Scale((float)resolution.Multiplier());
 
         DrawLayerOnto(ctx, workingSurface, useFilters, paint);
 
@@ -198,8 +229,14 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         if (!hasSurface || workingSurface.Size != targetSize || workingSurface.IsDisposed)
         {
+            workingSurface?.Dispose();
             workingSurfaces[(targetResolution, id)] = Texture.ForProcessing(targetSize, processingCs);
             workingSurface = workingSurfaces[(targetResolution, id)];
+        }
+        else
+        {
+            workingSurface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+            workingSurface.DrawingSurface.Canvas.Clear();
         }
 
         return workingSurface;

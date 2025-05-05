@@ -12,11 +12,12 @@ using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
 using PixiEditor.Parser.Skia.Encoders;
+using PixiEditor.Tests;
 using Xunit.Abstractions;
 
 namespace PixiEditor.Backend.Tests;
 
-public class NodeSystemTests
+public class NodeSystemTests : PixiEditorTest
 {
     private readonly ITestOutputHelper output;
 
@@ -29,8 +30,6 @@ public class NodeSystemTests
     public NodeSystemTests(ITestOutputHelper output)
     {
         this.output = output;
-        if (!DrawingBackendApi.HasBackend)
-            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend(), new AvaloniaRenderingDispatcher());
     }
 
     [Fact]

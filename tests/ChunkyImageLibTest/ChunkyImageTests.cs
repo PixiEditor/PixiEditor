@@ -6,23 +6,13 @@ using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using Drawie.Skia;
+using PixiEditor.Tests;
 using Xunit;
 
 namespace ChunkyImageLibTest;
 
-public class ChunkyImageTests
+public class ChunkyImageTests : PixiEditorTest
 {
-    public ChunkyImageTests()
-    {
-        try
-        {
-            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend(), null);
-        }
-        catch
-        {
-        }
-    }
-
     [Fact]
     public void Dispose_ComplexImage_ReturnsAllChunks()
     {
