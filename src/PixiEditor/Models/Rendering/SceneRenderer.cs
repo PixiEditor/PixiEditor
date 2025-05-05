@@ -27,6 +27,8 @@ internal class SceneRenderer : IDisposable
     private KeyFrameTime lastFrameTime;
     private Dictionary<Guid, bool> lastFramesVisibility = new();
 
+    private ChunkResolution? lastResolution;
+
     public SceneRenderer(IReadOnlyDocument trackerDocument, IDocument documentViewModel)
     {
         Document = trackerDocument;
@@ -117,6 +119,12 @@ internal class SceneRenderer : IDisposable
         if (!cachedTextures.TryGetValue(targetOutput ?? "", out var cachedTexture) || cachedTexture == null ||
             cachedTexture.IsDisposed)
         {
+            return true;
+        }
+
+        if (lastResolution != resolution)
+        {
+            lastResolution = resolution;
             return true;
         }
 

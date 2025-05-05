@@ -56,13 +56,13 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                     BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver
                 };
 
-                using var tempSurface = Texture.ForProcessing(context.DocumentSize, context.ProcessingColorSpace);
-                tempSurface.DrawingSurface.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
+                var tempSurface = TryInitWorkingSurface(context.DocumentSize, context.ChunkResolution,
+                    context.ProcessingColorSpace, 22);
 
-                DrawLayerOnTexture(context, tempSurface.DrawingSurface, useFilters, targetPaint);
+                DrawLayerOnTexture(context, tempSurface.DrawingSurface, context.ChunkResolution, useFilters, targetPaint);
 
                 blendPaint.SetFilters(null);
-                renderOnto.Canvas.DrawSurface(tempSurface.DrawingSurface, 0, 0, blendPaint);
+                DrawWithResolution(tempSurface.DrawingSurface, renderOnto, context.ChunkResolution);
             }
 
             return;
@@ -73,8 +73,10 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
             : context.DocumentSize;
         int saved = renderOnto.Canvas.Save();
 
+        var adjustedResolution = AllowHighDpiRendering ? ChunkResolution.Full : context.ChunkResolution;
+
         var outputWorkingSurface =
-            TryInitWorkingSurface(size, context.ChunkResolution, context.ProcessingColorSpace, 1);
+            TryInitWorkingSurface(size, adjustedResolution, context.ProcessingColorSpace, 1);
         outputWorkingSurface.DrawingSurface.Canvas.Clear();
         outputWorkingSurface.DrawingSurface.Canvas.Save();
         if (AllowHighDpiRendering)
@@ -88,18 +90,25 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
             Color = new Color(255, 255, 255, 255), BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver
         };
 
-        DrawLayerOnTexture(context, outputWorkingSurface.DrawingSurface, false, paint);
+        DrawLayerOnTexture(context, outputWorkingSurface.DrawingSurface, adjustedResolution, false, paint);
 
-        ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, context);
+        ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, context, adjustedResolution);
 
         if (Background.Value != null)
         {
-            Texture tempSurface = TryInitWorkingSurface(size, context.ChunkResolution, context.ProcessingColorSpace, 4);
+            Texture tempSurface = TryInitWorkingSurface(size, adjustedResolution, context.ProcessingColorSpace, 4);
 
             tempSurface.DrawingSurface.Canvas.Save();
-            tempSurface.DrawingSurface.Canvas.SetMatrix(outputWorkingSurface.DrawingSurface.Canvas.TotalMatrix);
-
-            outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+            if (AllowHighDpiRendering)
+            {
+                tempSurface.DrawingSurface.Canvas.SetMatrix(outputWorkingSurface.DrawingSurface.Canvas.TotalMatrix);
+                outputWorkingSurface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+            }
+            else
+            {
+                tempSurface.DrawingSurface.Canvas.Scale(
+                    (float)context.ChunkResolution.Multiplier());
+            }
 
             tempSurface.DrawingSurface.Canvas.Clear();
             if (Background.Connection is { Node: IClipSource clipSource } && ClipToPreviousMember)
@@ -120,7 +129,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
             blendPaint.SetFilters(null);
         }
 
-        DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, context.ChunkResolution);
+        DrawWithResolution(outputWorkingSurface.DrawingSurface, renderOnto, adjustedResolution);
 
         renderOnto.Canvas.RestoreToCount(saved);
         outputWorkingSurface.DrawingSurface.Canvas.Restore();
@@ -128,10 +137,11 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
     protected internal virtual void DrawLayerOnTexture(SceneObjectRenderContext ctx,
         DrawingSurface workingSurface,
+        ChunkResolution resolution,
         bool useFilters, Paint paint)
     {
         int scaled = workingSurface.Canvas.Save();
-        workingSurface.Canvas.Scale((float)ctx.ChunkResolution.Multiplier());
+        workingSurface.Canvas.Scale((float)resolution.Multiplier());
 
         DrawLayerOnto(ctx, workingSurface, useFilters, paint);
 
@@ -219,8 +229,14 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         if (!hasSurface || workingSurface.Size != targetSize || workingSurface.IsDisposed)
         {
+            workingSurface?.Dispose();
             workingSurfaces[(targetResolution, id)] = Texture.ForProcessing(targetSize, processingCs);
             workingSurface = workingSurfaces[(targetResolution, id)];
+        }
+        else
+        {
+            workingSurface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
+            workingSurface.DrawingSurface.Canvas.Clear();
         }
 
         return workingSurface;

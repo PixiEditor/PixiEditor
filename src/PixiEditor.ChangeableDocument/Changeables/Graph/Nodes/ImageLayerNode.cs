@@ -67,11 +67,12 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     protected internal override void DrawLayerOnTexture(SceneObjectRenderContext ctx,
         DrawingSurface workingSurface,
+        ChunkResolution resolution,
         bool useFilters, Paint paint)
     {
         int scaled = workingSurface.Canvas.Save();
-        workingSurface.Canvas.Translate(GetScenePosition(ctx.FrameTime) * ctx.ChunkResolution.Multiplier());
-        workingSurface.Canvas.Scale((float)ctx.ChunkResolution.Multiplier());
+        workingSurface.Canvas.Translate(GetScenePosition(ctx.FrameTime) * resolution.Multiplier());
+        workingSurface.Canvas.Scale((float)resolution.Multiplier());
 
         DrawLayerOnto(ctx, workingSurface, useFilters, paint);
 

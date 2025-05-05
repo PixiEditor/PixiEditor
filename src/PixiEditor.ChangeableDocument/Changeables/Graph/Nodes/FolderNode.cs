@@ -99,7 +99,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 
         Content.Value?.Paint(sceneContext, outputWorkingSurface.DrawingSurface);
 
-        ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, sceneContext);
+        ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, sceneContext, sceneContext.ChunkResolution);
 
         if (Background.Value != null && sceneContext.TargetPropertyOutput != RawOutput)
         {
