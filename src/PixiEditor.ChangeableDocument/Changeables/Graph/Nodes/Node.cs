@@ -113,7 +113,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
         lastContentCacheHash = GetContentCacheHash();
     }
 
-    public void TraverseBackwards(Func<IReadOnlyNode, IInputProperty, bool> action)
+    public void TraverseBackwards(Func<IReadOnlyNode, IInputProperty, bool> action, Func<IInputProperty, bool>? branchCondition = null)
     {
         var visited = new HashSet<IReadOnlyNode>();
         var queueNodes = new Queue<(IReadOnlyNode, IInputProperty)>();
@@ -135,6 +135,10 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
             foreach (var inputProperty in node.Item1.InputProperties)
             {
+                if (branchCondition != null && !branchCondition(inputProperty))
+                {
+                    continue;
+                }
                 if (inputProperty.Connection != null)
                 {
                     queueNodes.Enqueue((inputProperty.Connection.Node, inputProperty));

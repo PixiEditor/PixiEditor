@@ -176,6 +176,11 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
     {
     }
 
+    public bool IsTransformingMember(Guid id)
+    {
+        return id == memberId && IsTransforming;
+    }
+
     public override void ForceStop()
     {
         StopMode(activeMode);
@@ -241,7 +246,7 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
             foreach (var id in disabledSnappingMembers)
             {
                 var member = document.StructureHelper.Find(id);
-                if (member != null && member.IsVisibleBindable)
+                if (member is { IsVisibleStructurally: true })
                 {
                     document.SnappingHandler.AddFromBounds(id.ToString(), () => member?.TightBounds ?? RectD.Empty);
                 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Handlers;
 
@@ -253,5 +254,25 @@ internal class DocumentStructureModule
         });
 
         return result;
+    }
+
+    public List<IStructureMemberHandler> GetFolderChildren(Guid folderId)
+    {
+        List<IStructureMemberHandler> children = new List<IStructureMemberHandler>();
+
+        INodeHandler folder = FindNode<INodeHandler>(folderId);
+        var connectionInput = folder?.Inputs.FirstOrDefault(x => x.PropertyName == FolderNode.ContentInternalName);
+        if (folder == null || connectionInput?.ConnectedOutput == null)
+            return children;
+
+        connectionInput.ConnectedOutput.Node.TraverseBackwards(node =>
+        {
+            if (node is IStructureMemberHandler structureMemberNode)
+                children.Add(structureMemberNode);
+
+            return true;
+        });
+
+        return children;
     }
 }

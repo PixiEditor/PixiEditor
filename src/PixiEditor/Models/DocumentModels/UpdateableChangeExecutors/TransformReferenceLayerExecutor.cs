@@ -30,6 +30,10 @@ internal class TransformReferenceLayerExecutor : UpdateableChangeExecutor, ITran
     public void OnLineOverlayMoved(VecD start, VecD end) { }
 
     public void OnSelectedObjectNudged(VecI distance) => document!.TransformHandler.Nudge(distance);
+    public bool IsTransformingMember(Guid id)
+    {
+        return false;
+    }
 
     public void OnMidChangeUndo() => document!.TransformHandler.Undo();
 

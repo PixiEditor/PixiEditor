@@ -143,28 +143,32 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
         RectD? bounds = null;
+        if (!IsVisible.Value)
+            return null;
+
         if (Content.Connection != null)
         {
-            Content.Connection.Node.TraverseBackwards((n) =>
-            {
-                if (n is StructureNode structureNode)
+            Content.Connection.Node.TraverseBackwards(
+                (n, input) =>
                 {
-                    RectD? childBounds = structureNode.GetTightBounds(frameTime);
-                    if (childBounds != null)
+                    if (n is StructureNode { IsVisible.Value: true } structureNode)
                     {
-                        if (bounds == null)
+                        RectD? childBounds = structureNode.GetTightBounds(frameTime);
+                        if (childBounds != null)
                         {
-                            bounds = childBounds;
-                        }
-                        else
-                        {
-                            bounds = bounds.Value.Union(childBounds.Value);
+                            if (bounds == null)
+                            {
+                                bounds = childBounds;
+                            }
+                            else
+                            {
+                                bounds = bounds.Value.Union(childBounds.Value);
+                            }
                         }
                     }
-                }
 
-                return true;
-            });
+                    return true;
+                }, FilterInvisibleFolders);
 
             return bounds ?? RectD.Empty;
         }
@@ -177,31 +181,45 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
         RectD? bounds = null;
         if (Content.Connection != null)
         {
-            Content.Connection.Node.TraverseBackwards((n) =>
-            {
-                if (n is StructureNode structureNode)
+            Content.Connection.Node.TraverseBackwards(
+                (n, input) =>
                 {
-                    RectD? childBounds = structureNode.GetApproxBounds(frameTime);
-                    if (childBounds != null)
+                    if (n is StructureNode { IsVisible.Value: true } structureNode)
                     {
-                        if (bounds == null)
+                        RectD? childBounds = structureNode.GetApproxBounds(frameTime);
+                        if (childBounds != null)
                         {
-                            bounds = childBounds;
-                        }
-                        else
-                        {
-                            bounds = bounds.Value.Union(childBounds.Value);
+                            if (bounds == null)
+                            {
+                                bounds = childBounds;
+                            }
+                            else
+                            {
+                                bounds = bounds.Value.Union(childBounds.Value);
+                            }
                         }
                     }
-                }
 
-                return true;
-            });
+                    return true;
+                }, FilterInvisibleFolders);
 
             return bounds ?? RectD.Empty;
         }
 
         return null;
+    }
+
+    private bool FilterInvisibleFolders(IInputProperty input)
+    {
+        if (input is
+            {
+                Node: IReadOnlyFolderNode folderNode, InternalPropertyName: FolderNode.ContentInternalName
+            })
+        {
+            return folderNode.IsVisible.Value;
+        }
+
+        return true;
     }
 
     public HashSet<Guid> GetLayerNodeGuids()
@@ -240,10 +258,16 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 
         if (Content.Connection != null)
         {
-            var executionQueue = GraphUtils.CalculateExecutionQueue(Content.Connection.Node);
+            var executionQueue = GraphUtils.CalculateExecutionQueue(Content.Connection.Node, FilterInvisibleFolders);
             while (executionQueue.Count > 0)
             {
                 IReadOnlyNode node = executionQueue.Dequeue();
+
+                if (node is IReadOnlyStructureNode { IsVisible.Value: false })
+                {
+                    continue;
+                }
+
                 if (node is IPreviewRenderable previewRenderable)
                 {
                     previewRenderable.RenderPreview(renderOn, context, elementToRenderName);
