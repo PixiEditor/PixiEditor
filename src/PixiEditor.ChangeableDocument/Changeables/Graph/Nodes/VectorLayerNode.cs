@@ -134,6 +134,11 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return true;
     }
 
+    public override RectD? GetApproxBounds(KeyFrameTime frameTime)
+    {
+        return GetTightBounds(frameTime);
+    }
+
     public override void SerializeAdditionalData(Dictionary<string, object> additionalData)
     {
         base.SerializeAdditionalData(additionalData);

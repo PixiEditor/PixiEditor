@@ -73,11 +73,8 @@ internal abstract class SimpleShapeToolExecutor : UpdateableChangeExecutor,
             ActiveMode = ShapeToolMode.Preview;
         }
 
-        if (controller.LeftMousePressed)
-        {
-            restoreSnapping?.Dispose();
-            restoreSnapping = DisableSelfSnapping(memberId, document);
-        }
+        restoreSnapping?.Dispose();
+        restoreSnapping = DisableSelfSnapping(memberId, document);
 
         return ExecutionState.Success;
     }

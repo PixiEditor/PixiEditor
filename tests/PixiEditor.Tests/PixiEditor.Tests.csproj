@@ -12,6 +12,7 @@
 
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+        <PackageReference Include="Avalonia.Headless.XUnit" Version="$(AvaloniaVersion)" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
         <PackageReference Include="xunit" Version="2.9.2"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
@@ -26,7 +27,18 @@
 
 
     <ItemGroup>
+      <ProjectReference Include="..\..\src\Drawie\src\DrawiEngine.Desktop\DrawiEngine.Desktop.csproj" />
       <ProjectReference Include="..\..\src\PixiEditor.Desktop\PixiEditor.Desktop.csproj" />
+      <ProjectReference Include="..\..\src\PixiEditor.Linux\PixiEditor.Linux.csproj" />
+      <ProjectReference Include="..\..\src\PixiEditor.MacOs\PixiEditor.MacOs.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <Content Include="TestFiles\**" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="TestFiles\ResolutionTests\" />
     </ItemGroup>
 
 </Project>

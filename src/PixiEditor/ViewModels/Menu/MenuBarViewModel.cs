@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +15,7 @@ using PixiEditor.Models.Commands;
 using PixiEditor.OperatingSystem;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
+using PixiEditor.Views;
 using Command = PixiEditor.Models.Commands.Commands.Command;
 using Commands_Command = PixiEditor.Models.Commands.Commands.Command;
 using NativeMenu = Avalonia.Controls.NativeMenu;
@@ -92,6 +94,11 @@ internal class MenuBarViewModel : PixiObservableObject
 
     private void BuildMenu(CommandController controller, MenuItemBuilder[] builders)
     {
+        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime)
+        {
+            return;
+        }
+
         if (IOperatingSystem.Current.IsMacOs)
         {
             BuildBasicNativeMenuItems(controller, menuItems);

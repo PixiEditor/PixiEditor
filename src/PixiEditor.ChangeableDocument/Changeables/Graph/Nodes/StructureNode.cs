@@ -47,13 +47,15 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     public ChunkyImage? EmbeddedMask { get; set; }
 
     protected Texture renderedMask;
-    protected static readonly Paint replacePaint = new Paint() { BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src };
+
+    protected static readonly Paint replacePaint =
+        new Paint() { BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src };
 
     protected static readonly Paint clearPaint = new Paint()
     {
         BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.Src, Color = Colors.Transparent
     };
-    
+
     protected static readonly Paint clipPaint = new Paint()
     {
         BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.DstIn
@@ -70,12 +72,16 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         set => DisplayName = value;
     }
 
-    protected Paint maskPaint = new Paint() { BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.DstIn, ColorFilter = Nodes.Filters.MaskFilter };
+    protected Paint maskPaint = new Paint()
+    {
+        BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.DstIn, ColorFilter = Nodes.Filters.MaskFilter
+    };
+
     protected Paint blendPaint = new Paint() { BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver };
 
     protected Paint maskPreviewPaint = new Paint()
     {
-        BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver, 
+        BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver,
         ColorFilter = ColorFilter.CreateCompose(Nodes.Filters.AlphaGrayscaleFilter, Nodes.Filters.MaskFilter)
     };
 
@@ -141,22 +147,22 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     {
         RenderForOutput(context, renderTarget, FilterlessOutput);
     }
-    
+
     private void OnRawPaint(RenderContext context, DrawingSurface renderTarget)
     {
         RenderForOutput(context, renderTarget, RawOutput);
     }
-    
+
     public abstract VecD GetScenePosition(KeyFrameTime frameTime);
     public abstract VecD GetSceneSize(KeyFrameTime frameTime);
 
     public void RenderForOutput(RenderContext context, DrawingSurface renderTarget, RenderOutputProperty output)
     {
-        if(IsDisposed)
+        if (IsDisposed)
         {
             return;
         }
-        
+
         var renderObjectContext = CreateSceneContext(context, renderTarget, output);
 
         int renderSaved = renderTarget.Canvas.Save();
@@ -185,16 +191,16 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
 
     public abstract void Render(SceneObjectRenderContext sceneContext);
 
-    protected void ApplyMaskIfPresent(DrawingSurface surface, RenderContext context)
+    protected void ApplyMaskIfPresent(DrawingSurface surface, RenderContext context, ChunkResolution renderResolution)
     {
         if (MaskIsVisible.Value)
         {
             if (CustomMask.Value != null)
             {
                 int layer = surface.Canvas.SaveLayer(maskPaint);
-                surface.Canvas.Scale((float)context.ChunkResolution.Multiplier());
+                surface.Canvas.Scale((float)renderResolution.Multiplier());
                 CustomMask.Value.Paint(context, surface);
-                
+
                 surface.Canvas.RestoreToCount(layer);
             }
             else if (EmbeddedMask != null)
@@ -206,9 +212,12 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
                         ChunkResolution.Full,
                         surface, VecI.Zero, maskPaint);
                 }
-                else if(renderedMask != null)
+                else if (renderedMask != null)
                 {
+                    int saved = surface.Canvas.Save();
+                    surface.Canvas.Scale((float)renderResolution.Multiplier());
                     surface.Canvas.DrawSurface(renderedMask.DrawingSurface, 0, 0, maskPaint);
+                    surface.Canvas.RestoreToCount(saved);
                 }
             }
         }
@@ -216,10 +225,12 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
 
     protected override int GetContentCacheHash()
     {
-        return HashCode.Combine(base.GetContentCacheHash(), EmbeddedMask?.GetCacheHash() ?? 0, ClipToPreviousMember ? 1 : 0);
+        return HashCode.Combine(base.GetContentCacheHash(), EmbeddedMask?.GetCacheHash() ?? 0,
+            ClipToPreviousMember ? 1 : 0);
     }
 
-    public virtual void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime, ColorSpace processingColorSpace)
+    public virtual void RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime,
+        ColorSpace processingColorSpace)
     {
         RenderChunkyImageChunk(chunkPos, resolution, EmbeddedMask, 55, processingColorSpace, ref renderedMask);
     }
@@ -234,11 +245,11 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         }
 
         VecI targetSize = img.LatestSize;
-        
+
         renderSurface = RequestTexture(textureId, targetSize, processingColorSpace, false);
 
         int saved = renderSurface.DrawingSurface.Canvas.Save();
-        
+
         if (!img.DrawMostUpToDateChunkOn(
                 chunkPos,
                 ChunkResolution.Full,
@@ -250,7 +261,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
             renderSurface.DrawingSurface.Canvas.DrawRect(new RectD(chunkPos * chunkSize, new VecD(chunkSize)),
                 clearPaint);
         }
-        
+
         renderSurface.DrawingSurface.Canvas.RestoreToCount(saved);
     }
 
@@ -279,6 +290,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
     }
 
     public abstract RectD? GetTightBounds(KeyFrameTime frameTime);
+    public abstract RectD? GetApproxBounds(KeyFrameTime frameTime);
 
     public override void SerializeAdditionalData(Dictionary<string, object> additionalData)
     {
@@ -287,6 +299,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         {
             additionalData["embeddedMask"] = EmbeddedMask;
         }
+
         if (ClipToPreviousMember)
         {
             additionalData["clipToPreviousMember"] = ClipToPreviousMember;
@@ -308,7 +321,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
 
             infos.Add(new StructureMemberMask_ChangeInfo(Id, mask != null));
         }
-        
+
         if (data.TryGetValue("clipToPreviousMember", out var clip))
         {
             ClipToPreviousMember = (bool)clip;

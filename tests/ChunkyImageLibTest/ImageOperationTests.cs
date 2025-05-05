@@ -5,19 +5,12 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Numerics;
 using Drawie.Skia;
+using PixiEditor.Tests;
 using Xunit;
 
 namespace ChunkyImageLibTest;
-public class ImageOperationTests
+public class ImageOperationTests : PixiEditorTest
 {
-    public ImageOperationTests()
-    {
-        try
-        {
-            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend(), null);
-        }
-        catch { }
-    }
 
     [Fact]
     public void FindAffectedChunks_SingleChunk_ReturnsSingleChunk()
