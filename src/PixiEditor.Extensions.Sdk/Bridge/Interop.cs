@@ -4,6 +4,13 @@ namespace PixiEditor.Extensions.Sdk.Bridge;
 
 internal static partial class Interop
 {
+    static Interop()
+    {
+        uniqueName = Native.get_extension_unique_name();
+        Native.PreferenceUpdated += NativeOnPreferenceUpdated;
+        Native.CommandInvoked += OnCommandInvoked;
+    }
+
     public static void UpdateUserPreference<T>(string name, T value)
     {
         switch (value)
