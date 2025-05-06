@@ -19,7 +19,7 @@ public static class PrefixedNameUtility
         {
             finalName = name;
             
-            if(splitted[0].Equals("pixieditor", StringComparison.CurrentCultureIgnoreCase)) 
+            if(splitted[0].Equals("pixieditor", StringComparison.CurrentCultureIgnoreCase))
             {
                 finalName = splitted[1];
             }
@@ -48,5 +48,15 @@ public static class PrefixedNameUtility
         }
 
         return preferenceName;
+    }
+
+    public static string ToCommandUniqueName(string extensionUniqueName, string metadataUniqueName)
+    {
+        if (metadataUniqueName.StartsWith(extensionUniqueName))
+        {
+            return metadataUniqueName;
+        }
+
+        return $"{extensionUniqueName}:{metadataUniqueName}";
     }
 }

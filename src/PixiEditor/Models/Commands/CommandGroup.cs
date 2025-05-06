@@ -11,8 +11,8 @@ namespace PixiEditor.Models.Commands;
 
 internal class CommandGroup : ObservableObject
 {
-    private readonly Command[] commands;
-    private readonly Command[] visibleCommands;
+    private List<Command> commands;
+    private List<Command> visibleCommands;
 
     private LocalizedString displayName;
 
@@ -26,15 +26,15 @@ internal class CommandGroup : ObservableObject
 
     public string? IsVisibleProperty { get; set; }
 
-    public IEnumerable<Command> Commands => commands;
+    public IReadOnlyList<Command> Commands => commands;
 
-    public IEnumerable<Command> VisibleCommands => visibleCommands;
+    public IReadOnlyList<Command> VisibleCommands => visibleCommands;
 
     public CommandGroup(LocalizedString displayName, IEnumerable<Command> commands)
     {
         DisplayName = displayName;
-        this.commands = commands.ToArray();
-        visibleCommands = commands.Where(x => !string.IsNullOrEmpty(x.DisplayName.Value)).ToArray();
+        this.commands = commands.ToList();
+        visibleCommands = commands.Where(x => !string.IsNullOrEmpty(x.DisplayName.Value)).ToList();
 
         foreach (var command in commands)
         {
@@ -43,6 +43,20 @@ internal class CommandGroup : ObservableObject
         }
 
         ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    public void AddCommand(Command command)
+    {
+        command.ShortcutChanged += Command_ShortcutChanged;
+        HasAssignedShortcuts |= command.Shortcut.Key != Key.None;
+        commands.Add(command);
+        if (!string.IsNullOrEmpty(command.DisplayName.Value))
+        {
+            visibleCommands.Add(command);
+        }
+
+        OnPropertyChanged(nameof(VisibleCommands));
+        OnPropertyChanged(nameof(Commands));
     }
 
     private void OnLanguageChanged(Language obj)

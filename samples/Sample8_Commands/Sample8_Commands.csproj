@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <RuntimeIdentifier>wasi-wasm</RuntimeIdentifier>
@@ -6,14 +7,19 @@
         <PublishTrimmed>true</PublishTrimmed>
         <WasmSingleFileBundle>true</WasmSingleFileBundle>
         <GenerateExtensionPackage>true</GenerateExtensionPackage>
-        <PixiExtOutputPath>..\..\src\PixiEditor.Desktop\bin\Debug\net8.0\win-x64\Extensions</PixiExtOutputPath>
+        <PixiExtOutputPath>..\..\src\PixiEditor.Desktop\bin\Debug\net8.0\Extensions</PixiExtOutputPath>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
-        <RootNamespace>PalettesSample</RootNamespace>
+        <RootNamespace>Sample8_Commands</RootNamespace>
     </PropertyGroup>
 
+    <!--Below is not required if you use Nuget package, this sample references project directly, so it must be here-->
     <ItemGroup>
-        <None Remove="extension.json" />
+        <ProjectReference Include="..\..\src\PixiEditor.Extensions.Sdk\PixiEditor.Extensions.Sdk.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="extension.json"/>
         <Content Include="extension.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
@@ -25,19 +31,9 @@
         </Content>
     </ItemGroup>
 
-    <ItemGroup>
-        <Content Include="Resources\*">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
-
-    <!--Below is not required if you use Nuget package, this sample references project directly, so it must be here-->
-    <ItemGroup>
-        <ProjectReference Include="..\..\src\PixiEditor.Extensions.Sdk\PixiEditor.Extensions.Sdk.csproj" />
-    </ItemGroup>
-
     <!--Below is not required if you use Nuget package, this sample references project directly, so it must be here-->
     <Import Project="..\..\src\PixiEditor.Extensions.Sdk\build\PixiEditor.Extensions.Sdk.props"/>
-    <Import Project="..\..\src\PixiEditor.Extensions.Sdk\build\PixiEditor.Extensions.Sdk.targets" />
+    <Import Project="..\..\src\PixiEditor.Extensions.Sdk\build\PixiEditor.Extensions.Sdk.targets"/>
+
 
 </Project>

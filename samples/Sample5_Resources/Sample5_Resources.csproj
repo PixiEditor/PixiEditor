@@ -6,7 +6,7 @@
         <PublishTrimmed>true</PublishTrimmed>
         <WasmSingleFileBundle>true</WasmSingleFileBundle>
         <GenerateExtensionPackage>true</GenerateExtensionPackage>
-        <PixiExtOutputPath>..\..\src\PixiEditor.AvaloniaUI.Desktop\bin\Debug\net8.0\win-x64\Extensions</PixiExtOutputPath>
+        <PixiExtOutputPath>..\..\src\PixiEditor.Desktop\bin\Debug\net8.0\win-x64\Extensions</PixiExtOutputPath>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
         <RootNamespace>ResourcesSample</RootNamespace>
