@@ -418,6 +418,13 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
     public void OnLineOverlayMoved(VecD start, VecD end) { }
 
     public void OnSelectedObjectNudged(VecI distance) => document!.TransformHandler.Nudge(distance);
+    public bool IsTransformingMember(Guid id)
+    {
+        if (document!.SelectedStructureMember is null)
+            return false;
+
+        return selectedMembers.Contains(id) && IsTransforming;
+    }
 
     public void OnMidChangeUndo() => document!.TransformHandler.Undo();
 
@@ -484,7 +491,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
                 continue;
             }
 
-            if (member is ILayerHandler layer)
+            if (member is ILayerHandler layer && layer.IsVisibleStructurally)
             {
                 document!.SnappingHandler.AddFromBounds(layer.Id.ToString(), () => layer.TightBounds ?? RectD.Empty);
             }
@@ -496,7 +503,7 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         foreach (var id in disabledSnappingMembers)
         {
             var member = document!.StructureHelper.Find(id);
-            if (member is null)
+            if (member is null || !member.IsVisibleStructurally)
             {
                 continue;
             }

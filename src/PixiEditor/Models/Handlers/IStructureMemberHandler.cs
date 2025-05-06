@@ -23,6 +23,7 @@ internal interface IStructureMemberHandler : INodeHandler
     public bool IsVisibleBindable { get; set; }
     public RectD? TightBounds { get; }
     public ShapeCorners TransformationCorners { get; }
+    public bool IsVisibleStructurally { get; }
     public void SetMaskIsVisible(bool infoIsVisible);
     public void SetClipToMemberBelowEnabled(bool infoClipToMemberBelow);
     public void SetBlendMode(BlendMode infoBlendMode);
