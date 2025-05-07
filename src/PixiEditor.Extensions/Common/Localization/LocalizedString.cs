@@ -107,4 +107,15 @@ public struct LocalizedString
 
     public static implicit operator LocalizedString(string key) => new(key);
     public static implicit operator string(LocalizedString localizedString) => localizedString.Value;
+
+    public static string FirstValidKey(string key, string fallbackKey)
+    {
+        LocalizedString localizedString = new(key);
+        if (localizedString.Key == localizedString.Value)
+        {
+            return fallbackKey;
+        }
+
+        return key;
+    }
 }
