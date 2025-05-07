@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Extensions.CommonApi.IO;
 using PixiEditor.Extensions.CommonApi.Menu;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
@@ -16,6 +17,7 @@ public class ExtensionServices
     public ICommandProvider? Commands => Services.GetService<ICommandProvider>();
     
     public IPalettesProvider? Palettes => Services.GetService<IPalettesProvider>();
+    public IDocumentProvider Documents => Services.GetService<IDocumentProvider>();
 
     public ExtensionServices(IServiceProvider services)
     {
