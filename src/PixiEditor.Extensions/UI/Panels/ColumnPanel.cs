@@ -16,7 +16,8 @@ public class ColumnPanel : Panel
         foreach (var child in Children)
         {
             child.Measure(availableSize);
-            size = new Size(Math.Max(size.Width, child.DesiredSize.Width), size.Height + child.DesiredSize.Height);
+            size += new Size(0, child.DesiredSize.Height);
+            size = new Size(Math.Max(size.Width, child.DesiredSize.Width), size.Height);
         }
 
         if (MainAxisAlignment == MainAxisAlignment.SpaceBetween)
@@ -30,16 +31,6 @@ public class ColumnPanel : Panel
         else if (MainAxisAlignment == MainAxisAlignment.SpaceEvenly)
         {
             size = new Size(size.Width, availableSize.Height);
-        }
-
-        if (CrossAxisAlignment == CrossAxisAlignment.Center)
-        {
-            size = new Size(availableSize.Width, size.Height);
-        }
-
-        if (CrossAxisAlignment == CrossAxisAlignment.End)
-        {
-            size = new Size(availableSize.Width, size.Height);
         }
 
         return size;
