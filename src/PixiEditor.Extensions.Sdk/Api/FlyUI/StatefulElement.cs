@@ -2,11 +2,11 @@
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
-public abstract class StatefulElement<TState> : LayoutElement, IStatefulElement<CompiledControl, TState> where TState : IState<CompiledControl>
+public abstract class StatefulElement<TState> : LayoutElement, IStatefulElement<ControlDefinition, TState> where TState : IState<ControlDefinition>
 {
     private TState state;
 
-    IState<CompiledControl> IStatefulElement<CompiledControl>.State
+    IState<ControlDefinition> IStatefulElement<ControlDefinition>.State
     {
         get
         {
@@ -15,7 +15,7 @@ public abstract class StatefulElement<TState> : LayoutElement, IStatefulElement<
                 state = CreateState();
                 state.StateChanged += () =>
                 {
-                    CompiledControl newLayout = BuildNative();
+                    ControlDefinition newLayout = BuildNative();
                     PixiEditorExtension.Api.WindowProvider.LayoutStateChanged(UniqueId, newLayout);
                 };
             }
@@ -24,13 +24,13 @@ public abstract class StatefulElement<TState> : LayoutElement, IStatefulElement<
         }
     }
 
-    public TState State => (TState)((IStatefulElement<CompiledControl>)this).State;
+    public TState State => (TState)((IStatefulElement<ControlDefinition>)this).State;
 
-    public override CompiledControl BuildNative()
+    public override ControlDefinition BuildNative()
     {
-        CompiledControl control = State.Build().BuildNative();
-        CompiledControl statefulContainer = new CompiledControl(UniqueId, "StatefulContainer");
-        statefulContainer.Children.Add(control);
+        ControlDefinition controlDefinition = State.Build().BuildNative();
+        ControlDefinition statefulContainer = new ControlDefinition(UniqueId, "StatefulContainer");
+        statefulContainer.Children.Add(controlDefinition);
         return statefulContainer;
     }
 

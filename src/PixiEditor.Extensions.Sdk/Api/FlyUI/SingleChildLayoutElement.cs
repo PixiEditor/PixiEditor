@@ -2,8 +2,8 @@
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
-public abstract class SingleChildLayoutElement : LayoutElement, ISingleChildLayoutElement<CompiledControl>
+public abstract class SingleChildLayoutElement : LayoutElement, ISingleChildLayoutElement<ControlDefinition>
 {
-    public ILayoutElement<CompiledControl> Child { get; set; }
-    public abstract override CompiledControl BuildNative();
+    public ILayoutElement<ControlDefinition> Child { get; set; }
+    public abstract override ControlDefinition BuildNative();
 }

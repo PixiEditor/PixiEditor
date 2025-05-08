@@ -13,15 +13,15 @@ public class Align : SingleChildLayoutElement
         Alignment = alignment;
     }
 
-    public override CompiledControl BuildNative()
+    public override ControlDefinition BuildNative()
     {
-        CompiledControl control = new CompiledControl(UniqueId, "Align");
-        control.AddProperty((int)Alignment);
+        ControlDefinition controlDefinition = new ControlDefinition(UniqueId, "Align");
+        controlDefinition.AddProperty((int)Alignment);
         
         if (Child != null)
-            control.AddChild(Child.BuildNative());
+            controlDefinition.AddChild(Child.BuildNative());
 
-        BuildPendingEvents(control);
-        return control;
+        BuildPendingEvents(controlDefinition);
+        return controlDefinition;
     }
 }

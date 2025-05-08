@@ -32,7 +32,7 @@ public class Border : SingleChildLayoutElement, IPropertyDeserializable
     public double Width { get => width; set => SetField(ref width, value); }
     public double Height { get => height; set => SetField(ref height, value); }
 
-    public override Control BuildNative()
+    protected override Control CreateNativeControl()
     {
         border = new Avalonia.Controls.Border();
 

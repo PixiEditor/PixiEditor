@@ -2,16 +2,16 @@
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
-public abstract class MultiChildLayoutElement : LayoutElement, IMultiChildLayoutElement<CompiledControl>
+public abstract class MultiChildLayoutElement : LayoutElement, IMultiChildLayoutElement<ControlDefinition>
 {
-    List<ILayoutElement<CompiledControl>> IMultiChildLayoutElement<CompiledControl>.Children
+    List<ILayoutElement<ControlDefinition>> IMultiChildLayoutElement<ControlDefinition>.Children
     {
-        get => Children.Cast<ILayoutElement<CompiledControl>>().ToList();
+        get => Children.Cast<ILayoutElement<ControlDefinition>>().ToList();
         set => Children = value.Cast<LayoutElement>().ToList();
     }
 
     public List<LayoutElement> Children { get; set; }
 
-    public abstract override CompiledControl BuildNative();
+    public abstract override ControlDefinition BuildNative();
 
 }

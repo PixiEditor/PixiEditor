@@ -4,9 +4,9 @@ namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
 internal static class LayoutElementsStore
 {
-    public static Dictionary<int, ILayoutElement<CompiledControl>> LayoutElements { get; } = new();
+    public static Dictionary<int, ILayoutElement<ControlDefinition>> LayoutElements { get; } = new();
 
-    public static void AddElement(int internalId, ILayoutElement<CompiledControl> element)
+    public static void AddElement(int internalId, ILayoutElement<ControlDefinition> element)
     {
         LayoutElements.Add(internalId, element);
     }

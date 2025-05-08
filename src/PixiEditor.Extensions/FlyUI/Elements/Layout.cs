@@ -15,7 +15,7 @@ public class Layout : SingleChildLayoutElement
         Child = body;
     }
 
-    public override Control BuildNative()
+    protected override Control CreateNativeControl()
     {
         panel = new Panel();
         if (Child != null)

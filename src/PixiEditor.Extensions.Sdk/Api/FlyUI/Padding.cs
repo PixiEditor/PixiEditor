@@ -12,13 +12,13 @@ public class Padding : SingleChildLayoutElement
         Child = child;
     }
     
-    public override CompiledControl BuildNative()
+    public override ControlDefinition BuildNative()
     {
-        CompiledControl control = new CompiledControl(UniqueId, "Padding");
-        control.Children.Add(Child.BuildNative());
+        ControlDefinition controlDefinition = new ControlDefinition(UniqueId, "Padding");
+        controlDefinition.Children.Add(Child.BuildNative());
         
-        control.AddProperty(Edges);
+        controlDefinition.AddProperty(Edges);
 
-        return control;
+        return controlDefinition;
     }
 }

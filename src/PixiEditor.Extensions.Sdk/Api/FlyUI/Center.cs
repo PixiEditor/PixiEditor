@@ -4,14 +4,14 @@ namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
 public class Center : SingleChildLayoutElement
 {
-    public Center(ILayoutElement<CompiledControl> child)
+    public Center(ILayoutElement<ControlDefinition> child)
     {
         Child = child;
     }
 
-    public override CompiledControl BuildNative()
+    public override ControlDefinition BuildNative()
     {
-        CompiledControl center = new CompiledControl(UniqueId, "Center");
+        ControlDefinition center = new ControlDefinition(UniqueId, "Center");
 
         if (Child != null)
             center.AddChild(Child.BuildNative());

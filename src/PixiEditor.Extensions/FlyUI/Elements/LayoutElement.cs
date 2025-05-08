@@ -9,9 +9,49 @@ namespace PixiEditor.Extensions.FlyUI.Elements;
 public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyChanged
 {
     public int UniqueId { get; set; }
+    public event ElementEventHandler PointerEnter
+    {
+        add => AddEvent(nameof(PointerEnter), value);
+        remove => RemoveEvent(nameof(PointerEnter), value);
+    }
+
+    public event ElementEventHandler PointerLeave
+    {
+        add => AddEvent(nameof(PointerLeave), value);
+        remove => RemoveEvent(nameof(PointerLeave), value);
+    }
+
+    public event ElementEventHandler PointerPressed
+    {
+        add => AddEvent(nameof(PointerPressed), value);
+        remove => RemoveEvent(nameof(PointerPressed), value);
+    }
+
+    public event ElementEventHandler PointerReleased
+    {
+        add => AddEvent(nameof(PointerReleased), value);
+        remove => RemoveEvent(nameof(PointerReleased), value);
+    }
 
     private Dictionary<string, List<ElementEventHandler>>? _events;
-    public abstract Control BuildNative();
+
+    public virtual Control BuildNative()
+    {
+        Control control = CreateNativeControl();
+
+        SubscribeBasicEvents(control);
+        return control;
+    }
+
+    protected void SubscribeBasicEvents(Control control)
+    {
+        control.PointerEntered += (sender, args) => RaiseEvent(nameof(PointerEnter), new ElementEventArgs() { Sender = this });
+        control.PointerExited += (sender, args) => RaiseEvent(nameof(PointerLeave), new ElementEventArgs() { Sender = this });
+        control.PointerPressed += (sender, args) => RaiseEvent(nameof(PointerPressed), new ElementEventArgs() { Sender = this });
+        control.PointerReleased += (sender, args) => RaiseEvent(nameof(PointerReleased), new ElementEventArgs() { Sender = this });
+    }
+
+    protected abstract Control CreateNativeControl();
 
     public void AddEvent(string eventName, ElementEventHandler eventHandler)
     {

@@ -38,7 +38,7 @@ public class Image : StatelessElement, IPropertyDeserializable
         }
     }
     
-    public override Control BuildNative()
+    protected override Control CreateNativeControl()
     {
         _image = new();
         

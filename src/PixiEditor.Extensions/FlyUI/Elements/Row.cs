@@ -60,7 +60,7 @@ public class Row : MultiChildLayoutElement, IPropertyDeserializable
         });
     }
 
-    public override Control BuildNative()
+    protected override Control CreateNativeControl()
     {
         panel = new RowPanel()
         {

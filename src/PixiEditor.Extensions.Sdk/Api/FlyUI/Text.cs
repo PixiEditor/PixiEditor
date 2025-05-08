@@ -17,9 +17,9 @@ public class Text : StatelessElement
         TextStyle = textStyle ?? TextStyle.Default;
     }
 
-    public override CompiledControl BuildNative()
+    public override ControlDefinition BuildNative()
     {
-        CompiledControl text = new CompiledControl(UniqueId, "Text");
+        ControlDefinition text = new ControlDefinition(UniqueId, "Text");
         text.AddProperty(Value);
         text.AddProperty(TextWrap);
         text.AddProperty(TextStyle);

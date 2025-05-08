@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using PixiEditor.Extensions.CommonApi.FlyUI.Events;
 using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 using PixiEditor.Extensions.Sdk;
 using PixiEditor.Extensions.Sdk.Api.FlyUI;
@@ -11,7 +12,7 @@ public class WindowContentElement : StatelessElement
 {
     public PopupWindow Window { get; set; }
 
-    public override CompiledControl BuildNative()
+    public override ControlDefinition BuildNative()
     {
         Layout layout = new Layout(body:
             new Container(margin: Edges.All(25), child:
@@ -24,11 +25,11 @@ public class WindowContentElement : StatelessElement
                             new Text(
                                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae neque nibh. Duis sed pharetra dolor. Donec dui sapien, aliquam id sodales in, ornare et urna. Mauris nunc odio, sagittis eget lectus at, imperdiet ornare quam. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod pellentesque blandit. Vestibulum sagittis, ligula non finibus lobortis, dolor lacus consectetur turpis, id facilisis ligula dolor vitae augue.",
                                 wrap: TextWrap.Wrap,
-                                fontSize: 16)
+                                textStyle: new TextStyle(fontSize: 16))
                         ),
                         new Align(
                             alignment: Alignment.CenterRight,
-                            child: new Text("- Paulo Coelho, The Alchemist (1233)", fontStyle: FontStyle.Italic)
+                            child: new Text("- Paulo Coelho, The Alchemist (1233)", textStyle: new TextStyle(fontStyle: FontStyle.Italic))
                         ),
                         new Container(
                             margin: Edges.Symmetric(25, 0),
@@ -56,4 +57,5 @@ public class WindowContentElement : StatelessElement
 
         return layout.BuildNative();
     }
+
 }

@@ -17,7 +17,7 @@ public class Align : SingleChildLayoutElement, IPropertyDeserializable
         Alignment = alignment;
     }
 
-    public override Control BuildNative()
+    protected override Control CreateNativeControl()
     {
         _panel = new Panel
         {

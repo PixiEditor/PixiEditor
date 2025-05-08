@@ -16,9 +16,9 @@ public class Icon : StatelessElement
             Color = color.Value;
     }
 
-    public override CompiledControl BuildNative()
+    public override ControlDefinition BuildNative()
     {
-        CompiledControl icon = new CompiledControl(UniqueId, "Icon");
+        ControlDefinition icon = new ControlDefinition(UniqueId, "Icon");
         icon.AddProperty(IconName);
         icon.AddProperty(Size);
         icon.AddProperty(Color);

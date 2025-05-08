@@ -19,9 +19,9 @@ public class Container : SingleChildLayoutElement
         Child = child;
     }
     
-    public override CompiledControl BuildNative()
+    public override ControlDefinition BuildNative()
     {
-        CompiledControl container = new CompiledControl(UniqueId, "Container");
+        ControlDefinition container = new ControlDefinition(UniqueId, "Container");
         container.AddProperty(Margin);
 
         container.AddProperty(BackgroundColor);

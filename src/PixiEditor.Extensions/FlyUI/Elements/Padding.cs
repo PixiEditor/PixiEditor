@@ -14,7 +14,7 @@ public class Padding : SingleChildLayoutElement, IPropertyDeserializable
     private Edges _edges = Edges.All(0);
     
     public Edges Edges { get => _edges; set => SetField(ref _edges, value); }
-    public override Control BuildNative()
+    protected override Control CreateNativeControl()
     {
         _decorator = new();
         

@@ -32,7 +32,7 @@ public class Text : StatelessElement, IPropertyDeserializable
         TextStyle = textStyle ?? TextStyle.Default;
     }
 
-    public override Control BuildNative()
+    protected override Control CreateNativeControl()
     {
         TextBlock textBlock = new();
         Binding valueBinding = new()

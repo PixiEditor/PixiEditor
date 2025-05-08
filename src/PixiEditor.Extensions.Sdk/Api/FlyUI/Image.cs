@@ -37,9 +37,9 @@ public class Image : StatelessElement
         FilterQuality = filterQuality;
     }
 
-    public override CompiledControl BuildNative()
+    public override ControlDefinition BuildNative()
     {
-        CompiledControl image = new CompiledControl(UniqueId, "Image");
+        ControlDefinition image = new ControlDefinition(UniqueId, "Image");
         
         image.AddProperty(Source);
         image.AddProperty(Width);

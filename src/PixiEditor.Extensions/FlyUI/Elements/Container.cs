@@ -22,7 +22,7 @@ public class Container : SingleChildLayoutElement, IPropertyDeserializable
     public double Width { get => _width; set => SetField(ref _width, value); }
     public double Height { get => _height; set => SetField(ref _height, value); }
     
-    public override Control BuildNative()
+    protected override Control CreateNativeControl()
     {
         _panel = new Panel();
         

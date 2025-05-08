@@ -59,7 +59,7 @@ public class Column : MultiChildLayoutElement, IPropertyDeserializable
         });
     }
 
-    public override Control BuildNative()
+    protected override Control CreateNativeControl()
     {
         panel = new ColumnPanel() { MainAxisAlignment = MainAxisAlignment, CrossAxisAlignment = CrossAxisAlignment };
 

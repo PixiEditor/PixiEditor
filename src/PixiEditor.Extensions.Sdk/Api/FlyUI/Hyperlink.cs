@@ -11,9 +11,9 @@ public class Hyperlink : Text
         Url = url;
     }
 
-    public override CompiledControl BuildNative()
+    public override ControlDefinition BuildNative()
     {
-        CompiledControl hyperlink = new CompiledControl(UniqueId, "Hyperlink");
+        ControlDefinition hyperlink = new ControlDefinition(UniqueId, "Hyperlink");
         hyperlink.AddProperty(Value);
         hyperlink.AddProperty(TextWrap);
         hyperlink.AddProperty(TextStyle);

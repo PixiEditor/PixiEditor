@@ -6,7 +6,8 @@ using PixiEditor.Extensions.CommonApi.FlyUI.State;
 
 namespace PixiEditor.Extensions.FlyUI.Elements;
 
-public abstract class StatefulElement<TState> : LayoutElement, /*IPropertyDeserializable,*/ IStatefulElement<Control, TState> where TState : IState<Control>
+public abstract class StatefulElement<TState> : LayoutElement, /*IPropertyDeserializable,*/
+    IStatefulElement<Control, TState> where TState : IState<Control>
 {
     private TState? _state;
     private ContentPresenter _presenter = null!;
@@ -35,10 +36,21 @@ public abstract class StatefulElement<TState> : LayoutElement, /*IPropertyDeseri
     // TODO: Move actual Avalonia implementation to PixiEditor itself.
     public override Control BuildNative()
     {
+        CreateNativeControl();
+        return _presenter;
+    }
+
+    protected override Control CreateNativeControl()
+    {
         _presenter ??= new ContentPresenter();
         _content = State.Build();
-        _presenter.Content = _content.BuildNative();
-        return _presenter;
+        Control control = _content.BuildNative();
+
+        SubscribeBasicEvents(control);
+
+        _presenter.Content = control;
+
+        return control;
     }
 
     public abstract TState CreateState();
@@ -50,7 +62,8 @@ public abstract class StatefulElement<TState> : LayoutElement, /*IPropertyDeseri
         PerformDiff(_content, newTree);
     }
 
-    private void PerformDiff(ILayoutElement<Control> oldNode, ILayoutElement<Control> newNode, IChildHost? parent = null)
+    private void PerformDiff(ILayoutElement<Control> oldNode, ILayoutElement<Control> newNode,
+        IChildHost? parent = null)
     {
         // Check if the node types are the same
         bool isSameType = oldNode.GetType() == newNode.GetType();
@@ -90,11 +103,13 @@ public abstract class StatefulElement<TState> : LayoutElement, /*IPropertyDeseri
                 oldDeserializable.AddChild(newChildren.Current);
             }
 
-            if (oldChildren.Current == null && newChildren.Current != null && oldDeserializable.Count() < newDeserializable.Count())
+            if (oldChildren.Current == null && newChildren.Current != null &&
+                oldDeserializable.Count() < newDeserializable.Count())
             {
                 oldDeserializable.AddChild(newChildren.Current);
             }
-            else if (oldChildren.Current != null && newChildren.Current == null && oldDeserializable.Count() > newDeserializable.Count())
+            else if (oldChildren.Current != null && newChildren.Current == null &&
+                     oldDeserializable.Count() > newDeserializable.Count())
             {
                 oldDeserializable.RemoveChild(oldChildren.Current);
             }

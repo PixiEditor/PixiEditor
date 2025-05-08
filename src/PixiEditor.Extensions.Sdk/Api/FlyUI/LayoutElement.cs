@@ -3,13 +3,37 @@ using PixiEditor.Extensions.CommonApi.FlyUI.Events;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
-public abstract class LayoutElement : ILayoutElement<CompiledControl>
+public abstract class LayoutElement : ILayoutElement<ControlDefinition>
 {
     private Dictionary<string, List<ElementEventHandler>> _events;
     public List<string> BuildQueuedEvents = new List<string>();
     public int UniqueId { get; set; }
 
-    public abstract CompiledControl BuildNative();
+    public event ElementEventHandler PointerEnter
+    {
+        add => AddEvent(nameof(PointerEnter), value);
+        remove => RemoveEvent(nameof(PointerEnter), value);
+    }
+
+    public event ElementEventHandler PointerLeave
+    {
+        add => AddEvent(nameof(PointerLeave), value);
+        remove => RemoveEvent(nameof(PointerLeave), value);
+    }
+
+    public event ElementEventHandler PointerPressed
+    {
+        add => AddEvent(nameof(PointerPressed), value);
+        remove => RemoveEvent(nameof(PointerPressed), value);
+    }
+
+    public event ElementEventHandler PointerReleased
+    {
+        add => AddEvent(nameof(PointerReleased), value);
+        remove => RemoveEvent(nameof(PointerReleased), value);
+    }
+
+    public abstract ControlDefinition BuildNative();
 
     public LayoutElement()
     {
@@ -37,7 +61,7 @@ public abstract class LayoutElement : ILayoutElement<CompiledControl>
         _events[eventName].Add(eventHandler);
         BuildQueuedEvents.Add(eventName);
     }
-    
+
     /*public void AddEvent<TEventArgs>(string eventName, ElementEventHandler<TEventArgs> eventHandler) where TEventArgs : ElementEventArgs<TEventArgs>
     {
         if (_events == null)
@@ -50,7 +74,7 @@ public abstract class LayoutElement : ILayoutElement<CompiledControl>
             _events.Add(eventName, new List<ElementEventHandler>());
         }
 
-        _events[eventName].Add((args => eventHandler((TEventArgs)args))); 
+        _events[eventName].Add((args => eventHandler((TEventArgs)args)));
         BuildQueuedEvents.Add(eventName);
     }*/
 
@@ -68,7 +92,7 @@ public abstract class LayoutElement : ILayoutElement<CompiledControl>
 
         _events[eventName].Remove(eventHandler);
     }
-    
+
     /*public void RemoveEvent<TEventArgs>(string eventName, ElementEventHandler<TEventArgs> eventHandler) where TEventArgs : ElementEventArgs<TEventArgs>
     {
         if (_events == null)
@@ -102,11 +126,11 @@ public abstract class LayoutElement : ILayoutElement<CompiledControl>
         }
     }
 
-    protected void BuildPendingEvents(CompiledControl control)
+    protected void BuildPendingEvents(ControlDefinition controlDefinition)
     {
         foreach (string eventName in BuildQueuedEvents)
         {
-            control.QueuedEvents.Add(eventName);
+            controlDefinition.QueuedEvents.Add(eventName);
         }
     }
 }

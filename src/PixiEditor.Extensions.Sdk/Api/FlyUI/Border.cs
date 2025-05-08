@@ -35,23 +35,23 @@ public class Border : SingleChildLayoutElement
         BackgroundColor = backgroundColor;
     }
 
-    public override CompiledControl BuildNative()
+    public override ControlDefinition BuildNative()
     {
-        CompiledControl control = new(UniqueId, "Border");
+        ControlDefinition controlDefinition = new(UniqueId, "Border");
         if (Child != null)
         {
-            control.Children.Add(Child.BuildNative());
+            controlDefinition.Children.Add(Child.BuildNative());
         }
 
-        control.AddProperty(Color);
-        control.AddProperty(Thickness);
-        control.AddProperty(CornerRadius);
-        control.AddProperty(Padding);
-        control.AddProperty(Margin);
-        control.AddProperty(Width);
-        control.AddProperty(Height);
-        control.AddProperty(BackgroundColor);
+        controlDefinition.AddProperty(Color);
+        controlDefinition.AddProperty(Thickness);
+        controlDefinition.AddProperty(CornerRadius);
+        controlDefinition.AddProperty(Padding);
+        controlDefinition.AddProperty(Margin);
+        controlDefinition.AddProperty(Width);
+        controlDefinition.AddProperty(Height);
+        controlDefinition.AddProperty(BackgroundColor);
 
-        return control;
+        return controlDefinition;
     }
 }

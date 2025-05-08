@@ -13,7 +13,7 @@ public class CheckBox : SingleChildLayoutElement
         remove => RemoveEvent(nameof(CheckedChanged), value);
     }
 
-    public override Control BuildNative()
+    protected override Control CreateNativeControl()
     {
         checkbox = new Avalonia.Controls.CheckBox();
         Binding binding =

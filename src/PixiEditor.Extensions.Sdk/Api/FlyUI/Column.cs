@@ -22,13 +22,13 @@ public class Column : MultiChildLayoutElement
         Children = new List<LayoutElement>(children);
     }
 
-    public override CompiledControl BuildNative()
+    public override ControlDefinition BuildNative()
     {
-        CompiledControl control = new CompiledControl(UniqueId, "Column");
-        control.AddProperty(MainAxisAlignment);
-        control.AddProperty(CrossAxisAlignment);
-        control.Children.AddRange(Children.Where(x => x != null).Select(x => x.BuildNative()));
+        ControlDefinition controlDefinition = new ControlDefinition(UniqueId, "Column");
+        controlDefinition.AddProperty(MainAxisAlignment);
+        controlDefinition.AddProperty(CrossAxisAlignment);
+        controlDefinition.Children.AddRange(Children.Where(x => x != null).Select(x => x.BuildNative()));
 
-        return control;
+        return controlDefinition;
     }
 }

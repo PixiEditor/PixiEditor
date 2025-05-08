@@ -27,7 +27,7 @@ public class Icon : StatelessElement, IPropertyDeserializable
         Color = color ?? Colors.White;
     }
 
-    public override Control BuildNative()
+    protected override Control CreateNativeControl()
     {
         TextBlock textBlock = new TextBlock();
         textBlock.Classes.Add("pixi-icon");
