@@ -10,9 +10,11 @@ namespace PixiEditor.Extensions.Runtime;
 
 public class ExtensionLoader
 {
-    private readonly Dictionary<string, OfficialExtensionData> _officialExtensionsKeys = new Dictionary<string, OfficialExtensionData>();
+    private readonly Dictionary<string, OfficialExtensionData> _officialExtensionsKeys =
+        new Dictionary<string, OfficialExtensionData>();
+
     public List<Extension> LoadedExtensions { get; } = new();
-    
+
     public string PackagesPath { get; }
     public string UnpackedExtensionsPath { get; }
 
@@ -24,7 +26,7 @@ public class ExtensionLoader
         UnpackedExtensionsPath = unpackedExtensionsPath;
         ValidateExtensionFolder();
     }
-    
+
     public void AddOfficialExtension(string uniqueName, OfficialExtensionData data)
     {
         _officialExtensionsKeys.Add(uniqueName, data);
@@ -84,19 +86,26 @@ public class ExtensionLoader
     public Extension? LoadExtension(string extension)
     {
         var extZip = ZipFile.OpenRead(extension);
-        ExtensionMetadata metadata = ExtractMetadata(extZip);
-        if(IsDifferentThanCached(metadata, extension))
+        try
         {
-            UnpackExtension(extZip, metadata);
+            ExtensionMetadata metadata = ExtractMetadata(extZip);
+            if (IsDifferentThanCached(metadata, extension))
+            {
+                UnpackExtension(extZip, metadata);
+            }
+
+            string extensionJson = Path.Combine(UnpackedExtensionsPath, metadata.UniqueName, "extension.json");
+            if (!File.Exists(extensionJson))
+            {
+                return null;
+            }
+
+            return LoadExtensionFromCache(extensionJson);
         }
-        
-        string extensionJson = Path.Combine(UnpackedExtensionsPath, metadata.UniqueName, "extension.json");
-        if (!File.Exists(extensionJson))
+        catch (Exception ex)
         {
             return null;
         }
-            
-        return LoadExtensionFromCache(extensionJson);
     }
 
     public void UnpackExtension(ZipArchive extZip, ExtensionMetadata metadata)
@@ -124,7 +133,7 @@ public class ExtensionLoader
         var serializer = new JsonSerializer();
         return serializer.Deserialize<ExtensionMetadata>(jsonTextReader);
     }
-    
+
     private bool IsDifferentThanCached(ExtensionMetadata metadata, string extension)
     {
         string extensionJson = Path.Combine(UnpackedExtensionsPath, metadata.UniqueName, "extension.json");
@@ -135,24 +144,24 @@ public class ExtensionLoader
 
         string json = File.ReadAllText(extensionJson);
         ExtensionMetadata? cachedMetadata = JsonConvert.DeserializeObject<ExtensionMetadata>(json);
-        
-        if(cachedMetadata is null)
+
+        if (cachedMetadata is null)
         {
             return true;
         }
-        
+
         if (metadata.UniqueName != cachedMetadata.UniqueName)
         {
             return true;
         }
-        
+
         bool isDifferent = metadata.Version != cachedMetadata.Version;
-        
+
         if (isDifferent)
         {
             return true;
         }
-        
+
         return PackageWriteTimeIsBigger(Path.Combine(UnpackedExtensionsPath, metadata.UniqueName), extension);
     }
 
@@ -249,7 +258,7 @@ public class ExtensionLoader
 
         if (fixedUniqueName.StartsWith("pixieditor".Trim(), StringComparison.OrdinalIgnoreCase))
         {
-            if(!IsOfficialAssemblyLegit(fixedUniqueName, assembly))
+            if (!IsOfficialAssemblyLegit(fixedUniqueName, assembly))
             {
                 throw new ForbiddenUniqueNameExtension();
             }
@@ -319,7 +328,9 @@ public class ExtensionLoader
     private bool PublicKeysMatch(byte[] assemblyPublicKey, string pathToPublicKey)
     {
         Assembly currentAssembly = Assembly.GetExecutingAssembly();
-        using Stream? stream = currentAssembly.GetManifestResourceStream($"{currentAssembly.GetName().Name}.OfficialExtensions.{pathToPublicKey}");
+        using Stream? stream =
+            currentAssembly.GetManifestResourceStream(
+                $"{currentAssembly.GetName().Name}.OfficialExtensions.{pathToPublicKey}");
         if (stream == null) return false;
 
         using MemoryStream memoryStream = new MemoryStream();
@@ -330,8 +341,9 @@ public class ExtensionLoader
     }
 
     //TODO: uhh, other platforms dumbass?
-    [DllImport("mscoree.dll", CharSet=CharSet.Unicode)]
-    static extern bool StrongNameSignatureVerificationEx(string wszFilePath, bool fForceVerification, ref bool pfWasVerified);
+    [DllImport("mscoree.dll", CharSet = CharSet.Unicode)]
+    static extern bool StrongNameSignatureVerificationEx(string wszFilePath, bool fForceVerification,
+        ref bool pfWasVerified);
 
     private Extension LoadExtensionEntry(ExtensionEntry entry, ExtensionMetadata metadata)
     {
@@ -389,7 +401,7 @@ public class ExtensionLoader
         {
             Directory.CreateDirectory(PackagesPath);
         }
-        
+
         if (!Directory.Exists(UnpackedExtensionsPath))
         {
             Directory.CreateDirectory(UnpackedExtensionsPath);
