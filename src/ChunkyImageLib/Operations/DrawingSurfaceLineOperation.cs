@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -68,7 +69,10 @@ internal class DrawingSurfaceLineOperation : IMirroredDrawOperation
             newFrom = (VecI)newFrom.ReflectY((double)horAxisY).Round();
             newTo = (VecI)newTo.ReflectY((double)horAxisY).Round();
         }
-        return new DrawingSurfaceLineOperation(newFrom, newTo, paint.StrokeCap, paint.StrokeWidth, paint.Color, paint.BlendMode);
+
+        Color color = paint.Paintable is ColorPaintable colorPaintable ? colorPaintable.Color : paint.Color;
+
+        return new DrawingSurfaceLineOperation(newFrom, newTo, paint.StrokeCap, paint.StrokeWidth, color, paint.BlendMode);
     }
 
     public void Dispose()
