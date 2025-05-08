@@ -49,9 +49,9 @@ public class CommandProvider : ICommandProvider
         CommandController.Current.AddManagedCommand(basicCommand);
     }
 
-    private static KeyCombination ToKeyCombination(Shortcut shortcut)
+    private static KeyCombination ToKeyCombination(Shortcut? shortcut)
     {
-        if (shortcut is { Key: 0, Modifiers: 0 })
+        if (shortcut is null or { Key: 0, Modifiers: 0 })
             return KeyCombination.None;
 
         return new KeyCombination((Key)shortcut.Key, (KeyModifiers)shortcut.Modifiers);

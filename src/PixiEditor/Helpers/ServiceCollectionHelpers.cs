@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AnimationRenderer.Core;
 using PixiEditor.AnimationRenderer.FFmpeg;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.CommonApi.IO;
 using PixiEditor.Extensions.CommonApi.Menu;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
@@ -123,6 +124,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IDocumentBuilder, FontDocumentBuilder>()
             .AddSingleton<IPalettesProvider, PaletteProvider>()
             .AddSingleton<CommandProvider>()
+            .AddSingleton<IDocumentProvider, DocumentProvider>()
             .AddSingleton<ICommandProvider, CommandProvider>(x => x.GetRequiredService<CommandProvider>())
             .AddSingleton<IIconLookupProvider, DynamicResourceIconLookupProvider>()
             // Palette Parsers

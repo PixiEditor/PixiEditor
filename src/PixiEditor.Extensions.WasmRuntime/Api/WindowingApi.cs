@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.Async;
+using PixiEditor.Extensions.CommonApi.Utilities;
 using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.FlyUI.Elements;
 using PixiEditor.Extensions.WasmRuntime.Utilities;
@@ -13,7 +14,8 @@ internal class WindowingApi : ApiGroupHandler
     public int CreatePopupWindow(string title, Span<byte> bodySpan)
     {
         var body = LayoutBuilder.Deserialize(bodySpan, DuplicateResolutionTactic.ThrowException);
-        var popupWindow = Api.Windowing.CreatePopupWindow(title, body.BuildNative());
+        string localizedTitleKey = LocalizedString.FirstValidKey($"{Extension.Metadata.UniqueName}:{title}", title);
+        var popupWindow = Api.Windowing.CreatePopupWindow(localizedTitleKey, body.BuildNative());
 
         int handle = NativeObjectManager.AddObject(popupWindow);
         return handle;
@@ -37,8 +39,9 @@ internal class WindowingApi : ApiGroupHandler
     [ApiFunction("set_window_title")]
     public void SetWindowTitle(int handle, string title)
     {
+        string localizedTitleKey = LocalizedString.FirstValidKey($"{Extension.Metadata.UniqueName}:{title}", title);
         var window = NativeObjectManager.GetObject<PopupWindow>(handle);
-        window.Title = title;
+        window.Title = localizedTitleKey;
     }
 
     [ApiFunction("get_window_title")]

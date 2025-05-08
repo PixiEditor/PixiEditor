@@ -17,7 +17,7 @@ public class WindowProvider : IWindowProvider
         Marshal.FreeHGlobal(ptr);
         
         SubscribeToEvents(compiledControl);
-        return new PopupWindow(handle) { Title = title };
+        return new PopupWindow(handle);
     }
 
     internal void LayoutStateChanged(int uniqueId, CompiledControl newLayout)
