@@ -77,7 +77,7 @@ public class Column : MultiChildLayoutElement, IPropertyDeserializable
     public void DeserializeProperties(ImmutableList<object> values)
     {
         if (values.Count < 2)
-            throw new ArgumentException("Invalid number of properties");
+            return;
 
         int mainAxisAlignment = (int)values[0];
         int crossAxisAlignment = (int)values[1];
