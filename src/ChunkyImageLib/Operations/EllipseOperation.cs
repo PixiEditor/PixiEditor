@@ -211,7 +211,22 @@ internal class EllipseOperation : IMirroredDrawOperation
             newLocation = newLocation.ReflectX((double)verAxisX).Round();
         if (horAxisY is not null)
             newLocation = newLocation.ReflectY((double)horAxisY).Round();
-        return new EllipseOperation(newLocation, strokePaintable, fillPaintable, strokeWidth, rotation, antialiased, paint);
+
+        Paintable? finalFillPaintable = fillPaintable;
+        Paintable? finalStrokePaintable = strokePaintable;
+        if (fillPaintable.AbsoluteValues && fillPaintable is IPositionPaintable)
+        {
+            finalFillPaintable = fillPaintable.Clone();
+            ((IPositionPaintable)finalFillPaintable).Position = newLocation.Center;
+        }
+
+        if (strokePaintable.AbsoluteValues && strokePaintable is IPositionPaintable)
+        {
+            finalStrokePaintable = strokePaintable.Clone();
+            ((IPositionPaintable)finalStrokePaintable).Position = newLocation.Center;
+        }
+
+        return new EllipseOperation(newLocation, finalStrokePaintable, finalFillPaintable, strokeWidth, rotation, antialiased, paint);
     }
 
     public void Dispose()
