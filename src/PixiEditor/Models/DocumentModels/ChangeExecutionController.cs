@@ -70,15 +70,15 @@ internal class ChangeExecutionController
     {
         if (!CanStartExecutor(force))
             return false;
-        if (force)
-            currentSession?.ForceStop();
 
+        currentSession?.ForceStop();
         return TryStartExecutorInternal(brandNewExecutor);
     }
 
     private bool CanStartExecutor(bool force)
     {
-        return (currentSession is null && _queuedExecutor is null) || force;
+        return (currentSession is null && _queuedExecutor is null) || force ||
+               currentSession is { BlocksOtherActions: false };
     }
 
     private bool TryStartExecutorInternal(UpdateableChangeExecutor executor)

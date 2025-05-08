@@ -6,7 +6,7 @@ using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
-internal class DrawRasterLine_UpdateableChange : UpdateableChange
+internal class DrawRasterLine_UpdateableChange : InterruptableUpdateableChange
 {
     private readonly Guid memberGuid;
     private VecD from;
