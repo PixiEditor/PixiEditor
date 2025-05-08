@@ -19,7 +19,7 @@ public class Container : SingleChildLayoutElement
         Child = child;
     }
     
-    public override ControlDefinition BuildNative()
+    protected override ControlDefinition CreateControl()
     {
         ControlDefinition container = new ControlDefinition(UniqueId, "Container");
         container.AddProperty(Margin);
@@ -34,7 +34,6 @@ public class Container : SingleChildLayoutElement
             container.AddChild(Child.BuildNative());
         }
 
-        BuildPendingEvents(container);
         return container;
     }
 }

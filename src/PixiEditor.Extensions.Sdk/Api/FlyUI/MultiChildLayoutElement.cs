@@ -12,6 +12,5 @@ public abstract class MultiChildLayoutElement : LayoutElement, IMultiChildLayout
 
     public List<LayoutElement> Children { get; set; }
 
-    public abstract override ControlDefinition BuildNative();
 
 }

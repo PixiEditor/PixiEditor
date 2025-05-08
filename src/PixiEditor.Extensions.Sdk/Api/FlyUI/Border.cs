@@ -35,7 +35,7 @@ public class Border : SingleChildLayoutElement
         BackgroundColor = backgroundColor;
     }
 
-    public override ControlDefinition BuildNative()
+    protected override ControlDefinition CreateControl()
     {
         ControlDefinition controlDefinition = new(UniqueId, "Border");
         if (Child != null)

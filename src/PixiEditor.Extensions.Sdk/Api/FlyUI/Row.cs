@@ -22,7 +22,7 @@ public class Row : MultiChildLayoutElement
         Children = new List<LayoutElement>(children);
     }
 
-    public override ControlDefinition BuildNative()
+    protected override ControlDefinition CreateControl()
     {
         ControlDefinition controlDefinition = new ControlDefinition(UniqueId, "Row");
         controlDefinition.AddProperty(MainAxisAlignment);

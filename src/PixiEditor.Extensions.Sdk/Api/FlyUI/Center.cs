@@ -9,14 +9,13 @@ public class Center : SingleChildLayoutElement
         Child = child;
     }
 
-    public override ControlDefinition BuildNative()
+    protected override ControlDefinition CreateControl()
     {
         ControlDefinition center = new ControlDefinition(UniqueId, "Center");
 
         if (Child != null)
             center.AddChild(Child.BuildNative());
 
-        BuildPendingEvents(center);
         return center;
     }
 }

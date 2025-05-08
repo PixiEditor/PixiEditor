@@ -11,8 +11,8 @@ public class Padding : SingleChildLayoutElement
         Edges = edges;
         Child = child;
     }
-    
-    public override ControlDefinition BuildNative()
+
+    protected override ControlDefinition CreateControl()
     {
         ControlDefinition controlDefinition = new ControlDefinition(UniqueId, "Padding");
         controlDefinition.Children.Add(Child.BuildNative());

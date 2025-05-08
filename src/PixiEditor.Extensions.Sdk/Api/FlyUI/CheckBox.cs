@@ -32,13 +32,12 @@ public class CheckBox : SingleChildLayoutElement
     }
 
 
-    public override ControlDefinition BuildNative()
+    protected override ControlDefinition CreateControl()
     {
         ControlDefinition checkbox = new ControlDefinition(UniqueId, "CheckBox");
         if (Child != null)
             checkbox.AddChild(Child.BuildNative());
 
-        BuildPendingEvents(checkbox);
         return checkbox;
     }
 }

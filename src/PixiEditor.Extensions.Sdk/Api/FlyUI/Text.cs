@@ -17,14 +17,13 @@ public class Text : StatelessElement
         TextStyle = textStyle ?? TextStyle.Default;
     }
 
-    public override ControlDefinition BuildNative()
+    protected override ControlDefinition CreateControl()
     {
         ControlDefinition text = new ControlDefinition(UniqueId, "Text");
         text.AddProperty(Value);
         text.AddProperty(TextWrap);
         text.AddProperty(TextStyle);
 
-        BuildPendingEvents(text);
         return text;
     }
 }

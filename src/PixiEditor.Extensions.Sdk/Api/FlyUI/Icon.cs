@@ -16,14 +16,13 @@ public class Icon : StatelessElement
             Color = color.Value;
     }
 
-    public override ControlDefinition BuildNative()
+    protected override ControlDefinition CreateControl()
     {
         ControlDefinition icon = new ControlDefinition(UniqueId, "Icon");
         icon.AddProperty(IconName);
         icon.AddProperty(Size);
         icon.AddProperty(Color);
 
-        BuildPendingEvents(icon);
         return icon;
     }
 }

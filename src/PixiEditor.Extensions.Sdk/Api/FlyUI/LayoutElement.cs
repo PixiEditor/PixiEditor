@@ -33,7 +33,15 @@ public abstract class LayoutElement : ILayoutElement<ControlDefinition>
         remove => RemoveEvent(nameof(PointerReleased), value);
     }
 
-    public abstract ControlDefinition BuildNative();
+    public virtual ControlDefinition BuildNative()
+    {
+        ControlDefinition control = CreateControl();
+
+        BuildPendingEvents(control);
+        return control;
+    }
+
+    protected abstract ControlDefinition CreateControl();
 
     public LayoutElement()
     {

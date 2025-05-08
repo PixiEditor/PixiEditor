@@ -9,14 +9,13 @@ public sealed class Layout : SingleChildLayoutElement
         Child = body;
     }
 
-    public override ControlDefinition BuildNative()
+    protected override ControlDefinition CreateControl()
     {
         ControlDefinition layout = new ControlDefinition(UniqueId, "Layout");
 
         if (Child != null)
             layout.AddChild(Child.BuildNative());
 
-        BuildPendingEvents(layout);
         return layout;
     }
 

@@ -28,9 +28,17 @@ public abstract class StatefulElement<TState> : LayoutElement, IStatefulElement<
 
     public override ControlDefinition BuildNative()
     {
+        var statefulContainer = CreateControl();
+        BuildPendingEvents(statefulContainer);
+        return statefulContainer;
+    }
+
+    protected override ControlDefinition CreateControl()
+    {
         ControlDefinition controlDefinition = State.Build().BuildNative();
         ControlDefinition statefulContainer = new ControlDefinition(UniqueId, "StatefulContainer");
         statefulContainer.Children.Add(controlDefinition);
+
         return statefulContainer;
     }
 

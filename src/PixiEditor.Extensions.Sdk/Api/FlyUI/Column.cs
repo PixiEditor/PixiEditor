@@ -22,7 +22,7 @@ public class Column : MultiChildLayoutElement
         Children = new List<LayoutElement>(children);
     }
 
-    public override ControlDefinition BuildNative()
+    protected override ControlDefinition CreateControl()
     {
         ControlDefinition controlDefinition = new ControlDefinition(UniqueId, "Column");
         controlDefinition.AddProperty(MainAxisAlignment);

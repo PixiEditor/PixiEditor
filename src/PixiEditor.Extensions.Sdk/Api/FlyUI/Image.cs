@@ -37,7 +37,7 @@ public class Image : StatelessElement
         FilterQuality = filterQuality;
     }
 
-    public override ControlDefinition BuildNative()
+    protected override ControlDefinition CreateControl()
     {
         ControlDefinition image = new ControlDefinition(UniqueId, "Image");
         
@@ -47,7 +47,6 @@ public class Image : StatelessElement
         image.AddProperty(FillMode);
         image.AddProperty(FilterQuality);
         
-        BuildPendingEvents(image);
         return image;
     }
 }

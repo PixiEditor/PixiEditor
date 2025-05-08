@@ -18,13 +18,12 @@ public class Button : SingleChildLayoutElement
             Click += onClick;
     }
 
-    public override ControlDefinition BuildNative()
+    protected override ControlDefinition CreateControl()
     {
         ControlDefinition button = new ControlDefinition(UniqueId, "Button");
         if (Child != null)
             button.AddChild(Child.BuildNative());
 
-        BuildPendingEvents(button);
         return button;
     }
 }
