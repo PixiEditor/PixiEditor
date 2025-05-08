@@ -83,11 +83,31 @@ public class Text : StatelessElement, IPropertyDeserializable
         
         textBlock.Bind(TextBlock.TextProperty, valueBinding);
         textBlock.Bind(TextBlock.TextWrappingProperty, textWrapBinding);
-        textBlock.Bind(TextBlock.FontStyleProperty, fontStyleBinding);
-        textBlock.Bind(TextBlock.ForegroundProperty, colorBinding);
-        textBlock.Bind(TextBlock.FontFamilyProperty, fontFamilyBinding);
-        textBlock.Bind(TextBlock.FontWeightProperty, fontWeightBinding);
-        textBlock.Bind(TextBlock.FontSizeProperty, fontSizeBinding);
+        if (TextStyle.FontStyle != null)
+        {
+            textBlock.Bind(TextBlock.FontStyleProperty, fontStyleBinding);
+        }
+
+        if (TextStyle.FontSize != null)
+        {
+            textBlock.Bind(TextBlock.FontSizeProperty, fontSizeBinding);
+        }
+
+        if (TextStyle.FontWeight != null)
+        {
+            textBlock.Bind(TextBlock.FontWeightProperty, fontWeightBinding);
+        }
+
+        if (TextStyle.FontFamily != null)
+        {
+            textBlock.Bind(TextBlock.FontFamilyProperty, fontFamilyBinding);
+        }
+
+        if (TextStyle.Color != null)
+        {
+            textBlock.Bind(TextBlock.ForegroundProperty, colorBinding);
+        }
+
         return textBlock;
     }
 

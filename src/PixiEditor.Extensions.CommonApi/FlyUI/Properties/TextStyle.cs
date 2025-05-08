@@ -7,22 +7,21 @@ public struct TextStyle : IStructProperty
     // IMPORTANT: If you change this struct, you must also change the version below and handle
     // deserialization in the FlyUI deserializer.
     public const int Version = 1;
-    public string FontFamily { get; set; } = "";
-    public double FontSize { get; set; } = 12;
-    public FontStyle FontStyle { get; set; } = FontStyle.Normal;
-    public FontWeight FontWeight { get; set; } = FontWeight.Normal;
-    public Color Color { get; set; } = Colors.White;
+    public string? FontFamily { get; set; }
+    public double? FontSize { get; set; }
+    public FontStyle? FontStyle { get; set; }
+    public FontWeight? FontWeight { get; set; }
+    public Color? Color { get; set; }
 
-    public static TextStyle Default => new TextStyle("", 12, FontStyle.Normal, FontWeight.Normal, Colors.White);
+    public static TextStyle Default => new TextStyle(null, null, null, null, null);
 
-    public TextStyle(string fontFamily = "", double fontSize = 12, FontStyle fontStyle = FontStyle.Normal,
-        FontWeight fontWeight = FontWeight.Normal, Color? color = null)
+    public TextStyle(string? fontFamily = null, double? fontSize = null, FontStyle? fontStyle = null, FontWeight? fontWeight = null, Color? color = null)
     {
         FontFamily = fontFamily;
         FontSize = fontSize;
         FontStyle = fontStyle;
         FontWeight = fontWeight;
-        Color = color ?? Colors.White;
+        Color = color;
     }
 
     public byte[] Serialize()
@@ -35,10 +34,30 @@ public struct TextStyle : IStructProperty
             data.AddRange(Encoding.UTF8.GetBytes(FontFamily));
         }
 
-        data.AddRange(BitConverter.GetBytes(FontSize));
-        data.Add((byte)FontStyle);
-        data.AddRange(BitConverter.GetBytes((int)FontWeight));
-        data.AddRange(((IStructProperty)Color).Serialize());
+        data.Add(FontSize != null ? (byte)1 : (byte)0);
+        if (FontSize != null)
+        {
+            data.AddRange(BitConverter.GetBytes(FontSize.Value));
+        }
+
+        data.Add(FontStyle != null ? (byte)1 : (byte)0);
+        if (FontStyle != null)
+        {
+            data.Add((byte)FontStyle.Value);
+        }
+
+        data.Add(FontWeight != null ? (byte)1 : (byte)0);
+        if (FontWeight != null)
+        {
+            data.AddRange(BitConverter.GetBytes((int)FontWeight.Value));
+        }
+
+        data.Add(Color != null ? (byte)1 : (byte)0);
+        if (Color != null)
+        {
+            data.AddRange(((IStructProperty)Color).Serialize());
+        }
+
         return data.ToArray();
     }
 
@@ -52,19 +71,59 @@ public struct TextStyle : IStructProperty
         if (fontFamilyLength > 0)
         {
             FontFamily = Encoding.UTF8.GetString(data, index, fontFamilyLength);
+            index += fontFamilyLength;
         }
         else
         {
-            FontFamily = "$Default";
+            FontFamily = null;
         }
 
-        index += fontFamilyLength;
-        FontSize = BitConverter.ToDouble(data, index);
-        index += 8;
-        FontStyle = (FontStyle)data[index++];
-        FontWeight = (FontWeight)BitConverter.ToInt32(data, index);
-        index += 4;
-        Color = Color.FromBytes(data[index..]);
+        bool hasFontSize = data[index] == 1;
+        index++;
+        if (hasFontSize)
+        {
+            FontSize = BitConverter.ToDouble(data, index);
+            index += 8;
+        }
+        else
+        {
+            FontSize = null;
+        }
+
+        bool hasFontStyle = data[index] == 1;
+        index++;
+        if (hasFontStyle)
+        {
+            FontStyle = (FontStyle)data[index];
+            index++;
+        }
+        else
+        {
+            FontStyle = null;
+        }
+
+        bool hasFontWeight = data[index] == 1;
+        index++;
+        if (hasFontWeight)
+        {
+            FontWeight = (FontWeight)BitConverter.ToInt32(data, index);
+            index += 4;
+        }
+        else
+        {
+            FontWeight = null;
+        }
+
+        bool hasColor = data[index] == 1;
+        index++;
+        if (hasColor)
+        {
+            Color = Properties.Color.FromBytes(data[index..]);
+        }
+        else
+        {
+            Color = null;
+        }
     }
 }
 
