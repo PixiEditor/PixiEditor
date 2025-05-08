@@ -11,8 +11,7 @@ public class Hyperlink : Text
 {
     public string Url { get; set; }
 
-    public Hyperlink(string text, string url, TextWrap textWrap = TextWrap.None, FontStyle fontStyle = FontStyle.Normal,
-        double fontSize = 12) : base(text, textWrap, fontStyle, fontSize)
+    public Hyperlink(string text, string url, TextWrap textWrap = TextWrap.None, TextStyle textStyle = default) : base(text, textWrap, textStyle)
     {
         Url = url;
     }
@@ -32,14 +31,13 @@ public class Hyperlink : Text
     {
         yield return Value;
         yield return TextWrap;
-        yield return FontStyle;
-        yield return FontSize;
+        yield return TextStyle;
         yield return Url;
     }
 
     public override void DeserializeProperties(ImmutableList<object> values)
     {
         base.DeserializeProperties(values);
-        Url = (string)values[4];
+        Url = (string)values[3];
     }
 }

@@ -2,6 +2,10 @@
 
 public partial class FilteringSettings
 {
+    public FilteringSettings()
+    {
+
+    }
     public FilteringSettings(ColorsNumberMode colorsNumberMode, int colorsCount, string name, bool showOnlyFavourites, List<string> favourites)
     {
         ColorsNumberMode = colorsNumberMode;

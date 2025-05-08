@@ -7,17 +7,14 @@ public class Text : StatelessElement
     public string Value { get; set; }
     
     public TextWrap TextWrap { get; set; }
+
+    public TextStyle TextStyle { get; set; }
     
-    public FontStyle FontStyle { get; set; }
-    
-    public double FontSize { get; set; }
-    
-    public Text(string value, TextWrap wrap = TextWrap.None, FontStyle fontStyle = FontStyle.Normal, double fontSize = 12)
+    public Text(string value, TextWrap wrap = TextWrap.None, TextStyle? textStyle = null)
     {
         Value = value;
         TextWrap = wrap;
-        FontStyle = fontStyle;
-        FontSize = fontSize;
+        TextStyle = textStyle ?? TextStyle.Default;
     }
 
     public override CompiledControl BuildNative()
@@ -25,8 +22,7 @@ public class Text : StatelessElement
         CompiledControl text = new CompiledControl(UniqueId, "Text");
         text.AddProperty(Value);
         text.AddProperty(TextWrap);
-        text.AddProperty(FontStyle);
-        text.AddProperty(FontSize);
+        text.AddProperty(TextStyle);
 
         BuildPendingEvents(text);
         return text;

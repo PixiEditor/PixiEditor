@@ -20,7 +20,8 @@ public class Border : SingleChildLayoutElement
     public double Height { get; set; }
 
     public Border(LayoutElement child = null, Color color = default, Edges thickness = default,
-        Edges cornerRadius = default, Edges padding = default, Edges margin = default, double width = -1, double height = -1,
+        Edges cornerRadius = default, Edges padding = default, Edges margin = default, double width = -1,
+        double height = -1,
         Color backgroundColor = default)
     {
         Child = child;
@@ -37,7 +38,10 @@ public class Border : SingleChildLayoutElement
     public override CompiledControl BuildNative()
     {
         CompiledControl control = new(UniqueId, "Border");
-        control.Children.Add(Child.BuildNative());
+        if (Child != null)
+        {
+            control.Children.Add(Child.BuildNative());
+        }
 
         control.AddProperty(Color);
         control.AddProperty(Thickness);

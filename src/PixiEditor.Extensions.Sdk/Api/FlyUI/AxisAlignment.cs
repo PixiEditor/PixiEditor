@@ -14,5 +14,6 @@ public enum CrossAxisAlignment
 {
     Start,
     Center,
-    End
+    End,
+    Stretch,
 }

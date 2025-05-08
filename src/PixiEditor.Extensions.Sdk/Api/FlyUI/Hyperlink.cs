@@ -6,8 +6,7 @@ public class Hyperlink : Text
 {
     public string Url { get; set; }
 
-    public Hyperlink(string url, string text, TextWrap textWrap = TextWrap.None, FontStyle fontStyle = FontStyle.Normal,
-        double fontSize = 12) : base(text, textWrap, fontStyle, fontSize)
+    public Hyperlink(string url, string text, TextWrap textWrap = TextWrap.None, TextStyle? textStyle = null) : base(text, textWrap, textStyle)
     {
         Url = url;
     }
@@ -17,8 +16,7 @@ public class Hyperlink : Text
         CompiledControl hyperlink = new CompiledControl(UniqueId, "Hyperlink");
         hyperlink.AddProperty(Value);
         hyperlink.AddProperty(TextWrap);
-        hyperlink.AddProperty(FontStyle);
-        hyperlink.AddProperty(FontSize);
+        hyperlink.AddProperty(TextStyle);
         hyperlink.AddProperty(Url);
 
         BuildPendingEvents(hyperlink);

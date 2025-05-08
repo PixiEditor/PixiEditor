@@ -14,5 +14,7 @@ public enum CrossAxisAlignment
 {
     Start,
     Center,
-    End
+    End,
+    Stretch,
+    //Baseline // Not implemented
 }
