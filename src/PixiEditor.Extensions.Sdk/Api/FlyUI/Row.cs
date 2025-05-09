@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
+﻿using PixiEditor.Extensions.CommonApi.FlyUI;
+
+namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
 public class Row : MultiChildLayoutElement
 {
@@ -15,7 +17,7 @@ public class Row : MultiChildLayoutElement
     public Row(
         MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start,
         CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start,
-        LayoutElement[] children = null)
+        LayoutElement[] children = null, Cursor? cursor = null) : base(cursor)
     {
         MainAxisAlignment = mainAxisAlignment;
         CrossAxisAlignment = crossAxisAlignment;

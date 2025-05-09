@@ -10,7 +10,7 @@ using Colors = PixiEditor.Extensions.CommonApi.FlyUI.Properties.Colors;
 
 namespace PixiEditor.Extensions.FlyUI.Elements;
 
-public class Icon : StatelessElement, IPropertyDeserializable
+public class Icon : LayoutElement
 {
     private double size = 16;
     private string iconName = string.Empty;
@@ -50,14 +50,14 @@ public class Icon : StatelessElement, IPropertyDeserializable
         return textBlock;
     }
 
-    public IEnumerable<object> GetProperties()
+    protected override IEnumerable<object> GetControlProperties()
     {
         yield return IconName;
         yield return Size;
         yield return Color;
     }
 
-    public void DeserializeProperties(ImmutableList<object> values)
+    protected override void DeserializeControlProperties(List<object> values)
     {
         IconName = (string)values[0];
         Size = (double)values[1];

@@ -1,10 +1,15 @@
-﻿using PixiEditor.Extensions.CommonApi.FlyUI.State;
+﻿using PixiEditor.Extensions.CommonApi.FlyUI;
+using PixiEditor.Extensions.CommonApi.FlyUI.State;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
 public abstract class StatefulElement<TState> : LayoutElement, IStatefulElement<ControlDefinition, TState> where TState : IState<ControlDefinition>
 {
     private TState state;
+
+    protected StatefulElement(Cursor? cursor) : base(cursor)
+    {
+    }
 
     IState<ControlDefinition> IStatefulElement<ControlDefinition>.State
     {
@@ -25,13 +30,6 @@ public abstract class StatefulElement<TState> : LayoutElement, IStatefulElement<
     }
 
     public TState State => (TState)((IStatefulElement<ControlDefinition>)this).State;
-
-    public override ControlDefinition BuildNative()
-    {
-        var statefulContainer = CreateControl();
-        BuildPendingEvents(statefulContainer);
-        return statefulContainer;
-    }
 
     protected override ControlDefinition CreateControl()
     {

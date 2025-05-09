@@ -13,7 +13,7 @@ public class CheckBox : SingleChildLayoutElement
 
     public bool IsChecked { get; set; }
 
-    public CheckBox(ILayoutElement<ControlDefinition> child = null, ElementEventHandler onCheckedChanged = null)
+    public CheckBox(ILayoutElement<ControlDefinition> child = null, ElementEventHandler onCheckedChanged = null, Cursor? cursor = null) : base(cursor)
     {
         Child = child;
         

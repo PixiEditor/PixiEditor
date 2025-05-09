@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
+﻿using PixiEditor.Extensions.CommonApi.FlyUI;
+
+namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
 public class Column : MultiChildLayoutElement
 {
@@ -8,7 +10,7 @@ public class Column : MultiChildLayoutElement
     public Column(
         MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start,
         CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start,
-        LayoutElement[] children = null)
+        LayoutElement[] children = null, Cursor? cursor = null) : base(cursor)
     {
         MainAxisAlignment = mainAxisAlignment;
         CrossAxisAlignment = crossAxisAlignment;

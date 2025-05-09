@@ -12,7 +12,7 @@ using PixiEditor.Extensions.UI;
 
 namespace PixiEditor.Extensions.FlyUI.Elements;
 
-public class Image : StatelessElement, IPropertyDeserializable
+public class Image : LayoutElement
 {
     private string _source = null!;
     private double _width = -1;
@@ -78,7 +78,7 @@ public class Image : StatelessElement, IPropertyDeserializable
     }
 
 
-    public IEnumerable<object> GetProperties()
+    protected override IEnumerable<object> GetControlProperties()
     {
         yield return Source;
         
@@ -89,7 +89,7 @@ public class Image : StatelessElement, IPropertyDeserializable
         yield return FilterQuality;
     }
 
-    public void DeserializeProperties(ImmutableList<object> values)
+    protected override void DeserializeControlProperties(List<object> values)
     {
         var valuesList = values.ToList();
         Source = (string)valuesList.ElementAtOrDefault(0);

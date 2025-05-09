@@ -1,4 +1,5 @@
-﻿using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+﻿using PixiEditor.Extensions.CommonApi.FlyUI;
+using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
@@ -6,12 +7,12 @@ public class Hyperlink : Text
 {
     public string Url { get; set; }
 
-    public Hyperlink(string url, string text, TextWrap textWrap = TextWrap.None, TextStyle? textStyle = null) : base(text, textWrap, textStyle)
+    public Hyperlink(string url, string text, TextWrap textWrap = TextWrap.None, TextStyle? textStyle = null, Cursor? cursor = null) : base(text, textWrap, textStyle, cursor)
     {
         Url = url;
     }
 
-    public override ControlDefinition BuildNative()
+    protected override ControlDefinition CreateControl()
     {
         ControlDefinition hyperlink = new ControlDefinition(UniqueId, "Hyperlink");
         hyperlink.AddProperty(Value);
@@ -19,7 +20,6 @@ public class Hyperlink : Text
         hyperlink.AddProperty(TextStyle);
         hyperlink.AddProperty(Url);
 
-        BuildPendingEvents(hyperlink);
         return hyperlink;
     }
 }

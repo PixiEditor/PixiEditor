@@ -5,8 +5,22 @@ namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
 public abstract class StatelessElement : LayoutElement, IStatelessElement<ControlDefinition>
 {
-    public ILayoutElement<ControlDefinition> Build()
+    protected StatelessElement() : base(null)
+    {
+    }
+
+    public virtual ILayoutElement<ControlDefinition> Build()
     {
         return this;
+    }
+
+    public override ControlDefinition BuildNative()
+    {
+        return CreateControl();
+    }
+
+    protected override ControlDefinition CreateControl()
+    {
+        return Build().BuildNative();
     }
 }

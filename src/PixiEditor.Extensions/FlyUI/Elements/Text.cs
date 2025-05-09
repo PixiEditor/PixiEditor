@@ -11,7 +11,7 @@ using FontWeight = PixiEditor.Extensions.CommonApi.FlyUI.Properties.FontWeight;
 
 namespace PixiEditor.Extensions.FlyUI.Elements;
 
-public class Text : StatelessElement, IPropertyDeserializable
+public class Text : LayoutElement
 {
     private TextWrap _textWrap = TextWrap.None;
     private string _value = null!;
@@ -111,14 +111,14 @@ public class Text : StatelessElement, IPropertyDeserializable
         return textBlock;
     }
 
-    public virtual IEnumerable<object> GetProperties()
+    protected override IEnumerable<object> GetControlProperties()
     {
         yield return Value;
         yield return TextWrap;
         yield return TextStyle;
     }
 
-    public virtual void DeserializeProperties(ImmutableList<object> values)
+    protected override void DeserializeControlProperties(List<object> values)
     {
         Value = (string)values.ElementAtOrDefault(0);
         TextWrap = (TextWrap)values.ElementAtOrDefault(1);

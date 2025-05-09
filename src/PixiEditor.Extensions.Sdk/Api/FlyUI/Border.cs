@@ -1,4 +1,5 @@
-﻿using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+﻿using PixiEditor.Extensions.CommonApi.FlyUI;
+using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
@@ -22,7 +23,7 @@ public class Border : SingleChildLayoutElement
     public Border(LayoutElement child = null, Color color = default, Edges thickness = default,
         Edges cornerRadius = default, Edges padding = default, Edges margin = default, double width = -1,
         double height = -1,
-        Color backgroundColor = default)
+        Color backgroundColor = default, Cursor? cursor = null) : base(cursor)
     {
         Child = child;
         Color = color;

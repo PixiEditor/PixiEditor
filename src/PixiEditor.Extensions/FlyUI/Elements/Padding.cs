@@ -45,12 +45,12 @@ public class Padding : SingleChildLayoutElement, IPropertyDeserializable
         _decorator.Child = null;
     }
 
-    public IEnumerable<object> GetProperties()
+    protected override IEnumerable<object> GetControlProperties()
     {
         yield return Edges;
     }
 
-    public void DeserializeProperties(ImmutableList<object> values)
+    protected override void DeserializeControlProperties(List<object> values)
     {
         Edges = (Edges)values.ElementAtOrDefault(0, default(Edges));
     }

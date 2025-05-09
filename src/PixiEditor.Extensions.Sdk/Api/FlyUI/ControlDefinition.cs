@@ -27,8 +27,27 @@ public class ControlDefinition
         InternalAddProperty(value);
     }
 
+    public void InsertProperty<T>(int at, T value)
+    {
+        InternalAddProperty(value);
+        if (at < 0 || at >= Properties.Count)
+        {
+            throw new ArgumentOutOfRangeException(nameof(at), "Index out of range");
+        }
+
+        var property = Properties[^1];
+        Properties.RemoveAt(Properties.Count - 1);
+        Properties.Insert(at, property);
+    }
+
     private void InternalAddProperty(object value)
     {
+        if (value is null)
+        {
+            Properties.Add((null, null));
+            return;
+        }
+
         if (value is string s)
         {
             AddStringProperty(s);
@@ -132,10 +151,10 @@ public class ControlDefinition
         bytes.AddRange(Encoding.UTF8.GetBytes(structProperty.GetType().Name));
 
         byte[] structBytes = structProperty.Serialize();
-        
+
         bytes.AddRange(BitConverter.GetBytes(structBytes.Length));
         bytes.AddRange(structBytes);
-        
+
         return bytes;
     }
 

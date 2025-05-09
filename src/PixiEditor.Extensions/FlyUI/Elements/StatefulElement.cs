@@ -6,7 +6,7 @@ using PixiEditor.Extensions.CommonApi.FlyUI.State;
 
 namespace PixiEditor.Extensions.FlyUI.Elements;
 
-public abstract class StatefulElement<TState> : LayoutElement, /*IPropertyDeserializable,*/
+public abstract class StatefulElement<TState> : LayoutElement,
     IStatefulElement<Control, TState> where TState : IState<Control>
 {
     private TState? _state;
@@ -46,8 +46,7 @@ public abstract class StatefulElement<TState> : LayoutElement, /*IPropertyDeseri
         _content = State.Build();
         Control control = _content.BuildNative();
 
-        SubscribeBasicEvents(control);
-
+        BuildCore(control);
         _presenter.Content = control;
 
         return control;
@@ -122,7 +121,7 @@ public abstract class StatefulElement<TState> : LayoutElement, /*IPropertyDeseri
         {
             // TODO: Find a way to only apply changed properties, current solution shouldn't be a problem for most cases, but this
             // might cause unnecessary redraws, binding fires and other stuff that might be expensive if we have a lot of elements
-            propertyDeserializable.DeserializeProperties(fromProps.GetProperties().ToImmutableList());
+            propertyDeserializable.DeserializeProperties(fromProps.GetProperties().ToList());
         }
     }
 

@@ -33,21 +33,25 @@ public abstract class LayoutElement : ILayoutElement<ControlDefinition>
         remove => RemoveEvent(nameof(PointerReleased), value);
     }
 
+    public Cursor? Cursor { get; set; }
+
+    public LayoutElement(Cursor? cursor)
+    {
+        Cursor = cursor;
+        UniqueId = LayoutElementIdGenerator.GetNextId();
+        LayoutElementsStore.AddElement(UniqueId, this);
+    }
+
     public virtual ControlDefinition BuildNative()
     {
         ControlDefinition control = CreateControl();
 
+        control.InsertProperty(0, Cursor);
         BuildPendingEvents(control);
         return control;
     }
 
     protected abstract ControlDefinition CreateControl();
-
-    public LayoutElement()
-    {
-        UniqueId = LayoutElementIdGenerator.GetNextId();
-        LayoutElementsStore.AddElement(UniqueId, this);
-    }
 
     ~LayoutElement()
     {

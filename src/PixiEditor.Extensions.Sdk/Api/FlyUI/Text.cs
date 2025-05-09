@@ -1,8 +1,9 @@
-﻿using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+﻿using PixiEditor.Extensions.CommonApi.FlyUI;
+using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
-public class Text : StatelessElement
+public class Text : LayoutElement
 {
     public string Value { get; set; }
     
@@ -10,7 +11,7 @@ public class Text : StatelessElement
 
     public TextStyle TextStyle { get; set; }
     
-    public Text(string value, TextWrap wrap = TextWrap.None, TextStyle? textStyle = null)
+    public Text(string value, TextWrap wrap = TextWrap.None, TextStyle? textStyle = null, Cursor? cursor = null) : base(cursor)
     {
         Value = value;
         TextWrap = wrap;

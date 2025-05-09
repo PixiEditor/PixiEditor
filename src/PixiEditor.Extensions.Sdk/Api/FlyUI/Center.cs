@@ -4,7 +4,7 @@ namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
 public class Center : SingleChildLayoutElement
 {
-    public Center(ILayoutElement<ControlDefinition> child)
+    public Center(ILayoutElement<ControlDefinition> child, Cursor? cursor = null) : base(cursor)
     {
         Child = child;
     }

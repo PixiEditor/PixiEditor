@@ -1,12 +1,18 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Immutable;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Input;
 using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Events;
+using PixiEditor.Extensions.FlyUI.Converters;
+using Cursor = PixiEditor.Extensions.CommonApi.FlyUI.Cursor;
 
 namespace PixiEditor.Extensions.FlyUI.Elements;
 
-public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyChanged
+public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyChanged, IPropertyDeserializable
 {
     public int UniqueId { get; set; }
     public event ElementEventHandler PointerEnter
@@ -33,17 +39,32 @@ public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyCh
         remove => RemoveEvent(nameof(PointerReleased), value);
     }
 
+    public Cursor? Cursor { get; set; }
+
     private Dictionary<string, List<ElementEventHandler>>? _events;
 
     public virtual Control BuildNative()
     {
         Control control = CreateNativeControl();
 
-        SubscribeBasicEvents(control);
+        BuildCore(control);
         return control;
     }
 
-    protected void SubscribeBasicEvents(Control control)
+    protected void BuildCore(Control control)
+    {
+        Binding cursorBinding = new Binding()
+        {
+            Source = this,
+            Path = "Cursor",
+            Converter = new CursorToAvaloniaCursorConverter()
+        };
+
+        control.Bind(InputElement.CursorProperty, cursorBinding);
+        SubscribeBasicEvents(control);
+    }
+
+    private void SubscribeBasicEvents(Control control)
     {
         control.PointerEntered += (sender, args) => RaiseEvent(nameof(PointerEnter), new ElementEventArgs() { Sender = this });
         control.PointerExited += (sender, args) => RaiseEvent(nameof(PointerLeave), new ElementEventArgs() { Sender = this });
@@ -145,4 +166,27 @@ public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyCh
         OnPropertyChanged(propertyName);
         return true;
     }
+
+    public IEnumerable<object> GetProperties()
+    {
+        yield return Cursor;
+        foreach (var property in GetControlProperties())
+        {
+            yield return property;
+        }
+    }
+
+    protected virtual IEnumerable<object> GetControlProperties()
+    {
+        yield break;
+    }
+
+    public void DeserializeProperties(List<object> values)
+    {
+        Cursor = (Cursor?)values.ElementAtOrDefault(0);
+        var subValues = values[1..];
+        DeserializeControlProperties(subValues);
+    }
+
+    protected virtual void DeserializeControlProperties(List<object> values){}
 }

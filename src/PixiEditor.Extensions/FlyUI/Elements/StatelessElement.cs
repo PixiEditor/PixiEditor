@@ -6,6 +6,11 @@ namespace PixiEditor.Extensions.FlyUI.Elements;
 
 public abstract class StatelessElement : LayoutElement, IStatelessElement<Control>
 {
+    public override Control BuildNative()
+    {
+        return CreateNativeControl();
+    }
+
     protected override Control CreateNativeControl()
     {
         return Build().BuildNative();

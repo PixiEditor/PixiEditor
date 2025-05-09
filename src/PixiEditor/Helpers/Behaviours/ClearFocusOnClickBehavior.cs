@@ -17,7 +17,6 @@ internal class ClearFocusOnClickBehavior : Behavior<Control>
 
     private void AssociatedObject_LostFocus(object? sender, RoutedEventArgs? e)
     {
-
     }
 
     protected override void OnDetaching()

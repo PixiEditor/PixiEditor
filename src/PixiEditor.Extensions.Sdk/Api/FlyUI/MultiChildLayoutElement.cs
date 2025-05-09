@@ -12,5 +12,7 @@ public abstract class MultiChildLayoutElement : LayoutElement, IMultiChildLayout
 
     public List<LayoutElement> Children { get; set; }
 
-
+    public MultiChildLayoutElement(Cursor? cursor = null) : base(cursor)
+    {
+    }
 }

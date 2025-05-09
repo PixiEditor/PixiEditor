@@ -7,7 +7,7 @@ public class Align : SingleChildLayoutElement
 {
     public Alignment Alignment { get; set; }
 
-    public Align(Alignment alignment = Alignment.TopLeft, LayoutElement child = null)
+    public Align(Alignment alignment = Alignment.TopLeft, LayoutElement child = null, Cursor? cursor = null) : base(cursor)
     {
         Child = child;
         Alignment = alignment;

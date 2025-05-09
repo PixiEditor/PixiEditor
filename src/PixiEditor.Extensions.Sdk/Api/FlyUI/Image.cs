@@ -1,9 +1,10 @@
-﻿using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+﻿using PixiEditor.Extensions.CommonApi.FlyUI;
+using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 using PixiEditor.Extensions.Sdk.Bridge;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
-public class Image : StatelessElement
+public class Image : LayoutElement
 {
     private string source = null!;
 
@@ -28,7 +29,7 @@ public class Image : StatelessElement
     public FillMode FillMode { get; set; }
     public FilterQuality FilterQuality { get; set; }
 
-    public Image(string source, double width = -1, double height = -1, FillMode fillMode = FillMode.Uniform, FilterQuality filterQuality = FilterQuality.Unspecified)
+    public Image(string source, double width = -1, double height = -1, FillMode fillMode = FillMode.Uniform, FilterQuality filterQuality = FilterQuality.Unspecified, Cursor? cursor = null) : base(cursor)
     {
         Source = source;
         Width = width;

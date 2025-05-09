@@ -1,24 +1,17 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using PixiEditor.Extensions.CommonApi.FlyUI;
-using PixiEditor.Extensions.CommonApi.FlyUI.Events;
 using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
-using PixiEditor.Extensions.Sdk;
 using PixiEditor.Extensions.Sdk.Api.FlyUI;
 using PixiEditor.Extensions.Sdk.Api.Window;
 
-namespace FlyUISample;
+namespace PixiEditor.Extensions.Sdk.Tests;
 
 [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1118:Parameter should not span multiple lines", Justification = "FlyUI style")]
 public class WindowContentElement : StatelessElement
 {
-    public PopupWindow Window { get; set; }
-
     public override ILayoutElement<ControlDefinition> Build()
     {
-        Border layout = new Border(child:
-            new Container(margin: Edges.All(25))
-        );
-
+        Layout layout = new Layout();
         return layout;
     }
 }
