@@ -15,6 +15,7 @@ namespace PixiEditor.Extensions.FlyUI.Elements;
 public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyChanged, IPropertyDeserializable
 {
     public int UniqueId { get; set; }
+
     public event ElementEventHandler PointerEnter
     {
         add => AddEvent(nameof(PointerEnter), value);
@@ -53,23 +54,24 @@ public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyCh
 
     protected void BuildCore(Control control)
     {
-        Binding cursorBinding = new Binding()
+        if (Cursor != null)
         {
-            Source = this,
-            Path = "Cursor",
-            Converter = new CursorToAvaloniaCursorConverter()
-        };
+            control.Cursor = new Avalonia.Input.Cursor((StandardCursorType)(Cursor.Value.BuiltInCursor ?? BuiltInCursor.None));
+        }
 
-        control.Bind(InputElement.CursorProperty, cursorBinding);
         SubscribeBasicEvents(control);
     }
 
     private void SubscribeBasicEvents(Control control)
     {
-        control.PointerEntered += (sender, args) => RaiseEvent(nameof(PointerEnter), new ElementEventArgs() { Sender = this });
-        control.PointerExited += (sender, args) => RaiseEvent(nameof(PointerLeave), new ElementEventArgs() { Sender = this });
-        control.PointerPressed += (sender, args) => RaiseEvent(nameof(PointerPressed), new ElementEventArgs() { Sender = this });
-        control.PointerReleased += (sender, args) => RaiseEvent(nameof(PointerReleased), new ElementEventArgs() { Sender = this });
+        control.PointerEntered += (sender, args) =>
+            RaiseEvent(nameof(PointerEnter), new ElementEventArgs() { Sender = this });
+        control.PointerExited += (sender, args) =>
+            RaiseEvent(nameof(PointerLeave), new ElementEventArgs() { Sender = this });
+        control.PointerPressed += (sender, args) =>
+            RaiseEvent(nameof(PointerPressed), new ElementEventArgs() { Sender = this });
+        control.PointerReleased += (sender, args) =>
+            RaiseEvent(nameof(PointerReleased), new ElementEventArgs() { Sender = this });
     }
 
     protected abstract Control CreateNativeControl();
@@ -88,7 +90,7 @@ public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyCh
 
         _events[eventName].Add(eventHandler);
     }
-    
+
     public void AddEvent<T>(string eventName, ElementEventHandler<T> eventHandler) where T : ElementEventArgs<T>
     {
         if (_events == null)
@@ -118,7 +120,7 @@ public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyCh
 
         _events[eventName].Remove(eventHandler);
     }
-    
+
     public void RemoveEvent<T>(string eventName, ElementEventHandler<T> eventHandler) where T : ElementEventArgs<T>
     {
         if (_events == null)
@@ -188,5 +190,5 @@ public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyCh
         DeserializeControlProperties(subValues);
     }
 
-    protected virtual void DeserializeControlProperties(List<object> values){}
+    protected virtual void DeserializeControlProperties(List<object> values) { }
 }
