@@ -7,7 +7,7 @@ public abstract class StatefulElement<TState> : LayoutElement, IStatefulElement<
 {
     private TState state;
 
-    protected StatefulElement(Cursor? cursor) : base(cursor)
+    protected StatefulElement() : base(null)
     {
     }
 
