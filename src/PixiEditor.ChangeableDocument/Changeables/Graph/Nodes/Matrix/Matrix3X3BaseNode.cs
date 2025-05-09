@@ -13,8 +13,6 @@ public abstract class Matrix3X3BaseNode : RenderNode, IRenderInput
     public InputProperty<Matrix3X3> Input { get; }
     public OutputProperty<Matrix3X3> Matrix { get; }
 
-    private Paint? paint;
-
     public Matrix3X3BaseNode()
     {
         Background = CreateRenderInput("Background", "IMAGE");
@@ -30,19 +28,18 @@ public abstract class Matrix3X3BaseNode : RenderNode, IRenderInput
         if (Background.Value == null)
             return;
 
-        paint ??= new();
         base.OnExecute(context);
     }
 
     protected override void OnPaint(RenderContext context, DrawingSurface surface)
     {
-        if (paint == null)
-            return;
-
         int layer = surface.Canvas.Save();
 
         surface.Canvas.SetMatrix(surface.Canvas.TotalMatrix.Concat(Matrix.Value));
-        Background.Value?.Paint(context, surface);
+        if (!surface.LocalClipBounds.IsZeroOrNegativeArea)
+        {
+            Background.Value?.Paint(context, surface);
+        }
 
         surface.Canvas.RestoreToCount(layer);
     }

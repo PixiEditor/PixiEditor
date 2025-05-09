@@ -37,7 +37,8 @@ internal class SceneRenderer : IDisposable
 
     public void RenderScene(DrawingSurface target, ChunkResolution resolution, string? targetOutput = null)
     {
-        if (Document.Renderer.IsBusy || DocumentViewModel.Busy || target.DeviceClipBounds.Size.ShortestAxis <= 0) return;
+        if (Document.Renderer.IsBusy || DocumentViewModel.Busy ||
+            target.DeviceClipBounds.Size.ShortestAxis <= 0) return;
         RenderOnionSkin(target, resolution, targetOutput);
 
         string adjustedTargetOutput = targetOutput ?? "";
@@ -80,6 +81,7 @@ internal class SceneRenderer : IDisposable
         else
         {
             renderTexture = Texture.ForProcessing(renderTarget.DeviceClipBounds.Size, Document.ProcessingColorSpace);
+
             renderTarget = renderTexture.DrawingSurface;
 
             target.Canvas.Save();
