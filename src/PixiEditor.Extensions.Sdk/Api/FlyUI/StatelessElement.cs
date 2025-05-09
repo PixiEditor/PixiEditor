@@ -3,10 +3,24 @@ using PixiEditor.Extensions.CommonApi.FlyUI.State;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
-public abstract class StatelessElement : LayoutElement, IStatelessElement<CompiledControl>
+public abstract class StatelessElement : LayoutElement, IStatelessElement<ControlDefinition>
 {
-    public ILayoutElement<CompiledControl> Build()
+    protected StatelessElement() : base(null)
+    {
+    }
+
+    public virtual ILayoutElement<ControlDefinition> Build()
     {
         return this;
+    }
+
+    public override ControlDefinition BuildNative()
+    {
+        return CreateControl();
+    }
+
+    protected override ControlDefinition CreateControl()
+    {
+        return Build().BuildNative();
     }
 }

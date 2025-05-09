@@ -49,6 +49,8 @@ internal class CommandController
 
     private static readonly List<Command> objectsToInvokeOn = new();
 
+    private ShortcutsTemplate lastTemplate;
+
     public CommandController()
     {
         Current ??= this;
@@ -120,16 +122,15 @@ internal class CommandController
 
     public void Init(IServiceProvider serviceProvider)
     {
-        ShortcutsTemplate template = new();
         try
         {
-            template = shortcutFile.LoadTemplate();
+            lastTemplate = shortcutFile.LoadTemplate();
         }
         catch (JsonException)
         {
-            File.Move(shortcutFile.Path, $"{shortcutFile.Path}.corrupted", true); // TODO: platform dependent
+            File.Move(shortcutFile.Path, $"{shortcutFile.Path}.corrupted", true);
             shortcutFile = new ShortcutFile(ShortcutsPath, this);
-            template = shortcutFile.LoadTemplate();
+            lastTemplate = shortcutFile.LoadTemplate();
             NoticeDialog.Show("SHORTCUTS_CORRUPTED", "SHORTCUTS_CORRUPTED_TITLE");
         }
 
@@ -140,8 +141,8 @@ internal class CommandController
             commands = new(); // internal name of the corr. group -> command in that group
 
         LoadEvaluators(serviceProvider, compiledCommandList);
-        LoadCommands(serviceProvider, compiledCommandList, commandGroupsData, commands, template);
-        LoadTools(serviceProvider, commandGroupsData, commands, template);
+        LoadCommands(serviceProvider, compiledCommandList, commandGroupsData, commands, lastTemplate);
+        LoadTools(serviceProvider, commandGroupsData, commands, lastTemplate);
 
         var miscList = new List<Command>();
 
@@ -162,6 +163,15 @@ internal class CommandController
         }
 
         CommandGroups.Add(new CommandGroup("MISC", miscList));
+
+        Commands.CommandAdded += CommandsOnCommandAdded;
+    }
+
+    private void CommandsOnCommandAdded(object? sender, Command e)
+    {
+        var group = CommandGroups.Last();
+
+        group.AddCommand(e);
     }
 
     public static void ListenForCanExecuteChanged(Command command)
@@ -398,33 +408,6 @@ internal class CommandController
 
             void CommandAction(object x) =>
                 CommandMethodInvoker(method, name, instance, x, parameters, attribute.AnalyticsTrack);
-        }
-
-        KeyCombination AdjustForOS(KeyCombination combination, CustomOsShortcutAttribute? customOsShortcut)
-        {
-            if (customOsShortcut != null)
-            {
-                return new KeyCombination(customOsShortcut.Key, customOsShortcut.Modifiers);
-            }
-
-            if (IOperatingSystem.Current.IsMacOs)
-            {
-                KeyCombination newCombination = combination;
-                if (combination.Modifiers.HasFlag(KeyModifiers.Control))
-                {
-                    newCombination.Modifiers &= ~KeyModifiers.Control;
-                    newCombination.Modifiers |= KeyModifiers.Meta;
-                }
-
-                if (combination.Key == Key.Delete)
-                {
-                    newCombination.Key = Key.Back;
-                }
-
-                return newCombination;
-            }
-
-            return combination;
         }
     }
 
@@ -702,5 +685,38 @@ internal class CommandController
         {
             command.OnCanExecuteChanged();
         }
+    }
+
+    public void AddManagedCommand(Command command)
+    {
+        command.Shortcut = GetShortcut(command.InternalName, AdjustForOS(command.DefaultShortcut, null), lastTemplate);
+        Commands.Add(command);
+    }
+
+    private KeyCombination AdjustForOS(KeyCombination combination, CustomOsShortcutAttribute? customOsShortcut)
+    {
+        if (customOsShortcut != null)
+        {
+            return new KeyCombination(customOsShortcut.Key, customOsShortcut.Modifiers);
+        }
+
+        if (IOperatingSystem.Current.IsMacOs)
+        {
+            KeyCombination newCombination = combination;
+            if (combination.Modifiers.HasFlag(KeyModifiers.Control))
+            {
+                newCombination.Modifiers &= ~KeyModifiers.Control;
+                newCombination.Modifiers |= KeyModifiers.Meta;
+            }
+
+            if (combination.Key == Key.Delete)
+            {
+                newCombination.Key = Key.Back;
+            }
+
+            return newCombination;
+        }
+
+        return combination;
     }
 }

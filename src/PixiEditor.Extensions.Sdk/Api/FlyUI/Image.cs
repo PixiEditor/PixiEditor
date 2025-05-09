@@ -1,9 +1,10 @@
-﻿using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+﻿using PixiEditor.Extensions.CommonApi.FlyUI;
+using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 using PixiEditor.Extensions.Sdk.Bridge;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
-public class Image : StatelessElement
+public class Image : LayoutElement
 {
     private string source = null!;
 
@@ -28,7 +29,7 @@ public class Image : StatelessElement
     public FillMode FillMode { get; set; }
     public FilterQuality FilterQuality { get; set; }
 
-    public Image(string source, double width = -1, double height = -1, FillMode fillMode = FillMode.Uniform, FilterQuality filterQuality = FilterQuality.Unspecified)
+    public Image(string source, double width = -1, double height = -1, FillMode fillMode = FillMode.Uniform, FilterQuality filterQuality = FilterQuality.Unspecified, Cursor? cursor = null) : base(cursor)
     {
         Source = source;
         Width = width;
@@ -37,9 +38,9 @@ public class Image : StatelessElement
         FilterQuality = filterQuality;
     }
 
-    public override CompiledControl BuildNative()
+    protected override ControlDefinition CreateControl()
     {
-        CompiledControl image = new CompiledControl(UniqueId, "Image");
+        ControlDefinition image = new ControlDefinition(UniqueId, "Image");
         
         image.AddProperty(Source);
         image.AddProperty(Width);
@@ -47,7 +48,6 @@ public class Image : StatelessElement
         image.AddProperty(FillMode);
         image.AddProperty(FilterQuality);
         
-        BuildPendingEvents(image);
         return image;
     }
 }

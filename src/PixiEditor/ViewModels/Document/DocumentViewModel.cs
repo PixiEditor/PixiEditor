@@ -289,7 +289,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         };
         LayersChanged += (sender, args) =>
         {
-            if (args.LayerChangeType == LayerAction.Add)
+            /*if (args.LayerChangeType == LayerAction.Add)
             {
                 IReadOnlyStructureNode layer = Internals.Tracker.Document.FindMember(args.LayerAffectedGuid);
                 if (layer is not null)
@@ -301,7 +301,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             else if (args.LayerChangeType == LayerAction.Remove)
             {
                 SnappingViewModel.Remove(args.LayerAffectedGuid.ToString());
-            }
+            }*/
         };
 
         ReferenceLayerViewModel = new(this, Internals);

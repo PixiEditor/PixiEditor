@@ -17,7 +17,6 @@ internal class ClearFocusOnClickBehavior : Behavior<Control>
 
     private void AssociatedObject_LostFocus(object? sender, RoutedEventArgs? e)
     {
-
     }
 
     protected override void OnDetaching()
@@ -27,7 +26,7 @@ internal class ClearFocusOnClickBehavior : Behavior<Control>
 
     private void AssociatedObject_MouseDown(object? sender, PointerPressedEventArgs? e)
     {
-        AssociatedObject.Focus();
+        AssociatedObject?.Focus();
         ShortcutController.UnblockShortcutExecutionAll();
     }
 }

@@ -47,6 +47,29 @@ internal abstract class StructureMemberViewModel<T> : NodeViewModel<T>, IStructu
     public ShapeCorners TransformationCorners => Internals.Tracker.Document.FindMember(Id)
         ?.GetTransformationCorners(Document.AnimationDataViewModel.ActiveFrameBindable) ?? new ShapeCorners();
 
+    public bool IsVisibleStructurally
+    {
+        get
+        {
+            if (!IsVisibleBindable)
+                return false;
+
+            bool visible = true;
+            TraverseForwards((node, previous, output, input) =>
+            {
+                if (node is IFolderHandler parent && input is { PropertyName: FolderNode.ContentInternalName })
+                {
+                    visible = parent.IsVisibleBindable;
+                    return visible;
+                }
+
+                return true;
+            });
+
+            return visible;
+        }
+    }
+
     public void SetMaskIsVisible(bool maskIsVisible)
     {
         this.maskIsVisible = maskIsVisible;

@@ -5,12 +5,6 @@ internal static partial class Interop
     private static Dictionary<string, List<Action<string, object>>> _callbacks = new();
     private static string uniqueName;
 
-    static Interop()
-    {
-        uniqueName = Native.get_extension_unique_name();
-        Native.PreferenceUpdated += NativeOnPreferenceUpdated;
-    }
-
     private static void NativeOnPreferenceUpdated(string name, object value)
     {
         if (_callbacks.TryGetValue(name, out var actions))

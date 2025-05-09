@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Interactivity;
 using PixiEditor.Extensions.CommonApi.FlyUI.Events;
+using PixiEditor.Extensions.UI.Panels;
 using Button = PixiEditor.Extensions.FlyUI.Elements.Button;
 
 namespace PixiEditor.Extensions.Test;
@@ -154,19 +155,19 @@ public class LayoutBuilderTests
         var native = testStatefulElement.BuildNative();
 
         Assert.IsType<ContentPresenter>(native);
-        Assert.IsType<StackPanel>((native as ContentPresenter).Content);
-        StackPanel panel = (native as ContentPresenter).Content as StackPanel;
+        Assert.IsType<ColumnPanel>((native as ContentPresenter).Content);
+        ColumnPanel panel = (native as ContentPresenter).Content as ColumnPanel;
 
         Assert.Equal(2, panel.Children.Count);
 
         Assert.IsType<Avalonia.Controls.Button>(panel.Children[0]);
-        Assert.IsType<StackPanel>(panel.Children[1]);
+        Assert.IsType<RowPanel>(panel.Children[1]);
 
-        Assert.Empty((panel.Children[1] as StackPanel).Children);
+        Assert.Empty((panel.Children[1] as RowPanel).Children);
         Assert.Empty(testStatefulElement.State.Rows);
 
         Avalonia.Controls.Button button = (Avalonia.Controls.Button)panel.Children[0];
-        StackPanel innerPanel = (StackPanel)panel.Children[1];
+        RowPanel innerPanel = (RowPanel)panel.Children[1];
 
         button.RaiseEvent(new RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
 

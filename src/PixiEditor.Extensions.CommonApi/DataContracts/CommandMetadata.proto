@@ -1,0 +1,17 @@
+syntax = "proto3";
+package PixiEditor.Commands;
+
+import "Shortcut.proto";
+option csharp_namespace = "PixiEditor.Extensions.CommonApi.Commands";
+
+message CommandMetadata
+{
+  string UniqueName = 1;
+  string DisplayName = 2;
+  string Description = 3;
+  Shortcut Shortcut = 4;
+  string Icon = 5;
+  string MenuItemPath = 6;
+  int32 Order = 7;
+
+}

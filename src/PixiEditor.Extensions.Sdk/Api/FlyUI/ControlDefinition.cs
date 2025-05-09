@@ -6,17 +6,17 @@ using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
-public class CompiledControl
+public class ControlDefinition
 {
     public string ControlTypeId { get; set; }
     public List<(object value, Type type)> Properties { get; set; } = new();
-    public List<CompiledControl> Children { get; set; } = new();
+    public List<ControlDefinition> Children { get; set; } = new();
     public int UniqueId { get; set; }
     internal List<string> QueuedEvents => _buildQueuedEvents;
 
     private List<string> _buildQueuedEvents = new List<string>();
 
-    public CompiledControl(int uniqueId, string controlTypeId)
+    public ControlDefinition(int uniqueId, string controlTypeId)
     {
         ControlTypeId = controlTypeId;
         UniqueId = uniqueId;
@@ -27,8 +27,27 @@ public class CompiledControl
         InternalAddProperty(value);
     }
 
+    public void InsertProperty<T>(int at, T value)
+    {
+        InternalAddProperty(value);
+        if (at < 0 || at >= Properties.Count)
+        {
+            throw new ArgumentOutOfRangeException(nameof(at), "Index out of range");
+        }
+
+        var property = Properties[^1];
+        Properties.RemoveAt(Properties.Count - 1);
+        Properties.Insert(at, property);
+    }
+
     private void InternalAddProperty(object value)
     {
+        if (value is null)
+        {
+            Properties.Add((null, null));
+            return;
+        }
+
         if (value is string s)
         {
             AddStringProperty(s);
@@ -53,7 +72,7 @@ public class CompiledControl
         Properties.Add((value, typeof(string)));
     }
 
-    public void AddChild(CompiledControl child)
+    public void AddChild(ControlDefinition child)
     {
         Children.Add(child);
     }
@@ -89,7 +108,7 @@ public class CompiledControl
 
     private void SerializeChildren(List<byte> bytes)
     {
-        foreach (CompiledControl child in Children)
+        foreach (ControlDefinition child in Children)
         {
             child.Serialize(bytes);
         }
@@ -132,10 +151,10 @@ public class CompiledControl
         bytes.AddRange(Encoding.UTF8.GetBytes(structProperty.GetType().Name));
 
         byte[] structBytes = structProperty.Serialize();
-        
+
         bytes.AddRange(BitConverter.GetBytes(structBytes.Length));
         bytes.AddRange(structBytes);
-        
+
         return bytes;
     }
 

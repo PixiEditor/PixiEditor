@@ -1,5 +1,7 @@
 ﻿using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Sdk.Api;
+using PixiEditor.Extensions.Sdk.Api.Commands;
+using PixiEditor.Extensions.Sdk.Api.IO;
 using PixiEditor.Extensions.Sdk.Api.Logging;
 using PixiEditor.Extensions.Sdk.Api.Palettes;
 using PixiEditor.Extensions.Sdk.Api.UserPreferences;
@@ -13,6 +15,8 @@ public class PixiEditorApi
     public WindowProvider WindowProvider { get; }
     public Preferences Preferences { get; }
     public PalettesProvider Palettes { get; }
+    public CommandProvider Commands { get; }
+    public DocumentProvider Documents { get; }
 
     public PixiEditorApi()
     {
@@ -20,5 +24,7 @@ public class PixiEditorApi
         WindowProvider = new WindowProvider();
         Preferences = new Preferences();
         Palettes = new PalettesProvider();
+        Commands = new CommandProvider();
+        Documents = new DocumentProvider();
     }
 }

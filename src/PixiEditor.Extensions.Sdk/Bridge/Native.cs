@@ -52,7 +52,7 @@ internal static partial class Native
     [ApiExport("raise_element_event")]
     internal static void EventRaised(int internalControlId, string eventName) //TOOD: Args
     {
-        if (LayoutElementsStore.LayoutElements.TryGetValue((int)internalControlId, out ILayoutElement<CompiledControl> element))
+        if (LayoutElementsStore.LayoutElements.TryGetValue((int)internalControlId, out ILayoutElement<ControlDefinition> element))
         {
             element.RaiseEvent(eventName ?? "", new ElementEventArgs { Sender = element });
         }

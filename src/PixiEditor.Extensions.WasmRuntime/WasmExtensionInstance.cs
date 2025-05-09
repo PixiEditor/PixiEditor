@@ -65,6 +65,7 @@ public partial class WasmExtensionInstance : Extension
     protected override void OnInitialized()
     {
         modules.Add(new PreferencesModule(this, Api.Preferences));
+        modules.Add(new CommandModule(this, Api.Commands));
         LayoutBuilder = new LayoutBuilder((ElementMap)Api.Services.GetService(typeof(ElementMap)));
 
         //SetElementMap();

@@ -22,7 +22,7 @@ public struct Color : IStructProperty
 
     byte[] IStructProperty.Serialize()
     {
-        return new byte[] { R, G, B, A };
+        return [R, G, B, A];
     }
 
     void IStructProperty.Deserialize(byte[] data)
@@ -31,5 +31,16 @@ public struct Color : IStructProperty
         G = data[1];
         B = data[2];
         A = data[3];
+    }
+
+    public static Color FromBytes(byte[] data)
+    {
+        if (data.Length < 4)
+        {
+            throw new ArgumentException("Data array must contain at least 4 bytes.");
+        }
+
+
+        return new Color(data[0], data[1], data[2], data[3]);
     }
 }

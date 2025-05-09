@@ -24,6 +24,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using Drawie.Numerics;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Nodes;
@@ -79,7 +80,7 @@ internal class DocumentUpdater
                 ProcessUpdateStructureMemberName(info);
                 break;
             case StructureMemberIsVisible_ChangeInfo info:
-                ProcessUpdateStructureMemberIsVisible(info);
+                ProcessUpdateStructureMemberIsVisible(info.Id, info.IsVisible);
                 break;
             case StructureMemberOpacity_ChangeInfo info:
                 ProcessUpdateStructureMemberOpacity(info);
@@ -455,17 +456,49 @@ internal class DocumentUpdater
         doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.Id, LayerAction.Remove));
     }
 
-    private void ProcessUpdateStructureMemberIsVisible(StructureMemberIsVisible_ChangeInfo info)
+    private void ProcessUpdateStructureMemberIsVisible(Guid id, bool isVisible)
     {
-        IStructureMemberHandler? memberVM = doc.StructureHelper.FindOrThrow(info.Id);
-        memberVM.SetIsVisible(info.IsVisible);
-        if (info.IsVisible)
+        IStructureMemberHandler? memberVM = doc.StructureHelper.FindOrThrow(id);
+        memberVM.SetIsVisible(isVisible);
+        UpdateMemberSnapping(memberVM);
+    }
+
+    private void UpdateMemberSnapping(IStructureMemberHandler memberVM)
+    {
+        List<IStructureMemberHandler>? children = null;
+        if (memberVM is IFolderHandler folder)
+        {
+            children = doc.StructureHelper.GetFolderChildren(folder.Id);
+        }
+
+        bool isTransformingMember = helper.ChangeController.TryGetExecutorFeature<ITransformableExecutor>()?
+            .IsTransformingMember(memberVM.Id) ?? false;
+        if (memberVM.IsVisibleStructurally && !isTransformingMember)
         {
             doc.SnappingHandler.AddFromBounds(memberVM.Id.ToString(), () => memberVM.TightBounds ?? RectD.Empty);
         }
         else
         {
             doc.SnappingHandler.Remove(memberVM.Id.ToString());
+        }
+
+        if (children != null)
+        {
+            foreach (IStructureMemberHandler child in children)
+            {
+                isTransformingMember = helper.ChangeController.TryGetExecutorFeature<ITransformableExecutor>()?
+                    .IsTransformingMember(child.Id) ?? false;
+
+                if (child.IsVisibleStructurally && !isTransformingMember)
+                {
+                    doc.SnappingHandler.AddFromBounds(child.Id.ToString(),
+                        () => child.TightBounds ?? RectD.Empty);
+                }
+                else
+                {
+                    doc.SnappingHandler.Remove(child.Id.ToString());
+                }
+            }
         }
     }
 
@@ -570,7 +603,8 @@ internal class DocumentUpdater
                 removedInputs.Add(input);
             }
 
-            if(info.Inputs.FirstOrDefault(x => x.PropertyName == input.PropertyName && x.ValueType != input.PropertyType) is { } changedInput)
+            if (info.Inputs.FirstOrDefault(x =>
+                    x.PropertyName == input.PropertyName && x.ValueType != input.PropertyType) is { } changedInput)
             {
                 removedInputs.Add(input);
             }
@@ -602,7 +636,9 @@ internal class DocumentUpdater
                 removedOutputs.Add(output);
             }
 
-            if(info.Outputs.FirstOrDefault(x => x.PropertyName == output.PropertyName && x.ValueType != output.Value.GetType()) is { } changedOutput)
+            if (info.Outputs.FirstOrDefault(x =>
+                    x.PropertyName == output.PropertyName && x.ValueType != output.Value.GetType()) is
+                { } changedOutput)
             {
                 removedOutputs.Add(output);
             }
@@ -747,6 +783,16 @@ internal class DocumentUpdater
             throw new MissingNodeException("Connection requested for a node that doesn't exist");
 #endif
         }
+
+        if (inputNode is IStructureMemberHandler structureMember)
+        {
+            UpdateMemberSnapping(structureMember);
+        }
+
+        if (outputNode is IStructureMemberHandler structureMember2)
+        {
+            UpdateMemberSnapping(structureMember2);
+        }
     }
 
     private void ProcessNodePosition(NodePosition_ChangeInfo info)
@@ -779,7 +825,7 @@ internal class DocumentUpdater
         {
             if (info.Property == StructureNode.IsVisiblePropertyName)
             {
-                structureMemberHandler.SetIsVisible((bool)info.Value);
+                ProcessUpdateStructureMemberIsVisible(structureMemberHandler.Id, (bool)info.Value);
             }
             else if (info.Property == StructureNode.OpacityPropertyName)
             {

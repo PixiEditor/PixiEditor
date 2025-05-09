@@ -49,7 +49,16 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public override RectD? GetApproxBounds(KeyFrameTime frameTime)
     {
-        return (RectD?)GetLayerImageAtFrame(frameTime.Frame).FindChunkAlignedCommittedBounds();
+        var chunkAlignedBounds = GetLayerImageAtFrame(frameTime.Frame).FindChunkAlignedCommittedBounds();
+        if (chunkAlignedBounds == null)
+        {
+            return null;
+        }
+
+        RectD size = new RectD(chunkAlignedBounds.Value.X, chunkAlignedBounds.Value.Y,
+            Math.Min(chunkAlignedBounds.Value.Width, layerImage.LatestSize.X),
+            Math.Min(chunkAlignedBounds.Value.Height, layerImage.LatestSize.Y));
+        return size;
     }
 
     protected internal override void DrawLayerInScene(SceneObjectRenderContext ctx,

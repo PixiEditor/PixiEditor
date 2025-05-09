@@ -23,7 +23,6 @@ public abstract class SingleChildLayoutElement : LayoutElement, ISingleChildLayo
         }
     }
 
-    public abstract override Control BuildNative();
     protected abstract void AddChild(Control child);
     protected abstract void RemoveChild();
 

@@ -1,5 +1,6 @@
 ﻿using Avalonia.Controls;
 using PixiEditor.Extensions.FlyUI.Elements;
+using PixiEditor.Extensions.UI.Panels;
 
 namespace PixiEditor.Extensions.Test;
 
@@ -20,8 +21,8 @@ public class LayoutBuilderElementsTests
         Panel grid = (Panel)result;
         Assert.Single(grid.Children);
 
-        Assert.IsType<StackPanel>(grid.Children[0]);
-        Panel childGrid = (StackPanel)grid.Children[0];
+        Assert.IsType<RowPanel>(grid.Children[0]);
+        Panel childGrid = (RowPanel)grid.Children[0];
 
         Assert.Equal(Avalonia.Layout.HorizontalAlignment.Stretch, childGrid.HorizontalAlignment);
         Assert.Equal(Avalonia.Layout.VerticalAlignment.Stretch, childGrid.VerticalAlignment);
@@ -53,8 +54,8 @@ public class LayoutBuilderElementsTests
         Panel grid = (Panel)result;
         Assert.Single(grid.Children);
 
-        Assert.IsType<StackPanel>(grid.Children[0]);
-        Panel childGrid = (StackPanel)grid.Children[0];
+        Assert.IsType<ColumnPanel>(grid.Children[0]);
+        Panel childGrid = (ColumnPanel)grid.Children[0];
 
         Assert.Equal(Avalonia.Layout.HorizontalAlignment.Stretch, childGrid.HorizontalAlignment);
         Assert.Equal(Avalonia.Layout.VerticalAlignment.Stretch, childGrid.VerticalAlignment);

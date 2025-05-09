@@ -16,7 +16,7 @@ public class Center : SingleChildLayoutElement
         Child = child;
     }
 
-    public override Control BuildNative()
+    protected override Control CreateNativeControl()
     {
         panel = new Panel()
         {

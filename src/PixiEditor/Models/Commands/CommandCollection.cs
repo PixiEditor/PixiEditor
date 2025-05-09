@@ -25,6 +25,8 @@ internal class CommandCollection : ICollection<Commands.Command>
 
     public List<Command> this[KeyCombination shortcut] => _commandShortcuts[shortcut];
 
+    public event EventHandler<Command>? CommandAdded;
+
     public CommandCollection()
     {
         commandInternalNames = new();
@@ -35,6 +37,7 @@ internal class CommandCollection : ICollection<Commands.Command>
     {
         commandInternalNames.Add(item.InternalName, item);
         _commandShortcuts.Add(item.Shortcut, item);
+        CommandAdded?.Invoke(this, item);
     }
 
     public void Clear()

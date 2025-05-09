@@ -16,6 +16,7 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.Autosave;
+using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.Handlers;
 using PixiEditor.OperatingSystem;
@@ -151,7 +152,6 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
         CommandController.Init(services);
         LayoutSubViewModel.LayoutManager.InitLayout(this);
-        MenuBarViewModel.Init(services, CommandController);
 
         MiscSubViewModel = services.GetService<MiscViewModel>();
 
@@ -172,6 +172,12 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         DocumentManagerSubViewModel.ActiveDocumentChanged += OnActiveDocumentChanged;
         BeforeDocumentClosed += OnBeforeDocumentClosed;
         LazyDocumentClosed += OnLazyDocumentClosed;
+    }
+
+    public void OnStartup()
+    {
+        OnStartupEvent?.Invoke();
+        MenuBarViewModel.Init(Services, CommandController);
     }
 
     public bool DocumentIsNotNull(object property)
@@ -346,11 +352,6 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         }
 
         return false;
-    }
-
-    public void OnStartup()
-    {
-        OnStartupEvent?.Invoke();
     }
 
     private void OnActiveDocumentChanged(object sender, DocumentChangedEventArgs e)

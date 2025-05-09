@@ -1,5 +1,6 @@
 using System.Text;
 using PixiEditor.Extensions.CommonApi.FlyUI;
+using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 using PixiEditor.Extensions.Sdk.Api.FlyUI;
 
 namespace PixiEditor.Extensions.Sdk.Tests;
@@ -9,7 +10,7 @@ public class NativeControlSerializationTest
     [Fact]
     public void TestThatNoChildLayoutSerializesCorrectBytes()
     {
-        CompiledControl layout = new CompiledControl(0, "Layout");
+        ControlDefinition layout = new ControlDefinition(0, "Layout");
         layout.AddProperty("Title");
 
         int uniqueId = 0;
@@ -45,8 +46,8 @@ public class NativeControlSerializationTest
     [Fact]
     public void TestThatChildLayoutSerializesCorrectBytes()
     {
-        CompiledControl layout = new CompiledControl(0, "Layout");
-        layout.AddChild(new CompiledControl(1, "Center"));
+        ControlDefinition layout = new ControlDefinition(0, "Layout");
+        layout.AddChild(new ControlDefinition(1, "Center"));
 
         int uniqueId = 0;
         byte[] uniqueIdBytes = BitConverter.GetBytes(uniqueId);
@@ -88,11 +89,35 @@ public class NativeControlSerializationTest
     }
 
     [Fact]
+    public void TestThatBuildNativeBuildsPropertyBytesCorrectly()
+    {
+        Layout layout = new Layout();
+        var definition = layout.BuildNative();
+
+        Assert.Single(definition.Properties); // Cursor
+
+        byte[] serialized = definition.SerializeBytes();
+
+        Assert.Equal(23, serialized.Length);
+    }
+
+    [Fact]
+    public void TestThatStatelessElementSerializesBytesProperly()
+    {
+        WindowContentElement layout = new WindowContentElement();
+
+        var definition = layout.BuildNative();
+        var serialized = definition.SerializeBytes();
+
+        Assert.Equal(23, serialized.Length);
+    }
+
+    [Fact]
     public void TestThatChildNestedLayoutSerializesCorrectBytes()
     {
-        CompiledControl layout = new CompiledControl(0, "Layout");
-        CompiledControl center = new CompiledControl(1, "Center");
-        CompiledControl text = new CompiledControl(2, "Text");
+        ControlDefinition layout = new ControlDefinition(0, "Layout");
+        ControlDefinition center = new ControlDefinition(1, "Center");
+        ControlDefinition text = new ControlDefinition(2, "Text");
         text.AddProperty("Hello world");
         center.AddChild(text);
         layout.AddChild(center);
@@ -171,18 +196,18 @@ public class NativeControlSerializationTest
             new Center(
                 child: new Text("hello sexy.")));
 
-        CompiledControl compiledControl = layout.BuildNative();
+        ControlDefinition compiledControl = layout.BuildNative();
 
         Assert.Equal("Layout", compiledControl.ControlTypeId);
-        Assert.Empty(compiledControl.Properties);
+        Assert.Single(compiledControl.Properties);
         Assert.Single(compiledControl.Children);
 
         Assert.Equal("Center", compiledControl.Children[0].ControlTypeId);
-        Assert.Empty(compiledControl.Children[0].Properties);
+        Assert.Single(compiledControl.Children[0].Properties);
 
         Assert.Equal("Text", compiledControl.Children[0].Children[0].ControlTypeId);
         Assert.True(compiledControl.Children[0].Children[0].Properties.Count > 0);
-        Assert.Equal("hello sexy.", compiledControl.Children[0].Children[0].Properties[0].value);
+        Assert.Equal("hello sexy.", compiledControl.Children[0].Children[0].Properties[1].value);
     }
 
     [Fact]
