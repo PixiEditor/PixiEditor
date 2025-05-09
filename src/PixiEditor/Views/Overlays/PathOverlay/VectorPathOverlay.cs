@@ -567,7 +567,10 @@ public class VectorPathOverlay : Overlay
         {
             Path = new VectorPath();
             Path.MoveTo((VecF)point);
-            SelectAnchor(anchorHandles[0]);
+            if (anchorHandles.Count > 0)
+            {
+                SelectAnchor(anchorHandles[0]);
+            }
         }
         else
         {
