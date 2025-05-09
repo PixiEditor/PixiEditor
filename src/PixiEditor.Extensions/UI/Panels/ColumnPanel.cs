@@ -17,7 +17,15 @@ public class ColumnPanel : Panel
         {
             child.Measure(availableSize);
             size += new Size(0, child.DesiredSize.Height);
-            size = new Size(Math.Max(size.Width, child.DesiredSize.Width), size.Height);
+
+            if (CrossAxisAlignment == CrossAxisAlignment.Stretch)
+            {
+                size = new Size(availableSize.Width, size.Height);
+            }
+            else
+            {
+                size = new Size(Math.Max(size.Width, child.DesiredSize.Width), size.Height);
+            }
         }
 
         if (MainAxisAlignment == MainAxisAlignment.SpaceBetween)
@@ -85,6 +93,13 @@ public class ColumnPanel : Panel
             else if (CrossAxisAlignment == CrossAxisAlignment.End)
             {
                 xOffset = finalSize.Width - child.DesiredSize.Width;
+            }
+            else if (CrossAxisAlignment == CrossAxisAlignment.Stretch)
+            {
+                xOffset = 0;
+                child.Arrange(new Rect(0, yOffset, finalSize.Width, child.DesiredSize.Height));
+                yOffset += child.DesiredSize.Height + spaceBetween;
+                continue;
             }
 
             child.Arrange(new Rect(xOffset, yOffset, child.DesiredSize.Width, child.DesiredSize.Height));

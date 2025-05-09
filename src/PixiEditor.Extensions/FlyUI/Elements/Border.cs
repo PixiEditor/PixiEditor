@@ -9,7 +9,7 @@ using PixiEditor.Extensions.FlyUI.Converters;
 
 namespace PixiEditor.Extensions.FlyUI.Elements;
 
-public class Border : SingleChildLayoutElement, IPropertyDeserializable
+public class Border : SingleChildLayoutElement
 {
     private Avalonia.Controls.Border border;
 
@@ -32,7 +32,7 @@ public class Border : SingleChildLayoutElement, IPropertyDeserializable
     public double Width { get => width; set => SetField(ref width, value); }
     public double Height { get => height; set => SetField(ref height, value); }
 
-    public override Control BuildNative()
+    protected override Control CreateNativeControl()
     {
         border = new Avalonia.Controls.Border();
 
@@ -99,7 +99,7 @@ public class Border : SingleChildLayoutElement, IPropertyDeserializable
         border.Child = null;
     }
 
-    public IEnumerable<object> GetProperties()
+    protected override IEnumerable<object> GetControlProperties()
     {
         yield return Color;
         yield return Thickness;
@@ -111,7 +111,7 @@ public class Border : SingleChildLayoutElement, IPropertyDeserializable
         yield return Height;
     }
 
-    public void DeserializeProperties(ImmutableList<object> values)
+    protected override void DeserializeControlProperties(List<object> values)
     {
         Color = (Color)values.ElementAtOrDefault(0, default(Color));
         Thickness = (Edges)values.ElementAtOrDefault(1, default(Edges));

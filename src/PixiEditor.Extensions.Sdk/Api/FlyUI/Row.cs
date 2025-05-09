@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
+﻿using PixiEditor.Extensions.CommonApi.FlyUI;
+
+namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
 public class Row : MultiChildLayoutElement
 {
@@ -15,20 +17,20 @@ public class Row : MultiChildLayoutElement
     public Row(
         MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start,
         CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start,
-        LayoutElement[] children = null)
+        LayoutElement[] children = null, Cursor? cursor = null) : base(cursor)
     {
         MainAxisAlignment = mainAxisAlignment;
         CrossAxisAlignment = crossAxisAlignment;
         Children = new List<LayoutElement>(children);
     }
 
-    public override CompiledControl BuildNative()
+    protected override ControlDefinition CreateControl()
     {
-        CompiledControl control = new CompiledControl(UniqueId, "Row");
-        control.AddProperty(MainAxisAlignment);
-        control.AddProperty(CrossAxisAlignment);
-        control.Children.AddRange(Children.Select(x => x.BuildNative()));
+        ControlDefinition controlDefinition = new ControlDefinition(UniqueId, "Row");
+        controlDefinition.AddProperty(MainAxisAlignment);
+        controlDefinition.AddProperty(CrossAxisAlignment);
+        controlDefinition.Children.AddRange(Children.Select(x => x.BuildNative()));
 
-        return control;
+        return controlDefinition;
     }
 }

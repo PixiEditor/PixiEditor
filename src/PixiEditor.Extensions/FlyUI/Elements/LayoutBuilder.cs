@@ -93,6 +93,10 @@ public class LayoutBuilder
                 
                 properties.Add(prop);
             }
+            else if (type == null)
+            {
+                properties.Add(null);
+            }
             else
             {
                 var property = SpanUtility.Read(type, layoutSpan, ref offset);
@@ -127,7 +131,7 @@ public class LayoutBuilder
 
         if (element is IPropertyDeserializable deserializableProperties)
         {
-            deserializableProperties.DeserializeProperties(properties.ToImmutableList());
+            deserializableProperties.DeserializeProperties(properties);
         }
 
         if (element is IChildHost customChildrenDeserializable)

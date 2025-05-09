@@ -17,7 +17,15 @@ public class RowPanel : Panel
         {
             child.Measure(availableSize);
             size += new Size(child.DesiredSize.Width, 0);
-            size = new Size(size.Width, Math.Max(size.Height, child.DesiredSize.Height));
+
+            if (CrossAxisAlignment == CrossAxisAlignment.Stretch)
+            {
+                size = new Size(size.Width, availableSize.Height);
+            }
+            else
+            {
+                size = new Size(size.Width, Math.Max(size.Height, child.DesiredSize.Height));
+            }
         }
 
         if (MainAxisAlignment == MainAxisAlignment.SpaceBetween)
@@ -30,7 +38,7 @@ public class RowPanel : Panel
         }
         else if (MainAxisAlignment == MainAxisAlignment.SpaceEvenly)
         {
-            size = new Size (availableSize.Width, size.Height);
+            size = new Size(availableSize.Width, size.Height);
         }
 
         return size;

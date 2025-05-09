@@ -13,9 +13,11 @@ We are extremely excited to share this version with you, early testers. Before y
 
 - App is not production ready! Expect bugs, crashes, unfinished features, placeholders and other signs of development.
 ";
-    
-private const string Body2 = "- Your feedback is the most important thing of this beta, please take a moment to report any issues and suggestions on PixiEditor Forum.";
-private const string Body3 = @"
+
+    private const string Body2 =
+        "- Your feedback is the most important thing of this beta, please take a moment to report any issues and suggestions on PixiEditor Forum.";
+
+    private const string Body3 = @"
 - We are collecting anonymous usage data to fix bugs, crashes and performance issues. This data will help us to improve the app. During the beta 
 there is no option to opt-out. No personal data is collected.
 
@@ -35,25 +37,25 @@ I understand that:
                 Alignment.TopCenter,
                 new Column(
                     new Center(new Text("Welcome to the open beta of PixiEditor 2.0!", TextWrap.Wrap,
-                        FontStyle.Normal,
-                        fontSize: 24)),
-                    new Text(Body1, TextWrap.Wrap, fontSize: 16),
+                        new TextStyle(fontSize: 24))),
+                    new Text(Body1, TextWrap.Wrap, new TextStyle(fontSize: 16)),
                     new Hyperlink("https://forum.pixieditor.net", Body2,
-                        fontSize: 16, textWrap: TextWrap.Wrap),
-                    new Text(Body3, TextWrap.Wrap, fontSize: 16),
+                        textStyle: new TextStyle(fontSize: 16), textWrap: TextWrap.Wrap),
+                    new Text(Body3, TextWrap.Wrap, new TextStyle(fontSize: 16)),
                     new CheckBox(
-                        new Text("The app may be unstable, crash or freeze", fontSize: 16,
-                            fontStyle: FontStyle.Italic),
+                        new Text("The app may be unstable, crash or freeze",
+                            textStyle: new TextStyle(fontStyle: FontStyle.Italic, fontSize: 16)),
                         onCheckedChanged: (args) => CheckboxChanged(args.Sender as CheckBox, 0)),
                     new CheckBox(
-                        new Text("I may encounter unfinished features and placeholders", fontSize: 16,
-                            fontStyle: FontStyle.Italic),
+                        new Text("I may encounter unfinished features and placeholders",
+                            textStyle: new TextStyle(fontSize: 16, fontStyle: FontStyle.Italic)),
                         onCheckedChanged: (args) => CheckboxChanged(args.Sender as CheckBox, 1)),
-                    new CheckBox(new Text("I may lose my work due to bugs", fontSize: 16, fontStyle: FontStyle.Italic),
+                    new CheckBox(new Text("I may lose my work due to bugs",
+                        textStyle: new TextStyle(fontSize: 16, fontStyle: FontStyle.Italic)),
                         onCheckedChanged: (args) => CheckboxChanged(args.Sender as CheckBox, 2)),
                     new CheckBox(
-                        new Text("I will have a lot of fun testing the app", fontSize: 16,
-                            fontStyle: FontStyle.Italic),
+                        new Text("I will have a lot of fun testing the app",
+                            textStyle: new TextStyle(fontSize: 16, fontStyle: FontStyle.Italic)),
                         onCheckedChanged: (args) => CheckboxChanged(args.Sender as CheckBox, 3)),
                     new Container(
                         margin: new Edges(0, 5, 0, 0),

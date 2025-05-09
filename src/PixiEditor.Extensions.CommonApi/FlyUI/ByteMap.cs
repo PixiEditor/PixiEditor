@@ -1,11 +1,13 @@
-﻿using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
-
-namespace PixiEditor.Extensions.CommonApi.FlyUI;
+﻿namespace PixiEditor.Extensions.CommonApi.FlyUI;
 
 public static class ByteMap
 {
     public static byte GetTypeByteId(Type type)
     {
+        if (type == null)
+        {
+            return 255;
+        }
         if (type == typeof(int))
         {
             return 0;
@@ -64,6 +66,7 @@ public static class ByteMap
             7 => typeof(char),
             8 => typeof(string),
             9 => typeof(byte[]),
+            255 => null,
             _ => throw new Exception($"Unknown unmanaged type id: {id}")
         };
     }

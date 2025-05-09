@@ -59,7 +59,7 @@ public class Column : MultiChildLayoutElement, IPropertyDeserializable
         });
     }
 
-    public override Control BuildNative()
+    protected override Control CreateNativeControl()
     {
         panel = new ColumnPanel() { MainAxisAlignment = MainAxisAlignment, CrossAxisAlignment = CrossAxisAlignment };
 
@@ -68,13 +68,13 @@ public class Column : MultiChildLayoutElement, IPropertyDeserializable
         return panel;
     }
 
-    public IEnumerable<object> GetProperties()
+    protected override IEnumerable<object> GetControlProperties()
     {
         yield return MainAxisAlignment;
         yield return CrossAxisAlignment;
     }
 
-    public void DeserializeProperties(ImmutableList<object> values)
+    protected override void DeserializeControlProperties(List<object> values)
     {
         if (values.Count < 2)
             return;

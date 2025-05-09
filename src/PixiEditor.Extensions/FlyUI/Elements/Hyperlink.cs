@@ -11,15 +11,14 @@ public class Hyperlink : Text
 {
     public string Url { get; set; }
 
-    public Hyperlink(string text, string url, TextWrap textWrap = TextWrap.None, FontStyle fontStyle = FontStyle.Normal,
-        double fontSize = 12) : base(text, textWrap, fontStyle, fontSize)
+    public Hyperlink(string text, string url, TextWrap textWrap = TextWrap.None, TextStyle textStyle = default) : base(text, textWrap, textStyle)
     {
         Url = url;
     }
 
-    public override Control BuildNative()
+    protected override Control CreateNativeControl()
     {
-        TextBlock hyperlink = (TextBlock)base.BuildNative();
+        TextBlock hyperlink = (TextBlock)base.CreateNativeControl();
 
         Binding urlBinding = new Binding() { Source = this, Path = nameof(Url), };
 
@@ -28,18 +27,17 @@ public class Hyperlink : Text
         return hyperlink;
     }
 
-    public override IEnumerable<object> GetProperties()
+    protected override IEnumerable<object> GetControlProperties()
     {
         yield return Value;
         yield return TextWrap;
-        yield return FontStyle;
-        yield return FontSize;
+        yield return TextStyle;
         yield return Url;
     }
 
-    public override void DeserializeProperties(ImmutableList<object> values)
+    protected override void DeserializeControlProperties(List<object> values)
     {
-        base.DeserializeProperties(values);
-        Url = (string)values[4];
+        base.DeserializeControlProperties(values);
+        Url = (string)values[3];
     }
 }

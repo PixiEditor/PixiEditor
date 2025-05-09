@@ -13,7 +13,7 @@ public class CheckBox : SingleChildLayoutElement
 
     public bool IsChecked { get; set; }
 
-    public CheckBox(ILayoutElement<CompiledControl> child = null, ElementEventHandler onCheckedChanged = null)
+    public CheckBox(ILayoutElement<ControlDefinition> child = null, ElementEventHandler onCheckedChanged = null, Cursor? cursor = null) : base(cursor)
     {
         Child = child;
         
@@ -32,13 +32,12 @@ public class CheckBox : SingleChildLayoutElement
     }
 
 
-    public override CompiledControl BuildNative()
+    protected override ControlDefinition CreateControl()
     {
-        CompiledControl checkbox = new CompiledControl(UniqueId, "CheckBox");
+        ControlDefinition checkbox = new ControlDefinition(UniqueId, "CheckBox");
         if (Child != null)
             checkbox.AddChild(Child.BuildNative());
 
-        BuildPendingEvents(checkbox);
         return checkbox;
     }
 }

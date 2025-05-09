@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
+﻿using PixiEditor.Extensions.CommonApi.FlyUI;
+
+namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
 public class Column : MultiChildLayoutElement
 {
@@ -8,7 +10,7 @@ public class Column : MultiChildLayoutElement
     public Column(
         MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start,
         CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Start,
-        LayoutElement[] children = null)
+        LayoutElement[] children = null, Cursor? cursor = null) : base(cursor)
     {
         MainAxisAlignment = mainAxisAlignment;
         CrossAxisAlignment = crossAxisAlignment;
@@ -22,13 +24,13 @@ public class Column : MultiChildLayoutElement
         Children = new List<LayoutElement>(children);
     }
 
-    public override CompiledControl BuildNative()
+    protected override ControlDefinition CreateControl()
     {
-        CompiledControl control = new CompiledControl(UniqueId, "Column");
-        control.AddProperty(MainAxisAlignment);
-        control.AddProperty(CrossAxisAlignment);
-        control.Children.AddRange(Children.Where(x => x != null).Select(x => x.BuildNative()));
+        ControlDefinition controlDefinition = new ControlDefinition(UniqueId, "Column");
+        controlDefinition.AddProperty(MainAxisAlignment);
+        controlDefinition.AddProperty(CrossAxisAlignment);
+        controlDefinition.Children.AddRange(Children.Where(x => x != null).Select(x => x.BuildNative()));
 
-        return control;
+        return controlDefinition;
     }
 }

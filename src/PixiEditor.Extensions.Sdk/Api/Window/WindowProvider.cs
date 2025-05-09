@@ -9,18 +9,18 @@ public class WindowProvider : IWindowProvider
 {
     public PopupWindow CreatePopupWindow(string title, LayoutElement body)
     {
-        CompiledControl compiledControl = body.BuildNative();
-        byte[] bytes = compiledControl.Serialize().ToArray();
+        ControlDefinition controlDefinition = body.BuildNative();
+        byte[] bytes = controlDefinition.Serialize().ToArray();
         IntPtr ptr = Marshal.AllocHGlobal(bytes.Length);
         Marshal.Copy(bytes, 0, ptr, bytes.Length);
         int handle = Native.create_popup_window(title, ptr, bytes.Length);
         Marshal.FreeHGlobal(ptr);
         
-        SubscribeToEvents(compiledControl);
+        SubscribeToEvents(controlDefinition);
         return new PopupWindow(handle);
     }
 
-    internal void LayoutStateChanged(int uniqueId, CompiledControl newLayout)
+    internal void LayoutStateChanged(int uniqueId, ControlDefinition newLayout)
     {
         byte[] bytes = newLayout.Serialize().ToArray();
         IntPtr ptr = Marshal.AllocHGlobal(bytes.Length);
@@ -31,9 +31,9 @@ public class WindowProvider : IWindowProvider
         SubscribeToEvents(newLayout);
     }
 
-    private void SubscribeToEvents(CompiledControl body)
+    private void SubscribeToEvents(ControlDefinition body)
     {
-        foreach (CompiledControl child in body.Children)
+        foreach (ControlDefinition child in body.Children)
         {
             SubscribeToEvents(child);
         }
