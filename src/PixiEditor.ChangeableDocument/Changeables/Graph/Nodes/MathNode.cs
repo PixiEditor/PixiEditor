@@ -81,9 +81,9 @@ public class MathNode : Node
             return context.NewFloat1(result);
         }
 
-        var xConst = x.ConstantValue;
-        var yConst = y.ConstantValue;
-        var zConst = z.ConstantValue;
+        var xConst = (double)x.GetConstant();
+        var yConst = (double)y.GetConstant();
+        var zConst = (double)z.GetConstant();
         
         var constValue = Mode.Value switch
         {
