@@ -199,6 +199,11 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             Owner.ToolsSubViewModel.HandleToolShortcutUp();
         }
 
+        if (shortcut.Key == queuedTransientKey)
+        {
+            queuedTransientKey = null;
+        }
+
         ShortcutController.UnblockShortcutExecution("ShortcutDown");
     }
 

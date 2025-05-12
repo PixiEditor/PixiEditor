@@ -966,9 +966,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 if (!includeNested)
                 {
                     var parents = StructureHelper.GetParents(member.Id);
-                    if(parents.Any(x => selectedMembers.Contains(x.Id)))
+                    if (parents.Any(x => selectedMembers.Contains(x.Id)))
                         continue;
                 }
+
                 orderedMembers.Add(member.Id);
             }
         }
@@ -1035,9 +1036,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public Image[] RenderFrames(Func<Surface, Surface> processFrameAction = null, CancellationToken token = default)
     {
-        if (AnimationDataViewModel.KeyFrames.Count == 0)
-            return [];
-
         if (token.IsCancellationRequested)
             return [];
 
@@ -1081,9 +1079,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     /// <param name="token"></param>
     public void RenderFramesProgressive(Action<Surface, int> processFrameAction, CancellationToken token)
     {
-        if (AnimationDataViewModel.KeyFrames.Count == 0)
-            return;
-
         int firstFrame = AnimationDataViewModel.GetFirstVisibleFrame();
         int framesCount = AnimationDataViewModel.GetLastVisibleFrame();
         int lastFrame = firstFrame + framesCount;
@@ -1110,17 +1105,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public bool RenderFrames(List<Image> frames, Func<Surface, Surface> processFrameAction = null)
     {
-        var keyFrames = AnimationDataViewModel.KeyFrames;
-        int firstFrame = 0;
-        int lastFrame = AnimationDataViewModel.GetVisibleFramesCount();
-
-        lastFrame = Math.Max(1, lastFrame);
-
-        if (keyFrames.Count > 0)
-        {
-            firstFrame = AnimationDataViewModel.GetFirstVisibleFrame();
-            lastFrame = AnimationDataViewModel.GetLastVisibleFrame();
-        }
+        var firstFrame = AnimationDataViewModel.GetFirstVisibleFrame();
+        var lastFrame = AnimationDataViewModel.GetLastVisibleFrame();
 
         for (int i = firstFrame; i < lastFrame; i++)
         {

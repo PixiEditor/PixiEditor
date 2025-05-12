@@ -108,7 +108,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         }
     }
 
-    public int FirstFrame => cachedFirstFrame ??= keyFrames.Count > 0 ? keyFrames.Min(x => x.StartFrameBindable) : 0;
+    public int FirstFrame => cachedFirstFrame ??= keyFrames.Count > 0 ? keyFrames.Min(x => x.StartFrameBindable) : 1;
 
     public int LastFrame => cachedLastFrame ??= keyFrames.Count > 0
         ? keyFrames.Max(x => x.StartFrameBindable + x.DurationBindable)
@@ -428,14 +428,14 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public int GetFirstVisibleFrame()
     {
-        return keyFrames.Count > 0 ? keyFrames.Where(x => x.IsVisible).Min(x => x.StartFrameBindable) : 0;
+        return keyFrames.Count > 0 ? keyFrames.Where(x => x.IsVisible).Min(x => x.StartFrameBindable) : 1;
     }
 
     public int GetLastVisibleFrame()
     {
         return keyFrames.Count > 0
             ? keyFrames.Where(x => x.IsVisible).Max(x => x.StartFrameBindable + x.DurationBindable)
-            : 0;
+            : DefaultEndFrame;
     }
 
     public int GetVisibleFramesCount()

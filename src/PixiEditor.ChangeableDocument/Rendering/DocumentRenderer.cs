@@ -5,10 +5,12 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
@@ -238,9 +240,22 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
             context.TargetOutput = customOutput;
         }
 
-        graph.Execute(context);
+        try
+        {
+            graph.Execute(context);
+            toRenderOn.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
+        }
+        catch (Exception e)
+        {
+            renderTexture.DrawingSurface.Canvas.Clear();
+            using Paint paint = new Paint { Color = Colors.White, IsAntiAliased = true };
 
-        toRenderOn.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
+            using Font defaultSizedFont = Font.CreateDefault();
+            defaultSizedFont.Size = 24;
+
+            renderTexture.DrawingSurface.Canvas.DrawText("Graph Setup produced an error. Fix it the node graph",
+                renderTexture.Size / 2f, TextAlign.Center, defaultSizedFont, paint);
+        }
 
         renderTexture.DrawingSurface.Canvas.Restore();
         toRenderOn.Canvas.Restore();
