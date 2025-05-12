@@ -28,6 +28,7 @@ using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Rendering;
 using Drawie.Numerics;
 using Drawie.Skia;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.Views.Overlays;
 using PixiEditor.Views.Overlays.Pointers;
@@ -316,7 +317,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             using Font defaultSizedFont = Font.CreateDefault();
             defaultSizedFont.Size = 24;
 
-            renderTexture.DrawingSurface.Canvas.DrawText("Graph Setup produced an error. Fix it the node graph", renderTexture.Size / 2f, TextAlign.Center, defaultSizedFont, paint);
+            renderTexture.DrawingSurface.Canvas.DrawText(new LocalizedString("ERROR_GRAPH"), renderTexture.Size / 2f, TextAlign.Center, defaultSizedFont, paint);
         }
 
         DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Foreground);
