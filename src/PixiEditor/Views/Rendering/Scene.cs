@@ -19,6 +19,7 @@ using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Text;
 using Drawie.Interop.Avalonia.Core;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Helpers;
@@ -27,12 +28,14 @@ using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Rendering;
 using Drawie.Numerics;
 using Drawie.Skia;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.Views.Overlays;
 using PixiEditor.Views.Overlays.Pointers;
 using PixiEditor.Views.Visuals;
 using Bitmap = Drawie.Backend.Core.Surfaces.Bitmap;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
+using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
 using Point = Avalonia.Point;
 using TileMode = Drawie.Backend.Core.Surfaces.TileMode;
 
@@ -297,8 +300,26 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         DrawCheckerboard(renderTexture.DrawingSurface, bounds);
         DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Background);
-        SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(),
-            RenderOutput == "DEFAULT" ? null : RenderOutput);
+        try
+        {
+            SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(),
+                RenderOutput == "DEFAULT" ? null : RenderOutput);
+        }
+        catch (Exception e)
+        {
+            renderTexture.DrawingSurface.Canvas.Clear();
+            using Paint paint = new Paint
+            {
+                Color = Colors.White,
+                IsAntiAliased = true
+            };
+
+            using Font defaultSizedFont = Font.CreateDefault();
+            defaultSizedFont.Size = 24;
+
+            renderTexture.DrawingSurface.Canvas.DrawText(new LocalizedString("ERROR_GRAPH"), renderTexture.Size / 2f, TextAlign.Center, defaultSizedFont, paint);
+        }
+
         DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Foreground);
     }
 

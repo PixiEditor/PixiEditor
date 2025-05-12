@@ -1035,5 +1035,6 @@
   "RESET": "Reset",
   "AUTOSAVE_OPEN_FOLDER": "Open autosave folder",
    "AUTOSAVE_OPEN_FOLDER_DESCRIPTIVE": "Open the folder where autosaves are stored",
-  "AUTOSAVE_TOGGLE_DESCRIPTIVE": "Enable/disable autosave"
+  "AUTOSAVE_TOGGLE_DESCRIPTIVE": "Enable/disable autosave",
+  "ERROR_GRAPH": "Graph Setup produced an error. Fix it the node graph"
 }
