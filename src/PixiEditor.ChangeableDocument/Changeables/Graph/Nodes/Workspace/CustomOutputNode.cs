@@ -1,11 +1,9 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using Drawie.Backend.Core.Surfaces;
+using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.Surfaces;
-using Drawie.Numerics;
 
-namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 
 [NodeInfo("CustomOutput")]
 public class CustomOutputNode : Node, IRenderInput, IPreviewRenderable

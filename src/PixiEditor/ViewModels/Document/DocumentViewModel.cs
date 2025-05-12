@@ -51,11 +51,13 @@ using PixiEditor.Models.Serialization.Factories;
 using PixiEditor.Models.Structures;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.Models.IO;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
 using PixiEditor.ViewModels.Document.Nodes;
+using PixiEditor.ViewModels.Document.Nodes.Workspace;
 using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 using BlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
@@ -598,6 +600,36 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 OnPropertyChanged(nameof(AllChangesAutosaved));
                 break;
         }
+    }
+
+    public RectI GetDefaultRenderZone()
+    {
+        // TODO: This should be a part of the ChangeableDocument
+
+        var exportNodes = NodeGraph.AllNodes.Where(
+            x => x is ExportZoneNodeViewModel exportZone
+                 && exportZone.Inputs.Any(x => x is { PropertyName: ExportZoneNode.IsDefaultName, Value: true })).ToArray();
+
+        if (exportNodes.Length == 0)
+            return new RectI(VecI.Zero, SizeBindable);
+
+        var exportNode = exportNodes.FirstOrDefault();
+
+        if (exportNode is null)
+            return new RectI(VecI.Zero, SizeBindable);
+
+        var exportSize = exportNode.Inputs.FirstOrDefault(x => x.PropertyName == ExportZoneNode.SizeName);
+
+        if (exportSize is null)
+            return new RectI(VecI.Zero, SizeBindable);
+
+        if (exportSize.Value is VecI finalSize)
+        {
+            VecI offset = exportNode.Inputs.FirstOrDefault(x => x.PropertyName == ExportZoneNode.OffsetName)?.ComputedValue as VecI? ?? VecI.Zero;
+            return new RectI(offset, finalSize);
+        }
+
+        return new RectI(VecI.Zero, SizeBindable);
     }
 
     public ICrossDocumentPipe<T> ShareNode<T>(Guid layerId) where T : class, IReadOnlyNode

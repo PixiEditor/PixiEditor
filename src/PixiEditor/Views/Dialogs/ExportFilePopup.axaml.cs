@@ -63,6 +63,15 @@ internal partial class ExportFilePopup : PixiEditorPopup
         AvaloniaProperty.Register<ExportFilePopup, int>(
             nameof(SpriteSheetRows), 1);
 
+    public static readonly StyledProperty<string> ExportZoneProperty = AvaloniaProperty.Register<ExportFilePopup, string>(
+        nameof(ExportZone));
+
+    public string ExportZone
+    {
+        get => GetValue(ExportZoneProperty);
+        set => SetValue(ExportZoneProperty, value);
+    }
+
     public int SpriteSheetRows
     {
         get => GetValue(SpriteSheetRowsProperty);

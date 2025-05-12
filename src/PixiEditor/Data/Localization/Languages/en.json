@@ -1037,5 +1037,8 @@
    "AUTOSAVE_OPEN_FOLDER_DESCRIPTIVE": "Open the folder where autosaves are stored",
   "AUTOSAVE_TOGGLE_DESCRIPTIVE": "Enable/disable autosave",
   "ERROR_GRAPH": "Graph Setup produced an error. Fix it the node graph",
-  "COLOR_MATRIX_FILTER_NODE": "Color Matrix Filter"
+  "COLOR_MATRIX_FILTER_NODE": "Color Matrix Filter",
+  "WORKSPACE": "Workspace",
+  "EXPORT_ZONE_NODE": "Export Zone",
+  "IS_DEFAULT": "Is default"
 }

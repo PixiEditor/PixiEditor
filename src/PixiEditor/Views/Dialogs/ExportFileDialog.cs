@@ -20,16 +20,21 @@ internal class ExportFileDialog : CustomDialog
 
     private int fileWidth;
 
+    private int offsetX;
+    private int offsetY;
+
     private string suggestedName;
     
     private DocumentViewModel document;
     
     public ExportConfig ExportConfig { get; set; } = new ExportConfig(VecI.Zero);
 
-    public ExportFileDialog(Window owner, VecI size, DocumentViewModel doc) : base(owner)
+    public ExportFileDialog(Window owner, DocumentViewModel doc) : base(owner)
     {
-        FileWidth = size.X;
-        FileHeight = size.Y;
+        RectI zone = doc.GetDefaultRenderZone();
+        FileWidth = zone.Width;
+        FileHeight = zone.Height;
+
         document = doc;
     }
 
@@ -65,6 +70,30 @@ internal class ExportFileDialog : CustomDialog
             if (filePath != value)
             {
                 this.SetProperty(ref filePath, value);
+            }
+        }
+    }
+
+    public int OffsetX
+    {
+        get => offsetX;
+        set
+        {
+            if (offsetX != value)
+            {
+                this.SetProperty(ref offsetX, value);
+            }
+        }
+    }
+
+    public int OffsetY
+    {
+        get => offsetY;
+        set
+        {
+            if (offsetY != value)
+            {
+                this.SetProperty(ref offsetY, value);
             }
         }
     }
