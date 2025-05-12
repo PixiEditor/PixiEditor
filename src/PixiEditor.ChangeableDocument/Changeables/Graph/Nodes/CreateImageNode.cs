@@ -3,6 +3,7 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
@@ -22,7 +23,8 @@ public class CreateImageNode : Node, IPreviewRenderable
 
     public RenderInputProperty Content { get; }
 
-    public InputProperty<VecD> ContentOffset { get; }
+    public InputProperty<Matrix3X3> ContentMatrix { get; }
+
 
     public RenderOutputProperty RenderOutput { get; }
 
@@ -34,7 +36,7 @@ public class CreateImageNode : Node, IPreviewRenderable
         Size = CreateInput(nameof(Size), "SIZE", new VecI(32, 32)).WithRules(v => v.Min(VecI.One));
         Fill = CreateInput<Paintable>(nameof(Fill), "FILL", new ColorPaintable(Colors.Transparent));
         Content = CreateRenderInput(nameof(Content), "CONTENT");
-        ContentOffset = CreateInput(nameof(ContentOffset), "CONTENT_OFFSET", VecD.Zero);
+        ContentMatrix = CreateInput<Matrix3X3>(nameof(ContentMatrix), "MATRIX", Matrix3X3.Identity);
         RenderOutput = CreateRenderOutput("RenderOutput", "RENDER_OUTPUT", () => new Painter(OnPaint));
     }
 
@@ -72,7 +74,7 @@ public class CreateImageNode : Node, IPreviewRenderable
         RenderContext ctx = new RenderContext(surface.DrawingSurface, context.FrameTime, context.ChunkResolution,
             context.DocumentSize, context.ProcessingColorSpace);
 
-        surface.DrawingSurface.Canvas.Translate((float)-ContentOffset.Value.X, (float)-ContentOffset.Value.Y);
+        surface.DrawingSurface.Canvas.SetMatrix(surface.DrawingSurface.Canvas.TotalMatrix.Concat(ContentMatrix.Value));
 
         Content.Value?.Paint(ctx, surface.DrawingSurface);
 

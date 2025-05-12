@@ -30,7 +30,7 @@ public class SampleImageNode : Node
 
     private Half4 GetColor(FuncContext context)
     {
-        if (Image.Value is null)
+        if (Image.Value is null || Image.Value.IsDisposed)
         {
             return new Half4("");
         }

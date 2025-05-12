@@ -23,6 +23,7 @@ using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.ViewModels.Document;
@@ -222,6 +223,9 @@ internal class DocumentUpdater
                 break;
             case MarkAsAutosaved_PassthroughAction info:
                 MarkAsAutosaved(info);
+                break;
+            case ComputedPropertyValue_ChangeInfo info:
+                ProcessComputedPropertyValue(info);
                 break;
         }
     }
@@ -870,5 +874,36 @@ internal class DocumentUpdater
     private void MarkAsAutosaved(MarkAsAutosaved_PassthroughAction info)
     {
         doc.InternalMarkSaveState(info.Type);
+    }
+
+    private void ProcessComputedPropertyValue(ComputedPropertyValue_ChangeInfo info)
+    {
+        object finalValue = info.Value;
+        if (info.Value != null && !info.Value.GetType().IsValueType && info.Value is not string)
+        {
+            bool valueToStringIsDefault = info.Value.GetType().FullName == info.Value.ToString();
+            if (valueToStringIsDefault)
+            {
+                finalValue = info.Value?.GetType().Name ?? finalValue;
+            }
+        }
+
+        NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.Node);
+        INodePropertyHandler property;
+        if (info.IsInput)
+        {
+            property = node.FindInputProperty(info.PropertyName);
+        }
+        else
+        {
+            property = node.FindOutputProperty(info.PropertyName);
+        }
+
+        if (property is null)
+        {
+            return;
+        }
+
+        property.InternalSetComputedValue(finalValue);
     }
 }
