@@ -10,7 +10,7 @@ public static class RenderingUtils
 {
     public static IReadOnlyNodeGraph SolveFinalNodeGraph(string? targetOutput, IReadOnlyDocument document)
     {
-        if (targetOutput == null || targetOutput == "DEFAULT")
+        if (targetOutput is null or "DEFAULT")
         {
             return document.NodeGraph;
         }

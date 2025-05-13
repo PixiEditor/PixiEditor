@@ -1,31 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text.Json;
-using Avalonia;
-using Avalonia.Media.Imaging;
 using Avalonia.Threading;
-using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
-using ChunkyImageLib.Operations;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.DocumentPassthroughActions;
-using PixiEditor.Models.Position;
-using PixiEditor.ViewModels.SubViewModels;
-using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
@@ -44,7 +28,6 @@ using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors.Features;
 using PixiEditor.Models.Handlers;
-using PixiEditor.Models.Layers;
 using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
@@ -52,19 +35,15 @@ using PixiEditor.Models.Structures;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
-using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.Models.IO;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
-using PixiEditor.ViewModels.Document.Nodes;
 using PixiEditor.ViewModels.Document.Nodes.Workspace;
 using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
 using BlendMode = Drawie.Backend.Core.Surfaces.BlendMode;
 using Color = Drawie.Backend.Core.ColorsImpl.Color;
 using Colors = Drawie.Backend.Core.ColorsImpl.Colors;
-using Node = PixiEditor.Parser.Graph.Node;
-using Point = Avalonia.Point;
 
 namespace PixiEditor.ViewModels.Document;
 
@@ -602,34 +581,126 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
-    public RectI GetDefaultRenderZone()
-    {
-        // TODO: This should be a part of the ChangeableDocument
 
-        var exportNodes = NodeGraph.AllNodes.Where(
-            x => x is ExportZoneNodeViewModel exportZone
-                 && exportZone.Inputs.Any(x => x is { PropertyName: ExportZoneNode.IsDefaultName, Value: true })).ToArray();
+    public (string name, VecI originalSize)[] GetAvailableExportOutputs()
+    {
+        var allExportNodes = NodeGraph.AllNodes.Where(x => x is CustomOutputNodeViewModel).ToArray();
+
+        if (allExportNodes.Length == 0)
+        {
+            return [("DEFAULT", SizeBindable)];
+        }
+
+        using var block = Operations.StartChangeBlock();
+        foreach (var node in allExportNodes)
+        {
+            if (node is not CustomOutputNodeViewModel)
+                continue;
+
+            Internals.ActionAccumulator.AddActions(new EvaluateGraph_Action(node.Id,
+                AnimationDataViewModel.ActiveFrameTime));
+
+            Internals.ActionAccumulator.AddActions(
+                new GetComputedPropertyValue_Action(node.Id, CustomOutputNode.OutputNamePropertyName, true),
+                new GetComputedPropertyValue_Action(node.Id, CustomOutputNode.ExportSizePropertyName, true));
+        }
+
+        block.ExecuteQueuedActions();
+
+        var exportNodes = NodeGraph.AllNodes.Where(x => x is CustomOutputNodeViewModel).ToArray();
+        var exportNames = new List<(string name, VecI origianlSize)>();
+        exportNames.Add(("DEFAULT", SizeBindable));
+
+        foreach (var node in exportNodes)
+        {
+            if (node is not CustomOutputNodeViewModel exportZone)
+                continue;
+
+            var name = exportZone.Inputs.FirstOrDefault(x => x.PropertyName == CustomOutputNode.OutputNamePropertyName);
+
+
+            if (name?.ComputedValue is not string finalName)
+                continue;
+
+            if (string.IsNullOrEmpty(finalName))
+            {
+                continue;
+            }
+
+            VecI originalSize =
+                exportZone.Inputs.FirstOrDefault(x => x.PropertyName == CustomOutputNode.ExportSizePropertyName)
+                    ?.ComputedValue as VecI? ?? SizeBindable;
+            if (originalSize.ShortestAxis <= 0)
+            {
+                originalSize = SizeBindable;
+            }
+
+            exportNames.Add((finalName, originalSize));
+        }
+
+        return exportNames.ToArray();
+    }
+
+    public VecI GetDefaultRenderSize(out string? renderOutputName)
+    {
+        var allExportNodes = NodeGraph.AllNodes.Where(x => x is CustomOutputNodeViewModel).ToArray();
+
+        renderOutputName = "DEFAULT";
+        if (allExportNodes.Length == 0)
+        {
+            return SizeBindable;
+        }
+
+        using var block = Operations.StartChangeBlock();
+        foreach (var node in allExportNodes)
+        {
+            if (node is not CustomOutputNodeViewModel exportZone)
+                continue;
+
+            Internals.ActionAccumulator.AddActions(new EvaluateGraph_Action(node.Id,
+                AnimationDataViewModel.ActiveFrameTime));
+
+            Internals.ActionAccumulator.AddActions(
+                new GetComputedPropertyValue_Action(node.Id, CustomOutputNode.OutputNamePropertyName, true),
+                new GetComputedPropertyValue_Action(node.Id, CustomOutputNode.IsDefaultExportPropertyName, true),
+                new GetComputedPropertyValue_Action(node.Id, CustomOutputNode.ExportSizePropertyName, true));
+        }
+
+        block.ExecuteQueuedActions();
+
+        var exportNodes = NodeGraph.AllNodes.Where(x => x is CustomOutputNodeViewModel exportZone
+                                                        && exportZone.Inputs.Any(x => x is
+                                                        {
+                                                            PropertyName: CustomOutputNode.IsDefaultExportPropertyName,
+                                                            ComputedValue: true
+                                                        })).ToArray();
 
         if (exportNodes.Length == 0)
-            return new RectI(VecI.Zero, SizeBindable);
+            return SizeBindable;
 
         var exportNode = exportNodes.FirstOrDefault();
 
         if (exportNode is null)
-            return new RectI(VecI.Zero, SizeBindable);
+            return SizeBindable;
 
-        var exportSize = exportNode.Inputs.FirstOrDefault(x => x.PropertyName == ExportZoneNode.SizeName);
+        var exportSize =
+            exportNode.Inputs.FirstOrDefault(x => x.PropertyName == CustomOutputNode.ExportSizePropertyName);
 
         if (exportSize is null)
-            return new RectI(VecI.Zero, SizeBindable);
+            return SizeBindable;
 
-        if (exportSize.Value is VecI finalSize)
+        if (exportSize.ComputedValue is VecI finalSize)
         {
-            VecI offset = exportNode.Inputs.FirstOrDefault(x => x.PropertyName == ExportZoneNode.OffsetName)?.ComputedValue as VecI? ?? VecI.Zero;
-            return new RectI(offset, finalSize);
+            if (exportNode.Inputs.FirstOrDefault(x => x.PropertyName == CustomOutputNode.OutputNamePropertyName) is
+                { } name)
+            {
+                renderOutputName = name.ComputedValue?.ToString();
+            }
+
+            return finalSize;
         }
 
-        return new RectI(VecI.Zero, SizeBindable);
+        return SizeBindable;
     }
 
     public ICrossDocumentPipe<T> ShareNode<T>(Guid layerId) where T : class, IReadOnlyNode
@@ -639,6 +710,51 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public OneOf<Error, Surface> TryRenderWholeImage(KeyFrameTime frameTime, VecI renderSize)
     {
+        return TryRenderWholeImage(frameTime, renderSize, SizeBindable);
+    }
+
+    public OneOf<Error, Surface> TryRenderWholeImage(KeyFrameTime frameTime, string? renderOutputName)
+    {
+        (string name, VecI originalSize)[] outputs = [];
+
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            outputs = GetAvailableExportOutputs();
+        });
+
+        string outputName = renderOutputName ?? "DEFAULT";
+        var output = outputs.FirstOrDefault(x => x.name == outputName);
+        VecI originalSize = string.IsNullOrEmpty(output.name) ? SizeBindable : output.originalSize;
+        if (originalSize.ShortestAxis <= 0)
+            return new Error();
+
+        return TryRenderWholeImage(frameTime, originalSize, originalSize, renderOutputName);
+    }
+
+    public OneOf<Error, Surface> TryRenderWholeImage(KeyFrameTime frameTime, VecI renderSize, string? renderOutputName)
+    {
+        (string name, VecI originalSize)[] outputs = [];
+
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            outputs = GetAvailableExportOutputs();
+        });
+
+        string outputName = renderOutputName ?? "DEFAULT";
+        var output = outputs.FirstOrDefault(x => x.name == outputName);
+        VecI originalSize = string.IsNullOrEmpty(output.name) ? SizeBindable : output.originalSize;
+        if (originalSize.ShortestAxis <= 0)
+            return new Error();
+
+        return TryRenderWholeImage(frameTime, renderSize, originalSize, renderOutputName);
+    }
+
+    public OneOf<Error, Surface> TryRenderWholeImage(KeyFrameTime frameTime, VecI renderSize, VecI originalSize,
+        string? renderOutputName = null)
+    {
+        if (renderSize.ShortestAxis <= 0)
+            return new Error();
+
         try
         {
             Surface finalSurface = null;
@@ -646,10 +762,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 finalSurface = Surface.ForDisplay(renderSize);
                 finalSurface.DrawingSurface.Canvas.Save();
-                VecD scaling = new VecD(renderSize.X / (double)SizeBindable.X, renderSize.Y / (double)SizeBindable.Y);
+                VecD scaling = new VecD(renderSize.X / (double)originalSize.X, renderSize.Y / (double)originalSize.Y);
 
                 finalSurface.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
-                Renderer.RenderDocument(finalSurface.DrawingSurface, frameTime, renderSize);
+                Renderer.RenderDocument(finalSurface.DrawingSurface, frameTime, renderSize, renderOutputName);
 
                 finalSurface.DrawingSurface.Canvas.Restore();
             });
@@ -1066,7 +1182,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
-    public Image[] RenderFrames(Func<Surface, Surface> processFrameAction = null, CancellationToken token = default)
+    public Image[] RenderFrames(Func<Surface, Surface> processFrameAction = null, string? renderOutput = null,
+        CancellationToken token = default)
     {
         if (token.IsCancellationRequested)
             return [];
@@ -1086,7 +1203,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
             double normalizedTime = (double)(i - firstFrame) / framesCount;
             KeyFrameTime frameTime = new KeyFrameTime(i, normalizedTime);
-            var surface = TryRenderWholeImage(frameTime);
+            var surface = TryRenderWholeImage(frameTime, renderOutput);
             if (surface.IsT0)
             {
                 continue;
@@ -1108,8 +1225,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     ///     Render frames progressively and disposes the surface after processing.
     /// </summary>
     /// <param name="processFrameAction">Action to perform on rendered frame</param>
-    /// <param name="token"></param>
-    public void RenderFramesProgressive(Action<Surface, int> processFrameAction, CancellationToken token)
+    /// <param name="token">Cancellation token to cancel the rendering</param>
+    public void RenderFramesProgressive(Action<Surface, int> processFrameAction, CancellationToken token,
+        string? renderOutput)
     {
         int firstFrame = AnimationDataViewModel.GetFirstVisibleFrame();
         int framesCount = AnimationDataViewModel.GetLastVisibleFrame();
@@ -1124,7 +1242,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
             KeyFrameTime frameTime = new KeyFrameTime(i, (double)(i - firstFrame) / framesCount);
 
-            var surface = TryRenderWholeImage(frameTime);
+            var surface = TryRenderWholeImage(frameTime, renderOutput);
             if (surface.IsT0)
             {
                 continue;

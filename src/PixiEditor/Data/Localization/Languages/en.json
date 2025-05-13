@@ -812,8 +812,8 @@
   "DUPLICATE_CEL": "Duplicate cel",
   "DUPLICATE_CEL_DESCRIPTIVE": "Duplicate cel in the current frame",
   "RENDER_PREVIEW": "Render preview",
-  "OUTPUT_NAME": "Preview name",
-  "CUSTOM_OUTPUT_NODE": "Preview Node",
+  "OUTPUT_NAME": "Output name",
+  "CUSTOM_OUTPUT_NODE": "Custom Output",
   "TOGGLE_HUD": "Toggle HUD",
   "OPEN_TIMELINE": "Open timeline",
   "OPEN_NODE_GRAPH": "Open node graph",
@@ -1040,5 +1040,7 @@
   "COLOR_MATRIX_FILTER_NODE": "Color Matrix Filter",
   "WORKSPACE": "Workspace",
   "EXPORT_ZONE_NODE": "Export Zone",
-  "IS_DEFAULT": "Is default"
+  "IS_DEFAULT_EXPORT": "Is Default Export",
+  "EXPORT_OUTPUT": "Export Output",
+  "EXPORT_SIZE": "Export Size"
 }
