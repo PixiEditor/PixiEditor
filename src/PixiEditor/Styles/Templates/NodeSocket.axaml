@@ -1,19 +1,20 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties">
+                    xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
+                    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters">
     <ControlTheme TargetType="properties:NodeSocket" x:Key="{x:Type properties:NodeSocket}">
         <Setter Property="Template">
             <ControlTemplate>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Grid Name="PART_ConnectPort">
                         <Panel Width="20" Height="20" Margin="-5, 0" Background="Transparent"
-                               ToolTip.ShowDelay="0" ToolTip.ShowOnDisabled="True" ToolTip.Tip="{Binding Property.ComputedValue, RelativeSource={RelativeSource TemplatedParent}}"
+                               ToolTip.ShowDelay="0" ToolTip.ShowOnDisabled="True" ToolTip.Tip="{Binding Property.ComputedValue, RelativeSource={RelativeSource TemplatedParent}, Converter={converters:ComputedValueToStringConverter}}"
                                IsVisible="{Binding !IsFunc, RelativeSource={RelativeSource TemplatedParent}}">
                             <Ellipse Width="10" Height="10" RenderTransform="rotate(90deg)"
                                      Fill="{TemplateBinding SocketBrush}" />
                         </Panel>
                         <Panel Margin="-5, 0" Width="20" Height="20" Background="Transparent"
-                               ToolTip.ShowDelay="0" ToolTip.ShowOnDisabled="True" ToolTip.Tip="{Binding Property.ComputedValue, RelativeSource={RelativeSource TemplatedParent}}"
+                               ToolTip.ShowDelay="0" ToolTip.ShowOnDisabled="True" ToolTip.Tip="{Binding Property.ComputedValue, RelativeSource={RelativeSource TemplatedParent}, Converter={converters:ComputedValueToStringConverter}}"
                                IsVisible="{Binding IsFunc, RelativeSource={RelativeSource TemplatedParent}}">
                             <Rectangle Width="10" Height="10"
                                        RadiusX="2" RadiusY="2"
