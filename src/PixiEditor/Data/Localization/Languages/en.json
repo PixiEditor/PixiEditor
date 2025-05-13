@@ -597,6 +597,9 @@
   "BMP_FILE": "BMP Images",
   "IMAGE_FILES": "Image Files",
   "VIDEO_FILES": "Video Files",
+  "OPEN_TYPE_FONT": "OpenType Fonts",
+  "TRUE_TYPE_FONT": "TrueType Fonts",
+  "SVG_FILE": "Scalable Vector Graphics",
   "MP4_FILE": "MP4 Videos",
   "COLUMNS": "Columns",
   "ROWS": "Rows",
@@ -1042,5 +1045,5 @@
   "EXPORT_ZONE_NODE": "Export Zone",
   "IS_DEFAULT_EXPORT": "Is Default Export",
   "EXPORT_OUTPUT": "Export Output",
-  "EXPORT_SIZE": "Export Size"
+  "EXPORT_SIZE": "Export Size",
 }

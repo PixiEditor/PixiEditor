@@ -1253,7 +1253,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
-    public bool RenderFrames(List<Image> frames, Func<Surface, Surface> processFrameAction = null)
+    public bool RenderFrames(List<Image> frames, Func<Surface, Surface> processFrameAction = null, string? renderOutput = null)
     {
         var firstFrame = AnimationDataViewModel.GetFirstVisibleFrame();
         var lastFrame = AnimationDataViewModel.GetLastVisibleFrame();
@@ -1261,7 +1261,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         for (int i = firstFrame; i < lastFrame; i++)
         {
             KeyFrameTime frameTime = new KeyFrameTime(i, (double)(i - firstFrame) / (lastFrame - firstFrame));
-            var surface = TryRenderWholeImage(frameTime);
+            var surface = TryRenderWholeImage(frameTime, renderOutput);
             if (surface.IsT0)
             {
                 return false;

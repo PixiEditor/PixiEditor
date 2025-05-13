@@ -8,7 +8,7 @@ internal class WebpFileType : ImageFileType
 {
     public override string[] Extensions { get; } = [".webp"];
 
-    public override string DisplayName { get; } = new LocalizedString("WEBP_FILE");
+    public override string DisplayName => new LocalizedString("WEBP_FILE");
 
     public override EncodedImageFormat EncodedImageFormat { get; } = EncodedImageFormat.Webp;
 

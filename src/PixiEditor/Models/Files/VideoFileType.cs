@@ -35,7 +35,7 @@ internal abstract class VideoFileType : IoFileType
             }
 
             return surface;
-        });
+        }, config.ExportOutput);
 
         job?.Report(0.5, new LocalizedString("RENDERING_VIDEO"));
         CancellationToken token = job?.CancellationTokenSource.Token ?? CancellationToken.None;
@@ -79,7 +79,7 @@ internal abstract class VideoFileType : IoFileType
             }
 
             return surface;
-        });
+        }, config.ExportOutput);
 
         job?.Report(0.5, new LocalizedString("RENDERING_VIDEO"));
         CancellationToken token = job?.CancellationTokenSource.Token ?? CancellationToken.None;
