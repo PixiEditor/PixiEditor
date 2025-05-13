@@ -1,5 +1,6 @@
 ﻿using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 
@@ -24,6 +25,7 @@ public class TextureCache : IDisposable
             if (clear)
             {
                 texture.DrawingSurface.Canvas.Clear(Colors.Transparent);
+                texture.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
             }
 
             return texture;

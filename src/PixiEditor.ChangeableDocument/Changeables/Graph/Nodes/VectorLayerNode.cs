@@ -19,6 +19,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorNode, IRasterizable, IScalable
 {
     public OutputProperty<ShapeVectorData> Shape { get; }
+    public OutputProperty<Matrix3X3> Matrix { get; }
 
     public Matrix3X3 TransformationMatrix
     {
@@ -50,6 +51,13 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     {
         AllowHighDpiRendering = true;
         Shape = CreateOutput<ShapeVectorData>("Shape", "SHAPE", null);
+        Matrix = CreateOutput<Matrix3X3>("Matrix", "MATRIX", Matrix3X3.Identity);
+    }
+
+    protected override void OnExecute(RenderContext context)
+    {
+        base.OnExecute(context);
+        Matrix.Value = TransformationMatrix;
     }
 
     protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,

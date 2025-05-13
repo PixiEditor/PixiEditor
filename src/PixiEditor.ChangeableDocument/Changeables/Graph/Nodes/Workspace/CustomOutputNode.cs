@@ -1,19 +1,21 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using Drawie.Backend.Core.Surfaces;
+using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
-using Drawie.Backend.Core;
-using Drawie.Backend.Core.Surfaces;
-using Drawie.Numerics;
 
-namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 
 [NodeInfo("CustomOutput")]
 public class CustomOutputNode : Node, IRenderInput, IPreviewRenderable
 {
     public const string OutputNamePropertyName = "OutputName";
-    public RenderInputProperty Input { get; } 
+    public const string IsDefaultExportPropertyName = "IsDefaultExport";
+    public const string ExportSizePropertyName = "ExportSize";
+    public RenderInputProperty Input { get; }
     public InputProperty<string> OutputName { get; }
-    
+    public InputProperty<bool> IsDefaultExport { get; }
+    public InputProperty<VecI> ExportSize { get; }
+
     private VecI? lastDocumentSize;
     public CustomOutputNode()
     {
@@ -21,6 +23,8 @@ public class CustomOutputNode : Node, IRenderInput, IPreviewRenderable
         AddInputProperty(Input);
         
         OutputName = CreateInput(OutputNamePropertyName, "OUTPUT_NAME", "");
+        IsDefaultExport = CreateInput(IsDefaultExportPropertyName, "IS_DEFAULT_EXPORT", false);
+        ExportSize = CreateInput(ExportSizePropertyName, "EXPORT_SIZE", VecI.Zero);
     }
 
     public override Node CreateCopy()

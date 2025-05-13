@@ -12,6 +12,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document;
@@ -221,6 +222,11 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
     public void UpdatePropertyValue(INodeHandler node, string property, object? value)
     {
         Internals.ActionAccumulator.AddFinishedActions(new UpdatePropertyValue_Action(node.Id, property, value));
+    }
+
+    public void GetComputedPropertyValue(INodePropertyHandler property)
+    {
+        Internals.ActionAccumulator.AddFinishedActions(new GetComputedPropertyValue_Action(property.Node.Id, property.PropertyName, property.IsInput));
     }
 
     public void EndChangeNodePosition()

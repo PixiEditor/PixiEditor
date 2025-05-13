@@ -9,6 +9,7 @@ public interface INodePropertyHandler
     public string PropertyName { get; set; }
     public string DisplayName { get; set; }
     public object Value { get; set; }
+    public object ComputedValue { get; set; }
     public bool IsInput { get; }
     public INodePropertyHandler? ConnectedOutput { get; set; }
     public ObservableCollection<INodePropertyHandler> ConnectedInputs { get; }
@@ -16,4 +17,6 @@ public interface INodePropertyHandler
     public event NodePropertyValueChanged ValueChanged;
     public INodeHandler Node { get; set; }
     public Type PropertyType { get; }
+    public void UpdateComputedValue();
+    public void InternalSetComputedValue(object value);
 }

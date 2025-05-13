@@ -597,6 +597,9 @@
   "BMP_FILE": "BMP Images",
   "IMAGE_FILES": "Image Files",
   "VIDEO_FILES": "Video Files",
+  "OPEN_TYPE_FONT": "OpenType Fonts",
+  "TRUE_TYPE_FONT": "TrueType Fonts",
+  "SVG_FILE": "Scalable Vector Graphics",
   "MP4_FILE": "MP4 Videos",
   "COLUMNS": "Columns",
   "ROWS": "Rows",
@@ -812,8 +815,8 @@
   "DUPLICATE_CEL": "Duplicate cel",
   "DUPLICATE_CEL_DESCRIPTIVE": "Duplicate cel in the current frame",
   "RENDER_PREVIEW": "Render preview",
-  "OUTPUT_NAME": "Preview name",
-  "CUSTOM_OUTPUT_NODE": "Preview Node",
+  "OUTPUT_NAME": "Output name",
+  "CUSTOM_OUTPUT_NODE": "Custom Output",
   "TOGGLE_HUD": "Toggle HUD",
   "OPEN_TIMELINE": "Open timeline",
   "OPEN_NODE_GRAPH": "Open node graph",
@@ -1036,5 +1039,11 @@
   "AUTOSAVE_OPEN_FOLDER": "Open autosave folder",
    "AUTOSAVE_OPEN_FOLDER_DESCRIPTIVE": "Open the folder where autosaves are stored",
   "AUTOSAVE_TOGGLE_DESCRIPTIVE": "Enable/disable autosave",
-  "ERROR_GRAPH": "Graph Setup produced an error. Fix it the node graph"
+  "ERROR_GRAPH": "Graph setup produced an error. Fix it in the node graph",
+  "COLOR_MATRIX_FILTER_NODE": "Color Matrix Filter",
+  "WORKSPACE": "Workspace",
+  "EXPORT_ZONE_NODE": "Export Zone",
+  "IS_DEFAULT_EXPORT": "Is Default Export",
+  "EXPORT_OUTPUT": "Export Output",
+  "EXPORT_SIZE": "Export Size"
 }

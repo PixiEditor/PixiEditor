@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.IO;
+﻿using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.IO;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Models.Files;
@@ -6,7 +7,7 @@ namespace PixiEditor.Models.Files;
 internal class OtfFileType : IoFileType
 {
     public override string[] Extensions { get; } = new[] { ".otf" };
-    public override string DisplayName { get; } = "OpenType Font";
+    public override string DisplayName => new LocalizedString("OPEN_TYPE_FONT");
     public override FileTypeDialogDataSet.SetKind SetKind { get; } = FileTypeDialogDataSet.SetKind.Vector;
 
     public override bool CanSave => false;

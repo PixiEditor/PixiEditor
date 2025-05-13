@@ -37,11 +37,12 @@ public class InputProperty : IInputProperty
                 return null;
             }
 
+            object target = connectionValue;
             if (!ValueType.IsAssignableTo(typeof(Delegate)) && connectionValue is Delegate connectionField)
             {
                 try
                 {
-                    return connectionField.DynamicInvoke(FuncContext.NoContext);
+                    target = connectionField.DynamicInvoke(FuncContext.NoContext);
                 }
                 catch
                 {
@@ -64,7 +65,6 @@ public class InputProperty : IInputProperty
                 return FuncFactoryDelegate(func);
             }
 
-            object target = connectionValue;
             if (target is ShaderExpressionVariable shaderExpression)
             {
                 target = shaderExpression.GetConstant();

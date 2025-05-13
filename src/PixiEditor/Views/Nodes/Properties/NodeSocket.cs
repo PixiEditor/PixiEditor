@@ -52,6 +52,8 @@ public class NodeSocket : TemplatedControl
         ConnectPort.PointerPressed += ConnectPortOnPointerPressed;
         ConnectPort.PointerReleased += ConnectPortOnPointerReleased;
         ConnectPort.PointerMoved += ConnectPortOnPointerMoved;
+        ConnectPort.PointerEntered += ConnectPortOnPointerEntered;
+
     }
 
     private void ConnectPortOnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -69,6 +71,11 @@ public class NodeSocket : TemplatedControl
     {
         e.Source = this;
         e.Pointer.Capture(null);
+    }
+
+    private void ConnectPortOnPointerEntered(object? sender, PointerEventArgs e)
+    {
+        Property.UpdateComputedValue();
     }
 }
 
