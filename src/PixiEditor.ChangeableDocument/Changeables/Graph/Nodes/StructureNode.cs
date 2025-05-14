@@ -182,7 +182,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         RectD localBounds = new RectD(0, 0, sceneSize.X, sceneSize.Y);
 
         SceneObjectRenderContext renderObjectContext = new SceneObjectRenderContext(output, renderTarget, localBounds,
-            context.FrameTime, context.ChunkResolution, context.DocumentSize, renderTarget == context.RenderSurface,
+            context.FrameTime, context.ChunkResolution, context.RenderOutputSize, context.DocumentSize, renderTarget == context.RenderSurface,
             context.ProcessingColorSpace,
             context.Opacity);
         renderObjectContext.FullRerender = context.FullRerender;

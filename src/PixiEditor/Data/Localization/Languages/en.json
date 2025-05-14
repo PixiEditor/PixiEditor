@@ -1045,5 +1045,6 @@
   "EXPORT_ZONE_NODE": "Export Zone",
   "IS_DEFAULT_EXPORT": "Is Default Export",
   "EXPORT_OUTPUT": "Export Output",
-  "EXPORT_SIZE": "Export Size"
+  "RENDER_OUTPUT_SIZE": "Render Output Size",
+  "RENDER_OUTPUT_CENTER": "Render Output Center",
 }

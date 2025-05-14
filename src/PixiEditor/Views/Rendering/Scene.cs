@@ -195,6 +195,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         CustomBackgroundScaleXProperty.Changed.AddClassHandler<Scene>(Refresh);
         CustomBackgroundScaleYProperty.Changed.AddClassHandler<Scene>(Refresh);
         BackgroundBitmapProperty.Changed.AddClassHandler<Scene>(Refresh);
+        RenderOutputProperty.Changed.AddClassHandler<Scene>(Refresh);
+        RenderOutputProperty.Changed.AddClassHandler<Scene>(UpdateRenderOutput);
     }
 
     private static void Refresh(Scene scene, AvaloniaPropertyChangedEventArgs args)
@@ -848,13 +850,42 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         if (e.NewValue is DocumentViewModel documentViewModel)
         {
             documentViewModel.SizeChanged += scene.DocumentViewModelOnSizeChanged;
-            scene.ContentDimensions = documentViewModel.SizeBindable;
+            scene.ContentDimensions = scene.GetRenderOutputSize();
         }
     }
 
     private void DocumentViewModelOnSizeChanged(object? sender, DocumentSizeChangedEventArgs e)
     {
-        ContentDimensions = e.NewSize;
+        ContentDimensions = GetRenderOutputSize();
+    }
+
+    private VecI GetRenderOutputSize()
+    {
+        VecI outputSize = Document.SizeBindable;
+
+        if (!string.IsNullOrEmpty(RenderOutput))
+        {
+            if (Document.NodeGraph.CustomRenderOutputs.TryGetValue(RenderOutput, out var node))
+            {
+                var prop = node?.Inputs.FirstOrDefault(x => x.PropertyName == CustomOutputNode.SizePropertyName);
+                if (prop != null)
+                {
+                    VecI size = Document.NodeGraph.GetComputedPropertyValue<VecI>(prop);
+                    outputSize = size;
+                }
+            }
+        }
+
+        return outputSize;
+    }
+
+    private static void UpdateRenderOutput(Scene scene, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.NewValue is string newValue)
+        {
+            scene.ContentDimensions = scene.GetRenderOutputSize();
+            scene.CenterContent();
+        }
     }
 
     private static void DefaultCursorChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)

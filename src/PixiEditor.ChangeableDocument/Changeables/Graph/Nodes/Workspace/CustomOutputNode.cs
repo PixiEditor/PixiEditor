@@ -40,14 +40,14 @@ public class CustomOutputNode : Node, IRenderInput, IPreviewRenderable
         if (context.TargetOutput == OutputName.Value)
         {
             VecI targetSize = Size.Value.ShortestAxis <= 0
-                ? context.DocumentSize
+                ? context.RenderOutputSize
                 : Size.Value;
 
             lastDocumentSize = targetSize;
 
             DrawingSurface targetSurface = context.RenderSurface;
 
-            if(context.DocumentSize != targetSize)
+            if(context.RenderOutputSize != targetSize)
             {
                 targetSurface = textureCache.RequestTexture(0, targetSize, context.ProcessingColorSpace).DrawingSurface;
             }
@@ -56,7 +56,7 @@ public class CustomOutputNode : Node, IRenderInput, IPreviewRenderable
             targetSurface.Canvas.ClipRect(new RectD(0, 0, targetSize.X, targetSize.Y));
 
             RenderContext outputContext = new RenderContext(context.RenderSurface, context.FrameTime, context.ChunkResolution,
-                targetSize, context.ProcessingColorSpace, context.Opacity) { TargetOutput = OutputName.Value, };
+                targetSize, context.DocumentSize, context.ProcessingColorSpace, context.Opacity) { TargetOutput = OutputName.Value, };
 
             Input.Value?.Paint(outputContext, targetSurface);
 

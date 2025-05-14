@@ -72,7 +72,7 @@ public class CreateImageNode : Node, IPreviewRenderable
         int saved = surface.DrawingSurface.Canvas.Save();
 
         RenderContext ctx = new RenderContext(surface.DrawingSurface, context.FrameTime, context.ChunkResolution,
-            context.DocumentSize, context.ProcessingColorSpace);
+            context.RenderOutputSize, context.DocumentSize, context.ProcessingColorSpace);
 
         surface.DrawingSurface.Canvas.SetMatrix(surface.DrawingSurface.Canvas.TotalMatrix.Concat(ContentMatrix.Value));
 

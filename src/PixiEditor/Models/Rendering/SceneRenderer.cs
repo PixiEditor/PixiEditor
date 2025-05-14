@@ -93,9 +93,9 @@ internal class SceneRenderer : IDisposable
             restoreCanvas = true;
         }
 
-        VecI finalSize = SolveDocSize(targetOutput, finalGraph);
+        VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size);
         RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
-            resolution, finalSize, Document.ProcessingColorSpace);
+            resolution, finalSize, Document.Size, Document.ProcessingColorSpace);
         context.TargetOutput = targetOutput;
         finalGraph.Execute(context);
 
@@ -112,9 +112,9 @@ internal class SceneRenderer : IDisposable
         return renderTexture;
     }
 
-    private VecI SolveDocSize(string? targetOutput, IReadOnlyNodeGraph finalGraph)
+    private static VecI SolveRenderOutputSize(string? targetOutput, IReadOnlyNodeGraph finalGraph, VecI documentSize)
     {
-        VecI finalSize = Document.Size;
+        VecI finalSize = documentSize;
         if (targetOutput != null)
         {
             var outputNode = finalGraph.AllNodes.FirstOrDefault(n =>
@@ -129,7 +129,7 @@ internal class SceneRenderer : IDisposable
             }
             else
             {
-                finalSize = Document.Size;
+                finalSize = documentSize;
             }
         }
 
@@ -250,6 +250,7 @@ internal class SceneRenderer : IDisposable
         double alphaFalloffMultiplier = 1.0 / animationData.OnionFrames;
 
         var finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
+        var renderOutputSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size);
 
         // Render previous frames'
         for (int i = 1; i <= animationData.OnionFrames; i++)
@@ -262,7 +263,7 @@ internal class SceneRenderer : IDisposable
 
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
 
-            RenderContext onionContext = new(target, frame, resolution, Document.Size, Document.ProcessingColorSpace,
+            RenderContext onionContext = new(target, frame, resolution, renderOutputSize, Document.Size, Document.ProcessingColorSpace,
                 finalOpacity);
             onionContext.TargetOutput = targetOutput;
             finalGraph.Execute(onionContext);
@@ -278,7 +279,7 @@ internal class SceneRenderer : IDisposable
             }
 
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
-            RenderContext onionContext = new(target, frame, resolution, Document.Size, Document.ProcessingColorSpace,
+            RenderContext onionContext = new(target, frame, resolution, renderOutputSize, Document.Size, Document.ProcessingColorSpace,
                 finalOpacity);
             onionContext.TargetOutput = targetOutput;
             finalGraph.Execute(onionContext);
