@@ -58,7 +58,7 @@ public class BlendingTests : PixiEditorTest
         secondImageLayer.BlendMode.NonOverridenValue = blendMode;
 
         Surface output = Surface.ForProcessing(VecI.One, ColorSpace.CreateSrgbLinear());
-        graph.Execute(new RenderContext(output.DrawingSurface, 0, ChunkResolution.Full, VecI.One, ColorSpace.CreateSrgbLinear(), 1));
+        graph.Execute(new RenderContext(output.DrawingSurface, 0, ChunkResolution.Full, VecI.One, VecI.One, ColorSpace.CreateSrgbLinear(), 1));
 
         Color result = output.GetSrgbPixel(VecI.Zero);
         Assert.Equal(expectedColor, result.ToRgbHex());
