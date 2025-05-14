@@ -21,5 +21,5 @@ internal interface INodeGraphHandler
    public void RemoveConnection(Guid nodeId, string property);
    public void RemoveConnections(Guid nodeId);
    public void UpdateAvailableRenderOutputs();
-   public void GetComputedPropertyValue(INodePropertyHandler property);
+   public void RequestUpdateComputedPropertyValue(INodePropertyHandler property);
 }

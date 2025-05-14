@@ -602,7 +602,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
             Internals.ActionAccumulator.AddActions(
                 new GetComputedPropertyValue_Action(node.Id, CustomOutputNode.OutputNamePropertyName, true),
-                new GetComputedPropertyValue_Action(node.Id, CustomOutputNode.ExportSizePropertyName, true));
+                new GetComputedPropertyValue_Action(node.Id, CustomOutputNode.SizePropertyName, true));
         }
 
         block.ExecuteQueuedActions();
@@ -628,7 +628,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             }
 
             VecI originalSize =
-                exportZone.Inputs.FirstOrDefault(x => x.PropertyName == CustomOutputNode.ExportSizePropertyName)
+                exportZone.Inputs.FirstOrDefault(x => x.PropertyName == CustomOutputNode.SizePropertyName)
                     ?.ComputedValue as VecI? ?? SizeBindable;
             if (originalSize.ShortestAxis <= 0)
             {
@@ -663,7 +663,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             Internals.ActionAccumulator.AddActions(
                 new GetComputedPropertyValue_Action(node.Id, CustomOutputNode.OutputNamePropertyName, true),
                 new GetComputedPropertyValue_Action(node.Id, CustomOutputNode.IsDefaultExportPropertyName, true),
-                new GetComputedPropertyValue_Action(node.Id, CustomOutputNode.ExportSizePropertyName, true));
+                new GetComputedPropertyValue_Action(node.Id, CustomOutputNode.SizePropertyName, true));
         }
 
         block.ExecuteQueuedActions();
@@ -684,7 +684,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             return SizeBindable;
 
         var exportSize =
-            exportNode.Inputs.FirstOrDefault(x => x.PropertyName == CustomOutputNode.ExportSizePropertyName);
+            exportNode.Inputs.FirstOrDefault(x => x.PropertyName == CustomOutputNode.SizePropertyName);
 
         if (exportSize is null)
             return SizeBindable;

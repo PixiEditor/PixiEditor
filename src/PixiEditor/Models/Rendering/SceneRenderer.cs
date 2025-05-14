@@ -10,6 +10,7 @@ using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.Rendering;
@@ -92,8 +93,9 @@ internal class SceneRenderer : IDisposable
             restoreCanvas = true;
         }
 
+        VecI finalSize = SolveDocSize(targetOutput, finalGraph);
         RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
-            resolution, Document.Size, Document.ProcessingColorSpace);
+            resolution, finalSize, Document.ProcessingColorSpace);
         context.TargetOutput = targetOutput;
         finalGraph.Execute(context);
 
@@ -108,6 +110,30 @@ internal class SceneRenderer : IDisposable
         }
 
         return renderTexture;
+    }
+
+    private VecI SolveDocSize(string? targetOutput, IReadOnlyNodeGraph finalGraph)
+    {
+        VecI finalSize = Document.Size;
+        if (targetOutput != null)
+        {
+            var outputNode = finalGraph.AllNodes.FirstOrDefault(n =>
+                n is CustomOutputNode outputNode && outputNode.OutputName.Value == targetOutput);
+
+            if (outputNode is CustomOutputNode customOutputNode)
+            {
+                if (customOutputNode.Size.Value.ShortestAxis > 0)
+                {
+                    finalSize = customOutputNode.Size.Value;
+                }
+            }
+            else
+            {
+                finalSize = Document.Size;
+            }
+        }
+
+        return finalSize;
     }
 
     private bool RenderInDocumentSize()

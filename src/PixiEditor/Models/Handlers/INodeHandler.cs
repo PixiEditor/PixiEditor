@@ -31,4 +31,6 @@ public interface INodeHandler : INotifyPropertyChanged, IDisposable
     public void TraverseForwards(Func<INodeHandler, INodeHandler, bool> func);
     public void TraverseForwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, bool> func);
     public void TraverseForwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, INodePropertyHandler, bool> func);
+    public IReadOnlyDictionary<string, INodePropertyHandler> InputPropertyMap { get; }
+    public IReadOnlyDictionary<string, INodePropertyHandler> OutputPropertyMap { get; }
 }
