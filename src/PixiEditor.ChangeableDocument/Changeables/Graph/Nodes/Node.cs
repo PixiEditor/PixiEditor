@@ -487,12 +487,12 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     public abstract Node CreateCopy();
 
-    public Node Clone()
+    public Node Clone(bool preserveGuids = false)
     {
         var clone = CreateCopy();
 
         clone.DisplayName = DisplayName;
-        clone.Id = Guid.NewGuid();
+        clone.Id = preserveGuids ? Id : Guid.NewGuid();
         clone.Position = Position;
 
         for (var i = 0; i < clone.inputs.Count; i++)
@@ -513,7 +513,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
         foreach (var keyFrame in keyFrames)
         {
-            Guid newGuid = Guid.NewGuid();
+            Guid newGuid = preserveGuids ? keyFrame.KeyFrameGuid : Guid.NewGuid();
             KeyFrameData newKeyFrame = new KeyFrameData(newGuid, keyFrame.StartFrame, keyFrame.Duration,
                 keyFrame.AffectedElement)
             {
