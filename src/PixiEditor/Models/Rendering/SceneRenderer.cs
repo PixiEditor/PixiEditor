@@ -74,9 +74,10 @@ internal class SceneRenderer : IDisposable
         Texture? renderTexture = null;
         bool restoreCanvas = false;
 
-        if (RenderInDocumentSize())
+        VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size);
+        if (RenderInOutputSize(finalGraph))
         {
-            renderTexture = Texture.ForProcessing(Document.Size, Document.ProcessingColorSpace);
+            renderTexture = Texture.ForProcessing(finalSize, Document.ProcessingColorSpace);
             renderTarget = renderTexture.DrawingSurface;
         }
         else
@@ -93,7 +94,6 @@ internal class SceneRenderer : IDisposable
             restoreCanvas = true;
         }
 
-        VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size);
         RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
             resolution, finalSize, Document.Size, Document.ProcessingColorSpace);
         context.TargetOutput = targetOutput;
@@ -136,9 +136,9 @@ internal class SceneRenderer : IDisposable
         return finalSize;
     }
 
-    private bool RenderInDocumentSize()
+    private bool RenderInOutputSize(IReadOnlyNodeGraph finalGraph)
     {
-        return !HighResRendering || !HighDpiRenderNodePresent(Document.NodeGraph);
+        return !HighResRendering || !HighDpiRenderNodePresent(finalGraph);
     }
 
     private bool ShouldRerender(DrawingSurface target, ChunkResolution resolution, string? targetOutput,
@@ -162,7 +162,7 @@ internal class SceneRenderer : IDisposable
             return true;
         }
 
-        bool renderInDocumentSize = RenderInDocumentSize();
+        bool renderInDocumentSize = RenderInOutputSize(finalGraph);
         VecI compareSize = renderInDocumentSize ? Document.Size : target.DeviceClipBounds.Size;
 
         if (cachedTexture.DrawingSurface.DeviceClipBounds.Size != compareSize)

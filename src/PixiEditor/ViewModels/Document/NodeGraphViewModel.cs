@@ -379,15 +379,13 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
     {
         for (int i = AvailableRenderOutputs.Count - 1; i >= 0; i--)
         {
-            if (!outputs.ContainsKey(AvailableRenderOutputs[i]))
+            var outputName = AvailableRenderOutputs[i];
+            if (!outputs.ContainsKey(outputName))
             {
                 AvailableRenderOutputs.RemoveAt(i);
             }
 
-            if (CustomRenderOutputs.ContainsKey(AvailableRenderOutputs[i]))
-            {
-                CustomRenderOutputs.Remove(AvailableRenderOutputs[i]);
-            }
+            CustomRenderOutputs.Remove(outputName);
         }
     }
 
