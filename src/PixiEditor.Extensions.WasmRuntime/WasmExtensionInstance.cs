@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Avalonia.Controls;
 using Avalonia.Threading;
+using PixiEditor.Extensions.Commands;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.FlyUI;
 using PixiEditor.Extensions.FlyUI.Elements;
@@ -65,7 +66,7 @@ public partial class WasmExtensionInstance : Extension
     protected override void OnInitialized()
     {
         modules.Add(new PreferencesModule(this, Api.Preferences));
-        modules.Add(new CommandModule(this, Api.Commands));
+        modules.Add(new CommandModule(this, Api.Commands, (ICommandSupervisor)Api.Services.GetService(typeof(ICommandSupervisor))));
         LayoutBuilder = new LayoutBuilder((ElementMap)Api.Services.GetService(typeof(ElementMap)));
 
         //SetElementMap();

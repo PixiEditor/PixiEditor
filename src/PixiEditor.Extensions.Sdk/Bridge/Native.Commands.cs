@@ -9,6 +9,12 @@ internal static partial class Native
     [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern void register_command(IntPtr metadataPtr, int length);
 
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern void invoke_command(string commandName);
+
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern bool command_exists(string commandName);
+
     [ApiExport("command_invoked")]
     internal static void OnCommandInvoked(string uniqueName)
     {

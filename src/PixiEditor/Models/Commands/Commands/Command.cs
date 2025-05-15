@@ -48,6 +48,9 @@ internal abstract partial class Command : PixiObservableObject
 
     public int MenuItemOrder { get; init; } = 100;
 
+    public CommandPermissions InvokePermissions { get; init; } = CommandPermissions.Owner;
+    public string[]? ExplicitPermissions { get; init; }
+
     public event ShortcutChangedEventHandler ShortcutChanged;
     public event Action CanExecuteChanged;
 

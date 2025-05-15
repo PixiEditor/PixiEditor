@@ -42,6 +42,22 @@ namespace PixiEditor.Extensions.CommonApi.Commands
         [global::ProtoBuf.ProtoMember(7)]
         public int Order { get; set; }
 
+        [global::ProtoBuf.ProtoMember(8)]
+        public InvokePermissions InvokePermissions { get; set; }
+
+        [global::ProtoBuf.ProtoMember(9)]
+        [global::System.ComponentModel.DefaultValue("")]
+        public string ExplicitlyAllowedExtensions { get; set; } = "";
+
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public enum InvokePermissions
+    {
+        Owner = 0,
+        Explicit = 1,
+        Family = 2,
+        Public = 3,
     }
 
 }

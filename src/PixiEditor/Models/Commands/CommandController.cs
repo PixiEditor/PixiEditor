@@ -14,6 +14,7 @@ using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Commands.CommandContext;
+using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Handlers;
@@ -288,6 +289,7 @@ internal class CommandController
                                 Description = attribute.Description,
                                 Icon = attribute.Icon,
                                 IconEvaluator = xIcon,
+                                InvokePermissions = CommandPermissions.Public,
                                 DefaultShortcut = AdjustForOS(attribute.GetShortcut(), validCustomShortcut),
                                 Shortcut =
                                     GetShortcut(name, AdjustForOS(attribute.GetShortcut(), validCustomShortcut),
@@ -339,6 +341,7 @@ internal class CommandController
                                 InternalName = menu.InternalName,
                                 DisplayName = menu.DisplayName,
                                 Description = menu.DisplayName,
+                                InvokePermissions = CommandPermissions.Public,
                                 IconEvaluator = IconEvaluator.Default,
                                 DefaultShortcut = AdjustForOS(menu.GetShortcut(), validCustomShortcut),
                                 Shortcut = GetShortcut(name, AdjustForOS(attribute.GetShortcut(), validCustomShortcut),

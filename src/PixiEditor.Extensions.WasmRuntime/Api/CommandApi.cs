@@ -24,8 +24,45 @@ internal class CommandApi : ApiGroupHandler
             commandModule.InvokeCommandInvoked(originalName);
         }
 
-        string prefixed = PrefixedNameUtility.ToCommandUniqueName(Extension.Metadata.UniqueName, metadata.UniqueName);
-        metadata.UniqueName = prefixed;
-        Api.Commands.RegisterCommand(metadata, InvokeCommandInvoked);
+        try
+        {
+            string prefixed =
+                PrefixedNameUtility.ToCommandUniqueName(Extension.Metadata.UniqueName, metadata.UniqueName, false);
+            metadata.UniqueName = prefixed;
+            Api.Commands.RegisterCommand(metadata, InvokeCommandInvoked);
+        }
+        catch (ArgumentException ex)
+        {
+            Api.Logger.LogError(ex.Message);
+        }
+    }
+
+    [ApiFunction("command_exists")]
+    internal bool CommandExists(string commandName)
+    {
+        CommandModule commandModule = Extension.GetModule<CommandModule>();
+        return commandModule.CommandProvider.CommandExists(commandName);
+    }
+
+    [ApiFunction("invoke_command")]
+    internal void InvokeCommand(string commandName)
+    {
+        CommandModule commandModule = Extension.GetModule<CommandModule>();
+
+        string prefixedName = PrefixedNameUtility.ToCommandUniqueName(Extension.Metadata.UniqueName, commandName, true);
+
+        if (!commandModule.CommandProvider.CommandExists(prefixedName))
+        {
+            return;
+        }
+
+        if (commandModule.CommandSupervisor.ValidateCommandPermissions(prefixedName, Extension))
+        {
+            Api.Commands.InvokeCommand(prefixedName);
+        }
+        else
+        {
+            Api.Logger.LogError($"Command {prefixedName} is not accessible from {Metadata.UniqueName} extension.");
+        }
     }
 }

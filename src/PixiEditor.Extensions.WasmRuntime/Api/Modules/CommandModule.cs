@@ -1,14 +1,17 @@
-using PixiEditor.Extensions.CommonApi.Menu;
+using PixiEditor.Extensions.Commands;
+using PixiEditor.Extensions.CommonApi.Commands;
 
 namespace PixiEditor.Extensions.WasmRuntime.Api.Modules;
 
 internal class CommandModule : ApiModule
 {
     public ICommandProvider CommandProvider { get; }
+    public ICommandSupervisor CommandSupervisor { get; }
 
-    public CommandModule(WasmExtensionInstance extension, ICommandProvider commandProvider) : base(extension)
+    public CommandModule(WasmExtensionInstance extension, ICommandProvider commandProvider, ICommandSupervisor supervisor) : base(extension)
     {
         CommandProvider = commandProvider;
+        CommandSupervisor = supervisor;
     }
 
     internal void InvokeCommandInvoked(string uniqueName)

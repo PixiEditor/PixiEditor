@@ -5,7 +5,6 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Extensions.CommonApi.Menu;
 using PixiEditor.Extensions.UI;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Evaluators;

@@ -1,5 +1,4 @@
 using PixiEditor.Extensions.CommonApi.Commands;
-using PixiEditor.Extensions.CommonApi.Menu;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
@@ -43,10 +42,29 @@ public class CommandProvider : ICommandProvider
             Description = command.Description,
             MenuItemOrder = command.Order,
             DefaultShortcut = shortcut,
+            InvokePermissions = (CommandPermissions)command.InvokePermissions,
+            ExplicitPermissions = command.ExplicitlyAllowedExtensions?.Split(';'),
             IconEvaluator = IconEvaluator.Default
         };
 
         CommandController.Current.AddManagedCommand(basicCommand);
+    }
+
+    public void InvokeCommand(string commandName)
+    {
+        if (CommandController.Current.Commands.ContainsKey(commandName))
+        {
+            var command = CommandController.Current.Commands[commandName];
+            if (command.CanExecute())
+            {
+                command.Execute();
+            }
+        }
+    }
+
+    public bool CommandExists(string commandName)
+    {
+        return CommandController.Current.Commands.ContainsKey(commandName);
     }
 
     private static KeyCombination ToKeyCombination(Shortcut? shortcut)
