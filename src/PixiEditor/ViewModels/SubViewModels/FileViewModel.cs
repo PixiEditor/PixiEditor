@@ -589,7 +589,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             if (doc is null)
                 return;
 
-            ExportFileDialog info = new ExportFileDialog(MainWindow.Current, doc.SizeBindable, doc)
+            ExportFileDialog info = new ExportFileDialog(MainWindow.Current, doc)
             {
                 SuggestedName = Path.GetFileNameWithoutExtension(doc.FileName)
             };

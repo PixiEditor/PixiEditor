@@ -42,6 +42,7 @@
                                FontSize="24" Margin="10 0" ui:Translator.UseLanguageFlowDirection="True"/>
                     <colorPicker:PortableColorPicker
                         UseHintColor="True"
+                        EnableGradientsTab="False"
                         SelectedColor="{Binding ElementName=uc, Path=NewColor, Mode=TwoWay}"
                         HintColor="{Binding ElementName=uc, Path=HintColor}"
                         Height="37"

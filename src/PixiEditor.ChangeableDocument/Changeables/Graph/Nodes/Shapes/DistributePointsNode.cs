@@ -22,7 +22,7 @@ public class DistributePointsNode : ShapeNode<PointsVectorData>
 
     protected override PointsVectorData? GetShapeData(RenderContext context)
     {
-        return GetPointsRandomly(context.DocumentSize);
+        return GetPointsRandomly(context.RenderOutputSize);
     }
 
     private PointsVectorData GetPointsRandomly(VecI size)

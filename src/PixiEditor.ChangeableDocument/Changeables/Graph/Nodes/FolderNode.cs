@@ -39,7 +39,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
     protected override void OnExecute(RenderContext context)
     {
         base.OnExecute(context);
-        documentSize = context.DocumentSize;
+        documentSize = context.RenderOutputSize;
     }
 
     public override void Render(SceneObjectRenderContext sceneContext)

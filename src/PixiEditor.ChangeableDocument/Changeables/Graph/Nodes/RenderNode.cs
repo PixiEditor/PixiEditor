@@ -39,18 +39,18 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
             }
         }
 
-        lastDocumentSize = context.DocumentSize;
+        lastDocumentSize = context.RenderOutputSize;
     }
 
     protected virtual void Paint(RenderContext context, DrawingSurface surface)
     {
         DrawingSurface target = surface;
         bool useIntermediate = !AllowHighDpiRendering
-                               && context.DocumentSize is { X: > 0, Y: > 0 }
-                               && surface.DeviceClipBounds.Size != context.DocumentSize;
+                               && context.RenderOutputSize is { X: > 0, Y: > 0 }
+                               && surface.DeviceClipBounds.Size != context.RenderOutputSize;
         if (useIntermediate)
         {
-            Texture intermediate = textureCache.RequestTexture(-6451, context.DocumentSize, context.ProcessingColorSpace);
+            Texture intermediate = textureCache.RequestTexture(-6451, context.RenderOutputSize, context.ProcessingColorSpace);
             target = intermediate.DrawingSurface;
         }
 

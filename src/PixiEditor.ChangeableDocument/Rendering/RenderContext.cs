@@ -13,8 +13,9 @@ public class RenderContext
 
     public KeyFrameTime FrameTime { get; }
     public ChunkResolution ChunkResolution { get; }
+    public VecI RenderOutputSize { get; set; }
+
     public VecI DocumentSize { get; set; }
-    
     public DrawingSurface RenderSurface { get; set; }
     public bool FullRerender { get; set; } = false;
     
@@ -23,14 +24,15 @@ public class RenderContext
 
 
     public RenderContext(DrawingSurface renderSurface, KeyFrameTime frameTime, ChunkResolution chunkResolution,
-        VecI docSize, ColorSpace processingColorSpace, double opacity = 1) 
+        VecI renderOutputSize, VecI documentSize, ColorSpace processingColorSpace, double opacity = 1)
     {
         RenderSurface = renderSurface;
         FrameTime = frameTime;
         ChunkResolution = chunkResolution;
-        DocumentSize = docSize;
+        RenderOutputSize = renderOutputSize;
         Opacity = opacity;
         ProcessingColorSpace = processingColorSpace;
+        DocumentSize = documentSize;
     }
 
     public static DrawingApiBlendMode GetDrawingBlendMode(BlendMode blendMode)

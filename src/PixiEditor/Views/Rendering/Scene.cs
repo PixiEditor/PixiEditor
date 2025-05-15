@@ -28,8 +28,10 @@ using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Rendering;
 using Drawie.Numerics;
 using Drawie.Skia;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Document.Nodes.Workspace;
 using PixiEditor.Views.Overlays;
 using PixiEditor.Views.Overlays.Pointers;
 using PixiEditor.Views.Visuals;
@@ -74,8 +76,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         set => SetValue(AutoBackgroundScaleProperty, value);
     }
 
-    public static readonly StyledProperty<double> CustomBackgroundScaleXProperty = AvaloniaProperty.Register<Scene, double>(
-        nameof(CustomBackgroundScaleX));
+    public static readonly StyledProperty<double> CustomBackgroundScaleXProperty =
+        AvaloniaProperty.Register<Scene, double>(
+            nameof(CustomBackgroundScaleX));
 
     public double CustomBackgroundScaleX
     {
@@ -83,8 +86,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         set => SetValue(CustomBackgroundScaleXProperty, value);
     }
 
-    public static readonly StyledProperty<double> CustomBackgroundScaleYProperty = AvaloniaProperty.Register<Scene, double>(
-        nameof(CustomBackgroundScaleY));
+    public static readonly StyledProperty<double> CustomBackgroundScaleYProperty =
+        AvaloniaProperty.Register<Scene, double>(
+            nameof(CustomBackgroundScaleY));
 
     public double CustomBackgroundScaleY
     {
@@ -191,6 +195,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         CustomBackgroundScaleXProperty.Changed.AddClassHandler<Scene>(Refresh);
         CustomBackgroundScaleYProperty.Changed.AddClassHandler<Scene>(Refresh);
         BackgroundBitmapProperty.Changed.AddClassHandler<Scene>(Refresh);
+        RenderOutputProperty.Changed.AddClassHandler<Scene>(Refresh);
+        RenderOutputProperty.Changed.AddClassHandler<Scene>(UpdateRenderOutput);
     }
 
     private static void Refresh(Scene scene, AvaloniaPropertyChangedEventArgs args)
@@ -290,7 +296,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
         renderTexture.Canvas.SetMatrix(matrix.ToSKMatrix().ToMatrix3X3());
 
-        RectD dirtyBounds = new RectD(0, 0, Document.Width, Document.Height);
+        VecI outputSize = FindOutputSize();
+
+        RectD dirtyBounds = new RectD(0, 0, outputSize.X, outputSize.Y);
         RenderScene(dirtyBounds);
 
         renderTexture.Canvas.Restore();
@@ -298,26 +306,23 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private void RenderScene(RectD bounds)
     {
+        var renderOutput = RenderOutput == "DEFAULT" ? null : RenderOutput;
         DrawCheckerboard(renderTexture.DrawingSurface, bounds);
         DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Background);
         try
         {
-            SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(),
-                RenderOutput == "DEFAULT" ? null : RenderOutput);
+            SceneRenderer.RenderScene(renderTexture.DrawingSurface, CalculateResolution(), renderOutput);
         }
         catch (Exception e)
         {
             renderTexture.DrawingSurface.Canvas.Clear();
-            using Paint paint = new Paint
-            {
-                Color = Colors.White,
-                IsAntiAliased = true
-            };
+            using Paint paint = new Paint { Color = Colors.White, IsAntiAliased = true };
 
             using Font defaultSizedFont = Font.CreateDefault();
             defaultSizedFont.Size = 24;
 
-            renderTexture.DrawingSurface.Canvas.DrawText(new LocalizedString("ERROR_GRAPH"), renderTexture.Size / 2f, TextAlign.Center, defaultSizedFont, paint);
+            renderTexture.DrawingSurface.Canvas.DrawText(new LocalizedString("ERROR_GRAPH"), renderTexture.Size / 2f,
+                TextAlign.Center, defaultSizedFont, paint);
         }
 
         DrawOverlays(renderTexture.DrawingSurface, bounds, OverlayRenderSorting.Foreground);
@@ -383,6 +388,26 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
             e.Handled = args.Handled;
         }
+    }
+
+    private VecI FindOutputSize()
+    {
+        VecI outputSize = Document.SizeBindable;
+
+        if (!string.IsNullOrEmpty(RenderOutput))
+        {
+            if (Document.NodeGraph.CustomRenderOutputs.TryGetValue(RenderOutput, out var node))
+            {
+                var prop = node?.Inputs.FirstOrDefault(x => x.PropertyName == CustomOutputNode.SizePropertyName);
+                if (prop != null)
+                {
+                    VecI size = Document.NodeGraph.GetComputedPropertyValue<VecI>(prop);
+                    outputSize = size;
+                }
+            }
+        }
+
+        return outputSize;
     }
 
     protected override void OnPointerMoved(PointerEventArgs e)
@@ -825,13 +850,42 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         if (e.NewValue is DocumentViewModel documentViewModel)
         {
             documentViewModel.SizeChanged += scene.DocumentViewModelOnSizeChanged;
-            scene.ContentDimensions = documentViewModel.SizeBindable;
+            scene.ContentDimensions = scene.GetRenderOutputSize();
         }
     }
 
     private void DocumentViewModelOnSizeChanged(object? sender, DocumentSizeChangedEventArgs e)
     {
-        ContentDimensions = e.NewSize;
+        ContentDimensions = GetRenderOutputSize();
+    }
+
+    private VecI GetRenderOutputSize()
+    {
+        VecI outputSize = Document.SizeBindable;
+
+        if (!string.IsNullOrEmpty(RenderOutput))
+        {
+            if (Document.NodeGraph.CustomRenderOutputs.TryGetValue(RenderOutput, out var node))
+            {
+                var prop = node?.Inputs.FirstOrDefault(x => x.PropertyName == CustomOutputNode.SizePropertyName);
+                if (prop != null)
+                {
+                    VecI size = Document.NodeGraph.GetComputedPropertyValue<VecI>(prop);
+                    outputSize = size;
+                }
+            }
+        }
+
+        return outputSize;
+    }
+
+    private static void UpdateRenderOutput(Scene scene, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.NewValue is string newValue)
+        {
+            scene.ContentDimensions = scene.GetRenderOutputSize();
+            scene.CenterContent();
+        }
     }
 
     private static void DefaultCursorChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)

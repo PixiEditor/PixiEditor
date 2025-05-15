@@ -44,7 +44,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                 blendPaint.BlendMode = RenderContext.GetDrawingBlendMode(BlendMode.Value);
             }
 
-            if (AllowHighDpiRendering || renderOnto.DeviceClipBounds.Size == context.DocumentSize)
+            if (AllowHighDpiRendering || renderOnto.DeviceClipBounds.Size == context.RenderOutputSize)
             {
                 DrawLayerInScene(context, renderOnto, useFilters);
             }
@@ -56,7 +56,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
                     BlendMode = Drawie.Backend.Core.Surfaces.BlendMode.SrcOver
                 };
 
-                var tempSurface = TryInitWorkingSurface(context.DocumentSize, context.ChunkResolution,
+                var tempSurface = TryInitWorkingSurface(context.RenderOutputSize, context.ChunkResolution,
                     context.ProcessingColorSpace, 22);
 
                 DrawLayerOnTexture(context, tempSurface.DrawingSurface, context.ChunkResolution, useFilters, targetPaint);
@@ -70,7 +70,7 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         VecI size = AllowHighDpiRendering
             ? renderOnto.DeviceClipBounds.Size + renderOnto.DeviceClipBounds.Pos
-            : context.DocumentSize;
+            : context.RenderOutputSize;
         int saved = renderOnto.Canvas.Save();
 
         var adjustedResolution = AllowHighDpiRendering ? ChunkResolution.Full : context.ChunkResolution;

@@ -24,8 +24,8 @@
                     </Style>
                 </TabControl.Styles>
                 <TabControl.Items>
-                    <TabItem IsSelected="True" ui1:Translator.Key="EXPORT_IMAGE_HEADER"/>
-                    <TabItem ui1:Translator.Key="EXPORT_ANIMATION_HEADER"/>
+                    <TabItem IsSelected="True" ui1:Translator.Key="EXPORT_IMAGE_HEADER" />
+                    <TabItem ui1:Translator.Key="EXPORT_ANIMATION_HEADER" />
                     <TabItem ui1:Translator.Key="EXPORT_SPRITESHEET_HEADER">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -60,17 +60,30 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <input:SizePicker Grid.Row="0"
+                        <DockPanel LastChildFill="True" HorizontalSpacing="5" Width="186">
+                            <TextBlock ui1:Translator.Key="EXPORT_OUTPUT" VerticalAlignment="Center" />
+                            <ComboBox VerticalAlignment="Center"
+                                      SelectedItem="{Binding ElementName=saveFilePopup, Path=ExportOutput}"
+                                      ItemsSource="{Binding ElementName=saveFilePopup, Path=AvailableExportOutputs}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock ui1:Translator.Key="{Binding Path=Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </DockPanel>
+                        <input:SizePicker Grid.Row="1"
                                           x:Name="sizePicker"
                                           IsSizeUnitSelectionVisible="True"
                                           VerticalAlignment="Top"
                                           ChosenHeight="{Binding Path=SaveHeight, Mode=TwoWay, ElementName=saveFilePopup}"
                                           ChosenWidth="{Binding Path=SaveWidth, Mode=TwoWay, ElementName=saveFilePopup}" />
-                        <TextBlock Grid.Row="1" Margin="5, 0" VerticalAlignment="Bottom" Classes="hyperlink"
+                        <TextBlock Grid.Row="2" Margin="5, 0" VerticalAlignment="Bottom" Classes="hyperlink"
                                    TextWrapping="Wrap"
                                    Width="220" TextAlignment="Center"
-                                   Text="{Binding SizeHint, Mode=OneTime, ElementName=saveFilePopup}">
+                                   Text="{Binding SizeHint, ElementName=saveFilePopup}">
                             <Interaction.Behaviors>
                                 <EventTriggerBehavior EventName="PointerPressed">
                                     <InvokeCommandAction

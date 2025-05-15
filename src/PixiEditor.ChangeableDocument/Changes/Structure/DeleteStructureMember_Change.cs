@@ -31,8 +31,7 @@ internal class DeleteStructureMember_Change : Change
 
         originalConnections = NodeOperations.CreateConnectionsData(member);
 
-        savedCopy = (StructureNode)member.Clone();
-        savedCopy.Id = memberGuid;
+        savedCopy = (StructureNode)member.Clone(true);
 
         savedKeyFrameGroup = DeleteNode_Change.CloneGroupKeyFrame(document, memberGuid);
 
@@ -78,8 +77,7 @@ internal class DeleteStructureMember_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document doc)
     {
-        var copy = (StructureNode)savedCopy!.Clone();
-        copy.Id = memberGuid;
+        var copy = (StructureNode)savedCopy!.Clone(true);
 
         doc.NodeGraph.AddNode(copy);
 

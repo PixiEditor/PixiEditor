@@ -13,6 +13,7 @@ public class ExportConfig
    public IAnimationRenderer? AnimationRenderer { get; set; }
    
    public VectorExportConfig? VectorExportConfig { get; set; }
+   public string ExportOutput { get; set; }
 
    public ExportConfig(VecI exportSize)
    {

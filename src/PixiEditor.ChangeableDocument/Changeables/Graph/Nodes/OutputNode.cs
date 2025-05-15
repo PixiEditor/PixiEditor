@@ -32,10 +32,10 @@ public class OutputNode : Node, IRenderInput, IPreviewRenderable
     {
         if (!string.IsNullOrEmpty(context.TargetOutput)) return;
 
-        lastDocumentSize = context.DocumentSize;
+        lastDocumentSize = context.RenderOutputSize;
 
         int saved = context.RenderSurface.Canvas.Save();
-        context.RenderSurface.Canvas.ClipRect(new RectD(0, 0, context.DocumentSize.X, context.DocumentSize.Y));
+        context.RenderSurface.Canvas.ClipRect(new RectD(0, 0, context.RenderOutputSize.X, context.RenderOutputSize.Y));
         Input.Value?.Paint(context, context.RenderSurface);
 
         context.RenderSurface.Canvas.RestoreToCount(saved);

@@ -48,7 +48,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
     {
         base.OnExecute(context);
 
-        lastDocumentSize = context.DocumentSize;
+        lastDocumentSize = context.RenderOutputSize;
 
         if (lastShaderCode != ShaderCode.Value)
         {
@@ -88,7 +88,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         Uniforms uniforms;
         uniforms = new Uniforms();
 
-        uniforms.Add("iResolution", new Uniform("iResolution", (VecD)context.DocumentSize));
+        uniforms.Add("iResolution", new Uniform("iResolution", (VecD)context.RenderOutputSize));
         uniforms.Add("iNormalizedTime", new Uniform("iNormalizedTime", (float)context.FrameTime.NormalizedTime));
         uniforms.Add("iFrame", new Uniform("iFrame", context.FrameTime.Frame));
 
@@ -101,7 +101,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
             return uniforms;
         }
 
-        Texture texture = RequestTexture(50, context.DocumentSize, context.ProcessingColorSpace);
+        Texture texture = RequestTexture(50, context.RenderOutputSize, context.ProcessingColorSpace);
         Background.Value.Paint(context, texture.DrawingSurface);
 
         var snapshot = texture.DrawingSurface.Snapshot();
@@ -128,17 +128,17 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         {
             if (ColorSpace.Value == ColorSpaceType.Srgb && !context.ProcessingColorSpace.IsSrgb)
             {
-                targetSurface = RequestTexture(51, context.DocumentSize,
+                targetSurface = RequestTexture(51, context.RenderOutputSize,
                     Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgb()).DrawingSurface;
             }
             else if (ColorSpace.Value == ColorSpaceType.LinearSrgb && context.ProcessingColorSpace.IsSrgb)
             {
-                targetSurface = RequestTexture(51, context.DocumentSize,
+                targetSurface = RequestTexture(51, context.RenderOutputSize,
                     Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear()).DrawingSurface;
             }
         }
 
-        targetSurface.Canvas.DrawRect(0, 0, context.DocumentSize.X, context.DocumentSize.Y, paint);
+        targetSurface.Canvas.DrawRect(0, 0, context.RenderOutputSize.X, context.RenderOutputSize.Y, paint);
 
         if (targetSurface != surface)
         {

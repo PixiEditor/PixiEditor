@@ -83,7 +83,6 @@ internal class SymmetryOverlay : Overlay
 
     private SymmetryAxisDirection? capturedDirection;
     private SymmetryAxisDirection? hoveredDirection;
-    public static readonly StyledProperty<VecI> SizeProperty = AvaloniaProperty.Register<SymmetryOverlay, VecI>(nameof(Size));
 
     private const double HandleSize = 12;
     private VectorPath handleGeometry = Handle.GetHandleGeometry("MarkerHandle").Path;
@@ -100,15 +99,11 @@ internal class SymmetryOverlay : Overlay
     
     private float PenThickness => 1.0f / (float)ZoomScale;
 
-    public VecI Size    
-    {
-        get { return (VecI)GetValue(SizeProperty); }
-        set { SetValue(SizeProperty, value); }
-    }
-
     private double horizontalAxisY;
     private double verticalAxisX;
     private VecD pointerPosition;
+
+    private VecF lastSize;
 
     static SymmetryOverlay()
     {
@@ -125,6 +120,8 @@ internal class SymmetryOverlay : Overlay
         if (!HorizontalAxisVisible && !VerticalAxisVisible)
             return;
 
+        VecF size = (VecF)canvasBounds.Size;
+        lastSize = size;
         checkerBlack.StrokeWidth = PenThickness;
         float dashWidth = DashWidth / (float)ZoomScale;
         checkerWhite.PathEffect?.Dispose();
@@ -141,12 +138,12 @@ internal class SymmetryOverlay : Overlay
             {
                 if (horizontalAxisY != 0)
                 {
-                    DrawHorizontalRuler(drawingContext, false);
+                    DrawHorizontalRuler(drawingContext, false, size);
                 }
 
-                if (horizontalAxisY != (int)Size.Y)
+                if (horizontalAxisY != (int)size.Y)
                 {
-                    DrawHorizontalRuler(drawingContext, true);
+                    DrawHorizontalRuler(drawingContext, true, size);
                 }
             }
 
@@ -160,14 +157,14 @@ internal class SymmetryOverlay : Overlay
             
             save = drawingContext.Save();
             drawingContext.Translate(0, (float)horizontalAxisY);
-            drawingContext.RotateDegrees(180, Size.X / 2, 0);
+            drawingContext.RotateDegrees(180, size.X / 2, 0);
             drawingContext.Scale((float)HandleSize / (float)ZoomScale, (float)HandleSize / (float)ZoomScale);
             drawingContext.DrawPath(handleGeometry, borderPen);
 
             drawingContext.RestoreToCount(save);
 
-            drawingContext.DrawLine(new(0, horizontalAxisY), new(Size.X, horizontalAxisY), checkerBlack);
-            drawingContext.DrawLine(new(0, horizontalAxisY), new(Size.X, horizontalAxisY), checkerWhite);
+            drawingContext.DrawLine(new(0, horizontalAxisY), new(size.X, horizontalAxisY), checkerBlack);
+            drawingContext.DrawLine(new(0, horizontalAxisY), new(size.X, horizontalAxisY), checkerWhite);
         }
         if (VerticalAxisVisible)
         {
@@ -175,12 +172,12 @@ internal class SymmetryOverlay : Overlay
             {
                 if (verticalAxisX != 0)
                 {
-                    DrawVerticalRuler(drawingContext, false);
+                    DrawVerticalRuler(drawingContext, false, size);
                 }
 
-                if (verticalAxisX != (int)Size.X)
+                if (verticalAxisX != (int)size.X)
                 {
-                    DrawVerticalRuler(drawingContext, true);
+                    DrawVerticalRuler(drawingContext, true, size);
                 }
             }
 
@@ -197,32 +194,32 @@ internal class SymmetryOverlay : Overlay
             saved = drawingContext.Save();
             drawingContext.RotateDegrees(90);
             drawingContext.Translate(0, (float)-verticalAxisX);
-            drawingContext.RotateDegrees(180, Size.Y / 2, 0);
+            drawingContext.RotateDegrees(180, size.Y / 2, 0);
             drawingContext.Scale((float)HandleSize / (float)ZoomScale, (float)HandleSize / (float)ZoomScale);
             drawingContext.DrawPath(handleGeometry, borderPen);
 
             drawingContext.RestoreToCount(saved);
 
-            drawingContext.DrawLine(new(verticalAxisX, 0), new(verticalAxisX, Size.Y), checkerBlack);
-            drawingContext.DrawLine(new(verticalAxisX, 0), new(verticalAxisX, Size.Y), checkerWhite);
+            drawingContext.DrawLine(new(verticalAxisX, 0), new(verticalAxisX, size.Y), checkerBlack);
+            drawingContext.DrawLine(new(verticalAxisX, 0), new(verticalAxisX, size.Y), checkerWhite);
         }
     }
 
-    private void DrawHorizontalRuler(Canvas drawingContext, bool upper)
+    private void DrawHorizontalRuler(Canvas drawingContext, bool upper, VecF size)
     {
-        double start = upper ? Size.Y : 0;
-        bool drawRight = pointerPosition.X > Size.X / 2;
-        double xOffset = drawRight ? Size.X - RulerOffset * PenThickness * 2 : 0;
+        double start = upper ? size.Y : 0;
+        bool drawRight = pointerPosition.X > size.X / 2;
+        double xOffset = drawRight ? size.X - RulerOffset * PenThickness * 2 : 0;
 
         drawingContext.DrawLine(new VecD(RulerOffset * PenThickness + xOffset, start), new VecD(RulerOffset * PenThickness + xOffset, horizontalAxisY), rulerPen);
         drawingContext.DrawLine(new VecD((RulerOffset - RulerWidth) * PenThickness + xOffset, start), new VecD((RulerOffset + RulerWidth) * PenThickness + xOffset, start), rulerPen);
         drawingContext.DrawLine(new VecD((RulerOffset - RulerWidth) * PenThickness + xOffset, horizontalAxisY), new VecD((RulerOffset + RulerWidth) * PenThickness + xOffset, horizontalAxisY), rulerPen);
 
-        string text = upper ? $"{start - horizontalAxisY}{new LocalizedString("PIXEL_UNIT")} ({(start - horizontalAxisY) / Size.Y * 100:F1}%)" : $"{horizontalAxisY}{new LocalizedString("PIXEL_UNIT")} ({horizontalAxisY / Size.Y * 100:F1}%)";
+        string text = upper ? $"{start - horizontalAxisY}{new LocalizedString("PIXEL_UNIT")} ({(start - horizontalAxisY) / size.Y * 100:F1}%)" : $"{horizontalAxisY}{new LocalizedString("PIXEL_UNIT")} ({horizontalAxisY / size.Y * 100:F1}%)";
 
         using Font font = Font.CreateDefault(14f / (float)ZoomScale);
         
-        if (Size.Y < font.Size * 2.5 || horizontalAxisY == (int)Size.Y && upper || horizontalAxisY == 0 && !upper)
+        if (size.Y < font.Size * 2.5 || horizontalAxisY == (int)size.Y && upper || horizontalAxisY == 0 && !upper)
         {
             return;
         }
@@ -231,27 +228,27 @@ internal class SymmetryOverlay : Overlay
 
         if (upper)
         {
-            textY += Size.Y / 2f;
+            textY += size.Y / 2f;
         }
 
         drawingContext.DrawText(text, new VecD(RulerOffset * PenThickness - (drawRight ? -1 : 1) + xOffset, textY), drawRight ? TextAlign.Left : TextAlign.Right, font, textPaint);
     }
 
-    private void DrawVerticalRuler(Canvas drawingContext, bool right)
+    private void DrawVerticalRuler(Canvas drawingContext, bool right, VecF size)
     {
-        double start = right ? Size.X : 0;
-        bool drawBottom = pointerPosition.Y > Size.Y / 2;
-        double yOffset = drawBottom ? Size.Y - RulerOffset * PenThickness * 2 : 0;
+        double start = right ? size.X : 0;
+        bool drawBottom = pointerPosition.Y > size.Y / 2;
+        double yOffset = drawBottom ? size.Y - RulerOffset * PenThickness * 2 : 0;
 
         drawingContext.DrawLine(new VecD(start, RulerOffset * PenThickness + yOffset), new VecD(verticalAxisX, RulerOffset * PenThickness + yOffset), rulerPen);
         drawingContext.DrawLine(new VecD(start, (RulerOffset - RulerWidth) * PenThickness + yOffset), new VecD(start, (RulerOffset + RulerWidth) * PenThickness + yOffset), rulerPen);
         drawingContext.DrawLine(new VecD(verticalAxisX, (RulerOffset - RulerWidth) * PenThickness + yOffset), new VecD(verticalAxisX, (RulerOffset + RulerWidth) * PenThickness + yOffset), rulerPen);
 
-        string text = right ? $"{start - verticalAxisX}{new LocalizedString("PIXEL_UNIT")} ({(start - verticalAxisX) / Size.X * 100:F1}%)" : $"{verticalAxisX}{new LocalizedString("PIXEL_UNIT")} ({verticalAxisX / Size.X * 100:F1}%)";
+        string text = right ? $"{start - verticalAxisX}{new LocalizedString("PIXEL_UNIT")} ({(start - verticalAxisX) / size.X * 100:F1}%)" : $"{verticalAxisX}{new LocalizedString("PIXEL_UNIT")} ({verticalAxisX / size.X * 100:F1}%)";
 
         using Font font = Font.CreateDefault(14f / (float)ZoomScale);
         
-        if (Size.X < font.MeasureText(text) * 2.5 || verticalAxisX == (int)Size.X && right || verticalAxisX == 0 && !right)
+        if (size.X < font.MeasureText(text) * 2.5 || verticalAxisX == (int)size.X && right || verticalAxisX == 0 && !right)
         {
             return;
         }
@@ -260,7 +257,7 @@ internal class SymmetryOverlay : Overlay
 
         if (right)
         {
-            textX += Size.X / 2;
+            textX += size.X / 2;
         }
 
         double textY = RulerOffset * PenThickness - ((drawBottom ? 5 : 2 + font.Size) * PenThickness) + yOffset;
@@ -276,9 +273,9 @@ internal class SymmetryOverlay : Overlay
     {
         double radius = HandleSize * 4 / ZoomScale / 2;
         VecD left = new(-radius, horizontalAxisY);
-        VecD right = new(Size.X + radius, horizontalAxisY);
+        VecD right = new(lastSize.X + radius, horizontalAxisY);
         VecD up = new(verticalAxisX, -radius);
-        VecD down = new(verticalAxisX, Size.Y + radius);
+        VecD down = new(verticalAxisX, lastSize.Y + radius);
 
         if (HorizontalAxisVisible && (Math.Abs((left - position).LongestAxis) < radius || Math.Abs((right - position).LongestAxis) < radius))
             return SymmetryAxisDirection.Horizontal;
@@ -336,11 +333,11 @@ internal class SymmetryOverlay : Overlay
             return;
         if (capturedDirection == SymmetryAxisDirection.Horizontal)
         {
-            horizontalAxisY = Math.Round(Math.Clamp(args.Point.Y, 0, Size.Y) * 2) / 2;
+            horizontalAxisY = Math.Round(Math.Clamp(args.Point.Y, 0, lastSize.Y) * 2) / 2;
 
             if (args.Modifiers.HasFlag(KeyModifiers.Shift))
             {
-                double temp = Math.Round(horizontalAxisY / Size.Y * 8) / 8 * Size.Y;
+                double temp = Math.Round(horizontalAxisY / lastSize.Y * 8) / 8 * lastSize.Y;
                 horizontalAxisY = Math.Round(temp * 2) / 2;
             }
 
@@ -348,12 +345,12 @@ internal class SymmetryOverlay : Overlay
         }
         else if (capturedDirection == SymmetryAxisDirection.Vertical)
         {
-            verticalAxisX = Math.Round(Math.Clamp(args.Point.X, 0, Size.X) * 2) / 2;
+            verticalAxisX = Math.Round(Math.Clamp(args.Point.X, 0, lastSize.X) * 2) / 2;
 
             if (args.Modifiers.HasFlag(KeyModifiers.Control))
             {
 
-                double temp = Math.Round(verticalAxisX / Size.X * 8) / 8 * Size.X;
+                double temp = Math.Round(verticalAxisX / lastSize.X * 8) / 8 * lastSize.X;
                 verticalAxisX = Math.Round(temp * 2) / 2;
             }
 

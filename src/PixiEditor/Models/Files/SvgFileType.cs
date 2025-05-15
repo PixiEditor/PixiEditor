@@ -3,6 +3,7 @@ using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
 using Drawie.Numerics;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.SVG;
 using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Features;
@@ -14,7 +15,7 @@ namespace PixiEditor.Models.Files;
 internal class SvgFileType : IoFileType
 {
     public override string[] Extensions { get; } = new[] { ".svg" };
-    public override string DisplayName { get; } = "Scalable Vector Graphics";
+    public override string DisplayName => new LocalizedString("SVG_FILE");
     public override FileTypeDialogDataSet.SetKind SetKind { get; } = FileTypeDialogDataSet.SetKind.Vector;
     public override SolidColorBrush EditorColor { get; } = new SolidColorBrush(Color.FromRgb(0, 128, 0));
 

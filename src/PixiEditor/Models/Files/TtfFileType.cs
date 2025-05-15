@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.IO;
+﻿using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.IO;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Models.Files;
@@ -6,7 +7,7 @@ namespace PixiEditor.Models.Files;
 internal class TtfFileType : IoFileType
 {
     public override string[] Extensions { get; } = new[] { ".ttf" };
-    public override string DisplayName { get; } = "TrueType Font";
+    public override string DisplayName => new LocalizedString("TRUE_TYPE_FONT");
     public override FileTypeDialogDataSet.SetKind SetKind { get; } = FileTypeDialogDataSet.SetKind.Vector;
 
     public override bool CanSave => false;
