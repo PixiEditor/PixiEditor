@@ -697,6 +697,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 renderOutputName = name.ComputedValue?.ToString();
             }
 
+            if (finalSize.ShortestAxis <= 0)
+            {
+                finalSize = SizeBindable;
+            }
+
             return finalSize;
         }
 
@@ -1311,6 +1316,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         if (exportOutput != default)
         {
             size = exportOutput.originalSize;
+
+            if (size.ShortestAxis <= 0)
+            {
+                size = SizeBindable;
+            }
         }
 
         return size;
