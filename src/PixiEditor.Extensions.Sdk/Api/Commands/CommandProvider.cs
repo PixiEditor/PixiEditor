@@ -32,6 +32,11 @@ public class CommandProvider : ICommandProvider
         Native.invoke_command(commandName);
     }
 
+    public void InvokeCommand(string commandName, object parameter)
+    {
+        Interop.InvokeCommandGeneric(commandName, parameter);
+    }
+
     public bool CommandExists(string commandName)
     {
         return Native.command_exists(commandName);

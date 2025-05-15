@@ -96,6 +96,16 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
         }
     }
 
+
+    [Command.Internal("PixiEditor.Viewport.SetRenderOutput")]
+    public void SetRenderOutputOfCurrentViewport(string renderOutput)
+    {
+        if (ActiveWindow is ViewportWindowViewModel viewport)
+        {
+            viewport.RenderOutputName = renderOutput;
+        }
+    }
+
     [Commands_Command.Basic("PixiEditor.Window.FlipHorizontally", "FLIP_VIEWPORT_HORIZONTALLY",
         "FLIP_VIEWPORT_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument",
         Icon = PixiPerfectIcons.YFlip, AnalyticsTrack = true)]

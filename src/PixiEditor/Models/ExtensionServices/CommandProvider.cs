@@ -1,5 +1,6 @@
 using PixiEditor.Extensions.CommonApi.Commands;
 using PixiEditor.Models.Commands;
+using PixiEditor.Models.Commands.CommandContext;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.Input;
@@ -58,6 +59,18 @@ public class CommandProvider : ICommandProvider
             if (command.CanExecute())
             {
                 command.Execute();
+            }
+        }
+    }
+
+    public void InvokeCommand(string commandName, object? parameter)
+    {
+        if (CommandController.Current.Commands.ContainsKey(commandName))
+        {
+            var command = CommandController.Current.Commands[commandName];
+            if (command.CanExecute())
+            {
+                command.Execute(new CommandExecutionContext(parameter, new ExtensionSourceInfo()), true);
             }
         }
     }

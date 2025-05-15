@@ -166,6 +166,7 @@ internal class LayoutManager
                 if (dockable != null)
                 {
                     dockableHost.ActiveDockable = dockable;
+                    dockableHost.Context.FocusedTarget = dockableHost;
                     return;
                 }
             }

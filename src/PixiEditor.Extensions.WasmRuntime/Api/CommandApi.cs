@@ -65,4 +65,57 @@ internal class CommandApi : ApiGroupHandler
             Api.Logger.LogError($"Command {prefixedName} is not accessible from {Metadata.UniqueName} extension.");
         }
     }
+
+    [ApiFunction("invoke_command_null_param")]
+    internal void InvokeCommandNullParam(string commandName)
+    {
+        CommandModule commandModule = Extension.GetModule<CommandModule>();
+        commandModule!.InvokeCommandGeneric(commandName, null);
+    }
+
+    [ApiFunction("invoke_command_string")]
+    internal void InvokeCommandString(string commandName, string parameter)
+    {
+        CommandModule commandModule = Extension.GetModule<CommandModule>();
+        commandModule!.InvokeCommandGeneric(commandName, parameter);
+    }
+
+    [ApiFunction("invoke_command_int")]
+    internal void InvokeCommandInt(string commandName, int parameter)
+    {
+        CommandModule commandModule = Extension.GetModule<CommandModule>();
+        commandModule!.InvokeCommandGeneric(commandName, parameter);
+    }
+
+    [ApiFunction("invoke_command_bool")]
+    internal void InvokeCommandBool(string commandName, bool parameter)
+    {
+        CommandModule commandModule = Extension.GetModule<CommandModule>();
+        commandModule!.InvokeCommandGeneric(commandName, parameter);
+    }
+
+    [ApiFunction("invoke_command_float")]
+    internal void InvokeCommandFloat(string commandName, float parameter)
+    {
+        CommandModule commandModule = Extension.GetModule<CommandModule>();
+        commandModule!.InvokeCommandGeneric(commandName, parameter);
+    }
+
+    [ApiFunction("invoke_command_double")]
+    internal void InvokeCommandDouble(string commandName, double parameter)
+    {
+        CommandModule commandModule = Extension.GetModule<CommandModule>();
+        commandModule!.InvokeCommandGeneric(commandName, parameter);
+    }
+
+    [ApiFunction("invoke_command_bytes")]
+    internal void InvokeCommandBytes(string commandName, Span<byte> parameter)
+    {
+        CommandModule commandModule = Extension.GetModule<CommandModule>();
+
+        byte[] bytes = new byte[parameter.Length];
+        parameter.CopyTo(bytes);
+
+        commandModule!.InvokeCommandGeneric(commandName, bytes);
+    }
 }

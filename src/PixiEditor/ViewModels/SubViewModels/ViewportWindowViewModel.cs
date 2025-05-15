@@ -11,6 +11,7 @@ using PixiEditor.Models.DocumentModels;
 using Drawie.Numerics;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
+using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
@@ -178,6 +179,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
             Document.AnimationDataViewModel.ActiveFrameTime.Frame);
         TabCustomizationSettings.Icon = previewPainterControl;
     }
+
 
     private void DocumentOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
