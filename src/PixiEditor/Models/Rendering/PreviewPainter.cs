@@ -154,7 +154,7 @@ public class PreviewPainter : IDisposable
 
             renderTexture.DrawingSurface.Canvas.SetMatrix(matrix ?? Matrix3X3.Identity);
 
-            RenderContext context = new(renderTexture.DrawingSurface, FrameTime, ChunkResolution.Full, DocumentSize,
+            RenderContext context = new(renderTexture.DrawingSurface, FrameTime, ChunkResolution.Full, DocumentSize, DocumentSize,
                 ProcessingColorSpace);
 
             dirtyTextures.Remove(texture);

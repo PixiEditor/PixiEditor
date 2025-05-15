@@ -10,6 +10,7 @@ using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.Rendering;
@@ -73,9 +74,10 @@ internal class SceneRenderer : IDisposable
         Texture? renderTexture = null;
         bool restoreCanvas = false;
 
-        if (RenderInDocumentSize())
+        VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size);
+        if (RenderInOutputSize(finalGraph))
         {
-            renderTexture = Texture.ForProcessing(Document.Size, Document.ProcessingColorSpace);
+            renderTexture = Texture.ForProcessing(finalSize, Document.ProcessingColorSpace);
             renderTarget = renderTexture.DrawingSurface;
         }
         else
@@ -93,7 +95,7 @@ internal class SceneRenderer : IDisposable
         }
 
         RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
-            resolution, Document.Size, Document.ProcessingColorSpace);
+            resolution, finalSize, Document.Size, Document.ProcessingColorSpace);
         context.TargetOutput = targetOutput;
         finalGraph.Execute(context);
 
@@ -110,9 +112,33 @@ internal class SceneRenderer : IDisposable
         return renderTexture;
     }
 
-    private bool RenderInDocumentSize()
+    private static VecI SolveRenderOutputSize(string? targetOutput, IReadOnlyNodeGraph finalGraph, VecI documentSize)
     {
-        return !HighResRendering || !HighDpiRenderNodePresent(Document.NodeGraph);
+        VecI finalSize = documentSize;
+        if (targetOutput != null)
+        {
+            var outputNode = finalGraph.AllNodes.FirstOrDefault(n =>
+                n is CustomOutputNode outputNode && outputNode.OutputName.Value == targetOutput);
+
+            if (outputNode is CustomOutputNode customOutputNode)
+            {
+                if (customOutputNode.Size.Value.ShortestAxis > 0)
+                {
+                    finalSize = customOutputNode.Size.Value;
+                }
+            }
+            else
+            {
+                finalSize = documentSize;
+            }
+        }
+
+        return finalSize;
+    }
+
+    private bool RenderInOutputSize(IReadOnlyNodeGraph finalGraph)
+    {
+        return !HighResRendering || !HighDpiRenderNodePresent(finalGraph);
     }
 
     private bool ShouldRerender(DrawingSurface target, ChunkResolution resolution, string? targetOutput,
@@ -136,7 +162,7 @@ internal class SceneRenderer : IDisposable
             return true;
         }
 
-        bool renderInDocumentSize = RenderInDocumentSize();
+        bool renderInDocumentSize = RenderInOutputSize(finalGraph);
         VecI compareSize = renderInDocumentSize ? Document.Size : target.DeviceClipBounds.Size;
 
         if (cachedTexture.DrawingSurface.DeviceClipBounds.Size != compareSize)
@@ -224,6 +250,7 @@ internal class SceneRenderer : IDisposable
         double alphaFalloffMultiplier = 1.0 / animationData.OnionFrames;
 
         var finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
+        var renderOutputSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size);
 
         // Render previous frames'
         for (int i = 1; i <= animationData.OnionFrames; i++)
@@ -236,7 +263,7 @@ internal class SceneRenderer : IDisposable
 
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
 
-            RenderContext onionContext = new(target, frame, resolution, Document.Size, Document.ProcessingColorSpace,
+            RenderContext onionContext = new(target, frame, resolution, renderOutputSize, Document.Size, Document.ProcessingColorSpace,
                 finalOpacity);
             onionContext.TargetOutput = targetOutput;
             finalGraph.Execute(onionContext);
@@ -252,7 +279,7 @@ internal class SceneRenderer : IDisposable
             }
 
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
-            RenderContext onionContext = new(target, frame, resolution, Document.Size, Document.ProcessingColorSpace,
+            RenderContext onionContext = new(target, frame, resolution, renderOutputSize, Document.Size, Document.ProcessingColorSpace,
                 finalOpacity);
             onionContext.TargetOutput = targetOutput;
             finalGraph.Execute(onionContext);

@@ -1,4 +1,6 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Reflection;
 using Avalonia;
 using Avalonia.Media;
@@ -26,13 +28,21 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
     private IBrush? categoryBrush;
     private string? nodeNameBindable;
     private VecD position;
-    private ObservableRangeCollection<INodePropertyHandler> inputs = new();
-    private ObservableRangeCollection<INodePropertyHandler> outputs = new();
+    private ObservableRangeCollection<INodePropertyHandler> inputs;
+    private ObservableRangeCollection<INodePropertyHandler> outputs;
     private PreviewPainter resultPainter;
     private bool isSelected;
     private string? icon;
 
     protected Guid id;
+
+    public IReadOnlyDictionary<string, INodePropertyHandler> InputPropertyMap => inputPropertyMap;
+    public IReadOnlyDictionary<string, INodePropertyHandler> OutputPropertyMap => outputPropertyMap;
+
+    private Dictionary<string, INodePropertyHandler> inputPropertyMap = new Dictionary<string, INodePropertyHandler>();
+
+    private Dictionary<string, INodePropertyHandler> outputPropertyMap =
+        new Dictionary<string, INodePropertyHandler>();
 
     public Guid Id { get => id; private set => id = value; }
 
@@ -104,13 +114,45 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
     public ObservableRangeCollection<INodePropertyHandler> Inputs
     {
         get => inputs;
-        set => SetProperty(ref inputs, value);
+        set
+        {
+            if (inputs != null)
+            {
+                inputs.CollectionChanged -= UpdateInputPropertyMapEvent;
+            }
+
+            if (SetProperty(ref inputs, value))
+            {
+                AddInputPropertyMap();
+            }
+
+            if (inputs != null)
+            {
+                inputs.CollectionChanged += UpdateInputPropertyMapEvent;
+            }
+        }
     }
 
     public ObservableRangeCollection<INodePropertyHandler> Outputs
     {
         get => outputs;
-        set => SetProperty(ref outputs, value);
+        set
+        {
+            if (outputs != null)
+            {
+                outputs.CollectionChanged -= UpdateOutputPropertyMapEvent;
+            }
+
+            if (SetProperty(ref outputs, value))
+            {
+                AddOutputPropertyMap();
+            }
+
+            if (outputs != null)
+            {
+                outputs.CollectionChanged += UpdateOutputPropertyMapEvent;
+            }
+        }
     }
 
     public PreviewPainter ResultPainter
@@ -144,6 +186,9 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
 
         displayName = attribute.DisplayName;
         Category = attribute.Category;
+
+        Inputs = new ObservableRangeCollection<INodePropertyHandler>();
+        Outputs = new ObservableRangeCollection<INodePropertyHandler>();
     }
 
     public NodeViewModel(string nodeNameBindable, Guid id, VecD position, DocumentViewModel document,
@@ -154,6 +199,9 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         this.position = position;
         Document = document;
         Internals = internals;
+
+        Inputs = new ObservableRangeCollection<INodePropertyHandler>();
+        Outputs = new ObservableRangeCollection<INodePropertyHandler>();
     }
 
     public void SetPosition(VecD newPosition)
@@ -350,7 +398,8 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         }
     }
 
-    public void TraverseForwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, INodePropertyHandler, bool> func)
+    public void TraverseForwards(
+        Func<INodeHandler, INodeHandler, INodePropertyHandler, INodePropertyHandler, bool> func)
     {
         var visited = new HashSet<INodeHandler>();
         var queueNodes = new Queue<(INodeHandler, INodeHandler, INodePropertyHandler, INodePropertyHandler)>();
@@ -380,6 +429,7 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
         }
     }
 
+
     public virtual void Dispose()
     {
         ResultPainter?.Dispose();
@@ -387,22 +437,88 @@ internal abstract class NodeViewModel : ObservableObject, INodeHandler
 
     public NodePropertyViewModel FindInputProperty(string propName)
     {
-        return Inputs.FirstOrDefault(x => x.PropertyName == propName) as NodePropertyViewModel;
+        if (string.IsNullOrEmpty(propName))
+        {
+            return null;
+        }
+
+        return inputPropertyMap.TryGetValue(propName, out var prop) ? prop as NodePropertyViewModel : null;
     }
 
     public NodePropertyViewModel<T> FindInputProperty<T>(string propName)
     {
-        return Inputs.FirstOrDefault(x => x.PropertyName == propName) as NodePropertyViewModel<T>;
+        if (string.IsNullOrEmpty(propName))
+        {
+            return null;
+        }
+
+        return inputPropertyMap.TryGetValue(propName, out var prop) ? prop as NodePropertyViewModel<T> : null;
     }
 
     public NodePropertyViewModel FindOutputProperty(string propName)
     {
-        return Outputs.FirstOrDefault(x => x.PropertyName == propName) as NodePropertyViewModel;
+        if (string.IsNullOrEmpty(propName))
+        {
+            return null;
+        }
+
+        return outputPropertyMap.TryGetValue(propName, out var prop) ? prop as NodePropertyViewModel : null;
     }
 
     public NodePropertyViewModel<T> FindOutputProperty<T>(string propName)
     {
-        return Outputs.FirstOrDefault(x => x.PropertyName == propName) as NodePropertyViewModel<T>;
+        if (string.IsNullOrEmpty(propName))
+        {
+            return null;
+        }
+
+        return outputPropertyMap.TryGetValue(propName, out var prop) ? prop as NodePropertyViewModel<T> : null;
+    }
+
+    private void UpdateInputPropertyMapEvent(object? sender,
+        NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
+    {
+        AddInputPropertyMap();
+    }
+
+    private void UpdateOutputPropertyMapEvent(object? sender,
+        NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
+    {
+        AddOutputPropertyMap();
+    }
+
+    private void AddInputPropertyMap()
+    {
+        inputPropertyMap.Clear();
+        if (Inputs == null)
+        {
+            return;
+        }
+
+        foreach (var item in Inputs)
+        {
+            if (item == null) continue;
+            inputPropertyMap[item.PropertyName] = item;
+        }
+    }
+
+    private void AddOutputPropertyMap()
+    {
+        outputPropertyMap.Clear();
+        if (Outputs == null)
+        {
+            return;
+        }
+
+        foreach (var item in Outputs)
+        {
+            if (item == null)
+            {
+                continue;
+            }
+
+            outputPropertyMap[item.PropertyName] = item;
+        }
     }
 }
 

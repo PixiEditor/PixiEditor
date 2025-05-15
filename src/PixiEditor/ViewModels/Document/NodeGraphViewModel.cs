@@ -27,6 +27,8 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
     public StructureTree StructureTree { get; } = new();
     public INodeHandler? OutputNode { get; private set; }
 
+    public Dictionary<string, INodeHandler> CustomRenderOutputs { get; } = new();
+
     private DocumentInternalParts Internals { get; }
 
     public NodeGraphViewModel(DocumentViewModel documentViewModel, DocumentInternalParts internals)
@@ -115,7 +117,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
             connection.OutputProperty.ConnectedInputs.Remove(connection.InputProperty);
             Connections.Remove(connection);
         }
-        
+
         var node = AllNodes.FirstOrDefault(x => x.Id == nodeId);
         if (node != null)
         {
@@ -224,9 +226,25 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
         Internals.ActionAccumulator.AddFinishedActions(new UpdatePropertyValue_Action(node.Id, property, value));
     }
 
-    public void GetComputedPropertyValue(INodePropertyHandler property)
+    public void RequestUpdateComputedPropertyValue(INodePropertyHandler property)
     {
-        Internals.ActionAccumulator.AddFinishedActions(new GetComputedPropertyValue_Action(property.Node.Id, property.PropertyName, property.IsInput));
+        Internals.ActionAccumulator.AddActions(
+            new GetComputedPropertyValue_Action(property.Node.Id, property.PropertyName, property.IsInput));
+    }
+
+    public T GetComputedPropertyValue<T>(INodePropertyHandler property)
+    {
+        var node = Internals.Tracker.Document.NodeGraph.AllNodes.FirstOrDefault(x => x.Id == property.Node.Id);
+        if (property.IsInput)
+        {
+            var prop = node.GetInputProperty(property.PropertyName);
+            if (prop == null) return default;
+            return prop.Value is T value ? value : default;
+        }
+
+        var output = node.GetOutputProperty(property.PropertyName);
+        if (output == null) return default;
+        return output.Value is T outputValue ? outputValue : default;
     }
 
     public void EndChangeNodePosition()
@@ -273,7 +291,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
 
     public void RemoveNodes(Guid[] selectedNodes)
     {
-        List<IAction> actions = new(); 
+        List<IAction> actions = new();
 
         for (int i = 0; i < selectedNodes.Length; i++)
         {
@@ -331,10 +349,10 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
 
         Internals.ActionAccumulator.AddFinishedActions(action);
     }
-    
+
     public void UpdateAvailableRenderOutputs()
     {
-        List<string> outputs = new();
+        Dictionary<string, INodeHandler> outputs = new();
         foreach (var node in AllNodes)
         {
             if (node.InternalName == typeof(CustomOutputNode).GetCustomAttribute<NodeInfoAttribute>().UniqueName)
@@ -344,40 +362,43 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
 
                 if (nameInput is { Value: string name } && !string.IsNullOrEmpty(name))
                 {
-                    if(outputs.Contains(name)) continue;
-                    
-                    outputs.Add(name);
+                    outputs[name] = node;
                 }
             }
             else if (node.InternalName == typeof(OutputNode).GetCustomAttribute<NodeInfoAttribute>().UniqueName)
             {
-                outputs.Insert(0, "DEFAULT");
+                outputs["DEFAULT"] = node;
             }
         }
-        
+
         RemoveExcessiveRenderOutputs(outputs);
         AddMissingRenderOutputs(outputs);
     }
 
-    private void RemoveExcessiveRenderOutputs(List<string> outputs)
+    private void RemoveExcessiveRenderOutputs(Dictionary<string, INodeHandler> outputs)
     {
         for (int i = AvailableRenderOutputs.Count - 1; i >= 0; i--)
         {
-            if (!outputs.Contains(AvailableRenderOutputs[i]))
+            var outputName = AvailableRenderOutputs[i];
+            if (!outputs.ContainsKey(outputName))
             {
                 AvailableRenderOutputs.RemoveAt(i);
             }
+
+            CustomRenderOutputs.Remove(outputName);
         }
     }
-    
-    private void AddMissingRenderOutputs(List<string> outputs)
+
+    private void AddMissingRenderOutputs(Dictionary<string, INodeHandler> outputs)
     {
         foreach (var output in outputs)
         {
-            if (!AvailableRenderOutputs.Contains(output))
+            if (!AvailableRenderOutputs.Contains(output.Key))
             {
-                AvailableRenderOutputs.Add(output);
+                AvailableRenderOutputs.Add(output.Key);
             }
+
+            CustomRenderOutputs[output.Key] = output.Value;
         }
     }
 

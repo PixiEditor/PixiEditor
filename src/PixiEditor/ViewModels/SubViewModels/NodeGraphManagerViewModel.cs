@@ -94,6 +94,6 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
     [Command.Internal("PixiEditor.NodeGraph.GetComputedPropertyValue")]
     public void GetComputedPropertyValue(INodePropertyHandler property)
     {
-        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.GetComputedPropertyValue(property);
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.RequestUpdateComputedPropertyValue(property);
     }
 }
