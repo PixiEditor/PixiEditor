@@ -1253,7 +1253,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
-    public bool RenderFrames(List<Image> frames, Func<Surface, Surface> processFrameAction = null, string? renderOutput = null)
+    public bool RenderFrames(List<Image> frames, Func<Surface, Surface> processFrameAction = null,
+        string? renderOutput = null)
     {
         var firstFrame = AnimationDataViewModel.GetFirstVisibleFrame();
         var lastFrame = AnimationDataViewModel.GetLastVisibleFrame();
@@ -1299,5 +1300,19 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         Internals.ChangeController.TryStopActiveExecutor();
         Internals.Tracker.Dispose();
         Internals.Tracker.Document.Dispose();
+    }
+
+    public VecI GetRenderOutputSize(string renderOutputName)
+    {
+        var exportOutputs = GetAvailableExportOutputs();
+        var exportOutput = exportOutputs.FirstOrDefault(x => x.name == renderOutputName);
+
+        VecI size = SizeBindable;
+        if (exportOutput != default)
+        {
+            size = exportOutput.originalSize;
+        }
+
+        return size;
     }
 }

@@ -367,7 +367,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     {
         foreach (var viewport in WindowSubViewModel.Viewports.Where(viewport => viewport.Document == e.Document))
         {
-            viewport.CenterViewportTrigger.Execute(this, e.NewSize);
+            viewport.CenterViewportTrigger.Execute(this, viewport.GetRenderOutputSize());
         }
     }
 }

@@ -98,6 +98,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     }
 
     private bool autoScaleBackground = true;
+
     public bool AutoScaleBackground
     {
         get => autoScaleBackground;
@@ -109,6 +110,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     }
 
     private double customBackgroundScaleX = 16;
+
     public double CustomBackgroundScaleX
     {
         get => customBackgroundScaleX;
@@ -120,6 +122,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     }
 
     private double customBackgroundScaleY = 16;
+
     public double CustomBackgroundScaleY
     {
         get => customBackgroundScaleY;
@@ -131,6 +134,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     }
 
     private Bitmap backgroundBitmap;
+
     public Bitmap BackgroundBitmap
     {
         get => backgroundBitmap;
@@ -245,6 +249,11 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         CustomBackgroundScaleY = newValue;
     }
 
+    public VecI GetRenderOutputSize()
+    {
+       return Document.GetRenderOutputSize(RenderOutputName);
+    }
+
     private void UpdateBackgroundBitmap(Setting<string> setting, string newValue)
     {
         BackgroundBitmap?.Dispose();
@@ -260,11 +269,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
 
         Surface surface = Surface.ForDisplay(new VecI(2, 2));
         surface.DrawingSurface.Canvas.Clear(primary);
-        using Paint secondaryPaint = new Paint
-        {
-            Color = secondary,
-            Style = PaintStyle.Fill
-        };
+        using Paint secondaryPaint = new Paint { Color = secondary, Style = PaintStyle.Fill };
         surface.DrawingSurface.Canvas.DrawRect(1, 0, 1, 1, secondaryPaint);
         surface.DrawingSurface.Canvas.DrawRect(0, 1, 1, 1, secondaryPaint);
 
@@ -297,5 +302,4 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     {
         Owner.Owner.ShortcutController.ClearContext(GetType());
     }
-
 }
