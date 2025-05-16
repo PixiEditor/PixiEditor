@@ -7,7 +7,6 @@ using Avalonia.Media.Fonts;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core.Text;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.IO;
 using PixiEditor.ViewModels.UserPreferences;

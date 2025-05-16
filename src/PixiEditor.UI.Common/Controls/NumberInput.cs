@@ -1,6 +1,5 @@
 ﻿using System.Data;
 using System.Globalization;
-using System.Linq;
 using System.Text.RegularExpressions;
 using Avalonia;
 using Avalonia.Controls;
@@ -11,13 +10,15 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Xaml.Interactivity;
-using PixiEditor.Helpers.Behaviours;
+using PixiEditor.UI.Common.Behaviors;
 using Action = System.Action;
 
-namespace PixiEditor.Views.Input;
+namespace PixiEditor.UI.Common.Controls;
 
-internal partial class NumberInput : TextBox
+public partial class NumberInput : TextBox
 {
+    public static event Action<BehaviorCollection> AttachGlobalBehaviors;
+
     public static readonly StyledProperty<double> ValueProperty =
         AvaloniaProperty.Register<NumberInput, double>(
             nameof(Value), 0, coerce: CoerceValue);
@@ -154,7 +155,7 @@ internal partial class NumberInput : TextBox
     public NumberInput()
     {
         BehaviorCollection behaviors = Interaction.GetBehaviors(this);
-        behaviors.Add(new GlobalShortcutFocusBehavior());
+        AttachGlobalBehaviors?.Invoke(behaviors);
         TextBoxFocusBehavior behavior = new() { DeselectOnFocusLoss = true, SelectOnMouseClick = true };
         BindTextBoxBehavior(behavior);
         behaviors.Add(behavior);

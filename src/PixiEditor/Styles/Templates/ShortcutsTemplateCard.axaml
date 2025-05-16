@@ -4,7 +4,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
-    xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+    xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
     xmlns:shortcuts="clr-namespace:PixiEditor.Views.Shortcuts">
 
     <ControlTheme TargetType="shortcuts:ShortcutsTemplateCard" x:Key="{x:Type shortcuts:ShortcutsTemplateCard}">
@@ -37,7 +37,7 @@
                         <TextBlock Classes="pixi-icon" Text="{TemplateBinding Icon}"
                                    FontSize="64"
                                    Grid.Row="0" Grid.RowSpan="2" Name="icon" HorizontalAlignment="Center"
-                               VerticalAlignment="Center">
+                                   VerticalAlignment="Center">
                         </TextBlock>
                         <TextBlock
                             Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center"

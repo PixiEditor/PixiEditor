@@ -2,8 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:themes="clr-namespace:PixiEditor.UI.Common.Themes;assembly=PixiEditor.UI.Common"
              xmlns:avaloniaUi="clr-namespace:PixiEditor"
-             xmlns:templates="clr-namespace:ColorPicker.AvaloniaUI.Templates;assembly=ColorPicker.AvaloniaUI"
              xmlns:avalonia="clr-namespace:PixiDocks.Avalonia;assembly=PixiDocks.Avalonia"
+             xmlns:templates="clr-namespace:ColorPicker.Templates;assembly=ColorPicker.AvaloniaUI"
              x:Class="PixiEditor.App"
              Name="PixiEditor"
              RequestedThemeVariant="Dark">

@@ -2,12 +2,12 @@
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.ViewModels.Nodes.Properties;
 

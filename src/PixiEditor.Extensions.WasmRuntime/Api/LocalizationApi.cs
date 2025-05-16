@@ -1,4 +1,4 @@
-﻿using PixiEditor.Extensions.Common.Localization;
+﻿using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Extensions.WasmRuntime.Api;
 

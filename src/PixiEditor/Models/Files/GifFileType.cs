@@ -1,5 +1,5 @@
 ﻿using Avalonia.Media;
-using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Models.Files;
 

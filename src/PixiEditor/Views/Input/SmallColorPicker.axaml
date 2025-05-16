@@ -5,6 +5,7 @@
                                    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
                                    xmlns:input="clr-namespace:PixiEditor.Views.Input"
                                    xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
+                                   xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
                                    x:Class="PixiEditor.Views.Input.SmallColorPicker"
                                    x:ClassModifier="internal"
                                    mc:Ignorable="d"
@@ -61,7 +62,7 @@
                         <Label VerticalAlignment="Center" Margin="3,0,0,0">A:</Label>
                         <colorPicker:AlphaSlider Margin="5,0" Grid.Column="1" VerticalAlignment="Center"
                                                  ColorState="{Binding ColorState, Mode=TwoWay}" />
-                        <input:NumberInput
+                        <controls:NumberInput
                             Grid.Column="2" HorizontalAlignment="Right" Margin="5,0"
                             Min="0" Max="255"
                             Width="40"

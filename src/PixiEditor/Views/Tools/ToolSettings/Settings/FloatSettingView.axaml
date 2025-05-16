@@ -4,12 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:input="clr-namespace:PixiEditor.Views.Input"
              xmlns:settings="clr-namespace:PixiEditor.ViewModels.Tools.ToolSettings.Settings"
+             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Tools.ToolSettings.Settings.FloatSettingView">
     <Design.DataContext>
         <settings:FloatSettingViewModel/>
     </Design.DataContext>
-    <input:NumberInput x:Name="NumberInput"
+    <controls:NumberInput x:Name="NumberInput"
                        Value="{Binding Value, Mode=TwoWay}"
                        Min="{Binding Min}"
                        Max="{Binding Max}"

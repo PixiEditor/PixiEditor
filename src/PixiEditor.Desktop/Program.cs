@@ -1,7 +1,7 @@
 ﻿using System;
 using Avalonia;
 using Avalonia.Logging;
-using Drawie.Interop.VulkanAvalonia;
+using Drawie.Interop.Avalonia;
 
 namespace PixiEditor.Desktop;
 

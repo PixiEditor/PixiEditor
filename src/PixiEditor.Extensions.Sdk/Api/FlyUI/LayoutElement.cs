@@ -6,6 +6,8 @@ namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 public abstract class LayoutElement : ILayoutElement<ControlDefinition>
 {
     private Dictionary<string, List<ElementEventHandler>> _events;
+    private Dictionary<(string, Delegate), ElementEventHandler> _wrappedHandlers = new();
+
     public List<string> BuildQueuedEvents = new List<string>();
     public int UniqueId { get; set; }
 
@@ -74,7 +76,7 @@ public abstract class LayoutElement : ILayoutElement<ControlDefinition>
         BuildQueuedEvents.Add(eventName);
     }
 
-    /*public void AddEvent<TEventArgs>(string eventName, ElementEventHandler<TEventArgs> eventHandler) where TEventArgs : ElementEventArgs<TEventArgs>
+    public void AddEvent<T>(string eventName, ElementEventHandler<T> eventHandler) where T : ElementEventArgs<T>
     {
         if (_events == null)
         {
@@ -86,9 +88,12 @@ public abstract class LayoutElement : ILayoutElement<ControlDefinition>
             _events.Add(eventName, new List<ElementEventHandler>());
         }
 
-        _events[eventName].Add((args => eventHandler((TEventArgs)args)));
+        ElementEventHandler wrapped = x => eventHandler(x as T);
+
+        _wrappedHandlers.Add((eventName, eventHandler), wrapped);
+        _events[eventName].Add(wrapped);
         BuildQueuedEvents.Add(eventName);
-    }*/
+    }
 
     public void RemoveEvent(string eventName, ElementEventHandler eventHandler)
     {
@@ -105,7 +110,7 @@ public abstract class LayoutElement : ILayoutElement<ControlDefinition>
         _events[eventName].Remove(eventHandler);
     }
 
-    /*public void RemoveEvent<TEventArgs>(string eventName, ElementEventHandler<TEventArgs> eventHandler) where TEventArgs : ElementEventArgs<TEventArgs>
+    public void RemoveEvent<T>(string eventName, ElementEventHandler<T> eventHandler) where T : ElementEventArgs<T>
     {
         if (_events == null)
         {
@@ -117,8 +122,12 @@ public abstract class LayoutElement : ILayoutElement<ControlDefinition>
             return;
         }
 
-        _events[eventName].Remove((args => eventHandler((TEventArgs)args)));
-    }*/
+        if (_wrappedHandlers.TryGetValue((eventName, eventHandler), out ElementEventHandler wrapped))
+        {
+            _wrappedHandlers.Remove((eventName, eventHandler));
+            _events[eventName].Remove(wrapped);
+        }
+    }
 
     public void RaiseEvent(string eventName, ElementEventArgs args)
     {

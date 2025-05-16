@@ -6,6 +6,7 @@ using PixiEditor.Extensions.UI;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.UI.Common.Controls;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.ViewModels.Menu.MenuBuilders;
 

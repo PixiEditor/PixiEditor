@@ -1,8 +1,7 @@
 ﻿using System.Diagnostics;
-using System.Windows;
 using Avalonia.Media;
 
-namespace PixiEditor.Extensions.Common.Localization;
+namespace PixiEditor.UI.Common.Localization;
 
 [DebuggerDisplay("{LanguageData.Name}, strings: {Locale.Count}")]
 public class Language
