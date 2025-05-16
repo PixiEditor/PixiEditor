@@ -17,7 +17,7 @@ public class LayoutBuilderTests
         bool callbackFired = false;
 
         button.Click += (e) => callbackFired = true;
-        button.RaiseEvent(nameof(Button.Click), ElementEventArgs.Empty);
+        button.RaiseEvent(nameof(Button.Click), new ElementEventArgs());
 
         Assert.True(callbackFired);
     }

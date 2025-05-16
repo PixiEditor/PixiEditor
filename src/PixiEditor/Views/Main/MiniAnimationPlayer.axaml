@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:main="clr-namespace:PixiEditor.Views.Main"
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
-             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Main.MiniAnimationPlayer" Width="150">
     <StackPanel Orientation="Horizontal" Spacing="5">

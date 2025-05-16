@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using Avalonia.Input;
 using Avalonia.Win32.Input;
-using PixiEditor.Helpers;
 using PixiEditor.OperatingSystem;
 
 namespace PixiEditor.Windows;

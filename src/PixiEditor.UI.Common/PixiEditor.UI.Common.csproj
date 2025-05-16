@@ -17,5 +17,13 @@
       <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
       <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
       <PackageReference Include="Avalonia.Xaml.Behaviors" Version="11.0.5" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Controls\SizeInput.axaml.cs">
+        <DependentUpon>SizeInput.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 </Project>

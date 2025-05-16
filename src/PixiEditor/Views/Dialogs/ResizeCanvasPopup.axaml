@@ -1,18 +1,18 @@
 ﻿<dialogs:ResizeCanvasPopup x:Class="PixiEditor.Views.Dialogs.ResizeCanvasPopup"
-                         x:ClassModifier="internal"
-                         xmlns="https://github.com/avaloniaui"
-                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
-                         xmlns:input="clr-namespace:PixiEditor.Views.Input"
-                         xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
-                         mc:Ignorable="d"
-                         x:Name="window"
-                         CanResize="False"
-                         CanMinimize="False"
-                         ui:Translator.Key="RESIZE_CANVAS"
-                         Height="410" Width="320">
+                           x:ClassModifier="internal"
+                           xmlns="https://github.com/avaloniaui"
+                           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                           xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                           xmlns:input="clr-namespace:PixiEditor.Views.Input"
+                           xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+                           mc:Ignorable="d"
+                           x:Name="window"
+                           CanResize="False"
+                           CanMinimize="False"
+                           ui:Translator.Key="RESIZE_CANVAS"
+                           Height="410" Width="320">
     <DockPanel Focusable="True">
         <Button DockPanel.Dock="Bottom" HorizontalAlignment="Center" Margin="15"
                 ui:Translator.Key="RESIZE" Click="Button_Click"
@@ -22,15 +22,15 @@
                 VerticalAlignment="Top" Width="250" Height="290" CornerRadius="{DynamicResource ControlCornerRadius}">
             <StackPanel>
                 <input:SizePicker Margin="0,8,0,0"
-                                         Width="240"
-                                         Height="170"
-                                         x:Name="sizePicker"
-                                         Focusable="True"
-                                         ChosenHeight="{Binding NewAbsoluteHeight, Mode=TwoWay, ElementName=window}"
-                                         ChosenWidth="{Binding NewAbsoluteWidth, Mode=TwoWay, ElementName=window}"
-                                         ChosenPercentageSize="{Binding NewPercentageSize, Mode=TwoWay, ElementName=window}"
-                                         SelectedUnit="{ Binding NewSelectedUnit, Mode=TwoWay, ElementName=window}"
-                                         IsSizeUnitSelectionVisible="True" />
+                                  Width="240"
+                                  Height="170"
+                                  x:Name="sizePicker"
+                                  Focusable="True"
+                                  ChosenHeight="{Binding NewAbsoluteHeight, Mode=TwoWay, ElementName=window}"
+                                  ChosenWidth="{Binding NewAbsoluteWidth, Mode=TwoWay, ElementName=window}"
+                                  ChosenPercentageSize="{Binding NewPercentageSize, Mode=TwoWay, ElementName=window}"
+                                  SelectedUnit="{ Binding NewSelectedUnit, Mode=TwoWay, ElementName=window}"
+                                  IsSizeUnitSelectionVisible="True" />
                 <Separator Margin="10,5,10,0" Height="1" />
                 <DockPanel>
                     <Label ui:Translator.Key="ANCHOR_POINT" Foreground="White" Margin="25,5,0,0"

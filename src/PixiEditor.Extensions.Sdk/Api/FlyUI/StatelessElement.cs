@@ -9,6 +9,10 @@ public abstract class StatelessElement : LayoutElement, IStatelessElement<Contro
     {
     }
 
+    protected StatelessElement(Cursor? cursor) : base(cursor)
+    {
+    }
+
     public virtual ILayoutElement<ControlDefinition> Build()
     {
         return this;

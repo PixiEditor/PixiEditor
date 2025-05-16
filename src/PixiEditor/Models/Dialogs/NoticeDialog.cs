@@ -1,6 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.Models.Dialogs;

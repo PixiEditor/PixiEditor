@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Text;
 using Avalonia.Input;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Helpers;
 using PixiEditor.Helpers;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Models.Input;
 

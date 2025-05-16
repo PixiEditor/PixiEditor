@@ -5,6 +5,7 @@
              xmlns:settings="clr-namespace:PixiEditor.ViewModels.Tools.ToolSettings.Settings"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Tools.ToolSettings.Settings.BoolSettingView">
     <Design.DataContext>
@@ -13,7 +14,7 @@
 
     <Grid>
         <CheckBox VerticalAlignment="Center" Focusable="False"
-                  ui:Translator.Key="{Binding Label}"
+                  localization:Translator.Key="{Binding Label}"
                   IsChecked="{Binding Value, Mode=TwoWay}">
            <CheckBox.IsVisible>
                <MultiBinding Converter="{converters:AllTrueConverter}">
@@ -23,7 +24,7 @@
            </CheckBox.IsVisible>
         </CheckBox>
         <ToggleButton VerticalAlignment="Center" Focusable="False"
-                      ui:Translator.TooltipKey="{Binding Tooltip}"
+                      localization:Translator.TooltipKey="{Binding Tooltip}"
                       IsChecked="{Binding Value, Mode=TwoWay}"
                       FontSize="18"
                       Padding="5"

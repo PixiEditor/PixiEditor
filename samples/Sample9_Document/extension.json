@@ -1,0 +1,44 @@
+{
+  "displayName": "Sample Extension - Document",
+  "uniqueName": "yourCompany.Samples.Document",
+  "description": "Sample Document extension for PixiEditor",
+  "version": "1.0.0",
+  "localization": {
+    "languages": [
+      {
+        "name": "English",
+        "code": "en",
+        "localeFileName": "Localization/en.json"
+      },
+      {
+        "name": "Polish",
+        "code": "pl",
+        "localeFileName": "Localization/pl.json"
+      }
+    ]
+  },
+  "author": {
+    "name": "PixiEditor",
+    "email": "info@pixieditor.net",
+    "website": "https://pixieditor.net"
+  },
+  "publisher": {
+    "name": "PixiEditor",
+    "email": "info@pixieditor.net",
+    "website": "https://pixieditor.net"
+  },
+  "contributors": [
+    {
+      "name": "flabbet",
+      "email": "some@mail.com",
+      "website": "https://github.com/flabbet"
+    }
+  ],
+  "license": "MIT",
+  "categories": [
+    "Extension"
+  ],
+  "permissions": [
+    "OpenDocuments"
+  ]
+}

@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+    xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
     xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
     xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
@@ -17,6 +17,8 @@
     xmlns:palettes="clr-namespace:PixiEditor.Views.Palettes"
     xmlns:palettes1="clr-namespace:PixiEditor.Extensions.CommonApi.Palettes;assembly=PixiEditor.Extensions.CommonApi"
     xmlns:input="clr-namespace:PixiEditor.Views.Input"
+    xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+    xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -137,10 +139,10 @@
                         <Separator />
                         <TextBlock HorizontalAlignment="Center"
                                    ui:Translator.Key="GRIDLINES_SIZE" Margin="0 0 0 10" />
-                        <input:NumberInput Min="1"
+                        <controls:NumberInput Min="1"
                                            Max="1024"
                                            Value="{Binding GridLinesXSize, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
-                        <input:NumberInput Min="1"
+                        <controls:NumberInput Min="1"
                                            Max="1024"
                                            Value="{Binding GridLinesYSize, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
                         <Separator />
@@ -213,7 +215,7 @@
             CustomBackgroundScaleY="{Binding CustomBackgroundScaleY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             BackgroundBitmap="{Binding BackgroundBitmap, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             PointerPressed="Scene_OnContextMenuOpening"
-            ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}">
+            ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}">
             <rendering:Scene.ContextFlyout>
                 <Flyout x:CompileBindings="True" x:DataType="subViewModels:ViewportWindowViewModel"
                         Placement="Pointer"

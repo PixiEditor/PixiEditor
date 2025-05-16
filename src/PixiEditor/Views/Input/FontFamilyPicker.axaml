@@ -2,10 +2,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="PixiEditor.Views.Nodes.Properties.FontFamilyPicker">
+             x:Class="PixiEditor.Views.Input.FontFamilyPicker">
     <StackPanel Orientation="Horizontal" Spacing="5" DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}">
         <Button Classes="pixi-icon" FontSize="16"
                 ui:Translator.TooltipKey="CUSTOM_FONT"

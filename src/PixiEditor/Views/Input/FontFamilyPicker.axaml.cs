@@ -3,14 +3,13 @@ using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core.Text;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Controllers;
+using PixiEditor.UI.Common.Localization;
 
-namespace PixiEditor.Views.Nodes.Properties;
+namespace PixiEditor.Views.Input;
 
 public partial class FontFamilyPicker : UserControl
 {

@@ -15,6 +15,7 @@ using PixiEditor.Helpers.Behaviours;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Search;
 using PixiEditor.Models.Input;
+using PixiEditor.UI.Common.Behaviors;
 
 namespace PixiEditor.Views.Main.CommandSearch;
 #nullable enable

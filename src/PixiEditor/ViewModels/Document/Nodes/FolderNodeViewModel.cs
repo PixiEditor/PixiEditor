@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Nodes;
 

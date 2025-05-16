@@ -12,6 +12,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Helpers.Behaviours;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.IO;
+using PixiEditor.UI.Common.Behaviors;
 using PixiEditor.ViewModels;
 
 namespace PixiEditor.Views;

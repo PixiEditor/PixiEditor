@@ -4,10 +4,10 @@
                       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                      xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
                       xmlns:controls="https://github.com/avaloniaui"
                       xmlns:enums="clr-namespace:PixiEditor.ChangeableDocument.Enums;assembly=PixiEditor.ChangeableDocument"
                       xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                      xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
                       mc:Ignorable="d" Name="picker"
                       d:DesignHeight="78" d:DesignWidth="78">
     <Grid Name="container">

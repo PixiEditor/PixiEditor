@@ -13,9 +13,10 @@ public class CheckBox : SingleChildLayoutElement
 
     public bool IsChecked { get; set; }
 
-    public CheckBox(ILayoutElement<ControlDefinition> child = null, ElementEventHandler onCheckedChanged = null, Cursor? cursor = null) : base(cursor)
+    public CheckBox(ILayoutElement<ControlDefinition> child = null, bool isChecked = false, ElementEventHandler onCheckedChanged = null, Cursor? cursor = null) : base(cursor)
     {
         Child = child;
+        IsChecked = isChecked;
         
         if (onCheckedChanged != null)
         {
@@ -37,6 +38,8 @@ public class CheckBox : SingleChildLayoutElement
         ControlDefinition checkbox = new ControlDefinition(UniqueId, "CheckBox");
         if (Child != null)
             checkbox.AddChild(Child.BuildNative());
+
+        checkbox.AddProperty(IsChecked);
 
         return checkbox;
     }

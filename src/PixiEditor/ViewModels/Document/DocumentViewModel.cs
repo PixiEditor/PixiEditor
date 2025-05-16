@@ -18,7 +18,6 @@ using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
@@ -38,6 +37,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.Models.IO;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document.Nodes.Workspace;
 using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
@@ -1324,5 +1324,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
 
         return size;
+    }
+
+    void Extensions.CommonApi.Documents.IDocument.Resize(int width, int height)
+    {
+        Operations.ResizeImage(new VecI(width, height), ResamplingMethod.NearestNeighbor);
     }
 }

@@ -1,8 +1,8 @@
 ﻿using Avalonia.Platform;
 using Drawie.Backend.Core;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.IO;
 using PixiEditor.Parser;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Views.Windows;
 

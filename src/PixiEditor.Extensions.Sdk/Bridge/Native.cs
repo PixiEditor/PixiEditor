@@ -5,6 +5,8 @@ using System.Runtime.CompilerServices;
 using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Events;
 using PixiEditor.Extensions.Sdk.Api.FlyUI;
+using PixiEditor.Extensions.Sdk.Utilities;
+using ProtoBuf;
 
 namespace PixiEditor.Extensions.Sdk.Bridge;
 
@@ -50,11 +52,23 @@ internal static partial class Native
     }
 
     [ApiExport("raise_element_event")]
-    internal static void EventRaised(int internalControlId, string eventName) //TOOD: Args
+    internal static void EventRaised(int internalControlId, string eventName, IntPtr eventData, int dataLength)
     {
         if (LayoutElementsStore.LayoutElements.TryGetValue((int)internalControlId, out ILayoutElement<ControlDefinition> element))
         {
-            element.RaiseEvent(eventName ?? "", new ElementEventArgs { Sender = element });
+            byte[] data = InteropUtility.IntPtrToByteArray(eventData, dataLength);
+            ElementEventArgs args = ElementEventArgs.Deserialize(data);
+            args.Sender = element;
+            element.RaiseEvent(eventName ?? "", args);
+        }
+    }
+
+    [ApiExport("raise_element_text_event")]
+    internal static void TextEventRaised(int internalControlId, string eventName, string text)
+    {
+        if (LayoutElementsStore.LayoutElements.TryGetValue((int)internalControlId, out ILayoutElement<ControlDefinition> element))
+        {
+            element.RaiseEvent(eventName ?? "", new TextEventArgs(text) { Sender = element });
         }
     }
 

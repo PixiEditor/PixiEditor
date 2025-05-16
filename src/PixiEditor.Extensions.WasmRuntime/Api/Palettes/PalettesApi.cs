@@ -1,9 +1,7 @@
-﻿using CommunityToolkit.HighPerformance;
-using PixiEditor.Extensions.CommonApi.Palettes;
-using PixiEditor.Extensions.WasmRuntime.Api.Palettes;
+﻿using PixiEditor.Extensions.CommonApi.Palettes;
 using ProtoBuf;
 
-namespace PixiEditor.Extensions.WasmRuntime.Api;
+namespace PixiEditor.Extensions.WasmRuntime.Api.Palettes;
 
 internal class PalettesApi : ApiGroupHandler
 {

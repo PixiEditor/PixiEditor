@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views1="clr-namespace:PixiEditor.Views"
         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+        xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
         MinHeight="500"
         MinWidth="700"
         Height="1000"
@@ -15,7 +16,7 @@
         Name="Window"
         Icon="/Images/favicon.ico"
         Initialized="MainWindow_Initialized"
-        ui:Translator.UseLanguageFlowDirection="True"
+        localization:Translator.UseLanguageFlowDirection="True"
         Title="PixiEditor">
     <Window.SystemDecorations>
         <OnPlatform>

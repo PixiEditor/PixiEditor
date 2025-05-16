@@ -6,9 +6,9 @@ using Avalonia.Platform;
 using Newtonsoft.Json;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Extensions;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Models.IO;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Models.Localization;
 

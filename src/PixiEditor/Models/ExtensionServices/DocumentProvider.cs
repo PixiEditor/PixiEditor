@@ -1,3 +1,5 @@
+using Avalonia.Threading;
+using PixiEditor.Extensions.CommonApi.Documents;
 using PixiEditor.Extensions.CommonApi.IO;
 using PixiEditor.Models.IO;
 using PixiEditor.ViewModels;
@@ -7,6 +9,7 @@ namespace PixiEditor.Models.ExtensionServices;
 
 internal class DocumentProvider : IDocumentProvider
 {
+    public IDocument? ActiveDocument => fileViewModel.Owner.DocumentManagerSubViewModel.ActiveDocument;
     private FileViewModel fileViewModel;
 
     public DocumentProvider(FileViewModel fileViewModel)
@@ -14,8 +17,14 @@ internal class DocumentProvider : IDocumentProvider
         this.fileViewModel = fileViewModel;
     }
 
-    public void ImportFile(string path, bool associatePath = true)
+    public IDocument ImportFile(string path, bool associatePath = true)
     {
-        fileViewModel.OpenFromPath(path, associatePath);
+        return fileViewModel.OpenFromPath(path, associatePath);
+    }
+
+    public IDocument? GetDocument(Guid id)
+    {
+        var document = fileViewModel.Owner.DocumentManagerSubViewModel.Documents.FirstOrDefault(x => x.Id == id);
+        return document;
     }
 }

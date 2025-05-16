@@ -1,14 +1,13 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using PixiEditor.Models.Dialogs;
 
-namespace PixiEditor.Views.Input;
+namespace PixiEditor.UI.Common.Controls;
 
 /// <summary>
 ///     Interaction logic for SizeInput.xaml.
 /// </summary>
-internal partial class SizeInput : UserControl
+public partial class SizeInput : UserControl
 {
     public static readonly StyledProperty<double> SizeProperty =
         AvaloniaProperty.Register<SizeInput, double>(nameof(Size), defaultValue: 1);

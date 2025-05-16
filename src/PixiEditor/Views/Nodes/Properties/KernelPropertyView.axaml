@@ -3,10 +3,11 @@
                              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                              xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
-                             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
                              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
                              xmlns:input="clr-namespace:PixiEditor.Views.Input"
                              xmlns:system="clr-namespace:System;assembly=System.Runtime"
+                             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                              x:Class="PixiEditor.Views.Nodes.Properties.KernelPropertyView">
 
@@ -38,7 +39,7 @@
         <ItemsControl ItemsSource="{Binding ReferenceCollections}" Margin="0,1">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <input:NumberInput EnableScrollChange="False" Value="{Binding Value, Mode=TwoWay}" Decimals="4" />
+                    <controls:NumberInput EnableScrollChange="False" Value="{Binding Value, Mode=TwoWay}" Decimals="4" />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
             <ItemsControl.ItemsPanel>

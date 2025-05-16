@@ -3,14 +3,14 @@
                              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                              xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
-                             xmlns:input="clr-namespace:PixiEditor.Views.Input"
-                             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
                              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+                             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                              x:Class="PixiEditor.Views.Nodes.Properties.Int32PropertyView">
     <Grid HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
-        <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}"/>
-        <input:NumberInput EnableScrollChange="False" Decimals="0"
+        <TextBlock VerticalAlignment="Center" localization:Translator.Key="{Binding DisplayName}"/>
+        <controls:NumberInput EnableScrollChange="False" Decimals="0"
             HorizontalAlignment="Right" MinWidth="100" IsVisible="{Binding ShowInputField}" Value="{Binding Value, Mode=TwoWay}" />
     </Grid>
 </properties:NodePropertyView>

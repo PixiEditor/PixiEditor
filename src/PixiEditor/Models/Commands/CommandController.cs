@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers.Extensions;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
@@ -21,6 +20,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Input;
 using PixiEditor.Models.Structures;
 using PixiEditor.OperatingSystem;
+using PixiEditor.UI.Common.Localization;
 using Command = PixiEditor.Models.Commands.Commands.Command;
 using CommandAttribute = PixiEditor.Models.Commands.Attributes.Commands.Command;
 

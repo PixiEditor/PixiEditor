@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using PixiEditor.Extensions.Helpers;
 using PixiEditor.Helpers.Converters.JsonConverters;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Models.Services.NewsFeed;
 

@@ -5,10 +5,11 @@
                              xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
                              xmlns:system="clr-namespace:System;assembly=System.Runtime"
                              xmlns:input="clr-namespace:PixiEditor.Views.Input"
-                             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
                              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
                              xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
                              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+                             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                              x:DataType="properties1:DoublePropertyViewModel"
                              x:Class="PixiEditor.Views.Nodes.Properties.DoublePropertyView">
@@ -21,7 +22,7 @@
         <DockPanel>
             <TextBlock VerticalAlignment="Center" DockPanel.Dock="Left" ui:Translator.Key="{Binding DisplayName}" />
             <Panel HorizontalAlignment="Right" IsVisible="{Binding ShowInputField}">
-                <input:NumberInput EnableScrollChange="False" Name="input"
+                <controls:NumberInput EnableScrollChange="False" Name="input"
                                    MinWidth="100" Decimals="6"
                                    IsVisible="{Binding NumberPickerMode,
                                 Converter={converters:EnumBooleanConverter}, ConverterParameter=NumberInput}"
@@ -35,7 +36,7 @@
                 LastChildFill="True"
                 IsVisible="{Binding NumberPickerMode,
                                             Converter={converters:EnumBooleanConverter}, ConverterParameter=Slider}">
-                <input:NumberInput DockPanel.Dock="Right"
+                <controls:NumberInput DockPanel.Dock="Right"
                                    EnableScrollChange="False" Name="sliderInput"
                                    Width="45" Decimals="2"
                                    EnableGrabber="False"

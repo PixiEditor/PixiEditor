@@ -12,10 +12,10 @@ using CommunityToolkit.Mvvm.Input;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PixiEditor.Helpers.Extensions;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.OperatingSystem;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.SubViewModels;
 

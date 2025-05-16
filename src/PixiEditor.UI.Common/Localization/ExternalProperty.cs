@@ -1,7 +1,6 @@
 using Avalonia;
-using PixiEditor.Extensions.Common.Localization;
 
-namespace PixiEditor.Extensions.UI;
+namespace PixiEditor.UI.Common.Localization;
 
 public abstract class ExternalProperty
 {

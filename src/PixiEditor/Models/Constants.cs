@@ -6,7 +6,7 @@ internal class Constants
     public const int MaxPreviewWidth = 128;
     public const int MaxPreviewHeight = 128;
 
-    public const int MaxCanvasSize = 9999;
+    public const int MaxCanvasSize = 99999;
 
     public const string NativeExtensionNoDot = "pixi";
     public const string NativeExtension = "." + NativeExtensionNoDot;

@@ -5,10 +5,10 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.IO.FileEncoders;
 using Drawie.Numerics;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Models.Files;

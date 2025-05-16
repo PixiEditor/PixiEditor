@@ -10,7 +10,6 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Views.Dialogs;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
@@ -18,6 +17,7 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Platform;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.UpdateModule;
 
 namespace PixiEditor.ViewModels.SubViewModels;

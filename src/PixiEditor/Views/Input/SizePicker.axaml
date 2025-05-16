@@ -4,9 +4,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              xmlns:input="clr-namespace:PixiEditor.Views.Input"
              xmlns:converters1="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" Background="Transparent"
              d:DesignHeight="200" d:DesignWidth="240" Name="uc">
     <Interaction.Behaviors>
@@ -15,9 +16,9 @@
         </EventTriggerBehavior>
     </Interaction.Behaviors>
     <UserControl.Styles>
-        <Style Selector="input|SizeInput">
+        <Style Selector="controls|SizeInput">
             <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="MaxSize" Value="9999"/>
+            <Setter Property="MaxSize" Value="99999"/>
             <Setter Property="BehaveLikeSmallEmbeddedField" Value="False"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Margin" Value="10,0,0,0"/>
@@ -49,7 +50,7 @@
                                               ConverterParameter=Percentage,
                                               Mode=TwoWay
                                               }" ui:Translator.Key="PERCENTAGE"/>
-                <input:SizeInput Grid.Row="0"
+                <controls:SizeInput Grid.Row="0"
                                      VerticalAlignment="Center"
                                      HorizontalAlignment="Right"
                                      x:Name="PercentageSizePicker"
@@ -57,14 +58,14 @@
                                      Size="{Binding Path=ChosenPercentageSize, ElementName=uc, Mode=TwoWay}"
                                      Unit="%"
                                      Margin="-10,0,0,0"
-                                     MaxSize="9999"
+                                     MaxSize="99999"
                                      Width="{Binding Bounds.Width, ElementName=WidthPicker}">
                     <Interaction.Behaviors>
                         <EventTriggerBehavior EventName="LostFocus">
                             <InvokeCommandAction Command="{Binding ElementName=uc, Path=PercentageLostFocusCommand}"/>
                         </EventTriggerBehavior>
                     </Interaction.Behaviors>
-                </input:SizeInput>
+                </controls:SizeInput>
                 </Grid>
 
                 <RadioButton Grid.Row="1" Grid.Column="0"  
@@ -94,7 +95,7 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Column="0" Grid.Row="0" Foreground="Snow" ui:Translator.Key="WIDTH" VerticalAlignment="Center" HorizontalAlignment="Left" />
-                <input:SizeInput Grid.Column="1" Grid.Row="0"
+                <controls:SizeInput Grid.Column="1" Grid.Row="0"
                              x:Name="WidthPicker"
                              IsEnabled="{Binding EditingEnabled, ElementName=uc}"
                              Size="{Binding Path=ChosenWidth, ElementName=uc, Mode=TwoWay}"
@@ -104,11 +105,11 @@
                             <InvokeCommandAction Command="{Binding ElementName=uc, Path=WidthLostFocusCommand}"/>
                         </EventTriggerBehavior>
                     </Interaction.Behaviors>
-                </input:SizeInput>
+                </controls:SizeInput>
 
                 <TextBlock Grid.Column="0" Grid.Row="1" Foreground="Snow" ui:Translator.Key="HEIGHT" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-                <input:SizeInput Grid.Column="1" Grid.Row="1"
-                             x:Name="HeightPicker" 
+                <controls:SizeInput Grid.Column="1" Grid.Row="1"
+                             x:Name="HeightPicker"
                              IsEnabled="{Binding EditingEnabled, ElementName=uc}"
                              Margin="50,0,0,0"
                              Size="{Binding ChosenHeight, ElementName=uc, Mode=TwoWay}">
@@ -117,7 +118,7 @@
                             <InvokeCommandAction Command="{Binding ElementName=uc, Path=HeightLostFocusCommand}"/>
                         </EventTriggerBehavior>
                     </Interaction.Behaviors>
-                </input:SizeInput>
+                </controls:SizeInput>
 
                 <CheckBox
                   Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2"

@@ -1,6 +1,6 @@
 ﻿using Avalonia;
 
-namespace PixiEditor.Extensions.UI;
+namespace PixiEditor.UI.Common.Localization;
 
 public interface ICustomTranslatorElement
 {

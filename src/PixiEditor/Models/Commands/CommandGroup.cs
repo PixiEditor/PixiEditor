@@ -3,9 +3,9 @@ using System.Linq;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.Models.Commands.Evaluators;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Input;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Models.Commands;
 

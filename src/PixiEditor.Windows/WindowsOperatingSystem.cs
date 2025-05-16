@@ -1,7 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
-using PixiEditor.Helpers;
 using PixiEditor.OperatingSystem;
 
 namespace PixiEditor.Windows;

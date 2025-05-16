@@ -4,13 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:settings="clr-namespace:PixiEditor.ViewModels.Tools.ToolSettings.Settings"
              xmlns:input="clr-namespace:PixiEditor.Views.Input"
+             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Tools.ToolSettings.Settings.SizeSettingView">
     <Design.DataContext>
         <settings:SizeSettingViewModel/>
     </Design.DataContext>
     
-    <input:SizeInput VerticalAlignment="Center"
+    <controls:SizeInput VerticalAlignment="Center"
                      MaxSize="{Binding Max}" 
                      MinSize="{Binding Min}"
                      Decimals="{Binding DecimalPlaces}"

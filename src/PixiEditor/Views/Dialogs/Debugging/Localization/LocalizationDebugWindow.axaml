@@ -3,14 +3,14 @@
                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                          xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
-                         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
-                         xmlns:localization="clr-namespace:PixiEditor.Extensions.Common.Localization;assembly=PixiEditor.Extensions"
+                         xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
                          xmlns:markupExtensions="clr-namespace:PixiEditor.Helpers.MarkupExtensions"
                          xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
                          xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
                          xmlns:main="clr-namespace:PixiEditor.ViewModels.SubViewModels"
                          xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
                          xmlns:localization1="clr-namespace:PixiEditor.Views.Dialogs.Debugging.Localization"
+                         xmlns:ui2="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
                          mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                          Width="600"
                          Height="400"
@@ -21,7 +21,7 @@
             <TextBlock ui:Translator.Key="LOCALIZATION_VIEW_TYPE" Margin="0,0,5,0" MinWidth="160" />
             <ComboBox
                 SelectedItem="{Binding DebugViewModel.LocalizationKeyShowMode}"
-                ItemsSource="{markupExtensions:Enum {x:Type localization:LocalizationKeyShowMode}}" />
+                ItemsSource="{markupExtensions:Enum {x:Type ui:LocalizationKeyShowMode}}" />
         </StackPanel>
         <StackPanel Orientation="Horizontal" Height="25" Margin="0,5,0,0">
             <TextBlock ui:Translator.Key="FORCE_OTHER_FLOW_DIRECTION" Margin="0,0,5,0" MinWidth="160" />
@@ -78,7 +78,8 @@
                                     <Setter.Value>
                                         <ControlTemplate TargetType="{x:Type ComboBoxItem}">
                                             <Border Height="25" Margin="0" Padding="5,0" BorderThickness="0,1">
-                                                <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"/>
+                                                <ContentPresenter Content="{TemplateBinding Content}"
+                                                                  ContentTemplate="{TemplateBinding ContentTemplate}" />
                                             </Border>
                                         </ControlTemplate>
                                     </Setter.Value>
@@ -127,8 +128,10 @@
                         </Grid.ColumnDefinitions>
                         <Border Background="{Binding SelectedLanguage.StatusBrush, Mode=OneWay}" CornerRadius="2" />
                         <TextBlock Grid.Column="1"
-                                   ui:Translator.LocalizedString="{Binding SelectedLanguage.StatusText, Mode=OneWay}" Margin="5,0" />
-                        <TextBlock ui:Hyperlink.Command="{Binding CopySelectedUpdatedCommand}" Grid.Column="2" ui:Translator.TooltipKey="COPY_TO_CLIPBOARD">
+                                   ui:Translator.LocalizedString="{Binding SelectedLanguage.StatusText, Mode=OneWay}"
+                                   Margin="5,0" />
+                        <TextBlock ui2:Hyperlink.Command="{Binding CopySelectedUpdatedCommand}" Grid.Column="2"
+                                   ui:Translator.TooltipKey="COPY_TO_CLIPBOARD">
                             <Run
                                 Text="{Binding SelectedLanguage.UpdatedLocal, Mode=OneWay, StringFormat='g'}" />
                         </TextBlock>

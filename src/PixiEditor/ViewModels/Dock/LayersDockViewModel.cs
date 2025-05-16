@@ -2,8 +2,8 @@
 using PixiDocks.Core.Docking;
 using PixiDocks.Core.Docking.Events;
 using PixiEditor.Helpers.Converters;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.ViewModels.Dock;

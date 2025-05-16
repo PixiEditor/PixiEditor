@@ -10,7 +10,6 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Parser.Graph;
@@ -18,6 +17,7 @@ using PixiEditor.SVG;
 using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Enums;
 using PixiEditor.SVG.Exceptions;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Tools.Tools;
 
 namespace PixiEditor.Models.IO.CustomDocumentFormats;

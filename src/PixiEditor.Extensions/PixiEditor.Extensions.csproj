@@ -9,7 +9,7 @@
       <Title>PixiEditor Extensions</Title>
       <Authors>PixiEditor Organization</Authors>
       <Copyright>PixiEditor Organization</Copyright>
-      <Description>Package for creating custom extensions for pixel art editor PixiEditor</Description>
+      <Description>Package for creating custom extensions for univrsal 2D editor PixiEditor</Description>
     </PropertyGroup>
 
     <ItemGroup>
@@ -25,5 +25,11 @@
       <ProjectReference Include="..\Drawie\src\Drawie.Numerics\Drawie.Numerics.csproj" />
       <ProjectReference Include="..\PixiEditor.Extensions.CommonApi\PixiEditor.Extensions.CommonApi.csproj" />
       <ProjectReference Include="..\PixiEditor.OperatingSystem\PixiEditor.OperatingSystem.csproj" />
+      <ProjectReference Include="..\PixiEditor.UI.Common\PixiEditor.UI.Common.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Common\Localization\" />
+      <Folder Include="Controls\" />
     </ItemGroup>
 </Project>

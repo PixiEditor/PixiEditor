@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.ViewModels.Nodes;
 

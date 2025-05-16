@@ -8,12 +8,13 @@
              xmlns:helpers="clr-namespace:PixiEditor.Helpers"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
+             xmlns:input="clr-namespace:PixiEditor.Views.Input"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Tools.ToolSettings.Settings.FontFamilySettingView">
     <Design.DataContext>
         <settings:FontFamilySettingViewModel />
     </Design.DataContext>
 
-    <properties:FontFamilyPicker FontIndex="{Binding FontIndex, Mode=TwoWay}"
+    <input:FontFamilyPicker FontIndex="{Binding FontIndex, Mode=TwoWay}"
                                  Fonts="{Binding Fonts, Mode=OneWayToSource}"/>
 </UserControl>

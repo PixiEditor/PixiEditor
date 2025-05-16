@@ -3,8 +3,8 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Input.Raw;
 using Avalonia.Interactivity;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Input;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels;
 
 namespace PixiEditor.Views.Shortcuts;

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.DocumentModels;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.SubViewModels;
 
 namespace PixiEditor.ViewModels.Dock;

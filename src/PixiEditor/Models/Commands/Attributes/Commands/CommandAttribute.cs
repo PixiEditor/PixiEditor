@@ -1,6 +1,6 @@
 ﻿using Avalonia.Input;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Input;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Models.Commands.Attributes.Commands;
 

@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:dialogs="clr-namespace:Avalonia.Dialogs;assembly=Avalonia.Dialogs"
-             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.AllControlsPanel" Background="{DynamicResource ThemeBackgroundBrush}">
 
@@ -18,7 +18,7 @@
 
             <Separator/>
 
-            <TextBlock ui:Translator.Key="LANGUAGE" ui:Translator.TooltipKey="LANGUAGE"/>
+            <TextBlock localization:Translator.Key="LANGUAGE" localization:Translator.TooltipKey="LANGUAGE"/>
             <SelectableTextBlock Text="Selectable text block"/>
 
         <Separator/>

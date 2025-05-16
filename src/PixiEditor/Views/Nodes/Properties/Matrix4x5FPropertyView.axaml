@@ -3,13 +3,13 @@
                              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                              xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
-                             xmlns:input="clr-namespace:PixiEditor.Views.Input"
-                             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                             xmlns:input="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
                              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                              x:Class="PixiEditor.Views.Nodes.Properties.Matrix4x5FPropertyView">
     <StackPanel HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
-        <TextBlock ui:Translator.Key="{Binding DisplayName}" />
+        <TextBlock localization:Translator.Key="{Binding DisplayName}" />
         <Grid IsVisible="{Binding ShowInputField}" ColumnDefinitions="Auto,*,*,*,*,*" RowDefinitions="Auto, Auto, Auto, Auto, Auto">
             <TextBlock Grid.Row="1" Grid.Column="0" Text="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="1,0" />
             <TextBlock Grid.Row="2" Grid.Column="0" Text="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="1,0" />

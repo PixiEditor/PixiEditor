@@ -4,7 +4,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
-    xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+    xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
     xmlns:input="clr-namespace:PixiEditor.Views.Input"
     xmlns:sys="clr-namespace:System;assembly=System.Runtime"
     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
@@ -16,7 +16,6 @@
     xmlns:preferences="clr-namespace:PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;assembly=PixiEditor.Extensions.CommonApi"
     xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
     xmlns:settings="clr-namespace:PixiEditor.Views.Windows.Settings"
-    xmlns:localization="clr-namespace:PixiEditor.Extensions.Common.Localization;assembly=PixiEditor.Extensions"
     xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
     mc:Ignorable="d"
     x:Class="PixiEditor.Views.Windows.Settings.SettingsWindow"
@@ -103,9 +102,9 @@
                                 <Label
                                     ui:Translator.Key="RECENT_FILE_LENGTH"
                                     ui:Translator.TooltipKey="RECENT_FILE_LENGTH_TOOLTIP" />
-                                <input:NumberInput Min="0" FontSize="12" HorizontalAlignment="Left"
-                                                   Value="{Binding SettingsSubViewModel.File.MaxOpenedRecently, Mode=TwoWay}"
-                                                   Width="40" />
+                                <controls:NumberInput Min="0" FontSize="12" HorizontalAlignment="Left"
+                                                      Value="{Binding SettingsSubViewModel.File.MaxOpenedRecently, Mode=TwoWay}"
+                                                      Width="40" />
                             </StackPanel>
 
                             <TextBlock Classes="h5" ui:Translator.Key="AUTOSAVE_SETTINGS_HEADER" />
@@ -119,10 +118,10 @@
 
                             <StackPanel Classes="leftOffset" Orientation="Horizontal">
                                 <Label ui:Translator.Key="AUTOSAVE_SETTINGS_PERIOD" />
-                                <input:NumberInput Min="0.1" FontSize="12" HorizontalAlignment="Left"
-                                                   IsEnabled="{Binding SettingsSubViewModel.File.AutosaveEnabled}"
-                                                   Value="{Binding SettingsSubViewModel.File.AutosavePeriodMinutes, Mode=TwoWay}"
-                                                   Width="55" />
+                                <controls:NumberInput Min="0.1" FontSize="12" HorizontalAlignment="Left"
+                                                      IsEnabled="{Binding SettingsSubViewModel.File.AutosaveEnabled}"
+                                                      Value="{Binding SettingsSubViewModel.File.AutosavePeriodMinutes, Mode=TwoWay}"
+                                                      Width="55" />
                                 <Label ui:Translator.Key="MINUTE_UNIVERSAL" />
                             </StackPanel>
 
@@ -137,16 +136,16 @@
 
                             <StackPanel Orientation="Horizontal" Classes="leftOffset">
                                 <Label d:Content="Width" ui:Translator.Key="WIDTH" />
-                                <input:SizeInput
+                                <controls:SizeInput
                                     Size="{Binding SettingsSubViewModel.File.DefaultNewFileWidth, Mode=TwoWay}"
-                                    MaxSize="9999" HorizontalAlignment="Left" />
+                                    MaxSize="99999" HorizontalAlignment="Left" />
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" Classes="leftOffset">
                                 <Label d:Content="Height" ui:Translator.Key="HEIGHT" />
-                                <input:SizeInput
+                                <controls:SizeInput
                                     Size="{Binding SettingsSubViewModel.File.DefaultNewFileHeight, Mode=TwoWay}"
-                                    MaxSize="9999" HorizontalAlignment="Left" />
+                                    MaxSize="99999" HorizontalAlignment="Left" />
                             </StackPanel>
 
                             <TextBlock d:Content="Tools" ui:Translator.Key="TOOLS" Classes="h5" />
@@ -372,11 +371,11 @@
                             <TextBlock ui:Translator.Key="CUSTOM_BACKGROUND_SCALE" Classes="h5" />
                             <StackPanel Spacing="5" Orientation="Horizontal" Classes="leftOffset">
                                 <Label Content="X" />
-                                <input:SizeInput MinSize="0.5" Decimals="1"
+                                <controls:SizeInput MinSize="0.5" Decimals="1"
                                                  Size="{Binding SettingsSubViewModel.Scene.CustomBackgroundScaleX, Mode=TwoWay}"
                                                  HorizontalAlignment="Left" />
                                 <Label Content="Y" />
-                                <input:SizeInput MinSize="0.5" Decimals="1"
+                                <controls:SizeInput MinSize="0.5" Decimals="1"
                                                  Size="{Binding SettingsSubViewModel.Scene.CustomBackgroundScaleY, Mode=TwoWay}"
                                                  HorizontalAlignment="Left" />
                             </StackPanel>

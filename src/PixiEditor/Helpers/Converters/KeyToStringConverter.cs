@@ -1,10 +1,10 @@
 ﻿using System.Globalization;
 using System.Text;
 using Avalonia.Input;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Helpers;
 using PixiEditor.Models.Input;
 using PixiEditor.OperatingSystem;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Helpers.Converters;
 

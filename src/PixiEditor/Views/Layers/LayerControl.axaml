@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
-             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              xmlns:helpers="clr-namespace:PixiEditor.Helpers.UI"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"

@@ -22,7 +22,7 @@ using PixiEditor.Models.DocumentPassthroughActions;
 
 namespace PixiEditor.Models.Handlers;
 
-internal interface IDocument : IHandler
+internal interface IDocument : IHandler, Extensions.CommonApi.Documents.IDocument
 {
     public Guid Id { get; }
     public ObservableRangeCollection<PaletteColor> Palette { get; set; }

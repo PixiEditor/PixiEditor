@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Helpers.Converters;
 internal class BlendModeToStringConverter : SingleInstanceConverter<BlendModeToStringConverter>

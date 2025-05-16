@@ -56,7 +56,8 @@ public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyCh
     {
         if (Cursor != null)
         {
-            control.Cursor = new Avalonia.Input.Cursor((StandardCursorType)(Cursor.Value.BuiltInCursor ?? BuiltInCursor.None));
+            control.Cursor =
+                new Avalonia.Input.Cursor((StandardCursorType)(Cursor.Value.BuiltInCursor ?? BuiltInCursor.None));
         }
 
         SubscribeBasicEvents(control);
@@ -88,6 +89,15 @@ public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyCh
             _events.Add(eventName, new List<ElementEventHandler>());
         }
 
+        // I'm unsure if it's a correct solution, it prevents resubscription of the same event during
+        // state change. If event count for the same name is bigger than 1, the same event will be called
+        // twice in extension, it won't resolve correct handle within the extension.
+        // TODO: Research if it's a correct solution
+        if (_events[eventName].Count > 0)
+        {
+            _events[eventName].Clear();
+        }
+
         _events[eventName].Add(eventHandler);
     }
 
@@ -101,6 +111,15 @@ public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyCh
         if (!_events.ContainsKey(eventName))
         {
             _events.Add(eventName, new List<ElementEventHandler>());
+        }
+
+        // I'm unsure if it's a correct solution, it prevents resubscription of the same event during
+        // state change. If event count for the same name is bigger than 1, the same event will be called
+        // twice in extension, it won't resolve correct handle within the extension.
+        // TODO: Research if it's a correct solution
+        if (_events[eventName].Count > 0)
+        {
+            _events[eventName].Clear();
         }
 
         _events[eventName].Add((args => eventHandler((T)args)));

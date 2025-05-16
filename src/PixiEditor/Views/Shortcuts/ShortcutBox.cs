@@ -2,11 +2,11 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Input;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Views.Shortcuts;
 

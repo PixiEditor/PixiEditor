@@ -1,4 +1,4 @@
-﻿namespace PixiEditor.Extensions.Common.Localization;
+﻿namespace PixiEditor.UI.Common.Localization;
 
 public enum LocalizationKeyShowMode
 {

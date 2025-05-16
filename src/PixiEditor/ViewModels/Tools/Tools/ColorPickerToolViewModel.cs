@@ -1,13 +1,13 @@
 ﻿using System.ComponentModel;
 using Avalonia.Input;
 using Drawie.Backend.Core.Numerics;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;

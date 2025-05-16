@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
-             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:tools="clr-namespace:PixiEditor.ViewModels.Tools"
              xmlns:markupExtensions="clr-namespace:PixiEditor.Helpers.MarkupExtensions"
@@ -34,8 +34,8 @@
                            Text="{Binding Path=IconToUse}" />
                 <TextBlock Background="{DynamicResource ThemeBorderLowBrush}"
                            IsVisible="{Binding !CanBeUsedOnActiveLayer}"
-                           Classes="pixi-icon" FontSize="12" Text="{DynamicResource icon-plus-square}" 
-                           HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                           Classes="pixi-icon" FontSize="12" Text="{DynamicResource icon-plus-square}"
+                           HorizontalAlignment="Right" VerticalAlignment="Bottom" />
             </Grid>
         </Button.Content>
     </Button>
