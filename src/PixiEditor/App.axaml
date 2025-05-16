@@ -3,7 +3,7 @@
              xmlns:themes="clr-namespace:PixiEditor.UI.Common.Themes;assembly=PixiEditor.UI.Common"
              xmlns:avaloniaUi="clr-namespace:PixiEditor"
              xmlns:avalonia="clr-namespace:PixiDocks.Avalonia;assembly=PixiDocks.Avalonia"
-             xmlns:templates="clr-namespace:ColorPicker.Templates;assembly=ColorPicker.AvaloniaUI"
+             xmlns:templates1="clr-namespace:ColorPicker.AvaloniaUI.Templates;assembly=ColorPicker.AvaloniaUI"
              x:Class="PixiEditor.App"
              Name="PixiEditor"
              RequestedThemeVariant="Dark">
@@ -14,7 +14,7 @@
     <Application.Styles>
         <themes:PixiEditorTheme />
         <avalonia:PixiDockSimpleTheme />
-        <templates:PixiPerfectColorPickerTheme />
+        <templates1:PixiPerfectColorPickerTheme />
         <StyleInclude Source="/Styles/PixiEditor.Controls.axaml" />
         <StyleInclude Source="/Styles/PixiEditor.Animators.axaml" />
         <StyleInclude Source="/Styles/PixiEditor.Handles.axaml" />

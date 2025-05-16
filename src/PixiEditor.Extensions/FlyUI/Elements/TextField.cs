@@ -6,13 +6,14 @@ namespace PixiEditor.Extensions.FlyUI.Elements;
 
 internal class TextField : LayoutElement
 {
+    private string text;
     public event ElementEventHandler TextChanged
     {
         add => AddEvent(nameof(TextChanged), value);
         remove => RemoveEvent(nameof(TextChanged), value);
     }
 
-    public string Text { get; set; }
+    public string Text { get => text; set => SetField(ref text, value); }
 
     public TextField(string text)
     {
@@ -33,6 +34,11 @@ internal class TextField : LayoutElement
         };
 
         return textBox;
+    }
+
+    protected override IEnumerable<object> GetControlProperties()
+    {
+        yield return Text;
     }
 
     protected override void DeserializeControlProperties(List<object> values)

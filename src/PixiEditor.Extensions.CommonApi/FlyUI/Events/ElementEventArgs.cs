@@ -18,6 +18,7 @@ public class ElementEventArgs
             nameof(ToggleEventArgs) => new ToggleEventArgs(reader.ReadBool()),
             nameof(TextEventArgs) => new TextEventArgs(reader.ReadString()),
             nameof(NumberEventArgs) => new NumberEventArgs(reader.ReadDouble()),
+            nameof(ElementEventArgs) => new ElementEventArgs(),
             _ => throw new NotSupportedException($"Event type '{eventType}' is not supported.")
         };
 

@@ -1,3 +1,4 @@
+using Avalonia.Threading;
 using PixiEditor.Extensions.CommonApi.Documents;
 using PixiEditor.Extensions.CommonApi.IO;
 using PixiEditor.Models.IO;

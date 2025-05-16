@@ -2,6 +2,7 @@
 using Avalonia;
 using Avalonia.Logging;
 using Drawie.Interop.Avalonia;
+using Drawie.Interop.VulkanAvalonia;
 
 namespace PixiEditor.Desktop;
 

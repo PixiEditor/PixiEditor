@@ -77,12 +77,14 @@ public partial class WasmExtensionInstance : Extension
 
     private void OnAsyncCallCompleted(int handle, int result)
     {
-        Instance.GetAction<int, int>("async_call_completed").Invoke(handle, result);
+        Dispatcher.UIThread.Invoke(() =>
+            Instance.GetAction<int, int>("async_call_completed").Invoke(handle, result));
     }
 
     private void OnAsyncCallFaulted(int handle, string exceptionMessage)
     {
-        Instance.GetAction<int, string>("async_call_faulted").Invoke(handle, exceptionMessage);
+        Dispatcher.UIThread.Invoke(() =>
+            Instance.GetAction<int, string>("async_call_faulted").Invoke(handle, exceptionMessage));
     }
 
     private void SetElementMap()
