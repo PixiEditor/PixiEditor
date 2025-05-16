@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Extensions.Commands;
+using PixiEditor.Extensions.CommonApi.Commands;
 using PixiEditor.Extensions.CommonApi.IO;
-using PixiEditor.Extensions.CommonApi.Menu;
+using PixiEditor.Extensions.CommonApi.Logging;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.Windowing;
@@ -15,9 +17,10 @@ public class ExtensionServices
     public IFileSystemProvider? FileSystem => Services.GetService<IFileSystemProvider>();
     public IPreferences? Preferences => Services.GetService<IPreferences>();
     public ICommandProvider? Commands => Services.GetService<ICommandProvider>();
-    
     public IPalettesProvider? Palettes => Services.GetService<IPalettesProvider>();
     public IDocumentProvider Documents => Services.GetService<IDocumentProvider>();
+    public ICommandSupervisor CommandSupervisor => Services.GetService<ICommandSupervisor>();
+    public ILogger Logger => Services.GetService<ILogger>();
 
     public ExtensionServices(IServiceProvider services)
     {

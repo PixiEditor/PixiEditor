@@ -70,14 +70,21 @@
                                    Text="{Binding VersionText}" />
                     </StackPanel>
 
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button Command="{Binding OpenFileCommand}" MinWidth="150" Margin="10"
-                                ui:Translator.Key="OPEN_FILE" />
-                        <Button Command="{Binding OpenNewFileCommand}" MinWidth="150" Margin="10"
-                                ui:Translator.Key="NEW_FILE" />
-                        <Button Classes="pixi-icon" Content="{DynamicResource icon-paste-as-new-layer}"
-                                Command="{Binding NewFromClipboardCommand}"
-                                ui:Translator.TooltipKey="NEW_FROM_CLIPBOARD" />
+                    <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Command="{Binding OpenFileCommand}" MinWidth="150" Margin="10"
+                                    ui:Translator.Key="OPEN_FILE" />
+                            <Button Command="{Binding OpenNewFileCommand}" MinWidth="150" Margin="10"
+                                    ui:Translator.Key="NEW_FILE" />
+                            <Button Classes="pixi-icon" Content="{DynamicResource icon-paste-as-new-layer}"
+                                    Command="{Binding NewFromClipboardCommand}"
+                                    ui:Translator.TooltipKey="NEW_FROM_CLIPBOARD" />
+                        </StackPanel>
+                        <Button Command="{xaml:Command Name=PixiEditor.FoundersPack:Workspaces.Browse}"
+                                IsVisible="{xaml:CommandExists Name=PixiEditor.FoundersPack:Workspaces.Browse}"
+                                Name="workspacesButton"
+                                Margin="10, 0, 34, 0"
+                                ui:Translator.Key="PixiEditor.FoundersPack:BROWSE_TEMPLATES"/>
                     </StackPanel>
 
                     <StackPanel Grid.Row="2" HorizontalAlignment="Center" Margin="0,30,0,0">

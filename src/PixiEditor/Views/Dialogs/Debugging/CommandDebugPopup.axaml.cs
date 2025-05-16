@@ -168,4 +168,16 @@ public partial class CommandDebugPopup : PixiEditorPopup
             }
         }
     }
+
+    private void TextBox_OnTextChanged(object? sender, TextChangedEventArgs e)
+    {
+        if (sender is TextBox textBox)
+        {
+            string filter = textBox.Text.ToLower();
+
+            Commands = new ObservableCollection<CommandDebug>(allCommands
+                .Where(x => x.Command.InternalName.ToLower().Contains(filter) ||
+                            x.Command.DisplayName.ToString().ToLower().Contains(filter)));
+        }
+    }
 }

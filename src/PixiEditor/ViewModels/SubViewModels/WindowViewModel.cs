@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.Input;
+using Drawie.Numerics;
 using PixiDocks.Core.Docking;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands;
@@ -79,7 +80,9 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
     public void CenterCurrentViewport()
     {
         if (ActiveWindow is ViewportWindowViewModel viewport)
-            viewport.CenterViewportTrigger.Execute(this, viewport.Document.SizeBindable);
+        {
+            viewport.CenterViewportTrigger.Execute(this, viewport.GetRenderOutputSize());
+        }
     }
 
 
@@ -90,6 +93,16 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
         if (ActiveWindow is ViewportWindowViewModel viewport)
         {
             viewport.HudVisible = !viewport.HudVisible;
+        }
+    }
+
+
+    [Command.Internal("PixiEditor.Viewport.SetRenderOutput")]
+    public void SetRenderOutputOfCurrentViewport(string renderOutput)
+    {
+        if (ActiveWindow is ViewportWindowViewModel viewport)
+        {
+            viewport.RenderOutputName = renderOutput;
         }
     }
 

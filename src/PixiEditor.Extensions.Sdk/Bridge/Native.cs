@@ -60,4 +60,5 @@ internal static partial class Native
 
     [MethodImpl(MethodImplOptions.InternalCall)]
     public static extern string to_resources_full_path(string value);
+
 }

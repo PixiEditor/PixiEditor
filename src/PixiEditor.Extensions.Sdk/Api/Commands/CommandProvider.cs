@@ -1,5 +1,4 @@
 using PixiEditor.Extensions.CommonApi.Commands;
-using PixiEditor.Extensions.CommonApi.Menu;
 using PixiEditor.Extensions.Sdk.Bridge;
 
 namespace PixiEditor.Extensions.Sdk.Api.Commands;
@@ -26,6 +25,21 @@ public class CommandProvider : ICommandProvider
         _commands.Add(command.UniqueName, (execute, canExecute));
 
         Interop.RegisterCommand(command);
+    }
+
+    public void InvokeCommand(string commandName)
+    {
+        Native.invoke_command(commandName);
+    }
+
+    public void InvokeCommand(string commandName, object parameter)
+    {
+        Interop.InvokeCommandGeneric(commandName, parameter);
+    }
+
+    public bool CommandExists(string commandName)
+    {
+        return Native.command_exists(commandName);
     }
 
     private void OnCommandInvoked(string uniqueName)

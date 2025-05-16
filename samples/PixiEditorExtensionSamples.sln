@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample7_FlyUI", "Sample7_Fl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample8_Commands", "Sample8_Commands\Sample8_Commands.csproj", "{25DA4758-9F82-494E-96A3-B9C48637C0E0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample8_CommandLibrary", "Sample8_CommandLibrary\Sample8_CommandLibrary.csproj", "{3559A288-DF82-4429-B23C-CFF9E55B372E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,6 +70,10 @@ Global
 		{25DA4758-9F82-494E-96A3-B9C48637C0E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25DA4758-9F82-494E-96A3-B9C48637C0E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25DA4758-9F82-494E-96A3-B9C48637C0E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3559A288-DF82-4429-B23C-CFF9E55B372E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3559A288-DF82-4429-B23C-CFF9E55B372E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3559A288-DF82-4429-B23C-CFF9E55B372E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3559A288-DF82-4429-B23C-CFF9E55B372E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FD9B4C32-4D2E-410E-BC6B-787779BEB6E2} = {7CC35BC4-829F-4EF4-8EB6-E1D46206E7DC}

@@ -697,6 +697,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 renderOutputName = name.ComputedValue?.ToString();
             }
 
+            if (finalSize.ShortestAxis <= 0)
+            {
+                finalSize = SizeBindable;
+            }
+
             return finalSize;
         }
 
@@ -1253,7 +1258,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
-    public bool RenderFrames(List<Image> frames, Func<Surface, Surface> processFrameAction = null, string? renderOutput = null)
+    public bool RenderFrames(List<Image> frames, Func<Surface, Surface> processFrameAction = null,
+        string? renderOutput = null)
     {
         var firstFrame = AnimationDataViewModel.GetFirstVisibleFrame();
         var lastFrame = AnimationDataViewModel.GetLastVisibleFrame();
@@ -1299,5 +1305,24 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         Internals.ChangeController.TryStopActiveExecutor();
         Internals.Tracker.Dispose();
         Internals.Tracker.Document.Dispose();
+    }
+
+    public VecI GetRenderOutputSize(string renderOutputName)
+    {
+        var exportOutputs = GetAvailableExportOutputs();
+        var exportOutput = exportOutputs.FirstOrDefault(x => x.name == renderOutputName);
+
+        VecI size = SizeBindable;
+        if (exportOutput != default)
+        {
+            size = exportOutput.originalSize;
+
+            if (size.ShortestAxis <= 0)
+            {
+                size = SizeBindable;
+            }
+        }
+
+        return size;
     }
 }

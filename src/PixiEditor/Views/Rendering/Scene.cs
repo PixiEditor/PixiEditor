@@ -402,7 +402,10 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 if (prop != null)
                 {
                     VecI size = Document.NodeGraph.GetComputedPropertyValue<VecI>(prop);
-                    outputSize = size;
+                    if (size.ShortestAxis > 0)
+                    {
+                        outputSize = size;
+                    }
                 }
             }
         }
@@ -850,40 +853,21 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         if (e.NewValue is DocumentViewModel documentViewModel)
         {
             documentViewModel.SizeChanged += scene.DocumentViewModelOnSizeChanged;
-            scene.ContentDimensions = scene.GetRenderOutputSize();
+            scene.ContentDimensions = scene.Document.GetRenderOutputSize(scene.RenderOutput);
         }
     }
 
     private void DocumentViewModelOnSizeChanged(object? sender, DocumentSizeChangedEventArgs e)
     {
-        ContentDimensions = GetRenderOutputSize();
+        ContentDimensions = Document.GetRenderOutputSize(RenderOutput);
     }
 
-    private VecI GetRenderOutputSize()
-    {
-        VecI outputSize = Document.SizeBindable;
-
-        if (!string.IsNullOrEmpty(RenderOutput))
-        {
-            if (Document.NodeGraph.CustomRenderOutputs.TryGetValue(RenderOutput, out var node))
-            {
-                var prop = node?.Inputs.FirstOrDefault(x => x.PropertyName == CustomOutputNode.SizePropertyName);
-                if (prop != null)
-                {
-                    VecI size = Document.NodeGraph.GetComputedPropertyValue<VecI>(prop);
-                    outputSize = size;
-                }
-            }
-        }
-
-        return outputSize;
-    }
 
     private static void UpdateRenderOutput(Scene scene, AvaloniaPropertyChangedEventArgs e)
     {
         if (e.NewValue is string newValue)
         {
-            scene.ContentDimensions = scene.GetRenderOutputSize();
+            scene.ContentDimensions = scene.Document.GetRenderOutputSize(newValue);
             scene.CenterContent();
         }
     }

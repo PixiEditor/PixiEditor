@@ -35,6 +35,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public IServiceProvider Services { get; private set; }
 
     public event Action OnClose;
+    public event Action OnEarlyStartupEvent;
     public event Action OnStartupEvent;
     public FileViewModel FileSubViewModel { get; set; }
     public UpdateViewModel UpdateSubViewModel { get; set; }
@@ -176,6 +177,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
     public void OnStartup()
     {
+        OnEarlyStartupEvent?.Invoke();
         OnStartupEvent?.Invoke();
         MenuBarViewModel.Init(Services, CommandController);
     }
@@ -367,7 +369,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     {
         foreach (var viewport in WindowSubViewModel.Viewports.Where(viewport => viewport.Document == e.Document))
         {
-            viewport.CenterViewportTrigger.Execute(this, e.NewSize);
+            viewport.CenterViewportTrigger.Execute(this, viewport.GetRenderOutputSize());
         }
     }
 }

@@ -47,5 +47,29 @@ public class CommandsSampleExtension : PixiEditorExtension
             clickedCount++;
             Api.Logger.Log($"Clicked {clickedCount} times");
         });
+
+
+        Api.Commands.InvokeCommand("PixiEditor.File.New");
+
+        if (Api.Commands.CommandExists("yourCompany.Samples.CommandLibrary:PrintHelloWorld"))
+        {
+            Api.Commands.InvokeCommand("yourCompany.Samples.CommandLibrary:PrintHelloWorld");
+        }
+
+        if (Api.Commands.CommandExists("yourCompany.Samples.CommandLibrary:PrintHelloWorldFamily"))
+        {
+            Api.Commands.InvokeCommand("yourCompany.Samples.CommandLibrary:PrintHelloWorldFamily");
+        }
+
+        if (Api.Commands.CommandExists("yourCompany.Samples.CommandLibrary:PrintHelloWorldPrivate"))
+        {
+            // This will log an error.
+            Api.Commands.InvokeCommand("yourCompany.Samples.CommandLibrary:PrintHelloWorldPrivate");
+        }
+
+        if (Api.Commands.CommandExists("yourCompany.Samples.CommandLibrary:PrintHelloWorldExplicit"))
+        {
+            Api.Commands.InvokeCommand("yourCompany.Samples.CommandLibrary:PrintHelloWorldExplicit");
+        }
     }
 }
