@@ -28,12 +28,12 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
     {
         if (target.TryFindNode<VectorLayerNode>(TargetId, out var node))
         {
-            if (IsIdentical(node.ShapeData, Data))
+            if (IsIdentical(node.EmbeddedShapeData, Data))
             {
                 return false;
             }
 
-            originalData = (ShapeVectorData?)node.ShapeData?.Clone();
+            originalData = (ShapeVectorData?)node.EmbeddedShapeData?.Clone();
             return true;
         }
 
@@ -50,9 +50,9 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
     {
         var node = target.FindNode<VectorLayerNode>(TargetId);
 
-        node.ShapeData = Data;
+        node.EmbeddedShapeData = Data;
 
-        RectD aabb = node.ShapeData.TransformedAABB.RoundOutwards();
+        RectD aabb = node.EmbeddedShapeData.TransformedAABB.RoundOutwards();
         aabb = aabb with { Size = new VecD(Math.Max(1, aabb.Size.X), Math.Max(1, aabb.Size.Y)) };
 
         var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
@@ -80,9 +80,9 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
             return new None();
         }
 
-        node.ShapeData = Data;
+        node.EmbeddedShapeData = Data;
 
-        RectD aabb = node.ShapeData.TransformedAABB.RoundOutwards();
+        RectD aabb = node.EmbeddedShapeData.TransformedAABB.RoundOutwards();
         aabb = aabb with { Size = new VecD(Math.Max(1, aabb.Size.X), Math.Max(1, aabb.Size.Y)) };
 
         var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
@@ -94,13 +94,13 @@ internal class SetShapeGeometry_UpdateableChange : InterruptableUpdateableChange
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var node = target.FindNode<VectorLayerNode>(TargetId);
-        node.ShapeData = originalData;
+        node.EmbeddedShapeData = originalData;
 
         AffectedArea affected = new AffectedArea();
 
-        if (node.ShapeData != null)
+        if (node.EmbeddedShapeData != null)
         {
-            RectD aabb = node.ShapeData.TransformedAABB.RoundOutwards();
+            RectD aabb = node.EmbeddedShapeData.TransformedAABB.RoundOutwards();
             aabb = aabb with { Size = new VecD(Math.Max(1, aabb.Size.X), Math.Max(1, aabb.Size.Y)) };
 
             affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(

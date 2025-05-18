@@ -47,8 +47,8 @@ internal class PreviewShiftLayers_UpdateableChange : InterruptableUpdateableChan
 
             if (layer is VectorLayerNode transformableObject)
             {
-                originalShapes[layerGuid] = transformableObject.ShapeData;
-                transformableObject.ShapeData = null;
+                originalShapes[layerGuid] = transformableObject.EmbeddedShapeData;
+                transformableObject.EmbeddedShapeData = null;
             }
         }
 
@@ -78,7 +78,7 @@ internal class PreviewShiftLayers_UpdateableChange : InterruptableUpdateableChan
                 StrokeJoin join = StrokeJoin.Miter;
                 StrokeCap cap = StrokeCap.Butt;
                 
-                (vectorLayer.ShapeData as PathVectorData)?.Path.Dispose();
+                (vectorLayer.EmbeddedShapeData as PathVectorData)?.Path.Dispose();
 
                 var originalShape = originalShapes[layerGuid];
 
@@ -107,7 +107,7 @@ internal class PreviewShiftLayers_UpdateableChange : InterruptableUpdateableChan
                     StrokeLineCap = cap
                 };
                 
-                vectorLayer.ShapeData = newShapeData;
+                vectorLayer.EmbeddedShapeData = newShapeData;
                 changes.Add(new VectorShape_ChangeInfo(layerGuid, ShiftLayer_UpdateableChange.AffectedAreaFromBounds(target, layerGuid, frame)));
             }
         }
@@ -143,8 +143,8 @@ internal class PreviewShiftLayers_UpdateableChange : InterruptableUpdateableChan
             }
             else if (layer is VectorLayerNode transformableObject)
             {
-                (transformableObject.ShapeData as PathVectorData)?.Path.Dispose();
-                transformableObject.ShapeData = originalShapes[layerGuid];
+                (transformableObject.EmbeddedShapeData as PathVectorData)?.Path.Dispose();
+                transformableObject.EmbeddedShapeData = originalShapes[layerGuid];
             }
         }
 

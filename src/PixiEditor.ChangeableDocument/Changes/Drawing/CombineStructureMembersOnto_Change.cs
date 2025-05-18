@@ -187,7 +187,7 @@ internal class CombineStructureMembersOnto_Change : Change
         if (targetLayer is not VectorLayerNode vectorLayer)
             throw new InvalidOperationException("Target layer is not a vector layer");
 
-        ShapeVectorData targetData = vectorLayer.ShapeData ?? null;
+        ShapeVectorData targetData = vectorLayer.EmbeddedShapeData ?? null;
         VectorPath? targetPath = targetData?.ToPath();
 
         var reversed = toCombine.Reverse().ToHashSet();
@@ -197,16 +197,16 @@ internal class CombineStructureMembersOnto_Change : Change
             if (target.FindMember(guid) is not VectorLayerNode vectorNode)
                 continue;
 
-            if (vectorNode.ShapeData == null)
+            if (vectorNode.EmbeddedShapeData == null)
                 continue;
 
-            VectorPath path = vectorNode.ShapeData.ToPath();
+            VectorPath path = vectorNode.EmbeddedShapeData.ToPath();
 
             if (targetData == null)
             {
-                targetData = vectorNode.ShapeData;
+                targetData = vectorNode.EmbeddedShapeData;
                 targetPath = new VectorPath();
-                targetPath.AddPath(path, vectorNode.ShapeData.TransformationMatrix, AddPathMode.Append);
+                targetPath.AddPath(path, vectorNode.EmbeddedShapeData.TransformationMatrix, AddPathMode.Append);
 
                 if (originalPaths.ContainsKey(frame))
                     originalPaths[frame].Dispose();
@@ -215,7 +215,7 @@ internal class CombineStructureMembersOnto_Change : Change
             }
             else
             {
-                targetPath.AddPath(path, vectorNode.ShapeData.TransformationMatrix, AddPathMode.Append);
+                targetPath.AddPath(path, vectorNode.EmbeddedShapeData.TransformationMatrix, AddPathMode.Append);
                 path.Dispose();
             }
         }
@@ -241,7 +241,7 @@ internal class CombineStructureMembersOnto_Change : Change
             data.Path = targetPath;
         }
 
-        vectorLayer.ShapeData = data;
+        vectorLayer.EmbeddedShapeData = data;
 
         return new AffectedArea(new HashSet<VecI>());
     }
@@ -383,7 +383,7 @@ internal class CombineStructureMembersOnto_Change : Change
         if (!originalPaths.TryGetValue(frame, out var path))
             throw new InvalidOperationException("Original path not found");
 
-        targetLayer.ShapeData = new PathVectorData(path);
+        targetLayer.EmbeddedShapeData = new PathVectorData(path);
         return new VectorShape_ChangeInfo(targetLayer.Id, new AffectedArea(new HashSet<VecI>()));
     }
 
