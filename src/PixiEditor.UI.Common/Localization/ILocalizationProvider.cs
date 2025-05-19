@@ -16,7 +16,7 @@ public interface ILocalizationProvider
     /// </summary>
     public void LoadData(string currentLanguageCode = null);
     public void LoadLanguage(LanguageData languageData, bool forceReload = false);
-    public void LoadExtensionData(Extension extension);
+    public void LoadExtensionData(List<LanguageData> extensionLanguageData, string dataLocation);
     public void LoadDebugKeys(Dictionary<string, string> languageKeys, bool rightToLeft);
     public void ReloadLanguage();
     public Language DefaultLanguage { get; }

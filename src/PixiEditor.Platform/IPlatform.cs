@@ -25,12 +25,24 @@ public interface IPlatform
 
 public class NullAdditionalContentProvider : IAdditionalContentProvider
 {
-    public bool IsContentInstalled(AdditionalContentProduct product) => false;
-    public bool PlatformHasContent(AdditionalContentProduct product)
+    public Task<string?> InstallContent(string productId)
+    {
+        return Task.FromResult<string?>(null);
+    }
+
+    public bool IsContentOwned(string productId)
     {
         return false;
     }
 
-    public void InstallContent(AdditionalContentProduct product) { }
-    public void UninstallContent(AdditionalContentProduct product) { }
+    public bool PlatformHasContent(string productId)
+    {
+        return false;
+    }
+
+    public event Action<string, object>? OnError;
+    public bool IsInstalled(string productId)
+    {
+        return false;
+    }
 }

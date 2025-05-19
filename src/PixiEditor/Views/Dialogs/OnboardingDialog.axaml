@@ -228,7 +228,7 @@
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
                     </ComboBox>
-                    <TextBlock DockPanel.Dock="Bottom" ui:Hyperlink.Url="https://discord.gg/qSRMYmq"
+                    <TextBlock DockPanel.Dock="Bottom" ui1:Hyperlink.Url="https://discord.gg/qSRMYmq"
                                ui:Translator.Key="LANGUAGE_INFO" />
                 </StackPanel>
                 <StackPanel Grid.Row="1"
@@ -271,7 +271,7 @@
                     <TextBlock Padding="20" Classes="subtext" ui:Translator.Key="ANALYTICS_INFO_DETAILED"
                                TextWrapping="Wrap">
                         <TextBlock Text=" " />
-                        <TextBlock ui:Hyperlink.Url="https://pixieditor.net/docs/privacy-policy"
+                        <TextBlock ui1:Hyperlink.Url="https://pixieditor.net/docs/privacy-policy"
                                    ui:Translator.Key="PRIVACY_POLICY" />
                     </TextBlock>
                 </StackPanel>

@@ -75,15 +75,22 @@ internal class LocalizationProvider : ILocalizationProvider
         LoadLanguage(LocalizationData.Languages.FirstOrDefault(x => x.Code == currentLanguageCode, FollowSystem));
     }
 
-    public void LoadExtensionData(Extension extension)
+    public void LoadExtensionData(List<LanguageData> extensionLanguageData, string dataLocation)
     {
-        LoadExtensionData(extension, LocalizationData);
+        if (extensionLanguageData == null || extensionLanguageData.Count == 0)
+        {
+            return;
+        }
+
+        LoadExtensionData(extensionLanguageData, dataLocation, LocalizationData);
         LoadLanguage(CurrentLanguage.LanguageData, true);
     }
 
-    private void LoadExtensionData(Extension extension, LocalizationData data)
+    private void LoadExtensionData(List<LanguageData> extensionLanguageData, string dataLocation, LocalizationData data)
     {
-        data.MergeWith(extension.Metadata.Localization.Languages, Path.GetDirectoryName(extension.Location));
+        string dirName = Path.GetDirectoryName(dataLocation);
+
+        data.MergeWith(extensionLanguageData, dirName);
     }
 
     private void LoadExtensionLocalizationData(LocalizationData localizationData)
@@ -105,7 +112,7 @@ internal class LocalizationProvider : ILocalizationProvider
                 continue;
             }
 
-            LoadExtensionData(extension, localizationData);
+            LoadExtensionData(extension.Metadata.Localization?.Languages, extension.Location, localizationData);
         }
     }
 

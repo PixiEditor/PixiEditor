@@ -2,7 +2,6 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Metadata;
 using PixiEditor.Extensions.WasmRuntime;
 using PixiEditor.Platform;
@@ -11,9 +10,6 @@ namespace PixiEditor.Extensions.Runtime;
 
 public class ExtensionLoader
 {
-    private readonly Dictionary<string, OfficialExtensionData> _officialExtensionsKeys =
-        new Dictionary<string, OfficialExtensionData>();
-
     public List<Extension> LoadedExtensions { get; } = new();
 
     public string PackagesPath { get; }
@@ -28,11 +24,6 @@ public class ExtensionLoader
         PackagesPath = packagesPath;
         UnpackedExtensionsPath = unpackedExtensionsPath;
         ValidateExtensionFolder();
-    }
-
-    public void AddOfficialExtension(string uniqueName, OfficialExtensionData data)
-    {
-        _officialExtensionsKeys.Add(uniqueName, data);
     }
 
     public void LoadExtensions()
@@ -327,38 +318,6 @@ public class ExtensionLoader
 
         return false;
     }
-
-    private bool VerifyAssemblySignature(string metadataUniqueName, Assembly assembly)
-    {
-        bool wasVerified = false;
-        bool verified = StrongNameSignatureVerificationEx(assembly.Location, true, ref wasVerified);
-        if (!verified || !wasVerified) return false;
-
-        byte[]? assemblyPublicKey = assembly.GetName().GetPublicKey();
-        if (assemblyPublicKey == null) return false;
-
-        return PublicKeysMatch(assemblyPublicKey, _officialExtensionsKeys[metadataUniqueName].PublicKeyName);
-    }
-
-    private bool PublicKeysMatch(byte[] assemblyPublicKey, string pathToPublicKey)
-    {
-        Assembly currentAssembly = Assembly.GetExecutingAssembly();
-        using Stream? stream =
-            currentAssembly.GetManifestResourceStream(
-                $"{currentAssembly.GetName().Name}.OfficialExtensions.{pathToPublicKey}");
-        if (stream == null) return false;
-
-        using MemoryStream memoryStream = new MemoryStream();
-        stream.CopyTo(memoryStream);
-        byte[] publicKey = memoryStream.ToArray();
-
-        return assemblyPublicKey.SequenceEqual(publicKey);
-    }
-
-    //TODO: uhh, other platforms dumbass?
-    [DllImport("mscoree.dll", CharSet = CharSet.Unicode)]
-    static extern bool StrongNameSignatureVerificationEx(string wszFilePath, bool fForceVerification,
-        ref bool pfWasVerified);
 
     private Extension LoadExtensionEntry(ExtensionEntry entry, ExtensionMetadata metadata)
     {

@@ -5,7 +5,7 @@
              xmlns:subViewModels="clr-namespace:PixiEditor.ViewModels.SubViewModels"
              xmlns:pixiAuth="clr-namespace:PixiEditor.PixiAuth;assembly=PixiEditor.PixiAuth"
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
-             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
              xmlns:auth="clr-namespace:PixiEditor.Views.Auth"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"

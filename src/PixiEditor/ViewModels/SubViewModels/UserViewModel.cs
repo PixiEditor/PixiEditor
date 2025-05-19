@@ -1,17 +1,12 @@
 using System.Collections.ObjectModel;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
-using DiscordRPC;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
 using PixiEditor.IdentityProvider;
 using PixiEditor.IdentityProvider.PixiAuth;
-using PixiEditor.Models.Commands.Attributes.Commands;
-using PixiEditor.OperatingSystem;
-using PixiEditor.PixiAuth;
-using PixiEditor.PixiAuth.Exceptions;
 using PixiEditor.PixiAuth.Utils;
 using PixiEditor.Platform;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.User;
 
 namespace PixiEditor.ViewModels.SubViewModels;

@@ -7,12 +7,13 @@
                          xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
                          xmlns:subViewModels="clr-namespace:PixiEditor.ViewModels.SubViewModels"
                          xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                         xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
                          mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                          x:Class="PixiEditor.Views.Auth.LoginPopup"
                          CanMinimize="True"
                          CanResize="False"
                          Width="320" Height="280"
-                         ui:Translator.Key="ACCOUNT_WINDOW_TITLE">
+                         localization:Translator.Key="ACCOUNT_WINDOW_TITLE">
     <Design.DataContext>
         <subViewModels:UserViewModel />
     </Design.DataContext>

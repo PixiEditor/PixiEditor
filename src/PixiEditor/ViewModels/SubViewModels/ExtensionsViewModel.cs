@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Models.ExtensionServices;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views.Windows;
 
 namespace PixiEditor.ViewModels.SubViewModels;
@@ -34,7 +34,7 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
                 return;
             }
 
-            ILocalizationProvider.Current.LoadExtensionData(loadedExtension);
+            ILocalizationProvider.Current.LoadExtensionData(loadedExtension.Metadata.Localization?.Languages, loadedExtension.Location);
             loadedExtension.Initialize(new ExtensionServices(Owner.Services));
         }
     }

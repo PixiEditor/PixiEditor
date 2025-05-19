@@ -1,9 +1,7 @@
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using PixiEditor.Extensions.Common.Localization;
 
-namespace PixiEditor.Extensions.UI;
+namespace PixiEditor.UI.Common.Localization;
 
 public class Translate : MarkupExtension
 {

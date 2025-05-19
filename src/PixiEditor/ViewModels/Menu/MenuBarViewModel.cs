@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data;
+using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions.UI;
 using PixiEditor.Helpers.UI;
@@ -101,7 +102,7 @@ internal class MenuBarViewModel : PixiObservableObject
             BuildMenuEntry(command);
         }
 
- BuildMenu(controller, menuItemBuilders);
+        BuildMenu(controller, menuItemBuilders);
 
         OnPropertyChanged(nameof(MenuEntries));
         OnPropertyChanged(nameof(NativeMenu));
