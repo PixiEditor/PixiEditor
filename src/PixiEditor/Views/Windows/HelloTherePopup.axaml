@@ -4,7 +4,7 @@
                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                         xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
                          xmlns:system="clr-namespace:System;assembly=System.Runtime"
                          xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
                          xmlns:dataHolders="clr-namespace:PixiEditor.Models.UserData"
@@ -15,6 +15,7 @@
                          xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
                          xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
                          xmlns:windows="clr-namespace:PixiEditor.Views.Windows"
+                         xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
                          mc:Ignorable="d"
                          Title="Hello there!" Height="680" Width="982" MinHeight="500" MinWidth="600">
 
@@ -84,7 +85,7 @@
                                 IsVisible="{xaml:CommandExists Name=PixiEditor.FoundersPack:Workspaces.Browse}"
                                 Name="workspacesButton"
                                 Margin="10, 0, 34, 0"
-                                ui:Translator.Key="PixiEditor.FoundersPack:BROWSE_TEMPLATES"/>
+                                ui:Translator.Key="PixiEditor.FoundersPack:BROWSE_TEMPLATES" />
                     </StackPanel>
 
                     <StackPanel Grid.Row="2" HorizontalAlignment="Center" Margin="0,30,0,0">
@@ -150,13 +151,13 @@
                                                         Margin="10"
                                                         Stretch="Uniform"
                                                         x:Name="image">
-                                                        <ui:RenderOptionsBindable.BitmapInterpolationMode>
+                                                        <ui1:RenderOptionsBindable.BitmapInterpolationMode>
                                                             <MultiBinding
                                                                 Converter="{converters:WidthToBitmapScalingModeConverter}">
                                                                 <Binding Path="ImageSize.X" ElementName="image" />
                                                                 <Binding Path="Width" ElementName="image" />
                                                             </MultiBinding>
-                                                        </ui:RenderOptionsBindable.BitmapInterpolationMode>
+                                                        </ui1:RenderOptionsBindable.BitmapInterpolationMode>
                                                     </visuals:PixiFilePreviewImage>
                                                     <Border Grid.Row="1" Height="8" Width="8" x:Name="extensionBorder"
                                                             Margin="5"

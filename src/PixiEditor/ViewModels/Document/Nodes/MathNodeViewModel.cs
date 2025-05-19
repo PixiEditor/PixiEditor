@@ -1,9 +1,9 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Helpers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.ViewModels.Nodes.Properties;
 

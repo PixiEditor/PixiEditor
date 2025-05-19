@@ -7,7 +7,6 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;

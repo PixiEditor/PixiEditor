@@ -7,10 +7,10 @@
                     xmlns:commands="clr-namespace:PixiEditor.Models.Commands.Attributes.Commands"
                     xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
                     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
-                    xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
                     xmlns:input="clr-namespace:PixiEditor.Views.Input"
                     xmlns:system="clr-namespace:System;assembly=System.Runtime"
-                    xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions">
+                    xmlns:ui1="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                    xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common">
     <ControlTheme TargetType="animations:Timeline" x:Key="{x:Type animations:Timeline}">
         <Setter Property="Template">
             <ControlTemplate>
@@ -28,7 +28,7 @@
                     <Border DockPanel.Dock="Left" BorderThickness="0 0 1 0"
                             BorderBrush="{DynamicResource ThemeBorderMidBrush}">
                         <DockPanel Grid.Row="0" Grid.Column="0" LastChildFill="False" Margin="5 0">
-                            <input:SizeInput Unit="FPS"
+                            <controls:SizeInput Unit="FPS"
                                              Width="80" Height="25" HorizontalAlignment="Left"
                                              Size="{Binding Fps, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
 
@@ -37,13 +37,14 @@
                                     ui1:Translator.TooltipKey="SETTINGS">
                                 <Button.Styles>
                                     <Style Selector="Button:pointerover">
-                                        <Setter Property="RenderTransform" Value="rotate(45deg)"/>
+                                        <Setter Property="RenderTransform" Value="rotate(45deg)" />
                                     </Style>
                                 </Button.Styles>
                                 <Button.Transitions>
-                                        <Transitions>
-                                            <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3" Easing="SineEaseInOut"/>
-                                        </Transitions>
+                                    <Transitions>
+                                        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3"
+                                                                       Easing="SineEaseInOut" />
+                                    </Transitions>
                                 </Button.Transitions>
                                 <Button.Flyout>
                                     <Flyout Placement="Top">
@@ -52,7 +53,7 @@
                                             <StackPanel Orientation="Horizontal" Spacing="5">
                                                 <TextBlock VerticalAlignment="Center"
                                                            ui1:Translator.Key="ONION_FRAMES_COUNT" />
-                                                <input:NumberInput
+                                                <controls:NumberInput
                                                     HorizontalAlignment="Left" Width="50"
                                                     Min="1" Decimals="0"
                                                     Max="128"
@@ -62,7 +63,7 @@
                                             <StackPanel Orientation="Horizontal" Spacing="5">
                                                 <TextBlock VerticalAlignment="Center"
                                                            ui1:Translator.Key="ONION_OPACITY" />
-                                                <input:SizeInput
+                                                <controls:SizeInput
                                                     HorizontalAlignment="Left" Width="80"
                                                     MaxSize="100" Unit="%"
                                                     Size="{Binding OnionOpacity, RelativeSource={RelativeSource TemplatedParent}, 
@@ -77,7 +78,8 @@
                     <Border Grid.Row="0" Grid.Column="1">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
                             <ToggleButton Margin="0, 5" Width="24" HorizontalAlignment="Center" Classes="PlayButton"
-                                          Name="PART_PlayToggle" IsChecked="{Binding IsPlaying, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
+                                          Name="PART_PlayToggle"
+                                          IsChecked="{Binding IsPlaying, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
                             <TextBlock VerticalAlignment="Center" FontSize="14">
                                 <Run>
                                     <Run.Text>

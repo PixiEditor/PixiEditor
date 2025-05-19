@@ -6,6 +6,7 @@
              xmlns:visuals1="clr-namespace:PixiEditor.Views.Visuals"
              xmlns:converters1="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:windows1="clr-namespace:PixiEditor.Views.Windows"
+             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Views.Windows.BetaExampleButton">
     <StackPanel>
@@ -31,7 +32,7 @@
             </Grid>
         </Button>
 
-        <TextBlock ui:Translator.Key="{Binding DisplayName, RelativeSource={RelativeSource AncestorType=windows1:BetaExampleButton}}"
+        <TextBlock localization:Translator.Key="{Binding DisplayName, RelativeSource={RelativeSource AncestorType=windows1:BetaExampleButton}}"
                    Width="110" TextAlignment="Center"
                    TextTrimming="CharacterEllipsis"
                    TextWrapping="Wrap"

@@ -9,11 +9,11 @@ using ChunkyImageLib;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.IO;
 using Drawie.Numerics;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using Image = Drawie.Backend.Core.Surfaces.ImageData.Image;
 
