@@ -21,7 +21,7 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
     {
         WindowProvider windowProvider = (WindowProvider)Owner.Services.GetService<IWindowProvider>();
         RegisterCoreWindows(windowProvider);
-        Owner.OnStartupEvent += Owner_OnStartupEvent;
+        Owner.OnEarlyStartupEvent += Owner_OnEarlyStartupEvent;
     }
 
     public void LoadExtensionAdHoc(string extension)
@@ -44,7 +44,7 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
         windowProvider?.RegisterWindow<PalettesBrowser>();
     }
 
-    private void Owner_OnStartupEvent()
+    private void Owner_OnEarlyStartupEvent()
     {
         ExtensionLoader.InitializeExtensions(new ExtensionServices(Owner.Services));
     }

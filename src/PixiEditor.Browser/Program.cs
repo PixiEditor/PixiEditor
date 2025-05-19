@@ -2,9 +2,10 @@
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Browser;
-using PixiEditor;
 
 [assembly: SupportedOSPlatform("browser")]
+
+namespace PixiEditor.Avalonia.Browser;
 
 internal sealed partial class Program
 {

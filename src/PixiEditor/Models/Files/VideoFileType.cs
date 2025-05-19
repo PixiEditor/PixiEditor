@@ -1,7 +1,7 @@
 ﻿using Drawie.Backend.Core;
 using Drawie.Backend.Core.Surfaces.ImageData;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.IO;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Models.Files;
@@ -35,7 +35,7 @@ internal abstract class VideoFileType : IoFileType
             }
 
             return surface;
-        });
+        }, config.ExportOutput);
 
         job?.Report(0.5, new LocalizedString("RENDERING_VIDEO"));
         CancellationToken token = job?.CancellationTokenSource.Token ?? CancellationToken.None;
@@ -79,7 +79,7 @@ internal abstract class VideoFileType : IoFileType
             }
 
             return surface;
-        });
+        }, config.ExportOutput);
 
         job?.Report(0.5, new LocalizedString("RENDERING_VIDEO"));
         CancellationToken token = job?.CancellationTokenSource.Token ?? CancellationToken.None;

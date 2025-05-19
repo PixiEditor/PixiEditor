@@ -11,7 +11,7 @@ using Drawie.Numerics;
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 [NodeInfo("Folder")]
-public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPreviewRenderable
+public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource
 {
     public const string ContentInternalName = "Content";
     private VecI documentSize;
@@ -25,21 +25,21 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
 
     public override Node CreateCopy() => new FolderNode
     {
-        MemberName = MemberName, 
+        MemberName = MemberName,
         ClipToPreviousMember = this.ClipToPreviousMember,
         EmbeddedMask = this.EmbeddedMask?.CloneFromCommitted()
     };
 
     public override VecD GetScenePosition(KeyFrameTime time) =>
-        documentSize / 2f; 
+        documentSize / 2f;
 
     public override VecD GetSceneSize(KeyFrameTime time) =>
-        documentSize; 
+        documentSize;
 
     protected override void OnExecute(RenderContext context)
     {
         base.OnExecute(context);
-        documentSize = context.DocumentSize;
+        documentSize = context.RenderOutputSize;
     }
 
     public override void Render(SceneObjectRenderContext sceneContext)
@@ -99,7 +99,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
 
         Content.Value?.Paint(sceneContext, outputWorkingSurface.DrawingSurface);
 
-        ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, sceneContext);
+        ApplyMaskIfPresent(outputWorkingSurface.DrawingSurface, sceneContext, sceneContext.ChunkResolution);
 
         if (Background.Value != null && sceneContext.TargetPropertyOutput != RawOutput)
         {
@@ -143,33 +143,83 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
         RectD? bounds = null;
+        if (!IsVisible.Value)
+            return null;
+
         if (Content.Connection != null)
         {
-            Content.Connection.Node.TraverseBackwards((n) =>
-            {
-                if (n is StructureNode structureNode)
+            Content.Connection.Node.TraverseBackwards(
+                (n, input) =>
                 {
-                    RectD? childBounds = structureNode.GetTightBounds(frameTime);
-                    if (childBounds != null)
+                    if (n is StructureNode { IsVisible.Value: true } structureNode)
                     {
-                        if (bounds == null)
+                        RectD? childBounds = structureNode.GetTightBounds(frameTime);
+                        if (childBounds != null)
                         {
-                            bounds = childBounds;
-                        }
-                        else
-                        {
-                            bounds = bounds.Value.Union(childBounds.Value);
+                            if (bounds == null)
+                            {
+                                bounds = childBounds;
+                            }
+                            else
+                            {
+                                bounds = bounds.Value.Union(childBounds.Value);
+                            }
                         }
                     }
-                }
 
-                return true;
-            });
+                    return true;
+                }, FilterInvisibleFolders);
 
             return bounds ?? RectD.Empty;
         }
 
         return null;
+    }
+
+    public override RectD? GetApproxBounds(KeyFrameTime frameTime)
+    {
+        RectD? bounds = null;
+        if (Content.Connection != null)
+        {
+            Content.Connection.Node.TraverseBackwards(
+                (n, input) =>
+                {
+                    if (n is StructureNode { IsVisible.Value: true } structureNode)
+                    {
+                        RectD? childBounds = structureNode.GetApproxBounds(frameTime);
+                        if (childBounds != null)
+                        {
+                            if (bounds == null)
+                            {
+                                bounds = childBounds;
+                            }
+                            else
+                            {
+                                bounds = bounds.Value.Union(childBounds.Value);
+                            }
+                        }
+                    }
+
+                    return true;
+                }, FilterInvisibleFolders);
+
+            return bounds ?? RectD.Empty;
+        }
+
+        return null;
+    }
+
+    private bool FilterInvisibleFolders(IInputProperty input)
+    {
+        if (input is
+            {
+                Node: IReadOnlyFolderNode folderNode, InternalPropertyName: FolderNode.ContentInternalName
+            })
+        {
+            return folderNode.IsVisible.Value;
+        }
+
+        return true;
     }
 
     public HashSet<Guid> GetLayerNodeGuids()
@@ -195,7 +245,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
             return base.GetPreviewBounds(frame, elementFor);
         }
 
-        return GetTightBounds(frame);
+        return GetApproxBounds(frame);
     }
 
     public override bool RenderPreview(DrawingSurface renderOn, RenderContext context,
@@ -208,10 +258,16 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode, IClipSource, IPrev
 
         if (Content.Connection != null)
         {
-            var executionQueue = GraphUtils.CalculateExecutionQueue(Content.Connection.Node);
+            var executionQueue = GraphUtils.CalculateExecutionQueue(Content.Connection.Node, FilterInvisibleFolders);
             while (executionQueue.Count > 0)
             {
                 IReadOnlyNode node = executionQueue.Dequeue();
+
+                if (node is IReadOnlyStructureNode { IsVisible.Value: false })
+                {
+                    continue;
+                }
+
                 if (node is IPreviewRenderable previewRenderable)
                 {
                     previewRenderable.RenderPreview(renderOn, context, elementToRenderName);

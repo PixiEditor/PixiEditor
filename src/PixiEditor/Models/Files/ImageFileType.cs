@@ -5,10 +5,10 @@ using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Surfaces;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.IO.FileEncoders;
 using Drawie.Numerics;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Models.Files;
@@ -40,7 +40,7 @@ internal abstract class ImageFileType : IoFileType
                 return new SaveResult(SaveResultType.CustomError, "ERR_EXPORT_SIZE_INVALID");
             }
 
-            var maybeBitmap = document.TryRenderWholeImage(0, exportSize);
+            var maybeBitmap = document.TryRenderWholeImage(0, exportSize, exportConfig.ExportOutput);
             if (maybeBitmap.IsT0)
                 return new SaveResult(SaveResultType.ConcurrencyError);
 
@@ -84,7 +84,7 @@ internal abstract class ImageFileType : IoFileType
                 return new SaveResult(SaveResultType.CustomError, "ERR_EXPORT_SIZE_INVALID");
             }
 
-            var maybeBitmap = document.TryRenderWholeImage(0, exportSize);
+            var maybeBitmap = document.TryRenderWholeImage(0, exportSize, config.ExportOutput);
             if (maybeBitmap.IsT0)
                 return new SaveResult(SaveResultType.ConcurrencyError);
 
@@ -140,7 +140,7 @@ internal abstract class ImageFileType : IoFileType
                 surface!.DrawingSurface.Canvas.DrawSurface(target.DrawingSurface, x * config.ExportSize.X,
                     y * config.ExportSize.Y);
                 target.Dispose();
-            }, job?.CancellationTokenSource.Token ?? CancellationToken.None);
+            }, job?.CancellationTokenSource.Token ?? CancellationToken.None, config.ExportOutput);
 
         return surface;
     }

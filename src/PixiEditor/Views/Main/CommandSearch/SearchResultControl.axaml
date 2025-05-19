@@ -29,7 +29,6 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal">
-                <!--TODO: Below causes heap corruption crash randomly when searching-->
                 <Border Width="25" Margin="0,0,5,0" Padding="1">
                     <Image HorizontalAlignment="Center" Source="{Binding EvaluatedIcon}" />
                 </Border>

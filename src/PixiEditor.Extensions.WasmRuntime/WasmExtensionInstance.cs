@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Avalonia.Controls;
 using Avalonia.Threading;
+using PixiEditor.Extensions.Commands;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.FlyUI;
 using PixiEditor.Extensions.FlyUI.Elements;
@@ -20,7 +21,7 @@ public partial class WasmExtensionInstance : Extension
     private Linker Linker { get; }
     private Store Store { get; }
     private Module Module { get; }
-    
+
     private LayoutBuilder LayoutBuilder { get; set; }
     internal ObjectManager NativeObjectManager { get; set; }
     internal AsyncCallsManager AsyncHandleManager { get; set; }
@@ -29,7 +30,7 @@ public partial class WasmExtensionInstance : Extension
 
     private string modulePath;
     private List<ApiModule> modules = new();
-    
+
     public override string Location => modulePath;
 
     partial void LinkApiFunctions();
@@ -48,7 +49,7 @@ public partial class WasmExtensionInstance : Extension
         AsyncHandleManager = new AsyncCallsManager();
         AsyncHandleManager.OnAsyncCallCompleted += OnAsyncCallCompleted;
         AsyncHandleManager.OnAsyncCallFaulted += OnAsyncCallFaulted;
-        
+
         LinkApiFunctions();
         Linker.DefineModule(Store, Module);
 
@@ -65,21 +66,25 @@ public partial class WasmExtensionInstance : Extension
     protected override void OnInitialized()
     {
         modules.Add(new PreferencesModule(this, Api.Preferences));
+        modules.Add(new CommandModule(this, Api.Commands,
+            (ICommandSupervisor)Api.Services.GetService(typeof(ICommandSupervisor))));
         LayoutBuilder = new LayoutBuilder((ElementMap)Api.Services.GetService(typeof(ElementMap)));
 
         //SetElementMap();
         Instance.GetAction("initialize").Invoke();
         base.OnInitialized();
     }
-    
+
     private void OnAsyncCallCompleted(int handle, int result)
     {
-        Instance.GetAction<int, int>("async_call_completed").Invoke(handle, result);
+        Dispatcher.UIThread.Invoke(() =>
+            Instance.GetAction<int, int>("async_call_completed").Invoke(handle, result));
     }
-    
+
     private void OnAsyncCallFaulted(int handle, string exceptionMessage)
     {
-        Instance.GetAction<int, string>("async_call_faulted").Invoke(handle, exceptionMessage);
+        Dispatcher.UIThread.Invoke(() =>
+            Instance.GetAction<int, string>("async_call_faulted").Invoke(handle, exceptionMessage));
     }
 
     private void SetElementMap()

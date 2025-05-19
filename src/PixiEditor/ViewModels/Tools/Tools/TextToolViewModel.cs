@@ -1,11 +1,11 @@
 ﻿using Avalonia.Input;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Handlers.Tools;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.ViewModels.Tools.Tools;

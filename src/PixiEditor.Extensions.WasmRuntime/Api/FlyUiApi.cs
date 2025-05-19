@@ -13,11 +13,16 @@ internal class FlyUIApi : ApiGroupHandler
 
         LayoutBuilder.ManagedElements[controlId].AddEvent(eventName, (args) =>
         {
-            var action = Instance.GetAction<int, int>("raise_element_event");
+            var action = Instance.GetAction<int, int, int, int>("raise_element_event");
             var ptr = WasmMemoryUtility.WriteString(eventName);
 
-            action.Invoke(controlId, ptr);
+            var data = args.Serialize();
+            var dataPtr = WasmMemoryUtility.WriteBytes(data);
+            int dataSize = data.Length;
+
+            action.Invoke(controlId, ptr, dataPtr, dataSize);
             WasmMemoryUtility.Free(ptr);
+            WasmMemoryUtility.Free(dataPtr);
         });
     }
 

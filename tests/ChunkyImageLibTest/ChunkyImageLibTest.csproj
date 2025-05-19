@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\ChunkyImageLib\ChunkyImageLib.csproj" />
     <ProjectReference Include="..\..\src\Drawie\src\Drawie.Backend.Skia\Drawie.Backend.Skia.csproj" />
+    <ProjectReference Include="..\PixiEditor.Tests\PixiEditor.Tests.csproj" />
   </ItemGroup>
 
 </Project>

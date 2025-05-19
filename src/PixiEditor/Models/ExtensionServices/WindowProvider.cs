@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Helpers;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Extensions.Windowing;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.Models.ExtensionServices;
@@ -41,7 +41,7 @@ public class WindowProvider : IWindowProvider
 
     public IPopupWindow CreatePopupWindow(string title, object body)
     {
-        return new PopupWindow(new PixiEditorPopup { Title = new LocalizedString(title), Content = body });
+        return new PopupWindow(new PixiEditorPopup { Title = title, Content = body });
     }
 
     public IPopupWindow GetWindow(BuiltInWindowType type)

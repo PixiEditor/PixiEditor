@@ -3,9 +3,9 @@ using PixiEditor.Extensions.CommonApi.FlyUI.State;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
-public abstract class State : IState<CompiledControl>
+public abstract class State : IState<ControlDefinition>
 {
-    ILayoutElement<CompiledControl> IState<CompiledControl>.Build()
+    ILayoutElement<ControlDefinition> IState<ControlDefinition>.Build()
     {
         return BuildElement();
     }

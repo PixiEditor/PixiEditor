@@ -1,34 +1,30 @@
-﻿using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+﻿using PixiEditor.Extensions.CommonApi.FlyUI;
+using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
-public class Text : StatelessElement
+public class Text : LayoutElement
 {
     public string Value { get; set; }
     
     public TextWrap TextWrap { get; set; }
+
+    public TextStyle TextStyle { get; set; }
     
-    public FontStyle FontStyle { get; set; }
-    
-    public double FontSize { get; set; }
-    
-    public Text(string value, TextWrap wrap = TextWrap.None, FontStyle fontStyle = FontStyle.Normal, double fontSize = 12)
+    public Text(string value, TextWrap wrap = TextWrap.None, TextStyle? textStyle = null, Cursor? cursor = null) : base(cursor)
     {
         Value = value;
         TextWrap = wrap;
-        FontStyle = fontStyle;
-        FontSize = fontSize;
+        TextStyle = textStyle ?? TextStyle.Default;
     }
 
-    public override CompiledControl BuildNative()
+    protected override ControlDefinition CreateControl()
     {
-        CompiledControl text = new CompiledControl(UniqueId, "Text");
+        ControlDefinition text = new ControlDefinition(UniqueId, "Text");
         text.AddProperty(Value);
         text.AddProperty(TextWrap);
-        text.AddProperty(FontStyle);
-        text.AddProperty(FontSize);
+        text.AddProperty(TextStyle);
 
-        BuildPendingEvents(text);
         return text;
     }
 }

@@ -6,6 +6,7 @@ using Avalonia.Styling;
 using PixiEditor.Extensions.UI;
 using PixiEditor.Models.UserData;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.SubViewModels;
 
 namespace PixiEditor.ViewModels.Menu.MenuBuilders;

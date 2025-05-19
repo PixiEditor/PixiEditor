@@ -1,6 +1,6 @@
 ﻿using Avalonia;
 using CommunityToolkit.Mvvm.Input;
-using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Views.Dialogs;
 

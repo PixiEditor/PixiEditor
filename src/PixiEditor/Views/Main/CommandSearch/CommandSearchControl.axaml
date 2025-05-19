@@ -8,6 +8,7 @@
              xmlns:search="clr-namespace:PixiEditor.Models.Commands.Search"
              xmlns:shortcuts="clr-namespace:PixiEditor.Views.Shortcuts"
              xmlns:commandSearch="clr-namespace:PixiEditor.Views.Main.CommandSearch"
+             xmlns:behaviors="clr-namespace:PixiEditor.UI.Common.Behaviors;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d"
              Foreground="White"
              d:DesignHeight="450" d:DesignWidth="600"
@@ -26,7 +27,7 @@
                  CornerRadius="5,5,0,0"
                  x:Name="textBox">
             <Interaction.Behaviors>
-                <behaviours:TextBoxFocusBehavior SelectOnMouseClick="{Binding SelectAll, ElementName=uc, Mode=OneWay}" />
+                <behaviors:TextBoxFocusBehavior SelectOnMouseClick="{Binding SelectAll, ElementName=uc, Mode=OneWay}" />
                 <behaviours:GlobalShortcutFocusBehavior />
             </Interaction.Behaviors>
             <!--<TextBox.Styles>

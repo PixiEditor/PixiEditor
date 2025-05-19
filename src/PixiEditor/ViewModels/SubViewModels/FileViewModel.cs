@@ -7,7 +7,6 @@ using Avalonia.Threading;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using PixiEditor.Exceptions;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Helpers;
@@ -27,6 +26,7 @@ using PixiEditor.Models.IO.CustomDocumentFormats;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Parser;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
@@ -589,7 +589,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             if (doc is null)
                 return;
 
-            ExportFileDialog info = new ExportFileDialog(MainWindow.Current, doc.SizeBindable, doc)
+            ExportFileDialog info = new ExportFileDialog(MainWindow.Current, doc)
             {
                 SuggestedName = Path.GetFileNameWithoutExtension(doc.FileName)
             };

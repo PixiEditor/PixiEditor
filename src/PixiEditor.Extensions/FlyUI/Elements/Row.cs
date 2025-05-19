@@ -1,13 +1,32 @@
-﻿using System.Collections.Specialized;
+﻿using System.Collections.Immutable;
+using System.Collections.Specialized;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Threading;
+using PixiEditor.Extensions.UI.Panels;
 
 namespace PixiEditor.Extensions.FlyUI.Elements;
 
-public class Row : MultiChildLayoutElement
+public class Row : MultiChildLayoutElement, IPropertyDeserializable
 {
-    private StackPanel panel;
+    private MainAxisAlignment mainAxisAlignment;
+    private CrossAxisAlignment crossAxisAlignment;
+
+    private Panel panel;
+
+    public MainAxisAlignment MainAxisAlignment
+    {
+        get => mainAxisAlignment;
+        set => SetField(ref mainAxisAlignment, value);
+    }
+
+    public CrossAxisAlignment CrossAxisAlignment
+    {
+        get => crossAxisAlignment;
+        set => SetField(ref crossAxisAlignment, value);
+    }
+
+
     public Row()
     {
     }
@@ -41,17 +60,34 @@ public class Row : MultiChildLayoutElement
         });
     }
 
-    public override Control BuildNative()
+    protected override Control CreateNativeControl()
     {
-        panel = new StackPanel()
+        panel = new RowPanel()
         {
-            Orientation = Orientation.Horizontal,
-            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
-            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Stretch
+            MainAxisAlignment = MainAxisAlignment,
+            CrossAxisAlignment = CrossAxisAlignment
         };
 
         panel.Children.AddRange(Children.Select(x => x.BuildNative()));
 
         return panel;
+    }
+
+    protected override IEnumerable<object> GetControlProperties()
+    {
+        yield return MainAxisAlignment;
+        yield return CrossAxisAlignment;
+    }
+
+    protected override void DeserializeControlProperties(List<object> values)
+    {
+        if (values.Count < 2)
+            return;
+
+        int mainAxisAlignment = (int)values[0];
+        int crossAxisAlignment = (int)values[1];
+
+        MainAxisAlignment = (MainAxisAlignment)mainAxisAlignment;
+        CrossAxisAlignment = (CrossAxisAlignment)crossAxisAlignment;
     }
 }

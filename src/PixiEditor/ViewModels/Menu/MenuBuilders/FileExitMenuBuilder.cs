@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using Avalonia.Controls;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.UI;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views;
 
 namespace PixiEditor.ViewModels.Menu.MenuBuilders;

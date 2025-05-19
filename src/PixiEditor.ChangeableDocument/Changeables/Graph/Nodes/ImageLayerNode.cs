@@ -47,6 +47,20 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return (RectD?)GetLayerImageAtFrame(frameTime.Frame).FindTightCommittedBounds();
     }
 
+    public override RectD? GetApproxBounds(KeyFrameTime frameTime)
+    {
+        var chunkAlignedBounds = GetLayerImageAtFrame(frameTime.Frame).FindChunkAlignedCommittedBounds();
+        if (chunkAlignedBounds == null)
+        {
+            return null;
+        }
+
+        RectD size = new RectD(chunkAlignedBounds.Value.X, chunkAlignedBounds.Value.Y,
+            Math.Min(chunkAlignedBounds.Value.Width, layerImage.LatestSize.X),
+            Math.Min(chunkAlignedBounds.Value.Height, layerImage.LatestSize.Y));
+        return size;
+    }
+
     protected internal override void DrawLayerInScene(SceneObjectRenderContext ctx,
         DrawingSurface workingSurface,
         bool useFilters = true)
@@ -62,11 +76,12 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     protected internal override void DrawLayerOnTexture(SceneObjectRenderContext ctx,
         DrawingSurface workingSurface,
+        ChunkResolution resolution,
         bool useFilters, Paint paint)
     {
         int scaled = workingSurface.Canvas.Save();
-        workingSurface.Canvas.Translate(GetScenePosition(ctx.FrameTime) * ctx.ChunkResolution.Multiplier());
-        workingSurface.Canvas.Scale((float)ctx.ChunkResolution.Multiplier());
+        workingSurface.Canvas.Translate(GetScenePosition(ctx.FrameTime) * resolution.Multiplier());
+        workingSurface.Canvas.Scale((float)resolution.Multiplier());
 
         DrawLayerOnto(ctx, workingSurface, useFilters, paint);
 

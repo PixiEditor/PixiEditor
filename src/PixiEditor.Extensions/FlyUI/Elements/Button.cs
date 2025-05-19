@@ -28,11 +28,11 @@ public class Button : SingleChildLayoutElement
         }
     }
 
-    public override Control BuildNative()
+    protected override Control CreateNativeControl()
     {
         _button = new Avalonia.Controls.Button();
         Binding binding = new Binding(nameof(Child)) { Source = this, Converter = LayoutElementToNativeControlConverter.Instance };
-        _button.Bind(Avalonia.Controls.Button.ContentProperty, binding);
+        _button.Bind(Avalonia.Controls.ContentControl.ContentProperty, binding);
 
         _button.Click += (sender, args) => RaiseEvent(nameof(Click), new ElementEventArgs() { Sender = this });
 

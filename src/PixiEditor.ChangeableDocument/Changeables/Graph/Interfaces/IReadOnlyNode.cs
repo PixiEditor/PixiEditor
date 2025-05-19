@@ -28,7 +28,7 @@ public interface IReadOnlyNode : ICacheable
     ///     Traverses the graph backwards from this node. Backwards means towards the input nodes.
     /// </summary>
     /// <param name="action">The action to perform on each node. Input property is the input that was used to traverse this node.</param>
-    public void TraverseBackwards(Func<IReadOnlyNode, IInputProperty, bool> action);
+    public void TraverseBackwards(Func<IReadOnlyNode, IInputProperty, bool> action, Func<IInputProperty, bool>? branchCondition = null);
 
     /// <summary>
     ///     Traverses the graph forwards from this node. Forwards means towards the output nodes.

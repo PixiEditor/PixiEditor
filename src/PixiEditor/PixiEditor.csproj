@@ -144,25 +144,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Views\Tools\ToolSettings\Settings\PercentSettingView.axaml.cs">
-      <DependentUpon>PercentSettingView.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Views\Tools\ToolSettings\Settings\FontFamilySettingView.axaml.cs">
-      <DependentUpon>FontFamilySettingView.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Views\Nodes\Properties\ColorPropertyView.axaml.cs">
-      <DependentUpon>ColorPropertyView.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Views\Dock\LazyDocumentTemplate.axaml.cs">
-      <DependentUpon>LazyDocumentTemplate.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Extensions\"/>
     <Folder Include="Models\User\"/>
   </ItemGroup>

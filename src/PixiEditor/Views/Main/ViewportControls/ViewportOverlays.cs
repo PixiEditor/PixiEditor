@@ -132,11 +132,6 @@ internal class ViewportOverlays
         Binding isVisBinding = new() { Source = Viewport, Path = "GridLinesVisible", Mode = BindingMode.OneWay };
         gridLinesOverlay.Bind(Visual.IsVisibleProperty, isVisBinding);
 
-        Binding binding = new() { Source = Viewport, Path = "Document.Width", Mode = BindingMode.OneWay };
-        gridLinesOverlay.Bind(GridLinesOverlay.PixelWidthProperty, binding);
-        binding = new Binding { Source = Viewport, Path = "Document.Height", Mode = BindingMode.OneWay };
-        gridLinesOverlay.Bind(GridLinesOverlay.PixelHeightProperty, binding);
-
         Binding xBinding = new() { Source = Viewport, Path = "GridLinesXSize", Mode = BindingMode.OneWay };
         gridLinesOverlay.Bind(GridLinesOverlay.GridXSizeProperty, xBinding);
         Binding yBinding = new() { Source = Viewport, Path = "GridLinesYSize", Mode = BindingMode.OneWay };
@@ -177,7 +172,6 @@ internal class ViewportOverlays
         {
             Source = Viewport, Path = "Document.AnySymmetryAxisEnabledBindable", Mode = BindingMode.OneWay
         };
-        Binding sizeBinding = new() { Source = Viewport, Path = "Document.SizeBindable", Mode = BindingMode.OneWay };
         Binding isHitTestVisibleBinding = new()
         {
             Source = Viewport,
@@ -203,7 +197,6 @@ internal class ViewportOverlays
         };
 
         symmetryOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
-        symmetryOverlay.Bind(SymmetryOverlay.SizeProperty, sizeBinding);
         symmetryOverlay.Bind(InputElement.IsHitTestVisibleProperty, isHitTestVisibleBinding);
         symmetryOverlay.Bind(SymmetryOverlay.HorizontalAxisVisibleProperty, horizontalAxisVisibleBinding);
         symmetryOverlay.Bind(SymmetryOverlay.VerticalAxisVisibleProperty, verticalAxisVisibleBinding);

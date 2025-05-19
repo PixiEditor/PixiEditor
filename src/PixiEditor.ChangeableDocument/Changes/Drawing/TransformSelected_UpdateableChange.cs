@@ -85,7 +85,7 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
 
         if (memberData.Count == 1 && firstLayer is VectorLayerNode vectorLayer)
         {
-            tightBounds = vectorLayer.ShapeData?.GeometryAABB ?? default;
+            tightBounds = vectorLayer.EmbeddedShapeData?.GeometryAABB ?? default;
         }
 
         for (var i = 1; i < memberData.Count; i++)

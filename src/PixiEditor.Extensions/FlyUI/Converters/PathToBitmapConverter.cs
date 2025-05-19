@@ -10,7 +10,10 @@ public class PathToBitmapConverter : IValueConverter
     {
         if (value is string path)
         {
-            return new Bitmap(path);
+            if (File.Exists(path))
+            {
+                return new Bitmap(path);
+            }
         }
         return null;
     }

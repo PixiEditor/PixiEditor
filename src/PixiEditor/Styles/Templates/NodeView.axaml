@@ -2,7 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:nodes="clr-namespace:PixiEditor.Views.Nodes"
                     xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
-                    xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions">
+                    xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
+                    >
     <ControlTheme TargetType="nodes:NodeView" x:Key="{x:Type nodes:NodeView}">
         <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
@@ -32,8 +33,8 @@
                                 CornerRadius="4.5, 4.5, 0 ,0"
                                 Background="{TemplateBinding CategoryBackgroundBrush}">
                             <TextBlock FontWeight="Bold">
-                                <Run Classes="pixi-icon" BaselineAlignment="Center" Text="{TemplateBinding Icon}"/>
-                                <Run BaselineAlignment="Center" ui:Translator.Key="{TemplateBinding DisplayName}"/>
+                                <Run Classes="pixi-icon" BaselineAlignment="Center" Text="{TemplateBinding Icon}" />
+                                <Run BaselineAlignment="Center" ui:Translator.Key="{TemplateBinding DisplayName}" />
                             </TextBlock>
                         </Border>
                         <Border Grid.Row="1" Background="{DynamicResource ThemeControlMidBrush}">
@@ -62,11 +63,11 @@
                                     <ImageBrush Source="/Images/CheckerTile.png"
                                                 TileMode="Tile" DestinationRect="0, 0, 25, 25" />
                                 </Panel.Background>
-                            <visuals:PreviewPainterControl
-                                                           PreviewPainter="{TemplateBinding ResultPreview}"
-                                                           FrameToRender="{TemplateBinding ActiveFrame}"
-                                                           RenderOptions.BitmapInterpolationMode="None">
-                            </visuals:PreviewPainterControl>
+                                <visuals:PreviewPainterControl
+                                    PreviewPainter="{TemplateBinding ResultPreview}"
+                                    FrameToRender="{TemplateBinding ActiveFrame}"
+                                    RenderOptions.BitmapInterpolationMode="None">
+                                </visuals:PreviewPainterControl>
                             </Panel>
                         </Border>
                     </Grid>

@@ -24,7 +24,6 @@ public abstract class MultiChildLayoutElement : LayoutElement, IMultiChildLayout
         }
     }
 
-    public abstract override Control BuildNative();
     /*public abstract void AddChild(Control child);
     public abstract void RemoveChild(int atIndex);*/
 

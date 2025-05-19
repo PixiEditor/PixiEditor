@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -8,11 +9,11 @@ using ChunkyImageLib;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.Bridge;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.IO;
 using Drawie.Numerics;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using Image = Drawie.Backend.Core.Surfaces.ImageData.Image;
 
@@ -62,6 +63,36 @@ internal partial class ExportFilePopup : PixiEditorPopup
     public static readonly StyledProperty<int> SpriteSheetRowsProperty =
         AvaloniaProperty.Register<ExportFilePopup, int>(
             nameof(SpriteSheetRows), 1);
+
+    public static readonly StyledProperty<RenderOutputConfig> ExportOutputProperty =
+        AvaloniaProperty.Register<ExportFilePopup, RenderOutputConfig>(
+            nameof(ExportOutput));
+
+    public static readonly StyledProperty<ObservableCollection<RenderOutputConfig>>
+        AvailableExportOutputsProperty =
+            AvaloniaProperty.Register<ExportFilePopup, ObservableCollection<RenderOutputConfig>>(
+                nameof(AvailableExportOutputs));
+
+    public static readonly StyledProperty<string> SizeHintProperty = AvaloniaProperty.Register<ExportFilePopup, string>(
+        nameof(SizeHint));
+
+    public string SizeHint
+    {
+        get => GetValue(SizeHintProperty);
+        set => SetValue(SizeHintProperty, value);
+    }
+
+    public ObservableCollection<RenderOutputConfig> AvailableExportOutputs
+    {
+        get => GetValue(AvailableExportOutputsProperty);
+        set => SetValue(AvailableExportOutputsProperty, value);
+    }
+
+    public RenderOutputConfig ExportOutput
+    {
+        get => GetValue(ExportOutputProperty);
+        set => SetValue(ExportOutputProperty, value);
+    }
 
     public int SpriteSheetRows
     {
@@ -140,13 +171,13 @@ internal partial class ExportFilePopup : PixiEditorPopup
 
     public bool IsSpriteSheetExport => SelectedExportIndex == 2;
 
-    public string SizeHint => new LocalizedString("EXPORT_SIZE_HINT", GetBestPercentage());
-
     private DocumentViewModel document;
     private Image[]? videoPreviewFrames = [];
     private DispatcherTimer videoPreviewTimer = new DispatcherTimer();
     private int activeFrame = 0;
     private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+    private Task? generateSpriteSheetTask;
 
     static ExportFilePopup()
     {
@@ -155,6 +186,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
         SpriteSheetColumnsProperty.Changed.Subscribe(RerenderPreview);
         SpriteSheetRowsProperty.Changed.Subscribe(RerenderPreview);
         SelectedExportIndexProperty.Changed.Subscribe(RerenderPreview);
+        ExportOutputProperty.Changed.Subscribe(UpdateOutput);
     }
 
     public ExportFilePopup(int imageWidth, int imageHeight, DocumentViewModel document)
@@ -165,9 +197,6 @@ internal partial class ExportFilePopup : PixiEditorPopup
         InitializeComponent();
         DataContext = this;
         Loaded += (_, _) => sizePicker.FocusWidthPicker();
-
-        SaveWidth = imageWidth;
-        SaveHeight = imageHeight;
 
         SetBestPercentageCommand = new RelayCommand(SetBestPercentage);
         ExportCommand = new AsyncRelayCommand(Export);
@@ -184,7 +213,13 @@ internal partial class ExportFilePopup : PixiEditorPopup
         SpriteSheetColumns = columns;
         SpriteSheetRows = rows;
 
+        UpdateSizeHint();
         RenderPreview();
+    }
+
+    public void UpdateSizeHint()
+    {
+        SizeHint = new LocalizedString("EXPORT_SIZE_HINT", GetBestPercentage());
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)
@@ -215,7 +250,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
             {
                 return;
             }
-            
+
             ExportPreview.DrawingSurface.Canvas.DrawImage(videoPreviewFrames[activeFrame], 0, 0);
             activeFrame = (activeFrame + 1) % videoPreviewFrames.Length;
         }
@@ -257,9 +292,17 @@ internal partial class ExportFilePopup : PixiEditorPopup
             }
             else
             {
+                var exportOutput = ExportOutput;
+                if (exportOutput == null || exportOutput.OriginalSize.ShortestAxis <= 0)
+                {
+                    return;
+                }
+
+                VecI size = new VecI(SaveWidth, SaveHeight);
                 Task.Run(() =>
                 {
-                    var rendered = document.TryRenderWholeImage(0);
+                    var rendered = document.TryRenderWholeImage(0, size, exportOutput.OriginalSize,
+                        exportOutput.Name);
                     if (rendered.IsT1)
                     {
                         VecI previewSize = CalculatePreviewSize(rendered.AsT1.Size);
@@ -286,12 +329,25 @@ internal partial class ExportFilePopup : PixiEditorPopup
         VecI previewSize = CalculatePreviewSize(new VecI(SaveWidth * clampedColumns, SaveHeight * clampedRows));
         VecI singleFrameSize = new VecI(previewSize.X / Math.Max(clampedColumns, 1),
             previewSize.Y / Math.Max(clampedRows, 1));
-        if (previewSize != ExportPreview.Size)
-        {
-            ExportPreview?.Dispose();
-            ExportPreview = Surface.ForDisplay(previewSize);
+        cancellationTokenSource?.Cancel();
+        cancellationTokenSource = new CancellationTokenSource();
 
-            Task.Run(() =>
+        if (generateSpriteSheetTask != null)
+        {
+            generateSpriteSheetTask.ContinueWith(x =>
+            {
+                Dispatcher.UIThread.Invoke(GenerateSpriteSheetPreview);
+            });
+
+            return;
+        }
+
+        ExportPreview?.Dispose();
+        ExportPreview = Surface.ForDisplay(previewSize);
+
+        string exportOutputName = ExportOutput.Name;
+        generateSpriteSheetTask = Task.Run(
+            () =>
             {
                 try
                 {
@@ -300,7 +356,8 @@ internal partial class ExportFilePopup : PixiEditorPopup
                         {
                             int x = index % clampedColumns;
                             int y = index / clampedColumns;
-                            var resized = frame.ResizeNearestNeighbor(new VecI(singleFrameSize.X, singleFrameSize.Y));
+                            var resized =
+                                frame.ResizeNearestNeighbor(new VecI(singleFrameSize.X, singleFrameSize.Y));
                             DrawingBackendApi.Current.RenderingDispatcher.Invoke(() =>
                             {
                                 if (ExportPreview.IsDisposed) return;
@@ -309,14 +366,13 @@ internal partial class ExportFilePopup : PixiEditorPopup
                                     y * singleFrameSize.Y);
                                 resized.Dispose();
                             });
-                        }, cancellationTokenSource.Token);
+                        }, cancellationTokenSource.Token, exportOutputName);
                 }
-                catch 
+                catch
                 {
                     // Ignore
                 }
-            });
-        }
+            }, cancellationTokenSource.Token).ContinueWith(x => generateSpriteSheetTask = null);
     }
 
     private void StartRenderAnimationJob()
@@ -328,10 +384,12 @@ internal partial class ExportFilePopup : PixiEditorPopup
 
         cancellationTokenSource = new CancellationTokenSource();
 
+        string exportOutputName = ExportOutput.Name;
         Task.Run(
             () =>
             {
-                videoPreviewFrames = document.RenderFrames(ProcessFrame, cancellationTokenSource.Token);
+                videoPreviewFrames =
+                    document.RenderFrames(ProcessFrame, exportOutputName, cancellationTokenSource.Token);
             }, cancellationTokenSource.Token).ContinueWith(_ =>
         {
             Dispatcher.UIThread.Invoke(() =>
@@ -385,7 +443,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
 
             int newWidth = (int)(imageSize.X * scale);
             int newHeight = (int)(imageSize.Y * scale);
-            
+
             newWidth = Math.Max(newWidth, 1);
             newHeight = Math.Max(newHeight, 1);
 
@@ -413,8 +471,9 @@ internal partial class ExportFilePopup : PixiEditorPopup
         {
             Title = new LocalizedString("EXPORT_SAVE_TITLE"),
             SuggestedFileName = SuggestedName,
-            SuggestedStartLocation = string.IsNullOrEmpty(document.FullFilePath) ? await GetTopLevel(this).StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents) : await GetTopLevel(this).StorageProvider.TryGetFolderFromPathAsync(document.FullFilePath),
-                
+            SuggestedStartLocation = string.IsNullOrEmpty(document.FullFilePath)
+                ? await GetTopLevel(this).StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents)
+                : await GetTopLevel(this).StorageProvider.TryGetFolderFromPathAsync(document.FullFilePath),
             FileTypeChoices =
                 SupportedFilesHelper.BuildSaveFilter(SelectedExportIndex == 1
                     ? FileTypeDialogDataSet.SetKind.Video
@@ -472,6 +531,17 @@ internal partial class ExportFilePopup : PixiEditorPopup
             {
                 popup.RenderPreview();
             }
+        }
+    }
+
+    private static void UpdateOutput(AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Sender is ExportFilePopup popup)
+        {
+            popup.SaveWidth = popup.ExportOutput.OriginalSize.X;
+            popup.SaveHeight = popup.ExportOutput.OriginalSize.Y;
+            popup.RenderPreview();
+            popup.UpdateSizeHint();
         }
     }
 }

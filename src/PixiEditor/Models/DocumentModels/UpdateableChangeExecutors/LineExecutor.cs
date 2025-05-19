@@ -39,8 +39,8 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
 
     private UndoStack<LineVectorData>? localUndoStack;
 
-    public override bool CanUndo => !UseGlobalUndo && localUndoStack is { UndoCount: > 0 };
-    public override bool CanRedo => !UseGlobalUndo && localUndoStack is { RedoCount: > 0 };
+    public override bool CanUndo => !UseGlobalUndo && ActiveMode == ShapeToolMode.Transform && localUndoStack is { UndoCount: > 0 };
+    public override bool CanRedo => !UseGlobalUndo && ActiveMode == ShapeToolMode.Transform && localUndoStack is { RedoCount: > 0 };
 
     public override ExecutionState Start()
     {
@@ -85,7 +85,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
             if(node is null)
                 return ExecutionState.Error;
 
-            if (node.ShapeData is not IReadOnlyLineData data)
+            if (node.EmbeddedShapeData is not IReadOnlyLineData data)
             {
                 ActiveMode = ShapeToolMode.Preview;
                 return ExecutionState.Success;

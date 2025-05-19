@@ -5,9 +5,9 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.Layers;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable

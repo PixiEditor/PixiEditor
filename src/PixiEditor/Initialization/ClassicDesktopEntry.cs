@@ -9,9 +9,10 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
-using PixiEditor.Extensions.Common.Localization;
+using Avalonia.Xaml.Interactivity;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
+using PixiEditor.Helpers.Behaviours;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.ExceptionHandling;
@@ -19,8 +20,11 @@ using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
 using PixiEditor.PixiAuth;
 using PixiEditor.Platform;
+using PixiEditor.UI.Common.Controls;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
+using PixiEditor.Views.Input;
 using ViewModelMain = PixiEditor.ViewModels.ViewModelMain;
 using ViewModels_ViewModelMain = PixiEditor.ViewModels.ViewModelMain;
 
@@ -118,6 +122,8 @@ internal class ClassicDesktopEntry
         LoadingWindow.ShowInNewThread();
 
         InitPlatform();
+
+        NumberInput.AttachGlobalBehaviors += AttachGlobalShortcutBehavior;
 
         ExtensionLoader extensionLoader = new ExtensionLoader(Paths.ExtensionPackagesPath, Paths.UserExtensionsPath);
         if (!safeMode)
@@ -274,5 +280,13 @@ internal class ClassicDesktopEntry
 #endif
 
         return baseUrl;
+    }
+
+    private void AttachGlobalShortcutBehavior(BehaviorCollection collection)
+    {
+        if (collection is null)
+            return;
+
+        collection.Add(new GlobalShortcutFocusBehavior());
     }
 }

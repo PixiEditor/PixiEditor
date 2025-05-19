@@ -1,10 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using Avalonia;
 using Avalonia.Media;
-using Avalonia.Styling;
-using Avalonia.Threading;
 using Drawie.Backend.Core.Shaders.Generation;
-using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
 using PixiEditor.ViewModels.Nodes.Properties;
@@ -22,6 +19,8 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     private bool isFunc;
     private IBrush socketBrush;
     private string errors = string.Empty;
+
+    private object computedValue;
 
     private ObservableCollection<INodePropertyHandler> connectedInputs = new();
     private INodePropertyHandler? connectedOutput;
@@ -41,10 +40,22 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         {
             var oldValue = _value;
             ViewModelMain.Current.NodeGraphManager.UpdatePropertyValue((node, PropertyName, value));
-            if(SetProperty(ref _value, value))
+            if (SetProperty(ref _value, value))
             {
                 ValueChanged?.Invoke(this, new NodePropertyValueChangedArgs(oldValue, value));
             }
+        }
+    }
+
+    public object ComputedValue
+    {
+        get
+        {
+            return computedValue;
+        }
+        set
+        {
+            SetProperty(ref computedValue, value);
         }
     }
 
@@ -184,6 +195,16 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         return (NodePropertyViewModel)Activator.CreateInstance(viewModelType, node, type);
     }
 
+    public void UpdateComputedValue()
+    {
+        ViewModelMain.Current.NodeGraphManager.GetComputedPropertyValue(this);
+    }
+
+    public void InternalSetComputedValue(object value)
+    {
+        computedValue = value;
+        OnPropertyChanged(nameof(ComputedValue));
+    }
 
     public void InternalSetValue(object? value)
     {

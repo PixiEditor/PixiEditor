@@ -19,7 +19,6 @@ using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Constants;
 using PixiEditor.Models.Clipboard;
@@ -30,6 +29,7 @@ using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Parser;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 

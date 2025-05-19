@@ -6,6 +6,7 @@ namespace PixiEditor.Models.Commands.CommandContext;
 [JsonDerivedType(typeof(MenuSourceInfo))]
 [JsonDerivedType(typeof(CommandBindingSourceInfo))]
 [JsonDerivedType(typeof(SearchSourceInfo))]
+[JsonDerivedType(typeof(ExtensionSourceInfo))]
 public interface ICommandExecutionSourceInfo
 {
     public CommandExecutionSourceType SourceType { get; }

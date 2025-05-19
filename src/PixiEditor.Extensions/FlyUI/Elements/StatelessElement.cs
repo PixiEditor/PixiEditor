@@ -8,6 +8,11 @@ public abstract class StatelessElement : LayoutElement, IStatelessElement<Contro
 {
     public override Control BuildNative()
     {
+        return CreateNativeControl();
+    }
+
+    protected override Control CreateNativeControl()
+    {
         return Build().BuildNative();
     }
 

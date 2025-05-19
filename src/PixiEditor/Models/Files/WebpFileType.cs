@@ -1,6 +1,6 @@
 ﻿using Avalonia.Media;
 using Drawie.Backend.Core.Surfaces;
-using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Models.Files;
 
@@ -8,7 +8,7 @@ internal class WebpFileType : ImageFileType
 {
     public override string[] Extensions { get; } = [".webp"];
 
-    public override string DisplayName { get; } = new LocalizedString("WEBP_FILE");
+    public override string DisplayName => new LocalizedString("WEBP_FILE");
 
     public override EncodedImageFormat EncodedImageFormat { get; } = EncodedImageFormat.Webp;
 

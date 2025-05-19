@@ -52,7 +52,7 @@ public class OutlineNode : RenderNode, IRenderInput
     protected override void OnExecute(RenderContext context)
     {
         base.OnExecute(context);
-        lastDocumentSize = context.DocumentSize;
+        lastDocumentSize = context.RenderOutputSize;
 
         Kernel finalKernel = Type.Value switch
         {

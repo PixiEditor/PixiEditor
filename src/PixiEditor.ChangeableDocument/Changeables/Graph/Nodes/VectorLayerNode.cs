@@ -18,44 +18,59 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 [NodeInfo("VectorLayer")]
 public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorNode, IRasterizable, IScalable
 {
+    public InputProperty<ShapeVectorData> InputVector { get; }
     public OutputProperty<ShapeVectorData> Shape { get; }
+    public OutputProperty<Matrix3X3> Matrix { get; }
 
     public Matrix3X3 TransformationMatrix
     {
-        get => ShapeData?.TransformationMatrix ?? Matrix3X3.Identity;
+        get => RenderableShapeData?.TransformationMatrix ?? Matrix3X3.Identity;
         set
         {
-            if (ShapeData == null)
+            if (RenderableShapeData == null)
             {
                 return;
             }
 
-            ShapeData.TransformationMatrix = value;
+            RenderableShapeData.TransformationMatrix = value;
         }
     }
 
-    public ShapeVectorData? ShapeData
+    public ShapeVectorData? EmbeddedShapeData
     {
         get => Shape.Value;
         set => Shape.Value = value;
     }
 
-    IReadOnlyShapeVectorData IReadOnlyVectorNode.ShapeData => ShapeData;
+    public ShapeVectorData? RenderableShapeData
+    {
+        get => InputVector.Value ?? EmbeddedShapeData;
+    }
+
+    IReadOnlyShapeVectorData IReadOnlyVectorNode.ShapeData => RenderableShapeData;
 
 
-    public override VecD GetScenePosition(KeyFrameTime time) => ShapeData?.TransformedAABB.Center ?? VecD.Zero;
-    public override VecD GetSceneSize(KeyFrameTime time) => ShapeData?.TransformedAABB.Size ?? VecD.Zero;
+    public override VecD GetScenePosition(KeyFrameTime time) => RenderableShapeData?.TransformedAABB.Center ?? VecD.Zero;
+    public override VecD GetSceneSize(KeyFrameTime time) => RenderableShapeData?.TransformedAABB.Size ?? VecD.Zero;
 
     public VectorLayerNode()
     {
         AllowHighDpiRendering = true;
+        InputVector = CreateInput<ShapeVectorData>("Input", "INPUT", null);
         Shape = CreateOutput<ShapeVectorData>("Shape", "SHAPE", null);
+        Matrix = CreateOutput<Matrix3X3>("Matrix", "MATRIX", Matrix3X3.Identity);
+    }
+
+    protected override void OnExecute(RenderContext context)
+    {
+        base.OnExecute(context);
+        Matrix.Value = TransformationMatrix;
     }
 
     protected override void DrawWithoutFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface,
         Paint paint)
     {
-        if (ShapeData == null)
+        if (RenderableShapeData == null)
         {
             return;
         }
@@ -65,7 +80,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
     protected override void DrawWithFilters(SceneObjectRenderContext ctx, DrawingSurface workingSurface, Paint paint)
     {
-        if (ShapeData == null)
+        if (RenderableShapeData == null)
         {
             return;
         }
@@ -81,7 +96,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         }
         else
         {
-            return ShapeData?.TransformedVisualAABB;
+            return RenderableShapeData?.TransformedVisualAABB;
         }
 
         return null;
@@ -95,18 +110,18 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return base.RenderPreview(renderOn, context, elementToRenderName);
         }
 
-        if (ShapeData == null)
+        if (RenderableShapeData == null)
         {
             return false;
         }
 
         using var paint = new Paint();
 
-        VecI tightBoundsSize = (VecI)ShapeData.TransformedVisualAABB.Size;
+        VecI tightBoundsSize = (VecI)RenderableShapeData.TransformedVisualAABB.Size;
 
         VecI translation = new VecI(
-            (int)Math.Max(ShapeData.TransformedAABB.TopLeft.X, 0),
-            (int)Math.Max(ShapeData.TransformedAABB.TopLeft.Y, 0));
+            (int)Math.Max(RenderableShapeData.TransformedAABB.TopLeft.X, 0),
+            (int)Math.Max(RenderableShapeData.TransformedAABB.TopLeft.Y, 0));
 
         VecI size = tightBoundsSize + translation;
 
@@ -115,7 +130,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return false;
         }
 
-        Matrix3X3 matrix = ShapeData.TransformationMatrix;
+        Matrix3X3 matrix = RenderableShapeData.TransformationMatrix;
 
         if (!context.ProcessingColorSpace.IsSrgb)
         {
@@ -134,48 +149,56 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         return true;
     }
 
+    public override RectD? GetApproxBounds(KeyFrameTime frameTime)
+    {
+        return GetTightBounds(frameTime);
+    }
+
     public override void SerializeAdditionalData(Dictionary<string, object> additionalData)
     {
         base.SerializeAdditionalData(additionalData);
-        additionalData["ShapeData"] = ShapeData;
+        additionalData["ShapeData"] = EmbeddedShapeData;
     }
 
     internal override void DeserializeAdditionalData(IReadOnlyDocument target,
         IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
     {
         base.DeserializeAdditionalData(target, data, infos);
-        ShapeData = (ShapeVectorData)data["ShapeData"];
+        EmbeddedShapeData = (ShapeVectorData)data["ShapeData"];
 
-        if (ShapeData == null)
+        if (EmbeddedShapeData == null)
         {
             return;
         }
 
         var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
-            (RectI)ShapeData.TransformedAABB, ChunkyImage.FullChunkSize));
+            (RectI)EmbeddedShapeData.TransformedAABB, ChunkyImage.FullChunkSize));
 
         infos.Add(new VectorShape_ChangeInfo(Id, affected));
     }
 
     protected override int GetContentCacheHash()
     {
-        return HashCode.Combine(base.GetContentCacheHash(), ShapeData?.GetCacheHash() ?? 0);
+        return HashCode.Combine(
+            base.GetContentCacheHash(),
+            EmbeddedShapeData?.GetCacheHash() ?? 0,
+            RenderableShapeData?.GetCacheHash() ?? 0);
     }
 
     public override RectD? GetTightBounds(KeyFrameTime frameTime)
     {
-        return ShapeData?.TransformedVisualAABB ?? null;
+        return RenderableShapeData?.TransformedVisualAABB ?? null;
     }
 
     public override ShapeCorners GetTransformationCorners(KeyFrameTime frameTime)
     {
-        return ShapeData?.TransformationCorners ?? new ShapeCorners();
+        return RenderableShapeData?.TransformationCorners ?? new ShapeCorners();
     }
 
     public void Rasterize(DrawingSurface surface, Paint paint)
     {
         int layer = surface.Canvas.SaveLayer(paint);
-        ShapeData?.RasterizeTransformed(surface.Canvas);
+        RenderableShapeData?.RasterizeTransformed(surface.Canvas);
 
         surface.Canvas.RestoreToCount(layer);
     }
@@ -184,7 +207,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     {
         return new VectorLayerNode()
         {
-            ShapeData = (ShapeVectorData?)ShapeData?.Clone(),
+            EmbeddedShapeData = (ShapeVectorData?)EmbeddedShapeData?.Clone(),
             ClipToPreviousMember = this.ClipToPreviousMember,
             EmbeddedMask = this.EmbeddedMask?.CloneFromCommitted(),
             AllowHighDpiRendering = this.AllowHighDpiRendering
@@ -193,19 +216,19 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
     public void Resize(VecD multiplier)
     {
-        if (ShapeData == null)
+        if (EmbeddedShapeData == null)
         {
             return;
         }
 
-        if(ShapeData is IScalable resizable)
+        if(EmbeddedShapeData is IScalable resizable)
         {
             resizable.Resize(multiplier);
         }
         else
         {
-            ShapeData.TransformationMatrix =
-                ShapeData.TransformationMatrix.PostConcat(Matrix3X3.CreateScale((float)multiplier.X,
+            EmbeddedShapeData.TransformationMatrix =
+                EmbeddedShapeData.TransformationMatrix.PostConcat(Matrix3X3.CreateScale((float)multiplier.X,
                     (float)multiplier.Y));
         }
     }

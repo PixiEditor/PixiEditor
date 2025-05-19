@@ -22,7 +22,7 @@ public class Container : SingleChildLayoutElement, IPropertyDeserializable
     public double Width { get => _width; set => SetField(ref _width, value); }
     public double Height { get => _height; set => SetField(ref _height, value); }
     
-    public override Control BuildNative()
+    protected override Control CreateNativeControl()
     {
         _panel = new Panel();
         
@@ -77,7 +77,7 @@ public class Container : SingleChildLayoutElement, IPropertyDeserializable
         _panel.Children.Clear();
     }
 
-    public IEnumerable<object> GetProperties()
+    protected override IEnumerable<object> GetControlProperties()
     {
         yield return Margin;
 
@@ -87,7 +87,7 @@ public class Container : SingleChildLayoutElement, IPropertyDeserializable
         yield return Height;
     }
 
-    public void DeserializeProperties(ImmutableList<object> values)
+    protected override void DeserializeControlProperties(List<object> values)
     {
         Margin = (Edges)values.ElementAtOrDefault(0, default(Edges));
         BackgroundColor = (Color)values.ElementAtOrDefault(1, default(Color));

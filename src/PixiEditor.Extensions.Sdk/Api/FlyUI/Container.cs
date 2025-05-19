@@ -1,4 +1,5 @@
-﻿using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+﻿using PixiEditor.Extensions.CommonApi.FlyUI;
+using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 
 namespace PixiEditor.Extensions.Sdk.Api.FlyUI;
 
@@ -10,7 +11,7 @@ public class Container : SingleChildLayoutElement
     public double Width { get; set; }
     public double Height { get; set; }
 
-    public Container(LayoutElement child = null, Edges margin = default, Color backgroundColor = default, double width = -1, double height = -1)
+    public Container(LayoutElement child = null, Edges margin = default, Color backgroundColor = default, double width = -1, double height = -1, Cursor? cursor = null) : base(cursor)
     {
         Margin = margin;
         BackgroundColor = backgroundColor;
@@ -19,9 +20,9 @@ public class Container : SingleChildLayoutElement
         Child = child;
     }
     
-    public override CompiledControl BuildNative()
+    protected override ControlDefinition CreateControl()
     {
-        CompiledControl container = new CompiledControl(UniqueId, "Container");
+        ControlDefinition container = new ControlDefinition(UniqueId, "Container");
         container.AddProperty(Margin);
 
         container.AddProperty(BackgroundColor);
@@ -34,7 +35,6 @@ public class Container : SingleChildLayoutElement
             container.AddChild(Child.BuildNative());
         }
 
-        BuildPendingEvents(container);
         return container;
     }
 }

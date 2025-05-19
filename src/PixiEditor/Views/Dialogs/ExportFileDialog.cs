@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using PixiEditor.AnimationRenderer.FFmpeg;
 using Drawie.Backend.Core.Numerics;
@@ -20,16 +21,24 @@ internal class ExportFileDialog : CustomDialog
 
     private int fileWidth;
 
+    private RenderOutputConfig exportOutput;
+
     private string suggestedName;
+
+    private ObservableCollection<RenderOutputConfig> availableExportOutputs = new ObservableCollection<RenderOutputConfig>();
     
     private DocumentViewModel document;
     
     public ExportConfig ExportConfig { get; set; } = new ExportConfig(VecI.Zero);
 
-    public ExportFileDialog(Window owner, VecI size, DocumentViewModel doc) : base(owner)
+    public ExportFileDialog(Window owner, DocumentViewModel doc) : base(owner)
     {
+        AvailableExportOutputs = new ObservableCollection<RenderOutputConfig>(doc.GetAvailableExportOutputs().Select(x => new RenderOutputConfig(x.name, x.originalSize)));
+        VecI size = doc.GetDefaultRenderSize(out string? renderOutputName);
         FileWidth = size.X;
         FileHeight = size.Y;
+        ExportOutput = new RenderOutputConfig(renderOutputName, size);
+
         document = doc;
     }
 
@@ -69,6 +78,30 @@ internal class ExportFileDialog : CustomDialog
         }
     }
 
+    public ObservableCollection<RenderOutputConfig> AvailableExportOutputs
+    {
+        get => availableExportOutputs;
+        set
+        {
+            if (availableExportOutputs != value)
+            {
+                this.SetProperty(ref availableExportOutputs, value);
+            }
+        }
+    }
+
+    public RenderOutputConfig ExportOutput
+    {
+        get => exportOutput;
+        set
+        {
+            if (exportOutput != value)
+            {
+                this.SetProperty(ref exportOutput, value);
+            }
+        }
+    }
+
     public IoFileType ChosenFormat
     {
         get => _chosenFormat;
@@ -95,7 +128,12 @@ internal class ExportFileDialog : CustomDialog
     
     public override async Task<bool> ShowDialog()
     {
-        ExportFilePopup popup = new ExportFilePopup(FileWidth, FileHeight, document) { SuggestedName = SuggestedName };
+        ExportFilePopup popup = new ExportFilePopup(FileWidth, FileHeight, document)
+        {
+            SuggestedName = SuggestedName,
+            AvailableExportOutputs = AvailableExportOutputs,
+            ExportOutput = ExportOutput,
+        };
         bool result = await popup.ShowDialog<bool>(OwnerWindow);
 
         if (result)
@@ -104,8 +142,10 @@ internal class ExportFileDialog : CustomDialog
             FileHeight = popup.SaveHeight;
             FilePath = popup.SavePath;
             ChosenFormat = popup.SaveFormat;
+            ExportOutput = popup.ExportOutput;
             
             ExportConfig.ExportSize = new VecI(FileWidth, FileHeight);
+            ExportConfig.ExportOutput = ExportOutput.Name;
             ExportConfig.AnimationRenderer = ChosenFormat is VideoFileType ? new FFMpegRenderer()
             {
                 Size = new VecI(FileWidth, FileHeight),
@@ -128,5 +168,17 @@ internal class ExportFileDialog : CustomDialog
         }
 
         return result;
+    }
+}
+
+public record RenderOutputConfig
+{
+    public string Name { get; set; }
+    public VecI OriginalSize { get; set; }
+
+    public RenderOutputConfig(string name, VecI originalSize)
+    {
+        Name = name;
+        OriginalSize = originalSize;
     }
 }

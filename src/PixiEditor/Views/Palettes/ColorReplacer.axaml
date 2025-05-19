@@ -2,7 +2,7 @@
              x:ClassModifier="internal"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
              xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
              xmlns:palettes="clr-namespace:PixiEditor.Views.Palettes"
@@ -42,6 +42,7 @@
                                FontSize="24" Margin="10 0" ui:Translator.UseLanguageFlowDirection="True"/>
                     <colorPicker:PortableColorPicker
                         UseHintColor="True"
+                        EnableGradientsTab="False"
                         SelectedColor="{Binding ElementName=uc, Path=NewColor, Mode=TwoWay}"
                         HintColor="{Binding ElementName=uc, Path=HintColor}"
                         Height="37"

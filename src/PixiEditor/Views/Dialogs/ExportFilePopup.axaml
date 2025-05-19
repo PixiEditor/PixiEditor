@@ -1,10 +1,12 @@
 <dialogs:PixiEditorPopup xmlns="https://github.com/avaloniaui"
                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                          xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
-                         xmlns:input="clr-namespace:PixiEditor.Views.Input"
-                         xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                         xmlns:input="clr-namespace:PixiEditor.UI.Common.Controls"
+                         xmlns:ui1="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
                          xmlns:visuals="clr-namespace:PixiEditor.Views.Visuals"
                          xmlns:indicators="clr-namespace:PixiEditor.Views.Indicators"
+                         xmlns:input1="clr-namespace:PixiEditor.Views.Input"
+                         xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
                          CanResize="False"
                          CanMinimize="False"
                          SizeToContent="WidthAndHeight"
@@ -24,8 +26,8 @@
                     </Style>
                 </TabControl.Styles>
                 <TabControl.Items>
-                    <TabItem IsSelected="True" ui1:Translator.Key="EXPORT_IMAGE_HEADER"/>
-                    <TabItem ui1:Translator.Key="EXPORT_ANIMATION_HEADER"/>
+                    <TabItem IsSelected="True" ui1:Translator.Key="EXPORT_IMAGE_HEADER" />
+                    <TabItem ui1:Translator.Key="EXPORT_ANIMATION_HEADER" />
                     <TabItem ui1:Translator.Key="EXPORT_SPRITESHEET_HEADER">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -37,13 +39,13 @@
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <TextBlock ui1:Translator.Key="ROWS" Grid.Row="0" Grid.Column="0" />
-                            <input:NumberInput Min="0" Width="50" Grid.Column="1" Grid.Row="0"
-                                               Decimals="0"
-                                               Value="{Binding ElementName=saveFilePopup, Path=SpriteSheetRows, Mode=TwoWay}" />
+                            <controls:NumberInput Min="0" Width="50" Grid.Column="1" Grid.Row="0"
+                                                  Decimals="0"
+                                                  Value="{Binding ElementName=saveFilePopup, Path=SpriteSheetRows, Mode=TwoWay}" />
                             <TextBlock ui1:Translator.Key="COLUMNS" Grid.Row="1" Grid.Column="0" />
-                            <input:NumberInput Min="0" Width="50" Grid.Column="1" Grid.Row="1"
-                                               Decimals="0"
-                                               Value="{Binding ElementName=saveFilePopup, Path=SpriteSheetColumns, Mode=TwoWay}" />
+                            <controls:NumberInput Min="0" Width="50" Grid.Column="1" Grid.Row="1"
+                                                  Decimals="0"
+                                                  Value="{Binding ElementName=saveFilePopup, Path=SpriteSheetColumns, Mode=TwoWay}" />
                         </Grid>
                     </TabItem>
                 </TabControl.Items>
@@ -60,17 +62,30 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <input:SizePicker Grid.Row="0"
-                                          x:Name="sizePicker"
-                                          IsSizeUnitSelectionVisible="True"
-                                          VerticalAlignment="Top"
-                                          ChosenHeight="{Binding Path=SaveHeight, Mode=TwoWay, ElementName=saveFilePopup}"
-                                          ChosenWidth="{Binding Path=SaveWidth, Mode=TwoWay, ElementName=saveFilePopup}" />
-                        <TextBlock Grid.Row="1" Margin="5, 0" VerticalAlignment="Bottom" Classes="hyperlink"
+                        <DockPanel LastChildFill="True" HorizontalSpacing="5" Width="186">
+                            <TextBlock ui1:Translator.Key="EXPORT_OUTPUT" VerticalAlignment="Center" />
+                            <ComboBox VerticalAlignment="Center"
+                                      SelectedItem="{Binding ElementName=saveFilePopup, Path=ExportOutput}"
+                                      ItemsSource="{Binding ElementName=saveFilePopup, Path=AvailableExportOutputs}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock ui1:Translator.Key="{Binding Path=Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </DockPanel>
+                        <input1:SizePicker Grid.Row="1"
+                                           x:Name="sizePicker"
+                                           IsSizeUnitSelectionVisible="True"
+                                           VerticalAlignment="Top"
+                                           ChosenHeight="{Binding Path=SaveHeight, Mode=TwoWay, ElementName=saveFilePopup}"
+                                           ChosenWidth="{Binding Path=SaveWidth, Mode=TwoWay, ElementName=saveFilePopup}" />
+                        <TextBlock Grid.Row="2" Margin="5, 0" VerticalAlignment="Bottom" Classes="hyperlink"
                                    TextWrapping="Wrap"
                                    Width="220" TextAlignment="Center"
-                                   Text="{Binding SizeHint, Mode=OneTime, ElementName=saveFilePopup}">
+                                   Text="{Binding SizeHint, ElementName=saveFilePopup}">
                             <Interaction.Behaviors>
                                 <EventTriggerBehavior EventName="PointerPressed">
                                     <InvokeCommandAction

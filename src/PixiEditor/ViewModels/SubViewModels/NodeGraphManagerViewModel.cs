@@ -90,4 +90,10 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.EndChangeNodePosition();
     }
+
+    [Command.Internal("PixiEditor.NodeGraph.GetComputedPropertyValue")]
+    public void GetComputedPropertyValue(INodePropertyHandler property)
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.RequestUpdateComputedPropertyValue(property);
+    }
 }

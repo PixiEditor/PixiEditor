@@ -21,6 +21,7 @@ using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Position;
 using Drawie.Numerics;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
+using PixiEditor.UI.Common.Behaviors;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.Tools.Tools;
@@ -485,7 +486,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private void OnDocumentSizeChanged(object? sender, DocumentSizeChangedEventArgs documentSizeChangedEventArgs)
     {
-        scene.CenterContent(documentSizeChangedEventArgs.NewSize);
+        scene.CenterContent(Document.GetRenderOutputSize(ViewportRenderOutput));
     }
 
     private ChunkResolution CalculateResolution()
@@ -599,7 +600,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private void ResetViewportClicked(object sender, RoutedEventArgs e)
     {
         scene.AngleRadians = 0;
-        scene.CenterContent(Document.SizeBindable);
+        scene.CenterContent(Document.GetRenderOutputSize(ViewportRenderOutput));
     }
 
     private static void CenterViewportTriggerChanged(AvaloniaPropertyChangedEventArgs<ExecutionTrigger<VecI>> e)

@@ -62,7 +62,7 @@ public class TileNode : RenderNode
         if (paint == null)
             return;
 
-        surface.Canvas.DrawRect(0, 0, context.DocumentSize.X, context.DocumentSize.Y, paint);
+        surface.Canvas.DrawRect(0, 0, context.RenderOutputSize.X, context.RenderOutputSize.Y, paint);
     }
 
     public override Node CreateCopy()

@@ -5,11 +5,14 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
+using Drawie.Backend.Core.Text;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
 
@@ -63,7 +66,7 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
         toRenderOn.Canvas.Save();
         toRenderOn.Canvas.SetMatrix(Matrix3X3.Identity);
 
-        RenderContext context = new(renderTexture.DrawingSurface, frame, resolution, Document.Size,
+        RenderContext context = new(renderTexture.DrawingSurface, frame, resolution, Document.Size, Document.Size,
             Document.ProcessingColorSpace);
         context.FullRerender = true;
         IReadOnlyNodeGraph membersOnlyGraph = ConstructMembersOnlyGraph(layersToCombine, Document.NodeGraph);
@@ -109,7 +112,7 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
         toRenderOn.Canvas.Save();
         toRenderOn.Canvas.SetMatrix(Matrix3X3.Identity);
 
-        RenderContext context = new(renderTexture.DrawingSurface, frameTime, resolution, Document.Size,
+        RenderContext context = new(renderTexture.DrawingSurface, frameTime, resolution, Document.Size, Document.Size,
             Document.ProcessingColorSpace);
         context.FullRerender = true;
 
@@ -223,9 +226,6 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
         toRenderOn.Canvas.Save();
         toRenderOn.Canvas.SetMatrix(Matrix3X3.Identity);
 
-        RenderContext context =
-            new(renderTexture.DrawingSurface, frameTime, ChunkResolution.Full, Document.Size,
-                Document.ProcessingColorSpace) { FullRerender = true };
 
         bool hasCustomOutput = !string.IsNullOrEmpty(customOutput) && customOutput != "DEFAULT";
 
@@ -233,14 +233,31 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
             ? RenderingUtils.SolveFinalNodeGraph(customOutput, Document)
             : Document.NodeGraph;
 
+        RenderContext context =
+            new(renderTexture.DrawingSurface, frameTime, ChunkResolution.Full, SolveRenderOutputSize(customOutput, graph, Document.Size),
+                Document.Size, Document.ProcessingColorSpace) { FullRerender = true };
+
         if (hasCustomOutput)
         {
             context.TargetOutput = customOutput;
         }
 
-        graph.Execute(context);
+        try
+        {
+            graph.Execute(context);
+            toRenderOn.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
+        }
+        catch (Exception e)
+        {
+            renderTexture.DrawingSurface.Canvas.Clear();
+            using Paint paint = new Paint { Color = Colors.White, IsAntiAliased = true };
 
-        toRenderOn.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
+            using Font defaultSizedFont = Font.CreateDefault();
+            defaultSizedFont.Size = 24;
+
+            renderTexture.DrawingSurface.Canvas.DrawText("Graph Setup produced an error. Fix it the node graph",
+                renderTexture.Size / 2f, TextAlign.Center, defaultSizedFont, paint);
+        }
 
         renderTexture.DrawingSurface.Canvas.Restore();
         toRenderOn.Canvas.Restore();
@@ -317,6 +334,30 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
         });
 
         return found ?? (membersOnlyGraph.OutputNode as IRenderInput)?.Background;
+    }
+
+    private static VecI SolveRenderOutputSize(string? targetOutput, IReadOnlyNodeGraph finalGraph, VecI documentSize)
+    {
+        VecI finalSize = documentSize;
+        if (targetOutput != null)
+        {
+            var outputNode = finalGraph.AllNodes.FirstOrDefault(n =>
+                n is CustomOutputNode outputNode && outputNode.OutputName.Value == targetOutput);
+
+            if (outputNode is CustomOutputNode customOutputNode)
+            {
+                if (customOutputNode.Size.Value.ShortestAxis > 0)
+                {
+                    finalSize = customOutputNode.Size.Value;
+                }
+            }
+            else
+            {
+                finalSize = documentSize;
+            }
+        }
+
+        return finalSize;
     }
 
     public void Dispose()

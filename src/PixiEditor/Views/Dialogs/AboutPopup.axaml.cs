@@ -1,5 +1,5 @@
-﻿using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Views.Dialogs;
 

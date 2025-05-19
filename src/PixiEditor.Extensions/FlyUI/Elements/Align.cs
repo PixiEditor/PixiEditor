@@ -6,7 +6,7 @@ using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 
 namespace PixiEditor.Extensions.FlyUI.Elements;
 
-public class Align : SingleChildLayoutElement, IPropertyDeserializable
+public class Align : SingleChildLayoutElement
 {
     private Panel _panel; 
     public Alignment Alignment { get; set; }
@@ -17,7 +17,7 @@ public class Align : SingleChildLayoutElement, IPropertyDeserializable
         Alignment = alignment;
     }
 
-    public override Control BuildNative()
+    protected override Control CreateNativeControl()
     {
         _panel = new Panel
         {
@@ -76,12 +76,12 @@ public class Align : SingleChildLayoutElement, IPropertyDeserializable
         };
     }
 
-    public void DeserializeProperties(ImmutableList<object> values)
+    protected override void DeserializeControlProperties(List<object> values)
     {
         Alignment = (Alignment)values.FirstOrDefault();
     }
-    
-    IEnumerable<object> IPropertyDeserializable.GetProperties()
+
+    protected override IEnumerable<object> GetControlProperties()
     {
         yield return Alignment;
     }

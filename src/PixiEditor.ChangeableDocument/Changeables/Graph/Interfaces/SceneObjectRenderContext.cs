@@ -13,7 +13,7 @@ public class SceneObjectRenderContext : RenderContext
     public RenderOutputProperty TargetPropertyOutput { get; }
 
     public SceneObjectRenderContext(RenderOutputProperty targetPropertyOutput, DrawingSurface surface, RectD localBounds, KeyFrameTime frameTime,
-        ChunkResolution chunkResolution, VecI docSize, bool renderSurfaceIsScene, ColorSpace processingColorSpace, double opacity) : base(surface, frameTime, chunkResolution, docSize, processingColorSpace, opacity)
+        ChunkResolution chunkResolution, VecI renderOutputSize, VecI documentSize, bool renderSurfaceIsScene, ColorSpace processingColorSpace, double opacity) : base(surface, frameTime, chunkResolution, renderOutputSize, documentSize, processingColorSpace, opacity)
     {
         TargetPropertyOutput = targetPropertyOutput;
         LocalBounds = localBounds;

@@ -3,23 +3,23 @@
                              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                              xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
-                             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                             xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
                              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
                              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
-                             xmlns:system="clr-namespace:System;assembly=System.Runtime"
                              xmlns:properties1="clr-namespace:PixiEditor.ViewModels.Nodes.Properties"
+                             xmlns:input="clr-namespace:PixiEditor.Views.Input"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                              x:DataType="properties1:FontFamilyNamePropertyViewModel"
                              x:Class="PixiEditor.Views.Nodes.Properties.FontFamilyNamePropertyView">
     <DockPanel LastChildFill="True"
         HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
         <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
-        <properties:FontFamilyPicker Margin="5 0"
+        <input:FontFamilyPicker Margin="5 0"
            FontIndex="{Binding FontFamilyIndex, Mode=TwoWay}"
                           IsVisible="{Binding ShowInputField}">
             <Interaction.Behaviors>
                 <behaviours:GlobalShortcutFocusBehavior />
             </Interaction.Behaviors>
-        </properties:FontFamilyPicker>
+        </input:FontFamilyPicker>
     </DockPanel>
 </properties:NodePropertyView>

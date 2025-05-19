@@ -18,24 +18,6 @@ public class GridLinesOverlay : Overlay
     public static readonly StyledProperty<double> GridYSizeProperty = AvaloniaProperty.Register<GridLinesOverlay, double>(
         nameof(GridYSize));
 
-    public static readonly StyledProperty<int> PixelWidthProperty = AvaloniaProperty.Register<GridLinesOverlay, int>(
-        nameof(PixelWidth));
-
-    public static readonly StyledProperty<int> PixelHeightProperty = AvaloniaProperty.Register<GridLinesOverlay, int>(
-        nameof(PixelHeight));
-
-    public int PixelHeight
-    {
-        get => GetValue(PixelHeightProperty);
-        set => SetValue(PixelHeightProperty, value);
-    }
-
-    public int PixelWidth
-    {
-        get => GetValue(PixelWidthProperty);
-        set => SetValue(PixelWidthProperty, value);
-    }
-
     public double GridXSize
     {
         get => GetValue(GridXSizeProperty);
@@ -74,8 +56,8 @@ public class GridLinesOverlay : Overlay
     {
         // Draw lines in vertical and horizontal directions, size should be relative to the scale
 
-        double width = PixelWidth;
-        double height = PixelHeight;
+        double width = canvasBounds.Width;
+        double height = canvasBounds.Height;
 
         double columnWidth = GridXSize;
         double rowHeight = GridYSize;
