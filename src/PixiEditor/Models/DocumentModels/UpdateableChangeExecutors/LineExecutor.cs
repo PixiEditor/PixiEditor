@@ -85,7 +85,7 @@ internal abstract class LineExecutor<T> : SimpleShapeToolExecutor where T : ILin
             if(node is null)
                 return ExecutionState.Error;
 
-            if (node.ShapeData is not IReadOnlyLineData data)
+            if (node.EmbeddedShapeData is not IReadOnlyLineData data)
             {
                 ActiveMode = ShapeToolMode.Preview;
                 return ExecutionState.Success;
