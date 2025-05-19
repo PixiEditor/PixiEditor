@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Drawie.Numerics;
@@ -179,6 +180,18 @@ internal class OnboardingViewModel : PixiObservableObject
 
     public void OnFinish()
     {
+        var userViewModel = ViewModelMain.Current.UserViewModel;
+        if (userViewModel.User is { IsLoggedIn: true })
+        {
+            foreach (var product in userViewModel.OwnedProducts)
+            {
+                if (!product.IsInstalled)
+                {
+                    Dispatcher.UIThread.InvokeAsync(async () => await product.InstallCommand.ExecuteAsync(null));
+                }
+            }
+
+        }
         ViewModelMain.Current.WindowSubViewModel.OpenHelloThereWindow();
     }
 }
