@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Avalonia.Input;
+﻿using Avalonia.Input;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.CommandContext;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Input;
-using PixiEditor.ViewModels.Tools;
 
 namespace PixiEditor.Models.Controllers;
 
@@ -17,8 +14,6 @@ internal class ShortcutController
 
     public IEnumerable<Command> LastCommands { get; private set; }
 
-    public Dictionary<KeyCombination, ToolViewModel> TransientShortcuts { get; set; } = new();
-    
     public Type? ActiveContext { get; private set; }
 
     public static void BlockShortcutExecution(string blocker)

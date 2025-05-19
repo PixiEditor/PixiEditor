@@ -1,4 +1,4 @@
-﻿namespace Sample8_Menu;
+﻿namespace Sample8_Commands;
 
 public static class Program
 {

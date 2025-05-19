@@ -41,16 +41,26 @@ public class IconImage : IImage
 
     public void Draw(DrawingContext context, Rect sourceRect, Rect destRect)
     {
+        DrawingContext.PushedState[]? pushed = null;
         if (RotationAngle != 0)
         {
             double radians = RotationAngle * Math.PI / 180;
-            context.PushTransform(Matrix.CreateTranslation(destRect.Width, destRect.Height));
-            context.PushTransform(Matrix.CreateRotation(radians));
-            context.PushTransform(Matrix.CreateTranslation(destRect.Width / 4f, destRect.Height / 4f));
+            pushed = new DrawingContext.PushedState[3];
+            pushed[0] = context.PushTransform(Matrix.CreateTranslation(destRect.Width, destRect.Height));
+            pushed[1] = context.PushTransform(Matrix.CreateRotation(radians));
+            pushed[2] = context.PushTransform(Matrix.CreateTranslation(destRect.Width / 4f, destRect.Height / 4f));
         }
         
         context.DrawText(
             new FormattedText(Icon, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, _typeface, FontSize, Foreground),
             destRect.TopLeft);
+
+        if (pushed != null)
+        {
+            for (int i = pushed.Length - 1; i >= 0; i--)
+            {
+                pushed[i].Dispose();
+            }
+        }
     }
 }

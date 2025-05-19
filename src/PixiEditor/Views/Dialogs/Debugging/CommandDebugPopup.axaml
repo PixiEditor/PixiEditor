@@ -16,11 +16,12 @@
             <RowDefinition />
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Horizontal" Margin="5">
+        <StackPanel Orientation="Horizontal" Margin="5" Spacing="10">
             <Button Content="Export list"
                     Command="{xaml:Command PixiEditor.Debug.DumpAllCommands}" Width="100" />
-            <CheckBox Content="Show only with issues" IsCheckedChanged="ShowOnlyWithIssues_OnIsCheckedChanged" Margin="10 0"/>
+            <CheckBox Content="Show only with issues" IsCheckedChanged="ShowOnlyWithIssues_OnIsCheckedChanged"/>
             <CheckBox Content="Show only without icons" IsCheckedChanged="ShowOnlyWithoutIcons_OnIsCheckedChanged"/>
+            <TextBox Width="150" Watermark="Search" TextChanged="TextBox_OnTextChanged"/>
         </StackPanel>
 
         <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1">

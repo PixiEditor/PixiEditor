@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
 using Avalonia.Media;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.CommandContext;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.Input;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Commands.Commands;
@@ -47,6 +47,9 @@ internal abstract partial class Command : PixiObservableObject
     public string? MenuItemPath { get; init; }
 
     public int MenuItemOrder { get; init; } = 100;
+
+    public CommandPermissions InvokePermissions { get; init; } = CommandPermissions.Owner;
+    public string[]? ExplicitPermissions { get; init; }
 
     public event ShortcutChangedEventHandler ShortcutChanged;
     public event Action CanExecuteChanged;

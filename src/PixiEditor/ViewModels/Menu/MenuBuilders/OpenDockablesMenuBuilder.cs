@@ -6,6 +6,7 @@ using Avalonia.Media;
 using PixiEditor.Models.Commands;
 using PixiEditor.Extensions.UI;
 using PixiEditor.Helpers.Extensions;
+using PixiEditor.UI.Common.Localization;
 using Dock_LayoutManager = PixiEditor.ViewModels.Dock.LayoutManager;
 using LayoutManager = PixiEditor.ViewModels.Dock.LayoutManager;
 

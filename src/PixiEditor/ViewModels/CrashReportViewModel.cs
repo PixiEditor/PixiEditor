@@ -3,12 +3,12 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using CommunityToolkit.Mvvm.Input;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
 using PixiEditor.Initialization;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.ExceptionHandling;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 

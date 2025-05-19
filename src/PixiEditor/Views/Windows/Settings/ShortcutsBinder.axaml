@@ -6,6 +6,7 @@
     xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
     xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
     xmlns:shortcuts="clr-namespace:PixiEditor.Views.Shortcuts"
+    xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
     mc:Ignorable="d"
     d:DesignHeight="600" d:DesignWidth="400"
     x:Class="PixiEditor.Views.Windows.Settings.ShortcutsBinder">
@@ -66,12 +67,12 @@
             <Grid>
                 <TextBlock HorizontalAlignment="Center" TextAlignment="Center"
                            IsVisible="{Binding !VisibleGroups, Mode=OneWay}"
-                           ui:Translator.Key="NOTHING_FOUND"  d:Text="Nothing found."/>
+                           localization:Translator.Key="NOTHING_FOUND"  d:Text="Nothing found."/>
                 <ItemsControl ItemsSource="{Binding Commands}" Focusable="False">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type viewModels:GroupSearchResult}">
                             <StackPanel Margin="0,0,0,20" IsVisible="{Binding IsVisible}">
-                                <TextBlock ui:Translator.Key="{Binding DisplayName.Key}" FontSize="22" FontWeight="SemiBold"/>
+                                <TextBlock localization:Translator.Key="{Binding DisplayName.Key}" FontSize="22" FontWeight="SemiBold"/>
                                 <ItemsControl ItemsSource="{Binding Commands}" Focusable="False">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="{x:Type viewModels:CommandSearchResult}">

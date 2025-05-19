@@ -7,13 +7,20 @@ using PixiEditor.Extensions.Sdk.Api.Window;
 
 namespace FlyUISample;
 
-[SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1118:Parameter should not span multiple lines", Justification = "FlyUI style")]
+[SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1118:Parameter should not span multiple lines",
+    Justification = "FlyUI style")]
 public class WindowContentElement : StatelessElement
 {
     public PopupWindow Window { get; set; }
 
     public override ControlDefinition BuildNative()
     {
+        SizeInputField field = new SizeInputField();
+        field.SizeChanged += args =>
+        {
+            PixiEditorExtension.Api.Logger.Log(field.Value.ToString());
+        };
+
         Layout layout = new Layout(body:
             new Container(margin: Edges.All(25), child:
                 new Column(
@@ -29,7 +36,8 @@ public class WindowContentElement : StatelessElement
                         ),
                         new Align(
                             alignment: Alignment.CenterRight,
-                            child: new Text("- Paulo Coelho, The Alchemist (1233)", textStyle: new TextStyle(fontStyle: FontStyle.Italic))
+                            child: new Text("- Paulo Coelho, The Alchemist (1233)",
+                                textStyle: new TextStyle(fontStyle: FontStyle.Italic))
                         ),
                         new Container(
                             margin: Edges.Symmetric(25, 0),
@@ -47,6 +55,7 @@ public class WindowContentElement : StatelessElement
                                     ? "Checked"
                                     : "Unchecked");
                             }),
+                        field,
                         new Center(
                             new Button(
                                 child: new Text("Close"), onClick: _ => { Window.Close(); }))
@@ -57,5 +66,4 @@ public class WindowContentElement : StatelessElement
 
         return layout.BuildNative();
     }
-
 }

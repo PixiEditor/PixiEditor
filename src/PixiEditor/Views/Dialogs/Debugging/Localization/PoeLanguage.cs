@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using Avalonia.Media;
 using Newtonsoft.Json;
-using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Views.Dialogs.Debugging.Localization;
 

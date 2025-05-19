@@ -24,7 +24,7 @@ internal class ConvertToCurve_Change : Change
     {
         if (target.TryFindNode(memberId, out VectorLayerNode? node))
         {
-            return node.ShapeData != null && node.ShapeData is not PathVectorData;
+            return node.EmbeddedShapeData != null && node.EmbeddedShapeData is not PathVectorData;
         }
 
         return false;
@@ -34,10 +34,10 @@ internal class ConvertToCurve_Change : Change
         out bool ignoreInUndo)
     {
         VectorLayerNode node = target.FindNodeOrThrow<VectorLayerNode>(memberId);
-        originalData = node.ShapeData;
+        originalData = node.EmbeddedShapeData;
 
         // TODO: Stroke Line cap and join is missing? Validate
-        node.ShapeData = new PathVectorData(originalData.ToPath())
+        node.EmbeddedShapeData = new PathVectorData(originalData.ToPath())
         {
             Fill = originalData.Fill,
             FillPaintable = originalData.FillPaintable,
@@ -51,7 +51,7 @@ internal class ConvertToCurve_Change : Change
 
         ignoreInUndo = false;
 
-        var aabb = node.ShapeData.TransformedVisualAABB;
+        var aabb = node.EmbeddedShapeData.TransformedVisualAABB;
         var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
             (RectI)aabb, ChunkyImage.FullChunkSize));
 
@@ -61,11 +61,11 @@ internal class ConvertToCurve_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         VectorLayerNode node = target.FindNodeOrThrow<VectorLayerNode>(memberId);
-        node.ShapeData = originalData;
+        node.EmbeddedShapeData = originalData;
 
         node.AllowHighDpiRendering = originalHighDpiRendering;
 
-        var aabb = node.ShapeData.TransformedVisualAABB;
+        var aabb = node.EmbeddedShapeData.TransformedVisualAABB;
         var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
             (RectI)aabb, ChunkyImage.FullChunkSize));
 

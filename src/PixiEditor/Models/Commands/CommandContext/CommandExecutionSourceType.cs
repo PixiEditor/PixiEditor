@@ -6,5 +6,6 @@ public enum CommandExecutionSourceType
     Shortcut,
     Menu,
     CommandBinding,
-    Search
+    Search,
+    Extension,
 }

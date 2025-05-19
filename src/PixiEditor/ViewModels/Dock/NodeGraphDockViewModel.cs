@@ -1,8 +1,8 @@
 ﻿using Avalonia.Input;
 using PixiDocks.Core.Docking.Events;
 using PixiEditor.Models.Commands.Attributes.Commands;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.ViewModels.Dock;

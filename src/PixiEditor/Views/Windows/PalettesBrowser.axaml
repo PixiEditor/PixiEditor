@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+    xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
     xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
     xmlns:input="clr-namespace:PixiEditor.Views.Input"
     xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
@@ -14,6 +14,9 @@
     xmlns:palettes1="clr-namespace:PixiEditor.Views.Palettes"
     xmlns:indicators1="clr-namespace:PixiEditor.Views.Indicators"
     xmlns:palettes="clr-namespace:PixiEditor.Models.Palettes"
+    xmlns:behaviors="clr-namespace:PixiEditor.UI.Common.Behaviors;assembly=PixiEditor.UI.Common"
+    xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+    xmlns:ui2="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
     mc:Ignorable="d"
     Height="600" Width="850"
     x:Name="palettesBrowser"
@@ -52,8 +55,8 @@
                     Text="{Binding NameFilter, ElementName=palettesBrowser}"
                     VerticalAlignment="Center" Width="150">
                     <Interaction.Behaviors>
-                        <behaviours:TextBoxFocusBehavior SelectOnMouseClick="True" ConfirmOnEnter="True"
-                                                         FocusNext="{Binding ElementName=numberInput, Path=FocusNext}" />
+                        <behaviors:TextBoxFocusBehavior SelectOnMouseClick="True" ConfirmOnEnter="True"
+                                                        FocusNext="{Binding ElementName=numberInput, Path=FocusNext}" />
                         <behaviours:GlobalShortcutFocusBehavior />
                     </Interaction.Behaviors>
                 </input:InputBox>
@@ -66,9 +69,9 @@
                     <ComboBoxItem ui:Translator.Key="MIN" />
                     <ComboBoxItem ui:Translator.Key="EXACT" />
                 </ComboBox>
-                <input:NumberInput Width="50" VerticalAlignment="Center" Margin="10 0 0 0"
-                                   FocusNext="True"
-                                   Value="{Binding ColorsNumber, ElementName=palettesBrowser, Mode=TwoWay}" />
+                <controls:NumberInput Width="50" VerticalAlignment="Center" Margin="10 0 0 0"
+                                      FocusNext="True"
+                                      Value="{Binding ColorsNumber, ElementName=palettesBrowser, Mode=TwoWay}" />
                 <CheckBox Margin="10 0 0 0" VerticalAlignment="Center"
                           IsChecked="{Binding ShowOnlyFavourites, ElementName=palettesBrowser}"
                           ui:Translator.Key="FAVORITES" />
@@ -77,22 +80,22 @@
                         Margin="0 0 10 0">
                 <Button ui:Translator.TooltipKey="ADD_FROM_CURRENT_PALETTE"
                         Command="{Binding ElementName=palettesBrowser, Path=AddFromPaletteCommand}"
-                        Cursor="Hand" Margin="10 0" Width="24" Height="24" Classes="pixi-icon" 
-                        Content="{DynamicResource icon-plus-square}"/>
+                        Cursor="Hand" Margin="10 0" Width="24" Height="24" Classes="pixi-icon"
+                        Content="{DynamicResource icon-plus-square}" />
                 <Button Cursor="Hand" Click="OpenFolder_OnClick" Width="24" Height="24"
-                        ui:Translator.TooltipKey="OPEN_PALETTES_DIR_TOOLTIP" 
-                        Classes="pixi-icon" Content="{DynamicResource icon-folder}"/>
+                        ui:Translator.TooltipKey="OPEN_PALETTES_DIR_TOOLTIP"
+                        Classes="pixi-icon" Content="{DynamicResource icon-folder}" />
                 <Button HorizontalAlignment="Right" Margin="10 0 0 0"
                         ui:Translator.TooltipKey="BROWSE_ON_LOSPEC_TOOLTIP"
                         Width="24" Height="24"
                         Click="BrowseOnLospec_OnClick"
                         CommandParameter="https://lospec.com/palette-list" Classes="pixi-icon"
-                        Content="{DynamicResource icon-globe}"/>
+                        Content="{DynamicResource icon-globe}" />
                 <Button HorizontalAlignment="Right" Margin="10 0 0 0"
                         ui:Translator.TooltipKey="IMPORT_FROM_FILE_TOOLTIP"
                         Width="24" Height="24"
                         Click="ImportFromFile_OnClick" Classes="pixi-icon"
-                        Content="{DynamicResource icon-hard-drive}"/>
+                        Content="{DynamicResource icon-hard-drive}" />
             </StackPanel>
         </DockPanel>
         <Grid Grid.Row="1" Margin="10">
@@ -100,8 +103,8 @@
                 IsVisible="{Binding IsFetching, ElementName=palettesBrowser}"
                 HorizontalAlignment="Center" VerticalAlignment="Center"
                 ZIndex="10"
-                Height="150" Width="150"/>
-            
+                Height="150" Width="150" />
+
             <Panel IsVisible="{Binding ElementName=palettesBrowser, Path=!IsFetching}">
                 <TextBlock ui:Translator.Key="COULD_NOT_LOAD_PALETTE"
                            Foreground="{DynamicResource ThemeForegroundBrush}" FontSize="20"
@@ -115,11 +118,11 @@
                                TextAlignment="Center" />
                     <TextBlock Margin="0 10 0 0">
                         <TextBlock ui:Translator.Key="LOSPEC_LINK_TEXT"
-                                   ui:Hyperlink.Url="https://lospec.com/palette-list" />
+                                   ui2:Hyperlink.Url="https://lospec.com/palette-list" />
                     </TextBlock>
-                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" 
-                               FontSize="128" Text="{DynamicResource icon-search}" Classes="pixi-icon" 
-                               Foreground="{DynamicResource ThemeForegroundSecondaryBrush}"/>
+                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                               FontSize="128" Text="{DynamicResource icon-search}" Classes="pixi-icon"
+                               Foreground="{DynamicResource ThemeForegroundSecondaryBrush}" />
                 </StackPanel>
             </Panel>
 

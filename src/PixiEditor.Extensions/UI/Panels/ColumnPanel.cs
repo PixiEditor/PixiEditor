@@ -57,6 +57,7 @@ public class ColumnPanel : Panel
             or MainAxisAlignment.SpaceEvenly;
         double spaceBetween = 0;
         double spaceBeforeAfter = 0;
+
         if (stretchPlacement)
         {
             double freeSpace = finalSize.Height - totalYSpace;

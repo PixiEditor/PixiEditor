@@ -3,10 +3,10 @@ using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
 using Drawie.Numerics;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.SVG;
 using PixiEditor.SVG.Elements;
 using PixiEditor.SVG.Features;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes;
 

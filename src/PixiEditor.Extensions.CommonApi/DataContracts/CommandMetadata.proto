@@ -13,5 +13,31 @@ message CommandMetadata
   string Icon = 5;
   string MenuItemPath = 6;
   int32 Order = 7;
+  InvokePermissions InvokePermissions = 8;
+  string ExplicitlyAllowedExtensions = 9;
+}
 
+enum InvokePermissions
+{
+
+  /// <summary>
+  ///     Only the registering extension can use this command.
+  /// </summary>
+    Owner = 0;
+
+  /// <summary>
+  ///     Only extensions explicitly whitelisted by the registering extension can use this command.
+  /// </summary>
+    Explicit = 1;
+
+  /// <summary>
+  ///     Only extensions that are part of the same family can use this command. A family is a group under the same
+  ///     unique name prefix.
+  /// </summary>
+    Family = 2;
+
+  /// <summary>
+  ///     Any extension can use this command.
+  /// </summary>
+    Public = 3;
 }

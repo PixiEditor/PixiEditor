@@ -5,7 +5,6 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using Drawie.Backend.Core.ColorsImpl;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
@@ -20,6 +19,7 @@ using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.Handlers;
 using PixiEditor.OperatingSystem;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Menu;
 using PixiEditor.ViewModels.SubViewModels;
@@ -35,6 +35,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public IServiceProvider Services { get; private set; }
 
     public event Action OnClose;
+    public event Action OnEarlyStartupEvent;
     public event Action OnStartupEvent;
     public FileViewModel FileSubViewModel { get; set; }
     public UpdateViewModel UpdateSubViewModel { get; set; }
@@ -176,6 +177,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
     public void OnStartup()
     {
+        OnEarlyStartupEvent?.Invoke();
         OnStartupEvent?.Invoke();
         MenuBarViewModel.Init(Services, CommandController);
     }
@@ -367,7 +369,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     {
         foreach (var viewport in WindowSubViewModel.Viewports.Where(viewport => viewport.Document == e.Document))
         {
-            viewport.CenterViewportTrigger.Execute(this, e.NewSize);
+            viewport.CenterViewportTrigger.Execute(this, viewport.GetRenderOutputSize());
         }
     }
 }

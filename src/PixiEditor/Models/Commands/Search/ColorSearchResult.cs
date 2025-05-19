@@ -64,7 +64,7 @@ internal class ColorSearchResult : SearchResult
     public static DrawingImage GetIcon(Drawie.Backend.Core.ColorsImpl.Color color)
     {
         var drawing = new GeometryDrawing() { Brush = new SolidColorBrush(color.ToOpaqueMediaColor()), Pen = new Pen(Brushes.White, 1) };
-        var geometry = new EllipseGeometry(new Rect(5, 5,5, 5));
+        var geometry = new EllipseGeometry(new Rect(5, 5, 5, 5));
         drawing.Geometry = geometry;
         return new DrawingImage(drawing);
     }

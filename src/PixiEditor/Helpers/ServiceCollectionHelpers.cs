@@ -4,9 +4,10 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AnimationRenderer.Core;
 using PixiEditor.AnimationRenderer.FFmpeg;
-using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Commands;
+using PixiEditor.Extensions.CommonApi.Commands;
 using PixiEditor.Extensions.CommonApi.IO;
-using PixiEditor.Extensions.CommonApi.Menu;
+using PixiEditor.Extensions.CommonApi.Logging;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
@@ -28,6 +29,7 @@ using PixiEditor.Models.Localization;
 using PixiEditor.Models.Palettes;
 using PixiEditor.Models.Preferences;
 using PixiEditor.Models.Serialization.Factories;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Menu;
@@ -209,5 +211,7 @@ internal static class ServiceCollectionHelpers
 
                 return elementMap;
             })
+            .AddSingleton<ICommandSupervisor, CommandSupervisor>()
+            .AddSingleton<ILogger, ConsoleLogger>()
             .AddSingleton<IFileSystemProvider, FileSystemProvider>();
 }

@@ -18,7 +18,6 @@ using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Backend.Core.Vector;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
@@ -38,6 +37,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
 using PixiEditor.Models.IO;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document.Nodes.Workspace;
 using PixiEditor.ViewModels.Document.TransformOverlays;
 using PixiEditor.Views.Overlays.SymmetryOverlay;
@@ -697,6 +697,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 renderOutputName = name.ComputedValue?.ToString();
             }
 
+            if (finalSize.ShortestAxis <= 0)
+            {
+                finalSize = SizeBindable;
+            }
+
             return finalSize;
         }
 
@@ -1253,7 +1258,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
-    public bool RenderFrames(List<Image> frames, Func<Surface, Surface> processFrameAction = null, string? renderOutput = null)
+    public bool RenderFrames(List<Image> frames, Func<Surface, Surface> processFrameAction = null,
+        string? renderOutput = null)
     {
         var firstFrame = AnimationDataViewModel.GetFirstVisibleFrame();
         var lastFrame = AnimationDataViewModel.GetLastVisibleFrame();
@@ -1299,5 +1305,29 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         Internals.ChangeController.TryStopActiveExecutor();
         Internals.Tracker.Dispose();
         Internals.Tracker.Document.Dispose();
+    }
+
+    public VecI GetRenderOutputSize(string renderOutputName)
+    {
+        var exportOutputs = GetAvailableExportOutputs();
+        var exportOutput = exportOutputs.FirstOrDefault(x => x.name == renderOutputName);
+
+        VecI size = SizeBindable;
+        if (exportOutput != default)
+        {
+            size = exportOutput.originalSize;
+
+            if (size.ShortestAxis <= 0)
+            {
+                size = SizeBindable;
+            }
+        }
+
+        return size;
+    }
+
+    void Extensions.CommonApi.Documents.IDocument.Resize(int width, int height)
+    {
+        Operations.ResizeImage(new VecI(width, height), ResamplingMethod.NearestNeighbor);
     }
 }

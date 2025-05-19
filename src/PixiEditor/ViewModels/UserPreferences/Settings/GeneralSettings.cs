@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.ViewModels.UserPreferences.Settings;
 

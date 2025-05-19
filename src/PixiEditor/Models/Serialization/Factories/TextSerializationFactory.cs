@@ -6,9 +6,9 @@ using Drawie.Backend.Core.Text;
 using Drawie.Backend.Core.Vector;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.IO;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Models.Serialization.Factories;
 

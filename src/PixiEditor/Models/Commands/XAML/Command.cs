@@ -44,6 +44,13 @@ internal class Command : MarkupExtension
             commandController = CommandController.Current; // TODO: Find a better way to get the current CommandController
         }
 
+        bool contains = commandController.Commands.ContainsKey(Name);
+
+        if (!contains)
+        {
+            return null;
+        }
+
         Commands.Command command = commandController.Commands[Name];
         return GetPixiCommand ? command : GetICommand(command, new CommandBindingSourceInfo(SourceInfoTag), UseProvided);
     }
