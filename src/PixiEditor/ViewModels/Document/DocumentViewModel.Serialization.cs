@@ -183,7 +183,14 @@ internal partial class DocumentViewModel
             transform = transform.PostConcat(Matrix3X3.CreateScale((float)resizeFactor.X, (float)resizeFactor.Y));
             primitive.Transform.Unit = new SvgTransformUnit?(new SvgTransformUnit(transform));
 
-            primitive.Fill.Unit = new SvgPaintServerUnit(data.FillPaintable);
+            Paintable finalFill = data.Fill ? data.FillPaintable : new ColorPaintable(Colors.Transparent);
+            primitive.Fill.Unit = new SvgPaintServerUnit(finalFill);
+
+            if (finalFill is ColorPaintable colorPaintable)
+            {
+                primitive.FillOpacity.Unit = new SvgNumericUnit(colorPaintable.Color.A / 255f, "");
+            }
+
             primitive.Stroke.Unit = new SvgPaintServerUnit(data.Stroke);
 
             primitive.StrokeWidth.Unit = SvgNumericUnit.FromUserUnits(data.StrokeWidth);
