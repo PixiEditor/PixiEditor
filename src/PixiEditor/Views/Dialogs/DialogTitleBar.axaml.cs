@@ -6,6 +6,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using PixiEditor.Extensions.UI;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Views.Dialogs;
 

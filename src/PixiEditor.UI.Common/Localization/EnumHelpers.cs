@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace PixiEditor.Extensions.Helpers;
+namespace PixiEditor.UI.Common.Localization;
 
 public static class EnumHelpers
 {

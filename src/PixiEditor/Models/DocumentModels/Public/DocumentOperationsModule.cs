@@ -310,7 +310,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="anchor">Where the existing content should be put</param>
     public void ResizeCanvas(VecI newSize, ResizeAnchor anchor)
     {
-        if (Internals.ChangeController.IsBlockingChangeActive || newSize.X > 9999 || newSize.Y > 9999 ||
+        if (Internals.ChangeController.IsBlockingChangeActive || newSize.X > Constants.MaxCanvasSize || newSize.Y > Constants.MaxCanvasSize ||
             newSize.X < 1 ||
             newSize.Y < 1)
             return;

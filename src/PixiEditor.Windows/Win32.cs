@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
 
-namespace PixiEditor.Helpers;
+namespace PixiEditor.Windows;
 internal class Win32
 {
     public const uint MONITOR_DEFAULTTONEAREST = 0x00000002;

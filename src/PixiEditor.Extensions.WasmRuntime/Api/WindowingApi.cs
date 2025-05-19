@@ -1,10 +1,8 @@
-﻿using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Extensions.CommonApi.Async;
-using PixiEditor.Extensions.CommonApi.Utilities;
-using PixiEditor.Extensions.CommonApi.Windowing;
+﻿using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.FlyUI.Elements;
 using PixiEditor.Extensions.WasmRuntime.Utilities;
 using PixiEditor.Extensions.Windowing;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Extensions.WasmRuntime.Api;
 

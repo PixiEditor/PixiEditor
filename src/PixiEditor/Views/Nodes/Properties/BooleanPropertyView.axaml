@@ -5,9 +5,10 @@
                              xmlns:properties="clr-namespace:PixiEditor.Views.Nodes.Properties"
                              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
                              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+                             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                              x:Class="PixiEditor.Views.Nodes.Properties.BooleanPropertyView">
     <StackPanel Orientation="Horizontal" HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
-        <CheckBox ui:Translator.Key="{Binding DisplayName}" Margin="0,0,4,0" IsVisible="{Binding ShowInputField}" IsChecked="{Binding Value}"/>
+        <CheckBox localization:Translator.Key="{Binding DisplayName}" Margin="0,0,4,0" IsVisible="{Binding ShowInputField}" IsChecked="{Binding Value}"/>
     </StackPanel>
 </properties:NodePropertyView>

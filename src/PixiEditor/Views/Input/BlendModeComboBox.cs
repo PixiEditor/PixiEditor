@@ -6,6 +6,7 @@ using Avalonia.Layout;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Extensions.UI;
+using PixiEditor.UI.Common.Localization;
 
 namespace PixiEditor.Views.Input;
 internal class BlendModeComboBox : ComboBox

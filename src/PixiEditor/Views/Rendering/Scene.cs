@@ -29,7 +29,7 @@ using PixiEditor.Models.Rendering;
 using Drawie.Numerics;
 using Drawie.Skia;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
-using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes.Workspace;
 using PixiEditor.Views.Overlays;

@@ -3,10 +3,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
-        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+        xmlns:ui="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
         xmlns:userPreferences="clr-namespace:PixiEditor.ViewModels.UserPreferences"
         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
         xmlns:shortcuts="clr-namespace:PixiEditor.Views.Shortcuts"
+        xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="PixiEditor.Views.Dialogs.OnboardingDialog"
         ShowInTaskbar="False"
@@ -135,7 +136,7 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <TextBlock DockPanel.Dock="Bottom" ui:Hyperlink.Url="https://discord.gg/qSRMYmq"
+                <TextBlock DockPanel.Dock="Bottom" ui1:Hyperlink.Url="https://discord.gg/qSRMYmq"
                            ui:Translator.Key="LANGUAGE_INFO" />
             </StackPanel>
             <StackPanel Grid.Row="1"
@@ -178,7 +179,7 @@
                 <TextBlock Padding="20" Classes="subtext" ui:Translator.Key="ANALYTICS_INFO_DETAILED"
                            TextWrapping="Wrap">
                     <TextBlock Text=" " />
-                    <TextBlock ui:Hyperlink.Url="https://pixieditor.net/docs/privacy-policy"
+                    <TextBlock ui1:Hyperlink.Url="https://pixieditor.net/docs/privacy-policy"
                                ui:Translator.Key="PRIVACY_POLICY" />
                 </TextBlock>
             </StackPanel>
@@ -236,10 +237,10 @@
             IsVisible="{Binding Page, Converter={converters:IsEqualConverter}, ConverterParameter=2}"
             HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="32" Orientation="Vertical">
 
-            <TextBlock HorizontalAlignment="Center" ui:Translator.Key="ONB_ALL_SET" Classes="h3"/>
+            <TextBlock HorizontalAlignment="Center" ui:Translator.Key="ONB_ALL_SET" Classes="h3" />
             <TextBlock HorizontalAlignment="Center" Text="{DynamicResource icon-check}" Classes="pixi-icon"
                        Foreground="{DynamicResource ThemeBorderHighBrush}"
-                       FontSize="72"/>
+                       FontSize="72" />
             <Button
                 ui:Translator.Key="ONB_ALL_SET_BTN"
                 Background="{DynamicResource ThemeAccentBrush}"

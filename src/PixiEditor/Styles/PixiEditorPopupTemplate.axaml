@@ -4,7 +4,8 @@
         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
         xmlns:markupExtensions="clr-namespace:PixiEditor.Helpers.MarkupExtensions"
         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
-        xmlns:platform="clr-namespace:Avalonia.Platform;assembly=Avalonia.Controls">
+        xmlns:platform="clr-namespace:Avalonia.Platform;assembly=Avalonia.Controls"
+        xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common">
     <Design.PreviewWith>
         <controls:PixiEditorPopup Width="400" Height="400" SizeToContent="Manual" />
     </Design.PreviewWith>
@@ -41,7 +42,7 @@
         <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}" />
         <Setter Property="ShowInTaskbar" Value="{Binding CanMinimize, RelativeSource={RelativeSource TemplatedParent}}" />
-        <Setter Property="ui:Translator.UseLanguageFlowDirection" Value="True"></Setter>
+        <Setter Property="localization:Translator.UseLanguageFlowDirection" Value="True"></Setter>
         <Setter Property="Template">
             <ControlTemplate>
                 <VisualLayerManager>

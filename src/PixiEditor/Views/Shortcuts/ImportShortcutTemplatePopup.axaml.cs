@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Avalonia.Input;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.Views.Shortcuts;

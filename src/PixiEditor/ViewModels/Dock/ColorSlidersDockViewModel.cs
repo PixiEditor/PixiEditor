@@ -1,8 +1,8 @@
 ﻿using Avalonia;
 using Avalonia.Media;
 using PixiEditor.Helpers.Converters;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.SubViewModels;
 
 namespace PixiEditor.ViewModels.Dock;

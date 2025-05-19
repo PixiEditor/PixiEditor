@@ -207,7 +207,6 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         }
     }
 
-
     [Command.Basic("PixiEditor.Document.ResizeDocument", false, "RESIZE_DOCUMENT", "RESIZE_DOCUMENT",
         CanExecute = "PixiEditor.HasDocument", Key = Key.I, Modifiers = KeyModifiers.Control | KeyModifiers.Shift,
         Icon = PixiPerfectIcons.Resize, MenuItemPath = "IMAGE/RESIZE_IMAGE", MenuItemOrder = 0, AnalyticsTrack = true)]

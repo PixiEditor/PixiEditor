@@ -2,14 +2,10 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Controls.Primitives;
-using Avalonia.Data;
-using Avalonia.Data.Core;
 using Avalonia.Media;
 using Avalonia.Reactive;
-using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Extensions.Helpers;
 
-namespace PixiEditor.Extensions.UI;
+namespace PixiEditor.UI.Common.Localization;
 
 public class Translator : Control
 {

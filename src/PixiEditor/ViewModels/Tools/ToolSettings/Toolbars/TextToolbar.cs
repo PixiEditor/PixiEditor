@@ -1,8 +1,8 @@
 ﻿using Drawie.Backend.Core.Text;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Handlers.Toolbars;
 using PixiEditor.UI.Common.Fonts;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.ViewModels.Tools.ToolSettings.Toolbars;

@@ -106,9 +106,9 @@ public class Border : SingleChildLayoutElement
         yield return CornerRadius;
         yield return Padding;
         yield return Margin;
-        yield return BackgroundColor;
         yield return Width;
         yield return Height;
+        yield return BackgroundColor;
     }
 
     protected override void DeserializeControlProperties(List<object> values)
