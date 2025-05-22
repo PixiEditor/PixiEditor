@@ -294,7 +294,9 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
                 to.X - from.X,
                 to.Y - from.Y);
 
-            internals.ActionAccumulator.AddActions(new PreviewShiftLayers_Action(selectedMembers, delta,
+            RectD clipRect = lastCorners.AABBBounds;
+            internals.ActionAccumulator.AddActions(new PreviewShiftLayers_Action(
+                selectedMembers, clipRect, delta,
                 document!.AnimationHandler.ActiveFrameBindable));
         }
     }
@@ -394,6 +396,12 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
             lastCorners.AABBBounds.TopLeft.Y - cornersOnStartDuplicate.AABBBounds.TopLeft.Y);
 
         actions.Add(new ShiftLayer_Action(newLayerGuids, delta, document!.AnimationHandler.ActiveFrameBindable));
+
+        if (original is { IsEmpty: false })
+        {
+            original.Offset((VecI)delta);
+            actions.Add(new SetSelection_Action(original));
+        }
 
         internals!.ActionAccumulator.AddFinishedActions(actions.ToArray());
 
