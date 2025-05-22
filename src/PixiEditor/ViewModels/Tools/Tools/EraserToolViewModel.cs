@@ -22,7 +22,7 @@ internal class EraserToolViewModel : ToolViewModel, IEraserToolHandler
         Toolbar = ToolbarFactory.Create<EraserToolViewModel, PenToolbar>(this);
     }
 
-    [Settings.Inherited] public double ToolSize => GetValue<int>();
+    [Settings.Inherited] public double ToolSize => GetValue<double>();
 
     public override bool IsErasable => true;
 

@@ -122,7 +122,11 @@ public class ControlDefinition
             result.Add(ByteMap.GetTypeByteId(property.type));
             if (property.type == typeof(string))
             {
-                result.AddRange(BitConverter.GetBytes(property.value is string s ? s.Length : 0));
+                if (property.value is string str)
+                {
+                    int stringLengthBytes = Encoding.UTF8.GetByteCount(str);
+                    result.AddRange(BitConverter.GetBytes(stringLengthBytes));
+                }
             }
 
             result.AddRange(property.value switch

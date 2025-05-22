@@ -18,6 +18,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     public const string ImageFramesKey = "Frames";
     public const string ImageLayerKey = "LayerImage";
 
+    public const int AccuratePreviewMaxSize = 2048;
+
     public override VecD GetScenePosition(KeyFrameTime time) => layerImage.CommittedSize / 2f;
     public override VecD GetSceneSize(KeyFrameTime time) => layerImage.CommittedSize;
 
@@ -49,7 +51,29 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public override RectD? GetApproxBounds(KeyFrameTime frameTime)
     {
-        var chunkAlignedBounds = GetLayerImageAtFrame(frameTime.Frame).FindChunkAlignedCommittedBounds();
+        var layerImage = GetLayerImageAtFrame(frameTime.Frame);
+        return GetApproxBounds(layerImage);
+    }
+
+    private static RectD? GetApproxBounds(ChunkyImage layerImage)
+    {
+        if (layerImage.CommittedSize.LongestAxis <= AccuratePreviewMaxSize)
+        {
+            ChunkResolution resolution = layerImage.CommittedSize.LongestAxis switch
+            {
+                <= 256 => ChunkResolution.Full,
+                <= 512 => ChunkResolution.Half,
+                <= 1024 => ChunkResolution.Quarter,
+                _ => ChunkResolution.Eighth
+            };
+
+            // Half is efficient enough to be used even for full res chunks
+            bool fallbackToChunkAligned = (int)resolution > 2;
+
+            return (RectD?)layerImage.FindTightCommittedBounds(resolution, fallbackToChunkAligned);
+        }
+
+        var chunkAlignedBounds = layerImage.FindChunkAlignedCommittedBounds();
         if (chunkAlignedBounds == null)
         {
             return null;
@@ -145,7 +169,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                     return null;
                 }
 
-                RectI? bounds = kf.FindChunkAlignedCommittedBounds(); // Don't use tight bounds, very expensive
+                RectI? bounds = (RectI?)GetApproxBounds(kf);
                 if (bounds.HasValue)
                 {
                     return new RectD(bounds.Value.X, bounds.Value.Y,
@@ -163,7 +187,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                 return null;
             }
 
-            var bounds = kf.FindChunkAlignedCommittedBounds(); // Don't use tight bounds, very expensive
+            var bounds = GetApproxBounds(kf);
             if (bounds.HasValue)
             {
                 return new RectD(bounds.Value.X, bounds.Value.Y,

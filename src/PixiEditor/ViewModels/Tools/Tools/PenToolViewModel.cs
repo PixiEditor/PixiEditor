@@ -18,7 +18,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
     [Command.Tool(Key = Key.B)]
     internal class PenToolViewModel : ShapeTool, IPenToolHandler
     {
-        private double actualToolSize;
+        private double actualToolSize = 1;
 
         public override string ToolNameLocalizationKey => "PEN_TOOL";
 
@@ -31,7 +31,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
         {
             Cursor = Cursors.PreciseCursor;
             Toolbar = ToolbarFactory.Create<PenToolViewModel, PenToolbar>(this);
-            
+
             ViewModelMain.Current.ToolsSubViewModel.SelectedToolChanged += SelectedToolChanged;
         }
 
@@ -82,7 +82,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
                 var setting = toolbar.Settings.FirstOrDefault(x => x.Name == nameof(toolbar.ToolSize));
                 if (setting is SizeSettingViewModel sizeSetting)
                 {
-                    sizeSetting.Value = 1;
+                    sizeSetting.Value = 1d;
                 }
             }
             
@@ -139,7 +139,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
                 if (PixelPerfectEnabled)
                 {
                     actualToolSize = ToolSize;
-                    sizeSettingViewModel.Value = 1;
+                    sizeSettingViewModel.Value = 1d;
                 }
                 else
                 {

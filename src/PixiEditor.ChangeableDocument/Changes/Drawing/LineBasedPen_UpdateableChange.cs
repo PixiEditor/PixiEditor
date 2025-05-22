@@ -59,6 +59,10 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         else if (erasing)
         {
             srcPaint.BlendMode = BlendMode.DstOut;
+            if (this.color.A == 0)
+            {
+                this.color = color.WithAlpha(255);
+            }
         }
     }
 

@@ -256,6 +256,9 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
                 Owner.ColorsSubViewModel.SwapColors(true);
                 return true;
+            case RightClickMode.ColorPicker when tools.ActiveTool is not ColorPickerToolViewModel:
+                HandleRightMouseColorPickerDown(tools);
+                return true;
             case RightClickMode.Erase when tools.ActiveTool is ColorPickerToolViewModel:
                 Owner.ColorsSubViewModel.SwapColors(true);
                 return true;
@@ -305,7 +308,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             var toolSize = eraserTool.Toolbar.Settings.First(x => x.Name == "ToolSize");
             previousEraseSize = (double)toolSize.Value;
             toolSize.Value = tools.ActiveTool is PenToolViewModel { PixelPerfectEnabled: true }
-                ? 1
+                ? 1d
                 : currentToolSize.Value;
         }
         else
@@ -314,6 +317,17 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         }
 
         tools.SetActiveTool<EraserToolViewModel>(true);
+    }
+
+    private void HandleRightMouseColorPickerDown(IToolsHandler tools)
+    {
+        ColorPickerToolViewModel? colorPickerTool = tools.GetTool<ColorPickerToolViewModel>();
+        if (colorPickerTool == null)
+        {
+            return;
+        }
+
+        tools.SetActiveTool<ColorPickerToolViewModel>(true);
     }
 
     private void OnMiddleMouseButton()
@@ -344,7 +358,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         var tools = Owner.ToolsSubViewModel;
 
         var rightCanUp = (button == MouseButton.Right) &&
-                         tools.RightClickMode is RightClickMode.Erase or RightClickMode.SecondaryColor;
+                         tools.RightClickMode is RightClickMode.Erase or RightClickMode.SecondaryColor or RightClickMode.ColorPicker;
 
         if (button == MouseButton.Left || rightCanUp)
         {
@@ -383,7 +397,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
                 }
 
                 break;
-            case MouseButton.Right when tools.RightClickMode == RightClickMode.Erase:
+            case MouseButton.Right when tools.RightClickMode is RightClickMode.Erase or RightClickMode.ColorPicker:
                 HandleRightMouseEraseUp(tools);
                 break;
         }

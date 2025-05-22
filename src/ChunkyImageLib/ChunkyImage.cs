@@ -191,7 +191,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
     /// Finds the precise bounds in <paramref name="suggestedResolution"/>. If there are no chunks rendered for that resolution, full res chunks are used instead.
     /// </summary>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public RectI? FindTightCommittedBounds(ChunkResolution suggestedResolution = ChunkResolution.Full)
+    public RectI? FindTightCommittedBounds(ChunkResolution suggestedResolution = ChunkResolution.Full, bool fallbackToChunkAligned = false)
     {
         lock (lockObject)
         {
@@ -225,6 +225,11 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable, ICache
                 }
                 else
                 {
+                    if (fallbackToChunkAligned)
+                    {
+                        return FindChunkAlignedCommittedBounds();
+                    }
+
                     RectI visibleArea = new RectI(chunkPos * FullChunkSize, new VecI(FullChunkSize))
                         .Intersect(new RectI(VecI.Zero, CommittedSize)).Translate(-chunkPos * FullChunkSize);
 

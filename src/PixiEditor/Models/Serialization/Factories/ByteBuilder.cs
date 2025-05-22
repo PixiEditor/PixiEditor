@@ -1,4 +1,5 @@
-﻿using Drawie.Backend.Core.ColorsImpl;
+﻿using System.Text;
+using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
 
@@ -69,11 +70,8 @@ public class ByteBuilder
 
     public void AddString(string str)
     {
-        AddInt(str.Length);
-        foreach (var c in str)
-        {
-            AddInt(c);
-        }
+        AddInt(Encoding.UTF8.GetByteCount(str));
+        _data.AddRange(Encoding.UTF8.GetBytes(str));
     }
 
     public void AddFloat(float value)
