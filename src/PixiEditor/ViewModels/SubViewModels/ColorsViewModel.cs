@@ -404,6 +404,9 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
     [Commands_Command.Internal("PixiEditor.Colors.SelectColor")]
     public void SelectColor(PaletteColor color)
     {
+        if (color == null)
+            return;
+
         PrimaryColor = color.ToColor();
     }
 

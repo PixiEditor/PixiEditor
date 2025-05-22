@@ -9,5 +9,7 @@ public enum RightClickMode
     [Description("SHOW_CONTEXT_MENU")]
     ContextMenu,
     [Description("ERASE")]
-    Erase
+    Erase,
+    [Description("COLOR_PICKER")]
+    ColorPicker,
 }

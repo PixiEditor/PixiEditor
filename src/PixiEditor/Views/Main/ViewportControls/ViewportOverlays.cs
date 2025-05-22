@@ -140,12 +140,30 @@ internal class ViewportOverlays
 
     private void BindSelectionOverlay()
     {
-        Binding showFillBinding = new()
+        Binding toolIsSelectionBinding = new()
         {
             Source = ViewModelMain.Current,
             Path = "ToolsSubViewModel.ActiveTool",
             Converter = new IsSelectionToolConverter(),
             Mode = BindingMode.OneWay
+        };
+
+        Binding isTransformingBinding = new()
+        {
+            Source = Viewport,
+            Path = "!Document.TransformViewModel.TransformActive",
+            Mode = BindingMode.OneWay
+        };
+
+        MultiBinding showFillBinding = new()
+        {
+            Converter = new AllTrueConverter(),
+            Mode = BindingMode.OneWay,
+            Bindings = new List<IBinding>()
+            {
+                toolIsSelectionBinding,
+                isTransformingBinding
+            }
         };
 
         Binding pathBinding = new()

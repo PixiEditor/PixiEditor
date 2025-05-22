@@ -2,5 +2,5 @@
 
 internal interface IEraserToolHandler : IToolHandler
 {
-
+    public double ToolSize { get; }
 }
