@@ -60,7 +60,8 @@
           "ExposeHardness": true,
           "ExposeSpacing": true,
           "BrushShapeSetting": "CircleSmooth",
-          "PaintShape": "Circle"
+          "PaintShape": "Circle",
+          "PixelPerfectEnabled": false
         }
       },
       "Select",

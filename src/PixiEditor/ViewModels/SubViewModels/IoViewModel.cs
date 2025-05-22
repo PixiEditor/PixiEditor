@@ -305,7 +305,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             var toolSize = eraserTool.Toolbar.Settings.First(x => x.Name == "ToolSize");
             previousEraseSize = (double)toolSize.Value;
             toolSize.Value = tools.ActiveTool is PenToolViewModel { PixelPerfectEnabled: true }
-                ? 1
+                ? 1d
                 : currentToolSize.Value;
         }
         else

@@ -139,7 +139,7 @@ namespace PixiEditor.ViewModels.Tools.Tools
                 if (PixelPerfectEnabled)
                 {
                     actualToolSize = ToolSize;
-                    sizeSettingViewModel.Value = 1;
+                    sizeSettingViewModel.Value = 1d;
                 }
                 else
                 {
