@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Formats.Tar;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
@@ -35,10 +36,46 @@ public class UpdateInstaller
         
         log.AppendLine("Extracting files");
         
-        ZipFile.ExtractToDirectory(ArchiveFileName, UpdateFilesPath, true);
+        if(Directory.Exists(UpdateFilesPath))
+        {
+            Directory.Delete(UpdateFilesPath, true);
+        }
         
+        Directory.CreateDirectory(UpdateFilesPath);
+        
+        bool isZip = ArchiveFileName.EndsWith(".zip");
+        if (isZip)
+        {
+            ZipFile.ExtractToDirectory(ArchiveFileName, UpdateFilesPath, true);
+        }
+        else
+        {
+            using FileStream fs = new(ArchiveFileName, FileMode.Open, FileAccess.Read);
+            using GZipStream gz = new(fs, CompressionMode.Decompress, leaveOpen: true);
+
+            TarFile.ExtractToDirectory(gz, UpdateFilesPath, overwriteFiles: false);        
+        }
+
+        string[] extractedFiles = Directory.GetFiles(UpdateFilesPath, "*", SearchOption.AllDirectories);
+        log.AppendLine($"Extracted {extractedFiles.Length} files to {UpdateFilesPath}");
         log.AppendLine("Files extracted");
-        string dirWithFiles = Directory.GetDirectories(UpdateFilesPath)[0];
+
+        string dirWithFiles = UpdateFilesPath;
+        string binName = OperatingSystem.IsWindows() ? "PixiEditor.exe" : "PixiEditor";
+        if (!File.Exists(Path.Combine(UpdateFilesPath, binName)))
+        {
+            dirWithFiles = Directory.GetDirectories(UpdateFilesPath)[0];
+        }
+        
+        string updaterFile = Path.Combine(dirWithFiles, "PixiEditor.UpdateInstaller" + (OperatingSystem.IsWindows() ? ".exe" : ""));
+
+        if (File.Exists(updaterFile))
+        {
+            string newName = Path.Combine(dirWithFiles, "PixiEditor.UpdateInstaller-update" + (OperatingSystem.IsWindows() ? ".exe" : ""));
+            File.Move(updaterFile, newName);
+            log.AppendLine($"Renamed {updaterFile} to {newName}");
+        }
+        
         log.AppendLine($"Copying files from {dirWithFiles} to {TargetDirectory}");
 
         try
