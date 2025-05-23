@@ -17,33 +17,33 @@ public partial class PaletteColor : IEquatable<PaletteColor>
         get => (byte)GValue;
         set => GValue = value;
     }
-    
+
     public byte B
     {
         get => (byte)BValue;
         set => BValue = value;
     }
-    
+
     public string Hex => $"#{R:X2}{G:X2}{B:X2}";
-    
+
     public PaletteColor(byte r, byte g, byte b)
     {
         RValue = r;
         GValue = g;
         BValue = b;
     }
-    
+
     public PaletteColor(uint r, uint g, uint b)
     {
         RValue = (byte)r;
         GValue = (byte)g;
         BValue = (byte)b;
     }
-    
+
     public PaletteColor()
     {
     }
-    
+
     public override string ToString()
     {
         return Hex;
@@ -51,6 +51,12 @@ public partial class PaletteColor : IEquatable<PaletteColor>
 
     public static bool operator ==(PaletteColor left, PaletteColor right)
     {
+        if (left is null && right is null)
+            return true;
+
+        if (left is null || right is null)
+            return false;
+
         return left.R == right.R && left.G == right.G && left.B == right.B;
     }
 
