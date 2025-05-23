@@ -125,15 +125,16 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     public UpdateViewModel(ViewModelMain owner)
         : base(owner)
     {
+        IOperatingSystem.Current.ProcessUtility.RunAsAdmin("whoami", null);
         if (IOperatingSystem.Current.IsLinux)
         {
-            if(File.Exists("no-updates"))
+            if (File.Exists("no-updates"))
             {
                 UpdateState = UpdateState.UnableToCheck;
                 return;
             }
         }
-        
+
         Owner.OnStartupEvent += Owner_OnStartupEvent;
         Owner.OnClose += Owner_OnClose;
         PixiEditorSettings.Update.UpdateChannel.ValueChanged += (_, value) =>
@@ -198,7 +199,8 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
                 UpdateState = UpdateState.Downloading;
                 if (updateCompatible)
                 {
-                    await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo, ZipContentType, ZipExtension);
+                    await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo, ZipContentType,
+                        ZipExtension);
                 }
                 else if (IOperatingSystem.Current.IsWindows) // TODO: Add macos
                 {
@@ -325,15 +327,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     {
         try
         {
-            if (IOperatingSystem.Current.IsLinux)
-            {
-                IOperatingSystem.Current.ProcessUtility.ShellExecute(updateExeFile, null);
-            }
-            else
-            {
-                IOperatingSystem.Current.ProcessUtility.RunAsAdmin(updateExeFile, null);
-            }
-
+            IOperatingSystem.Current.ProcessUtility.RunAsAdmin(updateExeFile, null);
             Shutdown();
         }
         catch (Win32Exception)
