@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace PixiEditor.Extensions.CommonApi.Utilities;
 
 public class ByteWriter
@@ -19,8 +21,8 @@ public class ByteWriter
 
     public void WriteString(string value)
     {
+        WriteInt(Encoding.UTF8.GetByteCount(value));
         byte[] stringBytes = System.Text.Encoding.UTF8.GetBytes(value);
-        WriteInt(stringBytes.Length);
         _buffer.AddRange(stringBytes);
     }
 

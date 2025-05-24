@@ -164,10 +164,11 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
         IReadOnlyDictionary<string, object> data, List<IChangeInfo> infos)
     {
         base.DeserializeAdditionalData(target, data, infos);
-        EmbeddedShapeData = (ShapeVectorData)data["ShapeData"];
+        EmbeddedShapeData = data["ShapeData"] as ShapeVectorData;
 
         if (EmbeddedShapeData == null)
         {
+            Console.WriteLine("Failed to deserialize shape data");
             return;
         }
 

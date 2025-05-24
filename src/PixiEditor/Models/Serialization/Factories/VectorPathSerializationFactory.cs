@@ -51,7 +51,7 @@ internal class VectorPathSerializationFactory : VectorShapeSerializationFactory<
         VectorPath path;
         if (IsOldSerializer(serializerData))
         {
-            string svgPath = extractor.GetString();
+            string svgPath = extractor.GetStringLegacyDontUse();
             path = VectorPath.FromSvgPath(svgPath);
         }
         else
