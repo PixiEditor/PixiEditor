@@ -20,13 +20,23 @@
     <ProjectReference Include="..\PixiEditor.UpdateInstaller\PixiEditor.UpdateInstaller\PixiEditor.UpdateInstaller.csproj"/>
   </ItemGroup>
   
-  <Target Name="Rename" AfterTargets="AfterBuild">
+  <Target Name="Rename" AfterTargets="AfterBuild" Condition="'$(OS)' == 'Windows_NT'">
     <Move SourceFiles="$(OutDir)PixiEditor.UpdateInstaller.Exe.exe" DestinationFiles="$(OutDir)PixiEditor.UpdateInstaller.exe"/>
     <Message Text="Renamed build executable file." Importance="high"/>
   </Target>
 
-  <Target Name="Rename" AfterTargets="Publish">
+  <Target Name="Rename" AfterTargets="Publish" Condition="'$(OS)' == 'Windows_NT'">
     <Move SourceFiles="$(PublishDir)PixiEditor.UpdateInstaller.Exe.exe" DestinationFiles="$(PublishDir)PixiEditor.UpdateInstaller.exe"/>
+    <Message Text="Renamed published executable file." Importance="high"/>
+  </Target>
+
+  <Target Name="Rename" AfterTargets="AfterBuild" Condition="'$(OS)' != 'Windows_NT'">
+    <Move SourceFiles="$(OutDir)PixiEditor.UpdateInstaller.Exe" DestinationFiles="$(OutDir)PixiEditor.UpdateInstaller"/>
+    <Message Text="Renamed build executable file." Importance="high"/>
+  </Target>
+
+  <Target Name="Rename" AfterTargets="Publish" Condition="'$(OS)' != 'Windows_NT'">
+    <Move SourceFiles="$(PublishDir)PixiEditor.UpdateInstaller.Exe" DestinationFiles="$(PublishDir)PixiEditor.UpdateInstaller"/>
     <Message Text="Renamed published executable file." Importance="high"/>
   </Target>
 </Project>

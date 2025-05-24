@@ -9,7 +9,7 @@ public class LinuxProcessUtility : IProcessUtility
 {
     public Process RunAsAdmin(string path, string args)
     {
-        throw new NotImplementedException("Running as admin is not supported on Linux");
+        throw new NotSupportedException("Running as admin is not supported on Linux.");
     }
 
     public bool IsRunningAsAdministrator()

@@ -29,7 +29,8 @@ public class UpdateController
 
     public void InstallUpdate(StringBuilder log)
     {
-        string[] files = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.zip");
+        string extension = OperatingSystem.IsLinux() ? "tar.gz" : ".zip";
+        string[] files = Directory.GetFiles(UpdateDownloader.DownloadLocation, $"update-*{extension}");
         log.AppendLine($"Found {files.Length} update files.");
 
         if (files.Length > 0)
