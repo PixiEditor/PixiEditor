@@ -39,7 +39,8 @@ jobs:
       run: dotnet workload install wasi-experimental
 
     - name: Download WASI SDK
-      run: curl -L -o ${{ env.wasiVer }}.tar.gz ${{ env.wasiUrl }}
+      run: |
+        Invoke-WebRequest -Uri "${{ env.wasiUrl }}" -OutFile "${{ env.wasiVer }}.tar.gz"
 
     - name: Unpack WASI SDK
       run: |
