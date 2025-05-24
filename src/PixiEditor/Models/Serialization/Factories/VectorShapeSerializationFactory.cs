@@ -20,7 +20,8 @@ public abstract class VectorShapeSerializationFactory<T> : SerializationFactory<
 
         foreach (Type type in types)
         {
-            if (type.IsAssignableTo(typeof(IPaintableSerializationFactory)) && type is { IsAbstract: false, IsInterface: false })
+            if (type.IsAssignableTo(typeof(IPaintableSerializationFactory)) &&
+                type is { IsAbstract: false, IsInterface: false })
             {
                 factories.Add((SerializationFactory)Activator.CreateInstance(type));
             }
@@ -61,9 +62,9 @@ public abstract class VectorShapeSerializationFactory<T> : SerializationFactory<
         ByteExtractor extractor = new ByteExtractor(data);
 
         Matrix3X3 matrix = extractor.GetMatrix3X3();
-        Paintable strokeColor = TryGetPaintable(extractor, fileIsPrePaintables);
+        Paintable strokeColor = TryGetPaintable(extractor, fileIsPrePaintables, serializerData);
         bool fill = TryGetBool(extractor, serializerData);
-        Paintable fillColor = TryGetPaintable(extractor, fileIsPrePaintables);
+        Paintable fillColor = TryGetPaintable(extractor, fileIsPrePaintables, serializerData);
         float strokeWidth;
         // Previous versions of the serializer saved stroke as int, and serializer data didn't exist
         if (string.IsNullOrEmpty(serializerData.serializerVersion) &&
@@ -100,14 +101,16 @@ public abstract class VectorShapeSerializationFactory<T> : SerializationFactory<
         return extractor.GetBool();
     }
 
-    private Paintable TryGetPaintable(ByteExtractor extractor, bool fileIsPrePaintables)
+    private Paintable TryGetPaintable(ByteExtractor extractor, bool fileIsPrePaintables,
+        (string serializerName, string serializerVersion) serializerData)
     {
         if (fileIsPrePaintables)
         {
             return new ColorPaintable(extractor.GetColor());
         }
 
-        string paintableType = extractor.GetString();
+        string paintableType = DeserializeStringCompatible(extractor, serializerData);
+
         SerializationFactory factory = PaintableFactories.FirstOrDefault(f => f.DeserializationId == paintableType);
         if (factory == null)
         {

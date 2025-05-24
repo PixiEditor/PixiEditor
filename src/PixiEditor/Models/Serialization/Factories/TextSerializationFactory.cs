@@ -46,10 +46,11 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
         float strokeWidth, (string serializerName, string serializerVersion) serializerData,
         out TextVectorData original)
     {
-        string text = extractor.GetString();
+        string text = DeserializeStringCompatible(extractor, serializerData);
+
         VecD position = extractor.GetVecD();
         bool antiAlias = extractor.GetBool();
-        string fontFamily = extractor.GetString();
+        string fontFamily = DeserializeStringCompatible(extractor, serializerData);
         bool isFontFromFile = extractor.GetBool();
         string fontPath = null;
         if (isFontFromFile && ResourceLocator != null)
@@ -67,7 +68,7 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
         VectorPath path = null;
         if (hasPath)
         {
-            path = VectorPath.FromSvgPath(extractor.GetString());
+            path = VectorPath.FromSvgPath(DeserializeStringCompatible(extractor, serializerData));
         }
 
         FontFamilyName family =

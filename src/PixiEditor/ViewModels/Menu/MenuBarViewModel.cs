@@ -66,7 +66,7 @@ internal class MenuBarViewModel : PixiObservableObject
     {
         menuItemBuilders = serviceProvider.GetServices<MenuItemBuilder>().ToArray();
         commandController = controller;
-        BuildMenu(controller);
+        RebuildMenu();
         controller.Commands.CommandAdded += CommandsOnCommandAdded;
     }
 

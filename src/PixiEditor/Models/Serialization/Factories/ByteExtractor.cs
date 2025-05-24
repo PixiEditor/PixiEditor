@@ -86,14 +86,10 @@ public class ByteExtractor
     public string GetString()
     {
         int length = GetInt();
-        StringBuilder builder = new StringBuilder();
-        
-        for (int i = 0; i < length; i++)
-        {
-            builder.Append((char)GetInt());
-        }
-        
-        return builder.ToString();
+        string value = Encoding.UTF8.GetString(_data, Position, length);
+
+        Position += length;
+        return value;
     }
 
     public float GetFloat()
@@ -112,5 +108,18 @@ public class ByteExtractor
         Position += sizeof(bool);
         
         return value;
+    }
+
+    internal string GetStringLegacyDontUse()
+    {
+        int length = GetInt();
+
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++)
+        {
+            sb.Append((char)GetInt());
+        }
+
+        return sb.ToString();
     }
 }
