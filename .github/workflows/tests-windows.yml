@@ -35,4 +35,5 @@ jobs:
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
-      run: dotnet test tests/
+      working-directory: tests
+      run: dotnet test
