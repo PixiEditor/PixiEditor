@@ -1,0 +1,66 @@
+name: Tests Windows
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  wasiVer: 'wasi-sdk-25.0-x86_64-windows'
+  wasiUrl: 'https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-25/wasi-sdk-25.0-x86_64-windows.tar.gz'
+
+jobs:
+
+  build:
+
+    strategy:
+      matrix:
+        configuration: [Release]
+
+    runs-on: windows-latest  # For a list of available runner types, refer to
+                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        submodules: 'recursive'
+
+    # Install the .NET Core workload
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Install wasi-experimental workload
+      working-directory: tests
+      run: dotnet workload install wasi-experimental
+
+    - name: Download WASI SDK
+      run: |
+        Invoke-WebRequest -Uri "${{ env.wasiUrl }}" -OutFile "${{ env.wasiVer }}.tar.gz"
+
+    - name: Unpack WASI SDK
+      run: |
+              tar -xzf ${{ env.wasiVer }}.tar.gz
+              echo "Contents of directory after extraction:"
+              dir "${{ env.wasiVer }}"
+      shell: pwsh
+
+    - name: Set Environment Path for WASI SDK
+      run: |
+              $env:WASI_SDK_PATH = "${{ github.workspace }}\${{ env.wasiVer }}"
+              echo "WASI_SDK_PATH=$env:WASI_SDK_PATH" >> $env:GITHUB_ENV
+      shell: pwsh
+
+    - name: Verify Environment Path
+      run: |
+              Write-Host "Environment path set to: $env:WASI_SDK_PATH"
+      shell: pwsh
+
+    # Execute all unit tests in the solution
+    - name: Execute unit tests
+      working-directory: tests
+      run: dotnet test

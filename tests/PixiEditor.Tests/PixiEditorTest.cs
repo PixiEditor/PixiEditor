@@ -1,7 +1,5 @@
 using Drawie.Backend.Core.Bridge;
 using Drawie.Numerics;
-using Drawie.RenderApi.Vulkan;
-using Drawie.Silk;
 using Drawie.Skia;
 using Drawie.Windowing;
 using DrawiEngine;

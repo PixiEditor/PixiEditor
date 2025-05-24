@@ -31,6 +31,7 @@
       <ProjectReference Include="..\..\src\PixiEditor.Desktop\PixiEditor.Desktop.csproj" />
       <ProjectReference Include="..\..\src\PixiEditor.Linux\PixiEditor.Linux.csproj" />
       <ProjectReference Include="..\..\src\PixiEditor.MacOs\PixiEditor.MacOs.csproj" />
+        <ProjectReference Include="..\..\src\PixiEditor.Windows\PixiEditor.Windows.csproj" />
     </ItemGroup>
     
     <ItemGroup>
