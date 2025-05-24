@@ -149,6 +149,12 @@ public class PixiAuthIdentityProvider : IIdentityProvider
                 SaveUserInfo();
                 return true;
             }
+            else
+            {
+                User = null;
+                await Logout();
+                Error("SESSION_EXPIRED");
+            }
         }
         catch (ForbiddenException e)
         {
