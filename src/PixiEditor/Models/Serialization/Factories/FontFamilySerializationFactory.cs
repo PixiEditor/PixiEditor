@@ -36,7 +36,9 @@ public class FontFamilySerializationFactory : SerializationFactory<byte[], FontF
         }
 
         ByteExtractor extractor = new ByteExtractor(bytes);
-        string fontFamily = extractor.GetString();
+
+        string fontFamily = DeserializeStringCompatible(extractor, serializerData);
+
         bool isFontFromFile = extractor.GetBool();
         string fontPath = null;
         if (isFontFromFile && ResourceLocator != null)
