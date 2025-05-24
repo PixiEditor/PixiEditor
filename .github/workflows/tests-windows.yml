@@ -8,7 +8,7 @@ on:
 
 env:
   wasiVer: 'wasi-sdk-25.0-x86_64-windows'
-  wasiUrl: 'https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-25.0-x86_64-windows.tar.gz'
+  wasiUrl: 'https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-25/wasi-sdk-25.0-x86_64-windows.tar.gz'
 
 jobs:
 
