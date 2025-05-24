@@ -125,7 +125,6 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     public UpdateViewModel(ViewModelMain owner)
         : base(owner)
     {
-        IOperatingSystem.Current.ProcessUtility.RunAsAdmin("whoami", null);
         if (IOperatingSystem.Current.IsLinux)
         {
             if (File.Exists("no-updates"))
@@ -290,7 +289,26 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     {
         try
         {
-            ProcessHelper.RunAsAdmin(updaterPath, startAfterUpdate ? "--startOnSuccess" : null);
+            if (IOperatingSystem.Current.IsLinux)
+            {
+                bool hasWritePermissions = !InstallDirReadOnly();
+                if (hasWritePermissions)
+                {
+                    IOperatingSystem.Current.ProcessUtility.ShellExecute(updaterPath, startAfterUpdate ? "--startOnSuccess" : null);
+                }
+                else
+                {
+                    NoticeDialog.Show(
+                        "COULD_NOT_UPDATE_WITHOUT_ADMIN",
+                        "INSUFFICIENT_PERMISSIONS");
+                    return;
+                }
+            }
+            else
+            {
+                ProcessHelper.RunAsAdmin(updaterPath, startAfterUpdate ? "--startOnSuccess" : null);
+            }
+
             Shutdown();
         }
         catch (Win32Exception)
@@ -327,7 +345,20 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     {
         try
         {
-            IOperatingSystem.Current.ProcessUtility.RunAsAdmin(updateExeFile, null);
+            
+            if (IOperatingSystem.Current.IsLinux)
+            {
+                bool hasWritePermissions = !InstallDirReadOnly();
+                if (hasWritePermissions)
+                {
+                    IOperatingSystem.Current.ProcessUtility.ShellExecute(updateExeFile, null);
+                }
+            }
+            else
+            {
+                IOperatingSystem.Current.ProcessUtility.RunAsAdmin(updateExeFile, null);
+            }
+
             Shutdown();
         }
         catch (Win32Exception)

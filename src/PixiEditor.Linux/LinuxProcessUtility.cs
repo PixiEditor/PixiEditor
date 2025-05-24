@@ -9,9 +9,7 @@ public class LinuxProcessUtility : IProcessUtility
 {
     public Process RunAsAdmin(string path, string args)
     {
-        // polkit 
-        
-        return Execute("pkexec", $"env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY {path} {args}");
+        throw new NotSupportedException("Running as admin is not supported on Linux.");
     }
 
     public bool IsRunningAsAdministrator()
