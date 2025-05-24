@@ -1,3 +1,4 @@
+using Avalonia.Headless.XUnit;
 using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
 using Drawie.Backend.Core.Surfaces.ImageData;
@@ -5,6 +6,7 @@ using Drawie.Skia;
 using DrawiEngine;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
+using PixiEditor.Models.IO;
 using PixiEditor.Models.Serialization;
 using PixiEditor.Models.Serialization.Factories;
 using PixiEditor.Models.Serialization.Factories.Paintables;
@@ -46,5 +48,22 @@ public class SerializationTests : PixiEditorTest
             var factory = factories.FirstOrDefault(x => x.OriginalType == type);
             Assert.NotNull(factory);
         }
+    }
+
+    [AvaloniaTheory]
+    [InlineData("Fibi")]
+    [InlineData("Pond")]
+    [InlineData("SmlPxlCircShadWithMask")]
+    [InlineData("SmallPixelArtCircleShadow")]
+    [InlineData("SmlPxlCircShadWithMaskClipped")]
+    [InlineData("SmlPxlCircShadWithMaskClippedInFolder")]
+    [InlineData("VectorRectangleClippedToCircle")]
+    [InlineData("VectorRectangleClippedToCircleShadowFilter")]
+    [InlineData("VectorRectangleClippedToCircleMasked")]
+    public void TestThatDeserializationOfSampleFilesDoesntThrow(string fileName)
+    {
+        string pixiFile = Path.Combine("TestFiles", "RenderTests", fileName + ".pixi");
+        var document = Importer.ImportDocument(pixiFile);
+        Assert.NotNull(document);
     }
 }
