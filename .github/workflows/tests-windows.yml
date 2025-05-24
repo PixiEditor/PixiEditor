@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ "master" ]
 
+env:
+  wasiVer: 'wasi-sdk-25.0-x86_64-linux'
+  wasiUrl: 'https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-25/x86_64.tar.gz'
+
 jobs:
 
   build:
@@ -33,6 +37,27 @@ jobs:
     - name: Install wasi-experimental workload
       working-directory: tests
       run: dotnet workload install wasi-experimental
+
+    - name: Download WASI SDK
+      run: curl -L -o ${{ env.wasiVer }}.tar.gz ${{ env.wasiUrl }}
+
+    - name: Unpack WASI SDK
+      run: |
+              tar -xzf ${{ env.wasiVer }}.tar.gz
+              echo "Contents of directory after extraction:"
+              dir "${{ env.wasiVer }}"
+      shell: pwsh
+
+    - name: Set Environment Path for WASI SDK
+      run: |
+              $env:WASI_SDK_PATH = "${{ github.workspace }}\${{ env.wasiVer }}"
+              echo "WASI_SDK_PATH=$env:WASI_SDK_PATH" >> $env:GITHUB_ENV
+      shell: pwsh
+
+    - name: Verify Environment Path
+      run: |
+              Write-Host "Environment path set to: $env:WASI_SDK_PATH"
+      shell: pwsh
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
