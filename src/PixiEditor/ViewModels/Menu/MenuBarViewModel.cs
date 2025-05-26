@@ -97,6 +97,7 @@ internal class MenuBarViewModel : PixiObservableObject
     private void RebuildMenu()
     {
         MenuEntries?.Clear();
+        NativeMenu?.Items?.Clear();
         nativeMenuItems?.Clear();
         menuItems.Clear();
 

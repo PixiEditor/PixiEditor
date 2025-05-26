@@ -119,7 +119,7 @@ internal class ClassicDesktopEntry
 
         NumberInput.AttachGlobalBehaviors += AttachGlobalShortcutBehavior;
 
-        ExtensionLoader extensionLoader = new ExtensionLoader(Paths.ExtensionPackagesPath, Paths.UserExtensionsPath);
+        ExtensionLoader extensionLoader = new ExtensionLoader([Paths.InstallDirExtensionPackagesPath, Paths.LocalExtensionPackagesPath], Paths.UserExtensionsPath);
         //TODO: fetch from extension store
         extensionLoader.AddOfficialExtension("pixieditor.founderspack",
             new OfficialExtensionData("supporter-pack.snk", AdditionalContentProduct.SupporterPack));

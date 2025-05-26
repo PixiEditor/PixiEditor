@@ -55,7 +55,7 @@ public class FullPixiEditorTest : PixiEditorTest
 {
     public FullPixiEditorTest()
     {
-        ExtensionLoader loader = new ExtensionLoader("TestExtensions", "TestExtensions/Unpacked");
+        ExtensionLoader loader = new ExtensionLoader(["TestExtensions"], "TestExtensions/Unpacked");
 
         if (IOperatingSystem.Current == null)
         {
