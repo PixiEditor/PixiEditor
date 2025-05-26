@@ -13,6 +13,10 @@ public class UpdateController
         Current = this;
 
         string updateDirectory = Path.GetDirectoryName(Extensions.GetExecutablePath());
+        if (OperatingSystem.IsMacOS())
+        {
+            updateDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+        }
 
 #if DEBUG
         updateDirectory = Path.GetDirectoryName(Environment.GetCommandLineArgs().FirstOrDefault());

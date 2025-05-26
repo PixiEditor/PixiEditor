@@ -247,7 +247,8 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     private void Install(bool startAfterUpdate)
     {
-        string dir = AppDomain.CurrentDomain.BaseDirectory;
+        string dir = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName) ??
+                     AppDomain.CurrentDomain.BaseDirectory;
 
         UpdateDownloader.CreateTempDirectory();
         if (UpdateChecker.LatestReleaseInfo == null ||
@@ -267,12 +268,19 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
         string updaterPath = Path.Join(dir, $"PixiEditor.UpdateInstaller{BinaryExtension}");
 
+
         if (!updateFileExists && !updateExeExists)
         {
             EnsureUpdateFilesDeleted();
             UpdateState = UpdateState.Checking;
             Dispatcher.UIThread.InvokeAsync(async () => await CheckForUpdate());
             return;
+        }
+        
+        if (IOperatingSystem.Current.IsMacOs && Path.Exists(updaterPath))
+        {
+            File.Copy(updaterPath, Path.Join(UpdateDownloader.DownloadLocation, $"PixiEditor.UpdateInstaller"), true);
+            updaterPath = Path.Join(UpdateDownloader.DownloadLocation, $"PixiEditor.UpdateInstaller");
         }
 
         if (updateFileExists && File.Exists(updaterPath))
@@ -287,36 +295,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     private static void InstallHeadless(string updaterPath, bool startAfterUpdate)
     {
-        try
-        {
-            if (IOperatingSystem.Current.IsLinux)
-            {
-                bool hasWritePermissions = !InstallDirReadOnly();
-                if (hasWritePermissions)
-                {
-                    IOperatingSystem.Current.ProcessUtility.ShellExecute(updaterPath, startAfterUpdate ? "--startOnSuccess" : null);
-                }
-                else
-                {
-                    NoticeDialog.Show(
-                        "COULD_NOT_UPDATE_WITHOUT_ADMIN",
-                        "INSUFFICIENT_PERMISSIONS");
-                    return;
-                }
-            }
-            else
-            {
-                ProcessHelper.RunAsAdmin(updaterPath, startAfterUpdate ? "--startOnSuccess" : null);
-            }
-
-            Shutdown();
-        }
-        catch (Win32Exception)
-        {
-            NoticeDialog.Show(
-                "COULD_NOT_UPDATE_WITHOUT_ADMIN",
-                "INSUFFICIENT_PERMISSIONS");
-        }
+        TryRestartToUpdate(updaterPath, startAfterUpdate ? "--startOnSuccess" : null);
     }
 
     private void OpenExeInstaller(string updateExeFile)
@@ -343,6 +322,11 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     private static void RestartToUpdate(string updateExeFile)
     {
+        TryRestartToUpdate(updateExeFile, null);
+    }
+
+    private static void TryRestartToUpdate(string updateExeFile, string? args)
+    {
         try
         {
             
@@ -351,15 +335,42 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
                 bool hasWritePermissions = !InstallDirReadOnly();
                 if (hasWritePermissions)
                 {
-                    IOperatingSystem.Current.ProcessUtility.ShellExecute(updateExeFile, null);
+                    IOperatingSystem.Current.ProcessUtility.ShellExecute(updateExeFile, args);
+                    Shutdown();
+                }
+                else
+                {
+                    NoticeDialog.Show("COULD_NOT_UPDATE_WITHOUT_ADMIN", "INSUFFICIENT_PERMISSIONS");
+                    return;
                 }
             }
             else
             {
-                IOperatingSystem.Current.ProcessUtility.RunAsAdmin(updateExeFile, null);
+                var proc = IOperatingSystem.Current.ProcessUtility.RunAsAdmin(updateExeFile, args);
+                if (IOperatingSystem.Current.IsMacOs)
+                {
+                    proc.WaitForExitAsync().ContinueWith(t =>
+                    {
+                        Dispatcher.UIThread.Invoke(() =>
+                        {
+
+                            if (t.IsCompletedSuccessfully && proc.ExitCode == 0)
+                            {
+                                Shutdown();
+                            }
+                            else
+                            {
+                                NoticeDialog.Show("COULD_NOT_UPDATE_WITHOUT_ADMIN", "INSUFFICIENT_PERMISSIONS");
+                            }
+                        });
+                    });
+                }
+                else
+                {
+                    Shutdown();
+                }
             }
 
-            Shutdown();
         }
         catch (Win32Exception)
         {
@@ -431,7 +442,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     private bool OsSupported()
     {
-        return IOperatingSystem.Current.IsWindows || IOperatingSystem.Current.IsLinux;
+        return IOperatingSystem.Current.IsWindows || IOperatingSystem.Current.IsLinux || IOperatingSystem.Current.IsMacOs;
     }
 
     private void EnsureUpdateFilesDeleted()
