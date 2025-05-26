@@ -15,14 +15,14 @@ public class ExtensionLoader
 
     public List<Extension> LoadedExtensions { get; } = new();
 
-    public string PackagesPath { get; }
+    public string[] PackagesPath { get; }
     public string UnpackedExtensionsPath { get; }
 
     private WasmRuntime.WasmRuntime _wasmRuntime = new WasmRuntime.WasmRuntime();
 
-    public ExtensionLoader(string packagesPath, string unpackedExtensionsPath)
+    public ExtensionLoader(string[] packagesPaths, string unpackedExtensionsPath)
     {
-        PackagesPath = packagesPath;
+        PackagesPath = packagesPaths;
         UnpackedExtensionsPath = unpackedExtensionsPath;
         ValidateExtensionFolder();
     }
@@ -34,7 +34,20 @@ public class ExtensionLoader
 
     public void LoadExtensions()
     {
-        foreach (var file in Directory.GetFiles(PackagesPath))
+        foreach (var packagesPath in PackagesPath)
+        {
+            LoadExtensionsFromPath(packagesPath);
+        }
+    }
+
+    private void LoadExtensionsFromPath(string path)
+    {
+        if (!Directory.Exists(path))
+        {
+            return;
+        }
+
+        foreach (var file in Directory.GetFiles(path))
         {
             if (file.EndsWith(".pixiext"))
             {
@@ -397,14 +410,18 @@ public class ExtensionLoader
 
     private void ValidateExtensionFolder()
     {
-        if (!Directory.Exists(PackagesPath))
+        try
         {
-            Directory.CreateDirectory(PackagesPath);
+            if (!Directory.Exists(UnpackedExtensionsPath))
+            {
+                Directory.CreateDirectory(UnpackedExtensionsPath);
+            }
         }
-
-        if (!Directory.Exists(UnpackedExtensionsPath))
+        catch (Exception ex)
         {
-            Directory.CreateDirectory(UnpackedExtensionsPath);
+#if DEBUG
+            throw;
+#endif
         }
     }
 
