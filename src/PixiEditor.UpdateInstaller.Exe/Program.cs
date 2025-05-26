@@ -40,11 +40,26 @@ finally
 
     if (startAfterUpdate)
     {
-        var files = Directory.GetFiles(controller.UpdateDirectory, "PixiEditor.exe");
+        string binaryName = OperatingSystem.IsWindows() ? "PixiEditor.exe" : "PixiEditor";
+        var files = Directory.GetFiles(controller.UpdateDirectory, binaryName);
         if (files.Length > 0)
         {
             string pixiEditorExecutablePath = files[0];
             Process.Start(pixiEditorExecutablePath);
+        }
+        else
+        {
+            binaryName = OperatingSystem.IsWindows() ? "PixiEditor.Desktop.exe" : "PixiEditor.Desktop";
+            files = Directory.GetFiles(controller.UpdateDirectory, binaryName);
+            if (files.Length > 0)
+            {
+                string pixiEditorExecutablePath = files[0];
+                Process.Start(pixiEditorExecutablePath);
+            }
+            else
+            {
+                Console.WriteLine("PixiEditor executable not found.");
+            }
         }
     }
 }
