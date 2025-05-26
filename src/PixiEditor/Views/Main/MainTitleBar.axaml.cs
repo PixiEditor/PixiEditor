@@ -42,7 +42,27 @@ public partial class MainTitleBar : UserControl
         base.OnAttachedToVisualTree(e);
         if (IOperatingSystem.Current.IsMacOs && DataContext is MenuBarViewModel menuBarViewModel)
         {
-            NativeMenu.SetMenu(MainWindow.Current, menuBarViewModel.NativeMenu);
+            if (menuBarViewModel.NativeMenu != null)
+            {
+                NativeMenu.SetMenu(MainWindow.Current, menuBarViewModel.NativeMenu);
+            }
+            else
+            {
+                menuBarViewModel.PropertyChanged += (sender, args) =>
+                {
+                    if (args.PropertyName == nameof(MenuBarViewModel.NativeMenu))
+                    {
+                        if (menuBarViewModel.NativeMenu != null)
+                        {
+                            NativeMenu.SetMenu(MainWindow.Current, menuBarViewModel.NativeMenu);
+                        }
+                        else
+                        {
+                            NativeMenu.SetMenu(MainWindow.Current, null);
+                        }
+                    }
+                };
+            }
         }
     }
 }
