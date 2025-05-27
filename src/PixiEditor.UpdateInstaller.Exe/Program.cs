@@ -58,7 +58,7 @@ finally
                 }
                 else
                 {
-                    Console.WriteLine("PixiEditor executable not found.");
+                    log.AppendLine("PixiEditor executable not found.");
                 }
             }
         }

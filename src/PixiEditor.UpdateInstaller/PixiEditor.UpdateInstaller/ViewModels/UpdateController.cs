@@ -41,7 +41,6 @@ public class UpdateController
         {
             Installer = new UpdateModule.UpdateInstaller(files[0], UpdateDirectory);
             log.AppendLine($"Installing update from {files[0]} to {UpdateDirectory}");
-            Console.WriteLine("Installing update, DO NOT CLOSE THIS WINDOW");
             Installer.Install(log);
         }
     }
