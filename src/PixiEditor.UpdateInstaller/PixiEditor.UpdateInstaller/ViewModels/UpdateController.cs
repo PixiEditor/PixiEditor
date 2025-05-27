@@ -17,10 +17,21 @@ public class UpdateController
         {
             updateDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
         }
+        else
+        {
+            string infoPath = Path.Join(Path.GetTempPath(), "PixiEditor", "update-location.txt");
+            if (File.Exists(infoPath))
+            {
+                try
+                {
+                    updateDirectory = File.ReadAllText(infoPath);
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+        }
 
-#if DEBUG
-        updateDirectory = Path.GetDirectoryName(Environment.GetCommandLineArgs().FirstOrDefault());
-#endif
         UpdateDirectory = updateDirectory;
     }
 

@@ -41,20 +41,19 @@ finally
         else
         {
             string binaryName = OperatingSystem.IsWindows() ? "PixiEditor.exe" : "PixiEditor";
-            var files = Directory.GetFiles(controller.UpdateDirectory, binaryName);
-            if (files.Length > 0)
+            string path = Path.Join(controller.UpdateDirectory, binaryName);
+            if (File.Exists(path))
             {
-                string pixiEditorExecutablePath = files[0];
-                Process.Start(pixiEditorExecutablePath);
+                log.AppendLine($"{DateTime.Now}: Starting PixiEditor from {path}");
+                StartPixiEditor(path);
             }
             else
             {
                 binaryName = OperatingSystem.IsWindows() ? "PixiEditor.Desktop.exe" : "PixiEditor.Desktop";
-                files = Directory.GetFiles(controller.UpdateDirectory, binaryName);
-                if (files.Length > 0)
+                path = Path.Join(controller.UpdateDirectory, binaryName);
+                if (File.Exists(path))
                 {
-                    string pixiEditorExecutablePath = files[0];
-                    Process.Start(pixiEditorExecutablePath);
+                    StartPixiEditor(path);
                 }
                 else
                 {
@@ -72,6 +71,28 @@ finally
     catch
     {
         // probably permissions or disk full, the best we can do is to ignore this
+    }
+
+    void StartPixiEditor(string pixiEditorExecutablePath)
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            Process.Start(new ProcessStartInfo(pixiEditorExecutablePath) { UseShellExecute = true });
+        }
+        else if (OperatingSystem.IsLinux())
+        {
+            string display = Environment.GetEnvironmentVariable("DISPLAY");
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "/bin/bash",
+                Arguments = "-c \"DISPLAY=" + display + " " + pixiEditorExecutablePath + "\" & disown",
+                UseShellExecute = false,
+            });
+        }
+        else
+        {
+            log.AppendLine($"{DateTime.Now}: Unsupported operating system for starting PixiEditor.");
+        }
     }
 }
 

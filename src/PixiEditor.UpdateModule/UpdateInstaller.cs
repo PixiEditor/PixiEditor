@@ -98,7 +98,7 @@ public class UpdateInstaller
             }
             Directory.Move(appFile, targetAppDirectory);
             
-            DeleteArchive();
+            Cleanup();
             return;
         }
 
@@ -129,13 +129,37 @@ public class UpdateInstaller
         log.AppendLine("Files copied");
         log.AppendLine("Deleting archive and update files");
         
-        DeleteArchive();
+        Cleanup();
     }
 
-    private void DeleteArchive()
+    private void Cleanup()
     {
         File.Delete(ArchiveFileName);
         Directory.Delete(UpdateFilesPath, true);
+        string updateLocationFile = Path.Join(Path.GetTempPath(), "PixiEditor", "update-location.txt");
+        if (File.Exists(updateLocationFile))
+        {
+            try
+            {
+                File.Delete(updateLocationFile);
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+        
+        string updateInstallerFile = Path.Join(Path.GetTempPath(), "PixiEditor", "PixiEditor.UpdateInstaller" + (OperatingSystem.IsWindows() ? ".exe" : ""));
+        if (File.Exists(updateInstallerFile))
+        {
+            try
+            {
+                File.Delete(updateInstallerFile);
+            }
+            catch (Exception ex)
+            {
+                // Ignore errors during cleanup
+            }
+        }
     }
 
     private void CopyFilesToDestination(string sourceDirectory, StringBuilder log)

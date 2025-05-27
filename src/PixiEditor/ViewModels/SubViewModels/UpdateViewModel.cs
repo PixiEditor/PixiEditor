@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Avalonia;
@@ -166,6 +167,16 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
+        if (updateAvailable)
+        {
+            if (!IOperatingSystem.Current.IsWindows && UpdateChecker.LatestReleaseInfo.TagName.StartsWith("1."))
+            {
+                // 1.0 is windows only
+                UpdateState = UpdateState.UpToDate;
+                return;
+            }
+        }
+
         UpdateState = updateAvailable ? UpdateState.UpdateAvailable : UpdateState.UpToDate;
     }
 
@@ -288,6 +299,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         {
             File.Copy(updaterPath, Path.Join(UpdateDownloader.DownloadLocation, $"PixiEditor.UpdateInstaller"), true);
             updaterPath = Path.Join(UpdateDownloader.DownloadLocation, $"PixiEditor.UpdateInstaller");
+            File.WriteAllText(Path.Join(UpdateDownloader.DownloadLocation, "update-location.txt"), Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty);
         }
 
         if (updateFileExists && File.Exists(updaterPath))
