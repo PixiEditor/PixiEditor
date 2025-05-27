@@ -11,9 +11,9 @@ public static class UpdateDownloader
 {
     public static string DownloadLocation { get; } = Path.Join(Path.GetTempPath(), "PixiEditor");
 
-    public static async Task DownloadReleaseZip(ReleaseInfo release)
+    public static async Task DownloadReleaseZip(ReleaseInfo release, string contentType, string extension)
     {
-        Asset? matchingAsset = GetMatchingAsset(release);
+        Asset? matchingAsset = GetMatchingAsset(release, contentType);
 
         if (matchingAsset == null)
         {
@@ -28,7 +28,7 @@ public static class UpdateDownloader
         {
             byte[] bytes = await response.Content.ReadAsByteArrayAsync();
             CreateTempDirectory();
-            await File.WriteAllBytesAsync(Path.Join(DownloadLocation, $"update-{release.TagName}.zip"), bytes);
+            await File.WriteAllBytesAsync(Path.Join(DownloadLocation, $"update-{release.TagName}.{extension}"), bytes);
         }
     }
 
@@ -61,7 +61,7 @@ public static class UpdateDownloader
         }
     }
 
-    private static Asset? GetMatchingAsset(ReleaseInfo release, string assetType = "zip")
+    private static Asset? GetMatchingAsset(ReleaseInfo release, string assetType)
     {
         if (release.TagName.StartsWith("1."))
         {
@@ -70,8 +70,9 @@ public static class UpdateDownloader
                                                       && x.Name.Contains(archOld));
         }
 
-        string arch = "x64";
-        string os = OperatingSystem.IsWindows() ? "win" : OperatingSystem.IsLinux() ? "linux" : "mac";
+        string arch = OperatingSystem.IsWindows() ? "x64" : 
+                      OperatingSystem.IsLinux() ? "amd64" : "universal";
+        string os = OperatingSystem.IsWindows() ? "win" : OperatingSystem.IsLinux() ? "linux" : "macos";
         return release.Assets.FirstOrDefault(x => x.ContentType.Contains(assetType)
                                                   && x.Name.Contains(arch) && x.Name.Contains(os));
     }

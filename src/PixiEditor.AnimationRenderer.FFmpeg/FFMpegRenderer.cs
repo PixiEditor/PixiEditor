@@ -173,11 +173,12 @@ public class FFMpegRenderer : IAnimationRenderer
                 return;
             }
 
-            IOperatingSystem.Current.ProcessUtility.Execute("chmod", $"+x {filePath}");
+            IOperatingSystem.Current.ProcessUtility.Execute("chmod", $"+x {filePath}").WaitForExit(500);
         }
         catch (Exception e)
         {
-            IOperatingSystem.Current.ProcessUtility.Execute("chmod", $"+x {filePath}");
+            IOperatingSystem.Current.ProcessUtility.Execute("chmod", $"+x {filePath}")
+                .WaitForExit(500);
         }
     }
 

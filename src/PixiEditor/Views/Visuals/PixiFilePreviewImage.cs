@@ -76,8 +76,15 @@ internal class PixiFilePreviewImage : TextureControl
 
         Dispatcher.UIThread.Post(() =>
         {
-            var surface = LoadTexture(imageBytes);
-            SetImage(surface);
+            try
+            {
+                var surface = LoadTexture(imageBytes);
+                SetImage(surface);
+            }
+            catch (Exception e)
+            {
+                SetCorrupt();
+            }
         });
     }
 

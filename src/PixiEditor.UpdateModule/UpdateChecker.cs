@@ -78,6 +78,11 @@ public class UpdateChecker
         LatestReleaseInfo = await GetLatestReleaseInfoAsync(Channel.ApiUrl);
         return CheckUpdateAvailable(LatestReleaseInfo);
     }
+    
+    public void SetLatestReleaseInfo(ReleaseInfo releaseInfo)
+    {
+        LatestReleaseInfo = releaseInfo;
+    }
 
     public bool CheckUpdateAvailable(ReleaseInfo latestRelease)
     {

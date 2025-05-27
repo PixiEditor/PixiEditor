@@ -1,7 +1,5 @@
 using Drawie.Backend.Core.Bridge;
 using Drawie.Numerics;
-using Drawie.RenderApi.Vulkan;
-using Drawie.Silk;
 using Drawie.Skia;
 using Drawie.Windowing;
 using DrawiEngine;
@@ -57,7 +55,7 @@ public class FullPixiEditorTest : PixiEditorTest
 {
     public FullPixiEditorTest()
     {
-        ExtensionLoader loader = new ExtensionLoader("TestExtensions", "TestExtensions/Unpacked");
+        ExtensionLoader loader = new ExtensionLoader(["TestExtensions"], "TestExtensions/Unpacked");
 
         if (IOperatingSystem.Current == null)
         {
