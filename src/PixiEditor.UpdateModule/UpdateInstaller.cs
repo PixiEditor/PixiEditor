@@ -113,17 +113,6 @@ public class UpdateInstaller
             dirWithFiles = Directory.GetDirectories(UpdateFilesPath)[0];
         }
 
-        string updaterFile = Path.Combine(dirWithFiles,
-            "PixiEditor.UpdateInstaller" + (OperatingSystem.IsWindows() ? ".exe" : ""));
-
-        if (File.Exists(updaterFile))
-        {
-            string newName = Path.Combine(dirWithFiles,
-                "PixiEditor.UpdateInstaller-update" + (OperatingSystem.IsWindows() ? ".exe" : ""));
-            File.Move(updaterFile, newName);
-            log.AppendLine($"Renamed {updaterFile} to {newName}");
-        }
-
         log.AppendLine($"Copying files from {dirWithFiles} to {TargetDirectory}");
 
         try

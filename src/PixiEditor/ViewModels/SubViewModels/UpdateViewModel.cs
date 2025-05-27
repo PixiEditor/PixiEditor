@@ -284,7 +284,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             return;
         }
         
-        if (IOperatingSystem.Current.IsMacOs && Path.Exists(updaterPath))
+        if (Path.Exists(updaterPath))
         {
             File.Copy(updaterPath, Path.Join(UpdateDownloader.DownloadLocation, $"PixiEditor.UpdateInstaller"), true);
             updaterPath = Path.Join(UpdateDownloader.DownloadLocation, $"PixiEditor.UpdateInstaller");
