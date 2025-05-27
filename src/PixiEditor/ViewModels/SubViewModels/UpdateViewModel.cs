@@ -245,6 +245,12 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         Install(true);
     }
 
+    [Command.Debug("PixiEditor.Update.DebugInstall", "Debug Install Update", "(DEBUG) Install update zip file without checking for updates")]
+    public void DebugInstall()
+    {
+        Install(true);
+    }
+
     private void Install(bool startAfterUpdate)
     {
         string dir = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName) ??

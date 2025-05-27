@@ -26,7 +26,6 @@
   </Target>
 
   <Target Name="Rename" AfterTargets="Publish" Condition="'$(RuntimeIdentifier)'=='win-x64' or '$(RuntimeIdentifier)'=='win-arm64'">
-    <Message Text="RuntimeIdentifier: '$(RuntimeIdentifier)'" Importance="high"/>
     <Move SourceFiles="$(PublishDir)PixiEditor.UpdateInstaller.Exe.exe" DestinationFiles="$(PublishDir)PixiEditor.UpdateInstaller.exe"/>
     <Message Text="Renamed published executable file." Importance="high"/>
   </Target>
