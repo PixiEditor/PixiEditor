@@ -70,8 +70,9 @@ public static class UpdateDownloader
                                                       && x.Name.Contains(archOld));
         }
 
-        string arch = OperatingSystem.IsWindows() ? "x64" : "amd64";
-        string os = OperatingSystem.IsWindows() ? "win" : OperatingSystem.IsLinux() ? "linux" : "mac";
+        string arch = OperatingSystem.IsWindows() ? "x64" : 
+                      OperatingSystem.IsLinux() ? "amd64" : "universal";
+        string os = OperatingSystem.IsWindows() ? "win" : OperatingSystem.IsLinux() ? "linux" : "macos";
         return release.Assets.FirstOrDefault(x => x.ContentType.Contains(assetType)
                                                   && x.Name.Contains(arch) && x.Name.Contains(os));
     }

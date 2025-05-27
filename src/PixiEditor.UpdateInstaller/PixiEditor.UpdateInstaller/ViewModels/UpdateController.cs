@@ -13,10 +13,25 @@ public class UpdateController
         Current = this;
 
         string updateDirectory = Path.GetDirectoryName(Extensions.GetExecutablePath());
+        if (OperatingSystem.IsMacOS())
+        {
+            updateDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+        }
+        else
+        {
+            string infoPath = Path.Join(Path.GetTempPath(), "PixiEditor", "update-location.txt");
+            if (File.Exists(infoPath))
+            {
+                try
+                {
+                    updateDirectory = File.ReadAllText(infoPath);
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+        }
 
-#if DEBUG
-        updateDirectory = Path.GetDirectoryName(Environment.GetCommandLineArgs().FirstOrDefault());
-#endif
         UpdateDirectory = updateDirectory;
     }
 
@@ -37,7 +52,6 @@ public class UpdateController
         {
             Installer = new UpdateModule.UpdateInstaller(files[0], UpdateDirectory);
             log.AppendLine($"Installing update from {files[0]} to {UpdateDirectory}");
-            Console.WriteLine("Installing update, DO NOT CLOSE THIS WINDOW");
             Installer.Install(log);
         }
     }
