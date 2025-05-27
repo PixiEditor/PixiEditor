@@ -46,8 +46,12 @@ internal class AutosaverSaveUserFileJob(DocumentViewModel document) : IAutosaver
 
                 File.Copy(document.AutosaveViewModel.LastAutosavedPath, path, true);
 
-                document.MarkAsSaved();
-                document.AutosaveViewModel.AddAutosaveHistoryEntry(AutosaveHistoryType.Periodic, AutosaveHistoryResult.SavedUserFile);
+                Dispatcher.UIThread.Invoke(() =>
+                {
+                    document.MarkAsSaved();
+                    document.AutosaveViewModel.AddAutosaveHistoryEntry(AutosaveHistoryType.Periodic,
+                        AutosaveHistoryResult.SavedUserFile);
+                });
                 return UserFileAutosaveResult.Success;
             }
             catch (Exception e) when (e is UnauthorizedAccessException or DirectoryNotFoundException)

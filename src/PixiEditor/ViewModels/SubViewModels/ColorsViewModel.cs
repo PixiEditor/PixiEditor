@@ -426,7 +426,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
     [Commands_Command.Internal("PixiEditor.CloseContextMenu")]
     public void CloseContextMenu(XAML_ContextMenu menu)
     {
-        menu.Close();
+        menu?.Close();
     }
 
     public void SetupPaletteProviders(IServiceProvider services)

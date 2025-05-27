@@ -294,12 +294,22 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             Dispatcher.UIThread.InvokeAsync(async () => await CheckForUpdate());
             return;
         }
-        
-        if (Path.Exists(updaterPath))
+
+        try
         {
-            File.Copy(updaterPath, Path.Join(UpdateDownloader.DownloadLocation, $"PixiEditor.UpdateInstaller"), true);
-            updaterPath = Path.Join(UpdateDownloader.DownloadLocation, $"PixiEditor.UpdateInstaller");
-            File.WriteAllText(Path.Join(UpdateDownloader.DownloadLocation, "update-location.txt"), Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty);
+            if (Path.Exists(updaterPath))
+            {
+                File.Copy(updaterPath, Path.Join(UpdateDownloader.DownloadLocation, $"PixiEditor.UpdateInstaller"),
+                    true);
+                updaterPath = Path.Join(UpdateDownloader.DownloadLocation, $"PixiEditor.UpdateInstaller");
+                File.WriteAllText(Path.Join(UpdateDownloader.DownloadLocation, "update-location.txt"),
+                    Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty);
+            }
+        }
+        catch (IOException)
+        {
+            NoticeDialog.Show("COULD_NOT_UPDATE_WITHOUT_ADMIN", "INSUFFICIENT_PERMISSIONS");
+            return;
         }
 
         if (updateFileExists && File.Exists(updaterPath))
