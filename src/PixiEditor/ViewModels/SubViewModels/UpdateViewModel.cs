@@ -248,6 +248,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     [Command.Debug("PixiEditor.Update.DebugInstall", "Debug Install Update", "(DEBUG) Install update zip file without checking for updates")]
     public void DebugInstall()
     {
+        UpdateChecker.SetLatestReleaseInfo(new ReleaseInfo(true) { TagName = "2.2.2.2" });
         Install(true);
     }
 
