@@ -207,12 +207,12 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             try
             {
                 UpdateState = UpdateState.Downloading;
-                if (updateCompatible)
+                if (updateCompatible || !IOperatingSystem.Current.IsWindows)
                 {
                     await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo, ZipContentType,
                         ZipExtension);
                 }
-                else if (IOperatingSystem.Current.IsWindows) // TODO: Add macos
+                else if (IOperatingSystem.Current.IsWindows)
                 {
                     await UpdateDownloader.DownloadInstaller(UpdateChecker.LatestReleaseInfo);
                 }
@@ -299,9 +299,9 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         {
             if (Path.Exists(updaterPath))
             {
-                File.Copy(updaterPath, Path.Join(UpdateDownloader.DownloadLocation, $"PixiEditor.UpdateInstaller"),
+                File.Copy(updaterPath, Path.Join(UpdateDownloader.DownloadLocation, $"PixiEditor.UpdateInstaller" + BinaryExtension),
                     true);
-                updaterPath = Path.Join(UpdateDownloader.DownloadLocation, $"PixiEditor.UpdateInstaller");
+                updaterPath = Path.Join(UpdateDownloader.DownloadLocation, $"PixiEditor.UpdateInstaller" + BinaryExtension);
                 File.WriteAllText(Path.Join(UpdateDownloader.DownloadLocation, "update-location.txt"),
                     Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty);
             }

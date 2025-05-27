@@ -46,6 +46,7 @@ public class UpdateInstaller
                     log.AppendLine($"Failed to kill process {process.ProcessName} with ID {process.Id}: {ex.Message}");
                 }
             }
+
             log.AppendLine("Processes killed.");
         }
 
@@ -85,10 +86,11 @@ public class UpdateInstaller
                 {
                     log.AppendLine($"Found file: {file}");
                 }
+
                 throw new FileNotFoundException("PixiEditor.app not found in the update files.");
             }
 
-            
+
             log.AppendLine($"Moving {appFile} to {TargetDirectory}");
             string targetAppDirectory = Path.Combine(TargetDirectory, "PixiEditor.app");
             if (Directory.Exists(targetAppDirectory))
@@ -96,9 +98,10 @@ public class UpdateInstaller
                 log.AppendLine($"Removing existing PixiEditor.app at {targetAppDirectory}");
                 Directory.Delete(targetAppDirectory, true);
             }
+
             Directory.Move(appFile, targetAppDirectory);
-            
-            Cleanup();
+
+            Cleanup(log);
             return;
         }
 
@@ -128,36 +131,42 @@ public class UpdateInstaller
 
         log.AppendLine("Files copied");
         log.AppendLine("Deleting archive and update files");
-        
-        Cleanup();
+
+        Cleanup(log);
     }
 
-    private void Cleanup()
+    private void Cleanup(StringBuilder logger)
     {
         File.Delete(ArchiveFileName);
         Directory.Delete(UpdateFilesPath, true);
         string updateLocationFile = Path.Join(Path.GetTempPath(), "PixiEditor", "update-location.txt");
+        logger.AppendLine($"Looking for: {updateLocationFile}");
         if (File.Exists(updateLocationFile))
         {
             try
             {
+                logger.AppendLine($"Deleting update location file: {updateLocationFile}");
                 File.Delete(updateLocationFile);
             }
             catch (Exception ex)
             {
+                logger.AppendLine($"Failed to delete update location file: {ex.Message}");
             }
         }
-        
-        string updateInstallerFile = Path.Join(Path.GetTempPath(), "PixiEditor", "PixiEditor.UpdateInstaller" + (OperatingSystem.IsWindows() ? ".exe" : ""));
+
+        string updateInstallerFile = Path.Join(Path.GetTempPath(), "PixiEditor",
+            "PixiEditor.UpdateInstaller" + (OperatingSystem.IsWindows() ? ".exe" : ""));
+        logger.AppendLine($"Looking for: {updateInstallerFile}");
         if (File.Exists(updateInstallerFile))
         {
             try
             {
+                logger.AppendLine($"Deleting update installer file: {updateInstallerFile}");
                 File.Delete(updateInstallerFile);
             }
             catch (Exception ex)
             {
-                // Ignore errors during cleanup
+                logger.AppendLine($"Failed to delete update installer file: {ex.Message}");
             }
         }
     }

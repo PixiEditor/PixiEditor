@@ -20,22 +20,22 @@
     <ProjectReference Include="..\PixiEditor.UpdateInstaller\PixiEditor.UpdateInstaller\PixiEditor.UpdateInstaller.csproj"/>
   </ItemGroup>
   
-  <Target Name="Rename" AfterTargets="AfterBuild" Condition="'$(RuntimeIdentifier)'=='win-x64' or '$(RuntimeIdentifier)'=='win-arm64'">
+  <Target Name="RenameBuildWin" AfterTargets="AfterBuild" Condition="'$(RuntimeIdentifier)' =='win-x64' or '$(RuntimeIdentifier)'=='win-arm64'">
     <Move SourceFiles="$(OutDir)PixiEditor.UpdateInstaller.Exe.exe" DestinationFiles="$(OutDir)PixiEditor.UpdateInstaller.exe"/>
     <Message Text="Renamed build executable file." Importance="high"/>
   </Target>
 
-  <Target Name="Rename" AfterTargets="Publish" Condition="'$(RuntimeIdentifier)'=='win-x64' or '$(RuntimeIdentifier)'=='win-arm64'">
+  <Target Name="RenamePublishWin" AfterTargets="Publish" Condition="'$(RuntimeIdentifier)'=='win-x64' or '$(RuntimeIdentifier)'=='win-arm64'">
     <Move SourceFiles="$(PublishDir)PixiEditor.UpdateInstaller.Exe.exe" DestinationFiles="$(PublishDir)PixiEditor.UpdateInstaller.exe"/>
     <Message Text="Renamed published executable file." Importance="high"/>
   </Target>
 
-  <Target Name="Rename" AfterTargets="AfterBuild" Condition="'$(RuntimeIdentifier)'!='win-x64' and '$(RuntimeIdentifier)'!='win-arm64'">
+  <Target Name="RenameBuildUnix" AfterTargets="AfterBuild" Condition="'$(RuntimeIdentifier)'!='win-x64' and '$(RuntimeIdentifier)'!='win-arm64'">
     <Move SourceFiles="$(OutDir)PixiEditor.UpdateInstaller.Exe" DestinationFiles="$(OutDir)PixiEditor.UpdateInstaller"/>
     <Message Text="Renamed build executable file." Importance="high"/>
   </Target>
 
-  <Target Name="Rename" AfterTargets="Publish" Condition="'$(RuntimeIdentifier)'!='win-x64' and '$(RuntimeIdentifier)'!='win-arm64'">
+  <Target Name="RenamePublishUnix" AfterTargets="Publish" Condition="'$(RuntimeIdentifier)'!='win-x64' and '$(RuntimeIdentifier)'!='win-arm64'">
     <Move SourceFiles="$(PublishDir)PixiEditor.UpdateInstaller.Exe" DestinationFiles="$(PublishDir)PixiEditor.UpdateInstaller"/>
     <Message Text="Renamed published executable file." Importance="high"/>
   </Target>
