@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Avalonia.Xaml.Interactivity;
 using PixiEditor.Extensions.Runtime;
@@ -48,13 +49,26 @@ internal class ClassicDesktopEntry
 
     private void ActivableOnActivated(object? sender, ActivatedEventArgs e)
     {
+        // TODO: Handle activation more generically. This only is handled by macos btw.
+        if (desktop.MainWindow is not MainWindow mainWindow) return;
         if (e.Kind == ActivationKind.File && e is FileActivatedEventArgs fileActivatedEventArgs)
         {
-            IOperatingSystem.Current.HandleActivatedWithFile(fileActivatedEventArgs);
+            foreach (var storageItem in fileActivatedEventArgs.Files)
+            {
+                string? file = storageItem.TryGetLocalPath();
+                if (file != null && File.Exists(file))
+                {
+                    mainWindow.DataContext.FileSubViewModel.OpenFromPath(file);
+                }
+            }
         }
         else if (e.Kind == ActivationKind.OpenUri && e is ProtocolActivatedEventArgs openUriEventArgs)
         {
-            IOperatingSystem.Current.HandleActivatedWithUri(openUriEventArgs);
+            var uri = openUriEventArgs.Uri;
+            if (uri.AbsolutePath.StartsWith("lospec-palette://"))
+            {
+                Dispatcher.UIThread.InvokeAsync(async () => await mainWindow.DataContext.ColorsSubViewModel.ImportLospecPalette(uri.AbsoluteUri));
+            }
         }
     }
 
@@ -90,7 +104,7 @@ internal class ClassicDesktopEntry
 
             return;
         }
-        
+
 #if !STEAM && !DEBUG
         if (!HandleNewInstance(Dispatcher.UIThread))
         {
@@ -119,7 +133,8 @@ internal class ClassicDesktopEntry
 
         NumberInput.AttachGlobalBehaviors += AttachGlobalShortcutBehavior;
 
-        ExtensionLoader extensionLoader = new ExtensionLoader([Paths.InstallDirExtensionPackagesPath, Paths.LocalExtensionPackagesPath], Paths.UserExtensionsPath);
+        ExtensionLoader extensionLoader = new ExtensionLoader(
+            [Paths.InstallDirExtensionPackagesPath, Paths.LocalExtensionPackagesPath], Paths.UserExtensionsPath);
         //TODO: fetch from extension store
         extensionLoader.AddOfficialExtension("pixieditor.founderspack",
             new OfficialExtensionData("supporter-pack.snk", AdditionalContentProduct.SupporterPack));
