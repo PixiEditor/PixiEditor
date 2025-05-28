@@ -237,9 +237,13 @@ internal class ClassicDesktopEntry
                         new LocalizedString("SESSION_UNSAVED_DATA", "Shutdown"),
                         $"Shutdown");
 
-                    if (confirmation != ConfirmationType.Yes)
+                    if (confirmation == ConfirmationType.Yes)
                     {
                         desktop.Shutdown();
+                    }
+                    else
+                    {
+                        e.Cancel = true;
                     }
                 });
             });
