@@ -33,6 +33,4 @@ public interface IOperatingSystem
     public void OpenUri(string uri);
     public void OpenFolder(string path);
     public bool HandleNewInstance(Dispatcher? dispatcher, Action<string, bool> openInExistingAction, IApplicationLifetime lifetime);
-    public void HandleActivatedWithFile(FileActivatedEventArgs fileActivatedEventArgs);
-    public void HandleActivatedWithUri(ProtocolActivatedEventArgs openUriEventArgs);
 }
