@@ -65,7 +65,7 @@ internal class ClassicDesktopEntry
         else if (e.Kind == ActivationKind.OpenUri && e is ProtocolActivatedEventArgs openUriEventArgs)
         {
             var uri = openUriEventArgs.Uri;
-            if (uri.AbsolutePath.StartsWith("lospec-palette://"))
+            if (uri.Scheme == "lospec-palette")
             {
                 Dispatcher.UIThread.InvokeAsync(async () => await mainWindow.DataContext.ColorsSubViewModel.ImportLospecPalette(uri.AbsoluteUri));
             }
