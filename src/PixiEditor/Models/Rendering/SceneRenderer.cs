@@ -56,15 +56,13 @@ internal class SceneRenderer : IDisposable
             var rendered = RenderGraph(target, resolution, targetOutput, finalGraph);
             cachedTextures[adjustedTargetOutput] = rendered;
         }
-        else
-        {
-            var cachedTexture = cachedTextures[adjustedTargetOutput];
-            Matrix3X3 matrixDiff = SolveMatrixDiff(target, cachedTexture);
-            int saved = target.Canvas.Save();
-            target.Canvas.SetMatrix(matrixDiff);
-            target.Canvas.DrawSurface(cachedTexture.DrawingSurface, 0, 0);
-            target.Canvas.RestoreToCount(saved);
-        }
+
+        var cachedTexture = cachedTextures[adjustedTargetOutput];
+        Matrix3X3 matrixDiff = SolveMatrixDiff(target, cachedTexture);
+        int saved = target.Canvas.Save();
+        target.Canvas.SetMatrix(matrixDiff);
+        target.Canvas.DrawSurface(cachedTexture.DrawingSurface, 0, 0);
+        target.Canvas.RestoreToCount(saved);
     }
 
     private Texture RenderGraph(DrawingSurface target, ChunkResolution resolution, string? targetOutput,
@@ -263,7 +261,8 @@ internal class SceneRenderer : IDisposable
 
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
 
-            RenderContext onionContext = new(target, frame, resolution, renderOutputSize, Document.Size, Document.ProcessingColorSpace,
+            RenderContext onionContext = new(target, frame, resolution, renderOutputSize, Document.Size,
+                Document.ProcessingColorSpace,
                 finalOpacity);
             onionContext.TargetOutput = targetOutput;
             finalGraph.Execute(onionContext);
@@ -279,7 +278,8 @@ internal class SceneRenderer : IDisposable
             }
 
             double finalOpacity = onionOpacity * alphaFalloffMultiplier * (animationData.OnionFrames - i + 1);
-            RenderContext onionContext = new(target, frame, resolution, renderOutputSize, Document.Size, Document.ProcessingColorSpace,
+            RenderContext onionContext = new(target, frame, resolution, renderOutputSize, Document.Size,
+                Document.ProcessingColorSpace,
                 finalOpacity);
             onionContext.TargetOutput = targetOutput;
             finalGraph.Execute(onionContext);
