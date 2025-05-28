@@ -63,6 +63,9 @@ public record HumanReadableKeyCombination(string key, string[] modifiers = null)
                 case "win":
                     modifiers |= KeyModifiers.Meta;
                     break;
+                case "cmd":
+                    modifiers |= KeyModifiers.Meta;
+                    break;
             }
         }
         
