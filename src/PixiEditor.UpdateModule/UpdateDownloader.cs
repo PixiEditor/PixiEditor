@@ -11,6 +11,8 @@ public static class UpdateDownloader
 {
     public static string DownloadLocation { get; } = Path.Join(Path.GetTempPath(), "PixiEditor");
 
+    public static event Action<double> ProgressChanged;
+
     public static async Task DownloadReleaseZip(ReleaseInfo release, string contentType, string extension)
     {
         Asset? matchingAsset = GetMatchingAsset(release, contentType);
@@ -20,16 +22,17 @@ public static class UpdateDownloader
             throw new FileNotFoundException("No matching update for your system found.");
         }
 
-        using HttpClient client = new HttpClient();
-        client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
-        client.DefaultRequestHeaders.Add("Accept", "application/octet-stream");
-        var response = await client.GetAsync(matchingAsset.Url);
-        if (response.StatusCode == HttpStatusCode.OK)
+        using WebClient client = new WebClient();
+        client.Headers.Add("User-Agent", "PixiEditor");
+        client.Headers.Add("Accept", "application/octet-stream");
+        client.DownloadProgressChanged += (sender, args) =>
         {
-            byte[] bytes = await response.Content.ReadAsByteArrayAsync();
-            CreateTempDirectory();
-            await File.WriteAllBytesAsync(Path.Join(DownloadLocation, $"update-{release.TagName}.{extension}"), bytes);
-        }
+            ProgressChanged?.Invoke(args.ProgressPercentage);
+        };
+
+        var bytes = await client.DownloadDataTaskAsync(matchingAsset.Url);
+        CreateTempDirectory();
+        await File.WriteAllBytesAsync(Path.Join(DownloadLocation, $"update-{release.TagName}.{extension}"), bytes);
     }
 
     public static async Task DownloadInstaller(ReleaseInfo info)
@@ -70,8 +73,8 @@ public static class UpdateDownloader
                                                       && x.Name.Contains(archOld));
         }
 
-        string arch = OperatingSystem.IsWindows() ? "x64" : 
-                      OperatingSystem.IsLinux() ? "amd64" : "universal";
+        string arch = OperatingSystem.IsWindows() ? "x64" :
+            OperatingSystem.IsLinux() ? "amd64" : "universal";
         string os = OperatingSystem.IsWindows() ? "win" : OperatingSystem.IsLinux() ? "linux" : "macos";
         return release.Assets.FirstOrDefault(x => x.ContentType.Contains(assetType)
                                                   && x.Name.Contains(arch) && x.Name.Contains(os));

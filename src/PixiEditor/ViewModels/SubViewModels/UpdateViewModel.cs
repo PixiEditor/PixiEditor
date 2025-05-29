@@ -26,6 +26,7 @@ namespace PixiEditor.ViewModels.SubViewModels;
 
 internal class UpdateViewModel : SubViewModel<ViewModelMain>
 {
+    private double currentProgress;
     public UpdateChecker UpdateChecker { get; set; }
 
     public List<UpdateChannel> UpdateChannels { get; } = new List<UpdateChannel>();
@@ -107,6 +108,16 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     {
         get => _updateState == UpdateState.UpToDate;
     }
+    
+    public double CurrentProgress 
+    {
+        get => currentProgress;
+        set
+        {
+            currentProgress = value;
+            OnPropertyChanged(nameof(CurrentProgress));
+        }
+    }
 
     public string ZipExtension => IOperatingSystem.Current.IsLinux ? "tar.gz" : "zip";
     public string ZipContentType => IOperatingSystem.Current.IsLinux ? "octet-stream" : "zip";
@@ -138,6 +149,13 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
         Owner.OnStartupEvent += Owner_OnStartupEvent;
         Owner.OnClose += Owner_OnClose;
+        UpdateDownloader.ProgressChanged += d =>
+        {
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                CurrentProgress = d;
+            });
+        };
         PixiEditorSettings.Update.UpdateChannel.ValueChanged += (_, value) =>
         {
             string prevChannel = UpdateChecker.Channel.ApiUrl;
@@ -208,6 +226,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             try
             {
                 UpdateState = UpdateState.Downloading;
+                CurrentProgress = 0;
                 if (updateCompatible || !IOperatingSystem.Current.IsWindows)
                 {
                     await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo, ZipContentType,
