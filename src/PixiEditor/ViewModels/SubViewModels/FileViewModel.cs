@@ -383,7 +383,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         AddRecentlyOpened(path);
 
-        var fileType = SupportedFilesHelper.ParseImageFormat(Path.GetExtension(path));
+        var fileExtension = Path.GetExtension(path);
+        var fileType = SupportedFilesHelper.ParseImageFormat(fileExtension);
 
         if (fileType != null)
         {
@@ -393,7 +394,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         else
         {
             CrashHelper.SendExceptionInfo(new InvalidFileTypeException(default,
-                $"Invalid file type '{fileType}'"));
+                $"Invalid file type '{fileExtension}'"));
         }
 
         return doc;
