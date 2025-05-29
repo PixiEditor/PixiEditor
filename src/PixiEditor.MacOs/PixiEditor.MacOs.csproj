@@ -10,10 +10,4 @@
       <ProjectReference Include="..\PixiEditor.OperatingSystem\PixiEditor.OperatingSystem.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <None Include="elevator.sh">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-    </ItemGroup>
-
 </Project>

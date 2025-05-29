@@ -7,11 +7,9 @@ internal class MacOsProcessUtility : IProcessUtility
 {
     public Process RunAsAdmin(string path, string args)
     {
-        string assemblyDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? string.Empty;
-        string elevatorScript = Path.Combine(assemblyDirectory, "elevator.sh");
         string script = $"""
 
-                                     do shell script "/bin/bash '{elevatorScript}' '{path}' {args}" with administrator privileges
+                                     do shell script "/bin/bash '{path}' {args}" with administrator privileges
                          """;
         ProcessStartInfo startInfo = new ProcessStartInfo
         {

@@ -108,8 +108,8 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     {
         get => _updateState == UpdateState.UpToDate;
     }
-    
-    public double CurrentProgress 
+
+    public double CurrentProgress
     {
         get => currentProgress;
         set
@@ -320,13 +320,14 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         {
             if (Path.Exists(updaterPath))
             {
+                string updateLocation = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName);
+
                 File.Copy(updaterPath,
                     Path.Join(UpdateDownloader.DownloadLocation, $"PixiEditor.UpdateInstaller" + BinaryExtension),
                     true);
                 updaterPath = Path.Join(UpdateDownloader.DownloadLocation,
                     $"PixiEditor.UpdateInstaller" + BinaryExtension);
-                File.WriteAllText(Path.Join(UpdateDownloader.DownloadLocation, "update-location.txt"),
-                    Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty);
+                File.WriteAllText(Path.Join(UpdateDownloader.DownloadLocation, "update-location.txt"), updateLocation);
             }
         }
         catch (IOException)
@@ -397,8 +398,6 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             }
             else
             {
-                // couldn't get Process.Start to work correctly with osascript environment
-                args = IOperatingSystem.Current.IsMacOs ? args + " --postExecute 'open -a PixiEditor'" : args;
                 var proc = IOperatingSystem.Current.ProcessUtility.RunAsAdmin(updateExeFile, args);
                 if (IOperatingSystem.Current.IsMacOs)
                 {
