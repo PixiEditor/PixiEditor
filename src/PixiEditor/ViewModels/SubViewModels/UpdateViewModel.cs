@@ -397,6 +397,8 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             }
             else
             {
+                // couldn't get Process.Start to work correctly with osascript environment
+                args = IOperatingSystem.Current.IsMacOs ? args + " --postExecute 'open -a PixiEditor'" : args;
                 var proc = IOperatingSystem.Current.ProcessUtility.RunAsAdmin(updateExeFile, args);
                 if (IOperatingSystem.Current.IsMacOs)
                 {

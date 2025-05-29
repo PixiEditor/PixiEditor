@@ -31,38 +31,48 @@ catch (Exception ex)
 }
 finally
 {
-    if (startAfterUpdate)
+    try
     {
-        log.AppendLine($"{DateTime.Now}: Starting PixiEditor after update.");
-        if (OperatingSystem.IsMacOS())
+        if (startAfterUpdate)
         {
-            StartPixiEditorOnMacOS(controller);
-        }
-        else
-        {
-            string binaryName = OperatingSystem.IsWindows() ? "PixiEditor.exe" : "PixiEditor";
-            string path = Path.Join(controller.UpdateDirectory, binaryName);
-            if (File.Exists(path))
+            log.AppendLine($"{DateTime.Now}: Starting PixiEditor after update.");
+            if (OperatingSystem.IsMacOS())
             {
-                log.AppendLine($"{DateTime.Now}: Starting PixiEditor from {path}");
-                StartPixiEditor(path);
+                // Handled by elevator.sh script, I couldn't get Process.Start to work correctly under osascript environment
+                //StartPixiEditorOnMacOS(controller);
             }
             else
             {
-                binaryName = OperatingSystem.IsWindows() ? "PixiEditor.Desktop.exe" : "PixiEditor.Desktop";
-                path = Path.Join(controller.UpdateDirectory, binaryName);
+                string binaryName = OperatingSystem.IsWindows() ? "PixiEditor.exe" : "PixiEditor";
+                string path = Path.Join(controller.UpdateDirectory, binaryName);
                 if (File.Exists(path))
                 {
+                    log.AppendLine($"{DateTime.Now}: Starting PixiEditor from {path}");
                     StartPixiEditor(path);
                 }
                 else
                 {
-                    log.AppendLine("PixiEditor executable not found.");
+                    binaryName = OperatingSystem.IsWindows() ? "PixiEditor.Desktop.exe" : "PixiEditor.Desktop";
+                    path = Path.Join(controller.UpdateDirectory, binaryName);
+                    if (File.Exists(path))
+                    {
+                        StartPixiEditor(path);
+                    }
+                    else
+                    {
+                        log.AppendLine("PixiEditor executable not found.");
+                    }
                 }
             }
         }
     }
-    
+    catch (Exception ex)
+    {
+        log.AppendLine($"{DateTime.Now}: Error starting PixiEditor: {ex.Message}");
+        string errorLogPath = Path.Combine(logDirectory, "ErrorLog.txt");
+        File.AppendAllText(errorLogPath, $"Error starting PixiEditor: {DateTime.Now}\n{ex.Message}\n{ex.StackTrace}\n-----\n");
+    }
+
     try
     {
         string updateLogPath = Path.Combine(logDirectory, "UpdateLog.txt");
@@ -96,16 +106,18 @@ finally
     }
 }
 
+/*
 void StartPixiEditorOnMacOS(UpdateController controller)
 {
     string pixiEditorExecutablePath = Path.Combine(controller.UpdateDirectory, "PixiEditor.app");
     if (Directory.Exists(pixiEditorExecutablePath))
     {
-        log.AppendLine($"{DateTime.Now}: Starting PixiEditor with open -a PixiEditor");
+        log.AppendLine($"{DateTime.Now}: Starting PixiEditor with open {pixiEditorExecutablePath}");
         Process.Start(new ProcessStartInfo
         {
             FileName = "open",
-            Arguments = $"-a PixiEditor",
+            Arguments = $"\"{pixiEditorExecutablePath}\"",
+            UseShellExecute = true
         });
     }
     else
@@ -113,3 +125,4 @@ void StartPixiEditorOnMacOS(UpdateController controller)
         log.AppendLine($"{DateTime.Now}: PixiEditor.app not found at {pixiEditorExecutablePath}");
     }
 }
+*/
