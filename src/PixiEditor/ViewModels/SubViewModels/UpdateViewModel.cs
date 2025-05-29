@@ -10,6 +10,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Views.Dialogs;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
@@ -256,7 +257,8 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         Install(true);
     }
 
-    [Command.Debug("PixiEditor.Update.DebugInstall", "Debug Install Update", "(DEBUG) Install update zip file without checking for updates")]
+    [Command.Debug("PixiEditor.Update.DebugInstall", "Debug Install Update",
+        "(DEBUG) Install update zip file without checking for updates")]
     public void DebugInstall()
     {
         UpdateChecker.SetLatestReleaseInfo(new ReleaseInfo(true) { TagName = "2.2.2.2" });
@@ -299,9 +301,11 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         {
             if (Path.Exists(updaterPath))
             {
-                File.Copy(updaterPath, Path.Join(UpdateDownloader.DownloadLocation, $"PixiEditor.UpdateInstaller" + BinaryExtension),
+                File.Copy(updaterPath,
+                    Path.Join(UpdateDownloader.DownloadLocation, $"PixiEditor.UpdateInstaller" + BinaryExtension),
                     true);
-                updaterPath = Path.Join(UpdateDownloader.DownloadLocation, $"PixiEditor.UpdateInstaller" + BinaryExtension);
+                updaterPath = Path.Join(UpdateDownloader.DownloadLocation,
+                    $"PixiEditor.UpdateInstaller" + BinaryExtension);
                 File.WriteAllText(Path.Join(UpdateDownloader.DownloadLocation, "update-location.txt"),
                     Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty);
             }
@@ -358,7 +362,6 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     {
         try
         {
-            
             if (IOperatingSystem.Current.IsLinux)
             {
                 bool hasWritePermissions = !InstallDirReadOnly();
@@ -382,7 +385,6 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
                     {
                         Dispatcher.UIThread.Invoke(() =>
                         {
-
                             if (t.IsCompletedSuccessfully && proc.ExitCode == 0)
                             {
                                 Shutdown();
@@ -399,7 +401,6 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
                     Shutdown();
                 }
             }
-
         }
         catch (Win32Exception)
         {
@@ -471,7 +472,8 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     private bool OsSupported()
     {
-        return IOperatingSystem.Current.IsWindows || IOperatingSystem.Current.IsLinux || IOperatingSystem.Current.IsMacOs;
+        return IOperatingSystem.Current.IsWindows || IOperatingSystem.Current.IsLinux ||
+               IOperatingSystem.Current.IsMacOs;
     }
 
     private void EnsureUpdateFilesDeleted()
@@ -495,13 +497,18 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     private void InitUpdateChecker()
     {
+        string platformName = IPlatform.Current.Name;
 #if UPDATE
         UpdateChannels.Add(new UpdateChannel("Release", "PixiEditor", "PixiEditor"));
         UpdateChannels.Add(new UpdateChannel("Development", "PixiEditor", "PixiEditor-development-channel"));
 #else
-        string platformName = IPlatform.Current.Name;
         UpdateChannels.Add(new UpdateChannel(platformName, "", ""));
 #endif
+
+        if (IPreferences.Current.GetLocalPreference<bool>("UseTestingUpdateChannel", false))
+        {
+            UpdateChannels.Add(new UpdateChannel("Testing", "PixiEditor", "PixiEditor-testing-channel"));
+        }
 
         string updateChannel = PixiEditorSettings.Update.UpdateChannel.Value;
 

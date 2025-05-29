@@ -76,7 +76,7 @@ public class UpdateInstaller
 
         if (OperatingSystem.IsMacOS())
         {
-            string appFile = Directory.GetDirectories(UpdateFilesPath, "PixiEditor.app", SearchOption.TopDirectoryOnly)
+            string appFile = Directory.GetDirectories(UpdateFilesPath, "*.app", SearchOption.TopDirectoryOnly)
                 .FirstOrDefault();
             if (string.IsNullOrEmpty(appFile))
             {
