@@ -120,14 +120,14 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     }
 
     public string ZipExtension => IOperatingSystem.Current.IsLinux ? "tar.gz" : "zip";
-    public string ZipContentType => IOperatingSystem.Current.IsLinux ? "octet-stream" : "zip";
+    public string ZipContentType => IOperatingSystem.Current.IsLinux ? "x-gzip" : "zip";
     public string InstallerExtension => IOperatingSystem.Current.IsWindows ? "exe" : "dmg";
 
     public string BinaryExtension => IOperatingSystem.Current.IsWindows ? ".exe" : string.Empty;
 
     public bool SelfUpdatingAvailable =>
 #if UPDATE
-        PixiEditorSettings.Update.CheckUpdatesOnStartup.Value && OsSupported() && !InstallDirReadOnly();
+        PixiEditorSettings.Update.CheckUpdatesOnStartup.Value && OsSupported();
 #else
         false;
 #endif
@@ -283,6 +283,17 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         UpdateChecker.SetLatestReleaseInfo(new ReleaseInfo(true) { TagName = "2.2.2.2" });
         Install(true);
     }
+    
+    [Command.Debug("PixiEditor.Update.DebugDownload", "Debug Download Update",
+        "(DEBUG) Download update file")]
+    public void DebugDownload()
+    {
+        Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            await CheckForUpdate();
+            await Download();
+        });
+    }
 
     private void Install(bool startAfterUpdate)
     {
@@ -387,13 +398,13 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
                 bool hasWritePermissions = !InstallDirReadOnly();
                 if (hasWritePermissions)
                 {
-                    IOperatingSystem.Current.ProcessUtility.ShellExecute(updateExeFile, args);
+                    args = "bash " + updateExeFile + " " + args + " &";
+                    IOperatingSystem.Current.ProcessUtility.ShellExecute("nohup", args);
                     Shutdown();
                 }
                 else
                 {
                     NoticeDialog.Show("COULD_NOT_UPDATE_WITHOUT_ADMIN", "INSUFFICIENT_PERMISSIONS");
-                    return;
                 }
             }
             else
@@ -458,7 +469,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     [Conditional("UPDATE")]
     private async void ConditionalUPDATE()
     {
-        if (PixiEditorSettings.Update.CheckUpdatesOnStartup.Value && OsSupported() && !InstallDirReadOnly())
+        if (PixiEditorSettings.Update.CheckUpdatesOnStartup.Value && OsSupported())
         {
             try
             {
