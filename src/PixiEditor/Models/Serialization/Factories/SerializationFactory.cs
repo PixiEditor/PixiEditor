@@ -65,6 +65,23 @@ public abstract class SerializationFactory<TSerializable, TOriginal> : Serializa
     {
         return TryDeserialize(rawData, out TOriginal original, serializerData) ? original : default;
     }
+
+    protected string DeserializeStringCompatible(
+        ByteExtractor extractor,
+        (string serializerName, string serializerVersion) serializerData)
+    {
+        if (serializerData.serializerName != "PixiEditor")
+        {
+            return extractor.GetString();
+        }
+
+        if (IsFilePreVersion(serializerData, new Version(2, 0, 0, 87)))
+        {
+            return extractor.GetStringLegacyDontUse();
+        }
+
+        return extractor.GetString();
+    }
     
     public override Type OriginalType => typeof(TOriginal);
 }

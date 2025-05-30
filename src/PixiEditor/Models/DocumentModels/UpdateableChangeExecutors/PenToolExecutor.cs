@@ -22,6 +22,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
     private bool antiAliasing;
     private float hardness;
     private float spacing = 1;
+    private bool transparentErase;
 
     private IPenToolbar penToolbar;
 
@@ -47,10 +48,15 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         hardness = toolbar.Hardness;
         spacing = toolbar.Spacing;
 
-        colorsHandler.AddSwatch(new PaletteColor(color.R, color.G, color.B));
+        if (color.A > 0)
+        {
+            colorsHandler.AddSwatch(new PaletteColor(color.R, color.G, color.B));
+        }
+
+        transparentErase = color.A == 0;
         IAction? action = pixelPerfect switch
         {
-            false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, (float)ToolSize, false, antiAliasing, hardness, spacing, SquareBrush, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
+            false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, (float)ToolSize, transparentErase, antiAliasing, hardness, spacing, SquareBrush, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
             true => new PixelPerfectPen_Action(guidValue, controller!.LastPixelPosition, color, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)
         };
         internals!.ActionAccumulator.AddActions(action);
@@ -62,7 +68,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
     {
         IAction? action = pixelPerfect switch
         {
-            false => new LineBasedPen_Action(guidValue, color, pos, (float)ToolSize, false, antiAliasing, hardness, spacing, SquareBrush, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
+            false => new LineBasedPen_Action(guidValue, color, pos, (float)ToolSize, transparentErase, antiAliasing, hardness, spacing, SquareBrush, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
             true => new PixelPerfectPen_Action(guidValue, pos, color, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)
         };
         internals!.ActionAccumulator.AddActions(action);

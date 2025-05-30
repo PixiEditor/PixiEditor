@@ -80,7 +80,7 @@ internal class CommandController
             {
                 if (Commands.ContainsKey(command))
                 {
-                    ReplaceShortcut(Commands[command], shortcut.KeyCombination, false);
+                    ReplaceShortcut(Commands[command], AdjustForOS(shortcut.KeyCombination, null), false);
                 }
             }
         }
@@ -706,7 +706,7 @@ internal class CommandController
         if (IOperatingSystem.Current.IsMacOs)
         {
             KeyCombination newCombination = combination;
-            if (combination.Modifiers.HasFlag(KeyModifiers.Control))
+            if (combination.Modifiers.HasFlag(KeyModifiers.Control) && !combination.Modifiers.HasFlag(KeyModifiers.Meta))
             {
                 newCombination.Modifiers &= ~KeyModifiers.Control;
                 newCombination.Modifiers |= KeyModifiers.Meta;

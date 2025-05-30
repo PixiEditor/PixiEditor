@@ -663,10 +663,11 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         }
 
         var useContextMenu = vm.Owner.Owner.ToolsSubViewModel.RightClickMode == RightClickMode.ContextMenu;
-        var usesErase = tools.RightClickMode == RightClickMode.Erase && tools.ActiveTool.IsErasable;
-        var usesSecondaryColor = tools.RightClickMode == RightClickMode.SecondaryColor && tools.ActiveTool.UsesColor;
+        var usesErase = tools is { RightClickMode: RightClickMode.Erase, ActiveTool.IsErasable: true };
+        bool usesColorPicker = vm.Owner.Owner.ToolsSubViewModel.RightClickMode == RightClickMode.ColorPicker;
+        var usesSecondaryColor = tools is { RightClickMode: RightClickMode.SecondaryColor, ActiveTool.UsesColor: true };
 
-        if (!useContextMenu && (usesErase || usesSecondaryColor))
+        if (!useContextMenu && (usesErase || usesSecondaryColor || usesColorPicker))
         {
             return;
         }

@@ -239,7 +239,7 @@
             <SolidColorBrush x:Key="DockThemeControlBackgroundBrush" Color="{DynamicResource ThemeBackground1Color}" />
             <system:Double x:Key="DockFontSizeNormal">12</system:Double>
 
-            <FontFamily x:Key="ContentControlThemeFontFamily">avares://PixiEditor.UI.Common/Fonts#FiraSans, $Default</FontFamily>
+            <FontFamily x:Key="ContentControlThemeFontFamily">Arial</FontFamily>
             <system:Double x:Key="FontSizeSmall">10</system:Double>
             <system:Double x:Key="FontSizeNormal">12</system:Double>
             <system:Double x:Key="FontSizeLarge">16</system:Double>

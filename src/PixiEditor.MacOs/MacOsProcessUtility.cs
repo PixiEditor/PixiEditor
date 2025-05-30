@@ -7,12 +7,16 @@ internal class MacOsProcessUtility : IProcessUtility
 {
     public Process RunAsAdmin(string path, string args)
     {
+        string script = $"""
+
+                                     do shell script "/bin/bash '{path}' {args}" with administrator privileges
+                         """;
         ProcessStartInfo startInfo = new ProcessStartInfo
         {
-            FileName = path,
-            Verb = "runas",
-            Arguments = args,
-            UseShellExecute = true
+            FileName = "osascript",
+            ArgumentList = { "-e", script },
+            UseShellExecute = true,
+            CreateNoWindow = true,
         };
 
         Process p = new Process();

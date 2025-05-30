@@ -10,49 +10,49 @@ namespace PixiEditor.Extensions.Runtime;
 
 public class ExtensionLoader
 {
+    private readonly Dictionary<string, OfficialExtensionData> _officialExtensionsKeys =
+        new Dictionary<string, OfficialExtensionData>();
+
     public List<Extension> LoadedExtensions { get; } = new();
 
-    public string PackagesPath { get; }
+    public string[] PackagesPath { get; }
     public string UnpackedExtensionsPath { get; }
-
-    public ExtensionServices Services { get; set; }
 
     private WasmRuntime.WasmRuntime _wasmRuntime = new WasmRuntime.WasmRuntime();
 
-    public ExtensionLoader(string packagesPath, string unpackedExtensionsPath)
+    public ExtensionLoader(string[] packagesPaths, string unpackedExtensionsPath)
     {
-        PackagesPath = packagesPath;
+        PackagesPath = packagesPaths;
         UnpackedExtensionsPath = unpackedExtensionsPath;
         ValidateExtensionFolder();
     }
 
+    public void AddOfficialExtension(string uniqueName, OfficialExtensionData data)
+    {
+        _officialExtensionsKeys.Add(uniqueName, data);
+    }
+
     public void LoadExtensions()
     {
-        foreach (var updateFile in Directory.GetFiles(PackagesPath, "*.update"))
+        foreach (var packagesPath in PackagesPath)
         {
-            try
-            {
-                string newExtension = Path.ChangeExtension(updateFile, ".pixiext");
-                if (File.Exists(newExtension))
-                {
-                    File.Delete(newExtension);
-                }
+            LoadExtensionsFromPath(packagesPath);
+        }
+    }
 
-                File.Move(updateFile, newExtension);
-            }
-            catch (IOException)
-            {
-                // File is in use, ignore
-            }
-            catch (UnauthorizedAccessException)
-            {
-                // File is in use, ignore
-            }
+    private void LoadExtensionsFromPath(string path)
+    {
+        if (!Directory.Exists(path))
+        {
+            return;
         }
 
-        foreach (var file in Directory.GetFiles(PackagesPath, "*.pixiext"))
+        foreach (var file in Directory.GetFiles(path))
         {
-            LoadExtension(file);
+            if (file.EndsWith(".pixiext"))
+            {
+                LoadExtension(file);
+            }
         }
     }
 
@@ -99,26 +99,26 @@ public class ExtensionLoader
     public Extension? LoadExtension(string extension)
     {
         var extZip = ZipFile.OpenRead(extension);
-        ExtensionMetadata metadata = ExtractMetadata(extZip);
-        bool isLoaded = LoadedExtensions.Any(x => x.Metadata.UniqueName == metadata.UniqueName);
-        if (isLoaded)
+        try
         {
-            return null;
-        }
-
+            ExtensionMetadata metadata = ExtractMetadata(extZip);
             if (IsDifferentThanCached(metadata, extension))
             {
                 UnpackExtension(extZip, metadata);
             }
 
+            string extensionJson = Path.Combine(UnpackedExtensionsPath, metadata.UniqueName, "extension.json");
+            if (!File.Exists(extensionJson))
+            {
+                return null;
+            }
 
-        string extensionJson = Path.Combine(UnpackedExtensionsPath, metadata.UniqueName, "extension.json");
-        if (!File.Exists(extensionJson))
+            return LoadExtensionFromCache(extensionJson);
+        }
+        catch (Exception ex)
         {
             return null;
         }
-
-        return LoadExtensionFromCache(extensionJson);
     }
 
     public void UnpackExtension(ZipArchive extZip, ExtensionMetadata metadata)
@@ -276,12 +276,12 @@ public class ExtensionLoader
                 throw new ForbiddenUniqueNameExtension();
             }
 
-            if (!IsAdditionalContentOwned(fixedUniqueName))
+            if (!IsAdditionalContentInstalled(fixedUniqueName))
             {
                 return false;
             }
         }
-        // TODO: Validate if unique name is in fact, unique
+        // TODO: Validate if unique name is unique
 
         if (string.IsNullOrEmpty(metadata.DisplayName))
         {
@@ -296,28 +296,67 @@ public class ExtensionLoader
         return true;
     }
 
-    private bool IsAdditionalContentOwned(string fixedUniqueName)
+    private bool IsAdditionalContentInstalled(string fixedUniqueName)
     {
-        return IPlatform.Current.AdditionalContentProvider?.IsContentOwned(fixedUniqueName) ?? false;
+        if (!_officialExtensionsKeys.ContainsKey(fixedUniqueName)) return false;
+        AdditionalContentProduct? product = _officialExtensionsKeys[fixedUniqueName].Product;
+
+        if (product == null) return true;
+
+        return IPlatform.Current.AdditionalContentProvider?.IsContentInstalled(product.Value) ?? false;
     }
 
     private bool IsOfficialAssemblyLegit(string metadataUniqueName, ExtensionEntry entry)
     {
         if (entry == null) return false; // All official extensions must have a valid assembly
+        if (!_officialExtensionsKeys.ContainsKey(metadataUniqueName)) return false;
 
         if (entry is DllExtensionEntry dllExtensionEntry)
         {
-            return false;
+            return VerifyAssemblySignature(metadataUniqueName, dllExtensionEntry.Assembly);
         }
 
         if (entry is WasmExtensionEntry wasmExtensionEntry)
         {
             return true;
             //TODO: Verify wasm signature somehow
+            //return VerifyAssemblySignature(metadataUniqueName, wasmExtensionEntry.Instance);
         }
 
         return false;
     }
+
+    private bool VerifyAssemblySignature(string metadataUniqueName, Assembly assembly)
+    {
+        bool wasVerified = false;
+        bool verified = StrongNameSignatureVerificationEx(assembly.Location, true, ref wasVerified);
+        if (!verified || !wasVerified) return false;
+
+        byte[]? assemblyPublicKey = assembly.GetName().GetPublicKey();
+        if (assemblyPublicKey == null) return false;
+
+        return PublicKeysMatch(assemblyPublicKey, _officialExtensionsKeys[metadataUniqueName].PublicKeyName);
+    }
+
+    private bool PublicKeysMatch(byte[] assemblyPublicKey, string pathToPublicKey)
+    {
+        Assembly currentAssembly = Assembly.GetExecutingAssembly();
+        using Stream? stream =
+            currentAssembly.GetManifestResourceStream(
+                $"{currentAssembly.GetName().Name}.OfficialExtensions.{pathToPublicKey}");
+        if (stream == null) return false;
+
+        using MemoryStream memoryStream = new MemoryStream();
+        stream.CopyTo(memoryStream);
+        byte[] publicKey = memoryStream.ToArray();
+
+        return assemblyPublicKey.SequenceEqual(publicKey);
+    }
+
+    //TODO: uhh, other platforms dumbass?
+    [DllImport("mscoree.dll", CharSet = CharSet.Unicode)]
+    static extern bool StrongNameSignatureVerificationEx(string wszFilePath, bool fForceVerification,
+        ref bool pfWasVerified);
 
     private Extension LoadExtensionEntry(ExtensionEntry entry, ExtensionMetadata metadata)
     {
@@ -371,14 +410,18 @@ public class ExtensionLoader
 
     private void ValidateExtensionFolder()
     {
-        if (!Directory.Exists(PackagesPath))
+        try
         {
-            Directory.CreateDirectory(PackagesPath);
+            if (!Directory.Exists(UnpackedExtensionsPath))
+            {
+                Directory.CreateDirectory(UnpackedExtensionsPath);
+            }
         }
-
-        if (!Directory.Exists(UnpackedExtensionsPath))
+        catch (Exception ex)
         {
-            Directory.CreateDirectory(UnpackedExtensionsPath);
+#if DEBUG
+            throw;
+#endif
         }
     }
 
@@ -399,5 +442,18 @@ public class ExtensionLoader
         }
 
         return null;
+    }
+}
+
+public struct OfficialExtensionData
+{
+    public string PublicKeyName { get; }
+    public AdditionalContentProduct? Product { get; }
+    public string? PurchaseLink { get; }
+
+    public OfficialExtensionData(string publicKeyName, AdditionalContentProduct product, string? purchaseLink = null)
+    {
+        PublicKeyName = publicKeyName;
+        Product = product;
     }
 }

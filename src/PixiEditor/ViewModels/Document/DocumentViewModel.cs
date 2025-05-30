@@ -971,10 +971,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 if (maybeMember is IRasterizable rasterizable)
                 {
-                    using Texture texture = Texture.ForDisplay(SizeBindable);
+                    using Surface texture = new Surface(SizeBindable);
                     using Paint paint = new Paint();
                     rasterizable.Rasterize(texture.DrawingSurface, paint);
-                    return texture.GetSRGBPixel(pos);
+                    return texture.GetSrgbPixel(pos);
                 }
             }
             else

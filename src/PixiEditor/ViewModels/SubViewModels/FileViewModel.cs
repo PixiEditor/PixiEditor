@@ -383,7 +383,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         AddRecentlyOpened(path);
 
-        var fileType = SupportedFilesHelper.ParseImageFormat(Path.GetExtension(path));
+        var fileExtension = Path.GetExtension(path);
+        var fileType = SupportedFilesHelper.ParseImageFormat(fileExtension);
 
         if (fileType != null)
         {
@@ -393,7 +394,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         else
         {
             CrashHelper.SendExceptionInfo(new InvalidFileTypeException(default,
-                $"Invalid file type '{fileType}'"));
+                $"Invalid file type '{fileExtension}'"));
         }
 
         return doc;
@@ -684,6 +685,15 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         var history =
             preferences.GetLocalPreference<List<AutosaveHistorySession>>(PreferencesConstants.AutosaveHistory);
+
+        bool autosaveEnabled = preferences.GetPreference<bool>(
+            PreferencesConstants.AutosaveEnabled,
+            PreferencesConstants.AutosaveEnabledDefault);
+
+        if(!autosaveEnabled)
+        {
+            return;
+        }
 
         // There are no autosave attempts .. but what if the user has just launched pixieditor for the first time,
         // and it unexpectedly closed before auto saving anything. They could've still had some files open, and they won't be reopened in this session

@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -358,6 +359,29 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         }
 
         return false;
+    }
+
+
+    public void OnShutdown(ShutdownRequestedEventArgs shutdownRequestedEventArgs, Action shutdown)
+    {
+        shutdownRequestedEventArgs.Cancel = true;
+        Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            ResetNextSessionFiles();
+            UserWantsToClose = await DisposeAllDocumentsWithSaveConfirmation();
+
+            if (UserWantsToClose)
+            {
+                var analytics = Services.GetService<AnalyticsPeriodicReporter>();
+                if (analytics != null)
+                {
+                    await analytics.StopAsync();
+                }
+
+                OnClose?.Invoke();
+                shutdown();
+            }
+        });
     }
 
     private void OnActiveDocumentChanged(object sender, DocumentChangedEventArgs e)

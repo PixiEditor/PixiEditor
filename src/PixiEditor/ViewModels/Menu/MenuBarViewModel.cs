@@ -85,7 +85,7 @@ internal class MenuBarViewModel : PixiObservableObject
     {
         menuItemBuilders = serviceProvider.GetServices<MenuItemBuilder>().ToArray();
         commandController = controller;
-        BuildMenu(controller);
+        RebuildMenu();
         controller.Commands.CommandAdded += CommandsOnCommandAdded;
     }
 
@@ -143,6 +143,7 @@ internal class MenuBarViewModel : PixiObservableObject
     private void RebuildMenu()
     {
         MenuEntries?.Clear();
+        NativeMenu?.Items?.Clear();
         nativeMenuItems?.Clear();
         menuItems.Clear();
 

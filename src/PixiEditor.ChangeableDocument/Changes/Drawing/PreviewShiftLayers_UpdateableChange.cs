@@ -14,15 +14,18 @@ internal class PreviewShiftLayers_UpdateableChange : InterruptableUpdateableChan
     private List<Guid> layerGuids;
     private VecD delta;
     private Dictionary<Guid, ShapeVectorData> originalShapes;
+    private RectD? clipRect;
+    private VectorPath? clipPath;
 
     private int frame;
 
     [GenerateUpdateableChangeActions]
-    public PreviewShiftLayers_UpdateableChange(List<Guid> layerGuids, VecD delta, int frame)
+    public PreviewShiftLayers_UpdateableChange(List<Guid> layerGuids, RectD clipRect, VecD delta, int frame)
     {
         this.delta = delta;
         this.layerGuids = layerGuids;
         this.frame = frame;
+        this.clipRect = clipRect.IsZeroOrNegativeArea ? null : clipRect;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -50,6 +53,14 @@ internal class PreviewShiftLayers_UpdateableChange : InterruptableUpdateableChan
                 originalShapes[layerGuid] = transformableObject.EmbeddedShapeData;
                 transformableObject.EmbeddedShapeData = null;
             }
+            else if (layer is ImageLayerNode imgLayer)
+            {
+                var image = imgLayer.GetLayerImageAtFrame(frame);
+                if (image is null)
+                {
+                    return false;
+                }
+            }
         }
 
         return true;
@@ -68,16 +79,25 @@ internal class PreviewShiftLayers_UpdateableChange : InterruptableUpdateableChan
         {
             var layer = target.FindMemberOrThrow<LayerNode>(layerGuid);
 
-            if (layer is ImageLayerNode)
+            if (layer is ImageLayerNode imgNode)
             {
-                var area = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, true, (VecI)delta, frame);
+                if (clipRect.HasValue)
+                {
+                    clipPath?.Dispose();
+                    clipPath = new VectorPath();
+                    clipPath.AddRect(clipRect.Value);
+                    clipPath.Offset((VecI)delta);
+                }
+
+                var area = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, true, (VecI)delta, frame, clipPath);
+
                 changes.Add(new LayerImageArea_ChangeInfo(layerGuid, area));
             }
             else if (layer is VectorLayerNode vectorLayer)
             {
                 StrokeJoin join = StrokeJoin.Miter;
                 StrokeCap cap = StrokeCap.Butt;
-                
+
                 (vectorLayer.EmbeddedShapeData as PathVectorData)?.Path.Dispose();
 
                 var originalShape = originalShapes[layerGuid];
@@ -90,8 +110,9 @@ internal class PreviewShiftLayers_UpdateableChange : InterruptableUpdateableChan
                     cap = shape.StrokeLineCap;
                 }
 
-                VecD mappedDelta = originalShape.TransformationMatrix.Invert().MapVector((float)delta.X, (float)delta.Y);
-                
+                VecD mappedDelta = originalShape.TransformationMatrix.Invert()
+                    .MapVector((float)delta.X, (float)delta.Y);
+
                 var finalMatrix = Matrix3X3.CreateTranslation((float)mappedDelta.X, (float)mappedDelta.Y);
 
                 path.AddPath(path, finalMatrix, AddPathMode.Append);
@@ -106,9 +127,10 @@ internal class PreviewShiftLayers_UpdateableChange : InterruptableUpdateableChan
                     StrokeLineJoin = join,
                     StrokeLineCap = cap
                 };
-                
+
                 vectorLayer.EmbeddedShapeData = newShapeData;
-                changes.Add(new VectorShape_ChangeInfo(layerGuid, ShiftLayer_UpdateableChange.AffectedAreaFromBounds(target, layerGuid, frame)));
+                changes.Add(new VectorShape_ChangeInfo(layerGuid,
+                    ShiftLayer_UpdateableChange.AffectedAreaFromBounds(target, layerGuid, frame)));
             }
         }
 
@@ -139,6 +161,7 @@ internal class PreviewShiftLayers_UpdateableChange : InterruptableUpdateableChan
                 var image = imgLayer.GetLayerImageAtFrame(frame);
                 var affected = image.FindAffectedArea();
                 image.CancelChanges();
+                image.SetClippingPath(null);
                 changes.Add(new LayerImageArea_ChangeInfo(layerGuid, affected));
             }
             else if (layer is VectorLayerNode transformableObject)
@@ -149,5 +172,11 @@ internal class PreviewShiftLayers_UpdateableChange : InterruptableUpdateableChan
         }
 
         return changes;
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        clipPath?.Dispose();
     }
 }

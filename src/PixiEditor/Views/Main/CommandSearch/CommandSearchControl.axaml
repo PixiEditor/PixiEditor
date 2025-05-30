@@ -12,25 +12,29 @@
              mc:Ignorable="d"
              Foreground="White"
              d:DesignHeight="450" d:DesignWidth="600"
-             Width="600"
              x:Name="uc">
-    <Grid x:Name="mainGrid">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+    <Grid Background="Transparent" Tapped="InputElement_OnTapped">
+        <Grid Height="700" 
+              MinWidth="600"
+              Width="600"
+              MaxWidth="920" x:Name="mainGrid" Tapped="MainGrid_OnTapped">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-        <TextBox Text="{Binding SearchTerm, Mode=TwoWay, ElementName=uc}"
-                 FontSize="17"
-                 Padding="5"
-                 CornerRadius="5,5,0,0"
-                 x:Name="textBox">
-            <Interaction.Behaviors>
-                <behaviors:TextBoxFocusBehavior SelectOnMouseClick="{Binding SelectAll, ElementName=uc, Mode=OneWay}" />
-                <behaviours:GlobalShortcutFocusBehavior />
-            </Interaction.Behaviors>
-            <!--<TextBox.Styles>
+            <TextBox Text="{Binding SearchTerm, Mode=TwoWay, ElementName=uc}"
+                     FontSize="17"
+                     Padding="5"
+                     CornerRadius="5,5,0,0"
+                     x:Name="textBox">
+                <Interaction.Behaviors>
+                    <behaviors:TextBoxFocusBehavior
+                        SelectOnMouseClick="{Binding SelectAll, ElementName=uc, Mode=OneWay}" />
+                    <behaviours:GlobalShortcutFocusBehavior />
+                </Interaction.Behaviors>
+                <!--<TextBox.Styles>
                 <Style Selector="TextBox">
                     <Style.Resources>
                         <Style Selector="Border">
@@ -39,32 +43,33 @@
                     </Style.Resources>
                 </Style>
             </TextBox.Styles>-->
-        </TextBox>
-        <Border Grid.Row="1" BorderThickness="1,0,1,0" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
-                Background="{DynamicResource ThemeBackgroundBrush}">
-            <Grid>
-                <TextBlock Text="{Binding Warnings, ElementName=uc}" TextAlignment="Center" Foreground="Gray"
-                           TextWrapping="Wrap"
-                           Margin="5,5,5,0"
-                           IsVisible="{Binding HasWarnings, ElementName=uc}" />
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <ItemsControl ItemsSource="{Binding Results, ElementName=uc}" x:Name="itemscontrol">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="search:SearchResult">
-                                <commandSearch:SearchResultControl
-                                    Result="{Binding}"
-                                    ButtonClickedCommand="{Binding ButtonClickedCommand, ElementName=uc}"
-                                    PointerMoved="SearchResult_MouseMove"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-            </Grid>
-        </Border>
-        <Border Grid.Row="2" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
-                CornerRadius="0,0,5,5" Background="{DynamicResource ThemeBackgroundBrush1}" Padding="3">
-            <ContentPresenter
-                Content="{Binding SelectedResult.Description, Mode=OneWay, ElementName=uc, FallbackValue={x:Null}}" />
-        </Border>
+            </TextBox>
+            <Border Grid.Row="1" BorderThickness="1,0,1,0" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                    Background="{DynamicResource ThemeBackgroundBrush}">
+                <Grid>
+                    <TextBlock Text="{Binding Warnings, ElementName=uc}" TextAlignment="Center" Foreground="Gray"
+                               TextWrapping="Wrap"
+                               Margin="5,5,5,0"
+                               IsVisible="{Binding HasWarnings, ElementName=uc}" />
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl ItemsSource="{Binding Results, ElementName=uc}" x:Name="itemscontrol">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="search:SearchResult">
+                                    <commandSearch:SearchResultControl
+                                        Result="{Binding}"
+                                        ButtonClickedCommand="{Binding ButtonClickedCommand, ElementName=uc}"
+                                        PointerMoved="SearchResult_MouseMove" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+            <Border Grid.Row="2" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                    CornerRadius="0,0,5,5" Background="{DynamicResource ThemeBackgroundBrush1}" Padding="3">
+                <ContentPresenter
+                    Content="{Binding SelectedResult.Description, Mode=OneWay, ElementName=uc, FallbackValue={x:Null}}" />
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>

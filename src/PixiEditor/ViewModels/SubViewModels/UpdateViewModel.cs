@@ -3,12 +3,14 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Views.Dialogs;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Helpers;
@@ -24,7 +26,7 @@ namespace PixiEditor.ViewModels.SubViewModels;
 
 internal class UpdateViewModel : SubViewModel<ViewModelMain>
 {
-    public const int MaxRetryCount = 3;
+    private double currentProgress;
     public UpdateChecker UpdateChecker { get; set; }
 
     public List<UpdateChannel> UpdateChannels { get; } = new List<UpdateChannel>();
@@ -107,6 +109,22 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         get => _updateState == UpdateState.UpToDate;
     }
 
+    public double CurrentProgress
+    {
+        get => currentProgress;
+        set
+        {
+            currentProgress = value;
+            OnPropertyChanged(nameof(CurrentProgress));
+        }
+    }
+
+    public string ZipExtension => IOperatingSystem.Current.IsLinux ? "tar.gz" : "zip";
+    public string ZipContentType => IOperatingSystem.Current.IsLinux ? "x-gzip" : "zip";
+    public string InstallerExtension => IOperatingSystem.Current.IsWindows ? "exe" : "dmg";
+
+    public string BinaryExtension => IOperatingSystem.Current.IsWindows ? ".exe" : string.Empty;
+
     public bool SelfUpdatingAvailable =>
 #if UPDATE
         PixiEditorSettings.Update.CheckUpdatesOnStartup.Value && OsSupported();
@@ -120,8 +138,24 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     public UpdateViewModel(ViewModelMain owner)
         : base(owner)
     {
+        if (IOperatingSystem.Current.IsLinux)
+        {
+            if (File.Exists("no-updates"))
+            {
+                UpdateState = UpdateState.UnableToCheck;
+                return;
+            }
+        }
+
         Owner.OnStartupEvent += Owner_OnStartupEvent;
         Owner.OnClose += Owner_OnClose;
+        UpdateDownloader.ProgressChanged += d =>
+        {
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                CurrentProgress = d;
+            });
+        };
         PixiEditorSettings.Update.UpdateChannel.ValueChanged += (_, value) =>
         {
             string prevChannel = UpdateChecker.Channel.ApiUrl;
@@ -139,7 +173,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     public async Task CheckForUpdate()
     {
-        if (!IOperatingSystem.Current.IsWindows)
+        if (!OsSupported())
         {
             return;
         }
@@ -152,15 +186,27 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
+        if (updateAvailable)
+        {
+            if (!IOperatingSystem.Current.IsWindows && UpdateChecker.LatestReleaseInfo.TagName.StartsWith("1."))
+            {
+                // 1.0 is windows only
+                UpdateState = UpdateState.UpToDate;
+                return;
+            }
+        }
+
         UpdateState = updateAvailable ? UpdateState.UpdateAvailable : UpdateState.UpToDate;
     }
 
     private void Owner_OnClose()
     {
+#if RELEASE || DEVRELEASE
         if (UpdateState == UpdateState.ReadyToInstall)
         {
             Install(false);
         }
+#endif
     }
 
     public async Task Download()
@@ -180,11 +226,13 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             try
             {
                 UpdateState = UpdateState.Downloading;
-                if (updateCompatible)
+                CurrentProgress = 0;
+                if (updateCompatible || !IOperatingSystem.Current.IsWindows)
                 {
-                    await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
+                    await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo, ZipContentType,
+                        ZipExtension);
                 }
-                else
+                else if (IOperatingSystem.Current.IsWindows)
                 {
                     await UpdateDownloader.DownloadInstaller(UpdateChecker.LatestReleaseInfo);
                 }
@@ -209,14 +257,16 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     private bool AutoUpdateFileExists()
     {
         string path = Path.Join(UpdateDownloader.DownloadLocation,
-            $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip");
+            $"update-{UpdateChecker.LatestReleaseInfo.TagName}.{ZipExtension}");
         return File.Exists(path);
     }
 
     private bool UpdateInstallerFileExists()
     {
+        if (IOperatingSystem.Current.IsLinux) return false;
+
         string path = Path.Join(UpdateDownloader.DownloadLocation,
-            $"update-{UpdateChecker.LatestReleaseInfo.TagName}.exe");
+            $"update-{UpdateChecker.LatestReleaseInfo.TagName}.{InstallerExtension}");
         return File.Exists(path);
     }
 
@@ -226,17 +276,36 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         Install(true);
     }
 
+    [Command.Debug("PixiEditor.Update.DebugInstall", "Debug Install Update",
+        "(DEBUG) Install update zip file without checking for updates")]
+    public void DebugInstall()
+    {
+        UpdateChecker.SetLatestReleaseInfo(new ReleaseInfo(true) { TagName = "2.2.2.2" });
+        Install(true);
+    }
+    
+    [Command.Debug("PixiEditor.Update.DebugDownload", "Debug Download Update",
+        "(DEBUG) Download update file")]
+    public void DebugDownload()
+    {
+        Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            await CheckForUpdate();
+            await Download();
+        });
+    }
+
     private void Install(bool startAfterUpdate)
     {
-#if RELEASE || DEVRELEASE
-        string dir = AppDomain.CurrentDomain.BaseDirectory;
+        string dir = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName) ??
+                     AppDomain.CurrentDomain.BaseDirectory;
 
         UpdateDownloader.CreateTempDirectory();
         if (UpdateChecker.LatestReleaseInfo == null ||
             string.IsNullOrEmpty(UpdateChecker.LatestReleaseInfo.TagName)) return;
         bool updateFileExists = AutoUpdateFileExists();
         string exePath = Path.Join(UpdateDownloader.DownloadLocation,
-            $"update-{UpdateChecker.LatestReleaseInfo.TagName}.exe");
+            $"update-{UpdateChecker.LatestReleaseInfo.TagName}.{InstallerExtension}");
 
         bool updateExeExists = File.Exists(exePath);
 
@@ -247,13 +316,34 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             updateExeExists = false;
         }
 
-        string updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
+        string updaterPath = Path.Join(dir, $"PixiEditor.UpdateInstaller{BinaryExtension}");
+
 
         if (!updateFileExists && !updateExeExists)
         {
             EnsureUpdateFilesDeleted();
             UpdateState = UpdateState.Checking;
             Dispatcher.UIThread.InvokeAsync(async () => await CheckForUpdate());
+            return;
+        }
+
+        try
+        {
+            if (Path.Exists(updaterPath))
+            {
+                string updateLocation = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName);
+
+                File.Copy(updaterPath,
+                    Path.Join(UpdateDownloader.DownloadLocation, $"PixiEditor.UpdateInstaller" + BinaryExtension),
+                    true);
+                updaterPath = Path.Join(UpdateDownloader.DownloadLocation,
+                    $"PixiEditor.UpdateInstaller" + BinaryExtension);
+                File.WriteAllText(Path.Join(UpdateDownloader.DownloadLocation, "update-location.txt"), updateLocation);
+            }
+        }
+        catch (IOException)
+        {
+            NoticeDialog.Show("COULD_NOT_UPDATE_WITHOUT_ADMIN", "INSUFFICIENT_PERMISSIONS");
             return;
         }
 
@@ -265,28 +355,17 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         {
             OpenExeInstaller(exePath);
         }
-#endif
     }
 
     private static void InstallHeadless(string updaterPath, bool startAfterUpdate)
     {
-        try
-        {
-            ProcessHelper.RunAsAdmin(updaterPath, startAfterUpdate ? "--startOnSuccess" : null);
-            Shutdown();
-        }
-        catch (Win32Exception)
-        {
-            NoticeDialog.Show(
-                "COULD_NOT_UPDATE_WITHOUT_ADMIN",
-                "INSUFFICIENT_PERMISSIONS");
-        }
+        TryRestartToUpdate(updaterPath, startAfterUpdate ? "--startOnSuccess" : null);
     }
 
-    private static void OpenExeInstaller(string updateExeFile)
+    private void OpenExeInstaller(string updateExeFile)
     {
         bool alreadyUpdated = VersionHelpers.GetCurrentAssemblyVersion().ToString() ==
-                              updateExeFile.Split('-')[1].Split(".exe")[0];
+                              updateExeFile.Split('-')[1].Split("." + InstallerExtension)[0];
 
         if (!alreadyUpdated)
         {
@@ -298,12 +377,61 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         }
     }
 
+    private static bool InstallDirReadOnly()
+    {
+        string installDir = AppDomain.CurrentDomain.BaseDirectory;
+        DirectoryInfo dirInfo = new DirectoryInfo(installDir);
+        return dirInfo.Attributes.HasFlag(FileAttributes.ReadOnly);
+    }
+
     private static void RestartToUpdate(string updateExeFile)
+    {
+        TryRestartToUpdate(updateExeFile, null);
+    }
+
+    private static void TryRestartToUpdate(string updateExeFile, string? args)
     {
         try
         {
-            IOperatingSystem.Current.ProcessUtility.RunAsAdmin(updateExeFile, null);
-            Shutdown();
+            if (IOperatingSystem.Current.IsLinux)
+            {
+                bool hasWritePermissions = !InstallDirReadOnly();
+                if (hasWritePermissions)
+                {
+                    args = "bash " + updateExeFile + " " + args + " &";
+                    IOperatingSystem.Current.ProcessUtility.ShellExecute("nohup", args);
+                    Shutdown();
+                }
+                else
+                {
+                    NoticeDialog.Show("COULD_NOT_UPDATE_WITHOUT_ADMIN", "INSUFFICIENT_PERMISSIONS");
+                }
+            }
+            else
+            {
+                var proc = IOperatingSystem.Current.ProcessUtility.RunAsAdmin(updateExeFile, args);
+                if (IOperatingSystem.Current.IsMacOs)
+                {
+                    proc.WaitForExitAsync().ContinueWith(t =>
+                    {
+                        Dispatcher.UIThread.Invoke(() =>
+                        {
+                            if (t.IsCompletedSuccessfully && proc.ExitCode == 0)
+                            {
+                                Shutdown();
+                            }
+                            else
+                            {
+                                NoticeDialog.Show("COULD_NOT_UPDATE_WITHOUT_ADMIN", "INSUFFICIENT_PERMISSIONS");
+                            }
+                        });
+                    });
+                }
+                else
+                {
+                    Shutdown();
+                }
+            }
         }
         catch (Win32Exception)
         {
@@ -322,8 +450,9 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     {
         try
         {
+            string binExtension = IOperatingSystem.Current.IsWindows ? ".exe" : string.Empty;
             ProcessHelper.RunAsAdmin(Path.Join(AppDomain.CurrentDomain.BaseDirectory,
-                "PixiEditor.UpdateInstaller.exe"));
+                $"PixiEditor.UpdateInstaller{binExtension}"));
             Shutdown();
         }
         catch (Win32Exception)
@@ -374,7 +503,8 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     private bool OsSupported()
     {
-        return IOperatingSystem.Current.IsWindows;
+        return IOperatingSystem.Current.IsWindows || IOperatingSystem.Current.IsLinux ||
+               IOperatingSystem.Current.IsMacOs;
     }
 
     private void EnsureUpdateFilesDeleted()
@@ -398,13 +528,18 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     private void InitUpdateChecker()
     {
+        string platformName = IPlatform.Current.Name;
 #if UPDATE
         UpdateChannels.Add(new UpdateChannel("Release", "PixiEditor", "PixiEditor"));
         UpdateChannels.Add(new UpdateChannel("Development", "PixiEditor", "PixiEditor-development-channel"));
 #else
-        string platformName = IPlatform.Current.Name;
         UpdateChannels.Add(new UpdateChannel(platformName, "", ""));
 #endif
+
+        if (IPreferences.Current.GetLocalPreference<bool>("UseTestingUpdateChannel", false))
+        {
+            UpdateChannels.Add(new UpdateChannel("Testing", "PixiEditor", "PixiEditor-testing-channel"));
+        }
 
         string updateChannel = PixiEditorSettings.Update.UpdateChannel.Value;
 

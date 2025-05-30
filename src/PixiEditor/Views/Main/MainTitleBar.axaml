@@ -75,6 +75,9 @@
                                         Background="{DynamicResource ThemeAccentBrush}"
                                         Command="{Binding UpdateViewModel.DownloadCommand}"
                                         IsVisible="{Binding UpdateViewModel.IsUpdateAvailable}" />
+                                <ProgressBar IsVisible="{Binding UpdateViewModel.IsDownloading}" 
+                                             ShowProgressText="True" Value="{Binding UpdateViewModel.CurrentProgress}"
+                                              Maximum="100" Minimum="0"/>
                                 <Button ui:Translator.Key="SWITCH_TO_NEW_VERSION"
                                         Background="{DynamicResource ThemeAccentBrush}"
                                         Command="{Binding UpdateViewModel.InstallCommand}"

@@ -166,7 +166,9 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
 
     private async void OwnerOnStartupEvent()
     {
-        await ImportLospecPalette();
+        var args = StartupArgs.Args;
+        var lospecPaletteArg = args.FirstOrDefault(x => x.StartsWith("lospec-palette://"));
+        await ImportLospecPalette(lospecPaletteArg);
     }
 
     [Commands_Command.Basic("PixiEditor.Colors.OpenPaletteBrowser", "OPEN_PALETTE_BROWSER", "OPEN_PALETTE_BROWSER",
@@ -177,17 +179,14 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         PalettesBrowser.Open();
     }
 
-    private async Task ImportLospecPalette()
+    public async Task ImportLospecPalette(string? uri)
     {
-        var args = StartupArgs.Args;
-        var lospecPaletteArg = args.FirstOrDefault(x => x.StartsWith("lospec-palette://"));
-
-        if (lospecPaletteArg != null)
+        if (uri != null)
         {
             var browser = PalettesBrowser.Open();
 
             browser.IsFetching = true;
-            var palette = await LospecPaletteFetcher.FetchPalette(lospecPaletteArg.Split(@"://")[1].Replace("/", ""));
+            var palette = await LospecPaletteFetcher.FetchPalette(uri.Split(@"://")[1].Replace("/", ""));
             if (palette != null)
             {
                 if (LocalPalettesFetcher.PaletteExists(palette.Name))
@@ -404,6 +403,9 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
     [Commands_Command.Internal("PixiEditor.Colors.SelectColor")]
     public void SelectColor(PaletteColor color)
     {
+        if (color == null)
+            return;
+
         PrimaryColor = color.ToColor();
     }
 
@@ -423,7 +425,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
     [Commands_Command.Internal("PixiEditor.CloseContextMenu")]
     public void CloseContextMenu(XAML_ContextMenu menu)
     {
-        menu.Close();
+        menu?.Close();
     }
 
     public void SetupPaletteProviders(IServiceProvider services)

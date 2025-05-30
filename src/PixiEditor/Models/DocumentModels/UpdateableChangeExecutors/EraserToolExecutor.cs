@@ -50,7 +50,7 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
         spacing = toolbar.Spacing;
 
         colorsHandler.AddSwatch(new PaletteColor(color.R, color.G, color.B));
-        IAction? action = new LineBasedPen_Action(guidValue, Colors.White, controller!.LastPixelPosition, (float)toolSize, true,
+        IAction? action = new LineBasedPen_Action(guidValue, Colors.White, controller!.LastPixelPosition, (float)eraserTool.ToolSize, true,
             antiAliasing, hardness, spacing, SquareBrush, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);
 

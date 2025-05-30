@@ -7,12 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <AvaloniaResource Include="Assets\*"/>
-      <None Remove="Assets\Animations\LoadingIndicator.json" />
-      <AvaloniaResource Include="Assets\Animations\LoadingIndicator.json" />
-      <AvaloniaResource Include="Fonts\PixiPerfect.ttf" />
-      <None Remove="Assets\Animations\CheckAnimation.json" />
-      <AvaloniaResource Include="Assets\Animations\CheckAnimation.json" />
+      <AvaloniaResource Include="Assets/**"/>
+      <AvaloniaResource Include="Fonts/**"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -20,12 +16,5 @@
       <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
       <PackageReference Include="Avalonia.Xaml.Behaviors" Version="11.0.5" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Compile Update="Controls\SizeInput.axaml.cs">
-        <DependentUpon>SizeInput.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
     </ItemGroup>
 </Project>

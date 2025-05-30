@@ -214,6 +214,14 @@ internal partial class PaletteViewer : UserControl
             {
                 NoticeDialog.Show("COULD_NOT_SAVE_PALETTE", "ERROR");
             }
+            catch (UnauthorizedAccessException unauthorizedAccessException)
+            {
+                NoticeDialog.Show(new LocalizedString("UNAUTHORIZED_ACCESS", file.Path.LocalPath), "ERROR");
+            }
+            catch (Exception ex)
+            {
+                NoticeDialog.Show(new LocalizedString("ERROR_SAVING_PALETTE", ex.Message), "ERROR");
+            }
         });
     }
 

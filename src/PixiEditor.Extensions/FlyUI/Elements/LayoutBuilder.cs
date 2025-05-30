@@ -61,10 +61,10 @@ public class LayoutBuilder
             Type type = ByteMap.GetTypeFromByteId((byte)propertyType);
             if (type == typeof(string))
             {
-                int stringLength = BitConverter.ToInt32(layoutSpan[offset..(offset + int32Size)]);
+                int stringBytesLength = BitConverter.ToInt32(layoutSpan[offset..(offset + int32Size)]);
                 offset += int32Size;
-                string value = Encoding.UTF8.GetString(layoutSpan[offset..(offset + stringLength)]);
-                offset += stringLength;
+                string value = Encoding.UTF8.GetString(layoutSpan[offset..(offset + stringBytesLength)]);
+                offset += stringBytesLength;
                 properties.Add(value);
             }
             else if (type == typeof(byte[]))

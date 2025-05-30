@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
@@ -211,6 +212,7 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
     public void RenderDocument(DrawingSurface toRenderOn, KeyFrameTime frameTime, VecI renderSize,
         string? customOutput = null)
     {
+        var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         IsBusy = true;
 
         if (renderTexture == null || renderTexture.Size != renderSize)
@@ -262,6 +264,7 @@ public class DocumentRenderer : IPreviewRenderable, IDisposable
         renderTexture.DrawingSurface.Canvas.Restore();
         toRenderOn.Canvas.Restore();
 
+        ctx.Dispose();
         IsBusy = false;
     }
 

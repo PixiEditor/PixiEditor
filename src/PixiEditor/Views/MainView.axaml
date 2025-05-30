@@ -35,8 +35,6 @@
         <commandSearch:CommandSearchControl
             IsVisible="{Binding SearchSubViewModel.SearchWindowOpen, Mode=TwoWay}"
             SearchTerm="{Binding SearchSubViewModel.SearchTerm, Mode=TwoWay}"
-            HorizontalAlignment="Center"
-            Height="700"
-            MaxWidth="920" />
+            />
     </Grid>
 </UserControl>
