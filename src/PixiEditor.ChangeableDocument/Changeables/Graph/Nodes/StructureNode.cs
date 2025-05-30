@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.ChangeableDocument.Helpers;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
 using Drawie.Backend.Core.ColorsImpl;
 using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Surfaces;
@@ -246,6 +247,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
 
         VecI targetSize = img.LatestSize;
 
+        var ctx = DrawingBackendApi.Current.RenderingDispatcher.EnsureContext();
         renderSurface = RequestTexture(textureId, targetSize, processingColorSpace, false);
 
         int saved = renderSurface.DrawingSurface.Canvas.Save();
@@ -263,6 +265,7 @@ public abstract class StructureNode : RenderNode, IReadOnlyStructureNode, IRende
         }
 
         renderSurface.DrawingSurface.Canvas.RestoreToCount(saved);
+        ctx?.Dispose();
     }
 
     protected void ApplyRasterClip(DrawingSurface toClip, DrawingSurface clipSource)

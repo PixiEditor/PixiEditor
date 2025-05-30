@@ -1047,5 +1047,6 @@
   "EXPORT_OUTPUT": "Export Output",
   "RENDER_OUTPUT_SIZE": "Render Output Size",
   "RENDER_OUTPUT_CENTER": "Render Output Center",
-  "COLOR_PICKER": "Color Picker"
+  "COLOR_PICKER": "Color Picker",
+  "UNAUTHORIZED_ACCESS": "Unauthorized access"
 }

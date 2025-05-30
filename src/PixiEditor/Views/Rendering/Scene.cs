@@ -465,7 +465,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 }
             }
 
-            Cursor = finalCursor;
+            if(Cursor.ToString() != finalCursor.ToString())
+                Cursor = finalCursor;
             e.Handled = args.Handled;
         }
     }
