@@ -50,7 +50,14 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <DefineConstants>TRACE;UPDATE</DefineConstants>
+    <DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='ReleaseFoundersEdition'">
+    <DefineConstants>TRACE;UPDATE;RELEASE;FOUNDERS_PACK_REQUIRED</DefineConstants>
     <DebugSymbols>False</DebugSymbols>
     <DebugType>None</DebugType>
     <Optimize>true</Optimize>

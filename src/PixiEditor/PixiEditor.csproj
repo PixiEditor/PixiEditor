@@ -68,6 +68,10 @@
   <ItemGroup Condition=" '$(Configuration)' == 'DevRelease' ">
     <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj"/>
   </ItemGroup>
+  
+  <ItemGroup Condition=" '$(Configuration)' == 'ReleaseFoundersEdition' ">
+    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj"/>
+  </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'MSIX' ">
     <ProjectReference Include="..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj"/>
@@ -81,10 +85,6 @@
     <AvaloniaResource Include="Images\**"/>
     <AvaloniaResource Include="Fonts\**"/>
     <AvaloniaResource Include="Data\**"/>
-    <AvaloniaResource Include="Data\Languages\**"/>
-    <AvaloniaResource Include="Data\ShortcutActionMaps\**"/>
-    <AvaloniaResource Include="Data\BetaExampleFiles\**"/>
-    <AvaloniaResource Include="Data\Configs\**"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -146,11 +146,6 @@
   <ItemGroup>
     <Folder Include="Extensions\"/>
     <Folder Include="Models\User\"/>
-  </ItemGroup>
-
-  <ItemGroup>
-    <UpToDateCheckInput Remove="Fonts\NodeIcons.cs" />
-    <UpToDateCheckInput Remove="Fonts\nodeicons.ttf" />
   </ItemGroup>
 
 </Project>

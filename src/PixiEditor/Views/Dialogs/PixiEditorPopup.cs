@@ -125,6 +125,11 @@ public partial class PixiEditorPopup : Window, IPopupWindow
     {
         Show(MainWindow.Current);
     }
+    
+    public void ShowStandalone()
+    {
+        base.Show();
+    }
 
     public AsyncCall<bool?> ShowDialog()
     {

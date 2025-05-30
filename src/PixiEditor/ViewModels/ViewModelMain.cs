@@ -26,6 +26,7 @@ using PixiEditor.ViewModels.Menu;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
 using PixiEditor.ViewModels.Tools;
+using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels;
@@ -98,6 +99,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
     public event Action<DocumentViewModel> BeforeDocumentClosed;
     public event Action<LazyDocumentViewModel> LazyDocumentClosed;
+    
+    public event Action<MainWindow> AttachedToWindow;
 
     public ViewModelMain()
     {
@@ -399,5 +402,10 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         {
             viewport.CenterViewportTrigger.Execute(this, viewport.GetRenderOutputSize());
         }
+    }
+
+    public void AttachToWindow(MainWindow mainWindow)
+    {
+        AttachedToWindow?.Invoke(mainWindow);
     }
 }

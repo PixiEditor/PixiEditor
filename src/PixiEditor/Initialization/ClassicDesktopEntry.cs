@@ -5,16 +5,21 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Avalonia.Xaml.Interactivity;
+using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Extensions;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Behaviours;
+using PixiEditor.IdentityProvider;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.ExceptionHandling;
 using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Platform;
 using PixiEditor.UI.Common.Controls;
+using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.Views;
+using PixiEditor.Views.Auth;
 using PixiEditor.Views.Dialogs;
 using ViewModels_ViewModelMain = PixiEditor.ViewModels.ViewModelMain;
 
@@ -22,9 +27,14 @@ namespace PixiEditor.Initialization;
 
 internal class ClassicDesktopEntry
 {
+    public ServiceProvider? Services { get; private set; }
     private IClassicDesktopStyleApplicationLifetime desktop;
     private bool restartQueued = false;
+
+    private LoginPopup? loginPopup = null!;
+
     public static ClassicDesktopEntry? Active { get; private set; }
+
     public ClassicDesktopEntry(IClassicDesktopStyleApplicationLifetime desktop)
     {
         this.desktop = desktop;
@@ -34,7 +44,7 @@ internal class ClassicDesktopEntry
         {
             activable.Activated += ActivableOnActivated;
         }
-        
+
         Active = this;
 
         desktop.Startup += Start;
@@ -108,9 +118,57 @@ internal class ClassicDesktopEntry
 #endif
 
         var extensionLoader = InitApp(safeMode);
+        ViewModels_ViewModelMain viewModel = Services.GetRequiredService<ViewModels_ViewModelMain>();
+        viewModel.Setup(Services);
 
+#if FOUNDERS_PACK_REQUIRED
+        if (!IsFoundersPackOwner())
+        {
+            IPlatform.Current.IdentityProvider.OwnedProductsUpdated += IdentityProviderOnOwnedProductsUpdated;
+            loginPopup = new LoginPopup();
+            loginPopup.SystemDecorations = SystemDecorations.BorderOnly;
+            loginPopup.CanMinimize = false;
+            loginPopup.DataContext = viewModel.UserViewModel;
+            loginPopup.ShowStandalone();
+            loginPopup.Closed += (_, _) =>
+            {
+                if (IsFoundersPackOwner())
+                {
+                    desktop.MainWindow = new MainWindow(extensionLoader);
+                    desktop.MainWindow.Show();
+                }
+                else
+                {
+                    desktop.Shutdown();
+                }
+            };
+        }
+        else
+        {
+            
+            desktop.MainWindow = new MainWindow(extensionLoader);
+            desktop.MainWindow.Show();
+        }
+#else
         desktop.MainWindow = new MainWindow(extensionLoader);
         desktop.MainWindow.Show();
+#endif
+    }
+
+    private void IdentityProviderOnOwnedProductsUpdated(List<ProductData> obj)
+    {
+        if (IsFoundersPackOwner())
+        {
+            IPlatform.Current.IdentityProvider.OwnedProductsUpdated -= IdentityProviderOnOwnedProductsUpdated;
+            loginPopup?.Close();
+            loginPopup = null!;
+        }
+    }
+
+    private static bool IsFoundersPackOwner()
+    {
+        return IPlatform.Current.IdentityProvider.IsLoggedIn &&
+               IPlatform.Current.AdditionalContentProvider.IsContentOwned("PixiEditor.FoundersPack");
     }
 
     private void InitPlatform()
@@ -128,12 +186,25 @@ internal class ClassicDesktopEntry
 
         NumberInput.AttachGlobalBehaviors += AttachGlobalShortcutBehavior;
 
+        if (!Directory.Exists(Paths.LocalExtensionPackagesPath))
+        {
+            Directory.CreateDirectory(Paths.LocalExtensionPackagesPath);
+        }
+
         ExtensionLoader extensionLoader = new ExtensionLoader(
             [Paths.InstallDirExtensionPackagesPath, Paths.LocalExtensionPackagesPath], Paths.UserExtensionsPath);
         if (!safeMode)
         {
             extensionLoader.LoadExtensions();
         }
+
+        Services = new ServiceCollection()
+            .AddPlatform()
+            .AddPixiEditor(extensionLoader)
+            .AddExtensionServices(extensionLoader)
+            .BuildServiceProvider();
+
+        extensionLoader.Services = new ExtensionServices(Services);
 
         return extensionLoader;
     }
@@ -209,7 +280,7 @@ internal class ClassicDesktopEntry
 
         return match.Success;
     }
-    
+
     public void Restart()
     {
         restartQueued = true;

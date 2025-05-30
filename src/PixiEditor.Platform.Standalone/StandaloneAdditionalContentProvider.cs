@@ -97,11 +97,7 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
 
     public bool PlatformHasContent(string product)
     {
-#if DEBUG
         return true;
-#else
-        return false;
-#endif
     }
 
     public void Error(string error)

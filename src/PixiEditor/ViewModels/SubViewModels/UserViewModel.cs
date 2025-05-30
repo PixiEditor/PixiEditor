@@ -92,7 +92,7 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
 #if STEAM
         "https://store.steampowered.com/app/2435860/PixiEditor__Supporter_Pack/";
 #else
-        "https://pixieditor.net/purchase/";
+        "https://pixieditor.net/download/";
 #endif
 
     public UserViewModel(ViewModelMain owner) : base(owner)
