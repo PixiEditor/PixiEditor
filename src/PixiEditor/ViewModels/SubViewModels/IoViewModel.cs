@@ -123,6 +123,9 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnKeyDown(object? sender, FilteredKeyEventArgs args)
     {
+        if (args.Key == Key.None)
+            return;
+
         ProcessShortcutDown(args.IsRepeat, args.Key, args.Modifiers);
         Owner.DocumentManagerSubViewModel.ActiveDocument?.EventInlet.OnKeyDown(args.Key);
     }
@@ -174,7 +177,8 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         }
 
         if (isRepeat && Owner.ShortcutController.LastCommands != null &&
-            Owner.ShortcutController.LastCommands.Any(x => x is Command.ToolCommand cmd && cmd.Shortcut == new KeyCombination(key, argsModifiers)))
+            Owner.ShortcutController.LastCommands.Any(x =>
+                x is Command.ToolCommand cmd && cmd.Shortcut == new KeyCombination(key, argsModifiers)))
         {
             Owner.ToolsSubViewModel.HandleToolRepeatShortcutDown();
         }
@@ -358,7 +362,8 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         var tools = Owner.ToolsSubViewModel;
 
         var rightCanUp = (button == MouseButton.Right) &&
-                         tools.RightClickMode is RightClickMode.Erase or RightClickMode.SecondaryColor or RightClickMode.ColorPicker;
+                         tools.RightClickMode is RightClickMode.Erase or RightClickMode.SecondaryColor
+                             or RightClickMode.ColorPicker;
 
         if (button == MouseButton.Left || rightCanUp)
         {

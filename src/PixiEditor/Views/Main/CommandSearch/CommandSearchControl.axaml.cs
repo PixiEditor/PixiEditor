@@ -120,7 +120,7 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
         if (e.Sender is not CommandSearchControl control) return;
         if (e.NewValue.Value)
         {
-            Dispatcher.UIThread.Invoke(
+            Dispatcher.UIThread.Post(
                 () =>
                 {
                     control.textBox.Focus();
@@ -133,7 +133,7 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
                     {
                         control.textBox.CaretIndex = control.SearchTerm?.Length ?? 0;
                     }
-                }, DispatcherPriority.Render);
+                }, DispatcherPriority.Input);
         }
     }
 
@@ -297,5 +297,15 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
     {
         CommandSearchControl control = ((CommandSearchControl)e.Sender);
         control.UpdateSearchResults();
+    }
+
+    private void InputElement_OnTapped(object? sender, TappedEventArgs e)
+    {
+        Hide();
+    }
+
+    private void MainGrid_OnTapped(object? sender, TappedEventArgs e)
+    {
+        e.Handled = true;
     }
 }

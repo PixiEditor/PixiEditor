@@ -226,28 +226,7 @@ internal class ClassicDesktopEntry
         if (vm is null)
             return;
 
-        if (vm.DocumentManagerSubViewModel.Documents.Any(x => !x.AllChangesSaved))
-        {
-            e.Cancel = true;
-            Task.Run(async () =>
-            {
-                await Dispatcher.UIThread.InvokeAsync(async () =>
-                {
-                    ConfirmationType confirmation = await ConfirmationDialog.Show(
-                        new LocalizedString("SESSION_UNSAVED_DATA", "Shutdown"),
-                        $"Shutdown");
-
-                    if (confirmation == ConfirmationType.Yes)
-                    {
-                        desktop.Shutdown();
-                    }
-                    else
-                    {
-                        e.Cancel = true;
-                    }
-                });
-            });
-        }
+        vm.OnShutdown(e, () => desktop.Shutdown(0));
     }
 
     private void AttachGlobalShortcutBehavior(BehaviorCollection collection)

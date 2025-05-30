@@ -4,10 +4,8 @@ using Drawie.Backend.Core.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core.Surfaces;
-using Drawie.Backend.Core.Surfaces.ImageData;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Workspace;
@@ -55,6 +53,7 @@ internal class SceneRenderer : IDisposable
 
             var rendered = RenderGraph(target, resolution, targetOutput, finalGraph);
             cachedTextures[adjustedTargetOutput] = rendered;
+            return;
         }
 
         var cachedTexture = cachedTextures[adjustedTargetOutput];

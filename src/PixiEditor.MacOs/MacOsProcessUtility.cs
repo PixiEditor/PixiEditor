@@ -9,7 +9,7 @@ internal class MacOsProcessUtility : IProcessUtility
     {
         string script = $"""
 
-                                     do shell script "'{path}' {args}" with administrator privileges
+                                     do shell script "/bin/bash '{path}' {args}" with administrator privileges
                          """;
         ProcessStartInfo startInfo = new ProcessStartInfo
         {
