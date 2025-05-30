@@ -27,7 +27,8 @@ catch (Exception ex)
 {
     log.AppendLine($"{DateTime.Now}: Error during update installation: {ex.Message}");
     string errorLogPath = Path.Combine(logDirectory, "ErrorLog.txt");
-    File.AppendAllText(errorLogPath, $"Error PixiEditor.UpdateInstaller: {DateTime.Now}\n{ex.Message}\n{ex.StackTrace}\n-----\n");
+    File.AppendAllText(errorLogPath,
+        $"Error PixiEditor.UpdateInstaller: {DateTime.Now}\n{ex.Message}\n{ex.StackTrace}\n-----\n");
 }
 finally
 {
@@ -36,32 +37,24 @@ finally
         if (startAfterUpdate)
         {
             log.AppendLine($"{DateTime.Now}: Starting PixiEditor after update.");
-            if (OperatingSystem.IsMacOS())
+            string binaryName = "PixiEditor.exe";
+            string path = Path.Join(controller.UpdateDirectory, binaryName);
+            if (File.Exists(path))
             {
-                // Handled by elevator.sh script, I couldn't get Process.Start to work correctly under osascript environment
-                //StartPixiEditorOnMacOS(controller);
+                log.AppendLine($"{DateTime.Now}: Starting PixiEditor from {path}");
+                StartPixiEditor(path);
             }
             else
             {
-                string binaryName = OperatingSystem.IsWindows() ? "PixiEditor.exe" : "PixiEditor";
-                string path = Path.Join(controller.UpdateDirectory, binaryName);
+                binaryName = "PixiEditor.Desktop.exe";
+                path = Path.Join(controller.UpdateDirectory, binaryName);
                 if (File.Exists(path))
                 {
-                    log.AppendLine($"{DateTime.Now}: Starting PixiEditor from {path}");
                     StartPixiEditor(path);
                 }
                 else
                 {
-                    binaryName = OperatingSystem.IsWindows() ? "PixiEditor.Desktop.exe" : "PixiEditor.Desktop";
-                    path = Path.Join(controller.UpdateDirectory, binaryName);
-                    if (File.Exists(path))
-                    {
-                        StartPixiEditor(path);
-                    }
-                    else
-                    {
-                        log.AppendLine("PixiEditor executable not found.");
-                    }
+                    log.AppendLine("PixiEditor executable not found.");
                 }
             }
         }
@@ -70,7 +63,8 @@ finally
     {
         log.AppendLine($"{DateTime.Now}: Error starting PixiEditor: {ex.Message}");
         string errorLogPath = Path.Combine(logDirectory, "ErrorLog.txt");
-        File.AppendAllText(errorLogPath, $"Error starting PixiEditor: {DateTime.Now}\n{ex.Message}\n{ex.StackTrace}\n-----\n");
+        File.AppendAllText(errorLogPath,
+            $"Error starting PixiEditor: {DateTime.Now}\n{ex.Message}\n{ex.StackTrace}\n-----\n");
     }
 
     try
@@ -85,24 +79,7 @@ finally
 
     void StartPixiEditor(string pixiEditorExecutablePath)
     {
-        if (OperatingSystem.IsWindows())
-        {
-            Process.Start(new ProcessStartInfo(pixiEditorExecutablePath) { UseShellExecute = true });
-        }
-        else if (OperatingSystem.IsLinux())
-        {
-            string display = Environment.GetEnvironmentVariable("DISPLAY");
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "/bin/bash",
-                Arguments = "-c \"DISPLAY=" + display + " " + pixiEditorExecutablePath + "\" & disown",
-                UseShellExecute = false,
-            });
-        }
-        else
-        {
-            log.AppendLine($"{DateTime.Now}: Unsupported operating system for starting PixiEditor.");
-        }
+        Process.Start(new ProcessStartInfo(pixiEditorExecutablePath) { UseShellExecute = true });
     }
 }
 

@@ -59,58 +59,15 @@ public class UpdateInstaller
 
         Directory.CreateDirectory(UpdateFilesPath);
 
-        bool isZip = ArchiveFileName.EndsWith(".zip");
-        if (isZip)
-        {
-            log.AppendLine($"Extracting {ArchiveFileName} to {UpdateFilesPath}");
-            ZipFile.ExtractToDirectory(ArchiveFileName, UpdateFilesPath, true);
-        }
-        else
-        {
-            log.AppendLine($"Extracting {ArchiveFileName} to {UpdateFilesPath} using GZipStream");
-            using FileStream fs = new(ArchiveFileName, FileMode.Open, FileAccess.Read);
-            using GZipStream gz = new(fs, CompressionMode.Decompress, leaveOpen: true);
-
-            TarFile.ExtractToDirectory(gz, UpdateFilesPath, overwriteFiles: true);
-        }
-
-        if (OperatingSystem.IsMacOS())
-        {
-            string appFile = Directory.GetDirectories(UpdateFilesPath, "*.app", SearchOption.TopDirectoryOnly)
-                .FirstOrDefault();
-            if (string.IsNullOrEmpty(appFile))
-            {
-                log.AppendLine("PixiEditor.app not found in the update files. Installation failed.");
-                string[] allFiles = Directory.GetFiles(UpdateFilesPath, "*.*", SearchOption.TopDirectoryOnly);
-                foreach (string file in allFiles)
-                {
-                    log.AppendLine($"Found file: {file}");
-                }
-
-                throw new FileNotFoundException("PixiEditor.app not found in the update files.");
-            }
-
-
-            log.AppendLine($"Moving {appFile} to {TargetDirectory}");
-            string targetAppDirectory = Path.Combine(TargetDirectory, "PixiEditor.app");
-            if (Directory.Exists(targetAppDirectory))
-            {
-                log.AppendLine($"Removing existing PixiEditor.app at {targetAppDirectory}");
-                Directory.Delete(targetAppDirectory, true);
-            }
-
-            Directory.Move(appFile, targetAppDirectory);
-
-            Cleanup(log);
-            return;
-        }
+        log.AppendLine($"Extracting {ArchiveFileName} to {UpdateFilesPath}");
+        ZipFile.ExtractToDirectory(ArchiveFileName, UpdateFilesPath, true);
 
         string[] extractedFiles = Directory.GetFiles(UpdateFilesPath, "*", SearchOption.AllDirectories);
         log.AppendLine($"Extracted {extractedFiles.Length} files to {UpdateFilesPath}");
         log.AppendLine("Files extracted");
 
         string dirWithFiles = UpdateFilesPath;
-        string binName = OperatingSystem.IsWindows() ? "PixiEditor.exe" : "PixiEditor";
+        string binName = "PixiEditor.exe";
         if (!File.Exists(Path.Combine(UpdateFilesPath, binName)))
         {
             dirWithFiles = Directory.GetDirectories(UpdateFilesPath)[0];
@@ -155,7 +112,7 @@ public class UpdateInstaller
         }
 
         string updateInstallerFile = Path.Join(Path.GetTempPath(), "PixiEditor",
-            "PixiEditor.UpdateInstaller" + (OperatingSystem.IsWindows() ? ".exe" : ""));
+            "PixiEditor.UpdateInstaller.exe");
         logger.AppendLine($"Looking for: {updateInstallerFile}");
         if (File.Exists(updateInstallerFile))
         {
