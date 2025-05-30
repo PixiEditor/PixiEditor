@@ -57,6 +57,7 @@ public class PixiAuthIdentityProvider : IIdentityProvider
         try
         {
             Guid? session = await PixiAuthClient.GenerateSession(email);
+            LoginTimeout?.Invoke(60);
             string hash = EmailUtility.GetEmailHash(email);
             if (session != null)
             {
