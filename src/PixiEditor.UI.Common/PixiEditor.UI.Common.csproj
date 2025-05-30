@@ -9,7 +9,10 @@
     <ItemGroup>
       <AvaloniaResource Include="Assets/**"/>
       <AvaloniaResource Include="Fonts/**"/>
+      <None Include="Assets/**" CopyToOutputDirectory="PreserveNewest" />
+      <None Include="Fonts/**" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
+  
 
     <ItemGroup>
       <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />

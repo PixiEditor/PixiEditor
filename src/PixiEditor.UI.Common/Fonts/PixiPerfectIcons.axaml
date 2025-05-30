@@ -3,7 +3,7 @@
         xmlns:system="clr-namespace:System;assembly=System.Runtime">
     <Styles.Resources>
         <ResourceDictionary>
-            <FontFamily x:Key="PixiPerfectIcons">avares://PixiEditor.UI.Common/Fonts/PixiPerfect.ttf#pixiperfect</FontFamily>
+            <FontFamily x:Key="PixiPerfectIcons">avares://PixiEditor.UI.Common/Fonts#pixiperfect</FontFamily>
 
             <system:String x:Key="icon-ghost">&#xe812;</system:String>
             <system:String x:Key="icon-add-reference">&#xE900;</system:String>
