@@ -548,7 +548,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Layer.Rasterize", "RASTERIZE_ACTIVE_LAYER", "RASTERIZE_ACTIVE_LAYER_DESCRIPTIVE",
-        CanExecute = "PixiEditor.Layer.SelectedLayerIsRasterizable")]
+        CanExecute = "PixiEditor.Layer.SelectedLayerIsRasterizable",
+        Icon = PixiPerfectIcons.LowResCircle, MenuItemPath = "LAYER/VECTOR/RASTERIZE_ACTIVE_LAYER", AnalyticsTrack = true)]
     public void RasterizeActiveLayer()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -560,7 +561,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Layer.ConvertToCurve", "CONVERT_TO_CURVE", "CONVERT_TO_CURVE_DESCRIPTIVE",
-        CanExecute = "PixiEditor.Layer.SelectedMemberIsVectorLayer")]
+        CanExecute = "PixiEditor.Layer.SelectedMemberIsVectorLayer",
+        MenuItemPath = "LAYER/VECTOR/CONVERT_TO_CURVE", AnalyticsTrack = true)]
     public void ConvertActiveLayerToCurve()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -572,7 +574,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Layer.SeparateShapes", "SEPARATE_SHAPES", "SEPARATE_SHAPES_DESCRIPTIVE",
-        CanExecute = "PixiEditor.Layer.SelectedMemberIsVectorLayer")]
+        CanExecute = "PixiEditor.Layer.SelectedMemberIsVectorLayer",
+        MenuItemPath = "LAYER/VECTOR/SEPARATE_SHAPES", AnalyticsTrack = true)]
     public void SeparateShapes()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
