@@ -956,4 +956,14 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ActionAccumulator.AddFinishedActions(new ConvertToCurve_Action(memberId));
     }
+
+    public void SeparateShapes(Guid memberId)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new SeparateShapes_Action(memberId));
+    }
 }

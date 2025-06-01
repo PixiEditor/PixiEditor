@@ -116,7 +116,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
         using var block = doc.Operations.StartChangeBlock();
         Guid? guid = doc.Operations.CreateStructureMember(StructureMemberType.Folder);
-        if(doc.SoftSelectedStructureMembers.Count == 0)
+        if (doc.SoftSelectedStructureMembers.Count == 0)
             return;
         var selectedInOrder = doc.GetSelectedMembersInOrder();
         selectedInOrder.Reverse();
@@ -569,6 +569,18 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             return;
 
         doc!.Operations.ConvertToCurve(member.Id);
+    }
+
+    [Command.Basic("PixiEditor.Layer.SeparateShapes", "SEPARATE_SHAPES", "SEPARATE_SHAPES_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.SelectedMemberIsVectorLayer")]
+    public void SeparateShapes()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        var member = doc?.SelectedStructureMember;
+        if (member is null)
+            return;
+
+        doc!.Operations.SeparateShapes(member.Id);
     }
 
     [Evaluator.Icon("PixiEditor.Layer.ToggleReferenceLayerTopMostIcon")]

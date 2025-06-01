@@ -1,4 +1,5 @@
-﻿using Avalonia.Threading;
+﻿using System.Diagnostics;
+using Avalonia.Threading;
 using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;

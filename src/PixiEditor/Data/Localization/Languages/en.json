@@ -1037,7 +1037,7 @@
   "SECONDARY_BG_COLOR": "Secondary background color",
   "RESET": "Reset",
   "AUTOSAVE_OPEN_FOLDER": "Open autosave folder",
-   "AUTOSAVE_OPEN_FOLDER_DESCRIPTIVE": "Open the folder where autosaves are stored",
+  "AUTOSAVE_OPEN_FOLDER_DESCRIPTIVE": "Open the folder where autosaves are stored",
   "AUTOSAVE_TOGGLE_DESCRIPTIVE": "Enable/disable autosave",
   "ERROR_GRAPH": "Graph setup produced an error. Fix it in the node graph",
   "COLOR_MATRIX_FILTER_NODE": "Color Matrix Filter",
@@ -1048,5 +1048,7 @@
   "RENDER_OUTPUT_SIZE": "Render Output Size",
   "RENDER_OUTPUT_CENTER": "Render Output Center",
   "COLOR_PICKER": "Color Picker",
-  "UNAUTHORIZED_ACCESS": "Unauthorized access"
+  "UNAUTHORIZED_ACCESS": "Unauthorized access",
+  "SEPARATE_SHAPES": "Separate Shapes",
+  "SEPARATE_SHAPES_DESCRIPTIVE": "Separate shapes from current vector into individual layers"
 }

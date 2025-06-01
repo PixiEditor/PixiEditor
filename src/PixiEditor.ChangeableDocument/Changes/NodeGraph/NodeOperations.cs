@@ -72,6 +72,37 @@ public static class NodeOperations
         return node;
     }
 
+    public static List<IChangeInfo> AppendMember(Node parent, Node toAppend, out Dictionary<Guid, VecD> originalPositions)
+    {
+        InputProperty<Painter?>? parentInput = parent.GetInputProperty(OutputNode.InputPropertyName) as InputProperty<Painter?>;
+        if (parentInput == null)
+        {
+            throw new InvalidOperationException("Parent node does not have an input property for appending members.");
+        }
+
+        OutputProperty<Painter>? toAddOutput = toAppend.GetOutputProperty("Output") as OutputProperty<Painter>;
+        if (toAddOutput == null)
+        {
+            throw new InvalidOperationException("Node to append does not have an output property named 'Output'.");
+        }
+
+        InputProperty<Painter>? toAddInput = toAppend.GetInputProperty(OutputNode.InputPropertyName) as InputProperty<Painter>;
+
+        if (toAddInput == null)
+        {
+            throw new InvalidOperationException("Node to append does not have an input property for appending members.");
+        }
+
+        Guid memberId = toAppend.Id;
+
+        List<IChangeInfo> changes = AppendMember(parentInput, toAddOutput, toAddInput, memberId);
+
+        var adjustedPositions = AdjustPositionsAfterAppend(toAppend, parent, parentInput.Connection?.Node as Node ?? null, out originalPositions);
+
+        changes.AddRange(adjustedPositions);
+        return changes;
+    }
+
     public static List<IChangeInfo> AppendMember(
         InputProperty<Painter?> parentInput,
         OutputProperty<Painter> toAddOutput,

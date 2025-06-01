@@ -77,9 +77,13 @@
                     </Border>
                     <Border Grid.Row="0" Grid.Column="1">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
+                            <Button />
+                            <Button />
                             <ToggleButton Margin="0, 5" Width="24" HorizontalAlignment="Center" Classes="PlayButton"
                                           Name="PART_PlayToggle"
                                           IsChecked="{Binding IsPlaying, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
+                            <Button/>
+                            <Button/>
                             <TextBlock VerticalAlignment="Center" FontSize="14">
                                 <Run>
                                     <Run.Text>
