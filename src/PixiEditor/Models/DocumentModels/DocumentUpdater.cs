@@ -395,7 +395,9 @@ internal class DocumentUpdater
         IStructureMemberHandler memberVM;
         if (info is CreateLayer_ChangeInfo layerInfo)
         {
-            memberVM = doc.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.Id == info.Id) as ILayerHandler;
+            memberVM = doc.NodeGraphHandler.NodeLookup.TryGetValue(layerInfo.Id, out var node)
+                ? node as IStructureMemberHandler
+                : null;
             if (memberVM is ITransparencyLockableMember transparencyLockableMember)
             {
                 transparencyLockableMember.SetLockTransparency(layerInfo.LockTransparency);
@@ -403,7 +405,9 @@ internal class DocumentUpdater
         }
         else if (info is CreateFolder_ChangeInfo)
         {
-            memberVM = doc.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.Id == info.Id) as IFolderHandler;
+            memberVM = doc.NodeGraphHandler.NodeLookup.TryGetValue(info.Id, out var node)
+                ? node as IFolderHandler
+                : null;
         }
         else
         {

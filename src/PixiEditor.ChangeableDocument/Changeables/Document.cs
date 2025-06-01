@@ -50,6 +50,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     public double VerticalSymmetryAxisX { get; set; }
     public bool IsDisposed { get; private set; }
 
+
     public Document()
     {
         AnimationData = new AnimationData(this);
@@ -279,14 +280,14 @@ internal class Document : IChangeable, IReadOnlyDocument
     /// <returns>The node with the given <paramref name="guid"/> or null if it doesn't exist.</returns>
     public Node? FindNode(Guid guid)
     {
-        return NodeGraph.Nodes.FirstOrDefault(x => x.Id == guid);
+        return NodeGraph.FindNode(guid);
     }
 
     IReadOnlyNode IReadOnlyDocument.FindNode(Guid guid) => FindNodeOrThrow<Node>(guid);
 
     public T? FindNode<T>(Guid guid) where T : Node
     {
-        return NodeGraph.Nodes.FirstOrDefault(x => x.Id == guid && x is T) as T;
+        return NodeGraph.FindNode<T>(guid);
     }
 
     /// <summary>
@@ -298,7 +299,7 @@ internal class Document : IChangeable, IReadOnlyDocument
     /// <returns>True if the node could be found, otherwise false.</returns>
     public bool TryFindNode<T>(Guid id, out T node) where T : Node
     {
-        node = (T?)NodeGraph.Nodes.FirstOrDefault(x => x.Id == id && x is T) ?? default;
+        node = (T?)NodeGraph.FindNode<T>(id) ?? null;
         return node != null;
     }
 

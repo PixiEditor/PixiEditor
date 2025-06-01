@@ -397,6 +397,9 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public void SortByLayers()
     {
+        if (keyFrames.Count < 2)
+            return;
+
         var allLayers = Document.StructureHelper.GetAllLayers();
 
         if (!OrderDifferent(keyFrames, allLayers)) return;

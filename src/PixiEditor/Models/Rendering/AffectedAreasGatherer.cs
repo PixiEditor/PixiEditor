@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
@@ -28,13 +29,15 @@ internal class AffectedAreasGatherer
     private readonly DocumentChangeTracker tracker;
 
     public AffectedArea MainImageArea { get; private set; } = new();
-    public Dictionary<Guid, AffectedArea> ImagePreviewAreas { get; private set; } = new();
-    public Dictionary<Guid, AffectedArea> MaskPreviewAreas { get; private set; } = new();
-    public List<Guid> ChangedKeyFrames { get; private set; } = new();
-    
+    public HashSet<Guid> ChangedMembers { get; private set; } = new();
+    public HashSet<Guid> ChangedMasks { get; private set; } = new();
+    public HashSet<Guid> ChangedKeyFrames { get; private set; } = new();
+
 
     private KeyFrameTime ActiveFrame { get; set; }
-    public List<Guid> ChangedNodes { get; set; } = new();
+    public HashSet<Guid> ChangedNodes { get; set; } = new();
+
+    private bool alreadyAddedWholeCanvasToEveryImagePreview = false;
 
     public AffectedAreasGatherer(KeyFrameTime activeFrame, DocumentChangeTracker tracker,
         IReadOnlyList<IChangeInfo> changes)
@@ -42,11 +45,11 @@ internal class AffectedAreasGatherer
         this.tracker = tracker;
         ActiveFrame = activeFrame;
         ProcessChanges(changes);
-        
+
         var outputNode = tracker.Document.NodeGraph.OutputNode;
         if (outputNode is null)
             return;
-        
+
         if (tracker.Document.NodeGraph.CalculateExecutionQueue(tracker.Document.NodeGraph.OutputNode)
             .Any(x => x is ICustomShaderNode))
         {
@@ -64,20 +67,20 @@ internal class AffectedAreasGatherer
                     if (info.Area.Chunks is null)
                         throw new InvalidOperationException("Chunks must not be null");
                     AddToMainImage(info.Area);
-                    AddToImagePreviews(info.Id, info.Area, true);
-                    AddToMaskPreview(info.Id, info.Area);
+                    AddToImagePreviews(info.Id, true);
+                    AddToMaskPreview(info.Id);
                     AddToNodePreviews(info.Id);
                     break;
                 case LayerImageArea_ChangeInfo info:
                     if (info.Area.Chunks is null)
                         throw new InvalidOperationException("Chunks must not be null");
                     AddToMainImage(info.Area);
-                    AddToImagePreviews(info.Id, info.Area);
+                    AddToImagePreviews(info.Id);
                     AddToNodePreviews(info.Id);
                     break;
                 case TransformObject_ChangeInfo info:
                     AddToMainImage(info.Area);
-                    AddToImagePreviews(info.NodeGuid, info.Area);
+                    AddToImagePreviews(info.NodeGuid);
                     AddToNodePreviews(info.NodeGuid);
                     break;
                 case CreateStructureMember_ChangeInfo info:
@@ -104,7 +107,6 @@ internal class AffectedAreasGatherer
                     break;
                 case StructureMemberMask_ChangeInfo info:
                     AddWholeCanvasToMainImage();
-                    AddWholeCanvasToMaskPreview(info.Id);
                     AddWholeCanvasToImagePreviews(info.Id, true);
                     AddToNodePreviews(info.Id);
                     break;
@@ -172,7 +174,7 @@ internal class AffectedAreasGatherer
                     {
                         AddToNodePreviews(info.OutputNodeId.Value);
                     }
-                    
+
                     break;
                 case PropertyValueUpdated_ChangeInfo info:
                     AddWholeCanvasToMainImage();
@@ -187,12 +189,13 @@ internal class AffectedAreasGatherer
                     break;
                 case VectorShape_ChangeInfo info:
                     AddToMainImage(info.Affected);
-                    AddToImagePreviews(info.LayerId, info.Affected);
+                    AddToImagePreviews(info.LayerId);
                     AddToNodePreviews(info.LayerId);
                     break;
                 case ProcessingColorSpace_ChangeInfo:
                     AddWholeCanvasToMainImage();
                     AddWholeCanvasToEveryImagePreview();
+                    AddWholeCanvasToEveryMaskPreview();
                     break;
             }
         }
@@ -200,20 +203,20 @@ internal class AffectedAreasGatherer
 
     private void AddKeyFrame(Guid infoKeyFrameId)
     {
-        ChangedKeyFrames ??= new List<Guid>();
+        ChangedKeyFrames ??= new HashSet<Guid>();
         if (!ChangedKeyFrames.Contains(infoKeyFrameId))
             ChangedKeyFrames.Add(infoKeyFrameId);
     }
 
     private void AddToNodePreviews(Guid nodeId)
     {
-        ChangedNodes ??= new List<Guid>();
+        ChangedNodes ??= new HashSet<Guid>();
         if (!ChangedNodes.Contains(nodeId))
         {
             ChangedNodes.Add(nodeId);
         }
     }
-    
+
     private void AddAllNodesToImagePreviews()
     {
         foreach (var node in tracker.Document.NodeGraph.AllNodes)
@@ -234,8 +237,7 @@ internal class AffectedAreasGatherer
                 return;
             }
 
-            var chunks = result.FindAllChunks();
-            AddToImagePreviews(memberGuid, new AffectedArea(chunks), ignoreSelf);
+            AddToImagePreviews(member, ignoreSelf);
         }
         else if (member is IReadOnlyFolderNode folder)
         {
@@ -248,9 +250,7 @@ internal class AffectedAreasGatherer
             var tightBounds = genericLayerNode.GetTightBounds(frame);
             if (tightBounds is not null)
             {
-                var affectedArea = new AffectedArea(
-                    OperationHelper.FindChunksTouchingRectangle((RectI)tightBounds.Value, ChunkyImage.FullChunkSize));
-                AddToImagePreviews(memberGuid, affectedArea, ignoreSelf);
+                AddToImagePreviews(member, ignoreSelf);
             }
             else
             {
@@ -283,9 +283,9 @@ internal class AffectedAreasGatherer
             {
                 var affectedArea = new AffectedArea(
                     OperationHelper.FindChunksTouchingRectangle((RectI)tightBounds.Value, ChunkyImage.FullChunkSize));
-                
+
                 var lastArea = new AffectedArea(affectedArea);
-                
+
                 AddToMainImage(affectedArea);
             }
             else
@@ -312,7 +312,7 @@ internal class AffectedAreasGatherer
         if (member.EmbeddedMask is not null)
         {
             var chunks = member.EmbeddedMask.FindAllChunks();
-            AddToMaskPreview(memberGuid, new AffectedArea(chunks));
+            AddToMaskPreview(memberGuid);
         }
 
         if (member is IReadOnlyFolderNode folder)
@@ -330,39 +330,34 @@ internal class AffectedAreasGatherer
         MainImageArea = temp;
     }
 
-    private void AddToImagePreviews(Guid memberGuid, AffectedArea area, bool ignoreSelf = false)
+    private void AddToImagePreviews(Guid memberGuid, bool ignoreSelf = false)
     {
-        var path = tracker.Document.GetParents(memberGuid);
-        path.Insert(0, tracker.Document.FindMember(memberGuid));
+        var sourceMember = tracker.Document.FindMember(memberGuid);
+        if (sourceMember is null)
+        {
+            // If the member is not found, we cannot add it to previews
+            return;
+        }
+
+        AddToImagePreviews(sourceMember, ignoreSelf);
+    }
+
+    private void AddToImagePreviews(IReadOnlyStructureNode sourceMember, bool ignoreSelf)
+    {
+        var path = tracker.Document.GetParents(sourceMember.Id);
+        path.Insert(0, sourceMember);
         for (int i = ignoreSelf ? 1 : 0; i < path.Count; i++)
         {
             var member = path[i];
-            if(member == null) continue;
-            if (!ImagePreviewAreas.ContainsKey(member.Id))
-            {
-                ImagePreviewAreas[member.Id] = new AffectedArea(area);
-            }
-            else
-            {
-                var temp = ImagePreviewAreas[member.Id];
-                temp.UnionWith(area);
-                ImagePreviewAreas[member.Id] = temp;
-            }
+            if (member == null) continue;
+
+            ChangedMembers.Add(member.Id);
         }
     }
 
-    private void AddToMaskPreview(Guid memberGuid, AffectedArea area)
+    private void AddToMaskPreview(Guid memberGuid)
     {
-        if (!MaskPreviewAreas.ContainsKey(memberGuid))
-        {
-            MaskPreviewAreas[memberGuid] = new AffectedArea(area);
-        }
-        else
-        {
-            var temp = MaskPreviewAreas[memberGuid];
-            temp.UnionWith(area);
-            MaskPreviewAreas[memberGuid] = temp;
-        }
+        ChangedMasks.Add(memberGuid);
     }
 
 
@@ -380,23 +375,19 @@ internal class AffectedAreasGatherer
         for (int i = ignoreSelf ? 1 : 0; i < path.Count; i++)
         {
             var member = path[i];
-            if (!ImagePreviewAreas.ContainsKey(member.Id))
-                ImagePreviewAreas[member.Id] = new AffectedArea();
-            ImagePreviewAreas[member.Id] = AddWholeArea(ImagePreviewAreas[member.Id]);
+            if (member is null) continue;
+
+            ChangedMembers.Add(member.Id);
         }
     }
 
-    private void AddWholeCanvasToMaskPreview(Guid memberGuid)
-    {
-        if (!MaskPreviewAreas.ContainsKey(memberGuid))
-            MaskPreviewAreas[memberGuid] = new AffectedArea();
-        MaskPreviewAreas[memberGuid] = AddWholeArea(MaskPreviewAreas[memberGuid]);
-    }
-
-
     private void AddWholeCanvasToEveryImagePreview()
     {
+        if (alreadyAddedWholeCanvasToEveryImagePreview)
+            return;
+
         tracker.Document.ForEveryReadonlyMember((member) => AddWholeCanvasToImagePreviews(member.Id));
+        alreadyAddedWholeCanvasToEveryImagePreview = true;
     }
 
     private void AddWholeCanvasToEveryMaskPreview()
@@ -404,7 +395,9 @@ internal class AffectedAreasGatherer
         tracker.Document.ForEveryReadonlyMember((member) =>
         {
             if (member.EmbeddedMask is not null)
-                AddWholeCanvasToMaskPreview(member.Id);
+            {
+                ChangedMasks.Add(member.Id);
+            }
         });
     }
 

@@ -10,9 +10,12 @@ namespace PixiEditor.ViewModels.SubViewModels;
 
 internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
 {
+    public const double MinUpdateInterval = 5.0; // seconds
     private DiscordRpcClient client;
     private string clientId;
     private DocumentViewModel currentDocument;
+
+    private DateTime lastUpdate = DateTime.MinValue;
 
     public bool Enabled
     {
@@ -65,6 +68,11 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
             return;
         }
 
+        if(lastUpdate != DateTime.MinValue && (DateTime.UtcNow - lastUpdate).TotalSeconds < MinUpdateInterval)
+        {
+            return; // Prevent too frequent updates
+        }
+
         RichPresence richPresence = NewDefaultRP();
 
         if (document != null)
@@ -96,6 +104,7 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
         }
 
         client.SetPresence(richPresence);
+        lastUpdate = DateTime.UtcNow;
     }
 
     private int CountLayers(NodeGraphViewModel graph)
