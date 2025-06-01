@@ -268,13 +268,14 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         _contentGrid = e.NameScope.Find<Grid>("PART_ContentGrid");
 
         _timelineSlider = e.NameScope.Find<TimelineSlider>("PART_TimelineSlider");
-        _timelineSlider.PointerWheelChanged += TimelineSliderOnPointerWheelChanged;
 
         _timelineKeyFramesScroll = e.NameScope.Find<ScrollViewer>("PART_TimelineKeyFramesScroll");
         _timelineHeaderScroll = e.NameScope.Find<ScrollViewer>("PART_TimelineHeaderScroll");
 
         _selectionRectangle = e.NameScope.Find<Rectangle>("PART_SelectionRectangle");
 
+        _timelineKeyFramesScroll.PointerWheelChanged += TimelineSliderOnPointerWheelChanged;
+        _timelineSlider.PointerWheelChanged += TimelineSliderOnPointerWheelChanged;
         _timelineKeyFramesScroll.ScrollChanged += TimelineKeyFramesScrollOnScrollChanged;
         _contentGrid.PointerPressed += ContentOnPointerPressed;
         _contentGrid.PointerMoved += ContentOnPointerMoved;
