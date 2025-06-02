@@ -1053,5 +1053,7 @@
   "SEPARATE_SHAPES_DESCRIPTIVE": "Separate shapes from current vector into individual layers",
   "TEXT": "Text",
   "EXTRACT_SELECTED_TEXT": "Extract selected text",
-    "EXTRACT_SELECTED_TEXT_DESCRIPTIVE": "Extract selected text into new layer."
+  "EXTRACT_SELECTED_TEXT_DESCRIPTIVE": "Extract selected text into new layer.",
+  "EXTRACT_SELECTED_CHARACTERS": "Extract selected characters",
+  "EXTRACT_SELECTED_CHARACTERS_DESCRIPTIVE": "Extract individual characters from selection into new layers."
 }
