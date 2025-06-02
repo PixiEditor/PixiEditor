@@ -75,8 +75,9 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         var adjustedResolution = AllowHighDpiRendering ? ChunkResolution.Full : context.ChunkResolution;
 
+        // Full because scene already handles texture resolution
         var outputWorkingSurface =
-            TryInitWorkingSurface(size, adjustedResolution, context.ProcessingColorSpace, 1);
+            TryInitWorkingSurface(size, ChunkResolution.Full, context.ProcessingColorSpace, 1);
         outputWorkingSurface.DrawingSurface.Canvas.Clear();
         outputWorkingSurface.DrawingSurface.Canvas.Save();
         if (AllowHighDpiRendering)
