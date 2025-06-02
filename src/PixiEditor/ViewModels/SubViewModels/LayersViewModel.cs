@@ -605,9 +605,16 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Layer.ExtractSelectedText", "EXTRACT_SELECTED_TEXT", "EXTRACT_SELECTED_TEXT_DESCRIPTIVE",
         CanExecute = "PixiEditor.Layer.SelectedMemberIsSelectedText",
         Key = Key.X, Modifiers = KeyModifiers.Control | KeyModifiers.Shift,
+        Parameter = false,
         ShortcutContexts = [ typeof(ViewportWindowViewModel), typeof(TextOverlay)],
         MenuItemPath = "LAYER/TEXT/EXTRACT_SELECTED_TEXT", AnalyticsTrack = true)]
-    public void ExtractSelectedText()
+    [Command.Basic("PixiEditor.Layer.ExtractSelectedCharacters", "EXTRACT_SELECTED_CHARACTERS", "EXTRACT_SELECTED_CHARACTERS_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.SelectedMemberIsSelectedText",
+        Key = Key.X, Modifiers = KeyModifiers.Control | KeyModifiers.Shift | KeyModifiers.Alt,
+        Parameter = true,
+        ShortcutContexts = [ typeof(ViewportWindowViewModel), typeof(TextOverlay)],
+        MenuItemPath = "LAYER/TEXT/EXTRACT_SELECTED_CHARACTERS", AnalyticsTrack = true)]
+    public void ExtractSelectedText(bool extractEachCharacter)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         var member = doc?.SelectedStructureMember;
@@ -620,7 +627,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         int startIndex = doc.TextOverlayViewModel.CursorPosition;
         int endIndex = doc.TextOverlayViewModel.SelectionEnd;
 
-        doc!.Operations.ExtractSelectedText(vectorLayer.Id, startIndex, endIndex);
+        doc!.Operations.ExtractSelectedText(vectorLayer.Id, startIndex, endIndex, extractEachCharacter);
     }
 
     [Evaluator.Icon("PixiEditor.Layer.ToggleReferenceLayerTopMostIcon")]

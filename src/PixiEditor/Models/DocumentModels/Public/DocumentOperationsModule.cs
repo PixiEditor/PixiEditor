@@ -968,7 +968,7 @@ internal class DocumentOperationsModule : IDocumentOperations
         Internals.ActionAccumulator.AddFinishedActions(new SeparateShapes_Action(memberId));
     }
 
-    public void ExtractSelectedText(Guid memberId, int startIndex, int endIndex)
+    public void ExtractSelectedText(Guid memberId, int startIndex, int endIndex, bool extractEachCharacter)
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
             return;
@@ -976,6 +976,6 @@ internal class DocumentOperationsModule : IDocumentOperations
         Internals.ChangeController.TryStopActiveExecutor();
 
         Internals.ActionAccumulator.AddFinishedActions(
-            new ExtractSelectedText_Action(memberId, startIndex, endIndex));
+            new ExtractSelectedText_Action(memberId, startIndex, endIndex, extractEachCharacter));
     }
 }

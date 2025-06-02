@@ -15,6 +15,7 @@ internal class ExtractSelectedText_Change : Change
 {
     private readonly Guid memberId;
     private Guid[] newLayerIds;
+    private bool extractEachCharacter = false;
     private int selectionStart;
     private int selectionEnd;
     private string? originalText = null;
@@ -23,11 +24,12 @@ internal class ExtractSelectedText_Change : Change
 
 
     [GenerateMakeChangeAction]
-    public ExtractSelectedText_Change(Guid memberId, int selectionStart, int selectionEnd)
+    public ExtractSelectedText_Change(Guid memberId, int selectionStart, int selectionEnd, bool extractEachCharacter)
     {
         this.memberId = memberId;
         this.selectionStart = selectionStart;
         this.selectionEnd = selectionEnd;
+        this.extractEachCharacter = extractEachCharacter;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -46,7 +48,7 @@ internal class ExtractSelectedText_Change : Change
 
         originalText = textData.Text;
 
-        subdividions = GetSubdivisions(selectionStart, selectionEnd, textData.Text);
+        subdividions = GetSubdivisions(selectionStart, selectionEnd, textData.Text, extractEachCharacter);
 
         subdividions?.RemoveAll(x => x.text == "\n");
 
@@ -193,15 +195,16 @@ internal class ExtractSelectedText_Change : Change
         return new VecD(position.X, (1 / RichText.PtToPx) * lineOffset.Y);
     }
 
-    private List<(int start, int end, string text)>? GetSubdivisions(int start, int end, string text)
+    private List<(int start, int end, string text)>? GetSubdivisions(int start, int end, string text, bool extractEachCharacter)
     {
-        if (start == 0 && end == text.Length)
+        if (start == 0 && end == text.Length && !extractEachCharacter)
             return null;
 
         if (end - start == 1 && start < text.Length && text[start] == '\n')
             return null;
 
         var result = new List<(int start, int end, string text)>();
+
         var richText = new RichText(text);
 
         richText.IndexOnLine(start, out int startLineIndex);
@@ -225,7 +228,17 @@ internal class ExtractSelectedText_Change : Change
 
         if (cursor < end)
         {
-            result.Add((cursor, end, text.Substring(cursor, end - cursor)));
+            if (extractEachCharacter)
+            {
+                for(int i = cursor; i < end; i++)
+                {
+                    result.Add((i, i + 1, text.Substring(i, 1)));
+                }
+            }
+            else
+            {
+                result.Add((cursor, end, text.Substring(cursor, end - cursor)));
+            }
             cursor = end;
 
             if (cursor >= text.Length)
