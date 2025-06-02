@@ -452,6 +452,11 @@ internal class DocumentUpdater
             var closestId = doc.StructureHelper.FindClosestMember(new[] { info.Id });
             var closestMember = doc.StructureHelper.Find(closestId);
 
+            if (closestMember == null)
+            {
+                closestMember = doc.NodeGraphHandler.StructureTree.Members.FirstOrDefault();
+            }
+
             if (closestMember != null)
             {
                 closestMember.Selection = StructureMemberSelectionType.Hard;

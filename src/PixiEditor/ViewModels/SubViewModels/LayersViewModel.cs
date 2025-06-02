@@ -29,6 +29,7 @@ using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes;
+using PixiEditor.Views.Overlays.TextOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 #nullable enable
@@ -603,6 +604,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
     [Command.Basic("PixiEditor.Layer.ExtractSelectedText", "EXTRACT_SELECTED_TEXT", "EXTRACT_SELECTED_TEXT_DESCRIPTIVE",
         CanExecute = "PixiEditor.Layer.SelectedMemberIsSelectedText",
+        Key = Key.X, Modifiers = KeyModifiers.Control | KeyModifiers.Shift,
+        ShortcutContexts = [ typeof(ViewportWindowViewModel), typeof(TextOverlay)],
         MenuItemPath = "LAYER/TEXT/EXTRACT_SELECTED_TEXT", AnalyticsTrack = true)]
     public void ExtractSelectedText()
     {

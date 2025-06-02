@@ -48,6 +48,13 @@ internal class ExtractSelectedText_Change : Change
 
         subdividions = GetSubdivisions(selectionStart, selectionEnd, textData.Text);
 
+        subdividions?.RemoveAll(x => x.text == "\n");
+
+        if (subdividions?.Count == 0)
+        {
+            subdividions = null;
+        }
+
         if (subdividions != null)
         {
             newLayerIds = new Guid[subdividions.Count - 1];
@@ -81,14 +88,16 @@ internal class ExtractSelectedText_Change : Change
 
             if (index == 0)
             {
-                textData.Text = subdividion.text.ReplaceLineEndings("");
+                textData.Text = subdividion.text.EndsWith("\n")
+                    ? subdividion.text[..^1]
+                    : subdividion.text;
+
                 var aabb = textData.TransformedVisualAABB.RoundOutwards();
                 var affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
                     (RectI)aabb, ChunkyImage.FullChunkSize));
                 changes.Add(new VectorShape_ChangeInfo(node.Id, affected));
                 continue;
             }
-
 
             if (node.EmbeddedShapeData.Clone() is not TextVectorData data)
             {
@@ -101,11 +110,14 @@ internal class ExtractSelectedText_Change : Change
                 throw new InvalidOperationException("Failed to clone VectorLayerNode.");
             }
 
-            string text = subdividion.text.ReplaceLineEndings("");
+            string text = subdividion.text.EndsWith("\n")
+                ? subdividion.text[..^1]
+                : subdividion.text;
+
             newNode.Id = newLayerIds[index - 1];
             newNode.DisplayName = text.Length > 20
-                ? text[..20] + "..."
-                : text;
+                ? text[..20].ReplaceLineEndings("") + "..."
+                : text.ReplaceLineEndings("");
 
             data.Text = text;
             newNode.EmbeddedShapeData = data;
@@ -129,8 +141,7 @@ internal class ExtractSelectedText_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        return new None();
-        /*var node = target.FindNodeOrThrow<VectorLayerNode>(memberId);
+        var node = target.FindNodeOrThrow<VectorLayerNode>(memberId);
         if (node.EmbeddedShapeData is not TextVectorData textData)
         {
             throw new InvalidOperationException("Node does not contain TextVectorData.");
@@ -140,32 +151,27 @@ internal class ExtractSelectedText_Change : Change
 
         List<IChangeInfo> changes = new List<IChangeInfo>();
 
-        if (nestedActions != null)
-        {
-            foreach (var action in nestedActions)
-            {
-                changes.AddRange(action.Revert(target).AsT2);
-            }
-        }
-
         AffectedArea affected = new AffectedArea(OperationHelper.FindChunksTouchingRectangle(
             (RectI)textData.TransformedVisualAABB.RoundOutwards(), ChunkyImage.FullChunkSize));
 
         changes.Add(new VectorShape_ChangeInfo(node.Id, affected));
 
-        var newNode = target.FindNode<VectorLayerNode>(newLayerId);
-        if (newNode != null)
+        changes.AddRange(NodeOperations.RevertPositions(originalPositions, target));
+        foreach (var newLayerId in newLayerIds)
         {
-            changes.AddRange(NodeOperations.DetachStructureNode(newNode));
-            changes.AddRange(NodeOperations.RevertPositions(originalPositions, target));
-            changes.Add(new DeleteNode_ChangeInfo(newLayerId));
+            var newNode = target.FindNode<VectorLayerNode>(newLayerId);
+            if (newNode != null)
+            {
+                changes.AddRange(NodeOperations.DetachStructureNode(newNode));
+                changes.Add(new DeleteStructureMember_ChangeInfo(newLayerId));
 
-            target.NodeGraph.RemoveNode(newNode);
+                target.NodeGraph.RemoveNode(newNode);
+            }
         }
 
         originalPositions.Clear();
 
-        return changes;*/
+        return changes;
     }
 
     private VecD GetPositionForNewText(string text, int startIndex, TextVectorData textData)
@@ -192,41 +198,53 @@ internal class ExtractSelectedText_Change : Change
         if (start == 0 && end == text.Length)
             return null;
 
+        if (end - start == 1 && start < text.Length && text[start] == '\n')
+            return null;
+
         var result = new List<(int start, int end, string text)>();
         var richText = new RichText(text);
 
-        if (start > 0)
-            result.Add((0, start, text.Substring(0, start)));
+        richText.IndexOnLine(start, out int startLineIndex);
+        richText.IndexOnLine(end, out int endLineIndex);
+        bool spansMultipleLines = startLineIndex != endLineIndex;
 
         int cursor = start;
-        int adjustedEnd = end;
 
-        while (cursor < adjustedEnd)
+        if (start > 0)
         {
-            richText.IndexOnLine(cursor, out int lineIndex);
-            var (lineStart, lineEnd) = richText.GetLineStartEnd(lineIndex); // lineEnd is exclusive
-
-            int segmentStart = cursor;
-            int segmentEnd = Math.Min(adjustedEnd, lineEnd);
-
-            // If selection ends exactly before line break, include the \n
-            if (segmentEnd < lineEnd - 1 && text[segmentEnd] == '\n' && segmentEnd + 1 == lineEnd)
+            result.Add((0, start, text.Substring(0, start)));
+            var (startLineStart, startLineEnd) = richText.GetLineStartEnd(startLineIndex);
+            bool isMiddleOfLine = start > startLineStart && start < startLineEnd;
+            if (isMiddleOfLine && spansMultipleLines)
             {
-                segmentEnd += 1;
-                adjustedEnd += 1; // shift selection forward so suffix doesn't get the newline
+                int substringLength = Math.Min(startLineEnd - start, text.Length - start);
+                result.Add((start, startLineEnd, text.Substring(start, substringLength)));
+                cursor = startLineEnd;
             }
-
-            result.Add((segmentStart, segmentEnd, text.Substring(segmentStart, segmentEnd - segmentStart)));
-            cursor = segmentEnd;
         }
 
-        if (adjustedEnd < text.Length)
-            result.Add((adjustedEnd, text.Length, text.Substring(adjustedEnd)));
+        if (cursor < end)
+        {
+            result.Add((cursor, end, text.Substring(cursor, end - cursor)));
+            cursor = end;
 
+            if (cursor >= text.Length)
+                return result;
 
-        result.RemoveAll(x => x.text == "\n");
-        if (result.Count == 0)
-            return null;
+            var (endLineStart, endLineEnd) = richText.GetLineStartEnd(endLineIndex);
+            bool endsMiddleOfLine = end > endLineStart && end < endLineEnd;
+            if (endsMiddleOfLine)
+            {
+                int substringLength = Math.Min(endLineEnd - end, text.Length - end);
+                result.Add((end, endLineEnd, text.Substring(end, substringLength)));
+                cursor = endLineEnd;
+            }
+        }
+
+        if (cursor < text.Length)
+        {
+            result.Add((cursor, text.Length, text.Substring(cursor)));
+        }
 
         return result;
     }

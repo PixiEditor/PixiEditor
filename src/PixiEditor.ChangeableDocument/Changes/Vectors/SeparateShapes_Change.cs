@@ -118,6 +118,8 @@ internal class SeparateShapes_Change : Change
 
         changes.Add(new VectorShape_ChangeInfo(memberId, affected));
 
+        changes.AddRange(NodeOperations.RevertPositions(originalPositions, target));
+
         // Remove the newly created nodes
         foreach (var newMemberId in newMemberIds)
         {
@@ -125,14 +127,12 @@ internal class SeparateShapes_Change : Change
             if (createdNode != null)
             {
                 changes.AddRange(NodeOperations.DetachStructureNode(createdNode));
-                changes.Add(new DeleteNode_ChangeInfo(newMemberId));
+                changes.Add(new DeleteStructureMember_ChangeInfo(newMemberId));
 
                 target.NodeGraph.RemoveNode(createdNode);
                 createdNode?.Dispose();
             }
         }
-
-        changes.AddRange(NodeOperations.RevertPositions(originalPositions, target));
 
         originalPositions.Clear();
 
