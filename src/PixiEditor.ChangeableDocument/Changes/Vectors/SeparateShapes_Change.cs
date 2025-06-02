@@ -124,11 +124,15 @@ internal class SeparateShapes_Change : Change
             var createdNode = target.FindNode<VectorLayerNode>(newMemberId);
             if (createdNode != null)
             {
+                changes.AddRange(NodeOperations.DetachStructureNode(createdNode));
+                changes.Add(new DeleteNode_ChangeInfo(newMemberId));
+
                 target.NodeGraph.RemoveNode(createdNode);
                 createdNode?.Dispose();
-                changes.Add(new DeleteNode_ChangeInfo(newMemberId));
             }
         }
+
+        changes.AddRange(NodeOperations.RevertPositions(originalPositions, target));
 
         originalPositions.Clear();
 

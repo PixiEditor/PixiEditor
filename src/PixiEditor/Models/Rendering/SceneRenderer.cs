@@ -44,6 +44,10 @@ internal class SceneRenderer : IDisposable
 
         IReadOnlyNodeGraph finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
         bool shouldRerender = ShouldRerender(target, resolution, adjustedTargetOutput, finalGraph);
+
+        // TODO: Check if clipping to visible area improves performance on full resolution
+        // Meaning zoomed big textures
+
         if (shouldRerender)
         {
             if (cachedTextures.ContainsKey(adjustedTargetOutput))

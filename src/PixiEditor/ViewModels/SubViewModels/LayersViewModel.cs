@@ -248,6 +248,20 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         return member is IVectorLayerHandler;
     }
 
+
+    [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsSelectedText",
+        nameof(DocumentManagerViewModel.ActiveDocument), nameof(DocumentViewModel.SelectedStructureMember))]
+    public bool SelectedMemberIsSelectedText(object property)
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return false;
+
+        var member = doc?.SelectedStructureMember;
+        return member is IVectorLayerHandler && doc.TextOverlayViewModel.IsActive &&
+               doc.TextOverlayViewModel.CursorPosition != doc.TextOverlayViewModel.SelectionEnd;
+    }
+
     private bool HasSelectedMember(bool above)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -549,7 +563,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
     [Command.Basic("PixiEditor.Layer.Rasterize", "RASTERIZE_ACTIVE_LAYER", "RASTERIZE_ACTIVE_LAYER_DESCRIPTIVE",
         CanExecute = "PixiEditor.Layer.SelectedLayerIsRasterizable",
-        Icon = PixiPerfectIcons.LowResCircle, MenuItemPath = "LAYER/VECTOR/RASTERIZE_ACTIVE_LAYER", AnalyticsTrack = true)]
+        Icon = PixiPerfectIcons.LowResCircle, MenuItemPath = "LAYER/VECTOR/RASTERIZE_ACTIVE_LAYER",
+        AnalyticsTrack = true)]
     public void RasterizeActiveLayer()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -584,6 +599,25 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             return;
 
         doc!.Operations.SeparateShapes(member.Id);
+    }
+
+    [Command.Basic("PixiEditor.Layer.ExtractSelectedText", "EXTRACT_SELECTED_TEXT", "EXTRACT_SELECTED_TEXT_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.SelectedMemberIsSelectedText",
+        MenuItemPath = "LAYER/TEXT/EXTRACT_SELECTED_TEXT", AnalyticsTrack = true)]
+    public void ExtractSelectedText()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        var member = doc?.SelectedStructureMember;
+        if (member is null)
+            return;
+
+        if (member is not VectorLayerNodeViewModel vectorLayer)
+            return;
+
+        int startIndex = doc.TextOverlayViewModel.CursorPosition;
+        int endIndex = doc.TextOverlayViewModel.SelectionEnd;
+
+        doc!.Operations.ExtractSelectedText(vectorLayer.Id, startIndex, endIndex);
     }
 
     [Evaluator.Icon("PixiEditor.Layer.ToggleReferenceLayerTopMostIcon")]
