@@ -202,6 +202,7 @@
                 <Separator />
                 <MenuItem ui:Translator.Key="RASTERIZE" Command="{xaml:Command PixiEditor.Layer.Rasterize}" />
                 <MenuItem ui:Translator.Key="CONVERT_TO_CURVE" Command="{xaml:Command PixiEditor.Layer.ConvertToCurve}" />
+                <MenuItem ui:Translator.Key="SEPARATE_SHAPES" Command="{xaml:Command PixiEditor.Layer.SeparateShapes}" />
             </ContextMenu>
         </Border.ContextMenu>
     </Border>

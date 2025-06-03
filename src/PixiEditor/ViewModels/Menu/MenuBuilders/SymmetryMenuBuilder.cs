@@ -26,7 +26,7 @@ internal class SymmetryMenuBuilder : MenuItemBuilder
             Translator.SetKey(horizontalSymmetryItem, "HORIZONTAL_LINE_SYMMETRY");
             horizontalSymmetryItem.Icon = new Image()
             {
-                Source = PixiPerfectIcons.ToIcon(PixiPerfectIcons.XSymmetry),
+                Source = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.XSymmetry),
                 Width = Models.Commands.XAML.Menu.IconDimensions,
                 Height = Models.Commands.XAML.Menu.IconDimensions
             };
@@ -38,7 +38,7 @@ internal class SymmetryMenuBuilder : MenuItemBuilder
             Translator.SetKey(verticalSymmetryItem, "VERTICAL_LINE_SYMMETRY");
             verticalSymmetryItem.Icon = new Image()
             {
-                Source = PixiPerfectIcons.ToIcon(PixiPerfectIcons.YSymmetry),
+                Source = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.YSymmetry),
                 Width = Models.Commands.XAML.Menu.IconDimensions,
                 Height = Models.Commands.XAML.Menu.IconDimensions
             };
@@ -61,7 +61,7 @@ internal class SymmetryMenuBuilder : MenuItemBuilder
             PixelSize iconDimensions = new PixelSize((int)Models.Commands.XAML.Menu.IconDimensions, (int)Models.Commands.XAML.Menu.IconDimensions);
             
             Translator.SetKey(horizontalSymmetryItem, "HORIZONTAL_LINE_SYMMETRY");
-            horizontalSymmetryItem.Icon = PixiPerfectIcons.ToIcon(PixiPerfectIcons.XSymmetry)
+            horizontalSymmetryItem.Icon = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.XSymmetry)
                 .ToBitmap(iconDimensions);
 
             BindItem(horizontalSymmetryItem, "DocumentManagerSubViewModel.ActiveDocument.HorizontalSymmetryAxisEnabledBindable",
@@ -79,7 +79,7 @@ internal class SymmetryMenuBuilder : MenuItemBuilder
             NativeMenuItem verticalSymmetryItem = new NativeMenuItem();
             Translator.SetKey(verticalSymmetryItem, "VERTICAL_LINE_SYMMETRY");
             verticalSymmetryItem.ToggleType = NativeMenuItemToggleType.CheckBox;
-            verticalSymmetryItem.Icon = PixiPerfectIcons.ToIcon(PixiPerfectIcons.YSymmetry)
+            verticalSymmetryItem.Icon = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.YSymmetry)
                 .ToBitmap(iconDimensions);
 
             BindItem(verticalSymmetryItem, "DocumentManagerSubViewModel.ActiveDocument.VerticalSymmetryAxisEnabledBindable",

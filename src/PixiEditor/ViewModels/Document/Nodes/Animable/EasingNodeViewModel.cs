@@ -4,7 +4,7 @@ using PixiEditor.ViewModels.Nodes;
 
 namespace PixiEditor.ViewModels.Document.Nodes.Animable;
 
-[NodeViewModel("EASING_NODE", "ANIMATION", PixiPerfectIcons.ChartSpline)]
+[NodeViewModel("EASING_NODE", "ANIMATION", PixiPerfectIcons.SplineChart)]
 internal class EasingNodeViewModel : NodeViewModel<EasingNode>
 {
 

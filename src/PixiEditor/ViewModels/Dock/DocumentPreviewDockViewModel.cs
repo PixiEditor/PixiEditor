@@ -36,6 +36,6 @@ internal class DocumentPreviewDockViewModel : DockableViewModel
     {
         ColorsSubViewModel = colorsSubViewModel;
         DocumentManagerSubViewModel = documentManagerViewModel;
-        TabCustomizationSettings.Icon = PixiPerfectIcons.ToIcon(PixiPerfectIcons.Compass);
+        TabCustomizationSettings.Icon = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.Compass);
     }
 }

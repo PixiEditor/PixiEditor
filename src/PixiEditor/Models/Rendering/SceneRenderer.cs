@@ -44,6 +44,10 @@ internal class SceneRenderer : IDisposable
 
         IReadOnlyNodeGraph finalGraph = RenderingUtils.SolveFinalNodeGraph(targetOutput, Document);
         bool shouldRerender = ShouldRerender(target, resolution, adjustedTargetOutput, finalGraph);
+
+        // TODO: Check if clipping to visible area improves performance on full resolution
+        // Meaning zoomed big textures
+
         if (shouldRerender)
         {
             if (cachedTextures.ContainsKey(adjustedTargetOutput))
@@ -69,13 +73,20 @@ internal class SceneRenderer : IDisposable
     {
         DrawingSurface renderTarget = target;
         Texture? renderTexture = null;
-        bool restoreCanvas = false;
+        int restoreCanvasTo;
 
         VecI finalSize = SolveRenderOutputSize(targetOutput, finalGraph, Document.Size);
         if (RenderInOutputSize(finalGraph))
         {
+            finalSize = (VecI)(finalSize * resolution.Multiplier());
+
             renderTexture = Texture.ForProcessing(finalSize, Document.ProcessingColorSpace);
             renderTarget = renderTexture.DrawingSurface;
+            renderTexture.DrawingSurface.Canvas.Save();
+            renderTexture.DrawingSurface.Canvas.Scale((float)resolution.Multiplier());
+
+            restoreCanvasTo = target.Canvas.Save();
+            target.Canvas.Scale((float)resolution.InvertedMultiplier());
         }
         else
         {
@@ -83,12 +94,13 @@ internal class SceneRenderer : IDisposable
 
             renderTarget = renderTexture.DrawingSurface;
 
-            target.Canvas.Save();
+            restoreCanvasTo = target.Canvas.Save();
             renderTarget.Canvas.Save();
 
             renderTarget.Canvas.SetMatrix(target.Canvas.TotalMatrix);
             target.Canvas.SetMatrix(Matrix3X3.Identity);
-            restoreCanvas = true;
+            renderTarget.Canvas.ClipRect(new RectD(0, 0, finalSize.X, finalSize.Y));
+            resolution = ChunkResolution.Full;
         }
 
         RenderContext context = new(renderTarget, DocumentViewModel.AnimationHandler.ActiveFrameTime,
@@ -99,11 +111,7 @@ internal class SceneRenderer : IDisposable
         if (renderTexture != null)
         {
             target.Canvas.DrawSurface(renderTexture.DrawingSurface, 0, 0);
-
-            if (restoreCanvas)
-            {
-                target.Canvas.Restore();
-            }
+            target.Canvas.RestoreToCount(restoreCanvasTo);
         }
 
         return renderTexture;
@@ -160,7 +168,7 @@ internal class SceneRenderer : IDisposable
         }
 
         bool renderInDocumentSize = RenderInOutputSize(finalGraph);
-        VecI compareSize = renderInDocumentSize ? Document.Size : target.DeviceClipBounds.Size;
+        VecI compareSize = renderInDocumentSize ? (VecI)(Document.Size * resolution.Multiplier()) : target.DeviceClipBounds.Size;
 
         if (cachedTexture.DrawingSurface.DeviceClipBounds.Size != compareSize)
         {

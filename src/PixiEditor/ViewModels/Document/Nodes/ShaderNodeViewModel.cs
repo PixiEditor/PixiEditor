@@ -1,12 +1,13 @@
 ﻿using System.Collections.Specialized;
 using Drawie.Backend.Core.Bridge;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.ViewModels.Nodes.Properties;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("SHADER_NODE", "EFFECTS", "\ue99b")]
+[NodeViewModel("SHADER_NODE", "EFFECTS", PixiPerfectIcons.Terminal)]
 internal class ShaderNodeViewModel : NodeViewModel<ShaderNode>
 {
     public ShaderNodeViewModel()

@@ -11,6 +11,7 @@ using Drawie.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.UI;
+using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Input;
 using PixiEditor.OperatingSystem;
@@ -452,7 +453,7 @@ internal class TextOverlay : Overlay
         var key = args.Key;
         var keyModifiers = args.KeyModifiers;
 
-        if (IsUndoRedoShortcut(key, keyModifiers))
+        if (IsRegisteredExternalShortcut(key, keyModifiers))
         {
             ShortcutController.UnblockShortcutExecution(nameof(TextOverlay));
             return;
@@ -467,10 +468,14 @@ internal class TextOverlay : Overlay
         InsertChar(key, args.KeySymbol);
     }
 
-    private bool IsUndoRedoShortcut(Key key, KeyModifiers keyModifiers)
+    private bool IsRegisteredExternalShortcut(Key key, KeyModifiers keyModifiers)
     {
-        return key == Key.Z && keyModifiers == KeyModifiers.Control ||
-               key == Key.Y && keyModifiers == KeyModifiers.Control;
+        var command = CommandController.Current.Commands[new KeyCombination(key, keyModifiers)];
+        var ctxCommand = command.FirstOrDefault(x =>
+            x.InternalName == "PixiEditor.Undo.Undo"
+            || x.InternalName == "PixiEditor.Undo.Redo"
+            || (x.ShortcutContexts != null && x.ShortcutContexts.Contains(typeof(TextOverlay))));
+        return ctxCommand != null;
     }
 
     private void InsertChar(Key key, string symbol)
@@ -618,7 +623,8 @@ internal class TextOverlay : Overlay
 
             int clampedDesiredLineIndex = Math.Clamp(lineIndex + direction.Y, 0, richText.Lines.Length - 1);
 
-            VecF position = glyphPositions[lastXMovementCursorIndex];
+
+            VecF position = glyphPositions[Math.Min(lastXMovementCursorIndex, glyphPositions.Length - 1)];
             (int lineStart, int lineEnd) = richText.GetLineStartEnd(clampedDesiredLineIndex);
             VecF[] lineGlyphPositions = glyphPositions[lineStart..lineEnd];
             int closestIndex = lineGlyphPositions.Select((pos, i) => (i, pos))

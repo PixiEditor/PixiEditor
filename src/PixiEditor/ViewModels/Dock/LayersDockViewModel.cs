@@ -35,7 +35,7 @@ internal class LayersDockViewModel : DockableViewModel, IDockableSelectionEvents
     {
         DocumentManager = documentManager;
         DocumentManager.ActiveDocumentChanged += DocumentManager_ActiveDocumentChanged;
-        TabCustomizationSettings.Icon = PixiPerfectIcons.ToIcon(PixiPerfectIcons.Layers);
+        TabCustomizationSettings.Icon = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.Layers);
     }
 
     private void DocumentManager_ActiveDocumentChanged(object? sender, DocumentChangedEventArgs e)

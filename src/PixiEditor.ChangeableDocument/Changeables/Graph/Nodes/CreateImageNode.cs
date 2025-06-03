@@ -56,7 +56,7 @@ public class CreateImageNode : Node, IPreviewRenderable
 
     private Texture Render(RenderContext context)
     {
-        var surface = textureCache.RequestTexture(0, Size.Value, context.ProcessingColorSpace, false);
+        var surface = textureCache.RequestTexture(0, (VecI)(Size.Value * context.ChunkResolution.Multiplier()), context.ProcessingColorSpace, false);
 
         if (Fill.Value is ColorPaintable colorPaintable)
         {
@@ -76,6 +76,8 @@ public class CreateImageNode : Node, IPreviewRenderable
 
         surface.DrawingSurface.Canvas.SetMatrix(surface.DrawingSurface.Canvas.TotalMatrix.Concat(ContentMatrix.Value));
 
+        surface.DrawingSurface.Canvas.Scale((float)context.ChunkResolution.Multiplier());
+
         Content.Value?.Paint(ctx, surface.DrawingSurface);
 
         surface.DrawingSurface.Canvas.RestoreToCount(saved);
@@ -85,8 +87,12 @@ public class CreateImageNode : Node, IPreviewRenderable
     private void OnPaint(RenderContext context, DrawingSurface surface)
     {
         if(Output.Value == null || Output.Value.IsDisposed) return;
-        
+
+        int saved = surface.Canvas.Save();
+        surface.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
         surface.Canvas.DrawSurface(Output.Value.DrawingSurface, 0, 0);
+
+        surface.Canvas.RestoreToCount(saved);
     }
 
     public override Node CreateCopy() => new CreateImageNode();

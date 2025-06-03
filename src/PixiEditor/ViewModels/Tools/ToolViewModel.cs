@@ -26,7 +26,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     public abstract string ToolNameLocalizationKey { get; }
     public virtual LocalizedString DisplayName => new LocalizedString(ToolNameLocalizationKey);
 
-    public virtual string DefaultIcon => $"\u25a1";
+    public virtual string DefaultIcon => PixiPerfectIcons.Placeholder;
 
     public virtual BrushShape FinalBrushShape => BrushShape.Square;
 

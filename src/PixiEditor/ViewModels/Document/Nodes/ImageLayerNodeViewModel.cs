@@ -1,12 +1,13 @@
 ﻿using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Handlers;
+using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.ViewModels.Tools.Tools;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("IMAGE_LAYER_NODE", "STRUCTURE", "\uE805")]
+[NodeViewModel("IMAGE_LAYER_NODE", "STRUCTURE", PixiPerfectIcons.LayersDouble)]
 internal class ImageLayerNodeViewModel : StructureMemberViewModel<ImageLayerNode>, ITransparencyLockableMember, IRasterLayerHandler
 {
     bool lockTransparency;

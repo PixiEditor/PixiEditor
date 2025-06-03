@@ -1,4 +1,5 @@
-﻿using Avalonia.Threading;
+﻿using System.Diagnostics;
+using Avalonia.Threading;
 using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
@@ -120,6 +121,7 @@ internal class ActionAccumulator
                     toExecute.Any(static action => action.action is RefreshViewport_PassthroughAction);
                 bool changeFrameRequest =
                     toExecute.Any(static action => action.action is SetActiveFrame_PassthroughAction);
+
                 foreach (IChangeInfo info in optimizedChanges)
                 {
                     internals.Updater.ApplyChangeFromChangeInfo(info);
@@ -128,7 +130,6 @@ internal class ActionAccumulator
                 if (undoBoundaryPassed)
                     internals.Updater.AfterUndoBoundaryPassed();
 
-                // update the contents of the bitmaps
                 var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime,
                     internals.Tracker,
                     optimizedChanges);
@@ -144,8 +145,8 @@ internal class ActionAccumulator
                 }*/
 
                 previewUpdater.UpdatePreviews(
-                    affectedAreas.ImagePreviewAreas.Keys,
-                    affectedAreas.MaskPreviewAreas.Keys,
+                    affectedAreas.ChangedMembers,
+                    affectedAreas.ChangedMasks,
                     affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames);
 
                 // force refresh viewports for better responsiveness

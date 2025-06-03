@@ -239,7 +239,6 @@
             <SolidColorBrush x:Key="DockThemeControlBackgroundBrush" Color="{DynamicResource ThemeBackground1Color}" />
             <system:Double x:Key="DockFontSizeNormal">12</system:Double>
 
-            <FontFamily x:Key="ContentControlThemeFontFamily">Arial</FontFamily>
             <system:Double x:Key="FontSizeSmall">10</system:Double>
             <system:Double x:Key="FontSizeNormal">12</system:Double>
             <system:Double x:Key="FontSizeLarge">16</system:Double>
@@ -254,6 +253,7 @@
     </ResourceDictionary.ThemeDictionaries>
 
 
+    <FontFamily x:Key="ContentControlThemeFontFamily">$Default</FontFamily>
     <SolidColorBrush x:Key="RefreshVisualizerBackground">Pink</SolidColorBrush>
     <SolidColorBrush x:Key="RefreshVisualizerForeground">White</SolidColorBrush>
 

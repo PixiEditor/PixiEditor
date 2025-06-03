@@ -29,7 +29,7 @@ internal class IconEvaluator : Evaluator<IImage>
         {
             string symbolCode = command.Icon;
 
-            return PixiPerfectIcons.ToIcon(symbolCode);
+            return PixiPerfectIconExtensions.ToIcon(symbolCode);
         }
     }
 }

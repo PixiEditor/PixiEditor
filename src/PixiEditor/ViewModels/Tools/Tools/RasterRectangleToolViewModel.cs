@@ -22,7 +22,7 @@ internal class RasterRectangleToolViewModel : ShapeTool, IRasterRectangleToolHan
 
     public bool Filled { get; set; } = false;
 
-    public override string DefaultIcon => PixiPerfectIcons.LowResSquare;
+    public override string DefaultIcon => PixiPerfectIcons.LowresSquare;
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
 

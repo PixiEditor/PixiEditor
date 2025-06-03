@@ -50,7 +50,9 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
     IReadOnlyShapeVectorData IReadOnlyVectorNode.ShapeData => RenderableShapeData;
 
 
-    public override VecD GetScenePosition(KeyFrameTime time) => RenderableShapeData?.TransformedAABB.Center ?? VecD.Zero;
+    public override VecD GetScenePosition(KeyFrameTime time) =>
+        RenderableShapeData?.TransformedAABB.Center ?? VecD.Zero;
+
     public override VecD GetSceneSize(KeyFrameTime time) => RenderableShapeData?.TransformedAABB.Size ?? VecD.Zero;
 
     public VectorLayerNode()
@@ -130,21 +132,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return false;
         }
 
-        Matrix3X3 matrix = RenderableShapeData.TransformationMatrix;
-
-        if (!context.ProcessingColorSpace.IsSrgb)
-        {
-            int saved = renderOn.Canvas.Save();
-            using Texture tex = Texture.ForProcessing(renderOn, ColorSpace.CreateSrgb());
-            renderOn.Canvas.SetMatrix(Matrix3X3.Identity);
-            Rasterize(tex.DrawingSurface, paint);
-            renderOn.Canvas.DrawSurface(tex.DrawingSurface, 0, 0);
-            renderOn.Canvas.RestoreToCount(saved);
-        }
-        else
-        {
-            Rasterize(renderOn, paint);
-        }
+        Rasterize(renderOn, paint);
 
         return true;
     }
@@ -222,7 +210,7 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
             return;
         }
 
-        if(EmbeddedShapeData is IScalable resizable)
+        if (EmbeddedShapeData is IScalable resizable)
         {
             resizable.Resize(multiplier);
         }

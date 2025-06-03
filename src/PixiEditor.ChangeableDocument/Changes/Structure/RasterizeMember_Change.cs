@@ -125,6 +125,6 @@ internal class RasterizeMember_Change : Change
 
     public override void Dispose()
     {
-        originalNode.Dispose();
+        originalNode?.Dispose();
     }
 }

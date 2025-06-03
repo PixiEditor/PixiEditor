@@ -66,9 +66,10 @@ internal class MenuBarViewModel : PixiObservableObject
         { "FILE", 100 },
         { "EDIT", 200 },
         { "SELECT", 300 },
-        { "IMAGE", 400 },
-        { "VIEW", 500 },
-        { "HELP", 600 },
+        { "LAYER", 400 },
+        { "IMAGE", 500 },
+        { "VIEW", 600 },
+        { "HELP", 700 },
         { "DEBUG", 1000 },
     };
 

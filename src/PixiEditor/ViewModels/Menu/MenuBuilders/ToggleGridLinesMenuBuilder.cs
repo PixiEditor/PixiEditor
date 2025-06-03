@@ -22,7 +22,7 @@ internal class ToggleGridLinesMenuBuilder : MenuItemBuilder
             Translator.SetKey(gridLinesItem, "TOGGLE_GRIDLINES");
             gridLinesItem.Icon = new Image()
             {
-                Source = PixiPerfectIcons.ToIcon(PixiPerfectIcons.GridLines),
+                Source = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.Gridlines),
                 Width = Models.Commands.XAML.Menu.IconDimensions,
                 Height = Models.Commands.XAML.Menu.IconDimensions
             };
@@ -41,7 +41,7 @@ internal class ToggleGridLinesMenuBuilder : MenuItemBuilder
             gridLinesItem.ToggleType = NativeMenuItemToggleType.CheckBox;
             Translator.SetKey(gridLinesItem, "TOGGLE_GRIDLINES");
 
-            gridLinesItem.Icon = PixiPerfectIcons.ToIcon(PixiPerfectIcons.GridLines).ToBitmap(IconDimensions);
+            gridLinesItem.Icon = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.Gridlines).ToBitmap(IconDimensions);
             BindItem(gridLinesItem);
             viewItem.Menu.Items.Add(gridLinesItem);
         }

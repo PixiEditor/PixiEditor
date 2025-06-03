@@ -23,12 +23,14 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Helpers;
 using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Dock;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Document.Nodes;
+using PixiEditor.Views.Overlays.TextOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels;
 #nullable enable
@@ -116,7 +118,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
         using var block = doc.Operations.StartChangeBlock();
         Guid? guid = doc.Operations.CreateStructureMember(StructureMemberType.Folder);
-        if(doc.SoftSelectedStructureMembers.Count == 0)
+        if (doc.SoftSelectedStructureMembers.Count == 0)
             return;
         var selectedInOrder = doc.GetSelectedMembersInOrder();
         selectedInOrder.Reverse();
@@ -248,6 +250,69 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         return member is IVectorLayerHandler;
     }
 
+    [Evaluator.CanExecute("PixiEditor.Layer.AnySelectedMemberIsVectorLayer",
+        nameof(DocumentManagerViewModel.ActiveDocument), nameof(DocumentViewModel.SelectedStructureMember))]
+    public bool AnySelectedMemberIsVectorLayer(object property)
+    {
+        var members = Owner.DocumentManagerSubViewModel.ActiveDocument?.ExtractSelectedLayers();
+
+        if (members is null || members.Count == 0)
+            return false;
+
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return false;
+
+        foreach (var member in members)
+        {
+            var handler = doc.StructureHelper.Find(member);
+            if (handler is IVectorLayerHandler)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    [Evaluator.CanExecute("PixiEditor.Layer.AnySelectedLayerIsRasterizable",
+        nameof(DocumentManagerViewModel.ActiveDocument), nameof(DocumentViewModel.SelectedStructureMember))]
+    public bool AnySelectedMemberIsRasterizable(object property)
+    {
+        var members = Owner.DocumentManagerSubViewModel.ActiveDocument?.ExtractSelectedLayers();
+
+        if (members is null || members.Count == 0)
+            return false;
+
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return false;
+
+        foreach (var member in members)
+        {
+            var handler = doc.StructureHelper.Find(member);
+            if (handler is ILayerHandler && handler is not IRasterLayerHandler)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsSelectedText",
+        nameof(DocumentManagerViewModel.ActiveDocument), nameof(DocumentViewModel.SelectedStructureMember))]
+    public bool SelectedMemberIsSelectedText(object property)
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return false;
+
+        var member = doc?.SelectedStructureMember;
+        return member is IVectorLayerHandler && doc.TextOverlayViewModel.IsActive &&
+               doc.TextOverlayViewModel.CursorPosition != doc.TextOverlayViewModel.SelectionEnd;
+    }
+
     private bool HasSelectedMember(bool above)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -328,7 +393,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
     [Command.Basic("PixiEditor.Layer.ToggleMask", "TOGGLE_MASK", "TOGGLE_MASK",
         CanExecute = "PixiEditor.Layer.ActiveLayerHasMask",
-        Icon = PixiPerfectIcons.ToggleMask, AnalyticsTrack = true)]
+        Icon = PixiPerfectIcons.MaskGhost, AnalyticsTrack = true)]
     public void ToggleMask()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -353,7 +418,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
     [Command.Basic("PixiEditor.Layer.ToggleVisible", "TOGGLE_VISIBILITY", "TOGGLE_VISIBILITY",
         CanExecute = "PixiEditor.HasDocument",
-        Icon = PixiPerfectIcons.ToggleLayerVisible, AnalyticsTrack = true)]
+        Icon = PixiPerfectIcons.FileGhost, AnalyticsTrack = true)]
     public void ToggleVisible()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -548,27 +613,93 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Layer.Rasterize", "RASTERIZE_ACTIVE_LAYER", "RASTERIZE_ACTIVE_LAYER_DESCRIPTIVE",
-        CanExecute = "PixiEditor.Layer.SelectedLayerIsRasterizable")]
+        CanExecute = "PixiEditor.Layer.AnySelectedLayerIsRasterizable",
+        Icon = PixiPerfectIcons.LowresCircle, MenuItemPath = "LAYER/VECTOR/RASTERIZE_ACTIVE_LAYER",
+        AnalyticsTrack = true)]
     public void RasterizeActiveLayer()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        var member = doc?.SelectedStructureMember;
-        if (member is null)
+        var selectedMembers = doc.ExtractSelectedLayers();
+        if (selectedMembers.Count == 0)
             return;
 
-        doc!.Operations.Rasterize(member.Id);
+        var block = doc.Operations.StartChangeBlock();
+
+        foreach (var member in selectedMembers)
+        {
+            doc!.Operations.Rasterize(member);
+        }
+
+        block.Dispose();
     }
 
     [Command.Basic("PixiEditor.Layer.ConvertToCurve", "CONVERT_TO_CURVE", "CONVERT_TO_CURVE_DESCRIPTIVE",
-        CanExecute = "PixiEditor.Layer.SelectedMemberIsVectorLayer")]
-    public void ConvertActiveLayerToCurve()
+        CanExecute = "PixiEditor.Layer.AnySelectedMemberIsVectorLayer",
+        MenuItemPath = "LAYER/VECTOR/CONVERT_TO_CURVE", AnalyticsTrack = true)]
+    public void ConvertActiveLayersToCurve()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        var selectedMembers = doc.ExtractSelectedLayers();
+        if (selectedMembers.Count == 0)
+            return;
+
+        var block = doc.Operations.StartChangeBlock();
+
+        foreach (var member in selectedMembers)
+        {
+            doc!.Operations.ConvertToCurve(member);
+        }
+
+        block.Dispose();
+    }
+
+    [Command.Basic("PixiEditor.Layer.SeparateShapes", "SEPARATE_SHAPES", "SEPARATE_SHAPES_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.AnySelectedMemberIsVectorLayer",
+        MenuItemPath = "LAYER/VECTOR/SEPARATE_SHAPES", AnalyticsTrack = true)]
+    public void SeparateShapes()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        var selectedMembers = doc.ExtractSelectedLayers();
+        if (selectedMembers.Count == 0)
+            return;
+
+        var block = doc.Operations.StartChangeBlock();
+
+        foreach (var member in selectedMembers)
+        {
+            doc!.Operations.SeparateShapes(member);
+        }
+
+        block.Dispose();
+    }
+
+    [Command.Basic("PixiEditor.Layer.ExtractSelectedText", "EXTRACT_SELECTED_TEXT", "EXTRACT_SELECTED_TEXT_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.SelectedMemberIsSelectedText",
+        Key = Key.X, Modifiers = KeyModifiers.Control | KeyModifiers.Shift,
+        Parameter = false,
+        ShortcutContexts = [typeof(ViewportWindowViewModel), typeof(TextOverlay)],
+        MenuItemPath = "LAYER/TEXT/EXTRACT_SELECTED_TEXT", AnalyticsTrack = true)]
+    [Command.Basic("PixiEditor.Layer.ExtractSelectedCharacters", "EXTRACT_SELECTED_CHARACTERS",
+        "EXTRACT_SELECTED_CHARACTERS_DESCRIPTIVE",
+        CanExecute = "PixiEditor.Layer.SelectedMemberIsSelectedText",
+        Key = Key.X, Modifiers = KeyModifiers.Control | KeyModifiers.Shift | KeyModifiers.Alt,
+        Parameter = true,
+        ShortcutContexts = [typeof(ViewportWindowViewModel), typeof(TextOverlay)],
+        MenuItemPath = "LAYER/TEXT/EXTRACT_SELECTED_CHARACTERS", AnalyticsTrack = true)]
+    public void ExtractSelectedText(bool extractEachCharacter)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         var member = doc?.SelectedStructureMember;
         if (member is null)
             return;
 
-        doc!.Operations.ConvertToCurve(member.Id);
+        if (member is not VectorLayerNodeViewModel vectorLayer)
+            return;
+
+        int startIndex = doc.TextOverlayViewModel.CursorPosition;
+        int endIndex = doc.TextOverlayViewModel.SelectionEnd;
+
+        doc!.Operations.ExtractSelectedText(vectorLayer.Id, startIndex, endIndex, extractEachCharacter);
     }
 
     [Evaluator.Icon("PixiEditor.Layer.ToggleReferenceLayerTopMostIcon")]
@@ -577,9 +708,9 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null || doc.ReferenceLayerViewModel.IsTopMost)
         {
-            return PixiPerfectIcons.ToIcon(PixiPerfectIcons.ReferenceLayer);
+            return PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.LayersTop);
         }
 
-        return PixiPerfectIcons.ToIcon(PixiPerfectIcons.ReferenceLayer, 18, 180);
+        return PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.LayersBottom, 18, 180);
     }
 }

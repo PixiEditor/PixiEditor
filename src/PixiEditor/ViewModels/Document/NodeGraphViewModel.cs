@@ -26,8 +26,11 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
     public ObservableCollection<string> AvailableRenderOutputs { get; } = new();
     public StructureTree StructureTree { get; } = new();
     public INodeHandler? OutputNode { get; private set; }
-
     public Dictionary<string, INodeHandler> CustomRenderOutputs { get; } = new();
+
+    public Dictionary<Guid, INodeHandler> NodeLookup { get; } = new();
+
+    IReadOnlyDictionary<Guid, INodeHandler> INodeGraphHandler.NodeLookup => NodeLookup;
 
     private DocumentInternalParts Internals { get; }
 
@@ -47,6 +50,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
 
         AllNodes.Add(node);
         StructureTree.Update(this);
+        NodeLookup[node.Id] = node;
         UpdateAvailableRenderOutputs();
     }
 
@@ -60,6 +64,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler, IDisposabl
         }
 
         StructureTree.Update(this);
+        NodeLookup.Remove(nodeId);
         UpdateAvailableRenderOutputs();
     }
 
