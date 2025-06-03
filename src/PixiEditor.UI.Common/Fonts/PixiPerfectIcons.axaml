@@ -50,6 +50,7 @@
             <system:String x:Key="icon-crossroad">&#xE91D;</system:String>
             <system:String x:Key="icon-database">&#xE93D;</system:String>
             <system:String x:Key="icon-deselect">&#xE93E;</system:String>
+            <system:String x:Key="icon-discord">&#xE911;</system:String>
             <system:String x:Key="icon-dot">&#xE983;</system:String>
             <system:String x:Key="icon-download">&#xE99F;</system:String>
             <system:String x:Key="icon-download-cloud">&#xE989;</system:String>
@@ -79,6 +80,7 @@
             <system:String x:Key="icon-grid">&#xE94F;</system:String>
             <system:String x:Key="icon-gridlines">&#xE961;</system:String>
             <system:String x:Key="icon-hard-drive">&#xE98C;</system:String>
+            <system:String x:Key="icon-heart-handshake">&#xE902;</system:String>
             <system:String x:Key="icon-help">&#xE99B;</system:String>
             <system:String x:Key="icon-home">&#xE950;</system:String>
             <system:String x:Key="icon-image">&#xE952;</system:String>
@@ -139,6 +141,7 @@
             <system:String x:Key="icon-points-crossed">&#xE918;</system:String>
             <system:String x:Key="icon-put-image">&#xE908;</system:String>
             <system:String x:Key="icon-rectangle-selection">&#xE968;</system:String>
+            <system:String x:Key="icon-reddit">&#xE905;</system:String>
             <system:String x:Key="icon-redo">&#xE969;</system:String>
             <system:String x:Key="icon-reset">&#xE9AA;</system:String>
             <system:String x:Key="icon-resize">&#xE96B;</system:String>
@@ -158,6 +161,7 @@
             <system:String x:Key="icon-star">&#xE99C;</system:String>
             <system:String x:Key="icon-star-filled">&#xE999;</system:String>
             <system:String x:Key="icon-star-half">&#xE9AB;</system:String>
+            <system:String x:Key="icon-steam">&#xE901;</system:String>
             <system:String x:Key="icon-step-back">&#xE9C0;</system:String>
             <system:String x:Key="icon-step-end">&#xE9C2;</system:String>
             <system:String x:Key="icon-step-forward">&#xE9C1;</system:String>
@@ -178,6 +182,7 @@
             <system:String x:Key="icon-timeline">&#xE9A3;</system:String>
             <system:String x:Key="icon-tool">&#xE977;</system:String>
             <system:String x:Key="icon-trash">&#xE978;</system:String>
+            <system:String x:Key="icon-twitter">&#xE904;</system:String>
             <system:String x:Key="icon-undo">&#xE979;</system:String>
             <system:String x:Key="icon-unlock">&#xE97A;</system:String>
             <system:String x:Key="icon-up-vector">&#xE91A;</system:String>
@@ -189,6 +194,7 @@
             <system:String x:Key="icon-x-symmetry">&#xE980;</system:String>
             <system:String x:Key="icon-y-symmetry">&#xE97D;</system:String>
             <system:String x:Key="icon-youtube">&#xE995;</system:String>
+            <system:String x:Key="icon-youtube-filled">&#xE903;</system:String>
             <system:String x:Key="icon-zoom-in">&#xE981;</system:String>
             <system:String x:Key="icon-zoom-out">&#xE982;</system:String>
         </ResourceDictionary>

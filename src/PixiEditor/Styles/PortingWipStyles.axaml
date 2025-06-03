@@ -120,10 +120,10 @@
                         BorderBrush="{TemplateBinding BorderBrush}"
                         CornerRadius="5">
                         <ContentControl>
-                            <Image Margin="8"
-                                   Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content,
-                            Converter={converters:ImagePathToBitmapConverter}}"
-                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
+                            <TextBlock Classes="pixi-icon"
+                                       HorizontalAlignment="Center"
+                                       FontSize="30"
+                                   Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content}" />
                         </ContentControl>
                     </Border>
                 </ControlTemplate>

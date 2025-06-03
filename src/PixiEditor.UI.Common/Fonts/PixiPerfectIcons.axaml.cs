@@ -46,6 +46,7 @@ public static partial class PixiPerfectIcons
     public const string Crossroad = "\uE91D";
     public const string Database = "\uE93D";
     public const string Deselect = "\uE93E";
+    public const string Discord = "\uE911";
     public const string Dot = "\uE983";
     public const string Download = "\uE99F";
     public const string DownloadCloud = "\uE989";
@@ -75,6 +76,7 @@ public static partial class PixiPerfectIcons
     public const string Grid = "\uE94F";
     public const string Gridlines = "\uE961";
     public const string HardDrive = "\uE98C";
+    public const string HeartHandshake = "\uE902";
     public const string Help = "\uE99B";
     public const string Home = "\uE950";
     public const string Image = "\uE952";
@@ -135,6 +137,7 @@ public static partial class PixiPerfectIcons
     public const string PointsCrossed = "\uE918";
     public const string PutImage = "\uE908";
     public const string RectangleSelection = "\uE968";
+    public const string Reddit = "\uE905";
     public const string Redo = "\uE969";
     public const string Reset = "\uE9AA";
     public const string Resize = "\uE96B";
@@ -154,6 +157,7 @@ public static partial class PixiPerfectIcons
     public const string Star = "\uE99C";
     public const string StarFilled = "\uE999";
     public const string StarHalf = "\uE9AB";
+    public const string Steam = "\uE901";
     public const string StepBack = "\uE9C0";
     public const string StepEnd = "\uE9C2";
     public const string StepForward = "\uE9C1";
@@ -174,6 +178,7 @@ public static partial class PixiPerfectIcons
     public const string Timeline = "\uE9A3";
     public const string Tool = "\uE977";
     public const string Trash = "\uE978";
+    public const string Twitter = "\uE904";
     public const string Undo = "\uE979";
     public const string Unlock = "\uE97A";
     public const string UpVector = "\uE91A";
@@ -185,6 +190,7 @@ public static partial class PixiPerfectIcons
     public const string XSymmetry = "\uE980";
     public const string YSymmetry = "\uE97D";
     public const string Youtube = "\uE995";
+    public const string YoutubeFilled = "\uE903";
     public const string ZoomIn = "\uE981";
     public const string ZoomOut = "\uE982";
 }
