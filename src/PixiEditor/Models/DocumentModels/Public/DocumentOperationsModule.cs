@@ -24,6 +24,7 @@ using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.Models.DocumentModels.Public;
 #nullable enable
@@ -955,5 +956,26 @@ internal class DocumentOperationsModule : IDocumentOperations
         Internals.ChangeController.TryStopActiveExecutor();
 
         Internals.ActionAccumulator.AddFinishedActions(new ConvertToCurve_Action(memberId));
+    }
+
+    public void SeparateShapes(Guid memberId)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(new SeparateShapes_Action(memberId));
+    }
+
+    public void ExtractSelectedText(Guid memberId, int startIndex, int endIndex, bool extractEachCharacter)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        Internals.ActionAccumulator.AddFinishedActions(
+            new ExtractSelectedText_Action(memberId, startIndex, endIndex, extractEachCharacter));
     }
 }

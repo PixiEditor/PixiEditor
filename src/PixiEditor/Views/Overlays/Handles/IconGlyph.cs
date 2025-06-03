@@ -20,7 +20,7 @@ public class IconGlyph : HandleGlyph
     public IconGlyph(string icon, Font font = null, Paint customPaint = null)
     {
         Icon = icon;
-        pixiPerfectFont ??= Font.FromStream(PixiPerfectIcons.GetFontStream());
+        pixiPerfectFont ??= Font.FromStream(PixiPerfectIconExtensions.GetFontStream());
         targetFont = font ?? pixiPerfectFont;
         if (customPaint != null)
         {

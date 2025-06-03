@@ -41,24 +41,15 @@ public class CustomOutputNode : Node, IRenderInput, IPreviewRenderable
         {
             VecI targetSize = Size.Value.ShortestAxis <= 0
                 ? context.RenderOutputSize
-                : Size.Value;
+                : (VecI)(Size.Value * context.ChunkResolution.Multiplier());
 
             lastDocumentSize = targetSize;
 
             DrawingSurface targetSurface = context.RenderSurface;
 
-            if(context.RenderOutputSize != targetSize)
-            {
-                targetSurface = textureCache.RequestTexture(0, targetSize, context.ProcessingColorSpace).DrawingSurface;
-            }
-
             int saved = targetSurface.Canvas.Save();
-            targetSurface.Canvas.ClipRect(new RectD(0, 0, targetSize.X, targetSize.Y));
 
-            RenderContext outputContext = new RenderContext(context.RenderSurface, context.FrameTime, context.ChunkResolution,
-                targetSize, context.DocumentSize, context.ProcessingColorSpace, context.Opacity) { TargetOutput = OutputName.Value, };
-
-            Input.Value?.Paint(outputContext, targetSurface);
+            Input.Value?.Paint(context, targetSurface);
 
             targetSurface.Canvas.RestoreToCount(saved);
 

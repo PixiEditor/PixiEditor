@@ -24,6 +24,6 @@ internal class SwatchesDockViewModel : DockableViewModel
     public SwatchesDockViewModel(DocumentManagerViewModel documentManagerViewModel)
     {
         DocumentManagerSubViewModel = documentManagerViewModel;
-        TabCustomizationSettings.Icon = PixiPerfectIcons.ToIcon(PixiPerfectIcons.Swatches);
+        TabCustomizationSettings.Icon = UI.Common.Fonts.PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.Swatches);
     }
 }

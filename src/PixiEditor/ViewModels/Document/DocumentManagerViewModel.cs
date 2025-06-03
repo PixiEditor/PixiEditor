@@ -85,18 +85,18 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.Document.FlipImageVertical", FlipType.Vertical, "FLIP_IMG_VERTICALLY",
         "FLIP_IMG_VERTICALLY", CanExecute = "PixiEditor.HasDocument",
-        MenuItemPath = "IMAGE/FLIP/FLIP_IMG_VERTICALLY", MenuItemOrder = 15, Icon = PixiPerfectIcons.YFlip,
+        MenuItemPath = "IMAGE/FLIP/FLIP_IMG_VERTICALLY", MenuItemOrder = 15, Icon = PixiPerfectIcons.Image180,
         AnalyticsTrack = true)]
     public void FlipImage(FlipType type) =>
         ActiveDocument?.Operations.FlipImage(type, activeDocument.AnimationDataViewModel.ActiveFrameBindable);
 
     [Command.Basic("PixiEditor.Document.FlipLayersHorizontal", FlipType.Horizontal, "FLIP_LAYERS_HORIZONTALLY",
         "FLIP_LAYERS_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument",
-        MenuItemPath = "IMAGE/FLIP/FLIP_LAYERS_HORIZONTALLY", MenuItemOrder = 16, Icon = PixiPerfectIcons.XSelectedFlip,
+        MenuItemPath = "IMAGE/FLIP/FLIP_LAYERS_HORIZONTALLY", MenuItemOrder = 16, Icon = PixiPerfectIcons.MirrorHorizontal,
         AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.Document.FlipLayersVertical", FlipType.Vertical, "FLIP_LAYERS_VERTICALLY",
         "FLIP_LAYERS_VERTICALLY", CanExecute = "PixiEditor.HasDocument",
-        MenuItemPath = "IMAGE/FLIP/FLIP_LAYERS_VERTICALLY", MenuItemOrder = 17, Icon = PixiPerfectIcons.YSelectedFlip,
+        MenuItemPath = "IMAGE/FLIP/FLIP_LAYERS_VERTICALLY", MenuItemOrder = 17, Icon = PixiPerfectIcons.MirrorVertical,
         AnalyticsTrack = true)]
     public void FlipLayers(FlipType type)
     {
@@ -109,29 +109,29 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
 
     [Command.Basic("PixiEditor.Document.Rotate90Deg", "ROT_IMG_90",
         "ROT_IMG_90", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D90,
-        MenuItemPath = "IMAGE/ROTATION/ROT_IMG_90_D", MenuItemOrder = 8, Icon = PixiPerfectIcons.RotateImage90,
+        MenuItemPath = "IMAGE/ROTATION/ROT_IMG_90_D", MenuItemOrder = 8, Icon = PixiPerfectIcons.Image90,
         AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.Document.Rotate180Deg", "ROT_IMG_180",
         "ROT_IMG_180", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D180,
-        MenuItemPath = "IMAGE/ROTATION/ROT_IMG_180_D", MenuItemOrder = 9, Icon = PixiPerfectIcons.RotateImage180,
+        MenuItemPath = "IMAGE/ROTATION/ROT_IMG_180_D", MenuItemOrder = 9, Icon = PixiPerfectIcons.Image180,
         AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.Document.Rotate270Deg", "ROT_IMG_-90",
         "ROT_IMG_-90", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D270,
-        MenuItemPath = "IMAGE/ROTATION/ROT_IMG_-90_D", MenuItemOrder = 10, Icon = PixiPerfectIcons.RotateImageMinus90,
+        MenuItemPath = "IMAGE/ROTATION/ROT_IMG_-90_D", MenuItemOrder = 10, Icon = PixiPerfectIcons.ImageMinus90,
         AnalyticsTrack = true)]
     public void RotateImage(RotationAngle angle) => ActiveDocument?.Operations.RotateImage(angle);
 
     [Command.Basic("PixiEditor.Document.Rotate90DegLayers", "ROT_LAYERS_90",
         "ROT_LAYERS_90", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D90,
-        MenuItemPath = "IMAGE/ROTATION/ROT_LAYERS_90_D", MenuItemOrder = 11, Icon = PixiPerfectIcons.RotateFile90,
+        MenuItemPath = "IMAGE/ROTATION/ROT_LAYERS_90_D", MenuItemOrder = 11, Icon = PixiPerfectIcons.File90,
         AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.Document.Rotate180DegLayers", "ROT_LAYERS_180",
         "ROT_LAYERS_180", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D180,
-        MenuItemPath = "IMAGE/ROTATION/ROT_LAYERS_180_D", MenuItemOrder = 12, Icon = PixiPerfectIcons.RotateFile180,
+        MenuItemPath = "IMAGE/ROTATION/ROT_LAYERS_180_D", MenuItemOrder = 12, Icon = PixiPerfectIcons.File180,
         AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.Document.Rotate270DegLayers", "ROT_LAYERS_-90",
         "ROT_LAYERS_-90", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D270,
-        MenuItemPath = "IMAGE/ROTATION/ROT_LAYERS_-90_D", MenuItemOrder = 13, Icon = PixiPerfectIcons.RotateFileMinus90,
+        MenuItemPath = "IMAGE/ROTATION/ROT_LAYERS_-90_D", MenuItemOrder = 13, Icon = PixiPerfectIcons.FileMinus90,
         AnalyticsTrack = true)]
     public void RotateLayers(RotationAngle angle)
     {

@@ -75,8 +75,9 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
 
         var adjustedResolution = AllowHighDpiRendering ? ChunkResolution.Full : context.ChunkResolution;
 
+        // Full because scene already handles texture resolution
         var outputWorkingSurface =
-            TryInitWorkingSurface(size, adjustedResolution, context.ProcessingColorSpace, 1);
+            TryInitWorkingSurface(size, ChunkResolution.Full, context.ProcessingColorSpace, 1);
         outputWorkingSurface.DrawingSurface.Canvas.Clear();
         outputWorkingSurface.DrawingSurface.Canvas.Save();
         if (AllowHighDpiRendering)
@@ -171,12 +172,11 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
         bool useFilters, Paint paint)
     {
         paint.Color = paint.Color.WithAlpha((byte)Math.Round(Opacity.Value * ctx.Opacity * 255));
-        var finalPaint = paint;
 
         var targetSurface = workingSurface;
         Texture? tex = null;
         int saved = -1;
-        if (!ctx.ProcessingColorSpace.IsSrgb)
+        if (!ctx.ProcessingColorSpace.IsSrgb && useFilters && Filters.Value != null)
         {
             saved = workingSurface.Canvas.Save();
 
@@ -185,29 +185,22 @@ public abstract class LayerNode : StructureNode, IReadOnlyLayerNode, IClipSource
             workingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
 
             targetSurface = tex.DrawingSurface;
-
-            finalPaint = new Paint();
         }
 
         if (useFilters && Filters.Value != null)
         {
             paint.SetFilters(Filters.Value);
-            DrawWithFilters(ctx, targetSurface, finalPaint);
+            DrawWithFilters(ctx, targetSurface, paint);
         }
         else
         {
             paint.SetFilters(null);
-            DrawWithoutFilters(ctx, targetSurface, finalPaint);
-        }
-
-        if (finalPaint != paint)
-        {
-            finalPaint.Dispose();
+            DrawWithoutFilters(ctx, targetSurface, paint);
         }
 
         if (targetSurface != workingSurface)
         {
-            workingSurface.Canvas.DrawSurface(targetSurface, 0, 0, paint);
+            workingSurface.Canvas.DrawSurface(targetSurface, 0, 0);
             tex.Dispose();
             workingSurface.Canvas.RestoreToCount(saved);
         }

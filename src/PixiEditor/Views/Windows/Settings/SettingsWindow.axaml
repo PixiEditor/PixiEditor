@@ -321,8 +321,9 @@
                                               IsEnabled="{Binding Path=ShowUpdateTab}"
                                               ItemsSource="{Binding SettingsSubViewModel.Update.UpdateChannels}"
                                               SelectedValue="{Binding SettingsSubViewModel.Update.UpdateChannelName}" />
-                                    <Image Cursor="Help"
-                                           Source="/Images/Commands/PixiEditor/Links/OpenDocumentation.png"
+                                    <TextBlock Cursor="Help"
+                                           Classes="pixi-icon"
+                                           Text="{DynamicResource icon-help}"
                                            VerticalAlignment="Center"
                                            ToolTip.ShowDelay="0"
                                            IsVisible="{Binding !ShowUpdateTab}"

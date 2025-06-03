@@ -25,8 +25,8 @@ internal class MemberPreviewUpdater
         AnimationKeyFramePreviewRenderer = new AnimationKeyFramePreviewRenderer(internals);
     }
 
-    public void UpdatePreviews(IEnumerable<Guid> membersToUpdate,
-        IEnumerable<Guid> masksToUpdate, IEnumerable<Guid> nodesToUpdate, IEnumerable<Guid> keyFramesToUpdate)
+    public void UpdatePreviews(HashSet<Guid> membersToUpdate,
+        HashSet<Guid> masksToUpdate, HashSet<Guid> nodesToUpdate, HashSet<Guid> keyFramesToUpdate)
     {
         if (!membersToUpdate.Any() && !masksToUpdate.Any() && !nodesToUpdate.Any() &&
             !keyFramesToUpdate.Any())
@@ -40,21 +40,16 @@ internal class MemberPreviewUpdater
     /// </summary>
     /// <param name="members">Members that should be rendered</param>
     /// <param name="masksToUpdate">Masks that should be rendered</param>
-    private void UpdatePreviewPainters(IEnumerable<Guid> members, IEnumerable<Guid> masksToUpdate,
-        IEnumerable<Guid> nodesToUpdate, IEnumerable<Guid> keyFramesToUpdate)
+    private void UpdatePreviewPainters(HashSet<Guid> members, HashSet<Guid> masksToUpdate,
+        HashSet<Guid> nodesToUpdate, HashSet<Guid> keyFramesToUpdate)
     {
-        Guid[] memberGuids = members as Guid[] ?? members.ToArray();
-        Guid[] maskGuids = masksToUpdate as Guid[] ?? masksToUpdate.ToArray();
-        Guid[] nodesGuids = nodesToUpdate as Guid[] ?? nodesToUpdate.ToArray();
-        Guid[] keyFramesGuids = keyFramesToUpdate as Guid[] ?? keyFramesToUpdate.ToArray();
-
         RenderWholeCanvasPreview();
-        RenderLayersPreview(memberGuids);
-        RenderMaskPreviews(maskGuids);
+        RenderLayersPreview(members);
+        RenderMaskPreviews(masksToUpdate);
 
-        RenderAnimationPreviews(memberGuids, keyFramesGuids);
+        RenderAnimationPreviews(members, keyFramesToUpdate);
 
-        RenderNodePreviews(nodesGuids);
+        RenderNodePreviews(nodesToUpdate);
     }
 
     /// <summary>
@@ -77,7 +72,7 @@ internal class MemberPreviewUpdater
         doc.PreviewPainter.Repaint();
     }
 
-    private void RenderLayersPreview(Guid[] memberGuids)
+    private void RenderLayersPreview(HashSet<Guid> memberGuids)
     {
         foreach (var node in doc.NodeGraphHandler.AllNodes)
         {
@@ -111,7 +106,7 @@ internal class MemberPreviewUpdater
         }
     }
 
-    private void RenderAnimationPreviews(Guid[] memberGuids, Guid[] keyFramesGuids)
+    private void RenderAnimationPreviews(HashSet<Guid> memberGuids, HashSet<Guid> keyFramesGuids)
     {
         foreach (var keyFrame in doc.AnimationHandler.KeyFrames)
         {
@@ -191,7 +186,7 @@ internal class MemberPreviewUpdater
         }
     }
 
-    private void RenderMaskPreviews(Guid[] members)
+    private void RenderMaskPreviews(HashSet<Guid> members)
     {
         foreach (var node in doc.NodeGraphHandler.AllNodes)
         {
@@ -227,7 +222,7 @@ internal class MemberPreviewUpdater
         }
     }
 
-    private void RenderNodePreviews(Guid[] nodesGuids)
+    private void RenderNodePreviews(HashSet<Guid> nodesGuids)
     {
         var outputNode = internals.Tracker.Document.NodeGraph.OutputNode;
 
@@ -238,7 +233,7 @@ internal class MemberPreviewUpdater
             internals.Tracker.Document.NodeGraph
                 .AllNodes; //internals.Tracker.Document.NodeGraph.CalculateExecutionQueue(outputNode);
 
-        if (nodesGuids.Length == 0)
+        if (nodesGuids.Count == 0)
             return;
 
         List<Guid> actualRepaintedNodes = new();

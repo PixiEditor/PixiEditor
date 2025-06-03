@@ -77,9 +77,24 @@
                     </Border>
                     <Border Grid.Row="0" Grid.Column="1">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
+                            <Button Classes="pixi-icon" Content="{DynamicResource icon-step-start}"
+                                    ui1:Translator.TooltipKey="STEP_START"
+                                    Command="{Binding StepStartCommand, RelativeSource={RelativeSource TemplatedParent}}"/>
+                            <Button Classes="pixi-icon"
+                                    ui1:Translator.TooltipKey="STEP_BACK"
+                                    Command="{Binding StepBackCommand, RelativeSource={RelativeSource TemplatedParent}}"
+                                    Content="{DynamicResource icon-step-back}" />
                             <ToggleButton Margin="0, 5" Width="24" HorizontalAlignment="Center" Classes="PlayButton"
                                           Name="PART_PlayToggle"
                                           IsChecked="{Binding IsPlaying, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
+                            <Button Classes="pixi-icon"
+                                    ui1:Translator.TooltipKey="STEP_FORWARD"
+                                    Command="{Binding StepForwardCommand, RelativeSource={RelativeSource TemplatedParent}}"
+                                    Content="{DynamicResource icon-step-forward}" />
+                            <Button Classes="pixi-icon"
+                                    ui1:Translator.TooltipKey="STEP_END"
+                                    Command="{Binding StepEndCommand, RelativeSource={RelativeSource TemplatedParent}}"
+                                    Content="{DynamicResource icon-step-end}" />
                             <TextBlock VerticalAlignment="Center" FontSize="14">
                                 <Run>
                                     <Run.Text>

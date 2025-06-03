@@ -20,7 +20,7 @@ internal class ToggleHighResPreviewMenuBuilder : MenuItemBuilder
             Translator.SetKey(snappingItem, "TOGGLE_HIGH_RES_PREVIEW");
             snappingItem.Icon = new Image()
             {
-                Source = PixiPerfectIcons.ToIcon(PixiPerfectIcons.Circle),
+                Source = UI.Common.Fonts.PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.Circle),
                 Width = Models.Commands.XAML.Menu.IconDimensions,
                 Height = Models.Commands.XAML.Menu.IconDimensions
             };
@@ -39,7 +39,7 @@ internal class ToggleHighResPreviewMenuBuilder : MenuItemBuilder
             gridLinesItem.ToggleType = NativeMenuItemToggleType.CheckBox;
             Translator.SetKey(gridLinesItem, "TOGGLE_HIGH_RES_PREVIEW");
 
-            gridLinesItem.Icon = PixiPerfectIcons.ToIcon(PixiPerfectIcons.Circle).ToBitmap(IconDimensions);
+            gridLinesItem.Icon = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.Circle).ToBitmap(IconDimensions);
             BindItem(gridLinesItem);
             viewItem.Menu.Items.Add(gridLinesItem);
         }

@@ -33,6 +33,8 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
     {
         Coordinate = CreateFuncInput(nameof(Coordinate), "UV", new Float2("coords"));
         Color = CreateFuncInput(nameof(Color), "COLOR", new Half4(""));
+
+        RendersInAbsoluteCoordinates = true;
     }
 
     protected override void OnPaint(RenderContext renderContext, DrawingSurface targetSurface)
