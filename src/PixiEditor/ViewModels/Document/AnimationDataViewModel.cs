@@ -34,12 +34,14 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     private int? cachedFirstFrame;
     private int? cachedLastFrame;
 
+    private bool blockUpdateFrame = false;
+
     public int ActiveFrameBindable
     {
         get => _activeFrameBindable;
         set
         {
-            if (Document.BlockingUpdateableChangeActive)
+            if (Document.BlockingUpdateableChangeActive || blockUpdateFrame)
                 return;
 
             Internals.ActionAccumulator.AddActions(new SetActiveFrame_PassthroughAction(value));
@@ -201,7 +203,9 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         int previousFrame = _activeFrameBindable;
         _activeFrameBindable = newFrame;
         ActiveFrameChanged?.Invoke(previousFrame, newFrame);
+        blockUpdateFrame = true;
         OnPropertyChanged(nameof(ActiveFrameBindable));
+        blockUpdateFrame = false;
     }
 
     public void SetPlayingState(bool value)
@@ -397,6 +401,9 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 
     public void SortByLayers()
     {
+        if (keyFrames.Count < 2)
+            return;
+
         var allLayers = Document.StructureHelper.GetAllLayers();
 
         if (!OrderDifferent(keyFrames, allLayers)) return;

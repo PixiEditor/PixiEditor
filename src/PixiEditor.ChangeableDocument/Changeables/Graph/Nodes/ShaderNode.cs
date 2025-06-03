@@ -42,13 +42,13 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
 
         paint = new Paint();
         Output.FirstInChain = null;
+
+        RendersInAbsoluteCoordinates = true;
     }
 
     protected override void OnExecute(RenderContext context)
     {
         base.OnExecute(context);
-
-        lastDocumentSize = context.RenderOutputSize;
 
         if (lastShaderCode != ShaderCode.Value)
         {
@@ -60,6 +60,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
             shader = shader.WithUpdatedUniforms(uniforms);
         }
 
+        lastDocumentSize = context.DocumentSize;
         paint.Shader = shader;
     }
 

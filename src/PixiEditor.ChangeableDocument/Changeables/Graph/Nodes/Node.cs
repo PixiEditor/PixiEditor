@@ -45,6 +45,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     private KeyFrameTime lastFrameTime;
 
+    private VecI lastRenderSize = new VecI(0, 0);
+
     protected internal bool IsDisposed => _isDisposed;
     private bool _isDisposed;
 
@@ -81,7 +83,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     protected virtual bool CacheChanged(RenderContext context)
     {
-        bool changed = false;
+        bool changed = lastRenderSize != context.RenderOutputSize;
 
         if (CacheTrigger.HasFlag(CacheTriggerFlags.Inputs))
         {
@@ -109,6 +111,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
 
         lastFrameTime = context.FrameTime;
+
+        lastRenderSize = context.RenderOutputSize;
 
         lastContentCacheHash = GetContentCacheHash();
     }

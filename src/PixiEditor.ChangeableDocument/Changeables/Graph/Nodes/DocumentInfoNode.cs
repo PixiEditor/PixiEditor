@@ -25,8 +25,10 @@ public class DocumentInfoNode : Node
         Size.Value = context.DocumentSize;
         Center.Value = new VecD(context.DocumentSize.X / 2.0, context.DocumentSize.Y / 2.0);
 
-        RenderOutputSize.Value = context.RenderOutputSize;
-        RenderOutputCenter.Value = new VecI(context.RenderOutputSize.X / 2, context.RenderOutputSize.Y / 2);
+        var resolutionMultiplier = context.ChunkResolution.InvertedMultiplier();
+        VecI renderOutputSize = (VecI)(context.RenderOutputSize * resolutionMultiplier);
+        RenderOutputSize.Value = renderOutputSize;
+        RenderOutputCenter.Value = new VecI(renderOutputSize.X / 2, renderOutputSize.Y / 2);
     }
 
     public override Node CreateCopy()

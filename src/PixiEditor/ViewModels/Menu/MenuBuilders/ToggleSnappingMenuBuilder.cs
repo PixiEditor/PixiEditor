@@ -20,7 +20,7 @@ internal class ToggleSnappingMenuBuilder : MenuItemBuilder
             Translator.SetKey(snappingItem, "TOGGLE_SNAPPING");
             snappingItem.Icon = new Image()
             {
-                Source = PixiPerfectIcons.ToIcon(PixiPerfectIcons.Snapping),
+                Source = UI.Common.Fonts.PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.Snapping),
                 Width = Models.Commands.XAML.Menu.IconDimensions,
                 Height = Models.Commands.XAML.Menu.IconDimensions
             };
@@ -39,7 +39,7 @@ internal class ToggleSnappingMenuBuilder : MenuItemBuilder
             gridLinesItem.ToggleType = NativeMenuItemToggleType.CheckBox;
             Translator.SetKey(gridLinesItem, "TOGGLE_SNAPPING");
 
-            gridLinesItem.Icon = PixiPerfectIcons.ToIcon(PixiPerfectIcons.Snapping).ToBitmap(IconDimensions);
+            gridLinesItem.Icon = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.Snapping).ToBitmap(IconDimensions);
             BindItem(gridLinesItem);
             viewItem.Menu.Items.Add(gridLinesItem);
         }

@@ -11,5 +11,6 @@
 
     <StyleInclude Source="/Styles/PixiEditor.Controls.axaml"/>
     <StyleInclude Source="/Styles/PixiEditor.Styles.axaml"/>
+    <StyleInclude Source="/Fonts/PixiPerfectStyles.axaml"/>
     <StyleInclude Source="/Fonts/PixiPerfectIcons.axaml"/>
 </Styles>

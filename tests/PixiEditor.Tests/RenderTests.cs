@@ -30,6 +30,11 @@ public class RenderTests : FullPixiEditorTest
     [InlineData("VectorRectangleClippedToCircle")]
     [InlineData("VectorRectangleClippedToCircleShadowFilter")]
     [InlineData("VectorRectangleClippedToCircleMasked")]
+    [InlineData("BlendingLinearSrgb")]
+    [InlineData("BlendingSrgb")]
+    [InlineData("VectorWithSepiaFilter")]
+    [InlineData("VectorWithSepiaFilterSrgb")]
+    [InlineData("VectorWithSepiaFilterChained")]
     public void TestThatPixiFilesRenderTheSameResultAsSavedPng(string fileName)
     {
         if (!DrawingBackendApi.Current.IsHardwareAccelerated)

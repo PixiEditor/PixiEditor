@@ -15,13 +15,13 @@ internal enum NewsType
 {
     [Description(PixiPerfectIcons.Download)]
     NewVersion,
-    [Description(PixiPerfectIcons.YouTube)]
+    [Description(PixiPerfectIcons.Youtube)]
     YtVideo,
     [Description(PixiPerfectIcons.Write)]
     BlogPost,
     [Description(PixiPerfectIcons.Message)]
     OfficialAnnouncement,
-    [Description(PixiPerfectIcons.Misc)]
+    [Description(PixiPerfectIcons.Info)]
     Misc
 }
 

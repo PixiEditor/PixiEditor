@@ -25,7 +25,7 @@ internal class TimelineDockViewModel : DockableViewModel, IDockableSelectionEven
     public TimelineDockViewModel(DocumentManagerViewModel documentManagerViewModel)
     {
         DocumentManagerSubViewModel = documentManagerViewModel;
-        TabCustomizationSettings.Icon = PixiPerfectIcons.ToIcon(PixiPerfectIcons.Timeline);
+        TabCustomizationSettings.Icon = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.Timeline);
     }
 
     void IDockableSelectionEvents.OnSelected()

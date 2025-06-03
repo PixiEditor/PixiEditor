@@ -17,6 +17,8 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
 
     public bool AllowHighDpiRendering { get; set; } = false;
 
+    public bool RendersInAbsoluteCoordinates { get; set; } = false;
+
     private TextureCache textureCache = new();
 
     private VecI lastDocumentSize = VecI.Zero;
@@ -39,7 +41,7 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
             }
         }
 
-        lastDocumentSize = context.RenderOutputSize;
+        lastDocumentSize = context.DocumentSize;
     }
 
     protected virtual void Paint(RenderContext context, DrawingSurface surface)
@@ -47,7 +49,7 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
         DrawingSurface target = surface;
         bool useIntermediate = !AllowHighDpiRendering
                                && context.RenderOutputSize is { X: > 0, Y: > 0 }
-                               && surface.DeviceClipBounds.Size != context.RenderOutputSize;
+                               && (surface.DeviceClipBounds.Size != context.RenderOutputSize || (RendersInAbsoluteCoordinates && !surface.Canvas.TotalMatrix.IsIdentity));
         if (useIntermediate)
         {
             Texture intermediate = textureCache.RequestTexture(-6451, context.RenderOutputSize, context.ProcessingColorSpace);
@@ -58,7 +60,18 @@ public abstract class RenderNode : Node, IPreviewRenderable, IHighDpiRenderNode
 
         if (useIntermediate)
         {
+            if (RendersInAbsoluteCoordinates)
+            {
+                surface.Canvas.Save();
+                surface.Canvas.Scale((float)context.ChunkResolution.InvertedMultiplier());
+            }
+
             surface.Canvas.DrawSurface(target, 0, 0);
+
+            if (RendersInAbsoluteCoordinates)
+            {
+                surface.Canvas.Restore();
+            }
         }
     }
 

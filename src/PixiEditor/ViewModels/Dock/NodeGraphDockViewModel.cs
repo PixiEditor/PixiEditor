@@ -28,7 +28,7 @@ internal class NodeGraphDockViewModel : DockableViewModel, IDockableSelectionEve
     {
         DocumentManagerSubViewModel = document;
 
-        TabCustomizationSettings.Icon = PixiPerfectIcons.ToIcon(PixiPerfectIcons.Nodes);
+        TabCustomizationSettings.Icon = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.Nodes);
     }
 
     void IDockableSelectionEvents.OnSelected()

@@ -81,45 +81,29 @@
                                     Command="{Binding NewFromClipboardCommand}"
                                     ui:Translator.TooltipKey="NEW_FROM_CLIPBOARD" />
                         </StackPanel>
-                        <Button Command="{xaml:Command Name=PixiEditor.FoundersPack:Workspaces.Browse}"
-                                IsVisible="{xaml:CommandExists Name=PixiEditor.FoundersPack:Workspaces.Browse}"
-                                Name="workspacesButton"
-                                Margin="10, 0, 34, 0"
-                                ui:Translator.Key="PixiEditor.FoundersPack:BROWSE_TEMPLATES" />
+
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel.Styles>
+                                <Style Selector="Button.fullWidth">
+                                    <Setter Property="Width" Value="320" />
+                                </Style>
+                            </StackPanel.Styles>
+                            <Button Command="{xaml:Command Name=PixiEditor.FoundersPack:Workspaces.Browse}"
+                                    IsVisible="{xaml:CommandExists Name=PixiEditor.FoundersPack:Workspaces.Browse}"
+                                    Name="workspacesButton"
+                                    MinWidth="150" Margin="10, 0"
+                                    ui:Translator.Key="PixiEditor.FoundersPack:BROWSE_TEMPLATES" />
+                            <Button
+                                    Background="{DynamicResource ThemeAccentBrush2}"
+                                    ui:Translator.Key="EXAMPLE_FILES"
+                                    Margin="10, 0" MinWidth="150"
+                                    Classes.fullWidth="{Binding ElementName=workspacesButton, Path=!IsEffectivelyVisible}"
+                                    Command="{Binding SetShowAllBetaExamplesCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}"
+                                    CommandParameter="{x:True}" />
+                        </StackPanel>
                     </StackPanel>
 
-                    <StackPanel Grid.Row="2" HorizontalAlignment="Center" Margin="0,30,0,0">
-                        <TextBlock FontSize="23" FontWeight="SemiBold" HorizontalAlignment="Center"
-                                   ui:Translator.Key="BETA_EXAMPLE_FILES" />
-
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <windows:BetaExampleButton FileName="Disco Ball.pixi" DisplayName="DISCO_BALL_EXAMPLE"
-                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
-                            <windows:BetaExampleButton FileName="Tree.pixi" DisplayName="TREE_EXAMPLE"
-                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
-                            <windows:BetaExampleButton FileName="Island.pixi" DisplayName="ISLAND_EXAMPLE"
-                                                       CloseCommand="{Binding CloseCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}" />
-
-                            <StackPanel>
-                                <Button Margin="0,10,0,0" HorizontalAlignment="Center"
-                                        Width="100" Height="100"
-                                        Padding="0"
-                                        Background="{DynamicResource ThemeAccentBrush2}"
-                                        Command="{Binding SetShowAllBetaExamplesCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}"
-                                        CommandParameter="{x:True}">
-                                    <Grid Width="100" Height="100">
-                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                   ui:Translator.Key="SHOW_ALL_EXAMPLES" />
-                                    </Grid>
-                                </Button>
-
-                                <TextBlock Text=" "
-                                           Width="110" TextAlignment="Center"
-                                           TextTrimming="CharacterEllipsis"
-                                           FontSize="18" Margin="10,10,10,2" HorizontalAlignment="Center" />
-                            </StackPanel>
-                        </StackPanel>
-
+                    <StackPanel Grid.Row="2" HorizontalAlignment="Center">
                         <TextBlock Margin="0,8,0,0" FontSize="23" FontWeight="SemiBold" HorizontalAlignment="Center"
                                    ui:Translator.Key="RECENT_FILES" />
                         <TextBlock Margin="0,12.5,0,0" Foreground="LightGray" HorizontalAlignment="Center"
@@ -306,37 +290,37 @@
                                 CommandParameter="https://pixieditor.net"
                                 ui:Translator.TooltipKey="WEBSITE"
                                 Classes="SocialMediaButton" Tag="#e3002d"
-                                Content="/Images/SocialMedia/WebsiteIcon.png" />
+                                Content="{DynamicResource icon-globe}" />
                         <Button Command="{xaml:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
                                 CommandParameter="https://discord.gg/tzkQFDkqQS"
                                 Classes="SocialMediaButton" Tag="#5865F2" ui:Translator.TooltipKey="DISCORD"
-                                Content="/Images/SocialMedia/DiscordIcon.png" />
+                                Content="{DynamicResource icon-discord}" />
                         <Button Command="{xaml:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
                                 CommandParameter="https://reddit.com/r/PixiEditor"
                                 Classes="SocialMediaButton" Tag="#FF4500" ui:Translator.TooltipKey="REDDIT"
-                                Content="/Images/SocialMedia/RedditIcon.png" />
+                                Content="{DynamicResource icon-reddit}" />
                         <Button Command="{xaml:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
                                 CommandParameter="https://store.steampowered.com/app/2218560"
                                 Classes="SocialMediaButton" Tag="#00adee" ui:Translator.TooltipKey="STEAM"
-                                Content="/Images/SocialMedia/SteamIcon.png" />
+                                Content="{DynamicResource icon-steam}" />
                         <Button Command="{xaml:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
                                 CommandParameter="https://github.com/PixiEditor/PixiEditor"
                                 Classes="SocialMediaButton" Tag="Black" ui:Translator.TooltipKey="GITHUB"
-                                Content="/Images/SocialMedia/GitHubIcon.png" />
+                                Content="{DynamicResource icon-github}" />
                         <Button Command="{xaml:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
                                 CommandParameter="https://www.youtube.com/channel/UCT5XvyvX1q5PAIaXfWmpsMQ"
                                 Classes="SocialMediaButton" Tag="#FF0000" ui:Translator.TooltipKey="YOUTUBE"
-                                Content="/Images/SocialMedia/YouTubeIcon.png" />
+                                Content="{DynamicResource icon-youtube-filled}" />
                         <Button Command="{xaml:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
                                 IsVisible="{Binding ShowDonateButton}"
                                 CommandParameter="https://opencollective.com/pixieditor"
                                 Classes="SocialMediaButton" Tag="#d4af37" ui:Translator.TooltipKey="DONATE"
-                                Content="/Images/SocialMedia/DonateIcon.png" />
+                                Content="{DynamicResource icon-heart-handshake}" />
                         <Button Command="{xaml:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
                                 IsVisible="{Binding !ShowDonateButton}"
                                 CommandParameter="https://store.steampowered.com/app/2435860/PixiEditor__Supporter_Pack/"
                                 Classes="SocialMediaButton" Tag="#d4af37" ui:Translator.TooltipKey="BUY_SUPPORTER_PACK"
-                                Content="/Images/SocialMedia/DonateIcon.png" />
+                                Content="{DynamicResource icon-heart-handshake}" />
                     </panels:AlignableWrapPanel>
                 </Grid>
             </ScrollViewer>
@@ -350,10 +334,10 @@
                             CommandParameter="{x:False}"
                             Content="Go back" HorizontalContentAlignment="Left" />
 
-                    <TextBlock ui:Translator.Key="BETA_EXAMPLE_FILES" Margin="0,-9,0,5" HorizontalAlignment="Center"
+                    <TextBlock ui:Translator.Key="EXAMPLE_FILES" Margin="0,-9,0,5" HorizontalAlignment="Center"
                                TextAlignment="Center" FontSize="22" FontWeight="Bold" />
 
-                    <TextBlock ui:Translator.Key="BETA_PROCEDURAL_GENERATION" Margin="0,2" HorizontalAlignment="Center"
+                    <TextBlock ui:Translator.Key="PROCEDURAL_GENERATION" Margin="0,2" HorizontalAlignment="Center"
                                TextAlignment="Center" FontSize="18" FontWeight="SemiBold" />
 
                     <ScrollViewer HorizontalAlignment="Center" VerticalScrollBarVisibility="Auto">

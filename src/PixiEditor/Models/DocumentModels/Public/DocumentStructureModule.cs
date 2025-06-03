@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Models.Handlers;
 
 namespace PixiEditor.Models.DocumentModels.Public;
@@ -139,7 +137,7 @@ internal class DocumentStructureModule
     ///     Returns all layers in the document.
     /// </summary>
     /// <returns>List of ILayerHandlers. Empty if no layers found.</returns>
-    public List<ILayerHandler> GetAllLayers(bool includeFoldersWithMask = false)
+    public List<ILayerHandler> GetAllLayers()
     {
         List<ILayerHandler> layers = new List<ILayerHandler>();
 

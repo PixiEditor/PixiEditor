@@ -11,11 +11,15 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
     
     private readonly List<Node> _nodes = new();
     public IReadOnlyCollection<Node> Nodes => _nodes;
+    public IReadOnlyDictionary<Guid, Node> NodeLookup => nodeLookup;
     public Node? OutputNode => CustomOutputNode ?? Nodes.OfType<OutputNode>().FirstOrDefault();
     public Node? CustomOutputNode { get; set; }
 
+    private Dictionary<Guid, Node> nodeLookup = new();
+
     IReadOnlyCollection<IReadOnlyNode> IReadOnlyNodeGraph.AllNodes => Nodes;
     IReadOnlyNode IReadOnlyNodeGraph.OutputNode => OutputNode;
+
 
     public void AddNode(Node node)
     {
@@ -26,6 +30,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         
         node.ConnectionsChanged += ResetCache;
         _nodes.Add(node);
+        nodeLookup[node.Id] = node;
         ResetCache();
     }
 
@@ -38,7 +43,18 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
 
         node.ConnectionsChanged -= ResetCache;
         _nodes.Remove(node);
+        nodeLookup.Remove(node.Id);
         ResetCache();
+    }
+
+    public Node? FindNode(Guid guid)
+    {
+        return nodeLookup.GetValueOrDefault(guid);
+    }
+
+    public T? FindNode<T>(Guid guid) where T : Node
+    {
+        return nodeLookup.TryGetValue(guid, out Node? node) && node is T typedNode ? typedNode : null;
     }
 
     public Queue<IReadOnlyNode> CalculateExecutionQueue(IReadOnlyNode outputNode)
