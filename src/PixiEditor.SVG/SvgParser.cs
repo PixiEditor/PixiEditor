@@ -47,12 +47,22 @@ public class SvgParser
         {
             if (reader.NodeType == XmlNodeType.Element)
             {
+                if (reader.LocalName == "defs")
+                {
+                    // already parsed defs, skip
+                    reader.Skip();
+                    if(reader.NodeType != XmlNodeType.Element)
+                    {
+                        continue;
+                    }
+                }
+
                 SvgElement? element = ParseElement(reader, root.Defs);
                 if (element != null)
                 {
                     root.Children.Add(element);
 
-                    if (element is IElementContainer container && element.TagName != "defs")
+                    if (element is IElementContainer container)
                     {
                         ParseChildren(reader, container, root.Defs, element.TagName);
                     }

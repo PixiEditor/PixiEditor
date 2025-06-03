@@ -40,7 +40,7 @@ public class SvgPolyline() : SvgPrimitive("polyline")
                 {
                     if (x.HasValue)
                     {
-                        points.Add(new VecD(x.Value, double.Parse(currentNumberString)));
+                        points.Add(new VecD(x.Value, ParseNumber(currentNumberString)));
                         x = null;
                         currentNumberString = string.Empty;
                     }
@@ -55,7 +55,7 @@ public class SvgPolyline() : SvgPrimitive("polyline")
             }
             else if (character == ',')
             {
-                x = double.Parse(currentNumberString);
+                x = ParseNumber(currentNumberString);
                 currentNumberString = string.Empty;
                 nextSpaceIsSeparator = false;
             }
@@ -65,14 +65,19 @@ public class SvgPolyline() : SvgPrimitive("polyline")
         {
             if (x.HasValue)
             {
-                points.Add(new VecD(x.Value, double.Parse(currentNumberString)));
+                points.Add(new VecD(x.Value, ParseNumber(currentNumberString)));
             }
             else
             {
-                points.Add(new VecD(double.Parse(currentNumberString), 0));
+                points.Add(new VecD(ParseNumber(currentNumberString), 0));
             }
         }
 
         return points.ToArray();
+    }
+
+    private static double ParseNumber(string currentNumberString)
+    {
+        return double.Parse(currentNumberString, System.Globalization.CultureInfo.InvariantCulture);
     }
 }
