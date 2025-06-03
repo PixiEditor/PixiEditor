@@ -120,7 +120,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     }
 
     public string ZipExtension => IOperatingSystem.Current.IsLinux ? "tar.gz" : "zip";
-    public string ZipContentType => IOperatingSystem.Current.IsLinux ? "x-gzip" : "zip";
+    public string ZipContentType => IOperatingSystem.Current.IsLinux ? "octet-stream" : "zip";
     public string InstallerExtension => IOperatingSystem.Current.IsWindows ? "exe" : "dmg";
 
     public string BinaryExtension => IOperatingSystem.Current.IsWindows ? ".exe" : string.Empty;
