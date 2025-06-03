@@ -62,6 +62,9 @@ public class VectorPathOverlay : Overlay
     private bool canInsert = false;
 
     private bool isDragging = false;
+    private bool pointerPressed = false;
+    private bool convertSelectedOnDrag = false;
+    private bool converted = false;
 
     private List<int> lastSelectedIndices = new();
 
@@ -515,6 +518,8 @@ public class VectorPathOverlay : Overlay
             return;
         }
 
+        pointerPressed = true;
+
         if (IsOverPath(args.Point, out VecD closestPoint))
         {
             AddPointAt(closestPoint);
@@ -524,12 +529,43 @@ public class VectorPathOverlay : Overlay
         else if (args.Modifiers == KeyModifiers.None)
         {
             args.Handled = AddNewPointFromClick(SnappingController.GetSnapPoint(args.Point, out _, out _));
+            if (args.Handled)
+            {
+                convertSelectedOnDrag = true;
+                converted = false;
+            }
+
             AddToUndoCommand.Execute(Path);
         }
     }
 
     protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
+        if (pointerPressed && convertSelectedOnDrag)
+        {
+            var anchor = anchorHandles.FirstOrDefault(h => h.IsSelected);
+            if (anchor == null)
+            {
+                return;
+            }
+
+            int index = anchorHandles.IndexOf(anchor);
+            var path = editableVectorPath;
+            if (!converted)
+            {
+                path = ConvertTouchingVerbsToCubic(anchor);
+                Path = path.ToVectorPath();
+                AdjustHandles(path);
+                converted = true;
+            }
+
+            SubShape subShapeContainingIndex = path.GetSubShapeContainingIndex(index);
+            int localIndex = path.GetSubShapePointIndex(index, subShapeContainingIndex);
+
+            HandleContinousCubicDrag(args.Point, subShapeContainingIndex, localIndex, true);
+            Path = editableVectorPath.ToVectorPath();
+        }
+
         if (IsOverPath(args.Point, out VecD closestPoint))
         {
             insertPreviewHandle.Position = closestPoint;
@@ -541,10 +577,12 @@ public class VectorPathOverlay : Overlay
         }
     }
 
-    protected override void OnPointerReleased(PointerReleasedEventArgs e)
+    protected override void OnOverlayPointerReleased(OverlayPointerArgs args)
     {
-        base.OnPointerReleased(e);
         isDragging = false;
+        pointerPressed = false;
+        convertSelectedOnDrag = false;
+        converted = false;
     }
 
     private bool AddNewPointFromClick(VecD point)
@@ -586,7 +624,9 @@ public class VectorPathOverlay : Overlay
     {
         int? insertedAt = editableVectorPath.AddPointAt(point);
         Path = editableVectorPath.ToVectorPath();
-        SelectAnchor(insertedAt is > 0 && insertedAt.Value < anchorHandles.Count ? anchorHandles[insertedAt.Value] : anchorHandles.Last());
+        SelectAnchor(insertedAt is > 0 && insertedAt.Value < anchorHandles.Count
+            ? anchorHandles[insertedAt.Value]
+            : anchorHandles.Last());
     }
 
     private bool IsOverPath(VecD point, out VecD closestPoint)
@@ -669,7 +709,7 @@ public class VectorPathOverlay : Overlay
                 subShapeContainingIndex = newPath.GetSubShapeContainingIndex(index);
                 localIndex = newPath.GetSubShapePointIndex(index, subShapeContainingIndex);
 
-                HandleContinousCubicDrag(targetPos, anchor, subShapeContainingIndex, localIndex, true);
+                HandleContinousCubicDrag(targetPos, subShapeContainingIndex, localIndex, true);
             }
             else
             {
@@ -687,7 +727,7 @@ public class VectorPathOverlay : Overlay
         Path = editableVectorPath.ToVectorPath();
     }
 
-    private void HandleContinousCubicDrag(VecD targetPos, AnchorHandle handle, SubShape subShapeContainingIndex,
+    private void HandleContinousCubicDrag(VecD targetPos, SubShape subShapeContainingIndex,
         int localIndex, bool constrainRatio, bool swapOrder = false)
     {
         var previousPoint = subShapeContainingIndex.GetPreviousPoint(localIndex);
@@ -756,7 +796,7 @@ public class VectorPathOverlay : Overlay
         {
             bool isDraggingFirst = controlPointHandles.IndexOf(controlPointHandle) % 2 == 0;
             bool constrainRatio = args.Modifiers.HasFlag(KeyModifiers.Control);
-            HandleContinousCubicDrag(targetPos, to, subShapeContainingIndex, localIndex, constrainRatio,
+            HandleContinousCubicDrag(targetPos, subShapeContainingIndex, localIndex, constrainRatio,
                 !isDraggingFirst);
         }
         else
