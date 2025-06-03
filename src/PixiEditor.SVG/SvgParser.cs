@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
 using Drawie.Numerics;
@@ -10,24 +11,10 @@ namespace PixiEditor.SVG;
 
 public class SvgParser
 {
-    private static Dictionary<string, Type> wellKnownElements = new()
-    {
-        { "ellipse", typeof(SvgEllipse) },
-        { "rect", typeof(SvgRectangle) },
-        { "circle", typeof(SvgCircle) },
-        { "line", typeof(SvgLine) },
-        { "path", typeof(SvgPath) },
-        { "g", typeof(SvgGroup) },
-        { "mask", typeof(SvgMask) },
-        { "image", typeof(SvgImage) },
-        { "svg", typeof(SvgDocument) },
-        { "text", typeof(SvgText) },
-        { "linearGradient", typeof(SvgLinearGradient) },
-        { "radialGradient", typeof(SvgRadialGradient) },
-        { "stop", typeof(SvgStop) },
-        { "defs", typeof(SvgDefs) },
-        { "clipPath", typeof(SvgClipPath) }
-    };
+    private static Dictionary<string, Type> wellKnownElements = Assembly.GetExecutingAssembly()
+        .GetTypes()
+        .Where(t => t.IsSubclassOf(typeof(SvgElement)) && !t.IsAbstract)
+        .ToDictionary(t => (Activator.CreateInstance(t) as SvgElement).TagName, t => t);
 
     public string Source { get; set; }
 
@@ -60,12 +47,22 @@ public class SvgParser
         {
             if (reader.NodeType == XmlNodeType.Element)
             {
+                if (reader.LocalName == "defs")
+                {
+                    // already parsed defs, skip
+                    reader.Skip();
+                    if(reader.NodeType != XmlNodeType.Element)
+                    {
+                        continue;
+                    }
+                }
+
                 SvgElement? element = ParseElement(reader, root.Defs);
                 if (element != null)
                 {
                     root.Children.Add(element);
 
-                    if (element is IElementContainer container && element.TagName != "defs")
+                    if (element is IElementContainer container)
                     {
                         ParseChildren(reader, container, root.Defs, element.TagName);
                     }

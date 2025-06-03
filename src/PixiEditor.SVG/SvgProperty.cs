@@ -20,6 +20,8 @@ public abstract class SvgProperty
     public ISvgUnit? Unit { get; set; }
     public string? SvgFullName => NamespaceName == null ? SvgName : $"{NamespaceName}:{SvgName}";
 
+    protected Type? TypeToCreate { get; set; }
+
     public ISvgUnit? CreateDefaultUnit()
     {
         var genericType = this.GetType().GetGenericArguments();
