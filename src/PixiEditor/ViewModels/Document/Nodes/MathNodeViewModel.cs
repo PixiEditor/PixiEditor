@@ -3,13 +3,14 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Extensions.Helpers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Handlers;
+using PixiEditor.UI.Common.Fonts;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Nodes;
 using PixiEditor.ViewModels.Nodes.Properties;
 
 namespace PixiEditor.ViewModels.Document.Nodes;
 
-[NodeViewModel("MATH_NODE", "NUMBERS", "\uE80E")]
+[NodeViewModel("MATH_NODE", "NUMBERS", PixiPerfectIcons.PlusMinus)]
 internal class MathNodeViewModel : NodeViewModel<MathNode>
 {
     private GenericEnumPropertyViewModel Mode { get; set; }

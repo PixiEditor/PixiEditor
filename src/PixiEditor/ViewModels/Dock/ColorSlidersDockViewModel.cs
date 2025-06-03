@@ -26,6 +26,6 @@ internal class ColorSlidersDockViewModel : DockableViewModel
     public ColorSlidersDockViewModel(ColorsViewModel colorsSubVm)
     {
         ColorsSubViewModel = colorsSubVm;
-        TabCustomizationSettings.Icon = PixiPerfectIcons.ToIcon(PixiPerfectIcons.ColorSliders);
+        TabCustomizationSettings.Icon = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.ColorSliders);
     }
 }

@@ -19,7 +19,7 @@ internal class FileExitMenuBuilder : MenuItemBuilder
                 CommandParameter = MainWindow.Current,
                 Icon = new Image()
                 {
-                    Source = PixiPerfectIcons.ToIcon(PixiPerfectIcons.Exit),
+                    Source = PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.Exit),
                     Width = Models.Commands.XAML.Menu.IconDimensions,
                     Height = Models.Commands.XAML.Menu.IconDimensions
                 }

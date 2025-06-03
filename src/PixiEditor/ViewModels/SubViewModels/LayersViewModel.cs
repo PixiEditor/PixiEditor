@@ -393,7 +393,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
     [Command.Basic("PixiEditor.Layer.ToggleMask", "TOGGLE_MASK", "TOGGLE_MASK",
         CanExecute = "PixiEditor.Layer.ActiveLayerHasMask",
-        Icon = PixiPerfectIcons.ToggleMask, AnalyticsTrack = true)]
+        Icon = PixiPerfectIcons.MaskGhost, AnalyticsTrack = true)]
     public void ToggleMask()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -418,7 +418,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
     [Command.Basic("PixiEditor.Layer.ToggleVisible", "TOGGLE_VISIBILITY", "TOGGLE_VISIBILITY",
         CanExecute = "PixiEditor.HasDocument",
-        Icon = PixiPerfectIcons.ToggleLayerVisible, AnalyticsTrack = true)]
+        Icon = PixiPerfectIcons.FileGhost, AnalyticsTrack = true)]
     public void ToggleVisible()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -614,7 +614,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
     [Command.Basic("PixiEditor.Layer.Rasterize", "RASTERIZE_ACTIVE_LAYER", "RASTERIZE_ACTIVE_LAYER_DESCRIPTIVE",
         CanExecute = "PixiEditor.Layer.AnySelectedLayerIsRasterizable",
-        Icon = PixiPerfectIcons.LowResCircle, MenuItemPath = "LAYER/VECTOR/RASTERIZE_ACTIVE_LAYER",
+        Icon = PixiPerfectIcons.LowresCircle, MenuItemPath = "LAYER/VECTOR/RASTERIZE_ACTIVE_LAYER",
         AnalyticsTrack = true)]
     public void RasterizeActiveLayer()
     {
@@ -708,9 +708,9 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null || doc.ReferenceLayerViewModel.IsTopMost)
         {
-            return PixiPerfectIcons.ToIcon(PixiPerfectIcons.ReferenceLayer);
+            return PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.LayersTop);
         }
 
-        return PixiPerfectIcons.ToIcon(PixiPerfectIcons.ReferenceLayer, 18, 180);
+        return PixiPerfectIconExtensions.ToIcon(PixiPerfectIcons.LayersBottom, 18, 180);
     }
 }

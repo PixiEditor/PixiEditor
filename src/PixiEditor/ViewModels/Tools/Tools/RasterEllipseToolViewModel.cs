@@ -24,7 +24,7 @@ internal class RasterEllipseToolViewModel : ShapeTool, IRasterEllipseToolHandler
     public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
     public override LocalizedString Tooltip => new LocalizedString("ELLIPSE_TOOL_TOOLTIP", Shortcut);
 
-    public override string DefaultIcon => PixiPerfectIcons.LowResCircle;
+    public override string DefaultIcon => PixiPerfectIcons.LowresCircle;
 
     public override Type LayerTypeToCreateOnEmptyUse { get; } = typeof(ImageLayerNode);
 

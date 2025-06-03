@@ -108,7 +108,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
 
     [Commands_Command.Basic("PixiEditor.Window.FlipHorizontally", "FLIP_VIEWPORT_HORIZONTALLY",
         "FLIP_VIEWPORT_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument",
-        Icon = PixiPerfectIcons.YFlip, AnalyticsTrack = true)]
+        Icon = PixiPerfectIcons.Image180, AnalyticsTrack = true)]
     public void FlipViewportHorizontally()
     {
         if (ActiveWindow is ViewportWindowViewModel viewport)

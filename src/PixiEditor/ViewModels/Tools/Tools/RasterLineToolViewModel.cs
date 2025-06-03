@@ -21,7 +21,7 @@ internal class RasterLineToolViewModel : ShapeTool, ILineToolHandler
     public override LocalizedString Tooltip => new LocalizedString("LINE_TOOL_TOOLTIP", Shortcut);
 
     public override Type[]? SupportedLayerTypes { get; } = { typeof(IRasterLayerHandler) };
-    public override string DefaultIcon => PixiPerfectIcons.LowResLine;
+    public override string DefaultIcon => PixiPerfectIcons.LowresLine;
 
     [Settings.Inherited] public double ToolSize => GetValue<double>();
 
