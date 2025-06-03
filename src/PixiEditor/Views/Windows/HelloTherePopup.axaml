@@ -89,7 +89,7 @@
                                 </Style>
                             </StackPanel.Styles>
                             <Button Command="{xaml:Command Name=PixiEditor.FoundersPack:Workspaces.Browse}"
-                                    IsVisible="{xaml:CommandExists Name=PixiEditor.FoundersPack:Workspaces.Browse}"
+                                    IsVisible="{Binding Path=FileViewModel.Owner.AdditionalContentSubViewModel.IsFoundersPackAvailable, FallbackValue=False, RelativeSource={RelativeSource FindAncestor, AncestorType=windows:HelloTherePopup}}"
                                     Name="workspacesButton"
                                     MinWidth="150" Margin="10, 0"
                                     ui:Translator.Key="PixiEditor.FoundersPack:BROWSE_TEMPLATES" />
@@ -97,7 +97,7 @@
                                     Background="{DynamicResource ThemeAccentBrush2}"
                                     ui:Translator.Key="EXAMPLE_FILES"
                                     Margin="10, 0" MinWidth="150"
-                                    Classes.fullWidth="{Binding ElementName=workspacesButton, Path=!IsEffectivelyVisible}"
+                                    Classes.fullWidth="{Binding !FileViewModel.Owner.AdditionalContentSubViewModel.IsFoundersPackAvailable, FallbackValue=False, RelativeSource={RelativeSource FindAncestor, AncestorType=windows:HelloTherePopup}}"
                                     Command="{Binding SetShowAllBetaExamplesCommand, RelativeSource={RelativeSource AncestorType=windows:HelloTherePopup}}"
                                     CommandParameter="{x:True}" />
                         </StackPanel>

@@ -14,10 +14,11 @@ public class ExtensionLoader
 
     public string[] PackagesPath { get; }
     public string UnpackedExtensionsPath { get; }
-    
+
     public ExtensionServices Services { get; set; }
 
     private WasmRuntime.WasmRuntime _wasmRuntime = new WasmRuntime.WasmRuntime();
+    private HashSet<string> loadedExtensions = new HashSet<string>();
 
     public ExtensionLoader(string[] packagesPaths, string unpackedExtensionsPath)
     {
@@ -96,6 +97,11 @@ public class ExtensionLoader
         try
         {
             ExtensionMetadata metadata = ExtractMetadata(extZip);
+            if (loadedExtensions.Contains(metadata.UniqueName))
+            {
+                return null; // Already loaded
+            }
+
             if (IsDifferentThanCached(metadata, extension))
             {
                 UnpackExtension(extZip, metadata);
@@ -230,6 +236,7 @@ public class ExtensionLoader
         var extension = LoadExtensionEntry(entry, metadata);
         extension.Load();
         LoadedExtensions.Add(extension);
+        loadedExtensions.Add(metadata.UniqueName);
         return extension;
     }
 

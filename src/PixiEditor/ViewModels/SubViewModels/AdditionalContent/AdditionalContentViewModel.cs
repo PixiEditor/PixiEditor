@@ -12,5 +12,5 @@ internal class AdditionalContentViewModel : ViewModelBase
 
     public bool IsFoundersPackAvailable => AdditionalContentProvider != null
                                             && AdditionalContentProvider.IsContentOwned("PixiEditor.FoundersPack")
-                                            && ViewModelMain.Current.ExtensionsSubViewModel.ExtensionLoader.LoadedExtensions.Any(x => x.Metadata.UniqueName == "PixiEditor.SupporterPack");
+                                            && ViewModelMain.Current.ExtensionsSubViewModel.ExtensionLoader.LoadedExtensions.Any(x => x.Metadata.UniqueName == "PixiEditor.FoundersPack");
 }
