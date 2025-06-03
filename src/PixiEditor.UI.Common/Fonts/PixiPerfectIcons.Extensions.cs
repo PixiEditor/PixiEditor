@@ -1,4 +1,5 @@
-﻿using Avalonia.Media;
+﻿using Avalonia;
+using Avalonia.Media;
 using Avalonia.Platform;
 using PixiEditor.UI.Common.Rendering;
 
@@ -27,5 +28,20 @@ public static class PixiPerfectIconExtensions
         if (string.IsNullOrEmpty(unicode)) return null;
 
         return new IconImage(unicode, pixiPerfectFontFamily, size, Colors.White, rotation);
+    }
+
+    public static string? TryGetByName(string? icon)
+    {
+        if (string.IsNullOrEmpty(icon))
+        {
+            return null;
+        }
+
+        if (Application.Current.Styles.TryGetResource(icon, null, out object resource))
+        {
+            return resource as string;
+        }
+
+        return icon;
     }
 }

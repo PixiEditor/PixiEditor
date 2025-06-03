@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using PixiEditor.Models.Handlers;
+using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Tools;
 
 namespace PixiEditor.ViewModels.SubViewModels;
@@ -16,7 +17,7 @@ internal class ToolSetViewModel : PixiObservableObject, IToolSetHandler
 
     public ToolSetViewModel(string setName, string? icon = null)
     {
-        Icon = icon ?? string.Empty;
+        Icon = PixiPerfectIconExtensions.TryGetByName(icon) ?? string.Empty;
         Name = setName;
     }
 

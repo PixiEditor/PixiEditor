@@ -1,7 +1,7 @@
 ﻿[
   {
     "Name": "PIXEL_ART_TOOLSET",
-    "Icon": "\uE986",
+    "Icon": "icon-lowres-circle",
     "Tools": [
       "MoveViewport",
       "RotateViewport",
@@ -32,7 +32,7 @@
           "AntiAliasing": false,
           "ForceLowDpiRendering": true
         },
-        "Icon": "\ue994"
+        "Icon": "icon-text-pixel"
       },
       {
         "ToolName": "Eraser",
@@ -48,7 +48,7 @@
   },
   {
     "Name": "PAINT_TOOLSET",
-    "Icon": "\uE912",
+    "Icon": "icon-paint-brush",
     "Tools": [
       "MoveViewport",
       "RotateViewport",
@@ -83,21 +83,21 @@
         "Settings": {
           "AntiAliasing": true
         },
-        "Icon": "\ue93a"
+        "Icon": "icon-line"
       },
       {
         "ToolName": "RasterEllipse",
         "Settings": {
           "AntiAliasing": true
         },
-        "Icon": "\ue910"
+        "Icon": "icon-circle"
       },
       {
         "ToolName": "RasterRectangle",
         "Settings": {
           "AntiAliasing": true
         },
-        "Icon": "\uE953"
+        "Icon": "icon-square"
       },
       {
         "ToolName": "Text",
@@ -105,7 +105,7 @@
           "AntiAliasing": true,
           "ForceLowDpiRendering": true
         },
-        "Icon": "\ue98E"
+        "Icon": "icon-text-antialiased"
       },
       {
         "ToolName": "Eraser",
@@ -123,7 +123,7 @@
   },
   {
     "Name": "VECTOR_TOOLSET",
-    "Icon": "\uE945",
+    "Icon": "icon-vector-pen",
     "Tools": [
       "MoveViewport",
       "RotateViewport",

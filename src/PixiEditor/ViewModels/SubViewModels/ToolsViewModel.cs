@@ -20,6 +20,7 @@ using PixiEditor.Models.Handlers;
 using Drawie.Numerics;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 using PixiEditor.Models.Handlers.Toolbars;
+using PixiEditor.UI.Common.Fonts;
 using PixiEditor.ViewModels.Document;
 using PixiEditor.ViewModels.Tools;
 using PixiEditor.ViewModels.Tools.Tools;
@@ -513,7 +514,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
                 if (!string.IsNullOrEmpty(toolFromToolset.Icon))
                 {
-                    toolSetViewModel.IconOverwrites[tool] = toolFromToolset.Icon;
+                    toolSetViewModel.IconOverwrites[tool] = PixiPerfectIconExtensions.TryGetByName(toolFromToolset.Icon) ?? PixiPerfectIcons.Placeholder;
                 }
 
                 if (tool is null)
