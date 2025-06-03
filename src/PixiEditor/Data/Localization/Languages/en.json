@@ -1055,5 +1055,9 @@
   "EXTRACT_SELECTED_TEXT": "Extract selected text",
   "EXTRACT_SELECTED_TEXT_DESCRIPTIVE": "Extract selected text into new layer.",
   "EXTRACT_SELECTED_CHARACTERS": "Extract selected characters",
-  "EXTRACT_SELECTED_CHARACTERS_DESCRIPTIVE": "Extract individual characters from selection into new layers."
+  "EXTRACT_SELECTED_CHARACTERS_DESCRIPTIVE": "Extract individual characters from selection into new layers.",
+  "STEP_START": "Step back to closest cel",
+  "STEP_END": "Step forward to closest cel",
+  "STEP_FORWARD": "Step forward one frame",
+  "STEP_BACK": "Step back one frame"
 }

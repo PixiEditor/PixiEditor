@@ -50,6 +50,7 @@
     <Style Selector="ToggleButton.PlayButton">
         <Setter Property="Content" Value="{DynamicResource icon-play}" />
         <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource ThemeAccent2Brush}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
@@ -64,6 +65,7 @@
 
     <Style Selector="ToggleButton.PlayButton:checked">
         <Setter Property="Content" Value="{DynamicResource icon-pause}" />
+        <Setter Property="Foreground" Value="{DynamicResource ThemeAccentHighBrush}"/>
         <Setter Property="Background" Value="Transparent" />
     </Style>
 

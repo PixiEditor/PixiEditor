@@ -176,6 +176,11 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     public ICommand ClearSelectedKeyFramesCommand { get; }
     public ICommand PressedKeyFrameCommand { get; }
 
+    public ICommand StepStartCommand { get; }
+    public ICommand StepEndCommand { get; }
+    public ICommand StepForwardCommand { get; }
+    public ICommand StepBackCommand { get; }
+
     public IReadOnlyCollection<CelViewModel> SelectedKeyFrames => KeyFrames != null
         ? KeyFrames.SelectChildrenBy<CelViewModel>(x => x.IsSelected).ToList()
         : [];
@@ -212,6 +217,55 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         ClearSelectedKeyFramesCommand = new RelayCommand<CelViewModel>(ClearSelectedKeyFrames);
         DraggedKeyFrameCommand = new RelayCommand<PointerEventArgs>(KeyFramesDragged);
         ReleasedKeyFrameCommand = new RelayCommand<CelViewModel>(KeyFramesReleased);
+
+        StepStartCommand = new RelayCommand(() =>
+        {
+            var keyFramesWithinActiveFrame = KeyFrames.Where(x => x.IsVisible
+                                                                  && x.StartFrameBindable < ActiveFrame).SelectMany(x => x.Children).ToList();
+            if (keyFramesWithinActiveFrame.Count > 0)
+            {
+                List<int> snapPoints = keyFramesWithinActiveFrame.Select(x => x.StartFrameBindable + x.DurationBindable - 1).ToList();
+                snapPoints.AddRange(KeyFrames.Select(x => x.StartFrameBindable));
+                snapPoints.RemoveAll(x => x >= ActiveFrame);
+
+                ActiveFrame = snapPoints.Max();
+            }
+            else
+            {
+                ActiveFrame = 1;
+            }
+        });
+
+        StepEndCommand = new RelayCommand(() =>
+        {
+            var keyFramesWithinActiveFrame = KeyFrames.Where(x => x.IsVisible
+                                                                  && x.StartFrameBindable + x.DurationBindable - 1 > ActiveFrame).SelectMany(x => x.Children).ToList();
+            if (keyFramesWithinActiveFrame.Count > 0)
+            {
+                List<int> snapPoints = keyFramesWithinActiveFrame.Select(x => x.StartFrameBindable + x.DurationBindable - 1).ToList();
+                snapPoints.AddRange(KeyFrames.Select(x => x.StartFrameBindable));
+                snapPoints.RemoveAll(x => x <= ActiveFrame);
+
+                ActiveFrame = snapPoints.Min();
+            }
+            else
+            {
+                ActiveFrame = EndFrame;
+            }
+        });
+
+        StepForwardCommand = new RelayCommand(() =>
+        {
+            ActiveFrame++;
+        });
+
+        StepBackCommand = new RelayCommand(() =>
+        {
+            if (ActiveFrame > 1)
+            {
+                ActiveFrame--;
+            }
+        });
     }
 
     public void SelectKeyFrame(ICelHandler? keyFrame, bool clearSelection = true)
