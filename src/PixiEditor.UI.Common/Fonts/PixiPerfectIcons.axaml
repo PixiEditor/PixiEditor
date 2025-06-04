@@ -23,6 +23,7 @@
             <system:String x:Key="icon-center">&#xE92B;</system:String>
             <system:String x:Key="icon-chain">&#xE990;</system:String>
             <system:String x:Key="icon-check">&#xE98A;</system:String>
+            <system:String x:Key="icon-check-tick">&#xE97E;</system:String>
             <system:String x:Key="icon-chevron-down">&#xE92C;</system:String>
             <system:String x:Key="icon-chevron-left">&#xE92D;</system:String>
             <system:String x:Key="icon-chevron-right">&#xE92E;</system:String>
@@ -188,6 +189,7 @@
             <system:String x:Key="icon-up-vector">&#xE91A;</system:String>
             <system:String x:Key="icon-upload">&#xE98D;</system:String>
             <system:String x:Key="icon-upload-cloud">&#xE98E;</system:String>
+            <system:String x:Key="icon-user">&#xE97B;</system:String>
             <system:String x:Key="icon-vector-pen">&#xE965;</system:String>
             <system:String x:Key="icon-write">&#xE988;</system:String>
             <system:String x:Key="icon-x-flip">&#xE900;</system:String>

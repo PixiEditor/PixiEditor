@@ -19,6 +19,7 @@ public static partial class PixiPerfectIcons
     public const string Center = "\uE92B";
     public const string Chain = "\uE990";
     public const string Check = "\uE98A";
+    public const string CheckTick = "\uE97E";
     public const string ChevronDown = "\uE92C";
     public const string ChevronLeft = "\uE92D";
     public const string ChevronRight = "\uE92E";
@@ -184,6 +185,7 @@ public static partial class PixiPerfectIcons
     public const string UpVector = "\uE91A";
     public const string Upload = "\uE98D";
     public const string UploadCloud = "\uE98E";
+    public const string User = "\uE97B";
     public const string VectorPen = "\uE965";
     public const string Write = "\uE988";
     public const string XFlip = "\uE900";
