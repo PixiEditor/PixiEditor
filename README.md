@@ -1,7 +1,7 @@
 <img src="https://github.com/user-attachments/assets/bd08c8bd-f610-449d-b1e2-6a990e562518">
 
 
-**PixiEditor** is a universal 2D platform that aims to provide you with tools and features for all your 2D needs. Create beautiful sprites for your games, animations, edit images, create logos. All packed in an eye-friendly dark theme.     
+**PixiEditor** is a universal 2D editor that aims to provide you with tools and features for all your 2D needs. Create beautiful sprites for your games, animations, edit images, create logos. All packed in an eye-friendly dark theme.     
 
 
 [![Release](https://img.shields.io/github/v/release/flabbet/PixiEditor)](https://github.com/flabbet/PixiEditor/releases) 
@@ -14,7 +14,7 @@
 
 ## About PixiEditor
 
-PixiEditor aims to be all-in-one solution for 2D image editing, we aim to achieve this by building a solid foundation with basic functionalities, and exposing complex extension system, that would customize PixiEditor for all your needs.
+PixiEditor aims to be all-in-one solution for 2D image editing, we want to achieve this by building a solid foundation with built-in tools for editing raster and vector graphics, procedural artworks, animations and more. To fully customize PixiEditor for all of your 2D needs, we built advanced Node Graph rendering, that allows for creating basically anything. From tiled texturing workspace, procedural animations that wouldn't be possible to make by hand, to even rendering 3D shapes.
 
 The project started as a pixel-art editor, but quickly evolved into something much more complex. Version 1.0 was downloaded over 100 000 times on all platforms and received 93% positive rating on Steam.
 
