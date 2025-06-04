@@ -499,6 +499,7 @@ public class VectorPathOverlay : Overlay
 
     private void SelectAnchor(AnchorHandle handle, bool append = false)
     {
+        lastSelectedIndices.Clear();
         if (append)
         {
             handle.IsSelected = !handle.IsSelected;
@@ -888,6 +889,15 @@ public class VectorPathOverlay : Overlay
         }
 
         anchorHandles.Clear();
+        foreach (var handle in controlPointHandles)
+        {
+            handle.OnPress -= OnControlPointPress;
+            handle.OnDrag -= OnControlPointDrag;
+            handle.OnRelease -= OnHandleRelease;
+            Handles.Remove(handle);
+        }
+
+        controlPointHandles.Clear();
     }
 
     private VecD TryFindAnySnap(VecD delta, VectorPath path, out string? axisX, out string? axisY, out VecD? snapPoint)
