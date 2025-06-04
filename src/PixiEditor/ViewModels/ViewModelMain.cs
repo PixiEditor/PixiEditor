@@ -96,6 +96,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public bool UserWantsToClose { get; private set; }
     public Guid CurrentSessionId { get; } = Guid.NewGuid();
     public DateTime LaunchDateTime { get; } = DateTime.Now;
+    public event Action OnUserReady;
 
     public event Action<DocumentViewModel> BeforeDocumentClosed;
     public event Action<LazyDocumentViewModel> LazyDocumentClosed;
@@ -407,5 +408,10 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public void AttachToWindow(MainWindow mainWindow)
     {
         AttachedToWindow?.Invoke(mainWindow);
+    }
+
+    internal void InvokeUserReadyEvent()
+    {
+        OnUserReady?.Invoke();
     }
 }

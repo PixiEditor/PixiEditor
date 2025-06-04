@@ -153,11 +153,19 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             if (preferences.GetLocalPreference("OnboardingV2Shown", false) == false)
             {
                 preferences.UpdateLocalPreference("OnboardingV2Shown", true);
-                Owner.WindowSubViewModel.OpenOnboardingWindow();
+                Owner.WindowSubViewModel.OpenOnboardingWindow().Closed += (sender, eventArgs) =>
+                {
+                    Owner.InvokeUserReadyEvent();
+                };
             }
             else if (preferences!.GetPreference("ShowStartupWindow", true))
             {
+                Owner.InvokeUserReadyEvent();
                 OpenHelloTherePopup();
+            }
+            else
+            {
+                Owner.InvokeUserReadyEvent();
             }
         }
     }

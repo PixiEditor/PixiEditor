@@ -256,9 +256,11 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>, IWindowHandler
     [Command.Basic("PixiEditor.Window.OpenOnboardingWindow", "OPEN_ONBOARDING_WINDOW", "OPEN_ONBOARDING_WINDOW",
         Icon = PixiPerfectIcons.Compass, MenuItemPath = "VIEW/OPEN_ONBOARDING_WINDOW", MenuItemOrder = 2,
         AnalyticsTrack = true)]
-    public void OpenOnboardingWindow()
+    public OnboardingDialog OpenOnboardingWindow()
     {
-        new OnboardingDialog { DataContext = new OnboardingViewModel() }.ShowDialog(MainWindow.Current);
+        var dialog = new OnboardingDialog { DataContext = new OnboardingViewModel() };
+        dialog.ShowDialog(MainWindow.Current);
+        return dialog;
     }
 
     [Commands_Command.Basic("PixiEditor.Window.OpenShortcutWindow", "OPEN_SHORTCUT_WINDOW", "OPEN_SHORTCUT_WINDOW",

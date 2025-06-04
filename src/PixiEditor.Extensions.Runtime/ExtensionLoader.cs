@@ -91,6 +91,23 @@ public class ExtensionLoader
         }
     }
 
+    public void InvokeOnUserReady()
+    {
+        foreach (var extension in LoadedExtensions)
+        {
+            try
+            {
+                extension.UserReady();
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                throw;
+#endif
+            }
+        }
+    }
+
     public Extension? LoadExtension(string extension)
     {
         var extZip = ZipFile.OpenRead(extension);

@@ -75,6 +75,12 @@ public partial class WasmExtensionInstance : Extension
         base.OnInitialized();
     }
 
+    protected override void OnUserReady()
+    {
+        Instance.GetAction("user_ready").Invoke();
+        base.OnUserReady();
+    }
+
     private void OnAsyncCallCompleted(int handle, int result)
     {
         Dispatcher.UIThread.Invoke(() =>

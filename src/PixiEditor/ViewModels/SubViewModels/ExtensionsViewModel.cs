@@ -22,6 +22,7 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
         WindowProvider windowProvider = (WindowProvider)Owner.Services.GetService<IWindowProvider>();
         RegisterCoreWindows(windowProvider);
         Owner.OnEarlyStartupEvent += Owner_OnEarlyStartupEvent;
+        Owner.OnUserReady += Owner_OnUserReady;
     }
 
     public void LoadExtensionAdHoc(string extension)
@@ -47,5 +48,10 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
     private void Owner_OnEarlyStartupEvent()
     {
         ExtensionLoader.InitializeExtensions(new ExtensionServices(Owner.Services));
+    }
+
+    private void Owner_OnUserReady()
+    {
+        ExtensionLoader.InvokeOnUserReady();
     }
 }

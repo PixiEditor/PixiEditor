@@ -13,4 +13,10 @@ public abstract class PixiEditorExtension
     ///     Called when extension is initialized. Api is initialized and ready to use.
     /// </summary>
     public virtual void OnInitialized() { }
+
+    /// <summary>
+    ///     Called when the user is ready to use the application. This is called when startup screen would be shown to the user.
+    /// If user didn't complete onboarding, it will be called after the user completes it.
+    /// </summary>
+    public virtual void OnUserReady() { }
 }
