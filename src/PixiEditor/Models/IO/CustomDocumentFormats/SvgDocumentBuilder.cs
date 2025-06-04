@@ -102,6 +102,11 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             shapeData = AddText(text);
             name = TextToolViewModel.NewLayerKey;
         }
+        else if (element is SvgPolyline or SvgPolygon)
+        {
+            shapeData = AddPoly(element);
+            name = VectorPathToolViewModel.NewLayerKey;
+        }
 
         name = element.Id.Unit?.Value ?? name;
 
@@ -374,6 +379,20 @@ internal class SvgDocumentBuilder : IDocumentBuilder
             MissingFontFamily = missingFont,
             MissingFontText = "MISSING_FONT"
         };
+    }
+
+    private PathVectorData AddPoly(SvgElement element)
+    {
+        if (element is SvgPolyline polyline)
+        {
+            return new PathVectorData(VectorPath.FromPoints(polyline.GetPoints(), false));
+        }
+        if (element is SvgPolygon polygon)
+        {
+            return new PathVectorData(VectorPath.FromPoints(polygon.GetPoints(), true));
+        }
+
+        return null;
     }
 
     private void AddCommonShapeData(ShapeVectorData? shapeData, StyleContext styleContext)

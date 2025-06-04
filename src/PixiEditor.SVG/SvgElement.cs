@@ -113,20 +113,7 @@ public class SvgElement(string tagName)
 
     private void ParseAttribute(SvgProperty property, XmlReader reader, SvgDefs defs)
     {
-        if (property is SvgList list)
-        {
-            ParseListProperty(list, reader, defs);
-        }
-        else
-        {
-            property.Unit ??= property.CreateDefaultUnit();
-            property.Unit.ValuesFromXml(reader.Value, defs);
-        }
-    }
-
-    private void ParseListProperty(SvgList list, XmlReader reader, SvgDefs defs)
-    {
-        list.Unit ??= list.CreateDefaultUnit();
-        list.Unit.ValuesFromXml(reader.Value, defs);
+        property.Unit ??= property.CreateDefaultUnit();
+        property.Unit.ValuesFromXml(reader.Value, defs);
     }
 }
