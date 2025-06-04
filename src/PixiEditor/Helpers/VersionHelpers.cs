@@ -11,7 +11,7 @@ internal static class VersionHelpers
 
     public static string GetCurrentAssemblyVersionString(bool moreSpecific = false)
     {
-        StringBuilder builder = new($"{GetCurrentAssemblyVersion().ToString()} Beta");
+        StringBuilder builder = new($"{GetCurrentAssemblyVersion().ToString()}");
 
         // TODO: Dev Build removed for closed beta
 #if MSIX_DEBUG
