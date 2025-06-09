@@ -146,7 +146,7 @@ public class PixiAuthClient
         {
             throw new BadRequestException(await response.Content.ReadAsStringAsync());
         }
-        else if (response.StatusCode == HttpStatusCode.InternalServerError)
+        else if ((int)response.StatusCode >= 500)
         {
             throw new InternalServerErrorException("INTERNAL_SERVER_ERROR");
         }

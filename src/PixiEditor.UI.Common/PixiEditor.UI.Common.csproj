@@ -10,7 +10,7 @@
       <AvaloniaResource Include="Assets/**"/>
       <AvaloniaResource Include="Fonts/**"/>
       <None Include="Assets/**" CopyToOutputDirectory="PreserveNewest" />
-      <None Include="Fonts/**" CopyToOutputDirectory="PreserveNewest" />
+      <None Include="Fonts/PixiPerfect.ttf" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
   
 
