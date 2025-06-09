@@ -16,9 +16,12 @@ public class ExtensionLoader
     public string UnpackedExtensionsPath { get; }
 
     public ExtensionServices Services { get; set; }
+    public event Action<string> ExtensionLoaded;
 
     private WasmRuntime.WasmRuntime _wasmRuntime = new WasmRuntime.WasmRuntime();
     private HashSet<string> loadedExtensions = new HashSet<string>();
+
+
 
     public ExtensionLoader(string[] packagesPaths, string unpackedExtensionsPath)
     {
@@ -254,6 +257,7 @@ public class ExtensionLoader
         extension.Load();
         LoadedExtensions.Add(extension);
         loadedExtensions.Add(metadata.UniqueName);
+        ExtensionLoaded?.Invoke(metadata.UniqueName);
         return extension;
     }
 
@@ -405,4 +409,5 @@ public class ExtensionLoader
 
         return null;
     }
+
 }
