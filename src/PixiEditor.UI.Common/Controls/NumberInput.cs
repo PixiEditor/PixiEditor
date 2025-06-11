@@ -314,6 +314,12 @@ public partial class NumberInput : TextBox
 
     private static bool TryParse(string s, out double value)
     {
+        if (s == null)
+        {
+            value = 0;
+            return false;
+        }
+
         s = s.Replace(",", ".");
 
         if (double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out value))

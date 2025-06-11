@@ -300,9 +300,9 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     {
         if (dragged)
         {
-            if (draggedKeyFrames.Length > 0)
+            if (draggedKeyFrames is { Length: > 0 })
             {
-                ChangeKeyFramesLengthCommand.Execute((draggedKeyFrames.ToArray(), 0, true));
+                ChangeKeyFramesLengthCommand?.Execute((draggedKeyFrames.ToArray(), 0, true));
             }
         }
 

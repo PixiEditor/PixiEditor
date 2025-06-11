@@ -26,6 +26,11 @@ internal class DeleteKeyFrame_Change : Change
                 return false;
             }
 
+            if(node.KeyFrames.FirstOrDefault()?.KeyFrameGuid == keyFrame.Id) // If the keyframe is the first one, we cannot delete it.
+            {
+                return false;
+            }
+
             clonedKeyFrame = keyFrame.Clone();
             
             KeyFrameData data = node.KeyFrames.FirstOrDefault(x => x.KeyFrameGuid == keyFrame.Id);
