@@ -5,10 +5,12 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using ChunkyImageLib;
 using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.ImageData;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Files;
 using Drawie.Numerics;
+using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Models.IO;
@@ -114,6 +116,23 @@ internal class Exporter
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
             return new SaveResult(SaveResultType.InvalidPath);
 
+        if (exportConfig.ExportFramesToFolder)
+        {
+            try
+            {
+                await ExportFramesToFolderAsync(document, directory, exportConfig, job);
+                job?.Finish();
+                return new SaveResult(SaveResultType.Success);
+            }
+            catch (Exception e)
+            {
+                job?.Finish();
+                Console.WriteLine(e);
+                CrashHelper.SendExceptionInfo(e);
+                return new SaveResult(SaveResultType.UnknownError);
+            }
+        }
+
         var typeFromPath = SupportedFilesHelper.ParseImageFormat(Path.GetExtension(pathWithExtension));
 
         if (typeFromPath is null)
@@ -159,6 +178,41 @@ internal class Exporter
             CrashHelper.SendExceptionInfo(e);
             return new SaveResult(SaveResultType.UnknownError);
         }
+    }
+
+    private static async Task ExportFramesToFolderAsync(DocumentViewModel document, string directory,
+        ExportConfig exportConfig, ExportJob? job)
+    {
+        if (!Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        int totalFrames = document.AnimationDataViewModel.GetVisibleFramesCount();
+        document.RenderFramesProgressive(
+            (surface, frame) =>
+        {
+            job?.CancellationTokenSource.Token.ThrowIfCancellationRequested();
+            job?.Report(((double)frame / totalFrames),
+                new LocalizedString("RENDERING_FRAME", frame, totalFrames));
+            if (exportConfig.ExportSize != surface.Size)
+            {
+                var resized = surface.ResizeNearestNeighbor(exportConfig.ExportSize);
+                SaveAsPng(Path.Combine(directory, $"{frame}.png"), resized);
+            }
+            else
+            {
+                SaveAsPng(Path.Combine(directory, $"{frame}.png"), surface);
+            }
+
+        }, CancellationToken.None, exportConfig.ExportOutput);
+    }
+
+    public static void SaveAsPng(string path, Surface surface)
+    {
+        using var snapshot = surface.DrawingSurface.Snapshot();
+        using var fileStream = new FileStream(path, FileMode.Create);
+        snapshot.Encode(EncodedImageFormat.Png).SaveTo(fileStream);
     }
 
     public static void SaveAsGZippedBytes(string path, Surface surface)
