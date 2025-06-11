@@ -34,9 +34,12 @@ internal class CreateCel_Change : Change
             return false;
         }
         
-        if(_frame == -1 && targetLayer.KeyFrames.All(x => x.KeyFrameGuid != createdKeyFrameId))
+        if(_frame == -1)
         {
-            return false;
+            if (targetLayer.KeyFrames.All(x => x.KeyFrameGuid != createdKeyFrameId) || targetLayer.KeyFrames.Count <= 1)
+            {
+                return false;
+            }
         }
         
         return _frame != 0 && target.TryFindMember(_targetLayerGuid, out _layer);
