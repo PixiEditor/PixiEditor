@@ -43,10 +43,16 @@
                                    Min="{Binding Min}" Max="{Binding Max}"
                                    Value="{Binding DoubleValue, Mode=TwoWay}" />
 
-                <Slider Value="{Binding DoubleValue, Mode=TwoWay}"
-                        Margin="5, 0"
+                <Slider
+                        Margin="5, 0" Name="slider"
                         Classes.colorSlider="{Binding SliderSettings.IsColorSlider}"
                         Minimum="{Binding Min}" Maximum="{Binding Max}">
+                    <Interaction.Behaviors>
+                        <behaviours:SliderBindingBehavior
+                            CanBind="{Binding NumberPickerMode,
+                                            Converter={converters:EnumBooleanConverter}, ConverterParameter=Slider}"
+                            ValueBinding="{Binding DoubleValue, Mode=TwoWay}"/>
+                    </Interaction.Behaviors>
                     <Slider.Styles>
                         <Style Selector="Slider.colorSlider Border#TrackBackground">
                             <Setter Property="Background" Value="{Binding SliderSettings.BackgroundBrush}" />
