@@ -13,6 +13,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.IO;
 using Drawie.Numerics;
+using PixiEditor.AnimationRenderer.Core;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
 using Image = Drawie.Backend.Core.Surfaces.ImageData.Image;
@@ -76,6 +77,14 @@ internal partial class ExportFilePopup : PixiEditorPopup
     public static readonly StyledProperty<string> SizeHintProperty = AvaloniaProperty.Register<ExportFilePopup, string>(
         nameof(SizeHint));
 
+    public static readonly StyledProperty<bool> FolderExportProperty = AvaloniaProperty.Register<ExportFilePopup, bool>(
+        nameof(FolderExport));
+
+    public bool FolderExport
+    {
+        get => GetValue(FolderExportProperty);
+        set => SetValue(FolderExportProperty, value);
+    }
     public string SizeHint
     {
         get => GetValue(SizeHintProperty);
@@ -171,6 +180,14 @@ internal partial class ExportFilePopup : PixiEditorPopup
 
     public bool IsSpriteSheetExport => SelectedExportIndex == 2;
 
+    public int AnimationPresetIndex
+    {
+        get { return (int)GetValue(AnimationPresetIndexProperty); }
+        set { SetValue(AnimationPresetIndexProperty, value); }
+    }
+
+    public Array QualityPresetValues { get; }
+
     private DocumentViewModel document;
     private Image[]? videoPreviewFrames = [];
     private DispatcherTimer videoPreviewTimer = new DispatcherTimer();
@@ -178,6 +195,9 @@ internal partial class ExportFilePopup : PixiEditorPopup
     private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
     private Task? generateSpriteSheetTask;
+
+    public static readonly StyledProperty<int> AnimationPresetIndexProperty
+        = AvaloniaProperty.Register<ExportFilePopup, int>("AnimationPresetIndex", 4);
 
     static ExportFilePopup()
     {
@@ -193,8 +213,10 @@ internal partial class ExportFilePopup : PixiEditorPopup
     {
         SaveWidth = imageWidth;
         SaveHeight = imageHeight;
+        QualityPresetValues = Enum.GetValues(typeof(QualityPreset));
 
         InitializeComponent();
+
         DataContext = this;
         Loaded += (_, _) => sizePicker.FocusWidthPicker();
 
@@ -467,37 +489,64 @@ internal partial class ExportFilePopup : PixiEditorPopup
     /// </summary>
     private async Task<string?> ChoosePath()
     {
-        FilePickerSaveOptions options = new FilePickerSaveOptions
-        {
-            Title = new LocalizedString("EXPORT_SAVE_TITLE"),
-            SuggestedFileName = SuggestedName,
-            SuggestedStartLocation = string.IsNullOrEmpty(document.FullFilePath)
-                ? await GetTopLevel(this).StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents)
-                : await GetTopLevel(this).StorageProvider.TryGetFolderFromPathAsync(document.FullFilePath),
-            FileTypeChoices =
-                SupportedFilesHelper.BuildSaveFilter(SelectedExportIndex == 1
-                    ? FileTypeDialogDataSet.SetKind.Video
-                    : FileTypeDialogDataSet.SetKind.Image | FileTypeDialogDataSet.SetKind.Vector),
-            ShowOverwritePrompt = true
-        };
+        bool folderExport = FolderExport && SelectedExportIndex == 1;
 
-        IStorageFile file = await GetTopLevel(this).StorageProvider.SaveFilePickerAsync(options);
-        if (file != null)
+        if (folderExport)
         {
-            if (string.IsNullOrEmpty(file.Name) == false)
+            FolderPickerOpenOptions options = new FolderPickerOpenOptions()
             {
-                SaveFormat = SupportedFilesHelper.GetSaveFileType(
-                    SelectedExportIndex == 1
-                        ? FileTypeDialogDataSet.SetKind.Video
-                        : FileTypeDialogDataSet.SetKind.Image | FileTypeDialogDataSet.SetKind.Vector, file);
-                if (SaveFormat == null)
+                Title = new LocalizedString("EXPORT_SAVE_TITLE"),
+                SuggestedStartLocation = string.IsNullOrEmpty(document.FullFilePath)
+                    ? await GetTopLevel(this).StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents)
+                    : await GetTopLevel(this).StorageProvider.TryGetFolderFromPathAsync(document.FullFilePath),
+                AllowMultiple = false,
+            };
+
+            var folders = await GetTopLevel(this).StorageProvider.OpenFolderPickerAsync(options);
+            if (folders.Count > 0)
+            {
+                IStorageFolder folder = folders[0];
+                if (folder != null)
                 {
-                    return null;
+                    SavePath = folder.Path.LocalPath;
+                    return SavePath;
                 }
+            }
+        }
+        else
+        {
+            FilePickerSaveOptions options = new FilePickerSaveOptions
+            {
+                Title = new LocalizedString("EXPORT_SAVE_TITLE"),
+                SuggestedFileName = SuggestedName,
+                SuggestedStartLocation = string.IsNullOrEmpty(document.FullFilePath)
+                    ? await GetTopLevel(this).StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents)
+                    : await GetTopLevel(this).StorageProvider.TryGetFolderFromPathAsync(document.FullFilePath),
+                FileTypeChoices =
+                    SupportedFilesHelper.BuildSaveFilter(SelectedExportIndex == 1
+                        ? FileTypeDialogDataSet.SetKind.Video
+                        : FileTypeDialogDataSet.SetKind.Image | FileTypeDialogDataSet.SetKind.Vector),
+                ShowOverwritePrompt = true
+            };
 
-                string fileName = SupportedFilesHelper.FixFileExtension(file.Path.LocalPath, SaveFormat);
+            IStorageFile file = await GetTopLevel(this).StorageProvider.SaveFilePickerAsync(options);
+            if (file != null)
+            {
+                if (string.IsNullOrEmpty(file.Name) == false)
+                {
+                    SaveFormat = SupportedFilesHelper.GetSaveFileType(
+                        SelectedExportIndex == 1
+                            ? FileTypeDialogDataSet.SetKind.Video
+                            : FileTypeDialogDataSet.SetKind.Image | FileTypeDialogDataSet.SetKind.Vector, file);
+                    if (SaveFormat == null)
+                    {
+                        return null;
+                    }
 
-                return fileName;
+                    string fileName = SupportedFilesHelper.FixFileExtension(file.Path.LocalPath, SaveFormat);
+
+                    return fileName;
+                }
             }
         }
 
