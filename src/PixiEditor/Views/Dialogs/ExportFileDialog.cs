@@ -7,6 +7,7 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.IO;
 using Drawie.Numerics;
+using PixiEditor.AnimationRenderer.Core;
 using PixiEditor.ViewModels.Document;
 
 namespace PixiEditor.Views.Dialogs;
@@ -143,14 +144,16 @@ internal class ExportFileDialog : CustomDialog
             FilePath = popup.SavePath;
             ChosenFormat = popup.SaveFormat;
             ExportOutput = popup.ExportOutput;
-            
+
             ExportConfig.ExportSize = new VecI(FileWidth, FileHeight);
             ExportConfig.ExportOutput = ExportOutput.Name;
+            ExportConfig.ExportFramesToFolder = popup.FolderExport;
             ExportConfig.AnimationRenderer = ChosenFormat is VideoFileType ? new FFMpegRenderer()
             {
                 Size = new VecI(FileWidth, FileHeight),
                 OutputFormat = ChosenFormat.PrimaryExtension.Replace(".", ""),
-                FrameRate = document.AnimationDataViewModel.FrameRateBindable
+                FrameRate = document.AnimationDataViewModel.FrameRateBindable,
+                QualityPreset = (QualityPreset)popup.AnimationPresetIndex
             }
             : null;
             ExportConfig.ExportAsSpriteSheet = popup.IsSpriteSheetExport;

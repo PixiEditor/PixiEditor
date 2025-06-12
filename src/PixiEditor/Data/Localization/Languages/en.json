@@ -1059,5 +1059,12 @@
   "STEP_START": "Step back to closest cel",
   "STEP_END": "Step forward to closest cel",
   "STEP_FORWARD": "Step forward one frame",
-  "STEP_BACK": "Step back one frame"
+  "STEP_BACK": "Step back one frame",
+  "ANIMATION_QUALITY_PRESET": "Quality Preset",
+  "VERY_LOW_QUALITY_PRESET": "Very Low",
+  "LOW_QUALITY_PRESET": "Low",
+  "MEDIUM_QUALITY_PRESET": "Medium",
+  "HIGH_QUALITY_PRESET": "High",
+  "VERY_HIGH_QUALITY_PRESET": "Very High",
+  "EXPORT_FRAMES": "Export Frames"
 }

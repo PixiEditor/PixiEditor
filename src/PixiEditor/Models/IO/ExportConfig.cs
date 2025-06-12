@@ -14,6 +14,7 @@ public class ExportConfig
    
    public VectorExportConfig? VectorExportConfig { get; set; }
    public string ExportOutput { get; set; }
+   public bool ExportFramesToFolder { get; set; }
 
    public ExportConfig(VecI exportSize)
    {
