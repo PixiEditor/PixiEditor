@@ -39,6 +39,8 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
         {
             builder.AddString(original.Path.ToSvgPathData());
         }
+
+        builder.AddVecD(original.PathOffset);
     }
 
     protected override bool DeserializeVectorData(ByteExtractor extractor, Matrix3X3 matrix, Paintable strokePaintable,
@@ -69,6 +71,12 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
         if (hasPath)
         {
             path = VectorPath.FromSvgPath(DeserializeStringCompatible(extractor, serializerData));
+        }
+
+        VecD pathOffset = VecD.Zero;
+        if (!IsFilePreVersion(serializerData, new Version(2, 0, 0, 95)))
+        {
+            pathOffset = extractor.GetVecD();
         }
 
         FontFamilyName family =
@@ -107,7 +115,8 @@ internal class TextSerializationFactory : VectorShapeSerializationFactory<TextVe
             Path = path,
             MissingFontFamily = missingFamily,
             MissingFontText = new LocalizedString("MISSING_FONT"),
-            AntiAlias = antiAlias
+            AntiAlias = antiAlias,
+            PathOffset = pathOffset
         };
 
         return true;

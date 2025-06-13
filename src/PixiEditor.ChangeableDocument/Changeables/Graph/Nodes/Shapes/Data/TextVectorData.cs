@@ -153,6 +153,7 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
 
     public FontFamilyName? MissingFontFamily { get; set; }
     public string MissingFontText { get; set; }
+    public VecD PathOffset { get; set; }
 
     private RichText richText;
     private RectD lastBounds;
@@ -226,7 +227,7 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
 
     private void PaintText(Canvas canvas, Paint paint)
     {
-        richText.Paint(canvas, Position, Font, paint, Path);
+        richText.Paint(canvas, Position, Font, paint, Path, PathOffset);
     }
 
     public override bool IsValid()
@@ -239,11 +240,14 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         if (copy is TextVectorData textData)
         {
             textData.Font = Font.FromFontFamily(Font.Family);
-            textData.Font.Size = Font.Size;
-            textData.Font.Edging = Font.Edging;
-            textData.Font.SubPixel = Font.SubPixel;
-            textData.Font.Bold = Font.Bold;
-            textData.Font.Italic = Font.Italic;
+            if (textData.Font != null)
+            {
+                textData.Font.Size = Font.Size;
+                textData.Font.Edging = Font.Edging;
+                textData.Font.SubPixel = Font.SubPixel;
+                textData.Font.Bold = Font.Bold;
+                textData.Font.Italic = Font.Italic;
+            }
 
             textData.lastBounds = lastBounds;
         }
@@ -262,6 +266,7 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
         hash.Add(MaxWidth);
         hash.Add(Bold);
         hash.Add(Italic);
+        hash.Add(PathOffset);
 
         return hash.ToHashCode();
     }
@@ -288,7 +293,8 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
     protected bool Equals(TextVectorData other)
     {
         return base.Equals(other) && Position.Equals(other.Position) && MaxWidth.Equals(other.MaxWidth) && AntiAlias == other.AntiAlias && Nullable.Equals(MissingFontFamily, other.MissingFontFamily) && MissingFontText == other.MissingFontText
-            && Text == other.Text && Font.Equals(other.Font) && Spacing.Equals(other.Spacing) && Path == other.Path && Bold == other.Bold && Italic == other.Italic;
+            && Text == other.Text && Font.Equals(other.Font) && Spacing.Equals(other.Spacing) && Path == other.Path && Bold == other.Bold && Italic == other.Italic
+            && PathOffset.Equals(other.PathOffset);
     }
 
     public override bool Equals(object? obj)
@@ -313,6 +319,6 @@ public class TextVectorData : ShapeVectorData, IReadOnlyTextData, IScalable
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(base.GetHashCode(), Position, MaxWidth, AntiAlias, MissingFontFamily, MissingFontText, Font, HashCode.Combine(Text, Spacing, Path));
+        return HashCode.Combine(base.GetHashCode(), Position, MaxWidth, AntiAlias, MissingFontFamily, MissingFontText, Font, HashCode.Combine(Text, Spacing, Path, PathOffset));
     }
 }

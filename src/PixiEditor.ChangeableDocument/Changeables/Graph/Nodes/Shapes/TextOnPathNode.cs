@@ -1,4 +1,5 @@
 ﻿using Drawie.Backend.Core.Vector;
+using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Shapes.Data;
 using PixiEditor.ChangeableDocument.Rendering;
 
@@ -9,6 +10,7 @@ public class TextOnPathNode : Node
 {
     public InputProperty<TextVectorData> TextData { get; }
     public InputProperty<ShapeVectorData> PathData { get; }
+    public InputProperty<VecD> Offset { get; }
 
     public OutputProperty<TextVectorData> Output { get; }
 
@@ -18,6 +20,7 @@ public class TextOnPathNode : Node
     {
         TextData = CreateInput<TextVectorData>("Text", "TEXT_LABEL", null);
         PathData = CreateInput<ShapeVectorData>("Path", "SHAPE_LABEL", null);
+        Offset = CreateInput<VecD>("Offset", "OFFSET", VecD.Zero);
 
         Output = CreateOutput<TextVectorData>("Output", "TEXT_LABEL", null);
     }
@@ -40,6 +43,7 @@ public class TextOnPathNode : Node
         lastPath.Transform(pathData.TransformationMatrix);
 
         cloned.Path = lastPath;
+        cloned.PathOffset = Offset.Value;
 
         Output.Value = cloned;
     }
