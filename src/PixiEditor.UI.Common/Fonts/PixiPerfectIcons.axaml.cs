@@ -178,6 +178,7 @@ public static partial class PixiPerfectIcons
     public const string TextUnderline = "\uE9B8";
     public const string Timeline = "\uE9A3";
     public const string Tool = "\uE977";
+    public const string Train = "\uE9C3";
     public const string Trash = "\uE978";
     public const string Twitter = "\uE904";
     public const string Undo = "\uE979";

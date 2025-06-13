@@ -182,6 +182,7 @@
             <system:String x:Key="icon-text-underline">&#xE9B8;</system:String>
             <system:String x:Key="icon-timeline">&#xE9A3;</system:String>
             <system:String x:Key="icon-tool">&#xE977;</system:String>
+            <system:String x:Key="icon-train">&#xE9C3;</system:String>
             <system:String x:Key="icon-trash">&#xE978;</system:String>
             <system:String x:Key="icon-twitter">&#xE904;</system:String>
             <system:String x:Key="icon-undo">&#xE979;</system:String>
