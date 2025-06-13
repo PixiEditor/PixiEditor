@@ -401,7 +401,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                         SerializationUtil.DeserializeDict(serializedNode.AdditionalData, config, allFactories,
                             serializerData)));
                 }
+            }
 
+            foreach (var node in graph.AllNodes)
+            {
+                Guid nodeGuid = mappedNodeIds[node.Id];
                 if (node.InputConnections != null)
                 {
                     foreach (var connections in node.InputConnections)
