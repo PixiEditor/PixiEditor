@@ -7,6 +7,7 @@
                          xmlns:indicators="clr-namespace:PixiEditor.Views.Indicators"
                          xmlns:input1="clr-namespace:PixiEditor.Views.Input"
                          xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+                         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
                          CanResize="False"
                          CanMinimize="False"
                          SizeToContent="WidthAndHeight"
@@ -27,7 +28,26 @@
                 </TabControl.Styles>
                 <TabControl.Items>
                     <TabItem IsSelected="True" ui1:Translator.Key="EXPORT_IMAGE_HEADER" />
-                    <TabItem ui1:Translator.Key="EXPORT_ANIMATION_HEADER" />
+                    <TabItem ui1:Translator.Key="EXPORT_ANIMATION_HEADER">
+                        <StackPanel Orientation="Vertical" Spacing="5">
+                            <StackPanel Spacing="5" Orientation="Horizontal">
+                                <TextBlock ui1:Translator.Key="ANIMATION_QUALITY_PRESET" />
+                                <ComboBox
+                                    SelectedIndex="{Binding ElementName=saveFilePopup, Path=AnimationPresetIndex}"
+                                    ItemsSource="{Binding ElementName=saveFilePopup, Path=QualityPresetValues}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock
+                                                ui1:Translator.Key="{Binding Converter={converters:EnumToLocalizedStringConverter}}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+
+                                <CheckBox IsChecked="{Binding ElementName=saveFilePopup, Path=FolderExport, Mode=TwoWay}"
+                                          ui1:Translator.Key="EXPORT_FRAMES" />
+                            </StackPanel>
+                        </StackPanel>
+                    </TabItem>
                     <TabItem ui1:Translator.Key="EXPORT_SPRITESHEET_HEADER">
                         <Grid>
                             <Grid.ColumnDefinitions>

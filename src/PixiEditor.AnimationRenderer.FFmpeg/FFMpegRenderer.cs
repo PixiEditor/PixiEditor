@@ -17,6 +17,7 @@ public class FFMpegRenderer : IAnimationRenderer
     public int FrameRate { get; set; } = 60;
     public string OutputFormat { get; set; } = "mp4";
     public VecI Size { get; set; }
+    public QualityPreset QualityPreset { get; set; } = QualityPreset.VeryHigh;
 
     public async Task<bool> RenderAsync(List<Image> rawFrames, string outputPath, CancellationToken cancellationToken,
         Action<double>? progressCallback = null)
@@ -215,11 +216,20 @@ public class FFMpegRenderer : IAnimationRenderer
 
     private FFMpegArgumentProcessor GetMp4Arguments(FFMpegArguments args, string outputPath)
     {
+        int qscale = QualityPreset switch
+        {
+            QualityPreset.VeryLow => 31,
+            QualityPreset.Low => 25,
+            QualityPreset.Medium => 19,
+            QualityPreset.High => 10,
+            QualityPreset.VeryHigh => 1,
+            _ => 2
+        };
         return args
             .OutputToFile(outputPath, true, options =>
             {
                 options.WithFramerate(FrameRate)
-                    .WithVideoBitrate(1800)
+                    .WithCustomArgument($"-qscale:v {qscale}")
                     .WithVideoCodec("mpeg4")
                     .ForcePixelFormat("yuv420p");
             });
