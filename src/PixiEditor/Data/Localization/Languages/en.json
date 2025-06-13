@@ -1066,5 +1066,8 @@
   "MEDIUM_QUALITY_PRESET": "Medium",
   "HIGH_QUALITY_PRESET": "High",
   "VERY_HIGH_QUALITY_PRESET": "Very High",
-  "EXPORT_FRAMES": "Export Frames"
+  "EXPORT_FRAMES": "Export Frames",
+  "NORMALIZE_OFFSET": "Normalize Offset",
+  "TANGENT": "Tangent",
+  "EVALUATE_PATH_NODE": "Evaluate Path"
 }
