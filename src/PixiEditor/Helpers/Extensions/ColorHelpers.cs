@@ -1,7 +1,10 @@
 ﻿using Avalonia;
 using Avalonia.Media;
+using Avalonia.Skia;
 using Drawie.Backend.Core.ColorsImpl.Paintables;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Numerics;
+using Drawie.Skia;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using BackendColor = Drawie.Backend.Core.ColorsImpl.Color;
 using GradientStop = Drawie.Backend.Core.ColorsImpl.Paintables.GradientStop;
@@ -47,17 +50,31 @@ internal static class ColorHelpers
                 new VecD(linearGradientBrush.StartPoint.Point.X, linearGradientBrush.StartPoint.Point.Y),
                 new VecD(linearGradientBrush.EndPoint.Point.X, linearGradientBrush.EndPoint.Point.Y),
                 linearGradientBrush.GradientStops.Select(stop =>
-                    new GradientStop(new BackendColor(stop.Color.R, stop.Color.G, stop.Color.B, stop.Color.A), stop.Offset))),
+                    new GradientStop(new BackendColor(stop.Color.R, stop.Color.G, stop.Color.B, stop.Color.A), stop.Offset)))
+            {
+                AbsoluteValues = linearGradientBrush.StartPoint.Unit == RelativeUnit.Absolute ||
+                                 linearGradientBrush.EndPoint.Unit == RelativeUnit.Absolute,
+                Transform = linearGradientBrush.Transform != null ? ToDrawieMatrix(linearGradientBrush.Transform.Value) : null
+            },
         IRadialGradientBrush radialGradientBrush => new RadialGradientPaintable(
             new VecD(radialGradientBrush.Center.Point.X, radialGradientBrush.Center.Point.Y),
             radialGradientBrush.RadiusX.Scalar,
             radialGradientBrush.GradientStops.Select(stop =>
-                new GradientStop(new BackendColor(stop.Color.R, stop.Color.G, stop.Color.B, stop.Color.A), stop.Offset))),
+                new GradientStop(new BackendColor(stop.Color.R, stop.Color.G, stop.Color.B, stop.Color.A), stop.Offset)))
+        {
+            AbsoluteValues = radialGradientBrush.Center.Unit == RelativeUnit.Absolute ||
+                             radialGradientBrush.RadiusX.Unit == RelativeUnit.Absolute,
+            Transform = radialGradientBrush.Transform != null ? ToDrawieMatrix(radialGradientBrush.Transform.Value) : null
+        },
         IConicGradientBrush conicGradientBrush => new SweepGradientPaintable(
             new VecD(conicGradientBrush.Center.Point.X, conicGradientBrush.Center.Point.Y),
             conicGradientBrush.Angle,
             conicGradientBrush.GradientStops.Select(stop =>
-                new GradientStop(new BackendColor(stop.Color.R, stop.Color.G, stop.Color.B, stop.Color.A), stop.Offset))),
+                new GradientStop(new BackendColor(stop.Color.R, stop.Color.G, stop.Color.B, stop.Color.A), stop.Offset)))
+        {
+            AbsoluteValues = conicGradientBrush.Center.Unit == RelativeUnit.Absolute,
+            Transform = conicGradientBrush.Transform != null ? ToDrawieMatrix(conicGradientBrush.Transform.Value) : null
+        },
         null => null,
 
     };
@@ -67,22 +84,25 @@ internal static class ColorHelpers
         ColorPaintable color => new SolidColorBrush(color.Color.ToColor()),
         LinearGradientPaintable linearGradientPaintable => new LinearGradientBrush
         {
-            StartPoint = new RelativePoint(linearGradientPaintable.Start.X, linearGradientPaintable.Start.Y, RelativeUnit.Absolute),
-            EndPoint = new RelativePoint(linearGradientPaintable.End.X, linearGradientPaintable.End.Y, RelativeUnit.Absolute),
-            GradientStops = ToAvaloniaGradientStops(linearGradientPaintable.GradientStops)
+            StartPoint = new RelativePoint(linearGradientPaintable.Start.X, linearGradientPaintable.Start.Y, paintable.AbsoluteValues ? RelativeUnit.Absolute : RelativeUnit.Relative),
+            EndPoint = new RelativePoint(linearGradientPaintable.End.X, linearGradientPaintable.End.Y, paintable.AbsoluteValues ? RelativeUnit.Absolute : RelativeUnit.Relative),
+            GradientStops = ToAvaloniaGradientStops(linearGradientPaintable.GradientStops),
+            Transform = linearGradientPaintable.Transform.HasValue ? new MatrixTransform(ToAvaloniaMatrix(linearGradientPaintable.Transform.Value)) : null
         },
         RadialGradientPaintable radialGradientPaintable => new RadialGradientBrush
         {
-            Center = new RelativePoint(radialGradientPaintable.Center.X, radialGradientPaintable.Center.Y, RelativeUnit.Absolute),
+            Center = new RelativePoint(radialGradientPaintable.Center.X, radialGradientPaintable.Center.Y, paintable.AbsoluteValues ? RelativeUnit.Absolute : RelativeUnit.Relative),
             RadiusX = new RelativeScalar(radialGradientPaintable.Radius, RelativeUnit.Absolute),
             RadiusY = new RelativeScalar(radialGradientPaintable.Radius, RelativeUnit.Absolute),
-            GradientStops = ToAvaloniaGradientStops(radialGradientPaintable.GradientStops)
+            GradientStops = ToAvaloniaGradientStops(radialGradientPaintable.GradientStops),
+            Transform = radialGradientPaintable.Transform.HasValue ? new MatrixTransform(ToAvaloniaMatrix(radialGradientPaintable.Transform.Value)) : null
         },
         SweepGradientPaintable conicGradientPaintable => new ConicGradientBrush
         {
             Angle = conicGradientPaintable.Angle,
-            Center = new RelativePoint(conicGradientPaintable.Center.X, conicGradientPaintable.Center.Y, RelativeUnit.Absolute),
-            GradientStops = ToAvaloniaGradientStops(conicGradientPaintable.GradientStops)
+            Center = new RelativePoint(conicGradientPaintable.Center.X, conicGradientPaintable.Center.Y, paintable.AbsoluteValues ? RelativeUnit.Absolute : RelativeUnit.Relative),
+            GradientStops = ToAvaloniaGradientStops(conicGradientPaintable.GradientStops),
+            Transform = conicGradientPaintable.Transform.HasValue ? new MatrixTransform(ToAvaloniaMatrix(conicGradientPaintable.Transform.Value)) : null
         },
         null => null,
         _ => throw new NotImplementedException()
@@ -97,5 +117,15 @@ internal static class ColorHelpers
         }
 
         return stops;
+    }
+
+    private static Matrix ToAvaloniaMatrix(Matrix3X3 matrix)
+    {
+        return new Matrix(matrix.ScaleX, matrix.SkewY, matrix.SkewX, matrix.ScaleY, matrix.TransX, matrix.TransY);
+    }
+
+    private static Matrix3X3 ToDrawieMatrix(Matrix matrix)
+    {
+        return matrix.ToSKMatrix().ToMatrix3X3();
     }
 }

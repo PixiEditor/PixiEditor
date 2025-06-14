@@ -180,6 +180,7 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
             VectorShapeChangeType changeType = name switch
             {
                 nameof(IFillableShapeToolbar.Fill) => VectorShapeChangeType.Fill,
+                nameof(IFillableShapeToolbar.FillBrush) => VectorShapeChangeType.Fill,
                 nameof(IShapeToolbar.StrokeBrush) => VectorShapeChangeType.Stroke,
                 nameof(IShapeToolbar.ToolSize) => VectorShapeChangeType.Stroke,
                 nameof(IShapeToolbar.AntiAliasing) => VectorShapeChangeType.OtherVisuals,

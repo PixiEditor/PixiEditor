@@ -454,7 +454,7 @@ internal class DocumentUpdater
 
             if (closestMember == null)
             {
-                closestMember = doc.NodeGraphHandler.StructureTree.Members.FirstOrDefault();
+                closestMember = doc.NodeGraphHandler.StructureTree.Members.FirstOrDefault(x => x.Id != info.Id);
             }
 
             if (closestMember != null)
