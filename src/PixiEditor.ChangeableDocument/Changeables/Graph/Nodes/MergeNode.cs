@@ -52,7 +52,7 @@ public class MergeNode : RenderNode
 
     private void Merge(DrawingSurface target, RenderContext context)
     {
-        if (Bottom.Value != null && Top.Value != null)
+        if (Bottom.Value != null && Top.Value != null && BlendMode.Value != Enums.BlendMode.Normal)
         {
             int saved = target.Canvas.SaveLayer();
             Bottom.Value?.Paint(context, target);
