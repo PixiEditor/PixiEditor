@@ -47,6 +47,11 @@ public class SvgPolyline() : SvgPrimitive("polyline")
 
                     nextSpaceIsSeparator = false;
                 }
+                else
+                {
+                    x = ParseNumber(currentNumberString);
+                    currentNumberString = string.Empty;
+                }
             }
             else if (char.IsDigit(character) || character == '.' || character == '-' || character == '+')
             {
