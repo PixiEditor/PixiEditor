@@ -1069,5 +1069,10 @@
   "EXPORT_FRAMES": "Export Frames",
   "NORMALIZE_OFFSET": "Normalize Offset",
   "TANGENT": "Tangent",
-  "EVALUATE_PATH_NODE": "Evaluate Path"
+  "EVALUATE_PATH_NODE": "Evaluate Path",
+  "OLD_MIN": "Old Min",
+  "OLD_MAX": "Old Max",
+  "NEW_MIN": "New Min",
+  "NEW_MAX": "New Max",
+  "REMAP_NODE": "Remap"
 }
