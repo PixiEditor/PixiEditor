@@ -155,7 +155,8 @@ internal class KeyFrame : TemplatedControl
 
     private int MousePosToFrame(PointerEventArgs e, bool round = true)
     {
-        double x = e.GetPosition(this.FindAncestorOfType<Border>()).X;
+        // 30 is a left visual padding on the timeline. TODO: Make it less...hardcoded
+        double x = e.GetPosition(this.FindAncestorOfType<Border>()).X - 30;
         int frame;
         if (round)
         {
