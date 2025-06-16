@@ -221,10 +221,12 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         StepStartCommand = new RelayCommand(() =>
         {
             var keyFramesWithinActiveFrame = KeyFrames.Where(x => x.IsVisible
-                                                                  && x.StartFrameBindable < ActiveFrame).SelectMany(x => x.Children).ToList();
+                                                                  && x.StartFrameBindable < ActiveFrame)
+                .SelectMany(x => x.Children).ToList();
             if (keyFramesWithinActiveFrame.Count > 0)
             {
-                List<int> snapPoints = keyFramesWithinActiveFrame.Select(x => x.StartFrameBindable + x.DurationBindable - 1).ToList();
+                List<int> snapPoints = keyFramesWithinActiveFrame
+                    .Select(x => x.StartFrameBindable + x.DurationBindable - 1).ToList();
                 snapPoints.AddRange(KeyFrames.Select(x => x.StartFrameBindable));
                 snapPoints.RemoveAll(x => x >= ActiveFrame);
 
@@ -239,10 +241,12 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         StepEndCommand = new RelayCommand(() =>
         {
             var keyFramesWithinActiveFrame = KeyFrames.Where(x => x.IsVisible
-                                                                  && x.StartFrameBindable + x.DurationBindable - 1 > ActiveFrame).SelectMany(x => x.Children).ToList();
+                                                                  && x.StartFrameBindable + x.DurationBindable - 1 >
+                                                                  ActiveFrame).SelectMany(x => x.Children).ToList();
             if (keyFramesWithinActiveFrame.Count > 0)
             {
-                List<int> snapPoints = keyFramesWithinActiveFrame.Select(x => x.StartFrameBindable + x.DurationBindable - 1).ToList();
+                List<int> snapPoints = keyFramesWithinActiveFrame
+                    .Select(x => x.StartFrameBindable + x.DurationBindable - 1).ToList();
                 snapPoints.AddRange(KeyFrames.Select(x => x.StartFrameBindable));
                 snapPoints.RemoveAll(x => x <= ActiveFrame);
 
@@ -424,6 +428,8 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
                 dragStartFrame += delta;
             }
         }
+
+        PropertyChanged(this, new PropertyChangedEventArgs(nameof(EndFrame)));
     }
 
     private void ClearSelectedKeyFrames(CelViewModel? keyFrame)
@@ -667,6 +673,17 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         {
             newCollection.KeyFrameAdded += timeline.KeyFrames_KeyFrameAdded;
             newCollection.KeyFrameRemoved += timeline.KeyFrames_KeyFrameRemoved;
+
+            foreach (var item in newCollection)
+            {
+                foreach (var child in item.Children)
+                {
+                    if (child is CelViewModel cel)
+                    {
+                        cel.PropertyChanged += timeline.KeyFrameOnPropertyChanged;
+                    }
+                }
+            }
         }
 
         if (timeline.PropertyChanged != null)
@@ -679,6 +696,34 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     private void KeyFrames_KeyFrameAdded(CelViewModel cel)
     {
         cel.PropertyChanged += KeyFrameOnPropertyChanged;
+        if (cel is CelGroupViewModel group)
+        {
+            group.Children.CollectionChanged += GroupChildren_CollectionChanged;
+        }
+
+        PropertyChanged(this, new PropertyChangedEventArgs(nameof(SelectedKeyFrames)));
+        PropertyChanged(this, new PropertyChangedEventArgs(nameof(EndFrame)));
+    }
+
+    private void GroupChildren_CollectionChanged(object? sender,
+        System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+        if (e.NewItems != null)
+        {
+            foreach (CelViewModel cel in e.NewItems)
+            {
+                cel.PropertyChanged += KeyFrameOnPropertyChanged;
+            }
+        }
+
+        if (e.OldItems != null)
+        {
+            foreach (CelViewModel cel in e.OldItems)
+            {
+                cel.PropertyChanged -= KeyFrameOnPropertyChanged;
+            }
+        }
+
         PropertyChanged(this, new PropertyChangedEventArgs(nameof(SelectedKeyFrames)));
         PropertyChanged(this, new PropertyChangedEventArgs(nameof(EndFrame)));
     }
@@ -689,6 +734,11 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         {
             cel.Document.AnimationDataViewModel.RemoveSelectedKeyFrame(cel.Id);
             cel.PropertyChanged -= KeyFrameOnPropertyChanged;
+
+            if (cel is CelGroupViewModel group)
+            {
+                group.Children.CollectionChanged -= GroupChildren_CollectionChanged;
+            }
         }
 
         PropertyChanged(this, new PropertyChangedEventArgs(nameof(SelectedKeyFrames)));

@@ -258,7 +258,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
         {
             foreach (var frame in videoPreviewFrames)
             {
-                frame.Dispose();
+                frame?.Dispose();
             }
         }
     }
