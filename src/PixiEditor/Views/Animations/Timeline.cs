@@ -332,7 +332,15 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
         _selectionRectangle = e.NameScope.Find<Rectangle>("PART_SelectionRectangle");
 
-        _timelineKeyFramesScroll.PointerWheelChanged += TimelineSliderOnPointerWheelChanged;
+        _timelineKeyFramesScroll.AddHandler(PointerWheelChangedEvent, (s, e) =>
+        {
+            if (!e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+            {
+                return;
+            }
+
+            TimelineSliderOnPointerWheelChanged(s, e);
+        }, RoutingStrategies.Tunnel);
         _timelineSlider.PointerWheelChanged += TimelineSliderOnPointerWheelChanged;
         _timelineKeyFramesScroll.ScrollChanged += TimelineKeyFramesScrollOnScrollChanged;
         _contentGrid.PointerPressed += ContentOnPointerPressed;
@@ -410,7 +418,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
     private void KeyFramesDragged(PointerEventArgs? e)
     {
-        if (clickedCel == null) return;
+        if (clickedCel == null || e.GetMouseButton(this) != MouseButton.Left) return;
 
         int frameUnderMouse = MousePosToFrame(e);
         int delta = frameUnderMouse - dragStartFrame;
