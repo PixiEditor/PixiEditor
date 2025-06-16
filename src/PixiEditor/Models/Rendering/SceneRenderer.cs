@@ -261,7 +261,7 @@ internal class SceneRenderer : IDisposable
         for (int i = 1; i <= animationData.OnionFrames; i++)
         {
             int frame = DocumentViewModel.AnimationHandler.ActiveFrameTime.Frame - i;
-            if (frame < DocumentViewModel.AnimationHandler.FirstFrame)
+            if (frame < DocumentViewModel.AnimationHandler.FirstVisibleFrame)
             {
                 break;
             }

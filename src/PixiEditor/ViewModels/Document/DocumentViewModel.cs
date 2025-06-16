@@ -1202,7 +1202,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         int framesCount = lastFrame;
 
-        Image[] images = new Image[framesCount];
+        Image[] images = new Image[framesCount - firstFrame];
 
         // TODO: Multi-threading
         for (int i = firstFrame; i < lastFrame; i++)
