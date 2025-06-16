@@ -31,6 +31,7 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Parser;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels.Document;
+using PixiEditor.ViewModels.Tools.Tools;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
 namespace PixiEditor.Models.Controllers;
@@ -241,11 +242,13 @@ internal static class ClipboardController
                     return false;
                 }
 
+                manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
                 document.Operations.SetSelectedMember(guid.Value);
                 document.Operations.PasteImageWithTransform(dataImage.Image, position, guid.Value, false);
             }
             else
             {
+                manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
                 document.Operations.PasteImageWithTransform(dataImage.Image, position);
             }
 
