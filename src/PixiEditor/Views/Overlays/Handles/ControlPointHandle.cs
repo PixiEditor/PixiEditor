@@ -1,6 +1,7 @@
 ﻿using Drawie.Backend.Core.Surfaces.PaintImpl;
 using Drawie.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
+using PixiEditor.Helpers;
 using Canvas = Drawie.Backend.Core.Surfaces.Canvas;
 
 namespace PixiEditor.Views.Overlays.Handles;
