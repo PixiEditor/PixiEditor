@@ -35,6 +35,7 @@
             <system:String x:Key="icon-circle">&#xE930;</system:String>
             <system:String x:Key="icon-clock">&#xE931;</system:String>
             <system:String x:Key="icon-closed-grid">&#xE913;</system:String>
+            <system:String x:Key="icon-coins">&#xE9C5;</system:String>
             <system:String x:Key="icon-color-palette">&#xE932;</system:String>
             <system:String x:Key="icon-color-picker">&#xE933;</system:String>
             <system:String x:Key="icon-color-sliders">&#xE934;</system:String>
@@ -48,6 +49,7 @@
             <system:String x:Key="icon-create-mask">&#xE93A;</system:String>
             <system:String x:Key="icon-crop">&#xE93C;</system:String>
             <system:String x:Key="icon-crop-to-selection">&#xE93B;</system:String>
+            <system:String x:Key="icon-crosshair">&#xE9C6;</system:String>
             <system:String x:Key="icon-crossroad">&#xE91D;</system:String>
             <system:String x:Key="icon-database">&#xE93D;</system:String>
             <system:String x:Key="icon-deselect">&#xE93E;</system:String>
@@ -113,6 +115,7 @@
             <system:String x:Key="icon-lowres-square">&#xE9A8;</system:String>
             <system:String x:Key="icon-magic">&#xE90D;</system:String>
             <system:String x:Key="icon-magic-wand">&#xE95D;</system:String>
+            <system:String x:Key="icon-map">&#xE9C4;</system:String>
             <system:String x:Key="icon-mask-ghost">&#xE99E;</system:String>
             <system:String x:Key="icon-merge">&#xE95F;</system:String>
             <system:String x:Key="icon-message">&#xE98F;</system:String>

@@ -1074,5 +1074,6 @@
   "OLD_MAX": "Old Max",
   "NEW_MIN": "New Min",
   "NEW_MAX": "New Max",
-  "REMAP_NODE": "Remap"
+  "REMAP_NODE": "Remap",
+  "TEXT_TOOL_ACTION_DISPLAY": "Click on the canvas to add a new text (drag while clicking to set the size). Click on existing text to edit it."
 }
