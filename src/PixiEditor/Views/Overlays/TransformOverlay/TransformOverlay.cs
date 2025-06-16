@@ -702,14 +702,14 @@ internal class TransformOverlay : Overlay
         const double offsetInPixels = 30;
         double offsetToScale = offsetInPixels / ZoomScale;
         ShapeCorners scaled = Corners.AsRotated(-Corners.RectRotation, Corners.RectCenter);
+        var aabb = scaled.AABBBounds;
         ShapeCorners scaledCorners = new ShapeCorners()
         {
-            BottomLeft = scaled.BottomLeft - new VecD(offsetToScale, -offsetToScale),
-            BottomRight = scaled.BottomRight + new VecD(offsetToScale, offsetToScale),
-            TopLeft = scaled.TopLeft - new VecD(offsetToScale, offsetToScale),
-            TopRight = scaled.TopRight - new VecD(-offsetToScale, offsetToScale),
+            BottomLeft = aabb.BottomLeft - new VecD(offsetToScale, -offsetToScale),
+            BottomRight = aabb.BottomRight + new VecD(offsetToScale, offsetToScale),
+            TopLeft = aabb.TopLeft - new VecD(offsetToScale, offsetToScale),
+            TopRight = aabb.TopRight - new VecD(-offsetToScale, offsetToScale),
         };
-
         scaledCorners = scaledCorners.AsRotated(Corners.RectRotation, Corners.RectCenter);
 
         return base.TestHit(point) || scaledCorners.IsPointInside(point);
