@@ -910,7 +910,7 @@ internal class TransformOverlay : Overlay
             {
                 bool shouldAlign =
                     (CornerFreedom is TransformCornerFreedom.ScaleProportionally or TransformCornerFreedom.Scale) &&
-                    Corners.IsAlignedToPixels;
+                    Corners.IsAlignedToPixels && CanAlignToPixels;
 
                 newCorners = shouldAlign
                     ? TransformHelper.AlignToPixels((ShapeCorners)newCorners)
