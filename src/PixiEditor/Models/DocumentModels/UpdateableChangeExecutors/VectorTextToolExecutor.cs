@@ -34,6 +34,9 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     private bool isListeningForValidLayer;
     private VectorPath? onPath;
 
+    private VecD clickPos;
+    private bool wasDrawingSize;
+
     private List<Font> fontsToDispose = new();
 
     public override bool BlocksOtherActions => false;
@@ -98,6 +101,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
                 Matrix3X3.Identity, toolbar.Spacing);
             lastText = "";
             position = controller.LastPrecisePosition;
+            clickPos = controller.LastPrecisePosition;
             // TODO: Implement proper putting on path editing
             /*if (controller.LeftMousePressed)
             {
@@ -116,6 +120,7 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
     {
         var topMostWithinClick = QueryLayers<IVectorLayerHandler>(args.PositionOnCanvas);
 
+        clickPos = args.PositionOnCanvas;
         var firstLayer = topMostWithinClick.FirstOrDefault();
         args.Handled = firstLayer != null;
         if (firstLayer is not IVectorLayerHandler layerHandler)
@@ -141,6 +146,30 @@ internal class VectorTextToolExecutor : UpdateableChangeExecutor, ITextOverlayEv
 
                 document.TextOverlayHandler.SetCursorPosition(args.PositionOnCanvas);
             }, false);
+    }
+
+    public override void OnPrecisePositionChange(VecD pos)
+    {
+        if (document.TextOverlayHandler.IsActive && internals.ChangeController.LeftMousePressed && string.IsNullOrEmpty(lastText))
+        {
+            double distance = Math.Abs(clickPos.Y - pos.Y);
+            if (!wasDrawingSize && distance < 10) return;
+            wasDrawingSize = true;
+            position = new VecD(position.X, pos.Y);
+            document.TextOverlayHandler.Position = position;
+            document.TextOverlayHandler.PreviewSize = true;
+            var textData = ConstructTextData(lastText);
+            toolbar.FontSize = distance * RichText.PtToPx;
+            internals.ActionAccumulator.AddActions(new SetShapeGeometry_Action(selectedMember.Id, textData, VectorShapeChangeType.GeometryData));
+        }
+    }
+
+    public override void OnLeftMouseButtonUp(VecD pos)
+    {
+        if (wasDrawingSize)
+        {
+            document.TextOverlayHandler.PreviewSize = false;
+        }
     }
 
     public void OnQuickToolSwitch()

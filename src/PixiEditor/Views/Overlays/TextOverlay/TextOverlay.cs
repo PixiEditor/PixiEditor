@@ -103,6 +103,15 @@ internal class TextOverlay : Overlay
         set => SetValue(SpacingProperty, value);
     }
 
+    public static readonly StyledProperty<bool> PreviewSizeProperty = AvaloniaProperty.Register<TextOverlay, bool>(
+        nameof(PreviewSize));
+
+    public bool PreviewSize
+    {
+        get => GetValue(PreviewSizeProperty);
+        set => SetValue(PreviewSizeProperty, value);
+    }
+
     private Dictionary<KeyCombination, Action> shortcuts;
 
     private Caret caret = new Caret();
@@ -116,6 +125,7 @@ internal class TextOverlay : Overlay
 
     private Paint selectionPaint;
     private Paint opacityPaint;
+    private Paint sampleTextPaint;
 
     private int lastXMovementCursorIndex;
 
@@ -199,6 +209,10 @@ internal class TextOverlay : Overlay
         };
 
         opacityPaint = new Paint() { Color = Colors.White.WithAlpha(ThemeResources.SelectionFillColor.A) };
+        sampleTextPaint = new Paint()
+        {
+            Color = Colors.Black, Style = PaintStyle.Fill, IsAntiAliased = true
+        };
     }
 
 
@@ -210,7 +224,15 @@ internal class TextOverlay : Overlay
 
         context.SetMatrix(context.TotalMatrix.Concat(Matrix));
 
-        RenderCaret(context);
+        if (!PreviewSize)
+        {
+            RenderCaret(context);
+        }
+        else
+        {
+            RenderSampleText(context);
+        }
+
         RenderSelection(context);
 
         context.RestoreToCount(saved);
@@ -240,6 +262,11 @@ internal class TextOverlay : Overlay
 
         caret.CaretWidth = 2f / (float)ZoomScale;
         caret.Render(context);
+    }
+
+    private void RenderSampleText(Canvas context)
+    {
+        context.DrawText("A", new VecD(Position.X, Position.Y), Font, sampleTextPaint);
     }
 
     private void RenderSelection(Canvas context)

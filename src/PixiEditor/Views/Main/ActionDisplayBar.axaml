@@ -33,10 +33,10 @@
                 </Style>
             </colorPicker:ColorDisplay.Styles>
         </colorPicker:ColorDisplay>
-        <DockPanel Grid.Column="1">
+        <DockPanel Grid.Column="1" ClipToBounds="True">
             <TextBlock
                 ui:Translator.LocalizedString="{Binding DataContext.ActiveActionDisplay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                Foreground="White"
+                Foreground="{DynamicResource ThemeForegroundBrush}"
                 FontSize="15"
                 Margin="10,0,0,0"
                 VerticalAlignment="Center" />
@@ -47,7 +47,7 @@
                 VerticalAlignment="Center">
                 <TextBlock
                     Text="{Binding DataContext.DocumentManagerSubViewModel.ActiveDocument.CoordinatesString, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                    Foreground="White"
+                    Foreground="{DynamicResource ThemeForegroundBrush}"
                     FontSize="16" />
             </StackPanel>
         </DockPanel>

@@ -13,6 +13,7 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
     private string text;
     private VecD position;
     private Font font;
+    private bool previewSize = false;
     private ExecutionTrigger<string> requestEditTextTrigger;
     private Matrix3X3 matrix = Matrix3X3.Identity;
     private double? spacing;
@@ -76,6 +77,12 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
         set => SetProperty(ref cursorPosition, value);
     }
 
+    public bool PreviewSize
+    {
+        get => previewSize;
+        set => SetProperty(ref previewSize, value);
+    }
+
     public int SelectionEnd
     {
         get => selectionEnd;
@@ -119,6 +126,7 @@ internal class TextOverlayViewModel : ObservableObject, ITextOverlayHandler
         Matrix = matrix;
         Spacing = spacing;
         IsActive = true;
+        PreviewSize = false;
         RequestEditTextTrigger.Execute(this, text);
     }
 

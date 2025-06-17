@@ -10,6 +10,7 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -212,6 +213,8 @@ internal class NodeGraphView : Zoombox.Zoombox
     public static readonly StyledProperty<int> ActiveFrameProperty =
         AvaloniaProperty.Register<NodeGraphView, int>("ActiveFrame");
 
+    private Panel rootPanel;
+
     public NodeGraphView()
     {
         SelectNodeCommand = new RelayCommand<PointerPressedEventArgs>(SelectNode);
@@ -232,12 +235,25 @@ internal class NodeGraphView : Zoombox.Zoombox
         connectionItemsControl = e.NameScope.Find<ItemsControl>("PART_Connections");
         selectionRectangle = e.NameScope.Find<Rectangle>("PART_SelectionRectangle");
 
+        rootPanel = e.NameScope.Find<Panel>("PART_RootPanel");
+
         Dispatcher.UIThread.Post(() =>
         {
             nodeItemsControl.ItemsPanelRoot.Children.CollectionChanged += NodeItems_CollectionChanged;
             nodeViewsCache = nodeItemsControl.ItemsPanelRoot.Children.ToList();
             HandleNodesAdded(nodeViewsCache);
         });
+    }
+
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+
+        Dispatcher.UIThread.Post(
+            () =>
+            {
+                rootPanel.Focus(NavigationMethod.Pointer);
+            }, DispatcherPriority.Input);
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
@@ -252,6 +268,16 @@ internal class NodeGraphView : Zoombox.Zoombox
             nodeItemsControl.ItemsPanelRoot.Children.CollectionChanged += NodeItems_CollectionChanged;
             nodeViewsCache = nodeItemsControl.ItemsPanelRoot.Children.ToList();
             HandleNodesAdded(nodeViewsCache);
+        }
+    }
+
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        base.OnKeyDown(e);
+        if (e.Key == Key.Space)
+        {
+            rootPanel.ContextFlyout?.ShowAt(rootPanel);
+            e.Handled = true;
         }
     }
 

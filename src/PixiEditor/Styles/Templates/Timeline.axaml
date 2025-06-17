@@ -29,7 +29,7 @@
                             BorderBrush="{DynamicResource ThemeBorderMidBrush}">
                         <DockPanel Grid.Row="0" Grid.Column="0" LastChildFill="False" Margin="5 0">
                             <controls:SizeInput Unit="FPS"
-                                             Width="80" Height="25" HorizontalAlignment="Left"
+                                             Width="90" Height="25" HorizontalAlignment="Left"
                                              Size="{Binding Fps, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
 
                             <Button Classes="pixi-icon" DockPanel.Dock="Right"

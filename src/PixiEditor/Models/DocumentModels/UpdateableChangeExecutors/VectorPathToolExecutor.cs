@@ -109,6 +109,12 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
             return ExecutionState.Error;
         }
 
+        document.Operations.InvokeCustomAction(
+            () =>
+        {
+            restoreSnapping = SimpleShapeToolExecutor.DisableSelfSnapping(member.Id, document);
+        }, false);
+
         restoreSnapping = SimpleShapeToolExecutor.DisableSelfSnapping(member.Id, document);
         return ExecutionState.Success;
     }
@@ -137,7 +143,8 @@ internal class VectorPathToolExecutor : UpdateableChangeExecutor, IPathExecutorF
 
     public override void OnLeftMouseButtonDown(MouseOnCanvasEventArgs args)
     {
-        if (args.KeyModifiers.HasFlag(KeyModifiers.Shift) || NeedsNewLayer(member, document.AnimationHandler.ActiveFrameTime))
+        if (args.KeyModifiers.HasFlag(KeyModifiers.Shift) ||
+            NeedsNewLayer(member, document.AnimationHandler.ActiveFrameTime))
         {
             Guid? created =
                 document.Operations.CreateStructureMember(typeof(VectorLayerNode), ActionSource.Automated);

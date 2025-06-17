@@ -57,6 +57,7 @@ public class CreateImageNode : Node, IPreviewRenderable
     private Texture Render(RenderContext context)
     {
         var surface = textureCache.RequestTexture(0, (VecI)(Size.Value * context.ChunkResolution.Multiplier()), context.ProcessingColorSpace, false);
+        surface.DrawingSurface.Canvas.SetMatrix(Matrix3X3.Identity);
 
         if (Fill.Value is ColorPaintable colorPaintable)
         {
@@ -72,11 +73,15 @@ public class CreateImageNode : Node, IPreviewRenderable
         int saved = surface.DrawingSurface.Canvas.Save();
 
         RenderContext ctx = new RenderContext(surface.DrawingSurface, context.FrameTime, context.ChunkResolution,
-            context.RenderOutputSize, context.DocumentSize, context.ProcessingColorSpace);
+            surface.Size, context.DocumentSize, context.ProcessingColorSpace);
+        ctx.FullRerender = context.FullRerender;
+        ctx.TargetOutput = context.TargetOutput;
 
-        surface.DrawingSurface.Canvas.SetMatrix(surface.DrawingSurface.Canvas.TotalMatrix.Concat(ContentMatrix.Value));
+        float chunkMultiplier = (float)context.ChunkResolution.Multiplier();
 
-        surface.DrawingSurface.Canvas.Scale((float)context.ChunkResolution.Multiplier());
+        surface.DrawingSurface.Canvas.SetMatrix(
+            surface.DrawingSurface.Canvas.TotalMatrix.Concat(
+                Matrix3X3.CreateScale(chunkMultiplier, chunkMultiplier).Concat(ContentMatrix.Value)));
 
         Content.Value?.Paint(ctx, surface.DrawingSurface);
 

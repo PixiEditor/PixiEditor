@@ -23,7 +23,7 @@ internal interface IAnimationHandler : IDisposable
     public void RemoveSelectedKeyFrame(Guid keyFrameId);
     public void ClearSelectedKeyFrames();
     public void SetOnionSkinning(bool enabled);
-    public int FirstFrame { get; }
+    public int FirstVisibleFrame { get; }
     public int LastFrame { get; }
     public void SetOnionFrames(int frames, double opacity);
     public void SetPlayingState(bool play);
