@@ -41,7 +41,7 @@ internal class Command : MarkupExtension
 
         if (commandController is null)
         {
-            commandController = CommandController.Current; // TODO: Find a better way to get the current CommandController
+            commandController = CommandController.Current;
         }
 
         bool contains = commandController.Commands.ContainsKey(Name);
