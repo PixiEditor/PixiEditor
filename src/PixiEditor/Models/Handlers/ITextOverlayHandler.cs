@@ -12,5 +12,6 @@ public interface ITextOverlayHandler : IHandler
     public VecD Position { get; set; }
     public double? Spacing { get; set; }
     public bool IsActive { get; }
+    public bool PreviewSize { get; set; }
     public void SetCursorPosition(VecD closestToPosition);
 }

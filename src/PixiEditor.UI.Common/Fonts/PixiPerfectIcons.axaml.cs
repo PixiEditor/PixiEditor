@@ -31,6 +31,7 @@ public static partial class PixiPerfectIcons
     public const string Circle = "\uE930";
     public const string Clock = "\uE931";
     public const string ClosedGrid = "\uE913";
+    public const string Coins = "\uE9C5";
     public const string ColorPalette = "\uE932";
     public const string ColorPicker = "\uE933";
     public const string ColorSliders = "\uE934";
@@ -44,6 +45,7 @@ public static partial class PixiPerfectIcons
     public const string CreateMask = "\uE93A";
     public const string Crop = "\uE93C";
     public const string CropToSelection = "\uE93B";
+    public const string Crosshair = "\uE9C6";
     public const string Crossroad = "\uE91D";
     public const string Database = "\uE93D";
     public const string Deselect = "\uE93E";
@@ -109,6 +111,7 @@ public static partial class PixiPerfectIcons
     public const string LowresSquare = "\uE9A8";
     public const string Magic = "\uE90D";
     public const string MagicWand = "\uE95D";
+    public const string Map = "\uE9C4";
     public const string MaskGhost = "\uE99E";
     public const string Merge = "\uE95F";
     public const string Message = "\uE98F";
@@ -178,6 +181,7 @@ public static partial class PixiPerfectIcons
     public const string TextUnderline = "\uE9B8";
     public const string Timeline = "\uE9A3";
     public const string Tool = "\uE977";
+    public const string Train = "\uE9C3";
     public const string Trash = "\uE978";
     public const string Twitter = "\uE904";
     public const string Undo = "\uE979";
