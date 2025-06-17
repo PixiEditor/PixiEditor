@@ -188,7 +188,7 @@ internal class Exporter
             Directory.CreateDirectory(directory);
         }
 
-        int totalFrames = document.AnimationDataViewModel.GetVisibleFramesCount();
+        int totalFrames = document.AnimationDataViewModel.GetLastVisibleFrame() - 1;
         document.RenderFramesProgressive(
             (surface, frame) =>
         {
@@ -198,11 +198,11 @@ internal class Exporter
             if (exportConfig.ExportSize != surface.Size)
             {
                 var resized = surface.ResizeNearestNeighbor(exportConfig.ExportSize);
-                SaveAsPng(Path.Combine(directory, $"{frame}.png"), resized);
+                SaveAsPng(Path.Combine(directory, $"{frame + 1}.png"), resized);
             }
             else
             {
-                SaveAsPng(Path.Combine(directory, $"{frame}.png"), surface);
+                SaveAsPng(Path.Combine(directory, $"{frame + 1}.png"), surface);
             }
 
         }, CancellationToken.None, exportConfig.ExportOutput);

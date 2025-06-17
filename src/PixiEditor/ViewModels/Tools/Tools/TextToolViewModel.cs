@@ -47,6 +47,7 @@ internal class TextToolViewModel : ToolViewModel, ITextToolHandler
         if (!restoring)
         {
             ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseTextTool();
+            ActionDisplay = new LocalizedString("TEXT_TOOL_ACTION_DISPLAY");
         }
     }
 

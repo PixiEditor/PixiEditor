@@ -49,6 +49,14 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     private void AttachClipboard(MainWindow window)
     {
         ClipboardController.Initialize(window.Clipboard);
+        window.GotFocus += (sender, args) =>
+        {
+            QueueHasImageInClipboard();
+            QueueCheckCanPasteImage();
+            QueueFetchTextFromClipboard();
+            QueueCheckNodesInClipboard();
+            QueueCheckCelsInClipboard();
+        };
     }
 
     [Command.Basic("PixiEditor.Clipboard.Cut", "CUT", "CUT_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty",
@@ -319,7 +327,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
         await ClipboardController.CopyToClipboard(doc);
 
-        hasImageInClipboard = true;
+        SetHasImageInClipboard();
     }
 
     [Command.Basic("PixiEditor.Clipboard.CopyVisible", "COPY_VISIBLE", "COPY_VISIBLE_DESCRIPTIVE",
@@ -337,7 +345,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
                 ? viewportWindowViewModel.RenderOutputName
                 : null);
 
-        hasImageInClipboard = true;
+        SetHasImageInClipboard();
     }
 
     [Command.Basic("PixiEditor.Clipboard.CopyNodes", "COPY_NODES", "COPY_NODES_DESCRIPTIVE",
@@ -358,6 +366,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         await ClipboardController.CopyNodes(selectedNodes);
 
         areNodesInClipboard = true;
+        ClearHasImageInClipboard();
     }
 
     [Command.Basic("PixiEditor.Clipboard.CopyCels", "COPY_CELS",
@@ -377,6 +386,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         await ClipboardController.CopyCels(selectedCels);
 
         areCelsInClipboard = true;
+        ClearHasImageInClipboard();
     }
 
 
@@ -568,31 +578,67 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     private void QueueHasImageInClipboard()
     {
         QueueClipboardTask("HasImageInClipboard", ClipboardController.IsImageInClipboard, hasImageInClipboard,
-            x => hasImageInClipboard = x);
+            x =>
+            {
+                hasImageInClipboard = x;
+                CommandController.CanExecuteChanged("PixiEditor.Clipboard.HasImageInClipboard");
+            });
     }
 
     private void QueueCheckCanPasteImage()
     {
         QueueClipboardTask("CheckCanPasteImage", ClipboardController.IsImageInClipboard, canPasteImage,
-            x => canPasteImage = x);
+            x =>
+            {
+                canPasteImage = x;
+                CommandController.CanExecuteChanged("PixiEditor.Clipboard.CanPaste");
+            });
     }
 
     private void QueueFetchTextFromClipboard()
     {
         QueueClipboardTask("FetchTextFromClipboard", ClipboardController.GetTextFromClipboard, lastTextInClipboard,
-            x => lastTextInClipboard = x);
+            x =>
+            {
+                lastTextInClipboard = x;
+                CommandController.CanExecuteChanged("PixiEditor.Clipboard.CanPasteColor");
+            });
     }
 
     private void QueueCheckNodesInClipboard()
     {
         QueueClipboardTask("CheckNodesInClipboard", ClipboardController.AreNodesInClipboard, areNodesInClipboard,
-            x => areNodesInClipboard = x);
+            x =>
+            {
+                areNodesInClipboard = x;
+                CommandController.CanExecuteChanged("PixiEditor.Clipboard.CanPasteNodes");
+            });
     }
 
     private void QueueCheckCelsInClipboard()
     {
         QueueClipboardTask("CheckCelsInClipboard", ClipboardController.AreCelsInClipboard, areCelsInClipboard,
-            x => areCelsInClipboard = x);
+            x =>
+            {
+                areCelsInClipboard = x;
+                CommandController.CanExecuteChanged("PixiEditor.Clipboard.CanPasteCels");
+            });
+    }
+
+    private void SetHasImageInClipboard()
+    {
+        hasImageInClipboard = true;
+        canPasteImage = true;
+        areNodesInClipboard = false;
+        areCelsInClipboard = false;
+        lastTextInClipboard = string.Empty;
+    }
+
+    private void ClearHasImageInClipboard()
+    {
+        hasImageInClipboard = false;
+        canPasteImage = false;
+        lastTextInClipboard = string.Empty;
     }
 
     private void QueueClipboardTask<T>(string key, Func<Task<T>> task, T value, Action<T> updateAction)

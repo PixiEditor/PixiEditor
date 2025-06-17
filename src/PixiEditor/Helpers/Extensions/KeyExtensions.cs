@@ -1,0 +1,176 @@
+﻿using Avalonia.Input;
+
+namespace PixiEditor.Helpers.Extensions;
+
+public static class KeyExtensions
+{
+    public static PhysicalKey ToPhysicalKey(this Key key)
+        => key switch
+        {
+            Key.None => PhysicalKey.None,
+
+            // Writing System Keys
+            Key.Oem3 => PhysicalKey.Backquote,
+            Key.Oem5 => PhysicalKey.Backslash, // IntlYen also maps to Oem5
+            Key.Oem4 => PhysicalKey.BracketLeft,
+            Key.Oem6 => PhysicalKey.BracketRight,
+            Key.OemComma => PhysicalKey.Comma,
+            Key.D0 => PhysicalKey.Digit0,
+            Key.D1 => PhysicalKey.Digit1,
+            Key.D2 => PhysicalKey.Digit2,
+            Key.D3 => PhysicalKey.Digit3,
+            Key.D4 => PhysicalKey.Digit4,
+            Key.D5 => PhysicalKey.Digit5,
+            Key.D6 => PhysicalKey.Digit6,
+            Key.D7 => PhysicalKey.Digit7,
+            Key.D8 => PhysicalKey.Digit8,
+            Key.D9 => PhysicalKey.Digit9,
+            Key.OemPlus => PhysicalKey.Equal, // NumPadEqual also maps here
+            Key.Oem102 => PhysicalKey.IntlBackslash, // IntlRo also maps here
+            Key.A => PhysicalKey.A,
+            Key.B => PhysicalKey.B,
+            Key.C => PhysicalKey.C,
+            Key.D => PhysicalKey.D,
+            Key.E => PhysicalKey.E,
+            Key.F => PhysicalKey.F,
+            Key.G => PhysicalKey.G,
+            Key.H => PhysicalKey.H,
+            Key.I => PhysicalKey.I,
+            Key.J => PhysicalKey.J,
+            Key.K => PhysicalKey.K,
+            Key.L => PhysicalKey.L,
+            Key.M => PhysicalKey.M,
+            Key.N => PhysicalKey.N,
+            Key.O => PhysicalKey.O,
+            Key.P => PhysicalKey.P,
+            Key.Q => PhysicalKey.Q,
+            Key.R => PhysicalKey.R,
+            Key.S => PhysicalKey.S,
+            Key.T => PhysicalKey.T,
+            Key.U => PhysicalKey.U,
+            Key.V => PhysicalKey.V,
+            Key.W => PhysicalKey.W,
+            Key.X => PhysicalKey.X,
+            Key.Y => PhysicalKey.Y,
+            Key.Z => PhysicalKey.Z,
+            Key.OemMinus => PhysicalKey.Minus,
+            Key.OemPeriod => PhysicalKey.Period,
+            Key.Oem7 => PhysicalKey.Quote,
+            Key.Oem1 => PhysicalKey.Semicolon,
+            Key.Oem2 => PhysicalKey.Slash,
+
+            // Functional Keys
+            Key.LeftAlt => PhysicalKey.AltLeft,
+            Key.RightAlt => PhysicalKey.AltRight,
+            Key.Back => PhysicalKey.Backspace,
+            Key.CapsLock => PhysicalKey.CapsLock,
+            Key.Apps => PhysicalKey.ContextMenu,
+            Key.LeftCtrl => PhysicalKey.ControlLeft,
+            Key.RightCtrl => PhysicalKey.ControlRight,
+            Key.Enter => PhysicalKey.Enter, // NumPadEnter also maps here
+            Key.LWin => PhysicalKey.MetaLeft,
+            Key.RWin => PhysicalKey.MetaRight,
+            Key.LeftShift => PhysicalKey.ShiftLeft,
+            Key.RightShift => PhysicalKey.ShiftRight,
+            Key.Space => PhysicalKey.Space,
+            Key.Tab => PhysicalKey.Tab,
+            Key.ImeConvert => PhysicalKey.Convert,
+            Key.HanjaMode => PhysicalKey.Lang2,
+            Key.DbeKatakana => PhysicalKey.Lang3,
+            Key.OemAuto => PhysicalKey.Lang5,
+            Key.ImeNonConvert => PhysicalKey.NonConvert,
+
+            // Control Pad Section
+            Key.Delete => PhysicalKey.Delete,
+            Key.End => PhysicalKey.End,
+            Key.Help => PhysicalKey.Help,
+            Key.Home => PhysicalKey.Home,
+            Key.Insert => PhysicalKey.Insert,
+            Key.PageDown => PhysicalKey.PageDown,
+            Key.PageUp => PhysicalKey.PageUp,
+
+            // Arrow Pad Section
+            Key.Down => PhysicalKey.ArrowDown,
+            Key.Left => PhysicalKey.ArrowLeft,
+            Key.Right => PhysicalKey.ArrowRight,
+            Key.Up => PhysicalKey.ArrowUp,
+
+            // Numpad Section
+            Key.NumLock => PhysicalKey.NumLock,
+            Key.NumPad0 => PhysicalKey.NumPad0,
+            Key.NumPad1 => PhysicalKey.NumPad1,
+            Key.NumPad2 => PhysicalKey.NumPad2,
+            Key.NumPad3 => PhysicalKey.NumPad3,
+            Key.NumPad4 => PhysicalKey.NumPad4,
+            Key.NumPad5 => PhysicalKey.NumPad5,
+            Key.NumPad6 => PhysicalKey.NumPad6,
+            Key.NumPad7 => PhysicalKey.NumPad7,
+            Key.NumPad8 => PhysicalKey.NumPad8,
+            Key.NumPad9 => PhysicalKey.NumPad9,
+            Key.Add => PhysicalKey.NumPadAdd,
+            Key.Clear => PhysicalKey.NumPadClear,
+            Key.AbntC2 => PhysicalKey.NumPadComma,
+            Key.Decimal => PhysicalKey.NumPadDecimal,
+            Key.Divide => PhysicalKey.NumPadDivide,
+            Key.Multiply => PhysicalKey.NumPadMultiply,
+            Key.Subtract => PhysicalKey.NumPadSubtract,
+
+            // These are overloaded with standard keys
+            // Use primary mappings only
+            Key.Escape => PhysicalKey.Escape,
+            Key.F1 => PhysicalKey.F1,
+            Key.F2 => PhysicalKey.F2,
+            Key.F3 => PhysicalKey.F3,
+            Key.F4 => PhysicalKey.F4,
+            Key.F5 => PhysicalKey.F5,
+            Key.F6 => PhysicalKey.F6,
+            Key.F7 => PhysicalKey.F7,
+            Key.F8 => PhysicalKey.F8,
+            Key.F9 => PhysicalKey.F9,
+            Key.F10 => PhysicalKey.F10,
+            Key.F11 => PhysicalKey.F11,
+            Key.F12 => PhysicalKey.F12,
+            Key.F13 => PhysicalKey.F13,
+            Key.F14 => PhysicalKey.F14,
+            Key.F15 => PhysicalKey.F15,
+            Key.F16 => PhysicalKey.F16,
+            Key.F17 => PhysicalKey.F17,
+            Key.F18 => PhysicalKey.F18,
+            Key.F19 => PhysicalKey.F19,
+            Key.F20 => PhysicalKey.F20,
+            Key.F21 => PhysicalKey.F21,
+            Key.F22 => PhysicalKey.F22,
+            Key.F23 => PhysicalKey.F23,
+            Key.F24 => PhysicalKey.F24,
+            Key.PrintScreen => PhysicalKey.PrintScreen,
+            Key.Scroll => PhysicalKey.ScrollLock,
+            Key.Pause => PhysicalKey.Pause,
+
+            // Media Keys
+            Key.BrowserBack => PhysicalKey.BrowserBack,
+            Key.BrowserFavorites => PhysicalKey.BrowserFavorites,
+            Key.BrowserForward => PhysicalKey.BrowserForward,
+            Key.BrowserHome => PhysicalKey.BrowserHome,
+            Key.BrowserRefresh => PhysicalKey.BrowserRefresh,
+            Key.BrowserSearch => PhysicalKey.BrowserSearch,
+            Key.BrowserStop => PhysicalKey.BrowserStop,
+            Key.LaunchApplication1 => PhysicalKey.LaunchApp1,
+            Key.LaunchApplication2 => PhysicalKey.LaunchApp2,
+            Key.LaunchMail => PhysicalKey.LaunchMail,
+            Key.MediaPlayPause => PhysicalKey.MediaPlayPause,
+            Key.SelectMedia => PhysicalKey.MediaSelect,
+            Key.MediaStop => PhysicalKey.MediaStop,
+            Key.MediaNextTrack => PhysicalKey.MediaTrackNext,
+            Key.MediaPreviousTrack => PhysicalKey.MediaTrackPrevious,
+            Key.Sleep => PhysicalKey.Sleep,
+            Key.VolumeDown => PhysicalKey.AudioVolumeDown,
+            Key.VolumeMute => PhysicalKey.AudioVolumeMute,
+            Key.VolumeUp => PhysicalKey.AudioVolumeUp,
+
+            // Legacy
+            Key.OemCopy => PhysicalKey.Copy,
+            Key.Select => PhysicalKey.Select,
+
+            _ => PhysicalKey.None
+        };
+}

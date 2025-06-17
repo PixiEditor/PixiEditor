@@ -521,6 +521,11 @@ internal class ViewportOverlays
             Source = Viewport, Path = "Document.TextOverlayViewModel.SelectionEnd", Mode = BindingMode.TwoWay
         };
 
+        Binding previewSizeBinding = new()
+        {
+            Source = Viewport, Path = "Document.TextOverlayViewModel.PreviewSize", Mode = BindingMode.OneWay
+        };
+
         textOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         textOverlay.Bind(TextOverlay.TextProperty, textBinding);
         textOverlay.Bind(TextOverlay.PositionProperty, positionBinding);
@@ -530,5 +535,6 @@ internal class ViewportOverlays
         textOverlay.Bind(TextOverlay.SpacingProperty, spacingBinding);
         textOverlay.Bind(TextOverlay.CursorPositionProperty, cursorPositionBinding);
         textOverlay.Bind(TextOverlay.SelectionEndProperty, selectionEndBinding);
+        textOverlay.Bind(TextOverlay.PreviewSizeProperty, previewSizeBinding);
     }
 }

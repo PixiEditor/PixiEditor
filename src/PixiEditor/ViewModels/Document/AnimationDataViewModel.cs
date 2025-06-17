@@ -110,15 +110,15 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         }
     }
 
-    public int FirstFrame => cachedFirstFrame ??= keyFrames.Count > 0 ? keyFrames.Min(x => x.StartFrameBindable) : 1;
+    public int FirstVisibleFrame => cachedFirstFrame ??= keyFrames.Count > 0 ? keyFrames.Min(x => x.StartFrameBindable) : 1;
 
     public int LastFrame => cachedLastFrame ??= keyFrames.Count > 0
         ? keyFrames.Max(x => x.StartFrameBindable + x.DurationBindable)
         : DefaultEndFrame;
 
-    public int FramesCount => LastFrame - FirstFrame;
+    public int FramesCount => LastFrame - 1;
 
-    private double ActiveNormalizedTime => (double)(ActiveFrameBindable - FirstFrame) / FramesCount;
+    private double ActiveNormalizedTime => (double)(ActiveFrameBindable - 1) / (FramesCount - 1);
 
     private int DefaultEndFrame => FrameRateBindable; // 1 second
 
@@ -239,7 +239,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             keyFrame.SetDuration(newDuration);
             keyFrames.NotifyCollectionChanged();
 
-            OnPropertyChanged(nameof(FirstFrame));
+            OnPropertyChanged(nameof(FirstVisibleFrame));
             OnPropertyChanged(nameof(LastFrame));
             OnPropertyChanged(nameof(FramesCount));
         }
@@ -282,7 +282,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         cachedFirstFrame = null;
         cachedLastFrame = null;
 
-        OnPropertyChanged(nameof(FirstFrame));
+        OnPropertyChanged(nameof(FirstVisibleFrame));
         OnPropertyChanged(nameof(LastFrame));
         OnPropertyChanged(nameof(FramesCount));
     }
@@ -312,7 +312,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         cachedFirstFrame = null;
         cachedLastFrame = null;
 
-        OnPropertyChanged(nameof(FirstFrame));
+        OnPropertyChanged(nameof(FirstVisibleFrame));
         OnPropertyChanged(nameof(LastFrame));
         OnPropertyChanged(nameof(FramesCount));
     }

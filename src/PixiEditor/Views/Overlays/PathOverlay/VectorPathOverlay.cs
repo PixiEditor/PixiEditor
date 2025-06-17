@@ -148,10 +148,16 @@ public class VectorPathOverlay : Overlay
                 }
 
                 var handle = anchorHandles[anchorIndex];
+                bool nextIsSelected = anchorIndex + 1 < anchorHandles.Count &&
+                                      anchorHandles[anchorIndex + 1].IsSelected;
+                bool previousIsSelected = anchorIndex - 1 >= 0 &&
+                                          anchorHandles[anchorIndex - 1].IsSelected;
+                bool drawControl1 = handle.IsSelected;
+                bool drawControl2 = nextIsSelected;
 
-                if (point.Verb.ControlPoint1 != null || point.Verb.ControlPoint2 != null)
+                if ((point.Verb.ControlPoint1 != null || point.Verb.ControlPoint2 != null))
                 {
-                    DrawControlPoints(context, point, ref controlPointIndex);
+                    DrawControlPoints(context, point, drawControl1, drawControl2, ref controlPointIndex);
                 }
 
                 handle.Draw(context);
@@ -165,7 +171,7 @@ public class VectorPathOverlay : Overlay
         transformHandle.Draw(context);
     }
 
-    private void DrawControlPoints(Canvas context, ShapePoint point, ref int controlPointIndex)
+    private void DrawControlPoints(Canvas context, ShapePoint point, bool canDrawControl1, bool canDrawControl2, ref int controlPointIndex)
     {
         if (point.Verb.VerbType != PathVerb.Cubic) return;
 
@@ -175,7 +181,7 @@ public class VectorPathOverlay : Overlay
             controlPoint1.HitTestVisible = CapturedHandle == controlPoint1 ||
                                            controlPoint1.Position != controlPoint1.ConnectedTo.Position;
             controlPoint1.Position = (VecD)point.Verb.ControlPoint1;
-            if (controlPoint1.HitTestVisible)
+            if (controlPoint1.HitTestVisible && canDrawControl1)
             {
                 controlPoint1.Draw(context);
             }
@@ -190,7 +196,7 @@ public class VectorPathOverlay : Overlay
             controlPoint2.HitTestVisible = CapturedHandle == controlPoint2 ||
                                            controlPoint2.Position != controlPoint2.ConnectedTo.Position;
 
-            if (controlPoint2.HitTestVisible)
+            if (controlPoint2.HitTestVisible && canDrawControl2)
             {
                 controlPoint2.Draw(context);
             }
@@ -555,6 +561,25 @@ public class VectorPathOverlay : Overlay
             if (!converted)
             {
                 path = ConvertTouchingVerbsToCubic(anchor);
+
+                var subshapeContainingIndex = path.GetSubShapeContainingIndex(index);
+                int verbIndex = path.GetSubShapePointIndex(index, subshapeContainingIndex);
+
+                if (verbIndex >= 2)
+                {
+                    var previousPoint = subshapeContainingIndex.GetPreviousPoint(verbIndex);
+                    var previousPreviousPoint = subshapeContainingIndex.GetPreviousPoint(verbIndex - 1);
+
+                    if (previousPoint != null && previousPreviousPoint != null &&
+                        previousPoint.Verb.VerbType == PathVerb.Cubic &&
+                        previousPreviousPoint.Verb.VerbType == PathVerb.Cubic)
+                    {
+                        var symmetricalPoint = GetMirroredControlPoint(
+                            (VecF)previousPreviousPoint.Verb.ControlPoint2, previousPoint.Position);
+                        previousPoint.Verb.ControlPoint1 = (VecF)symmetricalPoint;
+                    }
+                }
+
                 Path = path.ToVectorPath();
                 AdjustHandles(path);
                 converted = true;
@@ -564,6 +589,17 @@ public class VectorPathOverlay : Overlay
             int localIndex = path.GetSubShapePointIndex(index, subShapeContainingIndex);
 
             HandleContinousCubicDrag(args.Point, subShapeContainingIndex, localIndex, true);
+            /*if (localIndex > 0)
+            {
+                var previousVerb = subShapeContainingIndex.Points[localIndex - 1];
+                if (previousVerb?.Verb?.ControlPoint2 != null)
+                {
+                    var thisVerb = subShapeContainingIndex.Points[localIndex].Verb;
+                    thisVerb.ControlPoint1 = (VecF)GetMirroredControlPoint(
+                        (VecF)previousVerb.Verb.ControlPoint2, thisVerb.From);
+                }
+            }*/
+
             Path = editableVectorPath.ToVectorPath();
         }
 

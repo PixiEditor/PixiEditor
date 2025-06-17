@@ -1197,12 +1197,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         if (token.IsCancellationRequested)
             return [];
 
-        int firstFrame = AnimationDataViewModel.GetFirstVisibleFrame();
+        int firstFrame = 1;
         int lastFrame = AnimationDataViewModel.GetLastVisibleFrame();
 
-        int framesCount = lastFrame - firstFrame;
+        int framesCount = lastFrame;
 
-        Image[] images = new Image[framesCount];
+        Image[] images = new Image[framesCount - firstFrame];
 
         // TODO: Multi-threading
         for (int i = firstFrame; i < lastFrame; i++)
@@ -1238,10 +1238,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public void RenderFramesProgressive(Action<Surface, int> processFrameAction, CancellationToken token,
         string? renderOutput)
     {
-        int firstFrame = AnimationDataViewModel.GetFirstVisibleFrame();
-        int framesCount = AnimationDataViewModel.GetLastVisibleFrame();
-        int lastFrame = firstFrame + framesCount;
-
+        int firstFrame = 1;
+        int lastFrame = AnimationDataViewModel.GetLastVisibleFrame();
+        int totalFrames = lastFrame - firstFrame;
         int activeFrame = AnimationDataViewModel.ActiveFrameBindable;
 
         for (int i = firstFrame; i < lastFrame; i++)
@@ -1249,7 +1248,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             if (token.IsCancellationRequested)
                 return;
 
-            KeyFrameTime frameTime = new KeyFrameTime(i, (double)(i - firstFrame) / framesCount);
+            KeyFrameTime frameTime = new KeyFrameTime(i, (double)(i - firstFrame) / totalFrames);
 
             var surface = TryRenderWholeImage(frameTime, renderOutput);
             if (surface.IsT0)
@@ -1265,7 +1264,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public bool RenderFrames(List<Image> frames, Func<Surface, Surface> processFrameAction = null,
         string? renderOutput = null)
     {
-        var firstFrame = AnimationDataViewModel.GetFirstVisibleFrame();
+        var firstFrame = 1;
         var lastFrame = AnimationDataViewModel.GetLastVisibleFrame();
 
         for (int i = firstFrame; i < lastFrame; i++)

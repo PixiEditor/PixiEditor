@@ -89,7 +89,9 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         Uniforms uniforms;
         uniforms = new Uniforms();
 
-        uniforms.Add("iResolution", new Uniform("iResolution", (VecD)context.RenderOutputSize));
+        VecI finalSize = (VecI)(context.RenderOutputSize * context.ChunkResolution.InvertedMultiplier());
+
+        uniforms.Add("iResolution", new Uniform("iResolution", (VecD)finalSize));
         uniforms.Add("iNormalizedTime", new Uniform("iNormalizedTime", (float)context.FrameTime.NormalizedTime));
         uniforms.Add("iFrame", new Uniform("iFrame", context.FrameTime.Frame));
 
@@ -102,8 +104,14 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
             return uniforms;
         }
 
-        Texture texture = RequestTexture(50, context.RenderOutputSize, context.ProcessingColorSpace);
-        Background.Value.Paint(context, texture.DrawingSurface);
+        Texture texture = RequestTexture(50, finalSize, context.ProcessingColorSpace);
+        int saved = texture.DrawingSurface.Canvas.Save();
+        //texture.DrawingSurface.Canvas.Scale((float)context.ChunkResolution.Multiplier(), (float)context.ChunkResolution.Multiplier());
+
+        var ctx = new RenderContext(texture.DrawingSurface, context.FrameTime, ChunkResolution.Full, finalSize,
+            context.DocumentSize, context.ProcessingColorSpace, context.Opacity);
+        Background.Value.Paint(ctx, texture.DrawingSurface);
+        texture.DrawingSurface.Canvas.RestoreToCount(saved);
 
         var snapshot = texture.DrawingSurface.Snapshot();
         lastImageShader?.Dispose();
@@ -112,6 +120,7 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
         uniforms.Add("iImage", new Uniform("iImage", lastImageShader));
 
         snapshot.Dispose();
+        //texture.Dispose();
         return uniforms;
     }
 
@@ -125,25 +134,54 @@ public class ShaderNode : RenderNode, IRenderInput, ICustomShaderNode
 
         DrawingSurface targetSurface = surface;
 
-        if (ColorSpace.Value != ColorSpaceType.Inherit)
+        float width = (float)(context.RenderOutputSize.X);
+        float height = (float)(context.RenderOutputSize.Y);
+        bool scale = false;
+
+        if (context.ChunkResolution != ChunkResolution.Full)
         {
-            if (ColorSpace.Value == ColorSpaceType.Srgb && !context.ProcessingColorSpace.IsSrgb)
+            var intermediateSurface = RequestTexture(51,
+                (VecI)(context.RenderOutputSize * context.ChunkResolution.InvertedMultiplier()),
+                ColorSpace.Value == ColorSpaceType.Inherit
+                    ? context.ProcessingColorSpace
+                    : ColorSpace.Value == ColorSpaceType.Srgb
+                        ? Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgb()
+                        : Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear());
+            targetSurface = intermediateSurface.DrawingSurface;
+            width = (float)(context.RenderOutputSize.X * context.ChunkResolution.InvertedMultiplier());
+            height = (float)(context.RenderOutputSize.Y * context.ChunkResolution.InvertedMultiplier());
+            scale = true;
+        }
+        else
+        {
+            if (ColorSpace.Value != ColorSpaceType.Inherit)
             {
-                targetSurface = RequestTexture(51, context.RenderOutputSize,
-                    Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgb()).DrawingSurface;
-            }
-            else if (ColorSpace.Value == ColorSpaceType.LinearSrgb && context.ProcessingColorSpace.IsSrgb)
-            {
-                targetSurface = RequestTexture(51, context.RenderOutputSize,
-                    Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear()).DrawingSurface;
+                if (ColorSpace.Value == ColorSpaceType.Srgb && !context.ProcessingColorSpace.IsSrgb)
+                {
+                    targetSurface = RequestTexture(51, context.RenderOutputSize,
+                        Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgb()).DrawingSurface;
+                }
+                else if (ColorSpace.Value == ColorSpaceType.LinearSrgb && context.ProcessingColorSpace.IsSrgb)
+                {
+                    targetSurface = RequestTexture(51, context.RenderOutputSize,
+                        Drawie.Backend.Core.Surfaces.ImageData.ColorSpace.CreateSrgbLinear()).DrawingSurface;
+                }
             }
         }
 
-        targetSurface.Canvas.DrawRect(0, 0, context.RenderOutputSize.X, context.RenderOutputSize.Y, paint);
+        targetSurface.Canvas.DrawRect(0, 0, width, height, paint);
 
         if (targetSurface != surface)
         {
+            int saved = surface.Canvas.Save();
+            if (scale)
+            {
+                surface.Canvas.Scale((float)context.ChunkResolution.Multiplier(),
+                    (float)context.ChunkResolution.Multiplier());
+            }
+
             surface.Canvas.DrawSurface(targetSurface, 0, 0);
+            surface.Canvas.RestoreToCount(saved);
         }
     }
 
