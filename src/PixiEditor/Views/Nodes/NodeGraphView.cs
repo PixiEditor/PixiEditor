@@ -182,6 +182,12 @@ internal class NodeGraphView : Zoombox.Zoombox
         set { SetValue(ActiveFrameProperty, value); }
     }
 
+    public bool IsMenuOpen
+    {
+        get { return (bool)GetValue(IsMenuOpenProperty); }
+        set { SetValue(IsMenuOpenProperty, value); }
+    }
+
     private bool isDraggingNodes;
     private bool isDraggingConnection;
     private VecD clickPointOffset;
@@ -208,6 +214,7 @@ internal class NodeGraphView : Zoombox.Zoombox
     private List<Control> nodeViewsCache = new();
 
     private bool isSelecting;
+    public static readonly StyledProperty<bool> IsMenuOpenProperty = AvaloniaProperty.Register<NodeGraphView, bool>("IsMenuOpen");
 
     public static readonly StyledProperty<int> ActiveFrameProperty =
         AvaloniaProperty.Register<NodeGraphView, int>("ActiveFrame");
@@ -252,6 +259,15 @@ internal class NodeGraphView : Zoombox.Zoombox
             nodeItemsControl.ItemsPanelRoot.Children.CollectionChanged += NodeItems_CollectionChanged;
             nodeViewsCache = nodeItemsControl.ItemsPanelRoot.Children.ToList();
             HandleNodesAdded(nodeViewsCache);
+        }
+    }
+
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        base.OnKeyDown(e);
+        if (e.Key == Key.Space)
+        {
+            IsMenuOpen = true;
         }
     }
 

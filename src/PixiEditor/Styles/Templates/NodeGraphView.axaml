@@ -12,7 +12,7 @@
                                IsVisible="False" ZIndex="100"
                                Fill="{DynamicResource SelectionFillBrush}" Opacity="1" />
                     <Grid.ContextFlyout>
-                        <Flyout>
+                        <Flyout Placement="Pointer" IsOpen="{Binding IsMenuOpen, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}, Mode=TwoWay}">
                             <nodes:NodePicker
                                 AllNodeTypeInfos="{Binding AllNodeTypeInfos, RelativeSource={RelativeSource TemplatedParent}}"
                                 SearchQuery="{Binding SearchQuery, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
