@@ -10,6 +10,7 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -182,12 +183,6 @@ internal class NodeGraphView : Zoombox.Zoombox
         set { SetValue(ActiveFrameProperty, value); }
     }
 
-    public bool IsMenuOpen
-    {
-        get { return (bool)GetValue(IsMenuOpenProperty); }
-        set { SetValue(IsMenuOpenProperty, value); }
-    }
-
     private bool isDraggingNodes;
     private bool isDraggingConnection;
     private VecD clickPointOffset;
@@ -214,10 +209,11 @@ internal class NodeGraphView : Zoombox.Zoombox
     private List<Control> nodeViewsCache = new();
 
     private bool isSelecting;
-    public static readonly StyledProperty<bool> IsMenuOpenProperty = AvaloniaProperty.Register<NodeGraphView, bool>("IsMenuOpen");
 
     public static readonly StyledProperty<int> ActiveFrameProperty =
         AvaloniaProperty.Register<NodeGraphView, int>("ActiveFrame");
+
+    private Panel rootPanel;
 
     public NodeGraphView()
     {
@@ -239,12 +235,25 @@ internal class NodeGraphView : Zoombox.Zoombox
         connectionItemsControl = e.NameScope.Find<ItemsControl>("PART_Connections");
         selectionRectangle = e.NameScope.Find<Rectangle>("PART_SelectionRectangle");
 
+        rootPanel = e.NameScope.Find<Panel>("PART_RootPanel");
+
         Dispatcher.UIThread.Post(() =>
         {
             nodeItemsControl.ItemsPanelRoot.Children.CollectionChanged += NodeItems_CollectionChanged;
             nodeViewsCache = nodeItemsControl.ItemsPanelRoot.Children.ToList();
             HandleNodesAdded(nodeViewsCache);
         });
+    }
+
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+
+        Dispatcher.UIThread.Post(
+            () =>
+            {
+                rootPanel.Focus(NavigationMethod.Pointer);
+            }, DispatcherPriority.Input);
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
@@ -267,7 +276,8 @@ internal class NodeGraphView : Zoombox.Zoombox
         base.OnKeyDown(e);
         if (e.Key == Key.Space)
         {
-            IsMenuOpen = true;
+            rootPanel.ContextFlyout?.ShowAt(rootPanel);
+            e.Handled = true;
         }
     }
 

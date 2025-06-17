@@ -6,13 +6,13 @@
         <Setter Property="ZoomMode" Value="Move" />
         <Setter Property="Template">
             <ControlTemplate>
-                <Grid Background="Transparent">
+                <Grid Focusable="True" Background="Transparent" Name="PART_RootPanel">
                     <Rectangle Name="PART_SelectionRectangle" HorizontalAlignment="Left"
                                VerticalAlignment="Top"
                                IsVisible="False" ZIndex="100"
                                Fill="{DynamicResource SelectionFillBrush}" Opacity="1" />
                     <Grid.ContextFlyout>
-                        <Flyout Placement="Pointer" IsOpen="{Binding IsMenuOpen, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}, Mode=TwoWay}">
+                        <Flyout Placement="Pointer">
                             <nodes:NodePicker
                                 AllNodeTypeInfos="{Binding AllNodeTypeInfos, RelativeSource={RelativeSource TemplatedParent}}"
                                 SearchQuery="{Binding SearchQuery, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
