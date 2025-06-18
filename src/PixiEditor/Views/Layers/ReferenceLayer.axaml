@@ -16,10 +16,11 @@
              mc:Ignorable="d"
              d:DesignHeight="60" d:DesignWidth="350" VerticalAlignment="Center" x:Name="uc">
     <UserControl.Styles>
+        <Style Selector="Button#topmostBtn">
+            <Setter Property="Content" Value="{DynamicResource icon-layers-top}"></Setter>
+        </Style>
         <Style Selector=":topmost Button#topmostBtn">
-            <Setter Property="RenderTransform">
-                <RotateTransform Angle="180" />
-            </Setter>
+            <Setter Property="Content" Value="{DynamicResource icon-layers-bottom}"/>
         </Style>
     </UserControl.Styles>
     <Border BorderThickness="0 2 0 0" MinWidth="60"
@@ -67,7 +68,6 @@
                                 Command="{cmds:Command PixiEditor.Layer.ToggleReferenceLayerTopMost}"
                                 Name="topmostBtn"
                                 Classes="pixi-icon"
-                                Content="{DynamicResource icon-reference-layer}"
                                 ToolTip.Tip="{Binding Document.ReferenceLayerViewModel.IsTopMost, ElementName=uc, Converter={converters:BoolToValueConverter FalseValue='localized:PUT_REFERENCE_LAYER_ABOVE', TrueValue='localized:PUT_REFERENCE_LAYER_BELOW'}}"
                                 RenderOptions.BitmapInterpolationMode="HighQuality"
                                 Width="24" Height="24" HorizontalAlignment="Right"/>

@@ -614,7 +614,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
     [Command.Basic("PixiEditor.Layer.Rasterize", "RASTERIZE_ACTIVE_LAYER", "RASTERIZE_ACTIVE_LAYER_DESCRIPTIVE",
         CanExecute = "PixiEditor.Layer.AnySelectedLayerIsRasterizable",
-        Icon = PixiPerfectIcons.LowresCircle, MenuItemPath = "LAYER/VECTOR/RASTERIZE_ACTIVE_LAYER",
+        Icon = PixiPerfectIcons.LowresCircle, MenuItemPath = "LAYER/RASTERIZE_ACTIVE_LAYER",
         AnalyticsTrack = true)]
     public void RasterizeActiveLayer()
     {
@@ -635,7 +635,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
     [Command.Basic("PixiEditor.Layer.ConvertToCurve", "CONVERT_TO_CURVE", "CONVERT_TO_CURVE_DESCRIPTIVE",
         CanExecute = "PixiEditor.Layer.AnySelectedMemberIsVectorLayer",
-        MenuItemPath = "LAYER/VECTOR/CONVERT_TO_CURVE", AnalyticsTrack = true)]
+        MenuItemPath = "LAYER/CONVERT_TO_CURVE", AnalyticsTrack = true)]
     public void ConvertActiveLayersToCurve()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -655,7 +655,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
     [Command.Basic("PixiEditor.Layer.SeparateShapes", "SEPARATE_SHAPES", "SEPARATE_SHAPES_DESCRIPTIVE",
         CanExecute = "PixiEditor.Layer.AnySelectedMemberIsVectorLayer",
-        MenuItemPath = "LAYER/VECTOR/SEPARATE_SHAPES", AnalyticsTrack = true)]
+        MenuItemPath = "LAYER/SEPARATE_SHAPES", AnalyticsTrack = true)]
     public void SeparateShapes()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -678,14 +678,14 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         Key = Key.X, Modifiers = KeyModifiers.Control | KeyModifiers.Shift,
         Parameter = false,
         ShortcutContexts = [typeof(ViewportWindowViewModel), typeof(TextOverlay)],
-        MenuItemPath = "LAYER/TEXT/EXTRACT_SELECTED_TEXT", AnalyticsTrack = true)]
+        MenuItemPath = "LAYER/EXTRACT_SELECTED_TEXT", AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.Layer.ExtractSelectedCharacters", "EXTRACT_SELECTED_CHARACTERS",
         "EXTRACT_SELECTED_CHARACTERS_DESCRIPTIVE",
         CanExecute = "PixiEditor.Layer.SelectedMemberIsSelectedText",
         Key = Key.X, Modifiers = KeyModifiers.Control | KeyModifiers.Shift | KeyModifiers.Alt,
         Parameter = true,
         ShortcutContexts = [typeof(ViewportWindowViewModel), typeof(TextOverlay)],
-        MenuItemPath = "LAYER/TEXT/EXTRACT_SELECTED_CHARACTERS", AnalyticsTrack = true)]
+        MenuItemPath = "LAYER/EXTRACT_SELECTED_CHARACTERS", AnalyticsTrack = true)]
     public void ExtractSelectedText(bool extractEachCharacter)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;

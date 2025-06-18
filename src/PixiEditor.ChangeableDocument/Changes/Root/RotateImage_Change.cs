@@ -16,6 +16,8 @@ internal sealed class RotateImage_Change : Change
     private readonly RotationAngle rotation;
     private List<Guid> membersToRotate;
 
+    private Dictionary<Guid, Matrix3X3> originalTransformations = new();
+
     private VecI originalSize;
     private double originalHorAxisY;
     private double originalVerAxisX;
@@ -28,6 +30,7 @@ internal sealed class RotateImage_Change : Change
     {
         this.rotation = rotation;
         membersToRotate ??= new List<Guid>();
+        originalTransformations = new Dictionary<Guid, Matrix3X3>();
         this.membersToRotate = membersToRotate;
         this.frame = frame < 0 ? null : frame;
     }
@@ -143,6 +146,7 @@ internal sealed class RotateImage_Change : Change
 
     private OneOf<None, IChangeInfo, List<IChangeInfo>> Rotate(Document target)
     {
+        originalTransformations.Clear();
         if (membersToRotate.Count == 0)
         {
             return RotateWholeImage(target);
@@ -173,7 +177,13 @@ internal sealed class RotateImage_Change : Change
                 }
                 else if (member is ITransformableObject transformableObject)
                 {
-                    RectD? tightBounds = member.GetTightBounds(frame.Value);
+                    RectD? tightBounds = member.GetTightBounds(frame ?? 0);
+
+                    if (tightBounds is null)
+                        return;
+
+                    originalTransformations[member.Id] = transformableObject.TransformationMatrix;
+
                     transformableObject.TransformationMatrix = transformableObject.TransformationMatrix.PostConcat(
                         Matrix3X3.CreateRotation(
                             RotationAngleToRadians(rotation),
@@ -195,7 +205,11 @@ internal sealed class RotateImage_Change : Change
         int newWidth = rotation == RotationAngle.D180 ? target.Size.X : target.Size.Y;
         int newHeight = rotation == RotationAngle.D180 ? target.Size.Y : target.Size.X;
 
+        VecI oldSize = target.Size;
         VecI newSize = new VecI(newWidth, newHeight);
+
+        VecD imageCenterOld = new VecD(oldSize.X / 2f, oldSize.Y / 2f);
+        VecD imageCenterNew = new VecD(newSize.X / 2f, newSize.Y / 2f);
 
         double normalizedSymmX = originalVerAxisX / Math.Max(target.Size.X, 0.1f);
         double normalizedSymmY = originalHorAxisY / Math.Max(target.Size.Y, 0.1f);
@@ -220,6 +234,43 @@ internal sealed class RotateImage_Change : Change
                     });
                 }
             }
+            else
+            {
+                if (member is ITransformableObject transformableObject)
+                {
+                    RectD? tightBounds = member.GetTightBounds(0);
+                    if (tightBounds is null)
+                        return;
+
+                    originalTransformations[member.Id] = transformableObject.TransformationMatrix;
+
+                    float radians = RotationAngleToRadians(rotation);
+
+                    VecD objectCenter = new VecD((float)tightBounds.Value.Center.X, (float)tightBounds.Value.Center.Y);
+
+                    var rotationMatrix =
+                        Matrix3X3.CreateRotation(radians, (float)objectCenter.X, (float)objectCenter.Y);
+
+                    VecD offsetFromCenter = objectCenter - imageCenterOld;
+
+                    VecD rotatedOffset = rotation switch
+                    {
+                        RotationAngle.D90 => new VecD(-offsetFromCenter.Y, offsetFromCenter.X),
+                        RotationAngle.D180 => -offsetFromCenter,
+                        RotationAngle.D270 => new VecD(offsetFromCenter.Y, -offsetFromCenter.X),
+                        _ => offsetFromCenter
+                    };
+
+                    VecD newObjectCenter = imageCenterNew + rotatedOffset;
+
+                    VecD delta = newObjectCenter - objectCenter;
+                    var translationMatrix = Matrix3X3.CreateTranslation(delta.X, delta.Y);
+
+                    transformableObject.TransformationMatrix =
+                        transformableObject.TransformationMatrix.PostConcat(rotationMatrix)
+                            .PostConcat(translationMatrix);
+                }
+            }
 
             if (member.EmbeddedMask is null)
                 return;
@@ -232,6 +283,23 @@ internal sealed class RotateImage_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
+        if (originalTransformations.Count > 0)
+        {
+            foreach (var item in originalTransformations)
+            {
+                var member = item.Key;
+
+                if (!target.HasMember(member))
+                    continue;
+
+                var memberNode = target.FindMember(member);
+                if (memberNode is ITransformableObject transformableObject)
+                {
+                    transformableObject.TransformationMatrix = item.Value;
+                }
+            }
+        }
+
         if (membersToRotate.Count == 0)
         {
             return RevertRotateWholeImage(target);

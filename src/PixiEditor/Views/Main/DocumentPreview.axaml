@@ -7,6 +7,7 @@
              xmlns:input="clr-namespace:PixiEditor.Views.Input"
              xmlns:ui1="clr-namespace:PixiEditor.Helpers.UI"
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:localization="clr-namespace:PixiEditor.UI.Common.Localization;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              Name="uc"
              x:Class="PixiEditor.Views.Main.DocumentPreview">
@@ -21,9 +22,11 @@
               IsVisible="{Binding !!Document, ElementName=uc}"
               Margin="10" Background="Transparent"
               d:Width="8" d:Height="8">
+
             <viewportControls:FixedViewport
                 Delayed="True"
                 x:Name="viewport"
+                RenderInDocSize="{Binding ElementName=highDpiButton, Path=IsChecked}"
                 Document="{Binding Document, ElementName=uc}"
                 Background="{Binding ActiveItem.Value, ElementName=backgroundButton}"/>
         </Grid>
@@ -54,8 +57,20 @@
             </TextBlock>
         </StackPanel>
         <Grid Grid.Row="2" HorizontalAlignment="Right" Margin="0,0,5,0" ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding ElementName=backgroundButton, Path=ActiveItem.ScalingMode}">
-            <StackPanel Orientation="Horizontal">
-                <input:ListSwitchButton x:Name="formatButton" Margin="0,0,5,0" Height="20">
+            <StackPanel Spacing="5" Orientation="Horizontal">
+                <StackPanel.Styles>
+                    <Style Selector="ToggleButton#highDpiButton">
+                        <Setter Property="Content" Value="{DynamicResource icon-circle}"/>
+                    </Style>
+                    <Style Selector="ToggleButton#highDpiButton:checked">
+                        <Setter Property="Content" Value="{DynamicResource icon-lowres-circle}"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                    </Style>
+                </StackPanel.Styles>
+
+                <ToggleButton x:Name="highDpiButton" Classes="pixi-icon" localization:Translator.TooltipKey="TOGGLE_HIGH_RES_PREVIEW"/>
+                <input:ListSwitchButton x:Name="formatButton" Height="20">
                     <input:ListSwitchButton.Items>
                         <input:SwitchItemObservableCollection>
                             <input:SwitchItem Content="RGBA" Background="{DynamicResource ThemeControlMidBrush}" Value="RGBA"/>

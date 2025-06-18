@@ -612,7 +612,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                     {
                         Dispatcher.UIThread.Post(() =>
                         {
-                            if (IPreferences.Current.GetPreference<bool>(PreferencesConstants.OpenDirectoryOnExport))
+                            if (IPreferences.Current.GetPreference<bool>(PreferencesConstants.OpenDirectoryOnExport, true))
                             {
                                 IOperatingSystem.Current.OpenFolder(result.finalPath);
                             }

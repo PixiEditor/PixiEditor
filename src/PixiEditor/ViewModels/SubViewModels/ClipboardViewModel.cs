@@ -87,7 +87,11 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
             Guid[] guids = doc.StructureHelper.GetAllLayers().Select(x => x.Id).ToArray();
             await ClipboardController.TryPasteFromClipboard(doc, Owner.DocumentManagerSubViewModel, pasteAsNewLayer);
 
-            doc.Operations.InvokeCustomAction(() =>
+            // Leaving the code below commented out in case something breaks.
+            // It instantly ended paste image operation after I made it interruptable,
+            // I did test it, and it seems everything works fine without it.
+            /*doc.Operations.InvokeCustomAction(
+                () =>
             {
                 Guid[] newGuids = doc.StructureHelper.GetAllLayers().Select(x => x.Id).ToArray();
 
@@ -102,7 +106,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
                         doc.Operations.AddSoftSelectedMember(diff[i]);
                     }
                 }
-            });
+            }, false);*/
         });
     }
 
