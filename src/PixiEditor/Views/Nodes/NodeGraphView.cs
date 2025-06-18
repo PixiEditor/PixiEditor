@@ -274,7 +274,7 @@ internal class NodeGraphView : Zoombox.Zoombox
     protected override void OnKeyDown(KeyEventArgs e)
     {
         base.OnKeyDown(e);
-        if (e.Key == Key.Space)
+        if (e.Key == Key.Space && e.Source.Equals(rootPanel))
         {
             rootPanel.ContextFlyout?.ShowAt(rootPanel);
             e.Handled = true;
