@@ -4,7 +4,7 @@ using Drawie.Backend.Core.Surfaces;
 using Drawie.Backend.Core.Surfaces.PaintImpl;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
-internal class PasteImage_UpdateableChange : UpdateableChange
+internal class PasteImage_UpdateableChange : InterruptableUpdateableChange
 {
     private ShapeCorners corners;
     private readonly Guid memberGuid;

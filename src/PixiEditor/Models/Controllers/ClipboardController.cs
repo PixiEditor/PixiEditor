@@ -215,6 +215,8 @@ internal static class ClipboardController
                 }
             }
 
+            manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
+
             return true;
         }
 
