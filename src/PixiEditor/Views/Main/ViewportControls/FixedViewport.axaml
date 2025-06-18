@@ -18,6 +18,7 @@
             x:Name="mainImage"
             Focusable="True"
             PreviewPainter="{Binding Document.PreviewPainter, ElementName=uc}"
+            CustomRenderSize="{Binding CustomRenderSize, ElementName=uc}"
             FrameToRender="{Binding Document.AnimationDataViewModel.ActiveFrameBindable, ElementName=uc}"
             SizeChanged="OnImageSizeChanged">
             <ui1:RenderOptionsBindable.BitmapInterpolationMode>
