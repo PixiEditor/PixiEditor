@@ -19,6 +19,7 @@
     xmlns:input="clr-namespace:PixiEditor.Views.Input"
     xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
     xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+    xmlns:handlers="clr-namespace:PixiEditor.Models.Handlers"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -140,11 +141,11 @@
                         <TextBlock HorizontalAlignment="Center"
                                    ui:Translator.Key="GRIDLINES_SIZE" Margin="0 0 0 10" />
                         <controls:NumberInput Min="1"
-                                           Max="1024"
-                                           Value="{Binding GridLinesXSize, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
+                                              Max="1024"
+                                              Value="{Binding GridLinesXSize, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
                         <controls:NumberInput Min="1"
-                                           Max="1024"
-                                           Value="{Binding GridLinesYSize, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
+                                              Max="1024"
+                                              Value="{Binding GridLinesYSize, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}" />
                         <Separator />
                         <TextBlock ui:Translator.Key="RENDER_PREVIEW" />
                         <ComboBox
@@ -168,26 +169,69 @@
             ZIndex="100" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition MinHeight="40" MaxHeight="120" />
-                <RowDefinition Height="35" />
+                <RowDefinition Height="30" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <tools:Toolbar
                 DataContext="{Binding Source={viewModels:MainVM}, Path=.}" />
-            <Border Grid.Row="1" ClipToBounds="False"
-                    HorizontalAlignment="Left"
-                    Padding="5 0"
-                    Margin="0 2.5 0 5"
-                    Height="25"
-                    BorderBrush="{DynamicResource ThemeBorderMidBrush}"
-                    BorderThickness="1"
-                    Background="{DynamicResource ThemeBackgroundBrush2}"
-                    CornerRadius="{DynamicResource ControlCornerRadius}">
-                <TextBlock
-                    ui:Translator.Key="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Name}"
-                    VerticalAlignment="Center" />
-            </Border>
+            <StackPanel Margin="0, 5, 0, 0" Background="Transparent" Grid.Row="1" Orientation="Horizontal" Name="toolsetsPanel">
+                <Border ClipToBounds="False"
+                        HorizontalAlignment="Left"
+                        Padding="5 0"
+                        Name="activeToolSetChip"
+                        Height="25"
+                        BorderBrush="{DynamicResource ThemeBorderHighBrush}"
+                        BorderThickness="1"
+                        Background="{DynamicResource ThemeBackgroundBrush2}"
+                        CornerRadius="{DynamicResource ControlCornerRadius}">
+                    <TextBlock>
+                        <Run Classes="pixi-icon"
+                             Text="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Icon}" />
+                        <Run
+                            ui:Translator.Key="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet.Name}" />
+                    </TextBlock>
+                </Border>
+                <ItemsControl
+                    Name="otherToolSets"
+                    Background="Transparent"
+                    ItemsSource="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.NonSelectedToolSets, Mode=OneWay}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Margin="5, 0, 0, 0" Spacing="5"
+                                        Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="{x:Type handlers:IToolSetHandler}">
+                            <Button
+                                Command="{xaml:Command PixiEditor.Tools.SetActiveToolSet, UseProvided=True}"
+                                CommandParameter="{Binding}"
+                                FontSize="{DynamicResource FontSizeMedium}"
+                                VerticalAlignment="Center">
+                                <TextBlock>
+                                    <Run Classes="pixi-icon" Text="{Binding Icon}" />
+                                    <Run ui:Translator.Key="{Binding Name}" />
+                                </TextBlock>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.IsVisible>
+                        <MultiBinding Converter="{converters:AnyTrueConverter}">
+                            <MultiBinding.Bindings>
+                                <Binding Path="IsPointerOver" ElementName="toolsPicker" />
+                                <Binding Path="IsPointerOver" ElementName="activeToolSetChip" />
+                                <Binding Path="IsPointerOver" ElementName="otherToolSets" />
+                            </MultiBinding.Bindings>
+                        </MultiBinding>
+                    </ItemsControl.IsVisible>
+                </ItemsControl>
+            </StackPanel>
             <tools:ToolsPicker Grid.Row="2" IsHitTestVisible="True"
+                               Name="toolsPicker"
+                               Padding="0, 5, 0, 0"
+                               Background="Transparent"
                                HorizontalAlignment="Left"
+                               Margin="0, 0, 0, -95"
                                ToolSet="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ActiveToolSet, Mode=TwoWay}"
                                ToolSets="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.AllToolSets, Mode=OneWay}"
                                SwitchToolSetCommand="{xaml:Command Name=PixiEditor.Tools.SwitchToolSet, UseProvided=True}" />
