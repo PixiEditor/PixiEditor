@@ -17,6 +17,15 @@ public class PreviewPainterControl : DrawieControl
         AvaloniaProperty.Register<PreviewPainterControl, PreviewPainter>(
             nameof(PreviewPainter));
 
+    public static readonly StyledProperty<VecI> CustomRenderSizeProperty = AvaloniaProperty.Register<PreviewPainterControl, VecI>(
+        nameof(CustomRenderSize));
+
+    public VecI CustomRenderSize
+    {
+        get => GetValue(CustomRenderSizeProperty);
+        set => SetValue(CustomRenderSizeProperty, value);
+    }
+
     public PreviewPainter PreviewPainter
     {
         get => GetValue(PreviewPainterProperty);
@@ -35,6 +44,7 @@ public class PreviewPainterControl : DrawieControl
     {
         PreviewPainterProperty.Changed.Subscribe(PainterChanged);
         BoundsProperty.Changed.Subscribe(UpdatePainterBounds);
+        CustomRenderSizeProperty.Changed.Subscribe(UpdatePainterBounds);
     }
 
     public PreviewPainterControl()
@@ -64,10 +74,10 @@ public class PreviewPainterControl : DrawieControl
         if (args.NewValue.Value != null)
         {
             sender.painterInstance = args.NewValue.Value.AttachPainterInstance();
-            if (sender.Bounds is { Width: > 0, Height: > 0 })
+            VecI finalSize = sender.GetFinalSize();
+            if (finalSize is { X: > 0, Y: > 0 })
             {
-                sender.PreviewPainter.ChangeRenderTextureSize(sender.painterInstance.RequestId,
-                    new VecI((int)sender.Bounds.Width, (int)sender.Bounds.Height));
+                sender.PreviewPainter.ChangeRenderTextureSize(sender.painterInstance.RequestId, finalSize);
             }
 
             sender.painterInstance.RequestMatrix = sender.OnPainterRequestMatrix;
@@ -93,23 +103,49 @@ public class PreviewPainterControl : DrawieControl
             return;
         }
 
+        if (CustomRenderSize.ShortestAxis > 0)
+        {
+            surface.Canvas.Save();
+            VecI finalSize = GetFinalSize();
+            surface.Canvas.Scale(
+                (float)Bounds.Width / finalSize.X,
+                (float)Bounds.Height / finalSize.Y);
+        }
+
         PreviewPainter.Paint(surface, painterInstance.RequestId);
+
+        if (CustomRenderSize.ShortestAxis > 0)
+        {
+            surface.Canvas.Restore();
+        }
     }
 
     private Matrix3X3 UniformScale(float x, float y, RectD previewBounds)
     {
-        float scaleX = (float)Bounds.Width / x;
-        float scaleY = (float)Bounds.Height / y;
+        VecI finalSize = GetFinalSize();
+        float scaleX = finalSize.X / x;
+        float scaleY = finalSize.Y / y;
         var scale = Math.Min(scaleX, scaleY);
-        float dX = (float)Bounds.Width / 2 / scale - x / 2;
+        float dX = (float)finalSize.X / 2 / scale - x / 2;
         dX -= (float)previewBounds.X;
-        float dY = (float)Bounds.Height / 2 / scale - y / 2;
+        float dY = (float)finalSize.Y / 2 / scale - y / 2;
         dY -= (float)previewBounds.Y;
         Matrix3X3 matrix = Matrix3X3.CreateScale(scale, scale);
         return matrix.Concat(Matrix3X3.CreateTranslation(dX, dY));
     }
 
-    private static void UpdatePainterBounds(AvaloniaPropertyChangedEventArgs<Rect> args)
+    private VecI GetFinalSize()
+    {
+        VecI finalSize = CustomRenderSize.ShortestAxis > 0 ? CustomRenderSize : new VecI((int)Bounds.Width, (int)Bounds.Height);
+        if(Bounds.Width < finalSize.X && Bounds.Height < finalSize.Y)
+        {
+            finalSize = new VecI((int)Bounds.Width, (int)Bounds.Height);
+        }
+
+        return finalSize;
+    }
+
+    private static void UpdatePainterBounds(AvaloniaPropertyChangedEventArgs args)
     {
         var sender = args.Sender as PreviewPainterControl;
 
@@ -120,10 +156,10 @@ public class PreviewPainterControl : DrawieControl
 
         if (sender.painterInstance != null)
         {
-            if (args.NewValue.Value is { Width: > 0, Height: > 0 })
+            VecI finalSize = sender.GetFinalSize();
+            if (finalSize is { X: > 0, Y: > 0 })
             {
-                sender.PreviewPainter.ChangeRenderTextureSize(sender.painterInstance.RequestId,
-                    new VecI((int)args.NewValue.Value.Width, (int)args.NewValue.Value.Height));
+                sender.PreviewPainter.ChangeRenderTextureSize(sender.painterInstance.RequestId, finalSize);
                 sender.PreviewPainter.RepaintFor(sender.painterInstance.RequestId);
             }
         }

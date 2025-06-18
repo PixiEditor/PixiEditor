@@ -17,6 +17,8 @@ internal class PasteImageExecutor : UpdateableChangeExecutor, ITransformableExec
     private bool drawOnMask;
     private Guid? memberGuid;
 
+    public override bool BlocksOtherActions => false;
+
     public PasteImageExecutor(Surface image, VecI pos)
     {
         this.image = image;
