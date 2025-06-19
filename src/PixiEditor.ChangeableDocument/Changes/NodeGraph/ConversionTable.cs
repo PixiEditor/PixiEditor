@@ -16,6 +16,7 @@ public static class ConversionTable
             {
                 typeof(double), [
                     (typeof(int), new TypeConverter<double, int>(DoubleToInt)),
+                    (typeof(float), new TypeConverter<double, float>(d => (float)d)),
                     (typeof(VecD), new TypeConverter<double, VecD>(DoubleToVecD)),
                     (typeof(VecI), new TypeConverter<double, VecI>(DoubleToVecI)),
                     (typeof(Vec3D), new TypeConverter<double, Vec3D>(d => new Vec3D(d, d, d))),
@@ -24,6 +25,7 @@ public static class ConversionTable
             {
                 typeof(int), [
                     (typeof(double), new TypeConverter<int, double>(ConvertIntToDouble)),
+                    (typeof(float), new TypeConverter<int, float>(i => (float)i)),
                     (typeof(VecI), new TypeConverter<int, VecI>(IntToVecI)),
                     (typeof(VecD), new TypeConverter<int, VecD>(IntToVecD)),
                     (typeof(Vec3D), new TypeConverter<int, Vec3D>(i => new Vec3D(i, i, i))),
@@ -33,16 +35,18 @@ public static class ConversionTable
                 typeof(VecD), [
                     (typeof(double), new TypeConverter<VecD, double>(VecDToDouble)),
                     (typeof(int), new TypeConverter<VecD, int>(VecDToInt)),
+                    (typeof(float), new TypeConverter<VecD, float>(v => (float)v.X)),
                     (typeof(VecI), new TypeConverter<VecD, VecI>(VecDToVecI)),
-                    (typeof(Vec3D), new TypeConverter<VecD, Vec3D>(v => new Vec3D(v.X, v.Y, 0)))
+                    (typeof(Vec3D), new TypeConverter<VecD, Vec3D>(v => new Vec3D(v.X, v.Y, v.Y)))
                 ]
             },
             {
                 typeof(VecI), [
                     (typeof(double), new TypeConverter<VecI, double>(VecIToDouble)),
                     (typeof(int), new TypeConverter<VecI, int>(VecIToInt)),
+                    (typeof(float), new TypeConverter<VecI, float>(v => v.X)),
                     (typeof(VecD), new TypeConverter<VecI, VecD>(VecIToVecD)),
-                    (typeof(Vec3D), new TypeConverter<VecI, Vec3D>(v => new Vec3D(v.X, v.Y, 0)))
+                    (typeof(Vec3D), new TypeConverter<VecI, Vec3D>(v => new Vec3D(v.X, v.Y, v.Y)))
                 ]
             },
             {
@@ -51,6 +55,9 @@ public static class ConversionTable
                     (typeof(VecD), new TypeConverter<Color, VecD>(c => new VecD(c.R, c.G))),
                     (typeof(VecI), new TypeConverter<Color, VecI>(c => new VecI(c.R, c.G))),
                     (typeof(Vec3D), new TypeConverter<Color, Vec3D>(c => new Vec3D(c.R, c.G, c.B))),
+                    (typeof(double), new TypeConverter<Color, double>(c => c.R)),
+                    (typeof(int), new TypeConverter<Color, int>(c => c.R)),
+                    (typeof(float), new TypeConverter<Color, float>(c => c.R)),
                 ]
             },
             {
