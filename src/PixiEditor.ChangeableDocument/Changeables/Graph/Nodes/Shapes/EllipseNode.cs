@@ -13,7 +13,7 @@ public class EllipseNode : ShapeNode<EllipseVectorData>
     public InputProperty<VecD> Radius { get; }
     public InputProperty<Paintable> StrokeColor { get; }
     public InputProperty<Paintable> FillColor { get; }
-    public InputProperty<int> StrokeWidth { get; }
+    public InputProperty<double> StrokeWidth { get; }
 
     public EllipseNode()
     {
@@ -22,13 +22,13 @@ public class EllipseNode : ShapeNode<EllipseVectorData>
             v => v.Min(new VecD(0)));
         StrokeColor = CreateInput<Paintable>("StrokeColor", "STROKE_COLOR", new Color(0, 0, 0, 255));
         FillColor = CreateInput<Paintable>("FillColor", "FILL_COLOR", new Color(0, 0, 0, 255));
-        StrokeWidth = CreateInput<int>("StrokeWidth", "STROKE_WIDTH", 1);
+        StrokeWidth = CreateInput<double>("StrokeWidth", "STROKE_WIDTH", 1);
     }
 
     protected override EllipseVectorData? GetShapeData(RenderContext context)
     {
         return new EllipseVectorData(Center.Value, Radius.Value)
-            { Stroke = StrokeColor.Value, FillPaintable = FillColor.Value, StrokeWidth = StrokeWidth.Value };
+            { Stroke = StrokeColor.Value, FillPaintable = FillColor.Value, StrokeWidth = (float)StrokeWidth.Value };
     }
 
     public override Node CreateCopy() => new EllipseNode();
