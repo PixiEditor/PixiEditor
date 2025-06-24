@@ -92,7 +92,8 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
 
     [Command.Basic("PixiEditor.Document.FlipLayersHorizontal", FlipType.Horizontal, "FLIP_LAYERS_HORIZONTALLY",
         "FLIP_LAYERS_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument",
-        MenuItemPath = "LAYER/FLIP/FLIP_LAYERS_HORIZONTALLY", MenuItemOrder = 16, Icon = PixiPerfectIcons.MirrorHorizontal,
+        MenuItemPath = "LAYER/FLIP/FLIP_LAYERS_HORIZONTALLY", MenuItemOrder = 16,
+        Icon = PixiPerfectIcons.MirrorHorizontal,
         AnalyticsTrack = true)]
     [Command.Basic("PixiEditor.Document.FlipLayersVertical", FlipType.Vertical, "FLIP_LAYERS_VERTICALLY",
         "FLIP_LAYERS_VERTICALLY", CanExecute = "PixiEditor.HasDocument",
@@ -195,6 +196,9 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         MenuItemPath = "EDIT/DELETE_SELECTED", MenuItemOrder = 6, AnalyticsTrack = true)]
     public void DeleteSelected()
     {
+        if (ActiveDocument is null)
+            return;
+
         if (ActiveDocument.SelectionPathBindable is { IsEmpty: false })
         {
             Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.DeleteSelectedPixels(activeDocument

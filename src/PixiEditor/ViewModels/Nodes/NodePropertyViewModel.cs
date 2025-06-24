@@ -179,7 +179,9 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
             propertyType = type.GetMethod("Invoke").ReturnType.BaseType.GenericTypeArguments[0];
         }
 
-        string name = $"{propertyType.Name}PropertyViewModel";
+        string typeName = propertyType.Name;
+
+        string name = $"{typeName}PropertyViewModel";
 
         Type viewModelType = Type.GetType($"PixiEditor.ViewModels.Nodes.Properties.{name}");
         if (viewModelType == null)

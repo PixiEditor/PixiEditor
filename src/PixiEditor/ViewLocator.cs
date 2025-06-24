@@ -4,9 +4,11 @@ using Avalonia.Controls.Templates;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiDocks.Core.Docking;
 using PixiEditor.ViewModels.Dock;
+using PixiEditor.ViewModels.Nodes.Properties;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.Views.Dock;
 using PixiEditor.Views.Layers;
+using PixiEditor.Views.Nodes.Properties;
 
 namespace PixiEditor;
 
@@ -17,6 +19,7 @@ public class ViewLocator : IDataTemplate
         [typeof(ViewportWindowViewModel)] = typeof(DocumentTemplate),
         [typeof(LazyViewportWindowViewModel)] = typeof(LazyDocumentTemplate),
         [typeof(LayersDockViewModel)] = typeof(LayersManager),
+        [typeof(SinglePropertyViewModel)] = typeof(DoublePropertyView),
     };
 
     public Control Build(object? data)
