@@ -58,7 +58,7 @@ internal class SupportedFilesHelper
     public static IoFileType? ParseImageFormat(string extension)
     {
         var allExts = FileTypes;
-        var fileData = allExts.SingleOrDefault(i => i.Extensions.Contains(extension));
+        var fileData = allExts.SingleOrDefault(i => i.Extensions.Contains(extension, StringComparer.OrdinalIgnoreCase));
         return fileData;
     }
 
@@ -84,7 +84,7 @@ internal class SupportedFilesHelper
             return null;
 
         string extension = Path.GetExtension(file.Path.LocalPath);
-        return allSupportedExtensions.Single(i => i.CanSave && i.Extensions.Contains(extension));
+        return allSupportedExtensions.Single(i => i.CanSave && i.Extensions.Contains(extension, StringComparer.OrdinalIgnoreCase));
     }
 
     public static List<FilePickerFileType> BuildOpenFilter()
