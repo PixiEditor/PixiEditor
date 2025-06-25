@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Rendering;
 using Drawie.Backend.Core;
 using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
 using Drawie.Backend.Core.Shaders.Generation;
 using Drawie.Backend.Core.Shaders.Generation.Expressions;
 using Drawie.Backend.Core.Surfaces;
@@ -328,5 +329,63 @@ public class FuncContext
         _cachedValues[getFrom] = val;
 
         return val;
+    }
+
+    public Float3x3 GetValue(FuncInputProperty<Float3x3> getFrom)
+    {
+        if (HasContext)
+        {
+            if (getFrom.Connection == null || !IsFuncType(getFrom))
+            {
+                Float3x3 value = getFrom.Value(this);
+                value.VariableName = $"float3x3_{Builder.GetUniqueNameNumber()}";
+                Builder.AddUniform(value.VariableName, value.ConstantValue);
+                return value;
+            }
+
+            if (_cachedValues.TryGetValue(getFrom, out ShaderExpressionVariable cachedValue))
+            {
+                if (cachedValue is Float3x3 float3x3)
+                {
+                    return float3x3;
+                }
+            }
+        }
+
+        var val = getFrom.Value(this);
+        _cachedValues[getFrom] = val;
+
+        return val;
+    }
+
+    public Float3x3 NewFloat3x3(Expression m00, Expression m01, Expression m02,
+        Expression m10, Expression m11, Expression m12,
+        Expression m20, Expression m21, Expression m22)
+    {
+        if (!HasContext && m00 is Float1 firstFloat && m01 is Float1 secondFloat && m02 is Float1 thirdFloat &&
+            m10 is Float1 fourthFloat && m11 is Float1 fifthFloat && m12 is Float1 sixthFloat &&
+            m20 is Float1 seventhFloat && m21 is Float1 eighthFloat && m22 is Float1 ninthFloat)
+        {
+            Float3x3 constantMatrix = new Float3x3("");
+            constantMatrix.ConstantValue = new Matrix3X3(
+                (float)firstFloat.ConstantValue, (float)secondFloat.ConstantValue, (float)thirdFloat.ConstantValue,
+                (float)fourthFloat.ConstantValue, (float)fifthFloat.ConstantValue, (float)sixthFloat.ConstantValue,
+                (float)seventhFloat.ConstantValue, (float)eighthFloat.ConstantValue, (float)ninthFloat.ConstantValue);
+            return constantMatrix;
+        }
+
+        return Builder.ConstructFloat3x3(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+    }
+
+    public Float3x3 NewFloat3x3(Expression matrixExpression)
+    {
+        if (!HasContext && matrixExpression is Float3x3 float3x3)
+        {
+            Float3x3 constantMatrix = new Float3x3("");
+            constantMatrix.ConstantValue = float3x3.ConstantValue;
+            return constantMatrix;
+        }
+
+        return Builder.AssignNewFloat3x3(matrixExpression);
     }
 }

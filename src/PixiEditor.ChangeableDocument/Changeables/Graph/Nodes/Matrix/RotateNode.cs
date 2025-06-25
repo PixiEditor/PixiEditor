@@ -1,5 +1,7 @@
 ﻿using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Shaders.Generation.Expressions;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Matrix;
 
@@ -7,27 +9,42 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Matrix;
 public class RotateNode : Matrix3X3BaseNode
 {
     public InputProperty<RotationType> RotationType { get; }
-    public InputProperty<double> Angle { get; }
-    public InputProperty<VecD> Center { get; }
+    public FuncInputProperty<Float1> Angle { get; }
+    public FuncInputProperty<Float2> Center { get; }
 
     public RotateNode()
     {
         RotationType = CreateInput("RotationType", "UNIT", Nodes.Matrix.RotationType.Degrees);
-        Angle = CreateInput("Angle", "ANGLE", 0.0);
-        Center = CreateInput("Center", "CENTER", new VecD(0, 0));
+        Angle = CreateFuncInput<Float1>("Angle", "ANGLE", 0.0);
+        Center = CreateFuncInput<Float2>("Center", "CENTER", new VecD(0, 0));
     }
 
-    protected override Matrix3X3 CalculateMatrix(Matrix3X3 input)
+    protected override Float3x3 CalculateMatrix(FuncContext ctx, Float3x3 input)
     {
-        VecD scaledCenter = new VecD(Center.Value.X, Center.Value.Y);
-        Matrix3X3 rotated = RotationType.Value switch
+        Float1 angle = ctx.GetValue(Angle);
+        Float2 center = ctx.GetValue(Center);
+
+        Float1 one = new Float1("") { ConstantValue = 1.0 };
+        Float1 zero = new Float1("") { ConstantValue = 0.0 };
+
+        if (ctx.HasContext)
         {
-            Nodes.Matrix.RotationType.Degrees => Matrix3X3.CreateRotationDegrees((float)Angle.Value, (float)scaledCenter.X, (float)scaledCenter.Y),
-            Nodes.Matrix.RotationType.Radians => Matrix3X3.CreateRotation((float)Angle.Value, (float)scaledCenter.X, (float)scaledCenter.Y),
+            var rotationMatrix = ctx.NewFloat3x3(
+                ShaderMath.Cos(angle), new Expression($"-{ShaderMath.Sin(angle).ExpressionValue}"), new Expression($"{center.X.ExpressionValue} * (1.0 - {ShaderMath.Cos(angle)}) + {center.Y.ExpressionValue} * {ShaderMath.Sin(angle)}"),
+                ShaderMath.Sin(angle), ShaderMath.Cos(angle), new Expression($"{center.Y.ExpressionValue} * (1.0 - {ShaderMath.Cos(angle)}) - {center.X.ExpressionValue} * {ShaderMath.Sin(angle)}"),
+                zero, zero, one
+            );
+            return ctx.NewFloat3x3(ShaderMath.PostConcat(input, rotationMatrix));
+        }
+
+        Matrix3X3 rotationContextlessMatrix = RotationType.Value switch
+        {
+            Nodes.Matrix.RotationType.Degrees => Matrix3X3.CreateRotationDegrees((float)(angle.GetConstant() as double? ?? 0.0), (float)(center.X.GetConstant() as double? ?? 0), (float)(center.Y.GetConstant() as double? ?? 0)),
+            Nodes.Matrix.RotationType.Radians => Matrix3X3.CreateRotation((float)(angle.GetConstant() as double? ?? 0.0), (float)(center.X.GetConstant() as double? ?? 0), (float)(center.Y.GetConstant() as double? ?? 0)),
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        return input.PostConcat(rotated);
+        return new Float3x3("") { ConstantValue = input.ConstantValue.PostConcat(rotationContextlessMatrix) };
     }
 
     public override Node CreateCopy()
