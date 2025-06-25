@@ -5,9 +5,11 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using PixiEditor.Exceptions;
+using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.AnalyticsAPI;
 using PixiEditor.Models.Commands.Attributes.Commands;
@@ -21,6 +23,7 @@ using PixiEditor.Models.Input;
 using PixiEditor.Models.Structures;
 using PixiEditor.OperatingSystem;
 using PixiEditor.UI.Common.Localization;
+using PixiEditor.ViewModels;
 using Command = PixiEditor.Models.Commands.Commands.Command;
 using CommandAttribute = PixiEditor.Models.Commands.Attributes.Commands.Command;
 
@@ -446,11 +449,14 @@ internal class CommandController
 
         return;
 
-        static async void ActionOnException(Task faultedTask)
+        static void ActionOnException(Task faultedTask)
         {
-            // since this method is "async void" and not "async Task", the runtime will propagate exceptions out if it
-            // (instead of putting them into the returned task and forgetting about them)
-            await faultedTask; // this instantly throws the exception from the already faulted task
+            if (faultedTask.Exception == null)
+            {
+                return;
+            }
+
+            Dispatcher.UIThread.Post(() => throw faultedTask.Exception); // Re-throw the exception on the UI thread
         }
 
         ValueTask ReportEndTime(Task originalTask)
@@ -706,7 +712,8 @@ internal class CommandController
         if (IOperatingSystem.Current.IsMacOs)
         {
             KeyCombination newCombination = combination;
-            if (combination.Modifiers.HasFlag(KeyModifiers.Control) && !combination.Modifiers.HasFlag(KeyModifiers.Meta))
+            if (combination.Modifiers.HasFlag(KeyModifiers.Control) &&
+                !combination.Modifiers.HasFlag(KeyModifiers.Meta))
             {
                 newCombination.Modifiers &= ~KeyModifiers.Control;
                 newCombination.Modifiers |= KeyModifiers.Meta;
