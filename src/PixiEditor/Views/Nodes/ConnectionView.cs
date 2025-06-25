@@ -103,6 +103,11 @@ internal class ConnectionView : TemplatedControl
             return default;
         }
 
+        if(mainCanvas != null && !mainCanvas.IsAttachedToVisualTree())
+        {
+            mainCanvas = null;
+        }
+
         Canvas canvas = mainCanvas ??= this.FindAncestorOfType<NodeGraphView>().FindDescendantOfType<Canvas>();
 
         if (property.Node is null || canvas is null)
