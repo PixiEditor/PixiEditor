@@ -53,7 +53,7 @@ internal class SupportedFilesHelper
 
     public static bool IsExtensionSupported(string fileExtension)
     {
-        return AllSupportedExtensions.Contains(fileExtension);
+        return AllSupportedExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase);
     }
     public static IoFileType? ParseImageFormat(string extension)
     {
@@ -95,6 +95,6 @@ internal class SupportedFilesHelper
 
     public static bool IsRasterFormat(string fileExtension)
     {
-        return FileTypes.Any(i => i.Extensions.Contains(fileExtension) && i.SetKind == FileTypeDialogDataSet.SetKind.Image);
+        return FileTypes.Any(i => i.Extensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase) && i.SetKind == FileTypeDialogDataSet.SetKind.Image);
     }
 }
