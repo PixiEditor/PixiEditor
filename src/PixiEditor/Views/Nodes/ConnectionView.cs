@@ -67,6 +67,7 @@ internal class ConnectionView : TemplatedControl
         set { SetValue(OutputNodePositionProperty, value); }
     }
 
+    private Canvas? mainCanvas;
 
     static ConnectionView()
     {
@@ -102,7 +103,7 @@ internal class ConnectionView : TemplatedControl
             return default;
         }
 
-        Canvas canvas = this.FindAncestorOfType<NodeGraphView>().FindDescendantOfType<Canvas>();
+        Canvas canvas = mainCanvas ??= this.FindAncestorOfType<NodeGraphView>().FindDescendantOfType<Canvas>();
 
         if (property.Node is null || canvas is null)
         {
