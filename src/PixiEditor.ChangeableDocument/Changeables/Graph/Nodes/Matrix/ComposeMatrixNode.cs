@@ -46,13 +46,13 @@ public class ComposeMatrixNode : Node
         {
             var composed = context.NewFloat3x3(
                 context.GetValue(ScaleX),
-                context.GetValue(SkewX),
-                context.GetValue(TransX),
                 context.GetValue(SkewY),
-                context.GetValue(ScaleY),
-                context.GetValue(TransY),
                 context.GetValue(Persp0),
+                context.GetValue(SkewX),
+                context.GetValue(ScaleY),
                 context.GetValue(Persp1),
+                context.GetValue(TransX),
+                context.GetValue(TransY),
                 context.GetValue(Persp2)
             );
 

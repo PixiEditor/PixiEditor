@@ -388,4 +388,16 @@ public class FuncContext
 
         return Builder.AssignNewFloat3x3(matrixExpression);
     }
+
+    public void AssignTo<T>(T variable, Expression assignment) where T : ShaderExpressionVariable
+    {
+        if (!HasContext) throw new NoNodeFuncContextException();
+
+        if (assignment is null)
+        {
+            throw new ArgumentNullException(nameof(assignment));
+        }
+
+        Builder.AssignVariable(variable, assignment);
+    }
 }

@@ -22,20 +22,25 @@ public class SkewNode : Matrix3X3BaseNode
         Float1 one = new Float1("") { ConstantValue = 1.0 };
         Float1 zero = new Float1("") { ConstantValue = 0.0 };
 
-        var skewMatrix = ctx.NewFloat3x3(
-            one, skew.X, zero,
-            skew.Y, one, zero,
-            zero, zero, one
-        );
-
         if (ctx.HasContext)
         {
+            var skewMatrix = ctx.NewFloat3x3(
+                one, skew.Y, zero,
+                skew.X, one, zero,
+                zero, zero, one
+            );
+
             return ctx.NewFloat3x3(ShaderMath.PostConcat(input, skewMatrix));
         }
 
+        Matrix3X3 skewContextlessMatrix = Matrix3X3.CreateSkew(
+            (float)(skew.X.GetConstant() as double? ?? 0.0),
+            (float)(skew.Y.GetConstant() as double? ?? 0.0)
+        );
+
         return new Float3x3("")
         {
-            ConstantValue = input.ConstantValue.PostConcat(skewMatrix.ConstantValue)
+            ConstantValue = input.ConstantValue.PostConcat(skewContextlessMatrix)
         };
     }
 

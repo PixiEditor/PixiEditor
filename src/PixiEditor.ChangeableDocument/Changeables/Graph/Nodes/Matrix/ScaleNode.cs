@@ -28,10 +28,13 @@ public class ScaleNode : Matrix3X3BaseNode
         if (ctx.HasContext)
         {
             var scaleMatrix = ctx.NewFloat3x3(
-                scale.X, zero, new Expression($"{center.X.ExpressionValue} * (1.0 - {scale.X.ExpressionValue})"),
-                zero, scale.Y, new Expression($"{center.Y.ExpressionValue} * (1.0 - {scale.Y.ExpressionValue})"),
-                zero, zero, one
+                scale.X, zero, zero,
+                zero, scale.Y, zero,
+                new Expression($"{center.X.ExpressionValue} * (1.0 - {scale.X.ExpressionValue})"),
+                new Expression($"{center.Y.ExpressionValue} * (1.0 - {scale.Y.ExpressionValue})"),
+                one
             );
+
             return ctx.NewFloat3x3(ShaderMath.PostConcat(input, scaleMatrix));
         }
 
