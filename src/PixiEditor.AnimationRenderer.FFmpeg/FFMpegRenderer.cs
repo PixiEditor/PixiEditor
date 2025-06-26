@@ -24,7 +24,7 @@ public class FFMpegRenderer : IAnimationRenderer
     {
         string path = $"ThirdParty/{IOperatingSystem.Current.Name}/ffmpeg";
 
-        string binaryPath = Path.Combine(Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory), path);
+        string binaryPath = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), path);
 
         GlobalFFOptions.Configure(new FFOptions() { BinaryFolder = binaryPath });
 
@@ -89,7 +89,7 @@ public class FFMpegRenderer : IAnimationRenderer
     {
         string path = $"ThirdParty/{IOperatingSystem.Current.Name}/ffmpeg";
 
-        string binaryPath = Path.Combine(Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory), path);
+        string binaryPath = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath), path);
 
         GlobalFFOptions.Configure(new FFOptions() { BinaryFolder = binaryPath });
 
