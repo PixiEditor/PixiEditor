@@ -97,16 +97,16 @@
                         </StackPanel>
                         <Separator />
                         <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="10">
-                            <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="TOGGLE_VERTICAL_SYMMETRY"
+                            <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="TOGGLE_HORIZONTAL_SYMMETRY"
                                           Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding Document.VerticalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
-                                          Content="{DynamicResource icon-y-symmetry}"
+                                          Content="{DynamicResource icon-x-symmetry}"
                                           Cursor="Hand" />
                             <ToggleButton Width="32" Height="32"
-                                          ui:Translator.TooltipKey="TOGGLE_HORIZONTAL_SYMMETRY"
+                                          ui:Translator.TooltipKey="TOGGLE_VERTICAL_SYMMETRY"
                                           Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding Document.HorizontalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
-                                          Content="{DynamicResource icon-x-symmetry}"
+                                          Content="{DynamicResource icon-y-symmetry}"
                                           Cursor="Hand" />
                         </StackPanel>
                         <Separator />
