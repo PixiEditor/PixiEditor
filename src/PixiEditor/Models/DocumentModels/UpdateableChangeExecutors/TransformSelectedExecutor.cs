@@ -471,6 +471,10 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         }
 
         internals!.ActionAccumulator.AddActions(new EndPreviewShiftLayers_Action());
+        if (!movedOnce)
+        {
+            DoTransform(lastCorners);
+        }
         internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();
