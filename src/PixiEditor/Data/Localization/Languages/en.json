@@ -1087,5 +1087,7 @@
   "PERSPECTIVE_1": "Perspective 1",
   "PERSPECTIVE_2": "Perspective 2",
   "COMPOSE_MATRIX": "Compose Matrix",
-  "DECOMPOSE_MATRIX": "Decompose Matrix"
+  "DECOMPOSE_MATRIX": "Decompose Matrix",
+  "NORMALIZE_COORDINATES": "Normalize Coordinates",
+  "TRANSFORMED_POSITION": "Transformed Position"
 }

@@ -56,10 +56,10 @@ public class FuncContext
         SamplePosition = Builder.ConstructFloat2(OriginalPosition.X, OriginalPosition.Y);
     }
 
-    public Half4 SampleSurface(DrawingSurface surface, Expression pos, ColorSampleMode sampleMode)
+    public Half4 SampleSurface(DrawingSurface surface, Expression pos, ColorSampleMode sampleMode, bool normalizedCoordinates)
     {
         SurfaceSampler texName = Builder.AddOrGetSurface(surface, sampleMode);
-        return Builder.Sample(texName, pos);
+        return Builder.Sample(texName, pos, normalizedCoordinates);
     }
 
     public Float2 NewFloat2(Expression x, Expression y)
@@ -387,17 +387,5 @@ public class FuncContext
         }
 
         return Builder.AssignNewFloat3x3(matrixExpression);
-    }
-
-    public void AssignTo<T>(T variable, Expression assignment) where T : ShaderExpressionVariable
-    {
-        if (!HasContext) throw new NoNodeFuncContextException();
-
-        if (assignment is null)
-        {
-            throw new ArgumentNullException(nameof(assignment));
-        }
-
-        Builder.AssignVariable(variable, assignment);
     }
 }

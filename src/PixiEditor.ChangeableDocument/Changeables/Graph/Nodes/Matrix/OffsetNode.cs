@@ -22,20 +22,25 @@ public class OffsetNode : Matrix3X3BaseNode
         Float1 one = new Float1("") { ConstantValue = 1.0 };
         Float1 zero = new Float1("") { ConstantValue = 0.0 };
 
-        var translationMatrix = ctx.NewFloat3x3(
-            one, zero, translation.X,
-            zero, one, translation.Y,
-            zero, zero, one
-        );
 
         if (ctx.HasContext)
         {
+            var translationMatrix = ctx.NewFloat3x3(
+                one, zero, zero,
+                zero, one, zero,
+                translation.X, translation.Y, one
+            );
+
             return ctx.NewFloat3x3(ShaderMath.PostConcat(input, translationMatrix));
         }
 
+        Matrix3X3 contextlessTranslationMatrix = Matrix3X3.CreateTranslation(
+            (float)(translation.X.GetConstant() as double? ?? 0.0),
+            (float)(translation.Y.GetConstant() as double? ?? 0.0)
+        );
         return new Float3x3("")
         {
-            ConstantValue = input.ConstantValue.PostConcat(translationMatrix.ConstantValue)
+            ConstantValue = input.ConstantValue.PostConcat(contextlessTranslationMatrix)
         };
     }
 
