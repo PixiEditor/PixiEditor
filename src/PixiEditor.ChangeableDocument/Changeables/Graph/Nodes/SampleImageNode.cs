@@ -28,7 +28,7 @@ public class SampleImageNode : Node
         Coordinate = CreateFuncInput<Float2>("Coordinate", "UV", VecD.Zero);
         Color = CreateFuncOutput("Color", "COLOR", GetColor);
         SampleMode = CreateInput("SampleMode", "COLOR_SAMPLE_MODE", ColorSampleMode.ColorManaged);
-        NormalizedCoordinates = CreateInput("NormalizedCoordinates", "NORMALIZED_COORDINATES", true);
+        NormalizedCoordinates = CreateInput("NormalizedCoordinates", "NORMALIZE_COORDINATES", true);
     }
 
     private Half4 GetColor(FuncContext context)
