@@ -164,19 +164,38 @@ internal class DocumentViewModelBuilder
 
         foreach (var node in documentGraph.AllNodes)
         {
-            if (node.KeyFrames.Length > 1 && data.All(x => x.NodeId != node.Id))
+            if (node.KeyFrames.Length > 1)
             {
-                GroupKeyFrameBuilder builder = new GroupKeyFrameBuilder()
-                    .WithNodeId(node.Id);
+                var existingGroup = groups.FirstOrDefault(x => x.NodeId == node.Id);
+                GroupKeyFrameBuilder builder = null;
+                if (existingGroup != null)
+                {
+                    builder = data
+                        .OfType<GroupKeyFrameBuilder>()
+                        .FirstOrDefault(x => x.NodeId == existingGroup.NodeId);
+                }
+
+                if (builder == null)
+                {
+                    builder = new GroupKeyFrameBuilder()
+                        .WithNodeId(node.Id);
+                }
+
 
                 foreach (var keyFrame in node.KeyFrames)
                 {
+                    if (builder.Children.Any(x => x.KeyFrameId == keyFrame.Id))
+                    {
+                        continue; // Skip if the keyframe already exists in the group
+                    }
+
                     builder.WithChild<KeyFrameBuilder>(x => x
                         .WithKeyFrameId(keyFrame.Id)
                         .WithNodeId(node.Id));
                 }
 
-                data.Add(builder);
+                if(existingGroup == null)
+                    data.Add(builder);
             }
         }
     }

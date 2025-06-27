@@ -56,6 +56,14 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
 
+
+  <PropertyGroup Condition="'$(Configuration)'=='ReleaseNoUpdate'">
+    <DefineConstants>TRACE;RELEASE</DefineConstants>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>

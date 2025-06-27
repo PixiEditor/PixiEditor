@@ -60,6 +60,10 @@
     <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj"/>
   </ItemGroup>
 
+  <ItemGroup Condition=" '$(Configuration)' == 'ReleaseNoUpdate' ">
+    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj"/>
+  </ItemGroup>
+
   <ItemGroup Condition=" '$(Configuration)' == 'DevRelease' ">
     <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj"/>
   </ItemGroup>
