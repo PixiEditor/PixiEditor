@@ -240,7 +240,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
             block.ExecuteQueuedActions();
 
-            ConnectRelatedNodes(doc, nodeMapping);
+            ConnectRelatedNodes(targetDocument, doc, nodeMapping);
 
             doc.Operations.InvokeCustomAction(() =>
             {
@@ -562,15 +562,15 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         return ColorSearchResult.GetIcon(targetColor.ToOpaqueMediaColor().ToOpaqueColor());
     }
 
-    private void ConnectRelatedNodes(DocumentViewModel doc, Dictionary<Guid, Guid> nodeMapping)
+    private void ConnectRelatedNodes(IDocument sourceDoc, DocumentViewModel targetDoc, Dictionary<Guid, Guid> nodeMapping)
     {
-        foreach (var connection in doc.NodeGraph.Connections)
+        foreach (var connection in sourceDoc.NodeGraphHandler.Connections)
         {
             if (nodeMapping.TryGetValue(connection.InputNode.Id, out var inputNode) &&
                 nodeMapping.TryGetValue(connection.OutputNode.Id, out var outputNode))
             {
-                var inputNodeInstance = doc.NodeGraph.AllNodes.FirstOrDefault(x => x.Id == inputNode);
-                var outputNodeInstance = doc.NodeGraph.AllNodes.FirstOrDefault(x => x.Id == outputNode);
+                var inputNodeInstance = targetDoc.NodeGraph.AllNodes.FirstOrDefault(x => x.Id == inputNode);
+                var outputNodeInstance = targetDoc.NodeGraph.AllNodes.FirstOrDefault(x => x.Id == outputNode);
 
                 if (inputNodeInstance == null || outputNodeInstance == null)
                     continue;
@@ -585,7 +585,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
                 if (inputProperty == null || outputProperty == null)
                     continue;
 
-                doc.NodeGraph.ConnectProperties(inputProperty, outputProperty);
+                targetDoc.NodeGraph.ConnectProperties(inputProperty, outputProperty);
             }
         }
     }
