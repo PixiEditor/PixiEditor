@@ -418,7 +418,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
     private void KeyFramesDragged(PointerEventArgs? e)
     {
-        if (clickedCel == null || e.GetMouseButton(this) != MouseButton.Left) return;
+        if (clickedCel == null) return;
 
         int frameUnderMouse = MousePosToFrame(e);
         int delta = frameUnderMouse - dragStartFrame;
@@ -448,6 +448,12 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     private void KeyFramePressed(PointerPressedEventArgs? e)
     {
         e.PreventGestureRecognition(); // Prevents digital pen losing capture when dragging
+
+        if(e.GetMouseButton(this) != MouseButton.Left)
+        {
+            return;
+        }
+
         shouldShiftSelect = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
         shouldClearNextSelection = !shouldShiftSelect && !e.KeyModifiers.HasFlag(KeyModifiers.Control);
         KeyFrame target = null;
