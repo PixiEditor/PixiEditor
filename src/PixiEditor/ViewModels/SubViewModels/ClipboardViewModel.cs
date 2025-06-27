@@ -21,6 +21,8 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Helpers.Constants;
 using PixiEditor.Models.Commands;
 using PixiEditor.UI.Common.Fonts;
@@ -203,6 +205,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
+            Guid documentId = await ClipboardController.GetDocumentId();
             Guid[] toDuplicate = await ClipboardController.GetNodeIds();
 
             List<Guid> newIds = new();
@@ -211,9 +214,20 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
             using var block = doc.Operations.StartChangeBlock();
 
+            DocumentViewModel targetDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+
+            if (documentId != Owner.DocumentManagerSubViewModel.ActiveDocument.Id)
+            {
+                targetDocument = Owner.DocumentManagerSubViewModel.Documents.FirstOrDefault(x => x.Id == documentId);
+                if (targetDocument == null)
+                {
+                    return;
+                }
+            }
+
             foreach (var nodeId in toDuplicate)
             {
-                Guid? newId = doc.Operations.DuplicateNode(nodeId);
+                Guid? newId = doc.Operations.ImportNode(nodeId, targetDocument);
                 if (newId != null)
                 {
                     newIds.Add(newId.Value);
@@ -364,7 +378,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         if (selectedNodes.Length == 0)
             return;
 
-        await ClipboardController.CopyNodes(selectedNodes);
+        await ClipboardController.CopyNodes(selectedNodes, doc.Id);
 
         areNodesInClipboard = true;
         ClearHasImageInClipboard();
@@ -384,7 +398,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         if (selectedCels.Length == 0)
             return;
 
-        await ClipboardController.CopyCels(selectedCels);
+        await ClipboardController.CopyCels(selectedCels, doc.Id);
 
         areCelsInClipboard = true;
         ClearHasImageInClipboard();

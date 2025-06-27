@@ -7,7 +7,7 @@ namespace PixiEditor.Models.Handlers;
 internal interface IDocumentOperations
 {
     public void DeleteStructureMember(Guid memberGuidValue);
-    public void DuplicateMember(Guid memberGuidValue);
+    public Guid? DuplicateMember(Guid memberGuidValue);
     public void AddSoftSelectedMember(Guid memberGuidValue);
     public void MoveStructureMember(Guid memberGuidValue, Guid target, StructureMemberPlacement placement);
     public void SetSelectedMember(Guid memberId);
