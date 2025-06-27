@@ -10,58 +10,28 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              ClipToBounds="False"
              x:Class="PixiEditor.Views.Main.Tools.ToolsPicker" Name="picker">
-    <Border CornerRadius="{DynamicResource ControlCornerRadius}"
-            BorderBrush="{DynamicResource ThemeBorderMidBrush}"
-            BorderThickness="{DynamicResource ThemeBorderThickness}"
-            Cursor="Arrow"
-            Width="48"
-            Background="{DynamicResource ThemeBackgroundBrush1}">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="25" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            
-            <Border Grid.Row="0" Background="{DynamicResource ThemeBackgroundBrush2}">
-                <StackPanel Orientation="Horizontal">
-                    <Button Classes="pixi-icon" Content="{DynamicResource icon-chevron-left}"
-                            Command="{Binding SwitchToolSetCommand, ElementName=picker}">
-                        <Button.CommandParameter>
-                            <system:Boolean>False</system:Boolean>
-                        </Button.CommandParameter>
-                    </Button>
-                    <Button Classes="pixi-icon" Content="{DynamicResource icon-chevron-right}"
-                            Command="{Binding SwitchToolSetCommand, ElementName=picker}">
-                        <Button.CommandParameter>
-                            <system:Boolean>True</system:Boolean>
-                        </Button.CommandParameter>
-                    </Button>
-                    <!--<ComboBox ItemsSource="{Binding ElementName=picker, Path=ToolSets}"
-                              SelectedItem="{Binding ElementName=picker, Path=ToolSet}"
-                              SelectedIndex="0">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock ui:Translator.Key="{Binding Name}" />
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>-->
-                </StackPanel>
-            </Border>
-            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding ElementName=picker, Path=ToolSet.Tools}" Padding="0 2">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="tools:ToolViewModel">
-                            <tools1:ToolPickerButton DataContext="{Binding}"
-                                                     IsSelected="{Binding IsActive}" />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Vertical" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
-            </ScrollViewer>
-        </Grid>
+    <Border
+        ClipToBounds="True"
+        Cursor="Arrow" Width="48"
+        BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+        CornerRadius="{DynamicResource ControlCornerRadius}"
+        Padding="0, 5"
+        BorderThickness="{DynamicResource ThemeBorderThickness}"
+        Background="{DynamicResource ThemeBackgroundBrush1}">
+        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding ElementName=picker, Path=ToolSet.Tools}" Padding="0 2">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="tools:ToolViewModel">
+                        <tools1:ToolPickerButton DataContext="{Binding}"
+                                                 IsSelected="{Binding IsActive}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </ScrollViewer>
     </Border>
 </UserControl>

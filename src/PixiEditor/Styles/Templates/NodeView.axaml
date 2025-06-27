@@ -39,7 +39,7 @@
                         </Border>
                         <Border Grid.Row="1" Background="{DynamicResource ThemeControlMidBrush}">
                             <StackPanel>
-                                <ItemsControl ItemsSource="{TemplateBinding Outputs}"
+                                <ItemsControl Name="PART_Outputs" ItemsSource="{TemplateBinding Outputs}"
                                               ClipToBounds="False">
                                     <ItemsControl.ItemContainerTheme>
                                         <ControlTheme TargetType="ContentPresenter">
@@ -47,7 +47,7 @@
                                         </ControlTheme>
                                     </ItemsControl.ItemContainerTheme>
                                 </ItemsControl>
-                                <ItemsControl ItemsSource="{TemplateBinding Inputs}" ClipToBounds="False">
+                                <ItemsControl Name="PART_Inputs" ItemsSource="{TemplateBinding Inputs}" ClipToBounds="False">
                                     <ItemsControl.ItemContainerTheme>
                                         <ControlTheme TargetType="ContentPresenter">
                                             <Setter Property="DataContext" Value="." />

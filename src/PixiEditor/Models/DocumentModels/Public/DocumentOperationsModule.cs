@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Immutable;
-using System.Reactive.Disposables;
-using ChunkyImageLib.DataHolders;
+﻿using System.Collections.Immutable;
 using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.Helpers.Extensions;
@@ -24,7 +21,6 @@ using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ViewModels.Document.Nodes;
 
 namespace PixiEditor.Models.DocumentModels.Public;
 #nullable enable
@@ -204,60 +200,98 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// Duplicates the member with the <paramref name="guidValue"/>
     /// </summary>
     /// <param name="guidValue">The Guid of the member</param>
-    public void DuplicateMember(Guid guidValue)
+    public Guid? DuplicateMember(Guid guidValue)
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
-            return;
+            return null;
 
         Internals.ChangeController.TryStopActiveExecutor();
 
         bool isFolder = Document.StructureHelper.Find(guidValue) is IFolderHandler;
+        Guid newGuid = Guid.NewGuid();
         if (!isFolder)
         {
-            Guid newGuid = Guid.NewGuid();
             Internals.ActionAccumulator.AddFinishedActions(
                 new DuplicateLayer_Action(guidValue, newGuid),
                 new CreateAnimationDataFromLayer_Action(newGuid));
         }
         else
         {
-            Guid newGuid = Guid.NewGuid();
             Internals.ActionAccumulator.AddFinishedActions(
                 new DuplicateFolder_Action(guidValue, newGuid, null),
                 new SetSelectedMember_PassthroughAction(newGuid));
         }
+
+        return newGuid;
     }
 
-    public void ImportMember(Guid layerId, IDocument sourceDocument)
+    public Guid? ImportMember(Guid layerId, IDocument sourceDocument)
     {
         if (Internals.ChangeController.IsBlockingChangeActive)
-            return;
+            return null;
 
         Internals.ChangeController.TryStopActiveExecutor();
 
         if (sourceDocument == this.Document)
         {
-            DuplicateMember(layerId);
-            return;
+            return DuplicateMember(layerId);
         }
 
         if (!sourceDocument.StructureHelper.TryFindNode(layerId, out IStructureMemberHandler? member))
-            return;
+            return null;
 
+        Guid newGuid = Guid.NewGuid();
         if (member is ILayerHandler layer)
         {
-            Guid newGuid = Guid.NewGuid();
             Internals.ActionAccumulator.AddFinishedActions(
                 new ImportLayer_Action(sourceDocument.ShareNode<IReadOnlyLayerNode>(layer.Id), newGuid),
                 new CreateAnimationDataFromLayer_Action(newGuid));
         }
         else if (member is IFolderHandler folder)
         {
-            Guid newGuid = Guid.NewGuid();
             Internals.ActionAccumulator.AddFinishedActions(
                 new ImportFolder_Action(sourceDocument.ShareNode<IReadOnlyFolderNode>(folder.Id), newGuid, null),
                 new SetSelectedMember_PassthroughAction(newGuid));
         }
+
+        return newGuid;
+    }
+
+    public Guid? ImportNode(Guid nodeId, IDocument sourceDocument)
+    {
+        if (Internals.ChangeController.IsBlockingChangeActive)
+            return null;
+
+        Internals.ChangeController.TryStopActiveExecutor();
+
+        if (sourceDocument == this.Document)
+        {
+            return DuplicateNode(nodeId);
+        }
+
+        if (!sourceDocument.StructureHelper.TryFindNode(nodeId, out INodeHandler? node))
+            return null;
+
+        Guid newGuid = Guid.NewGuid();
+        if (node is ILayerHandler)
+        {
+            Internals.ActionAccumulator.AddFinishedActions(
+                new ImportLayer_Action(sourceDocument.ShareNode<IReadOnlyLayerNode>(nodeId), newGuid),
+                new CreateAnimationDataFromLayer_Action(newGuid));
+        }
+        else if (node is IFolderHandler)
+        {
+            Internals.ActionAccumulator.AddFinishedActions(
+                new ImportFolder_Action(sourceDocument.ShareNode<IReadOnlyFolderNode>(nodeId), newGuid, null),
+                new SetSelectedMember_PassthroughAction(newGuid));
+        }
+        else
+        {
+            Internals.ActionAccumulator.AddFinishedActions(
+                new ImportNode_Action(sourceDocument.ShareNode<IReadOnlyNode>(nodeId), newGuid));
+        }
+
+        return newGuid;
     }
 
     /// <summary>
@@ -311,7 +345,8 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="anchor">Where the existing content should be put</param>
     public void ResizeCanvas(VecI newSize, ResizeAnchor anchor)
     {
-        if (Internals.ChangeController.IsBlockingChangeActive || newSize.X > Constants.MaxCanvasSize || newSize.Y > Constants.MaxCanvasSize ||
+        if (Internals.ChangeController.IsBlockingChangeActive || newSize.X > Constants.MaxCanvasSize ||
+            newSize.Y > Constants.MaxCanvasSize ||
             newSize.X < 1 ||
             newSize.Y < 1)
             return;
@@ -907,6 +942,11 @@ internal class DocumentOperationsModule : IDocumentOperations
         if (!Document.StructureHelper.TryFindNode(nodeId, out INodeHandler node) ||
             node.InternalName == OutputNode.UniqueName)
             return null;
+
+        if (node is IStructureMemberHandler)
+        {
+            return ImportMember(nodeId, Document);
+        }
 
         Guid newGuid = Guid.NewGuid();
 

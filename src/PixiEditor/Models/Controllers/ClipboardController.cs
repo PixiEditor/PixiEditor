@@ -215,6 +215,8 @@ internal static class ClipboardController
                 }
             }
 
+            manager.Owner.ToolsSubViewModel.SetActiveTool<MoveToolViewModel>(false);
+
             return true;
         }
 
@@ -596,9 +598,9 @@ internal static class ClipboardController
         return false;
     }
 
-    public static async Task CopyNodes(Guid[] nodeIds)
+    public static async Task CopyNodes(Guid[] nodeIds, Guid docId)
     {
-        await CopyIds(nodeIds, ClipboardDataFormats.NodeIdList);
+        await CopyIds(nodeIds, ClipboardDataFormats.NodeIdList, docId);
     }
 
     public static async Task<Guid[]> GetNodeIds()
@@ -651,21 +653,42 @@ internal static class ClipboardController
         return formats.Contains(format);
     }
 
-    public static async Task CopyCels(Guid[] celIds)
+    public static async Task CopyCels(Guid[] celIds, Guid docId)
     {
-        await CopyIds(celIds, ClipboardDataFormats.CelIdList);
+        await CopyIds(celIds, ClipboardDataFormats.CelIdList, docId);
     }
 
-    public static async Task CopyIds(Guid[] ids, string format)
+    public static async Task CopyIds(Guid[] ids, string format, Guid docId)
     {
         await Clipboard.ClearAsync();
 
         DataObject data = new DataObject();
+
+        data.Set(ClipboardDataFormats.DocumentFormat, Encoding.UTF8.GetBytes(docId.ToString()));
 
         byte[] idsBytes = Encoding.UTF8.GetBytes(string.Join(";", ids.Select(x => x.ToString())));
 
         data.Set(format, idsBytes);
 
         await Clipboard.SetDataObjectAsync(data);
+    }
+
+    public static async Task<Guid> GetDocumentId()
+    {
+        var data = await TryGetDataObject();
+        if (data == null)
+            return Guid.Empty;
+
+        foreach (var dataObject in data)
+        {
+            if (dataObject.Contains(ClipboardDataFormats.DocumentFormat))
+            {
+                byte[] guidBytes = (byte[])dataObject.Get(ClipboardDataFormats.DocumentFormat);
+                string guidString = System.Text.Encoding.UTF8.GetString(guidBytes);
+                return Guid.Parse(guidString);
+            }
+        }
+
+        return Guid.Empty;
     }
 }

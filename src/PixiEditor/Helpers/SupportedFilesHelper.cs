@@ -53,12 +53,12 @@ internal class SupportedFilesHelper
 
     public static bool IsExtensionSupported(string fileExtension)
     {
-        return AllSupportedExtensions.Contains(fileExtension);
+        return AllSupportedExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase);
     }
     public static IoFileType? ParseImageFormat(string extension)
     {
         var allExts = FileTypes;
-        var fileData = allExts.SingleOrDefault(i => i.Extensions.Contains(extension));
+        var fileData = allExts.SingleOrDefault(i => i.Extensions.Contains(extension, StringComparer.OrdinalIgnoreCase));
         return fileData;
     }
 
@@ -84,7 +84,7 @@ internal class SupportedFilesHelper
             return null;
 
         string extension = Path.GetExtension(file.Path.LocalPath);
-        return allSupportedExtensions.Single(i => i.CanSave && i.Extensions.Contains(extension));
+        return allSupportedExtensions.Single(i => i.CanSave && i.Extensions.Contains(extension, StringComparer.OrdinalIgnoreCase));
     }
 
     public static List<FilePickerFileType> BuildOpenFilter()
@@ -95,6 +95,6 @@ internal class SupportedFilesHelper
 
     public static bool IsRasterFormat(string fileExtension)
     {
-        return FileTypes.Any(i => i.Extensions.Contains(fileExtension) && i.SetKind == FileTypeDialogDataSet.SetKind.Image);
+        return FileTypes.Any(i => i.Extensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase) && i.SetKind == FileTypeDialogDataSet.SetKind.Image);
     }
 }

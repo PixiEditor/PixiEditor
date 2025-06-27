@@ -98,6 +98,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     public ObservableCollection<IToolSetHandler> AllToolSets { get; } = new();
     public List<string> AllToolSetNames => AllToolSets.Select(x => x.Name).ToList();
+    public List<IToolSetHandler> NonSelectedToolSets => AllToolSets.Where(x => x != ActiveToolSet).ToList();
 
     public event EventHandler<SelectedToolEventArgs>? SelectedToolChanged;
 
@@ -160,6 +161,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         SetActiveToolSet(AllToolSets.First());
     }
 
+    [Command.Internal("PixiEditor.Tools.SetActiveToolSet", AnalyticsTrack = true)]
     public void SetActiveToolSet(IToolSetHandler toolSetHandler)
     {
         ActiveTool?.OnToolDeselected(false);
@@ -168,6 +170,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         UpdateEnabledState();
 
         ActiveTool?.OnToolSelected(false);
+
+        OnPropertyChanged(nameof(NonSelectedToolSets));
     }
 
     public void SetupToolsTooltipShortcuts()

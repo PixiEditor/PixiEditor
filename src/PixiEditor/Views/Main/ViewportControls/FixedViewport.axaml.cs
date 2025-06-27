@@ -23,6 +23,24 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
     public static readonly StyledProperty<bool> DelayedProperty =
         AvaloniaProperty.Register<FixedViewport, bool>(nameof(Delayed), false);
 
+    public static readonly StyledProperty<bool> RenderInDocSizeProperty = AvaloniaProperty.Register<FixedViewport, bool>(
+        nameof(RenderInDocSize));
+
+    public static readonly StyledProperty<VecI> CustomRenderSizeProperty = AvaloniaProperty.Register<FixedViewport, VecI>(
+        nameof(CustomRenderSize));
+
+    public VecI CustomRenderSize
+    {
+        get => GetValue(CustomRenderSizeProperty);
+        set => SetValue(CustomRenderSizeProperty, value);
+    }
+
+    public bool RenderInDocSize
+    {
+        get => GetValue(RenderInDocSizeProperty);
+        set => SetValue(RenderInDocSizeProperty, value);
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public bool Delayed
@@ -42,6 +60,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
     static FixedViewport()
     {
         DocumentProperty.Changed.Subscribe(OnDocumentChange);
+        RenderInDocSizeProperty.Changed.Subscribe(OnRenderInDocSizeChanged);
     }
 
     public FixedViewport()
@@ -129,6 +148,14 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
             newDoc.SizeChanged += viewport.DocSizeChanged;
         }
         
+        viewport.ForceRefreshFinalImage();
+    }
+
+    private static void OnRenderInDocSizeChanged(AvaloniaPropertyChangedEventArgs<bool> args)
+    {
+        FixedViewport? viewport = (FixedViewport)args.Sender;
+        viewport.CustomRenderSize = args.NewValue.Value ? viewport.Document?.SizeBindable ?? VecI.Zero : VecI.Zero;
+        viewport.InvalidateMeasure();
         viewport.ForceRefreshFinalImage();
     }
 

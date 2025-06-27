@@ -239,9 +239,9 @@ internal class NodeGraphView : Zoombox.Zoombox
 
         Dispatcher.UIThread.Post(() =>
         {
-            nodeItemsControl.ItemsPanelRoot.Children.CollectionChanged += NodeItems_CollectionChanged;
             nodeViewsCache = nodeItemsControl.ItemsPanelRoot.Children.ToList();
             HandleNodesAdded(nodeViewsCache);
+            nodeItemsControl.ItemsPanelRoot.Children.CollectionChanged += NodeItems_CollectionChanged;
         });
     }
 
@@ -274,7 +274,7 @@ internal class NodeGraphView : Zoombox.Zoombox
     protected override void OnKeyDown(KeyEventArgs e)
     {
         base.OnKeyDown(e);
-        if (e.Key == Key.Space)
+        if (e.Key == Key.Space && e.Source.Equals(rootPanel))
         {
             rootPanel.ContextFlyout?.ShowAt(rootPanel);
             e.Handled = true;

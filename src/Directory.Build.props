@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
         <CodeAnalysisRuleSet>../Custom.ruleset</CodeAnalysisRuleSet>
-		    <AvaloniaVersion>11.3.0</AvaloniaVersion>
+		    <AvaloniaVersion>11.3.2</AvaloniaVersion>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" />
@@ -58,6 +58,14 @@
 
   <PropertyGroup Condition="'$(Configuration)'=='ReleaseFoundersEdition'">
     <DefineConstants>TRACE;UPDATE;RELEASE;FOUNDERS_PACK_REQUIRED</DefineConstants>
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+
+  <PropertyGroup Condition="'$(Configuration)'=='ReleaseNoUpdate'">
+    <DefineConstants>TRACE;RELEASE</DefineConstants>
     <DebugSymbols>False</DebugSymbols>
     <DebugType>None</DebugType>
     <Optimize>true</Optimize>

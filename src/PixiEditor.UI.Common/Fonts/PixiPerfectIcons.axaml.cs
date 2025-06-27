@@ -98,6 +98,7 @@ public static partial class PixiPerfectIcons
     public const string LayersBottom = "\uE96A";
     public const string LayersDouble = "\uE909";
     public const string LayersTop = "\uE994";
+    public const string LeafyGreen = "\uE9C8";
     public const string LetterSpacing = "\uE9B2";
     public const string Line = "\uE95A";
     public const string LineHeight = "\uE9B3";
@@ -146,6 +147,7 @@ public static partial class PixiPerfectIcons
     public const string Reset = "\uE9AA";
     public const string Resize = "\uE96B";
     public const string RotateView = "\uE96C";
+    public const string Salad = "\uE9C7";
     public const string Save = "\uE96E";
     public const string Scissors = "\uE96F";
     public const string Search = "\uE996";

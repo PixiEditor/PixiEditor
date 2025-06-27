@@ -51,7 +51,7 @@
             <Color x:Key="FilterSocketColor">#CC5C5C</Color>
             <Color x:Key="BoolSocketColor">#68abdf</Color>
             <Color x:Key="FloatSocketColor">#ffc66d</Color>
-            <Color x:Key="DoubleSocketColor">#efb66d</Color>
+            <Color x:Key="DoubleSocketColor">#eea55c</Color>
             <Color x:Key="ColorSocketColor">#8cf2dd</Color>
             <Color x:Key="PaintableSocketColor">#48b099</Color>
             <Color x:Key="VecDSocketColor">#c984ca</Color>
@@ -165,6 +165,7 @@
             <SolidColorBrush x:Key="Int1SocketBrush" Color="{StaticResource IntSocketColor}" />
             <SolidColorBrush x:Key="StringSocketBrush" Color="{StaticResource StringSocketColor}" />
             <SolidColorBrush x:Key="Matrix3X3SocketBrush" Color="{StaticResource Matrix3X3SocketColor}" />
+            <SolidColorBrush x:Key="Float3x3SocketBrush" Color="{StaticResource Matrix3X3SocketColor}" />
 
             <ConicGradientBrush x:Key="ShapeVectorDataSocketBrush"
                                 GradientStops="{StaticResource ShapeDataSocketGradient}" />

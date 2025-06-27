@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
@@ -6,6 +7,7 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using ChunkyImageLib;
 using PixiEditor.Helpers;
@@ -19,6 +21,8 @@ using PixiEditor.Views.Nodes.Properties;
 namespace PixiEditor.Views.Nodes;
 
 [PseudoClasses(":selected")]
+[TemplatePart("PART_Inputs", typeof(ItemsControl))]
+[TemplatePart("PART_Outputs", typeof(ItemsControl))]
 public class NodeView : TemplatedControl
 {
     public static readonly StyledProperty<INodeHandler> NodeProperty =
@@ -155,9 +159,39 @@ public class NodeView : TemplatedControl
     public static readonly StyledProperty<int> ActiveFrameProperty =
         AvaloniaProperty.Register<NodeView, int>("ActiveFrame");
 
+    private Dictionary<INodePropertyHandler, NodePropertyView> propertyViews = new();
+
+    private ItemsControl inputsControl;
+    private ItemsControl outputsControl;
+
     static NodeView()
     {
         IsSelectedProperty.Changed.Subscribe(NodeSelectionChanged);
+    }
+
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
+        base.OnApplyTemplate(e);
+
+        inputsControl = e.NameScope.Find<ItemsControl>("PART_Inputs");
+        outputsControl = e.NameScope.Find<ItemsControl>("PART_Outputs");
+
+        Dispatcher.UIThread.Post(
+            () =>
+        {
+            inputsControl.ItemsPanelRoot.Children.CollectionChanged += ChildrenOnCollectionChanged;
+            outputsControl.ItemsPanelRoot.Children.CollectionChanged += ChildrenOnCollectionChanged;
+
+            propertyViews.Clear();
+            propertyViews = this.GetVisualDescendants().OfType<NodePropertyView>()
+                .ToDictionary(x => (INodePropertyHandler)x.DataContext, x => x);
+        }, DispatcherPriority.Render);
+    }
+
+    private void ChildrenOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        propertyViews = this.GetVisualDescendants().OfType<NodePropertyView>()
+            .ToDictionary(x => (INodePropertyHandler)x.DataContext, x => x);
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -233,15 +267,17 @@ public class NodeView : TemplatedControl
 
     public NodeSocket GetSocket(INodePropertyHandler property)
     {
-        NodePropertyView propertyView = this.GetVisualDescendants().OfType<NodePropertyView>()
-            .FirstOrDefault(x => x.DataContext == property);
-
-        if (propertyView is null)
+        if (propertyViews.TryGetValue(property, out var view))
         {
-            return default;
+            if (view is null)
+            {
+                return default;
+            }
+
+            return property.IsInput ? view.InputSocket : view.OutputSocket;
         }
 
-        return property.IsInput ? propertyView.InputSocket : propertyView.OutputSocket;
+        return null;
     }
 
     public Point GetSocketPoint(INodePropertyHandler property, Canvas canvas)

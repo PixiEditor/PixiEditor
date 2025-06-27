@@ -63,7 +63,7 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
 
         size = imgSize;
 
-        ShaderBuilder builder = new(size.Value);
+        ShaderBuilder builder = new(size.Value, startNode.NormalizeCoordinates.Value);
         FuncContext context = new(renderContext, builder);
 
         if (Coordinate.Connection != null)
@@ -88,14 +88,14 @@ public class ModifyImageRightNode : RenderNode, IPairNode, ICustomShaderNode
 
         if (Color.Connection != null)
         {
-            builder.ReturnVar(Color.Value(context));
+            builder.ReturnVar(Color.Value(context), false);
         }
         else
         {
             Half4 color = Color.NonOverridenValue(FuncContext.NoContext);
             color.VariableName = "color";
             builder.AddUniform(color.VariableName, color.ConstantValue);
-            builder.ReturnVar(color);
+            builder.ReturnVar(color, false); // Do not premultiply, since we are modifying already premultiplied image
         }
 
         string sksl = builder.ToSkSl();

@@ -21,6 +21,8 @@ using PixiEditor.Models.Handlers;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using Drawie.Numerics;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Helpers.Constants;
 using PixiEditor.Models.Commands;
 using PixiEditor.UI.Common.Fonts;
@@ -90,7 +92,11 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
             Guid[] guids = doc.StructureHelper.GetAllLayers().Select(x => x.Id).ToArray();
             await ClipboardController.TryPasteFromClipboard(doc, Owner.DocumentManagerSubViewModel, pasteAsNewLayer);
 
-            doc.Operations.InvokeCustomAction(() =>
+            // Leaving the code below commented out in case something breaks.
+            // It instantly ended paste image operation after I made it interruptable,
+            // I did test it, and it seems everything works fine without it.
+            /*doc.Operations.InvokeCustomAction(
+                () =>
             {
                 Guid[] newGuids = doc.StructureHelper.GetAllLayers().Select(x => x.Id).ToArray();
 
@@ -105,7 +111,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
                         doc.Operations.AddSoftSelectedMember(diff[i]);
                     }
                 }
-            });
+            }, false);*/
         });
     }
 
@@ -202,6 +208,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
+            Guid documentId = await ClipboardController.GetDocumentId();
             Guid[] toDuplicate = await ClipboardController.GetNodeIds();
 
             List<Guid> newIds = new();
@@ -210,9 +217,20 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
             using var block = doc.Operations.StartChangeBlock();
 
+            DocumentViewModel targetDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+
+            if (documentId != Owner.DocumentManagerSubViewModel.ActiveDocument.Id)
+            {
+                targetDocument = Owner.DocumentManagerSubViewModel.Documents.FirstOrDefault(x => x.Id == documentId);
+                if (targetDocument == null)
+                {
+                    return;
+                }
+            }
+
             foreach (var nodeId in toDuplicate)
             {
-                Guid? newId = doc.Operations.DuplicateNode(nodeId);
+                Guid? newId = doc.Operations.ImportNode(nodeId, targetDocument);
                 if (newId != null)
                 {
                     newIds.Add(newId.Value);
@@ -225,7 +243,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
             block.ExecuteQueuedActions();
 
-            ConnectRelatedNodes(doc, nodeMapping);
+            ConnectRelatedNodes(targetDocument, doc, nodeMapping);
 
             doc.Operations.InvokeCustomAction(() =>
             {
@@ -363,7 +381,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         if (selectedNodes.Length == 0)
             return;
 
-        await ClipboardController.CopyNodes(selectedNodes);
+        await ClipboardController.CopyNodes(selectedNodes, doc.Id);
 
         areNodesInClipboard = true;
         ClearHasImageInClipboard();
@@ -383,7 +401,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         if (selectedCels.Length == 0)
             return;
 
-        await ClipboardController.CopyCels(selectedCels);
+        await ClipboardController.CopyCels(selectedCels, doc.Id);
 
         areCelsInClipboard = true;
         ClearHasImageInClipboard();
@@ -547,15 +565,15 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         return ColorSearchResult.GetIcon(targetColor.ToOpaqueMediaColor().ToOpaqueColor());
     }
 
-    private void ConnectRelatedNodes(DocumentViewModel doc, Dictionary<Guid, Guid> nodeMapping)
+    private void ConnectRelatedNodes(IDocument sourceDoc, DocumentViewModel targetDoc, Dictionary<Guid, Guid> nodeMapping)
     {
-        foreach (var connection in doc.NodeGraph.Connections)
+        foreach (var connection in sourceDoc.NodeGraphHandler.Connections)
         {
             if (nodeMapping.TryGetValue(connection.InputNode.Id, out var inputNode) &&
                 nodeMapping.TryGetValue(connection.OutputNode.Id, out var outputNode))
             {
-                var inputNodeInstance = doc.NodeGraph.AllNodes.FirstOrDefault(x => x.Id == inputNode);
-                var outputNodeInstance = doc.NodeGraph.AllNodes.FirstOrDefault(x => x.Id == outputNode);
+                var inputNodeInstance = targetDoc.NodeGraph.AllNodes.FirstOrDefault(x => x.Id == inputNode);
+                var outputNodeInstance = targetDoc.NodeGraph.AllNodes.FirstOrDefault(x => x.Id == outputNode);
 
                 if (inputNodeInstance == null || outputNodeInstance == null)
                     continue;
@@ -570,7 +588,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
                 if (inputProperty == null || outputProperty == null)
                     continue;
 
-                doc.NodeGraph.ConnectProperties(inputProperty, outputProperty);
+                targetDoc.NodeGraph.ConnectProperties(inputProperty, outputProperty);
             }
         }
     }

@@ -35,7 +35,16 @@ public class RenderTests : FullPixiEditorTest
     [InlineData("VectorWithSepiaFilter")]
     [InlineData("VectorWithSepiaFilterSrgb")]
     [InlineData("VectorWithSepiaFilterChained")]
-    public void TestThatPixiFilesRenderTheSameResultAsSavedPng(string fileName)
+    [InlineData("Offset")]
+    [InlineData("Scale")]
+    [InlineData("Skew")]
+    [InlineData("Rotation")]
+    [InlineData("MatrixChain")]
+    [InlineData("GpuOffset", "Offset")]
+    [InlineData("GpuScale")]
+    [InlineData("GpuSkew")]
+    [InlineData("GpuMatrixChain")]
+    public void TestThatPixiFilesRenderTheSameResultAsSavedPng(string fileName, string? resultName = null)
     {
         if (!DrawingBackendApi.Current.IsHardwareAccelerated)
         {
@@ -44,7 +53,7 @@ public class RenderTests : FullPixiEditorTest
         }
 
         string pixiFile = Path.Combine("TestFiles", "RenderTests", fileName + ".pixi");
-        string pngFile = Path.Combine("TestFiles", "RenderTests", fileName + ".png");
+        string pngFile = Path.Combine("TestFiles", "RenderTests", (resultName ?? fileName) + ".png");
         var document = Importer.ImportDocument(pixiFile);
 
         Assert.NotNull(pngFile);
@@ -55,11 +64,16 @@ public class RenderTests : FullPixiEditorTest
 
         using var image = result.AsT1;
 
+        using var snapshot = image.DrawingSurface.Snapshot();
+        using var encoded = snapshot.Encode();
+
+        using var renderedToCompare = Surface.Load(encoded.AsSpan().ToArray());
+
         using var toCompareTo = Importer.ImportImage(pngFile, document.SizeBindable);
 
         Assert.NotNull(toCompareTo);
 
-        Assert.True(PixelCompare(image, toCompareTo));
+        Assert.True(PixelCompare(renderedToCompare, toCompareTo));
     }
 
     [AvaloniaTheory]

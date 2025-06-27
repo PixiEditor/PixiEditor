@@ -122,7 +122,9 @@ public class RectangleVectorData : ShapeVectorData, IReadOnlyRectangleData
         }
         else
         {
-            path.AddRoundRect(RectD.FromCenterAndSize(Center, Size), new VecD(CornerRadius));
+            double maxRadiusPx = Math.Min(Size.X, Size.Y) / 2f;
+            double radiusPx = CornerRadius * maxRadiusPx;
+            path.AddRoundRect(RectD.FromCenterAndSize(Center, Size), new VecD(radiusPx));
         }
 
         if (transformed)

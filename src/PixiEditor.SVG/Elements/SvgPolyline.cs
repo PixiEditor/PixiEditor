@@ -83,6 +83,11 @@ public class SvgPolyline() : SvgPrimitive("polyline")
 
     private static double ParseNumber(string currentNumberString)
     {
-        return double.Parse(currentNumberString, System.Globalization.CultureInfo.InvariantCulture);
+        if (double.TryParse(currentNumberString, System.Globalization.CultureInfo.InvariantCulture, out var parsed))
+        {
+            return parsed;
+        }
+
+        return 0;
     }
 }
