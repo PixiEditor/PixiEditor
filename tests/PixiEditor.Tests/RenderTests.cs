@@ -43,6 +43,7 @@ public class RenderTests : FullPixiEditorTest
     [InlineData("GpuOffset", "Offset")]
     [InlineData("GpuScale")]
     [InlineData("GpuSkew")]
+    [InlineData("GpuMatrixChain")]
     public void TestThatPixiFilesRenderTheSameResultAsSavedPng(string fileName, string? resultName = null)
     {
         if (!DrawingBackendApi.Current.IsHardwareAccelerated)
