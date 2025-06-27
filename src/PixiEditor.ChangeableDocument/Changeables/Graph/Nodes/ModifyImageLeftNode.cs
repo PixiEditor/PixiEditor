@@ -21,6 +21,7 @@ public class ModifyImageLeftNode : Node, IPairNode, IPreviewRenderable
     public FuncOutputProperty<Half4> Color { get; }
     
     public InputProperty<ColorSampleMode> SampleMode { get; }
+    public InputProperty<bool> NormalizeCoordinates { get; }
 
     public Guid OtherNode { get; set; }
     
@@ -30,6 +31,7 @@ public class ModifyImageLeftNode : Node, IPairNode, IPreviewRenderable
         Coordinate = CreateFuncOutput("Coordinate", "UV", ctx => ctx.OriginalPosition ?? new Float2(""));
         Color = CreateFuncOutput("Color", "COLOR", GetColor);
         SampleMode = CreateInput("SampleMode", "COLOR_SAMPLE_MODE", ColorSampleMode.ColorManaged);
+        NormalizeCoordinates = CreateInput("NormalizeCoordinates", "NORMALIZE_COORDINATES", true);
     }
     
     private Half4 GetColor(FuncContext context)
@@ -41,7 +43,7 @@ public class ModifyImageLeftNode : Node, IPairNode, IPreviewRenderable
             return new Half4("") { ConstantValue = Colors.Transparent };
         }
 
-        return context.SampleSurface(Image.Value.DrawingSurface, context.SamplePosition, SampleMode.Value);
+        return context.SampleSurface(Image.Value.DrawingSurface, context.SamplePosition, SampleMode.Value, NormalizeCoordinates.Value);
     }
 
     protected override void OnExecute(RenderContext context)

@@ -1076,5 +1076,18 @@
   "NEW_MAX": "New Max",
   "REMAP_NODE": "Remap",
   "TEXT_TOOL_ACTION_DISPLAY": "Click on the canvas to add a new text (drag while clicking to set the size). Click on existing text to edit it.",
-  "PASTE_CELS": "Paste cels"
+  "PASTE_CELS": "Paste cels",
+  "SCALE_X": "Scale X",
+  "SCALE_Y": "Scale Y",
+  "TRANSLATE_X": "Translate X",
+  "TRANSLATE_Y": "Translate Y",
+  "SKEW_X": "Skew X",
+  "SKEW_Y": "Skew Y",
+  "PERSPECTIVE_0": "Perspective 0",
+  "PERSPECTIVE_1": "Perspective 1",
+  "PERSPECTIVE_2": "Perspective 2",
+  "COMPOSE_MATRIX": "Compose Matrix",
+  "DECOMPOSE_MATRIX": "Decompose Matrix",
+  "NORMALIZE_COORDINATES": "Normalize Coordinates",
+  "TRANSFORMED_POSITION": "Transformed Position"
 }

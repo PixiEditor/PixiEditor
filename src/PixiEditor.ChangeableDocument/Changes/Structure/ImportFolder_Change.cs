@@ -15,7 +15,10 @@ internal class ImportFolder_Change : Change
     private ICrossDocumentPipe<IReadOnlyFolderNode> sourcefolderPipe;
     private Guid duplicateGuid;
     private Guid[] contentGuids;
-    private Guid[] contentDuplicateGuids;
+
+    private FolderNode? clonedFolderNode;
+    private List<Node> clonedContentNodes = new();
+    private Dictionary<Guid, Guid> contentGuidToNodeMap;
 
     private Guid[]? childGuidsToUse;
 
@@ -55,7 +58,7 @@ internal class ImportFolder_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
         out bool ignoreInUndo)
     {
-        var readOnlyFolderNode = sourcefolderPipe.TryAccessData();
+        var readOnlyFolderNode = clonedFolderNode ?? sourcefolderPipe.TryAccessData();
 
         if (readOnlyFolderNode is not FolderNode folderNode || target.NodeGraph.OutputNode == null)
         {
@@ -65,6 +68,7 @@ internal class ImportFolder_Change : Change
 
         FolderNode clone = (FolderNode)folderNode.Clone();
         clone.Id = duplicateGuid;
+        clonedFolderNode = clone;
 
         InputProperty<Painter?> targetInput = target.NodeGraph.OutputNode.InputProperties.FirstOrDefault(x =>
             x.ValueType == typeof(Painter)) as InputProperty<Painter?>;
@@ -99,11 +103,11 @@ internal class ImportFolder_Change : Change
         changes.AddRange(NodeOperations.DetachStructureNode(member));
         changes.Add(new DeleteStructureMember_ChangeInfo(member.Id));
 
-        if (contentDuplicateGuids is not null)
+        if (clonedContentNodes is not null)
         {
-            foreach (Guid contentGuid in contentDuplicateGuids)
+            foreach (var content in clonedContentNodes)
             {
-                Node contentNode = target.FindNodeOrThrow<Node>(contentGuid);
+                Node contentNode = target.FindNodeOrThrow<Node>(content.Id);
                 changes.AddRange(NodeOperations.DetachNode(target.NodeGraph, contentNode));
                 changes.Add(new DeleteNode_ChangeInfo(contentNode.Id));
 
@@ -127,42 +131,62 @@ internal class ImportFolder_Change : Change
     private void DuplicateContent(Document target, FolderNode clone, FolderNode existingLayer,
         List<IChangeInfo> operations)
     {
-        Dictionary<Guid, Guid> nodeMap = new Dictionary<Guid, Guid>();
-
-        nodeMap[existingLayer.Id] = clone.Id;
-        int counter = 0;
-        List<Guid> contentGuidList = new();
-
-        existingLayer.Content.Connection?.Node.TraverseBackwards(x =>
+        if (contentGuidToNodeMap == null)
         {
-            if (x is not Node targetNode)
-                return false;
+            contentGuidToNodeMap = new Dictionary<Guid, Guid>();
 
-            Node? node = targetNode.Clone();
+            contentGuidToNodeMap[existingLayer.Id] = clone.Id;
+            int counter = 0;
 
-            if (node is not FolderNode && childGuidsToUse is not null && counter < childGuidsToUse.Length)
+            existingLayer.Content.Connection?.Node.TraverseBackwards(x =>
             {
-                node.Id = childGuidsToUse[counter];
-                counter++;
+                if (x is not Node targetNode)
+                    return false;
+
+                Node? node = targetNode.Clone();
+                clonedContentNodes.Add(node.Clone(true));
+
+                if (node is not FolderNode && childGuidsToUse is not null && counter < childGuidsToUse.Length)
+                {
+                    node.Id = childGuidsToUse[counter];
+                    counter++;
+                }
+
+                contentGuidToNodeMap[x.Id] = node.Id;
+
+                target.NodeGraph.AddNode(node);
+
+                operations.Add(CreateNode_ChangeInfo.CreateFromNode(node));
+                return true;
+            });
+        }
+        else
+        {
+            foreach (var clonedContentNode in clonedContentNodes)
+            {
+                var toAdd = clonedContentNode.Clone(true);
+                target.NodeGraph.AddNode(toAdd);
+                operations.Add(CreateNode_ChangeInfo.CreateFromNode(toAdd));
             }
-
-            nodeMap[x.Id] = node.Id;
-            contentGuidList.Add(node.Id);
-
-            target.NodeGraph.AddNode(node);
-
-            operations.Add(CreateNode_ChangeInfo.CreateFromNode(node));
-            return true;
-        });
+        }
 
         foreach (var data in contentConnectionsData)
         {
-            var updatedData = data.Value.WithUpdatedIds(nodeMap);
-            Guid targetNodeId = nodeMap[data.Key];
+            var updatedData = data.Value.WithUpdatedIds(contentGuidToNodeMap);
+            Guid targetNodeId = contentGuidToNodeMap[data.Key];
             operations.AddRange(NodeOperations.ConnectStructureNodeProperties(updatedData,
                 target.FindNodeOrThrow<Node>(targetNodeId), target.NodeGraph));
         }
+    }
 
-        contentDuplicateGuids = contentGuidList.ToArray();
+    public override void Dispose()
+    {
+        base.Dispose();
+        sourcefolderPipe.Dispose();
+        clonedFolderNode?.Dispose();
+        foreach (var node in clonedContentNodes)
+        {
+            node?.Dispose();
+        }
     }
 }

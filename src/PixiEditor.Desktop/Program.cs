@@ -22,14 +22,20 @@ public class Program
             .With(new Win32PlatformOptions()
             {
                 RenderingMode = new Win32RenderingMode[] { Win32RenderingMode.Vulkan },
-                OverlayPopups = true
+                OverlayPopups = true,
             })
             .With(new X11PlatformOptions()
             {
                 RenderingMode = new X11RenderingMode[] { X11RenderingMode.Vulkan },
                 OverlayPopups = true,
             })
+            .With(new SkiaOptions()
+            {
+                MaxGpuResourceSizeBytes = 1024 * 600 * 4 * 12 * 4 // quadruple the default size
+            })
             .WithDrawie()
+#if DEBUG
             .LogToTrace(LogEventLevel.Verbose, "Vulkan")
+#endif
             .LogToTrace();
 }

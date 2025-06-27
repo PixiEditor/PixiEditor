@@ -241,6 +241,7 @@ internal class NodeGraphView : Zoombox.Zoombox
         {
             nodeViewsCache = nodeItemsControl.ItemsPanelRoot.Children.ToList();
             HandleNodesAdded(nodeViewsCache);
+            nodeItemsControl.ItemsPanelRoot.Children.CollectionChanged += NodeItems_CollectionChanged;
         });
     }
 

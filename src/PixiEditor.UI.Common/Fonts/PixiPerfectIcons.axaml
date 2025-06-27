@@ -102,6 +102,7 @@
             <system:String x:Key="icon-layers-bottom">&#xE96A;</system:String>
             <system:String x:Key="icon-layers-double">&#xE909;</system:String>
             <system:String x:Key="icon-layers-top">&#xE994;</system:String>
+            <system:String x:Key="icon-leafy-green">&#xE9C8;</system:String>
             <system:String x:Key="icon-letter-spacing">&#xE9B2;</system:String>
             <system:String x:Key="icon-line">&#xE95A;</system:String>
             <system:String x:Key="icon-line-height">&#xE9B3;</system:String>
@@ -150,6 +151,7 @@
             <system:String x:Key="icon-reset">&#xE9AA;</system:String>
             <system:String x:Key="icon-resize">&#xE96B;</system:String>
             <system:String x:Key="icon-rotate-view">&#xE96C;</system:String>
+            <system:String x:Key="icon-salad">&#xE9C7;</system:String>
             <system:String x:Key="icon-save">&#xE96E;</system:String>
             <system:String x:Key="icon-scissors">&#xE96F;</system:String>
             <system:String x:Key="icon-search">&#xE996;</system:String>
