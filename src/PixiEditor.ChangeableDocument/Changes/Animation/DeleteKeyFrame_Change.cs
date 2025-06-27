@@ -35,6 +35,11 @@ internal class DeleteKeyFrame_Change : Change
             
             KeyFrameData data = node.KeyFrames.FirstOrDefault(x => x.KeyFrameGuid == keyFrame.Id);
 
+            if (data is null)
+            {
+                return false;
+            }
+
             savedKeyFrameData = data.Clone();
             
             return true;

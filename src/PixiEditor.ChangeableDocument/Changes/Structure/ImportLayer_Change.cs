@@ -14,6 +14,8 @@ internal class ImportLayer_Change : Change
     private Dictionary<Guid, VecD> originalPositions;
     private ConnectionsData? connectionsData;
 
+    private LayerNode? clonedLayer;
+
     private Guid duplicateGuid;
 
     [GenerateMakeChangeAction]
@@ -37,9 +39,10 @@ internal class ImportLayer_Change : Change
         if (layer == null || target.NodeGraph.OutputNode == null)
             return false;
 
+        if (target.NodeGraph.OutputNode == null) return false;
+
         connectionsData = NodeOperations.CreateConnectionsData(target.NodeGraph.OutputNode);
 
-        if (target.NodeGraph.OutputNode == null) return false;
 
         return true;
     }
@@ -49,7 +52,7 @@ internal class ImportLayer_Change : Change
     {
         ignoreInUndo = false;
 
-        var layer = sourceDocumentPipe.TryAccessData();
+        var layer = clonedLayer ?? sourceDocumentPipe.TryAccessData();
         if (layer is not LayerNode layerNode)
         {
             ignoreInUndo = true;
@@ -58,6 +61,8 @@ internal class ImportLayer_Change : Change
 
         var clone = (LayerNode)layerNode.Clone();
         clone.Id = duplicateGuid;
+        clonedLayer = clone;
+
         ResizeImageData(clone, target.Size);
 
         var targetInput = target.NodeGraph.OutputNode?.InputProperties.FirstOrDefault(x =>
@@ -108,6 +113,7 @@ internal class ImportLayer_Change : Change
     public override void Dispose()
     {
         sourceDocumentPipe?.Dispose();
+        clonedLayer?.Dispose();
     }
 
     private void ResizeImageData(LayerNode layerNode, VecI docSize)

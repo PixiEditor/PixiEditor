@@ -140,7 +140,8 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     {
         if (IOperatingSystem.Current.IsLinux)
         {
-            if (File.Exists("no-updates"))
+            string exeDir = Path.GetDirectoryName(Environment.ProcessPath);
+            if (File.Exists(Path.Combine(exeDir, "no-updates")))
             {
                 UpdateState = UpdateState.UnableToCheck;
                 return;
@@ -283,7 +284,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         UpdateChecker.SetLatestReleaseInfo(new ReleaseInfo(true) { TagName = "2.2.2.2" });
         Install(true);
     }
-    
+
     [Command.Debug("PixiEditor.Update.DebugDownload", "Debug Download Update",
         "(DEBUG) Download update file")]
     public void DebugDownload()
@@ -379,7 +380,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     private static bool InstallDirReadOnly()
     {
-        string installDir = AppDomain.CurrentDomain.BaseDirectory;
+        string installDir = Path.GetDirectoryName(Environment.ProcessPath);
         DirectoryInfo dirInfo = new DirectoryInfo(installDir);
         return dirInfo.Attributes.HasFlag(FileAttributes.ReadOnly);
     }

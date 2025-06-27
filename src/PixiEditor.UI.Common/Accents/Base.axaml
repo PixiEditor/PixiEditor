@@ -165,6 +165,7 @@
             <SolidColorBrush x:Key="Int1SocketBrush" Color="{StaticResource IntSocketColor}" />
             <SolidColorBrush x:Key="StringSocketBrush" Color="{StaticResource StringSocketColor}" />
             <SolidColorBrush x:Key="Matrix3X3SocketBrush" Color="{StaticResource Matrix3X3SocketColor}" />
+            <SolidColorBrush x:Key="Float3x3SocketBrush" Color="{StaticResource Matrix3X3SocketColor}" />
 
             <ConicGradientBrush x:Key="ShapeVectorDataSocketBrush"
                                 GradientStops="{StaticResource ShapeDataSocketGradient}" />
