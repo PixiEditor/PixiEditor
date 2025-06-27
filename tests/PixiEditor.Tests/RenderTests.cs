@@ -37,9 +37,12 @@ public class RenderTests : FullPixiEditorTest
     [InlineData("VectorWithSepiaFilterChained")]
     [InlineData("Offset")]
     [InlineData("Scale")]
+    [InlineData("Skew")]
     [InlineData("Rotation")]
     [InlineData("MatrixChain")]
     [InlineData("GpuOffset", "Offset")]
+    [InlineData("GpuScale")]
+    [InlineData("GpuSkew")]
     public void TestThatPixiFilesRenderTheSameResultAsSavedPng(string fileName, string? resultName = null)
     {
         if (!DrawingBackendApi.Current.IsHardwareAccelerated)

@@ -1,10 +1,6 @@
-﻿using Drawie.Backend.Core.Numerics;
-using Drawie.Backend.Core.Shaders.Generation.Expressions;
-using Drawie.Backend.Core.Surfaces;
+﻿using Drawie.Backend.Core.Shaders.Generation.Expressions;
 using Drawie.Numerics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.Matrix;
 
