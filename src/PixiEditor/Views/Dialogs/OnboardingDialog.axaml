@@ -356,6 +356,7 @@
             HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="24" Orientation="Vertical">
 
             <lottie:Lottie RepeatCount="1" Width="300" VerticalAlignment="Center" Margin="0, -100, 0, 0"
+                           AutoPlay="False" Name="finishAnimation"
                            Path="avares://PixiEditor.UI.Common/Assets/Animations/CheckAnimation.json" />
             <StackPanel Spacing="24" Margin="0, -100, 0, 0" Orientation="Vertical"  HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock ui:Translator.Key="ONB_ALL_SET" Classes="h2" />
