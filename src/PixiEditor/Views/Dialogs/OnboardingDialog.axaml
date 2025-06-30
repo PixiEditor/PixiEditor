@@ -14,7 +14,7 @@
         x:Class="PixiEditor.Views.Dialogs.OnboardingDialog"
         ShowInTaskbar="False"
         CanResize="False"
-        SystemDecorations="None"
+        SystemDecorations="BorderOnly"
         d:DataContext="{x:Type userPreferences:OnboardingViewModel}"
         Title="Onboarding" Width="600" Height="345">
     <Design.DataContext>
