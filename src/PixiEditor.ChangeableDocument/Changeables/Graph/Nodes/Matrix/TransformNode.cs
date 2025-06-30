@@ -28,7 +28,10 @@ public class TransformNode : Matrix3X3BaseNode
             return arg.Builder.AssignNewFloat2(new Expression($"{transformed.ExpressionValue}.xy / {transformed.ExpressionValue}.z"));
         }
 
-        return null;
+        Float3x3 contextlessMatrix = CalculateMatrix(arg, arg.GetValue(Input));
+        Float2 contextlessPosition = (arg.GetValue(Position).GetConstant() as VecD?) ?? VecD.Zero;
+        return contextlessMatrix.ConstantValue.MapPoint(
+            (float)contextlessPosition.X, (float)contextlessPosition.Y);
     }
 
     public override Node CreateCopy()
