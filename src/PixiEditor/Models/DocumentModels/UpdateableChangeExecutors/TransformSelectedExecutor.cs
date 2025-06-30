@@ -471,10 +471,12 @@ internal class TransformSelectedExecutor : UpdateableChangeExecutor, ITransforma
         }
 
         internals!.ActionAccumulator.AddActions(new EndPreviewShiftLayers_Action());
-        if (!movedOnce)
+        bool showedTransformButton = Type == ExecutorType.Regular || tool.KeepOriginalImage;
+        if (!movedOnce && showedTransformButton)
         {
             DoTransform(lastCorners);
         }
+
         internals!.ActionAccumulator.AddActions(new EndTransformSelected_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformHandler.HideTransform();

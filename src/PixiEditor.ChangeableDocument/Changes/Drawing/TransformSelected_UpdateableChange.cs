@@ -80,7 +80,13 @@ internal class TransformSelected_UpdateableChange : InterruptableUpdateableChang
                 tightBoundsSize - masterCorners.RectSize);
         }
 
-        StructureNode firstLayer = target.FindMemberOrThrow(memberData[0].MemberId);
+        var foundMember = target.FindMember(memberData[0].MemberId);
+        if (foundMember is null)
+        {
+            return false;
+        }
+
+        StructureNode firstLayer = foundMember;
         RectD tightBounds = firstLayer.GetTightBounds(frame) ?? default;
 
         if (memberData.Count == 1 && firstLayer is VectorLayerNode vectorLayer)
