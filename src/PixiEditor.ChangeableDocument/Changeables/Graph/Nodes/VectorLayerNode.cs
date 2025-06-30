@@ -186,7 +186,18 @@ public class VectorLayerNode : LayerNode, ITransformableObject, IReadOnlyVectorN
 
     public void Rasterize(DrawingSurface surface, Paint paint)
     {
-        int layer = surface.Canvas.SaveLayer(paint);
+        int layer;
+        // TODO: This can be further optimized by passing opacity, blend mode and filters directly to the rasterization method
+        if (paint.Color.A < 255 || paint.ColorFilter != null || paint.ImageFilter != null || paint.Shader != null ||
+            paint.BlendMode != Drawie.Backend.Core.Surfaces.BlendMode.SrcOver)
+        {
+            layer = surface.Canvas.SaveLayer(paint);
+        }
+        else
+        {
+            layer = surface.Canvas.Save();
+        }
+        
         RenderableShapeData?.RasterizeTransformed(surface.Canvas);
 
         surface.Canvas.RestoreToCount(layer);
