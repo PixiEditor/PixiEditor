@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.IdentityProvider;
 using PixiEditor.IdentityProvider.PixiAuth;
@@ -134,7 +135,8 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
         {
             return;
         }
-
+        
+        
         foreach (ProductData product in products)
         {
             bool isInstalled = IsInstalled(product.Id);
@@ -144,6 +146,16 @@ internal class UserViewModel : SubViewModel<ViewModelMain>
             {
                 installedVersion = Owner.ExtensionsSubViewModel.ExtensionLoader.LoadedExtensions
                     .FirstOrDefault(x => x.Metadata.UniqueName == product.Id)?.Metadata.Version;
+            }
+            else
+            {
+                bool productDownloadedAtLeastOnce = IPreferences.Current.GetPreference<bool>(
+                    $"product_{product.Id}_downloaded_at_least_once", false);
+                if (!productDownloadedAtLeastOnce)
+                {
+                    Dispatcher.UIThread.InvokeAsync(async () => await InstallContent(product.Id));
+                    IPreferences.Current.UpdateLocalPreference($"product_{product.Id}_downloaded_at_least_once", true);
+                }
             }
 
             OwnedProducts.Add(new OwnedProductViewModel(product, isInstalled, installedVersion, InstallContentCommand,
