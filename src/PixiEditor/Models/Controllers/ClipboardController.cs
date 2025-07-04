@@ -147,6 +147,12 @@ internal static class ClipboardController
             copyArea = document.TransformViewModel.Corners.AABBBounds;
         }
 
+        if(copyArea.IsZeroOrNegativeArea || copyArea.HasNaNOrInfinity)
+        {
+            NoticeDialog.Show("SELECTED_AREA_EMPTY", "NOTHING_TO_COPY");
+            return;
+        }
+
         using Surface documentSurface = new Surface(document.SizeBindable);
 
         document.Renderer.RenderDocument(documentSurface.DrawingSurface,
