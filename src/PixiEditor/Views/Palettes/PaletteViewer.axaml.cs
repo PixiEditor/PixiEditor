@@ -18,6 +18,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.ExtensionServices;
 using PixiEditor.Models.IO.PaletteParsers;
+using PixiEditor.Models.Palettes;
 using PixiEditor.Models.Structures;
 using PixiEditor.UI.Common.Localization;
 using PixiEditor.ViewModels;
@@ -67,6 +68,15 @@ internal partial class PaletteViewer : UserControl
             nameof(ReplaceColorsCommand),
             default(ICommand));
 
+    public static readonly StyledProperty<Color> SecondaryColorProperty = AvaloniaProperty.Register<PaletteViewer, Color>(
+        nameof(SecondaryColor));
+
+    public Color SecondaryColor
+    {
+        get => GetValue(SecondaryColorProperty);
+        set => SetValue(SecondaryColorProperty, value);
+    }
+
     public ICommand ReplaceColorsCommand
     {
         get => GetValue(ReplaceColorsCommandProperty);
@@ -115,6 +125,7 @@ internal partial class PaletteViewer : UserControl
     }
     
     public ICommand DropColorCommand { get; set; }
+
 
     public PaletteViewer()
     {
